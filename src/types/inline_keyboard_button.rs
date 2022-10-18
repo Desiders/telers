@@ -25,3 +25,19 @@ pub struct InlineKeyboardButton {
     /// *Optional*. Specify :code:`True`, to send a `Pay button <https://core.telegram.org/bots/api#payments>`_.
     pub pay: Option<bool>,
 }
+
+impl Default for InlineKeyboardButton {
+    fn default() -> Self {
+        Self {
+            text: String::default(),
+            url: None,
+            callback_data: None,
+            web_app: None,
+            login_url: None,
+            switch_inline_query: None,
+            switch_inline_query_current_chat: None,
+            callback_game: None,
+            pay: None,
+        }
+    }
+}

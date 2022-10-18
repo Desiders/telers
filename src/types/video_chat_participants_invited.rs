@@ -9,3 +9,11 @@ pub struct VideoChatParticipantsInvited {
     /// New members that were invited to the video chat
     pub users: Vec<User>,
 }
+
+impl Default for VideoChatParticipantsInvited {
+    fn default() -> Self {
+        Self {
+            users: Vec::default(),
+        }
+    }
+}

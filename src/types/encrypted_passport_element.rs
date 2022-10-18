@@ -28,3 +28,20 @@ pub struct EncryptedPassportElement {
     /// *Optional*. Array of encrypted files with translated versions of documents provided by the user. Available if requested for 'passport', 'driver_license', 'identity_card', 'internal_passport', 'utility_bill', 'bank_statement', 'rental_agreement', 'passport_registration' and 'temporary_registration' types. Files can be decrypted and verified using the accompanying :class:`aiogram_rs.types.encrypted_credentials.EncryptedCredentials`.
     pub translation: Option<Vec<PassportFile>>,
 }
+
+impl Default for EncryptedPassportElement {
+    fn default() -> Self {
+        Self {
+            element_type: String::default(),
+            hash: String::default(),
+            data: None,
+            phone_number: None,
+            email: None,
+            files: None,
+            front_side: None,
+            reverse_side: None,
+            selfie: None,
+            translation: None,
+        }
+    }
+}

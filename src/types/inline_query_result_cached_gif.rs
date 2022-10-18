@@ -27,6 +27,22 @@ pub struct InlineQueryResultCachedGif {
     pub input_message_content: Option<InputMessageContent>,
 }
 
+impl Default for InlineQueryResultCachedGif {
+    fn default() -> Self {
+        Self {
+            result_type: gif(),
+            id: String::default(),
+            gif_file_id: String::default(),
+            title: None,
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            reply_markup: None,
+            input_message_content: None,
+        }
+    }
+}
+
 fn gif() -> String {
     "gif".to_string()
 }

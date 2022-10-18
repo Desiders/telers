@@ -13,3 +13,14 @@ pub struct InputContactMessageContent {
     /// *Optional*. Additional data about the contact in the form of a `vCard <https://en.wikipedia.org/wiki/VCard>`_, 0-2048 bytes
     pub vcard: Option<String>,
 }
+
+impl Default for InputContactMessageContent {
+    fn default() -> Self {
+        Self {
+            phone_number: String::default(),
+            first_name: String::default(),
+            last_name: None,
+            vcard: None,
+        }
+    }
+}

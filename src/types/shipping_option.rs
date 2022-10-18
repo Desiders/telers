@@ -13,3 +13,13 @@ pub struct ShippingOption {
     /// List of price portions
     pub prices: Vec<LabeledPrice>,
 }
+
+impl Default for ShippingOption {
+    fn default() -> Self {
+        Self {
+            id: String::default(),
+            title: String::default(),
+            prices: Vec::default(),
+        }
+    }
+}

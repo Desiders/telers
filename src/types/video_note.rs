@@ -19,3 +19,16 @@ pub struct VideoNote {
     /// *Optional*. File size in bytes
     pub file_size: Option<i64>,
 }
+
+impl Default for VideoNote {
+    fn default() -> Self {
+        Self {
+            file_id: String::default(),
+            file_unique_id: String::default(),
+            length: 0,
+            duration: 0,
+            thumb: None,
+            file_size: None,
+        }
+    }
+}

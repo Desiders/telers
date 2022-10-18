@@ -32,6 +32,24 @@ pub struct InlineQueryResultAudio {
     pub input_message_content: Option<InputMessageContent>,
 }
 
+impl Default for InlineQueryResultAudio {
+    fn default() -> Self {
+        Self {
+            result_type: audio(),
+            id: String::default(),
+            audio_url: String::default(),
+            title: String::default(),
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            performer: None,
+            audio_duration: None,
+            reply_markup: None,
+            input_message_content: None,
+        }
+    }
+}
+
 fn audio() -> String {
     "audio".to_string()
 }

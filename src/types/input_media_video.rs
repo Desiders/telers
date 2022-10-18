@@ -29,6 +29,23 @@ pub struct InputMediaVideo {
     pub supports_streaming: Option<bool>,
 }
 
+impl Default for InputMediaVideo {
+    fn default() -> Self {
+        Self {
+            media_type: video(),
+            media: InputMediaKind::FileIdOrUrl(String::default()),
+            thumb: None,
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            width: None,
+            height: None,
+            duration: None,
+            supports_streaming: None,
+        }
+    }
+}
+
 fn video() -> String {
     "video".to_string()
 }

@@ -14,3 +14,14 @@ pub struct File {
     /// *Optional*. File path. Use :code:`https://api.telegram.org/file/bot<token>/<file_path>` to get the file.
     pub file_path: Option<String>,
 }
+
+impl Default for File {
+    fn default() -> Self {
+        Self {
+            file_id: String::default(),
+            file_unique_id: String::default(),
+            file_size: None,
+            file_path: None,
+        }
+    }
+}

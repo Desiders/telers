@@ -15,3 +15,15 @@ pub struct Invoice {
     /// Total price in the *smallest units* of the currency (integer, **not** float/double). For example, for a price of :code:`US$ 1.45` pass :code:`amount = 145`. See the *exp* parameter in `currencies.json <https://core.telegram.org/bots/payments/currencies.json>`_, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
     pub total_amount: i64,
 }
+
+impl Default for Invoice {
+    fn default() -> Self {
+        Self {
+            title: String::default(),
+            description: String::default(),
+            start_parameter: String::default(),
+            currency: String::default(),
+            total_amount: 0,
+        }
+    }
+}

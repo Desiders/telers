@@ -35,6 +35,26 @@ pub struct InlineQueryResultPhoto {
     pub input_message_content: Option<InputMessageContent>,
 }
 
+impl Default for InlineQueryResultPhoto {
+    fn default() -> Self {
+        Self {
+            result_type: photo(),
+            id: String::default(),
+            photo_url: String::default(),
+            thumb_url: String::default(),
+            photo_width: None,
+            photo_height: None,
+            title: None,
+            description: None,
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            reply_markup: None,
+            input_message_content: None,
+        }
+    }
+}
+
 fn photo() -> String {
     "photo".to_string()
 }

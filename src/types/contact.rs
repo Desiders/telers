@@ -15,3 +15,15 @@ pub struct Contact {
     /// *Optional*. Additional data about the contact in the form of a `vCard <https://en.wikipedia.org/wiki/VCard>`_
     pub vcard: Option<String>,
 }
+
+impl Default for Contact {
+    fn default() -> Self {
+        Self {
+            phone_number: String::default(),
+            first_name: String::default(),
+            last_name: None,
+            user_id: None,
+            vcard: None,
+        }
+    }
+}

@@ -13,6 +13,15 @@ pub struct ChatMemberLeft {
     pub user: User,
 }
 
+impl Default for ChatMemberLeft {
+    fn default() -> Self {
+        Self {
+            status: left(),
+            user: User::default(),
+        }
+    }
+}
+
 fn left() -> String {
     "left".to_string()
 }

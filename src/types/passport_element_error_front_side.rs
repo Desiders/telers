@@ -16,6 +16,17 @@ pub struct PassportElementErrorFrontSide {
     pub message: String,
 }
 
+impl Default for PassportElementErrorFrontSide {
+    fn default() -> Self {
+        Self {
+            source: front_side(),
+            element_type: String::default(),
+            file_hash: String::default(),
+            message: String::default(),
+        }
+    }
+}
+
 fn front_side() -> String {
     "front_side".to_string()
 }

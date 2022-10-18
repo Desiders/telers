@@ -27,6 +27,22 @@ pub struct InputMediaAudio {
     pub title: Option<String>,
 }
 
+impl Default for InputMediaAudio {
+    fn default() -> Self {
+        Self {
+            media_type: audio(),
+            media: InputMediaKind::FileIdOrUrl(String::default()),
+            thumb: None,
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            duration: None,
+            performer: None,
+            title: None,
+        }
+    }
+}
+
 fn audio() -> String {
     "audio".to_string()
 }

@@ -9,3 +9,12 @@ pub struct ReplyKeyboardRemove {
     /// *Optional*. Use this parameter if you want to remove the keyboard for specific users only. Targets: 1) users that are @mentioned in the *text* of the :class:`aiogram_rs.types.message.Message` object; 2) if the bot's message is a reply (has *reply_to_message_id*), sender of the original message.
     pub selective: Option<bool>,
 }
+
+impl Default for ReplyKeyboardRemove {
+    fn default() -> Self {
+        Self {
+            remove_keyboard: false,
+            selective: None,
+        }
+    }
+}

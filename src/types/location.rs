@@ -17,3 +17,16 @@ pub struct Location {
     /// *Optional*. The maximum distance for proximity alerts about approaching another chat member, in meters. For sent live locations only."""
     pub proximity_alert_radius: Option<i64>,
 }
+
+impl Default for Location {
+    fn default() -> Self {
+        Self {
+            longitude: 0.0,
+            latitude: 0.0,
+            horizontal_accuracy: None,
+            live_period: None,
+            heading: None,
+            proximity_alert_radius: None,
+        }
+    }
+}

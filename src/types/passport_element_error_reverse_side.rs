@@ -16,6 +16,17 @@ pub struct PassportElementErrorReverseSide {
     pub message: String,
 }
 
+impl Default for PassportElementErrorReverseSide {
+    fn default() -> Self {
+        Self {
+            source: reverse_side(),
+            element_type: String::default(),
+            file_hash: String::default(),
+            message: String::default(),
+        }
+    }
+}
+
 fn reverse_side() -> String {
     "reverse_side".to_string()
 }

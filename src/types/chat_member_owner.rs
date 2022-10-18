@@ -17,6 +17,17 @@ pub struct ChatMemberOwner {
     pub custom_title: Option<String>,
 }
 
+impl Default for ChatMemberOwner {
+    fn default() -> Self {
+        Self {
+            status: creator(),
+            user: User::default(),
+            is_anonymous: false,
+            custom_title: None,
+        }
+    }
+}
+
 fn creator() -> String {
     "creator".to_string()
 }

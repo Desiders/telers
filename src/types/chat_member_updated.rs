@@ -19,3 +19,16 @@ pub struct ChatMemberUpdated {
     /// *Optional*. Chat invite link, which was used by the user to join the chat; for joining by invite link events only.
     pub invite_link: Option<ChatInviteLink>,
 }
+
+impl Default for ChatMemberUpdated {
+    fn default() -> Self {
+        Self {
+            chat: Chat::default(),
+            from: User::default(),
+            date: 0,
+            old_chat_member: ChatMember::Member(Default::default()),
+            new_chat_member: ChatMember::Member(Default::default()),
+            invite_link: None,
+        }
+    }
+}

@@ -7,3 +7,11 @@ pub struct VideoChatEnded {
     /// Video chat duration in seconds
     pub duration: i64,
 }
+
+impl Default for VideoChatEnded {
+    fn default() -> Self {
+        Self {
+            duration: 0,
+        }
+    }
+}

@@ -9,3 +9,12 @@ pub struct BotCommand {
     /// Description of the command, 3-256 characters.
     pub description: String,
 }
+
+impl Default for BotCommand {
+    fn default() -> Self {
+        Self {
+            command: String::default(),
+            description: String::default(),
+        }
+    }
+}

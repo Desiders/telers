@@ -9,6 +9,14 @@ pub struct BotCommandScopeAllPrivateChats {
     scope_type: String,
 }
 
+impl Default for BotCommandScopeAllPrivateChats {
+    fn default() -> Self {
+        Self {
+            scope_type: all_private_chats(),
+        }
+    }
+}
+
 fn all_private_chats() -> String {
     "all_private_chats".to_string()
 }

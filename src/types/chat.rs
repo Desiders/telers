@@ -9,6 +9,7 @@ pub struct Chat {
     /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in i64erpreting it. But it has at most 52 significant bits, so a signed 64-bit i64eger or double-precision float type are safe for storing this identifier.
     pub id: i64,
     /// Type of chat, can be either 'private', 'group', 'supergroup' or 'channel'
+    #[serde(rename = "type")]
     pub chat_type: String,
     /// *Optional*. Title, for supergroups, channels and group chats
     pub title: Option<String>,
@@ -52,4 +53,34 @@ pub struct Chat {
     pub linked_chat_id: Option<i64>,
     /// *Optional*. For supergroups, the location to which the supergroup is connected. Returned only in :class:`aiogram_rs.methods.get_chat.GetChat`.
     pub location: Option<ChatLocation>,
+}
+
+impl Default for Chat {
+    fn default() -> Self {
+        Self {
+            id: 0,
+            chat_type: String::default(),
+            title: None,
+            username: None,
+            first_name: None,
+            last_name: None,
+            photo: None,
+            bio: None,
+            has_private_forwards: None,
+            has_restricted_voice_and_video_messages: None,
+            join_to_send_messages: None,
+            join_by_request: None,
+            description: None,
+            invite_link: None,
+            pinned_message: None,
+            permissions: None,
+            slow_mode_delay: None,
+            message_auto_delete_time: None,
+            has_protected_content: None,
+            sticker_set_name: None,
+            can_set_sticker_set: None,
+            linked_chat_id: None,
+            location: None,
+        }
+    }
 }

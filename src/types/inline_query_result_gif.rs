@@ -37,6 +37,27 @@ pub struct InlineQueryResultGif {
     pub input_message_content: Option<InputMessageContent>,
 }
 
+impl Default for InlineQueryResultGif {
+    fn default() -> Self {
+        Self {
+            result_type: gif(),
+            id: String::default(),
+            gif_url: String::default(),
+            thumb_url: String::default(),
+            gif_width: None,
+            gif_height: None,
+            gif_duration: None,
+            thumb_mime_type: None,
+            title: None,
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            reply_markup: None,
+            input_message_content: None,
+        }
+    }
+}
+
 fn gif() -> String {
     "gif".to_string()
 }

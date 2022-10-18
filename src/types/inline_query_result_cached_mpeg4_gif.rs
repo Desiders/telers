@@ -27,6 +27,22 @@ pub struct InlineQueryResultCachedMpeg4Gif {
     pub input_message_content: Option<InputMessageContent>,
 }
 
+impl Default for InlineQueryResultCachedMpeg4Gif {
+    fn default() -> Self {
+        Self {
+            result_type: mpeg4_gif(),
+            id: String::default(),
+            mpeg4_file_id: String::default(),
+            title: None,
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            reply_markup: None,
+            input_message_content: None,
+        }
+    }
+}
+
 fn mpeg4_gif() -> String {
     "mpeg4_gif".to_string()
 }

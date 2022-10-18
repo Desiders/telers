@@ -15,3 +15,14 @@ pub struct LoginUrl {
     /// *Optional*. Pass :code:`True` to request the permission for your bot to send messages to the user.
     pub request_write_access: Option<bool>,
 }
+
+impl Default for LoginUrl {
+    fn default() -> Self {
+        Self {
+            url: String::default(),
+            forward_text: None,
+            bot_username: None,
+            request_write_access: None,
+        }
+    }
+}

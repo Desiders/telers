@@ -15,3 +15,15 @@ pub struct PhotoSize {
     /// *Optional*. File size in bytes
     pub file_size: Option<i64>,
 }
+
+impl Default for PhotoSize {
+    fn default() -> Self {
+        Self {
+            file_id: String::default(),
+            file_unique_id: String::default(),
+            width: 0,
+            height: 0,
+            file_size: None,
+        }
+    }
+}

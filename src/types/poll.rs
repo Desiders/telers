@@ -34,3 +34,23 @@ pub struct Poll {
     /// *Optional*. Point in time (Unix timestamp) when the poll will be automatically closed
     pub close_date: Option<i64>,
 }
+
+impl Default for Poll {
+    fn default() -> Self {
+        Self {
+            id: String::default(),
+            question: String::default(),
+            options: Vec::default(),
+            total_voter_count: 0,
+            is_closed: false,
+            is_anonymous: false,
+            poll_type: String::default(),
+            allows_multiple_answers: false,
+            correct_option_id: None,
+            explanation: None,
+            explanation_entities: None,
+            open_period: None,
+            close_date: None,
+        }
+    }
+}

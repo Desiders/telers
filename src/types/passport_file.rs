@@ -13,3 +13,14 @@ pub struct PassportFile {
     /// Unix time when the file was uploaded
     pub file_date: i64,
 }
+
+impl Default for PassportFile {
+    fn default() -> Self {
+        Self {
+            file_id: String::default(),
+            file_unique_id: String::default(),
+            file_size: 0,
+            file_date: 0,
+        }
+    }
+}

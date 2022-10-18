@@ -59,3 +59,40 @@ impl Update {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::types::{Update, UpdateKind};
+
+    #[test]
+    fn test_deserialize() {
+        let json = r#"{
+            "update_id": 123456789,
+            "message": {
+                "message_id": 1,
+                "from": {
+                    "id": 123456789,
+                    "is_bot": false,
+                    "first_name": "John",
+                    "last_name": "Doe",
+                    "username": "johndoe",
+                    "language_code": "en"
+                },
+                "chat": {
+                    "id": 123456789,
+                    "first_name": "John",
+                    "last_name": "Doe",
+                    "username": "johndoe",
+                    "type": "private"
+                },
+                "date": 1600000000,
+                "text": "Hello, world!"
+            }
+        }"#;
+
+        let update: Update = serde_json::from_str(json).unwrap();
+
+        assert_eq!(update.update_id, 123456789);
+        assert!(matches!(update.kind, UpdateKind::Message(_)));
+    }
+}

@@ -27,6 +27,22 @@ pub struct InputMediaAnimation {
     pub duration: Option<i64>,
 }
 
+impl Default for InputMediaAnimation {
+    fn default() -> Self {
+        Self {
+            media_type: animation(),
+            media: InputMediaKind::FileIdOrUrl(String::default()),
+            thumb: None,
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            width: None,
+            height: None,
+            duration: None,
+        }
+    }
+}
+
 fn animation() -> String {
     "animation".to_string()
 }

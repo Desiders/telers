@@ -13,6 +13,15 @@ pub struct ChatMemberMember {
     pub user: User,
 }
 
+impl Default for ChatMemberMember {
+    fn default() -> Self {
+        Self {
+            status: member(),
+            user: User::default(),
+        }
+    }
+}
+
 fn member() -> String {
     "member".to_string()
 }

@@ -15,6 +15,16 @@ pub struct BotCommandScopeChatMember {
     pub user_id: i64,
 }
 
+impl Default for BotCommandScopeChatMember {
+    fn default() -> Self {
+        Self {
+            scope_type: chat_member(),
+            chat_id: ChatIdKind::Id(0),
+            user_id: 0,
+        }
+    }
+}
+
 fn chat_member() -> String {
     "chat_member".to_string()
 }

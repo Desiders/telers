@@ -7,7 +7,16 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct UserProfilePhotos {
     /// Total number of profile pictures the target user has
-    total_count: i64,
+    pub total_count: i64,
     /// Requested profile pictures (in up to 4 sizes each)
-    photos: Vec<Vec<PhotoSize>>,
+    pub photos: Vec<Vec<PhotoSize>>,
+}
+
+impl Default for UserProfilePhotos {
+    fn default() -> Self {
+        Self {
+            total_count: 0,
+            photos: Vec::default(),
+        }
+    }
 }

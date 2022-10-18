@@ -19,3 +19,16 @@ pub struct Game {
     /// *Optional*. Animation that will be displayed in the game message in chats. Upload via `BotFather <https://t.me/botfather>`_
     pub animation: Option<Animation>,
 }
+
+impl Default for Game {
+    fn default() -> Self {
+        Self {
+            title: String::default(),
+            description: String::default(),
+            photo: Vec::default(),
+            text: None,
+            text_entities: None,
+            animation: None,
+        }
+    }
+}

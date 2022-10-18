@@ -18,6 +18,17 @@ pub struct InlineQueryResultGame {
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
+impl Default for InlineQueryResultGame {
+    fn default() -> Self {
+        Self {
+            result_type: game(),
+            id: String::default(),
+            game_short_name: String::default(),
+            reply_markup: None,
+        }
+    }
+}
+
 fn game() -> String {
     "game".to_string()
 }

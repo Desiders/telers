@@ -11,3 +11,12 @@ pub struct ChatLocation {
     /// Location address; 1-64 characters, as defined by the chat owner
     pub address: String,
 }
+
+impl Default for ChatLocation {
+    fn default() -> Self {
+        Self {
+            location: Location::default(),
+            address: String::default(),
+        }
+    }
+}

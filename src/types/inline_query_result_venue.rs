@@ -40,6 +40,28 @@ pub struct InlineQueryResultVenue {
     pub thumb_height: Option<i64>,
 }
 
+impl Default for InlineQueryResultVenue {
+    fn default() -> Self {
+        Self {
+            result_type: venue(),
+            id: String::default(),
+            latitude: 0.0,
+            longitude: 0.0,
+            title: String::default(),
+            address: String::default(),
+            foursquare_id: None,
+            foursquare_type: None,
+            google_place_id: None,
+            google_place_type: None,
+            reply_markup: None,
+            input_message_content: None,
+            thumb_url: None,
+            thumb_width: None,
+            thumb_height: None,
+        }
+    }
+}
+
 fn venue() -> String {
     "venue".to_string()
 }

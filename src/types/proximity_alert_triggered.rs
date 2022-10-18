@@ -13,3 +13,13 @@ pub struct ProximityAlertTriggered {
     /// The distance between the users
     pub distance: i64,
 }
+
+impl Default for ProximityAlertTriggered {
+    fn default() -> Self {
+        Self {
+            traveler: User::default(),
+            watcher: User::default(),
+            distance: 0,
+        }
+    }
+}

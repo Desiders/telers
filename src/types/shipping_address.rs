@@ -17,3 +17,16 @@ pub struct ShippingAddress {
     /// Address post code
     pub post_code: String,
 }
+
+impl Default for ShippingAddress {
+    fn default() -> Self {
+        Self {
+            country_code: String::default(),
+            state: String::default(),
+            city: String::default(),
+            street_line1: String::default(),
+            street_line2: String::default(),
+            post_code: String::default(),
+        }
+    }
+}

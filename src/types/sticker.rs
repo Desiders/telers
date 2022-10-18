@@ -10,8 +10,8 @@ pub struct Sticker {
     pub file_id: String,
     /// Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
     pub file_unique_id: String,
-    #[serde(rename = "type")]
     /// Type of the sticker, currently one of 'regular', 'mask', 'custom_emoji'. The type of the sticker is independent from its format, which is determined by the fields *is_animated* and *is_video*.
+    #[serde(rename = "type")]
     pub sticker_type: String,
     /// Sticker width
     pub width: i64,
@@ -35,4 +35,25 @@ pub struct Sticker {
     pub custom_emoji_id: Option<String>,
     /// *Optional*. File size in bytes
     pub file_size: Option<i64>,
+}
+
+impl Default for Sticker {
+    fn default() -> Self {
+        Self {
+            file_id: String::default(),
+            file_unique_id: String::default(),
+            sticker_type: String::default(),
+            width: 0,
+            height: 0,
+            is_animated: false,
+            is_video: false,
+            thumb: None,
+            emoji: None,
+            set_name: None,
+            premium_animation: None,
+            mask_position: None,
+            custom_emoji_id: None,
+            file_size: None,
+        }
+    }
 }

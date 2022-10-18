@@ -16,6 +16,17 @@ pub struct PassportElementErrorFile {
     pub message: String,
 }
 
+impl Default for PassportElementErrorFile {
+    fn default() -> Self {
+        Self {
+            source: file(),
+            element_type: String::default(),
+            file_hash: String::default(),
+            message: String::default(),
+        }
+    }
+}
+
 fn file() -> String {
     "file".to_string()
 }

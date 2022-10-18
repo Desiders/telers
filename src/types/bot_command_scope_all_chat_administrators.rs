@@ -9,6 +9,14 @@ pub struct BotCommandScopeAllChatAdministrators {
     scope_type: String,
 }
 
+impl Default for BotCommandScopeAllChatAdministrators {
+    fn default() -> Self {
+        Self {
+            scope_type: all_chat_administrators(),
+        }
+    }
+}
+
 fn all_chat_administrators() -> String {
     "all_chat_administrators".to_string()
 }

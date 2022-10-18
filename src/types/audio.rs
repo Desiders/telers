@@ -25,3 +25,19 @@ pub struct Audio {
     /// *Optional*. Thumbnail of the album cover to which the music file belongs
     pub thumb: Option<PhotoSize>,
 }
+
+impl Default for Audio {
+    fn default() -> Self {
+        Self {
+            file_id: String::default(),
+            file_unique_id: String::default(),
+            duration: 0,
+            performer: None,
+            title: None,
+            file_name: None,
+            mime_type: None,
+            file_size: None,
+            thumb: None,
+        }
+    }
+}

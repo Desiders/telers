@@ -25,3 +25,19 @@ pub struct Animation {
     /// *Optional*. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
     pub file_size: Option<i64>,
 }
+
+impl Default for Animation {
+    fn default() -> Self {
+        Self {
+            file_id: String::default(),
+            file_unique_id: String::default(),
+            width: 0,
+            height: 0,
+            duration: 0,
+            thumb: None,
+            file_name: None,
+            mime_type: None,
+            file_size: None,
+        }
+    }
+}

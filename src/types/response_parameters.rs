@@ -9,3 +9,12 @@ pub struct ResponseParameters {
     /// *Optional*. In case of exceeding flood control, the number of seconds left to wait before the request can be repeated
     pub retry_after: Option<i64>,
 }
+
+impl Default for ResponseParameters {
+    fn default() -> Self {
+        Self {
+            migrate_to_chat_id: None,
+            retry_after: None,
+        }
+    }
+}

@@ -16,6 +16,17 @@ pub struct PassportElementErrorUnspecified {
     pub message: String,
 }
 
+impl Default for PassportElementErrorUnspecified {
+    fn default() -> Self {
+        Self {
+            source: unspecified(),
+            element_type: String::default(),
+            element_hash: String::default(),
+            message: String::default(),
+        }
+    }
+}
+
 fn unspecified() -> String {
     "unspecified".to_string()
 }

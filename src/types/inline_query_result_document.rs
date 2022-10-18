@@ -38,6 +38,27 @@ pub struct InlineQueryResultDocument {
     pub thumb_height: Option<i64>,
 }
 
+impl Default for InlineQueryResultDocument {
+    fn default() -> Self {
+        Self {
+            result_type: document(),
+            id: String::default(),
+            title: String::default(),
+            document_url: String::default(),
+            mime_type: String::default(),
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            description: None,
+            reply_markup: None,
+            input_message_content: None,
+            thumb_url: None,
+            thumb_width: None,
+            thumb_height: None,
+        }
+    }
+}
+
 fn document() -> String {
     "document".to_string()
 }

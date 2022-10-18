@@ -30,6 +30,23 @@ pub struct InlineQueryResultCachedDocument {
     pub input_message_content: Option<InputMessageContent>,
 }
 
+impl Default for InlineQueryResultCachedDocument {
+    fn default() -> Self {
+        Self {
+            result_type: document(),
+            id: String::default(),
+            title: String::default(),
+            document_file_id: String::default(),
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            description: None,
+            reply_markup: None,
+            input_message_content: None,
+        }
+    }
+}
+
 fn document() -> String {
     "document".to_string()
 }

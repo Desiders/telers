@@ -16,6 +16,17 @@ pub struct PassportElementErrorDataField {
     pub message: String,
 }
 
+impl Default for PassportElementErrorDataField {
+    fn default() -> Self {
+        Self {
+            source: data(),
+            element_type: String::default(),
+            data_hash: String::default(),
+            message: String::default(),
+        }
+    }
+}
+
 fn data() -> String {
     "data".to_string()
 }

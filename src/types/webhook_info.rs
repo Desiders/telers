@@ -23,3 +23,19 @@ pub struct WebhookInfo {
     /// *Optional*. A list of update types the bot is subscribed to. Defaults to all update types except `chat_member`
     pub allowed_updates: Option<Vec<String>>,
 }
+
+impl Default for WebhookInfo {
+    fn default() -> Self {
+        Self {
+            url: String::default(),
+            has_custom_certificate: false,
+            pending_update_count: 0,
+            ip_address: None,
+            last_error_date: None,
+            last_error_message: None,
+            last_synchronization_error_date: None,
+            max_connections: None,
+            allowed_updates: None,
+        }
+    }
+}

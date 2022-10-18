@@ -15,6 +15,16 @@ pub struct MenuButtonWebApp {
     pub web_app: WebAppInfo,
 }
 
+impl Default for MenuButtonWebApp {
+    fn default() -> Self {
+        Self {
+            button_type: web_app(),
+            text: String::default(),
+            web_app: WebAppInfo::default(),
+        }
+    }
+}
+
 fn web_app() -> String {
     "web_app".to_string()
 }

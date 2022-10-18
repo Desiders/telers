@@ -25,3 +25,19 @@ pub struct ChatInviteLink {
     /// *Optional*. Number of pending join requests created using this link
     pub pending_join_request_count: Option<i64>,
 }
+
+impl Default for ChatInviteLink {
+    fn default() -> Self {
+        Self {
+            invite_link: String::default(),
+            creator: User::default(),
+            creates_join_request: false,
+            is_primary: false,
+            is_revoked: false,
+            name: None,
+            expire_date: None,
+            member_limit: None,
+            pending_join_request_count: None,
+        }
+    }
+}

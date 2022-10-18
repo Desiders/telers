@@ -40,6 +40,28 @@ pub struct InlineQueryResultVideo {
     pub input_message_content: Option<InputMessageContent>,
 }
 
+impl Default for InlineQueryResultVideo {
+    fn default() -> Self {
+        Self {
+            result_type: video(),
+            id: String::default(),
+            video_url: String::default(),
+            mime_type: String::default(),
+            thumb_url: String::default(),
+            title: String::default(),
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            video_width: None,
+            video_height: None,
+            video_duration: None,
+            description: None,
+            reply_markup: None,
+            input_message_content: None,
+        }
+    }
+}
+
 fn video() -> String {
     "video".to_string()
 }

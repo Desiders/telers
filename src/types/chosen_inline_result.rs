@@ -18,3 +18,15 @@ pub struct ChosenInlineResult {
     /// The query that was used to obtain the result
     pub query: String,
 }
+
+impl Default for ChosenInlineResult {
+    fn default() -> Self {
+        Self {
+            result_id: String::default(),
+            from: User::default(),
+            location: None,
+            inline_message_id: None,
+            query: String::default(),
+        }
+    }
+}

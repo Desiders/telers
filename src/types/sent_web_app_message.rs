@@ -7,3 +7,11 @@ pub struct SentWebAppMessage {
     /// *Optional*. Identifier of the sent inline message. Available only if there is an `inline keyboard <https://core.telegram.org/bots/api#inlinekeyboardmarkup>`_ attached to the message.
     pub inline_message_id: Option<String>,
 }
+
+impl Default for SentWebAppMessage {
+    fn default() -> Self {
+        Self {
+            inline_message_id: None,
+        }
+    }
+}

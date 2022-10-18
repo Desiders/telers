@@ -21,3 +21,17 @@ pub struct StickerSet {
     /// *Optional*. Sticker set thumbnail in the .WEBP, .TGS, or .WEBM format
     pub thumb: Option<PhotoSize>,
 }
+
+impl Default for StickerSet {
+    fn default() -> Self {
+        Self {
+            name: String::default(),
+            title: String::default(),
+            sticker_type: String::default(),
+            is_animated: false,
+            is_video: false,
+            stickers: Vec::default(),
+            thumb: None,
+        }
+    }
+}

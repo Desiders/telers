@@ -29,6 +29,23 @@ pub struct InlineQueryResultCachedVideo {
     pub input_message_content: Option<InputMessageContent>,
 }
 
+impl Default for InlineQueryResultCachedVideo {
+    fn default() -> Self {
+        Self {
+            result_type: video(),
+            id: String::default(),
+            title: String::default(),
+            video_file_id: String::default(),
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            description: None,
+            reply_markup: None,
+            input_message_content: None,
+        }
+    }
+}
+
 fn video() -> String {
     "video".to_string()
 }

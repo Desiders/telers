@@ -21,3 +21,17 @@ pub struct Venue {
     /// *Optional*. Google Places type of the venue. (See `supported types <https://developers.google.com/places/web-service/supported_types>`_.)
     pub google_place_type: Option<String>,
 }
+
+impl Default for Venue {
+    fn default() -> Self {
+        Self {
+            location: Location::default(),
+            title: String::default(),
+            address: String::default(),
+            foursquare_id: None,
+            foursquare_type: None,
+            google_place_id: None,
+            google_place_type: None,
+        }
+    }
+}

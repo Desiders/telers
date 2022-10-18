@@ -4,3 +4,9 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#videochatstarted>_
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct VideoChatStarted {}
+
+impl Default for VideoChatStarted {
+    fn default() -> Self {
+        Self {}
+    }
+}

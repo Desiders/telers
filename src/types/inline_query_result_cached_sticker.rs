@@ -20,6 +20,18 @@ pub struct InlineQueryResultCachedSticker {
     pub input_message_content: Option<InputMessageContent>,
 }
 
+impl Default for InlineQueryResultCachedSticker {
+    fn default() -> Self {
+        Self {
+            result_type: sticker(),
+            id: String::default(),
+            sticker_file_id: String::default(),
+            reply_markup: None,
+            input_message_content: None,
+        }
+    }
+}
+
 fn sticker() -> String {
     "sticker".to_string()
 }

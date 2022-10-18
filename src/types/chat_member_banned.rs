@@ -15,6 +15,16 @@ pub struct ChatMemberBanned {
     pub until_date: i64,
 }
 
+impl Default for ChatMemberBanned {
+    fn default() -> Self {
+        Self {
+            status: kicked(),
+            user: User::default(),
+            until_date: 0,
+        }
+    }
+}
+
 fn kicked() -> String {
     "kicked".to_string()
 }

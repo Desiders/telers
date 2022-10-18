@@ -37,6 +37,27 @@ pub struct InlineQueryResultMpeg4Gif {
     pub input_message_content: Option<InputMessageContent>,
 }
 
+impl Default for InlineQueryResultMpeg4Gif {
+    fn default() -> Self {
+        Self {
+            result_type: mpeg4_gif(),
+            id: String::default(),
+            mpeg4_url: String::default(),
+            thumb_url: String::default(),
+            mpeg4_width: None,
+            mpeg4_height: None,
+            mpeg4_duration: None,
+            thumb_mime_type: None,
+            title: None,
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            reply_markup: None,
+            input_message_content: None,
+        }
+    }
+}
+
 fn mpeg4_gif() -> String {
     "mpeg4_gif".to_string()
 }

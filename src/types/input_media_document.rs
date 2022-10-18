@@ -23,6 +23,20 @@ pub struct InputMediaDocument {
     pub disable_content_type_detection: Option<bool>,
 }
 
+impl Default for InputMediaDocument {
+    fn default() -> Self {
+        Self {
+            media_type: document(),
+            media: InputMediaKind::FileIdOrUrl(String::default()),
+            thumb: None,
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            disable_content_type_detection: None,
+        }
+    }
+}
+
 fn document() -> String {
     "document".to_string()
 }

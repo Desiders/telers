@@ -15,3 +15,14 @@ pub struct OrderInfo {
     /// *Optional*. User shipping address
     pub shipping_address: Option<ShippingAddress>,
 }
+
+impl Default for OrderInfo {
+    fn default() -> Self {
+        Self {
+            name: None,
+            phone_number: None,
+            email: None,
+            shipping_address: None,
+        }
+    }
+}

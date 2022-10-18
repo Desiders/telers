@@ -22,3 +22,17 @@ pub struct CallbackQuery {
     /// *Optional*. Short name of a `Game <https://core.telegram.org/bots/api#games>`_ to be returned, serves as the unique identifier for the game
     pub game_short_name: Option<String>,
 }
+
+impl Default for CallbackQuery {
+    fn default() -> Self {
+        Self {
+            id: String::default(),
+            from: User::default(),
+            chat_instance: String::default(),
+            message: None,
+            inline_message_id: None,
+            data: None,
+            game_short_name: None,
+        }
+    }
+}

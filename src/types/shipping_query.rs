@@ -15,3 +15,14 @@ pub struct ShippingQuery {
     /// User specified shipping address
     pub shipping_address: ShippingAddress,
 }
+
+impl Default for ShippingQuery {
+    fn default() -> Self {
+        Self {
+            id: String::default(),
+            from: User::default(),
+            invoice_payload: String::default(),
+            shipping_address: ShippingAddress::default(),
+        }
+    }
+}

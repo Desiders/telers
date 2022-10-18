@@ -11,3 +11,12 @@ pub struct PassportData {
     /// Encrypted credentials required to decrypt the data
     pub credentials: EncryptedCredentials,
 }
+
+impl Default for PassportData {
+    fn default() -> Self {
+        Self {
+            data: Vec::default(),
+            credentials: EncryptedCredentials::default(),
+        }
+    }
+}

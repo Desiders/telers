@@ -21,3 +21,17 @@ pub struct PreCheckoutQuery {
     /// *Optional*. Order info provided by the user
     pub order_info: Option<OrderInfo>,
 }
+
+impl Default for PreCheckoutQuery {
+    fn default() -> Self {
+        Self {
+            id: String::default(),
+            from: User::default(),
+            currency: String::default(),
+            total_amount: 0,
+            invoice_payload: String::default(),
+            shipping_option_id: None,
+            order_info: None,
+        }
+    }
+}

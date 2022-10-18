@@ -19,3 +19,16 @@ pub struct InlineQuery {
     /// *Optional*. Sender location, only for bots that request user location
     pub location: Option<Location>,
 }
+
+impl Default for InlineQuery {
+    fn default() -> Self {
+        Self {
+            id: String::default(),
+            from: User::default(),
+            query: String::default(),
+            offset: String::default(),
+            chat_type: None,
+            location: None,
+        }
+    }
+}

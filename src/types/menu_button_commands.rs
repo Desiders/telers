@@ -9,6 +9,14 @@ pub struct MenuButtonCommands {
     pub button_type: String,
 }
 
+impl Default for MenuButtonCommands {
+    fn default() -> Self {
+        Self {
+            button_type: commands(),
+        }
+    }
+}
+
 fn commands() -> String {
     "commands".to_string()
 }

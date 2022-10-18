@@ -16,6 +16,17 @@ pub struct PassportElementErrorSelfie {
     pub message: String,
 }
 
+impl Default for PassportElementErrorSelfie {
+    fn default() -> Self {
+        Self {
+            source: selfie(),
+            element_type: String::default(),
+            file_hash: String::default(),
+            message: String::default(),
+        }
+    }
+}
+
 fn selfie() -> String {
     "selfie".to_string()
 }

@@ -28,3 +28,21 @@ pub struct ChatAdministratorRights {
     /// *Optional*. :code:`True`, if the user is allowed to pin messages; groups and supergroups only
     pub can_pin_messages: Option<bool>,
 }
+
+impl Default for ChatAdministratorRights {
+    fn default() -> Self {
+        Self {
+            is_anonymous: false,
+            can_manage_chat: false,
+            can_delete_messages: false,
+            can_manage_video_chats: false,
+            can_restrict_members: false,
+            can_promote_members: false,
+            can_change_info: false,
+            can_invite_users: false,
+            can_post_messages: None,
+            can_edit_messages: None,
+            can_pin_messages: None,
+        }
+    }
+}

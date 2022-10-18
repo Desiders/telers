@@ -13,6 +13,15 @@ pub struct BotCommandScopeChatAdministrators {
     pub chat_id: ChatIdKind,
 }
 
+impl Default for BotCommandScopeChatAdministrators {
+    fn default() -> Self {
+        Self {
+            scope_type: chat_administrators(),
+            chat_id: ChatIdKind::Id(0),
+        }
+    }
+}
+
 fn chat_administrators() -> String {
     "chat_administrators".to_string()
 }

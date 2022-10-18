@@ -9,3 +9,12 @@ pub struct PollOption {
     /// Number of users that voted for this option
     pub voter_count: i64,
 }
+
+impl Default for PollOption {
+    fn default() -> Self {
+        Self {
+            text: String::default(),
+            voter_count: 0,
+        }
+    }
+}

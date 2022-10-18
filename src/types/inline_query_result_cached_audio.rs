@@ -26,6 +26,21 @@ pub struct InlineQueryResultCachedAudio {
     pub input_message_content: Option<InputMessageContent>,
 }
 
+impl Default for InlineQueryResultCachedAudio {
+    fn default() -> Self {
+        Self {
+            result_type: audio(),
+            id: String::default(),
+            audio_file_id: String::default(),
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            reply_markup: None,
+            input_message_content: None,
+        }
+    }
+}
+
 fn audio() -> String {
     "audio".to_string()
 }

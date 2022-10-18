@@ -31,6 +31,24 @@ pub struct InlineQueryResultArticle {
     pub thumb_height: Option<i64>,
 }
 
+impl Default for InlineQueryResultArticle {
+    fn default() -> Self {
+        Self {
+            result_type: article(),
+            id: String::default(),
+            title: String::default(),
+            input_message_content: InputMessageContent::Text(Default::default()),
+            reply_markup: None,
+            url: None,
+            hide_url: None,
+            description: None,
+            thumb_url: None,
+            thumb_width: None,
+            thumb_height: None,
+        }
+    }
+}
+
 fn article() -> String {
     "article".to_string()
 }

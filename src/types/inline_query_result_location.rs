@@ -38,6 +38,27 @@ pub struct InlineQueryResultLocation {
     pub thumb_height: Option<i64>,
 }
 
+impl Default for InlineQueryResultLocation {
+    fn default() -> Self {
+        Self {
+            result_type: location(),
+            id: String::default(),
+            latitude: 0.0,
+            longitude: 0.0,
+            title: String::default(),
+            horizontal_accuracy: None,
+            live_period: None,
+            heading: None,
+            proximity_alert_radius: None,
+            reply_markup: None,
+            input_message_content: None,
+            thumb_url: None,
+            thumb_width: None,
+            thumb_height: None,
+        }
+    }
+}
+
 fn location() -> String {
     "location".to_string()
 }

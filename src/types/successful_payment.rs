@@ -21,3 +21,17 @@ pub struct SuccessfulPayment {
     /// Provider payment identifier
     pub provider_payment_charge_id: String,
 }
+
+impl Default for SuccessfulPayment {
+    fn default() -> Self {
+        Self {
+            currency: String::default(),
+            total_amount: 0,
+            invoice_payload: String::default(),
+            shipping_option_id: None,
+            order_info: None,
+            telegram_payment_charge_id: String::default(),
+            provider_payment_charge_id: String::default(),
+        }
+    }
+}

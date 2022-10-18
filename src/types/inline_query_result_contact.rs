@@ -32,6 +32,24 @@ pub struct InlineQueryResultContact {
     pub thumb_height: Option<i64>,
 }
 
+impl Default for InlineQueryResultContact {
+    fn default() -> Self {
+        Self {
+            result_type: contact(),
+            id: String::default(),
+            phone_number: String::default(),
+            first_name: String::default(),
+            last_name: None,
+            vcard: None,
+            reply_markup: None,
+            input_message_content: None,
+            thumb_url: None,
+            thumb_width: None,
+            thumb_height: None,
+        }
+    }
+}
+
 fn contact() -> String {
     "contact".to_string()
 }

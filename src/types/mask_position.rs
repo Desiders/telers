@@ -13,3 +13,14 @@ pub struct MaskPosition {
     /// Mask scaling coefficient. For example, 2.0 means double size.
     pub scale: f64,
 }
+
+impl Default for MaskPosition {
+    fn default() -> Self {
+        Self {
+            point: String::default(),
+            x_shift: 0.0,
+            y_shift: 0.0,
+            scale: 0.0,
+        }
+    }
+}

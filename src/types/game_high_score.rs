@@ -6,3 +6,9 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#gamehighscore>_
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct GameHighScore {}
+
+impl Default for GameHighScore {
+    fn default() -> Self {
+        Self {}
+    }
+}

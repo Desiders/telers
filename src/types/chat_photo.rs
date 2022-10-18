@@ -13,3 +13,14 @@ pub struct ChatPhoto {
     /// Unique file identifier of big (640x640) chat photo, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
     pub big_file_unique_id: String,
 }
+
+impl Default for ChatPhoto {
+    fn default() -> Self {
+        Self {
+            small_file_id: String::default(),
+            small_file_unique_id: String::default(),
+            big_file_id: String::default(),
+            big_file_unique_id: String::default(),
+        }
+    }
+}

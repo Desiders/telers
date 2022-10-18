@@ -19,6 +19,18 @@ pub struct InputMediaPhoto {
     pub caption_entities: Option<Vec<MessageEntity>>,
 }
 
+impl Default for InputMediaPhoto {
+    fn default() -> Self {
+        Self {
+            media_type: photo(),
+            media: InputMediaKind::FileIdOrUrl(String::default()),
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+        }
+    }
+}
+
 fn photo() -> String {
     "photo".to_string()
 }

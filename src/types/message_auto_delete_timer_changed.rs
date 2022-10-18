@@ -7,3 +7,11 @@ pub struct MessageAutoDeleteTimerChanged {
     /// New auto-delete time for messages in the chat; in seconds
     pub message_auto_delete_time: i64,
 }
+
+impl Default for MessageAutoDeleteTimerChanged {
+    fn default() -> Self {
+        Self {
+            message_auto_delete_time: 0,
+        }
+    }
+}

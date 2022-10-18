@@ -40,6 +40,28 @@ pub struct ChatMemberAdministrator {
     pub custom_title: Option<String>,
 }
 
+impl Default for ChatMemberAdministrator {
+    fn default() -> Self {
+        Self {
+            status: administrator(),
+            user: User::default(),
+            can_be_edited: false,
+            is_anonymous: false,
+            can_manage_chat: false,
+            can_delete_messages: false,
+            can_manage_video_chats: false,
+            can_restrict_members: false,
+            can_promote_members: false,
+            can_change_info: false,
+            can_invite_users: false,
+            can_post_messages: None,
+            can_edit_messages: None,
+            can_pin_messages: None,
+            custom_title: None,
+        }
+    }
+}
+
 fn administrator() -> String {
     "administrator".to_string()
 }

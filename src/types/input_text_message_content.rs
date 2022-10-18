@@ -15,3 +15,14 @@ pub struct InputTextMessageContent {
     /// *Optional*. Disables link previews for links in the sent message
     pub disable_web_page_preview: Option<bool>,
 }
+
+impl Default for InputTextMessageContent {
+    fn default() -> Self {
+        Self {
+            message_text: String::default(),
+            parse_mode: None,
+            entities: None,
+            disable_web_page_preview: None,
+        }
+    }
+}

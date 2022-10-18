@@ -29,6 +29,23 @@ pub struct InlineQueryResultCachedPhoto {
     pub input_message_content: Option<InputMessageContent>,
 }
 
+impl Default for InlineQueryResultCachedPhoto {
+    fn default() -> Self {
+        Self {
+            result_type: photo(),
+            id: String::default(),
+            photo_file_id: String::default(),
+            title: None,
+            description: None,
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            reply_markup: None,
+            input_message_content: None,
+        }
+    }
+}
+
 fn photo() -> String {
     "photo".to_string()
 }

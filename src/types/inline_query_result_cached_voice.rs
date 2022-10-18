@@ -28,6 +28,22 @@ pub struct InlineQueryResultCachedVoice {
     pub input_message_content: Option<InputMessageContent>,
 }
 
+impl Default for InlineQueryResultCachedVoice {
+    fn default() -> Self {
+        Self {
+            result_type: voice(),
+            id: String::default(),
+            voice_file_id: String::default(),
+            title: String::default(),
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            reply_markup: None,
+            input_message_content: None,
+        }
+    }
+}
+
 fn voice() -> String {
     "voice".to_string()
 }

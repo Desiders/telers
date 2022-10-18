@@ -7,3 +7,11 @@ pub struct WebAppInfo {
     /// An HTTPS URL of a Web App to be opened with additional data as specified in `Initializing Web Apps <https://core.telegram.org/bots/webapps#initializing-web-apps>`_
     pub url: String,
 }
+
+impl Default for WebAppInfo {
+    fn default() -> Self {
+        Self {
+            url: String::default(),
+        }
+    }
+}
