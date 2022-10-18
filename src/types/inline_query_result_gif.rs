@@ -1,0 +1,42 @@
+use super::{InlineKeyboardMarkup, InputMessageContent, MessageEntity};
+
+use serde::{Deserialize, Serialize};
+
+/// Represents a link to an animated GIF file. By default, this animated GIF file will be sent by the user with optional caption. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the animation.
+/// <https://core.telegram.org/bots/api#inlinequeryresultgif>_
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct InlineQueryResultGif {
+    /// Type of the result, must be *gif*
+    #[serde(rename = "type", default = "gif")]
+    pub result_type: String,
+    /// Unique identifier for this result, 1-64 Bytes
+    pub id: String,
+    /// A valid URL for the GIF file. File size must not exceed 1MB
+    pub gif_url: String,
+    /// URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
+    pub thumb_url: String,
+    /// *Optional*. Width of the GIF
+    pub gif_width: Option<i64>,
+    /// *Optional*. Height of the GIF
+    pub gif_height: Option<i64>,
+    /// *Optional*. Duration of the GIF in seconds
+    pub gif_duration: Option<i64>,
+    /// *Optional*. MIME type of the thumbnail, must be one of 'image/jpeg', 'image/gif', or 'video/mp4'. Defaults to 'image/jpeg'
+    pub thumb_mime_type: Option<String>,
+    /// *Optional*. Title for the result
+    pub title: Option<String>,
+    /// *Optional*. Caption of the GIF file to be sent, 0-1024 characters after entities parsing
+    pub caption: Option<String>,
+    /// *Optional*. Mode for parsing entities in the caption. See `formatting options <https://core.telegram.org/bots/api#formatting-options>`_ for more details.
+    pub parse_mode: Option<String>,
+    /// *Optional*. List of special entities that appear in the caption, which can be specified instead of *parse_mode*
+    pub caption_entities: Option<Vec<MessageEntity>>,
+    /// *Optional*. `Inline keyboard <https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating>`_ attached to the message
+    pub reply_markup: Option<InlineKeyboardMarkup>,
+    /// *Optional*. Content of the message to be sent instead of the GIF animation
+    pub input_message_content: Option<InputMessageContent>,
+}
+
+fn gif() -> String {
+    "gif".to_string()
+}
