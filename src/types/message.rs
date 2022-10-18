@@ -131,3 +131,11 @@ pub struct Message {
     /// *Optional*. Inline keyboard attached to the message. :code:`login_url` buttons are represented as ordinary :code:`url` buttons.
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
+
+impl Message {
+    /// Alias for `message_id`
+    #[must_use]
+    pub fn id(&self) -> i64 {
+        self.message_id
+    }
+}
