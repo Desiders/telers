@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// This object represents a `custom keyboard <https://core.telegram.org/bots#keyboards>`_ with reply options (see `Introduction to bots <https://core.telegram.org/bots#keyboards>`_ for details and examples).
 /// <https://core.telegram.org/bots/api#replykeyboardmarkup>_
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ReplyKeyboardMarkup {
     // Array of button rows, each represented by an Array of :class:`aiogram_rs.types.keyboard_button.KeyboardButton` objects
     pub keyboard: Vec<Vec<KeyboardButton>>,
@@ -16,16 +16,4 @@ pub struct ReplyKeyboardMarkup {
     pub input_field_placeholder: Option<String>,
     /// *Optional*. Use this parameter if you want to show the keyboard to specific users only. Targets: 1) users that are @mentioned in the *text* of the :class:`aiogram_rs.types.message.Message` object; 2) if the bot's message is a reply (has *reply_to_message_id*), sender of the original message.
     pub selective: Option<bool>,
-}
-
-impl Default for ReplyKeyboardMarkup {
-    fn default() -> Self {
-        Self {
-            keyboard: Vec::default(),
-            resize_keyboard: None,
-            one_time_keyboard: None,
-            input_field_placeholder: None,
-            selective: None,
-        }
-    }
 }

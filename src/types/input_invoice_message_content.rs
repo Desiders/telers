@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// Represents the `content <https://core.telegram.org/bots/api#inputmessagecontent>`_ of an invoice message to be sent as the result of an inline query.
 /// <https://core.telegram.org/bots/api#inputinvoicemessagecontent>_
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct InputInvoiceMessageContent {
     /// Product name, 1-32 characters
     pub title: String,
@@ -46,31 +46,4 @@ pub struct InputInvoiceMessageContent {
     pub send_email_to_provider: Option<bool>,
     /// *Optional*. Pass :code:`True` if the final price depends on the shipping method
     pub is_flexible: Option<bool>,
-}
-
-impl Default for InputInvoiceMessageContent {
-    fn default() -> Self {
-        Self {
-            title: String::default(),
-            description: String::default(),
-            payload: String::default(),
-            provider_token: String::default(),
-            currency: String::default(),
-            prices: Vec::default(),
-            max_tip_amount: Option::default(),
-            suggested_tip_amounts: Option::default(),
-            provider_data: Option::default(),
-            photo_url: Option::default(),
-            photo_size: Option::default(),
-            photo_width: Option::default(),
-            photo_height: Option::default(),
-            need_name: Option::default(),
-            need_phone_number: Option::default(),
-            need_email: Option::default(),
-            need_shipping_address: Option::default(),
-            send_phone_number_to_provider: Option::default(),
-            send_email_to_provider: Option::default(),
-            is_flexible: Option::default(),
-        }
-    }
 }

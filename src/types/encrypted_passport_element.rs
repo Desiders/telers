@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// Describes documents or other Telegram Passport elements shared with the bot by the user.
 /// <https://core.telegram.org/bots/api#encryptedpassportelement>_
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct EncryptedPassportElement {
     /// Element type. One of “personal_details”, “passport”, “driver_license”, “identity_card”, “internal_passport”, “address”, “utility_bill”, “bank_statement”, “rental_agreement”, “passport_registration”, “temporary_registration”, “phone_number”, “email”.
     #[serde(rename = "type")]
@@ -27,21 +27,4 @@ pub struct EncryptedPassportElement {
     pub selfie: Option<PassportFile>,
     /// *Optional*. Array of encrypted files with translated versions of documents provided by the user. Available if requested for 'passport', 'driver_license', 'identity_card', 'internal_passport', 'utility_bill', 'bank_statement', 'rental_agreement', 'passport_registration' and 'temporary_registration' types. Files can be decrypted and verified using the accompanying :class:`aiogram_rs.types.encrypted_credentials.EncryptedCredentials`.
     pub translation: Option<Vec<PassportFile>>,
-}
-
-impl Default for EncryptedPassportElement {
-    fn default() -> Self {
-        Self {
-            element_type: String::default(),
-            hash: String::default(),
-            data: None,
-            phone_number: None,
-            email: None,
-            files: None,
-            front_side: None,
-            reverse_side: None,
-            selfie: None,
-            translation: None,
-        }
-    }
 }

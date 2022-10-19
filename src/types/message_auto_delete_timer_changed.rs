@@ -2,16 +2,8 @@ use serde::{Deserialize, Serialize};
 
 /// This object represents a service message about a change in auto-delete timer settings.
 /// <https://core.telegram.org/bots/api#messageautodeletetimerchanged>_
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct MessageAutoDeleteTimerChanged {
     /// New auto-delete time for messages in the chat; in seconds
     pub message_auto_delete_time: i64,
-}
-
-impl Default for MessageAutoDeleteTimerChanged {
-    fn default() -> Self {
-        Self {
-            message_auto_delete_time: 0,
-        }
-    }
 }

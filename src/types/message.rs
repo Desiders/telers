@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 
 /// This object represents a message.
 /// <https://core.telegram.org/bots/api#message>_
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Message {
     /// Unique message identifier inside this chat
     pub message_id: i64,
@@ -641,15 +641,10 @@ mod tests {
         let deserializer = &mut serde_json::Deserializer::from_str(json);
         let result: Result<Message, _> = serde_path_to_error::deserialize(deserializer);
 
-        match result {
-            Ok(message) => {
-                assert_eq!(message.id(), 1);
-            }
-            Err(err) => {
-                println!("Path: {}", err.path());
+        if let Err(err) = result {
+            println!("Path: {}", err.path());
 
-                let _: Message = serde_json::from_str(json).unwrap(); // for traceback
-            }
+            let _: Message = serde_json::from_str(json).unwrap(); // for traceback
         }
     }
 }

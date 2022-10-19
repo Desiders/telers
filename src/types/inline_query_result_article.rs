@@ -1,4 +1,4 @@
-use super::{InlineKeyboardMarkup, InputMessageContent};
+use super::{InlineKeyboardMarkup, InputMessageContent, InputTextMessageContent};
 
 use serde::{Deserialize, Serialize};
 
@@ -37,7 +37,7 @@ impl Default for InlineQueryResultArticle {
             result_type: article(),
             id: String::default(),
             title: String::default(),
-            input_message_content: InputMessageContent::Text(Default::default()),
+            input_message_content: InputMessageContent::Text(InputTextMessageContent::default()),
             reply_markup: None,
             url: None,
             hide_url: None,

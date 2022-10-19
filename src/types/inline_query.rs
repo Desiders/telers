@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// This object represents an incoming inline query. When the user sends an empty query, your bot could return some default or trending results.
 /// <https://core.telegram.org/bots/api#inlinequery>_
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQuery {
     /// Unique identifier for this query
     pub id: String,
@@ -18,17 +18,4 @@ pub struct InlineQuery {
     pub chat_type: Option<String>,
     /// *Optional*. Sender location, only for bots that request user location
     pub location: Option<Location>,
-}
-
-impl Default for InlineQuery {
-    fn default() -> Self {
-        Self {
-            id: String::default(),
-            from: User::default(),
-            query: String::default(),
-            offset: String::default(),
-            chat_type: None,
-            location: None,
-        }
-    }
 }

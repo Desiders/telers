@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// This object represents a `video message <https://telegram.org/blog/video-messages-and-telescope>`_ (available in Telegram apps as of `v.4.0 <https://telegram.org/blog/video-messages-and-telescope>`_).
 /// <https://core.telegram.org/bots/api#videonote>_
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct VideoNote {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: String,
@@ -18,17 +18,4 @@ pub struct VideoNote {
     pub thumb: Option<PhotoSize>,
     /// *Optional*. File size in bytes
     pub file_size: Option<i64>,
-}
-
-impl Default for VideoNote {
-    fn default() -> Self {
-        Self {
-            file_id: String::default(),
-            file_unique_id: String::default(),
-            length: 0,
-            duration: 0,
-            thumb: None,
-            file_size: None,
-        }
-    }
 }

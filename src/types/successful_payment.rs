@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// This object contains basic information about a successful payment.
 /// <https://core.telegram.org/bots/api#successfulpayment>_
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct SuccessfulPayment {
     /// Three-letter ISO 4217 `currency <https://core.telegram.org/bots/payments#supported-currencies>`_ code
     pub currency: String,
@@ -20,18 +20,4 @@ pub struct SuccessfulPayment {
     pub telegram_payment_charge_id: String,
     /// Provider payment identifier
     pub provider_payment_charge_id: String,
-}
-
-impl Default for SuccessfulPayment {
-    fn default() -> Self {
-        Self {
-            currency: String::default(),
-            total_amount: 0,
-            invoice_payload: String::default(),
-            shipping_option_id: None,
-            order_info: None,
-            telegram_payment_charge_id: String::default(),
-            provider_payment_charge_id: String::default(),
-        }
-    }
 }

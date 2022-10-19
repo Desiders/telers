@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 /// Represents the rights of an administrator in a chat.
 /// <https://core.telegram.org/bots/api#chatadministratorrights>_
 #[allow(clippy::struct_excessive_bools)]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ChatAdministratorRights {
     /// :code:`True`, if the user's presence in the chat is hidden
     pub is_anonymous: bool,
@@ -27,22 +27,4 @@ pub struct ChatAdministratorRights {
     pub can_edit_messages: Option<bool>,
     /// *Optional*. :code:`True`, if the user is allowed to pin messages; groups and supergroups only
     pub can_pin_messages: Option<bool>,
-}
-
-impl Default for ChatAdministratorRights {
-    fn default() -> Self {
-        Self {
-            is_anonymous: false,
-            can_manage_chat: false,
-            can_delete_messages: false,
-            can_manage_video_chats: false,
-            can_restrict_members: false,
-            can_promote_members: false,
-            can_change_info: false,
-            can_invite_users: false,
-            can_post_messages: None,
-            can_edit_messages: None,
-            can_pin_messages: None,
-        }
-    }
 }

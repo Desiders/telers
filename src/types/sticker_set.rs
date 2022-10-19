@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// This object represents a sticker set.
 /// <https://core.telegram.org/bots/api#stickerset>_
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct StickerSet {
     /// Sticker set name
     pub name: String,
@@ -20,18 +20,4 @@ pub struct StickerSet {
     pub stickers: Vec<Sticker>,
     /// *Optional*. Sticker set thumbnail in the .WEBP, .TGS, or .WEBM format
     pub thumb: Option<PhotoSize>,
-}
-
-impl Default for StickerSet {
-    fn default() -> Self {
-        Self {
-            name: String::default(),
-            title: String::default(),
-            sticker_type: String::default(),
-            is_animated: false,
-            is_video: false,
-            stickers: Vec::default(),
-            thumb: None,
-        }
-    }
 }

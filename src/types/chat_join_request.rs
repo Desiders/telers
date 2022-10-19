@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// Represents a join request sent to a chat.
 /// <https://core.telegram.org/bots/api#chatjoinrequest>_
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ChatJoinRequest {
     /// Chat to which the request was sent
     pub chat: Chat,
@@ -16,16 +16,4 @@ pub struct ChatJoinRequest {
     pub bio: Option<String>,
     /// *Optional*. Chat invite link that was used by the user to send the join request
     pub invite_link: Option<ChatInviteLink>,
-}
-
-impl Default for ChatJoinRequest {
-    fn default() -> Self {
-        Self {
-            chat: Chat::default(),
-            from: User::default(),
-            date: 0,
-            bio: None,
-            invite_link: None,
-        }
-    }
 }

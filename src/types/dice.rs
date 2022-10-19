@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 /// This object represents an animated emoji that displays a random value.
 /// <https://core.telegram.org/bots/api#dice>_
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Dice {
     /// Emoji on which the dice throw animation is based
     pub emoji: String,

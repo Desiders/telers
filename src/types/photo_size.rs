@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 /// This object represents one size of a photo or a `file <https://core.telegram.org/bots/api#document>`_ / :class:`aiogram_rs.methods.sticker.Sticker` thumbnail.
 /// <https://core.telegram.org/bots/api#photosize>_
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct PhotoSize {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: String,
@@ -14,16 +14,4 @@ pub struct PhotoSize {
     pub height: i64,
     /// *Optional*. File size in bytes
     pub file_size: Option<i64>,
-}
-
-impl Default for PhotoSize {
-    fn default() -> Self {
-        Self {
-            file_id: String::default(),
-            file_unique_id: String::default(),
-            width: 0,
-            height: 0,
-            file_size: None,
-        }
-    }
 }

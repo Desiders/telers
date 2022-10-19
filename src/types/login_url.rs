@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// Telegram apps support these buttons as of `version 5.7 <https://telegram.org/blog/privacy-discussions-web-bots#meet-seamless-web-bots>`_.
 /// Sample bot: `@discussbot <https://t.me/discussbot>`_
 /// <https://core.telegram.org/bots/api#loginurl>_
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct LoginUrl {
     /// An HTTPS URL to be opened with user authorization data added to the query string when the button is pressed. If the user refuses to provide authorization data, the original URL without information about the user will be opened. The data added is the same as described in `Receiving authorization data <https://core.telegram.org/widgets/login#receiving-authorization-data>`_.
     pub url: String,
@@ -14,15 +14,4 @@ pub struct LoginUrl {
     pub bot_username: Option<String>,
     /// *Optional*. Pass :code:`True` to request the permission for your bot to send messages to the user.
     pub request_write_access: Option<bool>,
-}
-
-impl Default for LoginUrl {
-    fn default() -> Self {
-        Self {
-            url: String::default(),
-            forward_text: None,
-            bot_username: None,
-            request_write_access: None,
-        }
-    }
 }

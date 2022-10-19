@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 /// This object represents a point on the map.
 /// <https://core.telegram.org/bots/api#location>_
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Location {
     /// Longitude as defined by sender
     pub longitude: f64,
@@ -16,17 +16,4 @@ pub struct Location {
     pub heading: Option<i64>,
     /// *Optional*. The maximum distance for proximity alerts about approaching another chat member, in meters. For sent live locations only."""
     pub proximity_alert_radius: Option<i64>,
-}
-
-impl Default for Location {
-    fn default() -> Self {
-        Self {
-            longitude: 0.0,
-            latitude: 0.0,
-            horizontal_accuracy: None,
-            live_period: None,
-            heading: None,
-            proximity_alert_radius: None,
-        }
-    }
 }

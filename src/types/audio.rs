@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// This object represents an audio file to be treated as music by the Telegram clients.
 /// <https://core.telegram.org/bots/api#audio>_
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Audio {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: String,
@@ -24,20 +24,4 @@ pub struct Audio {
     pub file_size: Option<i64>,
     /// *Optional*. Thumbnail of the album cover to which the music file belongs
     pub thumb: Option<PhotoSize>,
-}
-
-impl Default for Audio {
-    fn default() -> Self {
-        Self {
-            file_id: String::default(),
-            file_unique_id: String::default(),
-            duration: 0,
-            performer: None,
-            title: None,
-            file_name: None,
-            mime_type: None,
-            file_size: None,
-            thumb: None,
-        }
-    }
 }

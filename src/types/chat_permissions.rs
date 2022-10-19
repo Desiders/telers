@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 /// Describes actions that a non-administrator user is allowed to take in a chat.
 /// <https://core.telegram.org/bots/api#chatpermissions>_
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ChatPermissions {
     /// *Optional*. :code:`True`, if the user is allowed to send text messages, contacts, locations and venues
     pub can_send_messages: Option<bool>,
@@ -20,19 +20,4 @@ pub struct ChatPermissions {
     pub can_invite_users: Option<bool>,
     /// *Optional*. :code:`True`, if the user is allowed to pin messages. Ignored in public supergroups
     pub can_pin_messages: Option<bool>,
-}
-
-impl Default for ChatPermissions {
-    fn default() -> Self {
-        Self {
-            can_send_messages: None,
-            can_send_media_messages: None,
-            can_send_polls: None,
-            can_send_other_messages: None,
-            can_add_web_page_previews: None,
-            can_change_info: None,
-            can_invite_users: None,
-            can_pin_messages: None,
-        }
-    }
 }

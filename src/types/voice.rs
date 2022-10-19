@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 /// This object represents a voice note.
 /// <https://core.telegram.org/bots/api#voice>_
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Voice {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: String,
@@ -14,16 +14,4 @@ pub struct Voice {
     pub mime_type: Option<String>,
     /// *Optional*. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
     pub file_size: Option<i64>,
-}
-
-impl Default for Voice {
-    fn default() -> Self {
-        Self {
-            file_id: String::default(),
-            file_unique_id: String::default(),
-            duration: 0,
-            mime_type: None,
-            file_size: None,
-        }
-    }
 }

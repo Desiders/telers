@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// This object represents a sticker.
 /// <https://core.telegram.org/bots/api#sticker>_
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Sticker {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: String,
@@ -35,25 +35,4 @@ pub struct Sticker {
     pub custom_emoji_id: Option<String>,
     /// *Optional*. File size in bytes
     pub file_size: Option<i64>,
-}
-
-impl Default for Sticker {
-    fn default() -> Self {
-        Self {
-            file_id: String::default(),
-            file_unique_id: String::default(),
-            sticker_type: String::default(),
-            width: 0,
-            height: 0,
-            is_animated: false,
-            is_video: false,
-            thumb: None,
-            emoji: None,
-            set_name: None,
-            premium_animation: None,
-            mask_position: None,
-            custom_emoji_id: None,
-            file_size: None,
-        }
-    }
 }

@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 /// This object represents a Telegram user or bot.
 /// <https://core.telegram.org/bots/api#user>_
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct User {
     /// Unique identifier for this user or bot. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
     pub id: i64,
@@ -35,24 +35,6 @@ impl User {
             format!("{} {}", self.first_name, last_name)
         } else {
             self.first_name.clone()
-        }
-    }
-}
-
-impl Default for User {
-    fn default() -> Self {
-        Self {
-            id: 0,
-            is_bot: false,
-            first_name: String::default(),
-            last_name: None,
-            username: None,
-            language_code: None,
-            is_premium: None,
-            added_to_attachment_menu: None,
-            can_join_groups: None,
-            can_read_all_group_messages: None,
-            supports_inline_queries: None,
         }
     }
 }

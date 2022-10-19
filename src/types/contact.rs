@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 /// This object represents a phone contact.
 /// <https://core.telegram.org/bots/api#contact>_
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Contact {
     /// Contact's phone number
     pub phone_number: String,
@@ -14,16 +14,4 @@ pub struct Contact {
     pub user_id: Option<i64>,
     /// *Optional*. Additional data about the contact in the form of a `vCard <https://en.wikipedia.org/wiki/VCard>`_
     pub vcard: Option<String>,
-}
-
-impl Default for Contact {
-    fn default() -> Self {
-        Self {
-            phone_number: String::default(),
-            first_name: String::default(),
-            last_name: None,
-            user_id: None,
-            vcard: None,
-        }
-    }
 }

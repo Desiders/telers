@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// This object contains information about an incoming pre-checkout query.
 /// <https://core.telegram.org/bots/api#precheckoutquery>_
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct PreCheckoutQuery {
     /// Unique query identifier
     pub id: String,
@@ -20,18 +20,4 @@ pub struct PreCheckoutQuery {
     pub shipping_option_id: Option<String>,
     /// *Optional*. Order info provided by the user
     pub order_info: Option<OrderInfo>,
-}
-
-impl Default for PreCheckoutQuery {
-    fn default() -> Self {
-        Self {
-            id: String::default(),
-            from: User::default(),
-            currency: String::default(),
-            total_amount: 0,
-            invoice_payload: String::default(),
-            shipping_option_id: None,
-            order_info: None,
-        }
-    }
 }

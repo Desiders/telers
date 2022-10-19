@@ -1,4 +1,4 @@
-use super::{Chat, ChatInviteLink, ChatMember, User};
+use super::{Chat, ChatInviteLink, ChatMember, ChatMemberMember, User};
 
 use serde::{Deserialize, Serialize};
 
@@ -26,8 +26,8 @@ impl Default for ChatMemberUpdated {
             chat: Chat::default(),
             from: User::default(),
             date: 0,
-            old_chat_member: ChatMember::Member(Default::default()),
-            new_chat_member: ChatMember::Member(Default::default()),
+            old_chat_member: ChatMember::Member(ChatMemberMember::default()),
+            new_chat_member: ChatMember::Member(ChatMemberMember::default()),
             invite_link: None,
         }
     }

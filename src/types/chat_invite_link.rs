@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// Represents an invite link for a chat.
 /// <https://core.telegram.org/bots/api#chatinvitelink>_
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ChatInviteLink {
     /// The invite link. If the link was created by another chat administrator, then the second part of the link will be replaced with '…'.
     pub invite_link: String,
@@ -24,20 +24,4 @@ pub struct ChatInviteLink {
     pub member_limit: Option<i64>,
     /// *Optional*. Number of pending join requests created using this link
     pub pending_join_request_count: Option<i64>,
-}
-
-impl Default for ChatInviteLink {
-    fn default() -> Self {
-        Self {
-            invite_link: String::default(),
-            creator: User::default(),
-            creates_join_request: false,
-            is_primary: false,
-            is_revoked: false,
-            name: None,
-            expire_date: None,
-            member_limit: None,
-            pending_join_request_count: None,
-        }
-    }
 }

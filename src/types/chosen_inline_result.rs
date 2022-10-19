@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 /// Represents a `result <https://core.telegram.org/bots/api#inlinequeryresult>`_ of an inline query that was chosen by the user and sent to their chat partner.
 /// **Note:** It is necessary to enable `inline feedback <https://core.telegram.org/bots/inline#collecting-feedback>`_ via `@BotFather <https://t.me/botfather>`_ in order to receive these objects in updates.
 /// <https://core.telegram.org/bots/api#choseninlineresult>_
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ChosenInlineResult {
     /// The unique identifier for the result that was chosen
     pub result_id: String,
@@ -17,16 +17,4 @@ pub struct ChosenInlineResult {
     pub inline_message_id: Option<String>,
     /// The query that was used to obtain the result
     pub query: String,
-}
-
-impl Default for ChosenInlineResult {
-    fn default() -> Self {
-        Self {
-            result_id: String::default(),
-            from: User::default(),
-            location: None,
-            inline_message_id: None,
-            query: String::default(),
-        }
-    }
 }

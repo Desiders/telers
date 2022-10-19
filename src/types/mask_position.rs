@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 /// This object describes the position on faces where a mask should be placed by default.
 /// <https://core.telegram.org/bots/api#maskposition>_
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct MaskPosition {
     /// The part of the face relative to which the mask should be placed. One of 'forehead', 'eyes', 'mouth', or 'chin'.
     pub point: String,
@@ -12,15 +12,4 @@ pub struct MaskPosition {
     pub y_shift: f64,
     /// Mask scaling coefficient. For example, 2.0 means double size.
     pub scale: f64,
-}
-
-impl Default for MaskPosition {
-    fn default() -> Self {
-        Self {
-            point: String::default(),
-            x_shift: 0.0,
-            y_shift: 0.0,
-            scale: 0.0,
-        }
-    }
 }

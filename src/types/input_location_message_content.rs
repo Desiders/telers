@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 /// Represents the `content <https://core.telegram.org/bots/api#inputmessagecontent>`_ of a location message to be sent as the result of an inline query.
 /// <https://core.telegram.org/bots/api#inputlocationmessagecontent>_
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InputLocationMessageContent {
     /// Latitude of the location in degrees
     pub latitude: f64,
@@ -16,17 +16,4 @@ pub struct InputLocationMessageContent {
     pub heading: Option<i64>,
     /// *Optional*. For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
     pub proximity_alert_radius: Option<i64>,
-}
-
-impl Default for InputLocationMessageContent {
-    fn default() -> Self {
-        Self {
-            latitude: 0.0,
-            longitude: 0.0,
-            horizontal_accuracy: None,
-            live_period: None,
-            heading: None,
-            proximity_alert_radius: None,
-        }
-    }
 }
