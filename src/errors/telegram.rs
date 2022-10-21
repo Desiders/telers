@@ -291,7 +291,7 @@ pub struct TelegramEntityTooLarge {
 }
 
 impl TelegramEntityTooLarge {
-    pub fn new(message: String, retry_after: i64) -> Self {
+    pub fn new(message: String) -> Self {
         Self {
             url: "https://core.telegram.org/bots/api#sending-files",
             message,
