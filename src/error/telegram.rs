@@ -1,10 +1,36 @@
 use std::{
-    error::Error,
-    fmt::{self, Display, Formatter},
+    self,
+    fmt::{self, Debug, Display, Formatter},
 };
 
+#[allow(clippy::module_name_repetitions)]
+pub trait TelegramAPIError: Debug + Display + std::error::Error {}
+
+pub struct Error {
+    cause: Box<dyn TelegramAPIError>,
+}
+
+impl Display for Error {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        Display::fmt(&self.cause, f)
+    }
+}
+
+impl Debug for Error {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        Debug::fmt(&self.cause, f)
+    }
+}
+
+impl std::error::Error for Error {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        None
+    }
+}
+
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub enum TelegramAPIError {
+pub enum TelegramAPIErrorKind {
     TelegramNetworkError(TelegramNetworkError),
     TelegramRetryAfter(TelegramRetryAfter),
     TelegramMigrateToChat(TelegramMigrateToChat),
@@ -18,30 +44,32 @@ pub enum TelegramAPIError {
     TelegramEntityTooLarge(TelegramEntityTooLarge),
 }
 
-impl Display for TelegramAPIError {
+impl Display for TelegramAPIErrorKind {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
-            TelegramAPIError::TelegramNetworkError(e) => write!(f, "{}", e),
-            TelegramAPIError::TelegramRetryAfter(e) => write!(f, "{}", e),
-            TelegramAPIError::TelegramMigrateToChat(e) => write!(f, "{}", e),
-            TelegramAPIError::TelegramBadRequest(e) => write!(f, "{}", e),
-            TelegramAPIError::TelegramNotFound(e) => write!(f, "{}", e),
-            TelegramAPIError::TelegramConflictError(e) => write!(f, "{}", e),
-            TelegramAPIError::TelegramForbidden(e) => write!(f, "{}", e),
-            TelegramAPIError::TelegramUnauthorized(e) => write!(f, "{}", e),
-            TelegramAPIError::TelegramServerError(e) => write!(f, "{}", e),
-            TelegramAPIError::RestartingTelegram(e) => write!(f, "{}", e),
-            TelegramAPIError::TelegramEntityTooLarge(e) => write!(f, "{}", e),
+            TelegramAPIErrorKind::TelegramNetworkError(e) => write!(f, "{}", e),
+            TelegramAPIErrorKind::TelegramRetryAfter(e) => write!(f, "{}", e),
+            TelegramAPIErrorKind::TelegramMigrateToChat(e) => write!(f, "{}", e),
+            TelegramAPIErrorKind::TelegramBadRequest(e) => write!(f, "{}", e),
+            TelegramAPIErrorKind::TelegramNotFound(e) => write!(f, "{}", e),
+            TelegramAPIErrorKind::TelegramConflictError(e) => write!(f, "{}", e),
+            TelegramAPIErrorKind::TelegramForbidden(e) => write!(f, "{}", e),
+            TelegramAPIErrorKind::TelegramUnauthorized(e) => write!(f, "{}", e),
+            TelegramAPIErrorKind::TelegramServerError(e) => write!(f, "{}", e),
+            TelegramAPIErrorKind::RestartingTelegram(e) => write!(f, "{}", e),
+            TelegramAPIErrorKind::TelegramEntityTooLarge(e) => write!(f, "{}", e),
         }
     }
 }
 
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct TelegramNetworkError {
     pub message: String,
 }
 
 impl TelegramNetworkError {
+    #[must_use]
     pub fn new(message: String) -> Self {
         Self { message }
     }
@@ -53,12 +81,15 @@ impl Display for TelegramNetworkError {
     }
 }
 
-impl Error for TelegramNetworkError {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
+impl std::error::Error for TelegramNetworkError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         None
     }
 }
 
+impl TelegramAPIError for TelegramNetworkError {}
+
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct TelegramRetryAfter {
     pub url: &'static str,
@@ -67,6 +98,7 @@ pub struct TelegramRetryAfter {
 }
 
 impl TelegramRetryAfter {
+    #[must_use]
     pub fn new(message: String, retry_after: i64) -> Self {
         Self {
             url: "https://core.telegram.org/bots/faq#my-bot-is-hitting-limits-how-do-i-avoid-this",
@@ -86,12 +118,13 @@ impl Display for TelegramRetryAfter {
     }
 }
 
-impl Error for TelegramRetryAfter {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
+impl std::error::Error for TelegramRetryAfter {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         None
     }
 }
 
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct TelegramMigrateToChat {
     pub message: String,
@@ -99,6 +132,7 @@ pub struct TelegramMigrateToChat {
 }
 
 impl TelegramMigrateToChat {
+    #[must_use]
     pub fn new(message: String, migrate_to_chat_id: i64) -> Self {
         Self {
             message,
@@ -117,18 +151,20 @@ impl Display for TelegramMigrateToChat {
     }
 }
 
-impl Error for TelegramMigrateToChat {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
+impl std::error::Error for TelegramMigrateToChat {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         None
     }
 }
 
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct TelegramBadRequest {
     pub message: String,
 }
 
 impl TelegramBadRequest {
+    #[must_use]
     pub fn new(message: String) -> Self {
         Self { message }
     }
@@ -140,18 +176,20 @@ impl Display for TelegramBadRequest {
     }
 }
 
-impl Error for TelegramBadRequest {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
+impl std::error::Error for TelegramBadRequest {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         None
     }
 }
 
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct TelegramNotFound {
     pub message: String,
 }
 
 impl TelegramNotFound {
+    #[must_use]
     pub fn new(message: String) -> Self {
         Self { message }
     }
@@ -163,18 +201,20 @@ impl Display for TelegramNotFound {
     }
 }
 
-impl Error for TelegramNotFound {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
+impl std::error::Error for TelegramNotFound {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         None
     }
 }
 
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct TelegramConflictError {
     pub message: String,
 }
 
 impl TelegramConflictError {
+    #[must_use]
     pub fn new(message: String) -> Self {
         Self { message }
     }
@@ -186,18 +226,20 @@ impl Display for TelegramConflictError {
     }
 }
 
-impl Error for TelegramConflictError {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
+impl std::error::Error for TelegramConflictError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         None
     }
 }
 
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct TelegramForbidden {
     pub message: String,
 }
 
 impl TelegramForbidden {
+    #[must_use]
     pub fn new(message: String) -> Self {
         Self { message }
     }
@@ -209,18 +251,20 @@ impl Display for TelegramForbidden {
     }
 }
 
-impl Error for TelegramForbidden {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
+impl std::error::Error for TelegramForbidden {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         None
     }
 }
 
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct TelegramUnauthorized {
     pub message: String,
 }
 
 impl TelegramUnauthorized {
+    #[must_use]
     pub fn new(message: String) -> Self {
         Self { message }
     }
@@ -232,18 +276,20 @@ impl Display for TelegramUnauthorized {
     }
 }
 
-impl Error for TelegramUnauthorized {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
+impl std::error::Error for TelegramUnauthorized {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         None
     }
 }
 
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct TelegramServerError {
     pub message: String,
 }
 
 impl TelegramServerError {
+    #[must_use]
     pub fn new(message: String) -> Self {
         Self { message }
     }
@@ -255,18 +301,20 @@ impl Display for TelegramServerError {
     }
 }
 
-impl Error for TelegramServerError {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
+impl std::error::Error for TelegramServerError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         None
     }
 }
 
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct RestartingTelegram {
     pub message: String,
 }
 
 impl RestartingTelegram {
+    #[must_use]
     pub fn new(message: String) -> Self {
         Self { message }
     }
@@ -278,12 +326,13 @@ impl Display for RestartingTelegram {
     }
 }
 
-impl Error for RestartingTelegram {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
+impl std::error::Error for RestartingTelegram {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         None
     }
 }
 
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct TelegramEntityTooLarge {
     pub url: &'static str,
@@ -291,6 +340,7 @@ pub struct TelegramEntityTooLarge {
 }
 
 impl TelegramEntityTooLarge {
+    #[must_use]
     pub fn new(message: String) -> Self {
         Self {
             url: "https://core.telegram.org/bots/api#sending-files",
@@ -309,8 +359,16 @@ impl Display for TelegramEntityTooLarge {
     }
 }
 
-impl Error for TelegramEntityTooLarge {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
+impl std::error::Error for TelegramEntityTooLarge {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         None
+    }
+}
+
+impl<T: TelegramAPIError + 'static> From<T> for Error {
+    fn from(err: T) -> Error {
+        Error {
+            cause: Box::new(err),
+        }
     }
 }
