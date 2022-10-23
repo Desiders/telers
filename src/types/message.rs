@@ -138,6 +138,17 @@ impl Message {
     pub fn id(&self) -> i64 {
         self.message_id
     }
+
+    #[must_use]
+    pub fn get_text_or_caption(event: &Message) -> Option<&String> {
+        if let Some(ref text) = event.text {
+            Some(text)
+        } else if let Some(ref caption) = event.caption {
+            Some(caption)
+        } else {
+            None
+        }
+    }
 }
 
 #[cfg(test)]
