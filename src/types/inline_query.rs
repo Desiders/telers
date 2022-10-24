@@ -1,4 +1,4 @@
-use super::{Location, User};
+use super::{Location, Update, User};
 
 use serde::{Deserialize, Serialize};
 
@@ -18,4 +18,10 @@ pub struct InlineQuery {
     pub chat_type: Option<String>,
     /// *Optional*. Sender location, only for bots that request user location
     pub location: Option<Location>,
+}
+
+impl From<Update> for InlineQuery {
+    fn from(update: Update) -> Self {
+        update.inline_query.expect("Update is not an `InlineQuery`")
+    }
 }

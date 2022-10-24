@@ -1,4 +1,4 @@
-use super::{Chat, ChatInviteLink, ChatMember, ChatMemberMember, User};
+use super::{Chat, ChatInviteLink, ChatMember, ChatMemberMember, Update, User};
 
 use serde::{Deserialize, Serialize};
 
@@ -30,5 +30,14 @@ impl Default for ChatMemberUpdated {
             new_chat_member: ChatMember::Member(ChatMemberMember::default()),
             invite_link: None,
         }
+    }
+}
+
+impl From<Update> for ChatMemberUpdated {
+    fn from(update: Update) -> Self {
+        update
+            .my_chat_member
+            .or(update.chat_member)
+            .expect("Update doesn't contain a `ChatMemberUpdated`")
     }
 }

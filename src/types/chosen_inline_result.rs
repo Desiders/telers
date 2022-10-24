@@ -1,4 +1,4 @@
-use super::{Location, User};
+use super::{Location, Update, User};
 
 use serde::{Deserialize, Serialize};
 
@@ -17,4 +17,12 @@ pub struct ChosenInlineResult {
     pub inline_message_id: Option<String>,
     /// The query that was used to obtain the result
     pub query: String,
+}
+
+impl From<Update> for ChosenInlineResult {
+    fn from(update: Update) -> Self {
+        update
+            .chosen_inline_result
+            .expect("Update is not a `ChosenInlineResult`")
+    }
 }

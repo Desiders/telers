@@ -1,9 +1,9 @@
 use super::{
     Animation, Audio, Chat, Contact, Dice, Document, Game, InlineKeyboardMarkup, Invoice, Location,
     MessageAutoDeleteTimerChanged, MessageEntity, PassportData, PhotoSize, Poll,
-    ProximityAlertTriggered, Sticker, SuccessfulPayment, User, Venue, Video, VideoChatEnded,
-    VideoChatParticipantsInvited, VideoChatScheduled, VideoChatStarted, VideoNote, Voice,
-    WebAppData,
+    ProximityAlertTriggered, Sticker, SuccessfulPayment, Update, User, Venue, Video,
+    VideoChatEnded, VideoChatParticipantsInvited, VideoChatScheduled, VideoChatStarted, VideoNote,
+    Voice, WebAppData,
 };
 
 use serde::{Deserialize, Serialize};
@@ -140,14 +140,25 @@ impl Message {
     }
 
     #[must_use]
-    pub fn get_text_or_caption(event: &Message) -> Option<&String> {
-        if let Some(ref text) = event.text {
+    pub fn get_text_or_caption(&self) -> Option<&String> {
+        if let Some(ref text) = self.text {
             Some(text)
-        } else if let Some(ref caption) = event.caption {
+        } else if let Some(ref caption) = self.caption {
             Some(caption)
         } else {
             None
         }
+    }
+}
+
+impl From<Update> for Message {
+    fn from(update: Update) -> Self {
+        update
+            .message
+            .or(update.edited_message)
+            .or(update.channel_post)
+            .or(update.edited_channel_post)
+            .expect("Update doesn't contain a `Message`")
     }
 }
 

@@ -1,4 +1,4 @@
-use super::{Message, User};
+use super::{Message, Update, User};
 
 use serde::{Deserialize, Serialize};
 
@@ -21,4 +21,12 @@ pub struct CallbackQuery {
     pub data: Option<String>,
     /// *Optional*. Short name of a `Game <https://core.telegram.org/bots/api#games>`_ to be returned, serves as the unique identifier for the game
     pub game_short_name: Option<String>,
+}
+
+impl From<Update> for CallbackQuery {
+    fn from(update: Update) -> Self {
+        update
+            .callback_query
+            .expect("Update isn't a `CallbackQuery`")
+    }
 }

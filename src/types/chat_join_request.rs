@@ -1,4 +1,4 @@
-use super::{Chat, ChatInviteLink, User};
+use super::{Chat, ChatInviteLink, Update, User};
 
 use serde::{Deserialize, Serialize};
 
@@ -16,4 +16,12 @@ pub struct ChatJoinRequest {
     pub bio: Option<String>,
     /// *Optional*. Chat invite link that was used by the user to send the join request
     pub invite_link: Option<ChatInviteLink>,
+}
+
+impl From<Update> for ChatJoinRequest {
+    fn from(update: Update) -> Self {
+        update
+            .chat_join_request
+            .expect("Update isn't a `ChatJoinRequest`")
+    }
 }

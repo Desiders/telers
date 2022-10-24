@@ -1,4 +1,4 @@
-use super::{OrderInfo, User};
+use super::{OrderInfo, Update, User};
 
 use serde::{Deserialize, Serialize};
 
@@ -20,4 +20,12 @@ pub struct PreCheckoutQuery {
     pub shipping_option_id: Option<String>,
     /// *Optional*. Order info provided by the user
     pub order_info: Option<OrderInfo>,
+}
+
+impl From<Update> for PreCheckoutQuery {
+    fn from(update: Update) -> Self {
+        update
+            .pre_checkout_query
+            .expect("Update isn't a `PreCheckoutQuery`")
+    }
 }

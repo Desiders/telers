@@ -1,4 +1,4 @@
-use super::User;
+use super::{Update, User};
 
 use serde::{Deserialize, Serialize};
 
@@ -12,4 +12,10 @@ pub struct PollAnswer {
     pub user: User,
     /// 0-based identifiers of answer options, chosen by the user. May be empty if the user retracted their vote.
     pub option_ids: Vec<i64>,
+}
+
+impl From<Update> for PollAnswer {
+    fn from(update: Update) -> Self {
+        update.poll_answer.expect("Update isn't a `PollAnswer`")
+    }
 }

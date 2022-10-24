@@ -1,4 +1,4 @@
-use super::{MessageEntity, PollOption};
+use super::{MessageEntity, PollOption, Update};
 
 use serde::{Deserialize, Serialize};
 
@@ -33,4 +33,10 @@ pub struct Poll {
     pub open_period: Option<i64>,
     /// *Optional*. Point in time (Unix timestamp) when the poll will be automatically closed
     pub close_date: Option<i64>,
+}
+
+impl From<Update> for Poll {
+    fn from(update: Update) -> Self {
+        update.poll.expect("Update isn't a `Poll`")
+    }
 }
