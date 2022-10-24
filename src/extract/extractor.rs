@@ -1,7 +1,9 @@
 use crate::{client::Bot, error::app::Error, types::Update};
 
-use futures::future::{ok, Future, Ready};
-use futures_util::ready;
+use futures::{
+    future::{ok, Ready},
+    ready, Future,
+};
 use pin_project_lite::pin_project;
 use std::{
     convert::Infallible,
