@@ -1,13 +1,13 @@
 use super::Filter;
 use crate::{
     client::Bot,
-    types::{BotCommand, Update},
+    types::{BotCommand, Message},
 };
 
 use regex::Regex;
 use std::fmt::{self, Display, Formatter};
 
-type Result<T> = std::result::Result<T, CommandError>;
+pub type Result<T> = std::result::Result<T, CommandError>;
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Clone)]
@@ -72,7 +72,7 @@ impl Command {
         }
     }
 
-    fn validate_prefix(&self, command: &CommandObject) -> Result<()> {
+    pub fn validate_prefix(&self, command: &CommandObject) -> Result<()> {
         if command.prefix == self.prefix {
             Ok(())
         } else {
@@ -80,7 +80,7 @@ impl Command {
         }
     }
 
-    fn validate_mention(&self, command: &CommandObject, bot: &Bot) -> Result<()> {
+    pub fn validate_mention(&self, command: &CommandObject, bot: &Bot) -> Result<()> {
         if self.ignore_mention {
             Ok(())
         } else if let Some(ref mention) = command.mention {
@@ -98,7 +98,7 @@ impl Command {
         }
     }
 
-    fn validate_command(&self, command: &CommandObject) -> Result<()> {
+    pub fn validate_command(&self, command: &CommandObject) -> Result<()> {
         let command = if self.ignore_case {
             command.command.to_lowercase()
         } else {
@@ -128,7 +128,7 @@ impl Command {
         Err(CommandError::InvalidCommand)
     }
 
-    fn parse_command(&self, text: &str, bot: &Bot) -> Result<CommandObject> {
+    pub fn parse_command(&self, text: &str, bot: &Bot) -> Result<CommandObject> {
         let command = CommandObject::extract(text);
 
         self.validate_prefix(&command)?;
@@ -163,7 +163,10 @@ impl CommandObject {
         let (command, mention) = if command_with_mention.contains('@') {
             let result: Vec<_> = command_with_mention.split('@').collect();
 
-            (result[0].to_string(), Some(result[1].to_string()))
+            let command = result[0].to_string();
+            let mention = result[1].to_string();
+
+            (command, if mention == "" { None } else { Some(mention) })
         } else {
             (command_with_mention, None)
         };
@@ -178,15 +181,106 @@ impl CommandObject {
 }
 
 impl Filter for Command {
-    fn check(&self, bot: &Bot, update: &Update) -> bool {
-        let text = match update.message {
-            Some(ref message) => match message.get_text_or_caption() {
-                Some(text) => text,
-                None => return false,
-            },
+    type Event = Message;
+
+    fn check(&self, bot: &Bot, message: &Self::Event) -> bool {
+        let text = match message.get_text_or_caption() {
+            Some(text) => text,
             None => return false,
         };
 
         self.parse_command(text, bot).is_ok()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Command, CommandObject, CommandPatternType};
+
+    #[test]
+    fn test_command_extract() {
+        let command_obj = CommandObject::extract("/start");
+        assert_eq!(command_obj.command, "start");
+        assert_eq!(command_obj.prefix, "/");
+        assert_eq!(command_obj.mention, None);
+        assert_eq!(command_obj.args, Vec::<String>::new());
+
+        let command_obj = CommandObject::extract("/start@bot_username");
+        assert_eq!(command_obj.command, "start");
+        assert_eq!(command_obj.prefix, "/");
+        assert_eq!(command_obj.mention, Some("bot_username".to_string()));
+        assert_eq!(command_obj.args, Vec::<String>::new());
+
+        let command_obj = CommandObject::extract("/start@");
+        assert_eq!(command_obj.command, "start");
+        assert_eq!(command_obj.prefix, "/");
+        assert_eq!(command_obj.mention, None);
+        assert_eq!(command_obj.args, Vec::<String>::new());
+
+        let command_obj = CommandObject::extract("/start@bot_username arg1 arg2");
+        assert_eq!(command_obj.command, "start");
+        assert_eq!(command_obj.prefix, "/");
+        assert_eq!(command_obj.mention, Some("bot_username".to_string()));
+        assert_eq!(
+            command_obj.args,
+            vec!["arg1".to_string(), "arg2".to_string()]
+        );
+    }
+
+    #[test]
+    fn test_validate_prefix() {
+        let command = Command::new(
+            vec![CommandPatternType::Text("start".to_string())],
+            "/".to_string(),
+            false,
+            false,
+        );
+
+        let command_obj = CommandObject::extract("/start");
+        assert!(command.validate_prefix(&command_obj).is_ok());
+
+        let command_obj = CommandObject::extract("!start");
+        assert!(command.validate_prefix(&command_obj).is_err());
+    }
+
+    #[test]
+    fn test_validate_command() {
+        let command = Command::new(
+            vec![CommandPatternType::Text("start".to_string())],
+            "/".to_string(),
+            false,
+            false,
+        );
+
+        let command_obj = CommandObject::extract("/start");
+        assert!(command.validate_command(&command_obj).is_ok());
+
+        let command_obj = CommandObject::extract("/START");
+        assert!(command.validate_command(&command_obj).is_err());
+
+        let command_obj = CommandObject::extract("/stop");
+        assert!(command.validate_command(&command_obj).is_err());
+
+        let command_obj = CommandObject::extract("/STOP");
+        assert!(command.validate_command(&command_obj).is_err());
+
+        let command = Command::new(
+            vec![CommandPatternType::Text("start".to_string())],
+            "/".to_string(),
+            true,
+            false,
+        );
+
+        let command_obj = CommandObject::extract("/start");
+        assert!(command.validate_command(&command_obj).is_ok());
+
+        let command_obj = CommandObject::extract("/START");
+        assert!(command.validate_command(&command_obj).is_ok());
+
+        let command_obj = CommandObject::extract("/stop");
+        assert!(command.validate_command(&command_obj).is_err());
+
+        let command_obj = CommandObject::extract("/STOP");
+        assert!(command.validate_command(&command_obj).is_err());
     }
 }
