@@ -6,7 +6,7 @@ pub struct Bot {}
 impl Bot {
     #[must_use]
     pub fn new() -> Self {
-        todo!()
+        Self {}
     }
 
     #[must_use]
