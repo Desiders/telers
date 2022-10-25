@@ -1,5 +1,5 @@
 mod handler;
 // mod telegram;
 
-pub use handler::{fut_wrap, BoxFutHandlerFut, Handler, HandlerFut};
+pub use handler::{handler_wrap_in_service, BoxHandlerService, Handler, HandlerFut};
 // pub use telegram::TelegramEventObserver;

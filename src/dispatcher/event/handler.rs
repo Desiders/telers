@@ -5,6 +5,7 @@ use std::{future::Future, pin::Pin, rc::Rc};
 #[allow(clippy::module_name_repetitions)]
 pub type HandlerFut<H, Args> = <H as Handler<Args>>::Future;
 pub type BoxFutHandlerFut<H, Args> = Pin<Box<dyn Future<Output = HandlerFut<H, Args>>>>;
+pub type BoxHandlerService<H, Args> = Box<dyn Fn(Rc<Bot>, Rc<Update>) -> BoxFutHandlerFut<H, Args>>;
 
 pub trait Handler<Args>: Clone {
     type Output;
@@ -28,14 +29,14 @@ where
     }
 }
 
-pub fn fut_wrap<H, Args>(handler: H) -> impl Fn(Rc<Bot>, Rc<Update>) -> BoxFutHandlerFut<H, Args>
+pub fn handler_wrap_in_service<H, Args>(handler: H) -> BoxHandlerService<H, Args>
 where
     H: Handler<Args> + 'static,
     Args: FromEventAndContext + 'static,
 {
-    move |bot: Rc<Bot>, update: Rc<Update>| {
+    Box::new(move |bot: Rc<Bot>, update: Rc<Update>| {
         Box::pin(extract_fut_with_args(handler.clone(), bot, update))
-    }
+    })
 }
 
 macro_rules! factory_tuple ({ $($param:ident)* } => {
@@ -113,8 +114,8 @@ mod tests {
         }
 
         let message = Message::default();
-        let fut = fut_wrap(handler);
-        let fut_with_args = r#await!(fut(
+        let service = handler_wrap_in_service(handler);
+        let fut_with_args = r#await!(service(
             Rc::new(Bot::new()),
             Rc::new(Update {
                 message: Some(message.clone()),
