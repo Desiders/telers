@@ -124,6 +124,8 @@ impl std::error::Error for TelegramRetryAfter {
     }
 }
 
+impl TelegramAPIError for TelegramRetryAfter {}
+
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct TelegramMigrateToChat {
@@ -157,6 +159,8 @@ impl std::error::Error for TelegramMigrateToChat {
     }
 }
 
+impl TelegramAPIError for TelegramMigrateToChat {}
+
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct TelegramBadRequest {
@@ -181,6 +185,8 @@ impl std::error::Error for TelegramBadRequest {
         None
     }
 }
+
+impl TelegramAPIError for TelegramBadRequest {}
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
@@ -207,6 +213,8 @@ impl std::error::Error for TelegramNotFound {
     }
 }
 
+impl TelegramAPIError for TelegramNotFound {}
+
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct TelegramConflictError {
@@ -231,6 +239,8 @@ impl std::error::Error for TelegramConflictError {
         None
     }
 }
+
+impl TelegramAPIError for TelegramConflictError {}
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
@@ -257,6 +267,8 @@ impl std::error::Error for TelegramForbidden {
     }
 }
 
+impl TelegramAPIError for TelegramForbidden {}
+
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct TelegramUnauthorized {
@@ -281,6 +293,8 @@ impl std::error::Error for TelegramUnauthorized {
         None
     }
 }
+
+impl TelegramAPIError for TelegramUnauthorized {}
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
@@ -307,6 +321,8 @@ impl std::error::Error for TelegramServerError {
     }
 }
 
+impl TelegramAPIError for TelegramServerError {}
+
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct RestartingTelegram {
@@ -331,6 +347,8 @@ impl std::error::Error for RestartingTelegram {
         None
     }
 }
+
+impl TelegramAPIError for RestartingTelegram {}
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
@@ -364,6 +382,8 @@ impl std::error::Error for TelegramEntityTooLarge {
         None
     }
 }
+
+impl TelegramAPIError for TelegramEntityTooLarge {}
 
 impl<T: TelegramAPIError + 'static> From<T> for Error {
     fn from(err: T) -> Error {
