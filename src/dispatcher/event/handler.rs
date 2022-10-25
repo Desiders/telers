@@ -1,17 +1,58 @@
-use crate::{client::Bot, extract::FromEventAndContext, types::Update};
+use crate::{client::Bot, extract::FromEventAndContext, filters::BoxFilter, types::Update};
 
 use std::{future::Future, pin::Pin, rc::Rc};
 
 #[allow(clippy::module_name_repetitions)]
-pub type HandlerFut<H, Args> = <H as Handler<Args>>::Future;
-pub type BoxFutHandlerFut<H, Args> = Pin<Box<dyn Future<Output = HandlerFut<H, Args>>>>;
-pub type BoxHandlerService<H, Args> = Box<dyn Fn(Rc<Bot>, Rc<Update>) -> BoxFutHandlerFut<H, Args>>;
+type HandlerFut<H, Args> = <H as Handler<Args>>::Future;
+type BoxFutHandlerFut<H, Args> = Pin<Box<dyn Future<Output = HandlerFut<H, Args>>>>;
+type BoxHandlerService<H, Args> = Box<dyn Fn(Rc<Bot>, Rc<Update>) -> BoxFutHandlerFut<H, Args>>;
 
 pub trait Handler<Args>: Clone {
     type Output;
     type Future: Future<Output = Self::Output>;
 
     fn call(&self, args: Args) -> Self::Future;
+}
+
+#[allow(clippy::module_name_repetitions)]
+pub struct HandlerObject<H, Args>
+where
+    H: Handler<Args>,
+    Args: FromEventAndContext,
+{
+    service: BoxHandlerService<H, Args>,
+    filters: Vec<BoxFilter>,
+}
+
+impl<H, Args> HandlerObject<H, Args>
+where
+    H: Handler<Args> + 'static,
+    Args: FromEventAndContext + 'static,
+{
+    pub fn new(handler: H, filters: Vec<BoxFilter>) -> Self {
+        Self {
+            service: wrap_in_service(handler),
+            filters,
+        }
+    }
+
+    pub fn filters(&self) -> &[BoxFilter] {
+        &self.filters
+    }
+
+    pub async fn check(&self, bot: Rc<Bot>, update: Rc<Update>) -> bool {
+        for filter in self.filters() {
+            if !filter.check(bot.as_ref(), update.as_ref()) {
+                return false;
+            }
+        }
+
+        true
+    }
+
+    pub async fn call(&self, bot: Rc<Bot>, update: Rc<Update>) -> H::Output {
+        (self.service)(bot, update).await.await
+    }
 }
 
 async fn extract_fut_with_args<H, Args>(
@@ -29,7 +70,7 @@ where
     }
 }
 
-pub fn handler_wrap_in_service<H, Args>(handler: H) -> BoxHandlerService<H, Args>
+pub fn wrap_in_service<H, Args>(handler: H) -> BoxHandlerService<H, Args>
 where
     H: Handler<Args> + 'static,
     Args: FromEventAndContext + 'static,
@@ -108,13 +149,13 @@ mod tests {
     }
 
     #[test]
-    fn test_call_handler() {
+    fn test_wrap_handler_in_service() {
         async fn handler(message: Message) -> Message {
             message
         }
 
         let message = Message::default();
-        let service = handler_wrap_in_service(handler);
+        let service = wrap_in_service(handler);
         let fut_with_args = r#await!(service(
             Rc::new(Bot::new()),
             Rc::new(Update {
@@ -125,5 +166,28 @@ mod tests {
         let result = r#await!(fut_with_args);
 
         assert_eq!(result, message);
+    }
+
+    #[test]
+    fn test_handler_object() {
+        async fn handler(message: Message) -> Message {
+            message
+        }
+
+        let message = Message::default();
+        let bot = Rc::new(Bot::new());
+        let update = Rc::new(Update {
+            message: Some(message.clone()),
+            ..Update::default()
+        });
+
+        let handler_object = HandlerObject::new(handler, vec![]);
+        if r#await!(handler_object.check(bot.clone(), update.clone())) {
+            let result = r#await!(handler_object.call(bot.clone(), update.clone()));
+
+            assert_eq!(result, message);
+        } else {
+            assert!(false);
+        }
     }
 }

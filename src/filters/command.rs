@@ -1,7 +1,7 @@
-use super::Filter;
 use crate::{
     client::Bot,
-    types::{BotCommand, Message},
+    filters::Filter,
+    types::{BotCommand, Update},
 };
 
 use regex::Regex;
@@ -10,7 +10,7 @@ use std::fmt::{self, Display, Formatter};
 pub type Result<T> = std::result::Result<T, CommandError>;
 
 #[allow(clippy::module_name_repetitions)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, Hash, PartialEq)]
 pub enum CommandError {
     InvalidPrefix,
     InvalidMention,
@@ -28,12 +28,14 @@ impl Display for CommandError {
 }
 
 #[allow(clippy::module_name_repetitions)]
+#[derive(Debug, Clone)]
 pub enum CommandPatternType {
     Text(String),
     Object(BotCommand),
     Regex(Regex),
 }
 
+#[derive(Default, Debug, Clone)]
 pub struct Command {
     /// List of commands (string or compiled regexp patterns)
     pub commands: Vec<CommandPatternType>,
@@ -43,17 +45,6 @@ pub struct Command {
     pub ignore_case: bool,
     /// Ignore bot mention. By default, bot can not handle commands intended for other bots
     pub ignore_mention: bool,
-}
-
-impl Default for Command {
-    fn default() -> Self {
-        Self {
-            commands: vec![],
-            prefix: "/".to_string(),
-            ignore_case: false,
-            ignore_mention: false,
-        }
-    }
 }
 
 impl Command {
@@ -72,6 +63,9 @@ impl Command {
         }
     }
 
+    /// # Errors
+    ///
+    /// If prefix is invalid.
     pub fn validate_prefix(&self, command: &CommandObject) -> Result<()> {
         if command.prefix == self.prefix {
             Ok(())
@@ -80,6 +74,9 @@ impl Command {
         }
     }
 
+    /// # Errors
+    ///
+    /// If mention is invalid.
     pub fn validate_mention(&self, command: &CommandObject, bot: &Bot) -> Result<()> {
         if self.ignore_mention {
             Ok(())
@@ -98,6 +95,9 @@ impl Command {
         }
     }
 
+    /// # Errors
+    ///
+    /// If command is invalid.
     pub fn validate_command(&self, command: &CommandObject) -> Result<()> {
         let command = if self.ignore_case {
             command.command.to_lowercase()
@@ -128,6 +128,9 @@ impl Command {
         Err(CommandError::InvalidCommand)
     }
 
+    /// # Errors
+    ///
+    /// If prefix, mention or command is invalid.
     pub fn parse_command(&self, text: &str, bot: &Bot) -> Result<CommandObject> {
         let command = CommandObject::extract(text);
 
@@ -166,7 +169,14 @@ impl CommandObject {
             let command = result[0].to_string();
             let mention = result[1].to_string();
 
-            (command, if mention == "" { None } else { Some(mention) })
+            (
+                command,
+                if mention.is_empty() {
+                    None
+                } else {
+                    Some(mention)
+                },
+            )
         } else {
             (command_with_mention, None)
         };
@@ -181,15 +191,17 @@ impl CommandObject {
 }
 
 impl Filter for Command {
-    type Event = Message;
+    fn check(&self, bot: &Bot, update: &Update) -> bool {
+        if let Some(ref message) = update.message {
+            let text = match message.get_text_or_caption() {
+                Some(text) => text,
+                None => return false,
+            };
 
-    fn check(&self, bot: &Bot, message: &Self::Event) -> bool {
-        let text = match message.get_text_or_caption() {
-            Some(text) => text,
-            None => return false,
-        };
-
-        self.parse_command(text, bot).is_ok()
+            self.parse_command(text, bot).is_ok()
+        } else {
+            false
+        }
     }
 }
 
