@@ -1,13 +1,21 @@
 use crate::{
-    dispatcher::event::handler::{Handler, HandlerObject},
+    client::Bot,
+    dispatcher::event::{
+        bases::EventReturn,
+        handler::{Handler, HandlerObject},
+    },
     extract::FromEventAndContext,
     filters::BoxFilter,
+    types::Update,
 };
+
+use std::rc::Rc;
 
 #[allow(clippy::module_name_repetitions)]
 pub struct TelegramEventObserver<H, Args>
 where
     H: Handler<Args>,
+    H::Output: EventReturn,
     Args: FromEventAndContext,
 {
     /// Event observer handlers name
@@ -21,6 +29,7 @@ where
 impl<H, Args> TelegramEventObserver<H, Args>
 where
     H: Handler<Args> + 'static,
+    H::Output: EventReturn,
     Args: FromEventAndContext + 'static,
 {
     /// Creates a new event observer.
@@ -55,6 +64,21 @@ where
     /// Add a handler with handler' filters to the observer.
     pub fn register(&mut self, handler: H, filters: Vec<BoxFilter>) {
         self.handlers.push(HandlerObject::new(handler, filters));
+    }
+
+    /// Propagate event to handlers and stops propagation on first match.
+    /// Handler will be called when all its filters is pass.
+    pub async fn trigger(&self, bot: Rc<Bot>, update: Rc<Update>) {
+        for handler in self.handlers() {
+            if handler.check(bot.clone(), update.clone()).await {
+                let result = handler.call(bot.clone(), update.clone()).await;
+                if result.is_skip() {
+                    continue;
+                } else {
+                    return;
+                }
+            }
+        }
     }
 }
 

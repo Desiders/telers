@@ -1,5 +1,7 @@
+mod bases;
 mod handler;
 mod telegram;
 
-pub use handler::{HandlerObject, Handler};
+pub use bases::EventReturn;
+pub use handler::{Handler, HandlerObject};
 pub use telegram::TelegramEventObserver;
