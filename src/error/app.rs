@@ -1,11 +1,11 @@
 use std::{
-    self,
     convert::Infallible,
+    error::Error as StdError,
     fmt::{self, Debug, Display, Formatter},
 };
 
 #[allow(clippy::module_name_repetitions)]
-pub trait AppError: Debug + Display + std::error::Error {}
+pub trait AppError: StdError {}
 
 impl AppError for Infallible {}
 
@@ -25,11 +25,7 @@ impl Debug for Error {
     }
 }
 
-impl std::error::Error for Error {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        None
-    }
-}
+impl StdError for Error {}
 
 #[derive(Debug)]
 pub struct ExtractError {
@@ -42,11 +38,7 @@ impl Display for ExtractError {
     }
 }
 
-impl std::error::Error for ExtractError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        None
-    }
-}
+impl StdError for ExtractError {}
 
 impl AppError for ExtractError {}
 
