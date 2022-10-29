@@ -1,12 +1,16 @@
-use crate::{client::Bot, extract::FromEventAndContext, filters::BoxFilter, types::Update};
+use crate::{
+    client::Bot, context::Context, extract::FromEventAndContext, filters::BoxFilter, types::Update,
+};
 
-use std::{future::Future, pin::Pin, rc::Rc};
+use std::{cell::RefCell, future::Future, pin::Pin, rc::Rc};
 
 #[allow(clippy::module_name_repetitions)]
 type HandlerFut<H, Args> = <H as Handler<Args>>::Future;
 type BoxFutHandlerFut<H, Args> = Pin<Box<dyn Future<Output = HandlerFut<H, Args>>>>;
-type BoxHandlerService<H, Args> = Box<dyn Fn(Rc<Bot>, Rc<Update>) -> BoxFutHandlerFut<H, Args>>;
+type BoxHandlerService<H, Args> =
+    Box<dyn Fn(Rc<Bot>, Rc<Update>, Rc<RefCell<Context>>) -> BoxFutHandlerFut<H, Args>>;
 
+/// A handler function for an event.
 pub trait Handler<Args>: Clone {
     type Output;
     type Future: Future<Output = Self::Output>;
@@ -14,6 +18,7 @@ pub trait Handler<Args>: Clone {
     fn call(&self, args: Args) -> Self::Future;
 }
 
+/// A handler object with wrapped [Handler] into a service and filters for the handler
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObject<H, Args>
 where
@@ -29,6 +34,10 @@ where
     H: Handler<Args> + 'static,
     Args: FromEventAndContext + 'static,
 {
+    /// Creates a new handler object
+    /// # Arguments
+    /// * `handler` - [Handler] function
+    /// * `filters` - Filters for the handler
     pub fn new(handler: H, filters: Vec<BoxFilter>) -> Self {
         Self {
             service: wrap_in_service(handler),
@@ -36,48 +45,87 @@ where
         }
     }
 
+    /// Get filters of the handler
+    #[must_use]
     pub fn filters(&self) -> &[BoxFilter] {
         &self.filters
     }
 
-    pub async fn check(&self, bot: Rc<Bot>, update: Rc<Update>) -> bool {
+    /// Check if the handler pass the filters.
+    /// If the handler pass all them, then the handler will be called.
+    /// # Arguments
+    /// * `bot` - [Bot] instance
+    /// * `update` - [Update] instance
+    /// * `context` - [Context] instance
+    /// # Returns
+    /// `true` if the handler pass all filters
+    /// `false` if the handler doesn't pass at least one filter
+    pub async fn check(
+        &self,
+        bot: Rc<Bot>,
+        update: Rc<Update>,
+        context: Rc<RefCell<Context>>,
+    ) -> bool {
         for filter in self.filters() {
-            if !filter.check(bot.as_ref(), update.as_ref()) {
+            if !filter.check(bot.as_ref(), update.as_ref(), context.as_ref()) {
                 return false;
             }
         }
-
         true
     }
 
-    pub async fn call(&self, bot: Rc<Bot>, update: Rc<Update>) -> H::Output {
-        (self.service)(bot, update).await.await
+    /// Call the handler
+    /// # Arguments
+    /// * `bot` - [Bot] instance
+    /// * `update` - [Update] instance
+    /// * `context` - [Context] instance
+    pub async fn call(
+        &self,
+        bot: Rc<Bot>,
+        update: Rc<Update>,
+        context: Rc<RefCell<Context>>,
+    ) -> H::Output {
+        (self.service)(bot, update, context).await.await
     }
 }
 
+/// Extract a handler's [Future] with parsed arguments
+/// # Arguments
+/// * `handler` - [Handler] function
+/// * `bot` - [Bot] instance
+/// * `update` - [Update] instance
+/// * `context` - [Context] instance
+/// # Returns
+/// A handler's [Future] with parsed arguments
+/// # Panics
+/// If the handler's arguments can't be extracted from the [Update] and [Context]
 async fn extract_fut_with_args<H, Args>(
     handler: H,
     bot: Rc<Bot>,
     update: Rc<Update>,
+    context: Rc<RefCell<Context>>,
 ) -> HandlerFut<H, Args>
 where
     H: Handler<Args>,
     Args: FromEventAndContext,
 {
-    match Args::extract(bot.as_ref(), update.as_ref()).await {
+    match Args::extract(bot.as_ref(), update.as_ref(), context.clone()).await {
         Ok(args) => handler.call(args),
         Err(err) => panic!("Extract error: {}", err.into()),
     }
 }
 
+/// Wrap a handler's [Future] into a service
 pub fn wrap_in_service<H, Args>(handler: H) -> BoxHandlerService<H, Args>
 where
     H: Handler<Args> + 'static,
     Args: FromEventAndContext + 'static,
 {
-    Box::new(move |bot: Rc<Bot>, update: Rc<Update>| {
-        Box::pin(extract_fut_with_args(handler.clone(), bot, update))
-    })
+    Box::new(
+        move |bot: Rc<Bot>, update: Rc<Update>, context: Rc<RefCell<Context>>| {
+            Box::pin(extract_fut_with_args(handler.clone(), bot, update, context))
+        },
+    )
 }
 
 macro_rules! factory_tuple ({ $($param:ident)* } => {
@@ -162,6 +210,7 @@ mod tests {
                 message: Some(message.clone()),
                 ..Update::default()
             }),
+            Rc::new(RefCell::new(Context::new())),
         ));
         let result = r#await!(fut_with_args);
 
@@ -176,14 +225,16 @@ mod tests {
 
         let message = Message::default();
         let bot = Rc::new(Bot::new());
+        let context = Rc::new(RefCell::new(Context::new()));
         let update = Rc::new(Update {
             message: Some(message.clone()),
             ..Update::default()
         });
 
         let handler_object = HandlerObject::new(handler, vec![]);
-        if r#await!(handler_object.check(bot.clone(), update.clone())) {
-            let result = r#await!(handler_object.call(bot.clone(), update.clone()));
+        if r#await!(handler_object.check(bot.clone(), update.clone(), context.clone())) {
+            let result =
+                r#await!(handler_object.call(bot.clone(), update.clone(), context.clone()));
 
             assert_eq!(result, message);
         } else {

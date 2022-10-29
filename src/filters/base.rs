@@ -1,9 +1,17 @@
-use crate::{client::Bot, types::Update};
+use crate::{client::Bot, context::Context, types::Update};
+
+use std::cell::RefCell;
 
 pub type BoxFilter = Box<dyn Filter>;
 
+/// A base filter trait for filters
 pub trait Filter {
-    /// Returns `true` if the update should be handled by the handler.
-    /// Returns `false` if didn't pass all set filters.
-    fn check(&self, _: &Bot, _: &Update) -> bool;
+    /// Check if the filter pass.
+    /// # Arguments
+    /// * `bot` - [Bot] instance
+    /// * `update` - [Update] instance
+    /// * `context` - [Context] instance
+    /// # Returns
+    /// `true` if the filter pass, otherwise `false`.
+    fn check(&self, _: &Bot, _: &Update, _: &RefCell<Context>) -> bool;
 }

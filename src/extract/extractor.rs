@@ -1,4 +1,4 @@
-use crate::{client::Bot, error::app::Error, types::Update};
+use crate::{client::Bot, context::Context as AppContext, error::app::Error, types::Update};
 
 use futures::{
     future::{ok, Ready},
@@ -6,17 +6,20 @@ use futures::{
 };
 use pin_project_lite::pin_project;
 use std::{
+    cell::RefCell,
     convert::Infallible,
     marker::PhantomData,
     pin::Pin,
+    rc::Rc,
     task::{Context, Poll},
 };
 
+/// Trait for extracting data from [Update] and [Context] to handlers' arguments
 pub trait FromEventAndContext: Sized {
     type Error: Into<Error>;
     type Future: Future<Output = Result<Self, Self::Error>>;
 
-    fn extract(bot: &Bot, update: &Update) -> Self::Future;
+    fn extract(bot: &Bot, update: &Update, context: Rc<RefCell<AppContext>>) -> Self::Future;
 }
 
 impl<T> FromEventAndContext for Option<T>
@@ -27,9 +30,9 @@ where
     type Future = FromEventAndContextOptFuture<T::Future>;
 
     #[inline]
-    fn extract(bot: &Bot, update: &Update) -> Self::Future {
+    fn extract(bot: &Bot, update: &Update, context: Rc<RefCell<AppContext>>) -> Self::Future {
         FromEventAndContextOptFuture {
-            fut: T::extract(bot, update),
+            fut: T::extract(bot, update, context),
         }
     }
 }
@@ -67,9 +70,9 @@ where
     type Future = FromEventAndContextResFuture<T::Future, E>;
 
     #[inline]
-    fn extract(bot: &Bot, update: &Update) -> Self::Future {
+    fn extract(bot: &Bot, update: &Update, context: Rc<RefCell<AppContext>>) -> Self::Future {
         FromEventAndContextResFuture {
-            fut: T::extract(bot, update),
+            fut: T::extract(bot, update, context),
             _phantom: PhantomData,
         }
     }
@@ -101,8 +104,8 @@ where
 #[allow(non_snake_case)]
 mod tuple_from_req {
     use super::{
-        ok, pin_project, Bot, Context, Error, FromEventAndContext, Future, Infallible, Pin, Poll,
-        Ready, Update,
+        ok, pin_project, AppContext, Bot, Context, Error, FromEventAndContext, Future, Infallible,
+        Pin, Poll, Rc, Ready, RefCell, Update,
     };
 
     macro_rules! tuple_from_req {
@@ -114,11 +117,11 @@ mod tuple_from_req {
                 type Error = Error;
                 type Future = $fut<$($T),+>;
 
-                fn extract(bot: &Bot, update: &Update) -> Self::Future {
+                fn extract(bot: &Bot, update: &Update, context: Rc<RefCell<AppContext>>) -> Self::Future {
                     $fut {
                         $(
                             $T: ExtractFuture::Future {
-                                fut: $T::extract(bot, update)
+                                fut: $T::extract(bot, update, context.clone()),
                             },
                         )+
                     }
@@ -188,11 +191,12 @@ mod tuple_from_req {
         }
     }
 
+    /// To be able to use [Handler] without arguments
     impl FromEventAndContext for () {
         type Error = Infallible;
         type Future = Ready<Result<Self, Self::Error>>;
 
-        fn extract(_: &Bot, _: &Update) -> Self::Future {
+        fn extract(_: &Bot, _: &Update, _: Rc<RefCell<AppContext>>) -> Self::Future {
             ok(())
         }
     }

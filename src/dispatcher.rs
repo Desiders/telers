@@ -1,1 +1,1 @@
-mod event;
+pub mod event;

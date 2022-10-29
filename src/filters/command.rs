@@ -1,11 +1,15 @@
 use crate::{
     client::Bot,
+    context::Context,
     filters::Filter,
     types::{BotCommand, Update},
 };
 
 use regex::Regex;
-use std::fmt::{self, Display, Formatter};
+use std::{
+    cell::RefCell,
+    fmt::{self, Display, Formatter},
+};
 
 pub type Result<T> = std::result::Result<T, CommandError>;
 
@@ -27,6 +31,11 @@ impl Display for CommandError {
     }
 }
 
+/// Represents a command pattern type for verification
+/// # Variants
+/// * `Text(String)` - A command pattern with text
+/// * `Object(BotCommand)` - A command pattern with [`BotCommand`] object
+/// * `Regex(Regex)` - A command pattern with regex
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Clone)]
 pub enum CommandPatternType {
@@ -64,7 +73,6 @@ impl Command {
     }
 
     /// # Errors
-    ///
     /// If prefix is invalid.
     pub fn validate_prefix(&self, command: &CommandObject) -> Result<()> {
         if command.prefix == self.prefix {
@@ -75,7 +83,6 @@ impl Command {
     }
 
     /// # Errors
-    ///
     /// If mention is invalid.
     pub fn validate_mention(&self, command: &CommandObject, bot: &Bot) -> Result<()> {
         if self.ignore_mention {
@@ -96,7 +103,6 @@ impl Command {
     }
 
     /// # Errors
-    ///
     /// If command is invalid.
     pub fn validate_command(&self, command: &CommandObject) -> Result<()> {
         let command = if self.ignore_case {
@@ -129,7 +135,6 @@ impl Command {
     }
 
     /// # Errors
-    ///
     /// If prefix, mention or command is invalid.
     pub fn parse_command(&self, text: &str, bot: &Bot) -> Result<CommandObject> {
         let command = CommandObject::extract(text);
@@ -143,6 +148,7 @@ impl Command {
 }
 
 #[allow(clippy::module_name_repetitions)]
+#[derive(Debug, Clone, Eq, Hash, PartialEq)]
 pub struct CommandObject {
     /// Command without prefix and mention
     pub command: String,
@@ -155,6 +161,7 @@ pub struct CommandObject {
 }
 
 impl CommandObject {
+    /// Extracts [`CommandObject`] from text
     #[must_use]
     pub fn extract(text: &str) -> Self {
         let result: Vec<_> = text.trim().split(' ').collect();
@@ -191,14 +198,22 @@ impl CommandObject {
 }
 
 impl Filter for Command {
-    fn check(&self, bot: &Bot, update: &Update) -> bool {
+    fn check(&self, bot: &Bot, update: &Update, context: &RefCell<Context>) -> bool {
         if let Some(ref message) = update.message {
             let text = match message.get_text_or_caption() {
                 Some(text) => text,
                 None => return false,
             };
 
-            self.parse_command(text, bot).is_ok()
+            match self.parse_command(text, bot) {
+                Ok(command) => {
+                    context
+                        .borrow_mut()
+                        .insert("command".to_string(), Box::new(command));
+                    true
+                }
+                Err(_) => false,
+            }
         } else {
             false
         }
