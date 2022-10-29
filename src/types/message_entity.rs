@@ -21,15 +21,18 @@ pub struct MessageEntity {
     pub user: Option<User>,
     /// *Optional*. For 'pre' only, the programming language of the entity text
     pub language: Option<String>,
-    /// *Optional*. For 'custom_emoji' only, unique identifier of the custom emoji. Use :class:`aiogram_rs.methods.get_custom_emoji_stickers.GetCustomEmojiStickers` to get full information about the sticker
+    /// *Optional*. For 'custom_emoji' only, unique identifier of the custom emoji. Use `aiogram_rs.methods.get_custom_emoji_stickers.GetCustomEmojiStickers` to get full information about the sticker
     pub custom_emoji_id: Option<String>,
 }
 
 impl MessageEntity {
+    /// # Panics
+    /// If the `self.offset` or `self.offset + self.length` is out of the range
     #[must_use]
     pub fn extract_from(&self, text: &str) -> String {
         let with_surrogates = add_surrogates(
-            &text[self.offset as usize * 2..(self.offset + self.length) as usize * 2],
+            &text[usize::try_from(self.offset).unwrap() * 2
+                ..usize::try_from(self.offset + self.length).unwrap() * 2],
         );
 
         remove_surrogates(&with_surrogates)

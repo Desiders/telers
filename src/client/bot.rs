@@ -1,5 +1,6 @@
 use crate::types::User;
 
+/// Represents a bot
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Bot {}
 

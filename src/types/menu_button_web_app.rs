@@ -11,7 +11,7 @@ pub struct MenuButtonWebApp {
     pub button_type: String,
     /// Text on the button
     pub text: String,
-    /// WebAppInfo Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method :class:`aiogram_rs.methods.answer_web_app_query.AnswerWebAppQuery`.
+    /// WebAppInfo Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method `aiogram_rs.methods.answer_web_app_query.AnswerWebAppQuery`.
     pub web_app: WebAppInfo,
 }
 

@@ -20,11 +20,11 @@ pub struct User {
     pub is_premium: Option<bool>,
     /// *Optional*. :code:`True`, if this user added the bot to the attachment menu
     pub added_to_attachment_menu: Option<bool>,
-    /// *Optional*. :code:`True`, if the bot can be invited to groups. Returned only in :class:`aiogram_rs.methods.get_me.GetMe`.
+    /// *Optional*. :code:`True`, if the bot can be invited to groups. Returned only in `aiogram_rs.methods.get_me.GetMe`.
     pub can_join_groups: Option<bool>,
-    /// *Optional*. :code:`True`, if `privacy mode <https://core.telegram.org/bots#privacy-mode>`_ is disabled for the bot. Returned only in :class:`aiogram_rs.methods.get_me.GetMe`.
+    /// *Optional*. :code:`True`, if `privacy mode <https://core.telegram.org/bots#privacy-mode>`_ is disabled for the bot. Returned only in `aiogram_rs.methods.get_me.GetMe`.
     pub can_read_all_group_messages: Option<bool>,
-    /// *Optional*. :code:`True`, if the bot supports inline queries. Returned only in :class:`aiogram_rs.methods.get_me.GetMe`.
+    /// *Optional*. :code:`True`, if the bot supports inline queries. Returned only in `aiogram_rs.methods.get_me.GetMe`.
     pub supports_inline_queries: Option<bool>,
 }
 

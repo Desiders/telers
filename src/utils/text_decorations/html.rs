@@ -18,18 +18,22 @@ pub struct HtmlDecoration<'a> {
 }
 
 impl<'a> TextDecoration for HtmlDecoration<'a> {
+    /// Decorate text with `bold` tag
     fn bold(&self, text: &str) -> String {
         format!("<{tag}>{text}</{tag}>", tag = self.bold_tag, text = text)
     }
 
+    /// Decorate text with `italic` tag
     fn italic(&self, text: &str) -> String {
         format!("<{tag}>{text}</{tag}>", tag = self.italic_tag, text = text)
     }
 
+    /// Decorate text with `code` tag
     fn code(&self, text: &str) -> String {
         format!("<code>{text}</code>", text = text)
     }
 
+    /// Decorate text with `underline` tag
     fn underline(&self, text: &str) -> String {
         format!(
             "<{tag}>{text}</{tag}>",
@@ -38,6 +42,7 @@ impl<'a> TextDecoration for HtmlDecoration<'a> {
         )
     }
 
+    /// Decorate text with `strikethrough` tag
     fn strikethrough(&self, text: &str) -> String {
         format!(
             "<{tag}>{text}</{tag}>",
@@ -46,14 +51,17 @@ impl<'a> TextDecoration for HtmlDecoration<'a> {
         )
     }
 
+    /// Decorate text with `spoiler` tag
     fn spoiler(&self, text: &str) -> String {
         format!("<{tag}>{text}</{tag}>", tag = self.spoiler_tag, text = text)
     }
 
+    /// Decorate text with `pre` tag
     fn pre(&self, text: &str) -> String {
         format!("<pre>{text}</pre>", text = text)
     }
 
+    /// Decorate text with `pre_language` tag
     fn pre_language(&self, text: &str, language: &str) -> String {
         format!(
             "<pre><code class=\"language-{language}\">{text}</code></pre>",
@@ -62,10 +70,12 @@ impl<'a> TextDecoration for HtmlDecoration<'a> {
         )
     }
 
+    /// Decorate text with `link` tag
     fn link(&self, text: &str, url: &str) -> String {
         format!("<a href=\"{}\">{}</a>", url, text)
     }
 
+    /// Decorate text with `custom_emoji` tag
     fn custom_emoji(&self, text: &str, emoji_id: &str) -> String {
         format!(
             "<{tag} data-emoji-id=\"{emoji_id}\">{text}</{tag}>",
@@ -75,6 +85,7 @@ impl<'a> TextDecoration for HtmlDecoration<'a> {
         )
     }
 
+    /// Quote symbols, that can be interpreted as  HTML tags
     fn quote(&self, text: &str) -> String {
         let mut string = text.to_string();
 

@@ -7,6 +7,6 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#inlinekeyboardmarkup>_
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct InlineKeyboardMarkup {
-    /// Array of button rows, each represented by an Array of :class:`aiogram_rs.types.inline_keyboard_button.InlineKeyboardButton` objects
+    /// Array of button rows, each represented by an Array of `aiogram_rs.types.inline_keyboard_button.InlineKeyboardButton` objects
     pub inline_keyboard: Vec<Vec<InlineKeyboardButton>>,
 }
