@@ -1,114 +1,193 @@
+use super::{
+    service::{Service, ServiceFactory},
+    EventReturn, Handler, HandlerObject, HandlerObjectService, HandlerRequest,
+    PropagateEventResult,
+};
+
 use crate::{
-    client::Bot,
-    context::Context,
-    dispatcher::event::{
-        bases::EventReturn,
-        handler::{Handler, HandlerObject},
-    },
-    extract::FromEventAndContext,
-    filters::BoxFilter,
+    client::Bot, context::Context, error::app, extract::FromEventAndContext, filters::Filter,
     types::Update,
 };
 
+use futures::future::join_all;
+use futures_core::future::LocalBoxFuture;
 use std::{cell::RefCell, rc::Rc};
 
-/// Event observer for Telegram events.
-/// Here you can register a handler with filters for the event or filters for all handlers in the observer.
-/// This observer will stop event propagation when first handler is pass.
-#[allow(clippy::module_name_repetitions)]
-pub struct TelegramEventObserver<H, Args>
-where
-    H: Handler<Args>,
-    H::Output: EventReturn,
-    Args: FromEventAndContext,
-{
-    /// Event observer name
-    event_name: String,
-    /// Filters for all handlers in the observer
-    filters: Vec<BoxFilter>,
-    /// Handlers of the observer
-    handlers: Vec<HandlerObject<H, Args>>,
+#[derive(Clone)]
+pub struct Request {
+    bot: Rc<Bot>,
+    update: Rc<Update>,
+    context: Rc<RefCell<Context>>,
 }
 
-impl<H, Args> TelegramEventObserver<H, Args>
-where
-    H: Handler<Args> + 'static,
-    H::Output: EventReturn,
-    Args: FromEventAndContext + 'static,
-{
+impl From<Request> for HandlerRequest {
+    fn from(req: Request) -> Self {
+        HandlerRequest::new(req.bot, req.update, req.context)
+    }
+}
+
+pub struct Response {
+    request: Request,
+    response: PropagateEventResult,
+}
+
+pub struct EventObserver {
+    /// Event observer name
+    event_name: &'static str,
+    /// Handlers of the observer
+    handlers: Vec<HandlerObject>,
+    /// Common handler of the observer with dummy callback which never will be used. Need for tests.
+    common_handler: HandlerObject,
+}
+
+impl EventObserver {
     /// Creates a new event observer
     #[must_use]
-    pub fn new(event_name: String) -> Self {
+    pub fn new(event_name: &'static str) -> Self {
         Self {
             event_name,
-            filters: vec![],
             handlers: vec![],
+            common_handler: HandlerObject::new(
+                || async move { unimplemented!("This just for filters and without logic") },
+                vec![],
+            ),
         }
     }
 
     /// Get event observer name
     #[must_use]
-    pub fn event_name(&self) -> &str {
-        &self.event_name
+    fn event_name(&self) -> &str {
+        self.event_name
+    }
+
+    /// Get handlers of the observer
+    #[must_use]
+    fn handlers(&self) -> &[HandlerObject] {
+        &self.handlers
     }
 
     /// Get filters of the observer
     #[must_use]
-    pub fn filters(&self) -> &[BoxFilter] {
-        &self.filters
+    fn filters(&self) -> &[Box<dyn Filter>] {
+        self.common_handler.filters()
     }
 
-    /// Get handlers of the observer.
-    #[must_use]
-    pub fn handlers(&self) -> &[HandlerObject<H, Args>] {
-        &self.handlers
+    /// Add a filter to the observer
+    /// # Arguments
+    /// * `filter` - Filter for the observer
+    fn filter(&mut self, filter: Box<dyn Filter>) {
+        Rc::get_mut(&mut self.common_handler.filters)
+            .unwrap()
+            .push(filter);
     }
 
-    /// Add a filter to the observer.
-    pub fn filter(&mut self, filter: BoxFilter) {
-        self.filters.push(filter);
-    }
-
-    /// Add a handler with handler's filters to the observer.
-    pub fn register(&mut self, handler: H, filters: Vec<BoxFilter>) {
+    /// Add a handler with handler's filters to the observer
+    /// # Arguments
+    /// * `handler` - Handler for the observer
+    /// * `filters` - Filters for the handler
+    fn register<H, Args>(&mut self, handler: H, filters: Vec<Box<dyn Filter>>)
+    where
+        H: Handler<Args> + 'static,
+        H::Output: Into<EventReturn>,
+        Args: FromEventAndContext + 'static,
+    {
         self.handlers.push(HandlerObject::new(handler, filters));
     }
+}
 
-    /// Propagate event to handlers and stops propagation on first match.
-    /// Handler will be called when all its filters is pass.
-    /// # Arguments
-    /// * `bot` - [Bot] instance
-    /// * `update` - [Update] instance
-    /// * `context` - [Context] instance
-    /// # Returns
-    /// `true` if pass at least one handler, otherwise `false`.
-    pub async fn trigger(&self, bot: Rc<Bot>, update: Rc<Update>, context: Rc<RefCell<Context>>) {
-        for handler in self.handlers() {
-            // Check if the handler pass the filters
-            if handler
-                .check(bot.clone(), update.clone(), context.clone())
-                .await
-            {
-                // Call the handler
-                let result = handler
-                    .call(bot.clone(), update.clone(), context.clone())
-                    .await;
-                if result.is_skip() {
-                    continue;
+impl ServiceFactory<Request> for EventObserver {
+    type Response = Response;
+    type Error = app::Error;
+    type Config = ();
+    type Service = ObserverService;
+    type InitError = ();
+    type Future = LocalBoxFuture<'static, Result<Self::Service, Self::InitError>>;
+
+    fn new_service(&self, _: Self::Config) -> Self::Future {
+        let event_name = self.event_name;
+        let futs = self
+            .handlers
+            .iter()
+            .map(|handler| handler.new_service(()))
+            .collect::<Vec<_>>();
+        let fut = self.common_handler.new_service(());
+
+        Box::pin(async move {
+            let handlers = join_all(futs).await.into_iter().collect::<Result<_, _>>()?;
+            let common_handler = fut.await?;
+
+            Ok(ObserverService {
+                event_name,
+                handlers,
+                common_handler,
+            })
+        })
+    }
+}
+
+#[allow(clippy::module_name_repetitions)]
+pub struct ObserverService {
+    /// Event observer name
+    event_name: &'static str,
+    /// Handler services of the observer
+    handlers: Vec<HandlerObjectService>,
+    /// Common handler service of the observer with dummy callback which never will be used. Need for tests.
+    common_handler: HandlerObjectService,
+}
+
+impl ObserverService {
+    #[allow(clippy::similar_names)]
+    async fn trigger(&self, req: Request) -> Result<Response, app::Error> {
+        let handler_req = req.clone().into();
+
+        if !self.common_handler.check(&handler_req) {
+            return Ok(Response {
+                request: req,
+                response: PropagateEventResult::Rejected,
+            });
+        }
+
+        for handler in &self.handlers {
+            if !handler.check(&handler_req) {
+                continue;
+            }
+            match handler.call(handler_req.clone()).await {
+                Ok(res) => {
+                    if res.response().is_skip() {
+                        continue;
+                    }
+                    return Ok(Response {
+                        request: req,
+                        response: PropagateEventResult::Handled(res),
+                    });
                 }
-                return;
+                Err(err) => return Err(err),
             }
         }
+
+        Ok(Response {
+            request: req,
+            response: PropagateEventResult::Unhandled,
+        })
+    }
+}
+
+impl Service<Request> for ObserverService {
+    type Response = Response;
+    type Error = app::Error;
+    type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
+
+    fn call(&self, _: Request) -> Self::Future {
+        unimplemented!("It just for `Service` trait, use `ObserverService::trigger` instead.")
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{Bot, Context, Rc, RefCell, TelegramEventObserver, Update};
-
+    use super::*;
     use crate::{
-        dispatcher::event::bases::{Action, EventReturn},
-        filters::{self, CommandObject, CommandPatternType},
+        dispatcher::event::bases::Action,
+        filters::{Command, CommandPatternType},
         types::Message,
     };
 
@@ -119,70 +198,94 @@ mod tests {
     }
 
     #[test]
-    fn test_event_observer_trigger() {
-        /// # Arguments
-        /// * `message` - [`Message`] instance
-        /// * `command` - [`CommandObject`] instance here from [`Command`] and [`extract.filters`]
-        async fn handler(message: Message, command: CommandObject) {
-            assert_eq!(message.text.unwrap(), "/test");
+    fn test_observer_trigger() {
+        let bot = Rc::new(Bot::default());
+        let context = Rc::new(RefCell::new(Context::new()));
 
-            assert_eq!(command.command, "test");
-            assert_eq!(command.prefix, "/");
-            assert_eq!(command.mention, None);
-            assert_eq!(command.args, Vec::<String>::new());
-        }
+        let mut observer = EventObserver::new("test");
 
-        let mut observer = TelegramEventObserver::new("test".to_string());
-
-        // observer.filter(); TODO: add filters
+        // Filter, which handlers can't pass
+        observer.filter(Box::new(Command {
+            commands: vec![CommandPatternType::Text("start")],
+            prefix: "/",
+            ignore_case: false,
+            ignore_mention: false,
+        }));
+        observer.register(|| async { Action::Cancel }, vec![]);
         observer.register(
-            handler,
-            vec![Box::new(filters::Command {
-                commands: vec![CommandPatternType::Text("test".to_string())],
-                prefix: "/".to_string(),
-                ignore_case: false,
-                ignore_mention: false,
-            })],
+            || async {
+                unimplemented!("It shouldn't trigger because the first handler handles the event")
+            },
+            vec![],
         );
 
-        assert_eq!(observer.event_name(), "test");
-        assert_eq!(observer.handlers().len(), 1);
-
-        let message = Message {
-            text: Some("/test".to_string()),
-            ..Default::default()
+        let observer_service = r#await!(observer.new_service(())).unwrap();
+        let req = Request {
+            bot: bot.clone(),
+            update: Rc::new(Update::default()),
+            context: context.clone(),
         };
-        let bot = Rc::new(Bot::new());
-        let context = Rc::new(RefCell::new(Context::new()));
-        let update = Rc::new(Update {
-            message: Some(message.clone()),
-            ..Update::default()
-        });
+        let res = r#await!(observer_service.trigger(req)).unwrap();
 
-        r#await!(observer.trigger(bot, update, context));
+        match res.response {
+            // Observer has filter, which handlers can't pass, so it will be rejected
+            PropagateEventResult::Rejected => {}
+            _ => panic!("Unexpected result"),
+        }
+
+        let res = r#await!(observer_service.trigger(Request {
+            bot: bot.clone(),
+            update: Rc::new(Update {
+                message: Some(Message {
+                    text: Some("/start".to_string()),
+                    ..Message::default()
+                }),
+                ..Update::default()
+            }),
+            context: context.clone(),
+        }))
+        .unwrap();
+
+        match res.response {
+            // Observer has filter, which handlers can pass, so it will be handled
+            PropagateEventResult::Handled(_) => {}
+            _ => panic!("Unexpected result"),
+        }
     }
 
     #[test]
-    fn test_event_observer_event_return() {
-        async fn handler_first() -> impl EventReturn {
+    fn test_observer_event_return() {
+        async fn handler_first() -> impl Into<EventReturn> {
             Action::Skip
         }
 
-        async fn handler_second() -> impl EventReturn {
+        async fn handler_second() -> impl Into<EventReturn> {
             Action::Cancel
         }
 
-        let mut observer = TelegramEventObserver::new("test".to_string());
-
-        observer.register(handler_first, vec![]);
-        // observer.register(handler_second, vec![]); TODO: fix with bug zero-sized value of the function's item type
-
         let bot = Rc::new(Bot::new());
         let context = Rc::new(RefCell::new(Context::new()));
-        let update = Rc::new(Update {
-            ..Update::default()
-        });
+        let update = Rc::new(Update::default());
 
-        r#await!(observer.trigger(bot, update, context));
+        let mut observer = EventObserver::new("test");
+
+        observer.register(handler_first, vec![]);
+        observer.register(handler_second, vec![]);
+
+        let observer_service = r#await!(observer.new_service(())).unwrap();
+
+        let res = r#await!(observer_service.trigger(Request {
+            bot: bot.clone(),
+            update: update.clone(),
+            context: context.clone(),
+        }))
+        .unwrap();
+
+        match res.response {
+            PropagateEventResult::Handled(handler_res) => {
+                assert_eq!(*handler_res.response(), Action::Cancel.into());
+            }
+            _ => panic!("Unexpected result"),
+        }
     }
 }

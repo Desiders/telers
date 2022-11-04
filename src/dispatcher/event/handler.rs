@@ -1,137 +1,214 @@
 use crate::{
-    client::Bot, context::Context, extract::FromEventAndContext, filters::BoxFilter, types::Update,
+    client::Bot,
+    context::Context,
+    dispatcher::event::{
+        bases::EventReturn,
+        service::{factory, fn_service, BoxService, BoxServiceFactory, Service, ServiceFactory},
+    },
+    error::app,
+    extract::FromEventAndContext,
+    filters::Filter,
+    types::Update,
 };
 
-use std::{cell::RefCell, future::Future, pin::Pin, rc::Rc};
+use futures_core::future::LocalBoxFuture;
+use std::{cell::RefCell, future::Future, rc::Rc};
 
-#[allow(clippy::module_name_repetitions)]
-type HandlerFut<H, Args> = <H as Handler<Args>>::Future;
-type BoxFutHandlerFut<H, Args> = Pin<Box<dyn Future<Output = HandlerFut<H, Args>>>>;
-type BoxHandlerService<H, Args> =
-    Box<dyn Fn(Rc<Bot>, Rc<Update>, Rc<RefCell<Context>>) -> BoxFutHandlerFut<H, Args>>;
+pub type BoxedHandlerService = BoxService<Request, Response, app::Error>;
+pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), Request, Response, app::Error, ()>;
 
-/// A handler function for an event.
-pub trait Handler<Args>: Clone {
+#[derive(Debug, Clone)]
+pub struct Request {
+    bot: Rc<Bot>,
+    update: Rc<Update>,
+    context: Rc<RefCell<Context>>,
+}
+
+impl PartialEq for Request {
+    fn eq(&self, other: &Self) -> bool {
+        Rc::ptr_eq(&self.bot, &other.bot)
+            && Rc::ptr_eq(&self.update, &other.update)
+            && Rc::ptr_eq(&self.context, &other.context)
+    }
+}
+
+impl Eq for Request {}
+
+impl Request {
+    #[must_use]
+    pub fn new(bot: Rc<Bot>, update: Rc<Update>, context: Rc<RefCell<Context>>) -> Self {
+        Self {
+            bot,
+            update,
+            context,
+        }
+    }
+
+    #[must_use]
+    fn bot(&self) -> &Rc<Bot> {
+        &self.bot
+    }
+
+    #[must_use]
+    fn update(&self) -> &Rc<Update> {
+        &self.update
+    }
+
+    #[must_use]
+    fn context(&self) -> &Rc<RefCell<Context>> {
+        &self.context
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Response {
+    request: Request,
+    response: EventReturn,
+}
+
+impl Response {
+    #[must_use]
+    pub fn new(request: Request, response: EventReturn) -> Self {
+        Self { request, response }
+    }
+
+    #[must_use]
+    pub fn request(&self) -> &Request {
+        &self.request
+    }
+
+    #[must_use]
+    pub fn response(&self) -> &EventReturn {
+        &self.response
+    }
+}
+
+pub trait Handler<Args>: Clone + 'static {
     type Output;
     type Future: Future<Output = Self::Output>;
 
     fn call(&self, args: Args) -> Self::Future;
 }
 
-/// A handler object with wrapped [Handler] into a service and filters for the handler
+/// [`Handler`] wrapped into a [`BoxedHandlerServiceFactory`] with filters
 #[allow(clippy::module_name_repetitions)]
-pub struct HandlerObject<H, Args>
-where
-    H: Handler<Args>,
-    Args: FromEventAndContext,
-{
-    service: BoxHandlerService<H, Args>,
-    filters: Vec<BoxFilter>,
+pub struct HandlerObject {
+    service: BoxedHandlerServiceFactory,
+    pub(crate) filters: Rc<Vec<Box<dyn Filter>>>,
 }
 
-impl<H, Args> HandlerObject<H, Args>
-where
-    H: Handler<Args> + 'static,
-    Args: FromEventAndContext + 'static,
-{
-    /// Creates a new handler object
+impl HandlerObject {
+    /// Creates a new [`HandlerObject`]
     /// # Arguments
-    /// * `handler` - [Handler] function
-    /// * `filters` - Filters for the handler
-    pub fn new(handler: H, filters: Vec<BoxFilter>) -> Self {
+    /// * `handler` - Handler function
+    /// * `filters` - Filters to the handler
+    pub fn new<H, Args>(handler: H, filters: Vec<Box<dyn Filter>>) -> Self
+    where
+        H: Handler<Args> + 'static,
+        Args: FromEventAndContext + 'static,
+        H::Output: Into<EventReturn>,
+    {
         Self {
-            service: wrap_in_service(handler),
-            filters,
+            service: handler_service(handler),
+            filters: Rc::new(filters),
         }
     }
 
-    /// Get filters of the handler
+    /// Get the handler filters
     #[must_use]
-    pub fn filters(&self) -> &[BoxFilter] {
+    pub fn filters(&self) -> &[Box<dyn Filter>] {
         &self.filters
     }
 
+    /// Add a filter to the handler filters.
+    /// # Arguments
+    /// * `filter` - [`Filter`] instance
+    /// # Panics
+    /// If there are other [`Rc`] or [`Weak`] pointers to the same allocation
+    pub fn filter(&mut self, filter: Box<dyn Filter>) {
+        Rc::get_mut(&mut self.filters).unwrap().push(filter);
+    }
+}
+
+impl ServiceFactory<Request> for HandlerObject {
+    type Response = Response;
+    type Error = app::Error;
+    type Config = ();
+    type Service = HandlerObjectService;
+    type InitError = ();
+    type Future = LocalBoxFuture<'static, Result<Self::Service, Self::InitError>>;
+
+    /// Create a new [`HandlerObjectService`]
+    fn new_service(&self, _: ()) -> Self::Future {
+        let fut = self.service.new_service(());
+        let filters = self.filters.clone();
+
+        Box::pin(async move {
+            let service = fut.await?;
+
+            Ok(HandlerObjectService { service, filters })
+        })
+    }
+}
+
+/// [`Handler`] wrapped into a [`BoxedHandlerService`] with filters
+#[allow(clippy::module_name_repetitions)]
+pub struct HandlerObjectService {
+    service: BoxedHandlerService,
+    filters: Rc<Vec<Box<dyn Filter>>>,
+}
+
+impl HandlerObjectService {
     /// Check if the handler pass the filters.
-    /// If the handler pass all them, then the handler will be called.
-    /// # Arguments
-    /// * `bot` - [Bot] instance
-    /// * `update` - [Update] instance
-    /// * `context` - [Context] instance
-    /// # Returns
-    /// `true` if the handler pass all filters
-    /// `false` if the handler doesn't pass at least one filter
-    pub async fn check(
-        &self,
-        bot: Rc<Bot>,
-        update: Rc<Update>,
-        context: Rc<RefCell<Context>>,
-    ) -> bool {
-        for filter in self.filters() {
-            if !filter.check(bot.as_ref(), update.as_ref(), context.as_ref()) {
-                return false;
-            }
-        }
-        true
-    }
-
-    /// Call the handler
-    /// # Arguments
-    /// * `bot` - [Bot] instance
-    /// * `update` - [Update] instance
-    /// * `context` - [Context] instance
-    pub async fn call(
-        &self,
-        bot: Rc<Bot>,
-        update: Rc<Update>,
-        context: Rc<RefCell<Context>>,
-    ) -> H::Output {
-        (self.service)(bot, update, context).await.await
+    /// If the handler pass all them, it will be called.
+    #[must_use]
+    pub fn check(&self, req: &Request) -> bool {
+        self.filters
+            .iter()
+            .all(|filter| filter.check(&req.bot, &req.update, &req.context))
     }
 }
 
-/// Extract a handler's [Future] with parsed arguments
-/// # Arguments
-/// * `handler` - [Handler] function
-/// * `bot` - [Bot] instance
-/// * `update` - [Update] instance
-/// * `context` - [Context] instance
-/// # Returns
-/// A handler's [Future] with parsed arguments
-/// # Panics
-/// If the handler's arguments can't be extracted from the [Update] and [Context]
-async fn extract_fut_with_args<H, Args>(
-    handler: H,
-    bot: Rc<Bot>,
-    update: Rc<Update>,
-    context: Rc<RefCell<Context>>,
-) -> HandlerFut<H, Args>
-where
-    H: Handler<Args>,
-    Args: FromEventAndContext,
-{
-    match Args::extract(bot.as_ref(), update.as_ref(), context.clone()).await {
-        Ok(args) => handler.call(args),
-        Err(err) => panic!("Extract error: {}", err.into()),
+impl Service<Request> for HandlerObjectService {
+    type Response = Response;
+    type Error = app::Error;
+    type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
+
+    /// Call [`BoxedHandlerService`], which is wrapped [`Handler`]
+    fn call(&self, req: Request) -> Self::Future {
+        self.service.call(req)
     }
 }
 
-/// Wrap a handler's [Future] into a service
-pub fn wrap_in_service<H, Args>(handler: H) -> BoxHandlerService<H, Args>
+/// Wrap a [`Handler`] into a [`BoxedHandlerServiceFactory`]
+#[allow(clippy::module_name_repetitions)]
+pub fn handler_service<H, Args>(handler: H) -> BoxedHandlerServiceFactory
 where
     H: Handler<Args> + 'static,
     Args: FromEventAndContext + 'static,
+    H::Output: Into<EventReturn>,
 {
-    Box::new(
-        move |bot: Rc<Bot>, update: Rc<Update>, context: Rc<RefCell<Context>>| {
-            Box::pin(extract_fut_with_args(handler.clone(), bot, update, context))
-        },
-    )
+    factory(fn_service(move |req: Request| {
+        let handler = handler.clone();
+
+        async move {
+            match Args::extract(req.bot.as_ref(), req.update.as_ref(), req.context.clone()).await {
+                // Call handler with extracted arguments
+                Ok(args) => Ok(Response {
+                    request: req,
+                    response: handler.call(args).await.into(),
+                }),
+                // Return error which implement `Into<app::Error>`
+                Err(err) => Err(err.into()),
+            }
+        }
+    }))
 }
 
 macro_rules! factory_tuple ({ $($param:ident)* } => {
     impl<Func, Fut, $($param,)*> Handler<($($param,)*)> for Func
     where
-        Func: Fn($($param),*) -> Fut + Clone,
+        Func: Fn($($param),*) -> Fut + Clone + 'static,
         Fut: Future,
     {
         type Output = Fut::Output;
@@ -161,34 +238,8 @@ factory_tuple! { A B C D E F G H I J K L }
 
 #[cfg(test)]
 mod tests {
-    use crate::types::Message;
-
     use super::*;
-
-    fn assert_impl_handler<T: FromEventAndContext>(_: impl Handler<T>) {}
-
-    #[test]
-    fn test_arg_number() {
-        async fn handler_min() {}
-        async fn handler_max(
-            _01: (),
-            _02: (),
-            _03: (),
-            _04: (),
-            _05: (),
-            _06: (),
-            _07: (),
-            _08: (),
-            _09: (),
-            _10: (),
-            _11: (),
-            _12: (),
-        ) {
-        }
-
-        assert_impl_handler(handler_min);
-        assert_impl_handler(handler_max);
-    }
+    use crate::filters::{Command, CommandPatternType};
 
     macro_rules! r#await {
         ($e:expr) => {
@@ -197,48 +248,65 @@ mod tests {
     }
 
     #[test]
-    fn test_wrap_handler_in_service() {
-        async fn handler(message: Message) -> Message {
-            message
-        }
+    fn test_arg_number() {
+        fn assert_impl_handler<T: FromEventAndContext>(_: impl Handler<T>) {}
 
-        let message = Message::default();
-        let service = wrap_in_service(handler);
-        let fut_with_args = r#await!(service(
-            Rc::new(Bot::new()),
-            Rc::new(Update {
-                message: Some(message.clone()),
-                ..Update::default()
-            }),
-            Rc::new(RefCell::new(Context::new())),
-        ));
-        let result = r#await!(fut_with_args);
-
-        assert_eq!(result, message);
+        assert_impl_handler(|| async { unimplemented!() });
+        assert_impl_handler(
+            |_01: (),
+             _02: (),
+             _03: (),
+             _04: (),
+             _05: (),
+             _06: (),
+             _07: (),
+             _08: (),
+             _09: (),
+             _10: (),
+             _11: (),
+             _12: ()| async { unimplemented!() },
+        );
     }
 
     #[test]
-    fn test_handler_object() {
-        async fn handler(message: Message) -> Message {
-            message
-        }
-
-        let message = Message::default();
-        let bot = Rc::new(Bot::new());
-        let context = Rc::new(RefCell::new(Context::new()));
-        let update = Rc::new(Update {
-            message: Some(message.clone()),
-            ..Update::default()
+    fn test_handler_object_filter() {
+        let filter = Box::new(Command {
+            commands: vec![CommandPatternType::Text("start")],
+            prefix: "/",
+            ignore_case: false,
+            ignore_mention: false,
         });
 
-        let handler_object = HandlerObject::new(handler, vec![]);
-        if r#await!(handler_object.check(bot.clone(), update.clone(), context.clone())) {
-            let result =
-                r#await!(handler_object.call(bot.clone(), update.clone(), context.clone()));
+        let mut handler_object = HandlerObject::new(
+            || async { unimplemented!("It shouldn't call in the test") },
+            vec![],
+        );
+        assert_eq!(handler_object.filters().is_empty(), true);
 
-            assert_eq!(result, message);
-        } else {
-            assert!(false);
-        }
+        handler_object.filter(filter.clone());
+        assert_eq!(handler_object.filters().len(), 1);
+
+        let handler_object = HandlerObject::new(
+            || async { unimplemented!("It function shouldn't call in the test") },
+            vec![filter.clone()],
+        );
+        assert_eq!(handler_object.filters().len(), 1);
+    }
+
+    #[test]
+    fn test_handler_object_service() {
+        let handler_object = HandlerObject::new(|| async {}, vec![]);
+        let handler_object_service = r#await!(handler_object.new_service(())).unwrap();
+
+        let req = Request {
+            bot: Rc::new(Bot::default()),
+            update: Rc::new(Update::default()),
+            context: Rc::new(RefCell::new(Context::new())),
+        };
+        assert_eq!(handler_object_service.check(&req), true);
+
+        let res = r#await!(handler_object_service.call(req)).unwrap();
+        assert_eq!(res.response.is_cancel(), false);
+        assert_eq!(res.response.is_skip(), false);
     }
 }
