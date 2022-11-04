@@ -1,6 +1,6 @@
 use std::{any::Any, collections::HashMap};
 
-pub type Context = HashMap<String, Box<dyn Any>>;
+pub type Context = HashMap<&'static str, Box<dyn Any>>;
 
 #[cfg(test)]
 mod tests {
@@ -10,7 +10,7 @@ mod tests {
     #[test]
     fn test_context() {
         let mut context = Context::new();
-        context.insert("test".to_string(), Box::new(1));
+        context.insert("test", Box::new(1));
 
         assert_eq!(
             context.get("test").unwrap().downcast_ref::<i32>().unwrap(),
@@ -27,7 +27,7 @@ mod tests {
         );
 
         context.insert(
-            "command_object".to_string(),
+            "command_object",
             Box::new(CommandObject {
                 command: "test".to_string(),
                 prefix: "/".to_string(),

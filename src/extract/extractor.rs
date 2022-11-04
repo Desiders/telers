@@ -54,6 +54,7 @@ where
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let this = self.project();
         let res = ready!(this.fut.poll(cx));
+
         match res {
             Ok(t) => Poll::Ready(Ok(Some(t))),
             Err(_) => Poll::Ready(Ok(None)),
@@ -96,6 +97,7 @@ where
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let this = self.project();
         let res = ready!(this.fut.poll(cx));
+
         Poll::Ready(Ok(res.map_err(Into::into)))
     }
 }
@@ -109,7 +111,7 @@ mod tuple_from_req {
     };
 
     macro_rules! tuple_from_req {
-        ($fut: ident; $($T: ident),*) => {
+        ($fut:ident; $($T:ident),*) => {
             /// `FromEventAndContext` implementation for tuple
             #[allow(unused_parens)]
             impl<$($T: FromEventAndContext + 'static),+> FromEventAndContext for ($($T,)+)

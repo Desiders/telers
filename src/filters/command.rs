@@ -14,7 +14,7 @@ use std::{
 pub type Result<T> = std::result::Result<T, CommandError>;
 
 #[allow(clippy::module_name_repetitions)]
-#[derive(Debug, Clone, Eq, Hash, PartialEq)]
+#[derive(Debug)]
 pub enum CommandError {
     InvalidPrefix,
     InvalidMention,
@@ -39,7 +39,7 @@ impl Display for CommandError {
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Clone)]
 pub enum CommandPatternType {
-    Text(String),
+    Text(&'static str),
     Object(BotCommand),
     Regex(Regex),
 }
@@ -49,7 +49,7 @@ pub struct Command {
     /// List of commands (string or compiled regexp patterns)
     pub commands: Vec<CommandPatternType>,
     /// Command prefix
-    pub prefix: String,
+    pub prefix: &'static str,
     /// Ignore other command case (Does not work with regexp, use flags instead)
     pub ignore_case: bool,
     /// Ignore bot mention. By default, bot can not handle commands intended for other bots
@@ -57,21 +57,6 @@ pub struct Command {
 }
 
 impl Command {
-    #[must_use]
-    pub fn new(
-        commands: Vec<CommandPatternType>,
-        prefix: String,
-        ignore_case: bool,
-        ignore_mention: bool,
-    ) -> Self {
-        Self {
-            commands,
-            prefix,
-            ignore_case,
-            ignore_mention,
-        }
-    }
-
     /// # Errors
     /// If prefix is invalid.
     pub fn validate_prefix(&self, command: &CommandObject) -> Result<()> {
@@ -207,9 +192,7 @@ impl Filter for Command {
 
             match self.parse_command(text, bot) {
                 Ok(command) => {
-                    context
-                        .borrow_mut()
-                        .insert("command".to_string(), Box::new(command));
+                    context.borrow_mut().insert("command", Box::new(command));
                     true
                 }
                 Err(_) => false,
@@ -256,12 +239,12 @@ mod tests {
 
     #[test]
     fn test_validate_prefix() {
-        let command = Command::new(
-            vec![CommandPatternType::Text("start".to_string())],
-            "/".to_string(),
-            false,
-            false,
-        );
+        let command = Command {
+            commands: vec![CommandPatternType::Text("start")],
+            ignore_case: false,
+            ignore_mention: false,
+            prefix: "/",
+        };
 
         let command_obj = CommandObject::extract("/start");
         assert!(command.validate_prefix(&command_obj).is_ok());
@@ -272,12 +255,12 @@ mod tests {
 
     #[test]
     fn test_validate_command() {
-        let command = Command::new(
-            vec![CommandPatternType::Text("start".to_string())],
-            "/".to_string(),
-            false,
-            false,
-        );
+        let command = Command {
+            commands: vec![CommandPatternType::Text("start")],
+            ignore_case: false,
+            ignore_mention: false,
+            prefix: "/",
+        };
 
         let command_obj = CommandObject::extract("/start");
         assert!(command.validate_command(&command_obj).is_ok());
@@ -291,12 +274,12 @@ mod tests {
         let command_obj = CommandObject::extract("/STOP");
         assert!(command.validate_command(&command_obj).is_err());
 
-        let command = Command::new(
-            vec![CommandPatternType::Text("start".to_string())],
-            "/".to_string(),
-            true,
-            false,
-        );
+        let command = Command {
+            commands: vec![CommandPatternType::Text("start")],
+            ignore_case: true,
+            ignore_mention: false,
+            prefix: "/",
+        };
 
         let command_obj = CommandObject::extract("/start");
         assert!(command.validate_command(&command_obj).is_ok());

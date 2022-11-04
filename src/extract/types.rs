@@ -1,7 +1,7 @@
 use crate::{
     client::Bot,
     context::Context,
-    extract::extractor::FromEventAndContext,
+    extract::FromEventAndContext,
     types::{
         CallbackQuery, ChatJoinRequest, ChatMemberUpdated, ChosenInlineResult, InlineQuery,
         Message, Poll, PollAnswer, PreCheckoutQuery, ShippingQuery, Update,
@@ -51,7 +51,7 @@ impl FromEventAndContext for Message {
     }
 }
 
-/// To be able to use [`CallbackQuery`] in [Handler]'s arguments
+/// To be able to use [`CallbackQuery`] in [`Handler`]'s arguments
 impl FromEventAndContext for CallbackQuery {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
@@ -138,5 +138,31 @@ impl FromEventAndContext for Poll {
 
     fn extract(_: &Bot, update: &Update, _: Rc<RefCell<Context>>) -> Self::Future {
         ok(Poll::from(update.clone()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::dispatcher::event::Handler;
+
+    #[test]
+    fn test_types_extract() {
+        fn assert_impl_handler<T: FromEventAndContext>(_: impl Handler<T>) {}
+
+        assert_impl_handler(|_: Bot| async { unimplemented!() });
+        assert_impl_handler(|_: Update| async { unimplemented!() });
+        assert_impl_handler(|_: Rc<RefCell<Context>>| async { unimplemented!() });
+        assert_impl_handler(|_: Message| async { unimplemented!() });
+        assert_impl_handler(|_: CallbackQuery| async { unimplemented!() });
+        assert_impl_handler(|_: ChosenInlineResult| async { unimplemented!() });
+        assert_impl_handler(|_: ShippingQuery| async { unimplemented!() });
+        assert_impl_handler(|_: PreCheckoutQuery| async { unimplemented!() });
+        assert_impl_handler(|_: PollAnswer| async { unimplemented!() });
+        assert_impl_handler(|_: ChatMemberUpdated| async { unimplemented!() });
+        assert_impl_handler(|_: ChatJoinRequest| async { unimplemented!() });
+        assert_impl_handler(|_: InlineQuery| async { unimplemented!() });
+        assert_impl_handler(|_: Poll| async { unimplemented!() });
     }
 }

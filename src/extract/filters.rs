@@ -11,7 +11,7 @@ impl FromEventAndContext for CommandObject {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn extract(_: &Bot, _: &Update, context: Rc<RefCell<Context>>) -> Self::Future {
-        context.borrow().get(&"command".to_string()).map_or(
+        context.borrow().get("command").map_or(
             err(ExtractError {
                 message: "Key `command` not found in the context".to_string(),
             }),
@@ -27,5 +27,19 @@ impl FromEventAndContext for CommandObject {
                 )
             },
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::dispatcher::event::Handler;
+
+    #[test]
+    fn test_filters_extract() {
+        fn assert_impl_handler<T: FromEventAndContext>(_: impl Handler<T>) {}
+
+        assert_impl_handler(|_: CommandObject| async { unimplemented!() });
     }
 }

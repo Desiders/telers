@@ -5,9 +5,15 @@ use std::{
 };
 
 #[allow(clippy::module_name_repetitions)]
-pub trait AppError: StdError {}
+pub trait AppError: StdError {
+    fn message(&self) -> &str;
+}
 
-impl AppError for Infallible {}
+impl AppError for Infallible {
+    fn message(&self) -> &str {
+        unimplemented!("Infallible cannot have a message and should never be called")
+    }
+}
 
 pub struct Error {
     cause: Box<dyn AppError>,
@@ -25,11 +31,25 @@ impl Debug for Error {
     }
 }
 
+impl Error {
+    #[must_use]
+    pub fn cause(&self) -> &dyn AppError {
+        self.cause.as_ref()
+    }
+}
+
 impl StdError for Error {}
 
 #[derive(Debug)]
 pub struct ExtractError {
     pub message: String,
+}
+
+impl ExtractError {
+    #[must_use]
+    pub fn new(message: String) -> Self {
+        Self { message }
+    }
 }
 
 impl Display for ExtractError {
@@ -40,12 +60,33 @@ impl Display for ExtractError {
 
 impl StdError for ExtractError {}
 
-impl AppError for ExtractError {}
+impl AppError for ExtractError {
+    fn message(&self) -> &str {
+        &self.message
+    }
+}
 
 impl<T: AppError + 'static> From<T> for Error {
     fn from(err: T) -> Error {
         Error {
             cause: Box::new(err),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_extract_error() {
+        let err = ExtractError::new("test".to_string());
+        assert_eq!(err.message(), "test");
+    }
+
+    #[test]
+    fn test_error() {
+        let err = Error::from(ExtractError::new("test".to_string()));
+        assert_eq!(err.cause().message(), "test");
     }
 }
