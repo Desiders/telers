@@ -3,7 +3,7 @@ use super::{MessageEntity, PollOption, Update};
 use serde::{Deserialize, Serialize};
 
 /// This object contains information about a poll.
-/// <https://core.telegram.org/bots/api#poll>_
+/// <https://core.telegram.org/bots/api#poll>
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Poll {
     /// Unique poll identifier

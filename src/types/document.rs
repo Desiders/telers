@@ -2,8 +2,8 @@ use super::PhotoSize;
 
 use serde::{Deserialize, Serialize};
 
-/// This object represents a general file (as opposed to `photos <https://core.telegram.org/bots/api#photosize>`_, `voice messages <https://core.telegram.org/bots/api#voice>`_ and `audio files <https://core.telegram.org/bots/api#audio>`_).
-/// <https://core.telegram.org/bots/api#document>_
+/// This object represents a general file (as opposed to `photos <https://core.telegram.org/bots/api#photosize>`, `voice messages <https://core.telegram.org/bots/api#voice>` and `audio files <https://core.telegram.org/bots/api#audio>`).
+/// <https://core.telegram.org/bots/api#document>
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Document {
     /// Identifier for this file, which can be used to download or reuse the file

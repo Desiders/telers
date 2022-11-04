@@ -3,7 +3,7 @@ use super::{InlineKeyboardMarkup, InputMessageContent, InputTextMessageContent};
 use serde::{Deserialize, Serialize};
 
 /// Represents a link to an article or web page.
-/// <https://core.telegram.org/bots/api#inlinequeryresultarticle>_
+/// <https://core.telegram.org/bots/api#inlinequeryresultarticle>
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultArticle {
     /// Type of the result, must be *article*
@@ -15,7 +15,7 @@ pub struct InlineQueryResultArticle {
     pub title: String,
     /// Content of the message to be sent
     pub input_message_content: InputMessageContent,
-    /// *Optional*. `Inline keyboard <https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating>`_ attached to the message
+    /// *Optional*. `Inline keyboard <https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating>` attached to the message
     pub reply_markup: Option<InlineKeyboardMarkup>,
     /// *Optional*. URL of the result
     pub url: Option<String>,

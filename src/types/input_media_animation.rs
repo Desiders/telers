@@ -3,7 +3,7 @@ use super::{InputMediaKind, MessageEntity};
 use serde::{Deserialize, Serialize};
 
 /// Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent.
-/// <https://core.telegram.org/bots/api#inputmediaanimation>_
+/// <https://core.telegram.org/bots/api#inputmediaanimation>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct InputMediaAnimation {
     /// Type of the result, must be *animation*
@@ -17,7 +17,7 @@ pub struct InputMediaAnimation {
     pub caption: Option<String>,
     /// *Optional*. Caption of the animation to be sent, 0-1024 characters after entities parsing"""
     pub parse_mode: Option<String>,
-    /// *Optional*. Mode for parsing entities in the animation caption. See `formatting options <https://core.telegram.org/bots/api#formatting-options>`_ for more details.
+    /// *Optional*. Mode for parsing entities in the animation caption. See `formatting options <https://core.telegram.org/bots/api#formatting-options>` for more details.
     pub caption_entities: Option<Vec<MessageEntity>>,
     /// *Optional*. Video width
     pub width: Option<i64>,

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// This object represents a shipping address.
-/// <https://core.telegram.org/bots/api#shippingaddress>_
+/// <https://core.telegram.org/bots/api#shippingaddress>
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ShippingAddress {
     /// ISO 3166-1 alpha-2 country code

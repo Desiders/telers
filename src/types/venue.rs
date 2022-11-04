@@ -3,7 +3,7 @@ use super::Location;
 use serde::{Deserialize, Serialize};
 
 /// This object represents a venue.
-/// <https://core.telegram.org/bots/api#venue>_
+/// <https://core.telegram.org/bots/api#venue>
 #[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Venue {
     /// Venue location. Can't be a live location
@@ -18,6 +18,6 @@ pub struct Venue {
     pub foursquare_type: Option<String>,
     /// *Optional*. Google Places identifier of the venue
     pub google_place_id: Option<String>,
-    /// *Optional*. Google Places type of the venue. (See `supported types <https://developers.google.com/places/web-service/supported_types>`_.)
+    /// *Optional*. Google Places type of the venue. (See `supported types <https://developers.google.com/places/web-service/supported_types>`.)
     pub google_place_type: Option<String>,
 }

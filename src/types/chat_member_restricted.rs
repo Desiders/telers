@@ -2,8 +2,8 @@ use super::User;
 
 use serde::{Deserialize, Serialize};
 
-/// Represents a `chat member <https://core.telegram.org/bots/api#chatmember>`_ that is under certain restrictions in the chat. Supergroups only.
-/// <https://core.telegram.org/bots/api#chatmemberrestricted>_
+/// Represents a `chat member <https://core.telegram.org/bots/api#chatmember>` that is under certain restrictions in the chat. Supergroups only.
+/// <https://core.telegram.org/bots/api#chatmemberrestricted>
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ChatMemberRestricted {

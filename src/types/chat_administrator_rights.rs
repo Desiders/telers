@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Represents the rights of an administrator in a chat.
-/// <https://core.telegram.org/bots/api#chatadministratorrights>_
+/// <https://core.telegram.org/bots/api#chatadministratorrights>
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ChatAdministratorRights {

@@ -3,7 +3,7 @@ use super::{Chat, ChatInviteLink, ChatMember, ChatMemberMember, Update, User};
 use serde::{Deserialize, Serialize};
 
 /// This object represents changes in the status of a chat member.
-/// <https://core.telegram.org/bots/api#chatmemberupdated>_
+/// <https://core.telegram.org/bots/api#chatmemberupdated>
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ChatMemberUpdated {
     /// Chat the user belongs to

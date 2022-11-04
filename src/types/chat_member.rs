@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 /// - `aiogram_rs.types.chat_member_restricted.ChatMemberRestricted`
 /// - `aiogram_rs.types.chat_member_left.ChatMemberLeft`
 /// - `aiogram_rs.types.chat_member_banned.ChatMemberBanned`
-/// <https://core.telegram.org/bots/api#chatmember>_
+/// <https://core.telegram.org/bots/api#chatmember>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "status")]

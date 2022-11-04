@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// This object represents a voice note.
-/// <https://core.telegram.org/bots/api#voice>_
+/// <https://core.telegram.org/bots/api#voice>
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Voice {
     /// Identifier for this file, which can be used to download or reuse the file

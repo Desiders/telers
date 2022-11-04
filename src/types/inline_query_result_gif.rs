@@ -3,7 +3,7 @@ use super::{InlineKeyboardMarkup, InputMessageContent, MessageEntity};
 use serde::{Deserialize, Serialize};
 
 /// Represents a link to an animated GIF file. By default, this animated GIF file will be sent by the user with optional caption. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the animation.
-/// <https://core.telegram.org/bots/api#inlinequeryresultgif>_
+/// <https://core.telegram.org/bots/api#inlinequeryresultgif>
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultGif {
     /// Type of the result, must be *gif*
@@ -27,11 +27,11 @@ pub struct InlineQueryResultGif {
     pub title: Option<String>,
     /// *Optional*. Caption of the GIF file to be sent, 0-1024 characters after entities parsing
     pub caption: Option<String>,
-    /// *Optional*. Mode for parsing entities in the caption. See `formatting options <https://core.telegram.org/bots/api#formatting-options>`_ for more details.
+    /// *Optional*. Mode for parsing entities in the caption. See `formatting options <https://core.telegram.org/bots/api#formatting-options>` for more details.
     pub parse_mode: Option<String>,
     /// *Optional*. List of special entities that appear in the caption, which can be specified instead of *parse_mode*
     pub caption_entities: Option<Vec<MessageEntity>>,
-    /// *Optional*. `Inline keyboard <https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating>`_ attached to the message
+    /// *Optional*. `Inline keyboard <https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating>` attached to the message
     pub reply_markup: Option<InlineKeyboardMarkup>,
     /// *Optional*. Content of the message to be sent instead of the GIF animation
     pub input_message_content: Option<InputMessageContent>,

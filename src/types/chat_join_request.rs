@@ -3,7 +3,7 @@ use super::{Chat, ChatInviteLink, Update, User};
 use serde::{Deserialize, Serialize};
 
 /// Represents a join request sent to a chat.
-/// <https://core.telegram.org/bots/api#chatjoinrequest>_
+/// <https://core.telegram.org/bots/api#chatjoinrequest>
 #[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ChatJoinRequest {
     /// Chat to which the request was sent

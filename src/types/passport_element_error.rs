@@ -17,7 +17,7 @@ use serde::{Deserialize, Serialize};
 /// - `aiogram_rs.types.passport_element_error_translation_file.PassportElementErrorTranslationFile`
 /// - `aiogram_rs.types.passport_element_error_translation_files.PassportElementErrorTranslationFiles`
 /// - `aiogram_rs.types.passport_element_error_unspecified.PassportElementErrorUnspecified`
-/// <https://core.telegram.org/bots/api#passportelementerror>_
+/// <https://core.telegram.org/bots/api#passportelementerror>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "source", rename_all = "snake_case")]
 pub enum PassportElementError {

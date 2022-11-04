@@ -9,7 +9,7 @@ use super::{
 use serde::{Deserialize, Serialize};
 
 /// This object represents a message.
-/// <https://core.telegram.org/bots/api#message>_
+/// <https://core.telegram.org/bots/api#message>
 #[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Message {
     /// Unique message identifier inside this chat
@@ -64,7 +64,7 @@ pub struct Message {
     pub sticker: Option<Sticker>,
     /// *Optional*. Message is a video, information about the video
     pub video: Option<Video>,
-    /// *Optional*. Message is a `video note <https://telegram.org/blog/video-messages-and-telescope>`_, information about the video message
+    /// *Optional*. Message is a `video note <https://telegram.org/blog/video-messages-and-telescope>`, information about the video message
     pub video_note: Option<VideoNote>,
     /// *Optional*. Message is a voice message, information about the file
     pub voice: Option<Voice>,
@@ -76,7 +76,7 @@ pub struct Message {
     pub contact: Option<Contact>,
     /// *Optional*. Message is a dice with random value
     pub dice: Option<Dice>,
-    /// *Optional*. Message is a game, information about the game. `More about games » <https://core.telegram.org/bots/api#games>`_
+    /// *Optional*. Message is a game, information about the game. `More about games » <https://core.telegram.org/bots/api#games>`
     pub game: Option<Game>,
     /// *Optional*. Message is a native poll, information about the poll
     pub poll: Option<Poll>,
@@ -108,11 +108,11 @@ pub struct Message {
     pub migrate_from_chat_id: Option<i64>,
     /// *Optional*. Specified message was pinned. Note that the Message object in this field will not contain further *reply_to_message* fields even if it is itself a reply.
     pub pinned_message: Option<Box<Message>>,
-    /// *Optional*. Message is an invoice for a `payment <https://core.telegram.org/bots/api#payments>`_, information about the invoice. `More about payments » <https://core.telegram.org/bots/api#payments>`_
+    /// *Optional*. Message is an invoice for a `payment <https://core.telegram.org/bots/api#payments>`, information about the invoice. `More about payments » <https://core.telegram.org/bots/api#payments>`
     pub invoice: Option<Invoice>,
-    /// *Optional*. Message is a service message about a successful payment, information about the payment. `More about payments » <https://core.telegram.org/bots/api#payments>`_
+    /// *Optional*. Message is a service message about a successful payment, information about the payment. `More about payments » <https://core.telegram.org/bots/api#payments>`
     pub successful_payment: Option<SuccessfulPayment>,
-    /// *Optional*. The domain name of the website on which the user has logged in. `More about Telegram Login » <https://core.telegram.org/widgets/login>`_
+    /// *Optional*. The domain name of the website on which the user has logged in. `More about Telegram Login » <https://core.telegram.org/widgets/login>`
     pub connected_website: Option<String>,
     /// *Optional*. Telegram Passport data
     pub passport_data: Option<PassportData>,

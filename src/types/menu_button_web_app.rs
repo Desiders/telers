@@ -2,8 +2,8 @@ use super::WebAppInfo;
 
 use serde::{Deserialize, Serialize};
 
-/// Represents a menu button, which launches a `Web App <https://core.telegram.org/bots/webapps>`_.
-/// <https://core.telegram.org/bots/api#menubuttonwebapp>_
+/// Represents a menu button, which launches a `Web App <https://core.telegram.org/bots/webapps>`.
+/// <https://core.telegram.org/bots/api#menubuttonwebapp>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct MenuButtonWebApp {
     /// Type of the button, must be `web_app`

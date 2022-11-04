@@ -3,7 +3,7 @@ use super::PhotoSize;
 use serde::{Deserialize, Serialize};
 
 /// This object represents an animation file (GIF or H.264/MPEG-4 AVC video without sound).
-/// <https://core.telegram.org/bots/api#animation>_
+/// <https://core.telegram.org/bots/api#animation>
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Animation {
     /// Identifier for this file, which can be used to download or reuse the file

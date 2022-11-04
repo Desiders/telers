@@ -3,7 +3,7 @@ use super::PhotoSize;
 use serde::{Deserialize, Serialize};
 
 /// This object represents an audio file to be treated as music by the Telegram clients.
-/// <https://core.telegram.org/bots/api#audio>_
+/// <https://core.telegram.org/bots/api#audio>
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Audio {
     /// Identifier for this file, which can be used to download or reuse the file

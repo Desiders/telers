@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// Represents a location on a map. By default, the location will be sent by the user. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the location.
 /// **Note:** This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
-/// <https://core.telegram.org/bots/api#inlinequeryresultlocation>_
+/// <https://core.telegram.org/bots/api#inlinequeryresultlocation>
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultLocation {
     /// Type of the result, must be *location*
@@ -26,7 +26,7 @@ pub struct InlineQueryResultLocation {
     pub heading: Option<i64>,
     /// *Optional*. For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
     pub proximity_alert_radius: Option<i64>,
-    /// *Optional*. `Inline keyboard <https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating>`_ attached to the message
+    /// *Optional*. `Inline keyboard <https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating>` attached to the message
     pub reply_markup: Option<InlineKeyboardMarkup>,
     /// *Optional*. Content of the message to be sent instead of the location
     pub input_message_content: Option<InputMessageContent>,

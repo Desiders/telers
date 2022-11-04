@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 /// - `aiogram_rs.types.input_media_audio.InputMediaAudio`
 /// - `aiogram_rs.types.input_media_photo.InputMediaPhoto`
 /// - `aiogram_rs.types.input_media_video.InputMediaVideo`
-/// <https://core.telegram.org/bots/api#inputmedia>_
+/// <https://core.telegram.org/bots/api#inputmedia>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum InputMedia {

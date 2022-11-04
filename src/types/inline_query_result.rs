@@ -32,7 +32,7 @@ use serde::{Deserialize, Serialize};
 /// - `aiogram_rs.types.inline_query_result_video.InlineQueryResultVideo`
 /// - `aiogram_rs.types.inline_query_result_voice.InlineQueryResultVoice`
 /// **Note:** All URLs passed in inline query results will be available to end users and therefore must be assumed to be **public**.
-/// <https://core.telegram.org/bots/api#inlinequeryresult>_
+/// <https://core.telegram.org/bots/api#inlinequeryresult>
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum InlineQueryResult {

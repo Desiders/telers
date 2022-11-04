@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-/// Represents the `content <https://core.telegram.org/bots/api#inputmessagecontent>`_ of a location message to be sent as the result of an inline query.
-/// <https://core.telegram.org/bots/api#inputlocationmessagecontent>_
+/// Represents the `content <https://core.telegram.org/bots/api#inputmessagecontent>` of a location message to be sent as the result of an inline query.
+/// <https://core.telegram.org/bots/api#inputlocationmessagecontent>
 #[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InputLocationMessageContent {
     /// Latitude of the location in degrees

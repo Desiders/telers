@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 /// - `aiogram_rs.types.input_venue_message_content.InputVenueMessageContent`
 /// - `aiogram_rs.types.input_contact_message_content.InputContactMessageContent`
 /// - `aiogram_rs.types.input_invoice_message_content.InputInvoiceMessageContent`
-/// <https://core.telegram.org/bots/api#inputmessagecontent>_
+/// <https://core.telegram.org/bots/api#inputmessagecontent>
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InputMessageContent {

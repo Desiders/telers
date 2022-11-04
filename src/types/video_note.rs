@@ -2,8 +2,8 @@ use super::PhotoSize;
 
 use serde::{Deserialize, Serialize};
 
-/// This object represents a `video message <https://telegram.org/blog/video-messages-and-telescope>`_ (available in Telegram apps as of `v.4.0 <https://telegram.org/blog/video-messages-and-telescope>`_).
-/// <https://core.telegram.org/bots/api#videonote>_
+/// This object represents a `video message <https://telegram.org/blog/video-messages-and-telescope>` (available in Telegram apps as of `v.4.0 <https://telegram.org/blog/video-messages-and-telescope>`).
+/// <https://core.telegram.org/bots/api#videonote>
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct VideoNote {
     /// Identifier for this file, which can be used to download or reuse the file

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-/// Represents the `scope <https://core.telegram.org/bots/api#botcommandscope>`_ of bot commands, covering all group and supergroup chat administrators.
-/// <https://core.telegram.org/bots/api#botcommandscopeallchatadministrators>_
+/// Represents the `scope <https://core.telegram.org/bots/api#botcommandscope>` of bot commands, covering all group and supergroup chat administrators.
+/// <https://core.telegram.org/bots/api#botcommandscopeallchatadministrators>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct BotCommandScopeAllChatAdministrators {
     /// Scope type, must be *all_chat_administrators*

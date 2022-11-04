@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// Represents a venue. By default, the venue will be sent by the user. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the venue.
 /// **Note:** This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
-/// <https://core.telegram.org/bots/api#inlinequeryresultvenue>_
+/// <https://core.telegram.org/bots/api#inlinequeryresultvenue>
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultVenue {
     /// Type of the result, must be *venue*
@@ -26,9 +26,9 @@ pub struct InlineQueryResultVenue {
     pub foursquare_type: Option<String>,
     /// *Optional*. Google Places identifier of the venue
     pub google_place_id: Option<String>,
-    /// *Optional*. Google Places type of the venue. (See `supported types <https://developers.google.com/places/web-service/supported_types>`_.)
+    /// *Optional*. Google Places type of the venue. (See `supported types <https://developers.google.com/places/web-service/supported_types>`.)
     pub google_place_type: Option<String>,
-    /// *Optional*. `Inline keyboard <https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating>`_ attached to the message
+    /// *Optional*. `Inline keyboard <https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating>` attached to the message
     pub reply_markup: Option<InlineKeyboardMarkup>,
     /// *Optional*. Content of the message to be sent instead of the venue
     pub input_message_content: Option<InputMessageContent>,

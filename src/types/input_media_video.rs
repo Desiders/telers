@@ -3,7 +3,7 @@ use super::{InputMediaKind, MessageEntity};
 use serde::{Deserialize, Serialize};
 
 /// Represents a video to be sent.
-/// <https://core.telegram.org/bots/api#inputmediavideo>_
+/// <https://core.telegram.org/bots/api#inputmediavideo>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct InputMediaVideo {
     /// Type of the result, must be *video*
@@ -15,7 +15,7 @@ pub struct InputMediaVideo {
     pub thumb: Option<InputMediaKind>,
     /// *Optional*. Caption of the video to be sent, 0-1024 characters after entities parsing
     pub caption: Option<String>,
-    /// *Optional*. Mode for parsing entities in the video caption. See `formatting options <https://core.telegram.org/bots/api#formatting-options>`_ for more details.
+    /// *Optional*. Mode for parsing entities in the video caption. See `formatting options <https://core.telegram.org/bots/api#formatting-options>` for more details.
     pub parse_mode: Option<String>,
     /// *Optional*. List of special entities that appear in the caption, which can be specified instead of *parse_mode*
     pub caption_entities: Option<Vec<MessageEntity>>,

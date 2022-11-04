@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Describes actions that a non-administrator user is allowed to take in a chat.
-/// <https://core.telegram.org/bots/api#chatpermissions>_
+/// <https://core.telegram.org/bots/api#chatpermissions>
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ChatPermissions {
     /// *Optional*. :code:`True`, if the user is allowed to send text messages, contacts, locations and venues

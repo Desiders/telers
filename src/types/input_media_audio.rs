@@ -3,7 +3,7 @@ use super::{InputMediaKind, MessageEntity};
 use serde::{Deserialize, Serialize};
 
 /// Represents an audio file to be treated as music to be sent.
-/// <https://core.telegram.org/bots/api#inputmediaaudio>_
+/// <https://core.telegram.org/bots/api#inputmediaaudio>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct InputMediaAudio {
     /// Type of the result, must be *audio*
@@ -15,7 +15,7 @@ pub struct InputMediaAudio {
     pub thumb: Option<InputMediaKind>,
     /// *Optional*. Caption of the audio to be sent, 0-1024 characters after entities parsing
     pub caption: Option<String>,
-    /// *Optional*. Mode for parsing entities in the audio caption. See `formatting options <https://core.telegram.org/bots/api#formatting-options>`_ for more details.
+    /// *Optional*. Mode for parsing entities in the audio caption. See `formatting options <https://core.telegram.org/bots/api#formatting-options>` for more details.
     pub parse_mode: Option<String>,
     /// *Optional*. List of special entities that appear in the caption, which can be specified instead of *parse_mode*
     pub caption_entities: Option<Vec<MessageEntity>>,

@@ -3,7 +3,7 @@ use super::Location;
 use serde::{Deserialize, Serialize};
 
 /// Represents a location to which a chat is connected.
-/// <https://core.telegram.org/bots/api#chatlocation>_
+/// <https://core.telegram.org/bots/api#chatlocation>
 #[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ChatLocation {
     /// The location to which the supergroup is connected. Can't be a live location.

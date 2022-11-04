@@ -2,8 +2,8 @@ use super::LabeledPrice;
 
 use serde::{Deserialize, Serialize};
 
-/// Represents the `content <https://core.telegram.org/bots/api#inputmessagecontent>`_ of an invoice message to be sent as the result of an inline query.
-/// <https://core.telegram.org/bots/api#inputinvoicemessagecontent>_
+/// Represents the `content <https://core.telegram.org/bots/api#inputmessagecontent>` of an invoice message to be sent as the result of an inline query.
+/// <https://core.telegram.org/bots/api#inputinvoicemessagecontent>
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct InputInvoiceMessageContent {
     /// Product name, 1-32 characters
@@ -18,7 +18,7 @@ pub struct InputInvoiceMessageContent {
     pub currency: String,
     /// Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.)
     pub prices: Vec<LabeledPrice>,
-    /// *Optional*. The maximum accepted amount for tips in the *smallest units* of the currency (integer, **not** float/double). For example, for a maximum tip of :code:`US$ 1.45` pass :code:`max_tip_amount = 145`. See the *exp* parameter in `currencies.json <https://core.telegram.org/bots/payments/currencies.json>`_, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0
+    /// *Optional*. The maximum accepted amount for tips in the *smallest units* of the currency (integer, **not** float/double). For example, for a maximum tip of :code:`US$ 1.45` pass :code:`max_tip_amount = 145`. See the *exp* parameter in `currencies.json <https://core.telegram.org/bots/payments/currencies.json>`, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0
     pub max_tip_amount: Option<i64>,
     /// *Optional*. A JSON-serialized array of suggested amounts of tip in the *smallest units* of the currency (integer, **not** float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed *max_tip_amount*.
     pub suggested_tip_amounts: Option<Vec<i64>>,

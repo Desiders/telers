@@ -3,7 +3,7 @@ use super::{Animation, MessageEntity, PhotoSize};
 use serde::{Deserialize, Serialize};
 
 /// This object represents a game. Use `BotFather` to create and edit games, their short names will act as unique identifiers.
-/// <https://core.telegram.org/bots/api#game>_
+/// <https://core.telegram.org/bots/api#game>
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Game {
     /// Title of the game
@@ -16,6 +16,6 @@ pub struct Game {
     pub text: Option<String>,
     /// *Optional*. Special entities that appear in text, such as usernames, URLs, bot commands, etc.
     pub text_entities: Option<Vec<MessageEntity>>,
-    /// *Optional*. Animation that will be displayed in the game message in chats. Upload via `BotFather <https://t.me/botfather>`_
+    /// *Optional*. Animation that will be displayed in the game message in chats. Upload via `BotFather <https://t.me/botfather>`
     pub animation: Option<Animation>,
 }

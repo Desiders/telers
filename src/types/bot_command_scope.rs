@@ -14,7 +14,7 @@ use super::{
 /// - `aiogram_rs.types.bot_command_scope_chat.BotCommandScopeChat`
 /// - `aiogram_rs.types.bot_command_scope_chat_administrators.BotCommandScopeChatAdministrators`
 /// - `aiogram_rs.types.bot_command_scope_chat_member.BotCommandScopeChatMember`
-/// <https://core.telegram.org/bots/api#botcommandscope>_
+/// <https://core.telegram.org/bots/api#botcommandscope>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum BotCommandScope {

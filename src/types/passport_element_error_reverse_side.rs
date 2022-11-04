@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Represents an issue with the reverse side of a document. The error is considered resolved when the file with reverse side of the document changes.
-/// <https://core.telegram.org/bots/api#passportelementerrorreverseside>_
+/// <https://core.telegram.org/bots/api#passportelementerrorreverseside>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct PassportElementErrorReverseSide {
     /// Error source, must be *reverse_side*

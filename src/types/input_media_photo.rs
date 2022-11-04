@@ -3,7 +3,7 @@ use super::{InputMediaKind, MessageEntity};
 use serde::{Deserialize, Serialize};
 
 /// Represents a photo to be sent.
-/// <https://core.telegram.org/bots/api#inputmediaphoto>_
+/// <https://core.telegram.org/bots/api#inputmediaphoto>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct InputMediaPhoto {
     /// Type of the result, must be *photo*
@@ -13,7 +13,7 @@ pub struct InputMediaPhoto {
     pub media: InputMediaKind,
     /// *Optional*. Caption of the photo to be sent, 0-1024 characters after entities parsing
     pub caption: Option<String>,
-    /// *Optional*. Mode for parsing entities in the photo caption. See `formatting options <https://core.telegram.org/bots/api#formatting-options>`_ for more details.
+    /// *Optional*. Mode for parsing entities in the photo caption. See `formatting options <https://core.telegram.org/bots/api#formatting-options>` for more details.
     pub parse_mode: Option<String>,
     /// *Optional*. List of special entities that appear in the caption, which can be specified instead of *parse_mode*
     pub caption_entities: Option<Vec<MessageEntity>>,
