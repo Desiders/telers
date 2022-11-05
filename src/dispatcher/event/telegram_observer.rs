@@ -56,26 +56,26 @@ impl EventObserver {
 
     /// Get event observer name
     #[must_use]
-    fn event_name(&self) -> &str {
+    pub fn event_name(&self) -> &str {
         self.event_name
     }
 
     /// Get handlers of the observer
     #[must_use]
-    fn handlers(&self) -> &[TelegramHandlerObject] {
+    pub fn handlers(&self) -> &[TelegramHandlerObject] {
         &self.handlers
     }
 
     /// Get filters of the observer
     #[must_use]
-    fn filters(&self) -> &[Box<dyn Filter>] {
+    pub fn filters(&self) -> &[Box<dyn Filter>] {
         self.common_handler.filters()
     }
 
     /// Add a filter to the observer
     /// # Arguments
     /// * `filter` - Filter for the observer
-    fn filter(&mut self, filter: Box<dyn Filter>) {
+    pub fn filter(&mut self, filter: Box<dyn Filter>) {
         self.common_handler.filter(filter);
     }
 
@@ -83,7 +83,7 @@ impl EventObserver {
     /// # Arguments
     /// * `handler` - Handler for the observer
     /// * `filters` - Filters for the handler
-    fn register<H, Args>(&mut self, handler: H, filters: Vec<Box<dyn Filter>>)
+    pub fn register<H, Args>(&mut self, handler: H, filters: Vec<Box<dyn Filter>>)
     where
         H: TelegramHandler<Args> + 'static,
         H::Output: Into<EventReturn>,
