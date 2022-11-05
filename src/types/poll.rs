@@ -14,14 +14,14 @@ pub struct Poll {
     pub options: Vec<PollOption>,
     /// Total number of users that voted in the poll
     pub total_voter_count: i64,
-    /// :code:`True`, if the poll is closed
+    /// `True`, if the poll is closed
     pub is_closed: bool,
-    /// :code:`True`, if the poll is anonymous
+    /// `True`, if the poll is anonymous
     pub is_anonymous: bool,
     /// Poll type, currently can be 'regular' or 'quiz'
     #[serde(rename = "type")]
     pub poll_type: String,
-    /// :code:`True`, if the poll allows multiple answers
+    /// `True`, if the poll allows multiple answers
     pub allows_multiple_answers: bool,
     /// *Optional*. 0-based identifier of the correct answer option. Available only for polls in the quiz mode, which are closed, or was sent (not forwarded) by the bot or to the private chat with the bot.
     pub correct_option_id: Option<i64>,

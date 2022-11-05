@@ -9,7 +9,7 @@ pub struct BotCommandScopeChat {
     /// Scope type, must be *chat*
     #[serde(rename = "type", default = "chat")]
     pub scope_type: String,
-    /// Unique identifier for the target chat or username of the target supergroup (in the format :code:`@supergroupusername`)
+    /// Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
     pub chat_id: ChatIdKind,
 }
 

@@ -19,7 +19,7 @@ pub struct InputMediaDocument {
     pub parse_mode: Option<String>,
     /// *Optional*. List of special entities that appear in the caption, which can be specified instead of *parse_mode*
     pub caption_entities: Option<Vec<MessageEntity>>,
-    /// *Optional*. Disables automatic server-side content type detection for files uploaded using multipart/form-data. Always :code:`True`, if the document is sent as part of an album.
+    /// *Optional*. Disables automatic server-side content type detection for files uploaded using multipart/form-data. Always `True`, if the document is sent as part of an album.
     pub disable_content_type_detection: Option<bool>,
 }
 

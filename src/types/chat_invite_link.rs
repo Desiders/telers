@@ -10,11 +10,11 @@ pub struct ChatInviteLink {
     pub invite_link: String,
     /// Creator of the link
     pub creator: User,
-    /// :code:`True`, if users joining the chat via the link need to be approved by chat administrators
+    /// `True`, if users joining the chat via the link need to be approved by chat administrators
     pub creates_join_request: bool,
-    /// :code:`True`, if the link is primary
+    /// `True`, if the link is primary
     pub is_primary: bool,
-    /// :code:`True`, if the link is revoked
+    /// `True`, if the link is revoked
     pub is_revoked: bool,
     /// *Optional*. Invite link name
     pub name: Option<String>,

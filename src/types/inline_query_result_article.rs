@@ -19,7 +19,7 @@ pub struct InlineQueryResultArticle {
     pub reply_markup: Option<InlineKeyboardMarkup>,
     /// *Optional*. URL of the result
     pub url: Option<String>,
-    /// *Optional*. Pass :code:`True` if you don't want the URL to be shown in the message
+    /// *Optional*. Pass `True` if you don't want the URL to be shown in the message
     pub hide_url: Option<bool>,
     /// *Optional*. Short description of the result
     pub description: Option<String>,

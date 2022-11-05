@@ -11,7 +11,7 @@ pub struct ChatMemberOwner {
     pub status: String,
     /// Information about the user
     pub user: User,
-    /// :code:`True`, if the user's presence in the chat is hidden
+    /// `True`, if the user's presence in the chat is hidden
     pub is_anonymous: bool,
     /// *Optional*. Custom title for this user
     pub custom_title: Option<String>,

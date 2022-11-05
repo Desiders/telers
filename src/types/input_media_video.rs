@@ -25,7 +25,7 @@ pub struct InputMediaVideo {
     pub height: Option<i64>,
     /// *Optional*. Video duration in seconds
     pub duration: Option<i64>,
-    /// *Optional*. Pass :code:`True` if the uploaded video is suitable for streaming
+    /// *Optional*. Pass `True` if the uploaded video is suitable for streaming
     pub supports_streaming: Option<bool>,
 }
 

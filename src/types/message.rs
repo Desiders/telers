@@ -1,5 +1,6 @@
 use super::{
-    Animation, Audio, Chat, Contact, Dice, Document, Game, InlineKeyboardMarkup, Invoice, Location,
+    Animation, Audio, Chat, Contact, Dice, Document, ForumTopicClosed, ForumTopicCreated,
+    ForumTopicReopened, Game, InlineKeyboardMarkup, Invoice, Location,
     MessageAutoDeleteTimerChanged, MessageEntity, PassportData, PhotoSize, Poll,
     ProximityAlertTriggered, Sticker, SuccessfulPayment, Update, User, Venue, Video,
     VideoChatEnded, VideoChatParticipantsInvited, VideoChatScheduled, VideoChatStarted, VideoNote,
@@ -14,6 +15,8 @@ use serde::{Deserialize, Serialize};
 pub struct Message {
     /// Unique message identifier inside this chat
     pub message_id: i64,
+    /// *Optional*. Unique identifier of a message thread to which the message belongs; for supergroups only
+    pub message_thread_id: Option<i64>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
@@ -34,7 +37,9 @@ pub struct Message {
     pub forward_sender_name: Option<String>,
     /// *Optional*. For forwarded messages, date the original message was sent in Unix time
     pub forward_date: Option<i64>,
-    /// *Optional*. :code:`True`, if the message is a channel post that was automatically forwarded to the connected discussion group
+    /// *Optional*. `True`, if the message is sent to a forum topic
+    pub is_topic_message: Option<bool>,
+    /// *Optional*. `True`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// *Optional*. For replies, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
@@ -42,7 +47,7 @@ pub struct Message {
     pub via_bot: Option<User>,
     /// *Optional*. Date the message was last edited in Unix time
     pub edit_date: Option<i64>,
-    /// *Optional*. :code:`True`, if the message can't be forwarded
+    /// *Optional*. `True`, if the message can't be forwarded
     pub has_protected_content: Option<bool>,
     /// *Optional*. The unique identifier of a media message group this message belongs to
     pub media_group_id: Option<String>,
@@ -118,6 +123,12 @@ pub struct Message {
     pub passport_data: Option<PassportData>,
     /// *Optional*. Service message. A user in the chat triggered another user's proximity alert while sharing Live Location.
     pub proximity_alert_triggered: Option<ProximityAlertTriggered>,
+    /// *Optional*. Service message: forum topic created
+    pub forum_topic_created: Option<ForumTopicCreated>,
+    /// *Optional*. Service message: forum topic closed
+    pub forum_topic_closed: Option<ForumTopicClosed>,
+    /// *Optional*. Service message: forum topic reopened
+    pub forum_topic_reopened: Option<ForumTopicReopened>,
     /// *Optional*. Service message: video chat scheduled
     pub video_chat_scheduled: Option<VideoChatScheduled>,
     /// Optional*. Service message: video chat started
@@ -128,7 +139,7 @@ pub struct Message {
     pub video_chat_participants_invited: Option<VideoChatParticipantsInvited>,
     /// *Optional*. Service message: data sent by a Web App
     pub web_app_data: Option<WebAppData>,
-    /// *Optional*. Inline keyboard attached to the message. :code:`login_url` buttons are represented as ordinary :code:`url` buttons.
+    /// *Optional*. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary `url` buttons.
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 

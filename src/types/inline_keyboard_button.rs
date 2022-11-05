@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 pub struct InlineKeyboardButton {
     /// Label text on the button
     pub text: String,
-    /// *Optional*. HTTP or tg:// URL to be opened when the button is pressed. Links :code:`tg://user?id=<user_id>` can be used to mention a user by their ID without using a username, if this is allowed by their privacy settings.
+    /// *Optional*. HTTP or tg:// URL to be opened when the button is pressed. Links `tg://user?id=<user_id>` can be used to mention a user by their ID without using a username, if this is allowed by their privacy settings.
     pub url: Option<String>,
     /// *Optional*. Data to be sent in a `callback query <https://core.telegram.org/bots/api#callbackquery>` to the bot when button is pressed, 1-64 bytes
     pub callback_data: Option<String>,
@@ -22,6 +22,6 @@ pub struct InlineKeyboardButton {
     pub switch_inline_query_current_chat: Option<String>,
     /// *Optional*. Description of the game that will be launched when the user presses the button.
     pub callback_game: Option<CallbackGame>,
-    /// *Optional*. Specify :code:`True`, to send a `Pay button <https://core.telegram.org/bots/api#payments>`.
+    /// *Optional*. Specify `True`, to send a `Pay button <https://core.telegram.org/bots/api#payments>`.
     pub pay: Option<bool>,
 }
