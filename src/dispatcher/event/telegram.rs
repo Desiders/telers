@@ -48,7 +48,7 @@ impl EventObserver {
             event_name,
             handlers: vec![],
             common_handler: HandlerObject::new(
-                || async move { unimplemented!("This just for filters and without logic") },
+                || async move { unimplemented!("It's just for filters and without logic") },
                 vec![],
             ),
         }
@@ -76,9 +76,7 @@ impl EventObserver {
     /// # Arguments
     /// * `filter` - Filter for the observer
     fn filter(&mut self, filter: Box<dyn Filter>) {
-        Rc::get_mut(&mut self.common_handler.filters)
-            .unwrap()
-            .push(filter);
+        self.common_handler.filter(filter);
     }
 
     /// Add a handler with handler's filters to the observer
@@ -118,8 +116,8 @@ impl ServiceFactory<Request> for EventObserver {
 
             Ok(ObserverService {
                 event_name,
-                handlers,
-                common_handler,
+                handlers: Rc::new(handlers),
+                common_handler: Rc::new(common_handler),
             })
         })
     }
@@ -130,24 +128,38 @@ pub struct ObserverService {
     /// Event observer name
     event_name: &'static str,
     /// Handler services of the observer
-    handlers: Vec<HandlerObjectService>,
+    handlers: Rc<Vec<HandlerObjectService>>,
     /// Common handler service of the observer with dummy callback which never will be used. Need for tests.
-    common_handler: HandlerObjectService,
+    common_handler: Rc<HandlerObjectService>,
 }
 
 impl ObserverService {
-    #[allow(clippy::similar_names)]
     async fn trigger(&self, req: Request) -> Result<Response, app::Error> {
+        ObserverService::trigger_without_self(
+            Rc::clone(&self.handlers),
+            Rc::clone(&self.common_handler),
+            req,
+        )
+        .await
+    }
+
+    /// We need this method to possible boxed without [`Observer Service`] lifetime
+    #[allow(clippy::similar_names)]
+    async fn trigger_without_self(
+        handlers: Rc<Vec<HandlerObjectService>>,
+        common_handler: Rc<HandlerObjectService>,
+        req: Request,
+    ) -> Result<Response, app::Error> {
         let handler_req = req.clone().into();
 
-        if !self.common_handler.check(&handler_req) {
+        if !common_handler.check(&handler_req) {
             return Ok(Response {
                 request: req,
                 response: PropagateEventResult::Rejected,
             });
         }
 
-        for handler in &self.handlers {
+        for handler in handlers.iter() {
             if !handler.check(&handler_req) {
                 continue;
             }
@@ -177,8 +189,12 @@ impl Service<Request> for ObserverService {
     type Error = app::Error;
     type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
 
-    fn call(&self, _: Request) -> Self::Future {
-        unimplemented!("It just for `Service` trait, use `ObserverService::trigger` instead.")
+    fn call(&self, req: Request) -> Self::Future {
+        Box::pin(ObserverService::trigger_without_self(
+            Rc::clone(&self.handlers),
+            Rc::clone(&self.common_handler),
+            req,
+        ))
     }
 }
 
@@ -214,16 +230,16 @@ mod tests {
         observer.register(|| async { Action::Cancel }, vec![]);
         observer.register(
             || async {
-                unimplemented!("It shouldn't trigger because the first handler handles the event")
+                unimplemented!("It's shouldn't trigger because the first handler handles the event")
             },
             vec![],
         );
 
         let observer_service = r#await!(observer.new_service(())).unwrap();
         let req = Request {
-            bot: bot.clone(),
+            bot: Rc::clone(&bot),
             update: Rc::new(Update::default()),
-            context: context.clone(),
+            context: Rc::clone(&context),
         };
         let res = r#await!(observer_service.trigger(req)).unwrap();
 
@@ -234,7 +250,7 @@ mod tests {
         }
 
         let res = r#await!(observer_service.trigger(Request {
-            bot: bot.clone(),
+            bot: Rc::clone(&bot),
             update: Rc::new(Update {
                 message: Some(Message {
                     text: Some("/start".to_string()),
@@ -242,7 +258,7 @@ mod tests {
                 }),
                 ..Update::default()
             }),
-            context: context.clone(),
+            context: Rc::clone(&context),
         }))
         .unwrap();
 
@@ -275,9 +291,9 @@ mod tests {
         let observer_service = r#await!(observer.new_service(())).unwrap();
 
         let res = r#await!(observer_service.trigger(Request {
-            bot: bot.clone(),
-            update: update.clone(),
-            context: context.clone(),
+            bot: Rc::clone(&bot),
+            update: Rc::clone(&update),
+            context: Rc::clone(&context),
         }))
         .unwrap();
 

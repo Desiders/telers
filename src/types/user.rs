@@ -31,8 +31,8 @@ pub struct User {
 impl User {
     #[must_use]
     pub fn full_name(&self) -> String {
-        if let Some(last_name) = &self.last_name {
-            format!("{} {}", self.first_name, last_name)
+        if let Some(ref last_name) = self.last_name {
+            format!("{} {last_name}", self.first_name)
         } else {
             self.first_name.clone()
         }

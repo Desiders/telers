@@ -141,7 +141,7 @@ impl ServiceFactory<Request> for HandlerObject {
     /// Create a new [`HandlerObjectService`]
     fn new_service(&self, _: ()) -> Self::Future {
         let fut = self.service.new_service(());
-        let filters = self.filters.clone();
+        let filters = Rc::clone(&self.filters);
 
         Box::pin(async move {
             let service = fut.await?;
@@ -278,7 +278,7 @@ mod tests {
         });
 
         let mut handler_object = HandlerObject::new(
-            || async { unimplemented!("It shouldn't call in the test") },
+            || async { unimplemented!("It's shouldn't call in the test") },
             vec![],
         );
         assert_eq!(handler_object.filters().is_empty(), true);
@@ -287,7 +287,7 @@ mod tests {
         assert_eq!(handler_object.filters().len(), 1);
 
         let handler_object = HandlerObject::new(
-            || async { unimplemented!("It function shouldn't call in the test") },
+            || async { unimplemented!("It's shouldn't call in the test") },
             vec![filter.clone()],
         );
         assert_eq!(handler_object.filters().len(), 1);

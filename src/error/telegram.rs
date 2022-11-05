@@ -52,17 +52,17 @@ pub enum TelegramAPIErrorKind {
 impl Display for TelegramAPIErrorKind {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
-            TelegramAPIErrorKind::NetworkError(e) => write!(f, "{}", e),
-            TelegramAPIErrorKind::RetryAfter(e) => write!(f, "{}", e),
-            TelegramAPIErrorKind::MigrateToChat(e) => write!(f, "{}", e),
-            TelegramAPIErrorKind::BadRequest(e) => write!(f, "{}", e),
-            TelegramAPIErrorKind::NotFound(e) => write!(f, "{}", e),
-            TelegramAPIErrorKind::ConflictError(e) => write!(f, "{}", e),
-            TelegramAPIErrorKind::Forbidden(e) => write!(f, "{}", e),
-            TelegramAPIErrorKind::Unauthorized(e) => write!(f, "{}", e),
-            TelegramAPIErrorKind::ServerError(e) => write!(f, "{}", e),
-            TelegramAPIErrorKind::RestartingTelegram(e) => write!(f, "{}", e),
-            TelegramAPIErrorKind::EntityTooLarge(e) => write!(f, "{}", e),
+            TelegramAPIErrorKind::NetworkError(e) => write!(f, "{e}"),
+            TelegramAPIErrorKind::RetryAfter(e) => write!(f, "{e}"),
+            TelegramAPIErrorKind::MigrateToChat(e) => write!(f, "{e}"),
+            TelegramAPIErrorKind::BadRequest(e) => write!(f, "{e}"),
+            TelegramAPIErrorKind::NotFound(e) => write!(f, "{e}"),
+            TelegramAPIErrorKind::ConflictError(e) => write!(f, "{e}"),
+            TelegramAPIErrorKind::Forbidden(e) => write!(f, "{e}"),
+            TelegramAPIErrorKind::Unauthorized(e) => write!(f, "{e}"),
+            TelegramAPIErrorKind::ServerError(e) => write!(f, "{e}"),
+            TelegramAPIErrorKind::RestartingTelegram(e) => write!(f, "{e}"),
+            TelegramAPIErrorKind::EntityTooLarge(e) => write!(f, "{e}"),
         }
     }
 }

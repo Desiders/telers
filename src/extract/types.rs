@@ -37,7 +37,7 @@ impl FromEventAndContext for Rc<RefCell<Context>> {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn extract(_: &Bot, _: &Update, context: Rc<RefCell<Context>>) -> Self::Future {
-        ok(context.clone())
+        ok(Rc::clone(&context))
     }
 }
 

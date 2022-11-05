@@ -123,7 +123,7 @@ mod tuple_from_req {
                     $fut {
                         $(
                             $T: ExtractFuture::Future {
-                                fut: $T::extract(bot, update, context.clone()),
+                                fut: $T::extract(bot, update, Rc::clone(&context)),
                             },
                         )+
                     }
