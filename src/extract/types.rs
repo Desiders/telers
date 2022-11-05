@@ -145,11 +145,11 @@ impl FromEventAndContext for Poll {
 mod tests {
     use super::*;
 
-    use crate::dispatcher::event::Handler;
+    use crate::dispatcher::event::TelegramHandler;
 
     #[test]
     fn test_types_extract() {
-        fn assert_impl_handler<T: FromEventAndContext>(_: impl Handler<T>) {}
+        fn assert_impl_handler<T: FromEventAndContext>(_: impl TelegramHandler<T>) {}
 
         assert_impl_handler(|_: Bot| async { unimplemented!() });
         assert_impl_handler(|_: Update| async { unimplemented!() });

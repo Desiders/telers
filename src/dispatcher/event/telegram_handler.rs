@@ -278,7 +278,7 @@ mod tests {
         });
 
         let mut handler_object = HandlerObject::new(
-            || async { unimplemented!("It's shouldn't call in the test") },
+            || async { unimplemented!("This shouldn't be called in the test") },
             vec![],
         );
         assert_eq!(handler_object.filters().is_empty(), true);
@@ -287,7 +287,7 @@ mod tests {
         assert_eq!(handler_object.filters().len(), 1);
 
         let handler_object = HandlerObject::new(
-            || async { unimplemented!("It's shouldn't call in the test") },
+            || async { unimplemented!("This shouldn't be called in the test") },
             vec![filter.clone()],
         );
         assert_eq!(handler_object.filters().len(), 1);
