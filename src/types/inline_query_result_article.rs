@@ -15,7 +15,7 @@ pub struct InlineQueryResultArticle {
     pub title: String,
     /// Content of the message to be sent
     pub input_message_content: InputMessageContent,
-    /// *Optional*. `Inline keyboard <https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating>` attached to the message
+    /// *Optional*. `Inline keyboard <https://core.telegram.org/bots/features#inline-keyboards>` attached to the message
     pub reply_markup: Option<InlineKeyboardMarkup>,
     /// *Optional*. URL of the result
     pub url: Option<String>,

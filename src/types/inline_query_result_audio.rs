@@ -26,7 +26,7 @@ pub struct InlineQueryResultAudio {
     pub performer: Option<String>,
     /// *Optional*. Audio duration in seconds
     pub audio_duration: Option<i64>,
-    /// *Optional*. `Inline keyboard <https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating>` attached to the message
+    /// *Optional*. `Inline keyboard <https://core.telegram.org/bots/features#inline-keyboards>` attached to the message
     pub reply_markup: Option<InlineKeyboardMarkup>,
     /// *Optional*. Content of the message to be sent instead of the audio
     pub input_message_content: Option<InputMessageContent>,

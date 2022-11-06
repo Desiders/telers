@@ -23,7 +23,7 @@ pub struct InlineQueryResultCachedVideo {
     pub caption_entities: Option<Vec<MessageEntity>>,
     /// *Optional*. Short description of the result
     pub description: Option<String>,
-    /// *Optional*. `Inline keyboard <https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating>` attached to the message
+    /// *Optional*. `Inline keyboard <https://core.telegram.org/bots/features#inline-keyboards>` attached to the message
     pub reply_markup: Option<InlineKeyboardMarkup>,
     /// *Optional*. Content of the message to be sent instead of the video. This field is **required** if InlineQueryResultVideo is used to send an HTML-page as a result (e.g., a YouTube video).
     pub input_message_content: Option<InputMessageContent>,
