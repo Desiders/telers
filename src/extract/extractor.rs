@@ -14,7 +14,7 @@ use std::{
     task::{Context, Poll},
 };
 
-/// Trait for extracting data from [Update] and [Context] to handlers' arguments
+/// Trait for extracting data from [`Update`] and [`Context`] to handlers arguments
 pub trait FromEventAndContext: Sized {
     type Error: Into<Error>;
     type Future: Future<Output = Result<Self, Self::Error>>;
@@ -192,7 +192,7 @@ mod tuple_from_req {
         }
     }
 
-    /// To be able to use [Handler] without arguments
+    /// To be able to use handler without arguments
     impl FromEventAndContext for () {
         type Error = Infallible;
         type Future = Ready<Result<Self, Self::Error>>;

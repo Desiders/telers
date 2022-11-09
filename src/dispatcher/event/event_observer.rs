@@ -32,6 +32,7 @@ impl Observer {
     /// Register event handler
     /// # Arguments
     /// * `handler` - Handler for the observer
+    #[must_use]
     pub fn register<H, Args>(mut self, handler: H, args: Args) -> Self
     where
         H: EventHandler<Args> + 'static,
@@ -87,6 +88,8 @@ pub struct ObserverService {
 impl ObserverService {
     /// Propagate event to handlers.
     /// All handlers will be called.
+    /// # Errors
+    /// If handler service returns error.
     pub async fn trigger(&self, req: ()) -> Result<(), app::Error> {
         Self::trigger_without_self(Rc::clone(&self.handlers), req).await
     }

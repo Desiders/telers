@@ -99,7 +99,7 @@ pub trait Handler<Args>: Clone + 'static {
     fn call(&self, args: Args) -> Self::Future;
 }
 
-/// [`Handler`] wrapped into [`BoxedHandlerServiceFactory`] with filters
+/// [`Handler`] wrapped into service factory with filters
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObject {
     service: BoxedHandlerServiceFactory,
@@ -138,7 +138,7 @@ impl HandlerObject {
     /// # Arguments
     /// * `filter` - Filter for the handler
     /// # Panics
-    /// If there are other [`Rc`] or [`Weak`] pointers to the same allocation
+    /// If there are other [`Rc`] or `Weak` pointers to the same allocation
     pub fn filter(&mut self, filter: Box<dyn Filter>) {
         Rc::get_mut(&mut self.filters).unwrap().push(filter);
     }
@@ -165,7 +165,7 @@ impl ServiceFactory<Request> for HandlerObject {
     }
 }
 
-/// [`Handler`] wrapped into [`BoxedHandlerService`] with filters
+/// [`Handler`] wrapped into service with filters
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObjectService {
     service: BoxedHandlerService,
@@ -188,13 +188,13 @@ impl Service<Request> for HandlerObjectService {
     type Error = app::Error;
     type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
 
-    /// Call [`BoxedHandlerService`], which is wrapped [`Handler`]
+    /// Call service, which is wrapped [`Handler`]
     fn call(&self, req: Request) -> Self::Future {
         self.service.call(req)
     }
 }
 
-/// Wrap [`Handler`] into [`BoxedHandlerServiceFactory`]
+/// Wrap [`Handler`] into service factory
 #[allow(clippy::module_name_repetitions)]
 pub fn handler_service<H, Args>(handler: H) -> BoxedHandlerServiceFactory
 where

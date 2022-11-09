@@ -11,7 +11,7 @@ use crate::{
 use futures::future::{ok, Ready};
 use std::{cell::RefCell, convert::Infallible, rc::Rc};
 
-/// To be able to use [`Bot`] in [Handler]'s arguments
+/// To be able to use [`Bot`] in handler arguments
 impl FromEventAndContext for Bot {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
@@ -21,7 +21,7 @@ impl FromEventAndContext for Bot {
     }
 }
 
-/// To be able to use [`Update`] in [Handler]'s arguments
+/// To be able to use [`Update`] in handler arguments
 impl FromEventAndContext for Update {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
@@ -31,7 +31,7 @@ impl FromEventAndContext for Update {
     }
 }
 
-/// To be able to use [`Context`] in [Handler]'s arguments
+/// To be able to use [`Context`] in handler arguments
 impl FromEventAndContext for Rc<RefCell<Context>> {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
@@ -41,7 +41,7 @@ impl FromEventAndContext for Rc<RefCell<Context>> {
     }
 }
 
-/// To be able to use [`Message`] in [Handler]'s arguments
+/// To be able to use [`Message`] in handler arguments
 impl FromEventAndContext for Message {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
@@ -51,7 +51,7 @@ impl FromEventAndContext for Message {
     }
 }
 
-/// To be able to use [`CallbackQuery`] in [`Handler`]'s arguments
+/// To be able to use [`CallbackQuery`] in handler arguments
 impl FromEventAndContext for CallbackQuery {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
@@ -61,7 +61,7 @@ impl FromEventAndContext for CallbackQuery {
     }
 }
 
-/// To be able to use [`ChosenInlineResult`] in [Handler]'s arguments
+/// To be able to use [`ChosenInlineResult`] in handler arguments
 impl FromEventAndContext for ChosenInlineResult {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
@@ -71,7 +71,7 @@ impl FromEventAndContext for ChosenInlineResult {
     }
 }
 
-/// To be able to use [`ShippingQuery`] in [Handler]'s arguments
+/// To be able to use [`ShippingQuery`] in handler arguments
 impl FromEventAndContext for ShippingQuery {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
@@ -81,7 +81,7 @@ impl FromEventAndContext for ShippingQuery {
     }
 }
 
-/// To be able to use [`PreCheckoutQuery`] in [Handler]'s arguments
+/// To be able to use [`PreCheckoutQuery`] in handler arguments
 impl FromEventAndContext for PreCheckoutQuery {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
@@ -91,7 +91,7 @@ impl FromEventAndContext for PreCheckoutQuery {
     }
 }
 
-/// To be able to use [`PollAnswer`] in [Handler]'s arguments
+/// To be able to use [`PollAnswer`] in handler arguments
 impl FromEventAndContext for PollAnswer {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
@@ -101,7 +101,7 @@ impl FromEventAndContext for PollAnswer {
     }
 }
 
-/// To be able to use [`ChatMemberUpdated`] in [Handler]'s arguments
+/// To be able to use [`ChatMemberUpdated`] in handler arguments
 impl FromEventAndContext for ChatMemberUpdated {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
@@ -111,7 +111,7 @@ impl FromEventAndContext for ChatMemberUpdated {
     }
 }
 
-/// To be able to use [`ChatJoinRequest`] in [Handler]'s arguments
+/// To be able to use [`ChatJoinRequest`] in handler arguments
 impl FromEventAndContext for ChatJoinRequest {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
@@ -121,7 +121,7 @@ impl FromEventAndContext for ChatJoinRequest {
     }
 }
 
-/// To be able to use [`InlineQuery`] in [Handler]'s arguments
+/// To be able to use [`InlineQuery`] in handler arguments
 impl FromEventAndContext for InlineQuery {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
@@ -131,7 +131,7 @@ impl FromEventAndContext for InlineQuery {
     }
 }
 
-/// To be able to use [`Poll`] in [Handler]'s arguments
+/// To be able to use [`Poll`] in handler arguments
 impl FromEventAndContext for Poll {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;

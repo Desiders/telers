@@ -37,7 +37,7 @@ pub struct Router {
     /// Router name
     router_name: &'static str,
     /// Sub routers
-    sub_routers: Vec<Box<Router>>,
+    sub_routers: Vec<Router>,
 
     /// Telegram event observers
     message: TelegramObserver,
@@ -99,7 +99,7 @@ impl Router {
 
     /// Get sub routers
     pub fn sub_routers(&self) -> Vec<&Router> {
-        self.sub_routers.iter().map(|r| r.as_ref()).collect()
+        self.sub_routers.iter().collect()
     }
 
     /// Alias to [`Router::sub_routers`] method
@@ -135,12 +135,12 @@ impl Router {
 
     /// Include a sub router
     pub fn include_router(mut self, router: Router) -> Self {
-        self.sub_routers.push(Box::new(router));
+        self.sub_routers.push(router);
         self
     }
 
     /// Alias to [`Router::include_router`] method
-    pub fn include(mut self, router: Router) -> Self {
+    pub fn include(self, router: Router) -> Self {
         self.include_router(router)
     }
 
@@ -630,7 +630,7 @@ impl ServiceFactory<()> for Router {
         Box::pin(async move {
             let mut sub_routers = vec![];
             for router in join_all(routers).await {
-                sub_routers.push(Box::new(router?));
+                sub_routers.push(router?);
             }
 
             let message = message.await?;
@@ -675,11 +675,12 @@ impl ServiceFactory<()> for Router {
 }
 
 /// Service for [`Router`]
+#[allow(clippy::module_name_repetitions)]
 pub struct RouterService {
     /// Router name
     router_name: &'static str,
     /// Sub router services
-    sub_routers: Vec<Box<RouterService>>,
+    sub_routers: Vec<RouterService>,
 
     /// Telegram event observer services
     message: TelegramObserverService,

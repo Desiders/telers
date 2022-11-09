@@ -80,6 +80,7 @@ impl Observer {
     /// Register filter for all handlers of this event observer
     /// # Arguments
     /// * `filter` - Filter for the observer
+    #[must_use]
     pub fn filter(mut self, filter: Box<dyn Filter>) -> Self {
         self.common_handler.filter(filter);
         self
@@ -89,6 +90,7 @@ impl Observer {
     /// # Arguments
     /// * `handler` - Handler for the observer
     /// * `filters` - Filters for the handler
+    #[must_use]
     pub fn register<H, Args>(mut self, handler: H, filters: Vec<Box<dyn Filter>>) -> Self
     where
         H: TelegramHandler<Args> + 'static,
@@ -162,6 +164,9 @@ pub struct ObserverService {
 impl ObserverService {
     /// Propagate event to handlers and stops propagation on first match.
     /// Handler will be called when all its filters is pass
+    /// # Errors
+    /// If handler service returns error.
+    /// Probably it's error to extract args to the handler.
     pub async fn trigger(&self, req: Request) -> Result<Response, app::Error> {
         Self::trigger_without_self(
             Rc::clone(&self.handlers),

@@ -103,6 +103,7 @@ impl From<telegram::Error> for EventReturn {
     }
 }
 
+/// A special enumeration containing all possible responses from observers
 pub enum PropagateEventResult {
     /// Event was rejected
     Rejected,
