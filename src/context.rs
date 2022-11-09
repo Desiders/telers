@@ -1,5 +1,6 @@
 use std::{any::Any, collections::HashMap};
 
+/// Context type, which can contain some data from handlers, filters and middlewares
 pub type Context = HashMap<&'static str, Box<dyn Any>>;
 
 #[cfg(test)]
@@ -47,7 +48,7 @@ mod tests {
                 command: "test".to_string(),
                 prefix: "/".to_string(),
                 mention: None,
-                args: Vec::new(),
+                args: vec![],
             }
         );
     }

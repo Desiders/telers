@@ -6,7 +6,10 @@ use crate::{
 };
 
 use futures_core::future::LocalBoxFuture;
-use std::future::Future;
+use std::{
+    fmt::{self, Debug, Formatter},
+    future::Future,
+};
 
 pub type BoxedHandlerService = BoxService<(), (), app::Error>;
 pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), (), (), app::Error, ()>;
@@ -24,10 +27,14 @@ pub struct HandlerObject {
     service: BoxedHandlerServiceFactory,
 }
 
+impl Debug for HandlerObject {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("HandlerObject").finish()
+    }
+}
+
 impl HandlerObject {
-    /// Creates a new [`HandlerObject`]
-    /// # Arguments
-    /// * `handler` - Handler function
+    /// Create a new handler object
     pub fn new<H, Args>(handler: H, args: Args) -> Self
     where
         H: Handler<Args> + 'static,
@@ -47,7 +54,7 @@ impl ServiceFactory<()> for HandlerObject {
     type InitError = ();
     type Future = LocalBoxFuture<'static, Result<Self::Service, Self::InitError>>;
 
-    /// Create a new [`HandlerObjectService`]
+    /// Create [`HandlerObjectService`] from [`HandlerObject`]
     fn new_service(&self, _: ()) -> Self::Future {
         let fut = self.service.new_service(());
 
@@ -59,7 +66,7 @@ impl ServiceFactory<()> for HandlerObject {
     }
 }
 
-/// [`Handler`] wrapped into a [`BoxedHandlerService`] with filters
+/// [`Handler`] wrapped into [`BoxedHandlerService`] with filters
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObjectService {
     service: BoxedHandlerService,
@@ -76,7 +83,7 @@ impl Service<()> for HandlerObjectService {
     }
 }
 
-/// Wrap a [`Handler`] into a [`BoxedHandlerServiceFactory`]
+/// Wrap [`Handler`] into [`BoxedHandlerServiceFactory`]
 #[allow(clippy::module_name_repetitions)]
 pub fn handler_service<H, Args>(handler: H, args: Args) -> BoxedHandlerServiceFactory
 where
@@ -139,7 +146,7 @@ mod tests {
     fn test_arg_number() {
         fn assert_impl_handler<T>(_: impl Handler<T>) {}
 
-        assert_impl_handler(|| async { unimplemented!("This shouldn't be called in the test") });
+        assert_impl_handler(|| async { unimplemented!() });
         assert_impl_handler(
             |_01: (),
              _02: (),
@@ -152,7 +159,7 @@ mod tests {
              _09: (),
              _10: (),
              _11: (),
-             _12: ()| async { unimplemented!("This shouldn't be called in the test") },
+             _12: ()| async { unimplemented!() },
         );
     }
 

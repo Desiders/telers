@@ -102,7 +102,6 @@ where
     }
 }
 
-#[doc(hidden)]
 #[allow(non_snake_case)]
 mod tuple_from_req {
     use super::{

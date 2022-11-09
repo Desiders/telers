@@ -132,6 +132,7 @@ impl Command {
     }
 }
 
+/// Represents parsed command from text
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Clone, Eq, Hash, PartialEq)]
 pub struct CommandObject {

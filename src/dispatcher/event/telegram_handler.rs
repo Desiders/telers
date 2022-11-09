@@ -12,11 +12,17 @@ use crate::{
 };
 
 use futures_core::future::LocalBoxFuture;
-use std::{cell::RefCell, future::Future, rc::Rc};
+use std::{
+    cell::RefCell,
+    fmt::{self, Debug, Formatter},
+    future::Future,
+    rc::Rc,
+};
 
 pub type BoxedHandlerService = BoxService<Request, Response, app::Error>;
 pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), Request, Response, app::Error, ()>;
 
+/// Data for handler service
 #[derive(Debug, Clone)]
 pub struct Request {
     bot: Rc<Bot>,
@@ -35,6 +41,7 @@ impl PartialEq for Request {
 impl Eq for Request {}
 
 impl Request {
+    /// Create a new request
     #[must_use]
     pub fn new(bot: Rc<Bot>, update: Rc<Update>, context: Rc<RefCell<Context>>) -> Self {
         Self {
@@ -60,6 +67,8 @@ impl Request {
     }
 }
 
+/// Response from handler service.
+/// For the response from handler for users, use [`EventReturn`].
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Response {
     request: Request,
@@ -90,18 +99,23 @@ pub trait Handler<Args>: Clone + 'static {
     fn call(&self, args: Args) -> Self::Future;
 }
 
-/// [`Handler`] wrapped into a [`BoxedHandlerServiceFactory`] with filters
+/// [`Handler`] wrapped into [`BoxedHandlerServiceFactory`] with filters
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObject {
     service: BoxedHandlerServiceFactory,
     pub(crate) filters: Rc<Vec<Box<dyn Filter>>>,
 }
 
+impl Debug for HandlerObject {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("HandlerObject")
+            .field("filters", &self.filters)
+            .finish()
+    }
+}
+
 impl HandlerObject {
-    /// Creates a new [`HandlerObject`]
-    /// # Arguments
-    /// * `handler` - Handler function
-    /// * `filters` - Filters to the handler
+    /// Creates a new handler object
     pub fn new<H, Args>(handler: H, filters: Vec<Box<dyn Filter>>) -> Self
     where
         H: Handler<Args> + 'static,
@@ -114,15 +128,15 @@ impl HandlerObject {
         }
     }
 
-    /// Get the handler filters
+    /// Get filters of the handler
     #[must_use]
     pub fn filters(&self) -> &[Box<dyn Filter>] {
         &self.filters
     }
 
-    /// Add a filter to the handler filters.
+    /// Register filter for the handler
     /// # Arguments
-    /// * `filter` - [`Filter`] instance
+    /// * `filter` - Filter for the handler
     /// # Panics
     /// If there are other [`Rc`] or [`Weak`] pointers to the same allocation
     pub fn filter(&mut self, filter: Box<dyn Filter>) {
@@ -138,7 +152,7 @@ impl ServiceFactory<Request> for HandlerObject {
     type InitError = ();
     type Future = LocalBoxFuture<'static, Result<Self::Service, Self::InitError>>;
 
-    /// Create a new [`HandlerObjectService`]
+    /// Create [`HandlerObjectService`] from [`HandlerObject`]
     fn new_service(&self, _: ()) -> Self::Future {
         let fut = self.service.new_service(());
         let filters = Rc::clone(&self.filters);
@@ -151,7 +165,7 @@ impl ServiceFactory<Request> for HandlerObject {
     }
 }
 
-/// [`Handler`] wrapped into a [`BoxedHandlerService`] with filters
+/// [`Handler`] wrapped into [`BoxedHandlerService`] with filters
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObjectService {
     service: BoxedHandlerService,
@@ -180,7 +194,7 @@ impl Service<Request> for HandlerObjectService {
     }
 }
 
-/// Wrap a [`Handler`] into a [`BoxedHandlerServiceFactory`]
+/// Wrap [`Handler`] into [`BoxedHandlerServiceFactory`]
 #[allow(clippy::module_name_repetitions)]
 pub fn handler_service<H, Args>(handler: H) -> BoxedHandlerServiceFactory
 where
@@ -193,7 +207,7 @@ where
 
         async move {
             match Args::extract(req.bot.as_ref(), req.update.as_ref(), req.context.clone()).await {
-                // Call handler with extracted arguments
+                // Call the handler with extracted arguments
                 Ok(args) => Ok(Response {
                     request: req,
                     response: handler.call(args).await.into(),
@@ -277,19 +291,14 @@ mod tests {
             ignore_mention: false,
         });
 
-        let mut handler_object = HandlerObject::new(
-            || async { unimplemented!("This shouldn't be called in the test") },
-            vec![],
-        );
+        let mut handler_object = HandlerObject::new(|| async { unimplemented!() }, vec![]);
         assert_eq!(handler_object.filters().is_empty(), true);
 
         handler_object.filter(filter.clone());
         assert_eq!(handler_object.filters().len(), 1);
 
-        let handler_object = HandlerObject::new(
-            || async { unimplemented!("This shouldn't be called in the test") },
-            vec![filter.clone()],
-        );
+        let handler_object =
+            HandlerObject::new(|| async { unimplemented!() }, vec![filter.clone()]);
         assert_eq!(handler_object.filters().len(), 1);
     }
 

@@ -5,19 +5,18 @@ use super::{
 
 use crate::error::app;
 
-use futures::future::join_all;
 use futures_core::future::LocalBoxFuture;
 use std::rc::Rc;
 
 /// Simple events observer
 /// Is used for managing events isn't related with Telegram (For example startup/shutdown processes)
-#[derive(Default)]
-pub struct EventObserver {
+#[derive(Default, Debug)]
+pub struct Observer {
     /// Handlers of the observer
     handlers: Vec<EventHandlerObject>,
 }
 
-impl EventObserver {
+impl Observer {
     /// Creates a new event observer
     #[must_use]
     pub fn new() -> Self {
@@ -26,23 +25,30 @@ impl EventObserver {
 
     /// Get handlers of the observer
     #[must_use]
-    fn handlers(&self) -> &[EventHandlerObject] {
+    pub fn handlers(&self) -> &[EventHandlerObject] {
         &self.handlers
     }
 
-    /// Add a handler to the observer
+    /// Register event handler
     /// # Arguments
     /// * `handler` - Handler for the observer
-    fn register<H, Args>(&mut self, handler: H, args: Args)
+    pub fn register<H, Args>(mut self, handler: H, args: Args) -> Self
     where
         H: EventHandler<Args> + 'static,
         Args: Clone + 'static,
     {
         self.handlers.push(EventHandlerObject::new(handler, args));
+        self
     }
 }
 
-impl ServiceFactory<()> for EventObserver {
+impl AsRef<Observer> for Observer {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}
+
+impl ServiceFactory<()> for Observer {
     type Response = ();
     type Error = app::Error;
     type Config = ();
@@ -50,6 +56,7 @@ impl ServiceFactory<()> for EventObserver {
     type InitError = ();
     type Future = LocalBoxFuture<'static, Result<Self::Service, Self::InitError>>;
 
+    /// Create [`ObserverService`] from [`Observer`]
     fn new_service(&self, _: Self::Config) -> Self::Future {
         let futs = self
             .handlers
@@ -58,7 +65,10 @@ impl ServiceFactory<()> for EventObserver {
             .collect::<Vec<_>>();
 
         Box::pin(async move {
-            let handlers = join_all(futs).await.into_iter().collect::<Result<_, _>>()?;
+            let mut handlers = vec![];
+            for fut in futs {
+                handlers.push(fut.await?);
+            }
 
             Ok(ObserverService {
                 handlers: Rc::new(handlers),
@@ -68,29 +78,27 @@ impl ServiceFactory<()> for EventObserver {
 }
 
 #[allow(clippy::module_name_repetitions)]
+#[derive(Clone)]
 pub struct ObserverService {
     /// Handler services of the observer
     handlers: Rc<Vec<EventHandlerObjectService>>,
 }
 
 impl ObserverService {
-    async fn trigger(&self, req: ()) -> Result<(), app::Error> {
-        ObserverService::trigger_without_self(Rc::clone(&self.handlers), req).await
+    /// Propagate event to handlers.
+    /// All handlers will be called.
+    pub async fn trigger(&self, req: ()) -> Result<(), app::Error> {
+        Self::trigger_without_self(Rc::clone(&self.handlers), req).await
     }
 
-    /// We need this method to possible boxed without [`ObserverService`] lifetime
+    /// We need this method to possible call without [`ObserverService`] lifetime
     #[allow(clippy::similar_names)]
     async fn trigger_without_self(
         handlers: Rc<Vec<EventHandlerObjectService>>,
         _: (),
     ) -> Result<(), app::Error> {
         for handler in handlers.iter() {
-            match handler.call(()).await {
-                Ok(_) => {}
-                Err(err) => {
-                    return Err(err);
-                }
-            }
+            handler.call(()).await?;
         }
         Ok(())
     }
@@ -102,10 +110,7 @@ impl Service<()> for ObserverService {
     type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
 
     fn call(&self, req: ()) -> Self::Future {
-        Box::pin(ObserverService::trigger_without_self(
-            Rc::clone(&self.handlers),
-            req,
-        ))
+        Box::pin(Self::trigger_without_self(Rc::clone(&self.handlers), req))
     }
 }
 
@@ -131,10 +136,9 @@ mod tests {
             Ok(())
         }
 
-        let mut observer = EventObserver::new();
-
-        observer.register(on_startup, ("Hello, world!",));
-        observer.register(on_shutdown, ("Goodbye, world!",));
+        let observer = Observer::new()
+            .register(on_startup, ("Hello, world!",))
+            .register(on_shutdown, ("Goodbye, world!",));
 
         let observer_service = r#await!(observer.new_service(())).unwrap();
 

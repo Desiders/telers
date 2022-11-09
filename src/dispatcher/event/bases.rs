@@ -2,15 +2,18 @@ use super::TelegramHandlerResponse;
 
 use crate::error::{app, telegram};
 
+/// Response from handlers or middlewares, that indicates how the dispatcher should process response
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EventReturn {
-    /// Let possible skip handler and continue to next handler. Can be useful in middlewares and handlers.
+    /// Let possible skip handler and continue to next handler. Can be useful in middlewares and handlers
     is_skip: bool,
     /// Let possible cancel event and stop to next handler. Can be useful in middlewares.
+    /// This is useless in handlers.
     is_cancel: bool,
 }
 
 impl EventReturn {
+    /// Create a new event return
     #[must_use]
     pub fn new(is_skip: bool, is_cancel: bool) -> Self {
         Self { is_skip, is_cancel }
@@ -24,6 +27,25 @@ impl EventReturn {
     #[must_use]
     pub fn is_cancel(&self) -> bool {
         self.is_cancel
+    }
+}
+
+/// A special enumeration containing all possible responses from events.
+/// This is wrapper to `Event Return`.
+pub enum Action {
+    /// Let possible skip handler and continue to next handler. Can be useful in middlewares and handlers
+    Skip,
+    /// Let possible cancel event and stop to next handler. Can be useful in middlewares
+    /// This is useless in handlers
+    Cancel,
+}
+
+impl From<Action> for EventReturn {
+    fn from(action: Action) -> Self {
+        Self {
+            is_skip: matches!(action, Action::Skip),
+            is_cancel: matches!(action, Action::Cancel),
+        }
     }
 }
 
@@ -77,22 +99,6 @@ impl From<telegram::Error> for EventReturn {
         Self {
             is_skip: false,
             is_cancel: false,
-        }
-    }
-}
-
-pub enum Action {
-    /// Let possible skip handler and continue to next handler. Can be useful in middlewares and handlers.
-    Skip,
-    /// Let possible cancel event and stop to next handler. Can be useful in middlewares.
-    Cancel,
-}
-
-impl From<Action> for EventReturn {
-    fn from(action: Action) -> Self {
-        Self {
-            is_skip: matches!(action, Action::Skip),
-            is_cancel: matches!(action, Action::Cancel),
         }
     }
 }
