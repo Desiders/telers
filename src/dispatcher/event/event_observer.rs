@@ -32,14 +32,12 @@ impl Observer {
     /// Register event handler
     /// # Arguments
     /// * `handler` - Handler for the observer
-    #[must_use]
-    pub fn register<H, Args>(mut self, handler: H, args: Args) -> Self
+    pub fn register<H, Args>(&mut self, handler: H, args: Args)
     where
         H: EventHandler<Args> + 'static,
         Args: Clone + 'static,
     {
         self.handlers.push(EventHandlerObject::new(handler, args));
-        self
     }
 }
 
@@ -139,9 +137,9 @@ mod tests {
             Ok(())
         }
 
-        let observer = Observer::new()
-            .register(on_startup, ("Hello, world!",))
-            .register(on_shutdown, ("Goodbye, world!",));
+        let mut observer = Observer::new();
+        observer.register(on_startup, ("Hello, world!",));
+        observer.register(on_shutdown, ("Goodbye, world!",));
 
         let observer_service = r#await!(observer.new_service(())).unwrap();
 

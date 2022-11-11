@@ -80,18 +80,15 @@ impl Observer {
     /// Register filter for all handlers of this event observer
     /// # Arguments
     /// * `filter` - Filter for the observer
-    #[must_use]
-    pub fn filter(mut self, filter: Box<dyn Filter>) -> Self {
+    pub fn filter(&mut self, filter: Box<dyn Filter>) {
         self.common_handler.filter(filter);
-        self
     }
 
     /// Register event handler
     /// # Arguments
     /// * `handler` - Handler for the observer
     /// * `filters` - Filters for the handler
-    #[must_use]
-    pub fn register<H, Args>(mut self, handler: H, filters: Vec<Box<dyn Filter>>) -> Self
+    pub fn register<H, Args>(&mut self, handler: H, filters: Vec<Box<dyn Filter>>)
     where
         H: TelegramHandler<Args> + 'static,
         H::Output: Into<EventReturn>,
@@ -99,7 +96,6 @@ impl Observer {
     {
         self.handlers
             .push(TelegramHandlerObject::new(handler, filters));
-        self
     }
 }
 
@@ -248,24 +244,21 @@ mod tests {
         let bot = Rc::new(Bot::default());
         let context = Rc::new(RefCell::new(Context::new()));
 
-        let observer = Observer::new("test")
-            // Filter, which handlers can't pass
-            .filter(Box::new(Command {
-                commands: vec![CommandPatternType::Text("start")],
-                prefix: "/",
-                ignore_case: false,
-                ignore_mention: false,
-            }))
-            // Filter, which handlers can't pass
-            .register(|| async { Action::Cancel }, vec![])
-            .register(
-                || async {
-                    unimplemented!(
-                        "It's shouldn't trigger because the first handler handles the event"
-                    )
-                },
-                vec![],
-            );
+        let mut observer = Observer::new("test");
+        // Register common filter, which handlers can't pass
+        observer.filter(Box::new(Command {
+            commands: vec![CommandPatternType::Text("start")],
+            prefix: "/",
+            ignore_case: false,
+            ignore_mention: false,
+        }));
+        observer.register(|| async { Action::Cancel }, vec![]);
+        observer.register(
+            || async {
+                unimplemented!("It's shouldn't trigger because the first handler handles the event")
+            },
+            vec![],
+        );
 
         let observer_service = r#await!(observer.new_service(())).unwrap();
         let req = Request {
@@ -315,9 +308,9 @@ mod tests {
         let context = Rc::new(RefCell::new(Context::new()));
         let update = Rc::new(Update::default());
 
-        let observer = Observer::new("test")
-            .register(handler_first, vec![])
-            .register(handler_second, vec![]);
+        let mut observer = Observer::new("test");
+        observer.register(handler_first, vec![]);
+        observer.register(handler_second, vec![]);
 
         let observer_service = r#await!(observer.new_service(())).unwrap();
 
