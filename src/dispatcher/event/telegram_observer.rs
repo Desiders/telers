@@ -10,7 +10,11 @@ use crate::{
 };
 
 use futures_core::future::LocalBoxFuture;
-use std::{cell::RefCell, rc::Rc, vec};
+use std::{
+    cell::RefCell,
+    fmt::{self, Debug, Formatter},
+    rc::Rc,
+};
 
 /// Data for telegram observer service
 #[derive(Clone)]
@@ -35,7 +39,6 @@ pub struct Response {
 /// Event observer for Telegram events.
 /// Here you can register handler with filter.
 /// This observer will stop event propagation when first handler is pass.
-#[derive(Debug)]
 pub struct Observer {
     /// Event observer name
     event_name: &'static str,
@@ -99,6 +102,14 @@ impl Observer {
     }
 }
 
+impl Debug for Observer {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Observer")
+            .field("event_name", &self.event_name)
+            .finish()
+    }
+}
+
 impl Default for Observer {
     fn default() -> Self {
         Self::new("default")
@@ -106,6 +117,7 @@ impl Default for Observer {
 }
 
 impl AsRef<Observer> for Observer {
+    #[must_use]
     fn as_ref(&self) -> &Self {
         self
     }
@@ -158,6 +170,12 @@ pub struct ObserverService {
 }
 
 impl ObserverService {
+    /// Get event observer name
+    #[must_use]
+    pub fn event_name(&self) -> &str {
+        self.event_name
+    }
+
     /// Propagate event to handlers and stops propagation on first match.
     /// Handler will be called when all its filters is pass
     /// # Errors
@@ -207,6 +225,14 @@ impl ObserverService {
             request: req,
             response: PropagateEventResult::Unhandled,
         })
+    }
+}
+
+impl Debug for ObserverService {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ObserverService")
+            .field("event_name", &self.event_name)
+            .finish()
     }
 }
 

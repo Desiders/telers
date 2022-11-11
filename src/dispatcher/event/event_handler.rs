@@ -1,15 +1,12 @@
 use crate::{
     dispatcher::event::service::{
-    factory, fn_service, BoxService, BoxServiceFactory, Service, ServiceFactory,
+        factory, fn_service, BoxService, BoxServiceFactory, Service, ServiceFactory,
     },
     error::app,
 };
 
 use futures_core::future::LocalBoxFuture;
-use std::{
-    fmt::{self, Debug, Formatter},
-    future::Future,
-};
+use std::future::Future;
 
 pub type BoxedHandlerService = BoxService<(), (), app::Error>;
 pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), (), (), app::Error, ()>;
@@ -25,12 +22,6 @@ pub trait Handler<Args>: Clone + 'static {
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObject {
     service: BoxedHandlerServiceFactory,
-}
-
-impl Debug for HandlerObject {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.debug_struct("HandlerObject").finish()
-    }
 }
 
 impl HandlerObject {

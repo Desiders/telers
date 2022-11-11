@@ -12,18 +12,13 @@ use crate::{
 };
 
 use futures_core::future::LocalBoxFuture;
-use std::{
-    cell::RefCell,
-    fmt::{self, Debug, Formatter},
-    future::Future,
-    rc::Rc,
-};
+use std::{cell::RefCell, future::Future, rc::Rc};
 
 pub type BoxedHandlerService = BoxService<Request, Response, app::Error>;
 pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), Request, Response, app::Error, ()>;
 
 /// Data for handler service
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Request {
     bot: Rc<Bot>,
     update: Rc<Update>,
@@ -38,8 +33,6 @@ impl PartialEq for Request {
     }
 }
 
-impl Eq for Request {}
-
 impl Request {
     /// Create a new request
     #[must_use]
@@ -50,26 +43,11 @@ impl Request {
             context,
         }
     }
-
-    #[must_use]
-    fn bot(&self) -> &Rc<Bot> {
-        &self.bot
-    }
-
-    #[must_use]
-    fn update(&self) -> &Rc<Update> {
-        &self.update
-    }
-
-    #[must_use]
-    fn context(&self) -> &Rc<RefCell<Context>> {
-        &self.context
-    }
 }
 
 /// Response from handler service.
 /// For the response from handler for users, use [`EventReturn`].
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq)]
 pub struct Response {
     request: Request,
     response: EventReturn,
@@ -104,14 +82,6 @@ pub trait Handler<Args>: Clone + 'static {
 pub struct HandlerObject {
     service: BoxedHandlerServiceFactory,
     pub(crate) filters: Rc<Vec<Box<dyn Filter>>>,
-}
-
-impl Debug for HandlerObject {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.debug_struct("HandlerObject")
-            .field("filters", &self.filters)
-            .finish()
-    }
 }
 
 impl HandlerObject {

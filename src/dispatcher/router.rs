@@ -1,15 +1,16 @@
 use super::event::{
     service::{Service, ServiceFactory},
-    EventHandler, EventObserver, EventObserverService, EventReturn, TelegramHandler,
-    TelegramObserver, TelegramObserverService,
+    EventObserver, EventObserverService, TelegramObserver, TelegramObserverService,
 };
 
-use crate::{error::app, extract::FromEventAndContext, filters::Filter};
+use crate::error::app;
 
 use futures::future::join_all;
 use futures_core::future::LocalBoxFuture;
+use log;
 use std::{
     collections::{HashMap, HashSet},
+    fmt::{self, Debug, Formatter},
     iter::once,
 };
 
@@ -32,7 +33,6 @@ const CHAT_JOIN_REQUEST_OBSERVER_NAME: &str = "chat_join_request";
 /// Event handlers can be registered in observer by two ways:
 /// - By observer method - [`router.register_<event_type>(handler, <filters, ...>)`
 /// - By observer method - [`router.on_<event_type>(handler, <filters, ...>)`
-#[derive(Debug)]
 pub struct Router {
     /// Router name
     router_name: &'static str,
@@ -64,6 +64,7 @@ impl Router {
     /// Create a new router
     /// # Arguments
     /// * `router_name` - Router name, can be used for logging
+    #[must_use]
     pub fn new(router_name: &'static str) -> Self {
         Self {
             router_name,
@@ -88,26 +89,31 @@ impl Router {
     }
 
     /// Get a router name
+    #[must_use]
     pub fn router_name(&self) -> &str {
         self.router_name
     }
 
     /// Alias to [`Router::router_name`] method
+    #[must_use]
     pub fn name(&self) -> &str {
         self.router_name()
     }
 
     /// Get sub routers
+    #[must_use]
     pub fn sub_routers(&self) -> Vec<&Router> {
         self.sub_routers.iter().collect()
     }
 
     /// Alias to [`Router::sub_routers`] method
+    #[must_use]
     pub fn routers(&self) -> Vec<&Router> {
         self.sub_routers()
     }
 
     /// Get telegram event observers
+    #[must_use]
     #[rustfmt::skip]
     pub fn telegram_observers(&self) -> HashMap<&str, &TelegramObserver> {
         HashMap::from([
@@ -165,6 +171,14 @@ impl Router {
             });
 
         used_update_types.into_iter().collect()
+    }
+}
+
+impl Debug for Router {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Router")
+            .field("router_name", &self.router_name)
+            .finish()
     }
 }
 
@@ -279,6 +293,7 @@ pub struct RouterService {
 
 impl RouterService {
     /// Get telegram event observers
+    #[must_use]
     #[rustfmt::skip]
     fn telegram_observers(&self) -> HashMap<&str, &TelegramObserverService> {
         HashMap::from([
@@ -301,19 +316,11 @@ impl RouterService {
 
     /// Call startup callbacks
     pub async fn emit_startup(&self) -> Result<(), app::Error> {
-        Self::emit_startup_without_self(
-            once(self.startup.clone())
-                .chain(self.sub_routers.iter().map(|r| r.startup.clone()))
-                .collect(),
-        )
-        .await
-    }
+        log::debug!("{:?}: Emit startup", self);
 
-    /// We need this method to possible call without [`EventObserverService`] lifetime
-    async fn emit_startup_without_self(
-        routers_startup: Vec<EventObserverService>,
-    ) -> Result<(), app::Error> {
-        for startup in routers_startup {
+        for startup in once(self.startup.clone())
+            .chain(self.sub_routers.iter().map(|router| router.startup.clone()))
+        {
             startup.call(()).await?;
         }
         Ok(())
@@ -321,19 +328,13 @@ impl RouterService {
 
     /// Call shutdown callbacks
     pub async fn emit_shutdown(&self) -> Result<(), app::Error> {
-        Self::emit_shutdown_without_self(
-            once(self.shutdown.clone())
-                .chain(self.sub_routers.iter().map(|r| r.shutdown.clone()))
-                .collect(),
-        )
-        .await
-    }
+        log::debug!("{:?}: Emit shutdown", self);
 
-    /// We need this method to possible call without [`EventObserverService`] lifetime
-    async fn emit_shutdown_without_self(
-        routers_shutdown: Vec<EventObserverService>,
-    ) -> Result<(), app::Error> {
-        for shutdown in routers_shutdown {
+        for shutdown in once(self.shutdown.clone()).chain(
+            self.sub_routers
+                .iter()
+                .map(|router| router.shutdown.clone()),
+        ) {
             shutdown.call(()).await?;
         }
         Ok(())
@@ -342,13 +343,22 @@ impl RouterService {
     // pub async fn propagate_event(&self, event_type: &str, event: &Update) {}
 }
 
-#[doc(hidden)]
+impl Debug for RouterService {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Router")
+            .field("router_name", &self.router_name)
+            .finish()
+    }
+}
+
 impl Service<()> for RouterService {
     type Response = ();
     type Error = ();
     type Future = LocalBoxFuture<'static, Result<(), Self::Error>>;
 
     fn call(&self, _: ()) -> Self::Future {
+        log::error!("{}: RouterService should not be called", self.router_name);
+
         unimplemented!(
             "RouterService is not intended to be called directly. \
             Use RouterService::emit_startup or RouterService::emit_shutdown instead"

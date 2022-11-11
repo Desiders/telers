@@ -11,6 +11,7 @@ pub trait Service<Req> {
     type Future: Future<Output = Result<Self::Response, Self::Error>>;
 
     /// Process the event and return the asynchronous response
+    #[must_use]
     fn call(&self, req: Req) -> Self::Future;
 }
 
@@ -34,6 +35,7 @@ pub trait ServiceFactory<Req> {
     type Future: Future<Output = Result<Self::Service, Self::InitError>>;
 
     /// Create and return a new service asynchronously.
+    #[must_use]
     fn new_service(&self, cfg: Self::Config) -> Self::Future;
 }
 

@@ -12,6 +12,15 @@ pub struct EventReturn {
     is_cancel: bool,
 }
 
+impl Default for EventReturn {
+    fn default() -> Self {
+        Self {
+            is_skip: false,
+            is_cancel: false,
+        }
+    }
+}
+
 impl EventReturn {
     /// Create a new event return
     #[must_use]
@@ -31,76 +40,13 @@ impl EventReturn {
 }
 
 /// A special enumeration containing all possible responses from events.
-/// This is wrapper to `Event Return`.
+/// This is wrapper to [`EventReturn`].
 pub enum Action {
     /// Let possible skip handler and continue to next handler. Can be useful in middlewares and handlers
     Skip,
     /// Let possible cancel event and stop to next handler. Can be useful in middlewares
     /// This is useless in handlers
     Cancel,
-}
-
-impl From<Action> for EventReturn {
-    fn from(action: Action) -> Self {
-        Self {
-            is_skip: matches!(action, Action::Skip),
-            is_cancel: matches!(action, Action::Cancel),
-        }
-    }
-}
-
-impl<T, E> From<Result<T, E>> for EventReturn {
-    fn from(_: Result<T, E>) -> Self {
-        Self {
-            is_skip: false,
-            is_cancel: false,
-        }
-    }
-}
-
-impl<T> From<Option<T>> for EventReturn {
-    fn from(_: Option<T>) -> Self {
-        Self {
-            is_skip: false,
-            is_cancel: false,
-        }
-    }
-}
-
-impl<T> From<Box<T>> for EventReturn {
-    fn from(_: Box<T>) -> Self {
-        Self {
-            is_skip: false,
-            is_cancel: false,
-        }
-    }
-}
-
-impl From<()> for EventReturn {
-    fn from(_: ()) -> Self {
-        Self {
-            is_skip: false,
-            is_cancel: false,
-        }
-    }
-}
-
-impl From<app::Error> for EventReturn {
-    fn from(_: app::Error) -> Self {
-        Self {
-            is_skip: false,
-            is_cancel: false,
-        }
-    }
-}
-
-impl From<telegram::Error> for EventReturn {
-    fn from(_: telegram::Error) -> Self {
-        Self {
-            is_skip: false,
-            is_cancel: false,
-        }
-    }
 }
 
 /// A special enumeration containing all possible responses from observers
@@ -111,4 +57,47 @@ pub enum PropagateEventResult {
     Unhandled,
     /// Event was been handled and retured [`TelegramHandlerResponse`]
     Handled(TelegramHandlerResponse),
+}
+
+mod impl_from {
+    use super::{app, telegram, Action, EventReturn};
+
+    impl From<Action> for EventReturn {
+        fn from(action: Action) -> Self {
+            Self {
+                is_skip: matches!(action, Action::Skip),
+                is_cancel: matches!(action, Action::Cancel),
+            }
+        }
+    }
+
+    macro_rules! default_impl_from {
+        // Implement `From` for `T` with one or more lifetimes
+        ($T:ty, $($lifetime:tt),* $(,)?) => {
+            impl<$($lifetime,)*> From<$T> for EventReturn {
+                fn from(_: $T) -> Self {
+                    Self::default()
+                }
+            }
+        };
+        // Implement `From` for `T` without lifetimes
+        ($T:ty) => {
+            impl From<$T> for EventReturn {
+                fn from(_: $T) -> Self {
+                    Self::default()
+                }
+            }
+        };
+        // Implement `From` for many `T` without lifetimes
+        ($($T:ty),* $(,)?) => {
+            $(
+                default_impl_from!($T);
+            )*
+        };
+    }
+
+    default_impl_from!(Result<T, E>, T, E);
+    default_impl_from!(Option<T>, T);
+    default_impl_from!(Box<T>, T);
+    default_impl_from!((), app::Error, telegram::Error);
 }

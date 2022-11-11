@@ -10,7 +10,7 @@ use std::rc::Rc;
 
 /// Simple events observer
 /// Is used for managing events isn't related with Telegram (For example startup/shutdown processes)
-#[derive(Default, Debug)]
+#[derive(Default)]
 pub struct Observer {
     /// Handlers of the observer
     handlers: Vec<EventHandlerObject>,
