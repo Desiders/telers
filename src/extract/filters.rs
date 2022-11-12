@@ -34,11 +34,11 @@ impl FromEventAndContext for CommandObject {
 mod tests {
     use super::*;
 
-    use crate::dispatcher::event::TelegramHandler;
+    use crate::dispatcher::event::telegram::Handler;
 
     #[test]
     fn test_filters_extract() {
-        fn assert_impl_handler<T: FromEventAndContext>(_: impl TelegramHandler<T>) {}
+        fn assert_impl_handler<T: FromEventAndContext>(_: impl Handler<T>) {}
 
         assert_impl_handler(|_: CommandObject| async { unimplemented!() });
     }

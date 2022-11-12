@@ -1,11 +1,14 @@
-use super::{
-    service::{Service, ServiceFactory},
-    EventReturn, PropagateEventResult, TelegramHandler, TelegramHandlerObject,
-    TelegramHandlerObjectService, TelegramHandlerRequest,
-};
-
 use crate::{
-    client::Bot, context::Context, error::app, extract::FromEventAndContext, filters::Filter,
+    client::Bot,
+    context::Context,
+    dispatcher::event::{
+        bases::{EventReturn, PropagateEventResult},
+        service::{Service, ServiceFactory},
+        telegram::{Handler, HandlerObject, HandlerObjectService, HandlerRequest},
+    },
+    error::app,
+    extract::FromEventAndContext,
+    filters::Filter,
     types::Update,
 };
 
@@ -24,9 +27,9 @@ pub struct Request {
     context: Rc<RefCell<Context>>,
 }
 
-impl From<Request> for TelegramHandlerRequest {
+impl From<Request> for HandlerRequest {
     fn from(req: Request) -> Self {
-        TelegramHandlerRequest::new(req.bot, req.update, req.context)
+        HandlerRequest::new(req.bot, req.update, req.context)
     }
 }
 
@@ -43,9 +46,9 @@ pub struct Observer {
     /// Event observer name
     event_name: &'static str,
     /// Handlers of the observer
-    handlers: Vec<TelegramHandlerObject>,
+    handlers: Vec<HandlerObject>,
     /// Common handler of the observer with dummy callback which never will be used
-    common_handler: TelegramHandlerObject,
+    common_handler: HandlerObject,
 }
 
 impl Observer {
@@ -55,7 +58,7 @@ impl Observer {
         Self {
             event_name,
             handlers: vec![],
-            common_handler: TelegramHandlerObject::new(
+            common_handler: HandlerObject::new(
                 || async move { unimplemented!("This is only for filters and without logic") },
                 vec![],
             ),
@@ -70,7 +73,7 @@ impl Observer {
 
     /// Get handlers of this event observer
     #[must_use]
-    pub fn handlers(&self) -> &[TelegramHandlerObject] {
+    pub fn handlers(&self) -> &[HandlerObject] {
         &self.handlers
     }
 
@@ -93,12 +96,11 @@ impl Observer {
     /// * `filters` - Filters for the handler
     pub fn register<H, Args>(&mut self, handler: H, filters: Vec<Box<dyn Filter>>)
     where
-        H: TelegramHandler<Args> + 'static,
+        H: Handler<Args> + 'static,
         H::Output: Into<EventReturn>,
         Args: FromEventAndContext + 'static,
     {
-        self.handlers
-            .push(TelegramHandlerObject::new(handler, filters));
+        self.handlers.push(HandlerObject::new(handler, filters));
     }
 }
 
@@ -164,9 +166,9 @@ pub struct ObserverService {
     /// Event observer name
     event_name: &'static str,
     /// Handler services of the observer
-    handlers: Rc<Vec<TelegramHandlerObjectService>>,
+    handlers: Rc<Vec<HandlerObjectService>>,
     /// Common handler service of the observer with dummy callback which never will be used
-    common_handler: Rc<TelegramHandlerObjectService>,
+    common_handler: Rc<HandlerObjectService>,
 }
 
 impl ObserverService {
@@ -193,8 +195,8 @@ impl ObserverService {
     /// We need this method to possible call without [`ObserverService`] lifetime
     #[allow(clippy::similar_names)]
     async fn trigger_without_self(
-        handlers: Rc<Vec<TelegramHandlerObjectService>>,
-        common_handler: Rc<TelegramHandlerObjectService>,
+        handlers: Rc<Vec<HandlerObjectService>>,
+        common_handler: Rc<HandlerObjectService>,
         req: Request,
     ) -> Result<Response, app::Error> {
         let handler_req = req.clone().into();

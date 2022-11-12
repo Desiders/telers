@@ -1,24 +1,15 @@
-use super::TelegramHandlerResponse;
+use super::telegram::HandlerResponse;
 
 use crate::error::{app, telegram};
 
 /// Response from handlers or middlewares, that indicates how the dispatcher should process response
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct EventReturn {
     /// Let possible skip handler and continue to next handler. Can be useful in middlewares and handlers
     is_skip: bool,
     /// Let possible cancel event and stop to next handler. Can be useful in middlewares.
     /// This is useless in handlers.
     is_cancel: bool,
-}
-
-impl Default for EventReturn {
-    fn default() -> Self {
-        Self {
-            is_skip: false,
-            is_cancel: false,
-        }
-    }
 }
 
 impl EventReturn {
@@ -55,8 +46,8 @@ pub enum PropagateEventResult {
     Rejected,
     /// Event was unhandled
     Unhandled,
-    /// Event was been handled and retured [`TelegramHandlerResponse`]
-    Handled(TelegramHandlerResponse),
+    /// Event was been handled and retured [`HandlerResponse`]
+    Handled(HandlerResponse),
 }
 
 mod impl_from {
@@ -64,9 +55,15 @@ mod impl_from {
 
     impl From<Action> for EventReturn {
         fn from(action: Action) -> Self {
-            Self {
-                is_skip: matches!(action, Action::Skip),
-                is_cancel: matches!(action, Action::Cancel),
+            match action {
+                Action::Skip => Self {
+                    is_skip: true,
+                    is_cancel: false,
+                },
+                Action::Cancel => Self {
+                    is_skip: false,
+                    is_cancel: true,
+                },
             }
         }
     }

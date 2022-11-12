@@ -1,9 +1,10 @@
-use super::{
-    service::{Service, ServiceFactory},
-    EventHandler, EventHandlerObject, EventHandlerObjectService,
+use crate::{
+    dispatcher::event::{
+        service::{Service, ServiceFactory},
+        simple::{Handler, HandlerObject, HandlerObjectService},
+    },
+    error::app,
 };
-
-use crate::error::app;
 
 use futures_core::future::LocalBoxFuture;
 use std::rc::Rc;
@@ -13,7 +14,7 @@ use std::rc::Rc;
 #[derive(Default)]
 pub struct Observer {
     /// Handlers of the observer
-    handlers: Vec<EventHandlerObject>,
+    handlers: Vec<HandlerObject>,
 }
 
 impl Observer {
@@ -25,7 +26,7 @@ impl Observer {
 
     /// Get handlers of the observer
     #[must_use]
-    pub fn handlers(&self) -> &[EventHandlerObject] {
+    pub fn handlers(&self) -> &[HandlerObject] {
         &self.handlers
     }
 
@@ -34,10 +35,10 @@ impl Observer {
     /// * `handler` - Handler for the observer
     pub fn register<H, Args>(&mut self, handler: H, args: Args)
     where
-        H: EventHandler<Args> + 'static,
+        H: Handler<Args> + 'static,
         Args: Clone + 'static,
     {
-        self.handlers.push(EventHandlerObject::new(handler, args));
+        self.handlers.push(HandlerObject::new(handler, args));
     }
 }
 
@@ -80,7 +81,7 @@ impl ServiceFactory<()> for Observer {
 #[derive(Clone)]
 pub struct ObserverService {
     /// Handler services of the observer
-    handlers: Rc<Vec<EventHandlerObjectService>>,
+    handlers: Rc<Vec<HandlerObjectService>>,
 }
 
 impl ObserverService {
@@ -95,7 +96,7 @@ impl ObserverService {
     /// We need this method to possible call without [`ObserverService`] lifetime
     #[allow(clippy::similar_names)]
     async fn trigger_without_self(
-        handlers: Rc<Vec<EventHandlerObjectService>>,
+        handlers: Rc<Vec<HandlerObjectService>>,
         _: (),
     ) -> Result<(), app::Error> {
         for handler in handlers.iter() {

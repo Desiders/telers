@@ -1,6 +1,7 @@
 use super::event::{
     service::{Service, ServiceFactory},
-    EventObserver, EventObserverService, TelegramObserver, TelegramObserverService,
+    simple::{Observer as EventObserver, ObserverService as EventObserverService},
+    telegram::{Observer as TelegramObserver, ObserverService as TelegramObserverService},
 };
 
 use crate::error::app;
@@ -135,19 +136,19 @@ impl Router {
     }
 
     /// Get event observers
+    #[must_use]
     pub fn event_observers(&self) -> Vec<&EventObserver> {
         vec![&self.startup, &self.shutdown]
     }
 
     /// Include a sub router
-    pub fn include_router(mut self, router: Router) -> Self {
+    pub fn include_router(&mut self, router: Router) {
         self.sub_routers.push(router);
-        self
     }
 
     /// Alias to [`Router::include_router`] method
-    pub fn include(self, router: Router) -> Self {
-        self.include_router(router)
+    pub fn include(&mut self, router: Router) {
+        self.include_router(router);
     }
 
     /// Resolve registered event names
@@ -156,6 +157,7 @@ impl Router {
     /// * `skip_events` - Skip specified event names
     /// # Returns
     /// Registered event names
+    #[must_use]
     pub fn resolve_used_update_types(&self, skip_events: &[&str]) -> Vec<&str> {
         let mut used_update_types = HashSet::new();
 
@@ -292,26 +294,26 @@ pub struct RouterService {
 }
 
 impl RouterService {
-    /// Get telegram event observers
+    /// Get telegram event observer by event name
     #[must_use]
-    #[rustfmt::skip]
-    fn telegram_observers(&self) -> HashMap<&str, &TelegramObserverService> {
-        HashMap::from([
-            (MESSAGE_OBSERVER_NAME, &self.message),
-            (EDITED_MESSAGE_OBSERVER_NAME, &self.edited_message),
-            (CHANNEL_POST_OBSERVER_NAME, &self.channel_post),
-            (EDITED_CHANNEL_POST_OBSERVER_NAME, &self.edited_channel_post),
-            (INLINE_QUERY_OBSERVER_NAME, &self.inline_query),
-            (CHOSEN_INLINE_RESULT_OBSERVER_NAME, &self.chosen_inline_result),
-            (CALLBACK_QUERY_OBSERVER_NAME, &self.callback_query),
-            (SHIPPING_QUERY_OBSERVER_NAME, &self.shipping_query),
-            (PRE_CHECKOUT_QUERY_OBSERVER_NAME, &self.pre_checkout_query),
-            (POLL_OBSERVER_NAME, &self.poll),
-            (POLL_ANSWER_OBSERVER_NAME, &self.poll_answer),
-            (MY_CHAT_MEMBER_OBSERVER_NAME, &self.my_chat_member),
-            (CHAT_MEMBER_OBSERVER_NAME, &self.chat_member),
-            (CHAT_JOIN_REQUEST_OBSERVER_NAME, &self.chat_join_request),
-        ])
+    pub fn telegram_observer_by_key(&self, event_name: &str) -> Option<&TelegramObserverService> {
+        match event_name {
+            "message" => Some(&self.message),
+            "edited_message" => Some(&self.edited_message),
+            "channel_post" => Some(&self.channel_post),
+            "edited_channel_post" => Some(&self.edited_channel_post),
+            "inline_query" => Some(&self.inline_query),
+            "chosen_inline_result" => Some(&self.chosen_inline_result),
+            "callback_query" => Some(&self.callback_query),
+            "shipping_query" => Some(&self.shipping_query),
+            "pre_checkout_query" => Some(&self.pre_checkout_query),
+            "poll" => Some(&self.poll),
+            "poll_answer" => Some(&self.poll_answer),
+            "my_chat_member" => Some(&self.my_chat_member),
+            "chat_member" => Some(&self.chat_member),
+            "chat_join_request" => Some(&self.chat_join_request),
+            _ => None,
+        }
     }
 
     /// Call startup callbacks
@@ -372,30 +374,34 @@ mod tests {
 
     #[test]
     fn test_router_include() {
-        let router = Router::new("main")
-            .include(
-                Router::new("sub1")
-                    .include(Router::new("sub1.1"))
-                    .include(Router::new("sub1.2")),
-            )
-            .include(
-                Router::new("sub2")
-                    .include(Router::new("sub2.1"))
-                    .include(Router::new("sub2.2")),
-            )
-            .include(
-                Router::new("sub3")
-                    .include(Router::new("sub3.1"))
-                    .include(Router::new("sub3.2")),
-            );
+        let mut router = Router::new("main");
+        router.include({
+            let mut router = Router::new("sub1");
+            router.include(Router::new("sub1.1"));
+            router.include(Router::new("sub1.2"));
+            router
+        });
+        router.include({
+            let mut router = Router::new("sub2");
+            router.include(Router::new("sub2.1"));
+            router.include(Router::new("sub2.2"));
+            router
+        });
+        router.include({
+            let mut router = Router::new("sub3");
+            router.include(Router::new("sub3.1"));
+            router.include(Router::new("sub3.2"));
+            router
+        });
+
         assert_eq!(router.routers().len(), 3);
         assert_eq!(router.name(), "main");
 
-        router.routers().iter().for_each(|r| {
-            assert_eq!(r.routers().len(), 2);
+        router.routers().iter().for_each(|router| {
+            assert_eq!(router.routers().len(), 2);
 
-            r.routers().iter().for_each(|r| {
-                assert_eq!(r.routers().len(), 0);
+            router.routers().iter().for_each(|router| {
+                assert_eq!(router.routers().len(), 0);
             });
         });
     }
@@ -407,6 +413,7 @@ mod tests {
         }
 
         let mut router = Router::new("main");
+        // Telegram event observers
         router.message.register(handler, vec![]);
         router.edited_message.register(handler, vec![]);
         router.channel_post.register(handler, vec![]);
@@ -421,7 +428,11 @@ mod tests {
         router.my_chat_member.register(handler, vec![]);
         router.chat_member.register(handler, vec![]);
         router.chat_join_request.register(handler, vec![]);
+        // Event observers
+        router.startup.register(handler, ());
+        router.shutdown.register(handler, ());
 
+        // Check telegram event observers
         router
             .telegram_observers()
             .iter()
@@ -433,6 +444,7 @@ mod tests {
                 });
             });
 
+        // Check event observers
         router.event_observers().iter().for_each(|observer| {
             assert_eq!(observer.handlers().len(), 1);
         });
