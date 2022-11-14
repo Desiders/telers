@@ -1,10 +1,10 @@
 use std::future::Future;
 
 pub trait Service<Req> {
-    /// Response given by the service.
+    /// Response given by the service
     type Response;
 
-    /// Error produced by the service when executing call.
+    /// Error produced by the service when executing call
     type Error;
 
     /// The future response value.
@@ -16,25 +16,25 @@ pub trait Service<Req> {
 }
 
 pub trait ServiceFactory<Req> {
-    /// Response given by the service.
+    /// Response given by the service
     type Response;
 
-    /// Error produced by the service when executing call.
+    /// Error produced by the service when executing call
     type Error;
 
-    /// Service factory configuration.
+    /// Service factory configuration
     type Config;
 
-    /// The kind of `Service` created by this factory.
+    /// The kind of `Service` created by this factory
     type Service: Service<Req, Response = Self::Response, Error = Self::Error>;
 
-    /// Errors potentially raised while building a service.
+    /// Errors potentially raised while building a service
     type InitError;
 
-    /// The future of the `Service` instance.g
+    /// The future response value
     type Future: Future<Output = Result<Self::Service, Self::InitError>>;
 
-    /// Create and return a new service asynchronously.
+    /// Create and return a new service asynchronously
     #[must_use]
     fn new_service(&self, cfg: Self::Config) -> Self::Future;
 }

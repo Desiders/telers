@@ -18,10 +18,13 @@ pub type BoxedHandlerService = BoxService<Request, Response, app::Error>;
 pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), Request, Response, app::Error, ()>;
 
 /// Data for handler service
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Request {
     bot: Rc<Bot>,
+    /// Update from Telegram
     update: Rc<Update>,
+    /// Context, which can contain some data. Can be mapped to handler arguments,
+    /// used as hashmap in handlers, middlewares and filters
     context: Rc<RefCell<Context>>,
 }
 
@@ -43,11 +46,26 @@ impl Request {
             context,
         }
     }
+
+    #[must_use]
+    pub fn bot(&self) -> Rc<Bot> {
+        Rc::clone(&self.bot)
+    }
+
+    #[must_use]
+    pub fn update(&self) -> Rc<Update> {
+        Rc::clone(&self.update)
+    }
+
+    #[must_use]
+    pub fn context(&self) -> Rc<RefCell<Context>> {
+        Rc::clone(&self.context)
+    }
 }
 
 /// Response from handler service.
 /// For the response from handler for users, use [`EventReturn`].
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct Response {
     request: Request,
     response: EventReturn,

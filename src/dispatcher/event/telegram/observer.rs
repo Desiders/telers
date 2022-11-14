@@ -27,9 +27,29 @@ pub struct Request {
     context: Rc<RefCell<Context>>,
 }
 
+impl PartialEq for Request {
+    fn eq(&self, other: &Self) -> bool {
+        Rc::ptr_eq(&self.bot, &other.bot)
+            && Rc::ptr_eq(&self.update, &other.update)
+            && Rc::ptr_eq(&self.context, &other.context)
+    }
+}
+
+impl Request {
+    /// Create a new request
+    #[must_use]
+    pub fn new(bot: Rc<Bot>, update: Rc<Update>, context: Rc<RefCell<Context>>) -> Self {
+        Self {
+            bot,
+            update,
+            context,
+        }
+    }
+}
+
 impl From<Request> for HandlerRequest {
     fn from(req: Request) -> Self {
-        HandlerRequest::new(req.bot, req.update, req.context)
+        Self::new(req.bot, req.update, req.context)
     }
 }
 
@@ -37,6 +57,18 @@ impl From<Request> for HandlerRequest {
 pub struct Response {
     request: Request,
     response: PropagateEventResult,
+}
+
+impl Response {
+    #[must_use]
+    pub fn request(&self) -> &Request {
+        &self.request
+    }
+
+    #[must_use]
+    pub fn response(&self) -> &PropagateEventResult {
+        &self.response
+    }
 }
 
 /// Event observer for Telegram events.
