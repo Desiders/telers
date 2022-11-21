@@ -1,5 +1,2 @@
-mod base;
-mod logging;
-
-pub use base::Middleware;
-pub use logging::Logging;
+pub mod inner;
+pub mod outer;

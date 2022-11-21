@@ -6,12 +6,12 @@ use crate::{
     error::app,
 };
 
-use super::Middleware;
+use super::base::Middleware;
 
 use log::{self, Level, Log, Record};
 use std::{rc::Rc, time::Instant};
 
-const DEFAULT_TARGET: &'static str = "logging-middleware";
+const DEFAULT_TARGET: &str = "logging-middleware";
 
 pub struct Logging {
     logger: Rc<Box<dyn Log>>,
@@ -19,6 +19,7 @@ pub struct Logging {
 }
 
 impl Logging {
+    #[must_use]
     pub fn new(logger: Box<dyn Log>, target: Option<&'static str>) -> Self {
         Self {
             logger: Rc::new(logger),
@@ -28,14 +29,16 @@ impl Logging {
 }
 
 impl Middleware for Logging {
+    #[allow(clippy::similar_names)]
     fn call(
         &self,
         handler: &BoxedHandlerService,
         req: HandlerRequest,
-        middlewares: Box<dyn Iterator<Item = Box<dyn Middleware>>>,
+        middlewares: Box<dyn Iterator<Item = Rc<Box<dyn Middleware>>>>,
     ) -> BoxFuture<Result<HandlerResponse, app::Error>> {
-        let logger = Rc::clone(&self.logger);
         let target = self.target;
+        let logger = Rc::clone(&self.logger);
+        let fut = self.handler(handler, req, middlewares);
 
         // Builder with logging level and
         let builder = move |level| {
@@ -45,17 +48,9 @@ impl Middleware for Logging {
             builder
         };
 
-        logger.log(
-            &builder(Level::Info)
-                .args(format_args!("Calling handler with request: {:?}", req))
-                .build(),
-        );
-
-        let handler = self.handler(handler, req, middlewares);
-
         Box::pin(async move {
             let now = Instant::now();
-            let result = handler.await;
+            let result = fut.await;
             let elapsed = now.elapsed();
 
             match result {
@@ -73,7 +68,7 @@ impl Middleware for Logging {
                         logger.log(
                             &builder(Level::Debug)
                                 .args(format_args!(
-                                    "Handler returned with response: {:?}. Execution time: {:.2?}",
+                                    "Handler returned response: {:?}. Execution time: {:.2?}",
                                     res, elapsed,
                                 ))
                                 .build(),

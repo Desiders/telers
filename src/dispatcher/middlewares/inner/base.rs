@@ -6,6 +6,8 @@ use crate::{
     error::app,
 };
 
+use std::rc::Rc;
+
 pub trait Middleware {
     /// Execute middleware
     /// # Arguments
@@ -17,7 +19,7 @@ pub trait Middleware {
         &self,
         handler: &BoxedHandlerService,
         req: HandlerRequest,
-        middlewares: Box<dyn Iterator<Item = Box<dyn Middleware>>>,
+        middlewares: Box<dyn Iterator<Item = Rc<Box<dyn Middleware>>>>,
     ) -> BoxFuture<Result<HandlerResponse, app::Error>>;
 
     /// Call next middleware or handler service if all middlewares has passed
@@ -30,10 +32,12 @@ pub trait Middleware {
         &self,
         handler: &BoxedHandlerService,
         req: HandlerRequest,
-        mut middlewares: Box<dyn Iterator<Item = Box<dyn Middleware>>>,
+        mut middlewares: Box<dyn Iterator<Item = Rc<Box<dyn Middleware>>>>,
     ) -> BoxFuture<Result<HandlerResponse, app::Error>> {
         match middlewares.next() {
+            // Call next middleware
             Some(middleware) => middleware.call(handler, req, middlewares),
+            // Call handler service
             None => handler.call(req),
         }
     }
