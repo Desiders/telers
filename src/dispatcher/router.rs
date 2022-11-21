@@ -6,6 +6,7 @@ use super::event::{
 
 use crate::{client::Bot, context::Context, error::app, types::Update};
 
+use async_recursion::async_recursion;
 use futures::future::join_all;
 use futures_core::future::LocalBoxFuture;
 use log;
@@ -32,6 +33,9 @@ const MY_CHAT_MEMBER_OBSERVER_NAME: &str = "my_chat_member";
 const CHAT_MEMBER_OBSERVER_NAME: &str = "chat_member";
 const CHAT_JOIN_REQUEST_OBSERVER_NAME: &str = "chat_join_request";
 
+const STARTUP_OBSERVER_NAME: &str = "startup";
+const SHUTDOWN_OBSERVER_NAME: &str = "shutdown";
+
 /// Data for router service
 #[derive(Clone)]
 pub struct Request {
@@ -49,7 +53,6 @@ impl PartialEq for Request {
 }
 
 impl Request {
-    /// Create a new request
     #[must_use]
     pub fn new(bot: Rc<Bot>, update: Rc<Update>, context: Rc<RefCell<Context>>) -> Self {
         Self {
@@ -72,6 +75,25 @@ pub struct Response {
     response: PropagateEventResult,
 }
 
+impl Response {
+    #[must_use]
+    pub fn new(request: Request, response: PropagateEventResult) -> Self {
+        Self { request, response }
+    }
+
+    /// Get request
+    #[must_use]
+    pub fn request(&self) -> &Request {
+        &self.request
+    }
+
+    /// Get response
+    #[must_use]
+    pub fn response(&self) -> &PropagateEventResult {
+        &self.response
+    }
+}
+
 /// Router can route update, and it nested update types like messages, callback query, polls and all other event types.
 /// Event handlers can be registered in observer by two ways:
 /// - By observer method - [`router.register_<event_type>(handler, <filters, ...>)`
@@ -83,24 +105,24 @@ pub struct Router {
     sub_routers: Vec<Router>,
 
     /// Telegram event observers
-    message: telegram::Observer,
-    edited_message: telegram::Observer,
-    channel_post: telegram::Observer,
-    edited_channel_post: telegram::Observer,
-    inline_query: telegram::Observer,
-    chosen_inline_result: telegram::Observer,
-    callback_query: telegram::Observer,
-    shipping_query: telegram::Observer,
-    pre_checkout_query: telegram::Observer,
-    poll: telegram::Observer,
-    poll_answer: telegram::Observer,
-    my_chat_member: telegram::Observer,
-    chat_member: telegram::Observer,
-    chat_join_request: telegram::Observer,
+    pub message: telegram::Observer,
+    pub edited_message: telegram::Observer,
+    pub channel_post: telegram::Observer,
+    pub edited_channel_post: telegram::Observer,
+    pub inline_query: telegram::Observer,
+    pub chosen_inline_result: telegram::Observer,
+    pub callback_query: telegram::Observer,
+    pub shipping_query: telegram::Observer,
+    pub pre_checkout_query: telegram::Observer,
+    pub poll: telegram::Observer,
+    pub poll_answer: telegram::Observer,
+    pub my_chat_member: telegram::Observer,
+    pub chat_member: telegram::Observer,
+    pub chat_join_request: telegram::Observer,
 
     /// Event observers
-    startup: simple::Observer,
-    shutdown: simple::Observer,
+    pub startup: simple::Observer,
+    pub shutdown: simple::Observer,
 }
 
 impl Router {
@@ -126,8 +148,8 @@ impl Router {
             my_chat_member: telegram::Observer::new(MY_CHAT_MEMBER_OBSERVER_NAME),
             chat_member: telegram::Observer::new(CHAT_MEMBER_OBSERVER_NAME),
             chat_join_request: telegram::Observer::new(CHAT_JOIN_REQUEST_OBSERVER_NAME),
-            startup: simple::Observer::new(),
-            shutdown: simple::Observer::new(),
+            startup: simple::Observer::new(STARTUP_OBSERVER_NAME),
+            shutdown: simple::Observer::new(SHUTDOWN_OBSERVER_NAME),
         }
     }
 
@@ -184,7 +206,43 @@ impl Router {
     }
 
     /// Include a sub router
-    pub fn include_router(&mut self, router: Router) {
+    pub fn include_router(&mut self, mut router: Router) {
+        /// Register middlewares from sub router's observers to parent router's observers
+        macro_rules! register_middlewares {
+            ($observer:ident) => {
+                self.$observer
+                    .middlewares
+                    .middlewares()
+                    .iter()
+                    .for_each(|middleware| {
+                        router.$observer
+                            .middlewares
+                            .register_wrapper(Rc::clone(middleware));
+                    });
+            };
+            ($observer:ident, $($observers:ident),+) => {
+                register_middlewares!($observer);
+                register_middlewares!($($observers),+);
+            };
+        }
+
+        register_middlewares!(
+            message,
+            edited_message,
+            channel_post,
+            edited_channel_post,
+            inline_query,
+            chosen_inline_result,
+            callback_query,
+            shipping_query,
+            pre_checkout_query,
+            poll,
+            poll_answer,
+            my_chat_member,
+            chat_member,
+            chat_join_request
+        );
+
         self.sub_routers.push(router);
     }
 
@@ -362,11 +420,13 @@ impl RouterService {
     }
 
     /// Call startup callbacks
+    /// # Errors
+    /// If any startup observer returns error
     pub async fn emit_startup(&self) -> Result<(), app::Error> {
         log::debug!("{:?}: Emit startup", self);
 
-        for startup in once(self.startup.clone())
-            .chain(self.sub_routers.iter().map(|router| router.startup.clone()))
+        for startup in
+            once(&self.startup).chain(self.sub_routers.iter().map(|router| &router.startup))
         {
             startup.call(()).await?;
         }
@@ -374,37 +434,86 @@ impl RouterService {
     }
 
     /// Call shutdown callbacks
+    /// # Errors
+    /// If any shutdown observer returns error
     pub async fn emit_shutdown(&self) -> Result<(), app::Error> {
         log::debug!("{:?}: Emit shutdown", self);
 
-        for shutdown in once(self.shutdown.clone()).chain(
-            self.sub_routers
-                .iter()
-                .map(|router| router.shutdown.clone()),
-        ) {
+        for shutdown in
+            once(&self.shutdown).chain(self.sub_routers.iter().map(|router| &router.shutdown))
+        {
             shutdown.call(()).await?;
         }
         Ok(())
     }
 
-    /// Call telegram observers by update type
+    /// Propagate event to routers
+    /// # Errors
+    /// If any outer middleware returns error
+    /// If any inner middleware returns error
+    /// If any handler returns error. Probably it's error to extract args to the handler.
+    #[async_recursion(?Send)]
+    #[allow(clippy::similar_names)]
+    #[must_use]
     pub async fn propagate_event(
         &self,
-        observer: telegram::ObserverService,
+        update_type: &str,
+        req: Request,
+    ) -> Result<Response, app::Error> {
+        let observer = self
+            .telegram_observer_by_key(update_type)
+            .expect("RouterService::propagate_event: Telegram event observer not found");
+
+        let outer_middlewares = observer.outer_middlewares();
+        // If outer middlewares is empty, we can call `RouterService::propagate_event_by_observer` directly
+        if outer_middlewares.is_empty() {
+            return self
+                .propagate_event_by_observer(observer, update_type, req)
+                .await;
+        }
+
+        for middleware in outer_middlewares {
+            let res = middleware.call(&req).await?;
+            if res.is_skip() {
+                continue;
+            }
+            if res.is_cancel() {
+                return Ok(Response {
+                    request: req,
+                    response: PropagateEventResult::Rejected,
+                });
+            }
+        }
+
+        self.propagate_event_by_observer(observer, update_type, req)
+            .await
+    }
+
+    /// Propagate event to routers by observer
+    /// # Errors
+    /// If any outer middleware returns error
+    /// If any inner middleware returns error
+    /// If any handler returns error. Probably it's error to extract args to the handler.
+    #[allow(clippy::similar_names)]
+    async fn propagate_event_by_observer(
+        &self,
+        observer: &telegram::ObserverService,
         update_type: &str,
         req: Request,
     ) -> Result<Response, app::Error> {
         let observer_req = req.clone().into();
-
-        let res = observer.call(observer_req).await?;
-        match res.response() {
+        let observer_res = observer.trigger(observer_req).await?;
+        match observer_res.response() {
+            // Return a response if the event rejected
             PropagateEventResult::Rejected => {
                 return Ok(Response {
                     request: req,
                     response: PropagateEventResult::Unhandled,
                 })
             }
+            // Propagate event to sub routers
             PropagateEventResult::Unhandled => {}
+            // Return a response if the event handled
             PropagateEventResult::Handled(res) => {
                 return Ok(Response {
                     request: req,
@@ -413,10 +522,22 @@ impl RouterService {
             }
         };
 
+        // Propagate event to sub routers' observer
         for router in &self.sub_routers {
-            todo!();
+            let res = router.propagate_event(update_type, req.clone()).await?;
+            match res.response() {
+                // Propagate event to next sub router's observer if the event unhandled by the sub router's observer
+                PropagateEventResult::Unhandled => continue,
+                // Return a response if the event isn't unhandled
+                _ => res,
+            };
         }
-        todo!();
+
+        // Return a response if the event unhandled by observer
+        Ok(Response {
+            request: req,
+            response: PropagateEventResult::Unhandled,
+        })
     }
 }
 
@@ -438,7 +559,8 @@ impl Service<Request> for RouterService {
 
         unimplemented!(
             "RouterService is not intended to be called directly. \
-            Use RouterService::emit_startup or RouterService::emit_shutdown instead"
+            Use RouterService::emit_startup, RouterService::emit_shutdown \
+            or RouterSevice::propagate_event instead"
         );
     }
 }
@@ -447,9 +569,35 @@ impl Service<Request> for RouterService {
 mod tests {
     use super::*;
 
+    use crate::dispatcher::middlewares::inner::Logging;
+
+    use log::{Log, Metadata, Record};
+
+    struct SimpleLogger;
+
+    impl Log for SimpleLogger {
+        fn enabled(&self, _metadata: &Metadata) -> bool {
+            unimplemented!();
+        }
+
+        fn log(&self, record: &Record) {
+            println!("{} - {}", record.level(), record.args());
+        }
+
+        fn flush(&self) {
+            unimplemented!();
+        }
+    }
+
     #[test]
     fn test_router_include() {
         let mut router = Router::new("main");
+
+        router
+            .message
+            .middlewares
+            .register(Box::new(Logging::new(Box::new(SimpleLogger), None)));
+
         router.include({
             let mut router = Router::new("sub1");
             router.include(Router::new("sub1.1"));
@@ -472,17 +620,28 @@ mod tests {
         assert_eq!(router.routers().len(), 3);
         assert_eq!(router.name(), "main");
 
-        router.routers().iter().for_each(|router| {
+        router.routers().into_iter().for_each(|router| {
             assert_eq!(router.routers().len(), 2);
 
-            router.routers().iter().for_each(|router| {
+            router
+                .telegram_observers()
+                .into_iter()
+                .for_each(|(name, observer)| {
+                    if name == MESSAGE_OBSERVER_NAME {
+                        assert_eq!(observer.middlewares.middlewares().len(), 1);
+                    } else {
+                        assert_eq!(observer.middlewares.middlewares().len(), 0);
+                    }
+                });
+
+            router.routers().into_iter().for_each(|router| {
                 assert_eq!(router.routers().len(), 0);
             });
         });
     }
 
     #[test]
-    fn test_router_observer() {
+    fn test_router_observers_register() {
         async fn handler() {
             unimplemented!();
         }
@@ -510,7 +669,7 @@ mod tests {
         // Check telegram event observers
         router
             .telegram_observers()
-            .iter()
+            .into_iter()
             .for_each(|(_, observer)| {
                 assert_eq!(observer.handlers().len(), 1);
 
@@ -520,8 +679,14 @@ mod tests {
             });
 
         // Check event observers
-        router.event_observers().iter().for_each(|observer| {
+        router.event_observers().into_iter().for_each(|observer| {
             assert_eq!(observer.handlers().len(), 1);
         });
+
+        router
+            .message
+            .middlewares
+            .register(Box::new(Logging::new(Box::new(SimpleLogger), None)));
+        assert_eq!(router.message.middlewares.middlewares().len(), 1);
     }
 }

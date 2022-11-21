@@ -156,7 +156,7 @@ impl ServiceFactory<Request> for HandlerObject {
 /// [`Handler`] wrapped into service with filters
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObjectService {
-    service: BoxedHandlerService,
+    pub (crate) service: BoxedHandlerService,
     filters: Rc<Vec<Box<dyn Filter>>>,
 }
 
