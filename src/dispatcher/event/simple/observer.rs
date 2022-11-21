@@ -7,21 +7,37 @@ use crate::{
 };
 
 use futures_core::future::LocalBoxFuture;
-use std::rc::Rc;
+use std::{
+    fmt::{self, Debug, Formatter},
+    rc::Rc,
+};
 
 /// Simple events observer
 /// Is used for managing events isn't related with Telegram (For example startup/shutdown processes)
 #[derive(Default)]
 pub struct Observer {
+    /// Event observer name
+    event_name: &'static str,
     /// Handlers of the observer
     handlers: Vec<HandlerObject>,
 }
 
 impl Observer {
     /// Creates a new event observer
+    /// # Arguments
+    /// * `event_name` - Event observer name, can be used for logging
     #[must_use]
-    pub fn new() -> Self {
-        Self { handlers: vec![] }
+    pub fn new(event_name: &'static str) -> Self {
+        Self {
+            event_name,
+            handlers: vec![],
+        }
+    }
+
+    /// Get event observer name
+    #[must_use]
+    pub fn event_name(&self) -> &str {
+        self.event_name
     }
 
     /// Get handlers of the observer
@@ -58,6 +74,7 @@ impl ServiceFactory<()> for Observer {
 
     /// Create [`ObserverService`] from [`Observer`]
     fn new_service(&self, _: Self::Config) -> Self::Future {
+        let event_name = self.event_name;
         let futs = self
             .handlers
             .iter()
@@ -71,6 +88,7 @@ impl ServiceFactory<()> for Observer {
             }
 
             Ok(ObserverService {
+                event_name,
                 handlers: Rc::new(handlers),
             })
         })
@@ -80,29 +98,29 @@ impl ServiceFactory<()> for Observer {
 #[allow(clippy::module_name_repetitions)]
 #[derive(Clone)]
 pub struct ObserverService {
+    /// Event observer name
+    event_name: &'static str,
     /// Handler services of the observer
     handlers: Rc<Vec<HandlerObjectService>>,
 }
 
 impl ObserverService {
-    /// Propagate event to handlers.
-    /// All handlers will be called.
+    /// Propagate event to handlers. All handlers will be called.
     /// # Errors
-    /// If handler service returns error.
-    pub async fn trigger(&self, req: ()) -> Result<(), app::Error> {
-        Self::trigger_without_self(Rc::clone(&self.handlers), req).await
-    }
-
-    /// We need this method to possible call without [`ObserverService`] lifetime
-    #[allow(clippy::similar_names)]
-    async fn trigger_without_self(
-        handlers: Rc<Vec<HandlerObjectService>>,
-        _: (),
-    ) -> Result<(), app::Error> {
-        for handler in handlers.iter() {
+    /// If any handler returns error
+    pub async fn trigger(&self, _: ()) -> Result<(), app::Error> {
+        for handler in self.handlers.iter() {
             handler.call(()).await?;
         }
         Ok(())
+    }
+}
+
+impl Debug for ObserverService {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ObserverService")
+            .field("event_name", &self.event_name)
+            .finish()
     }
 }
 
@@ -111,8 +129,13 @@ impl Service<()> for ObserverService {
     type Error = app::Error;
     type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
 
-    fn call(&self, req: ()) -> Self::Future {
-        Box::pin(Self::trigger_without_self(Rc::clone(&self.handlers), req))
+    fn call(&self, _: ()) -> Self::Future {
+        log::error!("{:?}: Should not be called", self);
+
+        unimplemented!(
+            "ObserverService is not intended to be called directly. \
+            Use ObserverService::trigger instead"
+        );
     }
 }
 
@@ -138,12 +161,12 @@ mod tests {
             Ok(())
         }
 
-        let mut observer = Observer::new();
+        let mut observer = Observer::new("test");
         observer.register(on_startup, ("Hello, world!",));
         observer.register(on_shutdown, ("Goodbye, world!",));
 
         let observer_service = r#await!(observer.new_service(())).unwrap();
 
-        r#await!(observer_service.call(())).unwrap();
+        r#await!(observer_service.trigger(())).unwrap();
     }
 }

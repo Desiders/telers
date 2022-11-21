@@ -2,18 +2,20 @@ use super::telegram::HandlerResponse;
 
 use crate::error::{app, telegram};
 
-/// Response from handlers or middlewares, that indicates how the dispatcher should process response
+/// Responses from events, that indicates how the dispatcher should process response
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct EventReturn {
-    /// Let possible skip handler and continue to next handler. Can be useful in middlewares and handlers
+    /// In outer middlewares, means that the middleware should be skipped, and next middleware should be run
+    /// In inner middlewares, means that the middleware should be skipped, and next handler should be run
+    /// In handler, means that the handler should be skipped, and next handler should be run
     is_skip: bool,
-    /// Let possible cancel event and stop to next handler. Can be useful in middlewares.
-    /// This is useless in handlers.
+    /// In outer middlewares, means that propagate the event should be stopped
+    /// In inner middlewares, means that propagate the event should be stopped
+    /// In handler, means that propagate the event should be stopped
     is_cancel: bool,
 }
 
 impl EventReturn {
-    /// Create a new event return
     #[must_use]
     pub fn new(is_skip: bool, is_cancel: bool) -> Self {
         Self { is_skip, is_cancel }
@@ -30,23 +32,16 @@ impl EventReturn {
     }
 }
 
-/// A special enumeration containing all possible responses from events.
-/// This is wrapper to [`EventReturn`].
+/// A wrapper to [`EventReturn`].
 pub enum Action {
-    /// Let possible skip handler and continue to next handler. Can be useful in middlewares and handlers
     Skip,
-    /// Let possible cancel event and stop to next handler. Can be useful in middlewares
-    /// This is useless in handlers
     Cancel,
 }
 
-/// A special enumeration containing all possible responses from observers
+/// Responses from routers and observers
 pub enum PropagateEventResult {
-    /// Event was rejected
     Rejected,
-    /// Event was unhandled
     Unhandled,
-    /// Event was been handled and retured [`HandlerResponse`]
     Handled(HandlerResponse),
 }
 
