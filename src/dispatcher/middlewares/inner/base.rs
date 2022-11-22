@@ -14,6 +14,11 @@ pub trait Middleware {
     /// * `handler` - Handler service
     /// * `req` - Data for handler service
     /// * `middlewares` - Middlewares for handler service
+    /// # Returns
+    /// [`HandlerResponse`] from handler service or [`app::Error`]
+    /// # Errors
+    /// If any inner middleware returns error
+    /// If handler returns error. Probably it's error to extract args to the handler
     #[must_use]
     fn call(
         &self,
@@ -27,6 +32,11 @@ pub trait Middleware {
     /// * `handler` - Handler service
     /// * `req` - Data for handler service
     /// * `middlewares` - Middlewares for handler service
+    /// # Returns
+    /// [`HandlerResponse`] from handler service or [`app::Error`]
+    /// # Errors
+    /// If any inner middleware returns error
+    /// If handler returns error. Probably it's error to extract args to the handler
     #[must_use]
     fn handler(
         &self,
@@ -84,7 +94,7 @@ mod tests {
     }
 
     #[test]
-    fn test_middleware() {
+    fn test_call() {
         let middleware =
             |handler: Rc<BoxedHandlerService>,
              req: HandlerRequest,

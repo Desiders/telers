@@ -466,7 +466,7 @@ impl RouterService {
     /// # Errors
     /// If any outer middleware returns error
     /// If any inner middleware returns error
-    /// If any handler returns error. Probably it's error to extract args to the handler.
+    /// If any handler returns error. Probably it's error to extract args to the handler
     #[async_recursion(?Send)]
     #[allow(clippy::similar_names)]
     #[must_use]
@@ -487,8 +487,9 @@ impl RouterService {
                 .await;
         }
 
+        let mut req = req;
         for middleware in outer_middlewares {
-            let res = middleware.call(req.clone()).await?;
+            let (updated_req, res) = middleware.call(req.clone()).await?;
             if res.is_skip() {
                 continue;
             }
@@ -498,6 +499,8 @@ impl RouterService {
                     response: PropagateEventResult::Rejected,
                 });
             }
+            // Update current request, because middleware can change it
+            req = updated_req;
         }
 
         self.propagate_event_by_observer(observer, update_type, req)
@@ -508,7 +511,7 @@ impl RouterService {
     /// # Errors
     /// If any outer middleware returns error
     /// If any inner middleware returns error
-    /// If any handler returns error. Probably it's error to extract args to the handler.
+    /// If any handler returns error. Probably it's error to extract args to the handler
     #[allow(clippy::similar_names)]
     async fn propagate_event_by_observer(
         &self,
