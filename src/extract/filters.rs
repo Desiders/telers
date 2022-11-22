@@ -33,7 +33,6 @@ impl FromEventAndContext for CommandObject {
 #[cfg(test)]
 mod tests {
     use super::*;
-
     use crate::dispatcher::event::telegram::Handler;
 
     #[test]

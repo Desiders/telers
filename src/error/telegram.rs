@@ -5,6 +5,7 @@ use std::{
 
 #[allow(clippy::module_name_repetitions)]
 pub trait TelegramAPIError: StdError {
+    #[must_use]
     fn message(&self) -> &str;
 }
 

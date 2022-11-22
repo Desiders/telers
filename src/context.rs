@@ -14,8 +14,8 @@ mod tests {
         context.insert("test", Box::new(1));
 
         assert_eq!(
-            context.get("test").unwrap().downcast_ref::<i32>().unwrap(),
-            &1
+            *context.get("test").unwrap().downcast_ref::<i32>().unwrap(),
+            1
         );
         assert_eq!(
             context

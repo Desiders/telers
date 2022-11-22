@@ -206,7 +206,7 @@ impl Filter for Command {
 
 #[cfg(test)]
 mod tests {
-    use super::{Command, CommandObject, CommandPatternType};
+    use super::*;
 
     #[test]
     fn test_command_extract() {

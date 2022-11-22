@@ -6,6 +6,7 @@ use std::{
 
 #[allow(clippy::module_name_repetitions)]
 pub trait AppError: StdError {
+    #[must_use]
     fn message(&self) -> &str;
 }
 

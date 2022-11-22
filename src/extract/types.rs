@@ -144,7 +144,6 @@ impl FromEventAndContext for Poll {
 #[cfg(test)]
 mod tests {
     use super::*;
-
     use crate::dispatcher::event::telegram::Handler;
 
     #[test]
