@@ -39,7 +39,6 @@ impl PartialEq for Request {
 }
 
 impl Request {
-    /// Create a new request
     #[must_use]
     pub fn new(bot: Rc<Bot>, update: Rc<Update>, context: Rc<RefCell<Context>>) -> Self {
         Self {
@@ -47,6 +46,21 @@ impl Request {
             update,
             context,
         }
+    }
+
+    #[must_use]
+    pub fn bot(&self) -> Rc<Bot> {
+        Rc::clone(&self.bot)
+    }
+
+    #[must_use]
+    pub fn update(&self) -> Rc<Update> {
+        Rc::clone(&self.update)
+    }
+
+    #[must_use]
+    pub fn context(&self) -> Rc<RefCell<Context>> {
+        Rc::clone(&self.context)
     }
 }
 
@@ -269,10 +283,13 @@ impl ObserverService {
             let res = if self.middlewares.is_empty() {
                 handler.call(handler_req.clone()).await?
             } else {
+                // Create middlewares chain
                 let middleware = Rc::clone(&self.middlewares[0]);
                 let next_middlewares = Box::new(self.middlewares[1..].to_vec().clone().into_iter());
+
+                // Call first middleware (it will call next middlewares or handler)
                 middleware
-                    .call(&handler.service, handler_req.clone(), next_middlewares)
+                    .call(handler.service(), handler_req.clone(), next_middlewares)
                     .await?
             };
             // If handler returns skip, we should skip it and run next handler
@@ -341,12 +358,6 @@ mod tests {
 
     #[test]
     fn test_observer_trigger() {
-        async fn handler_first() {}
-
-        async fn handler_second() {
-            unimplemented!("It's shouldn't trigger because the first handler handles the event")
-        }
-
         let bot = Rc::new(Bot::default());
         let context = Rc::new(RefCell::new(Context::new()));
 
@@ -358,8 +369,13 @@ mod tests {
             ignore_case: false,
             ignore_mention: false,
         }));
-        observer.register(handler_first, vec![]);
-        observer.register(handler_second, vec![]);
+        observer.register(|| async {}, vec![]);
+        observer.register(
+            || async {
+                unimplemented!("It's shouldn't trigger because the first handler handles the event")
+            },
+            vec![],
+        );
 
         let observer_service = r#await!(observer.new_service(())).unwrap();
         let req = Request {
@@ -367,7 +383,7 @@ mod tests {
             update: Rc::new(Update::default()),
             context: Rc::clone(&context),
         };
-        let res = r#await!(observer_service.trigger(req)).unwrap();
+        let res = r#await!(observer_service.trigger(req.clone())).unwrap();
 
         // Filter not pass, so handler should be rejected
         match res.response() {
@@ -375,18 +391,18 @@ mod tests {
             _ => panic!("Unexpected result"),
         }
 
-        let res = r#await!(observer_service.trigger(Request {
-            bot: Rc::clone(&bot),
+        let req = Request {
+            bot: req.bot(),
             update: Rc::new(Update {
                 message: Some(Message {
                     text: Some("/start".to_string()),
-                    ..Message::default()
+                    ..Default::default()
                 }),
-                ..Update::default()
+                ..Default::default()
             }),
-            context: Rc::clone(&context),
-        }))
-        .unwrap();
+            context: req.context(),
+        };
+        let res = r#await!(observer_service.trigger(req)).unwrap();
 
         // Filter pass, so handler should be handled
         match res.response() {
@@ -397,32 +413,22 @@ mod tests {
 
     #[test]
     fn test_observer_event_return() {
-        async fn handler_first() -> impl Into<EventReturn> {
-            Action::Skip
-        }
-
-        async fn handler_second() {}
-
-        async fn handler_third() -> impl Into<EventReturn> {
-            Action::Cancel
-        }
-
         let bot = Rc::new(Bot::default());
         let context = Rc::new(RefCell::new(Context::new()));
         let update = Rc::new(Update::default());
 
         let mut observer = Observer::new("test");
-        observer.register(handler_first, vec![]);
-        observer.register(handler_second, vec![]);
+        observer.register(|| async { Action::Skip }, vec![]);
+        observer.register(|| async {}, vec![]);
 
         let observer_service = r#await!(observer.new_service(())).unwrap();
 
-        let res = r#await!(observer_service.trigger(Request {
+        let req = Request {
             bot: Rc::clone(&bot),
             update: Rc::clone(&update),
             context: Rc::clone(&context),
-        }))
-        .unwrap();
+        };
+        let res = r#await!(observer_service.trigger(req.clone())).unwrap();
 
         // First handler returns `Action::Skip`, so second handler should be called
         match res.response() {
@@ -433,17 +439,12 @@ mod tests {
         }
 
         let mut observer = Observer::new("test2");
-        observer.register(handler_first, vec![]);
-        observer.register(handler_third, vec![]);
+        observer.register(|| async { Action::Skip }, vec![]);
+        observer.register(|| async { Action::Cancel }, vec![]);
 
         let observer_service = r#await!(observer.new_service(())).unwrap();
 
-        let res = r#await!(observer_service.trigger(Request {
-            bot: Rc::clone(&bot),
-            update: Rc::clone(&update),
-            context: Rc::clone(&context),
-        }))
-        .unwrap();
+        let res = r#await!(observer_service.trigger(req.clone())).unwrap();
 
         // First handler returns `Action::Skip`, so second handler should be called and it returns `Action::Cancel`,
         // so response should be `PropagateEventResult::Rejected`

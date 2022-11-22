@@ -37,7 +37,6 @@ impl PartialEq for Request {
 }
 
 impl Request {
-    /// Create a new request
     #[must_use]
     pub fn new(bot: Rc<Bot>, update: Rc<Update>, context: Rc<RefCell<Context>>) -> Self {
         Self {
@@ -148,7 +147,10 @@ impl ServiceFactory<Request> for HandlerObject {
         Box::pin(async move {
             let service = fut.await?;
 
-            Ok(HandlerObjectService { service, filters })
+            Ok(HandlerObjectService {
+                service: Rc::new(service),
+                filters,
+            })
         })
     }
 }
@@ -156,7 +158,7 @@ impl ServiceFactory<Request> for HandlerObject {
 /// [`Handler`] wrapped into service with filters
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObjectService {
-    pub (crate) service: BoxedHandlerService,
+    service: Rc<BoxedHandlerService>,
     filters: Rc<Vec<Box<dyn Filter>>>,
 }
 
@@ -168,6 +170,11 @@ impl HandlerObjectService {
         self.filters
             .iter()
             .all(|filter| filter.check(&req.bot, &req.update, &req.context))
+    }
+
+    #[must_use]
+    pub fn service(&self) -> Rc<BoxedHandlerService> {
+        Rc::clone(&self.service)
     }
 }
 
@@ -303,7 +310,7 @@ mod tests {
         assert_eq!(handler_object_service.check(&req), true);
 
         let res = r#await!(handler_object_service.call(req)).unwrap();
-        assert_eq!(res.response.is_cancel(), false);
-        assert_eq!(res.response.is_skip(), false);
+        assert_eq!(res.response().is_cancel(), false);
+        assert_eq!(res.response().is_skip(), false);
     }
 }

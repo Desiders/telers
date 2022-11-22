@@ -32,7 +32,7 @@ impl Middleware for Logging {
     #[allow(clippy::similar_names)]
     fn call(
         &self,
-        handler: &BoxedHandlerService,
+        handler: Rc<BoxedHandlerService>,
         req: HandlerRequest,
         middlewares: Box<dyn Iterator<Item = Rc<Box<dyn Middleware>>>>,
     ) -> BoxFuture<Result<HandlerResponse, app::Error>> {
@@ -95,11 +95,10 @@ impl Middleware for Logging {
 #[cfg(test)]
 mod tests {
     use super::*;
-
     use crate::{
         client::Bot,
         context::Context,
-        dispatcher::event::{service::ServiceFactory, telegram::handler_service},
+        dispatcher::event::{service::ServiceFactory as _, telegram::handler_service},
         types::Update,
     };
 
@@ -133,14 +132,14 @@ mod tests {
         let middleware = Logging::new(Box::new(SimpleLogger), None);
 
         let handler_service_factory = handler_service(|| async {}).new_service(());
-        let handler_service = r#await!(handler_service_factory).unwrap();
+        let handler_service = Rc::new(r#await!(handler_service_factory).unwrap());
 
         let bot = Rc::new(Bot::default());
         let update = Rc::new(Update::default());
         let context = Rc::new(RefCell::new(Context::default()));
         let req = HandlerRequest::new(bot, update, context);
 
-        let res = r#await!(middleware.call(&handler_service, req, Box::new(iter::empty())));
+        let res = r#await!(middleware.call(handler_service, req, Box::new(iter::empty())));
         assert!(res.is_ok());
     }
 }

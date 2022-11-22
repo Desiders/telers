@@ -61,6 +61,21 @@ impl Request {
             context,
         }
     }
+
+    #[must_use]
+    pub fn bot(&self) -> Rc<Bot> {
+        Rc::clone(&self.bot)
+    }
+
+    #[must_use]
+    pub fn update(&self) -> Rc<Update> {
+        Rc::clone(&self.update)
+    }
+
+    #[must_use]
+    pub fn context(&self) -> Rc<RefCell<Context>> {
+        Rc::clone(&self.context)
+    }
 }
 
 impl From<Request> for telegram::ObserverRequest {
@@ -473,7 +488,7 @@ impl RouterService {
         }
 
         for middleware in outer_middlewares {
-            let res = middleware.call(&req).await?;
+            let res = middleware.call(req.clone()).await?;
             if res.is_skip() {
                 continue;
             }
@@ -503,6 +518,7 @@ impl RouterService {
     ) -> Result<Response, app::Error> {
         let observer_req = req.clone().into();
         let observer_res = observer.trigger(observer_req).await?;
+
         match observer_res.response() {
             // Return a response if the event rejected
             PropagateEventResult::Rejected => {
@@ -568,35 +584,16 @@ impl Service<Request> for RouterService {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    use crate::dispatcher::middlewares::inner::Logging;
-
-    use log::{Log, Metadata, Record};
-
-    struct SimpleLogger;
-
-    impl Log for SimpleLogger {
-        fn enabled(&self, _metadata: &Metadata) -> bool {
-            unimplemented!();
-        }
-
-        fn log(&self, record: &Record) {
-            println!("{} - {}", record.level(), record.args());
-        }
-
-        fn flush(&self) {
-            unimplemented!();
-        }
-    }
+    use crate::dispatcher::event::telegram::BoxedHandlerService;
 
     #[test]
     fn test_router_include() {
         let mut router = Router::new("main");
 
-        router
-            .message
-            .middlewares
-            .register(Box::new(Logging::new(Box::new(SimpleLogger), None)));
+        let middleware =
+            |handler: Rc<BoxedHandlerService>, req: _, _| async move { handler.call(req).await };
+
+        router.message.middlewares.register(Box::new(middleware));
 
         router.include({
             let mut router = Router::new("sub1");
@@ -683,10 +680,10 @@ mod tests {
             assert_eq!(observer.handlers().len(), 1);
         });
 
-        router
-            .message
-            .middlewares
-            .register(Box::new(Logging::new(Box::new(SimpleLogger), None)));
+        let middleware =
+            |handler: Rc<BoxedHandlerService>, req: _, _| async move { handler.call(req).await };
+
+        router.message.middlewares.register(Box::new(middleware));
         assert_eq!(router.message.middlewares.middlewares().len(), 1);
     }
 }
