@@ -5,17 +5,26 @@ use crate::error::{app, telegram};
 /// Responses from events, that indicates how the dispatcher should process response
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct EventReturn {
-    /// In outer middlewares, means that the middleware should be skipped, and next middleware should be run
-    /// In inner middlewares, means that the middleware should be skipped, and next handler should be run
-    /// In handler, means that the handler should be skipped, and next handler should be run
+    /// - In outer middlewares, means that the middleware should be skipped, and next middleware should be run
+    /// - In inner middlewares, means that the middleware should be skipped, and next handler should be run
+    /// - In handler, means that the handler should be skipped, and next handler should be run
     is_skip: bool,
-    /// In outer middlewares, means that propagate the event should be stopped
-    /// In inner middlewares, means that propagate the event should be stopped
-    /// In handler, means that propagate the event should be stopped
+    /// - In outer middlewares, means that propagate the event should be stopped
+    /// - In inner middlewares, means that propagate the event should be stopped
+    /// - In handler, means that propagate the event should be stopped
     is_cancel: bool,
 }
 
 impl EventReturn {
+    /// # Arguments
+    /// * `is_skip` -
+    ///     - In outer middlewares, means that the middleware should be skipped, and next middleware should be run
+    ///     - In inner middlewares, means that the middleware should be skipped, and next handler should be run
+    ///     - In handler, means that the handler should be skipped, and next handler should be run
+    /// * `is_cancel` -
+    ///     - In outer middlewares, means that propagate the event should be stopped
+    ///     - In inner middlewares, means that propagate the event should be stopped
+    ///     - In handler, means that propagate the event should be stopped
     #[must_use]
     pub fn new(is_skip: bool, is_cancel: bool) -> Self {
         Self { is_skip, is_cancel }
@@ -88,8 +97,10 @@ mod impl_from {
         };
     }
 
+    // Implement `From` for `T` with one or more lifetimes
     default_impl_from!(Result<T, E>, T, E);
     default_impl_from!(Option<T>, T);
     default_impl_from!(Box<T>, T);
+    // Implement `From` for many `T` without lifetimes
     default_impl_from!((), app::Error, telegram::Error);
 }

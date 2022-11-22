@@ -4,6 +4,7 @@ use std::{
     fmt::{self, Debug, Display, Formatter},
 };
 
+/// Base error type for framework errors
 #[allow(clippy::module_name_repetitions)]
 pub trait AppError: StdError {
     #[must_use]
@@ -16,6 +17,7 @@ impl AppError for Infallible {
     }
 }
 
+/// Error wrapper for [`AppError`]
 pub struct Error {
     cause: Box<dyn AppError>,
 }

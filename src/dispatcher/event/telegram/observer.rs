@@ -268,7 +268,7 @@ impl ObserverService {
     /// Propagate event to handlers and stops propagation on first match.
     /// Handler will be called when all its filters is pass.
     /// # Errors
-    /// If any handler returns error. Probably it's error to extract args to the handler.
+    /// - If any handler returns error. Probably it's error to extract args to the handler.
     #[allow(clippy::similar_names)]
     pub async fn trigger(&self, req: Request) -> Result<Response, app::Error> {
         let handler_req = req.clone().into();

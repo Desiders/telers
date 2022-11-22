@@ -266,7 +266,7 @@ impl Router {
         self.include_router(router);
     }
 
-    /// Resolve registered event names
+    /// Resolve registered event names.
     /// Is useful for getting updates only for registered event types.
     /// # Arguments
     /// * `skip_events` - Skip specified event names
@@ -436,7 +436,7 @@ impl RouterService {
 
     /// Call startup callbacks
     /// # Errors
-    /// If any startup observer returns error
+    /// - If any startup observer returns error
     pub async fn emit_startup(&self) -> Result<(), app::Error> {
         log::debug!("{:?}: Emit startup", self);
 
@@ -450,7 +450,7 @@ impl RouterService {
 
     /// Call shutdown callbacks
     /// # Errors
-    /// If any shutdown observer returns error
+    /// - If any shutdown observer returns error
     pub async fn emit_shutdown(&self) -> Result<(), app::Error> {
         log::debug!("{:?}: Emit shutdown", self);
 
@@ -464,9 +464,9 @@ impl RouterService {
 
     /// Propagate event to routers
     /// # Errors
-    /// If any outer middleware returns error
-    /// If any inner middleware returns error
-    /// If any handler returns error. Probably it's error to extract args to the handler
+    /// - If any outer middleware returns error
+    /// - If any inner middleware returns error
+    /// - If any handler returns error. Probably it's error to extract args to the handler
     #[async_recursion(?Send)]
     #[allow(clippy::similar_names)]
     #[must_use]
@@ -509,9 +509,9 @@ impl RouterService {
 
     /// Propagate event to routers by observer
     /// # Errors
-    /// If any outer middleware returns error
-    /// If any inner middleware returns error
-    /// If any handler returns error. Probably it's error to extract args to the handler
+    /// - If any outer middleware returns error
+    /// - If any inner middleware returns error
+    /// - If any handler returns error. Probably it's error to extract args to the handler
     #[allow(clippy::similar_names)]
     async fn propagate_event_by_observer(
         &self,

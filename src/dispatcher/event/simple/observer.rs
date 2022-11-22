@@ -116,7 +116,7 @@ pub struct ObserverService {
 impl ObserverService {
     /// Propagate event to handlers. All handlers will be called.
     /// # Errors
-    /// If any handler returns error
+    /// - If any handler returns error
     pub async fn trigger(&self, _: ()) -> Result<(), app::Error> {
         for handler in self.handlers.iter() {
             handler.call(()).await?;

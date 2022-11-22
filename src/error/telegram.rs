@@ -3,12 +3,14 @@ use std::{
     fmt::{self, Debug, Display, Formatter},
 };
 
+/// Base error type for telegram api errors
 #[allow(clippy::module_name_repetitions)]
 pub trait TelegramAPIError: StdError {
     #[must_use]
     fn message(&self) -> &str;
 }
 
+/// Error wrapper for [`TelegramAPIError`]
 pub struct Error {
     cause: Box<dyn TelegramAPIError>,
 }
