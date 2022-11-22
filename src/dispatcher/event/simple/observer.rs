@@ -56,6 +56,15 @@ impl Observer {
     {
         self.handlers.push(HandlerObject::new(handler, args));
     }
+
+    // Alias to [`Observer::register`] method
+    pub fn on<H, Args>(&mut self, handler: H, args: Args)
+    where
+        H: Handler<Args> + 'static,
+        Args: Clone + 'static,
+    {
+        self.register(handler, args);
+    }
 }
 
 impl AsRef<Observer> for Observer {

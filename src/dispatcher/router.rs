@@ -111,8 +111,8 @@ impl Response {
 
 /// Router can route update, and it nested update types like messages, callback query, polls and all other event types.
 /// Event handlers can be registered in observer by two ways:
-/// - By observer method - [`router.register_<event_type>(handler, <filters, ...>)`
-/// - By observer method - [`router.on_<event_type>(handler, <filters, ...>)`
+/// - By observer method - [`router.<event_type>.register(handler, <filters, ...>)`
+/// - By observer method - [`router.<event_type>.on(handler, <filters, ...>)`
 pub struct Router {
     /// Router name
     router_name: &'static str,

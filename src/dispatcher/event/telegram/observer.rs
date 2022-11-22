@@ -159,6 +159,16 @@ impl Observer {
     {
         self.handlers.push(HandlerObject::new(handler, filters));
     }
+
+    /// Alias to [`Observer::register`] method
+    pub fn on<H, Args>(&mut self, handler: H, filters: Vec<Box<dyn Filter>>)
+    where
+        H: Handler<Args> + 'static,
+        H::Output: Into<EventReturn>,
+        Args: FromEventAndContext + 'static,
+    {
+        self.register(handler, filters);
+    }
 }
 
 impl Debug for Observer {
