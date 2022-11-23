@@ -114,12 +114,10 @@ impl Response {
 /// - By observer method - [`router.<event_type>.register(handler, <filters, ...>)`
 /// - By observer method - [`router.<event_type>.on(handler, <filters, ...>)`
 pub struct Router {
-    /// Router name
     router_name: &'static str,
-    /// Sub routers
     sub_routers: Vec<Router>,
 
-    /// Telegram event observers
+    // Telegram event observers
     pub message: telegram::Observer,
     pub edited_message: telegram::Observer,
     pub channel_post: telegram::Observer,
@@ -135,7 +133,7 @@ pub struct Router {
     pub chat_member: telegram::Observer,
     pub chat_join_request: telegram::Observer,
 
-    /// Event observers
+    // Event observers
     pub startup: simple::Observer,
     pub shutdown: simple::Observer,
 }
@@ -222,7 +220,7 @@ impl Router {
 
     /// Include a sub router
     pub fn include_router(&mut self, mut router: Router) {
-        /// Register middlewares from sub router's observers to parent router's observers
+        /// Register inner middlewares from sub router's observers to parent router's observers
         macro_rules! register_middlewares {
             ($observer:ident) => {
                 self.$observer
@@ -467,6 +465,8 @@ impl RouterService {
     /// - If any outer middleware returns error
     /// - If any inner middleware returns error
     /// - If any handler returns error. Probably it's error to extract args to the handler
+    /// # Panics
+    /// If `update_type` telegram event isn't supported
     #[async_recursion(?Send)]
     #[allow(clippy::similar_names)]
     #[must_use]
@@ -524,6 +524,7 @@ impl RouterService {
 
         match observer_res.response() {
             // Return a response if the event rejected
+            // Router don't know about rejected event by observer
             PropagateEventResult::Rejected => {
                 return Ok(Response {
                     request: req,
@@ -587,7 +588,22 @@ impl Service<Request> for RouterService {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::dispatcher::event::telegram::BoxedHandlerService;
+    use crate::{
+        dispatcher::{
+            event::{
+                bases::{Action, EventReturn},
+                telegram::BoxedHandlerService,
+            },
+            RouterRequest,
+        },
+        filters::{Command, CommandPatternType},
+    };
+
+    macro_rules! r#await {
+        ($e:expr) => {
+            tokio_test::block_on($e)
+        };
+    }
 
     #[test]
     fn test_router_include() {
@@ -595,8 +611,13 @@ mod tests {
 
         let middleware =
             |handler: Rc<BoxedHandlerService>, req: _, _| async move { handler.call(req).await };
+        let outer_middleware = |req: _| async move { Ok((req, EventReturn::default())) };
 
         router.message.middlewares.register(Box::new(middleware));
+        router
+            .message
+            .outer_middlewares
+            .register(Box::new(outer_middleware));
 
         router.include({
             let mut router = Router::new("sub1");
@@ -632,6 +653,8 @@ mod tests {
                     } else {
                         assert_eq!(observer.middlewares.middlewares().len(), 0);
                     }
+                    // Router outer middlewares don't clone to children routers
+                    assert_eq!(observer.outer_middlewares.middlewares().len(), 0);
                 });
 
             router.routers().into_iter().for_each(|router| {
@@ -685,8 +708,108 @@ mod tests {
 
         let middleware =
             |handler: Rc<BoxedHandlerService>, req: _, _| async move { handler.call(req).await };
+        let outer_middleware = |req: _| async move { Ok((req, EventReturn::default())) };
 
         router.message.middlewares.register(Box::new(middleware));
+        router
+            .message
+            .outer_middlewares
+            .register(Box::new(outer_middleware));
         assert_eq!(router.message.middlewares.middlewares().len(), 1);
+        assert_eq!(router.message.outer_middlewares.middlewares().len(), 1);
+    }
+
+    #[test]
+    fn test_router_propagate_event() {
+        let bot = Rc::new(Bot::default());
+        let context = Rc::new(RefCell::new(Context::new()));
+        let update = Rc::new(Update::default());
+
+        let mut router = Router::new("main");
+        router.message.register(|| async {}, vec![]);
+
+        let router_service = r#await!(router.new_service(())).unwrap();
+
+        let req = RouterRequest::new(bot, update, context);
+
+        let res =
+            r#await!(router_service.propagate_event(MESSAGE_OBSERVER_NAME, req.clone())).unwrap();
+
+        // Event should be handled, because there is a message handler registered
+        match res.response() {
+            PropagateEventResult::Handled(handler_res) => {
+                assert_eq!(*handler_res.response(), EventReturn::default());
+            }
+            _ => panic!("Unexpected result"),
+        }
+
+        let res =
+            r#await!(router_service.propagate_event(CALLBACK_QUERY_OBSERVER_NAME, req.clone()))
+                .unwrap();
+
+        // Event shouldn't be handled, because there is no callback query handler registered
+        match res.response() {
+            PropagateEventResult::Unhandled => {}
+            _ => panic!("Unexpected result"),
+        }
+
+        let filter = Box::new(Command {
+            commands: vec![CommandPatternType::Text("start")],
+            prefix: "/",
+            ignore_case: false,
+            ignore_mention: false,
+        });
+
+        let mut router = Router::new("main");
+        router.message.filter(filter.clone());
+        router.message.register(|| async {}, vec![]);
+
+        let router_service = r#await!(router.new_service(())).unwrap();
+
+        let res =
+            r#await!(router_service.propagate_event(MESSAGE_OBSERVER_NAME, req.clone())).unwrap();
+
+        // Message event observer filter not pass, so router should be unhandled
+        match res.response() {
+            PropagateEventResult::Unhandled => {}
+            _ => panic!("Unexpected result"),
+        }
+
+        router
+            .callback_query
+            .register(|| async { Action::Cancel }, vec![]);
+        router
+            .callback_query
+            .register(|| async { unimplemented!() }, vec![]);
+
+        let res =
+            r#await!(router_service.propagate_event(CALLBACK_QUERY_OBSERVER_NAME, req.clone()))
+                .unwrap();
+
+        // Handler returns `Action::Cancel`,
+        // so response from callback query event observer should be `PropagateEventResult::Rejected`
+        // and router unhandled
+        match res.response() {
+            PropagateEventResult::Unhandled => {}
+            _ => panic!("Unexpected result"),
+        }
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_router_propagate_event_panic() {
+        let bot = Rc::new(Bot::default());
+        let context = Rc::new(RefCell::new(Context::new()));
+        let update = Rc::new(Update::default());
+
+        let mut router = Router::new("main");
+        router.message.register(|| async {}, vec![]);
+
+        let router_service = r#await!(router.new_service(())).unwrap();
+
+        let req = RouterRequest::new(bot, update, context);
+
+        // Should panic, because there is no such telegram event observer
+        let _ = r#await!(router_service.propagate_event("unknown", req.clone()));
     }
 }

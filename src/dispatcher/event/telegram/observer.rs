@@ -412,7 +412,7 @@ mod tests {
             }),
             context: req.context(),
         };
-        let res = r#await!(observer_service.trigger(req)).unwrap();
+        let res = r#await!(observer_service.trigger(req.clone())).unwrap();
 
         // Filter pass, so handler should be handled
         match res.response() {
