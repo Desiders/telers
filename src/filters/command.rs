@@ -7,8 +7,8 @@ use crate::{
 
 use regex::Regex;
 use std::{
-    cell::RefCell,
     fmt::{self, Display, Formatter},
+    sync::RwLock,
 };
 
 pub type Result<T> = std::result::Result<T, CommandError>;
@@ -184,7 +184,7 @@ impl CommandObject {
 }
 
 impl Filter for Command {
-    fn check(&self, bot: &Bot, update: &Update, context: &RefCell<Context>) -> bool {
+    fn check(&self, bot: &Bot, update: &Update, context: &RwLock<Context>) -> bool {
         if let Some(ref message) = update.message {
             let text = match message.get_text_or_caption() {
                 Some(text) => text,
@@ -193,7 +193,10 @@ impl Filter for Command {
 
             match self.parse_command(text, bot) {
                 Ok(command) => {
-                    context.borrow_mut().insert("command", Box::new(command));
+                    context
+                        .write()
+                        .unwrap()
+                        .insert("command", Box::new(command));
                     true
                 }
                 Err(_) => false,

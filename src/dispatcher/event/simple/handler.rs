@@ -1,19 +1,21 @@
 use crate::{
     dispatcher::event::service::{
-        factory, fn_service, BoxService, BoxServiceFactory, Service, ServiceFactory,
+        factory, fn_service, BoxFuture, BoxService, BoxServiceFactory, Service, ServiceFactory,
     },
     error::app,
 };
 
-use futures_core::future::LocalBoxFuture;
 use std::future::Future;
 
 pub type BoxedHandlerService = BoxService<(), (), app::Error>;
 pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), (), (), app::Error, ()>;
 
-pub trait Handler<Args>: Clone + 'static {
+pub trait Handler<Args>: Clone + Send + Sync
+where
+    Args: Clone + Send + Sync,
+{
     type Output;
-    type Future: Future<Output = Self::Output>;
+    type Future: Future<Output = Self::Output> + Send + Sync;
 
     fn call(&self, args: Args) -> Self::Future;
 }
@@ -29,7 +31,7 @@ impl HandlerObject {
     pub fn new<H, Args>(handler: H, args: Args) -> Self
     where
         H: Handler<Args> + 'static,
-        Args: Clone + 'static,
+        Args: Clone + Send + Sync + 'static,
     {
         Self {
             service: handler_service(handler, args),
@@ -43,7 +45,7 @@ impl ServiceFactory<()> for HandlerObject {
     type Config = ();
     type Service = HandlerObjectService;
     type InitError = ();
-    type Future = LocalBoxFuture<'static, Result<Self::Service, Self::InitError>>;
+    type Future = BoxFuture<Result<Self::Service, Self::InitError>>;
 
     /// Create [`HandlerObjectService`] from [`HandlerObject`]
     fn new_service(&self, _: ()) -> Self::Future {
@@ -66,7 +68,7 @@ pub struct HandlerObjectService {
 impl Service<()> for HandlerObjectService {
     type Response = ();
     type Error = app::Error;
-    type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
+    type Future = BoxFuture<Result<Self::Response, Self::Error>>;
 
     /// Call service, which is wrapped [`Handler`]
     fn call(&self, req: ()) -> Self::Future {
@@ -79,7 +81,7 @@ impl Service<()> for HandlerObjectService {
 pub fn handler_service<H, Args>(handler: H, args: Args) -> BoxedHandlerServiceFactory
 where
     H: Handler<Args> + 'static,
-    Args: Clone + 'static,
+    Args: Clone + Send + Sync + 'static,
 {
     factory(fn_service(move |()| {
         let handler = handler.clone();
@@ -95,8 +97,9 @@ where
 macro_rules! factory_tuple ({ $($param:ident)* } => {
     impl<Func, Fut, $($param,)*> Handler<($($param,)*)> for Func
     where
-        Func: Fn($($param),*) -> Fut + Clone + 'static,
-        Fut: Future,
+        Func: Fn($($param),*) -> Fut + Clone + Send + Sync + 'static,
+        Fut: Future + Send + Sync + 'static,
+        $($param: Clone + Send + Sync + 'static,)*
     {
         type Output = Fut::Output;
         type Future = Fut;
@@ -135,7 +138,7 @@ mod tests {
 
     #[test]
     fn test_arg_number() {
-        fn assert_impl_handler<T>(_: impl Handler<T>) {}
+        fn assert_impl_handler<T: Clone + Send + Sync>(_: impl Handler<T>) {}
 
         assert_impl_handler(|| async { unimplemented!() });
         assert_impl_handler(

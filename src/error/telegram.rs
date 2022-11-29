@@ -5,7 +5,7 @@ use std::{
 
 /// Base error type for telegram api errors
 #[allow(clippy::module_name_repetitions)]
-pub trait TelegramAPIError: StdError {
+pub trait TelegramAPIError: StdError + Send + Sync {
     #[must_use]
     fn message(&self) -> &str;
 }

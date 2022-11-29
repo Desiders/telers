@@ -1,6 +1,6 @@
 use super::event::{
     bases::PropagateEventResult,
-    service::{Service, ServiceFactory},
+    service::{BoxFuture, Service, ServiceFactory},
     simple, telegram,
 };
 
@@ -8,14 +8,12 @@ use crate::{client::Bot, context::Context, error::app, types::Update};
 
 use async_recursion::async_recursion;
 use futures::future::join_all;
-use futures_core::future::LocalBoxFuture;
 use log;
 use std::{
-    cell::RefCell,
     collections::{HashMap, HashSet},
     fmt::{self, Debug, Formatter},
     iter::once,
-    rc::Rc,
+    sync::{Arc, RwLock},
 };
 
 const MESSAGE_OBSERVER_NAME: &str = "message";
@@ -39,42 +37,46 @@ const SHUTDOWN_OBSERVER_NAME: &str = "shutdown";
 /// Data for router service
 #[derive(Clone)]
 pub struct Request {
-    bot: Rc<Bot>,
-    update: Rc<Update>,
-    context: Rc<RefCell<Context>>,
+    bot: Arc<Bot>,
+    update: Arc<Update>,
+    context: Arc<RwLock<Context>>,
 }
 
 impl PartialEq for Request {
     fn eq(&self, other: &Self) -> bool {
-        Rc::ptr_eq(&self.bot, &other.bot)
-            && Rc::ptr_eq(&self.update, &other.update)
-            && Rc::ptr_eq(&self.context, &other.context)
+        Arc::ptr_eq(&self.bot, &other.bot)
+            && Arc::ptr_eq(&self.update, &other.update)
+            && Arc::ptr_eq(&self.context, &other.context)
     }
 }
 
 impl Request {
     #[must_use]
-    pub fn new(bot: Rc<Bot>, update: Rc<Update>, context: Rc<RefCell<Context>>) -> Self {
+    pub fn new<B: Into<Arc<Bot>>, U: Into<Arc<Update>>, C: Into<Arc<RwLock<Context>>>>(
+        bot: B,
+        update: U,
+        context: C,
+    ) -> Self {
         Self {
-            bot,
-            update,
-            context,
+            bot: bot.into(),
+            update: update.into(),
+            context: context.into(),
         }
     }
 
     #[must_use]
-    pub fn bot(&self) -> Rc<Bot> {
-        Rc::clone(&self.bot)
+    pub fn bot(&self) -> Arc<Bot> {
+        Arc::clone(&self.bot)
     }
 
     #[must_use]
-    pub fn update(&self) -> Rc<Update> {
-        Rc::clone(&self.update)
+    pub fn update(&self) -> Arc<Update> {
+        Arc::clone(&self.update)
     }
 
     #[must_use]
-    pub fn context(&self) -> Rc<RefCell<Context>> {
-        Rc::clone(&self.context)
+    pub fn context(&self) -> Arc<RwLock<Context>> {
+        Arc::clone(&self.context)
     }
 }
 
@@ -230,7 +232,7 @@ impl Router {
                     .for_each(|middleware| {
                         router.$observer
                             .middlewares
-                            .register_wrapper(Rc::clone(middleware));
+                            .register_wrapper(Arc::clone(middleware));
                     });
             };
             ($observer:ident, $($observers:ident),+) => {
@@ -303,7 +305,7 @@ impl ServiceFactory<Request> for Router {
     type Config = ();
     type Service = RouterService;
     type InitError = ();
-    type Future = LocalBoxFuture<'static, Result<Self::Service, Self::InitError>>;
+    type Future = BoxFuture<Result<Self::Service, Self::InitError>>;
 
     /// Create [`RouterService`] from [`Router`]
     fn new_service(&self, _: Self::Config) -> Self::Future {
@@ -467,7 +469,7 @@ impl RouterService {
     /// - If any handler returns error. Probably it's error to extract args to the handler
     /// # Panics
     /// If `update_type` telegram event isn't supported
-    #[async_recursion(?Send)]
+    #[async_recursion]
     #[allow(clippy::similar_names)]
     #[must_use]
     pub async fn propagate_event(
@@ -572,7 +574,7 @@ impl Debug for RouterService {
 impl Service<Request> for RouterService {
     type Response = Response;
     type Error = ();
-    type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
+    type Future = BoxFuture<Result<Self::Response, Self::Error>>;
 
     fn call(&self, _: Request) -> Self::Future {
         log::error!("{:?}: Should not be called", self);
@@ -610,7 +612,7 @@ mod tests {
         let mut router = Router::new("main");
 
         let middleware =
-            |handler: Rc<BoxedHandlerService>, req: _, _| async move { handler.call(req).await };
+            |handler: Arc<BoxedHandlerService>, req: _, _| async move { handler.call(req).await };
         let outer_middleware = |req: _| async move { Ok((req, EventReturn::default())) };
 
         router.message.middlewares.register(Box::new(middleware));
@@ -707,7 +709,7 @@ mod tests {
         });
 
         let middleware =
-            |handler: Rc<BoxedHandlerService>, req: _, _| async move { handler.call(req).await };
+            |handler: Arc<BoxedHandlerService>, req: _, _| async move { handler.call(req).await };
         let outer_middleware = |req: _| async move { Ok((req, EventReturn::default())) };
 
         router.message.middlewares.register(Box::new(middleware));
@@ -721,9 +723,9 @@ mod tests {
 
     #[test]
     fn test_router_propagate_event() {
-        let bot = Rc::new(Bot::default());
-        let context = Rc::new(RefCell::new(Context::new()));
-        let update = Rc::new(Update::default());
+        let bot = Bot::default();
+        let context = RwLock::new(Context::new());
+        let update = Update::default();
 
         let mut router = Router::new("main");
         router.message.register(|| async {}, vec![]);
@@ -783,8 +785,7 @@ mod tests {
             .register(|| async { unimplemented!() }, vec![]);
 
         let res =
-            r#await!(router_service.propagate_event(CALLBACK_QUERY_OBSERVER_NAME, req.clone()))
-                .unwrap();
+            r#await!(router_service.propagate_event(CALLBACK_QUERY_OBSERVER_NAME, req)).unwrap();
 
         // Handler returns `Action::Cancel`,
         // so response from callback query event observer should be `PropagateEventResult::Rejected`
@@ -798,9 +799,9 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_router_propagate_event_panic() {
-        let bot = Rc::new(Bot::default());
-        let context = Rc::new(RefCell::new(Context::new()));
-        let update = Rc::new(Update::default());
+        let bot = Bot::default();
+        let context = RwLock::new(Context::new());
+        let update = Update::default();
 
         let mut router = Router::new("main");
         router.message.register(|| async {}, vec![]);
@@ -810,6 +811,6 @@ mod tests {
         let req = RouterRequest::new(bot, update, context);
 
         // Should panic, because there is no such telegram event observer
-        let _ = r#await!(router_service.propagate_event("unknown", req.clone()));
+        let _ = r#await!(router_service.propagate_event("unknown", req));
     }
 }

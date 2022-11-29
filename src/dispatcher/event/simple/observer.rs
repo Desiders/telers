@@ -1,15 +1,14 @@
 use crate::{
     dispatcher::event::{
-        service::{Service, ServiceFactory},
+        service::{BoxFuture, Service, ServiceFactory},
         simple::{Handler, HandlerObject, HandlerObjectService},
     },
     error::app,
 };
 
-use futures_core::future::LocalBoxFuture;
 use std::{
     fmt::{self, Debug, Formatter},
-    rc::Rc,
+    sync::Arc,
 };
 
 /// Simple events observer
@@ -52,7 +51,7 @@ impl Observer {
     pub fn register<H, Args>(&mut self, handler: H, args: Args)
     where
         H: Handler<Args> + 'static,
-        Args: Clone + 'static,
+        Args: Clone + Send + Sync + 'static,
     {
         self.handlers.push(HandlerObject::new(handler, args));
     }
@@ -61,7 +60,7 @@ impl Observer {
     pub fn on<H, Args>(&mut self, handler: H, args: Args)
     where
         H: Handler<Args> + 'static,
-        Args: Clone + 'static,
+        Args: Clone + Send + Sync + 'static,
     {
         self.register(handler, args);
     }
@@ -79,7 +78,7 @@ impl ServiceFactory<()> for Observer {
     type Config = ();
     type Service = ObserverService;
     type InitError = ();
-    type Future = LocalBoxFuture<'static, Result<Self::Service, Self::InitError>>;
+    type Future = BoxFuture<Result<Self::Service, Self::InitError>>;
 
     /// Create [`ObserverService`] from [`Observer`]
     fn new_service(&self, _: Self::Config) -> Self::Future {
@@ -98,7 +97,7 @@ impl ServiceFactory<()> for Observer {
 
             Ok(ObserverService {
                 event_name,
-                handlers: Rc::new(handlers),
+                handlers: Arc::new(handlers),
             })
         })
     }
@@ -110,7 +109,7 @@ pub struct ObserverService {
     /// Event observer name
     event_name: &'static str,
     /// Handler services of the observer
-    handlers: Rc<Vec<HandlerObjectService>>,
+    handlers: Arc<Vec<HandlerObjectService>>,
 }
 
 impl ObserverService {
@@ -136,7 +135,7 @@ impl Debug for ObserverService {
 impl Service<()> for ObserverService {
     type Response = ();
     type Error = app::Error;
-    type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
+    type Future = BoxFuture<Result<Self::Response, Self::Error>>;
 
     fn call(&self, _: ()) -> Self::Future {
         log::error!("{:?}: Should not be called", self);

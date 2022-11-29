@@ -2,7 +2,7 @@ use super::base::{Service, ServiceFactory};
 
 use std::{future::Future, pin::Pin};
 
-pub type BoxFuture<T> = Pin<Box<dyn Future<Output = T>>>;
+pub type BoxFuture<T> = Pin<Box<dyn Future<Output = T> + Send + Sync>>;
 
 pub type BoxService<Req, Res, Err> =
     Box<dyn Service<Req, Response = Res, Error = Err, Future = BoxFuture<Result<Res, Err>>>>;
@@ -27,7 +27,7 @@ impl<S> ServiceWrapper<S> {
 
 impl<S, Req, Res, Err> Service<Req> for ServiceWrapper<S>
 where
-    S: Service<Req, Response = Res, Error = Err> + 'static,
+    S: Service<Req, Response = Res, Error = Err> + Send + Sync + 'static,
     S::Future: 'static,
 {
     type Response = Res;
@@ -101,7 +101,6 @@ where
     SF: ServiceFactory<Req, Config = Cfg, Response = Res, Error = Err, InitError = InitErr>,
     SF::Future: 'static,
     SF::Service: 'static,
-    <SF::Service as Service<Req>>::Future: 'static,
 {
     type Response = Res;
     type Error = Err;

@@ -1,7 +1,7 @@
 use std::{any::Any, collections::HashMap};
 
 /// Context type, which can contain some data from handlers, filters and middlewares
-pub type Context = HashMap<&'static str, Box<dyn Any>>;
+pub type Context = HashMap<&'static str, Box<dyn Any + Send + Sync>>;
 
 #[cfg(test)]
 mod tests {

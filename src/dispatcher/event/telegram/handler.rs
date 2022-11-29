@@ -3,7 +3,9 @@ use crate::{
     context::Context,
     dispatcher::event::{
         bases::EventReturn,
-        service::{factory, fn_service, BoxService, BoxServiceFactory, Service, ServiceFactory},
+        service::{
+            factory, fn_service, BoxFuture, BoxService, BoxServiceFactory, Service, ServiceFactory,
+        },
     },
     error::app,
     extract::FromEventAndContext,
@@ -11,8 +13,7 @@ use crate::{
     types::Update,
 };
 
-use futures_core::future::LocalBoxFuture;
-use std::{cell::RefCell, future::Future, rc::Rc};
+use std::{future::Future, sync::Arc, sync::RwLock};
 
 pub type BoxedHandlerService = BoxService<Request, Response, app::Error>;
 pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), Request, Response, app::Error, ()>;
@@ -20,45 +21,49 @@ pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), Request, Response, a
 /// Data for handler service
 #[derive(Clone, Debug)]
 pub struct Request {
-    bot: Rc<Bot>,
+    bot: Arc<Bot>,
     /// Update from Telegram
-    update: Rc<Update>,
+    update: Arc<Update>,
     /// Context, which can contain some data. Can be mapped to handler arguments,
     /// used as hashmap in handlers, middlewares and filters
-    context: Rc<RefCell<Context>>,
+    context: Arc<RwLock<Context>>,
 }
 
 impl PartialEq for Request {
     fn eq(&self, other: &Self) -> bool {
-        Rc::ptr_eq(&self.bot, &other.bot)
-            && Rc::ptr_eq(&self.update, &other.update)
-            && Rc::ptr_eq(&self.context, &other.context)
+        Arc::ptr_eq(&self.bot, &other.bot)
+            && Arc::ptr_eq(&self.update, &other.update)
+            && Arc::ptr_eq(&self.context, &other.context)
     }
 }
 
 impl Request {
     #[must_use]
-    pub fn new(bot: Rc<Bot>, update: Rc<Update>, context: Rc<RefCell<Context>>) -> Self {
+    pub fn new<B: Into<Arc<Bot>>, U: Into<Arc<Update>>, C: Into<Arc<RwLock<Context>>>>(
+        bot: B,
+        update: U,
+        context: C,
+    ) -> Self {
         Self {
-            bot,
-            update,
-            context,
+            bot: bot.into(),
+            update: update.into(),
+            context: context.into(),
         }
     }
 
     #[must_use]
-    pub fn bot(&self) -> Rc<Bot> {
-        Rc::clone(&self.bot)
+    pub fn bot(&self) -> Arc<Bot> {
+        Arc::clone(&self.bot)
     }
 
     #[must_use]
-    pub fn update(&self) -> Rc<Update> {
-        Rc::clone(&self.update)
+    pub fn update(&self) -> Arc<Update> {
+        Arc::clone(&self.update)
     }
 
     #[must_use]
-    pub fn context(&self) -> Rc<RefCell<Context>> {
-        Rc::clone(&self.context)
+    pub fn context(&self) -> Arc<RwLock<Context>> {
+        Arc::clone(&self.context)
     }
 }
 
@@ -87,9 +92,12 @@ impl Response {
     }
 }
 
-pub trait Handler<Args>: Clone + 'static {
+pub trait Handler<Args>: Clone + Send + Sync
+where
+    Args: Send + Sync,
+{
     type Output;
-    type Future: Future<Output = Self::Output>;
+    type Future: Future<Output = Self::Output> + Send + Sync;
 
     fn call(&self, args: Args) -> Self::Future;
 }
@@ -98,7 +106,7 @@ pub trait Handler<Args>: Clone + 'static {
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObject {
     service: BoxedHandlerServiceFactory,
-    pub(crate) filters: Rc<Vec<Box<dyn Filter>>>,
+    pub(crate) filters: Arc<Vec<Box<dyn Filter>>>,
 }
 
 impl HandlerObject {
@@ -111,7 +119,7 @@ impl HandlerObject {
     {
         Self {
             service: handler_service(handler),
-            filters: Rc::new(filters),
+            filters: Arc::new(filters),
         }
     }
 
@@ -125,9 +133,9 @@ impl HandlerObject {
     /// # Arguments
     /// * `filter` - Filter for the handler
     /// # Panics
-    /// If there are other [`Rc`] or `Weak` pointers to the same allocation
+    /// If there are other [`Arc`] or `Weak` pointers to the same allocation
     pub fn filter(&mut self, filter: Box<dyn Filter>) {
-        Rc::get_mut(&mut self.filters).unwrap().push(filter);
+        Arc::get_mut(&mut self.filters).unwrap().push(filter);
     }
 }
 
@@ -137,18 +145,18 @@ impl ServiceFactory<Request> for HandlerObject {
     type Config = ();
     type Service = HandlerObjectService;
     type InitError = ();
-    type Future = LocalBoxFuture<'static, Result<Self::Service, Self::InitError>>;
+    type Future = BoxFuture<Result<Self::Service, Self::InitError>>;
 
     /// Create [`HandlerObjectService`] from [`HandlerObject`]
     fn new_service(&self, _: ()) -> Self::Future {
         let fut = self.service.new_service(());
-        let filters = Rc::clone(&self.filters);
+        let filters = Arc::clone(&self.filters);
 
         Box::pin(async move {
             let service = fut.await?;
 
             Ok(HandlerObjectService {
-                service: Rc::new(service),
+                service: Arc::new(service),
                 filters,
             })
         })
@@ -158,8 +166,8 @@ impl ServiceFactory<Request> for HandlerObject {
 /// [`Handler`] wrapped into service with filters
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObjectService {
-    service: Rc<BoxedHandlerService>,
-    filters: Rc<Vec<Box<dyn Filter>>>,
+    service: Arc<BoxedHandlerService>,
+    filters: Arc<Vec<Box<dyn Filter>>>,
 }
 
 impl HandlerObjectService {
@@ -173,15 +181,15 @@ impl HandlerObjectService {
     }
 
     #[must_use]
-    pub fn service(&self) -> Rc<BoxedHandlerService> {
-        Rc::clone(&self.service)
+    pub fn service(&self) -> Arc<BoxedHandlerService> {
+        Arc::clone(&self.service)
     }
 }
 
 impl Service<Request> for HandlerObjectService {
     type Response = Response;
     type Error = app::Error;
-    type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
+    type Future = BoxFuture<Result<Self::Response, Self::Error>>;
 
     /// Call service, which is wrapped [`Handler`]
     fn call(&self, req: Request) -> Self::Future {
@@ -217,8 +225,9 @@ where
 macro_rules! factory_tuple ({ $($param:ident)* } => {
     impl<Func, Fut, $($param,)*> Handler<($($param,)*)> for Func
     where
-        Func: Fn($($param),*) -> Fut + Clone + 'static,
-        Fut: Future,
+        Func: Fn($($param),*) -> Fut + Clone + Send + Sync + 'static,
+        Fut: Future + Send + Sync + 'static,
+        $($param: Send + Sync + 'static,)*
     {
         type Output = Fut::Output;
         type Future = Fut;
@@ -302,11 +311,11 @@ mod tests {
         let handler_object = HandlerObject::new(|| async {}, vec![]);
         let handler_object_service = r#await!(handler_object.new_service(())).unwrap();
 
-        let req = Request {
-            bot: Rc::new(Bot::default()),
-            update: Rc::new(Update::default()),
-            context: Rc::new(RefCell::new(Context::new())),
-        };
+        let req = Request::new(
+            Bot::default(),
+            Update::default(),
+            RwLock::new(Context::new()),
+        );
         assert_eq!(handler_object_service.check(&req), true);
 
         let res = r#await!(handler_object_service.call(req)).unwrap();

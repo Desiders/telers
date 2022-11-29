@@ -4,7 +4,7 @@ use crate::{
     dispatcher::{
         event::{
             bases::{EventReturn, PropagateEventResult},
-            service::{Service, ServiceFactory},
+            service::{BoxFuture, Service, ServiceFactory},
             telegram::{Handler, HandlerObject, HandlerObjectService, HandlerRequest},
         },
         middlewares,
@@ -15,52 +15,55 @@ use crate::{
     types::Update,
 };
 
-use futures_core::future::LocalBoxFuture;
 use std::{
-    cell::RefCell,
     fmt::{self, Debug, Formatter},
-    rc::Rc,
+    sync::Arc,
+    sync::RwLock,
 };
 
 /// Data for telegram observer service
 #[derive(Clone)]
 pub struct Request {
-    bot: Rc<Bot>,
-    update: Rc<Update>,
-    context: Rc<RefCell<Context>>,
+    bot: Arc<Bot>,
+    update: Arc<Update>,
+    context: Arc<RwLock<Context>>,
 }
 
 impl PartialEq for Request {
     fn eq(&self, other: &Self) -> bool {
-        Rc::ptr_eq(&self.bot, &other.bot)
-            && Rc::ptr_eq(&self.update, &other.update)
-            && Rc::ptr_eq(&self.context, &other.context)
+        Arc::ptr_eq(&self.bot, &other.bot)
+            && Arc::ptr_eq(&self.update, &other.update)
+            && Arc::ptr_eq(&self.context, &other.context)
     }
 }
 
 impl Request {
     #[must_use]
-    pub fn new(bot: Rc<Bot>, update: Rc<Update>, context: Rc<RefCell<Context>>) -> Self {
+    pub fn new<B: Into<Arc<Bot>>, U: Into<Arc<Update>>, C: Into<Arc<RwLock<Context>>>>(
+        bot: B,
+        update: U,
+        context: C,
+    ) -> Self {
         Self {
-            bot,
-            update,
-            context,
+            bot: bot.into(),
+            update: update.into(),
+            context: context.into(),
         }
     }
 
     #[must_use]
-    pub fn bot(&self) -> Rc<Bot> {
-        Rc::clone(&self.bot)
+    pub fn bot(&self) -> Arc<Bot> {
+        Arc::clone(&self.bot)
     }
 
     #[must_use]
-    pub fn update(&self) -> Rc<Update> {
-        Rc::clone(&self.update)
+    pub fn update(&self) -> Arc<Update> {
+        Arc::clone(&self.update)
     }
 
     #[must_use]
-    pub fn context(&self) -> Rc<RefCell<Context>> {
-        Rc::clone(&self.context)
+    pub fn context(&self) -> Arc<RwLock<Context>> {
+        Arc::clone(&self.context)
     }
 }
 
@@ -155,7 +158,7 @@ impl Observer {
     where
         H: Handler<Args> + 'static,
         H::Output: Into<EventReturn>,
-        Args: FromEventAndContext + 'static,
+        Args: FromEventAndContext + Send + Sync + 'static,
     {
         self.handlers.push(HandlerObject::new(handler, filters));
     }
@@ -165,7 +168,7 @@ impl Observer {
     where
         H: Handler<Args> + 'static,
         H::Output: Into<EventReturn>,
-        Args: FromEventAndContext + 'static,
+        Args: FromEventAndContext + Send + Sync + 'static,
     {
         self.register(handler, filters);
     }
@@ -198,7 +201,7 @@ impl ServiceFactory<Request> for Observer {
     type Config = ();
     type Service = ObserverService;
     type InitError = ();
-    type Future = LocalBoxFuture<'static, Result<Self::Service, Self::InitError>>;
+    type Future = BoxFuture<Result<Self::Service, Self::InitError>>;
 
     /// Create [`ObserverService`] from [`Observer`]
     fn new_service(&self, _: Self::Config) -> Self::Future {
@@ -222,8 +225,8 @@ impl ServiceFactory<Request> for Observer {
 
             Ok(ObserverService {
                 event_name,
-                handlers: Rc::new(handlers),
-                common_handler: Rc::new(common_handler),
+                handlers: Arc::new(handlers),
+                common_handler: Arc::new(common_handler),
                 middlewares: middlewares.clone(),
                 outer_middlewares: outer_middlewares.clone(),
             })
@@ -237,13 +240,13 @@ pub struct ObserverService {
     /// Event observer name
     event_name: &'static str,
     /// Handler services of the observer
-    handlers: Rc<Vec<HandlerObjectService>>,
+    handlers: Arc<Vec<HandlerObjectService>>,
     /// Common handler service of the observer with dummy callback which never will be used
-    common_handler: Rc<HandlerObjectService>,
+    common_handler: Arc<HandlerObjectService>,
     /// Inner middlewares
-    middlewares: Vec<Rc<Box<dyn middlewares::inner::Middleware>>>,
+    middlewares: Vec<Arc<Box<dyn middlewares::inner::Middleware + Send + Sync>>>,
     /// Outer middlewares
-    outer_middlewares: Vec<Rc<Box<dyn middlewares::outer::Middleware>>>,
+    outer_middlewares: Vec<Arc<Box<dyn middlewares::outer::Middleware + Send + Sync>>>,
 }
 
 impl ObserverService {
@@ -255,13 +258,15 @@ impl ObserverService {
 
     /// Get inner middlewares
     #[must_use]
-    pub fn middlewares(&self) -> &[Rc<Box<dyn middlewares::inner::Middleware>>] {
+    pub fn middlewares(&self) -> &[Arc<Box<dyn middlewares::inner::Middleware + Send + Sync>>] {
         &self.middlewares
     }
 
     /// Get outer middlewares
     #[must_use]
-    pub fn outer_middlewares(&self) -> &[Rc<Box<dyn middlewares::outer::Middleware>>] {
+    pub fn outer_middlewares(
+        &self,
+    ) -> &[Arc<Box<dyn middlewares::outer::Middleware + Send + Sync>>] {
         &self.outer_middlewares
     }
 
@@ -294,7 +299,7 @@ impl ObserverService {
                 handler.call(handler_req.clone()).await?
             } else {
                 // Create middlewares chain
-                let middleware = Rc::clone(&self.middlewares[0]);
+                let middleware = Arc::clone(&self.middlewares[0]);
                 let next_middlewares = Box::new(self.middlewares[1..].to_vec().clone().into_iter());
 
                 // Call first middleware (it will call next middlewares or handler)
@@ -339,7 +344,7 @@ impl Debug for ObserverService {
 impl Service<Request> for ObserverService {
     type Response = Response;
     type Error = app::Error;
-    type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
+    type Future = BoxFuture<Result<Self::Response, Self::Error>>;
 
     fn call(&self, _: Request) -> Self::Future {
         log::error!("{:?}: Should not be called", self);
@@ -368,8 +373,8 @@ mod tests {
 
     #[test]
     fn test_observer_trigger() {
-        let bot = Rc::new(Bot::default());
-        let context = Rc::new(RefCell::new(Context::new()));
+        let bot = Bot::default();
+        let context = RwLock::new(Context::default());
 
         let mut observer = Observer::new("test");
         // Register common filter, which handlers can't pass
@@ -388,11 +393,7 @@ mod tests {
         );
 
         let observer_service = r#await!(observer.new_service(())).unwrap();
-        let req = Request {
-            bot: Rc::clone(&bot),
-            update: Rc::new(Update::default()),
-            context: Rc::clone(&context),
-        };
+        let req = Request::new(bot, Update::default(), context);
         let res = r#await!(observer_service.trigger(req.clone())).unwrap();
 
         // Filter not pass, so handler should be rejected
@@ -401,18 +402,18 @@ mod tests {
             _ => panic!("Unexpected result"),
         }
 
-        let req = Request {
-            bot: req.bot(),
-            update: Rc::new(Update {
+        let req = Request::new(
+            req.bot(),
+            Update {
                 message: Some(Message {
                     text: Some("/start".to_string()),
                     ..Default::default()
                 }),
                 ..Default::default()
-            }),
-            context: req.context(),
-        };
-        let res = r#await!(observer_service.trigger(req.clone())).unwrap();
+            },
+            req.context(),
+        );
+        let res = r#await!(observer_service.trigger(req)).unwrap();
 
         // Filter pass, so handler should be handled
         match res.response() {
@@ -423,9 +424,9 @@ mod tests {
 
     #[test]
     fn test_observer_event_return() {
-        let bot = Rc::new(Bot::default());
-        let context = Rc::new(RefCell::new(Context::new()));
-        let update = Rc::new(Update::default());
+        let bot = Bot::default();
+        let context = RwLock::new(Context::default());
+        let update = Update::default();
 
         let mut observer = Observer::new("test");
         observer.register(|| async { Action::Skip }, vec![]);
@@ -433,11 +434,7 @@ mod tests {
 
         let observer_service = r#await!(observer.new_service(())).unwrap();
 
-        let req = Request {
-            bot: Rc::clone(&bot),
-            update: Rc::clone(&update),
-            context: Rc::clone(&context),
-        };
+        let req = Request::new(bot, update, context);
         let res = r#await!(observer_service.trigger(req.clone())).unwrap();
 
         // First handler returns `Action::Skip`, so second handler should be called
@@ -454,7 +451,7 @@ mod tests {
 
         let observer_service = r#await!(observer.new_service(())).unwrap();
 
-        let res = r#await!(observer_service.trigger(req.clone())).unwrap();
+        let res = r#await!(observer_service.trigger(req)).unwrap();
 
         // First handler returns `Action::Skip`, so second handler should be called and it returns `Action::Cancel`,
         // so response should be `PropagateEventResult::Rejected`

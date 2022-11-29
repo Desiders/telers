@@ -6,9 +6,14 @@ use crate::{
     error::app,
 };
 
-use std::{future::Future, rc::Rc};
+pub type MiddlewareType = Box<dyn Middleware + Send + Sync>;
+pub type Middlewares = Vec<Arc<MiddlewareType>>;
+pub type NextMiddlewaresIter = Box<dyn Iterator<Item = Arc<MiddlewareType>> + Send + Sync>;
 
-pub trait Middleware {
+use std::{future::Future, sync::Arc};
+
+/// A base trait for middlewares
+pub trait Middleware: Send + Sync {
     /// Execute middleware
     /// # Arguments
     /// * `handler` - Handler service
@@ -22,9 +27,9 @@ pub trait Middleware {
     #[must_use]
     fn call(
         &self,
-        handler: Rc<BoxedHandlerService>,
+        handler: Arc<BoxedHandlerService>,
         req: HandlerRequest,
-        middlewares: Box<dyn Iterator<Item = Rc<Box<dyn Middleware>>>>,
+        middlewares: NextMiddlewaresIter,
     ) -> BoxFuture<Result<HandlerResponse, app::Error>>;
 
     /// Call next middleware or handler service if all middlewares has passed
@@ -40,9 +45,9 @@ pub trait Middleware {
     #[must_use]
     fn handler(
         &self,
-        handler: Rc<BoxedHandlerService>,
+        handler: Arc<BoxedHandlerService>,
         req: HandlerRequest,
-        mut middlewares: Box<dyn Iterator<Item = Rc<Box<dyn Middleware>>>>,
+        mut middlewares: NextMiddlewaresIter,
     ) -> BoxFuture<Result<HandlerResponse, app::Error>> {
         match middlewares.next() {
             // Call next middleware
@@ -55,19 +60,17 @@ pub trait Middleware {
 
 impl<Func, Fut> Middleware for Func
 where
-    Func: Fn(
-            Rc<BoxedHandlerService>,
-            HandlerRequest,
-            Box<dyn Iterator<Item = Rc<Box<dyn Middleware>>>>,
-        ) -> Fut
+    Func: Fn(Arc<BoxedHandlerService>, HandlerRequest, NextMiddlewaresIter) -> Fut
+        + Send
+        + Sync
         + 'static,
-    Fut: Future<Output = Result<HandlerResponse, app::Error>> + 'static,
+    Fut: Future<Output = Result<HandlerResponse, app::Error>> + Send + Sync + 'static,
 {
     fn call(
         &self,
-        handler: Rc<BoxedHandlerService>,
+        handler: Arc<BoxedHandlerService>,
         req: HandlerRequest,
-        middlewares: Box<dyn Iterator<Item = Rc<Box<dyn Middleware>>>>,
+        middlewares: NextMiddlewaresIter,
     ) -> BoxFuture<Result<HandlerResponse, app::Error>> {
         Box::pin(self(handler, req, middlewares))
     }
@@ -85,7 +88,7 @@ mod tests {
         types::Update,
     };
 
-    use std::{cell::RefCell, iter};
+    use std::{iter, sync::RwLock};
 
     macro_rules! r#await {
         ($e:expr) => {
@@ -95,26 +98,26 @@ mod tests {
 
     #[test]
     fn test_call() {
-        let middleware =
-            |handler: Rc<BoxedHandlerService>,
-             req: HandlerRequest,
-             mut middlewares: Box<dyn Iterator<Item = Rc<Box<dyn Middleware>>>>| async move {
-                match middlewares.next() {
-                    // Call next middleware
-                    Some(middleware) => middleware.call(handler, req, middlewares),
-                    // Call handler service
-                    None => handler.call(req),
-                }
-                .await
-            };
+        let middleware = |handler: Arc<BoxedHandlerService>,
+                          req: HandlerRequest,
+                          mut middlewares: NextMiddlewaresIter| async move {
+            match middlewares.next() {
+                // Call next middleware
+                Some(middleware) => middleware.call(handler, req, middlewares),
+                // Call handler service
+                None => handler.call(req),
+            }
+            .await
+        };
 
         let handler_service_factory = handler_service(|| async {}).new_service(());
-        let handler_service = Rc::new(r#await!(handler_service_factory).unwrap());
+        let handler_service = Arc::new(r#await!(handler_service_factory).unwrap());
 
-        let bot = Rc::new(Bot::default());
-        let update = Rc::new(Update::default());
-        let context = Rc::new(RefCell::new(Context::default()));
-        let req = HandlerRequest::new(bot, update, context);
+        let req = HandlerRequest::new(
+            Bot::default(),
+            Update::default(),
+            RwLock::new(Context::default()),
+        );
 
         let res = r#await!(Middleware::call(
             &middleware,

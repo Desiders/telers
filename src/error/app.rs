@@ -6,7 +6,7 @@ use std::{
 
 /// Base error type for framework errors
 #[allow(clippy::module_name_repetitions)]
-pub trait AppError: StdError {
+pub trait AppError: StdError + Send + Sync {
     #[must_use]
     fn message(&self) -> &str;
 }

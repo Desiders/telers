@@ -6,15 +6,15 @@ use crate::{
     error::app,
 };
 
-use super::base::Middleware;
+use super::base::{Middleware, NextMiddlewaresIter};
 
 use log::{self, Level, Log, Record};
-use std::{rc::Rc, time::Instant};
+use std::{sync::Arc, time::Instant};
 
 const DEFAULT_TARGET: &str = "logging-middleware";
 
 pub struct Logging {
-    logger: Rc<Box<dyn Log>>,
+    logger: Arc<Box<dyn Log>>,
     target: &'static str,
 }
 
@@ -22,7 +22,7 @@ impl Logging {
     #[must_use]
     pub fn new(logger: Box<dyn Log>, target: Option<&'static str>) -> Self {
         Self {
-            logger: Rc::new(logger),
+            logger: Arc::new(logger),
             target: target.unwrap_or(DEFAULT_TARGET),
         }
     }
@@ -32,12 +32,12 @@ impl Middleware for Logging {
     #[allow(clippy::similar_names)]
     fn call(
         &self,
-        handler: Rc<BoxedHandlerService>,
+        handler: Arc<BoxedHandlerService>,
         req: HandlerRequest,
-        middlewares: Box<dyn Iterator<Item = Rc<Box<dyn Middleware>>>>,
+        middlewares: NextMiddlewaresIter,
     ) -> BoxFuture<Result<HandlerResponse, app::Error>> {
         let target = self.target;
-        let logger = Rc::clone(&self.logger);
+        let logger = Arc::clone(&self.logger);
         let fut = self.handler(handler, req, middlewares);
 
         // Builder with logging level and
@@ -103,7 +103,7 @@ mod tests {
     };
 
     use log::{Log, Metadata, Record};
-    use std::{cell::RefCell, iter};
+    use std::{iter, sync::RwLock};
 
     macro_rules! r#await {
         ($e:expr) => {
@@ -132,12 +132,13 @@ mod tests {
         let middleware = Logging::new(Box::new(SimpleLogger), None);
 
         let handler_service_factory = handler_service(|| async {}).new_service(());
-        let handler_service = Rc::new(r#await!(handler_service_factory).unwrap());
+        let handler_service = Arc::new(r#await!(handler_service_factory).unwrap());
 
-        let bot = Rc::new(Bot::default());
-        let update = Rc::new(Update::default());
-        let context = Rc::new(RefCell::new(Context::default()));
-        let req = HandlerRequest::new(bot, update, context);
+        let req = HandlerRequest::new(
+            Bot::default(),
+            Update::default(),
+            RwLock::new(Context::default()),
+        );
 
         let res = r#await!(middleware.call(handler_service, req, Box::new(iter::empty())));
         assert!(res.is_ok());

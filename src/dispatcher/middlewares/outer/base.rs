@@ -6,9 +6,12 @@ use crate::{
     error::app,
 };
 
-use std::future::Future;
+use std::{future::Future, sync::Arc};
 
-pub trait Middleware {
+pub type MiddlewareType = Box<dyn Middleware + Send + Sync>;
+pub type Middlewares = Vec<Arc<MiddlewareType>>;
+
+pub trait Middleware: Send + Sync {
     /// Execute middleware
     /// # Arguments
     /// * `req` - Data for router service
@@ -26,8 +29,8 @@ pub trait Middleware {
 
 impl<Func, Fut> Middleware for Func
 where
-    Func: Fn(RouterRequest) -> Fut + 'static,
-    Fut: Future<Output = Result<(RouterRequest, EventReturn), app::Error>> + 'static,
+    Func: Fn(RouterRequest) -> Fut + Send + Sync + 'static,
+    Fut: Future<Output = Result<(RouterRequest, EventReturn), app::Error>> + Send + Sync + 'static,
 {
     fn call(
         &self,
@@ -42,7 +45,7 @@ mod tests {
     use super::*;
     use crate::{client::Bot, context::Context, types::Update};
 
-    use std::{cell::RefCell, rc::Rc};
+    use std::sync::RwLock;
 
     macro_rules! r#await {
         ($e:expr) => {
@@ -54,10 +57,11 @@ mod tests {
     fn test_call() {
         let middleware = |req: RouterRequest| async move { Ok((req, EventReturn::default())) };
 
-        let bot = Rc::new(Bot::default());
-        let update = Rc::new(Update::default());
-        let context = Rc::new(RefCell::new(Context::default()));
-        let req = RouterRequest::new(bot, update, context);
+        let req = RouterRequest::new(
+            Bot::default(),
+            Update::default(),
+            RwLock::new(Context::default()),
+        );
 
         let (updated_req, _) = r#await!(Middleware::call(&middleware, req.clone())).unwrap();
         assert!(req == updated_req);
