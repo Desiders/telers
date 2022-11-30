@@ -365,14 +365,10 @@ mod tests {
         types::Message,
     };
 
-    macro_rules! r#await {
-        ($e:expr) => {
-            tokio_test::block_on($e)
-        };
-    }
+    use tokio;
 
-    #[test]
-    fn test_observer_trigger() {
+    #[tokio::test]
+    async fn test_observer_trigger() {
         let bot = Bot::default();
         let context = RwLock::new(Context::default());
 
@@ -392,9 +388,9 @@ mod tests {
             vec![],
         );
 
-        let observer_service = r#await!(observer.new_service(())).unwrap();
+        let observer_service = observer.new_service(()).await.unwrap();
         let req = Request::new(bot, Update::default(), context);
-        let res = r#await!(observer_service.trigger(req.clone())).unwrap();
+        let res = observer_service.trigger(req.clone()).await.unwrap();
 
         // Filter not pass, so handler should be rejected
         match res.response() {
@@ -413,7 +409,7 @@ mod tests {
             },
             req.context(),
         );
-        let res = r#await!(observer_service.trigger(req)).unwrap();
+        let res = observer_service.trigger(req).await.unwrap();
 
         // Filter pass, so handler should be handled
         match res.response() {
@@ -422,8 +418,8 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_observer_event_return() {
+    #[tokio::test]
+    async fn test_observer_event_return() {
         let bot = Bot::default();
         let context = RwLock::new(Context::default());
         let update = Update::default();
@@ -432,10 +428,10 @@ mod tests {
         observer.register(|| async { Action::Skip }, vec![]);
         observer.register(|| async {}, vec![]);
 
-        let observer_service = r#await!(observer.new_service(())).unwrap();
+        let observer_service = observer.new_service(()).await.unwrap();
 
         let req = Request::new(bot, update, context);
-        let res = r#await!(observer_service.trigger(req.clone())).unwrap();
+        let res = observer_service.trigger(req.clone()).await.unwrap();
 
         // First handler returns `Action::Skip`, so second handler should be called
         match res.response() {
@@ -449,9 +445,9 @@ mod tests {
         observer.register(|| async { Action::Skip }, vec![]);
         observer.register(|| async { Action::Cancel }, vec![]);
 
-        let observer_service = r#await!(observer.new_service(())).unwrap();
+        let observer_service = observer.new_service(()).await.unwrap();
 
-        let res = r#await!(observer_service.trigger(req)).unwrap();
+        let res = observer_service.trigger(req).await.unwrap();
 
         // First handler returns `Action::Skip`, so second handler should be called and it returns `Action::Cancel`,
         // so response should be `PropagateEventResult::Rejected`

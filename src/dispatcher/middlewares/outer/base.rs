@@ -46,15 +46,10 @@ mod tests {
     use crate::{client::Bot, context::Context, types::Update};
 
     use std::sync::RwLock;
+    use tokio;
 
-    macro_rules! r#await {
-        ($e:expr) => {
-            tokio_test::block_on($e)
-        };
-    }
-
-    #[test]
-    fn test_call() {
+    #[tokio::test]
+    async fn test_call() {
         let middleware = |req: RouterRequest| async move { Ok((req, EventReturn::default())) };
 
         let req = RouterRequest::new(
@@ -63,7 +58,7 @@ mod tests {
             RwLock::new(Context::default()),
         );
 
-        let (updated_req, _) = r#await!(Middleware::call(&middleware, req.clone())).unwrap();
+        let (updated_req, _) = Middleware::call(&middleware, req.clone()).await.unwrap();
         assert!(req == updated_req);
     }
 }

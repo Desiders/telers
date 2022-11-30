@@ -216,57 +216,52 @@ mod tests {
     use super::*;
 
     use futures::future::ok;
+    use tokio;
 
-    macro_rules! r#await {
-        ($e:expr) => {
-            tokio_test::block_on($e)
-        };
-    }
-
-    #[test]
-    fn test_fn_service() {
+    #[tokio::test]
+    async fn test_fn_service() {
         let service_factory_or_service = fn_service(|()| ok::<_, ()>("test"));
 
-        let result = r#await!(service_factory_or_service.call(()));
+        let result = service_factory_or_service.call(()).await;
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), "test");
 
-        let service = r#await!(service_factory_or_service.new_service(())).unwrap();
-        let result = r#await!(service.call(()));
+        let service = service_factory_or_service.new_service(()).await.unwrap();
+        let result = service.call(()).await;
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), "test");
     }
 
-    #[test]
-    fn test_fn_service_factory_no_config() {
+    #[tokio::test]
+    async fn test_fn_service_factory_no_config() {
         let service_factory =
             fn_factory_no_config(|| ok::<_, ()>(fn_service(|()| ok::<_, ()>("test"))));
 
-        let service = r#await!(service_factory.new_service(())).unwrap();
-        let result = r#await!(service.call(()));
+        let service = service_factory.new_service(()).await.unwrap();
+        let result = service.call(()).await;
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), "test");
     }
 
-    #[test]
-    fn test_fn_service_factory_config() {
+    #[tokio::test]
+    async fn test_fn_service_factory_config() {
         let service_factory = fn_factory_config(|config: ()| {
             ok::<_, ()>(fn_service(move |()| ok::<_, ()>(("test", config))))
         });
 
-        let service = r#await!(service_factory.new_service(())).unwrap();
-        let result = r#await!(service.call(()));
+        let service = service_factory.new_service(()).await.unwrap();
+        let result = service.call(()).await;
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), ("test", ()));
     }
 
     #[test]
-    fn test_auto_impl_send() {
-        fn is_send<T: Send + Sync + Clone>(_: &T) {}
+    fn test_auto_impl_send_and_sync() {
+        fn is_send_and_sync<T: Send + Sync + Clone>(_: &T) {}
 
         let service = FnService::new(|()| {
             type Error = ();
@@ -274,7 +269,7 @@ mod tests {
             ok::<_, Error>(())
         });
 
-        is_send(&service);
-        is_send(&service.clone());
+        is_send_and_sync(&service);
+        is_send_and_sync(&service.clone());
     }
 }

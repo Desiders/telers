@@ -89,15 +89,10 @@ mod tests {
     };
 
     use std::{iter, sync::RwLock};
+    use tokio;
 
-    macro_rules! r#await {
-        ($e:expr) => {
-            tokio_test::block_on($e)
-        };
-    }
-
-    #[test]
-    fn test_call() {
+    #[tokio::test]
+    async fn test_call() {
         let middleware = |handler: Arc<BoxedHandlerService>,
                           req: HandlerRequest,
                           mut middlewares: NextMiddlewaresIter| async move {
@@ -111,7 +106,7 @@ mod tests {
         };
 
         let handler_service_factory = handler_service(|| async {}).new_service(());
-        let handler_service = Arc::new(r#await!(handler_service_factory).unwrap());
+        let handler_service = Arc::new(handler_service_factory.await.unwrap());
 
         let req = HandlerRequest::new(
             Bot::default(),
@@ -119,13 +114,9 @@ mod tests {
             RwLock::new(Context::default()),
         );
 
-        let res = r#await!(Middleware::call(
-            &middleware,
-            handler_service,
-            req,
-            Box::new(iter::empty())
-        ))
-        .unwrap();
+        let res = Middleware::call(&middleware, handler_service, req, Box::new(iter::empty()))
+            .await
+            .unwrap();
         assert_eq!(*res.response(), EventReturn::default());
     }
 }

@@ -601,11 +601,7 @@ mod tests {
         filters::{Command, CommandPatternType},
     };
 
-    macro_rules! r#await {
-        ($e:expr) => {
-            tokio_test::block_on($e)
-        };
-    }
+    use tokio;
 
     #[test]
     fn test_router_include() {
@@ -717,12 +713,13 @@ mod tests {
             .message
             .outer_middlewares
             .register(Box::new(outer_middleware));
+
         assert_eq!(router.message.middlewares.middlewares().len(), 1);
         assert_eq!(router.message.outer_middlewares.middlewares().len(), 1);
     }
 
-    #[test]
-    fn test_router_propagate_event() {
+    #[tokio::test]
+    async fn test_router_propagate_event() {
         let bot = Bot::default();
         let context = RwLock::new(Context::new());
         let update = Update::default();
@@ -730,12 +727,14 @@ mod tests {
         let mut router = Router::new("main");
         router.message.register(|| async {}, vec![]);
 
-        let router_service = r#await!(router.new_service(())).unwrap();
+        let router_service = router.new_service(()).await.unwrap();
 
         let req = RouterRequest::new(bot, update, context);
 
-        let res =
-            r#await!(router_service.propagate_event(MESSAGE_OBSERVER_NAME, req.clone())).unwrap();
+        let res = router_service
+            .propagate_event(MESSAGE_OBSERVER_NAME, req.clone())
+            .await
+            .unwrap();
 
         // Event should be handled, because there is a message handler registered
         match res.response() {
@@ -745,9 +744,10 @@ mod tests {
             _ => panic!("Unexpected result"),
         }
 
-        let res =
-            r#await!(router_service.propagate_event(CALLBACK_QUERY_OBSERVER_NAME, req.clone()))
-                .unwrap();
+        let res = router_service
+            .propagate_event(CALLBACK_QUERY_OBSERVER_NAME, req.clone())
+            .await
+            .unwrap();
 
         // Event shouldn't be handled, because there is no callback query handler registered
         match res.response() {
@@ -766,10 +766,12 @@ mod tests {
         router.message.filter(filter.clone());
         router.message.register(|| async {}, vec![]);
 
-        let router_service = r#await!(router.new_service(())).unwrap();
+        let router_service = router.new_service(()).await.unwrap();
 
-        let res =
-            r#await!(router_service.propagate_event(MESSAGE_OBSERVER_NAME, req.clone())).unwrap();
+        let res = router_service
+            .propagate_event(MESSAGE_OBSERVER_NAME, req.clone())
+            .await
+            .unwrap();
 
         // Message event observer filter not pass, so router should be unhandled
         match res.response() {
@@ -784,8 +786,10 @@ mod tests {
             .callback_query
             .register(|| async { unreachable!() }, vec![]);
 
-        let res =
-            r#await!(router_service.propagate_event(CALLBACK_QUERY_OBSERVER_NAME, req)).unwrap();
+        let res = router_service
+            .propagate_event(CALLBACK_QUERY_OBSERVER_NAME, req)
+            .await
+            .unwrap();
 
         // Handler returns `Action::Cancel`,
         // so response from callback query event observer should be `PropagateEventResult::Rejected`
@@ -796,9 +800,9 @@ mod tests {
         }
     }
 
-    #[test]
+    #[tokio::test]
     #[should_panic]
-    fn test_router_propagate_event_panic() {
+    async fn test_router_propagate_event_panic() {
         let bot = Bot::default();
         let context = RwLock::new(Context::new());
         let update = Update::default();
@@ -806,11 +810,11 @@ mod tests {
         let mut router = Router::new("main");
         router.message.register(|| async {}, vec![]);
 
-        let router_service = r#await!(router.new_service(())).unwrap();
+        let router_service = router.new_service(()).await.unwrap();
 
         let req = RouterRequest::new(bot, update, context);
 
         // Should panic, because there is no such telegram event observer
-        let _ = r#await!(router_service.propagate_event("unknown", req));
+        let _ = router_service.propagate_event("unknown", req).await;
     }
 }

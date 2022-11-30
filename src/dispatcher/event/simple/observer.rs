@@ -151,14 +151,10 @@ impl Service<()> for ObserverService {
 mod tests {
     use super::*;
 
-    macro_rules! r#await {
-        ($e:expr) => {
-            tokio_test::block_on($e)
-        };
-    }
+    use tokio;
 
-    #[test]
-    fn test_observer_trigger() {
+    #[tokio::test]
+    async fn test_observer_trigger() {
         async fn on_startup(message: &str) -> Result<(), app::Error> {
             assert_eq!(message, "Hello, world!");
             Ok(())
@@ -173,8 +169,8 @@ mod tests {
         observer.register(on_startup, ("Hello, world!",));
         observer.register(on_shutdown, ("Goodbye, world!",));
 
-        let observer_service = r#await!(observer.new_service(())).unwrap();
+        let observer_service = observer.new_service(()).await.unwrap();
 
-        r#await!(observer_service.trigger(())).unwrap();
+        observer_service.trigger(()).await.unwrap();
     }
 }

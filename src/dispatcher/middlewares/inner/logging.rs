@@ -104,12 +104,7 @@ mod tests {
 
     use log::{Log, Metadata, Record};
     use std::{iter, sync::RwLock};
-
-    macro_rules! r#await {
-        ($e:expr) => {
-            tokio_test::block_on($e)
-        };
-    }
+    use tokio;
 
     struct SimpleLogger;
 
@@ -127,12 +122,12 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_logging() {
+    #[tokio::test]
+    async fn test_logging() {
         let middleware = Logging::new(Box::new(SimpleLogger), None);
 
         let handler_service_factory = handler_service(|| async {}).new_service(());
-        let handler_service = Arc::new(r#await!(handler_service_factory).unwrap());
+        let handler_service = Arc::new(handler_service_factory.await.unwrap());
 
         let req = HandlerRequest::new(
             Bot::default(),
@@ -140,7 +135,9 @@ mod tests {
             RwLock::new(Context::default()),
         );
 
-        let res = r#await!(middleware.call(handler_service, req, Box::new(iter::empty())));
+        let res = middleware
+            .call(handler_service, req, Box::new(iter::empty()))
+            .await;
         assert!(res.is_ok());
     }
 }

@@ -61,7 +61,7 @@ impl ServiceFactory<()> for Dispatcher {
     type Response = ();
     type Error = app::Error;
     type Config = ();
-    type Service = DispatcherService;
+    type Service = Arc<DispatcherService>;
     type InitError = ();
     type Future = BoxFuture<Result<Self::Service, Self::InitError>>;
 
@@ -71,7 +71,7 @@ impl ServiceFactory<()> for Dispatcher {
         Box::pin(async move {
             let main_router = main_router.await?;
 
-            Ok(DispatcherService { main_router })
+            Ok(Arc::new(DispatcherService { main_router }))
         })
     }
 }
@@ -261,7 +261,7 @@ impl DispatcherService {
     }
 }
 
-impl Service<()> for DispatcherService {
+impl Service<()> for Arc<DispatcherService> {
     type Response = ();
     type Error = app::Error;
     type Future = BoxFuture<Result<Self::Response, Self::Error>>;
@@ -273,5 +273,65 @@ impl Service<()> for DispatcherService {
             "This method should not be called. \
              Use `Dispatcher::run_polling` method for running polling"
         );
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{dispatcher::event::bases::PropagateEventResult, types::Message};
+
+    use tokio;
+
+    #[tokio::test]
+    async fn test_feed_update() {
+        let bot = Arc::new(Bot::default());
+        let update = Arc::new(Update {
+            message: Some(Message::default()),
+            ..Default::default()
+        });
+
+        let router = Router::new("main");
+        let dispatcher = Dispatcher::new(router);
+        let dispatcher_service = dispatcher.new_service(()).await.unwrap();
+
+        let res = dispatcher_service
+            .feed_update(Arc::clone(&bot), Arc::clone(&update))
+            .await
+            .unwrap();
+
+        // Event shouldn't be handled, because there is no any handler registered
+        match res.response() {
+            PropagateEventResult::Unhandled => {}
+            _ => panic!("Unexpected result"),
+        }
+
+        let mut router = Router::new("main");
+        router.message.register(|| async {}, vec![]);
+
+        let dispatcher = Dispatcher::new(router);
+        let dispatcher_service = dispatcher.new_service(()).await.unwrap();
+
+        let res = dispatcher_service.feed_update(bot, update).await.unwrap();
+
+        // Event should be handled
+        match res.response() {
+            PropagateEventResult::Handled(_) => {}
+            _ => panic!("Unexpected result"),
+        }
+    }
+
+    #[tokio::test]
+    #[should_panic]
+    async fn test_feed_update_panic() {
+        let bot = Bot::default();
+        let update = Update::default();
+
+        let router = Router::new("main");
+        let dispatcher = Dispatcher::new(router);
+        let dispatcher_service = dispatcher.new_service(()).await.unwrap();
+
+        // Should panic, because `Update` is empty and `Update::update_type()` will be panic
+        let _ = dispatcher_service.feed_update(bot, update).await;
     }
 }

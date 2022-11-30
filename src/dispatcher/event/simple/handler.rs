@@ -130,11 +130,7 @@ factory_tuple! { A B C D E F G H I J K L }
 mod tests {
     use super::*;
 
-    macro_rules! r#await {
-        ($e:expr) => {
-            tokio_test::block_on($e)
-        };
-    }
+    use tokio;
 
     #[test]
     fn test_arg_number() {
@@ -157,11 +153,11 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_handler_object_service() {
+    #[tokio::test]
+    async fn test_handler_object_service() {
         let handler_object = HandlerObject::new(|| async {}, ());
-        let handler_object_service = r#await!(handler_object.new_service(())).unwrap();
+        let handler_object_service = handler_object.new_service(()).await.unwrap();
 
-        r#await!(handler_object_service.call(())).unwrap();
+        handler_object_service.call(()).await.unwrap();
     }
 }

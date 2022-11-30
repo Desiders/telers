@@ -259,11 +259,7 @@ mod tests {
     use super::*;
     use crate::filters::{Command, CommandPatternType};
 
-    macro_rules! r#await {
-        ($e:expr) => {
-            tokio_test::block_on($e)
-        };
-    }
+    use tokio;
 
     #[test]
     fn test_arg_number() {
@@ -301,15 +297,14 @@ mod tests {
         handler_object.filter(filter.clone());
         assert_eq!(handler_object.filters().len(), 1);
 
-        let handler_object =
-            HandlerObject::new(|| async { unreachable!() }, vec![filter.clone()]);
+        let handler_object = HandlerObject::new(|| async { unreachable!() }, vec![filter.clone()]);
         assert_eq!(handler_object.filters().len(), 1);
     }
 
-    #[test]
-    fn test_handler_object_service() {
+    #[tokio::test]
+    async fn test_handler_object_service() {
         let handler_object = HandlerObject::new(|| async {}, vec![]);
-        let handler_object_service = r#await!(handler_object.new_service(())).unwrap();
+        let handler_object_service = handler_object.new_service(()).await.unwrap();
 
         let req = Request::new(
             Bot::default(),
@@ -318,7 +313,8 @@ mod tests {
         );
         assert_eq!(handler_object_service.check(&req), true);
 
-        let res = r#await!(handler_object_service.call(req)).unwrap();
+        let res = handler_object_service.call(req).await.unwrap();
+
         assert_eq!(res.response().is_cancel(), false);
         assert_eq!(res.response().is_skip(), false);
     }
