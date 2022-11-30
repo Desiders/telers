@@ -269,7 +269,7 @@ mod tests {
     fn test_arg_number() {
         fn assert_impl_handler<T: FromEventAndContext>(_: impl Handler<T>) {}
 
-        assert_impl_handler(|| async { unimplemented!() });
+        assert_impl_handler(|| async { unreachable!() });
         assert_impl_handler(
             |_01: (),
              _02: (),
@@ -282,7 +282,7 @@ mod tests {
              _09: (),
              _10: (),
              _11: (),
-             _12: ()| async { unimplemented!() },
+             _12: ()| async { unreachable!() },
         );
     }
 
@@ -295,14 +295,14 @@ mod tests {
             ignore_mention: false,
         });
 
-        let mut handler_object = HandlerObject::new(|| async { unimplemented!() }, vec![]);
+        let mut handler_object = HandlerObject::new(|| async { unreachable!() }, vec![]);
         assert_eq!(handler_object.filters().is_empty(), true);
 
         handler_object.filter(filter.clone());
         assert_eq!(handler_object.filters().len(), 1);
 
         let handler_object =
-            HandlerObject::new(|| async { unimplemented!() }, vec![filter.clone()]);
+            HandlerObject::new(|| async { unreachable!() }, vec![filter.clone()]);
         assert_eq!(handler_object.filters().len(), 1);
     }
 

@@ -140,7 +140,7 @@ mod tests {
     fn test_arg_number() {
         fn assert_impl_handler<T: Clone + Send + Sync>(_: impl Handler<T>) {}
 
-        assert_impl_handler(|| async { unimplemented!() });
+        assert_impl_handler(|| async { unreachable!() });
         assert_impl_handler(
             |_01: (),
              _02: (),
@@ -153,7 +153,7 @@ mod tests {
              _09: (),
              _10: (),
              _11: (),
-             _12: ()| async { unimplemented!() },
+             _12: ()| async { unreachable!() },
         );
     }
 

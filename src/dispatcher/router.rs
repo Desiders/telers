@@ -668,7 +668,7 @@ mod tests {
     #[test]
     fn test_router_observers_register() {
         async fn handler() {
-            unimplemented!();
+            unreachable!();
         }
 
         let mut router = Router::new("main");
@@ -782,7 +782,7 @@ mod tests {
             .register(|| async { Action::Cancel }, vec![]);
         router
             .callback_query
-            .register(|| async { unimplemented!() }, vec![]);
+            .register(|| async { unreachable!() }, vec![]);
 
         let res =
             r#await!(router_service.propagate_event(CALLBACK_QUERY_OBSERVER_NAME, req)).unwrap();

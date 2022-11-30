@@ -39,6 +39,6 @@ mod tests {
     fn test_filters_extract() {
         fn assert_impl_handler<T: FromEventAndContext>(_: impl Handler<T>) {}
 
-        assert_impl_handler(|_: CommandObject| async { unimplemented!() });
+        assert_impl_handler(|_: CommandObject| async { unreachable!() });
     }
 }

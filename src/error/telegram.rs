@@ -514,7 +514,7 @@ mod tests {
             TelegramAPIErrorKind::RestartingTelegram(RestartingTelegram { message }) => {
                 assert_eq!(message, "test".to_string());
             }
-            _ => unimplemented!("Other error"),
+            _ => unreachable!("Other error"),
         }
     }
 }

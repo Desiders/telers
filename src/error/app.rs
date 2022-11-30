@@ -13,7 +13,7 @@ pub trait AppError: StdError + Send + Sync {
 
 impl AppError for Infallible {
     fn message(&self) -> &str {
-        unimplemented!("Infallible cannot have a message and should never be called")
+        unreachable!("Infallible cannot have a message and should never be called")
     }
 }
 

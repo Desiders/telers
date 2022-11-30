@@ -163,8 +163,6 @@ impl FromEventAndContext for Poll {
 
 #[cfg(test)]
 mod tests {
-    use std::sync::Arc;
-
     use super::*;
     use crate::dispatcher::event::telegram::Handler;
 
@@ -172,20 +170,20 @@ mod tests {
     fn test_types_extract() {
         fn assert_impl_handler<T: FromEventAndContext>(_: impl Handler<T>) {}
 
-        assert_impl_handler(|_: Bot| async { unimplemented!() });
-        assert_impl_handler(|_: Arc<Bot>| async { unimplemented!() });
-        assert_impl_handler(|_: Update| async { unimplemented!() });
-        assert_impl_handler(|_: Arc<Update>| async { unimplemented!() });
-        assert_impl_handler(|_: Arc<RwLock<Context>>| async { unimplemented!() });
-        assert_impl_handler(|_: Message| async { unimplemented!() });
-        assert_impl_handler(|_: CallbackQuery| async { unimplemented!() });
-        assert_impl_handler(|_: ChosenInlineResult| async { unimplemented!() });
-        assert_impl_handler(|_: ShippingQuery| async { unimplemented!() });
-        assert_impl_handler(|_: PreCheckoutQuery| async { unimplemented!() });
-        assert_impl_handler(|_: PollAnswer| async { unimplemented!() });
-        assert_impl_handler(|_: ChatMemberUpdated| async { unimplemented!() });
-        assert_impl_handler(|_: ChatJoinRequest| async { unimplemented!() });
-        assert_impl_handler(|_: InlineQuery| async { unimplemented!() });
-        assert_impl_handler(|_: Poll| async { unimplemented!() });
+        assert_impl_handler(|_: Bot| async { unreachable!() });
+        assert_impl_handler(|_: Arc<Bot>| async { unreachable!() });
+        assert_impl_handler(|_: Update| async { unreachable!() });
+        assert_impl_handler(|_: Arc<Update>| async { unreachable!() });
+        assert_impl_handler(|_: Arc<RwLock<Context>>| async { unreachable!() });
+        assert_impl_handler(|_: Message| async { unreachable!() });
+        assert_impl_handler(|_: CallbackQuery| async { unreachable!() });
+        assert_impl_handler(|_: ChosenInlineResult| async { unreachable!() });
+        assert_impl_handler(|_: ShippingQuery| async { unreachable!() });
+        assert_impl_handler(|_: PreCheckoutQuery| async { unreachable!() });
+        assert_impl_handler(|_: PollAnswer| async { unreachable!() });
+        assert_impl_handler(|_: ChatMemberUpdated| async { unreachable!() });
+        assert_impl_handler(|_: ChatJoinRequest| async { unreachable!() });
+        assert_impl_handler(|_: InlineQuery| async { unreachable!() });
+        assert_impl_handler(|_: Poll| async { unreachable!() });
     }
 }

@@ -115,7 +115,7 @@ mod tests {
 
     impl Log for SimpleLogger {
         fn enabled(&self, _metadata: &Metadata) -> bool {
-            unimplemented!();
+            unreachable!();
         }
 
         fn log(&self, record: &Record) {
@@ -123,7 +123,7 @@ mod tests {
         }
 
         fn flush(&self) {
-            unimplemented!();
+            unreachable!();
         }
     }
 

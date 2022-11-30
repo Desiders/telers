@@ -117,7 +117,7 @@ impl Observer {
             event_name,
             handlers: vec![],
             common_handler: HandlerObject::new(
-                || async move { unimplemented!("This is only for observer filters and without logic") },
+                || async move { unreachable!("This is only for observer filters and without logic") },
                 vec![],
             ),
             middlewares: middlewares::inner::Manager::default(),
@@ -387,7 +387,7 @@ mod tests {
         observer.register(|| async {}, vec![]);
         observer.register(
             || async {
-                unimplemented!("It's shouldn't trigger because the first handler handles the event")
+                unreachable!("It's shouldn't trigger because the first handler handles the event")
             },
             vec![],
         );
