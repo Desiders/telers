@@ -209,7 +209,7 @@ where
         let handler = handler.clone();
 
         async move {
-            match Args::extract(req.bot.as_ref(), req.update.as_ref(), req.context.clone()).await {
+            match Args::extract(req.bot(), req.update(), req.context()).await {
                 // Call the handler with extracted arguments
                 Ok(args) => Ok(Response {
                     request: req,

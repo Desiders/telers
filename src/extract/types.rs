@@ -16,8 +16,18 @@ impl FromEventAndContext for Bot {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn extract(bot: &Bot, _: &Update, _: Arc<RwLock<Context>>) -> Self::Future {
-        ok(bot.clone())
+    fn extract(bot: Arc<Bot>, _: Arc<Update>, _: Arc<RwLock<Context>>) -> Self::Future {
+        ok((*bot).clone())
+    }
+}
+
+/// To be able to use [`Arc<Bot>`] in handler arguments
+impl FromEventAndContext for Arc<Bot> {
+    type Error = Infallible;
+    type Future = Ready<Result<Self, Self::Error>>;
+
+    fn extract(bot: Arc<Bot>, _: Arc<Update>, _: Arc<RwLock<Context>>) -> Self::Future {
+        ok(bot)
     }
 }
 
@@ -26,8 +36,18 @@ impl FromEventAndContext for Update {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn extract(_: &Bot, update: &Update, _: Arc<RwLock<Context>>) -> Self::Future {
-        ok(update.clone())
+    fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<RwLock<Context>>) -> Self::Future {
+        ok((*update).clone())
+    }
+}
+
+/// To be able to use [`Arc<Update>`] in handler arguments
+impl FromEventAndContext for Arc<Update> {
+    type Error = Infallible;
+    type Future = Ready<Result<Self, Self::Error>>;
+
+    fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<RwLock<Context>>) -> Self::Future {
+        ok(update)
     }
 }
 
@@ -36,8 +56,8 @@ impl FromEventAndContext for Arc<RwLock<Context>> {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn extract(_: &Bot, _: &Update, context: Arc<RwLock<Context>>) -> Self::Future {
-        ok(Arc::clone(&context))
+    fn extract(_: Arc<Bot>, _: Arc<Update>, context: Arc<RwLock<Context>>) -> Self::Future {
+        ok(context)
     }
 }
 
@@ -46,8 +66,8 @@ impl FromEventAndContext for Message {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn extract(_: &Bot, update: &Update, _: Arc<RwLock<Context>>) -> Self::Future {
-        ok(Message::from(update.clone()))
+    fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<RwLock<Context>>) -> Self::Future {
+        ok(Message::from((*update).clone()))
     }
 }
 
@@ -56,8 +76,8 @@ impl FromEventAndContext for CallbackQuery {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn extract(_: &Bot, update: &Update, _: Arc<RwLock<Context>>) -> Self::Future {
-        ok(CallbackQuery::from(update.clone()))
+    fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<RwLock<Context>>) -> Self::Future {
+        ok(CallbackQuery::from((*update).clone()))
     }
 }
 
@@ -66,8 +86,8 @@ impl FromEventAndContext for ChosenInlineResult {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn extract(_: &Bot, update: &Update, _: Arc<RwLock<Context>>) -> Self::Future {
-        ok(ChosenInlineResult::from(update.clone()))
+    fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<RwLock<Context>>) -> Self::Future {
+        ok(ChosenInlineResult::from((*update).clone()))
     }
 }
 
@@ -76,8 +96,8 @@ impl FromEventAndContext for ShippingQuery {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn extract(_: &Bot, update: &Update, _: Arc<RwLock<Context>>) -> Self::Future {
-        ok(ShippingQuery::from(update.clone()))
+    fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<RwLock<Context>>) -> Self::Future {
+        ok(ShippingQuery::from((*update).clone()))
     }
 }
 
@@ -86,8 +106,8 @@ impl FromEventAndContext for PreCheckoutQuery {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn extract(_: &Bot, update: &Update, _: Arc<RwLock<Context>>) -> Self::Future {
-        ok(PreCheckoutQuery::from(update.clone()))
+    fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<RwLock<Context>>) -> Self::Future {
+        ok(PreCheckoutQuery::from((*update).clone()))
     }
 }
 
@@ -96,8 +116,8 @@ impl FromEventAndContext for PollAnswer {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn extract(_: &Bot, update: &Update, _: Arc<RwLock<Context>>) -> Self::Future {
-        ok(PollAnswer::from(update.clone()))
+    fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<RwLock<Context>>) -> Self::Future {
+        ok(PollAnswer::from((*update).clone()))
     }
 }
 
@@ -106,8 +126,8 @@ impl FromEventAndContext for ChatMemberUpdated {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn extract(_: &Bot, update: &Update, _: Arc<RwLock<Context>>) -> Self::Future {
-        ok(ChatMemberUpdated::from(update.clone()))
+    fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<RwLock<Context>>) -> Self::Future {
+        ok(ChatMemberUpdated::from((*update).clone()))
     }
 }
 
@@ -116,8 +136,8 @@ impl FromEventAndContext for ChatJoinRequest {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn extract(_: &Bot, update: &Update, _: Arc<RwLock<Context>>) -> Self::Future {
-        ok(ChatJoinRequest::from(update.clone()))
+    fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<RwLock<Context>>) -> Self::Future {
+        ok(ChatJoinRequest::from((*update).clone()))
     }
 }
 
@@ -126,8 +146,8 @@ impl FromEventAndContext for InlineQuery {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn extract(_: &Bot, update: &Update, _: Arc<RwLock<Context>>) -> Self::Future {
-        ok(InlineQuery::from(update.clone()))
+    fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<RwLock<Context>>) -> Self::Future {
+        ok(InlineQuery::from((*update).clone()))
     }
 }
 
@@ -136,8 +156,8 @@ impl FromEventAndContext for Poll {
     type Error = Infallible;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn extract(_: &Bot, update: &Update, _: Arc<RwLock<Context>>) -> Self::Future {
-        ok(Poll::from(update.clone()))
+    fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<RwLock<Context>>) -> Self::Future {
+        ok(Poll::from((*update).clone()))
     }
 }
 
@@ -153,7 +173,9 @@ mod tests {
         fn assert_impl_handler<T: FromEventAndContext>(_: impl Handler<T>) {}
 
         assert_impl_handler(|_: Bot| async { unimplemented!() });
+        assert_impl_handler(|_: Arc<Bot>| async { unimplemented!() });
         assert_impl_handler(|_: Update| async { unimplemented!() });
+        assert_impl_handler(|_: Arc<Update>| async { unimplemented!() });
         assert_impl_handler(|_: Arc<RwLock<Context>>| async { unimplemented!() });
         assert_impl_handler(|_: Message| async { unimplemented!() });
         assert_impl_handler(|_: CallbackQuery| async { unimplemented!() });

@@ -10,7 +10,7 @@ impl FromEventAndContext for CommandObject {
     type Error = ExtractError;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn extract(_: &Bot, _: &Update, context: Arc<RwLock<Context>>) -> Self::Future {
+    fn extract(_: Arc<Bot>, _: Arc<Update>, context: Arc<RwLock<Context>>) -> Self::Future {
         context.read().unwrap().get("command").map_or(
             err(ExtractError {
                 message: "Key `command` not found in the context".to_string(),
