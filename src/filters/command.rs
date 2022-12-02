@@ -1,7 +1,8 @@
+use super::base::Filter;
+
 use crate::{
     client::Bot,
     context::Context,
-    filters::Filter,
     types::{BotCommand, Update},
 };
 
@@ -11,22 +12,22 @@ use std::{
     sync::RwLock,
 };
 
-pub type Result<T> = std::result::Result<T, CommandError>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub enum CommandError {
+pub enum Error {
     InvalidPrefix,
     InvalidMention,
     InvalidCommand,
 }
 
-impl Display for CommandError {
+impl Display for Error {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
-            CommandError::InvalidPrefix => write!(f, "Invalid prefix"),
-            CommandError::InvalidMention => write!(f, "Invalid mention"),
-            CommandError::InvalidCommand => write!(f, "Invalid command"),
+            Error::InvalidPrefix => write!(f, "Invalid prefix"),
+            Error::InvalidMention => write!(f, "Invalid mention"),
+            Error::InvalidCommand => write!(f, "Invalid command"),
         }
     }
 }
@@ -38,7 +39,7 @@ impl Display for CommandError {
 /// * `Regex(Regex)` - A command pattern with regex
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Clone)]
-pub enum CommandPatternType {
+pub enum PatternType {
     Text(&'static str),
     Object(BotCommand),
     Regex(Regex),
@@ -47,7 +48,7 @@ pub enum CommandPatternType {
 #[derive(Default, Debug, Clone)]
 pub struct Command {
     /// List of commands (string or compiled regexp patterns)
-    pub commands: Vec<CommandPatternType>,
+    pub commands: Vec<PatternType>,
     /// Command prefix
     pub prefix: &'static str,
     /// Ignore other command case (Does not work with regexp, use flags instead)
@@ -63,7 +64,7 @@ impl Command {
         if command.prefix == self.prefix {
             Ok(())
         } else {
-            Err(CommandError::InvalidPrefix)
+            Err(Error::InvalidPrefix)
         }
     }
 
@@ -77,10 +78,10 @@ impl Command {
                 if mention == username {
                     Ok(())
                 } else {
-                    Err(CommandError::InvalidMention)
+                    Err(Error::InvalidMention)
                 }
             } else {
-                Err(CommandError::InvalidMention)
+                Err(Error::InvalidMention)
             }
         } else {
             Ok(())
@@ -98,17 +99,17 @@ impl Command {
 
         for command_pattern in &self.commands {
             match command_pattern {
-                CommandPatternType::Text(other_command) => {
+                PatternType::Text(other_command) => {
                     if command == *other_command {
                         return Ok(());
                     }
                 }
-                CommandPatternType::Object(other_command) => {
+                PatternType::Object(other_command) => {
                     if command == other_command.command {
                         return Ok(());
                     }
                 }
-                CommandPatternType::Regex(other_command) => {
+                PatternType::Regex(other_command) => {
                     if other_command.is_match(&command) {
                         return Ok(());
                     }
@@ -116,11 +117,13 @@ impl Command {
             }
         }
 
-        Err(CommandError::InvalidCommand)
+        Err(Error::InvalidCommand)
     }
 
     /// # Errors
-    /// If prefix, mention or command is invalid.
+    /// - If prefix is invalid
+    /// - If mention is invalid
+    /// - If command is invalid
     pub fn parse_command(&self, text: &str, bot: &Bot) -> Result<CommandObject> {
         let command = CommandObject::extract(text);
 
@@ -244,7 +247,7 @@ mod tests {
     #[test]
     fn test_validate_prefix() {
         let command = Command {
-            commands: vec![CommandPatternType::Text("start")],
+            commands: vec![PatternType::Text("start")],
             ignore_case: false,
             ignore_mention: false,
             prefix: "/",
@@ -260,7 +263,7 @@ mod tests {
     #[test]
     fn test_validate_command() {
         let command = Command {
-            commands: vec![CommandPatternType::Text("start")],
+            commands: vec![PatternType::Text("start")],
             ignore_case: false,
             ignore_mention: false,
             prefix: "/",
@@ -279,7 +282,7 @@ mod tests {
         assert!(command.validate_command(&command_obj).is_err());
 
         let command = Command {
-            commands: vec![CommandPatternType::Text("start")],
+            commands: vec![PatternType::Text("start")],
             ignore_case: true,
             ignore_mention: false,
             prefix: "/",

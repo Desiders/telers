@@ -592,7 +592,7 @@ mod tests {
             },
             RouterRequest,
         },
-        filters::{Command, CommandPatternType},
+        filters::command,
     };
 
     use tokio;
@@ -764,8 +764,8 @@ mod tests {
             _ => panic!("Unexpected result"),
         }
 
-        let filter = Box::new(Command {
-            commands: vec![CommandPatternType::Text("start")],
+        let filter = Box::new(command::Command {
+            commands: vec![command::PatternType::Text("start")],
             prefix: "/",
             ignore_case: false,
             ignore_mention: false,

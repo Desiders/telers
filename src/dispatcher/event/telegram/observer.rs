@@ -11,7 +11,7 @@ use crate::{
     },
     error::app,
     extract::FromEventAndContext,
-    filters::Filter,
+    filters::base::Filter,
     types::Update,
 };
 
@@ -359,11 +359,7 @@ impl Service<Request> for ObserverService {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        dispatcher::event::bases::Action,
-        filters::{Command, CommandPatternType},
-        types::Message,
-    };
+    use crate::{dispatcher::event::bases::Action, filters::command, types::Message};
 
     use tokio;
 
@@ -374,8 +370,8 @@ mod tests {
 
         let mut observer = Observer::new("test");
         // Register common filter, which handlers can't pass
-        observer.filter(Box::new(Command {
-            commands: vec![CommandPatternType::Text("start")],
+        observer.filter(Box::new(command::Command {
+            commands: vec![command::PatternType::Text("start")],
             prefix: "/",
             ignore_case: false,
             ignore_mention: false,

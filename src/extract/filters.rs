@@ -1,6 +1,6 @@
 use crate::{
     client::Bot, context::Context, error::app::ExtractError, extract::FromEventAndContext,
-    filters::CommandObject, types::Update,
+    filters::command::CommandObject, types::Update,
 };
 
 use futures::future::{err, ok, Ready};

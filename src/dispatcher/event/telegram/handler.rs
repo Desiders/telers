@@ -9,7 +9,7 @@ use crate::{
     },
     error::app,
     extract::FromEventAndContext,
-    filters::Filter,
+    filters::base::Filter,
     types::Update,
 };
 
@@ -257,7 +257,7 @@ factory_tuple! { A B C D E F G H I J K L }
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::filters::{Command, CommandPatternType};
+    use crate::filters::command;
 
     use tokio;
 
@@ -284,8 +284,8 @@ mod tests {
 
     #[test]
     fn test_handler_object_filter() {
-        let filter = Box::new(Command {
-            commands: vec![CommandPatternType::Text("start")],
+        let filter = Box::new(command::Command {
+            commands: vec![command::PatternType::Text("start")],
             prefix: "/",
             ignore_case: false,
             ignore_mention: false,

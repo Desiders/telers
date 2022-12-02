@@ -6,7 +6,7 @@ pub type Context = HashMap<&'static str, Box<dyn Any + Send + Sync>>;
 #[cfg(test)]
 mod tests {
     use super::Context;
-    use crate::filters::CommandObject;
+    use crate::filters::command::CommandObject;
 
     #[test]
     fn test_context() {
