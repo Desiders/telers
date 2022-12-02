@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     error::Error as StdError,
     fmt::{self, Debug, Display, Formatter},
 };
@@ -38,21 +39,21 @@ impl StdError for Error {}
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub enum TelegramAPIErrorKind {
-    NetworkError(TelegramNetworkError),
-    RetryAfter(TelegramRetryAfter),
-    MigrateToChat(TelegramMigrateToChat),
-    BadRequest(TelegramBadRequest),
-    NotFound(TelegramNotFound),
-    ConflictError(TelegramConflictError),
-    Forbidden(TelegramForbidden),
-    Unauthorized(TelegramUnauthorized),
-    ServerError(TelegramServerError),
-    RestartingTelegram(RestartingTelegram),
-    EntityTooLarge(TelegramEntityTooLarge),
+pub enum TelegramAPIErrorKind<'a> {
+    NetworkError(TelegramNetworkError<'a>),
+    RetryAfter(TelegramRetryAfter<'a>),
+    MigrateToChat(TelegramMigrateToChat<'a>),
+    BadRequest(TelegramBadRequest<'a>),
+    NotFound(TelegramNotFound<'a>),
+    ConflictError(TelegramConflictError<'a>),
+    Forbidden(TelegramForbidden<'a>),
+    Unauthorized(TelegramUnauthorized<'a>),
+    ServerError(TelegramServerError<'a>),
+    RestartingTelegram(RestartingTelegram<'a>),
+    EntityTooLarge(TelegramEntityTooLarge<'a>),
 }
 
-impl Display for TelegramAPIErrorKind {
+impl Display for TelegramAPIErrorKind<'_> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
             TelegramAPIErrorKind::NetworkError(e) => write!(f, "{e}"),
@@ -72,26 +73,31 @@ impl Display for TelegramAPIErrorKind {
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub struct TelegramNetworkError {
-    message: String,
+pub struct TelegramNetworkError<'a> {
+    message: Cow<'a, str>,
 }
 
-impl TelegramNetworkError {
+impl<'a> TelegramNetworkError<'a> {
     #[must_use]
-    pub fn new(message: String) -> Self {
-        Self { message }
+    pub fn new<M>(message: M) -> Self
+    where
+        M: Into<Cow<'a, str>>,
+    {
+        Self {
+            message: message.into(),
+        }
     }
 }
 
-impl Display for TelegramNetworkError {
+impl Display for TelegramNetworkError<'_> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "TelegramNetworkError: {}", self.message)
     }
 }
 
-impl StdError for TelegramNetworkError {}
+impl StdError for TelegramNetworkError<'_> {}
 
-impl TelegramAPIError for TelegramNetworkError {
+impl TelegramAPIError for TelegramNetworkError<'_> {
     fn message(&self) -> &str {
         &self.message
     }
@@ -99,24 +105,27 @@ impl TelegramAPIError for TelegramNetworkError {
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub struct TelegramRetryAfter {
+pub struct TelegramRetryAfter<'a> {
     url: &'static str,
-    message: String,
+    message: Cow<'a, str>,
     retry_after: i64,
 }
 
-impl TelegramRetryAfter {
+impl<'a> TelegramRetryAfter<'a> {
     #[must_use]
-    pub fn new(message: String, retry_after: i64) -> Self {
+    pub fn new<M>(message: M, retry_after: i64) -> Self
+    where
+        M: Into<Cow<'a, str>>,
+    {
         Self {
             url: "https://core.telegram.org/bots/faq#my-bot-is-hitting-limits-how-do-i-avoid-this",
-            message,
+            message: message.into(),
             retry_after,
         }
     }
 
     #[must_use]
-    pub const fn url(&self) -> &'static str {
+    pub const fn url(&self) -> &str {
         self.url
     }
 
@@ -126,7 +135,7 @@ impl TelegramRetryAfter {
     }
 }
 
-impl Display for TelegramRetryAfter {
+impl Display for TelegramRetryAfter<'_> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(
             f,
@@ -136,9 +145,9 @@ impl Display for TelegramRetryAfter {
     }
 }
 
-impl StdError for TelegramRetryAfter {}
+impl StdError for TelegramRetryAfter<'_> {}
 
-impl TelegramAPIError for TelegramRetryAfter {
+impl TelegramAPIError for TelegramRetryAfter<'_> {
     fn message(&self) -> &str {
         &self.message
     }
@@ -146,16 +155,19 @@ impl TelegramAPIError for TelegramRetryAfter {
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub struct TelegramMigrateToChat {
-    message: String,
+pub struct TelegramMigrateToChat<'a> {
+    message: Cow<'a, str>,
     migrate_to_chat_id: i64,
 }
 
-impl TelegramMigrateToChat {
+impl<'a> TelegramMigrateToChat<'a> {
     #[must_use]
-    pub fn new(message: String, migrate_to_chat_id: i64) -> Self {
+    pub fn new<M>(message: M, migrate_to_chat_id: i64) -> Self
+    where
+        M: Into<Cow<'a, str>>,
+    {
         Self {
-            message,
+            message: message.into(),
             migrate_to_chat_id,
         }
     }
@@ -166,7 +178,7 @@ impl TelegramMigrateToChat {
     }
 }
 
-impl Display for TelegramMigrateToChat {
+impl Display for TelegramMigrateToChat<'_> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(
             f,
@@ -176,9 +188,9 @@ impl Display for TelegramMigrateToChat {
     }
 }
 
-impl StdError for TelegramMigrateToChat {}
+impl StdError for TelegramMigrateToChat<'_> {}
 
-impl TelegramAPIError for TelegramMigrateToChat {
+impl TelegramAPIError for TelegramMigrateToChat<'_> {
     fn message(&self) -> &str {
         &self.message
     }
@@ -186,26 +198,31 @@ impl TelegramAPIError for TelegramMigrateToChat {
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub struct TelegramBadRequest {
-    message: String,
+pub struct TelegramBadRequest<'a> {
+    message: Cow<'a, str>,
 }
 
-impl TelegramBadRequest {
+impl<'a> TelegramBadRequest<'a> {
     #[must_use]
-    pub fn new(message: String) -> Self {
-        Self { message }
+    pub fn new<M>(message: M) -> Self
+    where
+        M: Into<Cow<'a, str>>,
+    {
+        Self {
+            message: message.into(),
+        }
     }
 }
 
-impl Display for TelegramBadRequest {
+impl Display for TelegramBadRequest<'_> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "TelegramBadRequest: {}", self.message)
     }
 }
 
-impl StdError for TelegramBadRequest {}
+impl StdError for TelegramBadRequest<'_> {}
 
-impl TelegramAPIError for TelegramBadRequest {
+impl TelegramAPIError for TelegramBadRequest<'_> {
     fn message(&self) -> &str {
         &self.message
     }
@@ -213,26 +230,31 @@ impl TelegramAPIError for TelegramBadRequest {
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub struct TelegramNotFound {
-    message: String,
+pub struct TelegramNotFound<'a> {
+    message: Cow<'a, str>,
 }
 
-impl TelegramNotFound {
+impl<'a> TelegramNotFound<'a> {
     #[must_use]
-    pub fn new(message: String) -> Self {
-        Self { message }
+    pub fn new<M>(message: M) -> Self
+    where
+        M: Into<Cow<'a, str>>,
+    {
+        Self {
+            message: message.into(),
+        }
     }
 }
 
-impl Display for TelegramNotFound {
+impl Display for TelegramNotFound<'_> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "TelegramNotFound: {}", self.message)
     }
 }
 
-impl StdError for TelegramNotFound {}
+impl StdError for TelegramNotFound<'_> {}
 
-impl TelegramAPIError for TelegramNotFound {
+impl TelegramAPIError for TelegramNotFound<'_> {
     fn message(&self) -> &str {
         &self.message
     }
@@ -240,26 +262,31 @@ impl TelegramAPIError for TelegramNotFound {
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub struct TelegramConflictError {
-    message: String,
+pub struct TelegramConflictError<'a> {
+    message: Cow<'a, str>,
 }
 
-impl TelegramConflictError {
+impl<'a> TelegramConflictError<'a> {
     #[must_use]
-    pub fn new(message: String) -> Self {
-        Self { message }
+    pub fn new<M>(message: M) -> Self
+    where
+        M: Into<Cow<'a, str>>,
+    {
+        Self {
+            message: message.into(),
+        }
     }
 }
 
-impl Display for TelegramConflictError {
+impl Display for TelegramConflictError<'_> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "TelegramConflictError: {}", self.message)
     }
 }
 
-impl StdError for TelegramConflictError {}
+impl StdError for TelegramConflictError<'_> {}
 
-impl TelegramAPIError for TelegramConflictError {
+impl TelegramAPIError for TelegramConflictError<'_> {
     fn message(&self) -> &str {
         &self.message
     }
@@ -267,26 +294,31 @@ impl TelegramAPIError for TelegramConflictError {
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub struct TelegramForbidden {
-    message: String,
+pub struct TelegramForbidden<'a> {
+    message: Cow<'a, str>,
 }
 
-impl TelegramForbidden {
+impl<'a> TelegramForbidden<'a> {
     #[must_use]
-    pub fn new(message: String) -> Self {
-        Self { message }
+    pub fn new<M>(message: M) -> Self
+    where
+        M: Into<Cow<'a, str>>,
+    {
+        Self {
+            message: message.into(),
+        }
     }
 }
 
-impl Display for TelegramForbidden {
+impl Display for TelegramForbidden<'_> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "TelegramForbidden: {}", self.message)
     }
 }
 
-impl StdError for TelegramForbidden {}
+impl StdError for TelegramForbidden<'_> {}
 
-impl TelegramAPIError for TelegramForbidden {
+impl TelegramAPIError for TelegramForbidden<'_> {
     fn message(&self) -> &str {
         &self.message
     }
@@ -294,26 +326,31 @@ impl TelegramAPIError for TelegramForbidden {
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub struct TelegramUnauthorized {
-    message: String,
+pub struct TelegramUnauthorized<'a> {
+    message: Cow<'a, str>,
 }
 
-impl TelegramUnauthorized {
+impl<'a> TelegramUnauthorized<'a> {
     #[must_use]
-    pub fn new(message: String) -> Self {
-        Self { message }
+    pub fn new<M>(message: M) -> Self
+    where
+        M: Into<Cow<'a, str>>,
+    {
+        Self {
+            message: message.into(),
+        }
     }
 }
 
-impl Display for TelegramUnauthorized {
+impl Display for TelegramUnauthorized<'_> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "TelegramUnauthorized: {}", self.message)
     }
 }
 
-impl StdError for TelegramUnauthorized {}
+impl StdError for TelegramUnauthorized<'_> {}
 
-impl TelegramAPIError for TelegramUnauthorized {
+impl TelegramAPIError for TelegramUnauthorized<'_> {
     fn message(&self) -> &str {
         &self.message
     }
@@ -321,26 +358,31 @@ impl TelegramAPIError for TelegramUnauthorized {
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub struct TelegramServerError {
-    message: String,
+pub struct TelegramServerError<'a> {
+    message: Cow<'a, str>,
 }
 
-impl TelegramServerError {
+impl<'a> TelegramServerError<'a> {
     #[must_use]
-    pub fn new(message: String) -> Self {
-        Self { message }
+    pub fn new<M>(message: M) -> Self
+    where
+        M: Into<Cow<'a, str>>,
+    {
+        Self {
+            message: message.into(),
+        }
     }
 }
 
-impl Display for TelegramServerError {
+impl Display for TelegramServerError<'_> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "TelegramServerError: {}", self.message)
     }
 }
 
-impl StdError for TelegramServerError {}
+impl StdError for TelegramServerError<'_> {}
 
-impl TelegramAPIError for TelegramServerError {
+impl TelegramAPIError for TelegramServerError<'_> {
     fn message(&self) -> &str {
         &self.message
     }
@@ -348,26 +390,31 @@ impl TelegramAPIError for TelegramServerError {
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub struct RestartingTelegram {
-    message: String,
+pub struct RestartingTelegram<'a> {
+    message: Cow<'a, str>,
 }
 
-impl RestartingTelegram {
+impl<'a> RestartingTelegram<'a> {
     #[must_use]
-    pub fn new(message: String) -> Self {
-        Self { message }
+    pub fn new<M>(message: M) -> Self
+    where
+        M: Into<Cow<'a, str>>,
+    {
+        Self {
+            message: message.into(),
+        }
     }
 }
 
-impl Display for RestartingTelegram {
+impl Display for RestartingTelegram<'_> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "RestartingTelegram: {}", self.message)
     }
 }
 
-impl StdError for RestartingTelegram {}
+impl StdError for RestartingTelegram<'_> {}
 
-impl TelegramAPIError for RestartingTelegram {
+impl TelegramAPIError for RestartingTelegram<'_> {
     fn message(&self) -> &str {
         &self.message
     }
@@ -375,17 +422,20 @@ impl TelegramAPIError for RestartingTelegram {
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub struct TelegramEntityTooLarge {
+pub struct TelegramEntityTooLarge<'a> {
     url: &'static str,
-    message: String,
+    message: Cow<'a, str>,
 }
 
-impl TelegramEntityTooLarge {
+impl<'a> TelegramEntityTooLarge<'a> {
     #[must_use]
-    pub fn new(message: String) -> Self {
+    pub fn new<M>(message: M) -> Self
+    where
+        M: Into<Cow<'a, str>>,
+    {
         Self {
             url: "https://core.telegram.org/bots/api#sending-files",
-            message,
+            message: message.into(),
         }
     }
 
@@ -395,7 +445,7 @@ impl TelegramEntityTooLarge {
     }
 }
 
-impl Display for TelegramEntityTooLarge {
+impl Display for TelegramEntityTooLarge<'_> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(
             f,
@@ -405,9 +455,9 @@ impl Display for TelegramEntityTooLarge {
     }
 }
 
-impl StdError for TelegramEntityTooLarge {}
+impl StdError for TelegramEntityTooLarge<'_> {}
 
-impl TelegramAPIError for TelegramEntityTooLarge {
+impl TelegramAPIError for TelegramEntityTooLarge<'_> {
     fn message(&self) -> &str {
         &self.message
     }
@@ -427,13 +477,13 @@ mod tests {
 
     #[test]
     fn test_telegram_network_error() {
-        let err = TelegramNetworkError::new("test".to_string());
+        let err = TelegramNetworkError::new("test");
         assert_eq!(err.message(), "test");
     }
 
     #[test]
     fn test_telegram_retry_after() {
-        let err = TelegramRetryAfter::new("test".to_string(), 1);
+        let err = TelegramRetryAfter::new("test", 1);
         assert_eq!(err.message(), "test");
         assert_eq!(
             err.url(),
@@ -444,56 +494,56 @@ mod tests {
 
     #[test]
     fn test_telegram_migrate_to_chat() {
-        let err = TelegramMigrateToChat::new("test".to_string(), 1);
+        let err = TelegramMigrateToChat::new("test", 1);
         assert_eq!(err.message(), "test");
         assert_eq!(err.migrate_to_chat_id(), 1);
     }
 
     #[test]
     fn test_telegram_bad_request() {
-        let err = TelegramBadRequest::new("test".to_string());
+        let err = TelegramBadRequest::new("test");
         assert_eq!(err.message(), "test");
     }
 
     #[test]
     fn test_telegram_not_found() {
-        let err = TelegramNotFound::new("test".to_string());
+        let err = TelegramNotFound::new("test");
         assert_eq!(err.message(), "test");
     }
 
     #[test]
     fn test_telegram_conflict_error() {
-        let err = TelegramConflictError::new("test".to_string());
+        let err = TelegramConflictError::new("test");
         assert_eq!(err.message(), "test");
     }
 
     #[test]
     fn test_telegram_forbidden() {
-        let err = TelegramForbidden::new("test".to_string());
+        let err = TelegramForbidden::new("test");
         assert_eq!(err.message(), "test");
     }
 
     #[test]
     fn test_telegram_unauthorized() {
-        let err = TelegramUnauthorized::new("test".to_string());
+        let err = TelegramUnauthorized::new("test");
         assert_eq!(err.message(), "test");
     }
 
     #[test]
     fn test_telegram_server_error() {
-        let err = TelegramServerError::new("test".to_string());
+        let err = TelegramServerError::new("test");
         assert_eq!(err.message(), "test");
     }
 
     #[test]
     fn test_restarting_telegram() {
-        let err = RestartingTelegram::new("test".to_string());
+        let err = RestartingTelegram::new("test");
         assert_eq!(err.message(), "test");
     }
 
     #[test]
     fn test_telegram_entity_too_large() {
-        let err = TelegramEntityTooLarge::new("test".to_string());
+        let err = TelegramEntityTooLarge::new("test");
         assert_eq!(err.message(), "test");
         assert_eq!(
             err.url(),
@@ -503,16 +553,15 @@ mod tests {
 
     #[test]
     fn test_error() {
-        let err = Error::from(TelegramNetworkError::new("test".to_string()));
+        let err = Error::from(TelegramNetworkError::new("test"));
         assert_eq!(err.cause().message(), "test");
     }
 
     #[test]
     fn test_telegram_api_error_kind() {
-        match TelegramAPIErrorKind::RestartingTelegram(RestartingTelegram::new("test".to_string()))
-        {
+        match TelegramAPIErrorKind::RestartingTelegram(RestartingTelegram::new("test")) {
             TelegramAPIErrorKind::RestartingTelegram(RestartingTelegram { message }) => {
-                assert_eq!(message, "test".to_string());
+                assert_eq!(message, "test");
             }
             _ => unreachable!("Other error"),
         }

@@ -39,25 +39,25 @@ impl Display for Error {
 /// * `Regex(Regex)` - A command pattern with regex
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Clone)]
-pub enum PatternType {
-    Text(&'static str),
+pub enum PatternType<'a> {
+    Text(&'a str),
     Object(BotCommand),
     Regex(Regex),
 }
 
 #[derive(Default, Debug, Clone)]
-pub struct Command {
+pub struct Command<'a> {
     /// List of commands (string or compiled regexp patterns)
-    pub commands: Vec<PatternType>,
+    pub commands: Vec<PatternType<'a>>,
     /// Command prefix
-    pub prefix: &'static str,
+    pub prefix: &'a str,
     /// Ignore other command case (Does not work with regexp, use flags instead)
     pub ignore_case: bool,
     /// Ignore bot mention. By default, bot can not handle commands intended for other bots
     pub ignore_mention: bool,
 }
 
-impl Command {
+impl<'a> Command<'a> {
     /// # Errors
     /// If prefix is invalid.
     pub fn validate_prefix(&self, command: &CommandObject) -> Result<()> {
@@ -186,7 +186,7 @@ impl CommandObject {
     }
 }
 
-impl Filter for Command {
+impl Filter for Command<'_> {
     fn check(&self, bot: &Bot, update: &Update, context: &RwLock<Context>) -> bool {
         if let Some(ref message) = update.message {
             let text = match message.get_text_or_caption() {
@@ -238,10 +238,7 @@ mod tests {
         assert_eq!(command_obj.command, "start");
         assert_eq!(command_obj.prefix, "/");
         assert_eq!(command_obj.mention, Some("bot_username".to_string()));
-        assert_eq!(
-            command_obj.args,
-            vec!["arg1".to_string(), "arg2".to_string()]
-        );
+        assert_eq!(command_obj.args, vec!["arg1", "arg2"]);
     }
 
     #[test]

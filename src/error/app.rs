@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     convert::Infallible,
     error::Error as StdError,
     fmt::{self, Debug, Display, Formatter},
@@ -44,26 +45,31 @@ impl Error {
 impl StdError for Error {}
 
 #[derive(Debug)]
-pub struct ExtractError {
-    pub message: String,
+pub struct ExtractError<'a> {
+    pub message: Cow<'a, str>,
 }
 
-impl ExtractError {
+impl<'a> ExtractError<'a> {
     #[must_use]
-    pub fn new(message: String) -> Self {
-        Self { message }
+    pub fn new<M>(message: M) -> Self
+    where
+        M: Into<Cow<'a, str>>,
+    {
+        Self {
+            message: message.into(),
+        }
     }
 }
 
-impl Display for ExtractError {
+impl Display for ExtractError<'_> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "ExtractError: {}", self.message)
     }
 }
 
-impl StdError for ExtractError {}
+impl StdError for ExtractError<'_> {}
 
-impl AppError for ExtractError {
+impl<'a> AppError for ExtractError<'a> {
     fn message(&self) -> &str {
         &self.message
     }
@@ -108,13 +114,13 @@ mod tests {
 
     #[test]
     fn test_extract_error() {
-        let err = ExtractError::new("test".to_string());
+        let err = ExtractError::new("test");
         assert_eq!(err.message(), "test");
     }
 
     #[test]
     fn test_error() {
-        let err = Error::from(ExtractError::new("test".to_string()));
+        let err = Error::from(ExtractError::new("test"));
         assert_eq!(err.cause().message(), "test");
     }
 }

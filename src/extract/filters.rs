@@ -7,22 +7,17 @@ use futures::future::{err, ok, Ready};
 use std::{sync::Arc, sync::RwLock};
 
 impl FromEventAndContext for CommandObject {
-    type Error = ExtractError;
+    type Error = ExtractError<'static>;
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn extract(_: Arc<Bot>, _: Arc<Update>, context: Arc<RwLock<Context>>) -> Self::Future {
         context.read().unwrap().get("command").map_or(
-            err(ExtractError {
-                message: "Key `command` not found in the context".to_string(),
-            }),
+            err(ExtractError::new("Key `command` not found in the context")),
             |command| {
                 command.downcast_ref::<CommandObject>().map_or(
-                    err(ExtractError {
-                        message: format!(
-                            "Failed to downcast command, got `{:?}` instead `CommandObject`",
-                            command
-                        ),
-                    }),
+                    err(ExtractError::new(format!(
+                        "Failed to downcast command, got `{command:?}` instead `CommandObject`"
+                    ))),
                     |command| ok(command.clone()),
                 )
             },

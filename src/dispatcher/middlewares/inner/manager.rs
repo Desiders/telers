@@ -20,12 +20,12 @@ impl Manager {
         self.middlewares.push(middleware);
     }
 
-    /// Register a new middleware in position
+    /// Register a new middleware at position
     pub fn register_in_position(&mut self, index: usize, middleware: MiddlewareType) {
         self.middlewares.insert(index, Arc::new(middleware));
     }
 
-    /// Register a new middleware wrapper in position
+    /// Register a new middleware wrapper at position
     pub fn register_wrapper_in_position(&mut self, index: usize, middleware: Arc<MiddlewareType>) {
         self.middlewares.insert(index, middleware);
     }

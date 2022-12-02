@@ -73,13 +73,11 @@ impl<'a> TextDecoration for HtmlDecoration<'a> {
 
     /// Quote symbols, that can be interpreted as  HTML tags
     fn quote(&self, text: &str) -> String {
-        let mut string = text.to_string();
-
-        for (from, to) in [('&', "&amp;"), ('<', "&lt;"), ('>', "&gt;")] {
-            string = string.replace(from, to);
-        }
-
-        string
+        String::from(
+            text.replace('&', "&amp;")
+                .replace('<', "&lt;")
+                .replace('>', "&gt;"),
+        )
     }
 }
 
