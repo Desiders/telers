@@ -4,6 +4,7 @@ use crate::{
     client::Bot,
     context::Context,
     dispatcher::event::service::{BoxFuture, Service, ServiceFactory},
+    enums::update_type::UpdateType,
     error::app,
     types::Update,
 };
@@ -92,7 +93,7 @@ impl DispatcherService {
         bot: Arc<Bot>,
         update_sender: Sender<Update>,
         message_receiver: Receiver<MessageForListener>,
-    ) {
+    ) -> ! {
         loop {
             let updates: Vec<Update> = todo!(
                 "Get updates from Telegram API. \
@@ -119,8 +120,7 @@ impl DispatcherService {
     /// - If any outer middleware returns error
     /// - If any inner middleware returns error
     /// - If any handler returns error. Probably it's error to extract args to the handler
-    /// # Panics
-    /// If `update_type` telegram event isn't supported
+    /// - If update type is not supported
     pub async fn feed_update<B, U>(
         self: Arc<Self>,
         bot: B,
@@ -130,7 +130,18 @@ impl DispatcherService {
         B: Into<Arc<Bot>>,
         U: Into<Arc<Update>>,
     {
-        let update = update.into();
+        let update: Arc<Update> = update.into();
+
+        // Get update type for get observer
+        let update_type =
+            match update.as_ref().try_into() as Result<UpdateType, app::UpdateTypeError> {
+                Ok(update_type) => update_type,
+                Err(err) => {
+                    log::error!("{err:?}");
+
+                    return Err(err.into());
+                }
+            };
 
         // Create a context for the update
         let context = RwLock::new(Context::default());
@@ -139,13 +150,11 @@ impl DispatcherService {
         let req = RouterRequest::new(bot, Arc::clone(&update), context);
 
         // Propagate event to the main router
-        self.main_router
-            .propagate_event(update.update_type(), req)
-            .await
+        self.main_router.propagate_event(&update_type, req).await
     }
 
     /// Internal polling process
-    async fn polling(self: Arc<Self>, bot: Arc<Bot>) {
+    async fn polling(self: Arc<Self>, bot: Arc<Bot>) -> ! {
         let (sender, receiver) = async_channel::unbounded();
         let (sender_for_listener, receiver_for_listener) = async_channel::unbounded();
 
@@ -331,7 +340,7 @@ mod tests {
         let dispatcher = Dispatcher::new(router);
         let dispatcher_service = dispatcher.new_service(()).await.unwrap();
 
-        // Should panic, because `Update` is empty and `Update::update_type()` will be panic
-        let _ = dispatcher_service.feed_update(bot, update).await;
+        // Should return error, because `Update` is empty and `Update::update_type()` will be unknown
+        dispatcher_service.feed_update(bot, update).await.unwrap();
     }
 }

@@ -293,8 +293,6 @@ impl ObserverService {
                 continue;
             }
 
-            // If middlewares is empty, we can call handler directly,
-            // otherwise we call middlewares with handler, that will be called in any middleware
             let res = if self.middlewares.is_empty() {
                 handler.call(handler_req.clone()).await?
             } else {
@@ -307,12 +305,14 @@ impl ObserverService {
                     .call(handler.service(), handler_req.clone(), next_middlewares)
                     .await?
             };
+
+            let return_response = res.response();
             // If handler returns skip, we should skip it and run next handler
-            if res.response().is_skip() {
+            if return_response.is_skip() {
                 continue;
             }
             // If handler returns cancel, we should stop propagation
-            if res.response().is_cancel() {
+            if return_response.is_cancel() {
                 return Ok(Response {
                     request: req,
                     response: PropagateEventResult::Rejected,

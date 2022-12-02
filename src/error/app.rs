@@ -69,6 +69,31 @@ impl AppError for ExtractError {
     }
 }
 
+#[derive(Debug)]
+pub enum UpdateTypeError {
+    UnknownUpdateType(String),
+}
+
+impl Display for UpdateTypeError {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match self {
+            Self::UnknownUpdateType(update_type) => {
+                write!(f, "Unknown update type: {update_type}")
+            }
+        }
+    }
+}
+
+impl StdError for UpdateTypeError {}
+
+impl AppError for UpdateTypeError {
+    fn message(&self) -> &str {
+        match self {
+            Self::UnknownUpdateType(update_type) => update_type,
+        }
+    }
+}
+
 impl<T: AppError + 'static> From<T> for Error {
     fn from(err: T) -> Error {
         Error {

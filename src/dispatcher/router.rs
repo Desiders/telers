@@ -4,35 +4,23 @@ use super::event::{
     simple, telegram,
 };
 
-use crate::{client::Bot, context::Context, error::app, types::Update};
+use crate::{
+    client::Bot,
+    context::Context,
+    enums::{observer_name, update_type::UpdateType},
+    error::app,
+    types::Update,
+};
 
 use async_recursion::async_recursion;
 use futures::future::join_all;
 use log;
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashSet,
     fmt::{self, Debug, Formatter},
     iter::once,
     sync::{Arc, RwLock},
 };
-
-const MESSAGE_OBSERVER_NAME: &str = "message";
-const EDITED_MESSAGE_OBSERVER_NAME: &str = "edited_message";
-const CHANNEL_POST_OBSERVER_NAME: &str = "channel_post";
-const EDITED_CHANNEL_POST_OBSERVER_NAME: &str = "edited_channel_post";
-const INLINE_QUERY_OBSERVER_NAME: &str = "inline_query";
-const CHOSEN_INLINE_RESULT_OBSERVER_NAME: &str = "chosen_inline_result";
-const CALLBACK_QUERY_OBSERVER_NAME: &str = "callback_query";
-const SHIPPING_QUERY_OBSERVER_NAME: &str = "shipping_query";
-const PRE_CHECKOUT_QUERY_OBSERVER_NAME: &str = "pre_checkout_query";
-const POLL_OBSERVER_NAME: &str = "poll";
-const POLL_ANSWER_OBSERVER_NAME: &str = "poll_answer";
-const MY_CHAT_MEMBER_OBSERVER_NAME: &str = "my_chat_member";
-const CHAT_MEMBER_OBSERVER_NAME: &str = "chat_member";
-const CHAT_JOIN_REQUEST_OBSERVER_NAME: &str = "chat_join_request";
-
-const STARTUP_OBSERVER_NAME: &str = "startup";
-const SHUTDOWN_OBSERVER_NAME: &str = "shutdown";
 
 /// Data for router service
 #[derive(Clone)]
@@ -119,7 +107,6 @@ pub struct Router {
     router_name: &'static str,
     sub_routers: Vec<Router>,
 
-    // Telegram event observers
     pub message: telegram::Observer,
     pub edited_message: telegram::Observer,
     pub channel_post: telegram::Observer,
@@ -135,7 +122,6 @@ pub struct Router {
     pub chat_member: telegram::Observer,
     pub chat_join_request: telegram::Observer,
 
-    // Event observers
     pub startup: simple::Observer,
     pub shutdown: simple::Observer,
 }
@@ -149,22 +135,30 @@ impl Router {
         Self {
             router_name,
             sub_routers: vec![],
-            message: telegram::Observer::new(MESSAGE_OBSERVER_NAME),
-            edited_message: telegram::Observer::new(EDITED_MESSAGE_OBSERVER_NAME),
-            channel_post: telegram::Observer::new(CHANNEL_POST_OBSERVER_NAME),
-            edited_channel_post: telegram::Observer::new(EDITED_CHANNEL_POST_OBSERVER_NAME),
-            inline_query: telegram::Observer::new(INLINE_QUERY_OBSERVER_NAME),
-            chosen_inline_result: telegram::Observer::new(CHOSEN_INLINE_RESULT_OBSERVER_NAME),
-            callback_query: telegram::Observer::new(CALLBACK_QUERY_OBSERVER_NAME),
-            shipping_query: telegram::Observer::new(SHIPPING_QUERY_OBSERVER_NAME),
-            pre_checkout_query: telegram::Observer::new(PRE_CHECKOUT_QUERY_OBSERVER_NAME),
-            poll: telegram::Observer::new(POLL_OBSERVER_NAME),
-            poll_answer: telegram::Observer::new(POLL_ANSWER_OBSERVER_NAME),
-            my_chat_member: telegram::Observer::new(MY_CHAT_MEMBER_OBSERVER_NAME),
-            chat_member: telegram::Observer::new(CHAT_MEMBER_OBSERVER_NAME),
-            chat_join_request: telegram::Observer::new(CHAT_JOIN_REQUEST_OBSERVER_NAME),
-            startup: simple::Observer::new(STARTUP_OBSERVER_NAME),
-            shutdown: simple::Observer::new(SHUTDOWN_OBSERVER_NAME),
+            message: telegram::Observer::new(observer_name::Telegram::Message.into()),
+            edited_message: telegram::Observer::new(observer_name::Telegram::EditedMessage.into()),
+            channel_post: telegram::Observer::new(observer_name::Telegram::ChannelPost.into()),
+            edited_channel_post: telegram::Observer::new(
+                observer_name::Telegram::EditedChannelPost.into(),
+            ),
+            inline_query: telegram::Observer::new(observer_name::Telegram::InlineQuery.into()),
+            chosen_inline_result: telegram::Observer::new(
+                observer_name::Telegram::ChosenInlineResult.into(),
+            ),
+            callback_query: telegram::Observer::new(observer_name::Telegram::CallbackQuery.into()),
+            shipping_query: telegram::Observer::new(observer_name::Telegram::ShippingQuery.into()),
+            pre_checkout_query: telegram::Observer::new(
+                observer_name::Telegram::PreCheckoutQuery.into(),
+            ),
+            poll: telegram::Observer::new(observer_name::Telegram::Poll.into()),
+            poll_answer: telegram::Observer::new(observer_name::Telegram::PollAnswer.into()),
+            my_chat_member: telegram::Observer::new(observer_name::Telegram::MyChatMember.into()),
+            chat_member: telegram::Observer::new(observer_name::Telegram::ChatMember.into()),
+            chat_join_request: telegram::Observer::new(
+                observer_name::Telegram::ChatJoinRequest.into(),
+            ),
+            startup: simple::Observer::new(observer_name::Simple::Startup.into()),
+            shutdown: simple::Observer::new(observer_name::Simple::Shutdown.into()),
         }
     }
 
@@ -195,23 +189,23 @@ impl Router {
     /// Get telegram event observers
     #[must_use]
     #[rustfmt::skip]
-    pub fn telegram_observers(&self) -> HashMap<&str, &telegram::Observer> {
-        HashMap::from([
-            (MESSAGE_OBSERVER_NAME, &self.message),
-            (EDITED_MESSAGE_OBSERVER_NAME, &self.edited_message),
-            (CHANNEL_POST_OBSERVER_NAME, &self.channel_post),
-            (EDITED_CHANNEL_POST_OBSERVER_NAME, &self.edited_channel_post),
-            (INLINE_QUERY_OBSERVER_NAME, &self.inline_query),
-            (CHOSEN_INLINE_RESULT_OBSERVER_NAME, &self.chosen_inline_result),
-            (CALLBACK_QUERY_OBSERVER_NAME, &self.callback_query),
-            (SHIPPING_QUERY_OBSERVER_NAME, &self.shipping_query),
-            (PRE_CHECKOUT_QUERY_OBSERVER_NAME, &self.pre_checkout_query),
-            (POLL_OBSERVER_NAME, &self.poll),
-            (POLL_ANSWER_OBSERVER_NAME, &self.poll_answer),
-            (MY_CHAT_MEMBER_OBSERVER_NAME, &self.my_chat_member),
-            (CHAT_MEMBER_OBSERVER_NAME, &self.chat_member),
-            (CHAT_JOIN_REQUEST_OBSERVER_NAME, &self.chat_join_request),
-        ])
+    pub fn telegram_observers(&self) -> Vec<&telegram::Observer> {
+        vec![
+            &self.message,
+            &self.edited_message,
+            &self.channel_post,
+            &self.edited_channel_post,
+            &self.inline_query,
+            &self.chosen_inline_result,
+            &self.callback_query,
+            &self.shipping_query,
+            &self.pre_checkout_query,
+            &self.poll,
+            &self.poll_answer,
+            &self.my_chat_member,
+            &self.chat_member,
+            &self.chat_join_request,
+        ]
     }
 
     /// Get event observers
@@ -220,20 +214,16 @@ impl Router {
         vec![&self.startup, &self.shutdown]
     }
 
-    /// Include a sub router
-    pub fn include_router(&mut self, mut router: Router) {
-        /// Register inner middlewares from sub router's observers to parent router's observers
+    /// Register inner middlewares to sub router (and sub routers of sub router)
+    fn register_inner_middlewares_in_sub_router(&self, sub_router: &mut Router) {
+        // Register middlewares of current router observers to sub router observers
         macro_rules! register_middlewares {
             ($observer:ident) => {
-                self.$observer
-                    .middlewares
-                    .middlewares()
-                    .iter()
-                    .for_each(|middleware| {
-                        router.$observer
-                            .middlewares
-                            .register_wrapper(Arc::clone(middleware));
-                    });
+                let mut index = 0;
+                for middleware in self.$observer.middlewares.middlewares() {
+                    sub_router.$observer.middlewares.register_wrapper_in_position(index, Arc::clone(middleware));
+                    index += 1;
+                }
             };
             ($observer:ident, $($observers:ident),+) => {
                 register_middlewares!($observer);
@@ -241,6 +231,7 @@ impl Router {
             };
         }
 
+        // Call register middlewares macro for all telegram event observers
         register_middlewares!(
             message,
             edited_message,
@@ -257,6 +248,17 @@ impl Router {
             chat_member,
             chat_join_request
         );
+
+        sub_router.sub_routers.iter_mut().for_each(|sub_router| {
+            self.register_inner_middlewares_in_sub_router(sub_router);
+        });
+    }
+
+    /// Include a sub router.
+    /// This method will register all middlewares of current router (and parent routers),
+    /// which registered before call this method, to sub router (and sub routers of sub router).
+    pub fn include_router(&mut self, mut router: Router) {
+        self.register_inner_middlewares_in_sub_router(&mut router);
 
         self.sub_routers.push(router);
     }
@@ -280,12 +282,13 @@ impl Router {
             used_update_types.extend(router.resolve_used_update_types(skip_events));
         });
 
-        self.telegram_observers()
-            .iter()
-            .filter(|(key, observer)| !skip_events.contains(key) && !observer.handlers().is_empty())
-            .for_each(|(key, _)| {
-                used_update_types.insert(key);
-            });
+        for observer in self.telegram_observers() {
+            let event_name = observer.event_name();
+
+            if !observer.handlers().is_empty() && !skip_events.contains(&event_name) {
+                used_update_types.insert(event_name);
+            }
+        }
 
         used_update_types.into_iter().collect()
     }
@@ -382,12 +385,9 @@ impl ServiceFactory<Request> for Router {
 /// Service for [`Router`]
 #[allow(clippy::module_name_repetitions)]
 pub struct RouterService {
-    /// Router name
     router_name: &'static str,
-    /// Sub router services
     sub_routers: Vec<RouterService>,
 
-    /// Telegram event observer services
     message: telegram::ObserverService,
     edited_message: telegram::ObserverService,
     channel_post: telegram::ObserverService,
@@ -403,34 +403,32 @@ pub struct RouterService {
     chat_member: telegram::ObserverService,
     chat_join_request: telegram::ObserverService,
 
-    /// Event observer services
     startup: simple::ObserverService,
     shutdown: simple::ObserverService,
 }
 
 impl RouterService {
-    /// Get telegram event observer by update type
+    /// Get event observer by update type
     #[must_use]
-    pub fn telegram_observer_by_key(
+    pub fn telegram_observer_by_update_type(
         &self,
-        update_type: &str,
-    ) -> Option<&telegram::ObserverService> {
+        update_type: &UpdateType,
+    ) -> &telegram::ObserverService {
         match update_type {
-            "message" => Some(&self.message),
-            "edited_message" => Some(&self.edited_message),
-            "channel_post" => Some(&self.channel_post),
-            "edited_channel_post" => Some(&self.edited_channel_post),
-            "inline_query" => Some(&self.inline_query),
-            "chosen_inline_result" => Some(&self.chosen_inline_result),
-            "callback_query" => Some(&self.callback_query),
-            "shipping_query" => Some(&self.shipping_query),
-            "pre_checkout_query" => Some(&self.pre_checkout_query),
-            "poll" => Some(&self.poll),
-            "poll_answer" => Some(&self.poll_answer),
-            "my_chat_member" => Some(&self.my_chat_member),
-            "chat_member" => Some(&self.chat_member),
-            "chat_join_request" => Some(&self.chat_join_request),
-            _ => None,
+            UpdateType::Message => &self.message,
+            UpdateType::EditedMessage => &self.edited_message,
+            UpdateType::ChannelPost => &self.channel_post,
+            UpdateType::EditedChannelPost => &self.edited_channel_post,
+            UpdateType::InlineQuery => &self.inline_query,
+            UpdateType::ChosenInlineResult => &self.chosen_inline_result,
+            UpdateType::CallbackQuery => &self.callback_query,
+            UpdateType::ShippingQuery => &self.shipping_query,
+            UpdateType::PreCheckoutQuery => &self.pre_checkout_query,
+            UpdateType::Poll => &self.poll,
+            UpdateType::PollAnswer => &self.poll_answer,
+            UpdateType::MyChatMember => &self.my_chat_member,
+            UpdateType::ChatMember => &self.chat_member,
+            UpdateType::ChatJoinRequest => &self.chat_join_request,
         }
     }
 
@@ -467,19 +465,15 @@ impl RouterService {
     /// - If any outer middleware returns error
     /// - If any inner middleware returns error
     /// - If any handler returns error. Probably it's error to extract args to the handler
-    /// # Panics
-    /// If `update_type` telegram event isn't supported
     #[async_recursion]
     #[allow(clippy::similar_names)]
     #[must_use]
     pub async fn propagate_event(
         &self,
-        update_type: &str,
+        update_type: &UpdateType,
         req: Request,
     ) -> Result<Response, app::Error> {
-        let observer = self
-            .telegram_observer_by_key(update_type)
-            .expect("RouterService::propagate_event: Telegram event observer not found");
+        let observer = self.telegram_observer_by_update_type(update_type);
 
         let outer_middlewares = observer.outer_middlewares();
         // If outer middlewares is empty, we can call `RouterService::propagate_event_by_observer` directly
@@ -518,7 +512,7 @@ impl RouterService {
     async fn propagate_event_by_observer(
         &self,
         observer: &telegram::ObserverService,
-        update_type: &str,
+        update_type: &UpdateType,
         req: Request,
     ) -> Result<Response, app::Error> {
         let observer_req = req.clone().into();
@@ -639,14 +633,16 @@ mod tests {
         assert_eq!(router.routers().len(), 3);
         assert_eq!(router.name(), "main");
 
+        let message_observer_name: &str = UpdateType::Message.into();
+
         router.routers().into_iter().for_each(|router| {
             assert_eq!(router.routers().len(), 2);
 
             router
                 .telegram_observers()
                 .into_iter()
-                .for_each(|(name, observer)| {
-                    if name == MESSAGE_OBSERVER_NAME {
+                .for_each(|observer| {
+                    if observer.event_name() == message_observer_name {
                         assert_eq!(observer.middlewares.middlewares().len(), 1);
                     } else {
                         assert_eq!(observer.middlewares.middlewares().len(), 0);
@@ -657,6 +653,19 @@ mod tests {
 
             router.routers().into_iter().for_each(|router| {
                 assert_eq!(router.routers().len(), 0);
+
+                router
+                    .telegram_observers()
+                    .into_iter()
+                    .for_each(|observer| {
+                        if observer.event_name() == message_observer_name {
+                            assert_eq!(observer.middlewares.middlewares().len(), 1);
+                        } else {
+                            assert_eq!(observer.middlewares.middlewares().len(), 0);
+                        }
+                        // Router outer middlewares don't clone to children routers
+                        assert_eq!(observer.outer_middlewares.middlewares().len(), 0);
+                    });
             });
         });
     }
@@ -691,7 +700,7 @@ mod tests {
         router
             .telegram_observers()
             .into_iter()
-            .for_each(|(_, observer)| {
+            .for_each(|observer| {
                 assert_eq!(observer.handlers().len(), 1);
 
                 observer.handlers().iter().for_each(|handler| {
@@ -732,7 +741,7 @@ mod tests {
         let req = RouterRequest::new(bot, update, context);
 
         let res = router_service
-            .propagate_event(MESSAGE_OBSERVER_NAME, req.clone())
+            .propagate_event(&UpdateType::Message, req.clone())
             .await
             .unwrap();
 
@@ -745,7 +754,7 @@ mod tests {
         }
 
         let res = router_service
-            .propagate_event(CALLBACK_QUERY_OBSERVER_NAME, req.clone())
+            .propagate_event(&UpdateType::CallbackQuery, req.clone())
             .await
             .unwrap();
 
@@ -769,7 +778,7 @@ mod tests {
         let router_service = router.new_service(()).await.unwrap();
 
         let res = router_service
-            .propagate_event(MESSAGE_OBSERVER_NAME, req.clone())
+            .propagate_event(&UpdateType::Message, req.clone())
             .await
             .unwrap();
 
@@ -787,7 +796,7 @@ mod tests {
             .register(|| async { unreachable!() }, vec![]);
 
         let res = router_service
-            .propagate_event(CALLBACK_QUERY_OBSERVER_NAME, req)
+            .propagate_event(&UpdateType::CallbackQuery, req)
             .await
             .unwrap();
 
@@ -798,23 +807,5 @@ mod tests {
             PropagateEventResult::Unhandled => {}
             _ => panic!("Unexpected result"),
         }
-    }
-
-    #[tokio::test]
-    #[should_panic]
-    async fn test_router_propagate_event_panic() {
-        let bot = Bot::default();
-        let context = RwLock::new(Context::new());
-        let update = Update::default();
-
-        let mut router = Router::new("main");
-        router.message.register(|| async {}, vec![]);
-
-        let router_service = router.new_service(()).await.unwrap();
-
-        let req = RouterRequest::new(bot, update, context);
-
-        // Should panic, because there is no such telegram event observer
-        let _ = router_service.propagate_event("unknown", req).await;
     }
 }

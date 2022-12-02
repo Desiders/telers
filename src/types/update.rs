@@ -5,21 +5,6 @@ use super::{
 
 use serde::{Deserialize, Serialize};
 
-const MESSAGE_UPDATE_TYPE: &str = "message";
-const EDITED_MESSAGE_UPDATE_TYPE: &str = "edited_message";
-const CHANNEL_POST_UPDATE_TYPE: &str = "channel_post";
-const EDITED_CHANNEL_POST_UPDATE_TYPE: &str = "edited_channel_post";
-const INLINE_QUERY_UPDATE_TYPE: &str = "inline_query";
-const CHOSEN_INLINE_RESULT_UPDATE_TYPE: &str = "chosen_inline_result";
-const CALLBACK_QUERY_UPDATE_TYPE: &str = "callback_query";
-const SHIPPING_QUERY_UPDATE_TYPE: &str = "shipping_query";
-const PRE_CHECKOUT_QUERY_UPDATE_TYPE: &str = "pre_checkout_query";
-const POLL_UPDATE_TYPE: &str = "poll";
-const POLL_ANSWER_UPDATE_TYPE: &str = "poll_answer";
-const MY_CHAT_MEMBER_UPDATE_TYPE: &str = "my_chat_member";
-const CHAT_MEMBER_UPDATE_TYPE: &str = "chat_member";
-const CHAT_JOIN_REQUEST_UPDATE_TYPE: &str = "chat_join_request";
-
 /// This `object <https://core.telegram.org/bots/api#available-types>` represents an incoming update.
 /// At most **one** of the optional parameters can be present in any given update.
 /// <https://core.telegram.org/bots/api#update>
@@ -117,44 +102,6 @@ impl Update {
             Some(&chat_join_request.chat)
         } else {
             None
-        }
-    }
-
-    /// Get update type from the update as string
-    #[must_use]
-    pub fn update_type(&self) -> &str {
-        if self.message.is_some() {
-            MESSAGE_UPDATE_TYPE
-        } else if self.edited_message.is_some() {
-            EDITED_MESSAGE_UPDATE_TYPE
-        } else if self.channel_post.is_some() {
-            CHANNEL_POST_UPDATE_TYPE
-        } else if self.edited_channel_post.is_some() {
-            EDITED_CHANNEL_POST_UPDATE_TYPE
-        } else if self.inline_query.is_some() {
-            INLINE_QUERY_UPDATE_TYPE
-        } else if self.chosen_inline_result.is_some() {
-            CHOSEN_INLINE_RESULT_UPDATE_TYPE
-        } else if self.callback_query.is_some() {
-            CALLBACK_QUERY_UPDATE_TYPE
-        } else if self.shipping_query.is_some() {
-            SHIPPING_QUERY_UPDATE_TYPE
-        } else if self.pre_checkout_query.is_some() {
-            PRE_CHECKOUT_QUERY_UPDATE_TYPE
-        } else if self.poll.is_some() {
-            POLL_UPDATE_TYPE
-        } else if self.poll_answer.is_some() {
-            POLL_ANSWER_UPDATE_TYPE
-        } else if self.my_chat_member.is_some() {
-            MY_CHAT_MEMBER_UPDATE_TYPE
-        } else if self.chat_member.is_some() {
-            CHAT_MEMBER_UPDATE_TYPE
-        } else if self.chat_join_request.is_some() {
-            CHAT_JOIN_REQUEST_UPDATE_TYPE
-        } else {
-            log::error!("Unknown update type: {:?}", self);
-
-            unreachable!("Unknown update type: {:?}", self);
         }
     }
 }
