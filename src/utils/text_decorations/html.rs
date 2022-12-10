@@ -1,5 +1,7 @@
 use super::TextDecoration;
 
+use once_cell::sync::Lazy;
+
 const BOLD_TAG: &str = "b";
 const ITALIC_TAG: &str = "i";
 const UNDERLINE_TAG: &str = "u";
@@ -73,11 +75,10 @@ impl<'a> TextDecoration for HtmlDecoration<'a> {
 
     /// Quote symbols, that can be interpreted as  HTML tags
     fn quote(&self, text: &str) -> String {
-        String::from(
-            text.replace('&', "&amp;")
-                .replace('<', "&lt;")
-                .replace('>', "&gt;"),
-        )
+        text.replace('&', "&amp;")
+            .replace('<', "&lt;")
+            .replace('>', "&gt;")
+            .to_string()
     }
 }
 
@@ -116,11 +117,4 @@ impl Default for HtmlDecoration<'_> {
     }
 }
 
-pub static HTML_DECORATION: HtmlDecoration<'static> = HtmlDecoration {
-    bold_tag: BOLD_TAG,
-    italic_tag: ITALIC_TAG,
-    underline_tag: UNDERLINE_TAG,
-    strikethrough_tag: STRIKETHROUGH_TAG,
-    spoiler_tag: SPOILER_TAG,
-    emoji_tag: EMOJI_TAG,
-};
+pub static HTML_DECORATION: Lazy<HtmlDecoration<'static>> = Lazy::new(|| HtmlDecoration::default());

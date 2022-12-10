@@ -1,15 +1,16 @@
 use super::TextDecoration;
 
+use once_cell::sync::Lazy;
 use regex::Regex;
 
-const QUOTE_PATTERN_STR: &str = r"([_*\[\]()~`>#+\-=|{}.!\\])";
+const QUOTE_PATTERN: &str = r"([_*\[\]()~`>#+\-=|{}.!\\])";
 
 #[allow(clippy::module_name_repetitions)]
-pub struct MarkdownDecoration<'a> {
-    quote_pattern_str: &'a str,
+pub struct MarkdownDecoration {
+    regex: Regex,
 }
 
-impl<'a> TextDecoration for MarkdownDecoration<'a> {
+impl TextDecoration for MarkdownDecoration {
     /// Decorate text with `bold` tag
     fn bold(&self, text: &str) -> String {
         format!("*{text}*")
@@ -62,27 +63,25 @@ impl<'a> TextDecoration for MarkdownDecoration<'a> {
 
     /// Quote symbols, that can be interpreted as markdown
     fn quote(&self, text: &str) -> String {
-        Regex::new(self.quote_pattern_str)
-            .unwrap()
-            .replace_all(text, r"\\\1")
-            .to_string()
+        self.regex.replace_all(text, r"\\\1").to_string()
     }
 }
 
-impl<'a> MarkdownDecoration<'a> {
+impl MarkdownDecoration {
     #[must_use]
-    pub fn new(quote_pattern_str: &'a str) -> Self {
-        Self { quote_pattern_str }
+    pub fn new(quote_pattern: &str) -> Self {
+        Self {
+            regex: Regex::new(quote_pattern).unwrap(),
+        }
     }
 }
 
-impl Default for MarkdownDecoration<'_> {
+impl Default for MarkdownDecoration {
     #[must_use]
     fn default() -> Self {
-        Self::new(QUOTE_PATTERN_STR)
+        Self::new(QUOTE_PATTERN)
     }
 }
 
-pub static MARKDOWN_DECORATION: MarkdownDecoration<'static> = MarkdownDecoration {
-    quote_pattern_str: QUOTE_PATTERN_STR,
-};
+pub static MARKDOWN_DECORATION: Lazy<MarkdownDecoration> =
+    Lazy::new(|| MarkdownDecoration::default());
