@@ -60,9 +60,9 @@ impl FilesPathWrapper for SimpleFilesPathWrapper {
 /// Base config for API Endpoints
 pub struct TelegramAPIServer {
     /// Base URL for API
-    base: String,
+    base_url: String,
     /// Files URL
-    file: String,
+    files_url: String,
     /// Mark this server is in `local mode <https://core.telegram.org/bots/api#using-a-local-bot-api-server>`_
     is_local: bool,
     /// Path wrapper for files in local mode
@@ -72,19 +72,19 @@ pub struct TelegramAPIServer {
 impl TelegramAPIServer {
     /// Create a new TelegramAPIServer
     /// # Arguments
-    /// * `base` - Base URL for API
-    /// * `file` - Files URL
+    /// * `base_url` - Base URL for API
+    /// * `files_url` - Files URL
     /// * `is_local` - Mark this server is in `local mode <https://core.telegram.org/bots/api#using-a-local-bot-api-server>`_
     /// * `files_path_wrapper` - Path wrapper for files in local mode
     #[must_use]
-    pub fn new<T, W>(base: &str, file: &str, is_local: bool, files_path_wrapper: W) -> Self
+    pub fn new<T, W>(base_url: &str, files_url: &str, is_local: bool, files_path_wrapper: W) -> Self
     where
         T: FilesPathWrapper + 'static,
         W: Into<Arc<T>>,
     {
         Self {
-            base: base.trim_end_matches('/').to_string(),
-            file: file.trim_end_matches('/').to_string(),
+            base_url: base_url.trim_end_matches('/').to_string(),
+            files_url: files_url.trim_end_matches('/').to_string(),
             is_local,
             files_path_wrapper: files_path_wrapper.into(),
         }
@@ -92,14 +92,14 @@ impl TelegramAPIServer {
 
     /// Get base URL for API
     #[must_use]
-    pub fn base(&self) -> &str {
-        &self.base
+    pub fn base_url(&self) -> &str {
+        &self.base_url
     }
 
-    /// Get file URL
+    /// Get files URL
     #[must_use]
-    pub fn file(&self) -> &str {
-        &self.file
+    pub fn files_url(&self) -> &str {
+        &self.files_url
     }
 
     /// Check if this server is in `local mode <https://core.telegram.org/bots/api#using-a-local-bot-api-server>`_
@@ -114,24 +114,26 @@ impl TelegramAPIServer {
         &self.files_path_wrapper
     }
 
-    /// Generate URL for API methods
+    /// Generate URL for API method
     /// # Arguments
     /// * `token` - Bot token
     /// * `method` - API method name (case insensitive)
     #[must_use]
     pub fn api_url(&self, token: &str, method: &str) -> String {
-        self.base
+        self.base_url
             .replace("{token}", token)
             .replace("{method}", method)
     }
 
-    /// Generate URL for downloading files
+    /// Generate URL for downloading file
     /// # Arguments
     /// * `token` - Bot token
     /// * `path` - Path to file
     #[must_use]
     pub fn file_url(&self, token: &str, path: &str) -> String {
-        self.file.replace("{token}", token).replace("{path}", path)
+        self.files_url
+            .replace("{token}", token)
+            .replace("{path}", path)
     }
 }
 
@@ -156,3 +158,70 @@ pub static TEST: Lazy<TelegramAPIServer> = Lazy::new(|| {
         BareFilesPathWrapper,
     )
 });
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_api_url() {
+        let server = TelegramAPIServer::new(
+            "https://api.telegram.org/bot{token}/{method}",
+            "https://api.telegram.org/file/bot{token}/{path}",
+            false,
+            BareFilesPathWrapper,
+        );
+        assert_eq!(
+            server.api_url(
+                "1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+                "getUpdates"
+            ),
+            "https://api.telegram.org/bot1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/getUpdates"
+        );
+
+        let server = TelegramAPIServer::new(
+            "https://api.telegram.org/bot{token}/test/{method}",
+            "https://api.telegram.org/file/bot{token}/test/{path}",
+            false,
+            BareFilesPathWrapper,
+        );
+        assert_eq!(
+            server.api_url(
+                "1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+                "getUpdates"
+            ),
+            "https://api.telegram.org/bot1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/test/getUpdates"
+        );
+    }
+
+    #[test]
+    fn test_file_url() {
+        let server = TelegramAPIServer::new(
+            "https://api.telegram.org/bot{token}/{method}",
+            "https://api.telegram.org/file/bot{token}/{path}",
+            false,
+            BareFilesPathWrapper,
+        );
+        assert_eq!(
+            server.file_url(
+                "1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+                "test_path"
+            ),
+            "https://api.telegram.org/file/bot1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/test_path"
+        );
+
+        let server = TelegramAPIServer::new(
+            "https://api.telegram.org/bot{token}/test/{method}",
+            "https://api.telegram.org/file/bot{token}/test/{path}",
+            false,
+            BareFilesPathWrapper,
+        );
+        assert_eq!(
+            server.file_url(
+                "1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+                "test_path"
+            ),
+            "https://api.telegram.org/file/bot1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/test/test_path"
+        );
+    }
+}
