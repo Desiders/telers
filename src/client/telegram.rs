@@ -62,7 +62,7 @@ pub struct TelegramAPIServer {
     /// Base URL for API
     base: String,
     /// Files URL
-    files: String,
+    file: String,
     /// Mark this server is in `local mode <https://core.telegram.org/bots/api#using-a-local-bot-api-server>`_
     is_local: bool,
     /// Path wrapper for files in local mode
@@ -73,18 +73,18 @@ impl TelegramAPIServer {
     /// Create a new TelegramAPIServer
     /// # Arguments
     /// * `base` - Base URL for API
-    /// * `files` - Files URL
+    /// * `file` - Files URL
     /// * `is_local` - Mark this server is in `local mode <https://core.telegram.org/bots/api#using-a-local-bot-api-server>`_
     /// * `files_path_wrapper` - Path wrapper for files in local mode
     #[must_use]
-    pub fn new<T, W>(base: &str, files: &str, is_local: bool, files_path_wrapper: W) -> Self
+    pub fn new<T, W>(base: &str, file: &str, is_local: bool, files_path_wrapper: W) -> Self
     where
         T: FilesPathWrapper + 'static,
         W: Into<Arc<T>>,
     {
         Self {
             base: base.trim_end_matches('/').to_string(),
-            files: files.trim_end_matches('/').to_string(),
+            file: file.trim_end_matches('/').to_string(),
             is_local,
             files_path_wrapper: files_path_wrapper.into(),
         }
@@ -96,10 +96,10 @@ impl TelegramAPIServer {
         &self.base
     }
 
-    /// Get files URL
+    /// Get file URL
     #[must_use]
-    pub fn files(&self) -> &str {
-        &self.files
+    pub fn file(&self) -> &str {
+        &self.file
     }
 
     /// Check if this server is in `local mode <https://core.telegram.org/bots/api#using-a-local-bot-api-server>`_
@@ -112,6 +112,26 @@ impl TelegramAPIServer {
     #[must_use]
     pub fn files_path_wrapper(&self) -> &Arc<dyn FilesPathWrapper> {
         &self.files_path_wrapper
+    }
+
+    /// Generate URL for API methods
+    /// # Arguments
+    /// * `token` - Bot token
+    /// * `method` - API method name (case insensitive)
+    #[must_use]
+    pub fn api_url(&self, token: &str, method: &str) -> String {
+        self.base
+            .replace("{token}", token)
+            .replace("{method}", method)
+    }
+
+    /// Generate URL for downloading files
+    /// # Arguments
+    /// * `token` - Bot token
+    /// * `path` - Path to file
+    #[must_use]
+    pub fn file_url(&self, token: &str, path: &str) -> String {
+        self.file.replace("{token}", token).replace("{path}", path)
     }
 }
 
