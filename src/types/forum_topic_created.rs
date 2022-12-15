@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 /// This object represents a service message about a new forum topic created in the chat.
 /// <https://core.telegram.org/bots/api#forumtopiccreated>
-#[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ForumTopicCreated {
     /// Name of the topic
     pub name: String,
