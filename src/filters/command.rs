@@ -24,7 +24,7 @@ pub enum Error {
 
 /// Represents a command pattern type for verification
 /// # Variants
-/// * `Text(String)` - A command pattern with text
+/// * `Text(str)` - A command pattern with text
 /// * `Object(BotCommand)` - A command pattern with [`BotCommand`] object
 /// * `Regex(Regex)` - A command pattern with regex
 #[allow(clippy::module_name_repetitions)]
@@ -37,7 +37,7 @@ pub enum PatternType<'a> {
 
 #[derive(Default, Debug, Clone)]
 pub struct Command<'a> {
-    /// List of commands (string or compiled regexp patterns)
+    /// List of commands (str, [`BotCommand`] or compiled regexp patterns)
     pub commands: Vec<PatternType<'a>>,
     /// Command prefix
     pub prefix: &'a str,
