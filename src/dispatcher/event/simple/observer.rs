@@ -1,7 +1,7 @@
 use crate::{
     dispatcher::event::{
         service::{BoxFuture, Service, ServiceFactory},
-        simple::{Handler, HandlerObject, HandlerObjectService},
+        simple::handler::{Handler, HandlerObject, HandlerObjectService},
     },
     error::app,
 };
@@ -15,9 +15,7 @@ use std::{
 /// Is used for managing events isn't related with Telegram (For example startup/shutdown processes)
 #[derive(Default)]
 pub struct Observer {
-    /// Event observer name
     event_name: &'static str,
-    /// Handlers of the observer
     handlers: Vec<HandlerObject>,
 }
 
@@ -103,8 +101,8 @@ impl ServiceFactory<()> for Observer {
     }
 }
 
-#[allow(clippy::module_name_repetitions)]
 #[derive(Clone)]
+#[allow(clippy::module_name_repetitions)]
 pub struct ObserverService {
     /// Event observer name
     event_name: &'static str,

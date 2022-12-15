@@ -1,11 +1,11 @@
-use super::base::{MiddlewareType, Middlewares};
+use super::base::{MiddlewareType, MiddlewaresType};
 
 use std::sync::Arc;
 
 /// Manager for inner middlewares
 #[derive(Default, Clone)]
 pub struct Manager {
-    middlewares: Middlewares,
+    middlewares: MiddlewaresType,
 }
 
 /// Inner middlewares manager

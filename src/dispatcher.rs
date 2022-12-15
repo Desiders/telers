@@ -2,10 +2,10 @@
 #![allow(clippy::module_inception)]
 
 mod dispatcher;
-mod router;
 
 pub mod event;
 pub mod middlewares;
+pub mod router;
 
 pub use dispatcher::{Dispatcher, DispatcherService};
-pub use router::{Request as RouterRequest, Response as RouterResponse, Router, RouterService};
+pub use router::Router;

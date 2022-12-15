@@ -1,7 +1,7 @@
-mod base;
-mod logging;
-mod manager;
+pub mod base;
+pub mod logging;
+pub mod manager;
 
-pub use base::{Middleware, MiddlewareType, Middlewares, NextMiddlewaresIter};
+pub use base::{Middleware, MiddlewareType, MiddlewaresType, NextMiddlewaresIterType};
 pub use logging::Logging;
 pub use manager::Manager;

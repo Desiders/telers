@@ -1,4 +1,4 @@
-use super::TextDecoration;
+use super::text;
 
 use once_cell::sync::Lazy;
 
@@ -9,17 +9,16 @@ const STRIKETHROUGH_TAG: &str = "s";
 const SPOILER_TAG: &str = "tg-spoiler";
 const EMOJI_TAG: &str = "tg-emoji";
 
-#[allow(clippy::module_name_repetitions)]
-pub struct HtmlDecoration<'a> {
-    bold_tag: &'a str,
-    italic_tag: &'a str,
-    underline_tag: &'a str,
-    strikethrough_tag: &'a str,
-    spoiler_tag: &'a str,
-    emoji_tag: &'a str,
+pub struct Decoration {
+    bold_tag: &'static str,
+    italic_tag: &'static str,
+    underline_tag: &'static str,
+    strikethrough_tag: &'static str,
+    spoiler_tag: &'static str,
+    emoji_tag: &'static str,
 }
 
-impl<'a> TextDecoration for HtmlDecoration<'a> {
+impl text::Decoration for Decoration {
     /// Decorate text with `bold` tag
     fn bold(&self, text: &str) -> String {
         format!("<{tag}>{text}</{tag}>", tag = self.bold_tag)
@@ -81,15 +80,15 @@ impl<'a> TextDecoration for HtmlDecoration<'a> {
     }
 }
 
-impl<'a> HtmlDecoration<'a> {
+impl Decoration {
     #[must_use]
     pub fn new(
-        bold_tag: &'a str,
-        italic_tag: &'a str,
-        underline_tag: &'a str,
-        strikethrough_tag: &'a str,
-        spoiler_tag: &'a str,
-        emoji_tag: &'a str,
+        bold_tag: &'static str,
+        italic_tag: &'static str,
+        underline_tag: &'static str,
+        strikethrough_tag: &'static str,
+        spoiler_tag: &'static str,
+        emoji_tag: &'static str,
     ) -> Self {
         Self {
             bold_tag,
@@ -102,7 +101,7 @@ impl<'a> HtmlDecoration<'a> {
     }
 }
 
-impl Default for HtmlDecoration<'_> {
+impl Default for Decoration {
     #[must_use]
     fn default() -> Self {
         Self::new(
@@ -116,4 +115,4 @@ impl Default for HtmlDecoration<'_> {
     }
 }
 
-pub static HTML_DECORATION: Lazy<HtmlDecoration<'static>> = Lazy::new(HtmlDecoration::default);
+pub static DECORATION: Lazy<Decoration> = Lazy::new(Decoration::default);

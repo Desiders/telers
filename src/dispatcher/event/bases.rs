@@ -1,4 +1,4 @@
-use super::telegram::HandlerResponse;
+use super::telegram::handler::Response;
 
 use crate::error::{app, telegram};
 
@@ -51,7 +51,7 @@ pub enum Action {
 pub enum PropagateEventResult {
     Rejected,
     Unhandled,
-    Handled(HandlerResponse),
+    Handled(Response),
 }
 
 mod impl_from {

@@ -1,4 +1,4 @@
-use super::{Router, RouterRequest, RouterResponse, RouterService};
+use super::router::{Request, Response, Router, RouterService};
 
 use crate::{
     client::Bot,
@@ -78,6 +78,7 @@ impl ServiceFactory<()> for Dispatcher {
 }
 
 #[derive(Debug)]
+#[allow(clippy::module_name_repetitions)]
 pub struct DispatcherService {
     main_router: RouterService,
 }
@@ -125,7 +126,7 @@ impl DispatcherService {
         self: Arc<Self>,
         bot: B,
         update: U,
-    ) -> Result<RouterResponse, app::ErrorKind>
+    ) -> Result<Response, app::ErrorKind>
     where
         B: Into<Arc<Bot>>,
         U: Into<Arc<Update>>,
@@ -146,7 +147,7 @@ impl DispatcherService {
         let context = RwLock::new(Context::default());
 
         // Create a request for the router
-        let req = RouterRequest::new(bot, Arc::clone(&update), context);
+        let req = Request::new(bot, Arc::clone(&update), context);
 
         // Propagate event to the main router
         self.main_router.propagate_event(&update_type, req).await

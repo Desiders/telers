@@ -1,16 +1,15 @@
-use super::TextDecoration;
+use super::text;
 
 use once_cell::sync::Lazy;
 use regex::Regex;
 
 const QUOTE_PATTERN: &str = r"([_*\[\]()~`>#+\-=|{}.!\\])";
 
-#[allow(clippy::module_name_repetitions)]
-pub struct MarkdownDecoration {
+pub struct Decoration {
     regex: Regex,
 }
 
-impl TextDecoration for MarkdownDecoration {
+impl text::Decoration for Decoration {
     /// Decorate text with `bold` tag
     fn bold(&self, text: &str) -> String {
         format!("*{text}*")
@@ -67,8 +66,8 @@ impl TextDecoration for MarkdownDecoration {
     }
 }
 
-impl MarkdownDecoration {
-    /// Create new instance of `MarkdownDecoration`
+impl Decoration {
+    /// Create new instance of `Decoration`
     /// # Arguments
     /// * `quote_pattern` - pattern for quote symbols
     /// # Panics
@@ -81,11 +80,11 @@ impl MarkdownDecoration {
     }
 }
 
-impl Default for MarkdownDecoration {
+impl Default for Decoration {
     #[must_use]
     fn default() -> Self {
         Self::new(QUOTE_PATTERN)
     }
 }
 
-pub static MARKDOWN_DECORATION: Lazy<MarkdownDecoration> = Lazy::new(MarkdownDecoration::default);
+pub static DECORATION: Lazy<Decoration> = Lazy::new(Decoration::default);

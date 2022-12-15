@@ -1,7 +1,7 @@
 use crate::{
     dispatcher::{
         event::{bases::EventReturn, service::BoxFuture},
-        RouterRequest,
+        router::Request,
     },
     error::app,
 };
@@ -9,36 +9,27 @@ use crate::{
 use std::{future::Future, sync::Arc};
 
 pub type MiddlewareType = Box<dyn Middleware + Send + Sync>;
-pub type Middlewares = Vec<Arc<MiddlewareType>>;
+pub type MiddlewaresType = Vec<Arc<MiddlewareType>>;
 
 pub trait Middleware: Send + Sync {
     /// Execute middleware
     /// # Arguments
     /// * `req` - Data for router service
     /// # Returns
-    /// Updated [`RouterRequest`] for router service and [`EventReturn`] or [`app::ErrorKind`].
+    /// Updated [`Request`] for router service and [`EventReturn`] or [`app::ErrorKind`].
     /// [`EventReturn`] indicates how the dispatcher should process response, for more information see [`EventReturn`].
     /// # Errors
     /// If outer middleware returns error
     #[must_use]
-    fn call(
-        &self,
-        req: RouterRequest,
-    ) -> BoxFuture<Result<(RouterRequest, EventReturn), app::ErrorKind>>;
+    fn call(&self, req: Request) -> BoxFuture<Result<(Request, EventReturn), app::ErrorKind>>;
 }
 
 impl<Func, Fut> Middleware for Func
 where
-    Func: Fn(RouterRequest) -> Fut + Send + Sync + 'static,
-    Fut: Future<Output = Result<(RouterRequest, EventReturn), app::ErrorKind>>
-        + Send
-        + Sync
-        + 'static,
+    Func: Fn(Request) -> Fut + Send + Sync + 'static,
+    Fut: Future<Output = Result<(Request, EventReturn), app::ErrorKind>> + Send + Sync + 'static,
 {
-    fn call(
-        &self,
-        req: RouterRequest,
-    ) -> BoxFuture<Result<(RouterRequest, EventReturn), app::ErrorKind>> {
+    fn call(&self, req: Request) -> BoxFuture<Result<(Request, EventReturn), app::ErrorKind>> {
         Box::pin(self(req))
     }
 }
@@ -53,9 +44,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_call() {
-        let middleware = |req: RouterRequest| async move { Ok((req, EventReturn::default())) };
+        let middleware = |req: Request| async move { Ok((req, EventReturn::default())) };
 
-        let req = RouterRequest::new(
+        let req = Request::new(
             Bot::default(),
             Update::default(),
             RwLock::new(Context::default()),

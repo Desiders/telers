@@ -10,8 +10,8 @@ pub fn remove_surrogates(text: &[u16]) -> String {
     String::from_utf16_lossy(text)
 }
 
-#[allow(clippy::module_name_repetitions)]
-pub trait TextDecoration {
+/// A base trait for text decorations
+pub trait Decoration {
     /// Decorate text by [`MessageEntity`]
     #[must_use]
     fn apply_entity(&self, entity: &MessageEntity, text: &str) -> String {

@@ -33,7 +33,7 @@ impl FromEventAndContext for CommandObject {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::dispatcher::event::telegram::Handler;
+    use crate::dispatcher::event::telegram::handler::Handler;
 
     #[test]
     fn test_filters_extract() {

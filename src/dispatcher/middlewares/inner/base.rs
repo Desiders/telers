@@ -1,14 +1,14 @@
 use crate::{
     dispatcher::event::{
         service::BoxFuture,
-        telegram::{BoxedHandlerService, HandlerRequest, HandlerResponse},
+        telegram::handler::{BoxedHandlerService, Request, Response},
     },
     error::app,
 };
 
 pub type MiddlewareType = Box<dyn Middleware + Send + Sync>;
-pub type Middlewares = Vec<Arc<MiddlewareType>>;
-pub type NextMiddlewaresIter = Box<dyn Iterator<Item = Arc<MiddlewareType>> + Send + Sync>;
+pub type MiddlewaresType = Vec<Arc<MiddlewareType>>;
+pub type NextMiddlewaresIterType = Box<dyn Iterator<Item = Arc<MiddlewareType>> + Send + Sync>;
 
 use std::{future::Future, sync::Arc};
 
@@ -20,7 +20,7 @@ pub trait Middleware: Send + Sync {
     /// * `req` - Data for handler service
     /// * `middlewares` - Middlewares for handler service
     /// # Returns
-    /// [`HandlerResponse`] from handler service or [`app::ErrorKind`]
+    /// [`Response`] from handler service or [`app::ErrorKind`]
     /// # Errors
     /// If any inner middleware returns error
     /// If handler returns error. Probably it's error to extract args to the handler
@@ -28,9 +28,9 @@ pub trait Middleware: Send + Sync {
     fn call(
         &self,
         handler: Arc<BoxedHandlerService>,
-        req: HandlerRequest,
-        middlewares: NextMiddlewaresIter,
-    ) -> BoxFuture<Result<HandlerResponse, app::ErrorKind>>;
+        req: Request,
+        middlewares: NextMiddlewaresIterType,
+    ) -> BoxFuture<Result<Response, app::ErrorKind>>;
 
     /// Call next middleware or handler service if all middlewares has passed
     /// # Arguments
@@ -38,7 +38,7 @@ pub trait Middleware: Send + Sync {
     /// * `req` - Data for handler service
     /// * `middlewares` - Middlewares for handler service
     /// # Returns
-    /// [`HandlerResponse`] from handler service or [`app::ErrorKind`]
+    /// [`Response`] from handler service or [`app::ErrorKind`]
     /// # Errors
     /// If any inner middleware returns error
     /// If handler returns error. Probably it's error to extract args to the handler
@@ -46,9 +46,9 @@ pub trait Middleware: Send + Sync {
     fn handler(
         &self,
         handler: Arc<BoxedHandlerService>,
-        req: HandlerRequest,
-        mut middlewares: NextMiddlewaresIter,
-    ) -> BoxFuture<Result<HandlerResponse, app::ErrorKind>> {
+        req: Request,
+        mut middlewares: NextMiddlewaresIterType,
+    ) -> BoxFuture<Result<Response, app::ErrorKind>> {
         match middlewares.next() {
             // Call next middleware
             Some(middleware) => middleware.call(handler, req, middlewares),
@@ -60,18 +60,18 @@ pub trait Middleware: Send + Sync {
 
 impl<Func, Fut> Middleware for Func
 where
-    Func: Fn(Arc<BoxedHandlerService>, HandlerRequest, NextMiddlewaresIter) -> Fut
+    Func: Fn(Arc<BoxedHandlerService>, Request, NextMiddlewaresIterType) -> Fut
         + Send
         + Sync
         + 'static,
-    Fut: Future<Output = Result<HandlerResponse, app::ErrorKind>> + Send + Sync + 'static,
+    Fut: Future<Output = Result<Response, app::ErrorKind>> + Send + Sync + 'static,
 {
     fn call(
         &self,
         handler: Arc<BoxedHandlerService>,
-        req: HandlerRequest,
-        middlewares: NextMiddlewaresIter,
-    ) -> BoxFuture<Result<HandlerResponse, app::ErrorKind>> {
+        req: Request,
+        middlewares: NextMiddlewaresIterType,
+    ) -> BoxFuture<Result<Response, app::ErrorKind>> {
         Box::pin(self(handler, req, middlewares))
     }
 }
@@ -83,7 +83,7 @@ mod tests {
         client::Bot,
         context::Context,
         dispatcher::event::{
-            bases::EventReturn, service::ServiceFactory as _, telegram::handler_service,
+            bases::EventReturn, service::ServiceFactory as _, telegram::handler::handler_service,
         },
         types::Update,
     };
@@ -94,8 +94,8 @@ mod tests {
     #[tokio::test]
     async fn test_call() {
         let middleware = |handler: Arc<BoxedHandlerService>,
-                          req: HandlerRequest,
-                          mut middlewares: NextMiddlewaresIter| async move {
+                          req: Request,
+                          mut middlewares: NextMiddlewaresIterType| async move {
             match middlewares.next() {
                 // Call next middleware
                 Some(middleware) => middleware.call(handler, req, middlewares),
@@ -108,7 +108,7 @@ mod tests {
         let handler_service_factory = handler_service(|| async {}).new_service(());
         let handler_service = Arc::new(handler_service_factory.await.unwrap());
 
-        let req = HandlerRequest::new(
+        let req = Request::new(
             Bot::default(),
             Update::default(),
             RwLock::new(Context::default()),

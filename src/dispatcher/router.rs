@@ -1,13 +1,20 @@
 use super::event::{
     bases::PropagateEventResult,
     service::{BoxFuture, Service, ServiceFactory},
-    simple, telegram,
+    simple::observer::{Observer as SimpleObserver, ObserverService as SimpleObserverService},
+    telegram::observer::{
+        Observer as TelegramObserver, ObserverService as TelegramObserverService,
+        Request as TelegramObserverRequest,
+    },
 };
 
 use crate::{
     client::Bot,
     context::Context,
-    enums::{observer_name, update_type::UpdateType},
+    enums::{
+        observer_name::{Simple as SimpleObserverName, Telegram as TelegramObserverName},
+        update_type::UpdateType,
+    },
     error::app,
     types::Update,
 };
@@ -68,7 +75,7 @@ impl Request {
     }
 }
 
-impl From<Request> for telegram::ObserverRequest {
+impl From<Request> for TelegramObserverRequest {
     fn from(req: Request) -> Self {
         Self::new(req.bot, req.update, req.context)
     }
@@ -107,23 +114,23 @@ pub struct Router {
     router_name: &'static str,
     sub_routers: Vec<Router>,
 
-    pub message: telegram::Observer,
-    pub edited_message: telegram::Observer,
-    pub channel_post: telegram::Observer,
-    pub edited_channel_post: telegram::Observer,
-    pub inline_query: telegram::Observer,
-    pub chosen_inline_result: telegram::Observer,
-    pub callback_query: telegram::Observer,
-    pub shipping_query: telegram::Observer,
-    pub pre_checkout_query: telegram::Observer,
-    pub poll: telegram::Observer,
-    pub poll_answer: telegram::Observer,
-    pub my_chat_member: telegram::Observer,
-    pub chat_member: telegram::Observer,
-    pub chat_join_request: telegram::Observer,
+    pub message: TelegramObserver,
+    pub edited_message: TelegramObserver,
+    pub channel_post: TelegramObserver,
+    pub edited_channel_post: TelegramObserver,
+    pub inline_query: TelegramObserver,
+    pub chosen_inline_result: TelegramObserver,
+    pub callback_query: TelegramObserver,
+    pub shipping_query: TelegramObserver,
+    pub pre_checkout_query: TelegramObserver,
+    pub poll: TelegramObserver,
+    pub poll_answer: TelegramObserver,
+    pub my_chat_member: TelegramObserver,
+    pub chat_member: TelegramObserver,
+    pub chat_join_request: TelegramObserver,
 
-    pub startup: simple::Observer,
-    pub shutdown: simple::Observer,
+    pub startup: SimpleObserver,
+    pub shutdown: SimpleObserver,
 }
 
 impl Router {
@@ -135,30 +142,28 @@ impl Router {
         Self {
             router_name,
             sub_routers: vec![],
-            message: telegram::Observer::new(observer_name::Telegram::Message.into()),
-            edited_message: telegram::Observer::new(observer_name::Telegram::EditedMessage.into()),
-            channel_post: telegram::Observer::new(observer_name::Telegram::ChannelPost.into()),
-            edited_channel_post: telegram::Observer::new(
-                observer_name::Telegram::EditedChannelPost.into(),
+            message: TelegramObserver::new(TelegramObserverName::Message.into()),
+            edited_message: TelegramObserver::new(TelegramObserverName::EditedMessage.into()),
+            channel_post: TelegramObserver::new(TelegramObserverName::ChannelPost.into()),
+            edited_channel_post: TelegramObserver::new(
+                TelegramObserverName::EditedChannelPost.into(),
             ),
-            inline_query: telegram::Observer::new(observer_name::Telegram::InlineQuery.into()),
-            chosen_inline_result: telegram::Observer::new(
-                observer_name::Telegram::ChosenInlineResult.into(),
+            inline_query: TelegramObserver::new(TelegramObserverName::InlineQuery.into()),
+            chosen_inline_result: TelegramObserver::new(
+                TelegramObserverName::ChosenInlineResult.into(),
             ),
-            callback_query: telegram::Observer::new(observer_name::Telegram::CallbackQuery.into()),
-            shipping_query: telegram::Observer::new(observer_name::Telegram::ShippingQuery.into()),
-            pre_checkout_query: telegram::Observer::new(
-                observer_name::Telegram::PreCheckoutQuery.into(),
+            callback_query: TelegramObserver::new(TelegramObserverName::CallbackQuery.into()),
+            shipping_query: TelegramObserver::new(TelegramObserverName::ShippingQuery.into()),
+            pre_checkout_query: TelegramObserver::new(
+                TelegramObserverName::PreCheckoutQuery.into(),
             ),
-            poll: telegram::Observer::new(observer_name::Telegram::Poll.into()),
-            poll_answer: telegram::Observer::new(observer_name::Telegram::PollAnswer.into()),
-            my_chat_member: telegram::Observer::new(observer_name::Telegram::MyChatMember.into()),
-            chat_member: telegram::Observer::new(observer_name::Telegram::ChatMember.into()),
-            chat_join_request: telegram::Observer::new(
-                observer_name::Telegram::ChatJoinRequest.into(),
-            ),
-            startup: simple::Observer::new(observer_name::Simple::Startup.into()),
-            shutdown: simple::Observer::new(observer_name::Simple::Shutdown.into()),
+            poll: TelegramObserver::new(TelegramObserverName::Poll.into()),
+            poll_answer: TelegramObserver::new(TelegramObserverName::PollAnswer.into()),
+            my_chat_member: TelegramObserver::new(TelegramObserverName::MyChatMember.into()),
+            chat_member: TelegramObserver::new(TelegramObserverName::ChatMember.into()),
+            chat_join_request: TelegramObserver::new(TelegramObserverName::ChatJoinRequest.into()),
+            startup: SimpleObserver::new(SimpleObserverName::Startup.into()),
+            shutdown: SimpleObserver::new(SimpleObserverName::Shutdown.into()),
         }
     }
 
@@ -189,7 +194,7 @@ impl Router {
     /// Get telegram event observers
     #[must_use]
     #[rustfmt::skip]
-    pub fn telegram_observers(&self) -> Vec<&telegram::Observer> {
+    pub fn telegram_observers(&self) -> Vec<&TelegramObserver> {
         vec![
             &self.message,
             &self.edited_message,
@@ -210,7 +215,7 @@ impl Router {
 
     /// Get event observers
     #[must_use]
-    pub fn event_observers(&self) -> Vec<&simple::Observer> {
+    pub fn event_observers(&self) -> Vec<&SimpleObserver> {
         vec![&self.startup, &self.shutdown]
     }
 
@@ -388,23 +393,23 @@ pub struct RouterService {
     router_name: &'static str,
     sub_routers: Vec<RouterService>,
 
-    message: telegram::ObserverService,
-    edited_message: telegram::ObserverService,
-    channel_post: telegram::ObserverService,
-    edited_channel_post: telegram::ObserverService,
-    inline_query: telegram::ObserverService,
-    chosen_inline_result: telegram::ObserverService,
-    callback_query: telegram::ObserverService,
-    shipping_query: telegram::ObserverService,
-    pre_checkout_query: telegram::ObserverService,
-    poll: telegram::ObserverService,
-    poll_answer: telegram::ObserverService,
-    my_chat_member: telegram::ObserverService,
-    chat_member: telegram::ObserverService,
-    chat_join_request: telegram::ObserverService,
+    message: TelegramObserverService,
+    edited_message: TelegramObserverService,
+    channel_post: TelegramObserverService,
+    edited_channel_post: TelegramObserverService,
+    inline_query: TelegramObserverService,
+    chosen_inline_result: TelegramObserverService,
+    callback_query: TelegramObserverService,
+    shipping_query: TelegramObserverService,
+    pre_checkout_query: TelegramObserverService,
+    poll: TelegramObserverService,
+    poll_answer: TelegramObserverService,
+    my_chat_member: TelegramObserverService,
+    chat_member: TelegramObserverService,
+    chat_join_request: TelegramObserverService,
 
-    startup: simple::ObserverService,
-    shutdown: simple::ObserverService,
+    startup: SimpleObserverService,
+    shutdown: SimpleObserverService,
 }
 
 impl RouterService {
@@ -413,7 +418,7 @@ impl RouterService {
     pub fn telegram_observer_by_update_type(
         &self,
         update_type: &UpdateType,
-    ) -> &telegram::ObserverService {
+    ) -> &TelegramObserverService {
         match update_type {
             UpdateType::Message => &self.message,
             UpdateType::EditedMessage => &self.edited_message,
@@ -511,7 +516,7 @@ impl RouterService {
     #[allow(clippy::similar_names)]
     async fn propagate_event_by_observer(
         &self,
-        observer: &telegram::ObserverService,
+        observer: &TelegramObserverService,
         update_type: &UpdateType,
         req: Request,
     ) -> Result<Response, app::ErrorKind> {
@@ -588,9 +593,9 @@ mod tests {
         dispatcher::{
             event::{
                 bases::{Action, EventReturn},
-                telegram::BoxedHandlerService,
+                telegram::handler::BoxedHandlerService,
             },
-            RouterRequest,
+            router::Request as RouterRequest,
         },
         filters::command,
     };

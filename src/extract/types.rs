@@ -164,7 +164,7 @@ impl FromEventAndContext for Poll {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::dispatcher::event::telegram::Handler;
+    use crate::dispatcher::event::telegram::handler::Handler;
 
     #[test]
     fn test_types_extract() {

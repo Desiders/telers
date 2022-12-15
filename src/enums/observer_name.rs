@@ -1,3 +1,4 @@
+/// Enums, which are used to identify default [telegram observers](`crate::dispatcher::event::telegram::Observer`).
 pub enum Telegram {
     Message,
     InlineQuery,
@@ -36,6 +37,7 @@ impl From<Telegram> for &str {
     }
 }
 
+/// Enums, which are used to identify default [simple observers](`crate::dispatcher::event::simple::Observer`).
 pub enum Simple {
     Startup,
     Shutdown,

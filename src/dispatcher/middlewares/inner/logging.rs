@@ -1,12 +1,9 @@
 use crate::{
-    dispatcher::event::{
-        service::BoxFuture,
-        telegram::{BoxedHandlerService, HandlerRequest, HandlerResponse},
-    },
+    dispatcher::event::{service::BoxFuture, telegram::handler},
     error::app,
 };
 
-use super::base::{Middleware, NextMiddlewaresIter};
+use super::base::{Middleware, NextMiddlewaresIterType};
 
 use log::{self, Level, Log, Record};
 use std::{sync::Arc, time::Instant};
@@ -32,10 +29,10 @@ impl Middleware for Logging {
     #[allow(clippy::similar_names)]
     fn call(
         &self,
-        handler: Arc<BoxedHandlerService>,
-        req: HandlerRequest,
-        middlewares: NextMiddlewaresIter,
-    ) -> BoxFuture<Result<HandlerResponse, app::ErrorKind>> {
+        handler: Arc<handler::BoxedHandlerService>,
+        req: handler::Request,
+        middlewares: NextMiddlewaresIterType,
+    ) -> BoxFuture<Result<handler::Response, app::ErrorKind>> {
         let target = self.target;
         let logger = Arc::clone(&self.logger);
         let fut = self.handler(handler, req, middlewares);
@@ -98,7 +95,7 @@ mod tests {
     use crate::{
         client::Bot,
         context::Context,
-        dispatcher::event::{service::ServiceFactory as _, telegram::handler_service},
+        dispatcher::event::{service::ServiceFactory as _, telegram::handler},
         types::Update,
     };
 
@@ -126,10 +123,10 @@ mod tests {
     async fn test_logging() {
         let middleware = Logging::new(Box::new(SimpleLogger), None);
 
-        let handler_service_factory = handler_service(|| async {}).new_service(());
+        let handler_service_factory = handler::handler_service(|| async {}).new_service(());
         let handler_service = Arc::new(handler_service_factory.await.unwrap());
 
-        let req = HandlerRequest::new(
+        let req = handler::Request::new(
             Bot::default(),
             Update::default(),
             RwLock::new(Context::default()),

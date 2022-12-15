@@ -5,9 +5,18 @@ use crate::{
         event::{
             bases::{EventReturn, PropagateEventResult},
             service::{BoxFuture, Service, ServiceFactory},
-            telegram::{Handler, HandlerObject, HandlerObjectService, HandlerRequest},
+            telegram::handler::{
+                Handler, HandlerObject, HandlerObjectService, Request as HandlerRequest,
+            },
         },
-        middlewares,
+        middlewares::{
+            inner::{
+                base::Middleware as InnerMiddleware, manager::Manager as InnerMiddlewareManager,
+            },
+            outer::{
+                base::Middleware as OuterMiddleware, manager::Manager as OuterMiddlewareManager,
+            },
+        },
     },
     error::app,
     extract::FromEventAndContext,
@@ -102,9 +111,9 @@ pub struct Observer {
     /// Common handler of the observer with dummy callback which never will be used
     common_handler: HandlerObject,
     /// Inner middlewares manager
-    pub middlewares: middlewares::inner::Manager,
+    pub middlewares: InnerMiddlewareManager,
     /// Outer middlewares manager
-    pub outer_middlewares: middlewares::outer::Manager,
+    pub outer_middlewares: OuterMiddlewareManager,
 }
 
 impl Observer {
@@ -120,8 +129,8 @@ impl Observer {
                 || async move { unreachable!("This is only for observer filters and without logic") },
                 vec![],
             ),
-            middlewares: middlewares::inner::Manager::default(),
-            outer_middlewares: middlewares::outer::Manager::default(),
+            middlewares: InnerMiddlewareManager::default(),
+            outer_middlewares: OuterMiddlewareManager::default(),
         }
     }
 
@@ -244,9 +253,9 @@ pub struct ObserverService {
     /// Common handler service of the observer with dummy callback which never will be used
     common_handler: Arc<HandlerObjectService>,
     /// Inner middlewares
-    middlewares: Vec<Arc<Box<dyn middlewares::inner::Middleware + Send + Sync>>>,
+    middlewares: Vec<Arc<Box<dyn InnerMiddleware + Send + Sync>>>,
     /// Outer middlewares
-    outer_middlewares: Vec<Arc<Box<dyn middlewares::outer::Middleware + Send + Sync>>>,
+    outer_middlewares: Vec<Arc<Box<dyn OuterMiddleware + Send + Sync>>>,
 }
 
 impl ObserverService {
@@ -258,15 +267,13 @@ impl ObserverService {
 
     /// Get inner middlewares
     #[must_use]
-    pub fn middlewares(&self) -> &[Arc<Box<dyn middlewares::inner::Middleware + Send + Sync>>] {
+    pub fn middlewares(&self) -> &[Arc<Box<dyn InnerMiddleware + Send + Sync>>] {
         &self.middlewares
     }
 
     /// Get outer middlewares
     #[must_use]
-    pub fn outer_middlewares(
-        &self,
-    ) -> &[Arc<Box<dyn middlewares::outer::Middleware + Send + Sync>>] {
+    pub fn outer_middlewares(&self) -> &[Arc<Box<dyn OuterMiddleware + Send + Sync>>] {
         &self.outer_middlewares
     }
 
@@ -306,13 +313,13 @@ impl ObserverService {
                     .await?
             };
 
-            let return_response = res.response();
+            let handler_response = res.response();
             // If handler returns skip, we should skip it and run next handler
-            if return_response.is_skip() {
+            if handler_response.is_skip() {
                 continue;
             }
             // If handler returns cancel, we should stop propagation
-            if return_response.is_cancel() {
+            if handler_response.is_cancel() {
                 return Ok(Response {
                     request: req,
                     response: PropagateEventResult::Rejected,

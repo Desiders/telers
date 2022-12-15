@@ -27,7 +27,6 @@ pub enum Error {
 /// * `Text(str)` - A command pattern with text
 /// * `Object(BotCommand)` - A command pattern with [`BotCommand`] object
 /// * `Regex(Regex)` - A command pattern with regex
-#[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Clone)]
 pub enum PatternType<'a> {
     Text(&'a str),
