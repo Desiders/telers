@@ -7,29 +7,19 @@ use crate::{
 };
 
 use regex::Regex;
-use std::{
-    fmt::{self, Display, Formatter},
-    sync::RwLock,
-};
+use std::sync::RwLock;
+use thiserror;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[allow(clippy::module_name_repetitions)]
-#[derive(Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
+    #[error("Invalid prefix")]
     InvalidPrefix,
+    #[error("Invalid mention")]
     InvalidMention,
+    #[error("Invalid command")]
     InvalidCommand,
-}
-
-impl Display for Error {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        match self {
-            Error::InvalidPrefix => write!(f, "Invalid prefix"),
-            Error::InvalidMention => write!(f, "Invalid mention"),
-            Error::InvalidCommand => write!(f, "Invalid command"),
-        }
-    }
 }
 
 /// Represents a command pattern type for verification
