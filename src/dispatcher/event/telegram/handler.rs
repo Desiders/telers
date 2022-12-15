@@ -13,7 +13,7 @@ use crate::{
     types::Update,
 };
 
-use std::{future::Future, sync::Arc, sync::RwLock};
+use std::{future::Future, sync::Arc};
 
 pub type BoxedHandlerService = BoxService<Request, Response, app::ErrorKind>;
 pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), Request, Response, app::ErrorKind, ()>;
@@ -26,7 +26,7 @@ pub struct Request {
     update: Arc<Update>,
     /// Context, which can contain some data. Can be mapped to handler arguments,
     /// used as hashmap in handlers, middlewares and filters
-    context: Arc<RwLock<Context>>,
+    context: Arc<Context>,
 }
 
 impl PartialEq for Request {
@@ -39,7 +39,7 @@ impl PartialEq for Request {
 
 impl Request {
     #[must_use]
-    pub fn new<B: Into<Arc<Bot>>, U: Into<Arc<Update>>, C: Into<Arc<RwLock<Context>>>>(
+    pub fn new<B: Into<Arc<Bot>>, U: Into<Arc<Update>>, C: Into<Arc<Context>>>(
         bot: B,
         update: U,
         context: C,
@@ -62,7 +62,7 @@ impl Request {
     }
 
     #[must_use]
-    pub fn context(&self) -> Arc<RwLock<Context>> {
+    pub fn context(&self) -> Arc<Context> {
         Arc::clone(&self.context)
     }
 }
@@ -306,11 +306,7 @@ mod tests {
         let handler_object = HandlerObject::new(|| async {}, vec![]);
         let handler_object_service = handler_object.new_service(()).await.unwrap();
 
-        let req = Request::new(
-            Bot::default(),
-            Update::default(),
-            RwLock::new(Context::new()),
-        );
+        let req = Request::new(Bot::default(), Update::default(), Context::new());
         assert_eq!(handler_object_service.check(&req), true);
 
         let res = handler_object_service.call(req).await.unwrap();

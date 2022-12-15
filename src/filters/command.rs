@@ -7,7 +7,6 @@ use crate::{
 };
 
 use regex::Regex;
-use std::sync::RwLock;
 use thiserror;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -176,7 +175,7 @@ impl CommandObject {
 }
 
 impl Filter for Command<'_> {
-    fn check(&self, bot: &Bot, update: &Update, context: &RwLock<Context>) -> bool {
+    fn check(&self, bot: &Bot, update: &Update, context: &Context) -> bool {
         if let Some(ref message) = update.message {
             let text = match message.get_text_or_caption() {
                 Some(text) => text,
@@ -185,10 +184,7 @@ impl Filter for Command<'_> {
 
             match self.parse_command(text, bot) {
                 Ok(command) => {
-                    context
-                        .write()
-                        .unwrap()
-                        .insert("command", Box::new(command));
+                    context.insert("command", Box::new(command));
                     true
                 }
                 Err(_) => false,

@@ -4,14 +4,14 @@ use crate::{
 };
 
 use futures::future::{err, ok, Ready};
-use std::{sync::Arc, sync::RwLock};
+use std::sync::Arc;
 
 impl FromEventAndContext for CommandObject {
     type Error = app::ErrorKind;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn extract(_: Arc<Bot>, _: Arc<Update>, context: Arc<RwLock<Context>>) -> Self::Future {
-        context.read().unwrap().get("command").map_or(
+    fn extract(_: Arc<Bot>, _: Arc<Update>, context: Arc<Context>) -> Self::Future {
+        context.get("command").map_or(
             err(app::ErrorKind::ExtractError(
                 "Key `command` not found in the context".into(),
             )),

@@ -27,7 +27,6 @@ use crate::{
 use std::{
     fmt::{self, Debug, Formatter},
     sync::Arc,
-    sync::RwLock,
 };
 
 /// Data for telegram observer service
@@ -35,7 +34,7 @@ use std::{
 pub struct Request {
     bot: Arc<Bot>,
     update: Arc<Update>,
-    context: Arc<RwLock<Context>>,
+    context: Arc<Context>,
 }
 
 impl PartialEq for Request {
@@ -48,7 +47,7 @@ impl PartialEq for Request {
 
 impl Request {
     #[must_use]
-    pub fn new<B: Into<Arc<Bot>>, U: Into<Arc<Update>>, C: Into<Arc<RwLock<Context>>>>(
+    pub fn new<B: Into<Arc<Bot>>, U: Into<Arc<Update>>, C: Into<Arc<Context>>>(
         bot: B,
         update: U,
         context: C,
@@ -71,7 +70,7 @@ impl Request {
     }
 
     #[must_use]
-    pub fn context(&self) -> Arc<RwLock<Context>> {
+    pub fn context(&self) -> Arc<Context> {
         Arc::clone(&self.context)
     }
 }
@@ -373,7 +372,7 @@ mod tests {
     #[tokio::test]
     async fn test_observer_trigger() {
         let bot = Bot::default();
-        let context = RwLock::new(Context::default());
+        let context = Context::default();
 
         let mut observer = Observer::new("test");
         // Register common filter, which handlers can't pass
@@ -424,7 +423,7 @@ mod tests {
     #[tokio::test]
     async fn test_observer_event_return() {
         let bot = Bot::default();
-        let context = RwLock::new(Context::default());
+        let context = Context::default();
         let update = Update::default();
 
         let mut observer = Observer::new("test");

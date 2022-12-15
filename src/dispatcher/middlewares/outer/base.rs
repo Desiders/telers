@@ -39,18 +39,13 @@ mod tests {
     use super::*;
     use crate::{client::Bot, context::Context, types::Update};
 
-    use std::sync::RwLock;
     use tokio;
 
     #[tokio::test]
     async fn test_call() {
         let middleware = |req: Request| async move { Ok((req, EventReturn::default())) };
 
-        let req = Request::new(
-            Bot::default(),
-            Update::default(),
-            RwLock::new(Context::default()),
-        );
+        let req = Request::new(Bot::default(), Update::default(), Context::default());
 
         let (updated_req, _) = Middleware::call(&middleware, req.clone()).await.unwrap();
         assert!(req == updated_req);

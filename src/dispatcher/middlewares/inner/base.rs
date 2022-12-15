@@ -88,7 +88,7 @@ mod tests {
         types::Update,
     };
 
-    use std::{iter, sync::RwLock};
+    use std::iter;
     use tokio;
 
     #[tokio::test]
@@ -108,11 +108,7 @@ mod tests {
         let handler_service_factory = handler_service(|| async {}).new_service(());
         let handler_service = Arc::new(handler_service_factory.await.unwrap());
 
-        let req = Request::new(
-            Bot::default(),
-            Update::default(),
-            RwLock::new(Context::default()),
-        );
+        let req = Request::new(Bot::default(), Update::default(), Context::default());
 
         let res = Middleware::call(&middleware, handler_service, req, Box::new(iter::empty()))
             .await

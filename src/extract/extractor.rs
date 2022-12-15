@@ -9,7 +9,7 @@ use std::{
     convert::Infallible,
     marker::PhantomData,
     pin::Pin,
-    sync::{Arc, RwLock},
+    sync::Arc,
     task::{Context, Poll},
 };
 
@@ -18,11 +18,7 @@ pub trait FromEventAndContext: Sized + Send + Sync {
     type Error: Into<app::ErrorKind> + Send + Sync;
     type Future: Future<Output = Result<Self, Self::Error>> + Send + Sync;
 
-    fn extract(
-        bot: Arc<Bot>,
-        update: Arc<Update>,
-        context: Arc<RwLock<AppContext>>,
-    ) -> Self::Future;
+    fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<AppContext>) -> Self::Future;
 }
 
 impl<T> FromEventAndContext for Option<T>
@@ -33,11 +29,7 @@ where
     type Future = FromEventAndContextOptFuture<T::Future>;
 
     #[inline]
-    fn extract(
-        bot: Arc<Bot>,
-        update: Arc<Update>,
-        context: Arc<RwLock<AppContext>>,
-    ) -> Self::Future {
+    fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<AppContext>) -> Self::Future {
         FromEventAndContextOptFuture {
             fut: T::extract(bot, update, context),
         }
@@ -79,11 +71,7 @@ where
     type Future = FromEventAndContextResFuture<T::Future, E>;
 
     #[inline]
-    fn extract(
-        bot: Arc<Bot>,
-        update: Arc<Update>,
-        context: Arc<RwLock<AppContext>>,
-    ) -> Self::Future {
+    fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<AppContext>) -> Self::Future {
         FromEventAndContextResFuture {
             fut: T::extract(bot, update, context),
             _phantom: PhantomData,
@@ -119,7 +107,7 @@ where
 mod tuple_from_req {
     use super::{
         app, ok, pin_project, AppContext, Arc, Bot, Context, FromEventAndContext, Future,
-        Infallible, Pin, Poll, Ready, RwLock, Update,
+        Infallible, Pin, Poll, Ready, Update,
     };
 
     macro_rules! tuple_from_req {
@@ -131,7 +119,7 @@ mod tuple_from_req {
                 type Error = app::ErrorKind;
                 type Future = $fut<$($T),+>;
 
-                fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<RwLock<AppContext>>) -> Self::Future {
+                fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<AppContext>) -> Self::Future {
                     $fut {
                         $(
                             $T: ExtractFuture::Future {
@@ -210,7 +198,7 @@ mod tuple_from_req {
         type Error = Infallible;
         type Future = Ready<Result<Self, Self::Error>>;
 
-        fn extract(_: Arc<Bot>, _: Arc<Update>, _: Arc<RwLock<AppContext>>) -> Self::Future {
+        fn extract(_: Arc<Bot>, _: Arc<Update>, _: Arc<AppContext>) -> Self::Future {
             ok(())
         }
     }

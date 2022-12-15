@@ -11,7 +11,7 @@ use crate::{
 
 use async_channel::{self, Receiver, RecvError, SendError, Sender, TryRecvError};
 use log;
-use std::{sync::Arc, sync::RwLock};
+use std::sync::Arc;
 use tokio::{
     self,
     signal::unix::{signal, SignalKind},
@@ -144,7 +144,7 @@ impl DispatcherService {
         };
 
         // Create a context for the update
-        let context = RwLock::new(Context::default());
+        let context = Context::default();
 
         // Create a request for the router
         let req = Request::new(bot, Arc::clone(&update), context);
