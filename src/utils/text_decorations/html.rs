@@ -78,7 +78,6 @@ impl<'a> TextDecoration for HtmlDecoration<'a> {
         text.replace('&', "&amp;")
             .replace('<', "&lt;")
             .replace('>', "&gt;")
-            .to_string()
     }
 }
 
@@ -117,4 +116,4 @@ impl Default for HtmlDecoration<'_> {
     }
 }
 
-pub static HTML_DECORATION: Lazy<HtmlDecoration<'static>> = Lazy::new(|| HtmlDecoration::default());
+pub static HTML_DECORATION: Lazy<HtmlDecoration<'static>> = Lazy::new(HtmlDecoration::default);

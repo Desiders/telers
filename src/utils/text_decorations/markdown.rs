@@ -68,6 +68,11 @@ impl TextDecoration for MarkdownDecoration {
 }
 
 impl MarkdownDecoration {
+    /// Create new instance of `MarkdownDecoration`
+    /// # Arguments
+    /// * `quote_pattern` - pattern for quote symbols
+    /// # Panics
+    /// If `quote_pattern` is invalid
     #[must_use]
     pub fn new(quote_pattern: &str) -> Self {
         Self {
@@ -83,5 +88,4 @@ impl Default for MarkdownDecoration {
     }
 }
 
-pub static MARKDOWN_DECORATION: Lazy<MarkdownDecoration> =
-    Lazy::new(|| MarkdownDecoration::default());
+pub static MARKDOWN_DECORATION: Lazy<MarkdownDecoration> = Lazy::new(MarkdownDecoration::default);
