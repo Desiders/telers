@@ -60,7 +60,7 @@ impl Dispatcher {
 
 impl ServiceFactory<()> for Dispatcher {
     type Response = ();
-    type Error = app::Error;
+    type Error = app::ErrorKind;
     type Config = ();
     type Service = Arc<DispatcherService>;
     type InitError = ();
@@ -125,7 +125,7 @@ impl DispatcherService {
         self: Arc<Self>,
         bot: B,
         update: U,
-    ) -> Result<RouterResponse, app::Error>
+    ) -> Result<RouterResponse, app::ErrorKind>
     where
         B: Into<Arc<Bot>>,
         U: Into<Arc<Update>>,
@@ -133,15 +133,14 @@ impl DispatcherService {
         let update: Arc<Update> = update.into();
 
         // Get update type for get observer
-        let update_type =
-            match update.as_ref().try_into() as Result<UpdateType, app::UpdateTypeError> {
-                Ok(update_type) => update_type,
-                Err(err) => {
-                    log::error!("{err:?}");
+        let update_type = match update.as_ref().try_into() as Result<UpdateType, app::ErrorKind> {
+            Ok(update_type) => update_type,
+            Err(err) => {
+                log::error!("{err:?}");
 
-                    return Err(err.into());
-                }
-            };
+                return Err(err);
+            }
+        };
 
         // Create a context for the update
         let context = RwLock::new(Context::default());
@@ -209,13 +208,13 @@ impl DispatcherService {
     /// # Panics
     /// * [`signal`]:
     ///     - If there is no current reactor set, or if the `rt` feature flag is not enabled
-    pub async fn run_polling<D, B>(self: Arc<Self>, bots: Vec<B>) -> Result<(), app::Error>
+    pub async fn run_polling<D, B>(self: Arc<Self>, bots: Vec<B>) -> Result<(), app::ErrorKind>
     where
         B: Into<Arc<Bot>>,
     {
         // Emit startup events
         if let Err(err) = self.main_router.emit_startup().await {
-            log::error!("Error while emit startup: {}", err);
+            log::error!("Error while emit startup: {err}");
 
             return Err(err);
         }
@@ -272,7 +271,7 @@ impl DispatcherService {
 
 impl Service<()> for Arc<DispatcherService> {
     type Response = ();
-    type Error = app::Error;
+    type Error = app::ErrorKind;
     type Future = BoxFuture<Result<Self::Response, Self::Error>>;
 
     fn call(&self, _: ()) -> Self::Future {

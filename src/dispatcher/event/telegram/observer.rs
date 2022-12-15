@@ -197,7 +197,7 @@ impl AsRef<Observer> for Observer {
 
 impl ServiceFactory<Request> for Observer {
     type Response = Response;
-    type Error = app::Error;
+    type Error = app::ErrorKind;
     type Config = ();
     type Service = ObserverService;
     type InitError = ();
@@ -275,7 +275,7 @@ impl ObserverService {
     /// # Errors
     /// - If any handler returns error. Probably it's error to extract args to the handler.
     #[allow(clippy::similar_names)]
-    pub async fn trigger(&self, req: Request) -> Result<Response, app::Error> {
+    pub async fn trigger(&self, req: Request) -> Result<Response, app::ErrorKind> {
         let handler_req = req.clone().into();
 
         // Check observer filters
@@ -343,7 +343,7 @@ impl Debug for ObserverService {
 
 impl Service<Request> for ObserverService {
     type Response = Response;
-    type Error = app::Error;
+    type Error = app::ErrorKind;
     type Future = BoxFuture<Result<Self::Response, Self::Error>>;
 
     fn call(&self, _: Request) -> Self::Future {

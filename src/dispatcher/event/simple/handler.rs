@@ -7,8 +7,8 @@ use crate::{
 
 use std::future::Future;
 
-pub type BoxedHandlerService = BoxService<(), (), app::Error>;
-pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), (), (), app::Error, ()>;
+pub type BoxedHandlerService = BoxService<(), (), app::ErrorKind>;
+pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), (), (), app::ErrorKind, ()>;
 
 pub trait Handler<Args>: Clone + Send + Sync
 where
@@ -41,7 +41,7 @@ impl HandlerObject {
 
 impl ServiceFactory<()> for HandlerObject {
     type Response = ();
-    type Error = app::Error;
+    type Error = app::ErrorKind;
     type Config = ();
     type Service = HandlerObjectService;
     type InitError = ();
@@ -67,7 +67,7 @@ pub struct HandlerObjectService {
 
 impl Service<()> for HandlerObjectService {
     type Response = ();
-    type Error = app::Error;
+    type Error = app::ErrorKind;
     type Future = BoxFuture<Result<Self::Response, Self::Error>>;
 
     /// Call service, which is wrapped [`Handler`]

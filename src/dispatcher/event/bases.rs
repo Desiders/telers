@@ -102,5 +102,5 @@ mod impl_from {
     default_impl_from!(Option<T>, T);
     default_impl_from!(Box<T>, T);
     // Implement `From` for many `T` without lifetimes
-    default_impl_from!((), app::Error, telegram::Error);
+    default_impl_from!((), app::ErrorKind, telegram::ErrorKind);
 }

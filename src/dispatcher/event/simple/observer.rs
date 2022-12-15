@@ -74,7 +74,7 @@ impl AsRef<Observer> for Observer {
 
 impl ServiceFactory<()> for Observer {
     type Response = ();
-    type Error = app::Error;
+    type Error = app::ErrorKind;
     type Config = ();
     type Service = ObserverService;
     type InitError = ();
@@ -116,7 +116,7 @@ impl ObserverService {
     /// Propagate event to handlers. All handlers will be called.
     /// # Errors
     /// - If any handler returns error
-    pub async fn trigger(&self, _: ()) -> Result<(), app::Error> {
+    pub async fn trigger(&self, _: ()) -> Result<(), app::ErrorKind> {
         for handler in self.handlers.iter() {
             handler.call(()).await?;
         }
@@ -134,7 +134,7 @@ impl Debug for ObserverService {
 
 impl Service<()> for ObserverService {
     type Response = ();
-    type Error = app::Error;
+    type Error = app::ErrorKind;
     type Future = BoxFuture<Result<Self::Response, Self::Error>>;
 
     fn call(&self, _: ()) -> Self::Future {
@@ -155,12 +155,12 @@ mod tests {
 
     #[tokio::test]
     async fn test_observer_trigger() {
-        async fn on_startup(message: &str) -> Result<(), app::Error> {
+        async fn on_startup(message: &str) -> Result<(), app::ErrorKind> {
             assert_eq!(message, "Hello, world!");
             Ok(())
         }
 
-        async fn on_shutdown(message: &str) -> Result<(), app::Error> {
+        async fn on_shutdown(message: &str) -> Result<(), app::ErrorKind> {
             assert_eq!(message, "Goodbye, world!");
             Ok(())
         }

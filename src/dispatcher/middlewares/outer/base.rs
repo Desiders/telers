@@ -16,7 +16,7 @@ pub trait Middleware: Send + Sync {
     /// # Arguments
     /// * `req` - Data for router service
     /// # Returns
-    /// Updated [`RouterRequest`] for router service and [`EventReturn`] or [`app::Error`].
+    /// Updated [`RouterRequest`] for router service and [`EventReturn`] or [`app::ErrorKind`].
     /// [`EventReturn`] indicates how the dispatcher should process response, for more information see [`EventReturn`].
     /// # Errors
     /// If outer middleware returns error
@@ -24,18 +24,21 @@ pub trait Middleware: Send + Sync {
     fn call(
         &self,
         req: RouterRequest,
-    ) -> BoxFuture<Result<(RouterRequest, EventReturn), app::Error>>;
+    ) -> BoxFuture<Result<(RouterRequest, EventReturn), app::ErrorKind>>;
 }
 
 impl<Func, Fut> Middleware for Func
 where
     Func: Fn(RouterRequest) -> Fut + Send + Sync + 'static,
-    Fut: Future<Output = Result<(RouterRequest, EventReturn), app::Error>> + Send + Sync + 'static,
+    Fut: Future<Output = Result<(RouterRequest, EventReturn), app::ErrorKind>>
+        + Send
+        + Sync
+        + 'static,
 {
     fn call(
         &self,
         req: RouterRequest,
-    ) -> BoxFuture<Result<(RouterRequest, EventReturn), app::Error>> {
+    ) -> BoxFuture<Result<(RouterRequest, EventReturn), app::ErrorKind>> {
         Box::pin(self(req))
     }
 }

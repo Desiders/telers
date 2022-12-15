@@ -1,4 +1,4 @@
-use crate::{error::app::UpdateTypeError, types::Update};
+use crate::{error::app, types::Update};
 
 /// Known update types
 #[derive(Debug)]
@@ -62,7 +62,7 @@ impl<'a> From<&'a UpdateType> for &str {
 }
 
 impl TryFrom<Update> for UpdateType {
-    type Error = UpdateTypeError;
+    type Error = app::ErrorKind;
 
     fn try_from(update: Update) -> Result<Self, Self::Error> {
         if update.message.is_some() {
@@ -94,15 +94,15 @@ impl TryFrom<Update> for UpdateType {
         } else if update.chat_join_request.is_some() {
             Ok(UpdateType::ChatJoinRequest)
         } else {
-            Err(UpdateTypeError::UnknownUpdateType(
-                format!("Couldn't convert `Update` to `UpdateType`. Please, open an issue on GitHub. Update: {update:?}"),
-            ))
+            Err(app::ErrorKind::UpdateTypeError(format!(
+                    "Couldn't convert `Update` to `UpdateType`. Please, open an issue on GitHub. Update: {update:?}",
+            )))
         }
     }
 }
 
 impl<'a> TryFrom<&'a Update> for UpdateType {
-    type Error = UpdateTypeError;
+    type Error = app::ErrorKind;
 
     fn try_from(update: &Update) -> Result<Self, Self::Error> {
         if update.message.is_some() {
@@ -134,9 +134,9 @@ impl<'a> TryFrom<&'a Update> for UpdateType {
         } else if update.chat_join_request.is_some() {
             Ok(UpdateType::ChatJoinRequest)
         } else {
-            Err(UpdateTypeError::UnknownUpdateType(
-                format!("Couldn't convert `Update` to `UpdateType`. Please, open an issue on GitHub. Update: {update:?}"),
-            ))
+            Err(app::ErrorKind::UpdateTypeError(format!(
+                    "Couldn't convert `Update` to `UpdateType`. Please, open an issue on GitHub. Update: {update:?}",
+            )))
         }
     }
 }

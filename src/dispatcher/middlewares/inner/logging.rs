@@ -35,7 +35,7 @@ impl Middleware for Logging {
         handler: Arc<BoxedHandlerService>,
         req: HandlerRequest,
         middlewares: NextMiddlewaresIter,
-    ) -> BoxFuture<Result<HandlerResponse, app::Error>> {
+    ) -> BoxFuture<Result<HandlerResponse, app::ErrorKind>> {
         let target = self.target;
         let logger = Arc::clone(&self.logger);
         let fut = self.handler(handler, req, middlewares);

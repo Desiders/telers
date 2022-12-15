@@ -435,7 +435,7 @@ impl RouterService {
     /// Call startup callbacks
     /// # Errors
     /// - If any startup observer returns error
-    pub async fn emit_startup(&self) -> Result<(), app::Error> {
+    pub async fn emit_startup(&self) -> Result<(), app::ErrorKind> {
         log::debug!("{:?}: Emit startup", self);
 
         for startup in
@@ -449,7 +449,7 @@ impl RouterService {
     /// Call shutdown callbacks
     /// # Errors
     /// - If any shutdown observer returns error
-    pub async fn emit_shutdown(&self) -> Result<(), app::Error> {
+    pub async fn emit_shutdown(&self) -> Result<(), app::ErrorKind> {
         log::debug!("{:?}: Emit shutdown", self);
 
         for shutdown in
@@ -472,7 +472,7 @@ impl RouterService {
         &self,
         update_type: &UpdateType,
         req: Request,
-    ) -> Result<Response, app::Error> {
+    ) -> Result<Response, app::ErrorKind> {
         let observer = self.telegram_observer_by_update_type(update_type);
 
         let outer_middlewares = observer.outer_middlewares();
@@ -514,7 +514,7 @@ impl RouterService {
         observer: &telegram::ObserverService,
         update_type: &UpdateType,
         req: Request,
-    ) -> Result<Response, app::Error> {
+    ) -> Result<Response, app::ErrorKind> {
         let observer_req = req.clone().into();
         let observer_res = observer.trigger(observer_req).await?;
 

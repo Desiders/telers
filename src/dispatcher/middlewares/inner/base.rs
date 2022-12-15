@@ -20,7 +20,7 @@ pub trait Middleware: Send + Sync {
     /// * `req` - Data for handler service
     /// * `middlewares` - Middlewares for handler service
     /// # Returns
-    /// [`HandlerResponse`] from handler service or [`app::Error`]
+    /// [`HandlerResponse`] from handler service or [`app::ErrorKind`]
     /// # Errors
     /// If any inner middleware returns error
     /// If handler returns error. Probably it's error to extract args to the handler
@@ -30,7 +30,7 @@ pub trait Middleware: Send + Sync {
         handler: Arc<BoxedHandlerService>,
         req: HandlerRequest,
         middlewares: NextMiddlewaresIter,
-    ) -> BoxFuture<Result<HandlerResponse, app::Error>>;
+    ) -> BoxFuture<Result<HandlerResponse, app::ErrorKind>>;
 
     /// Call next middleware or handler service if all middlewares has passed
     /// # Arguments
@@ -38,7 +38,7 @@ pub trait Middleware: Send + Sync {
     /// * `req` - Data for handler service
     /// * `middlewares` - Middlewares for handler service
     /// # Returns
-    /// [`HandlerResponse`] from handler service or [`app::Error`]
+    /// [`HandlerResponse`] from handler service or [`app::ErrorKind`]
     /// # Errors
     /// If any inner middleware returns error
     /// If handler returns error. Probably it's error to extract args to the handler
@@ -48,7 +48,7 @@ pub trait Middleware: Send + Sync {
         handler: Arc<BoxedHandlerService>,
         req: HandlerRequest,
         mut middlewares: NextMiddlewaresIter,
-    ) -> BoxFuture<Result<HandlerResponse, app::Error>> {
+    ) -> BoxFuture<Result<HandlerResponse, app::ErrorKind>> {
         match middlewares.next() {
             // Call next middleware
             Some(middleware) => middleware.call(handler, req, middlewares),
@@ -64,14 +64,14 @@ where
         + Send
         + Sync
         + 'static,
-    Fut: Future<Output = Result<HandlerResponse, app::Error>> + Send + Sync + 'static,
+    Fut: Future<Output = Result<HandlerResponse, app::ErrorKind>> + Send + Sync + 'static,
 {
     fn call(
         &self,
         handler: Arc<BoxedHandlerService>,
         req: HandlerRequest,
         middlewares: NextMiddlewaresIter,
-    ) -> BoxFuture<Result<HandlerResponse, app::Error>> {
+    ) -> BoxFuture<Result<HandlerResponse, app::ErrorKind>> {
         Box::pin(self(handler, req, middlewares))
     }
 }

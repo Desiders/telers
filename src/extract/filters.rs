@@ -1,5 +1,5 @@
 use crate::{
-    client::Bot, context::Context, error::app::ExtractError, extract::FromEventAndContext,
+    client::Bot, context::Context, error::app, extract::FromEventAndContext,
     filters::command::CommandObject, types::Update,
 };
 
@@ -7,17 +7,22 @@ use futures::future::{err, ok, Ready};
 use std::{sync::Arc, sync::RwLock};
 
 impl FromEventAndContext for CommandObject {
-    type Error = ExtractError<'static>;
+    type Error = app::ErrorKind;
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn extract(_: Arc<Bot>, _: Arc<Update>, context: Arc<RwLock<Context>>) -> Self::Future {
         context.read().unwrap().get("command").map_or(
-            err(ExtractError::new("Key `command` not found in the context")),
+            err(app::ErrorKind::ExtractError(
+                "Key `command` not found in the context".into(),
+            )),
             |command| {
                 command.downcast_ref::<CommandObject>().map_or(
-                    err(ExtractError::new(format!(
-                        "Failed to downcast command, got `{command:?}` instead `CommandObject`"
-                    ))),
+                    err(app::ErrorKind::ExtractError(
+                        format!(
+                            "Failed to downcast command, got `{command:?}` instead `CommandObject`"
+                        )
+                        .into(),
+                    )),
                     |command| ok(command.clone()),
                 )
             },

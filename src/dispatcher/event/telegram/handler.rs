@@ -15,8 +15,8 @@ use crate::{
 
 use std::{future::Future, sync::Arc, sync::RwLock};
 
-pub type BoxedHandlerService = BoxService<Request, Response, app::Error>;
-pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), Request, Response, app::Error, ()>;
+pub type BoxedHandlerService = BoxService<Request, Response, app::ErrorKind>;
+pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), Request, Response, app::ErrorKind, ()>;
 
 /// Data for handler service
 #[derive(Clone, Debug)]
@@ -141,7 +141,7 @@ impl HandlerObject {
 
 impl ServiceFactory<Request> for HandlerObject {
     type Response = Response;
-    type Error = app::Error;
+    type Error = app::ErrorKind;
     type Config = ();
     type Service = HandlerObjectService;
     type InitError = ();
@@ -188,7 +188,7 @@ impl HandlerObjectService {
 
 impl Service<Request> for HandlerObjectService {
     type Response = Response;
-    type Error = app::Error;
+    type Error = app::ErrorKind;
     type Future = BoxFuture<Result<Self::Response, Self::Error>>;
 
     /// Call service, which is wrapped [`Handler`]
@@ -215,7 +215,7 @@ where
                     request: req,
                     response: handler.call(args).await.into(),
                 }),
-                // Return error which implement `Into<app::Error>`
+                // Return error which implement `Into<app::ErrorKind>`
                 Err(err) => Err(err.into()),
             }
         }

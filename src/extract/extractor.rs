@@ -1,4 +1,4 @@
-use crate::{client::Bot, context::Context as AppContext, error::app::Error, types::Update};
+use crate::{client::Bot, context::Context as AppContext, error::app, types::Update};
 
 use futures::{
     future::{ok, Ready},
@@ -15,7 +15,7 @@ use std::{
 
 /// Trait for extracting data from [`Update`] and [`Context`] to handlers arguments
 pub trait FromEventAndContext: Sized + Send + Sync {
-    type Error: Into<Error> + Send + Sync;
+    type Error: Into<app::ErrorKind> + Send + Sync;
     type Future: Future<Output = Result<Self, Self::Error>> + Send + Sync;
 
     fn extract(
@@ -54,7 +54,7 @@ pin_project! {
 impl<Fut, T, E> Future for FromEventAndContextOptFuture<Fut>
 where
     Fut: Future<Output = Result<T, E>>,
-    E: Into<Error>,
+    E: Into<app::ErrorKind>,
 {
     type Output = Result<Option<T>, Infallible>;
 
@@ -118,7 +118,7 @@ where
 #[doc(hidden)]
 mod tuple_from_req {
     use super::{
-        ok, pin_project, AppContext, Arc, Bot, Context, Error, FromEventAndContext, Future,
+        app, ok, pin_project, AppContext, Arc, Bot, Context, FromEventAndContext, Future,
         Infallible, Pin, Poll, Ready, RwLock, Update,
     };
 
@@ -128,7 +128,7 @@ mod tuple_from_req {
             #[allow(unused_parens)]
             impl<$($T: FromEventAndContext + 'static),+> FromEventAndContext for ($($T,)+)
             {
-                type Error = Error;
+                type Error = app::ErrorKind;
                 type Future = $fut<$($T),+>;
 
                 fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<RwLock<AppContext>>) -> Self::Future {
@@ -153,7 +153,7 @@ mod tuple_from_req {
 
             impl<$($T: FromEventAndContext),+> Future for $fut<$($T),+>
             {
-                type Output = Result<($($T,)+), Error>;
+                type Output = Result<($($T,)+), app::ErrorKind>;
 
                 fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
                     let mut this = self.project();
