@@ -36,7 +36,7 @@ pub enum ErrorKind {
     RestartingTelegram { message: String },
     #[error("TelegramTooLarge: {message:?} (see {url:?} for more info)")]
     EntityTooLarge {
-        url: &'static str, // https://core.telegram.org/api/entities#entity-length
+        url: &'static str, // https://core.telegram.org/bots/api#sending-files
         message: String,
     },
     /// Error is not documented in the official Telegram API documentation or new API is not supported yet.
