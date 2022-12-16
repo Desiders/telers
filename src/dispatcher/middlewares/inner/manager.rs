@@ -1,38 +1,46 @@
-use super::base::{MiddlewareType, MiddlewaresType};
+use super::base::{Middleware, Middlewares};
 
 use std::sync::Arc;
 
-/// Manager for inner middlewares
 #[derive(Default, Clone)]
 pub struct Manager {
-    middlewares: MiddlewaresType,
+    middlewares: Middlewares,
 }
 
-/// Inner middlewares manager
 impl Manager {
-    /// Register a new middleware
-    pub fn register(&mut self, middleware: MiddlewareType) {
-        self.middlewares.push(Arc::new(middleware));
+    pub fn register<T, M>(&mut self, middleware: T)
+    where
+        T: Into<Box<M>>,
+        M: Middleware + Send + Sync + 'static,
+    {
+        self.middlewares.push(Arc::new(middleware.into()));
     }
 
-    /// Register a new middleware wrapper
-    pub fn register_wrapper(&mut self, middleware: Arc<MiddlewareType>) {
+    pub fn register_wrapper(
+        &mut self,
+        middleware: Arc<Box<dyn Middleware + Send + Sync + 'static>>,
+    ) {
         self.middlewares.push(middleware);
     }
 
-    /// Register a new middleware at position
-    pub fn register_in_position(&mut self, index: usize, middleware: MiddlewareType) {
-        self.middlewares.insert(index, Arc::new(middleware));
+    pub fn register_at_position<T, M>(&mut self, index: usize, middleware: T)
+    where
+        T: Into<Box<M>>,
+        M: Middleware + Send + Sync + 'static,
+    {
+        self.middlewares.insert(index, Arc::new(middleware.into()));
     }
 
-    /// Register a new middleware wrapper at position
-    pub fn register_wrapper_in_position(&mut self, index: usize, middleware: Arc<MiddlewareType>) {
+    pub fn register_wrapper_at_position(
+        &mut self,
+        index: usize,
+        middleware: Arc<Box<dyn Middleware + Send + Sync + 'static>>,
+    ) {
         self.middlewares.insert(index, middleware);
     }
 
-    /// Get all middlewares
     #[must_use]
-    pub fn middlewares(&self) -> &[Arc<MiddlewareType>] {
+    pub fn middlewares(&self) -> &Middlewares {
         &self.middlewares
     }
 }

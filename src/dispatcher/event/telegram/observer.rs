@@ -11,10 +11,10 @@ use crate::{
         },
         middlewares::{
             inner::{
-                base::Middleware as InnerMiddleware, manager::Manager as InnerMiddlewareManager,
+                base::Middlewares as InnerMiddlewares, manager::Manager as InnerMiddlewareManager,
             },
             outer::{
-                base::Middleware as OuterMiddleware, manager::Manager as OuterMiddlewareManager,
+                base::Middlewares as OuterMiddlewares, manager::Manager as OuterMiddlewareManager,
             },
         },
     },
@@ -29,7 +29,6 @@ use std::{
     sync::Arc,
 };
 
-/// Data for telegram observer service
 #[derive(Clone)]
 pub struct Request {
     bot: Arc<Bot>,
@@ -81,7 +80,6 @@ impl From<Request> for HandlerRequest {
     }
 }
 
-/// Response from telegram observer service
 pub struct Response {
     request: Request,
     response: PropagateEventResult,
@@ -103,15 +101,11 @@ impl Response {
 /// Here you can register handler with filter.
 /// This observer will stop event propagation when first handler is pass.
 pub struct Observer {
-    /// Event observer name
     event_name: &'static str,
-    /// Handlers of the observer
     handlers: Vec<HandlerObject>,
     /// Common handler of the observer with dummy callback which never will be used
     common_handler: HandlerObject,
-    /// Inner middlewares manager
     pub middlewares: InnerMiddlewareManager,
-    /// Outer middlewares manager
     pub outer_middlewares: OuterMiddlewareManager,
 }
 
@@ -133,13 +127,11 @@ impl Observer {
         }
     }
 
-    /// Get event observer name
     #[must_use]
     pub fn event_name(&self) -> &str {
         self.event_name
     }
 
-    /// Get handlers of this event observer
     #[must_use]
     pub fn handlers(&self) -> &[HandlerObject] {
         &self.handlers
@@ -164,9 +156,10 @@ impl Observer {
     /// * `filters` - Filters for the handler
     pub fn register<H, Args>(&mut self, handler: H, filters: Vec<Box<dyn Filter>>)
     where
-        H: Handler<Args> + 'static,
+        H: Handler<Args> + Clone + Send + Sync + 'static,
+        H::Future: Send + Sync + 'static,
         H::Output: Into<EventReturn>,
-        Args: FromEventAndContext + Send + Sync + 'static,
+        Args: FromEventAndContext + 'static,
     {
         self.handlers.push(HandlerObject::new(handler, filters));
     }
@@ -174,9 +167,10 @@ impl Observer {
     /// Alias to [`Observer::register`] method
     pub fn on<H, Args>(&mut self, handler: H, filters: Vec<Box<dyn Filter>>)
     where
-        H: Handler<Args> + 'static,
+        H: Handler<Args> + Clone + Send + Sync + 'static,
+        H::Future: Send + Sync + 'static,
         H::Output: Into<EventReturn>,
-        Args: FromEventAndContext + Send + Sync + 'static,
+        Args: FromEventAndContext + 'static,
     {
         self.register(handler, filters);
     }
@@ -211,7 +205,6 @@ impl ServiceFactory<Request> for Observer {
     type InitError = ();
     type Future = BoxFuture<Result<Self::Service, Self::InitError>>;
 
-    /// Create [`ObserverService`] from [`Observer`]
     fn new_service(&self, _: Self::Config) -> Self::Future {
         let event_name = self.event_name;
         let futs = self
@@ -220,8 +213,8 @@ impl ServiceFactory<Request> for Observer {
             .map(|handler| handler.new_service(()))
             .collect::<Vec<_>>();
         let fut = self.common_handler.new_service(());
-        let middlewares = self.middlewares.middlewares().to_vec();
-        let outer_middlewares = self.outer_middlewares.middlewares().to_vec();
+        let middlewares = self.middlewares.middlewares().clone();
+        let outer_middlewares = self.outer_middlewares.middlewares().clone();
 
         Box::pin(async move {
             let mut handlers = vec![];
@@ -242,37 +235,29 @@ impl ServiceFactory<Request> for Observer {
     }
 }
 
-/// Service for [`Observer`]
 #[allow(clippy::module_name_repetitions)]
 pub struct ObserverService {
-    /// Event observer name
     event_name: &'static str,
-    /// Handler services of the observer
     handlers: Arc<Vec<HandlerObjectService>>,
     /// Common handler service of the observer with dummy callback which never will be used
     common_handler: Arc<HandlerObjectService>,
-    /// Inner middlewares
-    middlewares: Vec<Arc<Box<dyn InnerMiddleware + Send + Sync>>>,
-    /// Outer middlewares
-    outer_middlewares: Vec<Arc<Box<dyn OuterMiddleware + Send + Sync>>>,
+    middlewares: InnerMiddlewares,
+    outer_middlewares: OuterMiddlewares,
 }
 
 impl ObserverService {
-    /// Get event observer name
     #[must_use]
     pub fn event_name(&self) -> &str {
         self.event_name
     }
 
-    /// Get inner middlewares
     #[must_use]
-    pub fn middlewares(&self) -> &[Arc<Box<dyn InnerMiddleware + Send + Sync>>] {
+    pub fn middlewares(&self) -> &InnerMiddlewares {
         &self.middlewares
     }
 
-    /// Get outer middlewares
     #[must_use]
-    pub fn outer_middlewares(&self) -> &[Arc<Box<dyn OuterMiddleware + Send + Sync>>] {
+    pub fn outer_middlewares(&self) -> &OuterMiddlewares {
         &self.outer_middlewares
     }
 
@@ -293,16 +278,13 @@ impl ObserverService {
         }
 
         for handler in self.handlers.iter() {
-            // Check handler filters
             if !handler.check(&handler_req) {
-                // If filters isn't pass, skip handler
                 continue;
             }
 
             let res = if self.middlewares.is_empty() {
                 handler.call(handler_req.clone()).await?
             } else {
-                // Create middlewares chain
                 let middleware = Arc::clone(&self.middlewares[0]);
                 let next_middlewares = Box::new(self.middlewares[1..].to_vec().clone().into_iter());
 
@@ -313,22 +295,20 @@ impl ObserverService {
             };
 
             let handler_response = res.response();
-            // If handler returns skip, we should skip it and run next handler
-            if handler_response.is_skip() {
+
+            return if handler_response.is_skip() {
                 continue;
-            }
-            // If handler returns cancel, we should stop propagation
-            if handler_response.is_cancel() {
-                return Ok(Response {
+            } else if handler_response.is_cancel() {
+                Ok(Response {
                     request: req,
                     response: PropagateEventResult::Rejected,
-                });
-            }
-            // Return a response if it isn't skip or cancel
-            return Ok(Response {
-                request: req,
-                response: PropagateEventResult::Handled(res),
-            });
+                })
+            } else {
+                Ok(Response {
+                    request: req,
+                    response: PropagateEventResult::Handled(res),
+                })
+            };
         }
 
         // Return a response if the event unhandled by observer

@@ -6,8 +6,8 @@ use std::marker::PhantomData;
 /// Create [`ServiceFactory`] for function that can act as a [`Service`]
 pub fn fn_service<F, Fut, Req, Res, Err, Cfg>(f: F) -> FnServiceFactory<F, Fut, Req, Res, Err, Cfg>
 where
-    F: Fn(Req) -> Fut + Clone + Send + Sync,
-    Fut: Future<Output = Result<Res, Err>> + Send + Sync,
+    F: Fn(Req) -> Fut + Clone,
+    Fut: Future<Output = Result<Res, Err>>,
 {
     FnServiceFactory::new(f)
 }
@@ -17,8 +17,8 @@ pub fn fn_factory_no_config<F, Cfg, Srv, Req, Fut, Err>(
     f: F,
 ) -> FnServiceNoConfig<F, Cfg, Srv, Req, Fut, Err>
 where
-    F: Fn() -> Fut + Send + Sync,
-    Fut: Future<Output = Result<Srv, Err>> + Send + Sync,
+    F: Fn() -> Fut,
+    Fut: Future<Output = Result<Srv, Err>>,
     Srv: Service<Req>,
 {
     FnServiceNoConfig::new(f)
@@ -29,8 +29,8 @@ pub fn fn_factory_config<F, Fut, Cfg, Srv, Req, Err>(
     f: F,
 ) -> FnServiceConfig<F, Fut, Cfg, Srv, Req, Err>
 where
-    F: Fn(Cfg) -> Fut + Send + Sync,
-    Fut: Future<Output = Result<Srv, Err>> + Send + Sync,
+    F: Fn(Cfg) -> Fut,
+    Fut: Future<Output = Result<Srv, Err>>,
     Srv: Service<Req>,
 {
     FnServiceConfig::new(f)
@@ -39,8 +39,8 @@ where
 #[derive(Clone)]
 pub struct FnService<F, Fut, Req, Res, Err>
 where
-    F: FnMut(Req) -> Fut + Send + Sync,
-    Fut: Future<Output = Result<Res, Err>> + Send + Sync,
+    F: FnMut(Req) -> Fut,
+    Fut: Future<Output = Result<Res, Err>>,
 {
     f: F,
     _t: PhantomData<fn(Req)>,
@@ -48,8 +48,8 @@ where
 
 impl<F, Fut, Req, Res, Err> FnService<F, Fut, Req, Res, Err>
 where
-    F: FnMut(Req) -> Fut + Send + Sync,
-    Fut: Future<Output = Result<Res, Err>> + Send + Sync,
+    F: FnMut(Req) -> Fut,
+    Fut: Future<Output = Result<Res, Err>>,
 {
     pub(crate) fn new(f: F) -> Self {
         Self { f, _t: PhantomData }
@@ -58,8 +58,8 @@ where
 
 impl<F, Fut, Req, Res, Err> Service<Req> for FnService<F, Fut, Req, Res, Err>
 where
-    F: Fn(Req) -> Fut + Send + Sync,
-    Fut: Future<Output = Result<Res, Err>> + Send + Sync,
+    F: Fn(Req) -> Fut,
+    Fut: Future<Output = Result<Res, Err>>,
 {
     type Response = Res;
     type Error = Err;
@@ -74,8 +74,8 @@ where
 #[allow(clippy::module_name_repetitions)]
 pub struct FnServiceFactory<F, Fut, Req, Res, Err, Cfg>
 where
-    F: Fn(Req) -> Fut + Send + Sync,
-    Fut: Future<Output = Result<Res, Err>> + Send + Sync,
+    F: Fn(Req) -> Fut,
+    Fut: Future<Output = Result<Res, Err>>,
 {
     f: F,
     _t: PhantomData<fn(Req, Cfg)>,
@@ -83,8 +83,8 @@ where
 
 impl<F, Fut, Req, Res, Err, Cfg> FnServiceFactory<F, Fut, Req, Res, Err, Cfg>
 where
-    F: Fn(Req) -> Fut + Clone + Send + Sync,
-    Fut: Future<Output = Result<Res, Err>> + Send + Sync,
+    F: Fn(Req) -> Fut + Clone,
+    Fut: Future<Output = Result<Res, Err>>,
 {
     fn new(f: F) -> Self {
         FnServiceFactory { f, _t: PhantomData }
@@ -93,8 +93,8 @@ where
 
 impl<F, Fut, Req, Res, Err> Service<Req> for FnServiceFactory<F, Fut, Req, Res, Err, ()>
 where
-    F: Fn(Req) -> Fut + Clone + Send + Sync,
-    Fut: Future<Output = Result<Res, Err>> + Send + Sync,
+    F: Fn(Req) -> Fut + Clone,
+    Fut: Future<Output = Result<Res, Err>>,
 {
     type Response = Res;
     type Error = Err;
@@ -108,8 +108,8 @@ where
 impl<F, Fut, Req, Res, Err, Cfg> ServiceFactory<Req>
     for FnServiceFactory<F, Fut, Req, Res, Err, Cfg>
 where
-    F: Fn(Req) -> Fut + Clone + Send + Sync,
-    Fut: Future<Output = Result<Res, Err>> + Send + Sync,
+    F: Fn(Req) -> Fut + Clone,
+    Fut: Future<Output = Result<Res, Err>>,
 {
     type Response = Res;
     type Error = Err;
@@ -129,8 +129,8 @@ where
 #[allow(clippy::module_name_repetitions)]
 pub struct FnServiceConfig<F, Fut, Cfg, Srv, Req, Err>
 where
-    F: Fn(Cfg) -> Fut + Send + Sync,
-    Fut: Future<Output = Result<Srv, Err>> + Send + Sync,
+    F: Fn(Cfg) -> Fut,
+    Fut: Future<Output = Result<Srv, Err>>,
     Srv: Service<Req>,
 {
     f: F,
@@ -140,8 +140,8 @@ where
 
 impl<F, Fut, Cfg, Srv, Req, Err> FnServiceConfig<F, Fut, Cfg, Srv, Req, Err>
 where
-    F: Fn(Cfg) -> Fut + Send + Sync,
-    Fut: Future<Output = Result<Srv, Err>> + Send + Sync,
+    F: Fn(Cfg) -> Fut,
+    Fut: Future<Output = Result<Srv, Err>>,
     Srv: Service<Req>,
 {
     fn new(f: F) -> Self {
@@ -151,8 +151,8 @@ where
 
 impl<F, Fut, Cfg, Srv, Req, Err> ServiceFactory<Req> for FnServiceConfig<F, Fut, Cfg, Srv, Req, Err>
 where
-    F: Fn(Cfg) -> Fut + Send + Sync,
-    Fut: Future<Output = Result<Srv, Err>> + Send + Sync,
+    F: Fn(Cfg) -> Fut,
+    Fut: Future<Output = Result<Srv, Err>>,
     Srv: Service<Req>,
 {
     type Response = Srv::Response;
@@ -173,8 +173,8 @@ where
 #[allow(clippy::module_name_repetitions)]
 pub struct FnServiceNoConfig<F, Cfg, Srv, Req, Fut, Err>
 where
-    F: Fn() -> Fut + Send + Sync,
-    Fut: Future<Output = Result<Srv, Err>> + Send + Sync,
+    F: Fn() -> Fut,
+    Fut: Future<Output = Result<Srv, Err>>,
     Srv: Service<Req>,
 {
     f: F,
@@ -183,8 +183,8 @@ where
 
 impl<F, Cfg, Srv, Req, Fut, Err> FnServiceNoConfig<F, Cfg, Srv, Req, Fut, Err>
 where
-    F: Fn() -> Fut + Send + Sync,
-    Fut: Future<Output = Result<Srv, Err>> + Send + Sync,
+    F: Fn() -> Fut,
+    Fut: Future<Output = Result<Srv, Err>>,
     Srv: Service<Req>,
 {
     fn new(f: F) -> Self {
@@ -195,8 +195,8 @@ where
 impl<F, Cfg, Srv, Req, Fut, Err> ServiceFactory<Req>
     for FnServiceNoConfig<F, Cfg, Srv, Req, Fut, Err>
 where
-    F: Fn() -> Fut + Send + Sync,
-    Fut: Future<Output = Result<Srv, Err>> + Send + Sync,
+    F: Fn() -> Fut,
+    Fut: Future<Output = Result<Srv, Err>>,
     Srv: Service<Req>,
 {
     type Response = Srv::Response;

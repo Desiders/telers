@@ -29,7 +29,6 @@ use std::{
     sync::Arc,
 };
 
-/// Data for router service
 #[derive(Clone)]
 pub struct Request {
     bot: Arc<Bot>,
@@ -81,7 +80,6 @@ impl From<Request> for TelegramObserverRequest {
     }
 }
 
-/// Response from router service
 pub struct Response {
     request: Request,
     response: PropagateEventResult,
@@ -93,13 +91,11 @@ impl Response {
         Self { request, response }
     }
 
-    /// Get request
     #[must_use]
     pub fn request(&self) -> &Request {
         &self.request
     }
 
-    /// Get response
     #[must_use]
     pub fn response(&self) -> &PropagateEventResult {
         &self.response
@@ -167,7 +163,6 @@ impl Router {
         }
     }
 
-    /// Get a router name
     #[must_use]
     pub fn router_name(&self) -> &str {
         self.router_name
@@ -179,7 +174,6 @@ impl Router {
         self.router_name()
     }
 
-    /// Get sub routers
     #[must_use]
     pub fn sub_routers(&self) -> Vec<&Router> {
         self.sub_routers.iter().collect()
@@ -191,7 +185,6 @@ impl Router {
         self.sub_routers()
     }
 
-    /// Get telegram event observers
     #[must_use]
     #[rustfmt::skip]
     pub fn telegram_observers(&self) -> Vec<&TelegramObserver> {
@@ -213,7 +206,6 @@ impl Router {
         ]
     }
 
-    /// Get event observers
     #[must_use]
     pub fn event_observers(&self) -> Vec<&SimpleObserver> {
         vec![&self.startup, &self.shutdown]
@@ -221,12 +213,12 @@ impl Router {
 
     /// Register inner middlewares to sub router (and sub routers of sub router)
     fn register_inner_middlewares_in_sub_router(&self, sub_router: &mut Router) {
-        // Register middlewares of current router observers to sub router observers
+        // Register middlewares of current router observers to sub router observers at first positions
         macro_rules! register_middlewares {
             ($observer:ident) => {
                 let mut index = 0;
                 for middleware in self.$observer.middlewares.middlewares() {
-                    sub_router.$observer.middlewares.register_wrapper_in_position(index, Arc::clone(middleware));
+                    sub_router.$observer.middlewares.register_wrapper_at_position(index, Arc::clone(middleware));
                     index += 1;
                 }
             };
@@ -315,7 +307,6 @@ impl ServiceFactory<Request> for Router {
     type InitError = ();
     type Future = BoxFuture<Result<Self::Service, Self::InitError>>;
 
-    /// Create [`RouterService`] from [`Router`]
     fn new_service(&self, _: Self::Config) -> Self::Future {
         let router_name = self.router_name;
         let routers = self
@@ -387,7 +378,6 @@ impl ServiceFactory<Request> for Router {
     }
 }
 
-/// Service for [`Router`]
 #[allow(clippy::module_name_repetitions)]
 pub struct RouterService {
     router_name: &'static str,
@@ -413,7 +403,6 @@ pub struct RouterService {
 }
 
 impl RouterService {
-    /// Get event observer by update type
     #[must_use]
     pub fn telegram_observer_by_update_type(
         &self,
@@ -480,13 +469,9 @@ impl RouterService {
     ) -> Result<Response, app::ErrorKind> {
         let observer = self.telegram_observer_by_update_type(update_type);
 
-        let outer_middlewares = observer.outer_middlewares();
-        // If outer middlewares is empty, we can call `RouterService::propagate_event_by_observer` directly
-        if outer_middlewares.is_empty() {
-            return self
-                .propagate_event_by_observer(observer, update_type, req)
-                .await;
-        }
+        let outer_middlewares = self
+            .telegram_observer_by_update_type(update_type)
+            .outer_middlewares();
 
         let mut req = req;
         for middleware in outer_middlewares {
@@ -610,11 +595,8 @@ mod tests {
             |handler: Arc<BoxedHandlerService>, req: _, _| async move { handler.call(req).await };
         let outer_middleware = |req: _| async move { Ok((req, EventReturn::default())) };
 
-        router.message.middlewares.register(Box::new(middleware));
-        router
-            .message
-            .outer_middlewares
-            .register(Box::new(outer_middleware));
+        router.message.middlewares.register(middleware);
+        router.message.outer_middlewares.register(outer_middleware);
 
         router.include({
             let mut router = Router::new("sub1");
@@ -722,11 +704,8 @@ mod tests {
             |handler: Arc<BoxedHandlerService>, req: _, _| async move { handler.call(req).await };
         let outer_middleware = |req: _| async move { Ok((req, EventReturn::default())) };
 
-        router.message.middlewares.register(Box::new(middleware));
-        router
-            .message
-            .outer_middlewares
-            .register(Box::new(outer_middleware));
+        router.message.middlewares.register(middleware);
+        router.message.outer_middlewares.register(outer_middleware);
 
         assert_eq!(router.message.middlewares.middlewares().len(), 1);
         assert_eq!(router.message.outer_middlewares.middlewares().len(), 1);

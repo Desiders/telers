@@ -6,9 +6,9 @@ use crate::{
     error::app,
 };
 
-pub type MiddlewareType = Box<dyn Middleware + Send + Sync>;
-pub type MiddlewaresType = Vec<Arc<MiddlewareType>>;
-pub type NextMiddlewaresIterType = Box<dyn Iterator<Item = Arc<MiddlewareType>> + Send + Sync>;
+pub type Middlewares = Vec<Arc<Box<dyn Middleware + Send + Sync>>>;
+pub type MiddlewaresIter =
+    Box<dyn Iterator<Item = Arc<Box<dyn Middleware + Send + Sync>>> + Send + Sync>;
 
 use std::{future::Future, sync::Arc};
 
@@ -29,7 +29,7 @@ pub trait Middleware: Send + Sync {
         &self,
         handler: Arc<BoxedHandlerService>,
         req: Request,
-        middlewares: NextMiddlewaresIterType,
+        middlewares: MiddlewaresIter,
     ) -> BoxFuture<Result<Response, app::ErrorKind>>;
 
     /// Call next middleware or handler service if all middlewares has passed
@@ -47,7 +47,7 @@ pub trait Middleware: Send + Sync {
         &self,
         handler: Arc<BoxedHandlerService>,
         req: Request,
-        mut middlewares: NextMiddlewaresIterType,
+        mut middlewares: MiddlewaresIter,
     ) -> BoxFuture<Result<Response, app::ErrorKind>> {
         match middlewares.next() {
             // Call next middleware
@@ -60,18 +60,15 @@ pub trait Middleware: Send + Sync {
 
 impl<Func, Fut> Middleware for Func
 where
-    Func: Fn(Arc<BoxedHandlerService>, Request, NextMiddlewaresIterType) -> Fut
-        + Send
-        + Sync
-        + 'static,
+    Func: Fn(Arc<BoxedHandlerService>, Request, MiddlewaresIter) -> Fut + Send + Sync + 'static,
     Fut: Future<Output = Result<Response, app::ErrorKind>> + Send + Sync + 'static,
 {
     fn call(
         &self,
         handler: Arc<BoxedHandlerService>,
         req: Request,
-        middlewares: NextMiddlewaresIterType,
-    ) -> BoxFuture<Result<Response, app::ErrorKind>> {
+        middlewares: MiddlewaresIter,
+    ) -> BoxFuture<Fut::Output> {
         Box::pin(self(handler, req, middlewares))
     }
 }
@@ -95,7 +92,7 @@ mod tests {
     async fn test_call() {
         let middleware = |handler: Arc<BoxedHandlerService>,
                           req: Request,
-                          mut middlewares: NextMiddlewaresIterType| async move {
+                          mut middlewares: MiddlewaresIter| async move {
             match middlewares.next() {
                 // Call next middleware
                 Some(middleware) => middleware.call(handler, req, middlewares),

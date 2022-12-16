@@ -6,7 +6,7 @@ use crate::{
     error::app,
 };
 
-use super::base::{Middleware, NextMiddlewaresIterType};
+use super::base::{Middleware, MiddlewaresIter};
 
 use log::{self, Level, Log, Record};
 use std::{sync::Arc, time::Instant};
@@ -34,7 +34,7 @@ impl Middleware for Logging {
         &self,
         handler: Arc<BoxedHandlerService>,
         req: Request,
-        middlewares: NextMiddlewaresIterType,
+        middlewares: MiddlewaresIter,
     ) -> BoxFuture<Result<Response, app::ErrorKind>> {
         let target = self.target;
         let logger = Arc::clone(&self.logger);

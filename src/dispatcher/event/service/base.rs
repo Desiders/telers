@@ -1,6 +1,6 @@
 use std::future::Future;
 
-pub trait Service<Req>: Send + Sync {
+pub trait Service<Req> {
     /// Response given by the service
     type Response;
 
@@ -8,14 +8,14 @@ pub trait Service<Req>: Send + Sync {
     type Error;
 
     /// The future response value.
-    type Future: Future<Output = Result<Self::Response, Self::Error>> + Send + Sync;
+    type Future: Future<Output = Result<Self::Response, Self::Error>>;
 
     /// Process the event and return the asynchronous response
     #[must_use]
     fn call(&self, req: Req) -> Self::Future;
 }
 
-pub trait ServiceFactory<Req>: Send + Sync {
+pub trait ServiceFactory<Req> {
     /// Response given by the service
     type Response;
 
@@ -32,7 +32,7 @@ pub trait ServiceFactory<Req>: Send + Sync {
     type InitError;
 
     /// The future response value
-    type Future: Future<Output = Result<Self::Service, Self::InitError>> + Send + Sync;
+    type Future: Future<Output = Result<Self::Service, Self::InitError>>;
 
     /// Create and return a new service asynchronously
     #[must_use]

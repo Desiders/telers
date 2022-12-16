@@ -17,16 +17,12 @@ use tokio::{
     signal::unix::{signal, SignalKind},
 };
 
-/// Messages using for manage an updates listener
 enum MessageForListener {
-    /// Get next updates
-    Next,
+    NextUpdates,
 }
 
 enum ListenerError {
-    /// Error while sending a update to the listener
     SendError(SendError<Update>),
-    /// Error while receiving a message from the listener
     RecvError(RecvError),
 }
 
@@ -49,9 +45,6 @@ pub struct Dispatcher {
 }
 
 impl Dispatcher {
-    /// Create a new dispatcher
-    /// # Arguments
-    /// * `main_router` - Main router which will be used for dispatching updates
     #[must_use]
     pub fn new(main_router: Router) -> Self {
         Self { main_router }
@@ -109,10 +102,6 @@ impl DispatcherService {
 
             // Wait for a message from the listener
             message_receiver.recv().await.unwrap();
-            // match message_receiver.recv().await.unwrap() {
-            //     // Get next updates
-            //     MessageForListener::Next => continue,
-            // }
         }
     }
 
@@ -169,29 +158,23 @@ impl DispatcherService {
             // Get update from the channel
             match receiver.try_recv() {
                 Ok(update) => {
-                    // Get update from the channel
                     let dispatcher = Arc::clone(&self);
                     let bot = Arc::clone(&bot);
 
                     // Feed the update to the main router
                     tokio::spawn(dispatcher.feed_update(bot, update));
                 }
-                Err(err) => {
-                    match err {
-                        // Channel is empty
-                        TryRecvError::Empty => {
-                            // Send a message to the listener for getting next updates
-                            sender_for_listener
-                                .send(MessageForListener::Next)
-                                .await
-                                .unwrap();
-                        }
-                        // Channel is disconnected
-                        TryRecvError::Closed => unreachable!(
-                            "The channel for getting updates from the listener is disconnected"
-                        ),
+                Err(err) => match err {
+                    TryRecvError::Empty => {
+                        sender_for_listener
+                            .send(MessageForListener::NextUpdates)
+                            .await
+                            .unwrap();
                     }
-                }
+                    TryRecvError::Closed => unreachable!(
+                        "The channel for getting updates from the listener is disconnected"
+                    ),
+                },
             }
         }
     }

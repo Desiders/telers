@@ -1,5 +1,5 @@
 pub mod base;
 pub mod manager;
 
-pub use base::{Middleware, MiddlewareType, MiddlewaresType};
+pub use base::{Middleware, Middlewares};
 pub use manager::Manager;

@@ -18,14 +18,10 @@ use std::{future::Future, sync::Arc};
 pub type BoxedHandlerService = BoxService<Request, Response, app::ErrorKind>;
 pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), Request, Response, app::ErrorKind, ()>;
 
-/// Data for handler service
 #[derive(Clone, Debug)]
 pub struct Request {
     bot: Arc<Bot>,
-    /// Update from Telegram
     update: Arc<Update>,
-    /// Context, which can contain some data. Can be mapped to handler arguments,
-    /// used as hashmap in handlers, middlewares and filters
     context: Arc<Context>,
 }
 
@@ -67,8 +63,6 @@ impl Request {
     }
 }
 
-/// Response from handler service.
-/// For the response from handler for users, use [`EventReturn`].
 #[derive(Clone, PartialEq, Debug)]
 pub struct Response {
     request: Request,
@@ -92,17 +86,13 @@ impl Response {
     }
 }
 
-pub trait Handler<Args>: Clone + Send + Sync
-where
-    Args: Send + Sync,
-{
+pub trait Handler<Args> {
     type Output;
-    type Future: Future<Output = Self::Output> + Send + Sync;
+    type Future: Future<Output = Self::Output>;
 
     fn call(&self, args: Args) -> Self::Future;
 }
 
-/// [`Handler`] wrapped into service factory with filters
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObject {
     service: BoxedHandlerServiceFactory,
@@ -110,12 +100,12 @@ pub struct HandlerObject {
 }
 
 impl HandlerObject {
-    /// Creates a new handler object
     pub fn new<H, Args>(handler: H, filters: Vec<Box<dyn Filter>>) -> Self
     where
-        H: Handler<Args> + 'static,
-        Args: FromEventAndContext + 'static,
+        H: Handler<Args> + Clone + Send + Sync + 'static,
+        H::Future: Send + Sync + 'static,
         H::Output: Into<EventReturn>,
+        Args: FromEventAndContext + 'static,
     {
         Self {
             service: handler_service(handler),
@@ -123,7 +113,6 @@ impl HandlerObject {
         }
     }
 
-    /// Get filters of the handler
     #[must_use]
     pub fn filters(&self) -> &[Box<dyn Filter>] {
         &self.filters
@@ -147,7 +136,6 @@ impl ServiceFactory<Request> for HandlerObject {
     type InitError = ();
     type Future = BoxFuture<Result<Self::Service, Self::InitError>>;
 
-    /// Create [`HandlerObjectService`] from [`HandlerObject`]
     fn new_service(&self, _: ()) -> Self::Future {
         let fut = self.service.new_service(());
         let filters = Arc::clone(&self.filters);
@@ -163,7 +151,6 @@ impl ServiceFactory<Request> for HandlerObject {
     }
 }
 
-/// [`Handler`] wrapped into service with filters
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObjectService {
     service: Arc<BoxedHandlerService>,
@@ -191,19 +178,18 @@ impl Service<Request> for HandlerObjectService {
     type Error = app::ErrorKind;
     type Future = BoxFuture<Result<Self::Response, Self::Error>>;
 
-    /// Call service, which is wrapped [`Handler`]
     fn call(&self, req: Request) -> Self::Future {
         self.service.call(req)
     }
 }
 
-/// Wrap [`Handler`] into service factory
 #[allow(clippy::module_name_repetitions)]
 pub fn handler_service<H, Args>(handler: H) -> BoxedHandlerServiceFactory
 where
-    H: Handler<Args> + 'static,
-    Args: FromEventAndContext + 'static,
+    H: Handler<Args> + Clone + Send + Sync + 'static,
+    H::Future: Send + Sync + 'static,
     H::Output: Into<EventReturn>,
+    Args: FromEventAndContext + 'static,
 {
     factory(fn_service(move |req: Request| {
         let handler = handler.clone();
@@ -215,7 +201,6 @@ where
                     request: req,
                     response: handler.call(args).await.into(),
                 }),
-                // Return error which implement `Into<app::ErrorKind>`
                 Err(err) => Err(err.into()),
             }
         }
@@ -225,9 +210,8 @@ where
 macro_rules! factory_tuple ({ $($param:ident)* } => {
     impl<Func, Fut, $($param,)*> Handler<($($param,)*)> for Func
     where
-        Func: Fn($($param),*) -> Fut + Clone + Send + Sync + 'static,
-        Fut: Future + Send + Sync + 'static,
-        $($param: Send + Sync + 'static,)*
+        Func: Fn($($param),*) -> Fut,
+        Fut: Future,
     {
         type Output = Fut::Output;
         type Future = Fut;

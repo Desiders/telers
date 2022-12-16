@@ -31,13 +31,11 @@ impl Observer {
         }
     }
 
-    /// Get event observer name
     #[must_use]
     pub fn event_name(&self) -> &str {
         self.event_name
     }
 
-    /// Get handlers of the observer
     #[must_use]
     pub fn handlers(&self) -> &[HandlerObject] {
         &self.handlers
@@ -48,7 +46,8 @@ impl Observer {
     /// * `handler` - Handler for the observer
     pub fn register<H, Args>(&mut self, handler: H, args: Args)
     where
-        H: Handler<Args> + 'static,
+        H: Handler<Args> + Clone + Send + Sync + 'static,
+        H::Future: Send + Sync + 'static,
         Args: Clone + Send + Sync + 'static,
     {
         self.handlers.push(HandlerObject::new(handler, args));
@@ -57,7 +56,8 @@ impl Observer {
     // Alias to [`Observer::register`] method
     pub fn on<H, Args>(&mut self, handler: H, args: Args)
     where
-        H: Handler<Args> + 'static,
+        H: Handler<Args> + Clone + Send + Sync + 'static,
+        H::Future: Send + Sync + 'static,
         Args: Clone + Send + Sync + 'static,
     {
         self.register(handler, args);

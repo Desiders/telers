@@ -10,27 +10,23 @@ use std::future::Future;
 pub type BoxedHandlerService = BoxService<(), (), app::ErrorKind>;
 pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), (), (), app::ErrorKind, ()>;
 
-pub trait Handler<Args>: Clone + Send + Sync
-where
-    Args: Clone + Send + Sync,
-{
+pub trait Handler<Args> {
     type Output;
-    type Future: Future<Output = Self::Output> + Send + Sync;
+    type Future: Future<Output = Self::Output>;
 
     fn call(&self, args: Args) -> Self::Future;
 }
 
-/// [`Handler`] wrapped into service factory with filters
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObject {
     service: BoxedHandlerServiceFactory,
 }
 
 impl HandlerObject {
-    /// Create a new handler object
     pub fn new<H, Args>(handler: H, args: Args) -> Self
     where
-        H: Handler<Args> + 'static,
+        H: Handler<Args> + Clone + Send + Sync + 'static,
+        H::Future: Send + Sync + 'static,
         Args: Clone + Send + Sync + 'static,
     {
         Self {
@@ -47,7 +43,6 @@ impl ServiceFactory<()> for HandlerObject {
     type InitError = ();
     type Future = BoxFuture<Result<Self::Service, Self::InitError>>;
 
-    /// Create [`HandlerObjectService`] from [`HandlerObject`]
     fn new_service(&self, _: ()) -> Self::Future {
         let fut = self.service.new_service(());
 
@@ -59,7 +54,6 @@ impl ServiceFactory<()> for HandlerObject {
     }
 }
 
-/// [`Handler`] wrapped into service with filters
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObjectService {
     service: BoxedHandlerService,
@@ -70,17 +64,16 @@ impl Service<()> for HandlerObjectService {
     type Error = app::ErrorKind;
     type Future = BoxFuture<Result<Self::Response, Self::Error>>;
 
-    /// Call service, which is wrapped [`Handler`]
     fn call(&self, req: ()) -> Self::Future {
         self.service.call(req)
     }
 }
 
-/// Wrap [`Handler`] into service factory
 #[allow(clippy::module_name_repetitions)]
 pub fn handler_service<H, Args>(handler: H, args: Args) -> BoxedHandlerServiceFactory
 where
-    H: Handler<Args> + 'static,
+    H: Handler<Args> + Clone + Send + Sync + 'static,
+    H::Future: Send + Sync + 'static,
     Args: Clone + Send + Sync + 'static,
 {
     factory(fn_service(move |()| {
@@ -97,9 +90,8 @@ where
 macro_rules! factory_tuple ({ $($param:ident)* } => {
     impl<Func, Fut, $($param,)*> Handler<($($param,)*)> for Func
     where
-        Func: Fn($($param),*) -> Fut + Clone + Send + Sync + 'static,
-        Fut: Future + Send + Sync + 'static,
-        $($param: Clone + Send + Sync + 'static,)*
+        Func: Fn($($param),*) -> Fut + 'static,
+        Fut: Future + 'static,
     {
         type Output = Fut::Output;
         type Future = Fut;
@@ -134,7 +126,7 @@ mod tests {
 
     #[test]
     fn test_arg_number() {
-        fn assert_impl_handler<T: Clone + Send + Sync>(_: impl Handler<T>) {}
+        fn assert_impl_handler<T>(_: impl Handler<T>) {}
 
         assert_impl_handler(|| async { unreachable!() });
         assert_impl_handler(

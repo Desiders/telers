@@ -8,8 +8,7 @@ use crate::{
 
 use std::{future::Future, sync::Arc};
 
-pub type MiddlewareType = Box<dyn Middleware + Send + Sync>;
-pub type MiddlewaresType = Vec<Arc<MiddlewareType>>;
+pub type Middlewares = Vec<Arc<Box<dyn Middleware + Send + Sync>>>;
 
 pub trait Middleware: Send + Sync {
     /// Execute middleware
