@@ -435,7 +435,7 @@ impl RouterService {
         for startup in
             once(&self.startup).chain(self.sub_routers.iter().map(|router| &router.startup))
         {
-            startup.call(()).await?;
+            startup.trigger(()).await?;
         }
         Ok(())
     }
@@ -449,7 +449,7 @@ impl RouterService {
         for shutdown in
             once(&self.shutdown).chain(self.sub_routers.iter().map(|router| &router.shutdown))
         {
-            shutdown.call(()).await?;
+            shutdown.trigger(()).await?;
         }
         Ok(())
     }
