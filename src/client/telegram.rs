@@ -41,7 +41,7 @@ impl SimpleFilesPathWrapper {
     }
 
     #[must_use]
-    fn resolve(&self, base1: &Path, base2: &Path, path: &Path) -> PathBuf {
+    fn resolve(base1: &Path, base2: &Path, path: &Path) -> PathBuf {
         let relative = base1.join(path);
         base2.join(relative)
     }
@@ -49,16 +49,16 @@ impl SimpleFilesPathWrapper {
 
 impl FilesPathWrapper for SimpleFilesPathWrapper {
     fn to_local(&self, path: &Path) -> PathBuf {
-        self.resolve(&self.server_path, &self.local_path, path)
+        Self::resolve(&self.server_path, &self.local_path, path)
     }
 
     fn to_server(&self, path: &Path) -> PathBuf {
-        self.resolve(&self.local_path, &self.server_path, path)
+        Self::resolve(&self.local_path, &self.server_path, path)
     }
 }
 
 /// Base config for API Endpoints
-pub struct TelegramAPIServer {
+pub struct APIServer {
     /// Base URL for API
     base_url: String,
     /// Files URL
@@ -69,8 +69,8 @@ pub struct TelegramAPIServer {
     files_path_wrapper: Arc<dyn FilesPathWrapper>,
 }
 
-impl TelegramAPIServer {
-    /// Create a new TelegramAPIServer
+impl APIServer {
+    /// Create a new `APIServer`
     /// # Arguments
     /// * `base_url` - Base URL for API
     /// * `files_url` - Files URL
@@ -110,8 +110,8 @@ impl TelegramAPIServer {
 
     /// Get path wrapper for files in local mode
     #[must_use]
-    pub fn files_path_wrapper(&self) -> &Arc<dyn FilesPathWrapper> {
-        &self.files_path_wrapper
+    pub fn files_path_wrapper(&self) -> Arc<dyn FilesPathWrapper> {
+        Arc::clone(&self.files_path_wrapper)
     }
 
     /// Generate URL for API method
@@ -137,7 +137,7 @@ impl TelegramAPIServer {
     }
 }
 
-impl Default for TelegramAPIServer {
+impl Default for APIServer {
     fn default() -> Self {
         Self::new(
             "https://api.telegram.org/bot{token}/{method}",
@@ -148,10 +148,9 @@ impl Default for TelegramAPIServer {
     }
 }
 
-pub static PRODUCTION: Lazy<TelegramAPIServer> = Lazy::new(|| TelegramAPIServer::default());
-
-pub static TEST: Lazy<TelegramAPIServer> = Lazy::new(|| {
-    TelegramAPIServer::new(
+pub static PRODUCTION: Lazy<APIServer> = Lazy::new(APIServer::default);
+pub static TEST: Lazy<APIServer> = Lazy::new(|| {
+    APIServer::new(
         "https://api.telegram.org/bot{token}/test/{method}",
         "https://api.telegram.org/file/bot{token}/test/{path}",
         false,
@@ -165,7 +164,7 @@ mod tests {
 
     #[test]
     fn test_api_url() {
-        let server = TelegramAPIServer::new(
+        let server = APIServer::new(
             "https://api.telegram.org/bot{token}/{method}",
             "https://api.telegram.org/file/bot{token}/{path}",
             false,
@@ -179,7 +178,7 @@ mod tests {
             "https://api.telegram.org/bot1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/getUpdates"
         );
 
-        let server = TelegramAPIServer::new(
+        let server = APIServer::new(
             "https://api.telegram.org/bot{token}/test/{method}",
             "https://api.telegram.org/file/bot{token}/test/{path}",
             false,
@@ -196,7 +195,7 @@ mod tests {
 
     #[test]
     fn test_file_url() {
-        let server = TelegramAPIServer::new(
+        let server = APIServer::new(
             "https://api.telegram.org/bot{token}/{method}",
             "https://api.telegram.org/file/bot{token}/{path}",
             false,
@@ -210,7 +209,7 @@ mod tests {
             "https://api.telegram.org/file/bot1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/test_path"
         );
 
-        let server = TelegramAPIServer::new(
+        let server = APIServer::new(
             "https://api.telegram.org/bot{token}/test/{method}",
             "https://api.telegram.org/file/bot{token}/test/{path}",
             false,

@@ -29,8 +29,6 @@ enum ListenerError<T> {
 
 #[derive(thiserror::Error, Debug)]
 enum PollingError {
-    #[error("Error while receiving updates. Message: {message:?}")]
-    RecvError { message: &'static str },
     #[error("Polling was aborted by signal")]
     Aborted,
 }
