@@ -24,15 +24,13 @@ impl Log for SimpleLogger {
 }
 
 async fn echo_handler(message: Message) {
-    log::info!("Message: {:?}", message);
-
     // todo!("Send message back to the user with the same text as the user sent to the bot");
 }
 
 #[tokio::main]
 async fn main() {
     log::set_logger(&SimpleLogger)
-        .map(|()| log::set_max_level(LevelFilter::Trace))
+        .map(|()| log::set_max_level(LevelFilter::Info))
         .unwrap();
 
     let bot = Bot::default();
@@ -40,7 +38,7 @@ async fn main() {
     let mut main_router = Router::new("main");
     main_router.message.register(echo_handler, vec![]);
 
-    let dispatcher = Dispatcher::new(main_router).new_service(()).await.unwrap();
+    let dispatcher = Dispatcher::new(main_router).new_service(()).unwrap();
 
     log::info!("Starting bot");
     match dispatcher
