@@ -102,9 +102,11 @@ impl Response {
 }
 
 /// Router can route update, and it nested update types like messages, callback query, polls and all other event types.
-/// Event handlers can be registered in observer by two ways:
+/// Event handlers can be registered in observer by following methods:
 /// - By observer method - [`router.<event_type>.register(handler, <filters, ...>)`
 /// - By observer method - [`router.<event_type>.on(handler, <filters, ...>)`
+/// - By observer method (if no filters) - [`router.<event_type>.register_no_filters(handler)`
+/// - By observer method (if no filters) - [`router.<event_type>.on_no_filters(handler)`
 pub struct Router {
     router_name: &'static str,
     sub_routers: Vec<Router>,
@@ -634,20 +636,20 @@ mod tests {
 
         let mut router = Router::new("main");
         // Telegram event observers
-        router.message.register(handler, vec![]);
-        router.edited_message.register(handler, vec![]);
-        router.channel_post.register(handler, vec![]);
-        router.edited_channel_post.register(handler, vec![]);
-        router.inline_query.register(handler, vec![]);
-        router.chosen_inline_result.register(handler, vec![]);
-        router.callback_query.register(handler, vec![]);
-        router.shipping_query.register(handler, vec![]);
-        router.pre_checkout_query.register(handler, vec![]);
-        router.poll.register(handler, vec![]);
-        router.poll_answer.register(handler, vec![]);
-        router.my_chat_member.register(handler, vec![]);
-        router.chat_member.register(handler, vec![]);
-        router.chat_join_request.register(handler, vec![]);
+        router.message.register_no_filters(handler);
+        router.edited_message.register_no_filters(handler);
+        router.channel_post.register_no_filters(handler);
+        router.edited_channel_post.register_no_filters(handler);
+        router.inline_query.register_no_filters(handler);
+        router.chosen_inline_result.register_no_filters(handler);
+        router.callback_query.register_no_filters(handler);
+        router.shipping_query.register_no_filters(handler);
+        router.pre_checkout_query.register_no_filters(handler);
+        router.poll.register_no_filters(handler);
+        router.poll_answer.register_no_filters(handler);
+        router.my_chat_member.register_no_filters(handler);
+        router.chat_member.register_no_filters(handler);
+        router.chat_join_request.register_no_filters(handler);
         // Event observers
         router.startup.register(handler, ());
         router.shutdown.register(handler, ());
@@ -687,7 +689,7 @@ mod tests {
         let update = Update::default();
 
         let mut router = Router::new("main");
-        router.message.register(|| async {}, vec![]);
+        router.message.register_no_filters(|| async {});
 
         let router_service = router.new_service(()).unwrap();
 
@@ -717,16 +719,16 @@ mod tests {
             _ => panic!("Unexpected result"),
         }
 
-        let filter = Box::new(command::Command {
+        let filter = command::Command {
             commands: vec![command::PatternType::Text("start")],
             prefix: "/",
             ignore_case: false,
             ignore_mention: false,
-        });
+        };
 
         let mut router = Router::new("main");
         router.message.filter(filter.clone());
-        router.message.register(|| async {}, vec![]);
+        router.message.register_no_filters(|| async {});
 
         let router_service = router.new_service(()).unwrap();
 
@@ -743,10 +745,10 @@ mod tests {
 
         router
             .callback_query
-            .register(|| async { Action::Cancel }, vec![]);
+            .register_no_filters(|| async { Action::Cancel });
         router
             .callback_query
-            .register(|| async { unreachable!() }, vec![]);
+            .register_no_filters(|| async { unreachable!() });
 
         let res = router_service
             .propagate_event(&UpdateType::CallbackQuery, req)

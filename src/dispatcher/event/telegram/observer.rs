@@ -118,10 +118,9 @@ impl Observer {
         Self {
             event_name,
             handlers: vec![],
-            common_handler: HandlerObject::new(
-                || async move { unreachable!("This is only for observer filters and without logic") },
-                vec![],
-            ),
+            common_handler: HandlerObject::new_no_filters(|| async move {
+                unreachable!("This is only for observer filters and without logic")
+            }),
             middlewares: InnerMiddlewareManager::default(),
             outer_middlewares: OuterMiddlewareManager::default(),
         }
@@ -139,40 +138,73 @@ impl Observer {
 
     /// Get filters for all handlers of this event observer
     #[must_use]
-    pub fn filters(&self) -> &[Box<dyn Filter>] {
+    pub fn filters(&self) -> Arc<Vec<Box<dyn Filter>>> {
         self.common_handler.filters()
     }
 
     /// Register filter for all handlers of this event observer
     /// # Arguments
     /// * `filter` - Filter for the observer
-    pub fn filter(&mut self, filter: Box<dyn Filter>) {
+    pub fn filter<T, F>(&mut self, filter: T)
+    where
+        T: Into<Box<F>>,
+        F: Filter + 'static,
+    {
         self.common_handler.filter(filter);
     }
 
-    /// Register event handler
+    /// Register event handler with filters
     /// # Arguments
     /// * `handler` - Handler for the observer
     /// * `filters` - Filters for the handler
-    pub fn register<H, Args>(&mut self, handler: H, filters: Vec<Box<dyn Filter>>)
+    pub fn register<H, Args, FBox, F>(&mut self, handler: H, filters: Vec<FBox>)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
         H::Future: Send + Sync + 'static,
         H::Output: Into<EventReturn>,
         Args: FromEventAndContext + 'static,
+        FBox: Into<Box<F>>,
+        F: Filter + 'static,
     {
         self.handlers.push(HandlerObject::new(handler, filters));
     }
 
-    /// Alias to [`Observer::register`] method
-    pub fn on<H, Args>(&mut self, handler: H, filters: Vec<Box<dyn Filter>>)
+    /// Register event handler without filters
+    /// # Arguments
+    /// * `handler` - Handler for the observer
+    /// * `filters` - Filters for the handler
+    pub fn register_no_filters<H, Args>(&mut self, handler: H)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
         H::Future: Send + Sync + 'static,
         H::Output: Into<EventReturn>,
         Args: FromEventAndContext + 'static,
     {
+        self.handlers.push(HandlerObject::new_no_filters(handler));
+    }
+
+    /// Alias to [`Observer::register`] method
+    pub fn on<H, Args, FBox, F>(&mut self, handler: H, filters: Vec<FBox>)
+    where
+        H: Handler<Args> + Clone + Send + Sync + 'static,
+        H::Future: Send + Sync + 'static,
+        H::Output: Into<EventReturn>,
+        Args: FromEventAndContext + 'static,
+        FBox: Into<Box<F>>,
+        F: Filter + 'static,
+    {
         self.register(handler, filters);
+    }
+
+    /// Alias to [`Observer::register_no_filters`] method
+    pub fn on_no_filters<H, Args>(&mut self, handler: H)
+    where
+        H: Handler<Args> + Clone + Send + Sync + 'static,
+        H::Future: Send + Sync + 'static,
+        H::Output: Into<EventReturn>,
+        Args: FromEventAndContext + 'static,
+    {
+        self.register_no_filters(handler);
     }
 }
 
@@ -346,19 +378,16 @@ mod tests {
 
         let mut observer = Observer::new("test");
         // Register common filter, which handlers can't pass
-        observer.filter(Box::new(command::Command {
+        observer.filter(command::Command {
             commands: vec![command::PatternType::Text("start")],
             prefix: "/",
             ignore_case: false,
             ignore_mention: false,
-        }));
-        observer.register(|| async {}, vec![]);
-        observer.register(
-            || async {
-                unreachable!("It's shouldn't trigger because the first handler handles the event")
-            },
-            vec![],
-        );
+        });
+        observer.register_no_filters(|| async {});
+        observer.register_no_filters(|| async {
+            unreachable!("It's shouldn't trigger because the first handler handles the event")
+        });
 
         let observer_service = observer.new_service(()).unwrap();
         let req = Request::new(bot, Update::default(), context);
@@ -397,8 +426,8 @@ mod tests {
         let update = Update::default();
 
         let mut observer = Observer::new("test");
-        observer.register(|| async { Action::Skip }, vec![]);
-        observer.register(|| async {}, vec![]);
+        observer.register_no_filters(|| async { Action::Skip });
+        observer.register_no_filters(|| async {});
 
         let observer_service = observer.new_service(()).unwrap();
 
@@ -414,8 +443,8 @@ mod tests {
         }
 
         let mut observer = Observer::new("test2");
-        observer.register(|| async { Action::Skip }, vec![]);
-        observer.register(|| async { Action::Cancel }, vec![]);
+        observer.register_no_filters(|| async { Action::Skip });
+        observer.register_no_filters(|| async { Action::Cancel });
 
         let observer_service = observer.new_service(()).unwrap();
 

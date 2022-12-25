@@ -324,7 +324,7 @@ mod tests {
         }
 
         let mut router = Router::new("main");
-        router.message.register(|| async {}, vec![]);
+        router.message.register_no_filters(|| async {});
 
         let dispatcher = Dispatcher::new(router);
         let dispatcher_service = dispatcher.new_service(()).unwrap();

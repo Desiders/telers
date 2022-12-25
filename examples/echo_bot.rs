@@ -36,7 +36,7 @@ async fn main() {
     let bot = Bot::default();
 
     let mut main_router = Router::new("main");
-    main_router.message.register(echo_handler, vec![]);
+    main_router.message.register_no_filters(echo_handler);
 
     let dispatcher = Dispatcher::new(main_router).new_service(()).unwrap();
 

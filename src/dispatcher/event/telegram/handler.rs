@@ -100,7 +100,29 @@ pub struct HandlerObject {
 }
 
 impl HandlerObject {
-    pub fn new<H, Args>(handler: H, filters: Vec<Box<dyn Filter>>) -> Self
+    /// Create a new handler with filters
+    pub fn new<H, Args, FBox, F>(handler: H, filters: Vec<FBox>) -> Self
+    where
+        H: Handler<Args> + Clone + Send + Sync + 'static,
+        H::Future: Send + Sync + 'static,
+        H::Output: Into<EventReturn>,
+        Args: FromEventAndContext + 'static,
+        FBox: Into<Box<F>>,
+        F: Filter + 'static,
+    {
+        Self {
+            service: handler_service(handler),
+            filters: Arc::new(
+                filters
+                    .into_iter()
+                    .map(|filter| filter.into() as _)
+                    .collect(),
+            ),
+        }
+    }
+
+    /// Create a new handler without filters
+    pub fn new_no_filters<H, Args>(handler: H) -> Self
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
         H::Future: Send + Sync + 'static,
@@ -109,13 +131,13 @@ impl HandlerObject {
     {
         Self {
             service: handler_service(handler),
-            filters: Arc::new(filters),
+            filters: Arc::new(Vec::new()),
         }
     }
 
     #[must_use]
-    pub fn filters(&self) -> &[Box<dyn Filter>] {
-        &self.filters
+    pub fn filters(&self) -> Arc<Vec<Box<dyn Filter>>> {
+        Arc::clone(&self.filters)
     }
 
     /// Register filter for the handler
@@ -123,8 +145,18 @@ impl HandlerObject {
     /// * `filter` - Filter for the handler
     /// # Panics
     /// If there are other [`Arc`] or `Weak` pointers to the same allocation
-    pub fn filter(&mut self, filter: Box<dyn Filter>) {
-        Arc::get_mut(&mut self.filters).unwrap().push(filter);
+    pub fn filter<T, F>(&mut self, filter: T)
+    where
+        T: Into<Box<F>>,
+        F: Filter + 'static,
+    {
+        Arc::get_mut(&mut self.filters)
+            .expect(
+                "There are other Arc or Weak pointers to the same allocation. \
+            This method can only be called on an exclusive reference. \
+            Perhaps you try to register filter in cloned handler?",
+            )
+            .push(filter.into());
     }
 }
 
@@ -263,26 +295,26 @@ mod tests {
 
     #[test]
     fn test_handler_object_filter() {
-        let filter = Box::new(command::Command {
+        let filter = command::Command {
             commands: vec![command::PatternType::Text("start")],
             prefix: "/",
             ignore_case: false,
             ignore_mention: false,
-        });
+        };
 
-        let mut handler_object = HandlerObject::new(|| async { unreachable!() }, vec![]);
+        let mut handler_object = HandlerObject::new_no_filters(|| async { unreachable!() });
         assert_eq!(handler_object.filters().is_empty(), true);
 
         handler_object.filter(filter.clone());
         assert_eq!(handler_object.filters().len(), 1);
 
-        let handler_object = HandlerObject::new(|| async { unreachable!() }, vec![filter.clone()]);
+        let handler_object = HandlerObject::new(|| async { unreachable!() }, vec![filter]);
         assert_eq!(handler_object.filters().len(), 1);
     }
 
     #[tokio::test]
     async fn test_handler_object_service() {
-        let handler_object = HandlerObject::new(|| async {}, vec![]);
+        let handler_object = HandlerObject::new_no_filters(|| async {});
         let handler_object_service = handler_object.new_service(()).unwrap();
 
         let req = Request::new(Bot::default(), Update::default(), Context::new());

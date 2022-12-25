@@ -32,7 +32,8 @@ pub trait ServiceFactory<Req> {
     type InitError;
 
     /// Create and return a new service
-    #[must_use]
+    /// # Errors
+    /// If the service cannot be created by the factory
     fn new_service(&self, cfg: Self::Config) -> Result<Self::Service, Self::InitError>;
 }
 
