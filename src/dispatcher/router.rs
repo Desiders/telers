@@ -399,7 +399,7 @@ impl RouterService {
     /// # Errors
     /// - If any startup observer returns error
     pub async fn emit_startup(&self) -> Result<(), app::ErrorKind> {
-        log::debug!("{:?}: Emit startup", self);
+        log::debug!("{self:?}: Emit startup");
 
         for startup in
             once(&self.startup).chain(self.sub_routers.iter().map(|router| &router.startup))
@@ -413,7 +413,7 @@ impl RouterService {
     /// # Errors
     /// - If any shutdown observer returns error
     pub async fn emit_shutdown(&self) -> Result<(), app::ErrorKind> {
-        log::debug!("{:?}: Emit shutdown", self);
+        log::debug!("{self:?}: Emit shutdown");
 
         for shutdown in
             once(&self.shutdown).chain(self.sub_routers.iter().map(|router| &router.shutdown))

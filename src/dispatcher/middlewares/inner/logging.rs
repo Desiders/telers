@@ -37,8 +37,6 @@ impl Middleware for Logging {
         middlewares: MiddlewaresIter,
     ) -> BoxFuture<Result<Response, app::ErrorKind>> {
         let target = self.target;
-        let logger = Arc::clone(&self.logger);
-        let fut = self.handler(handler, req, middlewares);
 
         // Builder with logging level and
         let builder = move |level| {
@@ -48,9 +46,12 @@ impl Middleware for Logging {
             builder
         };
 
+        let logger = Arc::clone(&self.logger);
+        let handler = self.handler(handler, req, middlewares);
+
         Box::pin(async move {
             let now = Instant::now();
-            let result = fut.await;
+            let result = handler.await;
             let elapsed = now.elapsed();
 
             match result {
@@ -59,8 +60,7 @@ impl Middleware for Logging {
                         logger.log(
                             &builder(Level::Debug)
                                 .args(format_args!(
-                                    "Handler skipped with response: {:?}. Execution time: {:.2?}",
-                                    res, elapsed,
+                                    "Handler skipped with response: {res:?}. Execution time: {elapsed:.2?}"
                                 ))
                                 .build(),
                         );
@@ -68,8 +68,7 @@ impl Middleware for Logging {
                         logger.log(
                             &builder(Level::Debug)
                                 .args(format_args!(
-                                    "Handler returned response: {:?}. Execution time: {:.2?}",
-                                    res, elapsed,
+                                    "Handler returned response: {res:?}. Execution time: {elapsed:.2?}"
                                 ))
                                 .build(),
                         );
@@ -80,8 +79,7 @@ impl Middleware for Logging {
                     logger.log(
                         &builder(Level::Error)
                             .args(format_args!(
-                                "Handler returned error: {:?}. Execution time: {:.2?}",
-                                err, elapsed,
+                                "Handler returned error: {err:?}. Execution time: {elapsed:.2?}"
                             ))
                             .build(),
                     );

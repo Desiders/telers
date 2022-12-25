@@ -323,7 +323,7 @@ impl Service<Request> for ObserverService {
     type Future = BoxFuture<Result<Self::Response, Self::Error>>;
 
     fn call(&self, _: Request) -> Self::Future {
-        log::error!("{:?}: Should not be called", self);
+        log::error!("{self:?}: Should not be called");
 
         unimplemented!(
             "ObserverService is not intended to be called directly. \

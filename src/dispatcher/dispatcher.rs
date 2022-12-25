@@ -256,7 +256,7 @@ impl DispatcherService {
                 let bot = bot.into();
                 let dispatcher = Arc::clone(&self);
 
-                log::info!("Starting polling for {:#?}", bot);
+                log::info!("Starting polling for {bot:#?}");
                 tokio::spawn(dispatcher.polling(bot, backoff_config.clone()))
             })
             .collect::<Vec<_>>();
@@ -284,7 +284,7 @@ impl Service<()> for Arc<DispatcherService> {
     type Future = BoxFuture<Result<Self::Response, Self::Error>>;
 
     fn call(&self, _: ()) -> Self::Future {
-        log::error!("{:?}: Should not be called", self);
+        log::error!("{self:?}: Should not be called");
 
         unimplemented!(
             "This method should not be called. \
