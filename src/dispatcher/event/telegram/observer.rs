@@ -203,34 +203,24 @@ impl ServiceFactory<Request> for Observer {
     type Config = ();
     type Service = ObserverService;
     type InitError = ();
-    type Future = BoxFuture<Result<Self::Service, Self::InitError>>;
 
-    fn new_service(&self, _: Self::Config) -> Self::Future {
+    fn new_service(&self, _: Self::Config) -> Result<Self::Service, Self::InitError> {
         let event_name = self.event_name;
-        let futs = self
+        let handlers = self
             .handlers
             .iter()
             .map(|handler| handler.new_service(()))
-            .collect::<Vec<_>>();
-        let fut = self.common_handler.new_service(());
+            .collect::<Result<Vec<_>, _>>()?;
+        let common_handler = self.common_handler.new_service(())?;
         let middlewares = self.middlewares.middlewares().clone();
         let outer_middlewares = self.outer_middlewares.middlewares().clone();
 
-        Box::pin(async move {
-            let mut handlers = vec![];
-            for fut in futs {
-                handlers.push(fut.await?);
-            }
-
-            let common_handler = fut.await?;
-
-            Ok(ObserverService {
-                event_name,
-                handlers: Arc::new(handlers),
-                common_handler: Arc::new(common_handler),
-                middlewares: middlewares.clone(),
-                outer_middlewares: outer_middlewares.clone(),
-            })
+        Ok(ObserverService {
+            event_name,
+            handlers: Arc::new(handlers),
+            common_handler: Arc::new(common_handler),
+            middlewares: middlewares.clone(),
+            outer_middlewares: outer_middlewares.clone(),
         })
     }
 }
@@ -370,7 +360,7 @@ mod tests {
             vec![],
         );
 
-        let observer_service = observer.new_service(()).await.unwrap();
+        let observer_service = observer.new_service(()).unwrap();
         let req = Request::new(bot, Update::default(), context);
         let res = observer_service.trigger(req.clone()).await.unwrap();
 
@@ -410,7 +400,7 @@ mod tests {
         observer.register(|| async { Action::Skip }, vec![]);
         observer.register(|| async {}, vec![]);
 
-        let observer_service = observer.new_service(()).await.unwrap();
+        let observer_service = observer.new_service(()).unwrap();
 
         let req = Request::new(bot, update, context);
         let res = observer_service.trigger(req.clone()).await.unwrap();
@@ -427,7 +417,7 @@ mod tests {
         observer.register(|| async { Action::Skip }, vec![]);
         observer.register(|| async { Action::Cancel }, vec![]);
 
-        let observer_service = observer.new_service(()).await.unwrap();
+        let observer_service = observer.new_service(()).unwrap();
 
         let res = observer_service.trigger(req).await.unwrap();
 

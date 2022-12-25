@@ -41,16 +41,11 @@ impl ServiceFactory<()> for HandlerObject {
     type Config = ();
     type Service = HandlerObjectService;
     type InitError = ();
-    type Future = BoxFuture<Result<Self::Service, Self::InitError>>;
 
-    fn new_service(&self, _: ()) -> Self::Future {
-        let fut = self.service.new_service(());
+    fn new_service(&self, _: ()) -> Result<Self::Service, Self::InitError> {
+        let service = self.service.new_service(())?;
 
-        Box::pin(async move {
-            let service = fut.await?;
-
-            Ok(HandlerObjectService { service })
-        })
+        Ok(HandlerObjectService { service })
     }
 }
 
@@ -148,7 +143,7 @@ mod tests {
     #[tokio::test]
     async fn test_handler_object_service() {
         let handler_object = HandlerObject::new(|| async {}, ());
-        let handler_object_service = handler_object.new_service(()).await.unwrap();
+        let handler_object_service = handler_object.new_service(()).unwrap();
 
         handler_object_service.call(()).await.unwrap();
     }

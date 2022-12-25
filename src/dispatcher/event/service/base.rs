@@ -31,12 +31,9 @@ pub trait ServiceFactory<Req> {
     /// Errors potentially raised while building a service
     type InitError;
 
-    /// The future response value
-    type Future: Future<Output = Result<Self::Service, Self::InitError>>;
-
-    /// Create and return a new service asynchronously
+    /// Create and return a new service
     #[must_use]
-    fn new_service(&self, cfg: Self::Config) -> Self::Future;
+    fn new_service(&self, cfg: Self::Config) -> Result<Self::Service, Self::InitError>;
 }
 
 impl<'a, S, Req> Service<Req> for &'a S

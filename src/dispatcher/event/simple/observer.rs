@@ -76,27 +76,19 @@ impl ServiceFactory<()> for Observer {
     type Config = ();
     type Service = ObserverService;
     type InitError = ();
-    type Future = BoxFuture<Result<Self::Service, Self::InitError>>;
 
     /// Create [`ObserverService`] from [`Observer`]
-    fn new_service(&self, _: Self::Config) -> Self::Future {
+    fn new_service(&self, _: Self::Config) -> Result<Self::Service, Self::InitError> {
         let event_name = self.event_name;
-        let futs = self
+        let handlers = self
             .handlers
             .iter()
             .map(|handler| handler.new_service(()))
-            .collect::<Vec<_>>();
+            .collect::<Result<Vec<_>, _>>()?;
 
-        Box::pin(async move {
-            let mut handlers = vec![];
-            for fut in futs {
-                handlers.push(fut.await?);
-            }
-
-            Ok(ObserverService {
-                event_name,
-                handlers: Arc::new(handlers),
-            })
+        Ok(ObserverService {
+            event_name,
+            handlers: Arc::new(handlers),
         })
     }
 }
@@ -167,7 +159,7 @@ mod tests {
         observer.register(on_startup, ("Hello, world!",));
         observer.register(on_shutdown, ("Goodbye, world!",));
 
-        let observer_service = observer.new_service(()).await.unwrap();
+        let observer_service = observer.new_service(()).unwrap();
 
         observer_service.trigger(()).await.unwrap();
     }

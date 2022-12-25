@@ -74,7 +74,7 @@ where
     fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<AppContext>) -> Self::Future {
         FromEventAndContextResFuture {
             fut: T::extract(bot, update, context),
-            _phantom: PhantomData,
+            phantom: PhantomData,
         }
     }
 }
@@ -83,7 +83,7 @@ pin_project! {
     pub struct FromEventAndContextResFuture<Fut, E> {
         #[pin]
         fut: Fut,
-        _phantom: PhantomData<E>,
+        phantom: PhantomData<E>,
     }
 }
 

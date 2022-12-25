@@ -134,19 +134,14 @@ impl ServiceFactory<Request> for HandlerObject {
     type Config = ();
     type Service = HandlerObjectService;
     type InitError = ();
-    type Future = BoxFuture<Result<Self::Service, Self::InitError>>;
 
-    fn new_service(&self, _: ()) -> Self::Future {
-        let fut = self.service.new_service(());
+    fn new_service(&self, _: ()) -> Result<Self::Service, Self::InitError> {
+        let service = self.service.new_service(())?;
         let filters = Arc::clone(&self.filters);
 
-        Box::pin(async move {
-            let service = fut.await?;
-
-            Ok(HandlerObjectService {
-                service: Arc::new(service),
-                filters,
-            })
+        Ok(HandlerObjectService {
+            service: Arc::new(service),
+            filters,
         })
     }
 }
@@ -288,7 +283,7 @@ mod tests {
     #[tokio::test]
     async fn test_handler_object_service() {
         let handler_object = HandlerObject::new(|| async {}, vec![]);
-        let handler_object_service = handler_object.new_service(()).await.unwrap();
+        let handler_object_service = handler_object.new_service(()).unwrap();
 
         let req = Request::new(Bot::default(), Update::default(), Context::new());
         assert_eq!(handler_object_service.check(&req), true);

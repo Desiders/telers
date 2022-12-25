@@ -42,7 +42,7 @@ where
     }
 }
 
-/// Wrapper for a service factory that will map it's services to boxed trait object services.
+/// Wrapper for a service factory that will map it's services to boxed trait object services
 pub struct BoxServiceFactory<Cfg, Req, Res, Err, InitErr>(Inner<Cfg, Req, Res, Err, InitErr>);
 
 type Inner<Cfg, Req, Res, Err, InitErr> = Box<
@@ -53,7 +53,6 @@ type Inner<Cfg, Req, Res, Err, InitErr> = Box<
             Error = Err,
             InitError = InitErr,
             Service = BoxService<Req, Res, Err>,
-            Future = BoxFuture<Result<BoxService<Req, Res, Err>, InitErr>>,
         > + Send
         + Sync,
 >;
@@ -71,14 +70,12 @@ where
     type Service = BoxService<Req, Res, Err>;
     type InitError = InitErr;
 
-    type Future = BoxFuture<Result<Self::Service, InitErr>>;
-
-    fn new_service(&self, cfg: C) -> Self::Future {
+    fn new_service(&self, cfg: C) -> Result<Self::Service, InitErr> {
         self.0.new_service(cfg)
     }
 }
 
-/// Wraps a service factory that returns service trait objects.
+/// Wraps a service factory that returns service trait objects
 pub fn factory<SF, Req>(
     factory: SF,
 ) -> BoxServiceFactory<SF::Config, Req, SF::Response, SF::Error, SF::InitError>
@@ -87,15 +84,22 @@ where
     Req: 'static,
     SF::Response: 'static,
     SF::Service: Send + Sync + 'static,
-    SF::Future: Send + Sync + 'static,
     SF::Error: 'static,
     SF::InitError: 'static,
     <SF::Service as Service<Req>>::Future: Send + Sync + 'static,
 {
-    BoxServiceFactory(Box::new(FactoryWrapper(factory)))
+    BoxServiceFactory(Box::new(FactoryWrapper::new(factory)))
 }
 
-struct FactoryWrapper<SF>(SF);
+struct FactoryWrapper<SF> {
+    inner: SF,
+}
+
+impl<SF> FactoryWrapper<SF> {
+    fn new(inner: SF) -> Self {
+        Self { inner }
+    }
+}
 
 impl<SF, Req, Cfg, Res, Err, InitErr> ServiceFactory<Req> for FactoryWrapper<SF>
 where
@@ -104,7 +108,6 @@ where
     Err: 'static,
     InitErr: 'static,
     SF: ServiceFactory<Req, Config = Cfg, Response = Res, Error = Err, InitError = InitErr>,
-    SF::Future: Send + Sync + 'static,
     SF::Service: Send + Sync + 'static,
     <SF::Service as Service<Req>>::Future: Send + Sync + 'static,
 {
@@ -113,14 +116,10 @@ where
     type Config = Cfg;
     type Service = BoxService<Req, Res, Err>;
     type InitError = InitErr;
-    type Future = BoxFuture<Result<Self::Service, Self::InitError>>;
 
-    fn new_service(&self, cfg: Cfg) -> Self::Future {
-        let fut = self.0.new_service(cfg);
-
-        Box::pin(async {
-            fut.await
-                .map(|service| Box::new(ServiceWrapper::new(service)) as _)
-        })
+    fn new_service(&self, cfg: Cfg) -> Result<Self::Service, InitErr> {
+        self.inner
+            .new_service(cfg)
+            .map(|service| Box::new(ServiceWrapper::new(service)) as _)
     }
 }

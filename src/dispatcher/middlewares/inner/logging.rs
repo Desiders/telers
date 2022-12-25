@@ -127,7 +127,7 @@ mod tests {
         let middleware = Logging::new(Box::new(SimpleLogger), None);
 
         let handler_service_factory = handler_service(|| async {}).new_service(());
-        let handler_service = Arc::new(handler_service_factory.await.unwrap());
+        let handler_service = Arc::new(handler_service_factory.unwrap());
 
         let req = Request::new(Bot::default(), Update::default(), Context::default());
 

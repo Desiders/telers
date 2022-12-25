@@ -20,7 +20,6 @@ use crate::{
 };
 
 use async_recursion::async_recursion;
-use futures::future::join_all;
 use log;
 use std::{
     collections::HashSet,
@@ -134,6 +133,7 @@ impl Router {
     /// # Arguments
     /// * `router_name` - Router name, can be used for logging
     #[must_use]
+    #[rustfmt::skip]
     pub fn new(router_name: &'static str) -> Self {
         Self {
             router_name,
@@ -141,18 +141,12 @@ impl Router {
             message: TelegramObserver::new(TelegramObserverName::Message.into()),
             edited_message: TelegramObserver::new(TelegramObserverName::EditedMessage.into()),
             channel_post: TelegramObserver::new(TelegramObserverName::ChannelPost.into()),
-            edited_channel_post: TelegramObserver::new(
-                TelegramObserverName::EditedChannelPost.into(),
-            ),
+            edited_channel_post: TelegramObserver::new(TelegramObserverName::EditedChannelPost.into()),
             inline_query: TelegramObserver::new(TelegramObserverName::InlineQuery.into()),
-            chosen_inline_result: TelegramObserver::new(
-                TelegramObserverName::ChosenInlineResult.into(),
-            ),
+            chosen_inline_result: TelegramObserver::new(TelegramObserverName::ChosenInlineResult.into()),
             callback_query: TelegramObserver::new(TelegramObserverName::CallbackQuery.into()),
             shipping_query: TelegramObserver::new(TelegramObserverName::ShippingQuery.into()),
-            pre_checkout_query: TelegramObserver::new(
-                TelegramObserverName::PreCheckoutQuery.into(),
-            ),
+            pre_checkout_query: TelegramObserver::new(TelegramObserverName::PreCheckoutQuery.into()),
             poll: TelegramObserver::new(TelegramObserverName::Poll.into()),
             poll_answer: TelegramObserver::new(TelegramObserverName::PollAnswer.into()),
             my_chat_member: TelegramObserver::new(TelegramObserverName::MyChatMember.into()),
@@ -186,7 +180,7 @@ impl Router {
     }
 
     #[must_use]
-    #[rustfmt::skip]
+
     pub fn telegram_observers(&self) -> Vec<&TelegramObserver> {
         vec![
             &self.message,
@@ -305,75 +299,50 @@ impl ServiceFactory<Request> for Router {
     type Config = ();
     type Service = RouterService;
     type InitError = ();
-    type Future = BoxFuture<Result<Self::Service, Self::InitError>>;
 
-    fn new_service(&self, _: Self::Config) -> Self::Future {
+    fn new_service(&self, _: Self::Config) -> Result<Self::Service, Self::InitError> {
         let router_name = self.router_name;
-        let routers = self
+        let sub_routers = self
             .sub_routers
             .iter()
             .map(|router| router.new_service(()))
-            .collect::<Vec<_>>();
-        let message = self.message.new_service(());
-        let edited_message = self.edited_message.new_service(());
-        let channel_post = self.channel_post.new_service(());
-        let edited_channel_post = self.edited_channel_post.new_service(());
-        let inline_query = self.inline_query.new_service(());
-        let chosen_inline_result = self.chosen_inline_result.new_service(());
-        let callback_query = self.callback_query.new_service(());
-        let shipping_query = self.shipping_query.new_service(());
-        let pre_checkout_query = self.pre_checkout_query.new_service(());
-        let poll = self.poll.new_service(());
-        let poll_answer = self.poll_answer.new_service(());
-        let my_chat_member = self.my_chat_member.new_service(());
-        let chat_member = self.chat_member.new_service(());
-        let chat_join_request = self.chat_join_request.new_service(());
-        let startup = self.startup.new_service(());
-        let shutdown = self.shutdown.new_service(());
+            .collect::<Result<Vec<_>, _>>()?;
+        let message = self.message.new_service(())?;
+        let edited_message = self.edited_message.new_service(())?;
+        let channel_post = self.channel_post.new_service(())?;
+        let edited_channel_post = self.edited_channel_post.new_service(())?;
+        let inline_query = self.inline_query.new_service(())?;
+        let chosen_inline_result = self.chosen_inline_result.new_service(())?;
+        let callback_query = self.callback_query.new_service(())?;
+        let shipping_query = self.shipping_query.new_service(())?;
+        let pre_checkout_query = self.pre_checkout_query.new_service(())?;
+        let poll = self.poll.new_service(())?;
+        let poll_answer = self.poll_answer.new_service(())?;
+        let my_chat_member = self.my_chat_member.new_service(())?;
+        let chat_member = self.chat_member.new_service(())?;
+        let chat_join_request = self.chat_join_request.new_service(())?;
+        let startup = self.startup.new_service(())?;
+        let shutdown = self.shutdown.new_service(())?;
 
-        Box::pin(async move {
-            let mut sub_routers = vec![];
-            for router in join_all(routers).await {
-                sub_routers.push(router?);
-            }
-
-            let message = message.await?;
-            let edited_message = edited_message.await?;
-            let channel_post = channel_post.await?;
-            let edited_channel_post = edited_channel_post.await?;
-            let inline_query = inline_query.await?;
-            let chosen_inline_result = chosen_inline_result.await?;
-            let callback_query = callback_query.await?;
-            let shipping_query = shipping_query.await?;
-            let pre_checkout_query = pre_checkout_query.await?;
-            let poll = poll.await?;
-            let poll_answer = poll_answer.await?;
-            let my_chat_member = my_chat_member.await?;
-            let chat_member = chat_member.await?;
-            let chat_join_request = chat_join_request.await?;
-            let startup = startup.await?;
-            let shutdown = shutdown.await?;
-
-            Ok(RouterService {
-                router_name,
-                sub_routers,
-                message,
-                edited_message,
-                channel_post,
-                edited_channel_post,
-                inline_query,
-                chosen_inline_result,
-                callback_query,
-                shipping_query,
-                pre_checkout_query,
-                poll,
-                poll_answer,
-                my_chat_member,
-                chat_member,
-                chat_join_request,
-                startup,
-                shutdown,
-            })
+        Ok(RouterService {
+            router_name,
+            sub_routers,
+            message,
+            edited_message,
+            channel_post,
+            edited_channel_post,
+            inline_query,
+            chosen_inline_result,
+            callback_query,
+            shipping_query,
+            pre_checkout_query,
+            poll,
+            poll_answer,
+            my_chat_member,
+            chat_member,
+            chat_join_request,
+            startup,
+            shutdown,
         })
     }
 }
@@ -720,7 +689,7 @@ mod tests {
         let mut router = Router::new("main");
         router.message.register(|| async {}, vec![]);
 
-        let router_service = router.new_service(()).await.unwrap();
+        let router_service = router.new_service(()).unwrap();
 
         let req = RouterRequest::new(bot, update, context);
 
@@ -759,7 +728,7 @@ mod tests {
         router.message.filter(filter.clone());
         router.message.register(|| async {}, vec![]);
 
-        let router_service = router.new_service(()).await.unwrap();
+        let router_service = router.new_service(()).unwrap();
 
         let res = router_service
             .propagate_event(&UpdateType::Message, req.clone())

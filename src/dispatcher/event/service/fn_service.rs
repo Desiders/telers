@@ -1,6 +1,6 @@
 use super::base::{Service, ServiceFactory};
 
-use futures::future::{ok, Future, Ready};
+use futures::future::Future;
 use std::marker::PhantomData;
 
 /// Create [`ServiceFactory`] for function that can act as a [`Service`]
@@ -13,24 +13,18 @@ where
 }
 
 /// Create [`ServiceFactory`] for function that can produce services
-pub fn fn_factory_no_config<F, Cfg, Srv, Req, Fut, Err>(
-    f: F,
-) -> FnServiceNoConfig<F, Cfg, Srv, Req, Fut, Err>
+pub fn fn_factory_no_config<F, Cfg, Srv, Req, Err>(f: F) -> FnServiceNoConfig<F, Cfg, Srv, Req, Err>
 where
-    F: Fn() -> Fut,
-    Fut: Future<Output = Result<Srv, Err>>,
+    F: Fn() -> Result<Srv, Err>,
     Srv: Service<Req>,
 {
     FnServiceNoConfig::new(f)
 }
 
 /// Create [`ServiceFactory`] for function that accepts config argument and can produce services
-pub fn fn_factory_config<F, Fut, Cfg, Srv, Req, Err>(
-    f: F,
-) -> FnServiceConfig<F, Fut, Cfg, Srv, Req, Err>
+pub fn fn_factory_config<F, Cfg, Srv, Req, Err>(f: F) -> FnServiceConfig<F, Cfg, Srv, Req, Err>
 where
-    F: Fn(Cfg) -> Fut,
-    Fut: Future<Output = Result<Srv, Err>>,
+    F: Fn(Cfg) -> Result<Srv, Err>,
     Srv: Service<Req>,
 {
     FnServiceConfig::new(f)
@@ -43,7 +37,7 @@ where
     Fut: Future<Output = Result<Res, Err>>,
 {
     f: F,
-    _t: PhantomData<fn(Req)>,
+    phantom: PhantomData<Req>,
 }
 
 impl<F, Fut, Req, Res, Err> FnService<F, Fut, Req, Res, Err>
@@ -52,7 +46,10 @@ where
     Fut: Future<Output = Result<Res, Err>>,
 {
     pub(crate) fn new(f: F) -> Self {
-        Self { f, _t: PhantomData }
+        Self {
+            f,
+            phantom: PhantomData,
+        }
     }
 }
 
@@ -78,7 +75,7 @@ where
     Fut: Future<Output = Result<Res, Err>>,
 {
     f: F,
-    _t: PhantomData<fn(Req, Cfg)>,
+    phantom: PhantomData<(Req, Cfg)>,
 }
 
 impl<F, Fut, Req, Res, Err, Cfg> FnServiceFactory<F, Fut, Req, Res, Err, Cfg>
@@ -87,7 +84,10 @@ where
     Fut: Future<Output = Result<Res, Err>>,
 {
     fn new(f: F) -> Self {
-        FnServiceFactory { f, _t: PhantomData }
+        FnServiceFactory {
+            f,
+            phantom: PhantomData,
+        }
     }
 }
 
@@ -117,42 +117,38 @@ where
     type Config = Cfg;
     type Service = FnService<F, Fut, Req, Res, Err>;
     type InitError = ();
-    type Future = Ready<Result<Self::Service, Self::InitError>>;
 
-    fn new_service(&self, _: Cfg) -> Self::Future {
-        ok(FnService::new(self.f.clone()))
+    fn new_service(&self, _: Cfg) -> Result<Self::Service, Self::InitError> {
+        Ok(FnService::new(self.f.clone()))
     }
 }
 
-/// Convert `Fn(&Config) -> Future<Service>` fn to new service
-#[derive(Clone)]
 #[allow(clippy::module_name_repetitions)]
-pub struct FnServiceConfig<F, Fut, Cfg, Srv, Req, Err>
+pub struct FnServiceConfig<F, Cfg, Srv, Req, Err>
 where
-    F: Fn(Cfg) -> Fut,
-    Fut: Future<Output = Result<Srv, Err>>,
+    F: Fn(Cfg) -> Result<Srv, Err>,
     Srv: Service<Req>,
 {
     f: F,
-    #[allow(clippy::type_complexity)]
-    _t: PhantomData<fn(Cfg, Req) -> (Fut, Srv, Err)>,
+    phantom: PhantomData<(Cfg, Req)>,
 }
 
-impl<F, Fut, Cfg, Srv, Req, Err> FnServiceConfig<F, Fut, Cfg, Srv, Req, Err>
+impl<F, Cfg, Srv, Req, Err> FnServiceConfig<F, Cfg, Srv, Req, Err>
 where
-    F: Fn(Cfg) -> Fut,
-    Fut: Future<Output = Result<Srv, Err>>,
+    F: Fn(Cfg) -> Result<Srv, Err>,
     Srv: Service<Req>,
 {
     fn new(f: F) -> Self {
-        FnServiceConfig { f, _t: PhantomData }
+        FnServiceConfig {
+            f,
+            phantom: PhantomData,
+        }
     }
 }
 
-impl<F, Fut, Cfg, Srv, Req, Err> ServiceFactory<Req> for FnServiceConfig<F, Fut, Cfg, Srv, Req, Err>
+impl<F, Cfg, Srv, Req, Err> ServiceFactory<Req> for FnServiceConfig<F, Cfg, Srv, Req, Err>
 where
-    F: Fn(Cfg) -> Fut,
-    Fut: Future<Output = Result<Srv, Err>>,
+    F: Fn(Cfg) -> Result<Srv, Err>,
     Srv: Service<Req>,
 {
     type Response = Srv::Response;
@@ -161,42 +157,38 @@ where
     type Config = Cfg;
     type Service = Srv;
     type InitError = Err;
-    type Future = Fut;
 
-    fn new_service(&self, cfg: Cfg) -> Self::Future {
+    fn new_service(&self, cfg: Cfg) -> Result<Self::Service, Self::InitError> {
         (self.f)(cfg)
     }
 }
 
-/// Converter for `Fn() -> Future<Service>` fn
-#[derive(Clone)]
 #[allow(clippy::module_name_repetitions)]
-pub struct FnServiceNoConfig<F, Cfg, Srv, Req, Fut, Err>
+pub struct FnServiceNoConfig<F, Cfg, Srv, Req, Err>
 where
-    F: Fn() -> Fut,
-    Fut: Future<Output = Result<Srv, Err>>,
+    F: Fn() -> Result<Srv, Err>,
     Srv: Service<Req>,
 {
     f: F,
-    _t: PhantomData<fn(Cfg, Req)>,
+    phantom: PhantomData<(Cfg, Req)>,
 }
 
-impl<F, Cfg, Srv, Req, Fut, Err> FnServiceNoConfig<F, Cfg, Srv, Req, Fut, Err>
+impl<F, Cfg, Srv, Req, Err> FnServiceNoConfig<F, Cfg, Srv, Req, Err>
 where
-    F: Fn() -> Fut,
-    Fut: Future<Output = Result<Srv, Err>>,
+    F: Fn() -> Result<Srv, Err>,
     Srv: Service<Req>,
 {
     fn new(f: F) -> Self {
-        Self { f, _t: PhantomData }
+        Self {
+            f,
+            phantom: PhantomData,
+        }
     }
 }
 
-impl<F, Cfg, Srv, Req, Fut, Err> ServiceFactory<Req>
-    for FnServiceNoConfig<F, Cfg, Srv, Req, Fut, Err>
+impl<F, Cfg, Srv, Req, Err> ServiceFactory<Req> for FnServiceNoConfig<F, Cfg, Srv, Req, Err>
 where
-    F: Fn() -> Fut,
-    Fut: Future<Output = Result<Srv, Err>>,
+    F: Fn() -> Result<Srv, Err>,
     Srv: Service<Req>,
 {
     type Response = Srv::Response;
@@ -204,9 +196,8 @@ where
     type Config = Cfg;
     type Service = Srv;
     type InitError = Err;
-    type Future = Fut;
 
-    fn new_service(&self, _: Cfg) -> Self::Future {
+    fn new_service(&self, _: Cfg) -> Result<Self::Service, Self::InitError> {
         (self.f)()
     }
 }
@@ -215,61 +206,66 @@ where
 mod tests {
     use super::*;
 
-    use futures::future::ok;
     use tokio;
 
     #[tokio::test]
     async fn test_fn_service() {
-        let service_factory_or_service = fn_service(|()| ok::<_, ()>("test"));
+        let req = ();
+        let config = ();
 
-        let result = service_factory_or_service.call(()).await;
+        let service_factory_or_service =
+            fn_service(|req| async move { Ok::<_, ()>(("test", req)) });
+
+        // Use as a service factory
+        let factory = service_factory_or_service.new_service(config).unwrap();
+        let result = factory.call(req).await;
 
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), "test");
+        assert_eq!(result.unwrap(), ("test", req));
 
-        let service = service_factory_or_service.new_service(()).await.unwrap();
-        let result = service.call(()).await;
+        // Use as a service
+        let service = service_factory_or_service;
+        let result = service.call(req).await;
 
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), "test");
+        assert_eq!(result.unwrap(), ("test", req));
     }
 
     #[tokio::test]
-    async fn test_fn_service_factory_no_config() {
-        let service_factory =
-            fn_factory_no_config(|| ok::<_, ()>(fn_service(|()| ok::<_, ()>("test"))));
+    async fn test_fn_factory_no_config() {
+        let req = ();
+        let config = ();
 
-        let service = service_factory.new_service(()).await.unwrap();
-        let result = service.call(()).await;
+        let service_factory = fn_factory_no_config(|| {
+            let service_factory_or_service =
+                fn_service(|req| async move { Ok::<_, ()>(("test", req)) });
+
+            Ok::<_, ()>(service_factory_or_service)
+        });
+
+        let service = service_factory.new_service(config).unwrap();
+        let result = service.call(req).await;
 
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), "test");
+        assert_eq!(result.unwrap(), ("test", req));
     }
 
     #[tokio::test]
-    async fn test_fn_service_factory_config() {
-        let service_factory = fn_factory_config(|config: ()| {
-            ok::<_, ()>(fn_service(move |()| ok::<_, ()>(("test", config))))
+    async fn test_fn_factory_config() {
+        let req = ();
+        let config = ();
+
+        let service_factory = fn_factory_config(|config| {
+            let service_factory_or_service =
+                fn_service(move |req| async move { Ok::<_, ()>(("test", config, req)) });
+
+            Ok::<_, ()>(service_factory_or_service)
         });
 
-        let service = service_factory.new_service(()).await.unwrap();
-        let result = service.call(()).await;
+        let service = service_factory.new_service(config).unwrap();
+        let result = service.call(req).await;
 
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), ("test", ()));
-    }
-
-    #[test]
-    fn test_auto_impl_send_and_sync() {
-        fn is_send_and_sync<T: Send + Sync + Clone>(_: &T) {}
-
-        let service = FnService::new(|()| {
-            type Error = ();
-
-            ok::<_, Error>(())
-        });
-
-        is_send_and_sync(&service);
-        is_send_and_sync(&service.clone());
+        assert_eq!(result.unwrap(), ("test", config, req));
     }
 }

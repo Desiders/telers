@@ -52,16 +52,11 @@ impl ServiceFactory<()> for Dispatcher {
     type Config = ();
     type Service = Arc<DispatcherService>;
     type InitError = ();
-    type Future = BoxFuture<Result<Self::Service, Self::InitError>>;
 
-    fn new_service(&self, _: Self::Config) -> Self::Future {
-        let main_router = self.main_router.new_service(());
+    fn new_service(&self, _: Self::Config) -> Result<Self::Service, Self::InitError> {
+        let main_router = self.main_router.new_service(())?;
 
-        Box::pin(async move {
-            let main_router = main_router.await?;
-
-            Ok(Arc::new(DispatcherService { main_router }))
-        })
+        Ok(Arc::new(DispatcherService { main_router }))
     }
 }
 
@@ -315,7 +310,7 @@ mod tests {
 
         let router = Router::new("main");
         let dispatcher = Dispatcher::new(router);
-        let dispatcher_service = dispatcher.new_service(()).await.unwrap();
+        let dispatcher_service = dispatcher.new_service(()).unwrap();
 
         let res = dispatcher_service
             .feed_update(Arc::clone(&bot), Arc::clone(&update))
@@ -332,7 +327,7 @@ mod tests {
         router.message.register(|| async {}, vec![]);
 
         let dispatcher = Dispatcher::new(router);
-        let dispatcher_service = dispatcher.new_service(()).await.unwrap();
+        let dispatcher_service = dispatcher.new_service(()).unwrap();
 
         let res = dispatcher_service.feed_update(bot, update).await.unwrap();
 
@@ -351,7 +346,7 @@ mod tests {
 
         let router = Router::new("main");
         let dispatcher = Dispatcher::new(router);
-        let dispatcher_service = dispatcher.new_service(()).await.unwrap();
+        let dispatcher_service = dispatcher.new_service(()).unwrap();
 
         // Should return error, because `Update` is empty and `Update::update_type()` will be unknown
         dispatcher_service.feed_update(bot, update).await.unwrap();
