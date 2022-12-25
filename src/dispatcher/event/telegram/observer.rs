@@ -46,11 +46,12 @@ impl PartialEq for Request {
 
 impl Request {
     #[must_use]
-    pub fn new<B: Into<Arc<Bot>>, U: Into<Arc<Update>>, C: Into<Arc<Context>>>(
-        bot: B,
-        update: U,
-        context: C,
-    ) -> Self {
+    pub fn new<B, U, C>(bot: B, update: U, context: C) -> Self
+    where
+        B: Into<Arc<Bot>>,
+        U: Into<Arc<Update>>,
+        C: Into<Arc<Context>>,
+    {
         Self {
             bot: bot.into(),
             update: update.into(),

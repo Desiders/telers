@@ -47,7 +47,7 @@ impl text::Decoration for Decoration {
 
     /// Decorate text with `pre_language` tag
     fn pre_language(&self, text: &str, language: &str) -> String {
-        format!("```{language}\n{text}\n```",)
+        format!("```{language}\n{text}\n```")
     }
 
     /// Decorate text with `link` tag

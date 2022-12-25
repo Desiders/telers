@@ -28,6 +28,7 @@ use std::{
     sync::Arc,
 };
 
+/// Request for a router service
 #[derive(Clone)]
 pub struct Request {
     bot: Arc<Bot>,
@@ -45,11 +46,12 @@ impl PartialEq for Request {
 
 impl Request {
     #[must_use]
-    pub fn new<B: Into<Arc<Bot>>, U: Into<Arc<Update>>, C: Into<Arc<Context>>>(
-        bot: B,
-        update: U,
-        context: C,
-    ) -> Self {
+    pub fn new<B, U, C>(bot: B, update: U, context: C) -> Self
+    where
+        B: Into<Arc<Bot>>,
+        U: Into<Arc<Update>>,
+        C: Into<Arc<Context>>,
+    {
         Self {
             bot: bot.into(),
             update: update.into(),
@@ -79,6 +81,7 @@ impl From<Request> for TelegramObserverRequest {
     }
 }
 
+/// Response from a router service
 pub struct Response {
     request: Request,
     response: PropagateEventResult,
@@ -182,7 +185,6 @@ impl Router {
     }
 
     #[must_use]
-
     pub fn telegram_observers(&self) -> Vec<&TelegramObserver> {
         vec![
             &self.message,
@@ -397,7 +399,7 @@ impl RouterService {
         }
     }
 
-    /// Call startup callbacks
+    /// Call startup events
     /// # Errors
     /// - If any startup observer returns error
     pub async fn emit_startup(&self) -> Result<(), app::ErrorKind> {
@@ -411,7 +413,7 @@ impl RouterService {
         Ok(())
     }
 
-    /// Call shutdown callbacks
+    /// Call shutdown events
     /// # Errors
     /// - If any shutdown observer returns error
     pub async fn emit_shutdown(&self) -> Result<(), app::ErrorKind> {
@@ -447,16 +449,19 @@ impl RouterService {
         let mut req = req;
         for middleware in outer_middlewares {
             let (updated_req, res) = middleware.call(req.clone()).await?;
+
+            // If middleware returns skip, then we should skip this middleware
             if res.is_skip() {
                 continue;
             }
+            // If middleware returns cancel, then we should cancel propagation
             if res.is_cancel() {
                 return Ok(Response {
                     request: req,
                     response: PropagateEventResult::Rejected,
                 });
             }
-            // Update current request, because middleware can change it
+            // Update request because the middleware could have changed it
             req = updated_req;
         }
 
@@ -532,7 +537,7 @@ impl Service<Request> for RouterService {
     type Future = BoxFuture<Result<Self::Response, Self::Error>>;
 
     fn call(&self, _: Request) -> Self::Future {
-        log::error!("{:?}: Should not be called", self);
+        log::error!("{self:?}: Should not be called");
 
         unimplemented!(
             "RouterService is not intended to be called directly. \

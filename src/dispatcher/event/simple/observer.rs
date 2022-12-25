@@ -12,7 +12,7 @@ use std::{
 };
 
 /// Simple events observer
-/// Is used for managing events isn't related with Telegram (For example startup/shutdown processes)
+/// Is used for managing events isn't related with Telegram (For example startup/shutdown events)
 #[derive(Default)]
 pub struct Observer {
     event_name: &'static str,
@@ -20,7 +20,6 @@ pub struct Observer {
 }
 
 impl Observer {
-    /// Creates a new event observer
     /// # Arguments
     /// * `event_name` - Event observer name, can be used for logging
     #[must_use]
@@ -44,6 +43,7 @@ impl Observer {
     /// Register event handler
     /// # Arguments
     /// * `handler` - Handler for the observer
+    /// * `args` - Arguments, that will be passed to the handler
     pub fn register<H, Args>(&mut self, handler: H, args: Args)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
@@ -77,7 +77,6 @@ impl ServiceFactory<()> for Observer {
     type Service = ObserverService;
     type InitError = ();
 
-    /// Create [`ObserverService`] from [`Observer`]
     fn new_service(&self, _: Self::Config) -> Result<Self::Service, Self::InitError> {
         let event_name = self.event_name;
         let handlers = self
@@ -96,14 +95,15 @@ impl ServiceFactory<()> for Observer {
 #[derive(Clone)]
 #[allow(clippy::module_name_repetitions)]
 pub struct ObserverService {
-    /// Event observer name
+    /// Event observer name, can be used for logging
     event_name: &'static str,
     /// Handler services of the observer
     handlers: Arc<Vec<HandlerObjectService>>,
 }
 
 impl ObserverService {
-    /// Propagate event to handlers. All handlers will be called.
+    /// Propagate event to handlers. \
+    /// If any handler returns error, then propagation will be stopped and error will be returned.
     /// # Errors
     /// - If any handler returns error
     pub async fn trigger(&self, _: ()) -> Result<(), app::ErrorKind> {

@@ -1,9 +1,6 @@
 use crate::{client::Bot, context::Context as AppContext, error::app, types::Update};
 
-use futures::{
-    future::{ok, Ready},
-    ready, Future,
-};
+use futures::{ready, Future};
 use pin_project_lite::pin_project;
 use std::{
     convert::Infallible,
@@ -106,9 +103,10 @@ where
 #[doc(hidden)]
 mod tuple_from_req {
     use super::{
-        app, ok, pin_project, AppContext, Arc, Bot, Context, FromEventAndContext, Future,
-        Infallible, Pin, Poll, Ready, Update,
+        app, pin_project, AppContext, Arc, Bot, Context, FromEventAndContext, Future, Infallible,
+        Pin, Poll, Update,
     };
+    use futures::future::{ok, Ready};
 
     macro_rules! tuple_from_req {
         ($fut:ident; $($T:ident),*) => {

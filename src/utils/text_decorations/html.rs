@@ -36,12 +36,12 @@ impl text::Decoration for Decoration {
 
     /// Decorate text with `underline` tag
     fn underline(&self, text: &str) -> String {
-        format!("<{tag}>{text}</{tag}>", tag = self.underline_tag,)
+        format!("<{tag}>{text}</{tag}>", tag = self.underline_tag)
     }
 
     /// Decorate text with `strikethrough` tag
     fn strikethrough(&self, text: &str) -> String {
-        format!("<{tag}>{text}</{tag}>", tag = self.strikethrough_tag,)
+        format!("<{tag}>{text}</{tag}>", tag = self.strikethrough_tag)
     }
 
     /// Decorate text with `spoiler` tag
@@ -56,7 +56,7 @@ impl text::Decoration for Decoration {
 
     /// Decorate text with `pre_language` tag
     fn pre_language(&self, text: &str, language: &str) -> String {
-        format!("<pre><code class=\"language-{language}\">{text}</code></pre>",)
+        format!("<pre><code class=\"language-{language}\">{text}</code></pre>")
     }
 
     /// Decorate text with `link` tag

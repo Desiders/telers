@@ -19,14 +19,17 @@ use tokio::{
     sync::mpsc::{self, error::SendError, Sender},
 };
 
+/// Maximum size of the channel for listener updates
 const GET_UPDATES_SIZE: usize = 100;
 
+/// Error which may occur while listening updates
 #[derive(thiserror::Error, Debug)]
 enum ListenerError<T> {
     #[error(transparent)]
     SendError(#[from] SendError<T>),
 }
 
+/// Error which may occur while polling
 #[derive(thiserror::Error, Debug)]
 enum PollingError {
     #[error("Polling was aborted by signal")]
@@ -40,6 +43,9 @@ pub struct Dispatcher {
 }
 
 impl Dispatcher {
+    /// Creates a new dispatcher
+    /// # Arguments
+    /// * `main_router` - Main router, which will be used for dispatching updates
     #[must_use]
     pub fn new(main_router: Router) -> Self {
         Self { main_router }
@@ -92,7 +98,7 @@ impl DispatcherService {
         let update_type = match update.as_ref().try_into() as Result<UpdateType, app::ErrorKind> {
             Ok(update_type) => update_type,
             Err(err) => {
-                log::error!("{err:#?}");
+                log::error!("{err}");
 
                 return Err(err);
             }

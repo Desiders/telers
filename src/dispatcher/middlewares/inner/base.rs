@@ -12,7 +12,6 @@ pub type MiddlewaresIter =
 
 use std::{future::Future, sync::Arc};
 
-/// A base trait for middlewares
 pub trait Middleware: Send + Sync {
     /// Execute middleware
     /// # Arguments

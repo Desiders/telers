@@ -43,7 +43,13 @@ impl EventReturn {
 
 /// A wrapper to [`EventReturn`].
 pub enum Action {
+    /// - In outer middlewares, means that the middleware should be skipped, and next middleware should be run
+    /// - In inner middlewares, means that the middleware should be skipped, and next handler should be run
+    /// - In handler, means that the handler should be skipped, and next handler should be run
     Skip,
+    /// - In outer middlewares, means that propagate the event should be stopped
+    /// - In inner middlewares, means that propagate the event should be stopped
+    /// - In handler, means that propagate the event should be stopped
     Cancel,
 }
 
@@ -81,18 +87,14 @@ mod impl_from {
                 }
             }
         };
-        // Implement `From` for `T` without lifetimes
-        ($T:ty) => {
-            impl From<$T> for EventReturn {
-                fn from(_: $T) -> Self {
-                    Self::default()
-                }
-            }
-        };
         // Implement `From` for many `T` without lifetimes
         ($($T:ty),* $(,)?) => {
             $(
-                default_impl_from!($T);
+                impl From<$T> for EventReturn {
+                    fn from(_: $T) -> Self {
+                        Self::default()
+                    }
+                }
             )*
         };
     }
