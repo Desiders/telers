@@ -1,5 +1,5 @@
-mod base;
-// mod get_updates;
+pub mod base;
+pub mod get_updates;
 
-pub use base::{Request, Response};
-// pub use get_updates::GetUpdates;
+pub use base::{Request, Response, TelegramMethod};
+pub use get_updates::GetUpdates;
