@@ -58,6 +58,7 @@ impl FilesPathWrapper for SimpleFilesPathWrapper {
 }
 
 /// Base config for API Endpoints
+#[derive(Clone)]
 pub struct APIServer {
     /// Base URL for API
     base_url: String,
