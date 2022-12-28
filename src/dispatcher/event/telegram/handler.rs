@@ -170,7 +170,7 @@ impl ServiceFactory<Request> for HandlerObject {
     type Service = HandlerObjectService;
     type InitError = ();
 
-    fn new_service(&self, _: ()) -> Result<Self::Service, Self::InitError> {
+    fn new_service(&self, _: Self::Config) -> Result<Self::Service, Self::InitError> {
         let service = self.service.new_service(())?;
         let filters = Arc::clone(&self.filters);
 

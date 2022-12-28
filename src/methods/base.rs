@@ -1,6 +1,6 @@
 use crate::{client::Bot, types::ResponseParameters};
 
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json;
 
 /// This object represents a request to Telegram API
@@ -53,10 +53,7 @@ pub struct Response<T> {
     parameters: Option<ResponseParameters>,
 }
 
-impl<T> Response<T>
-where
-    T: for<'de> Deserialize<'de>,
-{
+impl<T: DeserializeOwned> Response<T> {
     #[must_use]
     pub fn new(
         ok: bool,
@@ -104,7 +101,7 @@ pub trait TelegramMethod {
     /// This type represents a method to Telegram API with parameters
     type Method: Serialize;
     /// This type represents a response from Telegram API, which is returned by the method
-    type Return: for<'de> Deserialize<'de>;
+    type Return: DeserializeOwned;
 
     /// This method is called when a request is sent to Telegram API.
     /// It's need for preparing a request to Telegram API.
@@ -115,10 +112,7 @@ pub trait TelegramMethod {
     /// It's need for parsing a response from Telegram API.
     /// # Errors
     /// - If the response cannot be parsed
-    fn build_response(self, content: &str) -> Result<Response<Self::Return>, serde_json::Error>
-    where
-        Self: Sized,
-    {
+    fn build_response(&self, content: &str) -> Result<Response<Self::Return>, serde_json::Error> {
         serde_json::from_str::<Response<Self::Return>>(content)
     }
 }

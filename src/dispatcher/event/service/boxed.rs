@@ -70,7 +70,7 @@ where
     type Service = BoxService<Req, Res, Err>;
     type InitError = InitErr;
 
-    fn new_service(&self, cfg: C) -> Result<Self::Service, InitErr> {
+    fn new_service(&self, cfg: Self::Config) -> Result<Self::Service, InitErr> {
         self.0.new_service(cfg)
     }
 }

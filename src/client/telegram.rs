@@ -1,10 +1,11 @@
 use once_cell::sync::Lazy;
 use std::{
+    fmt::Debug,
     path::{Path, PathBuf},
     sync::Arc,
 };
 
-pub trait FilesPathWrapper: Send + Sync {
+pub trait FilesPathWrapper: Debug + Send + Sync {
     /// Converts a path to a local path
     #[must_use]
     fn to_local(&self, path: &Path) -> PathBuf;
@@ -14,6 +15,7 @@ pub trait FilesPathWrapper: Send + Sync {
     fn to_server(&self, path: &Path) -> PathBuf;
 }
 
+#[derive(Debug)]
 pub struct BareFilesPathWrapper;
 
 impl FilesPathWrapper for BareFilesPathWrapper {
@@ -26,6 +28,7 @@ impl FilesPathWrapper for BareFilesPathWrapper {
     }
 }
 
+#[derive(Debug)]
 pub struct SimpleFilesPathWrapper {
     server_path: PathBuf,
     local_path: PathBuf,
@@ -58,7 +61,7 @@ impl FilesPathWrapper for SimpleFilesPathWrapper {
 }
 
 /// Base config for API Endpoints
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct APIServer {
     /// Base URL for API
     base_url: String,
