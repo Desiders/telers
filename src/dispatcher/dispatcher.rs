@@ -6,7 +6,8 @@ use crate::{
     dispatcher::event::service::{BoxFuture, Service, ServiceFactory},
     enums::update_type::UpdateType,
     error::app,
-    types::{Message, Update},
+    methods::GetUpdates,
+    types::Update,
 };
 
 use backoff::backoff::Backoff;
@@ -121,38 +122,77 @@ impl DispatcherService {
     /// # Arguments
     /// * `bot` - Bot which will be used for getting updates
     /// * `update_sender` - Sender for sending updates
+    /// * `backoff` - Backoff for handling server-side errors
     /// # Errors
     /// - If sender channel is disconnected
-    async fn listen_updates<C>(
+    async fn listen_updates<B: Backoff>(
         bot: Arc<Bot>,
         update_sender: Sender<Box<Update>>,
-        mut backoff_config: C,
-    ) -> Result<(), ListenerError<Box<Update>>>
-    where
-        C: Backoff,
-    {
+        mut backoff: B,
+    ) -> Result<(), ListenerError<Box<Update>>> {
+        let GetUpdates {
+            mut offset,
+            limit,
+            timeout,
+            allowed_updates,
+        } = GetUpdates::default();
+
+        // Flag for handling connection errors.
+        // If it's true, we will use exponential backoff algorithm to next backoff.
+        // If it's false, we will use default backoff algorithm.
         let mut failed = false;
 
         loop {
-            // TOOD: Add `GetUpdates` request
-            let mut updates: Vec<Update> = vec![];
-            for _ in 0..100 {
-                updates.push(Update {
-                    message: Some(Message::default()),
-                    ..Default::default()
-                });
-            }
+            let updates: Vec<Update> = match bot
+                .get_updates(offset, limit, timeout, allowed_updates.clone(), None)
+                .await
+            {
+                Ok(updates) => {
+                    let updates_len = updates.len();
+
+                    if updates_len == 0 {
+                        log::trace!("Received 0 updates");
+                        continue;
+                    }
+                    log::trace!("Received {updates_len} updates");
+
+                    updates
+                }
+                Err(err) => {
+                    log::error!("{err}");
+
+                    failed = true;
+
+                    if let Some(backoff) = backoff.next_backoff() {
+                        log::error!("Failed to fetch updates");
+
+                        log::warn!("Sleep for {backoff:?} seconds and try again...");
+                        tokio::time::sleep(backoff).await;
+                    }
+                    continue;
+                }
+            };
+
+            // The `getUpdates` method returns the earliest 100 unconfirmed updates.
+            // To confirm an update, use the offset parameter when calling `getUpdates`.
+            // All updates with `update_id` less than or equal to `offset` will be marked.
+            // as confirmed on the server and will no longer be returned.
+            // So we need to set offset to the last update id + 1
+            offset = Some(updates.last().map(|update| update.update_id + 1).unwrap());
 
             for update in updates {
                 log::trace!("Sending {update:?}");
                 update_sender.send(Box::new(update)).await?;
             }
 
-            // TODO: Add backoff, if we get error in `GetUpdates` request
-            // if let Some(backoff) = backoff_config.next_backoff() {
-            //     log::trace!("Waiting for next update: {backoff:?}");
-            //     tokio::time::sleep(backoff).await;
-            // }
+            // If we successfully connected to the server, we will reset backoff config
+            if failed {
+                log::info!("Connection established successfully");
+
+                failed = false;
+
+                backoff.reset();
+            }
         }
     }
 
@@ -160,11 +200,12 @@ impl DispatcherService {
     /// # Arguments
     /// * `bot` - Bot which will be used for getting updates and creating [`Request`]. \
     /// Check methods [`listen_updates`](DispatcherService::listen_updates) and [`feed_update`](DispatcherService::feed_update) for more info.
+    /// * `backoff` - Backoff for handling server-side errors
     /// # Panics
     /// - If failed to register SIGINT or SIGTERM signal handler
-    async fn polling<C>(self: Arc<Self>, bot: Arc<Bot>, backoff_config: C) -> PollingError
+    async fn polling<B>(self: Arc<Self>, bot: Arc<Bot>, backoff: B) -> PollingError
     where
-        C: Backoff + Send + 'static,
+        B: Backoff + Send + 'static,
     {
         log::trace!("Starting polling");
 
@@ -176,7 +217,7 @@ impl DispatcherService {
         let listen_updates_handle = tokio::spawn(Self::listen_updates(
             Arc::clone(&bot),
             sender_update,
-            backoff_config,
+            backoff,
         ));
         log::trace!("Listener updates started");
 
@@ -230,7 +271,7 @@ impl DispatcherService {
     /// You can use one bot or many. \
     /// All bots use the same dispatcher, but each bot has own polling process. \
     /// This can be useful if you want to run multibots with a single dispatcher logic.
-    /// * `backoff_config` - Backoff configuration for polling
+    /// * `backoff` - Backoff config for handling server-side errors
     /// # Errors
     /// - If any startup observer returns error
     /// - If any shutdown observer returns error
@@ -240,13 +281,14 @@ impl DispatcherService {
     pub async fn run_polling<B, C>(
         self: Arc<Self>,
         bots: Vec<B>,
-        backoff_config: C,
+        backoff: C,
     ) -> Result<(), app::ErrorKind>
     where
         B: Into<Arc<Bot>>,
         C: Backoff + Send + Clone + 'static,
     {
-        assert!(!bots.is_empty());
+        let bots_len = bots.len();
+        assert_ne!(bots_len, 0);
 
         log::trace!("Emitting startup events");
         if let Err(err) = self.main_router.emit_startup().await {
@@ -262,15 +304,30 @@ impl DispatcherService {
                 let bot = bot.into();
                 let dispatcher = Arc::clone(&self);
 
-                log::info!("Starting polling for {bot:#?}");
-                tokio::spawn(dispatcher.polling(bot, backoff_config.clone()))
+                log::trace!("Starting polling for bot");
+                let handle = tokio::spawn(dispatcher.polling(bot, backoff.clone()));
+                log::trace!("Polling for bot started");
+
+                handle
             })
             .collect::<Vec<_>>();
 
+        if bots_len == 1 {
+            log::warn!("Polling is started");
+        } else {
+            log::warn!("Polling is started for all bots");
+        }
+
         for handle in handles {
-            log::trace!("Waiting for polling to finish");
+            log::trace!("Waiting polling for bot");
             handle.await.unwrap();
-            log::trace!("Polling finished");
+            log::trace!("Polling for bot finished");
+        }
+
+        if bots_len == 1 {
+            log::warn!("Polling is finished");
+        } else {
+            log::warn!("Polling is finished for all bots");
         }
 
         log::trace!("Emitting shutdown events");
