@@ -13,7 +13,6 @@ use std::{
 
 /// Simple events observer
 /// Is used for managing events isn't related with Telegram (For example startup/shutdown events)
-#[derive(Default)]
 pub struct Observer {
     event_name: &'static str,
     handlers: Vec<HandlerObject>,
@@ -61,6 +60,20 @@ impl Observer {
         Args: Clone + Send + Sync + 'static,
     {
         self.register(handler, args);
+    }
+}
+
+impl Debug for Observer {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Observer")
+            .field("event_name", &self.event_name)
+            .finish()
+    }
+}
+
+impl Default for Observer {
+    fn default() -> Self {
+        Self::new("default")
     }
 }
 

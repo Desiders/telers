@@ -297,6 +297,19 @@ impl Debug for Router {
     }
 }
 
+impl Default for Router {
+    fn default() -> Self {
+        Self::new("default")
+    }
+}
+
+impl AsRef<Router> for Router {
+    #[must_use]
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}
+
 impl ServiceFactory<Request> for Router {
     type Response = Response;
     type Error = ();
@@ -596,7 +609,7 @@ mod tests {
         assert_eq!(router.routers().len(), 3);
         assert_eq!(router.name(), "main");
 
-        let message_observer_name: &str = UpdateType::Message.into();
+        let message_observer_name = UpdateType::Message.as_str();
 
         router.routers().into_iter().for_each(|router| {
             assert_eq!(router.routers().len(), 2);
