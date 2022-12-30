@@ -173,7 +173,6 @@ impl Observer {
     /// Register event handler without filters
     /// # Arguments
     /// * `handler` - Handler for the observer
-    /// * `filters` - Filters for the handler
     pub fn register_no_filters<H, Args>(&mut self, handler: H)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
