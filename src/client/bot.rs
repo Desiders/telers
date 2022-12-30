@@ -8,17 +8,6 @@ use crate::{
 
 use std::fmt::{self, Debug, Formatter};
 
-/// Represents a bot with a token for getting updates and sending requests to Telegram API
-#[derive(Clone, Default)]
-pub struct Bot {
-    /// Bot token, which is used to receive updates and send requests to the Telegram API
-    token: String,
-    /// Bot token, which is used in `Debug` implementation for privacy
-    hidden_token: String,
-    /// Client for sending requests to Telegram API
-    client: Reqwest,
-}
-
 /// Hide token for privacy. \
 /// If token length is less than 4, then it will be hidden as `*`. \
 /// For example,
@@ -37,19 +26,20 @@ fn hide_token(token: &str) -> String {
     hidden
 }
 
-impl Debug for Bot {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Bot")
-            .field("token", &self.hidden_token)
-            .field("client", &self.client)
-            .finish()
-    }
+/// Represents a bot with a token for getting updates and sending requests to Telegram API
+#[derive(Clone, Default)]
+pub struct Bot {
+    /// Bot token, which is used to receive updates and send requests to the Telegram API
+    token: String,
+    /// Bot token, which is used in `Debug` implementation for privacy
+    hidden_token: String,
+    /// Client for sending requests to Telegram API
+    client: Reqwest,
 }
 
-/// A block of non-consuming builder
 impl Bot {
     #[must_use]
-    pub fn new<T>(token: T) -> Self
+    pub fn new<T>(token: T, client: Reqwest) -> Self
     where
         T: Into<String>,
     {
@@ -59,14 +49,60 @@ impl Bot {
         Self {
             token,
             hidden_token,
-            client: Reqwest::default(),
+            client,
         }
     }
 
     #[must_use]
-    pub fn client(&mut self, client: Reqwest) -> &mut Self {
+    pub fn builder() -> BotBuilder {
+        BotBuilder::default()
+    }
+}
+
+impl Debug for Bot {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Bot")
+            .field("token", &self.hidden_token)
+            .field("client", &self.client)
+            .finish()
+    }
+}
+
+#[derive(Default)]
+#[allow(clippy::module_name_repetitions)]
+pub struct BotBuilder {
+    token: String,
+    client: Reqwest,
+}
+
+impl BotBuilder {
+    /// Set bot token, which is used to receive updates and send requests to the Telegram API
+    #[must_use]
+    pub fn token<T>(mut self, token: T) -> Self
+    where
+        T: Into<String>,
+    {
+        self.token = token.into();
+        self
+    }
+
+    /// Set client for sending requests to Telegram API
+    #[must_use]
+    pub fn client(mut self, client: Reqwest) -> Self {
         self.client = client;
         self
+    }
+
+    #[must_use]
+    pub fn build(self) -> Bot {
+        let token = self.token;
+        let hidden_token = hide_token(&token);
+
+        Bot {
+            token,
+            hidden_token,
+            client: self.client,
+        }
     }
 }
 
