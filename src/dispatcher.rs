@@ -7,5 +7,5 @@ pub mod event;
 pub mod middlewares;
 pub mod router;
 
-pub use dispatcher::{Dispatcher, DispatcherService};
+pub use dispatcher::{Dispatcher, DispatcherBuilder};
 pub use router::Router;
