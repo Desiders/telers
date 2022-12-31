@@ -1,7 +1,8 @@
 use crate::{error::app, types::Update};
 
-/// Known update types
-#[derive(Debug)]
+use std::fmt::{self, Debug};
+
+/// See `Update <https://core.telegram.org/bots/api#update>` for a complete list of available update types
 pub enum UpdateType {
     Message,
     InlineQuery,
@@ -19,9 +20,16 @@ pub enum UpdateType {
     ChatJoinRequest,
 }
 
-impl From<UpdateType> for &str {
-    fn from(update_type: UpdateType) -> Self {
-        match update_type {
+impl Debug for UpdateType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
+
+impl UpdateType {
+    #[must_use]
+    pub const fn as_str(&self) -> &str {
+        match self {
             UpdateType::Message => "message",
             UpdateType::InlineQuery => "inline_query",
             UpdateType::ChosenInlineResult => "chosen_inline_result",
@@ -38,26 +46,37 @@ impl From<UpdateType> for &str {
             UpdateType::ChatJoinRequest => "chat_join_request",
         }
     }
+
+    #[must_use]
+    pub const fn all() -> &'static [UpdateType; 14] {
+        &[
+            UpdateType::Message,
+            UpdateType::InlineQuery,
+            UpdateType::ChosenInlineResult,
+            UpdateType::CallbackQuery,
+            UpdateType::ChannelPost,
+            UpdateType::EditedMessage,
+            UpdateType::EditedChannelPost,
+            UpdateType::ShippingQuery,
+            UpdateType::PreCheckoutQuery,
+            UpdateType::Poll,
+            UpdateType::PollAnswer,
+            UpdateType::MyChatMember,
+            UpdateType::ChatMember,
+            UpdateType::ChatJoinRequest,
+        ]
+    }
 }
 
-impl<'a> From<&'a UpdateType> for &str {
-    fn from(update_type: &UpdateType) -> Self {
-        match update_type {
-            UpdateType::Message => "message",
-            UpdateType::InlineQuery => "inline_query",
-            UpdateType::ChosenInlineResult => "chosen_inline_result",
-            UpdateType::CallbackQuery => "callback_query",
-            UpdateType::ChannelPost => "channel_post",
-            UpdateType::EditedMessage => "edited_message",
-            UpdateType::EditedChannelPost => "edited_channel_post",
-            UpdateType::ShippingQuery => "shipping_query",
-            UpdateType::PreCheckoutQuery => "pre_checkout_query",
-            UpdateType::Poll => "poll",
-            UpdateType::PollAnswer => "poll_answer",
-            UpdateType::MyChatMember => "my_chat_member",
-            UpdateType::ChatMember => "chat_member",
-            UpdateType::ChatJoinRequest => "chat_join_request",
-        }
+impl From<UpdateType> for String {
+    fn from(update_type: UpdateType) -> Self {
+        update_type.as_str().to_string()
+    }
+}
+
+impl<'a> From<&'a UpdateType> for String {
+    fn from(update_type: &'a UpdateType) -> Self {
+        update_type.as_str().to_string()
     }
 }
 
@@ -95,7 +114,7 @@ impl TryFrom<Update> for UpdateType {
             Ok(UpdateType::ChatJoinRequest)
         } else {
             Err(app::ErrorKind::UpdateTypeError(format!(
-                    "Couldn't convert `Update` to `UpdateType`. Please, open an issue on GitHub. Update: {update:?}",
+                "Couldn't convert `Update` to `UpdateType`. Please, open an issue on GitHub. Update: {update:?}",
             )))
         }
     }
@@ -135,7 +154,7 @@ impl<'a> TryFrom<&'a Update> for UpdateType {
             Ok(UpdateType::ChatJoinRequest)
         } else {
             Err(app::ErrorKind::UpdateTypeError(format!(
-                    "Couldn't convert `Update` to `UpdateType`. Please, open an issue on GitHub. Update: {update:?}",
+                "Couldn't convert `Update` to `UpdateType`. Please, open an issue on GitHub. Update: {update:?}",
             )))
         }
     }
