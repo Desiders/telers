@@ -1,9 +1,10 @@
 use aiogram_rs::{
     client::Bot,
-    dispatcher::{event::service::ServiceFactory, Dispatcher, Router},
+    dispatcher::{event::service::ToServiceProvider as _, Dispatcher, Router},
+    enums::UpdateType,
     types::Message,
-    utils::backoff::ExponentialBackoff,
 };
+
 use log::{self, Level, LevelFilter, Log, Metadata, Record};
 use tokio;
 
@@ -24,6 +25,8 @@ impl Log for SimpleLogger {
 }
 
 async fn echo_handler(message: Message) {
+    log::info!("Received message: {message:?}");
+
     // todo!("Send message back to the user with the same text as the user sent to the bot");
 }
 
@@ -33,19 +36,23 @@ async fn main() {
         .map(|()| log::set_max_level(LevelFilter::Info))
         .unwrap();
 
-    let bot = Bot::default();
+    let bot = Bot::builder().token("TOKEN").build();
 
-    let mut main_router = Router::new("main");
-    main_router.message.register_no_filters(echo_handler);
+    let mut router = Router::new("main");
+    router.message.register_no_filters(echo_handler);
 
-    let dispatcher = Dispatcher::new(main_router).new_service(()).unwrap();
+    let dispatcher = Dispatcher::builder()
+        .main_router(router)
+        .bot(bot)
+        .allowed_update(UpdateType::Message)
+        .build();
 
-    log::info!("Starting bot");
-    match dispatcher
-        .run_polling(vec![bot], ExponentialBackoff::default())
+    if let Err(err) = dispatcher
+        .to_service_provider(())
+        .unwrap()
+        .run_polling()
         .await
     {
-        Ok(_) => log::warn!("Bot stopped"),
-        Err(err) => log::error!("Bot stopped with error: {err}"),
+        log::error!("Bot stopped with error: {err}");
     }
 }
