@@ -193,15 +193,12 @@ impl DispatcherBuilder {
         T: Into<Vec<AllowedUpdate>>,
         AllowedUpdate: Into<String>,
     {
-        let allowed_updates: Vec<AllowedUpdate> = allowed_updates.into();
-
         self.allowed_updates = Some(
-            allowed_updates
+            (allowed_updates.into() as Vec<AllowedUpdate>)
                 .into_iter()
-                .map(|allowed_update| allowed_update.into())
+                .map(Into::into)
                 .collect(),
         );
-
         self
     }
 
@@ -421,10 +418,10 @@ impl DispatcherInner {
 
         tokio::select! {
             _ = sigint.recv() => {
-                log::debug!("SIGINT signal received");
+                log::warn!("SIGINT signal received");
             },
             _ = sigterm.recv() => {
-                log::debug!("SIGTERM signal received");
+                log::warn!("SIGTERM signal received");
             },
         }
 
@@ -467,9 +464,9 @@ impl DispatcherInner {
             .collect::<Vec<_>>();
 
         if bots_len == 1 {
-            log::debug!("Polling is started");
+            log::info!("Polling is started");
         } else {
-            log::debug!("Polling is started for all bots");
+            log::info!("Polling is started for all bots");
         }
 
         for handle in handles {
