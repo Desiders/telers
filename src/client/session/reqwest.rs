@@ -55,10 +55,10 @@ impl Session for Reqwest {
         let response = if let Some(timeout) = timeout {
             self.client
                 .post(url)
-                .form(request.params())
+                .json(request.params())
                 .timeout(Duration::from_secs_f32(timeout))
         } else {
-            self.client.post(url).form(request.params())
+            self.client.post(url).json(request.params())
         }
         .send()
         .await
