@@ -3,7 +3,9 @@ use super::{Request, TelegramMethod};
 use crate::{client::Bot, types::Update};
 
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
+#[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize, Default)]
 pub struct GetUpdates {
     /// Identifier of the first update to be returned. Must be greater by one than the highest among the identifiers of previously received updates. By default, updates starting with the earliest unconfirmed update are returned. An update is considered confirmed as soon as [`crate::methods::get_updates::GetUpdates`] is called with an *offset* higher than its *update_id*. The negative offset can be specified to retrieve updates starting from *-offset* update from the end of the updates queue. All previous updates will forgotten.
@@ -21,7 +23,7 @@ impl TelegramMethod for GetUpdates {
     type Return = Vec<Update>;
 
     fn build_request(&self, _bot: &Bot) -> Request<Self::Method> {
-        Request::new("getUpdates", self)
+        Request::new("getUpdates", self, None)
     }
 }
 
@@ -37,7 +39,7 @@ mod tests {
         let get_updates = GetUpdates::default();
         let request = get_updates.build_request(&bot);
 
-        assert_eq!(request.method(), "getUpdates");
-        assert_eq!(*request.params(), get_updates);
+        assert_eq!(request.method_name(), "getUpdates");
+        assert_eq!(*request.data(), get_updates);
     }
 }

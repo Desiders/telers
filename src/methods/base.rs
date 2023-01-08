@@ -1,7 +1,11 @@
-use crate::{client::Bot, types::ResponseParameters};
+use crate::{
+    client::Bot,
+    types::{InputFile, InputFileKind, InputMedia, ResponseParameters},
+};
 
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json;
+use std::{borrow::Cow, collections::HashMap};
 
 /// This object represents a request to Telegram API
 pub struct Request<'a, T>
@@ -9,12 +13,11 @@ where
     T: Serialize,
 {
     /// Telegram API method name
-    method: &'static str,
-    /// Telegram API method parameters
-    params: &'a T,
-    // TODO: Add a files field
-    // Files to send
-    // files: Option<Vec<InputFile>>,
+    method_name: &'static str,
+    /// Telegram API method data
+    data: &'a T,
+    /// Files to send
+    files: Option<HashMap<Cow<'a, str>, &'a InputFile>>,
 }
 
 impl<'a, T> Request<'a, T>
@@ -22,18 +25,31 @@ where
     T: Serialize,
 {
     #[must_use]
-    pub fn new(method: &'static str, params: &'a T) -> Self {
-        Self { method, params }
+    pub fn new(
+        method_name: &'static str,
+        data: &'a T,
+        files: Option<HashMap<Cow<'a, str>, &'a InputFile>>,
+    ) -> Self {
+        Self {
+            method_name,
+            data,
+            files,
+        }
     }
 
     #[must_use]
-    pub fn method(&self) -> &str {
-        self.method
+    pub fn method_name(&self) -> &str {
+        self.method_name
     }
 
     #[must_use]
-    pub fn params(&self) -> &T {
-        self.params
+    pub fn data(&self) -> &T {
+        self.data
+    }
+
+    #[must_use]
+    pub fn files(&self) -> Option<&HashMap<Cow<'a, str>, &InputFile>> {
+        self.files.as_ref()
     }
 }
 
@@ -114,5 +130,59 @@ pub trait TelegramMethod {
     /// - If the response cannot be parsed
     fn build_response(&self, content: &str) -> Result<Response<Self::Return>, serde_json::Error> {
         serde_json::from_str::<Response<Self::Return>>(content)
+    }
+}
+
+pub(super) fn prepare_file_with_id<'a>(
+    files: &mut HashMap<Cow<'a, str>, &'a InputFile>,
+    file: &'a InputFile,
+) {
+    match file.kind() {
+        InputFileKind::FS(inner) => {
+            files.insert(inner.id().to_string().into(), file);
+        }
+        InputFileKind::Id(_) | InputFileKind::Url(_) => {
+            // This file not require be in multipart/form-data
+            // So we don't need to add it to files
+        }
+    }
+}
+
+pub(super) fn prepare_file_with_value<'a>(
+    files: &mut HashMap<Cow<'a, str>, &'a InputFile>,
+    file: &'a InputFile,
+    value: impl Into<Cow<'a, str>>,
+) {
+    match file.kind() {
+        InputFileKind::FS(inner) => {
+            files.insert(value.into(), file);
+        }
+        InputFileKind::Id(_) | InputFileKind::Url(_) => {
+            // This file not require be in multipart/form-data
+            // So we don't need to add it to files
+        }
+    }
+}
+
+pub(super) fn prepare_input_media<'a>(
+    files: &mut HashMap<Cow<'a, str>, &'a InputFile>,
+    input_media: &'a InputMedia,
+) {
+    match input_media {
+        InputMedia::Animation(inner) => {
+            prepare_file_with_id(files, &inner.media);
+        }
+        InputMedia::Audio(inner) => {
+            prepare_file_with_id(files, &inner.media);
+        }
+        InputMedia::Document(inner) => {
+            prepare_file_with_id(files, &inner.media);
+        }
+        InputMedia::Photo(inner) => {
+            prepare_file_with_id(files, &inner.media);
+        }
+        InputMedia::Video(inner) => {
+            prepare_file_with_id(files, &inner.media);
+        }
     }
 }
