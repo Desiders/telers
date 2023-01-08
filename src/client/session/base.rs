@@ -1,11 +1,11 @@
 use crate::{
     client::Bot,
     error::{session, telegram},
-    methods::{Response, TelegramMethod},
+    methods::{Request, Response, TelegramMethod},
 };
 
 use async_trait::async_trait;
-use serde::de::DeserializeOwned;
+use serde::{de::DeserializeOwned, Serialize};
 use std::ops::RangeInclusive;
 
 pub const DEFAULT_TIMEOUT: f32 = 60.0;
@@ -49,7 +49,7 @@ pub struct ClientResponse {
 
 impl ClientResponse {
     #[must_use]
-    pub fn new<T: Into<StatusCode>>(status_code: T, content: String) -> Self {
+    pub fn new(status_code: impl Into<StatusCode>, content: String) -> Self {
         Self {
             status_code: status_code.into(),
             content,
@@ -69,6 +69,26 @@ impl ClientResponse {
 
 #[async_trait]
 pub trait Session {
+    #[must_use]
+    async fn send_json<'a, T>(
+        &self,
+        request: Request<'a, T>,
+        url: &str,
+        timeout: Option<f32>,
+    ) -> Result<ClientResponse, anyhow::Error>
+    where
+        T: Serialize + Send + Sync;
+
+    #[must_use]
+    async fn send_multipart<'a, T>(
+        &self,
+        request: Request<'a, T>,
+        url: &str,
+        timeout: Option<f32>,
+    ) -> Result<ClientResponse, anyhow::Error>
+    where
+        T: Serialize + Send + Sync;
+
     /// Makes a request to Telegram API
     /// # Arguments
     /// * `bot` - Bot instance for building request, it is mainly used for getting bot token
@@ -87,23 +107,6 @@ pub trait Session {
     where
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync;
-
-    /// Builds a response by a content
-    /// # Arguments
-    /// * `method` - Telegram method for parsing response
-    /// * `content` - Content of a response
-    /// # Returns
-    /// - `Ok` if the response is parsed successfully
-    /// - `Err` if the response cannot be parsed
-    /// # Errors
-    /// If the response cannot be parsed
-    fn build_response<T: TelegramMethod>(
-        &self,
-        method: &T,
-        content: &str,
-    ) -> Result<Response<T::Return>, serde_json::Error> {
-        method.build_response(content)
-    }
 
     /// Checks a response from Telegram API
     /// # Arguments
@@ -216,8 +219,8 @@ pub trait Session {
             .await
             .map_err(session::ErrorKind::Client)?;
 
-        let response = self
-            .build_response(method, client_response.content())
+        let response = method
+            .build_response(client_response.content())
             .map_err(|err| {
                 log::error!("Cannot parse response: {err}");
 
@@ -259,7 +262,4 @@ pub trait Session {
     async fn close(&self) -> Result<(), anyhow::Error> {
         Ok(())
     }
-
-    // TODO: Implement streaming
-    // async fn stream_content(&self) ->;
 }
