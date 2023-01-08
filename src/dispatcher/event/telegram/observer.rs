@@ -161,7 +161,7 @@ impl Observer {
     pub fn register<H, Args, FBox, F>(&mut self, handler: H, filters: Vec<FBox>)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send + Sync + 'static,
+        H::Future: Send + 'static,
         H::Output: Into<EventReturn>,
         Args: FromEventAndContext + 'static,
         FBox: Into<Box<F>>,
@@ -176,7 +176,7 @@ impl Observer {
     pub fn register_no_filters<H, Args>(&mut self, handler: H)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send + Sync + 'static,
+        H::Future: Send + 'static,
         H::Output: Into<EventReturn>,
         Args: FromEventAndContext + 'static,
     {
@@ -187,7 +187,7 @@ impl Observer {
     pub fn on<H, Args, FBox, F>(&mut self, handler: H, filters: Vec<FBox>)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send + Sync + 'static,
+        H::Future: Send + 'static,
         H::Output: Into<EventReturn>,
         Args: FromEventAndContext + 'static,
         FBox: Into<Box<F>>,
@@ -200,7 +200,7 @@ impl Observer {
     pub fn on_no_filters<H, Args>(&mut self, handler: H)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send + Sync + 'static,
+        H::Future: Send + 'static,
         H::Output: Into<EventReturn>,
         Args: FromEventAndContext + 'static,
     {

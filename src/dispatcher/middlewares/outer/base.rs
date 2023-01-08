@@ -26,7 +26,7 @@ pub trait Middleware: Send + Sync {
 impl<Func, Fut> Middleware for Func
 where
     Func: Fn(Request) -> Fut + Send + Sync + 'static,
-    Fut: Future<Output = Result<(Request, EventReturn), app::ErrorKind>> + Send + Sync + 'static,
+    Fut: Future<Output = Result<(Request, EventReturn), app::ErrorKind>> + Send + 'static,
 {
     fn call(&self, req: Request) -> BoxFuture<Result<(Request, EventReturn), app::ErrorKind>> {
         Box::pin(self(req))

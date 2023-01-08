@@ -2,7 +2,7 @@ use super::base::{Service, ServiceFactory};
 
 use std::{future::Future, pin::Pin};
 
-pub type BoxFuture<T> = Pin<Box<dyn Future<Output = T> + Send + Sync>>;
+pub type BoxFuture<T> = Pin<Box<dyn Future<Output = T> + Send>>;
 
 pub type BoxService<Req, Res, Err> = Box<
     dyn Service<Req, Response = Res, Error = Err, Future = BoxFuture<Result<Res, Err>>>
@@ -13,7 +13,7 @@ pub type BoxService<Req, Res, Err> = Box<
 pub fn service<S, Req>(service: S) -> BoxService<Req, S::Response, S::Error>
 where
     S: Service<Req> + Send + Sync + 'static,
-    S::Future: Send + Sync + 'static,
+    S::Future: Send + 'static,
 {
     Box::new(ServiceWrapper::new(service))
 }
@@ -31,7 +31,7 @@ impl<S> ServiceWrapper<S> {
 impl<S, Req, Res, Err> Service<Req> for ServiceWrapper<S>
 where
     S: Service<Req, Response = Res, Error = Err> + Send + Sync + 'static,
-    S::Future: Send + Sync + 'static,
+    S::Future: Send + 'static,
 {
     type Response = Res;
     type Error = Err;
@@ -86,7 +86,7 @@ where
     SF::Service: Send + Sync + 'static,
     SF::Error: 'static,
     SF::InitError: 'static,
-    <SF::Service as Service<Req>>::Future: Send + Sync + 'static,
+    <SF::Service as Service<Req>>::Future: Send + 'static,
 {
     BoxServiceFactory(Box::new(FactoryWrapper::new(factory)))
 }
@@ -109,7 +109,7 @@ where
     InitErr: 'static,
     SF: ServiceFactory<Req, Config = Cfg, Response = Res, Error = Err, InitError = InitErr>,
     SF::Service: Send + Sync + 'static,
-    <SF::Service as Service<Req>>::Future: Send + Sync + 'static,
+    <SF::Service as Service<Req>>::Future: Send + 'static,
 {
     type Response = Res;
     type Error = Err;

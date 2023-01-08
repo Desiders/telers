@@ -46,7 +46,7 @@ impl Observer {
     pub fn register<H, Args>(&mut self, handler: H, args: Args)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send + Sync + 'static,
+        H::Future: Send + 'static,
         Args: Clone + Send + Sync + 'static,
     {
         self.handlers.push(HandlerObject::new(handler, args));
@@ -56,7 +56,7 @@ impl Observer {
     pub fn on<H, Args>(&mut self, handler: H, args: Args)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send + Sync + 'static,
+        H::Future: Send + 'static,
         Args: Clone + Send + Sync + 'static,
     {
         self.register(handler, args);

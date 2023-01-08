@@ -60,7 +60,7 @@ pub trait Middleware: Send + Sync {
 impl<Func, Fut> Middleware for Func
 where
     Func: Fn(Arc<BoxedHandlerService>, Request, MiddlewaresIter) -> Fut + Send + Sync + 'static,
-    Fut: Future<Output = Result<Response, app::ErrorKind>> + Send + Sync + 'static,
+    Fut: Future<Output = Result<Response, app::ErrorKind>> + Send + 'static,
 {
     fn call(
         &self,

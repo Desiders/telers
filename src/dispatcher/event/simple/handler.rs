@@ -26,7 +26,7 @@ impl HandlerObject {
     pub fn new<H, Args>(handler: H, args: Args) -> Self
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send + Sync + 'static,
+        H::Future: Send + 'static,
         Args: Clone + Send + Sync + 'static,
     {
         Self {
@@ -68,7 +68,7 @@ impl Service<()> for HandlerObjectService {
 pub fn handler_service<H, Args>(handler: H, args: Args) -> BoxedHandlerServiceFactory
 where
     H: Handler<Args> + Clone + Send + Sync + 'static,
-    H::Future: Send + Sync + 'static,
+    H::Future: Send + 'static,
     Args: Clone + Send + Sync + 'static,
 {
     factory(fn_service(move |()| {
