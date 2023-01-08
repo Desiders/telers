@@ -2,7 +2,7 @@ use super::{
     InputMediaAnimation, InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo,
 };
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 /// This object represents the content of a media message to be sent. It should be one of
 /// - `aiogram_rs.types.input_media_animation.InputMediaAnimation`
@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 /// - `aiogram_rs.types.input_media_photo.InputMediaPhoto`
 /// - `aiogram_rs.types.input_media_video.InputMediaVideo`
 /// <https://core.telegram.org/bots/api#inputmedia>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum InputMedia {
     Animation(InputMediaAnimation),
