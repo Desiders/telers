@@ -121,12 +121,12 @@ impl APIServer {
     /// Generate URL for API method
     /// # Arguments
     /// * `token` - Bot token
-    /// * `method` - API method name (case insensitive)
+    /// * `method_name` - API method name (case insensitive)
     #[must_use]
-    pub fn api_url(&self, token: &str, method: &str) -> String {
+    pub fn api_url(&self, token: &str, method_name: &str) -> String {
         self.base_url
             .replace("{token}", token)
-            .replace("{method}", method)
+            .replace("{method_name}", method_name)
     }
 
     /// Generate URL for downloading file
@@ -144,7 +144,7 @@ impl APIServer {
 impl Default for APIServer {
     fn default() -> Self {
         Self::new(
-            "https://api.telegram.org/bot{token}/{method}",
+            "https://api.telegram.org/bot{token}/{method_name}",
             "https://api.telegram.org/file/bot{token}/{path}",
             false,
             BareFilesPathWrapper,
@@ -155,7 +155,7 @@ impl Default for APIServer {
 pub static PRODUCTION: Lazy<APIServer> = Lazy::new(APIServer::default);
 pub static TEST: Lazy<APIServer> = Lazy::new(|| {
     APIServer::new(
-        "https://api.telegram.org/bot{token}/test/{method}",
+        "https://api.telegram.org/bot{token}/test/{method_name}",
         "https://api.telegram.org/file/bot{token}/test/{path}",
         false,
         BareFilesPathWrapper,
@@ -169,7 +169,7 @@ mod tests {
     #[test]
     fn test_api_url() {
         let server = APIServer::new(
-            "https://api.telegram.org/bot{token}/{method}",
+            "https://api.telegram.org/bot{token}/{method_name}",
             "https://api.telegram.org/file/bot{token}/{path}",
             false,
             BareFilesPathWrapper,
@@ -183,7 +183,7 @@ mod tests {
         );
 
         let server = APIServer::new(
-            "https://api.telegram.org/bot{token}/test/{method}",
+            "https://api.telegram.org/bot{token}/test/{method_name}",
             "https://api.telegram.org/file/bot{token}/test/{path}",
             false,
             BareFilesPathWrapper,
@@ -200,7 +200,7 @@ mod tests {
     #[test]
     fn test_file_url() {
         let server = APIServer::new(
-            "https://api.telegram.org/bot{token}/{method}",
+            "https://api.telegram.org/bot{token}/{method_name}",
             "https://api.telegram.org/file/bot{token}/{path}",
             false,
             BareFilesPathWrapper,
@@ -214,7 +214,7 @@ mod tests {
         );
 
         let server = APIServer::new(
-            "https://api.telegram.org/bot{token}/test/{method}",
+            "https://api.telegram.org/bot{token}/test/{method_name}",
             "https://api.telegram.org/file/bot{token}/test/{path}",
             false,
             BareFilesPathWrapper,
