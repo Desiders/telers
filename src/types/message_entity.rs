@@ -3,9 +3,11 @@ use crate::utils::text_decorations::{add_surrogates, remove_surrogates};
 use super::User;
 
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc.
 /// <https://core.telegram.org/bots/api#messageentity>
+#[skip_serializing_none]
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct MessageEntity {
     /// Type of the entity. Currently, can be 'mention' (:code:`@username`), 'hashtag' (:code:`#hashtag`), 'cashtag' (:code:`$USD`), 'bot_command' (:code:`/start@jobs_bot`), 'url' (:code:`https://telegram.org`), 'email' (:code:`do-not-reply@telegram.org`), 'phone_number' (:code:`+1-212-555-0123`), 'bold' (**bold text**), 'italic' (*italic text*), 'underline' (underlined text), 'strikethrough' (strikethrough text), 'spoiler' (spoiler message), 'code' (monowidth string), 'pre' (monowidth block), 'text_link' (for clickable text URLs), 'text_mention' (for users `without usernames <https://telegram.org/blog/edit#new-mentions>`), 'custom_emoji' (for inline custom emoji stickers)

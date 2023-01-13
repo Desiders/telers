@@ -1,9 +1,11 @@
 use super::PhotoSize;
 
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// This object represents a video file.
 /// <https://core.telegram.org/bots/api#video>
+#[skip_serializing_none]
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Video {
     /// Identifier for this file, which can be used to download or reuse the file

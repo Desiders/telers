@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// This object represents one size of a photo or a `file <https://core.telegram.org/bots/api#document>` / `aiogram_rs.methods.sticker.Sticker` thumbnail.
 /// <https://core.telegram.org/bots/api#photosize>
+#[skip_serializing_none]
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct PhotoSize {
     /// Identifier for this file, which can be used to download or reuse the file

@@ -1,9 +1,11 @@
 use super::Location;
 
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// This object represents a venue.
 /// <https://core.telegram.org/bots/api#venue>
+#[skip_serializing_none]
 #[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Venue {
     /// Venue location. Can't be a live location

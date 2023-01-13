@@ -1,9 +1,11 @@
 use super::LabeledPrice;
 
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// Represents the `content <https://core.telegram.org/bots/api#inputmessagecontent>` of an invoice message to be sent as the result of an inline query.
 /// <https://core.telegram.org/bots/api#inputinvoicemessagecontent>
+#[skip_serializing_none]
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct InputInvoiceMessageContent {
     /// Product name, 1-32 characters

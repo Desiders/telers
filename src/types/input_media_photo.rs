@@ -1,9 +1,11 @@
 use super::{InputFile, MessageEntity};
 
 use serde::Serialize;
+use serde_with::skip_serializing_none;
 
 /// Represents a photo to be sent.
 /// <https://core.telegram.org/bots/api#inputmediaphoto>
+#[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct InputMediaPhoto {
     /// Type of the result, must be *photo*

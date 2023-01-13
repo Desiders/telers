@@ -1,9 +1,11 @@
 use super::{InputFile, MessageEntity};
 
 use serde::Serialize;
+use serde_with::skip_serializing_none;
 
 /// Represents an audio file to be treated as music to be sent.
 /// <https://core.telegram.org/bots/api#inputmediaaudio>
+#[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct InputMediaAudio {
     /// Type of the result, must be *audio*

@@ -1,10 +1,12 @@
 use super::{InlineKeyboardMarkup, InputMessageContent};
 
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// Represents a venue. By default, the venue will be sent by the user. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the venue.
 /// **Note:** This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
 /// <https://core.telegram.org/bots/api#inlinequeryresultvenue>
+#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultVenue {
     /// Type of the result, must be *venue*

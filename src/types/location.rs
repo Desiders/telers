@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// This object represents a point on the map.
 /// <https://core.telegram.org/bots/api#location>
+#[skip_serializing_none]
 #[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Location {
     /// Longitude as defined by sender

@@ -1,9 +1,11 @@
 use super::{InputFile, MessageEntity};
 
 use serde::Serialize;
+use serde_with::skip_serializing_none;
 
 /// Represents a general file to be sent.
 /// <https://core.telegram.org/bots/api#inputmediadocument>
+#[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct InputMediaDocument {
     /// Type of the result, must be *document*

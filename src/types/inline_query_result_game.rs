@@ -1,10 +1,12 @@
 use super::InlineKeyboardMarkup;
 
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// Represents a `Game <https://core.telegram.org/bots/api#games>`.
 /// **Note:** This will only work in Telegram versions released after October 1, 2016. Older clients will not display any inline results if a game result is among them.
 /// <https://core.telegram.org/bots/api#inlinequeryresultgame>
+#[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultGame {
     /// Type of the result, must be *game*

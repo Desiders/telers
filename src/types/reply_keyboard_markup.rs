@@ -1,9 +1,11 @@
 use super::KeyboardButton;
 
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// This object represents a `custom keyboard <https://core.telegram.org/bots#keyboards>` with reply options (see `Introduction to bots <https://core.telegram.org/bots#keyboards>` for details and examples).
 /// <https://core.telegram.org/bots/api#replykeyboardmarkup>
+#[skip_serializing_none]
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ReplyKeyboardMarkup {
     // Array of button rows, each represented by an Array of `aiogram_rs.types.keyboard_button.KeyboardButton` objects

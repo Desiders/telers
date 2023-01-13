@@ -1,9 +1,11 @@
 use super::{InlineKeyboardMarkup, InputMessageContent, InputTextMessageContent};
 
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// Represents a link to an article or web page.
 /// <https://core.telegram.org/bots/api#inlinequeryresultarticle>
+#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultArticle {
     /// Type of the result, must be *article*

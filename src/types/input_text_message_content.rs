@@ -1,9 +1,11 @@
 use super::MessageEntity;
 
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// Represents the `content <https://core.telegram.org/bots/api#inputmessagecontent>` of a text message to be sent as the result of an inline query.
 /// <https://core.telegram.org/bots/api#inputtextmessagecontent>
+#[skip_serializing_none]
 #[derive(Default, Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct InputTextMessageContent {
     /// Text of the message to be sent, 1-4096 characters

@@ -1,10 +1,12 @@
 use super::User;
 
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// Represents a `chat member <https://core.telegram.org/bots/api#chatmember>` that has some additional privileges.
 /// <https://core.telegram.org/bots/api#chatmemberadministrator>
 #[allow(clippy::struct_excessive_bools)]
+#[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ChatMemberAdministrator {
     /// The member's status in the chat, always 'administrator'

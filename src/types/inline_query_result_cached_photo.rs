@@ -1,9 +1,11 @@
 use super::{InlineKeyboardMarkup, InputMessageContent, MessageEntity};
 
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// Represents a link to a photo stored on the Telegram servers. By default, this photo will be sent by the user with an optional caption. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the photo.
 /// <https://core.telegram.org/bots/api#inlinequeryresultcachedphoto>
+#[skip_serializing_none]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultCachedPhoto {
     /// Type of the result, must be *photo*

@@ -1,9 +1,11 @@
 use super::{Location, Update, User};
 
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// This object represents an incoming inline query. When the user sends an empty query, your bot could return some default or trending results.
 /// <https://core.telegram.org/bots/api#inlinequery>
+#[skip_serializing_none]
 #[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQuery {
     /// Unique identifier for this query
