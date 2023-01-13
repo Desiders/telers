@@ -10,25 +10,25 @@ use std::{borrow::Cow, collections::HashMap};
 /// This object represents a request to Telegram API
 pub struct Request<'a, T>
 where
-    T: Serialize,
+    T: Serialize + ?Sized,
 {
     /// Telegram API method name
     method_name: &'static str,
     /// Telegram API method data
     data: &'a T,
     /// Files to send
-    files: Option<HashMap<Cow<'a, str>, &'a InputFile>>,
+    files: Option<HashMap<Cow<'static, str>, &'a InputFile>>,
 }
 
 impl<'a, T> Request<'a, T>
 where
-    T: Serialize,
+    T: Serialize + ?Sized,
 {
     #[must_use]
     pub fn new(
         method_name: &'static str,
         data: &'a T,
-        files: Option<HashMap<Cow<'a, str>, &'a InputFile>>,
+        files: Option<HashMap<Cow<'static, str>, &'a InputFile>>,
     ) -> Self {
         Self {
             method_name,
@@ -43,12 +43,12 @@ where
     }
 
     #[must_use]
-    pub fn data(&self) -> &T {
-        self.data
+    pub fn data(&self) -> &'a T {
+        &self.data
     }
 
     #[must_use]
-    pub fn files(&self) -> Option<&HashMap<Cow<'a, str>, &InputFile>> {
+    pub fn files(&self) -> Option<&HashMap<Cow<'static, str>, &InputFile>> {
         self.files.as_ref()
     }
 }
@@ -114,7 +114,7 @@ impl<T: DeserializeOwned> Response<T> {
 }
 
 pub trait TelegramMethod {
-    /// This type represents a method to Telegram API with parameters
+    /// This type represents a method to Telegram API with data (params)
     type Method: Serialize;
     /// This type represents a response from Telegram API, which is returned by the method
     type Return: DeserializeOwned;
@@ -134,7 +134,7 @@ pub trait TelegramMethod {
 }
 
 pub(super) fn prepare_file_with_id<'a>(
-    files: &mut HashMap<Cow<'a, str>, &'a InputFile>,
+    files: &mut HashMap<Cow<'static, str>, &'a InputFile>,
     file: &'a InputFile,
 ) {
     match file.kind() {
@@ -149,12 +149,12 @@ pub(super) fn prepare_file_with_id<'a>(
 }
 
 pub(super) fn prepare_file_with_value<'a>(
-    files: &mut HashMap<Cow<'a, str>, &'a InputFile>,
+    files: &mut HashMap<Cow<'static, str>, &'a InputFile>,
     file: &'a InputFile,
-    value: impl Into<Cow<'a, str>>,
+    value: impl Into<Cow<'static, str>>,
 ) {
     match file.kind() {
-        InputFileKind::FS(inner) => {
+        InputFileKind::FS(_) => {
             files.insert(value.into(), file);
         }
         InputFileKind::Id(_) | InputFileKind::Url(_) => {
@@ -165,7 +165,7 @@ pub(super) fn prepare_file_with_value<'a>(
 }
 
 pub(super) fn prepare_input_media<'a>(
-    files: &mut HashMap<Cow<'a, str>, &'a InputFile>,
+    files: &mut HashMap<Cow<'static, str>, &'a InputFile>,
     input_media: &'a InputMedia,
 ) {
     match input_media {

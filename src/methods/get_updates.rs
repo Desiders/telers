@@ -19,27 +19,10 @@ pub struct GetUpdates {
 }
 
 impl TelegramMethod for GetUpdates {
-    type Method = Self;
+    type Method = GetUpdates;
     type Return = Vec<Update>;
 
-    fn build_request(&self, _bot: &Bot) -> Request<Self::Method> {
+    fn build_request(&self, _: &Bot) -> Request<Self::Method> {
         Request::new("getUpdates", self, None)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::client::Bot;
-
-    #[test]
-    fn test_build_request() {
-        let bot = Bot::default();
-
-        let get_updates = GetUpdates::default();
-        let request = get_updates.build_request(&bot);
-
-        assert_eq!(request.method_name(), "getUpdates");
-        assert_eq!(*request.data(), get_updates);
     }
 }

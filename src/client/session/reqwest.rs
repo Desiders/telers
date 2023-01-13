@@ -2,8 +2,9 @@ use super::base::{ClientResponse, Session, DEFAULT_TIMEOUT};
 
 use crate::{
     client::{telegram, Bot},
-    methods::{Request, TelegramMethod},
-    types::InputFileKind,
+    methods::TelegramMethod,
+    serializers,
+    types::{InputFile, InputFileKind},
 };
 
 use async_trait::async_trait;
@@ -12,18 +13,76 @@ use reqwest::{
     Body, Client, ClientBuilder,
 };
 use serde::Serialize;
-use std::time::Duration;
+use std::{borrow::Cow, collections::HashMap, io, time::Duration};
+use thiserror;
+
+#[derive(Debug, thiserror::Error)]
+pub(crate) enum BuildFormError {
+    #[error(transparent)]
+    Serializer(#[from] serializers::reqwest::Error),
+    #[error(transparent)]
+    Io(#[from] io::Error),
+}
 
 #[derive(Clone, Debug)]
 pub struct Reqwest {
     client: Client,
-    api: telegram::APIServer,
+    api: Cow<'static, telegram::APIServer>,
 }
 
 impl Reqwest {
     #[must_use]
-    pub fn new(client: Client, api: telegram::APIServer) -> Self {
-        Self { client, api }
+    pub fn new(client: Client, api: impl Into<Cow<'static, telegram::APIServer>>) -> Self {
+        Self {
+            client,
+            api: api.into(),
+        }
+    }
+
+    async fn build_form_data<'a, T>(
+        &self,
+        data: &'a T,
+        files: Option<&HashMap<Cow<'static, str>, &InputFile>>,
+    ) -> Result<Form, BuildFormError>
+    where
+        T: Serialize + ?Sized,
+    {
+        let mut form = data.serialize(serializers::reqwest::MultipartSerializer::new())?;
+
+        if let Some(files) = files {
+            for (value, file) in files {
+                let (read_file_fut, file_name) = match file.kind() {
+                    InputFileKind::FS(file) => (file.read(), file.file_name()),
+                    InputFileKind::Id(_) | InputFileKind::Url(_) => continue,
+                };
+
+                log::debug!("Adding `{value}` with file to form");
+
+                match read_file_fut.await {
+                    Ok(bytes) => {
+                        let body = Body::from(bytes);
+                        let mut part = Part::stream(body);
+
+                        if let Some(file_name) = file_name {
+                            part = part.file_name(file_name);
+                        }
+
+                        form = form.part(value.clone().into_owned(), part);
+                    }
+                    Err(err) => {
+                        if let Some(file_name) = file_name {
+                            log::error!("Cannot read a file with name `{file_name}`: {err}");
+                        } else {
+                            log::error!("Cannot read a file: {err}");
+                        }
+
+                        return Err(err.into());
+                    }
+                }
+            }
+        }
+
+        Ok(form)
     }
 }
 
@@ -37,90 +96,28 @@ impl Default for Reqwest {
                 .timeout(Duration::from_secs_f32(DEFAULT_TIMEOUT))
                 .build()
                 .unwrap(),
-            api: telegram::PRODUCTION.clone(),
+            api: Cow::Borrowed(&telegram::PRODUCTION),
         }
     }
 }
 
 #[async_trait]
 impl Session for Reqwest {
-    #[must_use]
-    async fn send_json<'a, T>(
+    async fn send_request<T>(
         &self,
-        request: Request<'a, T>,
-        url: &str,
+        bot: &Bot,
+        method: &T,
         timeout: Option<f32>,
     ) -> Result<ClientResponse, anyhow::Error>
     where
-        T: Serialize + Send + Sync,
+        T: TelegramMethod + Send + Sync,
+        T::Method: Send + Sync,
     {
-        let response = if let Some(timeout) = timeout {
-            self.client
-                .post(url)
-                .json(request.data())
-                .timeout(Duration::from_secs_f32(timeout))
-        } else {
-            self.client.post(url).json(request.data())
-        }
-        .send()
-        .await
-        .map_err(|err| {
-            log::error!("Cannot send a request: {err}");
-
-            err
-        })?;
-
-        let status_code = response.status().as_u16();
-        let content = response.text().await.map_err(|err| {
-            log::error!("Cannot decode a response: {err}");
-
-            err
-        })?;
-
-        Ok(ClientResponse::new(status_code, content))
-    }
-
-    #[must_use]
-    async fn send_multipart<'a, T>(
-        &self,
-        request: Request<'a, T>,
-        url: &str,
-        timeout: Option<f32>,
-    ) -> Result<ClientResponse, anyhow::Error>
-    where
-        T: Serialize + Send + Sync,
-    {
-        let mut form = Form::new();
-
-        // `unwrap` is safe here because we checked that there are files
-        for (value, file) in request.files().unwrap() {
-            let (read_file_fut, file_name) = match file.kind() {
-                InputFileKind::FS(file) => (file.read(), file.file_name()),
-                InputFileKind::Id(_) | InputFileKind::Url(_) => break,
-            };
-
-            match read_file_fut.await {
-                Ok(bytes) => {
-                    let body = Body::from(bytes);
-                    let mut part = Part::stream(body);
-
-                    if let Some(file_name) = file_name {
-                        part = part.file_name(file_name);
-                    }
-
-                    form = form.part(value.clone().into_owned(), part);
-                }
-                Err(err) => {
-                    if let Some(file_name) = file_name {
-                        log::error!("Cannot read a file with name `{file_name}`: {err}");
-                    } else {
-                        log::error!("Cannot read a file: {err}");
-                    }
-
-                    return Err(err.into());
-                }
-            }
-        }
+        let request = method.build_request(bot);
+        let url = self.api.api_url(bot.token(), request.method_name());
+        let form = self
+            .build_form_data(request.data(), request.files())
+            .await?;
 
         let response = if let Some(timeout) = timeout {
             self.client
@@ -146,26 +143,5 @@ impl Session for Reqwest {
         })?;
 
         Ok(ClientResponse::new(status_code, content))
-    }
-
-    async fn send_request<T>(
-        &self,
-        bot: &Bot,
-        method: &T,
-        timeout: Option<f32>,
-    ) -> Result<ClientResponse, anyhow::Error>
-    where
-        T: TelegramMethod + Send + Sync,
-        T::Method: Send + Sync,
-    {
-        let request = method.build_request(bot);
-        let url = self.api.api_url(bot.token(), request.method_name());
-
-        if request.files().is_none() {
-            self.send_json(request, &url, timeout)
-        } else {
-            self.send_multipart(request, &url, timeout)
-        }
-        .await
     }
 }

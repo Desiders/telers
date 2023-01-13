@@ -1,11 +1,11 @@
 use crate::{
     client::Bot,
     error::{session, telegram},
-    methods::{Request, Response, TelegramMethod},
+    methods::{Response, TelegramMethod},
 };
 
 use async_trait::async_trait;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::de::DeserializeOwned;
 use std::ops::RangeInclusive;
 
 pub const DEFAULT_TIMEOUT: f32 = 60.0;
@@ -69,26 +69,6 @@ impl ClientResponse {
 
 #[async_trait]
 pub trait Session {
-    #[must_use]
-    async fn send_json<'a, T>(
-        &self,
-        request: Request<'a, T>,
-        url: &str,
-        timeout: Option<f32>,
-    ) -> Result<ClientResponse, anyhow::Error>
-    where
-        T: Serialize + Send + Sync;
-
-    #[must_use]
-    async fn send_multipart<'a, T>(
-        &self,
-        request: Request<'a, T>,
-        url: &str,
-        timeout: Option<f32>,
-    ) -> Result<ClientResponse, anyhow::Error>
-    where
-        T: Serialize + Send + Sync;
-
     /// Makes a request to Telegram API
     /// # Arguments
     /// * `bot` - Bot instance for building request, it is mainly used for getting bot token
@@ -115,14 +95,11 @@ pub trait Session {
     /// * `content` - Response content
     /// # Errors
     /// If the response represents an telegram api error
-    fn check_response<T>(
+    fn check_response(
         &self,
-        response: &Response<T>,
+        response: &Response<impl DeserializeOwned>,
         status_code: &StatusCode,
-    ) -> Result<(), telegram::ErrorKind>
-    where
-        T: DeserializeOwned,
-    {
+    ) -> Result<(), telegram::ErrorKind> {
         if status_code.is_success() && response.ok() {
             if response.result().is_none() {
                 log::error!("Contract violation: result is empty in success response");
