@@ -209,7 +209,7 @@ impl<'a> FSFile<'a> {
             return Some(filename.as_ref());
         }
 
-        Some(self.path.file_name()?.to_str()?)
+        self.path.file_name()?.to_str()
     }
 
     /// Reads file from filesystem and returns it as a vector of bytes

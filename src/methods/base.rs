@@ -44,7 +44,7 @@ where
 
     #[must_use]
     pub fn data(&self) -> &T {
-        &self.data
+        self.data
     }
 
     #[must_use]
