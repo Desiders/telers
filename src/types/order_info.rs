@@ -1,12 +1,10 @@
 use super::ShippingAddress;
 
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use serde::Deserialize;
 
 /// This object represents information about an order.
 /// <https://core.telegram.org/bots/api#orderinfo>
-#[skip_serializing_none]
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct OrderInfo {
     /// *Optional*. User name
     pub name: Option<String>,

@@ -28,6 +28,57 @@ pub struct MessageEntity {
 }
 
 impl MessageEntity {
+    #[must_use]
+    pub fn new<T: Into<String>>(entity_type: T, offset: i64, length: i64) -> Self {
+        Self {
+            entity_type: entity_type.into(),
+            offset,
+            length,
+            url: None,
+            user: None,
+            language: None,
+            custom_emoji_id: None,
+        }
+    }
+
+    #[must_use]
+    pub fn offset(mut self, val: i64) -> Self {
+        self.offset = val;
+        self
+    }
+
+    #[must_use]
+    pub fn length(mut self, val: i64) -> Self {
+        self.length = val;
+        self
+    }
+
+    #[must_use]
+    pub fn url<T: Into<String>>(mut self, val: T) -> Self {
+        self.url = Some(val.into());
+        self
+    }
+
+    #[must_use]
+    pub fn user(mut self, val: User) -> Self {
+        self.user = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn language<T: Into<String>>(mut self, val: T) -> Self {
+        self.language = Some(val.into());
+        self
+    }
+
+    #[must_use]
+    pub fn custom_emoji_id<T: Into<String>>(mut self, val: T) -> Self {
+        self.custom_emoji_id = Some(val.into());
+        self
+    }
+}
+
+impl MessageEntity {
     /// # Panics
     /// If the `self.offset` or `self.offset + self.length` is out of the range
     #[must_use]

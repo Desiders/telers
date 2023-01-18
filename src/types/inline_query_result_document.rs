@@ -10,7 +10,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultDocument {
     /// Type of the result, must be *document*
-    #[serde(rename = "type", default = "document")]
+    #[serde(rename = "type")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -40,10 +40,93 @@ pub struct InlineQueryResultDocument {
     pub thumb_height: Option<i64>,
 }
 
+impl InlineQueryResultDocument {
+    #[must_use]
+    pub fn new<T: Into<String>>(
+        id: T,
+        title: T,
+        document_url: T,
+        mime_type: T,
+    ) -> InlineQueryResultDocument {
+        Self {
+            id: id.into(),
+            title: title.into(),
+            document_url: document_url.into(),
+            mime_type: mime_type.into(),
+            ..Default::default()
+        }
+    }
+
+    pub fn id<T: Into<String>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
+    }
+
+    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
+        self.title = val.into();
+        self
+    }
+
+    pub fn document_url<T: Into<String>>(mut self, val: T) -> Self {
+        self.document_url = val.into();
+        self
+    }
+
+    pub fn mime_type<T: Into<String>>(mut self, val: T) -> Self {
+        self.mime_type = val.into();
+        self
+    }
+
+    pub fn caption<T: Into<String>>(mut self, val: T) -> Self {
+        self.caption = Some(val.into());
+        self
+    }
+
+    pub fn parse_mode<T: Into<String>>(mut self, val: T) -> Self {
+        self.parse_mode = Some(val.into());
+        self
+    }
+
+    pub fn caption_entities(mut self, val: Vec<MessageEntity>) -> Self {
+        self.caption_entities = Some(val);
+        self
+    }
+
+    pub fn description<T: Into<String>>(mut self, val: T) -> Self {
+        self.description = Some(val.into());
+        self
+    }
+
+    pub fn reply_markup(mut self, val: InlineKeyboardMarkup) -> Self {
+        self.reply_markup = Some(val);
+        self
+    }
+
+    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
+        self.input_message_content = Some(val);
+        self
+    }
+
+    pub fn thumb_url<T: Into<String>>(mut self, val: T) -> Self {
+        self.thumb_url = Some(val.into());
+        self
+    }
+
+    pub fn thumb_width(mut self, val: i64) -> Self {
+        self.thumb_width = Some(val);
+        self
+    }
+
+    pub fn thumb_height(mut self, val: i64) -> Self {
+        self.thumb_height = Some(val);
+        self
+    }
+}
+
 impl Default for InlineQueryResultDocument {
     fn default() -> Self {
         Self {
-            result_type: document(),
+            result_type: "document".to_string(),
             id: String::default(),
             title: String::default(),
             document_url: String::default(),
@@ -59,8 +142,4 @@ impl Default for InlineQueryResultDocument {
             thumb_height: None,
         }
     }
-}
-
-fn document() -> String {
-    "document".to_string()
 }

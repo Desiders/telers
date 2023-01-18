@@ -6,7 +6,14 @@ use serde::{Deserialize, Serialize};
 pub struct BotCommandScopeAllChatAdministrators {
     /// Scope type, must be *all_chat_administrators*
     #[serde(rename = "type", default = "all_chat_administrators")]
-    scope_type: String,
+    pub scope_type: String,
+}
+
+impl BotCommandScopeAllChatAdministrators {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
 }
 
 impl Default for BotCommandScopeAllChatAdministrators {

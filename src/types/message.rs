@@ -7,13 +7,11 @@ use super::{
     Voice, WebAppData,
 };
 
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use serde::Deserialize;
 
 /// This object represents a message.
 /// <https://core.telegram.org/bots/api#message>
-#[skip_serializing_none]
-#[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, PartialEq, Deserialize)]
 pub struct Message {
     /// Unique message identifier inside this chat
     pub message_id: i64,

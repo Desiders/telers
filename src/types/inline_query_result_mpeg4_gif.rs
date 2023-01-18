@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultMpeg4Gif {
     /// Type of the result, must be *mpeg4_gif*
-    #[serde(rename = "type", default = "mpeg4_gif")]
+    #[serde(rename = "type")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -39,10 +39,87 @@ pub struct InlineQueryResultMpeg4Gif {
     pub input_message_content: Option<InputMessageContent>,
 }
 
+impl InlineQueryResultMpeg4Gif {
+    #[must_use]
+    pub fn new<T: Into<String>>(id: T, mpeg4_url: T, thumb_url: T) -> Self {
+        Self {
+            id: id.into(),
+            mpeg4_url: mpeg4_url.into(),
+            thumb_url: thumb_url.into(),
+            ..Default::default()
+        }
+    }
+
+    pub fn id<T: Into<String>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
+    }
+
+    pub fn mpeg4_url<T: Into<String>>(mut self, val: T) -> Self {
+        self.mpeg4_url = val.into();
+        self
+    }
+
+    pub fn thumb_url<T: Into<String>>(mut self, val: T) -> Self {
+        self.thumb_url = val.into();
+        self
+    }
+
+    pub fn mpeg4_width(mut self, val: i64) -> Self {
+        self.mpeg4_width = Some(val);
+        self
+    }
+
+    pub fn mpeg4_height(mut self, val: i64) -> Self {
+        self.mpeg4_height = Some(val);
+        self
+    }
+
+    pub fn mpeg4_duration(mut self, val: i64) -> Self {
+        self.mpeg4_duration = Some(val);
+        self
+    }
+
+    pub fn thumb_mime_type<T: Into<String>>(mut self, val: T) -> Self {
+        self.thumb_mime_type = Some(val.into());
+        self
+    }
+
+    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
+        self.title = Some(val.into());
+        self
+    }
+
+    pub fn caption<T: Into<String>>(mut self, val: T) -> Self {
+        self.caption = Some(val.into());
+        self
+    }
+
+    pub fn parse_mode<T: Into<String>>(mut self, val: T) -> Self {
+        self.parse_mode = Some(val.into());
+        self
+    }
+
+    pub fn caption_entities(mut self, val: Vec<MessageEntity>) -> Self {
+        self.caption_entities = Some(val);
+        self
+    }
+
+    pub fn reply_markup(mut self, val: InlineKeyboardMarkup) -> Self {
+        self.reply_markup = Some(val);
+        self
+    }
+
+    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
+        self.input_message_content = Some(val);
+        self
+    }
+}
+
 impl Default for InlineQueryResultMpeg4Gif {
     fn default() -> Self {
         Self {
-            result_type: mpeg4_gif(),
+            result_type: "mpeg4_gif".to_string(),
             id: String::default(),
             mpeg4_url: String::default(),
             thumb_url: String::default(),
@@ -58,8 +135,4 @@ impl Default for InlineQueryResultMpeg4Gif {
             input_message_content: None,
         }
     }
-}
-
-fn mpeg4_gif() -> String {
-    "mpeg4_gif".to_string()
 }

@@ -1,8 +1,8 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 /// This object contains information about one answer option in a poll.
 /// <https://core.telegram.org/bots/api#polloption>
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct PollOption {
     /// Option text, 1-100 characters
     pub text: String,

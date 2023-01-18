@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct MenuButtonWebApp {
     /// Type of the button, must be `web_app`
-    #[serde(rename = "type", default = "web_app")]
+    #[serde(rename = "type")]
     pub button_type: String,
     /// Text on the button
     pub text: String,
@@ -15,16 +15,35 @@ pub struct MenuButtonWebApp {
     pub web_app: WebAppInfo,
 }
 
+impl MenuButtonWebApp {
+    #[must_use]
+    pub fn new<T: Into<String>>(text: T, web_app: WebAppInfo) -> Self {
+        Self {
+            button_type: "web_app".to_string(),
+            text: text.into(),
+            web_app,
+        }
+    }
+
+    #[must_use]
+    pub fn text<T: Into<String>>(mut self, text: T) -> Self {
+        self.text = text.into();
+        self
+    }
+
+    #[must_use]
+    pub fn web_app(mut self, web_app: WebAppInfo) -> Self {
+        self.web_app = web_app;
+        self
+    }
+}
+
 impl Default for MenuButtonWebApp {
     fn default() -> Self {
         Self {
-            button_type: web_app(),
+            button_type: "web_app".to_string(),
             text: String::default(),
             web_app: WebAppInfo::default(),
         }
     }
-}
-
-fn web_app() -> String {
-    "web_app".to_string()
 }

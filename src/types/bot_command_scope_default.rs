@@ -9,6 +9,13 @@ pub struct BotCommandScopeDefault {
     scope_type: String,
 }
 
+impl BotCommandScopeDefault {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
 impl Default for BotCommandScopeDefault {
     fn default() -> Self {
         Self {

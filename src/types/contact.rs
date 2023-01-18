@@ -1,10 +1,8 @@
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use serde::Deserialize;
 
 /// This object represents a phone contact.
 /// <https://core.telegram.org/bots/api#contact>
-#[skip_serializing_none]
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct Contact {
     /// Contact's phone number
     pub phone_number: String,

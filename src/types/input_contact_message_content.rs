@@ -15,3 +15,34 @@ pub struct InputContactMessageContent {
     /// *Optional*. Additional data about the contact in the form of a `vCard <https://en.wikipedia.org/wiki/VCard>`, 0-2048 bytes
     pub vcard: Option<String>,
 }
+
+impl InputContactMessageContent {
+    #[must_use]
+    pub fn new<T: Into<String>>(phone_number: T, first_name: T) -> Self {
+        Self {
+            phone_number: phone_number.into(),
+            first_name: first_name.into(),
+            ..Default::default()
+        }
+    }
+
+    pub fn phone_number<T: Into<String>>(mut self, val: T) -> Self {
+        self.phone_number = val.into();
+        self
+    }
+
+    pub fn first_name<T: Into<String>>(mut self, val: T) -> Self {
+        self.first_name = val.into();
+        self
+    }
+
+    pub fn last_name<T: Into<String>>(mut self, val: T) -> Self {
+        self.last_name = Some(val.into());
+        self
+    }
+
+    pub fn vcard<T: Into<String>>(mut self, val: T) -> Self {
+        self.vcard = Some(val.into());
+        self
+    }
+}

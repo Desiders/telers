@@ -49,3 +49,125 @@ pub struct InputInvoiceMessageContent {
     /// *Optional*. Pass `True` if the final price depends on the shipping method
     pub is_flexible: Option<bool>,
 }
+
+impl InputInvoiceMessageContent {
+    #[must_use]
+    pub fn new<T: Into<String>>(
+        title: T,
+        description: T,
+        payload: T,
+        provider_token: T,
+        currency: T,
+        prices: Vec<LabeledPrice>,
+    ) -> Self {
+        Self {
+            title: title.into(),
+            description: description.into(),
+            payload: payload.into(),
+            provider_token: provider_token.into(),
+            currency: currency.into(),
+            prices,
+            ..Default::default()
+        }
+    }
+
+    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
+        self.title = val.into();
+        self
+    }
+
+    pub fn description<T: Into<String>>(mut self, val: T) -> Self {
+        self.description = val.into();
+        self
+    }
+
+    pub fn payload<T: Into<String>>(mut self, val: T) -> Self {
+        self.payload = val.into();
+        self
+    }
+
+    pub fn provider_token<T: Into<String>>(mut self, val: T) -> Self {
+        self.provider_token = val.into();
+        self
+    }
+
+    pub fn currency<T: Into<String>>(mut self, val: T) -> Self {
+        self.currency = val.into();
+        self
+    }
+
+    pub fn prices(mut self, val: Vec<LabeledPrice>) -> Self {
+        self.prices = val;
+        self
+    }
+
+    pub fn max_tip_amount(mut self, val: i64) -> Self {
+        self.max_tip_amount = Some(val);
+        self
+    }
+
+    pub fn suggested_tip_amounts(mut self, val: Vec<i64>) -> Self {
+        self.suggested_tip_amounts = Some(val);
+        self
+    }
+
+    pub fn provider_data<T: Into<String>>(mut self, val: T) -> Self {
+        self.provider_data = Some(val.into());
+        self
+    }
+
+    pub fn photo_url<T: Into<String>>(mut self, val: T) -> Self {
+        self.photo_url = Some(val.into());
+        self
+    }
+
+    pub fn photo_size(mut self, val: i64) -> Self {
+        self.photo_size = Some(val);
+        self
+    }
+
+    pub fn photo_width(mut self, val: i64) -> Self {
+        self.photo_width = Some(val);
+        self
+    }
+
+    pub fn photo_height(mut self, val: i64) -> Self {
+        self.photo_height = Some(val);
+        self
+    }
+
+    pub fn need_name(mut self, val: bool) -> Self {
+        self.need_name = Some(val);
+        self
+    }
+
+    pub fn need_phone_number(mut self, val: bool) -> Self {
+        self.need_phone_number = Some(val);
+        self
+    }
+
+    pub fn need_email(mut self, val: bool) -> Self {
+        self.need_email = Some(val);
+        self
+    }
+
+    pub fn need_shipping_address(mut self, val: bool) -> Self {
+        self.need_shipping_address = Some(val);
+        self
+    }
+
+    pub fn send_phone_number_to_provider(mut self, val: bool) -> Self {
+        self.send_phone_number_to_provider = Some(val);
+        self
+    }
+
+    pub fn send_email_to_provider(mut self, val: bool) -> Self {
+        self.send_email_to_provider = Some(val);
+        self
+    }
+
+    pub fn is_flexible(mut self, val: bool) -> Self {
+        self.is_flexible = Some(val);
+        self
+    }
+}

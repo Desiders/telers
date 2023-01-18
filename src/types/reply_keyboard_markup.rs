@@ -19,3 +19,43 @@ pub struct ReplyKeyboardMarkup {
     /// *Optional*. Use this parameter if you want to show the keyboard to specific users only. Targets: 1) users that are @mentioned in the *text* of the `aiogram_rs.types.message.Message` object; 2) if the bot's message is a reply (has *reply_to_message_id*), sender of the original message.
     pub selective: Option<bool>,
 }
+
+impl ReplyKeyboardMarkup {
+    #[must_use]
+    pub fn new(keyboard: Vec<Vec<KeyboardButton>>) -> Self {
+        Self {
+            keyboard,
+            ..Default::default()
+        }
+    }
+
+    #[must_use]
+    pub fn keyboard(mut self, val: Vec<Vec<KeyboardButton>>) -> Self {
+        self.keyboard = val;
+        self
+    }
+
+    #[must_use]
+    pub fn resize_keyboard(mut self, val: bool) -> Self {
+        self.resize_keyboard = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn one_time_keyboard(mut self, val: bool) -> Self {
+        self.one_time_keyboard = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn input_field_placeholder(mut self, val: String) -> Self {
+        self.input_field_placeholder = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn selective(mut self, val: bool) -> Self {
+        self.selective = Some(val);
+        self
+    }
+}

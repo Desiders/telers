@@ -1,12 +1,10 @@
 use super::{Chat, ChatInviteLink, Update, User};
 
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use serde::Deserialize;
 
 /// Represents a join request sent to a chat.
 /// <https://core.telegram.org/bots/api#chatjoinrequest>
-#[skip_serializing_none]
-#[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, PartialEq, Deserialize)]
 pub struct ChatJoinRequest {
     /// Chat to which the request was sent
     pub chat: Chat,

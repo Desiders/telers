@@ -1,11 +1,9 @@
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use serde::Deserialize;
 
 /// This object represents a file ready to be downloaded. The file can be downloaded via the link `https://api.telegram.org/file/bot<token>/<file_path>`. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling `aiogram_rs.methods.get_file.GetFile`.
 /// The maximum file size to download is 20 MB
 /// <https://core.telegram.org/bots/api#file>
-#[skip_serializing_none]
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct File {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: String,

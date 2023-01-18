@@ -10,7 +10,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultVoice {
     /// Type of the result, must be *voice*
-    #[serde(rename = "type", default = "voice")]
+    #[serde(rename = "type")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -32,10 +32,67 @@ pub struct InlineQueryResultVoice {
     pub input_message_content: Option<InputMessageContent>,
 }
 
+impl InlineQueryResultVoice {
+    #[must_use]
+    pub fn new<T: Into<String>>(id: T, voice_url: T, title: T) -> Self {
+        Self {
+            id: id.into(),
+            voice_url: voice_url.into(),
+            title: title.into(),
+            ..Default::default()
+        }
+    }
+
+    pub fn id<T: Into<String>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
+    }
+
+    pub fn voice_url<T: Into<String>>(mut self, val: T) -> Self {
+        self.voice_url = val.into();
+        self
+    }
+
+    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
+        self.title = val.into();
+        self
+    }
+
+    pub fn caption<T: Into<String>>(mut self, val: T) -> Self {
+        self.caption = Some(val.into());
+        self
+    }
+
+    pub fn parse_mode<T: Into<String>>(mut self, val: T) -> Self {
+        self.parse_mode = Some(val.into());
+        self
+    }
+
+    pub fn caption_entities(mut self, val: Vec<MessageEntity>) -> Self {
+        self.caption_entities = Some(val);
+        self
+    }
+
+    pub fn voice_duration(mut self, val: i64) -> Self {
+        self.voice_duration = Some(val);
+        self
+    }
+
+    pub fn reply_markup(mut self, val: InlineKeyboardMarkup) -> Self {
+        self.reply_markup = Some(val);
+        self
+    }
+
+    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
+        self.input_message_content = Some(val);
+        self
+    }
+}
+
 impl Default for InlineQueryResultVoice {
     fn default() -> Self {
         Self {
-            result_type: voice(),
+            result_type: "voice".to_string(),
             id: String::default(),
             voice_url: String::default(),
             title: String::default(),
@@ -47,8 +104,4 @@ impl Default for InlineQueryResultVoice {
             input_message_content: None,
         }
     }
-}
-
-fn voice() -> String {
-    "voice".to_string()
 }

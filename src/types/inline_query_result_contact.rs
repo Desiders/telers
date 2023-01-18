@@ -10,7 +10,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultContact {
     /// Type of the result, must be *contact*
-    #[serde(rename = "type", default = "contact")]
+    #[serde(rename = "type")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -34,10 +34,72 @@ pub struct InlineQueryResultContact {
     pub thumb_height: Option<i64>,
 }
 
+impl InlineQueryResultContact {
+    #[must_use]
+    pub fn new<T: Into<String>>(id: T, phone_number: T, first_name: T) -> Self {
+        Self {
+            id: id.into(),
+            phone_number: phone_number.into(),
+            first_name: first_name.into(),
+            ..Default::default()
+        }
+    }
+
+    pub fn id<T: Into<String>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
+    }
+
+    pub fn phone_number<T: Into<String>>(mut self, val: T) -> Self {
+        self.phone_number = val.into();
+        self
+    }
+
+    pub fn first_name<T: Into<String>>(mut self, val: T) -> Self {
+        self.first_name = val.into();
+        self
+    }
+
+    pub fn last_name<T: Into<String>>(mut self, val: T) -> Self {
+        self.last_name = Some(val.into());
+        self
+    }
+
+    pub fn vcard<T: Into<String>>(mut self, val: T) -> Self {
+        self.vcard = Some(val.into());
+        self
+    }
+
+    pub fn reply_markup(mut self, val: InlineKeyboardMarkup) -> Self {
+        self.reply_markup = Some(val);
+        self
+    }
+
+    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
+        self.input_message_content = Some(val);
+        self
+    }
+
+    pub fn thumb_url<T: Into<String>>(mut self, val: T) -> Self {
+        self.thumb_url = Some(val.into());
+        self
+    }
+
+    pub fn thumb_width(mut self, val: i64) -> Self {
+        self.thumb_width = Some(val);
+        self
+    }
+
+    pub fn thumb_height(mut self, val: i64) -> Self {
+        self.thumb_height = Some(val);
+        self
+    }
+}
+
 impl Default for InlineQueryResultContact {
     fn default() -> Self {
         Self {
-            result_type: contact(),
+            result_type: "contact".to_string(),
             id: String::default(),
             phone_number: String::default(),
             first_name: String::default(),
@@ -50,8 +112,4 @@ impl Default for InlineQueryResultContact {
             thumb_height: None,
         }
     }
-}
-
-fn contact() -> String {
-    "contact".to_string()
 }

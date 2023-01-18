@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultArticle {
     /// Type of the result, must be *article*
-    #[serde(rename = "type", default = "article")]
+    #[serde(rename = "type")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -33,10 +33,76 @@ pub struct InlineQueryResultArticle {
     pub thumb_height: Option<i64>,
 }
 
+impl InlineQueryResultArticle {
+    #[must_use]
+    pub fn new<T: Into<String>>(
+        id: T,
+        title: T,
+        input_message_content: InputMessageContent,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            title: title.into(),
+            input_message_content,
+            ..Default::default()
+        }
+    }
+
+    pub fn id<T: Into<String>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
+    }
+
+    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
+        self.title = val.into();
+        self
+    }
+
+    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
+        self.input_message_content = val;
+        self
+    }
+
+    pub fn reply_markup(mut self, val: InlineKeyboardMarkup) -> Self {
+        self.reply_markup = Some(val);
+        self
+    }
+
+    pub fn url<T: Into<String>>(mut self, val: T) -> Self {
+        self.url = Some(val.into());
+        self
+    }
+
+    pub fn hide_url(mut self, val: bool) -> Self {
+        self.hide_url = Some(val);
+        self
+    }
+
+    pub fn description<T: Into<String>>(mut self, val: T) -> Self {
+        self.description = Some(val.into());
+        self
+    }
+
+    pub fn thumb_url<T: Into<String>>(mut self, val: T) -> Self {
+        self.thumb_url = Some(val.into());
+        self
+    }
+
+    pub fn thumb_width(mut self, val: i64) -> Self {
+        self.thumb_width = Some(val);
+        self
+    }
+
+    pub fn thumb_height(mut self, val: i64) -> Self {
+        self.thumb_height = Some(val);
+        self
+    }
+}
+
 impl Default for InlineQueryResultArticle {
     fn default() -> Self {
         Self {
-            result_type: article(),
+            result_type: "article".to_string(),
             id: String::default(),
             title: String::default(),
             input_message_content: InputMessageContent::Text(InputTextMessageContent::default()),
@@ -49,8 +115,4 @@ impl Default for InlineQueryResultArticle {
             thumb_height: None,
         }
     }
-}
-
-fn article() -> String {
-    "article".to_string()
 }

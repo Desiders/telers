@@ -22,3 +22,43 @@ pub struct KeyboardButton {
     /// *Optional*. If specified, the described `Web App <https://core.telegram.org/bots/webapps>` will be launched when the button is pressed. The Web App will be able to send a 'web_app_data' service message. Available in private chats only.
     pub web_app: Option<WebAppInfo>,
 }
+
+impl KeyboardButton {
+    #[must_use]
+    pub fn new<T: Into<String>>(text: T) -> Self {
+        Self {
+            text: text.into(),
+            ..Default::default()
+        }
+    }
+
+    #[must_use]
+    pub fn text<T: Into<String>>(mut self, val: T) -> Self {
+        self.text = val.into();
+        self
+    }
+
+    #[must_use]
+    pub fn request_contact(mut self, val: bool) -> Self {
+        self.request_contact = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn request_location(mut self, val: bool) -> Self {
+        self.request_location = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn request_poll(mut self, val: KeyboardButtonPollType) -> Self {
+        self.request_poll = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn web_app(mut self, val: WebAppInfo) -> Self {
+        self.web_app = Some(val);
+        self
+    }
+}

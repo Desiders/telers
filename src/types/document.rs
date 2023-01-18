@@ -1,12 +1,10 @@
 use super::PhotoSize;
 
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use serde::Deserialize;
 
 /// This object represents a general file (as opposed to `photos <https://core.telegram.org/bots/api#photosize>`, `voice messages <https://core.telegram.org/bots/api#voice>` and `audio files <https://core.telegram.org/bots/api#audio>`).
 /// <https://core.telegram.org/bots/api#document>
-#[skip_serializing_none]
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct Document {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: String,

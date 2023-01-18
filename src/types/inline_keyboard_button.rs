@@ -27,3 +27,58 @@ pub struct InlineKeyboardButton {
     /// *Optional*. Specify `True`, to send a `Pay button <https://core.telegram.org/bots/api#payments>`.
     pub pay: Option<bool>,
 }
+
+impl InlineKeyboardButton {
+    #[must_use]
+    pub fn new<T: Into<String>>(text: T) -> Self {
+        Self {
+            text: text.into(),
+            ..Default::default()
+        }
+    }
+
+    pub fn text<T: Into<String>>(mut self, val: T) -> Self {
+        self.text = val.into();
+        self
+    }
+
+    pub fn url<T: Into<String>>(mut self, val: T) -> Self {
+        self.url = Some(val.into());
+        self
+    }
+
+    pub fn callback_data<T: Into<String>>(mut self, val: T) -> Self {
+        self.callback_data = Some(val.into());
+        self
+    }
+
+    pub fn web_app(mut self, val: WebAppInfo) -> Self {
+        self.web_app = Some(val);
+        self
+    }
+
+    pub fn login_url(mut self, val: LoginUrl) -> Self {
+        self.login_url = Some(val);
+        self
+    }
+
+    pub fn switch_inline_query<T: Into<String>>(mut self, val: T) -> Self {
+        self.switch_inline_query = Some(val.into());
+        self
+    }
+
+    pub fn switch_inline_query_current_chat<T: Into<String>>(mut self, val: T) -> Self {
+        self.switch_inline_query_current_chat = Some(val.into());
+        self
+    }
+
+    pub fn callback_game(mut self, val: CallbackGame) -> Self {
+        self.callback_game = Some(val);
+        self
+    }
+
+    pub fn pay(mut self, val: bool) -> Self {
+        self.pay = Some(val);
+        self
+    }
+}

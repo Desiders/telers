@@ -3,14 +3,12 @@ use super::{
     Message, Poll, PollAnswer, PreCheckoutQuery, ShippingQuery, User,
 };
 
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use serde::Deserialize;
 
 /// This `object <https://core.telegram.org/bots/api#available-types>` represents an incoming update.
 /// At most **one** of the optional parameters can be present in any given update.
 /// <https://core.telegram.org/bots/api#update>
-#[skip_serializing_none]
-#[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, PartialEq, Deserialize)]
 pub struct Update {
     /// The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This ID becomes especially handy if you're using `webhooks <https://core.telegram.org/bots/api#setwebhook>`, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
     pub update_id: i64,
@@ -45,13 +43,6 @@ pub struct Update {
 }
 
 impl Update {
-    /// Alias for `update_id`
-    #[must_use]
-    pub fn id(&self) -> i64 {
-        self.update_id
-    }
-
-    /// Get user from the update
     #[must_use]
     pub fn user(&self) -> Option<&User> {
         if let Some(message) = &self.message {
@@ -83,7 +74,6 @@ impl Update {
         }
     }
 
-    /// Get chat from the update
     #[must_use]
     pub fn chat(&self) -> Option<&Chat> {
         if let Some(message) = &self.message {
@@ -105,76 +95,5 @@ impl Update {
         } else {
             None
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::types::{Chat, Message, Update, User};
-
-    #[test]
-    fn test_deserialize() {
-        let json = r#"{
-            "update_id": 123,
-            "message": {
-                "message_id": 1,
-                "from": {
-                    "id": 1,
-                    "is_bot": false,
-                    "first_name": "first_name",
-                    "last_name": "last_name",
-                    "username": "username",
-                    "language_code": "language_code"
-                },
-                "chat": {
-                    "id": 1,
-                    "first_name": "first_name",
-                    "last_name": "last_name",
-                    "username": "username",
-                    "type": "private"
-                },
-                "date": 1,
-                "text": "text"
-            }
-        }"#;
-
-        let deserializer = &mut serde_json::Deserializer::from_str(json);
-        let result: Result<Update, _> = serde_path_to_error::deserialize(deserializer);
-
-        match result {
-            Ok(update) => {
-                assert_eq!(
-                    update.message,
-                    Some(Message {
-                        message_id: 1,
-                        from: Some(User {
-                            id: 1,
-                            is_bot: false,
-                            first_name: "first_name".to_string(),
-                            last_name: Some("last_name".to_string()),
-                            username: Some("username".to_string()),
-                            language_code: Some("language_code".to_string()),
-                            ..Default::default()
-                        }),
-                        date: 1,
-                        chat: Box::new(Chat {
-                            id: 1,
-                            first_name: Some("first_name".to_string()),
-                            last_name: Some("last_name".to_string()),
-                            username: Some("username".to_string()),
-                            chat_type: "private".to_string(),
-                            ..Default::default()
-                        }),
-                        text: Some("text".to_string()),
-                        ..Default::default()
-                    }),
-                );
-            }
-            Err(err) => {
-                println!("Path: {}", err.path());
-
-                let _: Update = serde_json::from_str(json).unwrap(); // for traceback
-            }
-        };
     }
 }

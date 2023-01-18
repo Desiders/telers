@@ -1,10 +1,11 @@
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
+use std::borrow::Cow;
 
 /// This object represents a Telegram user or bot.
 /// <https://core.telegram.org/bots/api#user>
 #[skip_serializing_none]
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
 pub struct User {
     /// Unique identifier for this user or bot. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
     pub id: i64,
@@ -32,11 +33,10 @@ pub struct User {
 
 impl User {
     #[must_use]
-    pub fn full_name(&self) -> String {
-        if let Some(ref last_name) = self.last_name {
-            format!("{} {last_name}", self.first_name)
-        } else {
-            self.first_name.clone()
+    pub fn full_name(&self) -> Cow<'_, str> {
+        match &self.last_name {
+            Some(last_name) => Cow::Owned(format!("{} {last_name}", self.first_name)),
+            None => Cow::Borrowed(&self.first_name),
         }
     }
 }

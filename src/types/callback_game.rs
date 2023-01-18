@@ -4,3 +4,10 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#callbackgame>
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct CallbackGame {}
+
+impl CallbackGame {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+}

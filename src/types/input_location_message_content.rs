@@ -19,3 +19,47 @@ pub struct InputLocationMessageContent {
     /// *Optional*. For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
     pub proximity_alert_radius: Option<i64>,
 }
+
+impl InputLocationMessageContent {
+    #[must_use]
+    pub fn new(latitude: f64, longitude: f64) -> Self {
+        Self {
+            latitude,
+            longitude,
+            horizontal_accuracy: None,
+            live_period: None,
+            heading: None,
+            proximity_alert_radius: None,
+        }
+    }
+
+    pub fn latitude(mut self, val: f64) -> Self {
+        self.latitude = val;
+        self
+    }
+
+    pub fn longitude(mut self, val: f64) -> Self {
+        self.longitude = val;
+        self
+    }
+
+    pub fn horizontal_accuracy(mut self, val: f64) -> Self {
+        self.horizontal_accuracy = Some(val);
+        self
+    }
+
+    pub fn live_period(mut self, val: i64) -> Self {
+        self.live_period = Some(val);
+        self
+    }
+
+    pub fn heading(mut self, val: i64) -> Self {
+        self.heading = Some(val);
+        self
+    }
+
+    pub fn proximity_alert_radius(mut self, val: i64) -> Self {
+        self.proximity_alert_radius = Some(val);
+        self
+    }
+}

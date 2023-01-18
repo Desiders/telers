@@ -1,16 +1,13 @@
 use super::User;
 
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use serde::Deserialize;
 
 /// Represents a `chat member <https://core.telegram.org/bots/api#chatmember>` that has some additional privileges.
 /// <https://core.telegram.org/bots/api#chatmemberadministrator>
 #[allow(clippy::struct_excessive_bools)]
-#[skip_serializing_none]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct ChatMemberAdministrator {
     /// The member's status in the chat, always 'administrator'
-    #[serde(default = "administrator")]
     pub status: String,
     /// Information about the user
     pub user: User,
@@ -40,30 +37,4 @@ pub struct ChatMemberAdministrator {
     pub can_pin_messages: Option<bool>,
     /// *Optional*. Custom title for this user
     pub custom_title: Option<String>,
-}
-
-impl Default for ChatMemberAdministrator {
-    fn default() -> Self {
-        Self {
-            status: administrator(),
-            user: User::default(),
-            can_be_edited: false,
-            is_anonymous: false,
-            can_manage_chat: false,
-            can_delete_messages: false,
-            can_manage_video_chats: false,
-            can_restrict_members: false,
-            can_promote_members: false,
-            can_change_info: false,
-            can_invite_users: false,
-            can_post_messages: None,
-            can_edit_messages: None,
-            can_pin_messages: None,
-            custom_title: None,
-        }
-    }
-}
-
-fn administrator() -> String {
-    "administrator".to_string()
 }

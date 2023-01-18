@@ -17,3 +17,37 @@ pub struct LoginUrl {
     /// *Optional*. Pass `True` to request the permission for your bot to send messages to the user.
     pub request_write_access: Option<bool>,
 }
+
+impl LoginUrl {
+    #[must_use]
+    pub fn new<T: Into<String>>(url: T) -> Self {
+        Self {
+            url: url.into(),
+            ..Default::default()
+        }
+    }
+
+    #[must_use]
+    pub fn url<T: Into<String>>(mut self, val: T) -> Self {
+        self.url = val.into();
+        self
+    }
+
+    #[must_use]
+    pub fn forward_text<T: Into<String>>(mut self, val: T) -> Self {
+        self.forward_text = Some(val.into());
+        self
+    }
+
+    #[must_use]
+    pub fn bot_username<T: Into<String>>(mut self, val: T) -> Self {
+        self.bot_username = Some(val.into());
+        self
+    }
+
+    #[must_use]
+    pub fn request_write_access(mut self, val: bool) -> Self {
+        self.request_write_access = Some(val);
+        self
+    }
+}

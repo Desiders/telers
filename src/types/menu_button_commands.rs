@@ -5,18 +5,21 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct MenuButtonCommands {
     /// Type of the button, must be *commands*
-    #[serde(rename = "type", default = "commands")]
+    #[serde(rename = "type")]
     pub button_type: String,
+}
+
+impl MenuButtonCommands {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
 }
 
 impl Default for MenuButtonCommands {
     fn default() -> Self {
         Self {
-            button_type: commands(),
+            button_type: "commands".to_string(),
         }
     }
-}
-
-fn commands() -> String {
-    "commands".to_string()
 }

@@ -1,12 +1,10 @@
 use super::{ChatLocation, ChatPermissions, ChatPhoto, Message};
 
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use serde::Deserialize;
 
 /// This object represents a chat.
 /// <https://core.telegram.org/bots/api#chat>
-#[skip_serializing_none]
-#[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, PartialEq, Deserialize)]
 pub struct Chat {
     /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in i64erpreting it. But it has at most 52 significant bits, so a signed 64-bit i64eger or double-precision float type are safe for storing this identifier.
     pub id: i64,

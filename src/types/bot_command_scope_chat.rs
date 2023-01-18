@@ -13,12 +13,18 @@ pub struct BotCommandScopeChat {
     pub chat_id: ChatIdKind,
 }
 
-impl Default for BotCommandScopeChat {
-    fn default() -> Self {
+impl BotCommandScopeChat {
+    #[must_use]
+    pub fn new<T: Into<ChatIdKind>>(chat_id: T) -> Self {
         Self {
             scope_type: chat(),
-            chat_id: ChatIdKind::Id(0),
+            chat_id: chat_id.into(),
         }
+    }
+
+    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 }
 

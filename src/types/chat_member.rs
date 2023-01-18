@@ -3,7 +3,7 @@ use super::{
     ChatMemberRestricted,
 };
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 /// This object contains information about one member of a chat. Currently, the following 6 types of chat members are supported:
 /// - `aiogram_rs.types.chat_member_owner.ChatMemberOwner`
@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 /// - `aiogram_rs.types.chat_member_left.ChatMemberLeft`
 /// - `aiogram_rs.types.chat_member_banned.ChatMemberBanned`
 /// <https://core.telegram.org/bots/api#chatmember>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "status")]
 pub enum ChatMember {
@@ -25,4 +25,40 @@ pub enum ChatMember {
     Left(ChatMemberLeft),
     #[serde(rename = "kicked")]
     Banned(ChatMemberBanned),
+}
+
+impl From<ChatMemberOwner> for ChatMember {
+    fn from(chat_member: ChatMemberOwner) -> Self {
+        Self::Owner(chat_member)
+    }
+}
+
+impl From<ChatMemberAdministrator> for ChatMember {
+    fn from(chat_member: ChatMemberAdministrator) -> Self {
+        Self::Administrator(chat_member)
+    }
+}
+
+impl From<ChatMemberMember> for ChatMember {
+    fn from(chat_member: ChatMemberMember) -> Self {
+        Self::Member(chat_member)
+    }
+}
+
+impl From<ChatMemberRestricted> for ChatMember {
+    fn from(chat_member: ChatMemberRestricted) -> Self {
+        Self::Restricted(chat_member)
+    }
+}
+
+impl From<ChatMemberLeft> for ChatMember {
+    fn from(chat_member: ChatMemberLeft) -> Self {
+        Self::Left(chat_member)
+    }
+}
+
+impl From<ChatMemberBanned> for ChatMember {
+    fn from(chat_member: ChatMemberBanned) -> Self {
+        Self::Banned(chat_member)
+    }
 }

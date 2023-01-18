@@ -25,3 +25,55 @@ pub struct ChatPermissions {
     /// *Optional*. `True`, if the user is allowed to create forum topics. If omitted defaults to the value of can_pin_messages
     pub can_manage_topics: Option<bool>,
 }
+
+impl ChatPermissions {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn can_send_messages(mut self, val: bool) -> Self {
+        self.can_send_messages = Some(val);
+        self
+    }
+
+    pub fn can_send_media_messages(mut self, val: bool) -> Self {
+        self.can_send_media_messages = Some(val);
+        self
+    }
+
+    pub fn can_send_polls(mut self, val: bool) -> Self {
+        self.can_send_polls = Some(val);
+        self
+    }
+
+    pub fn can_send_other_messages(mut self, val: bool) -> Self {
+        self.can_send_other_messages = Some(val);
+        self
+    }
+
+    pub fn can_add_web_page_previews(mut self, val: bool) -> Self {
+        self.can_add_web_page_previews = Some(val);
+        self
+    }
+
+    pub fn can_change_info(mut self, val: bool) -> Self {
+        self.can_change_info = Some(val);
+        self
+    }
+
+    pub fn can_invite_users(mut self, val: bool) -> Self {
+        self.can_invite_users = Some(val);
+        self
+    }
+
+    pub fn can_pin_messages(mut self, val: bool) -> Self {
+        self.can_pin_messages = Some(val);
+        self
+    }
+
+    pub fn can_manage_topics(mut self, val: bool) -> Self {
+        self.can_manage_topics = Some(val);
+        self
+    }
+}

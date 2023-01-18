@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultCachedVideo {
     /// Type of the result, must be *video*
-    #[serde(rename = "type", default = "video")]
+    #[serde(rename = "type")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -31,10 +31,67 @@ pub struct InlineQueryResultCachedVideo {
     pub input_message_content: Option<InputMessageContent>,
 }
 
+impl InlineQueryResultCachedVideo {
+    #[must_use]
+    pub fn new<T: Into<String>>(id: T, title: T, video_file_id: T) -> Self {
+        Self {
+            id: id.into(),
+            title: title.into(),
+            video_file_id: video_file_id.into(),
+            ..Default::default()
+        }
+    }
+
+    pub fn id<T: Into<String>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
+    }
+
+    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
+        self.title = val.into();
+        self
+    }
+
+    pub fn video_file_id<T: Into<String>>(mut self, val: T) -> Self {
+        self.video_file_id = val.into();
+        self
+    }
+
+    pub fn caption<T: Into<String>>(mut self, val: T) -> Self {
+        self.caption = Some(val.into());
+        self
+    }
+
+    pub fn parse_mode<T: Into<String>>(mut self, val: T) -> Self {
+        self.parse_mode = Some(val.into());
+        self
+    }
+
+    pub fn caption_entities(mut self, val: Vec<MessageEntity>) -> Self {
+        self.caption_entities = Some(val);
+        self
+    }
+
+    pub fn description<T: Into<String>>(mut self, val: T) -> Self {
+        self.description = Some(val.into());
+        self
+    }
+
+    pub fn reply_markup(mut self, val: InlineKeyboardMarkup) -> Self {
+        self.reply_markup = Some(val);
+        self
+    }
+
+    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
+        self.input_message_content = Some(val);
+        self
+    }
+}
+
 impl Default for InlineQueryResultCachedVideo {
     fn default() -> Self {
         Self {
-            result_type: video(),
+            result_type: "video".to_string(),
             id: String::default(),
             title: String::default(),
             video_file_id: String::default(),
@@ -46,8 +103,4 @@ impl Default for InlineQueryResultCachedVideo {
             input_message_content: None,
         }
     }
-}
-
-fn video() -> String {
-    "video".to_string()
 }

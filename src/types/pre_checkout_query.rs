@@ -1,12 +1,10 @@
 use super::{OrderInfo, Update, User};
 
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use serde::Deserialize;
 
 /// This object contains information about an incoming pre-checkout query.
 /// <https://core.telegram.org/bots/api#precheckoutquery>
-#[skip_serializing_none]
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct PreCheckoutQuery {
     /// Unique query identifier
     pub id: String,

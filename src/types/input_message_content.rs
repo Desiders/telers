@@ -21,3 +21,33 @@ pub enum InputMessageContent {
     Contact(InputContactMessageContent),
     Invoice(InputInvoiceMessageContent),
 }
+
+impl From<InputTextMessageContent> for InputMessageContent {
+    fn from(val: InputTextMessageContent) -> Self {
+        Self::Text(val)
+    }
+}
+
+impl From<InputLocationMessageContent> for InputMessageContent {
+    fn from(val: InputLocationMessageContent) -> Self {
+        Self::Location(val)
+    }
+}
+
+impl From<InputVenueMessageContent> for InputMessageContent {
+    fn from(val: InputVenueMessageContent) -> Self {
+        Self::Venue(val)
+    }
+}
+
+impl From<InputContactMessageContent> for InputMessageContent {
+    fn from(val: InputContactMessageContent) -> Self {
+        Self::Contact(val)
+    }
+}
+
+impl From<InputInvoiceMessageContent> for InputMessageContent {
+    fn from(val: InputInvoiceMessageContent) -> Self {
+        Self::Invoice(val)
+    }
+}

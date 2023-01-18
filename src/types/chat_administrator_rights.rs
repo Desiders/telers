@@ -32,3 +32,92 @@ pub struct ChatAdministratorRights {
     /// *Optional*. `True`, if the user is allowed to create, rename, close, and reopen forum topics; supergroups only
     pub can_manage_topics: Option<bool>,
 }
+
+impl ChatAdministratorRights {
+    #[must_use]
+    pub fn new(
+        is_anonymous: bool,
+        can_manage_chat: bool,
+        can_delete_messages: bool,
+        can_manage_video_chats: bool,
+        can_restrict_members: bool,
+        can_promote_members: bool,
+        can_change_info: bool,
+        can_invite_users: bool,
+    ) -> Self {
+        Self {
+            is_anonymous,
+            can_manage_chat,
+            can_delete_messages,
+            can_manage_video_chats,
+            can_restrict_members,
+            can_promote_members,
+            can_change_info,
+            can_invite_users,
+            can_post_messages: None,
+            can_edit_messages: None,
+            can_pin_messages: None,
+            can_manage_topics: None,
+        }
+    }
+
+    pub fn is_anonymous(mut self, val: bool) -> Self {
+        self.is_anonymous = val;
+        self
+    }
+
+    pub fn can_manage_chat(mut self, val: bool) -> Self {
+        self.can_manage_chat = val;
+        self
+    }
+
+    pub fn can_delete_messages(mut self, val: bool) -> Self {
+        self.can_delete_messages = val;
+        self
+    }
+
+    pub fn can_manage_video_chats(mut self, val: bool) -> Self {
+        self.can_manage_video_chats = val;
+        self
+    }
+
+    pub fn can_restrict_members(mut self, val: bool) -> Self {
+        self.can_restrict_members = val;
+        self
+    }
+
+    pub fn can_promote_members(mut self, val: bool) -> Self {
+        self.can_promote_members = val;
+        self
+    }
+
+    pub fn can_change_info(mut self, val: bool) -> Self {
+        self.can_change_info = val;
+        self
+    }
+
+    pub fn can_invite_users(mut self, val: bool) -> Self {
+        self.can_invite_users = val;
+        self
+    }
+
+    pub fn can_post_messages(mut self, val: bool) -> Self {
+        self.can_post_messages = Some(val);
+        self
+    }
+
+    pub fn can_edit_messages(mut self, val: bool) -> Self {
+        self.can_edit_messages = Some(val);
+        self
+    }
+
+    pub fn can_pin_messages(mut self, val: bool) -> Self {
+        self.can_pin_messages = Some(val);
+        self
+    }
+
+    pub fn can_manage_topics(mut self, val: bool) -> Self {
+        self.can_manage_topics = Some(val);
+        self
+    }
+}

@@ -9,3 +9,23 @@ pub struct BotCommand {
     /// Description of the command, 3-256 characters.
     pub description: String,
 }
+
+impl BotCommand {
+    #[must_use]
+    pub fn new<T: Into<String>>(command: T, description: T) -> Self {
+        Self {
+            command: command.into(),
+            description: description.into(),
+        }
+    }
+
+    pub fn command<T: Into<String>>(mut self, val: T) -> Self {
+        self.command = val.into();
+        self
+    }
+
+    pub fn description<T: Into<String>>(mut self, val: T) -> Self {
+        self.description = val.into();
+        self
+    }
+}

@@ -1,10 +1,10 @@
 use super::PhotoSize;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 /// This object represent a user's profile pictures.
 /// <https://core.telegram.org/bots/api#userprofilephotos>
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct UserProfilePhotos {
     /// Total number of profile pictures the target user has
     pub total_count: i64,

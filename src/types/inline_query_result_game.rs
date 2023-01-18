@@ -10,7 +10,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultGame {
     /// Type of the result, must be *game*
-    #[serde(rename = "type", default = "game")]
+    #[serde(rename = "type")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -20,17 +20,39 @@ pub struct InlineQueryResultGame {
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
+impl InlineQueryResultGame {
+    #[must_use]
+    pub fn new<T: Into<String>>(id: T, game_short_name: T) -> Self {
+        Self {
+            id: id.into(),
+            game_short_name: game_short_name.into(),
+            ..Default::default()
+        }
+    }
+
+    pub fn id<T: Into<String>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
+    }
+
+    pub fn game_short_name<T: Into<String>>(mut self, val: T) -> Self {
+        self.game_short_name = val.into();
+        self
+    }
+
+    pub fn reply_markup(mut self, val: InlineKeyboardMarkup) -> Self {
+        self.reply_markup = Some(val);
+        self
+    }
+}
+
 impl Default for InlineQueryResultGame {
     fn default() -> Self {
         Self {
-            result_type: game(),
+            result_type: "game".to_string(),
             id: String::default(),
             game_short_name: String::default(),
             reply_markup: None,
         }
     }
-}
-
-fn game() -> String {
-    "game".to_string()
 }

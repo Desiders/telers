@@ -17,3 +17,39 @@ pub struct InputTextMessageContent {
     /// *Optional*. Disables link previews for links in the sent message
     pub disable_web_page_preview: Option<bool>,
 }
+
+impl InputTextMessageContent {
+    #[must_use]
+    pub fn new<T: Into<String>>(message_text: T) -> Self {
+        Self {
+            message_text: message_text.into(),
+            parse_mode: None,
+            entities: None,
+            disable_web_page_preview: None,
+        }
+    }
+
+    #[must_use]
+    pub fn message_text<T: Into<String>>(mut self, val: T) -> Self {
+        self.message_text = val.into();
+        self
+    }
+
+    #[must_use]
+    pub fn parse_mode<T: Into<String>>(mut self, val: T) -> Self {
+        self.parse_mode = Some(val.into());
+        self
+    }
+
+    #[must_use]
+    pub fn entities(mut self, val: Vec<MessageEntity>) -> Self {
+        self.entities = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn disable_web_page_preview(mut self, val: bool) -> Self {
+        self.disable_web_page_preview = Some(val);
+        self
+    }
+}

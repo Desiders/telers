@@ -1,11 +1,10 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 /// Represents an issue with a list of scans. The error is considered resolved when the list of files containing the scans changes.
 /// <https://core.telegram.org/bots/api#passportelementerrorfiles>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct PassportElementErrorFiles {
     /// Error source, must be *files*
-    #[serde(default = "files")]
     pub source: String,
     /// The section of the user's Telegram Passport which has the issue, one of 'utility_bill', 'bank_statement', 'rental_agreement', 'passport_registration', 'temporary_registration'
     #[serde(rename = "type")]
@@ -14,19 +13,4 @@ pub struct PassportElementErrorFiles {
     pub file_hashes: Vec<String>,
     /// Error message
     pub message: String,
-}
-
-impl Default for PassportElementErrorFiles {
-    fn default() -> Self {
-        Self {
-            source: files(),
-            element_type: String::default(),
-            file_hashes: Vec::default(),
-            message: String::default(),
-        }
-    }
-}
-
-fn files() -> String {
-    "files".to_string()
 }

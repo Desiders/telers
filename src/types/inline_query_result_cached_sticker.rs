@@ -10,7 +10,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultCachedSticker {
     /// Type of the result, must be *sticker*
-    #[serde(rename = "type", default = "sticker")]
+    #[serde(rename = "type")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -22,18 +22,45 @@ pub struct InlineQueryResultCachedSticker {
     pub input_message_content: Option<InputMessageContent>,
 }
 
+impl InlineQueryResultCachedSticker {
+    #[must_use]
+    pub fn new<T: Into<String>>(id: T, sticker_file_id: T) -> Self {
+        Self {
+            id: id.into(),
+            sticker_file_id: sticker_file_id.into(),
+            ..Default::default()
+        }
+    }
+
+    pub fn id<T: Into<String>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
+    }
+
+    pub fn sticker_file_id<T: Into<String>>(mut self, val: T) -> Self {
+        self.sticker_file_id = val.into();
+        self
+    }
+
+    pub fn reply_markup(mut self, val: InlineKeyboardMarkup) -> Self {
+        self.reply_markup = Some(val);
+        self
+    }
+
+    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
+        self.input_message_content = Some(val);
+        self
+    }
+}
+
 impl Default for InlineQueryResultCachedSticker {
     fn default() -> Self {
         Self {
-            result_type: sticker(),
+            result_type: "sticker".to_string(),
             id: String::default(),
             sticker_file_id: String::default(),
             reply_markup: None,
             input_message_content: None,
         }
     }
-}
-
-fn sticker() -> String {
-    "sticker".to_string()
 }

@@ -67,7 +67,7 @@ impl FromEventAndContext for Message {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<Context>) -> Self::Future {
-        ok(Message::from((*update).clone()))
+        ok(<Message as From<_>>::from((*update).clone()))
     }
 }
 
@@ -77,7 +77,7 @@ impl FromEventAndContext for CallbackQuery {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<Context>) -> Self::Future {
-        ok(CallbackQuery::from((*update).clone()))
+        ok(<CallbackQuery as From<_>>::from((*update).clone()))
     }
 }
 
@@ -87,7 +87,7 @@ impl FromEventAndContext for ChosenInlineResult {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<Context>) -> Self::Future {
-        ok(ChosenInlineResult::from((*update).clone()))
+        ok(<ChosenInlineResult as From<_>>::from((*update).clone()))
     }
 }
 
@@ -97,7 +97,7 @@ impl FromEventAndContext for ShippingQuery {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<Context>) -> Self::Future {
-        ok(ShippingQuery::from((*update).clone()))
+        ok(<ShippingQuery as From<_>>::from((*update).clone()))
     }
 }
 
@@ -107,7 +107,7 @@ impl FromEventAndContext for PreCheckoutQuery {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<Context>) -> Self::Future {
-        ok(PreCheckoutQuery::from((*update).clone()))
+        ok(<PreCheckoutQuery as From<_>>::from((*update).clone()))
     }
 }
 
@@ -117,7 +117,7 @@ impl FromEventAndContext for PollAnswer {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<Context>) -> Self::Future {
-        ok(PollAnswer::from((*update).clone()))
+        ok(<PollAnswer as From<_>>::from((*update).clone()))
     }
 }
 
@@ -127,7 +127,7 @@ impl FromEventAndContext for ChatMemberUpdated {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<Context>) -> Self::Future {
-        ok(ChatMemberUpdated::from((*update).clone()))
+        ok(<ChatMemberUpdated as From<_>>::from((*update).clone()))
     }
 }
 
@@ -137,7 +137,7 @@ impl FromEventAndContext for ChatJoinRequest {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<Context>) -> Self::Future {
-        ok(ChatJoinRequest::from((*update).clone()))
+        ok(<ChatJoinRequest as From<_>>::from((*update).clone()))
     }
 }
 
@@ -147,7 +147,7 @@ impl FromEventAndContext for InlineQuery {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<Context>) -> Self::Future {
-        ok(InlineQuery::from((*update).clone()))
+        ok(<InlineQuery as From<_>>::from((*update).clone()))
     }
 }
 
@@ -157,7 +157,7 @@ impl FromEventAndContext for Poll {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn extract(_: Arc<Bot>, update: Arc<Update>, _: Arc<Context>) -> Self::Future {
-        ok(Poll::from((*update).clone()))
+        ok(<Poll as From<_>>::from((*update).clone()))
     }
 }
 

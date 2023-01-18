@@ -1,13 +1,11 @@
 use super::{Message, Update, User};
 
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use serde::Deserialize;
 
 /// This object represents an incoming callback query from a callback button in an `inline keyboard <https://core.telegram.org/bots/features#inline-keyboards>`. If the button that originated the query was attached to a message sent by the bot, the field `message` will be present. If the button was attached to a message sent via the bot (in `inline mode <https://core.telegram.org/bots/api#inline-mode>`), the field `inline_message_id` will be present. Exactly one of the fields *data* or `game_short_name` will be present.
 /// **NOTE:** After the user presses a callback button, Telegram clients will display a progress bar until you call `aiogram_rs.methods.answer_callback_query.AnswerCallbackQuery`. It is, therefore, necessary to react by calling `aiogram_rs.methods.answer_callback_query.AnswerCallbackQuery` even if no notification to the user is needed (e.g., without specifying any of the optional parameters).
 /// <https://core.telegram.org/bots/api#callbackquery>
-#[skip_serializing_none]
-#[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, PartialEq, Deserialize)]
 pub struct CallbackQuery {
     /// Unique identifier for this query
     pub id: String,

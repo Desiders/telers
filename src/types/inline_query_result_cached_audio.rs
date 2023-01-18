@@ -10,7 +10,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultCachedAudio {
     /// Type of the result, must be *audio*
-    #[serde(rename = "type", default = "audio")]
+    #[serde(rename = "type")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -28,10 +28,56 @@ pub struct InlineQueryResultCachedAudio {
     pub input_message_content: Option<InputMessageContent>,
 }
 
+impl InlineQueryResultCachedAudio {
+    #[must_use]
+    pub fn new<T: Into<String>>(id: T, audio_file_id: T) -> Self {
+        Self {
+            id: id.into(),
+            audio_file_id: audio_file_id.into(),
+            ..Default::default()
+        }
+    }
+
+    pub fn id<T: Into<String>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
+    }
+
+    pub fn audio_file_id<T: Into<String>>(mut self, val: T) -> Self {
+        self.audio_file_id = val.into();
+        self
+    }
+
+    pub fn caption<T: Into<String>>(mut self, val: T) -> Self {
+        self.caption = Some(val.into());
+        self
+    }
+
+    pub fn parse_mode<T: Into<String>>(mut self, val: T) -> Self {
+        self.parse_mode = Some(val.into());
+        self
+    }
+
+    pub fn caption_entities(mut self, val: Vec<MessageEntity>) -> Self {
+        self.caption_entities = Some(val);
+        self
+    }
+
+    pub fn reply_markup(mut self, val: InlineKeyboardMarkup) -> Self {
+        self.reply_markup = Some(val);
+        self
+    }
+
+    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
+        self.input_message_content = Some(val);
+        self
+    }
+}
+
 impl Default for InlineQueryResultCachedAudio {
     fn default() -> Self {
         Self {
-            result_type: audio(),
+            result_type: "audio".to_string(),
             id: String::default(),
             audio_file_id: String::default(),
             caption: None,
@@ -41,8 +87,4 @@ impl Default for InlineQueryResultCachedAudio {
             input_message_content: None,
         }
     }
-}
-
-fn audio() -> String {
-    "audio".to_string()
 }

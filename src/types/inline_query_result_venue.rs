@@ -10,7 +10,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultVenue {
     /// Type of the result, must be *venue*
-    #[serde(rename = "type", default = "venue")]
+    #[serde(rename = "type")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -42,10 +42,100 @@ pub struct InlineQueryResultVenue {
     pub thumb_height: Option<i64>,
 }
 
+impl InlineQueryResultVenue {
+    #[must_use]
+    pub fn new<T: Into<String>>(
+        id: T,
+        latitude: f64,
+        longitude: f64,
+        title: T,
+        address: T,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            latitude,
+            longitude,
+            title: title.into(),
+            address: address.into(),
+            ..Default::default()
+        }
+    }
+
+    pub fn id<T: Into<String>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
+    }
+
+    pub fn latitude(mut self, val: f64) -> Self {
+        self.latitude = val;
+        self
+    }
+
+    pub fn longitude(mut self, val: f64) -> Self {
+        self.longitude = val;
+        self
+    }
+
+    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
+        self.title = val.into();
+        self
+    }
+
+    pub fn address<T: Into<String>>(mut self, val: T) -> Self {
+        self.address = val.into();
+        self
+    }
+
+    pub fn foursquare_id<T: Into<String>>(mut self, val: T) -> Self {
+        self.foursquare_id = Some(val.into());
+        self
+    }
+
+    pub fn foursquare_type<T: Into<String>>(mut self, val: T) -> Self {
+        self.foursquare_type = Some(val.into());
+        self
+    }
+
+    pub fn google_place_id<T: Into<String>>(mut self, val: T) -> Self {
+        self.google_place_id = Some(val.into());
+        self
+    }
+
+    pub fn google_place_type<T: Into<String>>(mut self, val: T) -> Self {
+        self.google_place_type = Some(val.into());
+        self
+    }
+
+    pub fn reply_markup(mut self, val: InlineKeyboardMarkup) -> Self {
+        self.reply_markup = Some(val);
+        self
+    }
+
+    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
+        self.input_message_content = Some(val);
+        self
+    }
+
+    pub fn thumb_url<T: Into<String>>(mut self, val: T) -> Self {
+        self.thumb_url = Some(val.into());
+        self
+    }
+
+    pub fn thumb_width(mut self, val: i64) -> Self {
+        self.thumb_width = Some(val);
+        self
+    }
+
+    pub fn thumb_height(mut self, val: i64) -> Self {
+        self.thumb_height = Some(val);
+        self
+    }
+}
+
 impl Default for InlineQueryResultVenue {
     fn default() -> Self {
         Self {
-            result_type: venue(),
+            result_type: "venue".to_string(),
             id: String::default(),
             latitude: 0.0,
             longitude: 0.0,
@@ -62,8 +152,4 @@ impl Default for InlineQueryResultVenue {
             thumb_height: None,
         }
     }
-}
-
-fn venue() -> String {
-    "venue".to_string()
 }

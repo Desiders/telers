@@ -10,3 +10,15 @@ pub struct InlineKeyboardMarkup {
     /// Array of button rows, each represented by an Array of `aiogram_rs.types.inline_keyboard_button.InlineKeyboardButton` objects
     pub inline_keyboard: Vec<Vec<InlineKeyboardButton>>,
 }
+
+impl InlineKeyboardMarkup {
+    #[must_use]
+    pub fn new(inline_keyboard: Vec<Vec<InlineKeyboardButton>>) -> Self {
+        Self { inline_keyboard }
+    }
+
+    pub fn inline_keyboard(mut self, val: Vec<Vec<InlineKeyboardButton>>) -> Self {
+        self.inline_keyboard = val;
+        self
+    }
+}
