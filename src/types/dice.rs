@@ -34,9 +34,9 @@ impl DiceEmoji {
     }
 }
 
-impl Into<RangeInclusive<i64>> for DiceEmoji {
-    fn into(self) -> RangeInclusive<i64> {
-        match self {
+impl From<DiceEmoji> for RangeInclusive<i64> {
+    fn from(val: DiceEmoji) -> Self {
+        match val {
             DiceEmoji::Dice => 1..=6,
             DiceEmoji::Dart => 1..=6,
             DiceEmoji::Basketball => 1..=5,
@@ -46,9 +46,9 @@ impl Into<RangeInclusive<i64>> for DiceEmoji {
     }
 }
 
-impl Into<Range<i64>> for DiceEmoji {
-    fn into(self) -> Range<i64> {
-        match self {
+impl From<DiceEmoji> for Range<i64> {
+    fn from(val: DiceEmoji) -> Self {
+        match val {
             DiceEmoji::Dice => 1..7,
             DiceEmoji::Dart => 1..7,
             DiceEmoji::Basketball => 1..6,
