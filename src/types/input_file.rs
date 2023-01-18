@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use serde::{Serialize, Serializer};
 use std::{borrow::Cow, io, path::PathBuf};
-use tokio::{self, io::AsyncReadExt};
+use tokio::{self, io::AsyncReadExt as _};
 use uuid::Uuid;
 
 const ATTACH_PREFIX: &str = "attach://";
@@ -11,61 +11,63 @@ const DEFAULT_CHUNK_SIZE: usize = 64 * 1024; // 64 KiB
 /// Must be posted using multipart/form-data in the usual way that files are uploaded via the browser.
 /// <https://core.telegram.org/bots/api#inputfile>
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-pub struct InputFile(InputFileKind);
+pub struct InputFile<'a>(InputFileKind<'a>);
 
-impl InputFile {
+impl<'a> InputFile<'a> {
     /// Creates a new `InputFile` from a file id
-    pub fn id(id: impl Into<String>) -> Self {
-        Self(InputFileKind::Id(FileId { id: id.into() }))
+    pub fn id<T: Into<Cow<'a, str>>>(id: T) -> Self {
+        Self(InputFileKind::Id(FileId::new(id)))
     }
 
     /// Creates a new `InputFile` from a url
-    pub fn url(url: impl Into<Cow<'static, str>>) -> Self {
-        Self(InputFileKind::Url(UrlFile { url: url.into() }))
+    pub fn url<T: Into<Cow<'a, str>>>(url: T) -> Self {
+        Self(InputFileKind::Url(UrlFile::new(url)))
     }
 
     /// Creates a new `InputFile` from a file system path
-    pub fn fs(path: impl Into<PathBuf>, filename: Option<impl Into<Cow<'static, str>>>) -> Self {
-        Self(InputFileKind::FS(FSFile {
-            id: Uuid::new_v4(),
-            filename: filename.map(|f| f.into()),
-            path: path.into(),
-        }))
+    pub fn fs<P, F>(path: P, filename: Option<F>) -> Self
+    where
+        P: Into<PathBuf>,
+        F: Into<Cow<'a, str>>,
+    {
+        let id = Uuid::new_v4();
+
+        Self(InputFileKind::FS(FSFile::new(id, path, filename)))
     }
 
     /// Alias to [`InputFile::fs`] method
-    pub fn file(path: impl Into<PathBuf>, filename: Option<impl Into<Cow<'static, str>>>) -> Self {
+    pub fn path<P, F>(path: P, filename: Option<F>) -> Self
+    where
+        P: Into<PathBuf>,
+        F: Into<Cow<'a, str>>,
+    {
         Self::fs(path, filename)
     }
 
     /// Alias to [`InputFile::fs`] method
-    pub fn path(path: impl Into<PathBuf>, filename: Option<impl Into<Cow<'static, str>>>) -> Self {
-        Self::fs(path, filename)
-    }
-
-    /// Alias to [`InputFile::fs`] method
-    pub fn file_path(
-        path: impl Into<PathBuf>,
-        filename: Option<impl Into<Cow<'static, str>>>,
-    ) -> Self {
+    pub fn file_path<P, F>(path: P, filename: Option<F>) -> Self
+    where
+        P: Into<PathBuf>,
+        F: Into<Cow<'a, str>>,
+    {
         Self::fs(path, filename)
     }
 }
 
-impl InputFile {
+impl<'a> InputFile<'a> {
     /// Some variants can be uploaded in `multipart/form-data` format,
     /// others can be uploaded as URL or path (depends on [`InputFileKind`]).
     /// If the file in `multipart/form-data` format,
-    /// then [`InputFile::string_to_file`] will indicate "path" to data in form (because `multipart/form-data` format),
+    /// then [`InputFile::str_to_file`] will indicate "path" to data in form (because `multipart/form-data` format),
     /// otherwise it will be just string, which itself indicate "path" to data (because URL and telegram file id).
     /// # Returns
     /// If this file should be uploaded in `multipart/form-data` format, returns `attach://{id}`.
     /// Otherwise returns string as URL or path (depends on [`InputFileKind`]).
-    pub fn string_to_file(&self) -> String {
+    pub fn str_to_file(&self) -> &str {
         match &self.0 {
-            InputFileKind::Id(file) => file.string_to_file(),
-            InputFileKind::Url(file) => file.string_to_file(),
-            InputFileKind::FS(file) => file.string_to_file(),
+            InputFileKind::Id(file) => file.str_to_file(),
+            InputFileKind::Url(file) => file.str_to_file(),
+            InputFileKind::FS(file) => file.str_to_file(),
         }
     }
 
@@ -87,30 +89,53 @@ impl InputFile {
     }
 }
 
-impl Serialize for InputFile {
+impl Serialize for InputFile<'_> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        self.string_to_file().serialize(serializer)
+        self.str_to_file().serialize(serializer)
+    }
+}
+
+impl<'a> From<FileId<'a>> for InputFile<'a> {
+    fn from(file_id: FileId<'a>) -> Self {
+        Self(InputFileKind::Id(file_id))
+    }
+}
+
+impl<'a> From<UrlFile<'a>> for InputFile<'a> {
+    fn from(url_file: UrlFile<'a>) -> Self {
+        Self(InputFileKind::Url(url_file))
+    }
+}
+
+impl<'a> From<FSFile<'a>> for InputFile<'a> {
+    fn from(fs_file: FSFile<'a>) -> Self {
+        Self(InputFileKind::FS(fs_file))
     }
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-pub enum InputFileKind {
-    Id(FileId),
-    Url(UrlFile),
-    FS(FSFile),
+pub enum InputFileKind<'a> {
+    Id(FileId<'a>),
+    Url(UrlFile<'a>),
+    FS(FSFile<'a>),
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-pub struct FileId {
-    id: String,
+pub struct FileId<'a> {
+    id: Cow<'a, str>,
 }
 
-impl FileId {
-    pub fn string_to_file(&self) -> String {
-        self.id.clone()
+impl<'a> FileId<'a> {
+    #[must_use]
+    pub fn new<T: Into<Cow<'a, str>>>(id: T) -> Self {
+        Self { id: id.into() }
+    }
+
+    pub fn str_to_file(&self) -> &str {
+        &self.id
     }
 
     pub const fn is_require_multipart(&self) -> bool {
@@ -119,13 +144,18 @@ impl FileId {
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-pub struct UrlFile {
-    url: Cow<'static, str>,
+pub struct UrlFile<'a> {
+    url: Cow<'a, str>,
 }
 
-impl UrlFile {
-    pub fn string_to_file(&self) -> String {
-        self.url.to_string()
+impl<'a> UrlFile<'a> {
+    #[must_use]
+    pub fn new<T: Into<Cow<'a, str>>>(url: T) -> Self {
+        Self { url: url.into() }
+    }
+
+    pub fn str_to_file(&self) -> &str {
+        &self.url
     }
 
     pub const fn is_require_multipart(&self) -> bool {
@@ -134,23 +164,52 @@ impl UrlFile {
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-pub struct FSFile {
+pub struct FSFile<'a> {
     id: Uuid,
-    filename: Option<Cow<'static, str>>,
+    filename: Option<Cow<'a, str>>,
     path: PathBuf,
+    string_to_file: String,
 }
 
-impl FSFile {
-    pub fn string_to_file(&self) -> String {
-        format!("{}{}", ATTACH_PREFIX, self.id)
+impl<'a> FSFile<'a> {
+    #[must_use]
+    pub fn new<P, F>(id: Uuid, path: P, filename: Option<F>) -> Self
+    where
+        P: Into<PathBuf>,
+        F: Into<Cow<'a, str>>,
+    {
+        let string_to_file = format!("{}{}", ATTACH_PREFIX, id);
+
+        Self {
+            id,
+            filename: filename.map(Into::into),
+            path: path.into(),
+            string_to_file,
+        }
+    }
+
+    pub fn str_to_file(&self) -> &str {
+        &self.string_to_file
+    }
+
+    pub const fn is_require_multipart(&self) -> bool {
+        true
     }
 
     pub fn id(&self) -> &Uuid {
         &self.id
     }
 
-    pub const fn is_require_multipart(&self) -> bool {
-        true
+    /// Returns file name
+    /// # Returns
+    /// - If file name was set by [`InputFile::fs`], returns it
+    /// - Otherwise returns file name from path if it exists and is valid Unicode, otherwise returns `None`
+    pub fn file_name(&self) -> Option<&str> {
+        if let Some(filename) = &self.filename {
+            return Some(filename.as_ref());
+        }
+
+        Some(self.path.file_name()?.to_str()?)
     }
 
     /// Reads file from filesystem and returns it as a vector of bytes
@@ -164,17 +223,9 @@ impl FSFile {
                 break;
             }
 
-            result.extend(&buffer[..size])
+            result.extend(buffer)
         }
 
         Ok(Bytes::from(result))
-    }
-
-    pub fn file_name(&self) -> Option<Cow<'static, str>> {
-        if let Some(filename) = &self.filename {
-            return Some(filename.clone());
-        }
-
-        Some(self.path.file_name()?.to_string_lossy().into_owned().into())
     }
 }

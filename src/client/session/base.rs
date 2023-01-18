@@ -49,7 +49,7 @@ pub struct ClientResponse {
 
 impl ClientResponse {
     #[must_use]
-    pub fn new(status_code: impl Into<StatusCode>, content: String) -> Self {
+    pub fn new<T: Into<StatusCode>>(status_code: T, content: String) -> Self {
         Self {
             status_code: status_code.into(),
             content,

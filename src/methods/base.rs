@@ -5,7 +5,7 @@ use crate::{
 
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json;
-use std::{borrow::Cow, collections::HashMap};
+use std::collections::HashMap;
 
 /// This object represents a request to Telegram API
 pub struct Request<'a, T>
@@ -17,7 +17,7 @@ where
     /// Telegram API method data
     data: &'a T,
     /// Files to send
-    files: Option<HashMap<Cow<'static, str>, &'a InputFile>>,
+    files: Option<HashMap<&'a str, &'a InputFile<'a>>>,
 }
 
 impl<'a, T> Request<'a, T>
@@ -28,7 +28,7 @@ where
     pub fn new(
         method_name: &'static str,
         data: &'a T,
-        files: Option<HashMap<Cow<'static, str>, &'a InputFile>>,
+        files: Option<HashMap<&'a str, &'a InputFile<'a>>>,
     ) -> Self {
         Self {
             method_name,
@@ -43,12 +43,12 @@ where
     }
 
     #[must_use]
-    pub fn data(&self) -> &'a T {
+    pub fn data(&self) -> &T {
         &self.data
     }
 
     #[must_use]
-    pub fn files(&self) -> Option<&HashMap<Cow<'static, str>, &InputFile>> {
+    pub fn files(&self) -> Option<&HashMap<&str, &InputFile<'a>>> {
         self.files.as_ref()
     }
 }
@@ -134,12 +134,12 @@ pub trait TelegramMethod {
 }
 
 pub(super) fn prepare_file_with_id<'a>(
-    files: &mut HashMap<Cow<'static, str>, &'a InputFile>,
-    file: &'a InputFile,
+    files: &mut HashMap<&'a str, &'a InputFile<'a>>,
+    file: &'a InputFile<'a>,
 ) {
     match file.kind() {
         InputFileKind::FS(inner) => {
-            files.insert(inner.id().to_string().into(), file);
+            files.insert(inner.str_to_file(), file);
         }
         InputFileKind::Id(_) | InputFileKind::Url(_) => {
             // This file not require be in multipart/form-data
@@ -149,13 +149,13 @@ pub(super) fn prepare_file_with_id<'a>(
 }
 
 pub(super) fn prepare_file_with_value<'a>(
-    files: &mut HashMap<Cow<'static, str>, &'a InputFile>,
-    file: &'a InputFile,
-    value: impl Into<Cow<'static, str>>,
+    files: &mut HashMap<&'a str, &'a InputFile<'a>>,
+    file: &'a InputFile<'a>,
+    value: &'a str,
 ) {
     match file.kind() {
         InputFileKind::FS(_) => {
-            files.insert(value.into(), file);
+            files.insert(value, file);
         }
         InputFileKind::Id(_) | InputFileKind::Url(_) => {
             // This file not require be in multipart/form-data
@@ -165,8 +165,8 @@ pub(super) fn prepare_file_with_value<'a>(
 }
 
 pub(super) fn prepare_input_media<'a>(
-    files: &mut HashMap<Cow<'static, str>, &'a InputFile>,
-    input_media: &'a InputMedia,
+    files: &mut HashMap<&'a str, &'a InputFile<'a>>,
+    input_media: &'a InputMedia<'a>,
 ) {
     match input_media {
         InputMedia::Animation(inner) => {

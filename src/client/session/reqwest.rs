@@ -32,7 +32,10 @@ pub struct Reqwest {
 
 impl Reqwest {
     #[must_use]
-    pub fn new(client: Client, api: impl Into<Cow<'static, telegram::APIServer>>) -> Self {
+    pub fn new<T>(client: Client, api: T) -> Self
+    where
+        T: Into<Cow<'static, telegram::APIServer>>,
+    {
         Self {
             client,
             api: api.into(),
@@ -41,8 +44,8 @@ impl Reqwest {
 
     async fn build_form_data<'a, T>(
         &self,
-        data: &'a T,
-        files: Option<&HashMap<Cow<'static, str>, &InputFile>>,
+        data: &T,
+        files: Option<&HashMap<&str, &InputFile<'a>>>,
     ) -> Result<Form, BuildFormError>
     where
         T: Serialize + ?Sized,
@@ -56,18 +59,16 @@ impl Reqwest {
                     InputFileKind::Id(_) | InputFileKind::Url(_) => continue,
                 };
 
-                log::debug!("Adding `{value}` with file to form");
-
                 match read_file_fut.await {
                     Ok(bytes) => {
                         let body = Body::from(bytes);
                         let mut part = Part::stream(body);
 
                         if let Some(file_name) = file_name {
-                            part = part.file_name(file_name);
+                            part = part.file_name(file_name.to_string());
                         }
 
-                        form = form.part(value.clone().into_owned(), part);
+                        form = form.part(value.to_string(), part);
                     }
                     Err(err) => {
                         if let Some(file_name) = file_name {

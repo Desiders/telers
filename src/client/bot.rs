@@ -195,11 +195,11 @@ impl Bot {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
-    pub async fn send_photo(
+    pub async fn send_photo<'a>(
         &self,
         chat_id: i64,
         message_thread_id: Option<i64>,
-        photo: InputFile,
+        photo: InputFile<'a>,
         caption: Option<String>,
         parse_mode: Option<String>,
         caption_entities: Option<Vec<MessageEntity>>,
