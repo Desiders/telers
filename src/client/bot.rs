@@ -195,6 +195,7 @@ impl Bot {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn send_photo<'a>(
         &self,
         chat_id: i64,
