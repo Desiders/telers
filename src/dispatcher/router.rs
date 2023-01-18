@@ -445,6 +445,10 @@ impl RouterService {
     /// - If any outer middleware returns error
     /// - If any inner middleware returns error
     /// - If any handler returns error. Probably it's error to extract args to the handler
+    /// # Warning
+    /// This function doesn't compare the update type with the request update type.
+    /// Assumed that [`UpdateType`] is correct because it is derived from [`Update`].
+    /// This behaviour allows you not to get recursively [`Update Type`] and can be used in tests.
     #[async_recursion]
     #[allow(clippy::similar_names)]
     #[must_use]
