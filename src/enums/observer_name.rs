@@ -1,4 +1,4 @@
-/// Enums, which are used to identify default [telegram observers](`crate::dispatcher::event::telegram::Observer`).
+/// Enums, which are used to identify default [telegram observers](`crate::dispatcher::event::telegram::observer::Observer`).
 pub enum Telegram {
     Message,
     InlineQuery,
@@ -16,9 +16,10 @@ pub enum Telegram {
     ChatJoinRequest,
 }
 
-impl From<Telegram> for &str {
-    fn from(observer: Telegram) -> Self {
-        match observer {
+impl Telegram {
+    #[must_use]
+    pub const fn as_str(&self) -> &'static str {
+        match self {
             Telegram::Message => "message",
             Telegram::InlineQuery => "inline_query",
             Telegram::ChosenInlineResult => "chosen_inline_result",
@@ -35,19 +36,45 @@ impl From<Telegram> for &str {
             Telegram::ChatJoinRequest => "chat_join_request",
         }
     }
+
+    #[must_use]
+    pub const fn all() -> &'static [Telegram; 14] {
+        &[
+            Telegram::Message,
+            Telegram::InlineQuery,
+            Telegram::ChosenInlineResult,
+            Telegram::CallbackQuery,
+            Telegram::ChannelPost,
+            Telegram::EditedMessage,
+            Telegram::EditedChannelPost,
+            Telegram::ShippingQuery,
+            Telegram::PreCheckoutQuery,
+            Telegram::Poll,
+            Telegram::PollAnswer,
+            Telegram::MyChatMember,
+            Telegram::ChatMember,
+            Telegram::ChatJoinRequest,
+        ]
+    }
 }
 
-/// Enums, which are used to identify default [simple observers](`crate::dispatcher::event::simple::Observer`).
+/// Enums, which are used to identify default [simple observers](`crate::dispatcher::event::simple::observer::Observer`).
 pub enum Simple {
     Startup,
     Shutdown,
 }
 
-impl From<Simple> for &str {
-    fn from(observer: Simple) -> Self {
-        match observer {
+impl Simple {
+    #[must_use]
+    pub const fn as_str(&self) -> &'static str {
+        match self {
             Simple::Startup => "startup",
             Simple::Shutdown => "shutdown",
         }
+    }
+
+    #[must_use]
+    pub const fn all() -> &'static [Simple; 2] {
+        &[Simple::Startup, Simple::Shutdown]
     }
 }
