@@ -68,7 +68,7 @@ impl Reqwest {
                             part = part.file_name(file_name.to_string());
                         }
 
-                        form = form.part(value.to_string(), part);
+                        form = form.part((*value).to_string(), part);
                     }
                     Err(err) => {
                         if let Some(file_name) = file_name {

@@ -11,19 +11,19 @@ const DEFAULT_CHUNK_SIZE: usize = 64 * 1024; // 64 KiB
 /// Must be posted using multipart/form-data in the usual way that files are uploaded via the browser.
 /// <https://core.telegram.org/bots/api#inputfile>
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-pub struct InputFile<'a>(InputFileKind<'a>);
+pub struct InputFile<'a>(FileKind<'a>);
 
 impl<'a> InputFile<'a> {
     /// Creates a new `InputFile` from a file id
     #[must_use]
     pub fn id<T: Into<Cow<'a, str>>>(id: T) -> Self {
-        Self(InputFileKind::Id(FileId::new(id)))
+        Self(FileKind::Id(FileId::new(id)))
     }
 
     /// Creates a new `InputFile` from a url
     #[must_use]
     pub fn url<T: Into<Cow<'a, str>>>(url: T) -> Self {
-        Self(InputFileKind::Url(UrlFile::new(url)))
+        Self(FileKind::Url(UrlFile::new(url)))
     }
 
     /// Creates a new `InputFile` from a file system path
@@ -35,7 +35,7 @@ impl<'a> InputFile<'a> {
     {
         let id = Uuid::new_v4();
 
-        Self(InputFileKind::FS(FSFile::new(id, path, filename)))
+        Self(FileKind::FS(FSFile::new(id, path, filename)))
     }
 
     /// Alias to [`InputFile::fs`] method
@@ -61,38 +61,38 @@ impl<'a> InputFile<'a> {
 
 impl<'a> InputFile<'a> {
     /// Some variants can be uploaded in `multipart/form-data` format,
-    /// others can be uploaded as URL or path (depends on [`InputFileKind`]).
+    /// others can be uploaded as URL or path (depends on [`FileKind`]).
     /// If the file in `multipart/form-data` format,
     /// then [`InputFile::str_to_file`] will indicate "path" to data in form (because `multipart/form-data` format),
     /// otherwise it will be just string, which itself indicate "path" to data (because URL and telegram file id).
     /// # Returns
     /// If this file should be uploaded in `multipart/form-data` format, returns `attach://{id}`.
-    /// Otherwise returns string as URL or path (depends on [`InputFileKind`]).
+    /// Otherwise returns string as URL or path (depends on [`FileKind`]).
     #[must_use]
     pub fn str_to_file(&self) -> &str {
         match &self.0 {
-            InputFileKind::Id(file) => file.str_to_file(),
-            InputFileKind::Url(file) => file.str_to_file(),
-            InputFileKind::FS(file) => file.str_to_file(),
+            FileKind::Id(file) => file.str_to_file(),
+            FileKind::Url(file) => file.str_to_file(),
+            FileKind::FS(file) => file.str_to_file(),
         }
     }
 
     /// Some variants can be uploaded in `multipart/form-data` format,
-    /// others can be uploaded as URL or path (depends on [`InputFileKind`]).
+    /// others can be uploaded as URL or path (depends on [`FileKind`]).
     /// # Returns
     /// If this file should be uploaded in `multipart/form-data` format, returns `true`.
     /// Otherwise returns `false` and file [`InputFile`] may be uploaded in any way (URL and telegram file id).
     #[must_use]
     pub const fn is_require_multipart(&self) -> bool {
         match &self.0 {
-            InputFileKind::Id(file) => file.is_require_multipart(),
-            InputFileKind::Url(file) => file.is_require_multipart(),
-            InputFileKind::FS(file) => file.is_require_multipart(),
+            FileKind::Id(file) => file.is_require_multipart(),
+            FileKind::Url(file) => file.is_require_multipart(),
+            FileKind::FS(file) => file.is_require_multipart(),
         }
     }
 
     #[must_use]
-    pub fn kind(&self) -> &InputFileKind {
+    pub fn kind(&self) -> &FileKind {
         &self.0
     }
 }
@@ -108,24 +108,24 @@ impl Serialize for InputFile<'_> {
 
 impl<'a> From<FileId<'a>> for InputFile<'a> {
     fn from(file_id: FileId<'a>) -> Self {
-        Self(InputFileKind::Id(file_id))
+        Self(FileKind::Id(file_id))
     }
 }
 
 impl<'a> From<UrlFile<'a>> for InputFile<'a> {
     fn from(url_file: UrlFile<'a>) -> Self {
-        Self(InputFileKind::Url(url_file))
+        Self(FileKind::Url(url_file))
     }
 }
 
 impl<'a> From<FSFile<'a>> for InputFile<'a> {
     fn from(fs_file: FSFile<'a>) -> Self {
-        Self(InputFileKind::FS(fs_file))
+        Self(FileKind::FS(fs_file))
     }
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-pub enum InputFileKind<'a> {
+pub enum FileKind<'a> {
     Id(FileId<'a>),
     Url(UrlFile<'a>),
     FS(FSFile<'a>),
@@ -190,7 +190,7 @@ impl<'a> FSFile<'a> {
         P: Into<PathBuf>,
         F: Into<Cow<'a, str>>,
     {
-        let string_to_file = format!("{}{}", ATTACH_PREFIX, id);
+        let string_to_file = format!("{ATTACH_PREFIX}{id}");
 
         Self {
             id,
@@ -239,7 +239,7 @@ impl<'a> FSFile<'a> {
                 break;
             }
 
-            result.extend(buffer)
+            result.extend(buffer);
         }
 
         Ok(Bytes::from(result))

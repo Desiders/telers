@@ -9,7 +9,6 @@ use std::{
     fmt::{self, Display, Write},
 };
 
-
 #[derive(Debug, thiserror::Error)]
 pub(crate) enum Error {
     #[error("Cannot serialize a field, custom error: {0}")]
@@ -424,7 +423,7 @@ impl SerializeStruct for JsonPartSerializer {
             PartSerializerStructState::Empty => {
                 self.state = PartSerializerStructState::Rest;
 
-                write!(&mut self.buf, "{{\"{key}\":{value}")?
+                write!(&mut self.buf, "{{\"{key}\":{value}")?;
             }
             PartSerializerStructState::Rest => write!(&mut self.buf, ",\"{key}\":{value}")?,
         }
@@ -457,7 +456,7 @@ impl SerializeSeq for JsonPartSerializer {
             PartSerializerStructState::Empty => {
                 self.state = PartSerializerStructState::Rest;
 
-                write!(&mut self.buf, "[{value}")?
+                write!(&mut self.buf, "[{value}")?;
             }
             PartSerializerStructState::Rest => write!(&mut self.buf, ",{value}")?,
         }

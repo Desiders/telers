@@ -35,7 +35,7 @@ pub struct ChatAdministratorRights {
 
 impl ChatAdministratorRights {
     #[must_use]
-    #[allow(clippy::too_many_arguments)]
+    #[allow(clippy::too_many_arguments, clippy::fn_params_excessive_bools)]
     pub fn new(
         is_anonymous: bool,
         can_manage_chat: bool,

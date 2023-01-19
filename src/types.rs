@@ -203,7 +203,7 @@ pub use inline_query_result_venue::InlineQueryResultVenue;
 pub use inline_query_result_video::InlineQueryResultVideo;
 pub use inline_query_result_voice::InlineQueryResultVoice;
 pub use input_contact_message_content::InputContactMessageContent;
-pub use input_file::{InputFile, InputFileKind};
+pub use input_file::{FSFile, FileId, FileKind as InputFileKind, InputFile, UrlFile};
 pub use input_invoice_message_content::InputInvoiceMessageContent;
 pub use input_location_message_content::InputLocationMessageContent;
 pub use input_media::InputMedia;
