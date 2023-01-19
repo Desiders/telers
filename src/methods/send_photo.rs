@@ -36,11 +36,11 @@ pub struct SendPhoto<'a> {
 
 impl<'a> SendPhoto<'a> {
     #[must_use]
-    pub fn new(chat_id: i64, photo: InputFile<'a>) -> Self {
+    pub fn new<T: Into<InputFile<'a>>>(chat_id: i64, photo: T) -> Self {
         Self {
             chat_id,
             message_thread_id: None,
-            photo,
+            photo: photo.into(),
             caption: None,
             parse_mode: None,
             caption_entities: None,
@@ -64,8 +64,8 @@ impl<'a> SendPhoto<'a> {
     }
 
     #[must_use]
-    pub fn photo(mut self, val: InputFile<'a>) -> Self {
-        self.photo = val;
+    pub fn photo<T: Into<InputFile<'a>>>(mut self, val: T) -> Self {
+        self.photo = val.into();
         self
     }
 

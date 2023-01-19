@@ -197,7 +197,7 @@ impl Bot {
         &self,
         chat_id: i64,
         message_thread_id: Option<i64>,
-        photo: InputFile<'a>,
+        photo: impl Into<InputFile<'a>>,
         caption: Option<String>,
         parse_mode: Option<String>,
         caption_entities: Option<Vec<MessageEntity>>,
@@ -211,7 +211,7 @@ impl Bot {
             &SendPhoto {
                 chat_id,
                 message_thread_id,
-                photo,
+                photo: photo.into(),
                 caption,
                 parse_mode,
                 caption_entities,

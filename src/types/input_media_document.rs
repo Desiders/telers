@@ -27,10 +27,10 @@ pub struct InputMediaDocument<'a> {
 
 impl<'a> InputMediaDocument<'a> {
     #[must_use]
-    pub fn new(media: InputFile<'a>) -> Self {
+    pub fn new<T: Into<InputFile<'a>>>(media: T) -> Self {
         Self {
             media_type: "document".to_string(),
-            media,
+            media: media.into(),
             thumb: None,
             caption: None,
             parse_mode: None,
@@ -40,14 +40,14 @@ impl<'a> InputMediaDocument<'a> {
     }
 
     #[must_use]
-    pub fn media(mut self, val: InputFile<'a>) -> Self {
-        self.media = val;
+    pub fn media<T: Into<InputFile<'a>>>(mut self, val: T) -> Self {
+        self.media = val.into();
         self
     }
 
     #[must_use]
-    pub fn thumb(mut self, val: InputFile<'a>) -> Self {
-        self.thumb = Some(val);
+    pub fn thumb<T: Into<InputFile<'a>>>(mut self, val: T) -> Self {
+        self.thumb = Some(val.into());
         self
     }
 

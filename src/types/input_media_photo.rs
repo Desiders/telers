@@ -23,10 +23,10 @@ pub struct InputMediaPhoto<'a> {
 
 impl<'a> InputMediaPhoto<'a> {
     #[must_use]
-    pub fn new(media: InputFile<'a>) -> Self {
+    pub fn new<T: Into<InputFile<'a>>>(media: T) -> Self {
         Self {
             media_type: "photo".to_string(),
-            media,
+            media: media.into(),
             caption: None,
             parse_mode: None,
             caption_entities: None,
@@ -34,8 +34,8 @@ impl<'a> InputMediaPhoto<'a> {
     }
 
     #[must_use]
-    pub fn media(mut self, val: InputFile<'a>) -> Self {
-        self.media = val;
+    pub fn media<T: Into<InputFile<'a>>>(mut self, val: T) -> Self {
+        self.media = val.into();
         self
     }
 
