@@ -70,14 +70,14 @@ impl<'a> SendPhoto<'a> {
     }
 
     #[must_use]
-    pub fn caption(mut self, val: String) -> Self {
-        self.caption = Some(val);
+    pub fn caption<T: Into<String>>(mut self, val: T) -> Self {
+        self.caption = Some(val.into());
         self
     }
 
     #[must_use]
-    pub fn parse_mode(mut self, val: String) -> Self {
-        self.parse_mode = Some(val);
+    pub fn parse_mode<T: Into<String>>(mut self, val: T) -> Self {
+        self.parse_mode = Some(val.into());
         self
     }
 
@@ -106,8 +106,8 @@ impl<'a> SendPhoto<'a> {
     }
 
     #[must_use]
-    pub fn reply_markup(mut self, val: ReplyMarkup) -> Self {
-        self.reply_markup = Some(val);
+    pub fn reply_markup<T: Into<ReplyMarkup>>(mut self, val: T) -> Self {
+        self.reply_markup = Some(val.into());
         self
     }
 }

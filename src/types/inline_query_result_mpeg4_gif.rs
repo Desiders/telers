@@ -117,8 +117,8 @@ impl InlineQueryResultMpeg4Gif {
     }
 
     #[must_use]
-    pub fn reply_markup(mut self, val: InlineKeyboardMarkup) -> Self {
-        self.reply_markup = Some(val);
+    pub fn reply_markup<T: Into<InlineKeyboardMarkup>>(mut self, val: T) -> Self {
+        self.reply_markup = Some(val.into());
         self
     }
 

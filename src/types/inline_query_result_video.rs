@@ -56,86 +56,86 @@ impl InlineQueryResultVideo {
     }
 
     #[must_use]
-    pub fn id<T: Into<String>>(mut self, id: T) -> Self {
-        self.id = id.into();
+    pub fn id<T: Into<String>>(mut self, val: T) -> Self {
+        self.id = val.into();
         self
     }
 
     #[must_use]
-    pub fn video_url<T: Into<String>>(mut self, video_url: T) -> Self {
-        self.video_url = video_url.into();
+    pub fn video_url<T: Into<String>>(mut self, val: T) -> Self {
+        self.video_url = val.into();
         self
     }
 
     #[must_use]
-    pub fn mime_type<T: Into<String>>(mut self, mime_type: T) -> Self {
-        self.mime_type = mime_type.into();
+    pub fn mime_type<T: Into<String>>(mut self, val: T) -> Self {
+        self.mime_type = val.into();
         self
     }
 
     #[must_use]
-    pub fn thumb_url<T: Into<String>>(mut self, thumb_url: T) -> Self {
-        self.thumb_url = thumb_url.into();
+    pub fn thumb_url<T: Into<String>>(mut self, val: T) -> Self {
+        self.thumb_url = val.into();
         self
     }
 
     #[must_use]
-    pub fn title<T: Into<String>>(mut self, title: T) -> Self {
-        self.title = title.into();
+    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
+        self.title = val.into();
         self
     }
 
     #[must_use]
-    pub fn caption<T: Into<String>>(mut self, caption: T) -> Self {
-        self.caption = Some(caption.into());
+    pub fn caption<T: Into<String>>(mut self, val: T) -> Self {
+        self.caption = Some(val.into());
         self
     }
 
     #[must_use]
-    pub fn parse_mode<T: Into<String>>(mut self, parse_mode: T) -> Self {
-        self.parse_mode = Some(parse_mode.into());
+    pub fn parse_mode<T: Into<String>>(mut self, val: T) -> Self {
+        self.parse_mode = Some(val.into());
         self
     }
 
     #[must_use]
-    pub fn caption_entities(mut self, caption_entities: Vec<MessageEntity>) -> Self {
-        self.caption_entities = Some(caption_entities);
+    pub fn caption_entities(mut self, val: Vec<MessageEntity>) -> Self {
+        self.caption_entities = Some(val);
         self
     }
 
     #[must_use]
-    pub fn video_width(mut self, video_width: i64) -> Self {
-        self.video_width = Some(video_width);
+    pub fn video_width(mut self, val: i64) -> Self {
+        self.video_width = Some(val);
         self
     }
 
     #[must_use]
-    pub fn video_height(mut self, video_height: i64) -> Self {
-        self.video_height = Some(video_height);
+    pub fn video_height(mut self, val: i64) -> Self {
+        self.video_height = Some(val);
         self
     }
 
     #[must_use]
-    pub fn video_duration(mut self, video_duration: i64) -> Self {
-        self.video_duration = Some(video_duration);
+    pub fn video_duration(mut self, val: i64) -> Self {
+        self.video_duration = Some(val);
         self
     }
 
     #[must_use]
-    pub fn description<T: Into<String>>(mut self, description: T) -> Self {
-        self.description = Some(description.into());
+    pub fn description<T: Into<String>>(mut self, val: T) -> Self {
+        self.description = Some(val.into());
         self
     }
 
     #[must_use]
-    pub fn reply_markup(mut self, reply_markup: InlineKeyboardMarkup) -> Self {
-        self.reply_markup = Some(reply_markup);
+    pub fn reply_markup<T: Into<InlineKeyboardMarkup>>(mut self, val: T) -> Self {
+        self.reply_markup = Some(val.into());
         self
     }
 
     #[must_use]
-    pub fn input_message_content(mut self, input_message_content: InputMessageContent) -> Self {
-        self.input_message_content = Some(input_message_content);
+    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
+        self.input_message_content = Some(val);
         self
     }
 }
