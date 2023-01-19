@@ -34,11 +34,88 @@ pub struct SendPhoto<'a> {
     pub reply_markup: Option<ReplyMarkup>,
 }
 
+impl<'a> SendPhoto<'a> {
+    #[must_use]
+    pub fn new(chat_id: i64, photo: InputFile<'a>) -> Self {
+        Self {
+            chat_id,
+            message_thread_id: None,
+            photo,
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            disable_notification: None,
+            reply_to_message_id: None,
+            allow_sending_without_reply: None,
+            reply_markup: None,
+        }
+    }
+
+    #[must_use]
+    pub fn chat_id(mut self, val: i64) -> Self {
+        self.chat_id = val;
+        self
+    }
+
+    #[must_use]
+    pub fn message_thread_id(mut self, val: i64) -> Self {
+        self.message_thread_id = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn photo(mut self, val: InputFile<'a>) -> Self {
+        self.photo = val;
+        self
+    }
+
+    #[must_use]
+    pub fn caption(mut self, val: String) -> Self {
+        self.caption = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn parse_mode(mut self, val: String) -> Self {
+        self.parse_mode = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn caption_entities(mut self, val: Vec<MessageEntity>) -> Self {
+        self.caption_entities = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn disable_notification(mut self, val: bool) -> Self {
+        self.disable_notification = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn reply_to_message_id(mut self, val: i64) -> Self {
+        self.reply_to_message_id = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn allow_sending_without_reply(mut self, val: bool) -> Self {
+        self.allow_sending_without_reply = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn reply_markup(mut self, val: ReplyMarkup) -> Self {
+        self.reply_markup = Some(val);
+        self
+    }
+}
+
 impl<'a> TelegramMethod for SendPhoto<'a> {
     type Method = SendPhoto<'a>;
     type Return = Message;
 
-    #[rustfmt::skip]
     fn build_request(&self, _: &Bot) -> Request<Self::Method> {
         let mut files = HashMap::new();
         prepare_file_with_value(&mut files, &self.photo, "photo");
