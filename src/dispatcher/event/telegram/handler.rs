@@ -306,7 +306,7 @@ mod tests {
         };
 
         let mut handler_object = HandlerObject::new_no_filters(|| async { unreachable!() });
-        assert_eq!(handler_object.filters().is_empty(), true);
+        assert!(handler_object.filters().is_empty());
 
         handler_object.filter(filter.clone());
         assert_eq!(handler_object.filters().len(), 1);
@@ -321,11 +321,11 @@ mod tests {
         let handler_object_service = handler_object.new_service(()).unwrap();
 
         let req = Request::new(Bot::default(), Update::default(), Context::new());
-        assert_eq!(handler_object_service.check(&req), true);
+        assert!(handler_object_service.check(&req));
 
         let res = handler_object_service.call(req).await.unwrap();
 
-        assert_eq!(res.response().is_cancel(), false);
-        assert_eq!(res.response().is_skip(), false);
+        assert!(!res.response().is_cancel());
+        assert!(!res.response().is_skip());
     }
 }
