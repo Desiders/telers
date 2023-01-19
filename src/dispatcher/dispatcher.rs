@@ -119,22 +119,22 @@ impl Default for DispatcherBuilder {
 impl DispatcherBuilder {
     /// Set main router, which will be used for dispatching updates
     #[must_use]
-    pub fn main_router(mut self, main_router: Router) -> Self {
-        self.main_router = main_router;
+    pub fn main_router(mut self, val: Router) -> Self {
+        self.main_router = val;
         self
     }
 
     /// Alias to [`DispatcherBuilder::main_router`] method
     #[must_use]
-    pub fn router(self, router: Router) -> Self {
-        self.main_router(router)
+    pub fn router(self, val: Router) -> Self {
+        self.main_router(val)
     }
 
     /// Set bot to dispatcher. Bot used for getting updates.
     /// You can use this method multiple times to add multiple bots or just use `bots` method.
     #[must_use]
-    pub fn bot<B: Into<Arc<Bot>>>(mut self, bot: B) -> Self {
-        self.bots.push(bot.into());
+    pub fn bot<B: Into<Arc<Bot>>>(mut self, val: B) -> Self {
+        self.bots.push(val.into());
         self
     }
 
@@ -142,27 +142,27 @@ impl DispatcherBuilder {
     /// All bots use the same dispatcher, but each bot has the own polling process.
     /// This can be useful if you want to run multibots with a single dispatcher logic.
     #[must_use]
-    pub fn bots<T: Into<Arc<Bot>>>(mut self, bots: Vec<T>) -> Self {
-        self.bots.extend(bots.into_iter().map(Into::into));
+    pub fn bots<T: Into<Arc<Bot>>>(mut self, val: Vec<T>) -> Self {
+        self.bots.extend(val.into_iter().map(Into::into));
         self
     }
 
     /// Set timeout in seconds for long polling.
     /// Short polling should be used for testing purposes only.
     #[must_use]
-    pub fn polling_timeout(mut self, timeout: i64) -> Self {
-        self.polling_timeout = Some(timeout);
+    pub fn polling_timeout(mut self, val: i64) -> Self {
+        self.polling_timeout = Some(val);
         self
     }
 
     /// Set backoff strategy for polling.
     /// Backoff used for handling server-side errors.
     #[must_use]
-    pub fn backoff<T>(mut self, backoff: T) -> Self
+    pub fn backoff<T>(mut self, val: T) -> Self
     where
         T: Into<ExponentialBackoff<SystemClock>>,
     {
-        self.backoff = backoff.into();
+        self.backoff = val.into();
         self
     }
 
@@ -170,9 +170,8 @@ impl DispatcherBuilder {
     /// Update type you want your bot to receive.
     /// You can use this method multiple times to add multiple allowed updates or just use `allowed_updates` method.
     #[must_use]
-    #[allow(clippy::needless_pass_by_value)]
-    pub fn allowed_update<T: Into<String>>(mut self, allowed_update: T) -> Self {
-        let allowed_update = allowed_update.into();
+    pub fn allowed_update<T: Into<String>>(mut self, val: T) -> Self {
+        let allowed_update = val.into();
 
         match self.allowed_updates {
             Some(ref mut allowed_updates) => allowed_updates.push(allowed_update),
@@ -188,13 +187,13 @@ impl DispatcherBuilder {
     /// List of the update types you want your bot to receive.
     /// Specify an empty list to receive all update types except `chat_member` (default).
     #[must_use]
-    pub fn allowed_updates<T, AllowedUpdate>(mut self, allowed_updates: T) -> Self
+    pub fn allowed_updates<T, AllowedUpdate>(mut self, val: T) -> Self
     where
         T: Into<Vec<AllowedUpdate>>,
         AllowedUpdate: Into<String>,
     {
         self.allowed_updates = Some(
-            (allowed_updates.into() as Vec<AllowedUpdate>)
+            (val.into() as Vec<AllowedUpdate>)
                 .into_iter()
                 .map(Into::into)
                 .collect(),
@@ -284,8 +283,8 @@ impl DispatcherInner {
     }
 
     /// Endless updates reader with correctly handling any server-side or connection errors.
-    /// So you may not worry that the polling will stop working.
-    /// We use exponential backoff algorithm for handling server-side errors. \
+    /// So you may not worry that the polling will stop working. \
+    /// We use exponential backoff algorithm for handling server-side errors.
     /// # Arguments
     /// * `bot` - Bot which will be used for getting updates
     /// * `polling_timeout` - *Optional*. Timeout in seconds for long polling.

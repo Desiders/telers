@@ -118,7 +118,7 @@ impl ObserverService {
     /// Propagate event to handlers. \
     /// If any handler returns error, then propagation will be stopped and error will be returned.
     /// # Errors
-    /// - If any handler returns error
+    /// If any handler returns error
     pub async fn trigger(&self, _: ()) -> Result<(), app::ErrorKind> {
         for handler in self.handlers.iter() {
             handler.call(()).await?;

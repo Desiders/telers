@@ -78,18 +78,15 @@ pub struct BotBuilder {
 impl BotBuilder {
     /// Set bot token, which is used to receive updates and send requests to the Telegram API
     #[must_use]
-    pub fn token<T>(mut self, token: T) -> Self
-    where
-        T: Into<String>,
-    {
-        self.token = token.into();
+    pub fn token<T: Into<String>>(mut self, val: T) -> Self {
+        self.token = val.into();
         self
     }
 
     /// Set client for sending requests to Telegram API
     #[must_use]
-    pub fn client(mut self, client: Reqwest) -> Self {
-        self.client = client;
+    pub fn client(mut self, val: Reqwest) -> Self {
+        self.client = val;
         self
     }
 
@@ -148,7 +145,7 @@ impl Bot {
             .await
     }
 
-    /// Use this method to receive incoming updates using long polling (`wiki <https://en.wikipedia.org/wiki/Push_technology#Long_polling>`). \
+    /// Use this method to receive incoming updates using long polling (`wiki <https://en.wikipedia.org/wiki/Push_technology#Long_polling>`)
     /// # Arguments
     /// * `offset` - Identifier of the first update to be returned. Must be greater by one than the highest among the identifiers of previously received updates. By default, updates starting with the earliest unconfirmed update are returned. An update is considered confirmed as soon as [`crate::methods::get_updates::GetUpdates`] is called with an `offset` higher than its `update_id`. The negative offset can be specified to retrieve updates starting from `-offset` update from the end of the updates queue. All previous updates will forgotten.
     /// * `limit` - Limits the number of updates to be retrieved. Values between 1-100 are accepted. Defaults to 100.
