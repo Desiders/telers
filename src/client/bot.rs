@@ -182,10 +182,10 @@ impl Bot {
     /// # Arguments
     /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     /// * `message_thread_id` - Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-    /// * `photo` - Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. See `more information on Sending Files <https://core.telegram.org/bots/api#sending-files>`.
-    /// * `caption` - Photo caption (may also be used when resending photos by *file_id*), 0-1024 characters after entities parsing
+    /// * `photo` - Photo to send. Pass a `file_id` as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. See `more information on Sending Files <https://core.telegram.org/bots/api#sending-files>`.
+    /// * `caption` - Photo caption (may also be used when resending photos by `file_id`), 0-1024 characters after entities parsing
     /// * `parse_mode` - Mode for parsing entities in the photo caption. See `formatting options <https://core.telegram.org/bots/api#formatting-options>` for more details.
-    /// * `caption_entities` - List of special entities that appear in the caption, which can be specified instead of *parse_mode*
+    /// * `caption_entities` - List of special entities that appear in the caption, which can be specified instead of `parse_mode`
     /// * `disable_notification` - Sends the message silently. Users will receive a notification with no sound.
     /// * `reply_to_message_id` - If the message is a reply, ID of the original message
     /// * `allow_sending_without_reply` - Pass `True` if the message should be sent even if the specified replied-to message is not found

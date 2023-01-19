@@ -229,6 +229,8 @@ impl<'a> FSFile<'a> {
     }
 
     /// Reads file from filesystem and returns it as a vector of bytes
+    /// # Errors
+    /// If file can't be read or if path doesn't already exist
     pub async fn read(&self) -> Result<Bytes, io::Error> {
         let mut file = tokio::fs::File::open(&self.path).await?;
         let mut buffer = [0; DEFAULT_CHUNK_SIZE];
