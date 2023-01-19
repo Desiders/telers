@@ -25,11 +25,13 @@ impl BotCommandScopeChatMember {
         }
     }
 
+    #[must_use]
     pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
         self.chat_id = val.into();
         self
     }
 
+    #[must_use]
     pub fn user_id(mut self, val: i64) -> Self {
         self.user_id = val;
         self

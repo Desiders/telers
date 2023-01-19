@@ -23,6 +23,7 @@ pub struct HandlerObject {
 }
 
 impl HandlerObject {
+    #[must_use]
     pub fn new<H, Args>(handler: H, args: Args) -> Self
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,

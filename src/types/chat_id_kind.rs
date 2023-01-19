@@ -8,10 +8,12 @@ pub enum ChatIdKind {
 }
 
 impl ChatIdKind {
+    #[must_use]
     pub fn id(id: i64) -> Self {
         Self::Id(id)
     }
 
+    #[must_use]
     pub fn username<T: Into<String>>(username: T) -> Self {
         Self::Username(username.into())
     }

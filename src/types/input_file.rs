@@ -15,16 +15,19 @@ pub struct InputFile<'a>(InputFileKind<'a>);
 
 impl<'a> InputFile<'a> {
     /// Creates a new `InputFile` from a file id
+    #[must_use]
     pub fn id<T: Into<Cow<'a, str>>>(id: T) -> Self {
         Self(InputFileKind::Id(FileId::new(id)))
     }
 
     /// Creates a new `InputFile` from a url
+    #[must_use]
     pub fn url<T: Into<Cow<'a, str>>>(url: T) -> Self {
         Self(InputFileKind::Url(UrlFile::new(url)))
     }
 
     /// Creates a new `InputFile` from a file system path
+    #[must_use]
     pub fn fs<P, F>(path: P, filename: Option<F>) -> Self
     where
         P: Into<PathBuf>,
@@ -36,6 +39,7 @@ impl<'a> InputFile<'a> {
     }
 
     /// Alias to [`InputFile::fs`] method
+    #[must_use]
     pub fn path<P, F>(path: P, filename: Option<F>) -> Self
     where
         P: Into<PathBuf>,
@@ -45,6 +49,7 @@ impl<'a> InputFile<'a> {
     }
 
     /// Alias to [`InputFile::fs`] method
+    #[must_use]
     pub fn file_path<P, F>(path: P, filename: Option<F>) -> Self
     where
         P: Into<PathBuf>,
@@ -63,6 +68,7 @@ impl<'a> InputFile<'a> {
     /// # Returns
     /// If this file should be uploaded in `multipart/form-data` format, returns `attach://{id}`.
     /// Otherwise returns string as URL or path (depends on [`InputFileKind`]).
+    #[must_use]
     pub fn str_to_file(&self) -> &str {
         match &self.0 {
             InputFileKind::Id(file) => file.str_to_file(),
@@ -76,6 +82,7 @@ impl<'a> InputFile<'a> {
     /// # Returns
     /// If this file should be uploaded in `multipart/form-data` format, returns `true`.
     /// Otherwise returns `false` and file [`InputFile`] may be uploaded in any way (URL and telegram file id).
+    #[must_use]
     pub const fn is_require_multipart(&self) -> bool {
         match &self.0 {
             InputFileKind::Id(file) => file.is_require_multipart(),
@@ -84,6 +91,7 @@ impl<'a> InputFile<'a> {
         }
     }
 
+    #[must_use]
     pub fn kind(&self) -> &InputFileKind {
         &self.0
     }
@@ -134,10 +142,12 @@ impl<'a> FileId<'a> {
         Self { id: id.into() }
     }
 
+    #[must_use]
     pub fn str_to_file(&self) -> &str {
         &self.id
     }
 
+    #[must_use]
     pub const fn is_require_multipart(&self) -> bool {
         false
     }
@@ -154,10 +164,12 @@ impl<'a> UrlFile<'a> {
         Self { url: url.into() }
     }
 
+    #[must_use]
     pub fn str_to_file(&self) -> &str {
         &self.url
     }
 
+    #[must_use]
     pub const fn is_require_multipart(&self) -> bool {
         false
     }
@@ -188,14 +200,17 @@ impl<'a> FSFile<'a> {
         }
     }
 
+    #[must_use]
     pub fn str_to_file(&self) -> &str {
         &self.string_to_file
     }
 
+    #[must_use]
     pub const fn is_require_multipart(&self) -> bool {
         true
     }
 
+    #[must_use]
     pub fn id(&self) -> &Uuid {
         &self.id
     }
@@ -204,6 +219,7 @@ impl<'a> FSFile<'a> {
     /// # Returns
     /// - If file name was set by [`InputFile::fs`], returns it
     /// - Otherwise returns file name from path if it exists and is valid Unicode, otherwise returns `None`
+    #[must_use]
     pub fn file_name(&self) -> Option<&str> {
         if let Some(filename) = &self.filename {
             return Some(filename.as_ref());

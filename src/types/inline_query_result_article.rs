@@ -48,51 +48,61 @@ impl InlineQueryResultArticle {
         }
     }
 
+    #[must_use]
     pub fn id<T: Into<String>>(mut self, val: T) -> Self {
         self.id = val.into();
         self
     }
 
+    #[must_use]
     pub fn title<T: Into<String>>(mut self, val: T) -> Self {
         self.title = val.into();
         self
     }
 
+    #[must_use]
     pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
         self.input_message_content = val;
         self
     }
 
+    #[must_use]
     pub fn reply_markup(mut self, val: InlineKeyboardMarkup) -> Self {
         self.reply_markup = Some(val);
         self
     }
 
+    #[must_use]
     pub fn url<T: Into<String>>(mut self, val: T) -> Self {
         self.url = Some(val.into());
         self
     }
 
+    #[must_use]
     pub fn hide_url(mut self, val: bool) -> Self {
         self.hide_url = Some(val);
         self
     }
 
+    #[must_use]
     pub fn description<T: Into<String>>(mut self, val: T) -> Self {
         self.description = Some(val.into());
         self
     }
 
+    #[must_use]
     pub fn thumb_url<T: Into<String>>(mut self, val: T) -> Self {
         self.thumb_url = Some(val.into());
         self
     }
 
+    #[must_use]
     pub fn thumb_width(mut self, val: i64) -> Self {
         self.thumb_width = Some(val);
         self
     }
 
+    #[must_use]
     pub fn thumb_height(mut self, val: i64) -> Self {
         self.thumb_height = Some(val);
         self

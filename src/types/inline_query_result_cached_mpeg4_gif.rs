@@ -39,41 +39,49 @@ impl InlineQueryResultCachedMpeg4Gif {
         }
     }
 
+    #[must_use]
     pub fn id<T: Into<String>>(mut self, val: T) -> Self {
         self.id = val.into();
         self
     }
 
+    #[must_use]
     pub fn mpeg4_file_id<T: Into<String>>(mut self, val: T) -> Self {
         self.mpeg4_file_id = val.into();
         self
     }
 
+    #[must_use]
     pub fn title<T: Into<String>>(mut self, val: T) -> Self {
         self.title = Some(val.into());
         self
     }
 
+    #[must_use]
     pub fn caption<T: Into<String>>(mut self, val: T) -> Self {
         self.caption = Some(val.into());
         self
     }
 
+    #[must_use]
     pub fn parse_mode<T: Into<String>>(mut self, val: T) -> Self {
         self.parse_mode = Some(val.into());
         self
     }
 
+    #[must_use]
     pub fn caption_entities(mut self, val: Vec<MessageEntity>) -> Self {
         self.caption_entities = Some(val);
         self
     }
 
+    #[must_use]
     pub fn reply_markup(mut self, val: InlineKeyboardMarkup) -> Self {
         self.reply_markup = Some(val);
         self
     }
 
+    #[must_use]
     pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
         self.input_message_content = Some(val);
         self

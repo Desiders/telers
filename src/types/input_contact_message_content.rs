@@ -26,21 +26,25 @@ impl InputContactMessageContent {
         }
     }
 
+    #[must_use]
     pub fn phone_number<T: Into<String>>(mut self, val: T) -> Self {
         self.phone_number = val.into();
         self
     }
 
+    #[must_use]
     pub fn first_name<T: Into<String>>(mut self, val: T) -> Self {
         self.first_name = val.into();
         self
     }
 
+    #[must_use]
     pub fn last_name<T: Into<String>>(mut self, val: T) -> Self {
         self.last_name = Some(val.into());
         self
     }
 
+    #[must_use]
     pub fn vcard<T: Into<String>>(mut self, val: T) -> Self {
         self.vcard = Some(val.into());
         self

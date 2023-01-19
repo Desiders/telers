@@ -45,51 +45,61 @@ impl InlineQueryResultContact {
         }
     }
 
+    #[must_use]
     pub fn id<T: Into<String>>(mut self, val: T) -> Self {
         self.id = val.into();
         self
     }
 
+    #[must_use]
     pub fn phone_number<T: Into<String>>(mut self, val: T) -> Self {
         self.phone_number = val.into();
         self
     }
 
+    #[must_use]
     pub fn first_name<T: Into<String>>(mut self, val: T) -> Self {
         self.first_name = val.into();
         self
     }
 
+    #[must_use]
     pub fn last_name<T: Into<String>>(mut self, val: T) -> Self {
         self.last_name = Some(val.into());
         self
     }
 
+    #[must_use]
     pub fn vcard<T: Into<String>>(mut self, val: T) -> Self {
         self.vcard = Some(val.into());
         self
     }
 
+    #[must_use]
     pub fn reply_markup(mut self, val: InlineKeyboardMarkup) -> Self {
         self.reply_markup = Some(val);
         self
     }
 
+    #[must_use]
     pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
         self.input_message_content = Some(val);
         self
     }
 
+    #[must_use]
     pub fn thumb_url<T: Into<String>>(mut self, val: T) -> Self {
         self.thumb_url = Some(val.into());
         self
     }
 
+    #[must_use]
     pub fn thumb_width(mut self, val: i64) -> Self {
         self.thumb_width = Some(val);
         self
     }
 
+    #[must_use]
     pub fn thumb_height(mut self, val: i64) -> Self {
         self.thumb_height = Some(val);
         self

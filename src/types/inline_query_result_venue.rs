@@ -61,71 +61,85 @@ impl InlineQueryResultVenue {
         }
     }
 
+    #[must_use]
     pub fn id<T: Into<String>>(mut self, val: T) -> Self {
         self.id = val.into();
         self
     }
 
+    #[must_use]
     pub fn latitude(mut self, val: f64) -> Self {
         self.latitude = val;
         self
     }
 
+    #[must_use]
     pub fn longitude(mut self, val: f64) -> Self {
         self.longitude = val;
         self
     }
 
+    #[must_use]
     pub fn title<T: Into<String>>(mut self, val: T) -> Self {
         self.title = val.into();
         self
     }
 
+    #[must_use]
     pub fn address<T: Into<String>>(mut self, val: T) -> Self {
         self.address = val.into();
         self
     }
 
+    #[must_use]
     pub fn foursquare_id<T: Into<String>>(mut self, val: T) -> Self {
         self.foursquare_id = Some(val.into());
         self
     }
 
+    #[must_use]
     pub fn foursquare_type<T: Into<String>>(mut self, val: T) -> Self {
         self.foursquare_type = Some(val.into());
         self
     }
 
+    #[must_use]
     pub fn google_place_id<T: Into<String>>(mut self, val: T) -> Self {
         self.google_place_id = Some(val.into());
         self
     }
 
+    #[must_use]
     pub fn google_place_type<T: Into<String>>(mut self, val: T) -> Self {
         self.google_place_type = Some(val.into());
         self
     }
 
+    #[must_use]
     pub fn reply_markup(mut self, val: InlineKeyboardMarkup) -> Self {
         self.reply_markup = Some(val);
         self
     }
 
+    #[must_use]
     pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
         self.input_message_content = Some(val);
         self
     }
 
+    #[must_use]
     pub fn thumb_url<T: Into<String>>(mut self, val: T) -> Self {
         self.thumb_url = Some(val.into());
         self
     }
 
+    #[must_use]
     pub fn thumb_width(mut self, val: i64) -> Self {
         self.thumb_width = Some(val);
         self
     }
 
+    #[must_use]
     pub fn thumb_height(mut self, val: i64) -> Self {
         self.thumb_height = Some(val);
         self

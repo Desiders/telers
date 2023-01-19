@@ -17,6 +17,7 @@ impl InlineKeyboardMarkup {
         Self { inline_keyboard }
     }
 
+    #[must_use]
     pub fn inline_keyboard(mut self, val: Vec<Vec<InlineKeyboardButton>>) -> Self {
         self.inline_keyboard = val;
         self

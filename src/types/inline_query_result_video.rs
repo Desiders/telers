@@ -55,71 +55,85 @@ impl InlineQueryResultVideo {
         }
     }
 
+    #[must_use]
     pub fn id<T: Into<String>>(mut self, id: T) -> Self {
         self.id = id.into();
         self
     }
 
+    #[must_use]
     pub fn video_url<T: Into<String>>(mut self, video_url: T) -> Self {
         self.video_url = video_url.into();
         self
     }
 
+    #[must_use]
     pub fn mime_type<T: Into<String>>(mut self, mime_type: T) -> Self {
         self.mime_type = mime_type.into();
         self
     }
 
+    #[must_use]
     pub fn thumb_url<T: Into<String>>(mut self, thumb_url: T) -> Self {
         self.thumb_url = thumb_url.into();
         self
     }
 
+    #[must_use]
     pub fn title<T: Into<String>>(mut self, title: T) -> Self {
         self.title = title.into();
         self
     }
 
+    #[must_use]
     pub fn caption<T: Into<String>>(mut self, caption: T) -> Self {
         self.caption = Some(caption.into());
         self
     }
 
+    #[must_use]
     pub fn parse_mode<T: Into<String>>(mut self, parse_mode: T) -> Self {
         self.parse_mode = Some(parse_mode.into());
         self
     }
 
+    #[must_use]
     pub fn caption_entities(mut self, caption_entities: Vec<MessageEntity>) -> Self {
         self.caption_entities = Some(caption_entities);
         self
     }
 
+    #[must_use]
     pub fn video_width(mut self, video_width: i64) -> Self {
         self.video_width = Some(video_width);
         self
     }
 
+    #[must_use]
     pub fn video_height(mut self, video_height: i64) -> Self {
         self.video_height = Some(video_height);
         self
     }
 
+    #[must_use]
     pub fn video_duration(mut self, video_duration: i64) -> Self {
         self.video_duration = Some(video_duration);
         self
     }
 
+    #[must_use]
     pub fn description<T: Into<String>>(mut self, description: T) -> Self {
         self.description = Some(description.into());
         self
     }
 
+    #[must_use]
     pub fn reply_markup(mut self, reply_markup: InlineKeyboardMarkup) -> Self {
         self.reply_markup = Some(reply_markup);
         self
     }
 
+    #[must_use]
     pub fn input_message_content(mut self, input_message_content: InputMessageContent) -> Self {
         self.input_message_content = Some(input_message_content);
         self

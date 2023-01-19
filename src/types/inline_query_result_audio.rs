@@ -45,51 +45,61 @@ impl InlineQueryResultAudio {
         }
     }
 
+    #[must_use]
     pub fn id<T: Into<String>>(mut self, val: T) -> Self {
         self.id = val.into();
         self
     }
 
+    #[must_use]
     pub fn audio_url<T: Into<String>>(mut self, val: T) -> Self {
         self.audio_url = val.into();
         self
     }
 
+    #[must_use]
     pub fn title<T: Into<String>>(mut self, val: T) -> Self {
         self.title = val.into();
         self
     }
 
+    #[must_use]
     pub fn caption<T: Into<String>>(mut self, val: T) -> Self {
         self.caption = Some(val.into());
         self
     }
 
+    #[must_use]
     pub fn parse_mode<T: Into<String>>(mut self, val: T) -> Self {
         self.parse_mode = Some(val.into());
         self
     }
 
+    #[must_use]
     pub fn caption_entities(mut self, val: Vec<MessageEntity>) -> Self {
         self.caption_entities = Some(val);
         self
     }
 
+    #[must_use]
     pub fn performer<T: Into<String>>(mut self, val: T) -> Self {
         self.performer = Some(val.into());
         self
     }
 
+    #[must_use]
     pub fn audio_duration(mut self, val: i64) -> Self {
         self.audio_duration = Some(val);
         self
     }
 
+    #[must_use]
     pub fn reply_markup(mut self, val: InlineKeyboardMarkup) -> Self {
         self.reply_markup = Some(val);
         self
     }
 
+    #[must_use]
     pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
         self.input_message_content = Some(val);
         self

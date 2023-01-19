@@ -19,11 +19,13 @@ impl BotCommand {
         }
     }
 
+    #[must_use]
     pub fn command<T: Into<String>>(mut self, val: T) -> Self {
         self.command = val.into();
         self
     }
 
+    #[must_use]
     pub fn description<T: Into<String>>(mut self, val: T) -> Self {
         self.description = val.into();
         self
