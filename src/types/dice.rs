@@ -11,9 +11,8 @@ pub struct Dice {
     pub value: i64,
 }
 
-#[allow(clippy::module_name_repetitions)]
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-pub enum DiceEmoji {
+pub enum Emoji {
     Dice,
     Dart,
     Basketball,
@@ -21,35 +20,35 @@ pub enum DiceEmoji {
     SlotMachine,
 }
 
-impl DiceEmoji {
+impl Emoji {
     #[must_use]
     pub const fn as_str(&self) -> &str {
         match self {
-            DiceEmoji::Dice => "🎲",
-            DiceEmoji::Dart => "🎯",
-            DiceEmoji::Basketball => "🏀",
-            DiceEmoji::Football => "⚽",
-            DiceEmoji::SlotMachine => "🎰",
+            Emoji::Dice => "🎲",
+            Emoji::Dart => "🎯",
+            Emoji::Basketball => "🏀",
+            Emoji::Football => "⚽",
+            Emoji::SlotMachine => "🎰",
         }
     }
 }
 
-impl From<DiceEmoji> for RangeInclusive<i64> {
-    fn from(val: DiceEmoji) -> Self {
+impl From<Emoji> for RangeInclusive<i64> {
+    fn from(val: Emoji) -> Self {
         match val {
-            DiceEmoji::Dice | DiceEmoji::Dart => 1..=6,
-            DiceEmoji::Basketball | DiceEmoji::Football => 1..=5,
-            DiceEmoji::SlotMachine => 1..=64,
+            Emoji::Dice | Emoji::Dart => 1..=6,
+            Emoji::Basketball | Emoji::Football => 1..=5,
+            Emoji::SlotMachine => 1..=64,
         }
     }
 }
 
-impl From<DiceEmoji> for Range<i64> {
-    fn from(val: DiceEmoji) -> Self {
+impl From<Emoji> for Range<i64> {
+    fn from(val: Emoji) -> Self {
         match val {
-            DiceEmoji::Dice | DiceEmoji::Dart => 1..7,
-            DiceEmoji::Basketball | DiceEmoji::Football => 1..6,
-            DiceEmoji::SlotMachine => 1..65,
+            Emoji::Dice | Emoji::Dart => 1..7,
+            Emoji::Basketball | Emoji::Football => 1..6,
+            Emoji::SlotMachine => 1..65,
         }
     }
 }

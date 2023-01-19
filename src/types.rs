@@ -167,7 +167,7 @@ pub use chat_permissions::ChatPermissions;
 pub use chat_photo::ChatPhoto;
 pub use chosen_inline_result::ChosenInlineResult;
 pub use contact::Contact;
-pub use dice::{Dice, DiceEmoji};
+pub use dice::{Dice, Emoji as DiceEmoji};
 pub use document::Document;
 pub use encrypted_credentials::EncryptedCredentials;
 pub use encrypted_passport_element::EncryptedPassportElement;
@@ -203,7 +203,10 @@ pub use inline_query_result_venue::InlineQueryResultVenue;
 pub use inline_query_result_video::InlineQueryResultVideo;
 pub use inline_query_result_voice::InlineQueryResultVoice;
 pub use input_contact_message_content::InputContactMessageContent;
-pub use input_file::{FSFile, FileId, FileKind as InputFileKind, InputFile, UrlFile};
+pub use input_file::{
+    FSFile as InputFSFile, FileId as InputFileId, FileKind as InputFileKind, InputFile,
+    UrlFile as InputUrlFile,
+};
 pub use input_invoice_message_content::InputInvoiceMessageContent;
 pub use input_location_message_content::InputLocationMessageContent;
 pub use input_media::InputMedia;
