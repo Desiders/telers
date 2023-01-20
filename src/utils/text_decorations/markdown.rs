@@ -5,6 +5,23 @@ use regex::Regex;
 
 const QUOTE_PATTERN: &str = r"([_*\[\]()~`>#+\-=|{}.!\\])";
 
+/// This is a legacy mode, retained for backward compatibility. To use this mode, pass Markdown in the `parse_mode` field. Use the following syntax in your message: \
+/// *bold text* \
+/// _italic text_ \
+/// [inline URL](http://www.example.com/) \
+/// [inline mention of a user](tg://user?id=123456789) \
+/// `inline fixed-width code` \
+/// ``` \
+/// pre-formatted fixed-width code block
+/// ```
+/// ```python
+/// pre-formatted fixed-width code block written in the Python programming language
+/// ```
+/// Please note:
+/// - Entities must not be nested, use parse mode `MarkdownV2` instead.
+/// - There is no way to specify underline and strikethrough entities, use parse mode `MarkdownV2` instead.
+/// - To escape characters `_`, `*`, `[` outside of an entity, prepend the characters `\` before them.
+/// - Escaping inside entities is not allowed, so entity must be closed first and reopened again: use `_snake_\__case_` for italic `snake_case` and `*2*\**2=4*` for bold `2*2=4`.
 pub struct Decoration {
     regex: Regex,
 }
