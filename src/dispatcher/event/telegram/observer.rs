@@ -139,7 +139,7 @@ impl Observer {
 
     /// Get filters for all handlers of this event observer
     #[must_use]
-    pub fn filters(&self) -> Arc<Vec<Box<dyn Filter>>> {
+    pub fn filters(&self) -> Vec<Arc<Box<dyn Filter>>> {
         self.common_handler.filters()
     }
 
@@ -292,7 +292,7 @@ impl ObserverService {
         let handler_req = req.clone().into();
 
         // Check observer filters
-        if !self.common_handler.check(&handler_req) {
+        if !self.common_handler.check(&handler_req).await {
             return Ok(Response {
                 request: req,
                 response: PropagateEventResult::Rejected,
@@ -300,7 +300,7 @@ impl ObserverService {
         }
 
         for handler in self.handlers.iter() {
-            if !handler.check(&handler_req) {
+            if !handler.check(&handler_req).await {
                 continue;
             }
 

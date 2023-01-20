@@ -99,7 +99,7 @@ pub trait Handler<Args> {
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObject {
     service: BoxedHandlerServiceFactory,
-    pub(crate) filters: Arc<Vec<Box<dyn Filter>>>,
+    pub(crate) filters: Vec<Arc<Box<dyn Filter>>>,
 }
 
 impl HandlerObject {
@@ -115,12 +115,10 @@ impl HandlerObject {
     {
         Self {
             service: handler_service(handler),
-            filters: Arc::new(
-                filters
-                    .into_iter()
-                    .map(|filter| filter.into() as _)
-                    .collect(),
-            ),
+            filters: filters
+                .into_iter()
+                .map(|filter| Arc::new(filter.into() as _))
+                .collect(),
         }
     }
 
@@ -134,32 +132,24 @@ impl HandlerObject {
     {
         Self {
             service: handler_service(handler),
-            filters: Arc::new(Vec::new()),
+            filters: Vec::new(),
         }
     }
 
     #[must_use]
-    pub fn filters(&self) -> Arc<Vec<Box<dyn Filter>>> {
-        Arc::clone(&self.filters)
+    pub fn filters(&self) -> Vec<Arc<Box<dyn Filter>>> {
+        self.filters.clone()
     }
 
     /// Register filter for the handler
     /// # Arguments
     /// * `filter` - Filter for the handler
-    /// # Panics
-    /// If there are other [`Arc`] or `Weak` pointers to the same allocation
     pub fn filter<T, F>(&mut self, filter: T)
     where
         T: Into<Box<F>>,
         F: Filter + 'static,
     {
-        Arc::get_mut(&mut self.filters)
-            .expect(
-                "There are other Arc or Weak pointers to the same allocation. \
-            This method can only be called on an exclusive reference. \
-            Perhaps you try to register filter in cloned handler?",
-            )
-            .push(filter.into());
+        self.filters.push(Arc::new(filter.into() as _));
     }
 }
 
@@ -172,7 +162,7 @@ impl ServiceFactory<Request> for HandlerObject {
 
     fn new_service(&self, _: Self::Config) -> Result<Self::Service, Self::InitError> {
         let service = self.service.new_service(())?;
-        let filters = Arc::clone(&self.filters);
+        let filters = self.filters.clone();
 
         Ok(HandlerObjectService {
             service: Arc::new(service),
@@ -184,17 +174,19 @@ impl ServiceFactory<Request> for HandlerObject {
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObjectService {
     service: Arc<BoxedHandlerService>,
-    filters: Arc<Vec<Box<dyn Filter>>>,
+    filters: Vec<Arc<Box<dyn Filter>>>,
 }
 
 impl HandlerObjectService {
     /// Check if the handler pass the filters.
     /// If the handler pass all them, it will be called.
-    #[must_use]
-    pub fn check(&self, req: &Request) -> bool {
-        self.filters
-            .iter()
-            .all(|filter| filter.check(&req.bot, &req.update, &req.context))
+    pub async fn check(&self, req: &Request) -> bool {
+        for filter in &self.filters {
+            if !filter.check(&req.bot, &req.update, &req.context).await {
+                return false;
+            }
+        }
+        true
     }
 
     #[must_use]
@@ -321,7 +313,7 @@ mod tests {
         let handler_object_service = handler_object.new_service(()).unwrap();
 
         let req = Request::new(Bot::default(), Update::default(), Context::new());
-        assert!(handler_object_service.check(&req));
+        assert!(handler_object_service.check(&req).await);
 
         let res = handler_object_service.call(req).await.unwrap();
 

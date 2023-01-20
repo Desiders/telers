@@ -3,9 +3,11 @@ use super::base::Filter;
 use crate::{
     client::Bot,
     context::Context,
+    error::session,
     types::{BotCommand, Update},
 };
 
+use async_trait::async_trait;
 use regex::Regex;
 use thiserror;
 
@@ -19,6 +21,8 @@ pub enum Error {
     InvalidMention,
     #[error("Invalid command")]
     InvalidCommand,
+    #[error(transparent)]
+    Session(#[from] session::ErrorKind),
 }
 
 /// Represents a command pattern type for verification
@@ -58,11 +62,11 @@ impl<'a> Command<'a> {
 
     /// # Errors
     /// If mention is invalid.
-    pub fn validate_mention(&self, command: &CommandObject, bot: &Bot) -> Result<()> {
+    pub async fn validate_mention(&self, command: &CommandObject, bot: &Bot) -> Result<()> {
         if self.ignore_mention {
             Ok(())
         } else if let Some(ref mention) = command.mention {
-            if let Some(ref username) = bot.get_me().username {
+            if let Some(ref username) = bot.get_me().await?.username {
                 if mention == username {
                     Ok(())
                 } else {
@@ -112,12 +116,12 @@ impl<'a> Command<'a> {
     /// - If prefix is invalid
     /// - If mention is invalid
     /// - If command is invalid
-    pub fn parse_command(&self, text: &str, bot: &Bot) -> Result<CommandObject> {
+    pub async fn parse_command(&self, text: &str, bot: &Bot) -> Result<CommandObject> {
         let command = CommandObject::extract(text);
 
         self.validate_prefix(&command)?;
-        self.validate_mention(&command, bot)?;
         self.validate_command(&command)?;
+        self.validate_mention(&command, bot).await?;
 
         Ok(command)
     }
@@ -174,15 +178,16 @@ impl CommandObject {
     }
 }
 
+#[async_trait]
 impl Filter for Command<'_> {
-    fn check(&self, bot: &Bot, update: &Update, context: &Context) -> bool {
+    async fn check(&self, bot: &Bot, update: &Update, context: &Context) -> bool {
         if let Some(ref message) = update.message {
             let text = match message.get_text_or_caption() {
                 Some(text) => text,
                 None => return false,
             };
 
-            match self.parse_command(text, bot) {
+            match self.parse_command(text, bot).await {
                 Ok(command) => {
                     context.insert("command", Box::new(command));
                     true
