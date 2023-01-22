@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
 /// This object represents a shipping address.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#shippingaddress>
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct ShippingAddress {

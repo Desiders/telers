@@ -7,6 +7,7 @@ use serde::Deserialize;
 
 /// This `object <https://core.telegram.org/bots/api#available-types>` represents an incoming update.
 /// At most **one** of the optional parameters can be present in any given update.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#update>
 #[derive(Default, Clone, Debug, PartialEq, Deserialize)]
 pub struct Update {

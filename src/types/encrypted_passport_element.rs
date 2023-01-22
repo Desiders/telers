@@ -3,6 +3,7 @@ use super::PassportFile;
 use serde::Deserialize;
 
 /// Describes documents or other Telegram Passport elements shared with the bot by the user.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#encryptedpassportelement>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct EncryptedPassportElement {

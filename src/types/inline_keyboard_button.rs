@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 /// This object represents one button of an inline keyboard. You **must** use exactly one of the optional fields.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#inlinekeyboardbutton>
 #[skip_serializing_none]
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]

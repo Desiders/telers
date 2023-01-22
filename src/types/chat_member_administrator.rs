@@ -3,6 +3,7 @@ use super::User;
 use serde::Deserialize;
 
 /// Represents a `chat member <https://core.telegram.org/bots/api#chatmember>` that has some additional privileges.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberadministrator>
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]

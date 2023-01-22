@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
 /// This object represents a voice note.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#voice>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct Voice {

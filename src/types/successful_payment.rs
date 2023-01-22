@@ -3,6 +3,7 @@ use super::OrderInfo;
 use serde::Deserialize;
 
 /// This object contains basic information about a successful payment.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#successfulpayment>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct SuccessfulPayment {

@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 /// This object represents type of a poll, which is allowed to be created and sent when the corresponding button is pressed.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#keyboardbuttonpolltype>
 #[skip_serializing_none]
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]

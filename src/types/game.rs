@@ -3,6 +3,7 @@ use super::{Animation, MessageEntity, PhotoSize};
 use serde::Deserialize;
 
 /// This object represents a game. Use `BotFather` to create and edit games, their short names will act as unique identifiers.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#game>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct Game {

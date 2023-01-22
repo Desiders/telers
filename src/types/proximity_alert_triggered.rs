@@ -2,7 +2,8 @@ use super::User;
 
 use serde::Deserialize;
 
-/// This object represents the content of a service message, sent whenever a user in the chat triggers a proximity alert set by another user.
+/// This object represents the content of a service message, sent whenever a user in the chat triggers a proximity alert set by another user. \
+/// # Documentation
 /// <https://core.telegram.org/bots/api#proximityalerttriggered>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct ProximityAlertTriggered {

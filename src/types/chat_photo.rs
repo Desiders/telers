@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
 /// This object represents a chat photo.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#chatphoto>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct ChatPhoto {

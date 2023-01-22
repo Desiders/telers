@@ -4,6 +4,7 @@ use serde::Serialize;
 use serde_with::skip_serializing_none;
 
 /// Represents a video to be sent.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#inputmediavideo>
 #[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]

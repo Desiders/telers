@@ -3,6 +3,7 @@ use super::{Update, User};
 use serde::Deserialize;
 
 /// This object represents an answer of a user in a non-anonymous poll.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#pollanswer>
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct PollAnswer {

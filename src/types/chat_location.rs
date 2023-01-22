@@ -3,6 +3,7 @@ use super::Location;
 use serde::Deserialize;
 
 /// Represents a location to which a chat is connected.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#chatlocation>
 #[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct ChatLocation {

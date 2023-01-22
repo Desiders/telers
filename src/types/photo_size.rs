@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
-/// This object represents one size of a photo or a `file <https://core.telegram.org/bots/api#document>` / `aiogram_rs.methods.sticker.Sticker` thumbnail.
+/// This object represents one size of a photo or a file ([document](crate::types::Document), [sticker](crate::types::Sticker)) thumbnail.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#photosize>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct PhotoSize {

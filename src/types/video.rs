@@ -3,6 +3,7 @@ use super::PhotoSize;
 use serde::Deserialize;
 
 /// This object represents a video file.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#video>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct Video {

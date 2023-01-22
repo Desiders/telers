@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
 /// This object represents a point on the map.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#location>
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]

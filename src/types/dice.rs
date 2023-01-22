@@ -2,6 +2,7 @@ use serde::Deserialize;
 use std::ops::{Range, RangeInclusive};
 
 /// This object represents an animated emoji that displays a random value.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#dice>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct Dice {

@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
 /// This object represents a service message about a new forum topic created in the chat.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#forumtopiccreated>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct ForumTopicCreated {

@@ -3,6 +3,7 @@ use super::{PhotoSize, Sticker};
 use serde::Deserialize;
 
 /// This object represents a sticker set.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#stickerset>
 #[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct StickerSet {

@@ -9,6 +9,7 @@ const DEFAULT_CHUNK_SIZE: usize = 64 * 1024; // 64 KiB
 
 /// This object represents the contents of a file to be uploaded.
 /// Must be posted using `multipart/form-data` in the usual way that files are uploaded via the browser.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#inputfile>
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct InputFile<'a>(FileKind<'a>);

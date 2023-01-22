@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Represents the `scope <https://core.telegram.org/bots/api#botcommandscope>` of bot commands, covering all private chats.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscopeallprivatechats>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct BotCommandScopeAllPrivateChats {

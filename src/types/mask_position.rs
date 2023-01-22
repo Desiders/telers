@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// This object describes the position on faces where a mask should be placed by default.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#maskposition>
 #[derive(Default, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct MaskPosition {

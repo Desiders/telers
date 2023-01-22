@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 /// This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#messageentity>
 #[skip_serializing_none]
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]

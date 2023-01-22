@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
 /// Describes data required for decrypting and authenticating `aiogram_rs.types.encrypted_passport_element.EncryptedPassportElement`. See the `Telegram Passport Documentation <https://core.telegram.org/passport#receiving-information>` for a complete description of the data decryption and authentication processes.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#encryptedcredentials>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct EncryptedCredentials {

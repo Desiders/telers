@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Represents a menu button, which opens the bot's list of commands.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#menubuttoncommands>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct MenuButtonCommands {

@@ -10,6 +10,7 @@ use super::{
 use serde::Deserialize;
 
 /// This object represents a message.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#message>
 #[derive(Default, Clone, Debug, PartialEq, Deserialize)]
 pub struct Message {

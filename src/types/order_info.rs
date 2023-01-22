@@ -3,6 +3,7 @@ use super::ShippingAddress;
 use serde::Deserialize;
 
 /// This object represents information about an order.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#orderinfo>
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct OrderInfo {

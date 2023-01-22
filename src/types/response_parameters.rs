@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
 /// Describes why a request was unsuccessful.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#responseparameters>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct ResponseParameters {

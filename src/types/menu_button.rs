@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 /// - `aiogram_rs.types.menu_button_web_app.MenuButtonWebApp`
 /// - `aiogram_rs.types.menu_button_default.MenuButtonDefault`
 /// If a menu button other than `aiogram_rs.types.menu_button_default.MenuButtonDefault` is set for a private chat, then it is applied in the chat. Otherwise the default menu button is applied. By default, the menu button opens the list of bot commands.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#menubutton>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]

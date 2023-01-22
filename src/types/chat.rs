@@ -3,6 +3,7 @@ use super::{ChatLocation, ChatPermissions, ChatPhoto, Message};
 use serde::Deserialize;
 
 /// This object represents a chat.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#chat>
 #[derive(Default, Clone, Debug, PartialEq, Deserialize)]
 pub struct Chat {

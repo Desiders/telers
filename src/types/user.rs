@@ -3,6 +3,7 @@ use serde_with::skip_serializing_none;
 use std::borrow::Cow;
 
 /// This object represents a Telegram user or bot.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#user>
 #[skip_serializing_none]
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]

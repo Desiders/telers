@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
 /// This object represents a service message about a change in auto-delete timer settings.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#messageautodeletetimerchanged>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct MessageAutoDeleteTimerChanged {

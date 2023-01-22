@@ -3,6 +3,7 @@ use super::PhotoSize;
 use serde::Deserialize;
 
 /// This object represent a user's profile pictures.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#userprofilephotos>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct UserProfilePhotos {

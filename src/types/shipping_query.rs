@@ -3,6 +3,7 @@ use super::{ShippingAddress, Update, User};
 use serde::Deserialize;
 
 /// This object contains information about an incoming shipping query.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#shippingquery>
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct ShippingQuery {

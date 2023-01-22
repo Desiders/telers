@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// This object represents a bot command.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#botcommand>
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct BotCommand {

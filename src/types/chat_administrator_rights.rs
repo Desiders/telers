@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 /// Represents the rights of an administrator in a chat.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#chatadministratorrights>
 #[allow(clippy::struct_excessive_bools)]
 #[skip_serializing_none]

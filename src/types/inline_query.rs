@@ -3,6 +3,7 @@ use super::{Location, Update, User};
 use serde::Deserialize;
 
 /// This object represents an incoming inline query. When the user sends an empty query, your bot could return some default or trending results.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequery>
 #[derive(Default, Clone, Debug, PartialEq, Deserialize)]
 pub struct InlineQuery {

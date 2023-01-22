@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
 /// Describes an inline message sent by a `Web App <https://core.telegram.org/bots/webapps>` on behalf of a user.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#sentwebappmessage>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct SentWebAppMessage {

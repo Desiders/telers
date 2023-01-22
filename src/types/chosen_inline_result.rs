@@ -3,7 +3,9 @@ use super::{Location, Update, User};
 use serde::Deserialize;
 
 /// Represents a `result <https://core.telegram.org/bots/api#inlinequeryresult>` of an inline query that was chosen by the user and sent to their chat partner.
-/// **Note:** It is necessary to enable `inline feedback <https://core.telegram.org/bots/inline#collecting-feedback>` via `@BotFather <https://t.me/botfather>` in order to receive these objects in updates.
+/// # Notes
+/// It is necessary to enable `inline feedback <https://core.telegram.org/bots/inline#collecting-feedback>` via `@BotFather <https://t.me/botfather>` in order to receive these objects in updates.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#choseninlineresult>
 #[derive(Default, Clone, Debug, PartialEq, Deserialize)]
 pub struct ChosenInlineResult {

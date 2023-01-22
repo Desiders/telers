@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
 /// Represents an issue in one of the data fields that was provided by the user. The error is considered resolved when the field's value changes.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerrordatafield>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct PassportElementErrorDataField {
