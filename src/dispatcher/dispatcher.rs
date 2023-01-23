@@ -273,7 +273,6 @@ impl DispatcherInner {
             }
         };
 
-        log::trace!("Propagating event");
         self.main_router
             .propagate_event(
                 &update_type,
@@ -320,7 +319,7 @@ impl DispatcherInner {
         let mut failed = false;
 
         loop {
-            let updates: Vec<Update> = match bot
+            let updates = match bot
                 .get_updates(offset, limit, timeout, allowed_updates.clone(), None)
                 .await
             {
