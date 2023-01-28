@@ -16,6 +16,6 @@ pub struct Location {
     pub live_period: Option<i64>,
     /// *Optional*. The direction in which user is moving, in degrees; 1-360. For active live locations only.
     pub heading: Option<i64>,
-    /// *Optional*. The maximum distance for proximity alerts about approaching another chat member, in meters. For sent live locations only."""
+    /// *Optional*. The maximum distance for proximity alerts about approaching another chat member, in meters. For sent live locations only.
     pub proximity_alert_radius: Option<i64>,
 }
