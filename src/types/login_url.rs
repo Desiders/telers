@@ -6,7 +6,7 @@ use serde_with::skip_serializing_none;
 /// Sample bot: `@discussbot <https://t.me/discussbot>`
 /// <https://core.telegram.org/bots/api#loginurl>
 #[skip_serializing_none]
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct LoginUrl {
     /// An HTTPS URL to be opened with user authorization data added to the query string when the button is pressed. If the user refuses to provide authorization data, the original URL without information about the user will be opened. The data added is the same as described in `Receiving authorization data <https://core.telegram.org/widgets/login#receiving-authorization-data>`.
     pub url: String,
@@ -23,7 +23,9 @@ impl LoginUrl {
     pub fn new<T: Into<String>>(url: T) -> Self {
         Self {
             url: url.into(),
-            ..Default::default()
+            forward_text: None,
+            bot_username: None,
+            request_write_access: None,
         }
     }
 

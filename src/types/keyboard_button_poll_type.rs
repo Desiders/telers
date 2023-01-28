@@ -14,9 +14,13 @@ pub struct KeyboardButtonPollType {
 
 impl KeyboardButtonPollType {
     #[must_use]
-    pub fn new<T: Into<String>>(keyboard_type: Option<T>) -> Self {
-        Self {
-            keyboard_type: keyboard_type.map(Into::into),
-        }
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    #[must_use]
+    pub fn keyboard_type<T: Into<String>>(mut self, val: T) -> Self {
+        self.keyboard_type = Some(val.into());
+        self
     }
 }

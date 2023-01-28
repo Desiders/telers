@@ -3,7 +3,7 @@ use super::telegram::handler::Response;
 use crate::error::{app, telegram};
 
 /// Responses from events, that indicates how the dispatcher should process response
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Eq, Hash, PartialEq, Default)]
 pub struct EventReturn {
     /// - In outer middlewares, means that the middleware should be skipped, and next middleware should be run
     /// - In inner middlewares, means that the middleware should be skipped, and next handler should be run

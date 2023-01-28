@@ -7,7 +7,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinekeyboardbutton>
 #[skip_serializing_none]
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct InlineKeyboardButton {
     /// Label text on the button
     pub text: String,
@@ -34,7 +34,14 @@ impl InlineKeyboardButton {
     pub fn new<T: Into<String>>(text: T) -> Self {
         Self {
             text: text.into(),
-            ..Default::default()
+            url: None,
+            callback_data: None,
+            web_app: None,
+            login_url: None,
+            switch_inline_query: None,
+            switch_inline_query_current_chat: None,
+            callback_game: None,
+            pay: None,
         }
     }
 

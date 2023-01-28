@@ -5,7 +5,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputcontactmessagecontent>
 #[skip_serializing_none]
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct InputContactMessageContent {
     /// Contact's phone number
     pub phone_number: String,
@@ -23,7 +23,8 @@ impl InputContactMessageContent {
         Self {
             phone_number: phone_number.into(),
             first_name: first_name.into(),
-            ..Default::default()
+            last_name: None,
+            vcard: None,
         }
     }
 
