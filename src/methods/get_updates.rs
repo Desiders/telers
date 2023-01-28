@@ -2,11 +2,19 @@ use super::{Request, TelegramMethod};
 
 use crate::{client::Bot, types::Update};
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use serde_with::skip_serializing_none;
 
+/// Use this method to receive incoming updates using long polling (`wiki <https://en.wikipedia.org/wiki/Push_technology#Long_polling>`).
+/// # Documentation
+/// <https://core.telegram.org/bots/api#getupdates>
+/// # Notes
+/// - This method will not work if an outgoing webhook is set up. \
+/// - In order to avoid getting duplicate updates, recalculate `offset` after each server response. \
+/// # Returns
+/// Array of [`Update`] objects
 #[skip_serializing_none]
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct GetUpdates {
     /// Identifier of the first update to be returned. Must be greater by one than the highest among the identifiers of previously received updates. By default, updates starting with the earliest unconfirmed update are returned. An update is considered confirmed as soon as [`crate::methods::get_updates::GetUpdates`] is called with an *offset* higher than its *update_id*. The negative offset can be specified to retrieve updates starting from *-offset* update from the end of the updates queue. All previous updates will forgotten.
     pub offset: Option<i64>,
@@ -50,7 +58,7 @@ impl GetUpdates {
 }
 
 impl TelegramMethod for GetUpdates {
-    type Method = GetUpdates;
+    type Method = Self;
     type Return = Vec<Update>;
 
     fn build_request(&self, _: &Bot) -> Request<Self::Method> {

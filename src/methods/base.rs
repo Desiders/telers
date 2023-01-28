@@ -54,12 +54,12 @@ where
 }
 
 /// This object represents a response from Telegram API. It's returned by making requests to Telegram API, for more info check [Telegram API docs](https://core.telegram.org/bots/api#making-requests)
-/// # Note
-/// The response contains a JSON object, which always has a Boolean field `ok` and may have an optional String field `description` with a human-readable description of the result. \
-/// If `ok` equals `True`, the request was successful and the result of the query can be found in the `result` field. \
-/// In case of an unsuccessful request, `ok` equals false and the error is explained in the `description`. \
-/// An Integer `error_code` field is also returned, but its contents are subject to change in the future. \
-/// Some errors may also have an optional field `parameters` of the type [`ResponseParameters`](https://core.telegram.org/bots/api#responseparameters), which can help to automatically handle the error.
+/// # Notes
+/// - The response contains a JSON object, which always has a Boolean field `ok` and may have an optional String field `description` with a human-readable description of the result.
+/// - If `ok` equals `True`, the request was successful and the result of the query can be found in the `result` field.
+/// - In case of an unsuccessful request, `ok` equals false and the error is explained in the `description`.
+/// - An Integer `error_code` field is also returned, but its contents are subject to change in the future.
+/// - Some errors may also have an optional field `parameters` of the type [`ResponseParameters`], which can help to automatically handle the error.
 #[derive(Deserialize)]
 pub struct Response<T> {
     ok: bool,
@@ -165,6 +165,15 @@ pub(super) fn prepare_file_with_value<'a>(
 }
 
 pub(super) fn prepare_input_media<'a>(
+    files: &mut HashMap<&'a str, &'a InputFile<'a>>,
+    input_media_list: &'a Vec<InputMedia<'a>>,
+) {
+    for input_media in input_media_list {
+        prepare_input_media_inner(files, input_media);
+    }
+}
+
+fn prepare_input_media_inner<'a>(
     files: &mut HashMap<&'a str, &'a InputFile<'a>>,
     input_media: &'a InputMedia<'a>,
 ) {
