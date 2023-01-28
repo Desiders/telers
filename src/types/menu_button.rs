@@ -17,23 +17,6 @@ pub enum MenuButton {
     Default(MenuButtonDefault),
 }
 
-impl MenuButton {
-    #[must_use]
-    pub fn commands(commands: MenuButtonCommands) -> Self {
-        Self::Commands(commands)
-    }
-
-    #[must_use]
-    pub fn web_app(web_app: MenuButtonWebApp) -> Self {
-        Self::WebApp(web_app)
-    }
-
-    #[must_use]
-    pub fn default(default: MenuButtonDefault) -> Self {
-        Self::Default(default)
-    }
-}
-
 impl From<MenuButtonCommands> for MenuButton {
     fn from(commands: MenuButtonCommands) -> Self {
         Self::Commands(commands)

@@ -145,12 +145,6 @@ pub struct Message {
 }
 
 impl Message {
-    /// Alias for `message_id`
-    #[must_use]
-    pub fn id(&self) -> i64 {
-        self.message_id
-    }
-
     #[must_use]
     pub fn get_text_or_caption(&self) -> Option<&String> {
         if let Some(ref text) = self.text {
