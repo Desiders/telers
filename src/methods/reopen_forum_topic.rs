@@ -36,7 +36,7 @@ impl ReopenForumTopic {
 
     #[must_use]
     pub fn message_thread_id(mut self, val: i64) -> Self {
-        self.message_thread_id = val.into();
+        self.message_thread_id = val;
         self
     }
 }

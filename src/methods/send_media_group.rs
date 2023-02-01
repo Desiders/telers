@@ -39,7 +39,7 @@ impl<'a> SendMediaGroup<'a> {
         Self {
             chat_id: chat_id.into(),
             message_thread_id: None,
-            media: media.into_iter().map(|media| media.into()).collect(),
+            media: media.into_iter().map(Into::into).collect(),
             disable_notification: None,
             protect_content: None,
             reply_to_message_id: None,
@@ -61,7 +61,7 @@ impl<'a> SendMediaGroup<'a> {
 
     #[must_use]
     pub fn media<T: Into<InputMedia<'a>>>(mut self, val: Vec<T>) -> Self {
-        self.media = val.into_iter().map(|media| media.into()).collect();
+        self.media = val.into_iter().map(Into::into).collect();
         self
     }
 

@@ -68,7 +68,7 @@ impl SendPoll {
             chat_id: chat_id.into(),
             message_thread_id: None,
             question: question.into(),
-            options: options.into_iter().map(|option| option.into()).collect(),
+            options: options.into_iter().map(Into::into).collect(),
             is_anonymous: None,
             poll_type: None,
             allows_multiple_answers: None,
@@ -107,7 +107,7 @@ impl SendPoll {
 
     #[must_use]
     pub fn options<T: Into<String>>(mut self, val: Vec<T>) -> Self {
-        self.options = val.into_iter().map(|option| option.into()).collect();
+        self.options = val.into_iter().map(Into::into).collect();
         self
     }
 
