@@ -7,6 +7,7 @@ use crate::{
             service::{BoxFuture, Service, ServiceFactory},
             telegram::handler::{
                 Handler, HandlerObject, HandlerObjectService, Request as HandlerRequest,
+                Result as HandlerResult,
             },
         },
         middlewares::{
@@ -18,9 +19,9 @@ use crate::{
             },
         },
     },
-    error::app,
+    error::AppErrorKind,
     extract::FromEventAndContext,
-    filters::base::Filter,
+    filters::Filter,
     types::Update,
 };
 
@@ -31,17 +32,9 @@ use std::{
 
 #[derive(Clone)]
 pub struct Request {
-    bot: Arc<Bot>,
-    update: Arc<Update>,
-    context: Arc<Context>,
-}
-
-impl PartialEq for Request {
-    fn eq(&self, other: &Self) -> bool {
-        Arc::ptr_eq(&self.bot, &other.bot)
-            && Arc::ptr_eq(&self.update, &other.update)
-            && Arc::ptr_eq(&self.context, &other.context)
-    }
+    pub bot: Arc<Bot>,
+    pub update: Arc<Update>,
+    pub context: Arc<Context>,
 }
 
 impl Request {
@@ -58,20 +51,13 @@ impl Request {
             context: context.into(),
         }
     }
+}
 
-    #[must_use]
-    pub fn bot(&self) -> Arc<Bot> {
-        Arc::clone(&self.bot)
-    }
-
-    #[must_use]
-    pub fn update(&self) -> Arc<Update> {
-        Arc::clone(&self.update)
-    }
-
-    #[must_use]
-    pub fn context(&self) -> Arc<Context> {
-        Arc::clone(&self.context)
+impl PartialEq for Request {
+    fn eq(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.bot, &other.bot)
+            && Arc::ptr_eq(&self.update, &other.update)
+            && Arc::ptr_eq(&self.context, &other.context)
     }
 }
 
@@ -82,115 +68,91 @@ impl From<Request> for HandlerRequest {
 }
 
 pub struct Response {
-    request: Request,
-    response: PropagateEventResult,
+    pub request: Request,
+    pub propagate_result: PropagateEventResult,
 }
 
-impl Response {
-    #[must_use]
-    pub fn request(&self) -> &Request {
-        &self.request
-    }
-
-    #[must_use]
-    pub fn response(&self) -> &PropagateEventResult {
-        &self.response
-    }
-}
-
-/// Event observer for Telegram events.
-/// Here you can register handler with filter.
-/// This observer will stop event propagation when first handler is pass.
+/// Event observer for telegram events
 pub struct Observer {
-    event_name: &'static str,
-    handlers: Vec<HandlerObject>,
-    /// Common handler of the observer with dummy callback which never will be used
-    common_handler: HandlerObject,
-    pub middlewares: InnerMiddlewareManager,
+    pub event_name: &'static str,
+    pub handlers: Vec<HandlerObject>,
+    pub inner_middlewares: InnerMiddlewareManager,
     pub outer_middlewares: OuterMiddlewareManager,
+
+    /// Handler, which never will be called, but used for common filters for all handlers in the observer
+    common: HandlerObject,
 }
 
 impl Observer {
     /// Create a new event observer
     /// # Arguments
     /// * `event_name` - Event observer name, can be used for logging
+    #[allow(unreachable_code)]
     #[must_use]
     pub fn new(event_name: &'static str) -> Self {
         Self {
             event_name,
             handlers: vec![],
-            common_handler: HandlerObject::new_no_filters(|| async move {
-                unreachable!("This is only for observer filters and without logic")
+            common: HandlerObject::new_no_filters(|| async move {
+                // This handler never will be called, so we can use `unreachable!` macro
+                ({
+                    unreachable!("This handler never will be used");
+                }) as Result<_, _>
             }),
-            middlewares: InnerMiddlewareManager::default(),
+            inner_middlewares: InnerMiddlewareManager::default(),
             outer_middlewares: OuterMiddlewareManager::default(),
         }
     }
 
-    #[must_use]
-    pub fn event_name(&self) -> &str {
-        self.event_name
-    }
-
-    #[must_use]
-    pub fn handlers(&self) -> &[HandlerObject] {
-        &self.handlers
-    }
-
-    /// Get filters for all handlers of this event observer
-    #[must_use]
-    pub fn filters(&self) -> Vec<Arc<Box<dyn Filter>>> {
-        self.common_handler.filters()
-    }
-
-    /// Register filter for all handlers of this event observer
-    /// # Arguments
-    /// * `filter` - Filter for the observer
-    pub fn filter<T, F>(&mut self, filter: T)
+    /// Register filter for all handlers in the observer
+    pub fn filter<F>(&mut self, filter: F)
     where
-        T: Into<Box<F>>,
         F: Filter + 'static,
     {
-        self.common_handler.filter(filter);
+        self.common.filter(filter);
     }
 
-    /// Register event handler with filters
-    /// # Arguments
-    /// * `handler` - Handler for the observer
-    /// * `filters` - Filters for the handler
-    pub fn register<H, Args, FBox, F>(&mut self, handler: H, filters: Vec<FBox>)
+    /// Register filters for all handlers in the observer
+    pub fn filters<F>(&mut self, filters: Vec<F>)
+    where
+        F: Filter + 'static,
+    {
+        self.common.filters(filters);
+    }
+
+    /// Register handler with filters
+    pub fn register<H, Args, F>(&mut self, handler: H, filters: Vec<F>)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send + 'static,
-        H::Output: Into<EventReturn>,
-        Args: FromEventAndContext + 'static,
-        FBox: Into<Box<F>>,
+        H::Future: Send,
+        H::Output: Into<HandlerResult>,
+        Args: FromEventAndContext + Send,
+        Args::Error: Send,
         F: Filter + 'static,
     {
         self.handlers.push(HandlerObject::new(handler, filters));
     }
 
-    /// Register event handler without filters
-    /// # Arguments
-    /// * `handler` - Handler for the observer
+    /// Register handler without filters
     pub fn register_no_filters<H, Args>(&mut self, handler: H)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send + 'static,
-        H::Output: Into<EventReturn>,
-        Args: FromEventAndContext + 'static,
+        H::Future: Send,
+        H::Output: Into<HandlerResult>,
+        Args: FromEventAndContext + Send,
+        Args::Error: Send,
     {
         self.handlers.push(HandlerObject::new_no_filters(handler));
     }
 
     /// Alias to [`Observer::register`] method
-    pub fn on<H, Args, FBox, F>(&mut self, handler: H, filters: Vec<FBox>)
+    pub fn on<H, Args, F>(&mut self, handler: H, filters: Vec<F>)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send + 'static,
-        H::Output: Into<EventReturn>,
-        Args: FromEventAndContext + 'static,
-        FBox: Into<Box<F>>,
+        H::Future: Send,
+        H::Output: Into<HandlerResult>,
+        Args: FromEventAndContext + Send,
+        Args::Error: Send,
         F: Filter + 'static,
     {
         self.register(handler, filters);
@@ -200,9 +162,10 @@ impl Observer {
     pub fn on_no_filters<H, Args>(&mut self, handler: H)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send + 'static,
-        H::Output: Into<EventReturn>,
-        Args: FromEventAndContext + 'static,
+        H::Future: Send,
+        H::Output: Into<HandlerResult>,
+        Args: FromEventAndContext + Send,
+        Args::Error: Send,
     {
         self.register_no_filters(handler);
     }
@@ -231,27 +194,27 @@ impl AsRef<Observer> for Observer {
 
 impl ServiceFactory<Request> for Observer {
     type Response = Response;
-    type Error = app::ErrorKind;
+    type Error = AppErrorKind;
     type Config = ();
     type Service = ObserverService;
     type InitError = ();
 
-    fn new_service(&self, _: Self::Config) -> Result<Self::Service, Self::InitError> {
+    fn new_service(&self, config: Self::Config) -> Result<Self::Service, Self::InitError> {
         let event_name = self.event_name;
         let handlers = self
             .handlers
             .iter()
-            .map(|handler| handler.new_service(()))
+            .map(|handler| handler.new_service(config))
             .collect::<Result<Vec<_>, _>>()?;
-        let common_handler = self.common_handler.new_service(())?;
-        let middlewares = self.middlewares.middlewares().clone();
-        let outer_middlewares = self.outer_middlewares.middlewares().clone();
+        let common = self.common.new_service(config)?;
+        let inner_middlewares = self.inner_middlewares.middlewares.clone();
+        let outer_middlewares = self.outer_middlewares.middlewares.clone();
 
         Ok(ObserverService {
             event_name,
             handlers: Arc::new(handlers),
-            common_handler: Arc::new(common_handler),
-            middlewares: middlewares.clone(),
+            common: Arc::new(common),
+            inner_middlewares: inner_middlewares.clone(),
             outer_middlewares: outer_middlewares.clone(),
         })
     }
@@ -261,82 +224,68 @@ impl ServiceFactory<Request> for Observer {
 pub struct ObserverService {
     event_name: &'static str,
     handlers: Arc<Vec<HandlerObjectService>>,
-    /// Common handler service of the observer with dummy callback which never will be used
-    common_handler: Arc<HandlerObjectService>,
-    middlewares: InnerMiddlewares,
-    outer_middlewares: OuterMiddlewares,
+    common: Arc<HandlerObjectService>,
+    pub(crate) inner_middlewares: InnerMiddlewares,
+    pub(crate) outer_middlewares: OuterMiddlewares,
 }
 
 impl ObserverService {
-    #[must_use]
-    pub fn event_name(&self) -> &str {
-        self.event_name
-    }
-
-    #[must_use]
-    pub fn middlewares(&self) -> &InnerMiddlewares {
-        &self.middlewares
-    }
-
-    #[must_use]
-    pub fn outer_middlewares(&self) -> &OuterMiddlewares {
-        &self.outer_middlewares
-    }
-
     /// Propagate event to handlers and stops propagation on first match.
     /// Handler will be called when all its filters is pass.
     /// # Errors
     /// - If any handler returns error. Probably it's error to extract args to the handler.
     #[allow(clippy::similar_names)]
-    pub async fn trigger(&self, req: Request) -> Result<Response, app::ErrorKind> {
-        let handler_req = req.clone().into();
+    pub async fn trigger(&self, request: Request) -> Result<Response, AppErrorKind> {
+        let handler_request = request.clone().into();
 
         // Check observer filters
-        if !self.common_handler.check(&handler_req).await {
+        if !self.common.check(&handler_request).await {
             return Ok(Response {
-                request: req,
-                response: PropagateEventResult::Rejected,
+                request,
+                propagate_result: PropagateEventResult::Rejected,
             });
         }
 
         for handler in self.handlers.iter() {
-            if !handler.check(&handler_req).await {
+            if !handler.check(&handler_request).await {
                 continue;
             }
 
-            let res = if self.middlewares.is_empty() {
-                handler.call(handler_req.clone()).await?
+            let response = if self.inner_middlewares.is_empty() {
+                handler.call(handler_request.clone()).await?
             } else {
-                let middleware = Arc::clone(&self.middlewares[0]);
-                let next_middlewares = Box::new(self.middlewares[1..].to_vec().clone().into_iter());
+                let middleware = &self.inner_middlewares[0];
+                let next_middlewares = Box::new(self.inner_middlewares.clone().into_iter().skip(1));
 
                 // Call first middleware (it will call next middlewares or handler)
                 middleware
-                    .call(handler.service(), handler_req.clone(), next_middlewares)
+                    .call(
+                        Arc::clone(&handler.service),
+                        handler_request.clone(),
+                        next_middlewares,
+                    )
                     .await?
             };
 
-            let handler_response = res.response();
-
-            return if handler_response.is_skip() {
-                continue;
-            } else if handler_response.is_cancel() {
-                Ok(Response {
-                    request: req,
-                    response: PropagateEventResult::Rejected,
-                })
-            } else {
-                Ok(Response {
-                    request: req,
-                    response: PropagateEventResult::Handled(res),
-                })
+            return match response.handler_result {
+                Ok(EventReturn::Skip) => continue,
+                Ok(EventReturn::Cancel) => {
+                    return Ok(Response {
+                        request,
+                        propagate_result: PropagateEventResult::Rejected,
+                    })
+                }
+                _ => Ok(Response {
+                    request,
+                    propagate_result: PropagateEventResult::Handled(response),
+                }),
             };
         }
 
         // Return a response if the event unhandled by observer
         Ok(Response {
-            request: req,
-            response: PropagateEventResult::Unhandled,
+            request,
+            propagate_result: PropagateEventResult::Unhandled,
         })
     }
 }
@@ -351,7 +300,7 @@ impl Debug for ObserverService {
 
 impl Service<Request> for ObserverService {
     type Response = Response;
-    type Error = app::ErrorKind;
+    type Error = AppErrorKind;
     type Future = BoxFuture<Result<Self::Response, Self::Error>>;
 
     fn call(&self, _: Request) -> Self::Future {
@@ -367,10 +316,11 @@ impl Service<Request> for ObserverService {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{dispatcher::event::bases::Action, filters::command, types::Message};
+    use crate::{filters::Command, types::Message};
 
     use tokio;
 
+    #[allow(unreachable_code)]
     #[tokio::test]
     async fn test_observer_trigger() {
         let bot = Bot::default();
@@ -378,29 +328,26 @@ mod tests {
 
         let mut observer = Observer::new("test");
         // Register common filter, which handlers can't pass
-        observer.filter(command::Command {
-            commands: vec![command::PatternType::Text("start")],
-            prefix: "/",
-            ignore_case: false,
-            ignore_mention: false,
-        });
-        observer.register_no_filters(|| async {});
+        observer.filter(Command::builder().prefix("/").command("start").build());
+        observer.register_no_filters(|| async { Ok(EventReturn::Finish) });
         observer.register_no_filters(|| async {
-            unreachable!("It's shouldn't trigger because the first handler handles the event")
+            unreachable!("It's shouldn't trigger because the first handler handles the event");
+
+            Ok(EventReturn::Finish)
         });
 
         let observer_service = observer.new_service(()).unwrap();
-        let req = Request::new(bot, Update::default(), context);
-        let res = observer_service.trigger(req.clone()).await.unwrap();
+        let request = Request::new(bot, Update::default(), context);
+        let response = observer_service.trigger(request.clone()).await.unwrap();
 
         // Filter not pass, so handler should be rejected
-        match res.response() {
+        match response.propagate_result {
             PropagateEventResult::Rejected => {}
             _ => panic!("Unexpected result"),
         }
 
-        let req = Request::new(
-            req.bot(),
+        let request = Request::new(
+            request.bot,
             Update {
                 message: Some(Message {
                     text: Some("/start".to_string()),
@@ -408,12 +355,12 @@ mod tests {
                 }),
                 ..Default::default()
             },
-            req.context(),
+            request.context,
         );
-        let res = observer_service.trigger(req).await.unwrap();
+        let response = observer_service.trigger(request).await.unwrap();
 
         // Filter pass, so handler should be handled
-        match res.response() {
+        match response.propagate_result {
             PropagateEventResult::Handled(_) => {}
             _ => panic!("Unexpected result"),
         }
@@ -426,33 +373,34 @@ mod tests {
         let update = Update::default();
 
         let mut observer = Observer::new("test");
-        observer.register_no_filters(|| async { Action::Skip });
-        observer.register_no_filters(|| async {});
+        observer.register_no_filters(|| async { Ok(EventReturn::Skip) });
+        observer.register_no_filters(|| async { Ok(EventReturn::Finish) });
 
         let observer_service = observer.new_service(()).unwrap();
 
-        let req = Request::new(bot, update, context);
-        let res = observer_service.trigger(req.clone()).await.unwrap();
+        let request = Request::new(bot, update, context);
+        let response = observer_service.trigger(request.clone()).await.unwrap();
 
-        // First handler returns `Action::Skip`, so second handler should be called
-        match res.response() {
-            PropagateEventResult::Handled(handler_res) => {
-                assert_eq!(*handler_res.response(), EventReturn::default());
-            }
+        // First handler returns `EventReturn::Skip`, so second handler should be called
+        match response.propagate_result {
+            PropagateEventResult::Handled(response) => match response.handler_result {
+                Ok(EventReturn::Finish) => {}
+                _ => panic!("Unexpected result"),
+            },
             _ => panic!("Unexpected result"),
         }
 
         let mut observer = Observer::new("test2");
-        observer.register_no_filters(|| async { Action::Skip });
-        observer.register_no_filters(|| async { Action::Cancel });
+        observer.register_no_filters(|| async { Ok(EventReturn::Skip) });
+        observer.register_no_filters(|| async { Ok(EventReturn::Cancel) });
 
         let observer_service = observer.new_service(()).unwrap();
 
-        let res = observer_service.trigger(req).await.unwrap();
+        let response = observer_service.trigger(request).await.unwrap();
 
-        // First handler returns `Action::Skip`, so second handler should be called and it returns `Action::Cancel`,
+        // First handler returns `EventReturn::Skip`, so second handler should be called and it returns `EventReturn::Cancel`,
         // so response should be `PropagateEventResult::Rejected`
-        match res.response() {
+        match response.propagate_result {
             PropagateEventResult::Rejected => {}
             _ => panic!("Unexpected result"),
         }
