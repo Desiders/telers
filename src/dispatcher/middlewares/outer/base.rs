@@ -1,35 +1,34 @@
 use crate::{
-    dispatcher::{
-        event::{bases::EventReturn, service::BoxFuture},
-        router::Request,
-    },
-    error::app,
+    dispatcher::{event::EventReturn, router::Request},
+    error::AppErrorKind,
 };
 
+use async_trait::async_trait;
 use std::{future::Future, sync::Arc};
 
-pub type Middlewares = Vec<Arc<Box<dyn Middleware + Send + Sync>>>;
+pub type Middlewares = Vec<Arc<Box<dyn Middleware>>>;
 
+#[async_trait]
 pub trait Middleware: Send + Sync {
     /// Execute middleware
     /// # Arguments
     /// * `req` - Data for router service
     /// # Returns
-    /// Updated [`Request`] for router service and [`EventReturn`] or [`app::ErrorKind`].
-    /// [`EventReturn`] indicates how the dispatcher should process response, for more information see [`EventReturn`].
+    /// Updated [`Request`] for router service and [`EventReturn`] or [`AppErrorKind`]
     /// # Errors
     /// If outer middleware returns error
     #[must_use]
-    fn call(&self, req: Request) -> BoxFuture<Result<(Request, EventReturn), app::ErrorKind>>;
+    async fn call(&self, req: Request) -> Result<(Request, EventReturn), AppErrorKind>;
 }
 
+#[async_trait]
 impl<Func, Fut> Middleware for Func
 where
-    Func: Fn(Request) -> Fut + Send + Sync + 'static,
-    Fut: Future<Output = Result<(Request, EventReturn), app::ErrorKind>> + Send + 'static,
+    Func: Fn(Request) -> Fut + Send + Sync,
+    Fut: Future<Output = Result<(Request, EventReturn), AppErrorKind>> + Send,
 {
-    fn call(&self, req: Request) -> BoxFuture<Result<(Request, EventReturn), app::ErrorKind>> {
-        Box::pin(self(req))
+    async fn call(&self, request: Request) -> Result<(Request, EventReturn), AppErrorKind> {
+        self(request).await
     }
 }
 
@@ -42,11 +41,13 @@ mod tests {
 
     #[tokio::test]
     async fn test_call() {
-        let middleware = |req: Request| async move { Ok((req, EventReturn::default())) };
+        let middleware = |request: Request| async move { Ok((request, EventReturn::default())) };
 
-        let req = Request::new(Bot::default(), Update::default(), Context::default());
+        let request = Request::new(Bot::default(), Update::default(), Context::default());
 
-        let (updated_req, _) = Middleware::call(&middleware, req.clone()).await.unwrap();
-        assert!(req == updated_req);
+        let (updated_request, _) = Middleware::call(&middleware, request.clone())
+            .await
+            .unwrap();
+        assert!(request == updated_request);
     }
 }

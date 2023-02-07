@@ -1,92 +1,112 @@
 use crate::{
     dispatcher::event::{
-        service::BoxFuture,
-        telegram::handler::{BoxedHandlerService, Request, Response},
+        telegram::{BoxedHandlerService, HandlerRequest, HandlerResponse},
+        EventReturn,
     },
-    error::app,
+    error::AppErrorKind,
 };
 
-use super::base::{Middleware, MiddlewaresIter};
+use super::base::{call_handler, Middleware, MiddlewaresIter};
 
+use async_trait::async_trait;
 use log::{self, Level, Log, Record};
-use std::{sync::Arc, time::Instant};
+use std::{fmt, sync::Arc, time::Instant};
 
 const DEFAULT_TARGET: &str = "logging-middleware";
 
 pub struct Logging {
-    logger: Arc<Box<dyn Log>>,
+    logger: &'static dyn Log,
     target: &'static str,
 }
 
 impl Logging {
     #[must_use]
-    pub fn new(logger: Box<dyn Log>, target: Option<&'static str>) -> Self {
+    pub fn new(logger: Option<&'static dyn Log>, target: Option<&'static str>) -> Self {
         Self {
-            logger: Arc::new(logger),
+            logger: logger.unwrap_or_else(log::logger),
             target: target.unwrap_or(DEFAULT_TARGET),
         }
     }
+
+    fn record<'a>(&self, level: Level, args: fmt::Arguments<'a>) -> Record<'a> {
+        Record::builder()
+            .level(level)
+            .target(self.target)
+            .args(args)
+            .build()
+    }
 }
 
+impl Default for Logging {
+    fn default() -> Self {
+        Self::new(None, None)
+    }
+}
+
+#[async_trait]
 impl Middleware for Logging {
-    #[allow(clippy::similar_names)]
-    fn call(
+    async fn call(
         &self,
         handler: Arc<BoxedHandlerService>,
-        req: Request,
+        request: HandlerRequest,
         middlewares: MiddlewaresIter,
-    ) -> BoxFuture<Result<Response, app::ErrorKind>> {
-        let target = self.target;
+    ) -> Result<HandlerResponse, AppErrorKind> {
+        let now = Instant::now();
+        let result = call_handler(handler, request, middlewares).await;
+        let elapsed = now.elapsed();
 
-        // Builder with logging level and
-        let builder = move |level| {
-            let mut builder = Record::builder();
-            builder.level(level);
-            builder.target(target);
-            builder
-        };
-
-        let logger = Arc::clone(&self.logger);
-        let handler = self.handler(handler, req, middlewares);
-
-        Box::pin(async move {
-            let now = Instant::now();
-            let result = handler.await;
-            let elapsed = now.elapsed();
-
-            match result {
-                Ok(res) => {
-                    if res.response().is_skip() {
-                        logger.log(
-                            &builder(Level::Debug)
-                                .args(format_args!(
-                                    "Handler skipped with response: {res:?}. Execution time: {elapsed:.2?}"
-                                ))
-                                .build(),
-                        );
-                    } else {
-                        logger.log(
-                            &builder(Level::Debug)
-                                .args(format_args!(
-                                    "Handler returned response: {res:?}. Execution time: {elapsed:.2?}"
-                                ))
-                                .build(),
-                        );
+        match result {
+            Ok(ref response) => match response.handler_result {
+                Ok(ref event_return) => match event_return {
+                    EventReturn::Finish => {
+                        self.logger.log(&self.record(
+                            Level::Debug,
+                            format_args!("Handler proccessed. Execution time: {elapsed:.2?}"),
+                        ));
                     }
-                    Ok(res)
+                    EventReturn::Skip => {
+                        self.logger.log(&self.record(
+                            Level::Debug,
+                            format_args!("Handler skipped. Execution time: {elapsed:.2?}"),
+                        ));
+                    }
+                    EventReturn::Cancel => {
+                        self.logger.log(&self.record(
+                            Level::Debug,
+                            format_args!("Handler canceled. Execution time: {elapsed:.2?}"),
+                        ));
+                    }
+                },
+                Err(ref err) => {
+                    self.logger.log(&self.record(
+                        Level::Error,
+                        format_args!(
+                            "Handler returned error: {err}. Execution time: {elapsed:.2?}"
+                        ),
+                    ));
                 }
-                Err(err) => {
-                    logger.log(
-                        &builder(Level::Error)
-                            .args(format_args!(
-                                "Handler returned error: {err:?}. Execution time: {elapsed:.2?}"
-                            ))
-                            .build(),
-                    );
-                    Err(err)
+            },
+            Err(ref err_kind) => match err_kind {
+                AppErrorKind::Extraction(err) => {
+                    self.logger.log(&self.record(
+                        Level::Error,
+                        format_args!(
+                            "Extraction returned error: {err}. Execution time: {elapsed:.2?}"
+                        ),
+                    ));
                 }
-            }
-        })
+                AppErrorKind::User(err) => {
+                    self.logger.log(&self.record(
+                        Level::Error,
+                        format_args!(
+                            "Middleware returned error: {err}. Execution time: {elapsed:.2?}"
+                        ),
+                    ));
+                }
+            },
+        }
+
+        result
     }
 }
 
@@ -96,7 +116,7 @@ mod tests {
     use crate::{
         client::Bot,
         context::Context,
-        dispatcher::event::{service::ServiceFactory as _, telegram::handler::handler_service},
+        dispatcher::event::{service::ServiceFactory as _, telegram::handler_service},
         types::Update,
     };
 
@@ -122,16 +142,17 @@ mod tests {
 
     #[tokio::test]
     async fn test_logging() {
-        let middleware = Logging::new(Box::new(SimpleLogger), None);
+        let middleware = Logging::new(Some(&SimpleLogger), None);
 
-        let handler_service_factory = handler_service(|| async {}).new_service(());
+        let handler_service_factory =
+            handler_service(|| async { Ok(EventReturn::Finish) }).new_service(());
         let handler_service = Arc::new(handler_service_factory.unwrap());
 
-        let req = Request::new(Bot::default(), Update::default(), Context::default());
-
+        let request = HandlerRequest::new(Bot::default(), Update::default(), Context::default());
         let res = middleware
-            .call(handler_service, req, Box::new(iter::empty()))
+            .call(handler_service, request, Box::new(iter::empty()))
             .await;
+
         assert!(res.is_ok());
     }
 }
