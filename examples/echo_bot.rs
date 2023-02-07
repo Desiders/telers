@@ -1,18 +1,22 @@
 use aiogram_rs::{
     client::Bot,
-    dispatcher::{event::service::ToServiceProvider as _, Dispatcher, Router},
+    dispatcher::{
+        event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
+        middlewares::inner::Logging as LoggingMiddleware,
+        Dispatcher, Router,
+    },
     enums::UpdateType,
+    methods::CopyMessage,
     types::Message,
 };
 
-use log::{self, Level, LevelFilter, Log, Metadata, Record};
-use tokio;
+use log::{self, LevelFilter, Log, Metadata, Record};
 
 struct SimpleLogger;
 
 impl Log for SimpleLogger {
-    fn enabled(&self, metadata: &Metadata) -> bool {
-        metadata.level() <= Level::Trace
+    fn enabled(&self, _metadata: &Metadata) -> bool {
+        true
     }
 
     fn log(&self, record: &Record) {
@@ -24,21 +28,32 @@ impl Log for SimpleLogger {
     fn flush(&self) {}
 }
 
-async fn echo_handler(message: Message) {
-    log::info!("Received message: {message:?}");
+async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
+    bot.send(
+        &CopyMessage::new(message.chat.id, message.chat.id, message.message_id)
+            .allow_sending_without_reply(true),
+        None,
+    )
+    .await?;
 
-    // todo!("Send message back to the user with the same text as the user sent to the bot");
+    Ok(EventReturn::Finish)
 }
 
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() {
     log::set_logger(&SimpleLogger)
-        .map(|()| log::set_max_level(LevelFilter::Info))
+        .map(|()| log::set_max_level(LevelFilter::Debug))
         .unwrap();
 
-    let bot = Bot::builder().token("TOKEN").build();
+    let bot = Bot::builder()
+        .token("5645341478:AAERH8MzJYL8zacQ_ht5oeg4tjYx_ZhTmxA")
+        .build();
 
     let mut router = Router::new("main");
+    router
+        .message
+        .inner_middlewares
+        .register(LoggingMiddleware::default());
     router.message.register_no_filters(echo_handler);
 
     let dispatcher = Dispatcher::builder()
@@ -47,12 +62,13 @@ async fn main() {
         .allowed_update(UpdateType::Message)
         .build();
 
-    if let Err(err) = dispatcher
+    match dispatcher
         .to_service_provider(())
         .unwrap()
         .run_polling()
         .await
     {
-        log::error!("Bot stopped with error: {err}");
+        Ok(_) => log::info!("Bot stopped"),
+        Err(err) => log::error!("Bot stopped with error: {err}"),
     }
 }
