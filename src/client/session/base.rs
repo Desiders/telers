@@ -31,7 +31,7 @@ impl StatusCode {
     }
 
     #[must_use]
-    pub fn as_u16(&self) -> u16 {
+    pub const fn as_u16(&self) -> u16 {
         self.0
     }
 }
@@ -43,8 +43,8 @@ impl From<u16> for StatusCode {
 }
 
 pub struct ClientResponse {
-    status_code: StatusCode,
-    content: String,
+    pub status_code: StatusCode,
+    pub content: String,
 }
 
 impl ClientResponse {
@@ -54,16 +54,6 @@ impl ClientResponse {
             status_code: status_code.into(),
             content,
         }
-    }
-
-    #[must_use]
-    pub fn status_code(&self) -> &StatusCode {
-        &self.status_code
-    }
-
-    #[must_use]
-    pub fn content(&self) -> &str {
-        &self.content
     }
 }
 
@@ -100,8 +90,8 @@ pub trait Session {
         response: &Response<impl DeserializeOwned>,
         status_code: &StatusCode,
     ) -> Result<(), telegram::ErrorKind> {
-        if status_code.is_success() && response.ok() {
-            if response.result().is_none() {
+        if status_code.is_success() && response.ok {
+            if response.result.is_none() {
                 log::error!("Contract violation: result is empty in success response");
 
                 let err: telegram::ErrorKind =
@@ -114,7 +104,7 @@ pub trait Session {
             return Ok(());
         }
 
-        let message = if let Some(description) = response.description() {
+        let message = if let Some(ref description) = response.description {
             description.to_string()
         } else {
             // Descriptions for every error mentioned in errors (https://core.telegram.org/api/errors)
@@ -127,7 +117,7 @@ pub trait Session {
             return Err(err);
         };
 
-        if let Some(parameters) = response.parameters() {
+        if let Some(ref parameters) = response.parameters {
             if let Some(retry_after) = parameters.retry_after {
                 return Err(telegram::ErrorKind::RetryAfter {
                     url: "https://core.telegram.org/bots/faq#my-bot-is-hitting-limits-how-do-i-avoid-this",
@@ -196,17 +186,17 @@ pub trait Session {
             .await
             .map_err(session::ErrorKind::Client)?;
 
-        let response = method
-            .build_response(client_response.content())
+        let telegram_response = method
+            .build_response(&client_response.content)
             .map_err(|err| {
                 log::error!("Cannot parse response: {err}");
 
                 session::ErrorKind::Parse(err)
             })?;
 
-        self.check_response(&response, client_response.status_code())?;
+        self.check_response(&telegram_response, &client_response.status_code)?;
 
-        Ok(response)
+        Ok(telegram_response)
     }
 
     /// Makes a request to Telegram API and get result from it
