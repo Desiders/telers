@@ -100,7 +100,7 @@ where
     type Service = FnService<F, Fut, Req, Res, Err>;
     type InitError = ();
 
-    fn new_service(&self, _: Cfg) -> Result<Self::Service, Self::InitError> {
+    fn new_service(&self, _config: Cfg) -> Result<Self::Service, Self::InitError> {
         Ok(FnService::new(self.f.clone()))
     }
 }
