@@ -1,5 +1,7 @@
 use super::{Chat, ChatInviteLink, Update, User};
 
+use crate::error::ConvertUpdateToTypeError;
+
 use serde::Deserialize;
 
 /// Represents a join request sent to a chat.
@@ -19,10 +21,16 @@ pub struct ChatJoinRequest {
     pub invite_link: Option<ChatInviteLink>,
 }
 
-impl From<Update> for ChatJoinRequest {
-    fn from(update: Update) -> Self {
-        update
-            .chat_join_request
-            .expect("Update isn't a `ChatJoinRequest`")
+impl TryFrom<Update> for ChatJoinRequest {
+    type Error = ConvertUpdateToTypeError;
+
+    fn try_from(update: Update) -> Result<Self, Self::Error> {
+        if let Some(chat_join_request) = update.chat_join_request {
+            Ok(chat_join_request)
+        } else {
+            Err(ConvertUpdateToTypeError::new(format!(
+                "Update `{update:?}` doesn't contain `ChatJoinRequest`"
+            )))
+        }
     }
 }

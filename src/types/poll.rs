@@ -1,5 +1,7 @@
 use super::{MessageEntity, PollOption, Update};
 
+use crate::error::ConvertUpdateToTypeError;
+
 use serde::Deserialize;
 
 /// This object contains information about a poll.
@@ -36,8 +38,16 @@ pub struct Poll {
     pub close_date: Option<i64>,
 }
 
-impl From<Update> for Poll {
-    fn from(update: Update) -> Self {
-        update.poll.expect("Update isn't a `Poll`")
+impl TryFrom<Update> for Poll {
+    type Error = ConvertUpdateToTypeError;
+
+    fn try_from(update: Update) -> Result<Self, Self::Error> {
+        if let Some(poll) = update.poll {
+            Ok(poll)
+        } else {
+            Err(ConvertUpdateToTypeError::new(format!(
+                "Update {update:?} doesn't contain `Poll`"
+            )))
+        }
     }
 }

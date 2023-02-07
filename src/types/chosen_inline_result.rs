@@ -1,5 +1,7 @@
 use super::{Location, Update, User};
 
+use crate::error::ConvertUpdateToTypeError;
+
 use serde::Deserialize;
 
 /// Represents a `result <https://core.telegram.org/bots/api#inlinequeryresult>` of an inline query that was chosen by the user and sent to their chat partner.
@@ -21,10 +23,16 @@ pub struct ChosenInlineResult {
     pub query: String,
 }
 
-impl From<Update> for ChosenInlineResult {
-    fn from(update: Update) -> Self {
-        update
-            .chosen_inline_result
-            .expect("Update is not a `ChosenInlineResult`")
+impl TryFrom<Update> for ChosenInlineResult {
+    type Error = ConvertUpdateToTypeError;
+
+    fn try_from(update: Update) -> Result<Self, Self::Error> {
+        if let Some(chosen_inline_result) = update.chosen_inline_result {
+            Ok(chosen_inline_result)
+        } else {
+            Err(ConvertUpdateToTypeError::new(format!(
+                "Update `{update:?}` doesn't contain `ChosenInlineResult`"
+            )))
+        }
     }
 }

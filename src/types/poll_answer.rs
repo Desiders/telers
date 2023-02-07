@@ -1,5 +1,7 @@
 use super::{Update, User};
 
+use crate::error::ConvertUpdateToTypeError;
+
 use serde::Deserialize;
 
 /// This object represents an answer of a user in a non-anonymous poll.
@@ -15,8 +17,16 @@ pub struct PollAnswer {
     pub option_ids: Vec<i64>,
 }
 
-impl From<Update> for PollAnswer {
-    fn from(update: Update) -> Self {
-        update.poll_answer.expect("Update isn't a `PollAnswer`")
+impl TryFrom<Update> for PollAnswer {
+    type Error = ConvertUpdateToTypeError;
+
+    fn try_from(update: Update) -> Result<Self, Self::Error> {
+        if let Some(poll_answer) = update.poll_answer {
+            Ok(poll_answer)
+        } else {
+            Err(ConvertUpdateToTypeError::new(format!(
+                "Update `{update:?}` doesn't contain `PollAnswer`"
+            )))
+        }
     }
 }

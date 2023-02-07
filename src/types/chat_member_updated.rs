@@ -1,5 +1,7 @@
 use super::{Chat, ChatInviteLink, ChatMember, Update, User};
 
+use crate::error::ConvertUpdateToTypeError;
+
 use serde::Deserialize;
 
 /// This object represents changes in the status of a chat member.
@@ -21,11 +23,18 @@ pub struct ChatMemberUpdated {
     pub invite_link: Option<ChatInviteLink>,
 }
 
-impl From<Update> for ChatMemberUpdated {
-    fn from(update: Update) -> Self {
-        update
-            .my_chat_member
-            .or(update.chat_member)
-            .expect("Update doesn't contain a `ChatMemberUpdated`")
+impl TryFrom<Update> for ChatMemberUpdated {
+    type Error = ConvertUpdateToTypeError;
+
+    fn try_from(update: Update) -> Result<Self, Self::Error> {
+        if let Some(chat_member_updated) = update.my_chat_member {
+            Ok(chat_member_updated)
+        } else if let Some(chat_member_updated) = update.chat_member {
+            Ok(chat_member_updated)
+        } else {
+            Err(ConvertUpdateToTypeError::new(format!(
+                "Update `{update:?}` doesn't contain `ChatMemberUpdated`"
+            )))
+        }
     }
 }

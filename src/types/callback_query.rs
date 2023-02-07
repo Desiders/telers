@@ -1,5 +1,7 @@
 use super::{Message, Update, User};
 
+use crate::error::ConvertUpdateToTypeError;
+
 use serde::Deserialize;
 
 /// This object represents an incoming callback query from a callback button in an `inline keyboard <https://core.telegram.org/bots/features#inline-keyboards>`. If the button that originated the query was attached to a message sent by the bot, the field `message` will be present. If the button was attached to a message sent via the bot (in `inline mode <https://core.telegram.org/bots/api#inline-mode>`), the field `inline_message_id` will be present. Exactly one of the fields *data* or `game_short_name` will be present.
@@ -24,10 +26,16 @@ pub struct CallbackQuery {
     pub game_short_name: Option<String>,
 }
 
-impl From<Update> for CallbackQuery {
-    fn from(update: Update) -> Self {
-        update
-            .callback_query
-            .expect("Update isn't a `CallbackQuery`")
+impl TryFrom<Update> for CallbackQuery {
+    type Error = ConvertUpdateToTypeError;
+
+    fn try_from(update: Update) -> Result<Self, Self::Error> {
+        if let Some(callback_query) = update.callback_query {
+            Ok(callback_query)
+        } else {
+            Err(ConvertUpdateToTypeError::new(format!(
+                "Update `{update:?}` doesn't contain `CallbackQuery`"
+            )))
+        }
     }
 }

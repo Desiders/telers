@@ -7,6 +7,8 @@ use super::{
     Voice, WebAppData,
 };
 
+use crate::error::ConvertUpdateToTypeError;
+
 use serde::Deserialize;
 
 /// This object represents a message.
@@ -157,14 +159,23 @@ impl Message {
     }
 }
 
-impl From<Update> for Message {
-    fn from(update: Update) -> Self {
-        update
-            .message
-            .or(update.edited_message)
-            .or(update.channel_post)
-            .or(update.edited_channel_post)
-            .expect("Update doesn't contain a `Message`")
+impl TryFrom<Update> for Message {
+    type Error = ConvertUpdateToTypeError;
+
+    fn try_from(update: Update) -> Result<Self, Self::Error> {
+        if let Some(message) = update.message {
+            Ok(message)
+        } else if let Some(message) = update.edited_message {
+            Ok(message)
+        } else if let Some(message) = update.channel_post {
+            Ok(message)
+        } else if let Some(message) = update.edited_channel_post {
+            Ok(message)
+        } else {
+            Err(ConvertUpdateToTypeError::new(format!(
+                "Update `{update:?}` doesn't contain `Message`",
+            )))
+        }
     }
 }
 

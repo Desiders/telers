@@ -1,5 +1,7 @@
 use super::{Location, Update, User};
 
+use crate::error::ConvertUpdateToTypeError;
+
 use serde::Deserialize;
 
 /// This object represents an incoming inline query. When the user sends an empty query, your bot could return some default or trending results.
@@ -21,8 +23,16 @@ pub struct InlineQuery {
     pub location: Option<Location>,
 }
 
-impl From<Update> for InlineQuery {
-    fn from(update: Update) -> Self {
-        update.inline_query.expect("Update is not an `InlineQuery`")
+impl TryFrom<Update> for InlineQuery {
+    type Error = ConvertUpdateToTypeError;
+
+    fn try_from(update: Update) -> Result<Self, Self::Error> {
+        if let Some(inline_query) = update.inline_query {
+            Ok(inline_query)
+        } else {
+            Err(ConvertUpdateToTypeError::new(format!(
+                "Update `{update:?}` doesn't contain `InlineQuery`"
+            )))
+        }
     }
 }

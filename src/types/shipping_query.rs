@@ -1,5 +1,7 @@
 use super::{ShippingAddress, Update, User};
 
+use crate::error::ConvertUpdateToTypeError;
+
 use serde::Deserialize;
 
 /// This object contains information about an incoming shipping query.
@@ -17,10 +19,16 @@ pub struct ShippingQuery {
     pub shipping_address: ShippingAddress,
 }
 
-impl From<Update> for ShippingQuery {
-    fn from(update: Update) -> Self {
-        update
-            .shipping_query
-            .expect("Update isn't a `ShippingQuery`")
+impl TryFrom<Update> for ShippingQuery {
+    type Error = ConvertUpdateToTypeError;
+
+    fn try_from(update: Update) -> Result<Self, Self::Error> {
+        if let Some(shipping_query) = update.shipping_query {
+            Ok(shipping_query)
+        } else {
+            Err(ConvertUpdateToTypeError::new(format!(
+                "Update `{update:?}` doesn't contain `ShippingQuery`"
+            )))
+        }
     }
 }

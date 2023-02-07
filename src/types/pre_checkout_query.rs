@@ -1,5 +1,7 @@
 use super::{OrderInfo, Update, User};
 
+use crate::error::ConvertUpdateToTypeError;
+
 use serde::Deserialize;
 
 /// This object contains information about an incoming pre-checkout query.
@@ -23,10 +25,16 @@ pub struct PreCheckoutQuery {
     pub order_info: Option<OrderInfo>,
 }
 
-impl From<Update> for PreCheckoutQuery {
-    fn from(update: Update) -> Self {
-        update
-            .pre_checkout_query
-            .expect("Update isn't a `PreCheckoutQuery`")
+impl TryFrom<Update> for PreCheckoutQuery {
+    type Error = ConvertUpdateToTypeError;
+
+    fn try_from(update: Update) -> Result<Self, Self::Error> {
+        if let Some(pre_checkout_query) = update.pre_checkout_query {
+            Ok(pre_checkout_query)
+        } else {
+            Err(ConvertUpdateToTypeError::new(format!(
+                "Update `{update:?}` doesn't contain `PreCheckoutQuery`"
+            )))
+        }
     }
 }
