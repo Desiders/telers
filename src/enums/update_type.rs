@@ -1,4 +1,4 @@
-use crate::{error::app, types::Update};
+use crate::{error::UnknownUpdateTypeError, types::Update};
 
 use std::fmt::{self, Debug};
 
@@ -81,7 +81,7 @@ impl<'a> From<&'a UpdateType> for String {
 }
 
 impl TryFrom<Update> for UpdateType {
-    type Error = app::ErrorKind;
+    type Error = UnknownUpdateTypeError;
 
     fn try_from(update: Update) -> Result<Self, Self::Error> {
         if update.message.is_some() {
@@ -113,15 +113,15 @@ impl TryFrom<Update> for UpdateType {
         } else if update.chat_join_request.is_some() {
             Ok(UpdateType::ChatJoinRequest)
         } else {
-            Err(app::ErrorKind::UpdateTypeError(format!(
-                "Couldn't convert `Update` to `UpdateType`. Please, open an issue on GitHub. Update: {update:?}",
+            Err(UnknownUpdateTypeError::new(format!(
+                "Unknown update type: {update:?}"
             )))
         }
     }
 }
 
 impl<'a> TryFrom<&'a Update> for UpdateType {
-    type Error = app::ErrorKind;
+    type Error = UnknownUpdateTypeError;
 
     fn try_from(update: &Update) -> Result<Self, Self::Error> {
         if update.message.is_some() {
@@ -153,8 +153,8 @@ impl<'a> TryFrom<&'a Update> for UpdateType {
         } else if update.chat_join_request.is_some() {
             Ok(UpdateType::ChatJoinRequest)
         } else {
-            Err(app::ErrorKind::UpdateTypeError(format!(
-                "Couldn't convert `Update` to `UpdateType`. Please, open an issue on GitHub. Update: {update:?}",
+            Err(UnknownUpdateTypeError::new(format!(
+                "Unknown update type: {update:?}"
             )))
         }
     }
