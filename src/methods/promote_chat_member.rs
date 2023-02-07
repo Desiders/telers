@@ -153,7 +153,7 @@ impl TelegramMethod for PromoteChatMember {
     type Method = Self;
     type Return = bool;
 
-    fn build_request(&self, _: &Bot) -> Request<Self::Method> {
+    fn build_request(&self, _bot: &Bot) -> Request<Self::Method> {
         Request::new("promoteChatMember", self, None)
     }
 }

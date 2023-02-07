@@ -184,7 +184,7 @@ impl<'a> TelegramMethod for SendAnimation<'a> {
     type Method = Self;
     type Return = Message;
 
-    fn build_request(&self, _: &Bot) -> Request<Self::Method> {
+    fn build_request(&self, _bot: &Bot) -> Request<Self::Method> {
         let mut files = HashMap::new();
         prepare_file_with_value(&mut files, &self.animation, "animation");
 

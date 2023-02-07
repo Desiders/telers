@@ -48,7 +48,7 @@ impl TelegramMethod for GetChatMember {
     type Method = Self;
     type Return = ChatMember;
 
-    fn build_request(&self, _: &Bot) -> Request<Self::Method> {
+    fn build_request(&self, _bot: &Bot) -> Request<Self::Method> {
         Request::new("getChatMember", self, None)
     }
 }

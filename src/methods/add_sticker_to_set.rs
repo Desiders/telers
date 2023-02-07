@@ -24,9 +24,9 @@ pub struct AddStickerToSet<'a> {
     pub name: String,
     /// **PNG** image with the sticker, must be up to 512 kilobytes in size, dimensions must not exceed 512px, and either width or height must be exactly 512px. Pass a `file_id` as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using `multipart/form-data`. [More information on Sending Files](https://core.telegram.org/bots/api#sending-files)
     pub png_sticker: Option<InputFile<'a>>,
-    /// TGS animation with the sticker, uploaded using `multipart/form-data`. See https://core.telegram.org/stickers#animated-sticker-requirements for technical requirements
+    /// TGS animation with the sticker, uploaded using `multipart/form-data`. See <https://core.telegram.org/stickers#animated-sticker-requirements> for technical requirements
     pub tgs_sticker: Option<InputFile<'a>>,
-    /// WEBM video with the sticker, uploaded using `multipart/form-data`. See https://core.telegram.org/stickers#video-sticker-requirements for technical requirements
+    /// WEBM video with the sticker, uploaded using `multipart/form-data`. See <https://core.telegram.org/stickers#video-sticker-requirements> for technical requirements
     pub webm_sticker: Option<InputFile<'a>>,
     /// One or more emoji corresponding to the sticker
     pub emojis: String,
@@ -95,7 +95,7 @@ impl<'a> TelegramMethod for AddStickerToSet<'a> {
     type Method = Self;
     type Return = bool;
 
-    fn build_request(&self, _: &Bot) -> Request<Self::Method> {
+    fn build_request(&self, _bot: &Bot) -> Request<Self::Method> {
         let mut files = HashMap::new();
 
         if let Some(file) = &self.png_sticker {

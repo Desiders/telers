@@ -34,7 +34,7 @@ impl TelegramMethod for GetChatMenuButton {
     type Method = Self;
     type Return = MenuButton;
 
-    fn build_request(&self, _: &Bot) -> Request<Self::Method> {
+    fn build_request(&self, _bot: &Bot) -> Request<Self::Method> {
         Request::new("getChatMenuButton", self, None)
     }
 }
