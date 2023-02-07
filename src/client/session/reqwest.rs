@@ -3,7 +3,7 @@ use super::base::{ClientResponse, Session, DEFAULT_TIMEOUT};
 use crate::{
     client::{telegram, Bot},
     methods::TelegramMethod,
-    serializers,
+    serializers::reqwest::{Error as SerializerError, MultipartSerializer},
     types::{InputFile, InputFileKind},
 };
 
@@ -19,7 +19,7 @@ use thiserror;
 #[derive(Debug, thiserror::Error)]
 pub(crate) enum BuildFormError {
     #[error(transparent)]
-    Serializer(#[from] serializers::reqwest::Error),
+    Serializer(#[from] SerializerError),
     #[error(transparent)]
     Io(#[from] io::Error),
 }
@@ -45,12 +45,12 @@ impl Reqwest {
     async fn build_form_data<'a, T>(
         &self,
         data: &T,
-        files: Option<&HashMap<&str, &InputFile<'a>>>,
+        files: Option<HashMap<&str, &InputFile<'a>>>,
     ) -> Result<Form, BuildFormError>
     where
         T: Serialize + ?Sized,
     {
-        let mut form = data.serialize(serializers::reqwest::MultipartSerializer::new())?;
+        let mut form = data.serialize(MultipartSerializer::new())?;
 
         if let Some(files) = files {
             for (value, file) in files {
@@ -115,10 +115,15 @@ impl Session for Reqwest {
         T::Method: Send + Sync,
     {
         let request = method.build_request(bot);
-        let url = self.api.api_url(bot.token(), request.method_name());
+        let url = self.api.api_url(bot.token(), request.method_name);
         let form = self
-            .build_form_data(request.data(), request.files())
-            .await?;
+            .build_form_data(request.data, request.files)
+            .await
+            .map_err(|err| {
+                log::error!("Cannot build a form: {err}");
+
+                err
+            })?;
 
         let response = if let Some(timeout) = timeout {
             self.client
