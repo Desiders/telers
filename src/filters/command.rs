@@ -9,6 +9,7 @@ use crate::{
 
 use async_trait::async_trait;
 use regex::Regex;
+use std::borrow::Cow;
 use thiserror;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -32,21 +33,198 @@ pub enum Error {
 /// * `Regex(Regex)` - A command pattern with regex
 #[derive(Debug, Clone)]
 pub enum PatternType<'a> {
-    Text(&'a str),
+    Text(Cow<'a, str>),
     Object(BotCommand),
     Regex(Regex),
 }
 
-#[derive(Default, Debug, Clone)]
+impl<'a> From<Cow<'a, str>> for PatternType<'a> {
+    fn from(text: Cow<'a, str>) -> Self {
+        Self::Text(text)
+    }
+}
+
+impl<'a> From<&'a str> for PatternType<'a> {
+    fn from(text: &'a str) -> Self {
+        Self::Text(Cow::Borrowed(text))
+    }
+}
+
+impl From<BotCommand> for PatternType<'_> {
+    fn from(command: BotCommand) -> Self {
+        Self::Object(command)
+    }
+}
+
+impl From<Regex> for PatternType<'_> {
+    fn from(regex: Regex) -> Self {
+        Self::Regex(regex)
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct Command<'a> {
-    /// List of commands (str, [`BotCommand`] or compiled regexp patterns)
-    pub commands: Vec<PatternType<'a>>,
+    /// List of commands ([`Cow`], [`BotCommand`] or compiled [`Regex`] patterns)
+    commands: Vec<PatternType<'a>>,
     /// Command prefix
-    pub prefix: &'a str,
+    prefix: &'a str,
     /// Ignore other command case (Does not work with regexp, use flags instead)
-    pub ignore_case: bool,
+    ignore_case: bool,
     /// Ignore bot mention. By default, bot can not handle commands intended for other bots
-    pub ignore_mention: bool,
+    ignore_mention: bool,
+}
+
+impl<'a> Command<'a> {
+    /// Creates a new [`Command`] filter
+    /// # Arguments
+    /// * `commands` - List of commands ([`Cow`], [`BotCommand`] or compiled [`Regex`] patterns)
+    /// * `prefix` - Command prefix
+    /// * `ignore_case` - Ignore other command case (Does not work with regexp, use flags instead)
+    /// * `ignore_mention` - Ignore bot mention. By default, bot can not handle commands intended for other bots
+    /// # Panics
+    /// If `ignore_case` is `true` and `command`, which contains [`Regex`] pattern,
+    /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
+    #[must_use]
+    pub fn new<T: Into<PatternType<'a>>>(
+        commands: Vec<T>,
+        prefix: &'a str,
+        ignore_case: bool,
+        ignore_mention: bool,
+    ) -> Self {
+        let commands = if ignore_case {
+            commands
+                .into_iter()
+                .map(|command| match command.into() {
+                    PatternType::Text(text) => PatternType::Text(text.to_lowercase().into()),
+                    PatternType::Object(command) => {
+                        PatternType::Text(command.command.to_lowercase().into())
+                    }
+                    PatternType::Regex(regex) => PatternType::Regex(
+                        Regex::new(&format!("(?i){regex}"))
+                            .expect("Failed to compile regex with (?i) flag"),
+                    ),
+                })
+                .collect()
+        } else {
+            commands.into_iter().map(Into::into).collect()
+        };
+
+        Self {
+            commands,
+            prefix,
+            ignore_case,
+            ignore_mention,
+        }
+    }
+
+    #[must_use]
+    pub fn builder() -> CommandBuilder<'a> {
+        CommandBuilder::new()
+    }
+}
+
+impl Default for Command<'_> {
+    #[must_use]
+    fn default() -> Self {
+        Self {
+            commands: vec![],
+            prefix: "/",
+            ignore_case: false,
+            ignore_mention: false,
+        }
+    }
+}
+
+#[allow(clippy::module_name_repetitions)]
+#[derive(Debug, Clone)]
+pub struct CommandBuilder<'a> {
+    commands: Vec<PatternType<'a>>,
+    prefix: &'a str,
+    ignore_case: bool,
+    ignore_mention: bool,
+}
+
+impl<'a> CommandBuilder<'a> {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// # Panics
+    /// If `ignore_case` is `true` and `command`, which contains [`Regex`] pattern,
+    /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
+    #[must_use]
+    pub fn commands<T: Into<PatternType<'a>>>(mut self, val: Vec<T>) -> Self {
+        self.commands = val.into_iter().map(Into::into).collect();
+        self
+    }
+
+    #[must_use]
+    pub fn command<T: Into<PatternType<'a>>>(mut self, val: T) -> Self {
+        self.commands.push(val.into());
+        self
+    }
+
+    #[must_use]
+    pub fn prefix(mut self, val: &'a str) -> Self {
+        self.prefix = val;
+        self
+    }
+
+    #[must_use]
+    pub fn ignore_case(mut self, val: bool) -> Self {
+        self.ignore_case = val;
+        self
+    }
+
+    #[must_use]
+    pub fn ignore_mention(mut self, val: bool) -> Self {
+        self.ignore_mention = val;
+        self
+    }
+
+    /// # Panics
+    /// If `ignore_case` is `true` and `command`, which contains [`Regex`] pattern,
+    /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
+    #[must_use]
+    pub fn build(self) -> Command<'a> {
+        let commands = if self.ignore_case {
+            self.commands
+                .into_iter()
+                .map(|command| match command {
+                    PatternType::Text(text) => PatternType::Text(text.to_lowercase().into()),
+                    PatternType::Object(command) => {
+                        PatternType::Text(command.command.to_lowercase().into())
+                    }
+                    PatternType::Regex(regex) => PatternType::Regex(
+                        Regex::new(&format!("(?i){regex}"))
+                            .expect("Failed to compile regex with (?i) flag"),
+                    ),
+                })
+                .collect()
+        } else {
+            self.commands
+        };
+
+        Command {
+            commands,
+            prefix: self.prefix,
+            ignore_case: self.ignore_case,
+            ignore_mention: self.ignore_mention,
+        }
+    }
+}
+
+impl Default for CommandBuilder<'_> {
+    #[must_use]
+    fn default() -> Self {
+        Self {
+            commands: vec![],
+            prefix: "/",
+            ignore_case: false,
+            ignore_mention: false,
+        }
+    }
 }
 
 impl<'a> Command<'a> {
@@ -96,16 +274,14 @@ impl<'a> Command<'a> {
                         return Ok(());
                     }
                 }
-                PatternType::Object(other_command) => {
-                    if command == other_command.command {
-                        return Ok(());
-                    }
-                }
                 PatternType::Regex(other_command) => {
                     if other_command.is_match(&command) {
                         return Ok(());
                     }
                 }
+                PatternType::Object(_) => unreachable!(
+                    "PatternType::Object should be converted to PatternType::Text before validation"
+                ),
             }
         }
 
@@ -150,23 +326,25 @@ impl CommandObject {
         let args: Vec<String> = result[1..].iter().map(ToString::to_string).collect();
 
         let prefix = full_command[0..1].to_string();
-        let command_with_mention = full_command[1..].to_string();
-        let (command, mention) = if command_with_mention.contains('@') {
-            let result: Vec<_> = command_with_mention.split('@').collect();
+        let command = full_command[1..].to_string();
+
+        // Check if command contains mention, e.g. `/command@mention`, `/command@mention args`
+        // and extract it, if it exists and isn't empty
+        let (command, mention) = if command.contains('@') {
+            let result: Vec<_> = command.split('@').collect();
 
             let command = result[0].to_string();
             let mention = result[1].to_string();
 
-            (
-                command,
-                if mention.is_empty() {
-                    None
-                } else {
-                    Some(mention)
-                },
-            )
+            let mention = if mention.is_empty() {
+                None
+            } else {
+                Some(mention)
+            };
+
+            (command, mention)
         } else {
-            (command_with_mention, None)
+            (command, None)
         };
 
         CommandObject {
@@ -233,14 +411,12 @@ mod tests {
 
     #[test]
     fn test_validate_prefix() {
-        let command = Command {
-            commands: vec![PatternType::Text("start")],
-            ignore_case: false,
-            ignore_mention: false,
-            prefix: "/",
-        };
+        let command = Command::builder().prefix("/").command("start").build();
 
         let command_obj = CommandObject::extract("/start");
+        assert!(command.validate_prefix(&command_obj).is_ok());
+
+        let command_obj = CommandObject::extract("/start_other");
         assert!(command.validate_prefix(&command_obj).is_ok());
 
         let command_obj = CommandObject::extract("!start");
@@ -249,12 +425,11 @@ mod tests {
 
     #[test]
     fn test_validate_command() {
-        let command = Command {
-            commands: vec![PatternType::Text("start")],
-            ignore_case: false,
-            ignore_mention: false,
-            prefix: "/",
-        };
+        let command = Command::builder()
+            .prefix("/")
+            .command("start")
+            .ignore_case(false)
+            .build();
 
         let command_obj = CommandObject::extract("/start");
         assert!(command.validate_command(&command_obj).is_ok());
@@ -268,12 +443,31 @@ mod tests {
         let command_obj = CommandObject::extract("/STOP");
         assert!(command.validate_command(&command_obj).is_err());
 
-        let command = Command {
-            commands: vec![PatternType::Text("start")],
-            ignore_case: true,
-            ignore_mention: false,
-            prefix: "/",
-        };
+        let command = Command::builder()
+            .prefix("/")
+            .command("start")
+            .ignore_case(true)
+            .build();
+
+        let command_obj = CommandObject::extract("/start");
+        assert!(command.validate_command(&command_obj).is_ok());
+
+        let command_obj = CommandObject::extract("/START");
+        assert!(command.validate_command(&command_obj).is_ok());
+
+        let command_obj = CommandObject::extract("/stop");
+        assert!(command.validate_command(&command_obj).is_err());
+
+        let command_obj = CommandObject::extract("/STOP");
+        assert!(command.validate_command(&command_obj).is_err());
+
+        // Special case: `command` with uppercase letters and `ignore_case` is `true`
+        // command should be converted to lowercase
+        let command = Command::builder()
+            .prefix("/")
+            .command("Start")
+            .ignore_case(true)
+            .build();
 
         let command_obj = CommandObject::extract("/start");
         assert!(command.validate_command(&command_obj).is_ok());
@@ -287,4 +481,6 @@ mod tests {
         let command_obj = CommandObject::extract("/STOP");
         assert!(command.validate_command(&command_obj).is_err());
     }
+
+    // TODO: Add tests for `validate_mention` method
 }
