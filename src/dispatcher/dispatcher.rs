@@ -4,8 +4,7 @@ use crate::{
     client::Bot,
     context::Context,
     dispatcher::event::service::{ServiceFactory, ServiceProvider, ToServiceProvider},
-    enums::update_type::UpdateType,
-    error::app,
+    error::{AppErrorKind, UnknownUpdateTypeError},
     methods::GetUpdates,
     types::Update,
 };
@@ -64,27 +63,39 @@ impl Default for Dispatcher {
 impl Dispatcher {
     /// Create a new dispatcher
     /// # Arguments
-    /// * `main_router` - Main router, which will be used for dispatching updates
-    /// * bots - Bots, which will be used for getting updates
-    /// * `polling_timeout` - *Optional*. Timeout in seconds for long polling.
-    /// Defaults to 0. Should be positive, short polling should be used for testing purposes only.
-    /// * `allowed_updates` - *Optional*. List of the update types you want your bot to receive.
+    /// * `main_router` -
+    /// Main router, which will be used for dispatching updates
+    /// * `bots` -
+    /// Bots, which will be used for getting updates.
+    /// All bots use the same dispatcher, but each bot has the own polling process.
+    /// * `polling_timeout` -
+    /// Timeout in seconds for long polling.
+    /// Short polling should be used for testing purposes only.
+    /// * `allowed_updates` -
+    /// Allowed updates for polling.
+    /// List of the update types you want your bot to receive.
     /// Specify an empty list to receive all update types except `chat_member` (default).
-    /// * `backoff` - Backoff for handling server-side errors
+    /// * `backoff` - Backoff used for handling server-side errors
     #[must_use]
-    pub fn new(
+    pub fn new<B, BOFF, AllowedUpdate>(
         main_router: Router,
-        bots: Vec<Arc<Bot>>,
+        bots: Vec<B>,
         polling_timeout: Option<i64>,
-        backoff: ExponentialBackoff<SystemClock>,
-        allowed_updates: Option<Vec<String>>,
-    ) -> Self {
+        backoff: BOFF,
+        allowed_updates: Option<Vec<AllowedUpdate>>,
+    ) -> Self
+    where
+        B: Into<Arc<Bot>>,
+        BOFF: Into<ExponentialBackoff<SystemClock>>,
+        AllowedUpdate: Into<String>,
+    {
         Self {
             main_router,
-            bots,
+            bots: bots.into_iter().map(Into::into).collect(),
             polling_timeout,
-            backoff,
-            allowed_updates,
+            backoff: backoff.into(),
+            allowed_updates: allowed_updates
+                .map(|allowed_updates| allowed_updates.into_iter().map(Into::into).collect()),
         }
     }
 
@@ -133,7 +144,7 @@ impl DispatcherBuilder {
     /// Set bot to dispatcher. Bot used for getting updates.
     /// You can use this method multiple times to add multiple bots or just use `bots` method.
     #[must_use]
-    pub fn bot<B: Into<Arc<Bot>>>(mut self, val: B) -> Self {
+    pub fn bot<T: Into<Arc<Bot>>>(mut self, val: T) -> Self {
         self.bots.push(val.into());
         self
     }
@@ -171,15 +182,9 @@ impl DispatcherBuilder {
     /// You can use this method multiple times to add multiple allowed updates or just use `allowed_updates` method.
     #[must_use]
     pub fn allowed_update<T: Into<String>>(mut self, val: T) -> Self {
-        let allowed_update = val.into();
-
-        match self.allowed_updates {
-            Some(ref mut allowed_updates) => allowed_updates.push(allowed_update),
-            None => {
-                self.allowed_updates = Some(vec![allowed_update]);
-            }
-        }
-
+        self.allowed_updates
+            .get_or_insert_with(Vec::new)
+            .push(val.into());
         self
     }
 
@@ -187,17 +192,8 @@ impl DispatcherBuilder {
     /// List of the update types you want your bot to receive.
     /// Specify an empty list to receive all update types except `chat_member` (default).
     #[must_use]
-    pub fn allowed_updates<T, AllowedUpdate>(mut self, val: T) -> Self
-    where
-        T: Into<Vec<AllowedUpdate>>,
-        AllowedUpdate: Into<String>,
-    {
-        self.allowed_updates = Some(
-            (val.into() as Vec<AllowedUpdate>)
-                .into_iter()
-                .map(Into::into)
-                .collect(),
-        );
+    pub fn allowed_updates<T: Into<String>>(mut self, val: Vec<T>) -> Self {
+        self.allowed_updates = Some(val.into_iter().map(Into::into).collect());
         self
     }
 
@@ -249,6 +245,8 @@ impl DispatcherInner {
     /// # Arguments
     /// * `bot` - Bot which will be used for creating [`Request`]
     /// # Errors
+    /// Returns [`UnknownUpdateTypeError`] if update type is not supported, or [`AppErrorKind`] if any of this error occurs:
+    /// - If update type is not supported
     /// - If any outer middleware returns error
     /// - If any inner middleware returns error
     /// - If any handler returns error. Probably it's error to extract args to the handler.
@@ -257,14 +255,14 @@ impl DispatcherInner {
         self: Arc<Self>,
         bot: B,
         update: U,
-    ) -> Result<Response, app::ErrorKind>
+    ) -> Result<Result<Response, AppErrorKind>, UnknownUpdateTypeError>
     where
         B: Into<Arc<Bot>>,
         U: Into<Arc<Update>>,
     {
         let update: Arc<Update> = update.into();
 
-        let update_type = match update.as_ref().try_into() as Result<UpdateType, app::ErrorKind> {
+        let update_type = match update.as_ref().try_into() {
             Ok(update_type) => update_type,
             Err(err) => {
                 log::error!("{err}");
@@ -273,12 +271,13 @@ impl DispatcherInner {
             }
         };
 
-        self.main_router
+        Ok(self
+            .main_router
             .propagate_event(
                 &update_type,
                 Request::new(bot, Arc::clone(&update), Context::default()),
             )
-            .await
+            .await)
     }
 
     /// Endless updates reader with correctly handling any server-side or connection errors.
@@ -286,12 +285,14 @@ impl DispatcherInner {
     /// We use exponential backoff algorithm for handling server-side errors.
     /// # Arguments
     /// * `bot` - Bot which will be used for getting updates
-    /// * `polling_timeout` - *Optional*. Timeout in seconds for long polling.
-    /// Defaults to 0. Should be positive, short polling should be used for testing purposes only.
-    /// * `allowed_updates` - *Optional*. List of the update types you want your bot to receive.
+    /// * `polling_timeout` -
+    /// Timeout in seconds for long polling.
+    /// Should be positive, short polling should be used for testing purposes only.
+    /// * `allowed_updates` -
+    /// List of the update types you want your bot to receive.
     /// Specify an empty list to receive all update types except `chat_member` (default).
     /// * `update_sender` - Sender for sending updates
-    /// * `backoff` - Backoff for handling server-side errors
+    /// * `backoff` - Backoff used for handling server-side errors
     /// # Errors
     /// - If sender channel is disconnected
     async fn listen_updates(
@@ -353,7 +354,7 @@ impl DispatcherInner {
             offset = Some(updates.last().map(|update| update.update_id + 1).unwrap());
 
             for update in updates {
-                // `Box` is used to avoid stack overflow
+                // `Box` is used to avoid stack overflow, because `Update` is a big struct
                 update_sender.send(Box::new(update)).await?;
             }
 
@@ -370,15 +371,18 @@ impl DispatcherInner {
 
     /// Internal polling process
     /// # Arguments
-    /// * `bot` - Bot which will be used for getting updates and creating [`Request`]. \
-    /// Check methods [`listen_updates`](DispatcherService::listen_updates) and [`feed_update`](DispatcherService::feed_update) for more info.
-    /// * `polling_timeout` - *Optional*. Timeout in seconds for long polling.
+    /// * `bot` -
+    /// Bot which will be used for getting updates and creating [`Request`]. \
+    /// Check methods [`DispatcherService::listen_updates`] and [`DispatcherService::feed_update`] for more info.
+    /// * `polling_timeout` -
+    /// Timeout in seconds for long polling.
     /// Defaults to 0. Should be positive, short polling should be used for testing purposes only.
-    /// * `allowed_updates` - *Optional*. List of the update types you want your bot to receive.
+    /// * `allowed_updates` -
+    /// List of the update types you want your bot to receive.
     /// Specify an empty list to receive all update types except `chat_member` (default).
-    /// * `backoff` - Backoff for handling server-side errors
+    /// * `backoff` - Backoff used for handling server-side errors.
     /// # Panics
-    /// - If failed to register SIGINT or SIGTERM signal handler
+    /// If failed to register SIGINT or SIGTERM signal handler
     async fn polling(
         self: Arc<Self>,
         bot: Arc<Bot>,
@@ -429,22 +433,25 @@ impl DispatcherInner {
         PollingError::Aborted
     }
 
-    /// Polling runner
+    /// Polling runner. \
+    /// Run [`Dispatcher::polling`] method for each bot in `bots`. \
+    /// Wait for `SIGINT` or `SIGTERM` signal, which will stop polling process for all bots. \
+    /// Emit startup events before starting polling process and shutdown events after stopping polling process for all bots.
     /// # Errors
     /// - If any startup observer returns error
     /// - If any shutdown observer returns error
     /// # Panics
     /// - If `bots` is empty
     /// - If failed to register SIGINT or SIGTERM signal handler
-    pub async fn run_polling(self: Arc<Self>) -> Result<(), app::ErrorKind> {
+    pub async fn run_polling(self: Arc<Self>) -> Result<(), AppErrorKind> {
         let bots = self.bots.clone();
         let bots_len = bots.len();
         assert_ne!(bots_len, 0);
 
-        if let Err(err) = self.main_router.emit_startup().await {
-            log::error!("Error while emit startup: {err}");
+        if let Err(extraction_err) = self.main_router.emit_startup().await {
+            log::error!("Error while emit startup: {extraction_err}");
 
-            return Err(err);
+            return Err(AppErrorKind::User(extraction_err.into()));
         }
 
         let handles = bots
@@ -477,20 +484,22 @@ impl DispatcherInner {
             log::warn!("Polling is finished for all bots");
         }
 
-        if let Err(err) = self.main_router.emit_shutdown().await {
-            log::error!("Error while emit shutdown: {err}");
+        if let Err(extraction_err) = self.main_router.emit_shutdown().await {
+            log::error!("Error while emit shutdown: {extraction_err}");
 
-            Err(err)
-        } else {
-            Ok(())
+            return Err(AppErrorKind::User(extraction_err.into()));
         }
+        Ok(())
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{dispatcher::event::bases::PropagateEventResult, types::Message};
+    use crate::{
+        dispatcher::event::bases::{EventReturn, PropagateEventResult},
+        types::Message,
+    };
 
     use tokio;
 
@@ -509,19 +518,22 @@ mod tests {
             .to_service_provider(())
             .unwrap();
 
-        let res = dispatcher
+        let response = dispatcher
             .feed_update(Arc::clone(&bot), Arc::clone(&update))
             .await
+            .unwrap()
             .unwrap();
 
         // Event shouldn't be handled, because there is no any handler registered
-        match res.response() {
+        match response.propagate_result {
             PropagateEventResult::Unhandled => {}
             _ => panic!("Unexpected result"),
         }
 
         let mut router = Router::new("main");
-        router.message.register_no_filters(|| async {});
+        router
+            .message
+            .register_no_filters(|| async { Ok(EventReturn::Finish) });
 
         let dispatcher = Dispatcher::builder()
             .main_router(router)
@@ -529,10 +541,10 @@ mod tests {
             .to_service_provider(())
             .unwrap();
 
-        let res = dispatcher.feed_update(bot, update).await.unwrap();
+        let response = dispatcher.feed_update(bot, update).await.unwrap().unwrap();
 
         // Event should be handled
-        match res.response() {
+        match response.propagate_result {
             PropagateEventResult::Handled(_) => {}
             _ => panic!("Unexpected result"),
         }
@@ -551,7 +563,7 @@ mod tests {
             .to_service_provider(())
             .unwrap();
 
-        // Should return error, because `Update` is empty and `Update::update_type()` will be unknown
-        dispatcher.feed_update(bot, update).await.unwrap();
+        // Should return error, because `Update` is empty and `UpdateType` will be unknown
+        dispatcher.feed_update(bot, update).await.unwrap().unwrap();
     }
 }
