@@ -1,108 +1,87 @@
 use super::telegram::handler::Response;
 
-use crate::error::{app, telegram};
-
-/// Responses from events, that indicates how the dispatcher should process response
-#[derive(Debug, Clone, Eq, Hash, PartialEq, Default)]
-pub struct EventReturn {
-    /// - In outer middlewares, means that the middleware should be skipped, and next middleware should be run
-    /// - In inner middlewares, means that the middleware should be skipped, and next handler should be run
-    /// - In handler, means that the handler should be skipped, and next handler should be run
-    is_skip: bool,
-    /// - In outer middlewares, means that propagate the event should be stopped
-    /// - In inner middlewares, means that propagate the event should be stopped
-    /// - In handler, means that propagate the event should be stopped
-    is_cancel: bool,
-}
-
-impl EventReturn {
-    /// # Arguments
-    /// * `is_skip` -
-    ///     - In outer middlewares, means that the middleware should be skipped, and next middleware should be run
-    ///     - In inner middlewares, means that the middleware should be skipped, and next handler should be run
-    ///     - In handler, means that the handler should be skipped, and next handler should be run
-    /// * `is_cancel` -
-    ///     - In outer middlewares, means that propagate the event should be stopped
-    ///     - In inner middlewares, means that propagate the event should be stopped
-    ///     - In handler, means that propagate the event should be stopped
-    #[must_use]
-    pub fn new(is_skip: bool, is_cancel: bool) -> Self {
-        Self { is_skip, is_cancel }
-    }
-
-    #[must_use]
-    pub fn is_skip(&self) -> bool {
-        self.is_skip
-    }
-
-    #[must_use]
-    pub fn is_cancel(&self) -> bool {
-        self.is_cancel
-    }
-}
-
-/// A wrapper to [`EventReturn`].
-pub enum Action {
-    /// - In outer middlewares, means that the middleware should be skipped, and next middleware should be run
-    /// - In inner middlewares, means that the middleware should be skipped, and next handler should be run
-    /// - In handler, means that the handler should be skipped, and next handler should be run
+/// Response, which can be returned from handlers, filters and middlewares by user.
+/// This indicates how [`crate::dispatcher::Dispatcher`] should process response.
+/// # Notes
+/// In some cases, some values may represent the same result
+/// # Shortcuts
+/// - [`SkipEvent`] - [`EventReturn::Skip`]
+/// - [`CancelEvent`] - [`EventReturn::Cancel`]
+/// - [`FinishEvent`] - [`EventReturn::Finish`]
+#[derive(Default)]
+pub enum EventReturn {
+    /// - In outer middleware, means that the middleware should be skipped, and next middleware should be run
+    /// - In inner middleware, means that the middleware should be skipped, and next handler with inner middlewares should be run
+    /// - In handler, means that the handler should be skipped, and next handler with inner middlewares should be run
     Skip,
-    /// - In outer middlewares, means that propagate the event should be stopped
-    /// - In inner middlewares, means that propagate the event should be stopped
-    /// - In handler, means that propagate the event should be stopped
+    /// - In outer middleware, means that propagate the event should be stopped
+    /// - In inner middleware, means that propagate the event should be stopped
+    /// - In handler, means that the propagate event should return a response from handler or inner middleware
     Cancel,
+    /// - In outer middleware, means that updated request from middleware should be passed to next middleware, and next middleware should be run
+    /// - In inner middleware, means that the propagate event should return a response from handler or inner middleware
+    /// - In handler, means that the propagate event should return a response from handler
+    #[default]
+    Finish,
 }
 
-/// Responses from routers and observers
+/// Shortcut for [`EventReturn::Skip`]
+pub struct SkipEvent;
+
+impl From<SkipEvent> for EventReturn {
+    fn from(_: SkipEvent) -> Self {
+        Self::Skip
+    }
+}
+
+/// Shortcut for [`EventReturn::Cancel`]
+pub struct CancelEvent;
+
+impl From<CancelEvent> for EventReturn {
+    fn from(_: CancelEvent) -> Self {
+        Self::Cancel
+    }
+}
+
+/// Shortcut for [`EventReturn::Finish`]
+pub struct FinishEvent;
+
+impl From<FinishEvent> for EventReturn {
+    fn from(_: FinishEvent) -> Self {
+        Self::Finish
+    }
+}
+
+/// Response, which can be returned from routers and observers by program.
+/// This indicates [`crate::dispatcher::Dispatcher`] how propagate the event was processed.
 pub enum PropagateEventResult {
+    /// Event was rejected
     Rejected,
+    /// No handler was processed
     Unhandled,
+    /// Handler was processed with [`Response`]
     Handled(Response),
 }
 
 mod impl_from {
-    use super::{app, telegram, Action, EventReturn};
+    use super::EventReturn;
 
-    impl From<Action> for EventReturn {
-        fn from(action: Action) -> Self {
-            match action {
-                Action::Skip => Self {
-                    is_skip: true,
-                    is_cancel: false,
-                },
-                Action::Cancel => Self {
-                    is_skip: false,
-                    is_cancel: true,
-                },
-            }
-        }
-    }
-
-    macro_rules! default_impl_from {
-        // Implement `From` for `T` with one or more lifetimes
-        ($T:ty, $($lifetime:tt),* $(,)?) => {
-            impl<$($lifetime,)*> From<$T> for EventReturn {
-                fn from(_: $T) -> Self {
-                    Self::default()
-                }
-            }
-        };
-        // Implement `From` for many `T` without lifetimes
-        ($($T:ty),* $(,)?) => {
+    macro_rules! default_impl_event_return_from {
+        ($($t:ty),*) => {
             $(
-                impl From<$T> for EventReturn {
-                    fn from(_: $T) -> Self {
-                        Self::default()
+                impl From<$t> for EventReturn {
+                    fn from(_: $t) -> Self {
+                        <Self as Default>::default()
                     }
                 }
             )*
         };
     }
 
-    // Implement `From` for `T` with one or more lifetimes
-    default_impl_from!(Result<T, E>, T, E);
-    default_impl_from!(Option<T>, T);
-    default_impl_from!(Box<T>, T);
-    // Implement `From` for many `T` without lifetimes
-    default_impl_from!((), app::ErrorKind, telegram::ErrorKind);
+    default_impl_event_return_from! {
+        i8, i16, i32, i64, i128, isize,
+        u8, u16, u32, u64, u128, (), usize,
+        f32, f64, bool,
+        char, &str, String
+    }
 }
