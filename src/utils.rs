@@ -1,5 +1,4 @@
 pub mod text_decorations;
 
-pub mod backoff {
-    pub use ::backoff::*;
-}
+pub use backoff;
+pub use async_trait;
