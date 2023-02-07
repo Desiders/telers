@@ -13,11 +13,11 @@ where
     T: Serialize + ?Sized,
 {
     /// Telegram API method name
-    method_name: &'static str,
+    pub method_name: &'static str,
     /// Telegram API method data
-    data: &'a T,
+    pub data: &'a T,
     /// Files to send
-    files: Option<HashMap<&'a str, &'a InputFile<'a>>>,
+    pub files: Option<HashMap<&'a str, &'a InputFile<'a>>>,
 }
 
 impl<'a, T> Request<'a, T>
@@ -36,21 +36,6 @@ where
             files,
         }
     }
-
-    #[must_use]
-    pub fn method_name(&self) -> &str {
-        self.method_name
-    }
-
-    #[must_use]
-    pub fn data(&self) -> &T {
-        self.data
-    }
-
-    #[must_use]
-    pub fn files(&self) -> Option<&HashMap<&str, &InputFile<'a>>> {
-        self.files.as_ref()
-    }
 }
 
 /// This object represents a response from Telegram API. It's returned by making requests to Telegram API, for more info check [Telegram API docs](https://core.telegram.org/bots/api#making-requests)
@@ -62,11 +47,11 @@ where
 /// - Some errors may also have an optional field `parameters` of the type [`ResponseParameters`], which can help to automatically handle the error.
 #[derive(Deserialize)]
 pub struct Response<T> {
-    ok: bool,
-    pub(crate) result: Option<T>,
-    description: Option<String>,
-    error_code: Option<i16>,
-    parameters: Option<ResponseParameters>,
+    pub ok: bool,
+    pub result: Option<T>,
+    pub description: Option<String>,
+    pub error_code: Option<i16>,
+    pub parameters: Option<ResponseParameters>,
 }
 
 impl<T: DeserializeOwned> Response<T> {
@@ -85,31 +70,6 @@ impl<T: DeserializeOwned> Response<T> {
             error_code,
             parameters,
         }
-    }
-
-    #[must_use]
-    pub fn ok(&self) -> bool {
-        self.ok
-    }
-
-    #[must_use]
-    pub fn result(&self) -> Option<&T> {
-        self.result.as_ref()
-    }
-
-    #[must_use]
-    pub fn description(&self) -> Option<&str> {
-        self.description.as_deref()
-    }
-
-    #[must_use]
-    pub fn error_code(&self) -> Option<i16> {
-        self.error_code
-    }
-
-    #[must_use]
-    pub fn parameters(&self) -> Option<&ResponseParameters> {
-        self.parameters.as_ref()
     }
 }
 
