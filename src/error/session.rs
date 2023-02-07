@@ -1,4 +1,4 @@
-use super::telegram;
+use super::TelegramErrorKind;
 
 use anyhow;
 use thiserror;
@@ -13,5 +13,5 @@ pub enum ErrorKind {
     Parse(#[from] serde_json::Error),
     /// Error by Telegram API
     #[error(transparent)]
-    Telegram(#[from] telegram::ErrorKind),
+    Telegram(#[from] TelegramErrorKind),
 }
