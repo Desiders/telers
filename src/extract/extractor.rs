@@ -1,59 +1,35 @@
-use crate::{client::Bot, context::Context as AppContext, error::app, types::Update};
+use crate::{client::Bot, context::Context, error::ExtractionError, types::Update};
 
-use futures::{ready, Future};
-use pin_project_lite::pin_project;
-use std::{
-    convert::Infallible,
-    marker::PhantomData,
-    pin::Pin,
-    sync::Arc,
-    task::{Context, Poll},
-};
+use std::{convert::Infallible, pin::Pin, sync::Arc};
 
 /// Trait for extracting data from [`Update`] and [`Context`] to handlers arguments
-pub trait FromEventAndContext: Sized + Send + Sync {
-    type Error: Into<app::ErrorKind> + Send + Sync;
-    type Future: Future<Output = Result<Self, Self::Error>> + Send + Sync;
+pub trait FromEventAndContext: Sized {
+    type Error: Into<ExtractionError>;
 
-    fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<AppContext>) -> Self::Future;
+    /// Extracts data from [`Update`], [`Context`] and [`Bot`] to handler argument
+    /// # Returns
+    /// `Ok(Self)` if extraction was successful,
+    /// `Err(Self::Error)` otherwise
+    /// # Errors
+    /// [`ExtractionError`] if extraction was unsuccessful
+    fn extract(
+        bot: Arc<Bot>,
+        update: Arc<Update>,
+        context: Arc<Context>,
+    ) -> Result<Self, Self::Error>;
 }
 
-impl<T> FromEventAndContext for Option<T>
-where
-    T: FromEventAndContext,
-{
+impl<T: FromEventAndContext> FromEventAndContext for Option<T> {
     type Error = Infallible;
-    type Future = FromEventAndContextOptFuture<T::Future>;
 
-    #[inline]
-    fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<AppContext>) -> Self::Future {
-        FromEventAndContextOptFuture {
-            fut: T::extract(bot, update, context),
-        }
-    }
-}
-
-pin_project! {
-    pub struct FromEventAndContextOptFuture<Fut> {
-        #[pin]
-        fut: Fut,
-    }
-}
-
-impl<Fut, T, E> Future for FromEventAndContextOptFuture<Fut>
-where
-    Fut: Future<Output = Result<T, E>>,
-    E: Into<app::ErrorKind>,
-{
-    type Output = Result<Option<T>, Infallible>;
-
-    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        let this = self.project();
-        let res = ready!(this.fut.poll(cx));
-
-        match res {
-            Ok(t) => Poll::Ready(Ok(Some(t))),
-            Err(_) => Poll::Ready(Ok(None)),
+    fn extract(
+        bot: Arc<Bot>,
+        update: Arc<Update>,
+        context: Arc<Context>,
+    ) -> Result<Self, Self::Error> {
+        match T::extract(bot, update, context) {
+            Ok(value) => Ok(Some(value)),
+            Err(_) => Ok(None),
         }
     }
 }
@@ -62,155 +38,120 @@ impl<T, E> FromEventAndContext for Result<T, E>
 where
     T: FromEventAndContext,
     T::Error: Into<E>,
-    E: Send + Sync,
 {
     type Error = Infallible;
-    type Future = FromEventAndContextResFuture<T::Future, E>;
 
-    #[inline]
-    fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<AppContext>) -> Self::Future {
-        FromEventAndContextResFuture {
-            fut: T::extract(bot, update, context),
-            phantom: PhantomData,
-        }
+    fn extract(
+        bot: Arc<Bot>,
+        update: Arc<Update>,
+        context: Arc<Context>,
+    ) -> Result<Self, Self::Error> {
+        Ok(T::extract(bot, update, context).map_err(Into::into))
     }
 }
 
-pin_project! {
-    pub struct FromEventAndContextResFuture<Fut, E> {
-        #[pin]
-        fut: Fut,
-        phantom: PhantomData<E>,
+impl<T: FromEventAndContext> FromEventAndContext for Box<T> {
+    type Error = T::Error;
+
+    fn extract(
+        bot: Arc<Bot>,
+        update: Arc<Update>,
+        context: Arc<Context>,
+    ) -> Result<Self, Self::Error> {
+        T::extract(bot, update, context).map(Box::new)
     }
 }
 
-impl<Fut, T, Ei, E> Future for FromEventAndContextResFuture<Fut, E>
-where
-    Fut: Future<Output = Result<T, Ei>>,
-    Ei: Into<E>,
-{
-    type Output = Result<Result<T, E>, Infallible>;
+impl<T: FromEventAndContext> FromEventAndContext for Pin<Box<T>> {
+    type Error = T::Error;
 
-    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        let this = self.project();
-        let res = ready!(this.fut.poll(cx));
+    fn extract(
+        bot: Arc<Bot>,
+        update: Arc<Update>,
+        context: Arc<Context>,
+    ) -> Result<Self, Self::Error> {
+        T::extract(bot, update, context).map(Box::pin)
+    }
+}
 
-        Poll::Ready(Ok(res.map_err(Into::into)))
+/// To be able to use handler without arguments
+impl FromEventAndContext for () {
+    type Error = Infallible;
+
+    fn extract(
+        _bot: Arc<Bot>,
+        _update: Arc<Update>,
+        _context: Arc<Context>,
+    ) -> Result<Self, Self::Error> {
+        Ok(())
     }
 }
 
 #[allow(non_snake_case)]
 #[doc(hidden)]
-mod tuple_from_req {
-    use super::{
-        app, pin_project, AppContext, Arc, Bot, Context, FromEventAndContext, Future, Infallible,
-        Pin, Poll, Update,
-    };
-    use futures::future::{ok, Ready};
+mod factory_from_event_and_context {
+    use super::{Arc, Bot, Context, ExtractionError, FromEventAndContext, Update};
 
-    macro_rules! tuple_from_req {
+    // `FromEventAndContext` implementation for tuple arguments, which implements `FromEventAndContext`
+    macro_rules! factory {
         ($fut:ident; $($T:ident),*) => {
-            /// `FromEventAndContext` implementation for tuple
-            #[allow(unused_parens)]
-            impl<$($T: FromEventAndContext + 'static),+> FromEventAndContext for ($($T,)+)
-            {
-                type Error = app::ErrorKind;
-                type Future = $fut<$($T),+>;
+            impl<$($T: FromEventAndContext),+> FromEventAndContext for ($($T,)+) {
+                type Error = ExtractionError;
 
-                fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<AppContext>) -> Self::Future {
-                    $fut {
-                        $(
-                            $T: ExtractFuture::Future {
-                                fut: $T::extract(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context)),
-                            },
-                        )+
-                    }
-                }
-            }
-
-            pin_project! {
-                pub struct $fut<$($T: FromEventAndContext),+> {
-                    $(
-                        #[pin]
-                        $T: ExtractFuture<$T::Future, $T>,
-                    )+
-                }
-            }
-
-            impl<$($T: FromEventAndContext),+> Future for $fut<$($T),+>
-            {
-                type Output = Result<($($T,)+), app::ErrorKind>;
-
-                fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-                    let mut this = self.project();
-
-                    let mut ready = true;
-                    $(
-                        match this.$T.as_mut().project() {
-                            ExtractProj::Future { fut } => match fut.poll(cx) {
-                                Poll::Ready(Ok(output)) => {
-                                    this.$T.as_mut().project_replace(ExtractFuture::Done { output });
-                                },
-                                Poll::Ready(Err(e)) => return Poll::Ready(Err(e.into())),
-                                Poll::Pending => ready = false,
-                            },
-                            ExtractProj::Done { .. } => {},
-                            ExtractProj::Empty => unreachable!("FromEventAndContext polled after finished"),
-                        }
-                    )+
-
-                    if ready {
-                        Poll::Ready(Ok(
-                            ($(
-                                match this.$T.project_replace(ExtractFuture::Empty) {
-                                    ExtractReplaceProj::Done { output } => output,
-                                    _ => unreachable!("FromEventAndContext polled after finished"),
-                                },
-                            )+)
-                        ))
-                    } else {
-                        Poll::Pending
-                    }
+                fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<Context>) -> Result<Self, Self::Error> {
+                    // If any of the arguments fails to extract, the whole extraction fails
+                    Ok(($($T::extract(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context)).map_err(Into::into)?,)+))
                 }
             }
         };
     }
 
-    pin_project! {
-        #[project = ExtractProj]
-        #[project_replace = ExtractReplaceProj]
-        enum ExtractFuture<Fut, Res> {
-            Future {
-                #[pin]
-                fut: Fut
-            },
-            Done {
-                output: Res,
-            },
-            Empty
-        }
+    // To be able to extract tuple with 1 arguments
+    factory! { TupleFromEventAndContext1; A }
+    // To be able to extract tuple with 2 arguments
+    factory! { TupleFromEventAndContext2; A, B }
+    // To be able to extract tuple with 3 arguments
+    factory! { TupleFromEventAndContext3; A, B, C }
+    // To be able to extract tuple with 4 arguments
+    factory! { TupleFromEventAndContext4; A, B, C, D }
+    // To be able to extract tuple with 5 arguments
+    factory! { TupleFromEventAndContext5; A, B, C, D, E }
+    // To be able to extract tuple with 6 arguments
+    factory! { TupleFromEventAndContext6; A, B, C, D, E, F }
+    // To be able to extract tuple with 7 arguments
+    factory! { TupleFromEventAndContext7; A, B, C, D, E, F, G }
+    // To be able to extract tuple with 8 arguments
+    factory! { TupleFromEventAndContext8; A, B, C, D, E, F, G, H }
+    // To be able to extract tuple with 9 arguments
+    factory! { TupleFromEventAndContext9; A, B, C, D, E, F, G, H, I }
+    // To be able to extract tuple with 10 arguments
+    factory! { TupleFromEventAndContext10; A, B, C, D, E, F, G, H, I, J }
+    // To be able to extract tuple with 11 arguments
+    factory! { TupleFromEventAndContext11; A, B, C, D, E, F, G, H, I, J, K }
+    // To be able to extract tuple with 12 arguments
+    factory! { TupleFromEventAndContext12; A, B, C, D, E, F, G, H, I, J, K, L }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{client::Bot, context::Context, types::Update};
+
+    #[test]
+    fn test_extract() {
+        let bot = Arc::new(Bot::default());
+        let update = Arc::new(Update::default());
+        let context = Arc::new(Context::default());
+
+        let _: () =
+            FromEventAndContext::extract(bot.clone(), update.clone(), context.clone()).unwrap();
+        let _: Option<()> =
+            FromEventAndContext::extract(bot.clone(), update.clone(), context.clone()).unwrap();
+        let _: Result<(), Infallible> =
+            FromEventAndContext::extract(bot.clone(), update.clone(), context.clone()).unwrap();
+        let _: Box<()> =
+            FromEventAndContext::extract(bot.clone(), update.clone(), context.clone()).unwrap();
+        let _: Pin<Box<()>> =
+            FromEventAndContext::extract(bot.clone(), update.clone(), context.clone()).unwrap();
     }
-
-    /// To be able to use handler without arguments
-    impl FromEventAndContext for () {
-        type Error = Infallible;
-        type Future = Ready<Result<Self, Self::Error>>;
-
-        fn extract(_: Arc<Bot>, _: Arc<Update>, _: Arc<AppContext>) -> Self::Future {
-            ok(())
-        }
-    }
-
-    tuple_from_req! { TupleFromEventAndContext1; A }
-    tuple_from_req! { TupleFromEventAndContext2; A, B }
-    tuple_from_req! { TupleFromEventAndContext3; A, B, C }
-    tuple_from_req! { TupleFromEventAndContext4; A, B, C, D }
-    tuple_from_req! { TupleFromEventAndContext5; A, B, C, D, E }
-    tuple_from_req! { TupleFromEventAndContext6; A, B, C, D, E, F }
-    tuple_from_req! { TupleFromEventAndContext7; A, B, C, D, E, F, G }
-    tuple_from_req! { TupleFromEventAndContext8; A, B, C, D, E, F, G, H }
-    tuple_from_req! { TupleFromEventAndContext9; A, B, C, D, E, F, G, H, I }
-    tuple_from_req! { TupleFromEventAndContext10; A, B, C, D, E, F, G, H, I, J }
-    tuple_from_req! { TupleFromEventAndContext11; A, B, C, D, E, F, G, H, I, J, K }
-    tuple_from_req! { TupleFromEventAndContext12; A, B, C, D, E, F, G, H, I, J, K, L }
 }
