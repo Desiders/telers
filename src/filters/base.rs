@@ -6,5 +6,5 @@ use async_trait::async_trait;
 #[async_trait]
 pub trait Filter: Send + Sync {
     /// Check if the filter pass
-    async fn check(&self, _: &Bot, _: &Update, _: &Context) -> bool;
+    async fn check(&self, _bot: &Bot, _update: &Update, _context: &Context) -> bool;
 }
