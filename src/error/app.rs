@@ -1,19 +1,13 @@
+use super::ExtractionError;
+
 use anyhow;
-use std::{borrow::Cow, convert::Infallible, fmt::Debug};
+use std::fmt::Debug;
 use thiserror;
 
 #[derive(thiserror::Error, Debug)]
 pub enum ErrorKind {
-    #[error("Extract error: {0}")]
-    ExtractError(Cow<'static, str>),
-    #[error("Update type error: {0}")]
-    UpdateTypeError(String),
     #[error(transparent)]
-    UserError(#[from] anyhow::Error),
-}
-
-impl From<Infallible> for ErrorKind {
-    fn from(_: Infallible) -> Self {
-        unreachable!()
-    }
+    Extraction(#[from] ExtractionError),
+    #[error(transparent)]
+    User(#[from] anyhow::Error),
 }
