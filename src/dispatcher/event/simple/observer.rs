@@ -1,9 +1,6 @@
-use crate::{
-    dispatcher::event::{
-        service::{BoxFuture, Service, ServiceFactory},
-        simple::handler::{Handler, HandlerObject, HandlerObjectService},
-    },
-    error::app,
+use crate::dispatcher::event::{
+    service::{BoxFuture, Service, ServiceFactory},
+    simple::handler::{Handler, HandlerObject, HandlerObjectService, Result as HandlerResult},
 };
 
 use std::{
@@ -46,7 +43,8 @@ impl Observer {
     pub fn register<H, Args>(&mut self, handler: H, args: Args)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send + 'static,
+        H::Future: Send,
+        H::Output: Into<HandlerResult>,
         Args: Clone + Send + Sync + 'static,
     {
         self.handlers.push(HandlerObject::new(handler, args));
@@ -56,7 +54,8 @@ impl Observer {
     pub fn on<H, Args>(&mut self, handler: H, args: Args)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send + 'static,
+        H::Future: Send,
+        H::Output: Into<HandlerResult>,
         Args: Clone + Send + Sync + 'static,
     {
         self.register(handler, args);
@@ -85,17 +84,17 @@ impl AsRef<Observer> for Observer {
 
 impl ServiceFactory<()> for Observer {
     type Response = ();
-    type Error = app::ErrorKind;
+    type Error = ();
     type Config = ();
     type Service = ObserverService;
     type InitError = ();
 
-    fn new_service(&self, _: Self::Config) -> Result<Self::Service, Self::InitError> {
+    fn new_service(&self, config: Self::Config) -> Result<Self::Service, Self::InitError> {
         let event_name = self.event_name;
         let handlers = self
             .handlers
             .iter()
-            .map(|handler| handler.new_service(()))
+            .map(|handler| handler.new_service(config))
             .collect::<Result<Vec<_>, _>>()?;
 
         Ok(ObserverService {
@@ -119,10 +118,11 @@ impl ObserverService {
     /// If any handler returns error, then propagation will be stopped and error will be returned.
     /// # Errors
     /// If any handler returns error
-    pub async fn trigger(&self, _: ()) -> Result<(), app::ErrorKind> {
+    pub async fn trigger(&self, request: ()) -> HandlerResult {
         for handler in self.handlers.iter() {
-            handler.call(()).await?;
+            handler.call(request).await?;
         }
+
         Ok(())
     }
 }
@@ -137,7 +137,7 @@ impl Debug for ObserverService {
 
 impl Service<()> for ObserverService {
     type Response = ();
-    type Error = app::ErrorKind;
+    type Error = ();
     type Future = BoxFuture<Result<Self::Response, Self::Error>>;
 
     fn call(&self, _: ()) -> Self::Future {
@@ -158,13 +158,15 @@ mod tests {
 
     #[tokio::test]
     async fn test_observer_trigger() {
-        async fn on_startup(message: &str) -> Result<(), app::ErrorKind> {
+        async fn on_startup(message: &str) -> HandlerResult {
             assert_eq!(message, "Hello, world!");
+
             Ok(())
         }
 
-        async fn on_shutdown(message: &str) -> Result<(), app::ErrorKind> {
+        async fn on_shutdown(message: &str) -> HandlerResult {
             assert_eq!(message, "Goodbye, world!");
+
             Ok(())
         }
 
