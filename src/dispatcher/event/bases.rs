@@ -8,7 +8,7 @@ use super::telegram::handler::Response;
 /// - [`SkipEvent`] - [`EventReturn::Skip`]
 /// - [`CancelEvent`] - [`EventReturn::Cancel`]
 /// - [`FinishEvent`] - [`EventReturn::Finish`]
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub enum EventReturn {
     /// - In outer middleware, means that the middleware should be skipped, and next middleware should be run
     /// - In inner middleware, means that the middleware should be skipped, and next handler with inner middlewares should be run
@@ -54,6 +54,7 @@ impl From<FinishEvent> for EventReturn {
 
 /// Response, which can be returned from routers and observers by program.
 /// This indicates [`crate::dispatcher::Dispatcher`] how propagate the event was processed.
+#[derive(Debug)]
 pub enum PropagateEventResult {
     /// Event was rejected
     Rejected,

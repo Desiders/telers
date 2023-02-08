@@ -30,7 +30,7 @@ use std::{
     sync::Arc,
 };
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Request {
     pub bot: Arc<Bot>,
     pub update: Arc<Update>,
@@ -67,6 +67,7 @@ impl From<Request> for HandlerRequest {
     }
 }
 
+#[derive(Debug)]
 pub struct Response {
     pub request: Request,
     pub propagate_result: PropagateEventResult,

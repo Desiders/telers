@@ -19,7 +19,7 @@ pub type BoxedHandlerService = BoxService<Request, Response, ExtractionError>;
 pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), Request, Response, ExtractionError, ()>;
 
 /// Request for a handler service
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Request {
     pub bot: Arc<Bot>,
     pub update: Arc<Update>,
@@ -52,6 +52,7 @@ impl PartialEq for Request {
 
 pub type Result = StdResult<EventReturn, EventError>;
 
+#[derive(Debug)]
 pub struct Response {
     pub request: Request,
     pub handler_result: Result,

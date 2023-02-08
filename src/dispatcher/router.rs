@@ -32,7 +32,7 @@ use std::{
 };
 
 /// Request for a router service
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Request {
     pub bot: Arc<Bot>,
     pub update: Arc<Update>,
@@ -70,6 +70,7 @@ impl From<Request> for TelegramObserverRequest {
 }
 
 /// Response from a router service
+#[derive(Debug)]
 pub struct Response {
     pub request: Request,
     pub propagate_result: PropagateEventResult,
