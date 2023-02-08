@@ -359,21 +359,15 @@ impl CommandObject {
 #[async_trait]
 impl Filter for Command<'_> {
     async fn check(&self, bot: &Bot, update: &Update, context: &Context) -> bool {
-        if let Some(ref message) = update.message {
-            let text = match message.get_text_or_caption() {
-                Some(text) => text,
-                None => return false,
-            };
+        let Some(ref message) = update.message else { return false; };
+        let Some(text) = message.get_text_or_caption() else { return false; };
 
-            match self.parse_command(text, bot).await {
-                Ok(command) => {
-                    context.insert("command", Box::new(command));
-                    true
-                }
-                Err(_) => false,
+        match self.parse_command(text, bot).await {
+            Ok(command) => {
+                context.insert("command", Box::new(command));
+                true
             }
-        } else {
-            false
+            Err(_) => false,
         }
     }
 }
