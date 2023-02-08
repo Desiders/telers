@@ -60,7 +60,7 @@ pub trait ServiceFactory<Req> {
     /// Create and return a new service
     /// # Errors
     /// If the service cannot be created by the factory
-    fn new_service(&self, cfg: Self::Config) -> Result<Self::Service, Self::InitError>;
+    fn new_service(&self, config: Self::Config) -> Result<Self::Service, Self::InitError>;
 }
 
 /// A marker trait, which means that it doesn't have any methods.
@@ -88,6 +88,6 @@ pub trait ToServiceProvider {
     /// If the service cannot be created by the factory
     fn to_service_provider(
         self,
-        cfg: Self::Config,
+        config: Self::Config,
     ) -> Result<Self::ServiceProvider, Self::InitError>;
 }

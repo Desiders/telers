@@ -30,15 +30,15 @@ impl<S> ServiceWrapper<S> {
 
 impl<S, Req, Res, Err> Service<Req> for ServiceWrapper<S>
 where
-    S: Service<Req, Response = Res, Error = Err> + Send + Sync + 'static,
+    S: Service<Req, Response = Res, Error = Err> + Send + Sync,
     S::Future: Send + 'static,
 {
     type Response = Res;
     type Error = Err;
     type Future = BoxFuture<Result<Res, Err>>;
 
-    fn call(&self, req: Req) -> Self::Future {
-        Box::pin(self.inner.call(req))
+    fn call(&self, request: Req) -> Self::Future {
+        Box::pin(self.inner.call(request))
     }
 }
 
@@ -57,12 +57,8 @@ type Inner<Cfg, Req, Res, Err, InitErr> = Box<
         + Sync,
 >;
 
-impl<C, Req, Res, Err, InitErr> ServiceFactory<Req> for BoxServiceFactory<C, Req, Res, Err, InitErr>
-where
-    Req: 'static,
-    Res: 'static,
-    Err: 'static,
-    InitErr: 'static,
+impl<C, Req, Res, Err, InitErr> ServiceFactory<Req>
+    for BoxServiceFactory<C, Req, Res, Err, InitErr>
 {
     type Response = Res;
     type Error = Err;
@@ -70,8 +66,8 @@ where
     type Service = BoxService<Req, Res, Err>;
     type InitError = InitErr;
 
-    fn new_service(&self, cfg: Self::Config) -> Result<Self::Service, InitErr> {
-        self.0.new_service(cfg)
+    fn new_service(&self, config: Self::Config) -> Result<Self::Service, Self::InitError> {
+        self.0.new_service(config)
     }
 }
 
@@ -80,12 +76,9 @@ pub fn factory<SF, Req>(
     factory: SF,
 ) -> BoxServiceFactory<SF::Config, Req, SF::Response, SF::Error, SF::InitError>
 where
-    SF: ServiceFactory<Req> + Send + Sync + 'static,
     Req: 'static,
-    SF::Response: 'static,
-    SF::Service: Send + Sync + 'static,
-    SF::Error: 'static,
-    SF::InitError: 'static,
+    SF: ServiceFactory<Req> + Send + Sync + 'static,
+    SF::Service: Send + Sync,
     <SF::Service as Service<Req>>::Future: Send + 'static,
 {
     BoxServiceFactory(Box::new(FactoryWrapper::new(factory)))
@@ -103,10 +96,6 @@ impl<SF> FactoryWrapper<SF> {
 
 impl<SF, Req, Cfg, Res, Err, InitErr> ServiceFactory<Req> for FactoryWrapper<SF>
 where
-    Req: 'static,
-    Res: 'static,
-    Err: 'static,
-    InitErr: 'static,
     SF: ServiceFactory<Req, Config = Cfg, Response = Res, Error = Err, InitError = InitErr>,
     SF::Service: Send + Sync + 'static,
     <SF::Service as Service<Req>>::Future: Send + 'static,
@@ -117,9 +106,9 @@ where
     type Service = BoxService<Req, Res, Err>;
     type InitError = InitErr;
 
-    fn new_service(&self, cfg: Cfg) -> Result<Self::Service, InitErr> {
+    fn new_service(&self, config: Self::Config) -> Result<Self::Service, Self::InitError> {
         self.inner
-            .new_service(cfg)
+            .new_service(config)
             .map(|service| Box::new(ServiceWrapper::new(service)) as _)
     }
 }
