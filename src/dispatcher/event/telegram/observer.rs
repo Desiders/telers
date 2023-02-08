@@ -268,13 +268,13 @@ impl ObserverService {
             };
 
             return match response.handler_result {
-                Ok(EventReturn::Skip) => continue,
-                Ok(EventReturn::Cancel) => {
-                    return Ok(Response {
-                        request,
-                        propagate_result: PropagateEventResult::Rejected,
-                    })
+                Ok(EventReturn::Skip) => {
+                    continue;
                 }
+                Ok(EventReturn::Cancel) => Ok(Response {
+                    request,
+                    propagate_result: PropagateEventResult::Rejected,
+                }),
                 _ => Ok(Response {
                     request,
                     propagate_result: PropagateEventResult::Handled(response),
