@@ -1,6 +1,6 @@
 use super::event::{
     bases::{EventReturn, PropagateEventResult},
-    service::{BoxFuture, Service, ServiceFactory},
+    service::{ServiceFactory, ServiceProvider, ToServiceProvider},
     simple::{
         handler::Result as SimpleHandlerResult,
         observer::{Observer as SimpleObserver, ObserverService as SimpleObserverService},
@@ -269,38 +269,39 @@ impl AsRef<Router> for Router {
     }
 }
 
-impl ServiceFactory<Request> for Router {
-    type Response = Response;
-    type Error = ();
+impl ToServiceProvider for Router {
     type Config = ();
-    type Service = RouterService;
+    type ServiceProvider = RouterInner;
     type InitError = ();
 
-    fn new_service(&self, _config: Self::Config) -> Result<Self::Service, Self::InitError> {
+    fn to_service_provider(
+        self,
+        config: Self::Config,
+    ) -> Result<Self::ServiceProvider, Self::InitError> {
         let router_name = self.router_name;
         let sub_routers = self
             .sub_routers
-            .iter()
-            .map(|router| router.new_service(()))
+            .into_iter()
+            .map(|router| router.to_service_provider(config))
             .collect::<Result<Vec<_>, _>>()?;
-        let message = self.message.new_service(())?;
-        let edited_message = self.edited_message.new_service(())?;
-        let channel_post = self.channel_post.new_service(())?;
-        let edited_channel_post = self.edited_channel_post.new_service(())?;
-        let inline_query = self.inline_query.new_service(())?;
-        let chosen_inline_result = self.chosen_inline_result.new_service(())?;
-        let callback_query = self.callback_query.new_service(())?;
-        let shipping_query = self.shipping_query.new_service(())?;
-        let pre_checkout_query = self.pre_checkout_query.new_service(())?;
-        let poll = self.poll.new_service(())?;
-        let poll_answer = self.poll_answer.new_service(())?;
-        let my_chat_member = self.my_chat_member.new_service(())?;
-        let chat_member = self.chat_member.new_service(())?;
-        let chat_join_request = self.chat_join_request.new_service(())?;
-        let startup = self.startup.new_service(())?;
-        let shutdown = self.shutdown.new_service(())?;
+        let message = self.message.new_service(config)?;
+        let edited_message = self.edited_message.new_service(config)?;
+        let channel_post = self.channel_post.new_service(config)?;
+        let edited_channel_post = self.edited_channel_post.new_service(config)?;
+        let inline_query = self.inline_query.new_service(config)?;
+        let chosen_inline_result = self.chosen_inline_result.new_service(config)?;
+        let callback_query = self.callback_query.new_service(config)?;
+        let shipping_query = self.shipping_query.new_service(config)?;
+        let pre_checkout_query = self.pre_checkout_query.new_service(config)?;
+        let poll = self.poll.new_service(config)?;
+        let poll_answer = self.poll_answer.new_service(config)?;
+        let my_chat_member = self.my_chat_member.new_service(config)?;
+        let chat_member = self.chat_member.new_service(config)?;
+        let chat_join_request = self.chat_join_request.new_service(config)?;
+        let startup = self.startup.new_service(config)?;
+        let shutdown = self.shutdown.new_service(config)?;
 
-        Ok(RouterService {
+        Ok(RouterInner {
             router_name,
             sub_routers,
             message,
@@ -324,9 +325,9 @@ impl ServiceFactory<Request> for Router {
 }
 
 #[allow(clippy::module_name_repetitions)]
-pub struct RouterService {
+pub struct RouterInner {
     router_name: &'static str,
-    sub_routers: Vec<RouterService>,
+    sub_routers: Vec<RouterInner>,
 
     message: TelegramObserverService,
     edited_message: TelegramObserverService,
@@ -347,7 +348,9 @@ pub struct RouterService {
     shutdown: SimpleObserverService,
 }
 
-impl RouterService {
+impl ServiceProvider for RouterInner {}
+
+impl RouterInner {
     #[must_use]
     pub fn telegram_observer_by_update_type(
         &self,
@@ -464,7 +467,7 @@ impl RouterService {
                 return Ok(Response {
                     request,
                     propagate_result: PropagateEventResult::Handled(response),
-                })
+                });
             }
             // Return a response if the event rejected
             // Router don't know about rejected event by observer
@@ -472,7 +475,7 @@ impl RouterService {
                 return Ok(Response {
                     request,
                     propagate_result: PropagateEventResult::Unhandled,
-                })
+                });
             }
         };
 
@@ -496,7 +499,7 @@ impl RouterService {
     }
 }
 
-impl Debug for RouterService {
+impl Debug for RouterInner {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Router")
             .field("router_name", &self.router_name)
@@ -504,29 +507,13 @@ impl Debug for RouterService {
     }
 }
 
-impl Service<Request> for RouterService {
-    type Response = Response;
-    type Error = ();
-    type Future = BoxFuture<Result<Self::Response, Self::Error>>;
-
-    fn call(&self, _: Request) -> Self::Future {
-        log::error!("{self:?}: Should not be called");
-
-        unimplemented!(
-            "RouterService is not intended to be called directly. \
-            Use RouterService::emit_startup, RouterService::emit_shutdown \
-            or RouterSevice::propagate_event instead"
-        );
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::{
-        dispatcher::event::{
-            telegram::{BoxedHandlerService, HandlerResult as TelegramHandlerResult},
-            EventReturn,
+        dispatcher::{
+            event::{telegram::HandlerResult as TelegramHandlerResult, EventReturn},
+            middlewares::inner::call_handler,
         },
         filters::Command,
     };
@@ -537,13 +524,9 @@ mod tests {
     fn test_router_include() {
         let mut router = Router::new("main");
 
-        let inner_middleware = |handler: Arc<BoxedHandlerService>, req: _, _| async move {
-            handler
-                .call(req)
-                .await
-                .map_err(|err| AppErrorKind::Extraction(err.into()))
-        };
-        let outer_middleware = |req: _| async move { Ok((req, EventReturn::default())) };
+        let inner_middleware =
+            |handler, request, middlewares| call_handler(handler, request, middlewares);
+        let outer_middleware = |request| async move { Ok((request, EventReturn::default())) };
 
         router.message.inner_middlewares.register(inner_middleware);
         router.message.outer_middlewares.register(outer_middleware);
@@ -655,13 +638,8 @@ mod tests {
             assert_eq!(observer.handlers().len(), 1);
         });
 
-        let inner_middleware = |handler: Arc<BoxedHandlerService>, req: _, _| async move {
-            handler
-                .call(req)
-                .await
-                .map_err(|err| AppErrorKind::Extraction(err.into()))
-        };
-        let outer_middleware = |req: _| async move { Ok((req, EventReturn::Finish)) };
+        let inner_middleware = |handler, request, middlewares| call_handler(handler, request, middlewares);
+        let outer_middleware = |request| async move { Ok((request, EventReturn::Finish)) };
 
         router.message.inner_middlewares.register(inner_middleware);
         router.message.outer_middlewares.register(outer_middleware);
@@ -670,19 +648,18 @@ mod tests {
         assert_eq!(router.message.outer_middlewares.middlewares.len(), 1);
     }
 
-    #[allow(unreachable_code)]
     #[tokio::test]
     async fn test_router_propagate_event() {
         let bot = Bot::default();
         let context = Context::new();
         let update = Update::default();
 
-        let mut router = Router::new("main");
+        let mut router = Router::new("test1");
         router
             .message
             .register_no_filters(|| async { Ok(EventReturn::Finish) });
 
-        let router_service = router.new_service(()).unwrap();
+        let router_service = router.to_service_provider(()).unwrap();
 
         let request = Request::new(bot, update, context);
         let response = router_service
@@ -710,44 +687,47 @@ mod tests {
             _ => panic!("Unexpected result"),
         }
 
-        let mut router = Router::new("main");
+        let mut router = Router::new("test2");
         router.message.filter(Command::default());
         router
             .message
             .register_no_filters(|| async { Ok(EventReturn::Finish) });
 
-        let router_service = router.new_service(()).unwrap();
+        let router_service = router.to_service_provider(()).unwrap();
 
         let response = router_service
             .propagate_event(&UpdateType::Message, request.clone())
             .await
             .unwrap();
 
-        // Message event observer filter not pass, so router should be unhandled
+        // Event shouldn't be handled, because there is a message handler registered, but it has filter, which doesn't pass
         match response.propagate_result {
             PropagateEventResult::Unhandled => {}
             _ => panic!("Unexpected result"),
         }
 
+        let mut router = Router::new("test3");
         router
             .callback_query
-            .register_no_filters(|| async { Ok(EventReturn::Cancel) });
-        router.callback_query.register_no_filters(|| async {
-            unreachable!("This handler should not be called");
+            .register_no_filters(|| async { Ok(EventReturn::Skip) });
+        router
+            .callback_query
+            .register_no_filters(|| async { Ok(EventReturn::Finish) });
 
-            Ok(EventReturn::Finish)
-        });
+        let router_service = router.to_service_provider(()).unwrap();
 
         let response = router_service
             .propagate_event(&UpdateType::CallbackQuery, request)
             .await
             .unwrap();
 
-        // Handler returns `EventReturn::Cancel`,
-        // so response from callback query event observer should be `PropagateEventResult::Rejected`
-        // and router unhandled
+        // Callback query event should be handled, because there is a callback query handler registered
+        // and it returns `EventReturn::Skip`, so next handler should be called
         match response.propagate_result {
-            PropagateEventResult::Unhandled => {}
+            PropagateEventResult::Handled(response) => match response.handler_result {
+                Ok(EventReturn::Finish) => {}
+                _ => panic!("Unexpected result"),
+            },
             _ => panic!("Unexpected result"),
         }
     }
