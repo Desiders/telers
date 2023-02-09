@@ -4,7 +4,7 @@ use crate::{
     dispatcher::{
         event::{
             bases::{EventReturn, PropagateEventResult},
-            service::{BoxFuture, Service, ServiceFactory},
+            service::{Service as _, ServiceFactory as _, ServiceProvider, ToServiceProvider},
             telegram::handler::{
                 Handler, HandlerObject, HandlerObjectService, Request as HandlerRequest,
                 Result as HandlerResult,
@@ -122,6 +122,9 @@ impl Observer {
     }
 
     /// Register handler with filters
+    /// # Arguments
+    /// * `handler` - [`Handler`] for the observer
+    /// * `filters` - [`Filter`]s for the handler
     pub fn register<H, Args, F>(&mut self, handler: H, filters: Vec<F>)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
@@ -135,6 +138,8 @@ impl Observer {
     }
 
     /// Register handler without filters
+    /// # Arguments
+    /// * `handler` - [`Handler`] for the observer
     pub fn register_no_filters<H, Args>(&mut self, handler: H)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
@@ -146,7 +151,12 @@ impl Observer {
         self.handlers.push(HandlerObject::new_no_filters(handler));
     }
 
-    /// Alias to [`Observer::register`] method
+    /// Register handler with filters
+    /// # Notes
+    /// This method is alias to [`Observer::register`] method
+    /// # Arguments
+    /// * `handler` - [`Handler`] for the observer
+    /// * `filters` - [`Filter`]s for the handler
     pub fn on<H, Args, F>(&mut self, handler: H, filters: Vec<F>)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
@@ -159,7 +169,11 @@ impl Observer {
         self.register(handler, filters);
     }
 
-    /// Alias to [`Observer::register_no_filters`] method
+    /// Register handler without filters
+    /// # Notes
+    /// This method is alias to [`Observer::register_no_filters`] method
+    /// # Arguments
+    /// * `handler` - [`Handler`] for the observer
     pub fn on_no_filters<H, Args>(&mut self, handler: H)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
@@ -193,14 +207,15 @@ impl AsRef<Observer> for Observer {
     }
 }
 
-impl ServiceFactory<Request> for Observer {
-    type Response = Response;
-    type Error = AppErrorKind;
+impl ToServiceProvider for Observer {
     type Config = ();
-    type Service = ObserverService;
+    type ServiceProvider = ObserverInner;
     type InitError = ();
 
-    fn new_service(&self, config: Self::Config) -> Result<Self::Service, Self::InitError> {
+    fn to_service_provider(
+        self,
+        config: Self::Config,
+    ) -> Result<Self::ServiceProvider, Self::InitError> {
         let event_name = self.event_name;
         let handlers = self
             .handlers
@@ -211,31 +226,31 @@ impl ServiceFactory<Request> for Observer {
         let inner_middlewares = self.inner_middlewares.middlewares.clone();
         let outer_middlewares = self.outer_middlewares.middlewares.clone();
 
-        Ok(ObserverService {
+        Ok(ObserverInner {
             event_name,
-            handlers: Arc::new(handlers),
-            common: Arc::new(common),
-            inner_middlewares: inner_middlewares.clone(),
-            outer_middlewares: outer_middlewares.clone(),
+            handlers,
+            common,
+            inner_middlewares,
+            outer_middlewares,
         })
     }
 }
 
-#[allow(clippy::module_name_repetitions)]
-pub struct ObserverService {
+pub struct ObserverInner {
     event_name: &'static str,
-    handlers: Arc<Vec<HandlerObjectService>>,
-    common: Arc<HandlerObjectService>,
+    handlers: Vec<HandlerObjectService>,
+    common: HandlerObjectService,
     pub(crate) inner_middlewares: InnerMiddlewares,
     pub(crate) outer_middlewares: OuterMiddlewares,
 }
 
-impl ObserverService {
+impl ServiceProvider for ObserverInner {}
+
+impl ObserverInner {
     /// Propagate event to handlers and stops propagation on first match.
     /// Handler will be called when all its filters is pass.
     /// # Errors
     /// - If any handler returns error. Probably it's error to extract args to the handler.
-    #[allow(clippy::similar_names)]
     pub async fn trigger(&self, request: Request) -> Result<Response, AppErrorKind> {
         let handler_request = request.clone().into();
 
@@ -247,7 +262,7 @@ impl ObserverService {
             });
         }
 
-        for handler in self.handlers.iter() {
+        for handler in &self.handlers {
             if !handler.check(&handler_request).await {
                 continue;
             }
@@ -276,7 +291,7 @@ impl ObserverService {
                     request,
                     propagate_result: PropagateEventResult::Rejected,
                 }),
-                _ => Ok(Response {
+                Ok(EventReturn::Finish) | Err(_) => Ok(Response {
                     request,
                     propagate_result: PropagateEventResult::Handled(response),
                 }),
@@ -291,34 +306,20 @@ impl ObserverService {
     }
 }
 
-impl Debug for ObserverService {
+impl Debug for ObserverInner {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.debug_struct("ObserverService")
+        f.debug_struct("ObserverInner")
             .field("event_name", &self.event_name)
             .finish()
-    }
-}
-
-impl Service<Request> for ObserverService {
-    type Response = Response;
-    type Error = AppErrorKind;
-    type Future = BoxFuture<Result<Self::Response, Self::Error>>;
-
-    fn call(&self, _: Request) -> Self::Future {
-        log::error!("{self:?}: Should not be called");
-
-        unimplemented!(
-            "ObserverService is not intended to be called directly. \
-            Use ObserverService::trigger instead"
-        );
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{filters::Command, types::Message};
+    use crate::{error::EventError, filters::Command, types::Message};
 
+    use anyhow::anyhow;
     use tokio;
 
     #[allow(unreachable_code)]
@@ -337,7 +338,7 @@ mod tests {
             Ok(EventReturn::Finish)
         });
 
-        let observer_service = observer.new_service(()).unwrap();
+        let observer_service = observer.to_service_provider(()).unwrap();
         let request = Request::new(bot, Update::default(), context);
         let response = observer_service.trigger(request.clone()).await.unwrap();
 
@@ -367,6 +368,31 @@ mod tests {
         }
     }
 
+    #[allow(unreachable_code)]
+    #[tokio::test]
+    async fn test_observer_trigger_error() {
+        let mut observer = Observer::new("test");
+        observer.register_no_filters(|| async { Err(EventError::new(anyhow!("test"))) });
+        observer.register_no_filters(|| async {
+            unreachable!("It's shouldn't trigger because the first handler handles the event");
+
+            Ok(EventReturn::Finish)
+        });
+
+        let observer_service = observer.to_service_provider(()).unwrap();
+        let request = Request::new(Bot::default(), Update::default(), Context::default());
+        let response = observer_service.trigger(request).await.unwrap();
+
+        // First handler returns error, second handler shouldn't be called
+        match response.propagate_result {
+            PropagateEventResult::Handled(response) => match response.handler_result {
+                Err(_) => {}
+                _ => panic!("Unexpected result"),
+            },
+            _ => panic!("Unexpected result"),
+        }
+    }
+
     #[tokio::test]
     async fn test_observer_event_return() {
         let bot = Bot::default();
@@ -377,7 +403,7 @@ mod tests {
         observer.register_no_filters(|| async { Ok(EventReturn::Skip) });
         observer.register_no_filters(|| async { Ok(EventReturn::Finish) });
 
-        let observer_service = observer.new_service(()).unwrap();
+        let observer_service = observer.to_service_provider(()).unwrap();
 
         let request = Request::new(bot, update, context);
         let response = observer_service.trigger(request.clone()).await.unwrap();
@@ -395,7 +421,7 @@ mod tests {
         observer.register_no_filters(|| async { Ok(EventReturn::Skip) });
         observer.register_no_filters(|| async { Ok(EventReturn::Cancel) });
 
-        let observer_service = observer.new_service(()).unwrap();
+        let observer_service = observer.to_service_provider(()).unwrap();
 
         let response = observer_service.trigger(request).await.unwrap();
 

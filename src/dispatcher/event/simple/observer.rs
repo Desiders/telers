@@ -1,21 +1,19 @@
 use crate::dispatcher::event::{
-    service::{BoxFuture, Service, ServiceFactory},
+    service::{Service as _, ServiceFactory as _, ServiceProvider, ToServiceProvider},
     simple::handler::{Handler, HandlerObject, HandlerObjectService, Result as HandlerResult},
 };
 
-use std::{
-    fmt::{self, Debug, Formatter},
-    sync::Arc,
-};
+use std::fmt::{self, Debug, Formatter};
 
 /// Simple events observer
 /// Is used for managing events isn't related with Telegram (For example startup/shutdown events)
 pub struct Observer {
-    event_name: &'static str,
-    handlers: Vec<HandlerObject>,
+    pub event_name: &'static str,
+    pub handlers: Vec<HandlerObject>,
 }
 
 impl Observer {
+    /// Create a new event observer
     /// # Arguments
     /// * `event_name` - Event observer name, can be used for logging
     #[must_use]
@@ -26,19 +24,9 @@ impl Observer {
         }
     }
 
-    #[must_use]
-    pub fn event_name(&self) -> &str {
-        self.event_name
-    }
-
-    #[must_use]
-    pub fn handlers(&self) -> &[HandlerObject] {
-        &self.handlers
-    }
-
     /// Register event handler
     /// # Arguments
-    /// * `handler` - Handler for the observer
+    /// * `handler` - [`Handler`] for the observer
     /// * `args` - Arguments, that will be passed to the handler
     pub fn register<H, Args>(&mut self, handler: H, args: Args)
     where
@@ -50,7 +38,12 @@ impl Observer {
         self.handlers.push(HandlerObject::new(handler, args));
     }
 
-    // Alias to [`Observer::register`] method
+    /// Register event handler
+    /// # Notes
+    /// This method is alias to [`Observer::register`] method
+    /// # Arguments
+    /// * `handler` - [`Handler`] for the observer
+    /// * `args` - Arguments, that will be passed to the handler
     pub fn on<H, Args>(&mut self, handler: H, args: Args)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
@@ -82,14 +75,15 @@ impl AsRef<Observer> for Observer {
     }
 }
 
-impl ServiceFactory<()> for Observer {
-    type Response = ();
-    type Error = ();
+impl ToServiceProvider for Observer {
     type Config = ();
-    type Service = ObserverService;
+    type ServiceProvider = ObserverInner;
     type InitError = ();
 
-    fn new_service(&self, config: Self::Config) -> Result<Self::Service, Self::InitError> {
+    fn to_service_provider(
+        self,
+        config: Self::Config,
+    ) -> Result<Self::ServiceProvider, Self::InitError> {
         let event_name = self.event_name;
         let handlers = self
             .handlers
@@ -97,29 +91,35 @@ impl ServiceFactory<()> for Observer {
             .map(|handler| handler.new_service(config))
             .collect::<Result<Vec<_>, _>>()?;
 
-        Ok(ObserverService {
+        Ok(ObserverInner {
             event_name,
-            handlers: Arc::new(handlers),
+            handlers,
         })
     }
 }
 
-#[derive(Clone)]
-#[allow(clippy::module_name_repetitions)]
-pub struct ObserverService {
-    /// Event observer name, can be used for logging
+pub struct ObserverInner {
     event_name: &'static str,
-    /// Handler services of the observer
-    handlers: Arc<Vec<HandlerObjectService>>,
+    handlers: Vec<HandlerObjectService>,
 }
 
-impl ObserverService {
+impl Debug for ObserverInner {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ObserverInner")
+            .field("event_name", &self.event_name)
+            .finish()
+    }
+}
+
+impl ServiceProvider for ObserverInner {}
+
+impl ObserverInner {
     /// Propagate event to handlers. \
     /// If any handler returns error, then propagation will be stopped and error will be returned.
     /// # Errors
     /// If any handler returns error
     pub async fn trigger(&self, request: ()) -> HandlerResult {
-        for handler in self.handlers.iter() {
+        for handler in &self.handlers {
             handler.call(request).await?;
         }
 
@@ -127,33 +127,12 @@ impl ObserverService {
     }
 }
 
-impl Debug for ObserverService {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.debug_struct("ObserverService")
-            .field("event_name", &self.event_name)
-            .finish()
-    }
-}
-
-impl Service<()> for ObserverService {
-    type Response = ();
-    type Error = ();
-    type Future = BoxFuture<Result<Self::Response, Self::Error>>;
-
-    fn call(&self, _: ()) -> Self::Future {
-        log::error!("{self:?}: Should not be called");
-
-        unimplemented!(
-            "ObserverService is not intended to be called directly. \
-            Use ObserverService::trigger instead"
-        );
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::error::EventError;
 
+    use anyhow::anyhow;
     use tokio;
 
     #[tokio::test]
@@ -174,8 +153,31 @@ mod tests {
         observer.register(on_startup, ("Hello, world!",));
         observer.register(on_shutdown, ("Goodbye, world!",));
 
-        let observer_service = observer.new_service(()).unwrap();
+        let observer_service = observer.to_service_provider(()).unwrap();
 
         observer_service.trigger(()).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_observer_trigger_error() {
+        async fn on_startup(message: &str) -> HandlerResult {
+            assert_eq!(message, "Hello, world!");
+
+            Ok(())
+        }
+
+        async fn on_shutdown(message: &str) -> HandlerResult {
+            assert_eq!(message, "Goodbye, world!");
+
+            Err(EventError::new(anyhow!("test")))
+        }
+
+        let mut observer = Observer::new("test");
+        observer.register(on_startup, ("Hello, world!",));
+        observer.register(on_shutdown, ("Goodbye, world!",));
+
+        let observer_service = observer.to_service_provider(()).unwrap();
+
+        observer_service.trigger(()).await.unwrap_err();
     }
 }

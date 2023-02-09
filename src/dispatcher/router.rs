@@ -1,12 +1,12 @@
 use super::event::{
     bases::{EventReturn, PropagateEventResult},
-    service::{ServiceFactory, ServiceProvider, ToServiceProvider},
+    service::{ServiceProvider, ToServiceProvider},
     simple::{
         handler::Result as SimpleHandlerResult,
-        observer::{Observer as SimpleObserver, ObserverService as SimpleObserverService},
+        observer::{Observer as SimpleObserver, ObserverInner as SimpleObserverInner},
     },
     telegram::observer::{
-        Observer as TelegramObserver, ObserverService as TelegramObserverService,
+        Observer as TelegramObserver, ObserverInner as TelegramObserverInner,
         Request as TelegramObserverRequest,
     },
 };
@@ -285,22 +285,22 @@ impl ToServiceProvider for Router {
             .into_iter()
             .map(|router| router.to_service_provider(config))
             .collect::<Result<Vec<_>, _>>()?;
-        let message = self.message.new_service(config)?;
-        let edited_message = self.edited_message.new_service(config)?;
-        let channel_post = self.channel_post.new_service(config)?;
-        let edited_channel_post = self.edited_channel_post.new_service(config)?;
-        let inline_query = self.inline_query.new_service(config)?;
-        let chosen_inline_result = self.chosen_inline_result.new_service(config)?;
-        let callback_query = self.callback_query.new_service(config)?;
-        let shipping_query = self.shipping_query.new_service(config)?;
-        let pre_checkout_query = self.pre_checkout_query.new_service(config)?;
-        let poll = self.poll.new_service(config)?;
-        let poll_answer = self.poll_answer.new_service(config)?;
-        let my_chat_member = self.my_chat_member.new_service(config)?;
-        let chat_member = self.chat_member.new_service(config)?;
-        let chat_join_request = self.chat_join_request.new_service(config)?;
-        let startup = self.startup.new_service(config)?;
-        let shutdown = self.shutdown.new_service(config)?;
+        let message = self.message.to_service_provider(config)?;
+        let edited_message = self.edited_message.to_service_provider(config)?;
+        let channel_post = self.channel_post.to_service_provider(config)?;
+        let edited_channel_post = self.edited_channel_post.to_service_provider(config)?;
+        let inline_query = self.inline_query.to_service_provider(config)?;
+        let chosen_inline_result = self.chosen_inline_result.to_service_provider(config)?;
+        let callback_query = self.callback_query.to_service_provider(config)?;
+        let shipping_query = self.shipping_query.to_service_provider(config)?;
+        let pre_checkout_query = self.pre_checkout_query.to_service_provider(config)?;
+        let poll = self.poll.to_service_provider(config)?;
+        let poll_answer = self.poll_answer.to_service_provider(config)?;
+        let my_chat_member = self.my_chat_member.to_service_provider(config)?;
+        let chat_member = self.chat_member.to_service_provider(config)?;
+        let chat_join_request = self.chat_join_request.to_service_provider(config)?;
+        let startup = self.startup.to_service_provider(config)?;
+        let shutdown = self.shutdown.to_service_provider(config)?;
 
         Ok(RouterInner {
             router_name,
@@ -330,23 +330,23 @@ pub struct RouterInner {
     router_name: &'static str,
     sub_routers: Vec<RouterInner>,
 
-    message: TelegramObserverService,
-    edited_message: TelegramObserverService,
-    channel_post: TelegramObserverService,
-    edited_channel_post: TelegramObserverService,
-    inline_query: TelegramObserverService,
-    chosen_inline_result: TelegramObserverService,
-    callback_query: TelegramObserverService,
-    shipping_query: TelegramObserverService,
-    pre_checkout_query: TelegramObserverService,
-    poll: TelegramObserverService,
-    poll_answer: TelegramObserverService,
-    my_chat_member: TelegramObserverService,
-    chat_member: TelegramObserverService,
-    chat_join_request: TelegramObserverService,
+    message: TelegramObserverInner,
+    edited_message: TelegramObserverInner,
+    channel_post: TelegramObserverInner,
+    edited_channel_post: TelegramObserverInner,
+    inline_query: TelegramObserverInner,
+    chosen_inline_result: TelegramObserverInner,
+    callback_query: TelegramObserverInner,
+    shipping_query: TelegramObserverInner,
+    pre_checkout_query: TelegramObserverInner,
+    poll: TelegramObserverInner,
+    poll_answer: TelegramObserverInner,
+    my_chat_member: TelegramObserverInner,
+    chat_member: TelegramObserverInner,
+    chat_join_request: TelegramObserverInner,
 
-    startup: SimpleObserverService,
-    shutdown: SimpleObserverService,
+    startup: SimpleObserverInner,
+    shutdown: SimpleObserverInner,
 }
 
 impl ServiceProvider for RouterInner {}
@@ -356,7 +356,7 @@ impl RouterInner {
     pub fn telegram_observer_by_update_type(
         &self,
         update_type: &UpdateType,
-    ) -> &TelegramObserverService {
+    ) -> &TelegramObserverInner {
         match update_type {
             UpdateType::Message => &self.message,
             UpdateType::EditedMessage => &self.edited_message,
@@ -453,7 +453,7 @@ impl RouterInner {
     #[allow(clippy::similar_names)]
     async fn propagate_event_by_observer(
         &self,
-        observer: &TelegramObserverService,
+        observer: &TelegramObserverInner,
         update_type: &UpdateType,
         request: Request,
     ) -> Result<Response, AppErrorKind> {
@@ -636,7 +636,7 @@ mod tests {
 
         // Check event observers
         router.event_observers().into_iter().for_each(|observer| {
-            assert_eq!(observer.handlers().len(), 1);
+            assert_eq!(observer.handlers.len(), 1);
         });
 
         let inner_middleware = |handler, request, middlewares| call_handler(handler, request, middlewares);
