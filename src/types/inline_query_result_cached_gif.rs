@@ -90,6 +90,7 @@ impl InlineQueryResultCachedGif {
 }
 
 impl Default for InlineQueryResultCachedGif {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "gif".to_string(),

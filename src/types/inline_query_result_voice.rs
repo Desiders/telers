@@ -101,6 +101,7 @@ impl InlineQueryResultVoice {
 }
 
 impl Default for InlineQueryResultVoice {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "voice".to_string(),

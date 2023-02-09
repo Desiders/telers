@@ -258,6 +258,7 @@ impl Debug for Router {
 }
 
 impl Default for Router {
+    #[must_use]
     fn default() -> Self {
         Self::new("default")
     }

@@ -64,6 +64,7 @@ impl Debug for Observer {
 }
 
 impl Default for Observer {
+    #[must_use]
     fn default() -> Self {
         Self::new("default")
     }

@@ -139,6 +139,7 @@ impl InlineQueryResultDocument {
 }
 
 impl Default for InlineQueryResultDocument {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "document".to_string(),

@@ -109,6 +109,7 @@ impl InlineQueryResultContact {
 }
 
 impl Default for InlineQueryResultContact {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "contact".to_string(),

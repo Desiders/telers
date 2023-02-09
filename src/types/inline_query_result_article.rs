@@ -111,6 +111,7 @@ impl InlineQueryResultArticle {
 }
 
 impl Default for InlineQueryResultArticle {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "article".to_string(),

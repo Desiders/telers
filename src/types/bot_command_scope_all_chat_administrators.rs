@@ -18,6 +18,7 @@ impl BotCommandScopeAllChatAdministrators {
 }
 
 impl Default for BotCommandScopeAllChatAdministrators {
+    #[must_use]
     fn default() -> Self {
         Self {
             scope_type: all_chat_administrators(),

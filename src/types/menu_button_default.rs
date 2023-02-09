@@ -18,6 +18,7 @@ impl MenuButtonDefault {
 }
 
 impl Default for MenuButtonDefault {
+    #[must_use]
     fn default() -> Self {
         Self {
             button_type: "default".to_string(),

@@ -18,6 +18,7 @@ impl BotCommandScopeAllGroupChats {
 }
 
 impl Default for BotCommandScopeAllGroupChats {
+    #[must_use]
     fn default() -> Self {
         Self {
             scope_type: all_group_chats(),

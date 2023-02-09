@@ -101,6 +101,7 @@ impl InlineQueryResultCachedDocument {
 }
 
 impl Default for InlineQueryResultCachedDocument {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "document".to_string(),

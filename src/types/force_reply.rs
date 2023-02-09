@@ -39,6 +39,7 @@ impl ForceReply {
 }
 
 impl Default for ForceReply {
+    #[must_use]
     fn default() -> Self {
         Self {
             force_reply: true,

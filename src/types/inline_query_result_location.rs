@@ -134,6 +134,7 @@ impl InlineQueryResultLocation {
 }
 
 impl Default for InlineQueryResultLocation {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "location".to_string(),

@@ -98,6 +98,7 @@ impl InlineQueryResultCachedPhoto {
 }
 
 impl Default for InlineQueryResultCachedPhoto {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "photo".to_string(),

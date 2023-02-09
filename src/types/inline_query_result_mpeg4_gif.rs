@@ -131,6 +131,7 @@ impl InlineQueryResultMpeg4Gif {
 }
 
 impl Default for InlineQueryResultMpeg4Gif {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "mpeg4_gif".to_string(),

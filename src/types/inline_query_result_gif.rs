@@ -131,6 +131,7 @@ impl InlineQueryResultGif {
 }
 
 impl Default for InlineQueryResultGif {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "gif".to_string(),

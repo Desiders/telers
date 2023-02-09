@@ -18,6 +18,7 @@ impl BotCommandScopeDefault {
 }
 
 impl Default for BotCommandScopeDefault {
+    #[must_use]
     fn default() -> Self {
         Self {
             scope_type: default(),

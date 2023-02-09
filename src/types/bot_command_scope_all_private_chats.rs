@@ -18,6 +18,7 @@ impl BotCommandScopeAllPrivateChats {
 }
 
 impl Default for BotCommandScopeAllPrivateChats {
+    #[must_use]
     fn default() -> Self {
         Self {
             scope_type: all_private_chats(),

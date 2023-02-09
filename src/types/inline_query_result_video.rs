@@ -142,6 +142,7 @@ impl InlineQueryResultVideo {
 }
 
 impl Default for InlineQueryResultVideo {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "video".to_string(),

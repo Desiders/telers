@@ -109,6 +109,7 @@ impl InlineQueryResultAudio {
 }
 
 impl Default for InlineQueryResultAudio {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "audio".to_string(),

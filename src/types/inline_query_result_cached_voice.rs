@@ -92,6 +92,7 @@ impl InlineQueryResultCachedVoice {
 }
 
 impl Default for InlineQueryResultCachedVoice {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "voice".to_string(),

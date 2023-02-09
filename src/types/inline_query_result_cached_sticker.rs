@@ -60,6 +60,7 @@ impl InlineQueryResultCachedSticker {
 }
 
 impl Default for InlineQueryResultCachedSticker {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "sticker".to_string(),

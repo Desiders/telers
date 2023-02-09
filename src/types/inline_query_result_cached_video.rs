@@ -99,6 +99,7 @@ impl InlineQueryResultCachedVideo {
 }
 
 impl Default for InlineQueryResultCachedVideo {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "video".to_string(),

@@ -123,6 +123,7 @@ impl InlineQueryResultPhoto {
 }
 
 impl Default for InlineQueryResultPhoto {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "photo".to_string(),

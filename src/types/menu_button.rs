@@ -36,6 +36,7 @@ impl From<MenuButtonDefault> for MenuButton {
 }
 
 impl Default for MenuButton {
+    #[must_use]
     fn default() -> Self {
         Self::Default(MenuButtonDefault::default())
     }

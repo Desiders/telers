@@ -38,6 +38,7 @@ impl Logging {
 }
 
 impl Default for Logging {
+    #[must_use]
     fn default() -> Self {
         Self::new(None, None)
     }

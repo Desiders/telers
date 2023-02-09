@@ -84,6 +84,7 @@ impl InlineQueryResultCachedAudio {
 }
 
 impl Default for InlineQueryResultCachedAudio {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "audio".to_string(),

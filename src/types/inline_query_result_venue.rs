@@ -149,6 +149,7 @@ impl InlineQueryResultVenue {
 }
 
 impl Default for InlineQueryResultVenue {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "venue".to_string(),

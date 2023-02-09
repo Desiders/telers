@@ -52,6 +52,7 @@ impl InlineQueryResultGame {
 }
 
 impl Default for InlineQueryResultGame {
+    #[must_use]
     fn default() -> Self {
         Self {
             result_type: "game".to_string(),

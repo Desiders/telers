@@ -40,6 +40,7 @@ impl MenuButtonWebApp {
 }
 
 impl Default for MenuButtonWebApp {
+    #[must_use]
     fn default() -> Self {
         Self {
             button_type: "web_app".to_string(),
