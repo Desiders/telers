@@ -105,6 +105,7 @@ impl Dispatcher {
     }
 }
 
+#[allow(clippy::module_name_repetitions)]
 pub struct DispatcherBuilder {
     main_router: Router,
     bots: Vec<Bot>,
@@ -227,6 +228,7 @@ impl ToServiceProvider for Dispatcher {
     }
 }
 
+#[allow(clippy::module_name_repetitions)]
 pub struct DispatcherInner {
     main_router: RouterInner,
     bots: Vec<Bot>,

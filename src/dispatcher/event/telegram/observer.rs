@@ -236,6 +236,7 @@ impl ToServiceProvider for Observer {
     }
 }
 
+#[allow(clippy::module_name_repetitions)]
 pub struct ObserverInner {
     event_name: &'static str,
     handlers: Vec<HandlerObjectService>,

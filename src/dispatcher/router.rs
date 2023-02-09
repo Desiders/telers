@@ -413,7 +413,6 @@ impl RouterInner {
     /// Assumed that [`UpdateType`] is correct because it is derived from [`Update`].
     /// This behaviour allows you not to get recursively [`UpdateType`] and can be used in tests.
     #[async_recursion]
-    #[allow(clippy::similar_names)]
     #[must_use]
     pub async fn propagate_event(
         &self,
@@ -450,7 +449,6 @@ impl RouterInner {
     /// - If any outer middleware returns error
     /// - If any inner middleware returns error
     /// - If any handler returns error. Probably it's error to extract args to the handler
-    #[allow(clippy::similar_names)]
     async fn propagate_event_by_observer(
         &self,
         observer: &TelegramObserverInner,

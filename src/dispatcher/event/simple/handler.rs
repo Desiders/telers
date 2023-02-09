@@ -19,6 +19,7 @@ pub trait Handler<Args> {
     fn call(&self, args: Args) -> Self::Future;
 }
 
+#[allow(clippy::module_name_repetitions)]
 pub struct HandlerObject {
     service: BoxedHandlerServiceFactory,
 }
@@ -67,6 +68,7 @@ impl Service<()> for HandlerObjectService {
     }
 }
 
+#[allow(clippy::module_name_repetitions)]
 pub fn handler_service<H, Args>(handler: H, args: Args) -> BoxedHandlerServiceFactory
 where
     H: Handler<Args> + Clone + Send + Sync + 'static,

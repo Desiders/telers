@@ -1,3 +1,5 @@
+#![allow(clippy::module_name_repetitions)]
+
 pub mod bases;
 pub mod service;
 pub mod simple;
