@@ -23,8 +23,8 @@ where
     type Error = S::Error;
     type Future = S::Future;
 
-    fn call(&self, req: Req) -> S::Future {
-        (**self).call(req)
+    fn call(&self, request: Req) -> S::Future {
+        (**self).call(request)
     }
 }
 
@@ -36,8 +36,8 @@ where
     type Error = S::Error;
     type Future = S::Future;
 
-    fn call(&self, req: Req) -> S::Future {
-        (**self).call(req)
+    fn call(&self, request: Req) -> S::Future {
+        (**self).call(request)
     }
 }
 
@@ -82,8 +82,7 @@ pub trait ToServiceProvider {
     /// Errors potentially raised while building a service
     type InitError;
 
-    /// Convert the service factory to the service.
-    /// Call [`ServiceFactory::new_service`] for each factory and return the [`ServiceProvider`].
+    /// Convert the service factory to the service
     /// # Errors
     /// If the service cannot be created by the factory
     fn to_service_provider(

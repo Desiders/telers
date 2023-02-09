@@ -10,14 +10,20 @@ use super::telegram::handler::Response;
 /// - [`FinishEvent`] - [`EventReturn::Finish`]
 #[derive(Debug, Default)]
 pub enum EventReturn {
+    /// Skip the event
+    ///
     /// - In outer middleware, means that the middleware should be skipped, and next middleware should be run
     /// - In inner middleware, means that the middleware should be skipped, and next handler with inner middlewares should be run
     /// - In handler, means that the handler should be skipped, and next handler with inner middlewares should be run
     Skip,
+    /// Cancel the event
+    ///
     /// - In outer middleware, means that propagate the event should be stopped
     /// - In inner middleware, means that propagate the event should be stopped
     /// - In handler, means that the propagate event should return a response from handler or inner middleware
     Cancel,
+    /// Finish the event (default). If you don't know what to return, use this.
+    ///
     /// - In outer middleware, means that updated request from middleware should be passed to next middleware, and next middleware should be run
     /// - In inner middleware, means that the propagate event should return a response from handler or inner middleware
     /// - In handler, means that the propagate event should return a response from handler

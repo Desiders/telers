@@ -19,7 +19,6 @@ pub trait Handler<Args> {
     fn call(&self, args: Args) -> Self::Future;
 }
 
-#[allow(clippy::module_name_repetitions)]
 pub struct HandlerObject {
     service: BoxedHandlerServiceFactory,
 }
@@ -63,12 +62,11 @@ impl Service<()> for HandlerObjectService {
     type Error = EventError;
     type Future = BoxFuture<StdResult<Self::Response, Self::Error>>;
 
-    fn call(&self, req: ()) -> Self::Future {
-        self.service.call(req)
+    fn call(&self, request: ()) -> Self::Future {
+        self.service.call(request)
     }
 }
 
-#[allow(clippy::module_name_repetitions)]
 pub fn handler_service<H, Args>(handler: H, args: Args) -> BoxedHandlerServiceFactory
 where
     H: Handler<Args> + Clone + Send + Sync + 'static,
@@ -84,7 +82,6 @@ where
     }))
 }
 
-#[allow(non_snake_case)]
 #[doc(hidden)]
 mod factory_handlers {
     use super::{Future, Handler};
@@ -139,6 +136,7 @@ mod factory_handlers {
 mod tests {
     use super::*;
 
+    use anyhow::anyhow;
     use tokio;
 
     #[test]
@@ -167,10 +165,24 @@ mod tests {
         let handler_object = HandlerObject::new(|| async { Ok(()) }, ());
         let handler_object_service = handler_object.new_service(()).unwrap();
 
-        let res = handler_object_service.call(()).await;
+        let response = handler_object_service.call(()).await;
 
-        match res {
+        match response {
             Ok(_) => {}
+            _ => panic!("Unexpected result"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_handler_object_service_error() {
+        let handler_object =
+            HandlerObject::new(|| async { Err(EventError::new(anyhow!("test"))) }, ());
+        let handler_object_service = handler_object.new_service(()).unwrap();
+
+        let response = handler_object_service.call(()).await;
+
+        match response {
+            Err(_) => {}
             _ => panic!("Unexpected result"),
         }
     }

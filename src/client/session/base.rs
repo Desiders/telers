@@ -1,6 +1,6 @@
 use crate::{
     client::Bot,
-    error::{session, telegram},
+    error::{SessionErrorKind, TelegramErrorKind},
     methods::{Response, TelegramMethod},
 };
 
@@ -89,12 +89,12 @@ pub trait Session {
         &self,
         response: &Response<impl DeserializeOwned>,
         status_code: &StatusCode,
-    ) -> Result<(), telegram::ErrorKind> {
+    ) -> Result<(), TelegramErrorKind> {
         if status_code.is_success() && response.ok {
             if response.result.is_none() {
                 log::error!("Contract violation: result is empty in success response");
 
-                let err: telegram::ErrorKind =
+                let err: TelegramErrorKind =
                     anyhow::Error::msg("Contract violation: result is empty in success response")
                         .into();
 
@@ -110,7 +110,7 @@ pub trait Session {
             // Descriptions for every error mentioned in errors (https://core.telegram.org/api/errors)
             log::error!("Contract violation: description is empty in error response");
 
-            let err: telegram::ErrorKind =
+            let err: TelegramErrorKind =
                 anyhow::Error::msg("Contract violation: description is empty in error response")
                     .into();
 
@@ -119,14 +119,14 @@ pub trait Session {
 
         if let Some(ref parameters) = response.parameters {
             if let Some(retry_after) = parameters.retry_after {
-                return Err(telegram::ErrorKind::RetryAfter {
+                return Err(TelegramErrorKind::RetryAfter {
                     url: "https://core.telegram.org/bots/faq#my-bot-is-hitting-limits-how-do-i-avoid-this",
                     message,
                     retry_after,
                 });
             }
             if let Some(migrate_to_chat_id) = parameters.migrate_to_chat_id {
-                return Err(telegram::ErrorKind::MigrateToChat {
+                return Err(TelegramErrorKind::MigrateToChat {
                     url: "https://core.telegram.org/bots/api#responseparameters",
                     message,
                     migrate_to_chat_id,
@@ -135,20 +135,20 @@ pub trait Session {
         }
 
         let err = match status_code.as_u16() {
-            400 => telegram::ErrorKind::BadRequest { message },
-            401 => telegram::ErrorKind::Unauthorized { message },
-            403 => telegram::ErrorKind::Forbidden { message },
-            404 => telegram::ErrorKind::NotFound { message },
-            409 => telegram::ErrorKind::ConflictError { message },
-            413 => telegram::ErrorKind::EntityTooLarge {
+            400 => TelegramErrorKind::BadRequest { message },
+            401 => TelegramErrorKind::Unauthorized { message },
+            403 => TelegramErrorKind::Forbidden { message },
+            404 => TelegramErrorKind::NotFound { message },
+            409 => TelegramErrorKind::ConflictError { message },
+            413 => TelegramErrorKind::EntityTooLarge {
                 url: "https://core.telegram.org/bots/api#sending-files",
                 message,
             },
             500 => {
                 if message.contains("restart") {
-                    telegram::ErrorKind::RestartingTelegram { message }
+                    TelegramErrorKind::RestartingTelegram { message }
                 } else {
-                    telegram::ErrorKind::ServerError { message }
+                    TelegramErrorKind::ServerError { message }
                 }
             }
             _ => {
@@ -176,7 +176,7 @@ pub trait Session {
         bot: &Bot,
         method: &T,
         timeout: Option<f32>,
-    ) -> Result<Response<T::Return>, session::ErrorKind>
+    ) -> Result<Response<T::Return>, SessionErrorKind>
     where
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync,
@@ -184,14 +184,14 @@ pub trait Session {
         let client_response = self
             .send_request(bot, method, timeout)
             .await
-            .map_err(session::ErrorKind::Client)?;
+            .map_err(SessionErrorKind::Client)?;
 
         let telegram_response = method
             .build_response(&client_response.content)
             .map_err(|err| {
                 log::error!("Cannot parse response: {err}");
 
-                session::ErrorKind::Parse(err)
+                SessionErrorKind::Parse(err)
             })?;
 
         self.check_response(&telegram_response, &client_response.status_code)?;
@@ -214,7 +214,7 @@ pub trait Session {
         bot: &Bot,
         method: &T,
         timeout: Option<f32>,
-    ) -> Result<T::Return, session::ErrorKind>
+    ) -> Result<T::Return, SessionErrorKind>
     where
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync,
