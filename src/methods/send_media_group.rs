@@ -94,7 +94,7 @@ impl<'a> TelegramMethod for SendMediaGroup<'a> {
     type Method = Self;
     type Return = Vec<Message>;
 
-    fn build_request(&self, _bot: &Bot) -> Request<Self::Method> {
+    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = HashMap::new();
         prepare_input_media(&mut files, &self.media);
 

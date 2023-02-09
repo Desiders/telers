@@ -42,7 +42,7 @@ impl TelegramMethod for DeleteMyCommands {
     type Method = Self;
     type Return = bool;
 
-    fn build_request(&self, _bot: &Bot) -> Request<Self::Method> {
+    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
         Request::new("deleteMyCommands", self, None)
     }
 }

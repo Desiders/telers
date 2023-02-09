@@ -1,7 +1,7 @@
 use super::router::{Request, Response, Router, RouterInner};
 
 use crate::{
-    client::Bot,
+    client::{Bot, Session},
     context::Context,
     dispatcher::event::{
         service::{ServiceProvider, ToServiceProvider},
@@ -41,28 +41,15 @@ enum PollingError {
 }
 
 /// Dispatcher using to dispatch incoming updates to the routers
-pub struct Dispatcher {
-    main_router: Router,
-    bots: Vec<Bot>,
+pub struct Dispatcher<Client> {
+    main_router: Router<Client>,
+    bots: Vec<Bot<Client>>,
     polling_timeout: Option<i64>,
     backoff: ExponentialBackoff<SystemClock>,
     allowed_updates: Option<Vec<String>>,
 }
 
-impl Default for Dispatcher {
-    #[must_use]
-    fn default() -> Self {
-        Self {
-            main_router: Router::default(),
-            bots: vec![],
-            polling_timeout: Some(DEFAULT_POLLING_TIMEOUT),
-            backoff: ExponentialBackoff::default(),
-            allowed_updates: None,
-        }
-    }
-}
-
-impl Dispatcher {
+impl<Client> Dispatcher<Client> {
     /// Create a new dispatcher
     /// # Arguments
     /// * `main_router` -
@@ -80,8 +67,8 @@ impl Dispatcher {
     /// * `backoff` - Backoff used for handling server-side errors
     #[must_use]
     pub fn new<AllowedUpdate>(
-        main_router: Router,
-        bots: Vec<Bot>,
+        main_router: Router<Client>,
+        bots: Vec<Bot<Client>>,
         polling_timeout: Option<i64>,
         backoff: ExponentialBackoff<SystemClock>,
         allowed_updates: Option<Vec<AllowedUpdate>>,
@@ -98,23 +85,47 @@ impl Dispatcher {
                 .map(|allowed_updates| allowed_updates.into_iter().map(Into::into).collect()),
         }
     }
+}
 
+impl<Client> Dispatcher<Client>
+where
+    Client: Send + Sync + 'static,
+{
     #[must_use]
-    pub fn builder() -> DispatcherBuilder {
+    pub fn builder() -> DispatcherBuilder<Client> {
         DispatcherBuilder::default()
     }
 }
 
+impl<Client> Default for Dispatcher<Client>
+where
+    Client: Send + Sync + 'static,
+{
+    #[must_use]
+    fn default() -> Self {
+        Self {
+            main_router: Router::default(),
+            bots: vec![],
+            polling_timeout: Some(DEFAULT_POLLING_TIMEOUT),
+            backoff: ExponentialBackoff::default(),
+            allowed_updates: None,
+        }
+    }
+}
+
 #[allow(clippy::module_name_repetitions)]
-pub struct DispatcherBuilder {
-    main_router: Router,
-    bots: Vec<Bot>,
+pub struct DispatcherBuilder<Client> {
+    main_router: Router<Client>,
+    bots: Vec<Bot<Client>>,
     polling_timeout: Option<i64>,
     backoff: ExponentialBackoff<SystemClock>,
     allowed_updates: Option<Vec<String>>,
 }
 
-impl Default for DispatcherBuilder {
+impl<Client> Default for DispatcherBuilder<Client>
+where
+    Client: Send + Sync + 'static,
+{
     #[must_use]
     fn default() -> Self {
         Self {
@@ -128,24 +139,24 @@ impl Default for DispatcherBuilder {
 }
 
 /// A block of consuming builder
-impl DispatcherBuilder {
+impl<Client> DispatcherBuilder<Client> {
     /// Set main router, which will be used for dispatching updates
     #[must_use]
-    pub fn main_router(mut self, val: Router) -> Self {
+    pub fn main_router(mut self, val: Router<Client>) -> Self {
         self.main_router = val;
         self
     }
 
     /// Alias to [`DispatcherBuilder::main_router`] method
     #[must_use]
-    pub fn router(self, val: Router) -> Self {
+    pub fn router(self, val: Router<Client>) -> Self {
         self.main_router(val)
     }
 
     /// Set bot to dispatcher. Bot used for getting updates.
     /// You can use this method multiple times to add multiple bots or just use `bots` method.
     #[must_use]
-    pub fn bot(mut self, val: Bot) -> Self {
+    pub fn bot(mut self, val: Bot<Client>) -> Self {
         self.bots.push(val);
         self
     }
@@ -154,7 +165,7 @@ impl DispatcherBuilder {
     /// All bots use the same dispatcher, but each bot has the own polling process.
     /// This can be useful if you want to run multibots with a single dispatcher logic.
     #[must_use]
-    pub fn bots(mut self, val: Vec<Bot>) -> Self {
+    pub fn bots(mut self, val: Vec<Bot<Client>>) -> Self {
         self.bots.extend(val);
         self
     }
@@ -196,7 +207,7 @@ impl DispatcherBuilder {
     }
 
     #[must_use]
-    pub fn build(self) -> Dispatcher {
+    pub fn build(self) -> Dispatcher<Client> {
         Dispatcher {
             main_router: self.main_router,
             bots: self.bots,
@@ -207,9 +218,9 @@ impl DispatcherBuilder {
     }
 }
 
-impl ToServiceProvider for Dispatcher {
+impl<Client> ToServiceProvider for Dispatcher<Client> {
     type Config = ();
-    type ServiceProvider = Arc<DispatcherInner>;
+    type ServiceProvider = Arc<DispatcherInner<Client>>;
     type InitError = ();
 
     fn to_service_provider(
@@ -229,17 +240,20 @@ impl ToServiceProvider for Dispatcher {
 }
 
 #[allow(clippy::module_name_repetitions)]
-pub struct DispatcherInner {
-    main_router: RouterInner,
-    bots: Vec<Bot>,
+pub struct DispatcherInner<Client> {
+    main_router: RouterInner<Client>,
+    bots: Vec<Bot<Client>>,
     polling_timeout: Option<i64>,
     backoff: ExponentialBackoff<SystemClock>,
     allowed_updates: Option<Vec<String>>,
 }
 
-impl ServiceProvider for DispatcherInner {}
+impl<Client> ServiceProvider for DispatcherInner<Client> {}
 
-impl DispatcherInner {
+impl<Client> DispatcherInner<Client>
+where
+    Client: Session + Send + Sync + Clone + 'static,
+{
     /// Main entry point for incoming updates
     /// # Arguments
     /// * `bot` - [`Bot`] which will be used for creating [`Request`]
@@ -253,9 +267,9 @@ impl DispatcherInner {
         self: Arc<Self>,
         bot: B,
         update: U,
-    ) -> Result<Result<Response, AppErrorKind>, UnknownUpdateTypeError>
+    ) -> Result<Result<Response<Client>, AppErrorKind>, UnknownUpdateTypeError>
     where
-        B: Into<Arc<Bot>>,
+        B: Into<Arc<Bot<Client>>>,
         U: Into<Arc<Update>>,
     {
         let update: Arc<Update> = update.into();
@@ -291,7 +305,7 @@ impl DispatcherInner {
     /// # Errors
     /// If sender channel is disconnected
     async fn listen_updates(
-        bot: Arc<Bot>,
+        bot: Arc<Bot<Client>>,
         polling_timeout: Option<i64>,
         allowed_updates: Option<Vec<String>>,
         update_sender: Sender<Box<Update>>,
@@ -382,7 +396,7 @@ impl DispatcherInner {
     /// If failed to register exit signal handlers
     async fn polling(
         self: Arc<Self>,
-        bot: Bot,
+        bot: Bot<Client>,
         polling_timeout: Option<i64>,
         allowed_updates: Option<Vec<String>>,
         backoff: ExponentialBackoff<SystemClock>,
@@ -543,7 +557,9 @@ impl DispatcherInner {
             log::warn!("Polling is finished for all bots");
         }
     }
+}
 
+impl<Client> DispatcherInner<Client> {
     /// Call startup events. \
     /// Use this method if you want to emit startup events manually
     /// or if you use [`Dispatcher::run_polling_without_startup_and_shutdown`] method
@@ -571,6 +587,7 @@ impl DispatcherInner {
 mod tests {
     use super::*;
     use crate::{
+        client::Reqwest,
         dispatcher::event::bases::{EventReturn, PropagateEventResult},
         types::Message,
     };
@@ -579,7 +596,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_feed_update() {
-        let bot = Arc::new(Bot::default());
+        let bot = Arc::new(Bot::<Reqwest>::default());
         let update = Arc::new(Update {
             message: Some(Message::default()),
             ..Default::default()

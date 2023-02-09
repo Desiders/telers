@@ -24,7 +24,7 @@ pub(crate) enum BuildFormError {
     Io(#[from] io::Error),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone)]
 pub struct Reqwest {
     client: Client,
     api: Cow<'static, telegram::APIServer>,
@@ -104,13 +104,14 @@ impl Default for Reqwest {
 
 #[async_trait]
 impl Session for Reqwest {
-    async fn send_request<T>(
+    async fn send_request<Client, T>(
         &self,
-        bot: &Bot,
+        bot: &Bot<Client>,
         method: &T,
         timeout: Option<f32>,
     ) -> Result<ClientResponse, anyhow::Error>
     where
+        Client: Sync,
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync,
     {

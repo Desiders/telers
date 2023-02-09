@@ -5,11 +5,11 @@ use crate::{
 
 use std::sync::Arc;
 
-impl FromEventAndContext for CommandObject {
+impl<Client> FromEventAndContext<Client> for CommandObject {
     type Error = ExtractionError;
 
     fn extract(
-        _bot: Arc<Bot>,
+        _bot: Arc<Bot<Client>>,
         _update: Arc<Update>,
         context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -30,11 +30,11 @@ impl FromEventAndContext for CommandObject {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::dispatcher::event::telegram::handler::Handler;
+    use crate::{client::Reqwest, dispatcher::event::telegram::handler::Handler};
 
     #[test]
     fn test_filters_extract() {
-        fn assert_impl_handler<T: FromEventAndContext>(_: impl Handler<T>) {}
+        fn assert_impl_handler<T: FromEventAndContext<Reqwest>>(_: impl Handler<T>) {}
 
         assert_impl_handler(|_: CommandObject| async { unreachable!() });
     }

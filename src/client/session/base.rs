@@ -68,13 +68,14 @@ pub trait Session {
     /// # Errors
     /// If the request cannot be send or decoded
     #[must_use]
-    async fn send_request<T>(
+    async fn send_request<Client, T>(
         &self,
-        bot: &Bot,
+        bot: &Bot<Client>,
         method: &T,
         timeout: Option<f32>,
     ) -> Result<ClientResponse, anyhow::Error>
     where
+        Client: Sync,
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync;
 
@@ -171,13 +172,14 @@ pub trait Session {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
-    async fn make_request<T>(
+    async fn make_request<Client, T>(
         &self,
-        bot: &Bot,
+        bot: &Bot<Client>,
         method: &T,
         timeout: Option<f32>,
     ) -> Result<Response<T::Return>, SessionErrorKind>
     where
+        Client: Sync,
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync,
     {
@@ -209,13 +211,14 @@ pub trait Session {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
-    async fn make_request_and_get_result<T>(
+    async fn make_request_and_get_result<Client, T>(
         &self,
-        bot: &Bot,
+        bot: &Bot<Client>,
         method: &T,
         timeout: Option<f32>,
     ) -> Result<T::Return, SessionErrorKind>
     where
+        Client: Sync,
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync,
     {
