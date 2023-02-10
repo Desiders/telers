@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getchat>
 /// # Returns
-/// Returns a [`Chat`] object on success.
+/// Returns a [`Chat`] object on success
 #[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct GetChat {

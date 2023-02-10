@@ -12,7 +12,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setmycommands>
 /// # Returns
-/// Returns `True` on success.
+/// Returns `True` on success
 #[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct SetMyCommands {
@@ -41,8 +41,8 @@ impl SetMyCommands {
     }
 
     #[must_use]
-    pub fn scope(mut self, val: BotCommandScope) -> Self {
-        self.scope = Some(val);
+    pub fn scope<T: Into<BotCommandScope>>(mut self, val: T) -> Self {
+        self.scope = Some(val.into());
         self
     }
 

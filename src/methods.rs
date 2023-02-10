@@ -74,7 +74,7 @@ pub mod unpin_chat_message;
 
 pub use add_sticker_to_set::AddStickerToSet;
 pub use answer_callback_query::AnswerCallbackQuery;
-pub use approve_chat_join_request::ApproveChatJoinRequestk;
+pub use approve_chat_join_request::ApproveChatJoinRequest;
 pub use ban_chat_member::BanChatMember;
 pub use ban_chat_sender_chat::BanChatSenderChat;
 pub use base::{Request, Response, TelegramMethod};

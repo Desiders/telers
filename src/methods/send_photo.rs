@@ -33,6 +33,8 @@ pub struct SendPhoto<'a> {
     pub has_spoiler: Option<bool>,
     /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound
     pub disable_notification: Option<bool>,
+    /// Protects the contents of the sent message from forwarding and saving
+    pub protect_content: Option<bool>,
     /// If the message is a reply, *id* of the original message
     pub reply_to_message_id: Option<i64>,
     /// Pass `True` if the message should be sent even if the specified replied-to message is not found
@@ -53,6 +55,7 @@ impl<'a> SendPhoto<'a> {
             caption_entities: None,
             has_spoiler: None,
             disable_notification: None,
+            protect_content: None,
             reply_to_message_id: None,
             allow_sending_without_reply: None,
             reply_markup: None,
@@ -104,6 +107,12 @@ impl<'a> SendPhoto<'a> {
     #[must_use]
     pub fn disable_notification(mut self, val: bool) -> Self {
         self.disable_notification = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn protect_content(mut self, val: bool) -> Self {
+        self.protect_content = Some(val);
         self
     }
 

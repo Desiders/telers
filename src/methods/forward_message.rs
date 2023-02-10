@@ -2,17 +2,17 @@ use super::base::{Request, TelegramMethod};
 
 use crate::{
     client::Bot,
-    types::{ChatIdKind, MessageId},
+    types::{ChatIdKind, Message},
 };
 
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 
-/// Use this method to copy messages of any kind. Service messages and invoice messages can't be copied. A quiz [`poll`](crate::types::Poll) can be copied only if the value of the field `correct_option_id` is known to the bot. The method is analogous to the method [`ForwardMessage`](crate::methods::ForwardMessage), but the copied message doesn't have a link to the original message.
+/// Use this method to forward messages of any kind. Service messages can't be forwarded.
 /// # Documentation
-/// <https://core.telegram.org/bots/api#copymessage>
+/// <https://core.telegram.org/bots/api#forwardmessage>
 /// # Returns
-/// Returns the [`MessageId`] of the sent message on success
+/// On success, the sent [`Message`] is returned
 #[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct ForwardMessage {
@@ -88,7 +88,7 @@ impl ForwardMessage {
 
 impl TelegramMethod for ForwardMessage {
     type Method = Self;
-    type Return = MessageId;
+    type Return = Message;
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
         Request::new("forwardMessage", self, None)

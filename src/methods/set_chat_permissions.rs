@@ -12,7 +12,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setchatpermissions>
 /// # Returns
-/// Returns `True` on success.
+/// Returns `True` on success
 #[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct SetChatPermissions {

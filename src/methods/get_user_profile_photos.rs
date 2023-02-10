@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getuserprofilephotos>
 /// # Returns
-/// Returns a [`UserProfilePhotos`] object.
+/// Returns a [`UserProfilePhotos`] object
 #[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct GetUserProfilePhotos {

@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getmydefaultadministratorrights>
 /// # Returns
-/// Returns [`ChatAdministratorRights`] on success.
+/// Returns [`ChatAdministratorRights`] on success
 #[skip_serializing_none]
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct GetMyDefaultAdministratorRights {

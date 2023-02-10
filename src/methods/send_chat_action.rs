@@ -1,9 +1,6 @@
 use super::base::{Request, TelegramMethod};
 
-use crate::{
-    client::Bot,
-    types::{ChatIdKind, Message},
-};
+use crate::{client::Bot, types::ChatIdKind};
 
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -16,7 +13,7 @@ use serde_with::skip_serializing_none;
 /// # Example
 /// The [ImageBot](https://t.me/imagebot) needs some time to process a request and upload the image. Instead of sending a text message along the lines of “Retrieving image, please wait…”, the bot may use [`SendChatAction`](crate::methods::SendChatAction) with `action = upload_photo`. The user will see a “sending photo” status for the bot.
 /// # Returns
-/// Returns `True` on success.
+/// Returns `True` on success
 #[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct SendChatAction {
@@ -59,7 +56,7 @@ impl SendChatAction {
 
 impl TelegramMethod for SendChatAction {
     type Method = Self;
-    type Return = Message;
+    type Return = bool;
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
         Request::new("sendChatAction", self, None)

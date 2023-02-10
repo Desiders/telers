@@ -9,17 +9,17 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#approvechatjoinrequest>
 /// # Returns
-/// Returns `True` on success.
+/// Returns `True` on success
 #[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
-pub struct ApproveChatJoinRequestk {
+pub struct ApproveChatJoinRequest {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatIdKind,
     /// Unique identifier of the target user
     pub user_id: i64,
 }
 
-impl ApproveChatJoinRequestk {
+impl ApproveChatJoinRequest {
     #[must_use]
     pub fn new<T: Into<ChatIdKind>>(chat_id: T, user_id: i64) -> Self {
         Self {
@@ -41,11 +41,11 @@ impl ApproveChatJoinRequestk {
     }
 }
 
-impl TelegramMethod for ApproveChatJoinRequestk {
+impl TelegramMethod for ApproveChatJoinRequest {
     type Method = Self;
     type Return = bool;
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        Request::new("approveChatJoinRequestk", self, None)
+        Request::new("approveChatJoinRequest", self, None)
     }
 }

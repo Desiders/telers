@@ -12,7 +12,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#createforumtopic>
 /// # Returns
-/// Returns information about the created topic as a [`ForumTopic`] object.
+/// Returns information about the created topic as a [`ForumTopic`] object
 #[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct CreateForumTopic {

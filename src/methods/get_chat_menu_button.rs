@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getchatmenubutton>
 /// # Returns
-/// Returns [`MenuButton`] on success.
+/// Returns [`MenuButton`] on success
 #[skip_serializing_none]
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct GetChatMenuButton {

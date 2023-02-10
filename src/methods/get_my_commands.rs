@@ -1,6 +1,9 @@
 use super::base::{Request, TelegramMethod};
 
-use crate::{client::Bot, types::{BotCommandScope, BotCommand}};
+use crate::{
+    client::Bot,
+    types::{BotCommand, BotCommandScope},
+};
 
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -26,8 +29,8 @@ impl GetMyCommands {
     }
 
     #[must_use]
-    pub fn scope(mut self, val: BotCommandScope) -> Self {
-        self.scope = Some(val);
+    pub fn scope<T: Into<BotCommandScope>>(mut self, val: T) -> Self {
+        self.scope = Some(val.into());
         self
     }
 

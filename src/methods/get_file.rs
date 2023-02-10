@@ -11,7 +11,7 @@ use serde_with::skip_serializing_none;
 /// # Notes
 /// This function may not preserve the original file name and MIME type. You should save the file's MIME type and name (if available) when the File object is received.
 /// # Returns
-/// On success, a [`File`] object is returned.
+/// On success, a [`File`] object is returned
 #[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct GetFile {

@@ -2,7 +2,7 @@ use super::base::{Request, TelegramMethod};
 
 use crate::{
     client::Bot,
-    types::{ChatIdKind, InlineKeyboardMarkup, Message},
+    types::{ChatIdKind, InlineKeyboardMarkup, MessageOrTrue},
 };
 
 use serde::Serialize;
@@ -13,7 +13,7 @@ use serde_with::skip_serializing_none;
 /// <https://core.telegram.org/bots/api#stopmessagelivelocation>
 /// # Returns
 /// On success, if the message is not an inline message, the edited [`Message`] is returned,
-/// otherwise `True` is returned.
+/// otherwise `True` is returned
 #[skip_serializing_none]
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct StopMessageLiveLocation {
@@ -60,7 +60,7 @@ impl StopMessageLiveLocation {
 
 impl TelegramMethod for StopMessageLiveLocation {
     type Method = Self;
-    type Return = Message;
+    type Return = MessageOrTrue;
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
         Request::new("stopMessageLiveLocation", self, None)

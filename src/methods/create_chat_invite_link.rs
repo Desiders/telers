@@ -12,7 +12,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#createchatinvitelink>
 /// # Returns
-/// Returns the new invite link as [`ChatInviteLink`] object.
+/// Returns the new invite link as [`ChatInviteLink`] object
 #[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct CreateChatInviteLink {

@@ -251,7 +251,7 @@ impl<'a> Command<'a> {
         if self.ignore_mention {
             Ok(())
         } else if let Some(ref mention) = command.mention {
-            if let Some(ref username) = bot.get_me().await?.username {
+            if let Some(ref username) = bot.get_me(None).await?.username {
                 if mention == username {
                     Ok(())
                 } else {

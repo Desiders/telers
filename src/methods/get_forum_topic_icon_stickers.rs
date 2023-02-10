@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getforumtopiciconstickers>
 /// # Returns
-/// Returns an Array of [`Sticker`] objects.
+/// Returns an Array of [`Sticker`] objects
 #[skip_serializing_none]
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct GetForumTopicIconStickers {}
