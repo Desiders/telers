@@ -45,13 +45,16 @@ impl Default for Logging {
 }
 
 #[async_trait]
-impl Middleware for Logging {
+impl<Client> Middleware<Client> for Logging
+where
+    Client: Send + Sync + 'static,
+{
     async fn call(
         &self,
-        handler: Arc<BoxedHandlerService>,
-        request: HandlerRequest,
-        middlewares: MiddlewaresIter,
-    ) -> Result<HandlerResponse, AppErrorKind> {
+        handler: Arc<BoxedHandlerService<Client>>,
+        request: HandlerRequest<Client>,
+        middlewares: MiddlewaresIter<Client>,
+    ) -> Result<HandlerResponse<Client>, AppErrorKind> {
         let now = Instant::now();
         let result = call_handler(handler, request, middlewares).await;
         let elapsed = now.elapsed();
@@ -115,7 +118,7 @@ impl Middleware for Logging {
 mod tests {
     use super::*;
     use crate::{
-        client::Bot,
+        client::{Bot, Reqwest},
         context::Context,
         dispatcher::event::{service::ServiceFactory as _, telegram::handler_service},
         types::Update,
@@ -149,7 +152,11 @@ mod tests {
             handler_service(|| async { Ok(EventReturn::Finish) }).new_service(());
         let handler_service = Arc::new(handler_service_factory.unwrap());
 
-        let request = HandlerRequest::new(Bot::default(), Update::default(), Context::default());
+        let request = HandlerRequest::new(
+            Bot::<Reqwest>::default(),
+            Update::default(),
+            Context::default(),
+        );
         let res = middleware
             .call(handler_service, request, Box::new(iter::empty()))
             .await;

@@ -1,7 +1,7 @@
 use super::base::Filter;
 
 use crate::{
-    client::Bot,
+    client::{Bot, Session},
     context::Context,
     error::session,
     types::{BotCommand, Update},
@@ -240,7 +240,14 @@ impl<'a> Command<'a> {
 
     /// # Errors
     /// If mention is invalid.
-    pub async fn validate_mention(&self, command: &CommandObject, bot: &Bot) -> Result<()> {
+    pub async fn validate_mention<Client>(
+        &self,
+        command: &CommandObject,
+        bot: &Bot<Client>,
+    ) -> Result<()>
+    where
+        Client: Session + Send + Sync,
+    {
         if self.ignore_mention {
             Ok(())
         } else if let Some(ref mention) = command.mention {
@@ -292,7 +299,14 @@ impl<'a> Command<'a> {
     /// - If prefix is invalid
     /// - If mention is invalid
     /// - If command is invalid
-    pub async fn parse_command(&self, text: &str, bot: &Bot) -> Result<CommandObject> {
+    pub async fn parse_command<Client>(
+        &self,
+        text: &str,
+        bot: &Bot<Client>,
+    ) -> Result<CommandObject>
+    where
+        Client: Session + Send + Sync,
+    {
         let command = CommandObject::extract(text);
 
         self.validate_prefix(&command)?;
@@ -357,8 +371,11 @@ impl CommandObject {
 }
 
 #[async_trait]
-impl Filter for Command<'_> {
-    async fn check(&self, bot: &Bot, update: &Update, context: &Context) -> bool {
+impl<Client> Filter<Client> for Command<'_>
+where
+    Client: Session + Send + Sync,
+{
+    async fn check(&self, bot: &Bot<Client>, update: &Update, context: &Context) -> bool {
         let Some(ref message) = update.message else { return false; };
         let Some(text) = message.get_text_or_caption() else { return false; };
 

@@ -31,17 +31,17 @@ use std::{
 };
 
 #[derive(Debug, Clone)]
-pub struct Request {
-    pub bot: Arc<Bot>,
+pub struct Request<Client> {
+    pub bot: Arc<Bot<Client>>,
     pub update: Arc<Update>,
     pub context: Arc<Context>,
 }
 
-impl Request {
+impl<Client> Request<Client> {
     #[must_use]
     pub fn new<B, U, C>(bot: B, update: U, context: C) -> Self
     where
-        B: Into<Arc<Bot>>,
+        B: Into<Arc<Bot<Client>>>,
         U: Into<Arc<Update>>,
         C: Into<Arc<Context>>,
     {
@@ -53,7 +53,7 @@ impl Request {
     }
 }
 
-impl PartialEq for Request {
+impl<Client> PartialEq for Request<Client> {
     fn eq(&self, other: &Self) -> bool {
         Arc::ptr_eq(&self.bot, &other.bot)
             && Arc::ptr_eq(&self.update, &other.update)
@@ -61,30 +61,33 @@ impl PartialEq for Request {
     }
 }
 
-impl From<Request> for HandlerRequest {
-    fn from(req: Request) -> Self {
+impl<Client> From<Request<Client>> for HandlerRequest<Client> {
+    fn from(req: Request<Client>) -> Self {
         Self::new(req.bot, req.update, req.context)
     }
 }
 
 #[derive(Debug)]
-pub struct Response {
-    pub request: Request,
-    pub propagate_result: PropagateEventResult,
+pub struct Response<Client> {
+    pub request: Request<Client>,
+    pub propagate_result: PropagateEventResult<Client>,
 }
 
 /// Event observer for telegram events
-pub struct Observer {
+pub struct Observer<Client> {
     pub event_name: &'static str,
-    pub handlers: Vec<HandlerObject>,
-    pub inner_middlewares: InnerMiddlewareManager,
-    pub outer_middlewares: OuterMiddlewareManager,
+    pub handlers: Vec<HandlerObject<Client>>,
+    pub inner_middlewares: InnerMiddlewareManager<Client>,
+    pub outer_middlewares: OuterMiddlewareManager<Client>,
 
     /// Handler, which never will be called, but used for common filters for all handlers in the observer
-    common: HandlerObject,
+    common: HandlerObject<Client>,
 }
 
-impl Observer {
+impl<Client> Observer<Client>
+where
+    Client: Send + Sync + 'static,
+{
     /// Create a new event observer
     /// # Arguments
     /// * `event_name` - Event observer name, can be used for logging
@@ -94,31 +97,15 @@ impl Observer {
         Self {
             event_name,
             handlers: vec![],
-            common: HandlerObject::new_no_filters(|| async move {
+            common: HandlerObject::<Client>::new_no_filters(|| async move {
                 // This handler never will be called, so we can use `unreachable!` macro
                 ({
                     unreachable!("This handler never will be used");
                 }) as Result<_, _>
             }),
-            inner_middlewares: InnerMiddlewareManager::default(),
-            outer_middlewares: OuterMiddlewareManager::default(),
+            inner_middlewares: InnerMiddlewareManager::<Client>::default(),
+            outer_middlewares: OuterMiddlewareManager::<Client>::default(),
         }
-    }
-
-    /// Register filter for all handlers in the observer
-    pub fn filter<F>(&mut self, filter: F)
-    where
-        F: Filter + 'static,
-    {
-        self.common.filter(filter);
-    }
-
-    /// Register filters for all handlers in the observer
-    pub fn filters<F>(&mut self, filters: Vec<F>)
-    where
-        F: Filter + 'static,
-    {
-        self.common.filters(filters);
     }
 
     /// Register handler with filters
@@ -130,9 +117,9 @@ impl Observer {
         H: Handler<Args> + Clone + Send + Sync + 'static,
         H::Future: Send,
         H::Output: Into<HandlerResult>,
-        Args: FromEventAndContext + Send,
+        Args: FromEventAndContext<Client> + Send,
         Args::Error: Send,
-        F: Filter + 'static,
+        F: Filter<Client> + 'static,
     {
         self.handlers.push(HandlerObject::new(handler, filters));
     }
@@ -145,7 +132,7 @@ impl Observer {
         H: Handler<Args> + Clone + Send + Sync + 'static,
         H::Future: Send,
         H::Output: Into<HandlerResult>,
-        Args: FromEventAndContext + Send,
+        Args: FromEventAndContext<Client> + Send,
         Args::Error: Send,
     {
         self.handlers.push(HandlerObject::new_no_filters(handler));
@@ -162,9 +149,9 @@ impl Observer {
         H: Handler<Args> + Clone + Send + Sync + 'static,
         H::Future: Send,
         H::Output: Into<HandlerResult>,
-        Args: FromEventAndContext + Send,
+        Args: FromEventAndContext<Client> + Send,
         Args::Error: Send,
-        F: Filter + 'static,
+        F: Filter<Client> + 'static,
     {
         self.register(handler, filters);
     }
@@ -179,14 +166,32 @@ impl Observer {
         H: Handler<Args> + Clone + Send + Sync + 'static,
         H::Future: Send,
         H::Output: Into<HandlerResult>,
-        Args: FromEventAndContext + Send,
+        Args: FromEventAndContext<Client> + Send,
         Args::Error: Send,
     {
         self.register_no_filters(handler);
     }
 }
 
-impl Debug for Observer {
+impl<Client> Observer<Client> {
+    /// Register filter for all handlers in the observer
+    pub fn filter<F>(&mut self, filter: F)
+    where
+        F: Filter<Client> + 'static,
+    {
+        self.common.filter(filter);
+    }
+
+    /// Register filters for all handlers in the observer
+    pub fn filters<F>(&mut self, filters: Vec<F>)
+    where
+        F: Filter<Client> + 'static,
+    {
+        self.common.filters(filters);
+    }
+}
+
+impl<Client> Debug for Observer<Client> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Observer")
             .field("event_name", &self.event_name)
@@ -194,23 +199,26 @@ impl Debug for Observer {
     }
 }
 
-impl Default for Observer {
+impl<Client> Default for Observer<Client>
+where
+    Client: Send + Sync + 'static,
+{
     #[must_use]
     fn default() -> Self {
         Self::new("default")
     }
 }
 
-impl AsRef<Observer> for Observer {
+impl<Client> AsRef<Observer<Client>> for Observer<Client> {
     #[must_use]
     fn as_ref(&self) -> &Self {
         self
     }
 }
 
-impl ToServiceProvider for Observer {
+impl<Client> ToServiceProvider for Observer<Client> {
     type Config = ();
-    type ServiceProvider = ObserverInner;
+    type ServiceProvider = ObserverInner<Client>;
     type InitError = ();
 
     fn to_service_provider(
@@ -238,22 +246,25 @@ impl ToServiceProvider for Observer {
 }
 
 #[allow(clippy::module_name_repetitions)]
-pub struct ObserverInner {
+pub struct ObserverInner<Client> {
     event_name: &'static str,
-    handlers: Vec<HandlerObjectService>,
-    common: HandlerObjectService,
-    pub(crate) inner_middlewares: InnerMiddlewares,
-    pub(crate) outer_middlewares: OuterMiddlewares,
+    handlers: Vec<HandlerObjectService<Client>>,
+    common: HandlerObjectService<Client>,
+    pub(crate) inner_middlewares: InnerMiddlewares<Client>,
+    pub(crate) outer_middlewares: OuterMiddlewares<Client>,
 }
 
-impl ServiceProvider for ObserverInner {}
+impl<Client> ServiceProvider for ObserverInner<Client> {}
 
-impl ObserverInner {
+impl<Client: Clone + 'static> ObserverInner<Client> {
     /// Propagate event to handlers and stops propagation on first match.
     /// Handler will be called when all its filters is pass.
     /// # Errors
     /// - If any handler returns error. Probably it's error to extract args to the handler.
-    pub async fn trigger(&self, request: Request) -> Result<Response, AppErrorKind> {
+    pub async fn trigger(
+        &self,
+        request: Request<Client>,
+    ) -> Result<Response<Client>, AppErrorKind> {
         let handler_request = request.clone().into();
 
         // Check observer filters
@@ -308,7 +319,7 @@ impl ObserverInner {
     }
 }
 
-impl Debug for ObserverInner {
+impl<Client> Debug for ObserverInner<Client> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("ObserverInner")
             .field("event_name", &self.event_name)
@@ -319,7 +330,7 @@ impl Debug for ObserverInner {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{error::EventError, filters::Command, types::Message};
+    use crate::{client::Reqwest, error::EventError, filters::Command, types::Message};
 
     use anyhow::anyhow;
     use tokio;
@@ -327,7 +338,7 @@ mod tests {
     #[allow(unreachable_code)]
     #[tokio::test]
     async fn test_observer_trigger() {
-        let bot = Bot::default();
+        let bot = Bot::<Reqwest>::default();
         let context = Context::default();
 
         let mut observer = Observer::new("test");
@@ -373,7 +384,7 @@ mod tests {
     #[allow(unreachable_code)]
     #[tokio::test]
     async fn test_observer_trigger_error() {
-        let mut observer = Observer::new("test");
+        let mut observer = Observer::<Reqwest>::new("test");
         observer.register_no_filters(|| async { Err(EventError::new(anyhow!("test"))) });
         observer.register_no_filters(|| async {
             unreachable!("It's shouldn't trigger because the first handler handles the event");
@@ -397,7 +408,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_observer_event_return() {
-        let bot = Bot::default();
+        let bot = Bot::<Reqwest>::default();
         let context = Context::default();
         let update = Update::default();
 

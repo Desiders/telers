@@ -15,22 +15,24 @@ use crate::{
 
 use std::{future::Future, result::Result as StdResult, sync::Arc};
 
-pub type BoxedHandlerService = BoxService<Request, Response, ExtractionError>;
-pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), Request, Response, ExtractionError, ()>;
+pub type BoxedHandlerService<Client> =
+    BoxService<Request<Client>, Response<Client>, ExtractionError>;
+pub type BoxedHandlerServiceFactory<Client> =
+    BoxServiceFactory<(), Request<Client>, Response<Client>, ExtractionError, ()>;
 
 /// Request for a handler service
 #[derive(Debug, Clone)]
-pub struct Request {
-    pub bot: Arc<Bot>,
+pub struct Request<Client> {
+    pub bot: Arc<Bot<Client>>,
     pub update: Arc<Update>,
     pub context: Arc<Context>,
 }
 
-impl Request {
+impl<Client> Request<Client> {
     #[must_use]
     pub fn new<B, U, C>(bot: B, update: U, context: C) -> Self
     where
-        B: Into<Arc<Bot>>,
+        B: Into<Arc<Bot<Client>>>,
         U: Into<Arc<Update>>,
         C: Into<Arc<Context>>,
     {
@@ -42,7 +44,7 @@ impl Request {
     }
 }
 
-impl PartialEq for Request {
+impl<Client> PartialEq for Request<Client> {
     fn eq(&self, other: &Self) -> bool {
         Arc::ptr_eq(&self.bot, &other.bot)
             && Arc::ptr_eq(&self.update, &other.update)
@@ -53,8 +55,8 @@ impl PartialEq for Request {
 pub type Result = StdResult<EventReturn, EventError>;
 
 #[derive(Debug)]
-pub struct Response {
-    pub request: Request,
+pub struct Response<Client> {
+    pub request: Request<Client>,
     pub handler_result: Result,
 }
 
@@ -66,21 +68,24 @@ pub trait Handler<Args> {
 }
 
 #[allow(clippy::module_name_repetitions)]
-pub struct HandlerObject {
-    service: BoxedHandlerServiceFactory,
-    pub filters: Vec<Arc<Box<dyn Filter>>>,
+pub struct HandlerObject<Client> {
+    service: BoxedHandlerServiceFactory<Client>,
+    pub filters: Vec<Arc<Box<dyn Filter<Client>>>>,
 }
 
-impl HandlerObject {
+impl<Client> HandlerObject<Client>
+where
+    Client: Send + Sync + 'static,
+{
     /// Create a new handler with filters
     pub fn new<H, Args, F>(handler: H, filters: Vec<F>) -> Self
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
         H::Future: Send,
         H::Output: Into<Result>,
-        Args: FromEventAndContext + Send,
+        Args: FromEventAndContext<Client> + Send,
         Args::Error: Send,
-        F: Filter + 'static,
+        F: Filter<Client> + 'static,
     {
         Self {
             service: handler_service(handler),
@@ -97,7 +102,7 @@ impl HandlerObject {
         H: Handler<Args> + Clone + Send + Sync + 'static,
         H::Future: Send,
         H::Output: Into<Result>,
-        Args: FromEventAndContext + Send,
+        Args: FromEventAndContext<Client> + Send,
         Args::Error: Send,
     {
         Self {
@@ -105,14 +110,16 @@ impl HandlerObject {
             filters: vec![],
         }
     }
+}
 
+impl<Client> HandlerObject<Client> {
     /// Register filter for the handler
-    pub fn filter<F: Filter + 'static>(&mut self, filter: F) {
+    pub fn filter<F: Filter<Client> + 'static>(&mut self, filter: F) {
         self.filters.push(Arc::new(Box::new(filter)));
     }
 
     /// Register filters for the handler
-    pub fn filters<F: Filter + 'static>(&mut self, filters: Vec<F>) {
+    pub fn filters<F: Filter<Client> + 'static>(&mut self, filters: Vec<F>) {
         self.filters.extend(
             filters
                 .into_iter()
@@ -121,11 +128,11 @@ impl HandlerObject {
     }
 }
 
-impl ServiceFactory<Request> for HandlerObject {
-    type Response = Response;
+impl<Client> ServiceFactory<Request<Client>> for HandlerObject<Client> {
+    type Response = Response<Client>;
     type Error = ExtractionError;
     type Config = ();
-    type Service = HandlerObjectService;
+    type Service = HandlerObjectService<Client>;
     type InitError = ();
 
     fn new_service(&self, config: Self::Config) -> StdResult<Self::Service, Self::InitError> {
@@ -140,15 +147,15 @@ impl ServiceFactory<Request> for HandlerObject {
 }
 
 #[allow(clippy::module_name_repetitions)]
-pub struct HandlerObjectService {
-    pub(crate) service: Arc<BoxedHandlerService>,
-    filters: Vec<Arc<Box<dyn Filter>>>,
+pub struct HandlerObjectService<Client> {
+    pub(crate) service: Arc<BoxedHandlerService<Client>>,
+    filters: Vec<Arc<Box<dyn Filter<Client>>>>,
 }
 
-impl HandlerObjectService {
+impl<Client> HandlerObjectService<Client> {
     /// Check if the handler pass the filters.
     /// If the handler pass all them, it will be called.
-    pub async fn check(&self, request: &Request) -> bool {
+    pub async fn check(&self, request: &Request<Client>) -> bool {
         for filter in &self.filters {
             if !filter
                 .check(&request.bot, &request.update, &request.context)
@@ -161,26 +168,27 @@ impl HandlerObjectService {
     }
 }
 
-impl Service<Request> for HandlerObjectService {
-    type Response = Response;
+impl<Client> Service<Request<Client>> for HandlerObjectService<Client> {
+    type Response = Response<Client>;
     type Error = ExtractionError;
     type Future = BoxFuture<StdResult<Self::Response, Self::Error>>;
 
-    fn call(&self, req: Request) -> Self::Future {
+    fn call(&self, req: Request<Client>) -> Self::Future {
         self.service.call(req)
     }
 }
 
 #[allow(clippy::module_name_repetitions)]
-pub fn handler_service<H, Args>(handler: H) -> BoxedHandlerServiceFactory
+pub fn handler_service<Client, H, Args>(handler: H) -> BoxedHandlerServiceFactory<Client>
 where
+    Client: Send + Sync + 'static,
     H: Handler<Args> + Clone + Send + Sync + 'static,
     H::Future: Send,
     H::Output: Into<Result>,
-    Args: FromEventAndContext + Send,
+    Args: FromEventAndContext<Client> + Send,
     Args::Error: Send,
 {
-    factory(fn_service(move |request: Request| {
+    factory(fn_service(move |request: Request<Client>| {
         let handler = handler.clone();
 
         async move {
@@ -253,16 +261,16 @@ mod factory_handlers {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{dispatcher::event::EventReturn, filters::Command};
+    use crate::{client::Reqwest, dispatcher::event::EventReturn, filters::Command};
 
     use tokio;
 
     #[test]
     fn test_arg_number() {
-        fn assert_impl_handler<T: FromEventAndContext>(_: impl Handler<T>) {}
+        fn assert_impl_handler<Client, T: FromEventAndContext<Client>>(_: impl Handler<T>) {}
 
-        assert_impl_handler(|| async { unreachable!() });
-        assert_impl_handler(
+        assert_impl_handler::<Reqwest, _>(|| async { unreachable!() });
+        assert_impl_handler::<Reqwest, _>(
             |_01: (),
              _02: (),
              _03: (),
@@ -283,22 +291,24 @@ mod tests {
         let filter = Command::default();
 
         let mut handler_object =
-            HandlerObject::new_no_filters(|| async { Ok(EventReturn::Finish) });
+            HandlerObject::<Reqwest>::new_no_filters(|| async { Ok(EventReturn::Finish) });
         assert!(handler_object.filters.is_empty());
 
         handler_object.filter(filter.clone());
         assert_eq!(handler_object.filters.len(), 1);
 
-        let handler_object = HandlerObject::new(|| async { Ok(EventReturn::Finish) }, vec![filter]);
+        let handler_object =
+            HandlerObject::<Reqwest>::new(|| async { Ok(EventReturn::Finish) }, vec![filter]);
         assert_eq!(handler_object.filters.len(), 1);
     }
 
     #[tokio::test]
     async fn test_handler_object_service() {
-        let handler_object = HandlerObject::new_no_filters(|| async { Ok(EventReturn::Finish) });
+        let handler_object =
+            HandlerObject::<Reqwest>::new_no_filters(|| async { Ok(EventReturn::Finish) });
         let handler_object_service = handler_object.new_service(()).unwrap();
 
-        let request = Request::new(Bot::default(), Update::default(), Context::new());
+        let request = Request::new(Bot::<Reqwest>::default(), Update::default(), Context::new());
         let response = handler_object_service.call(request).await.unwrap();
 
         match response.handler_result {

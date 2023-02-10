@@ -61,13 +61,13 @@ impl From<FinishEvent> for EventReturn {
 /// Response, which can be returned from routers and observers by program.
 /// This indicates [`crate::dispatcher::Dispatcher`] how propagate the event was processed.
 #[derive(Debug)]
-pub enum PropagateEventResult {
+pub enum PropagateEventResult<Client> {
     /// Event was rejected
     Rejected,
     /// No handler was processed
     Unhandled,
     /// Handler was processed with [`Response`]
-    Handled(Response),
+    Handled(Response<Client>),
 }
 
 mod impl_from {

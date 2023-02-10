@@ -3,7 +3,7 @@ use crate::{client::Bot, context::Context, error::ExtractionError, types::Update
 use std::{convert::Infallible, pin::Pin, sync::Arc};
 
 /// Trait for extracting data from [`Update`] and [`Context`] to handlers arguments
-pub trait FromEventAndContext: Sized {
+pub trait FromEventAndContext<Client>: Sized {
     type Error: Into<ExtractionError>;
 
     /// Extracts data from [`Update`], [`Context`] and [`Bot`] to handler argument
@@ -13,17 +13,17 @@ pub trait FromEventAndContext: Sized {
     /// # Errors
     /// [`ExtractionError`] if extraction was unsuccessful
     fn extract(
-        bot: Arc<Bot>,
+        bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         context: Arc<Context>,
     ) -> Result<Self, Self::Error>;
 }
 
-impl<T: FromEventAndContext> FromEventAndContext for Option<T> {
+impl<Client, T: FromEventAndContext<Client>> FromEventAndContext<Client> for Option<T> {
     type Error = Infallible;
 
     fn extract(
-        bot: Arc<Bot>,
+        bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -34,15 +34,15 @@ impl<T: FromEventAndContext> FromEventAndContext for Option<T> {
     }
 }
 
-impl<T, E> FromEventAndContext for Result<T, E>
+impl<Client, T, E> FromEventAndContext<Client> for Result<T, E>
 where
-    T: FromEventAndContext,
+    T: FromEventAndContext<Client>,
     T::Error: Into<E>,
 {
     type Error = Infallible;
 
     fn extract(
-        bot: Arc<Bot>,
+        bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -50,11 +50,11 @@ where
     }
 }
 
-impl<T: FromEventAndContext> FromEventAndContext for Box<T> {
+impl<Client, T: FromEventAndContext<Client>> FromEventAndContext<Client> for Box<T> {
     type Error = T::Error;
 
     fn extract(
-        bot: Arc<Bot>,
+        bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -62,11 +62,11 @@ impl<T: FromEventAndContext> FromEventAndContext for Box<T> {
     }
 }
 
-impl<T: FromEventAndContext> FromEventAndContext for Pin<Box<T>> {
+impl<Client, T: FromEventAndContext<Client>> FromEventAndContext<Client> for Pin<Box<T>> {
     type Error = T::Error;
 
     fn extract(
-        bot: Arc<Bot>,
+        bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -75,11 +75,11 @@ impl<T: FromEventAndContext> FromEventAndContext for Pin<Box<T>> {
 }
 
 /// To be able to use handler without arguments
-impl FromEventAndContext for () {
+impl<Client> FromEventAndContext<Client> for () {
     type Error = Infallible;
 
     fn extract(
-        _bot: Arc<Bot>,
+        _bot: Arc<Bot<Client>>,
         _update: Arc<Update>,
         _context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -95,10 +95,10 @@ mod factory_from_event_and_context {
     // `FromEventAndContext` implementation for tuple arguments, which implements `FromEventAndContext`
     macro_rules! factory {
         ($fut:ident; $($T:ident),*) => {
-            impl<$($T: FromEventAndContext),+> FromEventAndContext for ($($T,)+) {
+            impl<Client, $($T: FromEventAndContext<Client>),+> FromEventAndContext<Client> for ($($T,)+) {
                 type Error = ExtractionError;
 
-                fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<Context>) -> Result<Self, Self::Error> {
+                fn extract(bot: Arc<Bot<Client>>, update: Arc<Update>, context: Arc<Context>) -> Result<Self, Self::Error> {
                     // If any of the arguments fails to extract, the whole extraction fails
                     Ok(($($T::extract(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context)).map_err(Into::into)?,)+))
                 }
@@ -135,11 +135,15 @@ mod factory_from_event_and_context {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{client::Bot, context::Context, types::Update};
+    use crate::{
+        client::{Bot, Reqwest},
+        context::Context,
+        types::Update,
+    };
 
     #[test]
     fn test_extract() {
-        let bot = Arc::new(Bot::default());
+        let bot = Arc::new(Bot::<Reqwest>::default());
         let update = Arc::new(Update::default());
         let context = Arc::new(Context::default());
 

@@ -12,11 +12,11 @@ use crate::{
 use std::{convert::Infallible, sync::Arc};
 
 /// To be able to use [`Bot`] in handler arguments
-impl FromEventAndContext for Bot {
+impl<Client: Clone> FromEventAndContext<Client> for Bot<Client> {
     type Error = Infallible;
 
     fn extract(
-        bot: Arc<Bot>,
+        bot: Arc<Bot<Client>>,
         _update: Arc<Update>,
         _context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -25,11 +25,11 @@ impl FromEventAndContext for Bot {
 }
 
 /// To be able to use [`Arc<Bot>`] in handler arguments
-impl FromEventAndContext for Arc<Bot> {
+impl<Client> FromEventAndContext<Client> for Arc<Bot<Client>> {
     type Error = Infallible;
 
     fn extract(
-        bot: Arc<Bot>,
+        bot: Arc<Bot<Client>>,
         _update: Arc<Update>,
         _context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -38,11 +38,11 @@ impl FromEventAndContext for Arc<Bot> {
 }
 
 /// To be able to use [`Update`] in handler arguments
-impl FromEventAndContext for Update {
+impl<Client> FromEventAndContext<Client> for Update {
     type Error = Infallible;
 
     fn extract(
-        _bot: Arc<Bot>,
+        _bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         _context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -51,11 +51,11 @@ impl FromEventAndContext for Update {
 }
 
 /// To be able to use [`Arc<Update>`] in handler arguments
-impl FromEventAndContext for Arc<Update> {
+impl<Client> FromEventAndContext<Client> for Arc<Update> {
     type Error = Infallible;
 
     fn extract(
-        _bot: Arc<Bot>,
+        _bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         _context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -64,11 +64,11 @@ impl FromEventAndContext for Arc<Update> {
 }
 
 /// To be able to use [`Context`] in handler arguments
-impl FromEventAndContext for Arc<Context> {
+impl<Client> FromEventAndContext<Client> for Arc<Context> {
     type Error = Infallible;
 
     fn extract(
-        _bot: Arc<Bot>,
+        _bot: Arc<Bot<Client>>,
         _update: Arc<Update>,
         context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -77,11 +77,11 @@ impl FromEventAndContext for Arc<Context> {
 }
 
 /// To be able to use [`Message`] in handler arguments
-impl FromEventAndContext for Message {
+impl<Client> FromEventAndContext<Client> for Message {
     type Error = ConvertUpdateToTypeError;
 
     fn extract(
-        _bot: Arc<Bot>,
+        _bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         _context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -90,11 +90,11 @@ impl FromEventAndContext for Message {
 }
 
 /// To be able to use [`CallbackQuery`] in handler arguments
-impl FromEventAndContext for CallbackQuery {
+impl<Client> FromEventAndContext<Client> for CallbackQuery {
     type Error = ConvertUpdateToTypeError;
 
     fn extract(
-        _bot: Arc<Bot>,
+        _bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         _context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -103,11 +103,11 @@ impl FromEventAndContext for CallbackQuery {
 }
 
 /// To be able to use [`ChosenInlineResult`] in handler arguments
-impl FromEventAndContext for ChosenInlineResult {
+impl<Client> FromEventAndContext<Client> for ChosenInlineResult {
     type Error = ConvertUpdateToTypeError;
 
     fn extract(
-        _bot: Arc<Bot>,
+        _bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         _context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -116,11 +116,11 @@ impl FromEventAndContext for ChosenInlineResult {
 }
 
 /// To be able to use [`ShippingQuery`] in handler arguments
-impl FromEventAndContext for ShippingQuery {
+impl<Client> FromEventAndContext<Client> for ShippingQuery {
     type Error = ConvertUpdateToTypeError;
 
     fn extract(
-        _bot: Arc<Bot>,
+        _bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         _context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -129,11 +129,11 @@ impl FromEventAndContext for ShippingQuery {
 }
 
 /// To be able to use [`PreCheckoutQuery`] in handler arguments
-impl FromEventAndContext for PreCheckoutQuery {
+impl<Client> FromEventAndContext<Client> for PreCheckoutQuery {
     type Error = ConvertUpdateToTypeError;
 
     fn extract(
-        _bot: Arc<Bot>,
+        _bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         _context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -142,11 +142,11 @@ impl FromEventAndContext for PreCheckoutQuery {
 }
 
 /// To be able to use [`PollAnswer`] in handler arguments
-impl FromEventAndContext for PollAnswer {
+impl<Client> FromEventAndContext<Client> for PollAnswer {
     type Error = ConvertUpdateToTypeError;
 
     fn extract(
-        _bot: Arc<Bot>,
+        _bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         _context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -155,11 +155,11 @@ impl FromEventAndContext for PollAnswer {
 }
 
 /// To be able to use [`ChatMemberUpdated`] in handler arguments
-impl FromEventAndContext for ChatMemberUpdated {
+impl<Client> FromEventAndContext<Client> for ChatMemberUpdated {
     type Error = ConvertUpdateToTypeError;
 
     fn extract(
-        _bot: Arc<Bot>,
+        _bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         _context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -168,11 +168,11 @@ impl FromEventAndContext for ChatMemberUpdated {
 }
 
 /// To be able to use [`ChatJoinRequest`] in handler arguments
-impl FromEventAndContext for ChatJoinRequest {
+impl<Client> FromEventAndContext<Client> for ChatJoinRequest {
     type Error = ConvertUpdateToTypeError;
 
     fn extract(
-        _bot: Arc<Bot>,
+        _bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         _context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -181,11 +181,11 @@ impl FromEventAndContext for ChatJoinRequest {
 }
 
 /// To be able to use [`InlineQuery`] in handler arguments
-impl FromEventAndContext for InlineQuery {
+impl<Client> FromEventAndContext<Client> for InlineQuery {
     type Error = ConvertUpdateToTypeError;
 
     fn extract(
-        _bot: Arc<Bot>,
+        _bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         _context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -194,11 +194,11 @@ impl FromEventAndContext for InlineQuery {
 }
 
 /// To be able to use [`Poll`] in handler arguments
-impl FromEventAndContext for Poll {
+impl<Client> FromEventAndContext<Client> for Poll {
     type Error = ConvertUpdateToTypeError;
 
     fn extract(
-        _bot: Arc<Bot>,
+        _bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         _context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
@@ -209,10 +209,10 @@ impl FromEventAndContext for Poll {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::dispatcher::event::telegram::handler::Handler;
+    use crate::{client::Reqwest, dispatcher::event::telegram::handler::Handler};
 
-    fn inner_extract<T: FromEventAndContext>(
-        bot: Arc<Bot>,
+    fn inner_extract<T: FromEventAndContext<Reqwest>>(
+        bot: Arc<Bot<Reqwest>>,
         update: Arc<Update>,
         context: Arc<Context>,
     ) -> Result<T, T::Error> {
@@ -221,10 +221,10 @@ mod tests {
 
     #[test]
     fn test_impl_extract_types() {
-        fn assert_impl_handler<T: FromEventAndContext>(_: impl Handler<T>) {}
+        fn assert_impl_handler<T: FromEventAndContext<Reqwest>>(_: impl Handler<T>) {}
 
-        assert_impl_handler(|_: Bot| async { unreachable!() });
-        assert_impl_handler(|_: Arc<Bot>| async { unreachable!() });
+        assert_impl_handler(|_: Bot<Reqwest>| async { unreachable!() });
+        assert_impl_handler(|_: Arc<Bot<Reqwest>>| async { unreachable!() });
         assert_impl_handler(|_: Update| async { unreachable!() });
         assert_impl_handler(|_: Arc<Update>| async { unreachable!() });
         assert_impl_handler(|_: Arc<Context>| async { unreachable!() });
@@ -246,9 +246,14 @@ mod tests {
         let update = Arc::new(Update::default());
         let context = Arc::new(Context::default());
 
-        inner_extract::<Bot>(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context)).unwrap();
-        inner_extract::<Arc<Bot>>(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context))
+        inner_extract::<Bot<Reqwest>>(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context))
             .unwrap();
+        inner_extract::<Arc<Bot<Reqwest>>>(
+            Arc::clone(&bot),
+            Arc::clone(&update),
+            Arc::clone(&context),
+        )
+        .unwrap();
         inner_extract::<Update>(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context))
             .unwrap();
         inner_extract::<Arc<Update>>(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context))

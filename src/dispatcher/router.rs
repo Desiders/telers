@@ -33,13 +33,13 @@ use std::{
 
 /// Request for a router service
 #[derive(Debug, Clone)]
-pub struct Request {
-    pub bot: Arc<Bot>,
+pub struct Request<Client> {
+    pub bot: Arc<Bot<Client>>,
     pub update: Arc<Update>,
     pub context: Arc<Context>,
 }
 
-impl PartialEq for Request {
+impl<Client> PartialEq for Request<Client> {
     fn eq(&self, other: &Self) -> bool {
         Arc::ptr_eq(&self.bot, &other.bot)
             && Arc::ptr_eq(&self.update, &other.update)
@@ -47,11 +47,11 @@ impl PartialEq for Request {
     }
 }
 
-impl Request {
+impl<Client> Request<Client> {
     #[must_use]
     pub fn new<B, U, C>(bot: B, update: U, context: C) -> Self
     where
-        B: Into<Arc<Bot>>,
+        B: Into<Arc<Bot<Client>>>,
         U: Into<Arc<Update>>,
         C: Into<Arc<Context>>,
     {
@@ -63,22 +63,22 @@ impl Request {
     }
 }
 
-impl From<Request> for TelegramObserverRequest {
-    fn from(req: Request) -> Self {
+impl<Client> From<Request<Client>> for TelegramObserverRequest<Client> {
+    fn from(req: Request<Client>) -> Self {
         Self::new(req.bot, req.update, req.context)
     }
 }
 
 /// Response from a router service
 #[derive(Debug)]
-pub struct Response {
-    pub request: Request,
-    pub propagate_result: PropagateEventResult,
+pub struct Response<Client> {
+    pub request: Request<Client>,
+    pub propagate_result: PropagateEventResult<Client>,
 }
 
-impl Response {
+impl<Client> Response<Client> {
     #[must_use]
-    pub fn new(request: Request, propagate_result: PropagateEventResult) -> Self {
+    pub fn new(request: Request<Client>, propagate_result: PropagateEventResult<Client>) -> Self {
         Self {
             request,
             propagate_result,
@@ -92,30 +92,33 @@ impl Response {
 /// - By observer method - [`router.<event_type>.on(handler, <filters, ...>)`
 /// - By observer method (if no filters) - [`router.<event_type>.register_no_filters(handler)`
 /// - By observer method (if no filters) - [`router.<event_type>.on_no_filters(handler)`
-pub struct Router {
+pub struct Router<Client> {
     pub router_name: &'static str,
-    pub sub_routers: Vec<Router>,
+    pub sub_routers: Vec<Router<Client>>,
 
-    pub message: TelegramObserver,
-    pub edited_message: TelegramObserver,
-    pub channel_post: TelegramObserver,
-    pub edited_channel_post: TelegramObserver,
-    pub inline_query: TelegramObserver,
-    pub chosen_inline_result: TelegramObserver,
-    pub callback_query: TelegramObserver,
-    pub shipping_query: TelegramObserver,
-    pub pre_checkout_query: TelegramObserver,
-    pub poll: TelegramObserver,
-    pub poll_answer: TelegramObserver,
-    pub my_chat_member: TelegramObserver,
-    pub chat_member: TelegramObserver,
-    pub chat_join_request: TelegramObserver,
+    pub message: TelegramObserver<Client>,
+    pub edited_message: TelegramObserver<Client>,
+    pub channel_post: TelegramObserver<Client>,
+    pub edited_channel_post: TelegramObserver<Client>,
+    pub inline_query: TelegramObserver<Client>,
+    pub chosen_inline_result: TelegramObserver<Client>,
+    pub callback_query: TelegramObserver<Client>,
+    pub shipping_query: TelegramObserver<Client>,
+    pub pre_checkout_query: TelegramObserver<Client>,
+    pub poll: TelegramObserver<Client>,
+    pub poll_answer: TelegramObserver<Client>,
+    pub my_chat_member: TelegramObserver<Client>,
+    pub chat_member: TelegramObserver<Client>,
+    pub chat_join_request: TelegramObserver<Client>,
 
     pub startup: SimpleObserver,
     pub shutdown: SimpleObserver,
 }
 
-impl Router {
+impl<Client> Router<Client>
+where
+    Client: Send + Sync + 'static,
+{
     /// Create a new router
     /// # Arguments
     /// * `router_name` - Router name, can be used for logging
@@ -143,9 +146,11 @@ impl Router {
             shutdown: SimpleObserver::new(SimpleObserverName::Shutdown.as_str()),
         }
     }
+}
 
+impl<Client> Router<Client> {
     #[must_use]
-    pub fn telegram_observers(&self) -> Vec<&TelegramObserver> {
+    pub fn telegram_observers(&self) -> Vec<&TelegramObserver<Client>> {
         vec![
             &self.message,
             &self.edited_message,
@@ -170,7 +175,7 @@ impl Router {
     }
 
     /// Register inner middlewares to sub router (and sub routers of sub router)
-    fn register_inner_middlewares_in_sub_router(&self, sub_router: &mut Router) {
+    fn register_inner_middlewares_in_sub_router(&self, sub_router: &mut Router<Client>) {
         // Register middlewares of current router observers to sub router observers at first positions
         macro_rules! register_middlewares {
             ($observer:ident) => {
@@ -212,14 +217,14 @@ impl Router {
     /// Include a sub router.
     /// This method will register all middlewares of current router (and parent routers),
     /// which registered before call this method, to sub router (and sub routers of sub router).
-    pub fn include_router(&mut self, mut router: Router) {
+    pub fn include_router(&mut self, mut router: Router<Client>) {
         self.register_inner_middlewares_in_sub_router(&mut router);
 
         self.sub_routers.push(router);
     }
 
     /// Alias to [`Router::include_router`] method
-    pub fn include(&mut self, router: Router) {
+    pub fn include(&mut self, router: Router<Client>) {
         self.include_router(router);
     }
 
@@ -249,7 +254,7 @@ impl Router {
     }
 }
 
-impl Debug for Router {
+impl<Client> Debug for Router<Client> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Router")
             .field("router_name", &self.router_name)
@@ -257,23 +262,26 @@ impl Debug for Router {
     }
 }
 
-impl Default for Router {
+impl<Client> Default for Router<Client>
+where
+    Client: Send + Sync + 'static,
+{
     #[must_use]
     fn default() -> Self {
         Self::new("default")
     }
 }
 
-impl AsRef<Router> for Router {
+impl<Client> AsRef<Router<Client>> for Router<Client> {
     #[must_use]
     fn as_ref(&self) -> &Self {
         self
     }
 }
 
-impl ToServiceProvider for Router {
+impl<Client> ToServiceProvider for Router<Client> {
     type Config = ();
-    type ServiceProvider = RouterInner;
+    type ServiceProvider = RouterInner<Client>;
     type InitError = ();
 
     fn to_service_provider(
@@ -327,37 +335,136 @@ impl ToServiceProvider for Router {
 }
 
 #[allow(clippy::module_name_repetitions)]
-pub struct RouterInner {
+pub struct RouterInner<Client> {
     router_name: &'static str,
-    sub_routers: Vec<RouterInner>,
+    sub_routers: Vec<RouterInner<Client>>,
 
-    message: TelegramObserverInner,
-    edited_message: TelegramObserverInner,
-    channel_post: TelegramObserverInner,
-    edited_channel_post: TelegramObserverInner,
-    inline_query: TelegramObserverInner,
-    chosen_inline_result: TelegramObserverInner,
-    callback_query: TelegramObserverInner,
-    shipping_query: TelegramObserverInner,
-    pre_checkout_query: TelegramObserverInner,
-    poll: TelegramObserverInner,
-    poll_answer: TelegramObserverInner,
-    my_chat_member: TelegramObserverInner,
-    chat_member: TelegramObserverInner,
-    chat_join_request: TelegramObserverInner,
+    message: TelegramObserverInner<Client>,
+    edited_message: TelegramObserverInner<Client>,
+    channel_post: TelegramObserverInner<Client>,
+    edited_channel_post: TelegramObserverInner<Client>,
+    inline_query: TelegramObserverInner<Client>,
+    chosen_inline_result: TelegramObserverInner<Client>,
+    callback_query: TelegramObserverInner<Client>,
+    shipping_query: TelegramObserverInner<Client>,
+    pre_checkout_query: TelegramObserverInner<Client>,
+    poll: TelegramObserverInner<Client>,
+    poll_answer: TelegramObserverInner<Client>,
+    my_chat_member: TelegramObserverInner<Client>,
+    chat_member: TelegramObserverInner<Client>,
+    chat_join_request: TelegramObserverInner<Client>,
 
     startup: SimpleObserverInner,
     shutdown: SimpleObserverInner,
 }
 
-impl ServiceProvider for RouterInner {}
+impl<Client> ServiceProvider for RouterInner<Client> {}
 
-impl RouterInner {
+impl<Client> RouterInner<Client>
+where
+    Client: Send + Sync + Clone + 'static,
+{
+    /// Propagate event to routers
+    /// # Errors
+    /// - If any outer middleware returns error
+    /// - If any inner middleware returns error
+    /// - If any handler returns error. Probably it's error to extract args to the handler
+    /// # Warning
+    /// This function doesn't compare the update type with the request update type.
+    /// Assumed that [`UpdateType`] is correct because it is derived from [`Update`].
+    /// This behaviour allows you not to get recursively [`UpdateType`] and can be used in tests.
+    #[async_recursion]
     #[must_use]
-    pub fn telegram_observer_by_update_type(
+    pub async fn propagate_event(
         &self,
         update_type: &UpdateType,
-    ) -> &TelegramObserverInner {
+        request: Request<Client>,
+    ) -> Result<Response<Client>, AppErrorKind> {
+        let observer = self.telegram_observer_by_update_type(update_type);
+
+        let mut request = request;
+        for middleware in &observer.outer_middlewares {
+            let (updated_request, event_return) = middleware.call(request.clone()).await?;
+
+            match event_return {
+                // Update request because the middleware could have changed it
+                EventReturn::Finish => request = updated_request,
+                // If middleware returns skip, then we should skip this middleware
+                EventReturn::Skip => continue,
+                // If middleware returns cancel, then we should cancel propagation
+                EventReturn::Cancel => {
+                    return Ok(Response {
+                        request,
+                        propagate_result: PropagateEventResult::Rejected,
+                    })
+                }
+            }
+        }
+
+        self.propagate_event_by_observer(observer, update_type, request)
+            .await
+    }
+
+    /// Propagate event to routers by observer
+    /// # Errors
+    /// - If any outer middleware returns error
+    /// - If any inner middleware returns error
+    /// - If any handler returns error. Probably it's error to extract args to the handler
+    async fn propagate_event_by_observer(
+        &self,
+        observer: &TelegramObserverInner<Client>,
+        update_type: &UpdateType,
+        request: Request<Client>,
+    ) -> Result<Response<Client>, AppErrorKind> {
+        let observer_request = request.clone().into();
+        let observer_response = observer.trigger(observer_request).await?;
+
+        match observer_response.propagate_result {
+            // Propagate event to sub routers
+            PropagateEventResult::Unhandled => {}
+            // Return a response if the event handled
+            PropagateEventResult::Handled(response) => {
+                return Ok(Response {
+                    request,
+                    propagate_result: PropagateEventResult::Handled(response),
+                });
+            }
+            // Return a response if the event rejected
+            // Router don't know about rejected event by observer
+            PropagateEventResult::Rejected => {
+                return Ok(Response {
+                    request,
+                    propagate_result: PropagateEventResult::Unhandled,
+                });
+            }
+        };
+
+        // Propagate event to sub routers' observer
+        for router in &self.sub_routers {
+            let router_response = router.propagate_event(update_type, request.clone()).await?;
+            match router_response.propagate_result {
+                // Propagate event to next sub router's observer if the event unhandled by the sub router's observer
+                PropagateEventResult::Unhandled => continue,
+                PropagateEventResult::Handled(_) | PropagateEventResult::Rejected => {
+                    return Ok(router_response)
+                }
+            };
+        }
+
+        // Return a response if the event unhandled by observer
+        Ok(Response {
+            request,
+            propagate_result: PropagateEventResult::Unhandled,
+        })
+    }
+}
+
+impl<Client> RouterInner<Client> {
+    #[must_use]
+    pub const fn telegram_observer_by_update_type(
+        &self,
+        update_type: &UpdateType,
+    ) -> &TelegramObserverInner<Client> {
         match update_type {
             UpdateType::Message => &self.message,
             UpdateType::EditedMessage => &self.edited_message,
@@ -403,103 +510,9 @@ impl RouterInner {
         }
         Ok(())
     }
-
-    /// Propagate event to routers
-    /// # Errors
-    /// - If any outer middleware returns error
-    /// - If any inner middleware returns error
-    /// - If any handler returns error. Probably it's error to extract args to the handler
-    /// # Warning
-    /// This function doesn't compare the update type with the request update type.
-    /// Assumed that [`UpdateType`] is correct because it is derived from [`Update`].
-    /// This behaviour allows you not to get recursively [`UpdateType`] and can be used in tests.
-    #[async_recursion]
-    #[must_use]
-    pub async fn propagate_event(
-        &self,
-        update_type: &UpdateType,
-        request: Request,
-    ) -> Result<Response, AppErrorKind> {
-        let observer = self.telegram_observer_by_update_type(update_type);
-
-        let mut request = request;
-        for middleware in &observer.outer_middlewares {
-            let (updated_request, event_return) = middleware.call(request.clone()).await?;
-
-            match event_return {
-                // Update request because the middleware could have changed it
-                EventReturn::Finish => request = updated_request,
-                // If middleware returns skip, then we should skip this middleware
-                EventReturn::Skip => continue,
-                // If middleware returns cancel, then we should cancel propagation
-                EventReturn::Cancel => {
-                    return Ok(Response {
-                        request,
-                        propagate_result: PropagateEventResult::Rejected,
-                    })
-                }
-            }
-        }
-
-        self.propagate_event_by_observer(observer, update_type, request)
-            .await
-    }
-
-    /// Propagate event to routers by observer
-    /// # Errors
-    /// - If any outer middleware returns error
-    /// - If any inner middleware returns error
-    /// - If any handler returns error. Probably it's error to extract args to the handler
-    async fn propagate_event_by_observer(
-        &self,
-        observer: &TelegramObserverInner,
-        update_type: &UpdateType,
-        request: Request,
-    ) -> Result<Response, AppErrorKind> {
-        let observer_request = request.clone().into();
-        let observer_response = observer.trigger(observer_request).await?;
-
-        match observer_response.propagate_result {
-            // Propagate event to sub routers
-            PropagateEventResult::Unhandled => {}
-            // Return a response if the event handled
-            PropagateEventResult::Handled(response) => {
-                return Ok(Response {
-                    request,
-                    propagate_result: PropagateEventResult::Handled(response),
-                });
-            }
-            // Return a response if the event rejected
-            // Router don't know about rejected event by observer
-            PropagateEventResult::Rejected => {
-                return Ok(Response {
-                    request,
-                    propagate_result: PropagateEventResult::Unhandled,
-                });
-            }
-        };
-
-        // Propagate event to sub routers' observer
-        for router in &self.sub_routers {
-            let router_response = router.propagate_event(update_type, request.clone()).await?;
-            match router_response.propagate_result {
-                // Propagate event to next sub router's observer if the event unhandled by the sub router's observer
-                PropagateEventResult::Unhandled => continue,
-                PropagateEventResult::Handled(_) | PropagateEventResult::Rejected => {
-                    return Ok(router_response)
-                }
-            };
-        }
-
-        // Return a response if the event unhandled by observer
-        Ok(Response {
-            request,
-            propagate_result: PropagateEventResult::Unhandled,
-        })
-    }
 }
 
-impl Debug for RouterInner {
+impl<Client> Debug for RouterInner<Client> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Router")
             .field("router_name", &self.router_name)
@@ -511,6 +524,7 @@ impl Debug for RouterInner {
 mod tests {
     use super::*;
     use crate::{
+        client::Reqwest,
         dispatcher::{
             event::{telegram::HandlerResult as TelegramHandlerResult, EventReturn},
             middlewares::inner::call_handler,
@@ -522,7 +536,7 @@ mod tests {
 
     #[test]
     fn test_router_include() {
-        let mut router = Router::new("main");
+        let mut router = Router::<Reqwest>::new("main");
 
         let inner_middleware =
             |handler, request, middlewares| call_handler(handler, request, middlewares);
@@ -601,7 +615,7 @@ mod tests {
             Ok(())
         }
 
-        let mut router = Router::new("main");
+        let mut router = Router::<Reqwest>::new("main");
         // Telegram event observers
         router.message.register_no_filters(telegram_handler);
         router.edited_message.register_no_filters(telegram_handler);
@@ -650,7 +664,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_router_propagate_event() {
-        let bot = Bot::default();
+        let bot = Bot::<Reqwest>::default();
         let context = Context::new();
         let update = Update::default();
 

@@ -82,7 +82,7 @@ pub trait TelegramMethod {
     /// This method is called when a request is sent to Telegram API.
     /// It's need for preparing a request to Telegram API.
     #[must_use]
-    fn build_request(&self, bot: &Bot) -> Request<Self::Method>;
+    fn build_request<Client>(&self, bot: &Bot<Client>) -> Request<Self::Method>;
 
     /// This method is called when a response is received from Telegram API.
     /// It's need for parsing a response from Telegram API.
