@@ -129,11 +129,11 @@ pub(super) fn prepare_input_media<'a>(
     input_media_list: &'a Vec<InputMedia<'a>>,
 ) {
     for input_media in input_media_list {
-        prepare_input_media_inner(files, input_media);
+        prepare_input_media_single(files, input_media);
     }
 }
 
-fn prepare_input_media_inner<'a>(
+pub fn prepare_input_media_single<'a>(
     files: &mut HashMap<&'a str, &'a InputFile<'a>>,
     input_media: &'a InputMedia<'a>,
 ) {

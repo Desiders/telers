@@ -3,29 +3,31 @@ use super::session::base::Session;
 use crate::{
     error::SessionErrorKind,
     methods::{
-        AddStickerToSet, AnswerCallbackQuery, ApproveChatJoinRequest, BanChatMember,
-        BanChatSenderChat, CloseForumTopic, CloseGeneralForumTopic, CopyMessage,
-        CreateChatInviteLink, CreateForumTopic, DeclineChatJoinRequest, DeleteChatPhoto,
-        DeleteChatStickerSet, DeleteForumTopic, DeleteMyCommands, EditChatInviteLink,
-        EditForumTopic, EditGeneralForumTopic, EditMessageLiveLocation, ExportChatInviteLink,
-        ForwardMessage, GetChat, GetChatAdministrators, GetChatMember, GetChatMemberCount,
-        GetChatMenuButton, GetFile, GetForumTopicIconStickers, GetMe, GetMyCommands,
-        GetMyDefaultAdministratorRights, GetUpdates, GetUserProfilePhotos, HideGeneralForumTopic,
-        LeaveChat, LogOut, PinChatMessage, PromoteChatMember, ReopenForumTopic,
-        ReopenGeneralForumTopic, RestrictChatMember, RevokeChatInviteLink, SendAnimation,
-        SendAudio, SendChatAction, SendContact, SendDice, SendDocument, SendLocation,
-        SendMediaGroup, SendMessage, SendPhoto, SendPoll, SendVenue, SendVideo, SendVideoNote,
-        SendVoice, SetChatAdministratorCustomTitle, SetChatDescription, SetChatMenuButton,
-        SetChatPermissions, SetChatStickerSet, SetChatTitle, SetMyCommands,
-        SetMyDefaultAdministratorRights, StopMessageLiveLocation, TelegramMethod, UnbanChatMember,
-        UnbanChatSenderChat, UnhideGeneralForumTopic, UnpinAllChatMessages,
+        AddStickerToSet, AnswerCallbackQuery, AnswerInlineQuery, AnswerWebAppQuery,
+        ApproveChatJoinRequest, BanChatMember, BanChatSenderChat, CloseForumTopic,
+        CloseGeneralForumTopic, CopyMessage, CreateChatInviteLink, CreateForumTopic,
+        DeclineChatJoinRequest, DeleteChatPhoto, DeleteChatStickerSet, DeleteForumTopic,
+        DeleteMessage, DeleteMyCommands, EditChatInviteLink, EditForumTopic, EditGeneralForumTopic,
+        EditMessageCaption, EditMessageLiveLocation, EditMessageMedia, EditMessageReplyMarkup,
+        EditMessageText, ExportChatInviteLink, ForwardMessage, GetChat, GetChatAdministrators,
+        GetChatMember, GetChatMemberCount, GetChatMenuButton, GetFile, GetForumTopicIconStickers,
+        GetMe, GetMyCommands, GetMyDefaultAdministratorRights, GetUpdates, GetUserProfilePhotos,
+        HideGeneralForumTopic, LeaveChat, LogOut, PinChatMessage, PromoteChatMember,
+        ReopenForumTopic, ReopenGeneralForumTopic, RestrictChatMember, RevokeChatInviteLink,
+        SendAnimation, SendAudio, SendChatAction, SendContact, SendDice, SendDocument,
+        SendLocation, SendMediaGroup, SendMessage, SendPhoto, SendPoll, SendVenue, SendVideo,
+        SendVideoNote, SendVoice, SetChatAdministratorCustomTitle, SetChatDescription,
+        SetChatMenuButton, SetChatPermissions, SetChatStickerSet, SetChatTitle, SetMyCommands,
+        SetMyDefaultAdministratorRights, StopMessageLiveLocation, StopPoll, TelegramMethod,
+        UnbanChatMember, UnbanChatSenderChat, UnhideGeneralForumTopic, UnpinAllChatMessages,
         UnpinAllForumTopicMessages, UnpinChatMessage,
     },
     types::{
         BotCommand, BotCommandScope, Chat, ChatAdministratorRights, ChatIdKind, ChatInviteLink,
-        ChatMember, ChatPermissions, File, ForumTopic, InlineKeyboardMarkup, InputFile, InputMedia,
-        MaskPosition, MenuButton, Message, MessageEntity, MessageId, MessageOrTrue, ReplyMarkup,
-        Sticker, Update, User, UserProfilePhotos,
+        ChatMember, ChatPermissions, File, ForumTopic, InlineKeyboardMarkup, InlineQueryResult,
+        InputFile, InputMedia, MaskPosition, MenuButton, Message, MessageEntity, MessageId,
+        MessageOrTrue, Poll, ReplyMarkup, SentWebAppMessage, Sticker, Update, User,
+        UserProfilePhotos,
     },
 };
 
@@ -224,6 +226,66 @@ impl<Client: Session + Sync> Bot<Client> {
                 show_alert,
                 url: url.map(Into::into),
                 cache_time,
+            },
+            request_timeout,
+        )
+        .await
+    }
+
+    /// Use this method to send answers to an inline query. No more than 50 results per query are allowed.
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#answerinlinequery>
+    /// # Returns
+    /// On success, `True` is returned
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    pub async fn answer_inline_query(
+        &self,
+        inline_query_id: impl Into<String>,
+        results: Vec<impl Into<InlineQueryResult>>,
+        cache_time: Option<i32>,
+        is_personal: Option<bool>,
+        next_offset: Option<impl Into<String>>,
+        switch_pm_text: Option<impl Into<String>>,
+        switch_pm_parameter: Option<impl Into<String>>,
+        request_timeout: Option<f32>,
+    ) -> Result<bool, SessionErrorKind> {
+        self.send(
+            &AnswerInlineQuery {
+                inline_query_id: inline_query_id.into(),
+                results: results.into_iter().map(Into::into).collect(),
+                cache_time,
+                is_personal,
+                next_offset: next_offset.map(Into::into),
+                switch_pm_text: switch_pm_text.map(Into::into),
+                switch_pm_parameter: switch_pm_parameter.map(Into::into),
+            },
+            request_timeout,
+        )
+        .await
+    }
+
+    /// Use this method to set the result of an interaction with a [Web App](https://core.telegram.org/bots/webapps) and send a corresponding message on behalf of the user to the chat from which the query originated.
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#answerwebappquery>
+    /// # Returns
+    /// On success, a [`SentWebAppMessage`] object is returned
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    pub async fn answer_web_app_query(
+        &self,
+        web_app_query_id: impl Into<String>,
+        result: impl Into<InlineQueryResult>,
+        request_timeout: Option<f32>,
+    ) -> Result<SentWebAppMessage, SessionErrorKind> {
+        self.send(
+            &AnswerWebAppQuery {
+                web_app_query_id: web_app_query_id.into(),
+                result: result.into(),
             },
             request_timeout,
         )
@@ -558,6 +620,39 @@ impl<Client: Session + Sync> Bot<Client> {
         .await
     }
 
+    /// Use this method to delete a message, including service messages, with the following limitations:
+    /// - A message can only be deleted if it was sent less than 48 hours ago.
+    /// - Service messages about a supergroup, channel, or forum topic creation can't be deleted.
+    /// - A dice message in a private chat can only be deleted if it was sent more than 24 hours ago.
+    /// - Bots can delete outgoing messages in private chats, groups, and supergroups.
+    /// - Bots can delete incoming messages in private chats.
+    /// - Bots granted can_post_messages permissions can delete outgoing messages in channels.
+    /// - If the bot is an administrator of a group, it can delete any message there.
+    /// - If the bot has can_delete_messages permission in a supergroup or a channel, it can delete any message there.
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#deletemessage>
+    /// # Returns
+    /// Returns `True` on success
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    pub async fn delete_message(
+        &self,
+        chat_id: impl Into<ChatIdKind>,
+        message_id: i64,
+        request_timeout: Option<f32>,
+    ) -> Result<bool, SessionErrorKind> {
+        self.send(
+            &DeleteMessage {
+                chat_id: chat_id.into(),
+                message_id,
+            },
+            request_timeout,
+        )
+        .await
+    }
+
     /// Use this method to delete the list of the bot's commands for the given scope and user language. After deletion, [higher level commands](https://core.telegram.org/bots/api#determining-list-of-commands) will be shown to affected users.
     /// # Documentation
     /// <https://core.telegram.org/bots/api#deletemycommands>
@@ -645,6 +740,41 @@ impl<Client: Session + Sync> Bot<Client> {
         .await
     }
 
+    /// Use this method to edit captions of messages.
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#editmessagecaption>
+    /// # Returns
+    /// On success, if the edited message is not an inline message, the edited [`Message`] is returned, otherwise `True` is returned
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    pub async fn edit_message_caption(
+        &self,
+        chat_id: Option<impl Into<ChatIdKind>>,
+        message_thread_id: Option<i64>,
+        inline_message_id: Option<impl Into<String>>,
+        caption: impl Into<String>,
+        parse_mode: Option<impl Into<String>>,
+        caption_entities: Option<Vec<MessageEntity>>,
+        reply_markup: Option<impl Into<InlineKeyboardMarkup>>,
+        request_timeout: Option<f32>,
+    ) -> Result<MessageOrTrue, SessionErrorKind> {
+        self.send(
+            &EditMessageCaption {
+                chat_id: chat_id.map(Into::into),
+                message_thread_id,
+                inline_message_id: inline_message_id.map(Into::into),
+                caption: caption.into(),
+                parse_mode: parse_mode.map(Into::into),
+                caption_entities,
+                reply_markup: reply_markup.map(Into::into),
+            },
+            request_timeout,
+        )
+        .await
+    }
+
     /// Use this method to close an open `General` topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the `can_manage_topics` administrator rights.
     /// # Documentation
     /// <https://core.telegram.org/bots/api#editgeneralforumtopic>
@@ -703,6 +833,103 @@ impl<Client: Session + Sync> Bot<Client> {
                 horizontal_accuracy,
                 heading,
                 proximity_alert_radius,
+                reply_markup: reply_markup.map(Into::into),
+            },
+            request_timeout,
+        )
+        .await
+    }
+
+    /// Use this method to edit animation, audio, document, photo, or video messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its `file_id` or specify a URL.
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#editmessagemedia>
+    /// # Returns
+    /// On success, if the edited message is not an inline message, the edited [`crate::types::Message`] is returned, otherwise `True` is returned
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    pub async fn edit_message_media<'a>(
+        &self,
+        chat_id: Option<impl Into<ChatIdKind>>,
+        message_id: Option<i64>,
+        inline_message_id: Option<impl Into<String>>,
+        media: impl Into<InputMedia<'a>>,
+        reply_markup: Option<impl Into<InlineKeyboardMarkup>>,
+        request_timeout: Option<f32>,
+    ) -> Result<MessageOrTrue, SessionErrorKind> {
+        self.send(
+            &EditMessageMedia {
+                chat_id: chat_id.map(Into::into),
+                message_id,
+                inline_message_id: inline_message_id.map(Into::into),
+                media: media.into(),
+                reply_markup: reply_markup.map(Into::into),
+            },
+            request_timeout,
+        )
+        .await
+    }
+
+    /// Use this method to edit only the reply markup of messages.
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#editmessagereplymarkup>
+    /// # Returns
+    /// On success, if the edited message is not an inline message, the edited [`crate::types::Message`] is returned, otherwise `True` is returned
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    pub async fn edit_message_reply_markup(
+        &self,
+        chat_id: Option<impl Into<ChatIdKind>>,
+        message_id: Option<i64>,
+        inline_message_id: Option<impl Into<String>>,
+        reply_markup: Option<impl Into<InlineKeyboardMarkup>>,
+        request_timeout: Option<f32>,
+    ) -> Result<MessageOrTrue, SessionErrorKind> {
+        self.send(
+            &EditMessageReplyMarkup {
+                chat_id: chat_id.map(Into::into),
+                message_id,
+                inline_message_id: inline_message_id.map(Into::into),
+                reply_markup: reply_markup.map(Into::into),
+            },
+            request_timeout,
+        )
+        .await
+    }
+
+    /// Use this method to edit text and [game](https://core.telegram.org/bots/api#games) messages.
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#editmessagetext>
+    /// # Returns
+    /// On success, if the edited message is not an inline message, the edited [`Message`] is returned, otherwise `True` is returned
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    pub async fn edit_message_text(
+        &self,
+        chat_id: Option<impl Into<ChatIdKind>>,
+        message_thread_id: Option<i64>,
+        inline_message_id: Option<impl Into<String>>,
+        text: impl Into<String>,
+        parse_mode: Option<impl Into<String>>,
+        entities: Option<Vec<MessageEntity>>,
+        disable_web_page_preview: Option<bool>,
+        reply_markup: Option<impl Into<InlineKeyboardMarkup>>,
+        request_timeout: Option<f32>,
+    ) -> Result<MessageOrTrue, SessionErrorKind> {
+        self.send(
+            &EditMessageText {
+                chat_id: chat_id.map(Into::into),
+                message_thread_id,
+                inline_message_id: inline_message_id.map(Into::into),
+                text: text.into(),
+                parse_mode: parse_mode.map(Into::into),
+                entities,
+                disable_web_page_preview,
                 reply_markup: reply_markup.map(Into::into),
             },
             request_timeout,
@@ -2210,6 +2437,33 @@ impl<Client: Session + Sync> Bot<Client> {
                 chat_id: chat_id.map(Into::into),
                 message_id,
                 inline_message_id: inline_message_id.map(Into::into),
+                reply_markup: reply_markup.map(Into::into),
+            },
+            request_timeout,
+        )
+        .await
+    }
+
+    /// Use this method to stop a poll which was sent by the bot.
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#stoppoll>
+    /// # Returns
+    /// On success, the stopped [`Poll`] is returned
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    pub async fn stop_poll(
+        &self,
+        chat_id: impl Into<ChatIdKind>,
+        message_id: i64,
+        reply_markup: Option<impl Into<InlineKeyboardMarkup>>,
+        request_timeout: Option<f32>,
+    ) -> Result<Poll, SessionErrorKind> {
+        self.send(
+            &StopPoll {
+                chat_id: chat_id.into(),
+                message_id,
                 reply_markup: reply_markup.map(Into::into),
             },
             request_timeout,

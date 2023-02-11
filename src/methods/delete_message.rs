@@ -1,0 +1,60 @@
+use super::base::{Request, TelegramMethod};
+
+use crate::{client::Bot, types::ChatIdKind};
+
+use serde::Serialize;
+use serde_with::skip_serializing_none;
+
+/// Use this method to delete a message, including service messages, with the following limitations:
+/// Use this method to delete a message, including service messages, with the following limitations:
+/// - A message can only be deleted if it was sent less than 48 hours ago.
+/// - Service messages about a supergroup, channel, or forum topic creation can't be deleted.
+/// - A dice message in a private chat can only be deleted if it was sent more than 24 hours ago.
+/// - Bots can delete outgoing messages in private chats, groups, and supergroups.
+/// - Bots can delete incoming messages in private chats.
+/// - Bots granted can_post_messages permissions can delete outgoing messages in channels.
+/// - If the bot is an administrator of a group, it can delete any message there.
+/// - If the bot has can_delete_messages permission in a supergroup or a channel, it can delete any message there.
+/// # Documentation
+/// <https://core.telegram.org/bots/api#deletemessage>
+/// # Returns
+/// Returns `True` on success
+#[skip_serializing_none]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+pub struct DeleteMessage {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatIdKind,
+    /// Identifier of the message to delete
+    pub message_id: i64,
+}
+
+impl DeleteMessage {
+    #[must_use]
+    pub fn new<T: Into<ChatIdKind>>(chat_id: T, message_id: i64) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            message_id,
+        }
+    }
+
+    #[must_use]
+    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
+    }
+
+    #[must_use]
+    pub fn message_id(mut self, val: i64) -> Self {
+        self.message_id = val;
+        self
+    }
+}
+
+impl TelegramMethod for DeleteMessage {
+    type Method = Self;
+    type Return = bool;
+
+    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
+        Request::new("deleteMessage", self, None)
+    }
+}
