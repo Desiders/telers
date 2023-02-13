@@ -5,7 +5,7 @@ use crate::{
 
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json;
-use std::collections::HashMap;
+use std::{collections::HashMap, hash::BuildHasher};
 
 /// This object represents a request to Telegram API
 pub struct Request<'a, T>
@@ -93,8 +93,8 @@ pub trait TelegramMethod {
     }
 }
 
-pub(super) fn prepare_file_with_id<'a>(
-    files: &mut HashMap<&'a str, &'a InputFile<'a>>,
+pub(super) fn prepare_file_with_id<'a, S: BuildHasher>(
+    files: &mut HashMap<&'a str, &'a InputFile<'a>, S>,
     file: &'a InputFile<'a>,
 ) {
     match file.kind() {
@@ -108,8 +108,8 @@ pub(super) fn prepare_file_with_id<'a>(
     }
 }
 
-pub(super) fn prepare_file_with_value<'a>(
-    files: &mut HashMap<&'a str, &'a InputFile<'a>>,
+pub(super) fn prepare_file_with_value<'a, S: BuildHasher>(
+    files: &mut HashMap<&'a str, &'a InputFile<'a>, S>,
     file: &'a InputFile<'a>,
     value: &'a str,
 ) {
@@ -124,8 +124,8 @@ pub(super) fn prepare_file_with_value<'a>(
     }
 }
 
-pub(super) fn prepare_input_media<'a>(
-    files: &mut HashMap<&'a str, &'a InputFile<'a>>,
+pub(super) fn prepare_input_media<'a, S: BuildHasher>(
+    files: &mut HashMap<&'a str, &'a InputFile<'a>, S>,
     input_media_list: &'a Vec<InputMedia<'a>>,
 ) {
     for input_media in input_media_list {
@@ -133,8 +133,8 @@ pub(super) fn prepare_input_media<'a>(
     }
 }
 
-pub fn prepare_input_media_single<'a>(
-    files: &mut HashMap<&'a str, &'a InputFile<'a>>,
+pub(super) fn prepare_input_media_single<'a, S: BuildHasher>(
+    files: &mut HashMap<&'a str, &'a InputFile<'a>, S>,
     input_media: &'a InputMedia<'a>,
 ) {
     match input_media {
