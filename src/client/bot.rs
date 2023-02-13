@@ -6,27 +6,29 @@ use crate::{
         AddStickerToSet, AnswerCallbackQuery, AnswerInlineQuery, AnswerWebAppQuery,
         ApproveChatJoinRequest, BanChatMember, BanChatSenderChat, CloseForumTopic,
         CloseGeneralForumTopic, CopyMessage, CreateChatInviteLink, CreateForumTopic,
-        DeclineChatJoinRequest, DeleteChatPhoto, DeleteChatStickerSet, DeleteForumTopic,
-        DeleteMessage, DeleteMyCommands, EditChatInviteLink, EditForumTopic, EditGeneralForumTopic,
-        EditMessageCaption, EditMessageLiveLocation, EditMessageMedia, EditMessageReplyMarkup,
-        EditMessageText, ExportChatInviteLink, ForwardMessage, GetChat, GetChatAdministrators,
-        GetChatMember, GetChatMemberCount, GetChatMenuButton, GetFile, GetForumTopicIconStickers,
-        GetMe, GetMyCommands, GetMyDefaultAdministratorRights, GetUpdates, GetUserProfilePhotos,
-        HideGeneralForumTopic, LeaveChat, LogOut, PinChatMessage, PromoteChatMember,
-        ReopenForumTopic, ReopenGeneralForumTopic, RestrictChatMember, RevokeChatInviteLink,
-        SendAnimation, SendAudio, SendChatAction, SendContact, SendDice, SendDocument,
-        SendLocation, SendMediaGroup, SendMessage, SendPhoto, SendPoll, SendVenue, SendVideo,
-        SendVideoNote, SendVoice, SetChatAdministratorCustomTitle, SetChatDescription,
-        SetChatMenuButton, SetChatPermissions, SetChatStickerSet, SetChatTitle, SetMyCommands,
-        SetMyDefaultAdministratorRights, StopMessageLiveLocation, StopPoll, TelegramMethod,
-        UnbanChatMember, UnbanChatSenderChat, UnhideGeneralForumTopic, UnpinAllChatMessages,
-        UnpinAllForumTopicMessages, UnpinChatMessage,
+        CreateNewStickerSet, DeclineChatJoinRequest, DeleteChatPhoto, DeleteChatStickerSet,
+        DeleteForumTopic, DeleteMessage, DeleteMyCommands, DeleteStickerFromSet,
+        EditChatInviteLink, EditForumTopic, EditGeneralForumTopic, EditMessageCaption,
+        EditMessageLiveLocation, EditMessageMedia, EditMessageReplyMarkup, EditMessageText,
+        ExportChatInviteLink, ForwardMessage, GetChat, GetChatAdministrators, GetChatMember,
+        GetChatMemberCount, GetChatMenuButton, GetCustomEmojiStickers, GetFile,
+        GetForumTopicIconStickers, GetMe, GetMyCommands, GetMyDefaultAdministratorRights,
+        GetStickerSet, GetUpdates, GetUserProfilePhotos, HideGeneralForumTopic, LeaveChat, LogOut,
+        PinChatMessage, PromoteChatMember, ReopenForumTopic, ReopenGeneralForumTopic,
+        RestrictChatMember, RevokeChatInviteLink, SendAnimation, SendAudio, SendChatAction,
+        SendContact, SendDice, SendDocument, SendLocation, SendMediaGroup, SendMessage, SendPhoto,
+        SendPoll, SendSticker, SendVenue, SendVideo, SendVideoNote, SendVoice,
+        SetChatAdministratorCustomTitle, SetChatDescription, SetChatMenuButton, SetChatPermissions,
+        SetChatStickerSet, SetChatTitle, SetMyCommands, SetMyDefaultAdministratorRights,
+        SetStickerPositionInSet, SetStickerSetThumb, StopMessageLiveLocation, StopPoll,
+        TelegramMethod, UnbanChatMember, UnbanChatSenderChat, UnhideGeneralForumTopic,
+        UnpinAllChatMessages, UnpinAllForumTopicMessages, UnpinChatMessage, UploadStickerFile,
     },
     types::{
         BotCommand, BotCommandScope, Chat, ChatAdministratorRights, ChatIdKind, ChatInviteLink,
         ChatMember, ChatPermissions, File, ForumTopic, InlineKeyboardMarkup, InlineQueryResult,
         InputFile, InputMedia, MaskPosition, MenuButton, Message, MessageEntity, MessageId,
-        MessageOrTrue, Poll, ReplyMarkup, SentWebAppMessage, Sticker, Update, User,
+        MessageOrTrue, Poll, ReplyMarkup, SentWebAppMessage, Sticker, StickerSet, Update, User,
         UserProfilePhotos,
     },
 };
@@ -173,6 +175,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn add_sticker_to_set<'a>(
         &self,
         user_id: i64,
@@ -241,6 +244,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn answer_inline_query(
         &self,
         inline_query_id: impl Into<String>,
@@ -428,6 +432,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn copy_message(
         &self,
         chat_id: impl Into<ChatIdKind>,
@@ -518,6 +523,46 @@ impl<Client: Session + Sync> Bot<Client> {
                 title: title.into(),
                 icon_color: icon_color.map(Into::into),
                 icon_custom_emoji_id: icon_custom_emoji_id.map(Into::into),
+            },
+            request_timeout,
+        )
+        .await
+    }
+
+    /// Use this method to create a new sticker set owned by a user. The bot will be able to edit the sticker set thus created. You `must` use exactly one of the fields `png_sticker`, `tgs_sticker`, or `webm_sticker`.
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#createnewstickerset>
+    /// # Returns
+    /// Returns `True` on success
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
+    pub async fn create_new_sticker_set<'a>(
+        &self,
+        user_id: i64,
+        name: impl Into<String>,
+        title: impl Into<String>,
+        png_sticker: Option<impl Into<InputFile<'a>>>,
+        tgs_sticker: Option<impl Into<InputFile<'a>>>,
+        webm_sticker: Option<impl Into<InputFile<'a>>>,
+        sticker_type: Option<impl Into<String>>,
+        emojis: impl Into<String>,
+        mask_position: Option<MaskPosition>,
+        request_timeout: Option<f32>,
+    ) -> Result<bool, SessionErrorKind> {
+        self.send(
+            &CreateNewStickerSet {
+                user_id,
+                name: name.into(),
+                title: title.into(),
+                png_sticker: png_sticker.map(Into::into),
+                tgs_sticker: tgs_sticker.map(Into::into),
+                webm_sticker: webm_sticker.map(Into::into),
+                sticker_type: sticker_type.map(Into::into),
+                emojis: emojis.into(),
+                mask_position,
             },
             request_timeout,
         )
@@ -678,6 +723,29 @@ impl<Client: Session + Sync> Bot<Client> {
         .await
     }
 
+    /// Use this method to delete a sticker from a set created by the bot
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#deletestickerfromset>
+    /// # Returns
+    /// Returns `True` on success
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    pub async fn delete_sticker_from_set(
+        &self,
+        sticker: impl Into<String>,
+        request_timeout: Option<f32>,
+    ) -> Result<bool, SessionErrorKind> {
+        self.send(
+            &DeleteStickerFromSet {
+                sticker: sticker.into(),
+            },
+            request_timeout,
+        )
+        .await
+    }
+
     /// Use this method to edit a non-primary invite link created by the bot. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
     /// # Documentation
     /// <https://core.telegram.org/bots/api#editchatinvitelink>
@@ -687,6 +755,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn edit_chat_invite_link(
         &self,
         chat_id: impl Into<ChatIdKind>,
@@ -749,6 +818,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn edit_message_caption(
         &self,
         chat_id: Option<impl Into<ChatIdKind>>,
@@ -810,6 +880,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn edit_message_live_location(
         &self,
         chat_id: Option<impl Into<ChatIdKind>>,
@@ -909,6 +980,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn edit_message_text(
         &self,
         chat_id: Option<impl Into<ChatIdKind>>,
@@ -971,6 +1043,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn forward_message(
         &self,
         chat_id: impl Into<ChatIdKind>,
@@ -1107,6 +1180,29 @@ impl<Client: Session + Sync> Bot<Client> {
             .await
     }
 
+    /// Use this method to get information about custom emoji stickers by their identifiers.
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#getcustomemojistickers>
+    /// # Returns
+    /// Returns an Array of [`Sticker`] objects
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    pub async fn get_custom_emoji_stickers(
+        &self,
+        custom_emoji_ids: Vec<impl Into<String>>,
+        request_timeout: Option<f32>,
+    ) -> Result<Vec<Sticker>, SessionErrorKind> {
+        self.send(
+            &GetCustomEmojiStickers {
+                custom_emoji_ids: custom_emoji_ids.into_iter().map(Into::into).collect(),
+            },
+            request_timeout,
+        )
+        .await
+    }
+
     /// Use this method to get basic info about a file and prepare it for downloading. For the moment, bots can download files of up to 20MB in size. The file can then be downloaded via the link `https://api.telegram.org/file/bot<token>/<file_path>`, where `<file_path>` is taken from the response. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling [`GetFile`](crate::methods::GetFile) again.
     /// # Documentation
     /// <https://core.telegram.org/bots/api#getfile>
@@ -1206,6 +1302,24 @@ impl<Client: Session + Sync> Bot<Client> {
             request_timeout,
         )
         .await
+    }
+
+    /// Use this method to get a sticker set.
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#getstickerset>
+    /// # Returns
+    /// On success, a [`StickerSet`] object is returned
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    pub async fn get_sticker_set(
+        &self,
+        name: impl Into<String>,
+        request_timeout: Option<f32>,
+    ) -> Result<StickerSet, SessionErrorKind> {
+        self.send(&GetStickerSet { name: name.into() }, request_timeout)
+            .await
     }
 
     /// Use this method to receive incoming updates using long polling (`wiki <https://en.wikipedia.org/wiki/Push_technology#Long_polling>`).
@@ -1368,6 +1482,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn promote_chat_member(
         &self,
         chat_id: impl Into<ChatIdKind>,
@@ -1519,6 +1634,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn send_animation<'a>(
         &self,
         chat_id: impl Into<ChatIdKind>,
@@ -1574,6 +1690,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn send_audio<'a>(
         &self,
         chat_id: impl Into<ChatIdKind>,
@@ -1656,6 +1773,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn send_contact(
         &self,
         chat_id: impl Into<ChatIdKind>,
@@ -1699,6 +1817,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn send_dice(
         &self,
         chat_id: impl Into<ChatIdKind>,
@@ -1736,6 +1855,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn send_document<'a>(
         &self,
         chat_id: impl Into<ChatIdKind>,
@@ -1783,6 +1903,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn send_location(
         &self,
         chat_id: impl Into<ChatIdKind>,
@@ -1830,6 +1951,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn send_media_group<'a>(
         &self,
         chat_id: impl Into<ChatIdKind>,
@@ -1865,6 +1987,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn send_message(
         &self,
         chat_id: impl Into<ChatIdKind>,
@@ -1966,6 +2089,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn send_poll(
         &self,
         chat_id: impl Into<ChatIdKind>,
@@ -2016,6 +2140,44 @@ impl<Client: Session + Sync> Bot<Client> {
         .await
     }
 
+    /// Use this method to send static .WEBP, [animated](https://telegram.org/blog/animated-stickers) .TGS, or [video](https://telegram.org/blog/video-stickers-better-reactions) .WEBM stickers.
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#sendsticker>
+    /// # Returns
+    /// On success, the sent [`Message`] is returned
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
+    pub async fn send_sticker<'a>(
+        &self,
+        chat_id: impl Into<ChatIdKind>,
+        message_thread_id: Option<i64>,
+        sticker: impl Into<InputFile<'a>>,
+        disable_notification: Option<bool>,
+        protect_content: Option<bool>,
+        reply_to_message_id: Option<i64>,
+        allow_sending_without_reply: Option<bool>,
+        reply_markup: Option<impl Into<ReplyMarkup>>,
+        request_timeout: Option<f32>,
+    ) -> Result<Message, SessionErrorKind> {
+        self.send(
+            &SendSticker {
+                chat_id: chat_id.into(),
+                message_thread_id,
+                sticker: sticker.into(),
+                disable_notification,
+                protect_content,
+                reply_to_message_id,
+                allow_sending_without_reply,
+                reply_markup: reply_markup.map(Into::into),
+            },
+            request_timeout,
+        )
+        .await
+    }
+
     /// Use this method to send information about a venue.
     /// # Documentation
     /// <https://core.telegram.org/bots/api#sendvenue>
@@ -2025,6 +2187,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn send_venue(
         &self,
         chat_id: impl Into<ChatIdKind>,
@@ -2076,6 +2239,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn send_video<'a>(
         &self,
         chat_id: impl Into<ChatIdKind>,
@@ -2131,6 +2295,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn send_video_note<'a>(
         &self,
         chat_id: impl Into<ChatIdKind>,
@@ -2174,6 +2339,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
     pub async fn send_voice<'a>(
         &self,
         chat_id: impl Into<ChatIdKind>,
@@ -2414,6 +2580,58 @@ impl<Client: Session + Sync> Bot<Client> {
         .await
     }
 
+    /// Use this method to move a sticker in a set created by the bot to a specific position
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#setstickerpositioninset>
+    /// # Returns
+    /// Returns `True` on success
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    pub async fn set_sticker_position_in_set(
+        &self,
+        sticker: impl Into<String>,
+        position: i64,
+        request_timeout: Option<f32>,
+    ) -> Result<bool, SessionErrorKind> {
+        self.send(
+            &SetStickerPositionInSet {
+                sticker: sticker.into(),
+                position,
+            },
+            request_timeout,
+        )
+        .await
+    }
+
+    /// Use this method to set the thumbnail of a sticker set. Animated thumbnails can be set for animated sticker sets only. Video thumbnails can be set only for video sticker sets only.
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#setstickersetthumb>
+    /// # Returns
+    /// Returns `True` on success
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    pub async fn set_sticker_set_thumb<'a>(
+        &self,
+        name: impl Into<String>,
+        user_id: i64,
+        thumb: Option<impl Into<InputFile<'a>>>,
+        request_timeout: Option<f32>,
+    ) -> Result<bool, SessionErrorKind> {
+        self.send(
+            &SetStickerSetThumb {
+                name: name.into(),
+                user_id,
+                thumb: thumb.map(Into::into),
+            },
+            request_timeout,
+        )
+        .await
+    }
+
     /// Use this method to stop updating a live location message before `live_period` expires.
     /// # Documentation
     /// <https://core.telegram.org/bots/api#stopmessagelivelocation>
@@ -2613,6 +2831,31 @@ impl<Client: Session + Sync> Bot<Client> {
             &UnpinChatMessage {
                 chat_id: chat_id.into(),
                 message_id,
+            },
+            request_timeout,
+        )
+        .await
+    }
+
+    /// Use this method to upload a .PNG file with a sticker for later use in [`CreateNewStickerSet`](crate::methods::CreateNewStickerSet) and [`AddStickerToSet`](crate::methods::AddStickerToSet) methods (can be used multiple times)
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#uploadstickerfile>
+    /// # Returns
+    /// Returns the uploaded [`File`] on success
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    pub async fn upload_sticker_file<'a>(
+        &self,
+        user_id: i64,
+        png_sticker: impl Into<InputFile<'a>>,
+        request_timeout: Option<f32>,
+    ) -> Result<File, SessionErrorKind> {
+        self.send(
+            &UploadStickerFile {
+                user_id,
+                png_sticker: png_sticker.into(),
             },
             request_timeout,
         )
