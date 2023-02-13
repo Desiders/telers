@@ -206,7 +206,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// # Documentation
     /// <https://core.telegram.org/bots/api#answercallbackquery>
     /// # Notes
-    /// Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via @BotFather and accept the terms. Otherwise, you may use links like `t.me/your_bot?start=XXXX` that open your bot with a parameter.
+    /// Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via `@BotFather` and accept the terms. Otherwise, you may use links like `t.me/your_bot?start=XXXX` that open your bot with a parameter.
     /// # Returns
     /// On success, `True` is returned.
     /// # Errors
@@ -671,9 +671,9 @@ impl<Client: Session + Sync> Bot<Client> {
     /// - A dice message in a private chat can only be deleted if it was sent more than 24 hours ago.
     /// - Bots can delete outgoing messages in private chats, groups, and supergroups.
     /// - Bots can delete incoming messages in private chats.
-    /// - Bots granted can_post_messages permissions can delete outgoing messages in channels.
+    /// - Bots granted `can_post_messages` permissions can delete outgoing messages in channels.
     /// - If the bot is an administrator of a group, it can delete any message there.
-    /// - If the bot has can_delete_messages permission in a supergroup or a channel, it can delete any message there.
+    /// - If the bot has `can_delete_messages` permission in a supergroup or a channel, it can delete any message there.
     /// # Documentation
     /// <https://core.telegram.org/bots/api#deletemessage>
     /// # Returns
@@ -780,7 +780,7 @@ impl<Client: Session + Sync> Bot<Client> {
         .await
     }
 
-    /// Use this method to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have can_manage_topics administrator rights, unless it is the creator of the topic.
+    /// Use this method to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have `can_manage_topics` administrator rights, unless it is the creator of the topic.
     /// # Documentation
     /// <https://core.telegram.org/bots/api#editforumtopic>
     /// # Returns
@@ -870,7 +870,7 @@ impl<Client: Session + Sync> Bot<Client> {
         .await
     }
 
-    /// Use this method to edit live location messages. A location can be edited until its `live_period` expires or editing is explicitly disabled by a call to [stopMessageLiveLocation](crate::methods::StopMessageLiveLocation).
+    /// Use this method to edit live location messages. A location can be edited until its `live_period` expires or editing is explicitly disabled by a call to [`stopMessageLiveLocation`](crate::methods::StopMessageLiveLocation).
     /// # Documentation
     /// <https://core.telegram.org/bots/api#editmessagelivelocation>
     /// # Returns
@@ -1739,7 +1739,7 @@ impl<Client: Session + Sync> Bot<Client> {
     /// # Notes
     /// We only recommend using this method when a response from the bot will take a **noticeable** amount of time to arrive.
     /// # Example
-    /// The [ImageBot](https://t.me/imagebot) needs some time to process a request and upload the image. Instead of sending a text message along the lines of “Retrieving image, please wait…”, the bot may use [`SendChatAction`](crate::methods::SendChatAction) with `action = upload_photo`. The user will see a “sending photo” status for the bot.
+    /// The [`ImageBot`](https://t.me/imagebot) needs some time to process a request and upload the image. Instead of sending a text message along the lines of “Retrieving image, please wait…”, the bot may use [`SendChatAction`](crate::methods::SendChatAction) with `action = upload_photo`. The user will see a “sending photo” status for the bot.
     /// # Returns
     /// Returns `True` on success.
     /// # Errors
