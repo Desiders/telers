@@ -1,9 +1,9 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Represents an issue with the translated version of a document. The error is considered resolved when a file with the document translation change.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerrortranslationfiles>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
 pub struct PassportElementErrorTranslationFiles {
     /// Error source, must be *translation_files*
     pub source: String,

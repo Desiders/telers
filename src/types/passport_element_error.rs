@@ -5,7 +5,7 @@ use super::{
     PassportElementErrorUnspecified,
 };
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// This object represents an error in the Telegram Passport element which was submitted that should be resolved by the user. It should be one of:
 /// - `aiogram_rs.types.passport_element_error_data_field.PassportElementErrorDataField`
@@ -18,7 +18,7 @@ use serde::Deserialize;
 /// - `aiogram_rs.types.passport_element_error_translation_files.PassportElementErrorTranslationFiles`
 /// - `aiogram_rs.types.passport_element_error_unspecified.PassportElementErrorUnspecified`
 /// <https://core.telegram.org/bots/api#passportelementerror>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
 #[serde(tag = "source", rename_all = "snake_case")]
 pub enum PassportElementError {
     DataField(PassportElementErrorDataField),
@@ -30,4 +30,58 @@ pub enum PassportElementError {
     TranslationFile(PassportElementErrorTranslationFile),
     TranslationFiles(PassportElementErrorTranslationFiles),
     Unspecified(PassportElementErrorUnspecified),
+}
+
+impl From<PassportElementErrorDataField> for PassportElementError {
+    fn from(val: PassportElementErrorDataField) -> Self {
+        Self::DataField(val)
+    }
+}
+
+impl From<PassportElementErrorFrontSide> for PassportElementError {
+    fn from(val: PassportElementErrorFrontSide) -> Self {
+        Self::FrontSide(val)
+    }
+}
+
+impl From<PassportElementErrorReverseSide> for PassportElementError {
+    fn from(val: PassportElementErrorReverseSide) -> Self {
+        Self::ReverseSide(val)
+    }
+}
+
+impl From<PassportElementErrorSelfie> for PassportElementError {
+    fn from(val: PassportElementErrorSelfie) -> Self {
+        Self::Selfie(val)
+    }
+}
+
+impl From<PassportElementErrorFile> for PassportElementError {
+    fn from(val: PassportElementErrorFile) -> Self {
+        Self::File(val)
+    }
+}
+
+impl From<PassportElementErrorFiles> for PassportElementError {
+    fn from(val: PassportElementErrorFiles) -> Self {
+        Self::Files(val)
+    }
+}
+
+impl From<PassportElementErrorTranslationFile> for PassportElementError {
+    fn from(val: PassportElementErrorTranslationFile) -> Self {
+        Self::TranslationFile(val)
+    }
+}
+
+impl From<PassportElementErrorTranslationFiles> for PassportElementError {
+    fn from(val: PassportElementErrorTranslationFiles) -> Self {
+        Self::TranslationFiles(val)
+    }
+}
+
+impl From<PassportElementErrorUnspecified> for PassportElementError {
+    fn from(val: PassportElementErrorUnspecified) -> Self {
+        Self::Unspecified(val)
+    }
 }
