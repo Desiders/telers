@@ -7,10 +7,12 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#replykeyboardmarkup>
 #[skip_serializing_none]
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ReplyKeyboardMarkup {
     // Array of button rows, each represented by an Array of `aiogram_rs.types.keyboard_button.KeyboardButton` objects
     pub keyboard: Vec<Vec<KeyboardButton>>,
+    /// *Optional*. Requests clients to always show the keyboard when the regular keyboard is hidden. Defaults to false, in which case the custom keyboard can be hidden and opened with a keyboard icon.
+    pub is_persistent: Option<bool>,
     /// *Optional*. Requests clients to resize the keyboard vertically for optimal fit (e.g., make the keyboard smaller if there are just two rows of buttons). Defaults to *false*, in which case the custom keyboard is always of the same height as the app's standard keyboard.
     pub resize_keyboard: Option<bool>,
     /// *Optional*. Requests clients to hide the keyboard as soon as it's been used. The keyboard will still be available, but clients will automatically display the usual letter-keyboard in the chat - the user can press a special button in the input field to see the custom keyboard again. Defaults to *false*.
@@ -26,8 +28,18 @@ impl ReplyKeyboardMarkup {
     pub fn new(keyboard: Vec<Vec<KeyboardButton>>) -> Self {
         Self {
             keyboard,
-            ..Default::default()
+            is_persistent: None,
+            resize_keyboard: None,
+            one_time_keyboard: None,
+            input_field_placeholder: None,
+            selective: None,
         }
+    }
+
+    #[must_use]
+    pub fn is_persistent(mut self, val: bool) -> Self {
+        self.is_persistent = Some(val);
+        self
     }
 
     #[must_use]

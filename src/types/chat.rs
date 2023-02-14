@@ -50,6 +50,10 @@ pub struct Chat {
     pub slow_mode_delay: Option<i64>,
     /// *Optional*. The time after which all messages sent to the chat will be automatically deleted; in seconds. Returned only in `aiogram_rs.methods.get_chat.GetChat`.
     pub message_auto_delete_time: Option<i64>,
+    /// *Optional*. `True`, if aggressive anti-spam checks are enabled in the supergroup. The field is only available to chat administrators. Returned only in `aiogram_rs.methods.get_chat.GetChat`.
+    pub has_aggressive_anti_spam_enabled: Option<bool>,
+    /// *Optional*. `True`, if non-administrators can only get the list of bots and administrators in the chat. Returned only in `aiogram_rs.methods.get_chat.GetChat`.
+    pub has_hidden_members: Option<bool>,
     /// *Optional*. `True`, if messages from the chat can't be forwarded to other chats. Returned only in `aiogram_rs.methods.get_chat.GetChat`.
     pub has_protected_content: Option<bool>,
     /// *Optional*. For supergroups, name of group sticker set. Returned only in `aiogram_rs.methods.get_chat.GetChat`.

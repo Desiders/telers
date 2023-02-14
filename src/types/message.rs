@@ -1,10 +1,10 @@
 use super::{
     Animation, Audio, Chat, Contact, Dice, Document, ForumTopicClosed, ForumTopicCreated,
-    ForumTopicReopened, Game, InlineKeyboardMarkup, Invoice, Location,
-    MessageAutoDeleteTimerChanged, MessageEntity, PassportData, PhotoSize, Poll,
-    ProximityAlertTriggered, Sticker, SuccessfulPayment, Update, User, Venue, Video,
-    VideoChatEnded, VideoChatParticipantsInvited, VideoChatScheduled, VideoChatStarted, VideoNote,
-    Voice, WebAppData,
+    ForumTopicEdited, ForumTopicReopened, Game, GeneralForumTopicHidden, GeneralForumTopicUnhidden,
+    InlineKeyboardMarkup, Invoice, Location, MessageAutoDeleteTimerChanged, MessageEntity,
+    PassportData, PhotoSize, Poll, ProximityAlertTriggered, Sticker, SuccessfulPayment, Update,
+    User, Venue, Video, VideoChatEnded, VideoChatParticipantsInvited, VideoChatScheduled,
+    VideoChatStarted, VideoNote, Voice, WebAppData, WriteAccessAllowed,
 };
 
 use crate::error::ConvertUpdateToTypeError;
@@ -80,6 +80,8 @@ pub struct Message {
     pub caption: Option<String>,
     /// *Optional*. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
     pub caption_entities: Option<Vec<MessageEntity>>,
+    /// *Optional*. `True`, if the message media is covered by a spoiler animation
+    pub has_media_spoiler: Option<bool>,
     /// *Optional*. Message is a shared contact, information about the contact
     pub contact: Option<Contact>,
     /// *Optional*. Message is a dice with random value
@@ -122,16 +124,24 @@ pub struct Message {
     pub successful_payment: Option<SuccessfulPayment>,
     /// *Optional*. The domain name of the website on which the user has logged in. `More about Telegram Login » <https://core.telegram.org/widgets/login>`
     pub connected_website: Option<String>,
+    /// *Optional*. Service message: the user allowed the bot added to the attachment menu to write messages
+    pub write_access_allowed: Option<WriteAccessAllowed>,
     /// *Optional*. Telegram Passport data
     pub passport_data: Option<PassportData>,
     /// *Optional*. Service message. A user in the chat triggered another user's proximity alert while sharing Live Location.
     pub proximity_alert_triggered: Option<ProximityAlertTriggered>,
     /// *Optional*. Service message: forum topic created
     pub forum_topic_created: Option<ForumTopicCreated>,
+    /// *Optional*. Service message: forum topic edited
+    pub forum_topic_edited: Option<ForumTopicEdited>,
     /// *Optional*. Service message: forum topic closed
     pub forum_topic_closed: Option<ForumTopicClosed>,
     /// *Optional*. Service message: forum topic reopened
     pub forum_topic_reopened: Option<ForumTopicReopened>,
+    /// *Optional*. Service message: the `General` forum topic hidden
+    pub general_forum_topic_hidden: Option<GeneralForumTopicHidden>,
+    /// *Optional*. Service message: the `General` forum topic unhidden
+    pub general_forum_topic_unhidden: Option<GeneralForumTopicUnhidden>,
     /// *Optional*. Service message: video chat scheduled
     pub video_chat_scheduled: Option<VideoChatScheduled>,
     /// Optional*. Service message: video chat started

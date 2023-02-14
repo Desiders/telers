@@ -28,6 +28,8 @@ pub struct InputMediaAnimation<'a> {
     pub height: Option<i64>,
     /// *Optional*. Animation duration in seconds
     pub duration: Option<i64>,
+    /// *Optional*. Pass `True` if the animation needs to be covered with a spoiler animation
+    pub has_spoiler: Option<bool>,
 }
 
 impl<'a> InputMediaAnimation<'a> {
@@ -43,6 +45,7 @@ impl<'a> InputMediaAnimation<'a> {
             width: None,
             height: None,
             duration: None,
+            has_spoiler: None,
         }
     }
 
@@ -91,6 +94,12 @@ impl<'a> InputMediaAnimation<'a> {
     #[must_use]
     pub fn duration(mut self, val: i64) -> Self {
         self.duration = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn has_spoiler(mut self, val: bool) -> Self {
+        self.has_spoiler = Some(val);
         self
     }
 }

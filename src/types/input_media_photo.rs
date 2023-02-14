@@ -20,6 +20,8 @@ pub struct InputMediaPhoto<'a> {
     pub parse_mode: Option<String>,
     /// *Optional*. List of special entities that appear in the caption, which can be specified instead of *parse_mode*
     pub caption_entities: Option<Vec<MessageEntity>>,
+    /// *Optional*. Pass `True` if the photo needs to be covered with a spoiler animation
+    pub has_spoiler: Option<bool>,
 }
 
 impl<'a> InputMediaPhoto<'a> {
@@ -31,6 +33,7 @@ impl<'a> InputMediaPhoto<'a> {
             caption: None,
             parse_mode: None,
             caption_entities: None,
+            has_spoiler: None,
         }
     }
 
@@ -55,6 +58,12 @@ impl<'a> InputMediaPhoto<'a> {
     #[must_use]
     pub fn caption_entities(mut self, val: Vec<MessageEntity>) -> Self {
         self.caption_entities = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn has_spoiler(mut self, val: bool) -> Self {
+        self.has_spoiler = Some(val);
         self
     }
 }

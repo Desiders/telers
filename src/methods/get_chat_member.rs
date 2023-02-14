@@ -8,7 +8,7 @@ use crate::{
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 
-/// Use this method to get information about a member of a chat. The method is guaranteed to work for other users, only if the bot is an administrator in the chat.
+/// Use this method to get information about a member of a chat. The method is only guaranteed to work for other users if the bot is an administrator in the chat
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getchatmember>
 /// # Returns

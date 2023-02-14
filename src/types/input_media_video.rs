@@ -30,6 +30,8 @@ pub struct InputMediaVideo<'a> {
     pub duration: Option<i64>,
     /// *Optional*. Pass `True` if the uploaded video is suitable for streaming
     pub supports_streaming: Option<bool>,
+    /// *Optional*. Pass `True` if the video needs to be covered with a spoiler animation
+    pub has_spoiler: Option<bool>,
 }
 
 impl<'a> InputMediaVideo<'a> {
@@ -46,6 +48,7 @@ impl<'a> InputMediaVideo<'a> {
             height: None,
             duration: None,
             supports_streaming: None,
+            has_spoiler: None,
         }
     }
 
@@ -100,6 +103,12 @@ impl<'a> InputMediaVideo<'a> {
     #[must_use]
     pub fn supports_streaming(mut self, val: bool) -> Self {
         self.supports_streaming = Some(val);
+        self
+    }
+
+    #[must_use]
+    pub fn has_spoiler(mut self, val: bool) -> Self {
+        self.has_spoiler = Some(val);
         self
     }
 }
