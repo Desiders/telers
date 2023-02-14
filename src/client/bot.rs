@@ -12,14 +12,15 @@ use crate::{
         EditGeneralForumTopic, EditMessageCaption, EditMessageLiveLocation, EditMessageMedia,
         EditMessageReplyMarkup, EditMessageText, ExportChatInviteLink, ForwardMessage, GetChat,
         GetChatAdministrators, GetChatMember, GetChatMemberCount, GetChatMenuButton,
-        GetCustomEmojiStickers, GetFile, GetForumTopicIconStickers, GetMe, GetMyCommands,
-        GetMyDefaultAdministratorRights, GetStickerSet, GetUpdates, GetUserProfilePhotos,
-        HideGeneralForumTopic, LeaveChat, LogOut, PinChatMessage, PromoteChatMember,
-        ReopenForumTopic, ReopenGeneralForumTopic, RestrictChatMember, RevokeChatInviteLink,
-        SendAnimation, SendAudio, SendChatAction, SendContact, SendDice, SendDocument, SendInvoice,
-        SendLocation, SendMediaGroup, SendMessage, SendPhoto, SendPoll, SendSticker, SendVenue,
-        SendVideo, SendVideoNote, SendVoice, SetChatAdministratorCustomTitle, SetChatDescription,
-        SetChatMenuButton, SetChatPermissions, SetChatStickerSet, SetChatTitle, SetMyCommands,
+        GetCustomEmojiStickers, GetFile, GetForumTopicIconStickers, GetGameHighScores, GetMe,
+        GetMyCommands, GetMyDefaultAdministratorRights, GetStickerSet, GetUpdates,
+        GetUserProfilePhotos, HideGeneralForumTopic, LeaveChat, LogOut, PinChatMessage,
+        PromoteChatMember, ReopenForumTopic, ReopenGeneralForumTopic, RestrictChatMember,
+        RevokeChatInviteLink, SendAnimation, SendAudio, SendChatAction, SendContact, SendDice,
+        SendDocument, SendGame, SendInvoice, SendLocation, SendMediaGroup, SendMessage, SendPhoto,
+        SendPoll, SendSticker, SendVenue, SendVideo, SendVideoNote, SendVoice,
+        SetChatAdministratorCustomTitle, SetChatDescription, SetChatMenuButton, SetChatPermissions,
+        SetChatStickerSet, SetChatTitle, SetGameScore, SetMyCommands,
         SetMyDefaultAdministratorRights, SetPassportDataErrors, SetStickerPositionInSet,
         SetStickerSetThumb, StopMessageLiveLocation, StopPoll, TelegramMethod, UnbanChatMember,
         UnbanChatSenderChat, UnhideGeneralForumTopic, UnpinAllChatMessages,
@@ -27,10 +28,10 @@ use crate::{
     },
     types::{
         BotCommand, BotCommandScope, Chat, ChatAdministratorRights, ChatIdKind, ChatInviteLink,
-        ChatMember, ChatPermissions, File, ForumTopic, InlineKeyboardMarkup, InlineQueryResult,
-        InputFile, InputMedia, LabeledPrice, MaskPosition, MenuButton, Message, MessageEntity,
-        MessageId, MessageOrTrue, PassportElementError, Poll, ReplyMarkup, SentWebAppMessage,
-        ShippingOption, Sticker, StickerSet, Update, User, UserProfilePhotos,
+        ChatMember, ChatPermissions, File, ForumTopic, GameHighScore, InlineKeyboardMarkup,
+        InlineQueryResult, InputFile, InputMedia, LabeledPrice, MaskPosition, MenuButton, Message,
+        MessageEntity, MessageId, MessageOrTrue, PassportElementError, Poll, ReplyMarkup,
+        SentWebAppMessage, ShippingOption, Sticker, StickerSet, Update, User, UserProfilePhotos,
     },
 };
 
@@ -1368,6 +1369,37 @@ impl<Client: Session + Sync> Bot<Client> {
             .await
     }
 
+    /// Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game.
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#getgamehighscores>
+    /// # Note
+    /// This method will currently return scores for the target user, plus two of their closest neighbors on each side. Will also return the top three users if the user and their neighbors are not among them. Please note that this behavior is subject to change.
+    /// # Returns
+    /// Returns an Array of [`GameHighScore`] objects
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    pub async fn get_game_high_scores(
+        &self,
+        user_id: i64,
+        chat_id: Option<i64>,
+        message_id: Option<i64>,
+        inline_message_id: Option<impl Into<String>>,
+        request_timeout: Option<f32>,
+    ) -> Result<Vec<GameHighScore>, SessionErrorKind> {
+        self.send(
+            &GetGameHighScores {
+                user_id,
+                chat_id,
+                message_id,
+                inline_message_id: inline_message_id.map(Into::into),
+            },
+            request_timeout,
+        )
+        .await
+    }
+
     /// A simple method for testing your bot's authentication token. Requires no parameters.
     /// # Documentation
     /// <https://core.telegram.org/bots/api#getme>
@@ -2006,6 +2038,44 @@ impl<Client: Session + Sync> Bot<Client> {
                 parse_mode: parse_mode.map(Into::into),
                 caption_entities,
                 disable_content_type_detection,
+                disable_notification,
+                protect_content,
+                reply_to_message_id,
+                allow_sending_without_reply,
+                reply_markup: reply_markup.map(Into::into),
+            },
+            request_timeout,
+        )
+        .await
+    }
+
+    /// Use this method to send a game
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#sendgame>
+    /// # Returns
+    /// On success, the sent [`Message`] is returned
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
+    pub async fn send_game(
+        &self,
+        chat_id: i64,
+        message_thread_id: Option<i64>,
+        game_short_name: impl Into<String>,
+        disable_notification: Option<bool>,
+        protect_content: Option<bool>,
+        reply_to_message_id: Option<i64>,
+        allow_sending_without_reply: Option<bool>,
+        reply_markup: Option<impl Into<InlineKeyboardMarkup>>,
+        request_timeout: Option<f32>,
+    ) -> Result<Message, SessionErrorKind> {
+        self.send(
+            &SendGame {
+                chat_id,
+                message_thread_id,
+                game_short_name: game_short_name.into(),
                 disable_notification,
                 protect_content,
                 reply_to_message_id,
@@ -2723,6 +2793,42 @@ impl<Client: Session + Sync> Bot<Client> {
             &SetChatTitle {
                 chat_id: chat_id.into(),
                 title: title.into(),
+            },
+            request_timeout,
+        )
+        .await
+    }
+
+    /// Use this method to send a game
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#setgamescore>
+    /// # Returns
+    /// On success, the sent [`Message`] is returned
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
+    pub async fn set_game_score(
+        &self,
+        user_id: i64,
+        score: u64,
+        force: Option<bool>,
+        disable_edit_message: Option<bool>,
+        chat_id: Option<i64>,
+        message_id: Option<i64>,
+        inline_message_id: Option<impl Into<String>>,
+        request_timeout: Option<f32>,
+    ) -> Result<MessageOrTrue, SessionErrorKind> {
+        self.send(
+            &SetGameScore {
+                user_id,
+                score,
+                force,
+                disable_edit_message,
+                chat_id,
+                message_id,
+                inline_message_id: inline_message_id.map(Into::into),
             },
             request_timeout,
         )
