@@ -32,7 +32,7 @@ pub struct SendMessage {
     pub disable_notification: Option<bool>,
     /// Protects the contents of the sent message from forwarding and saving
     pub protect_content: Option<bool>,
-    /// If the message is a reply, `ID` of the original message
+    /// If the message is a reply, ID of the original message
     pub reply_to_message_id: Option<i64>,
     /// Pass `True`, if the message should be sent even if the specified replied-to message is not found
     pub allow_sending_without_reply: Option<bool>,

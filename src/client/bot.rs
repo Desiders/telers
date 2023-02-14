@@ -3,33 +3,34 @@ use super::session::base::Session;
 use crate::{
     error::SessionErrorKind,
     methods::{
-        AddStickerToSet, AnswerCallbackQuery, AnswerInlineQuery, AnswerWebAppQuery,
-        ApproveChatJoinRequest, BanChatMember, BanChatSenderChat, CloseForumTopic,
-        CloseGeneralForumTopic, CopyMessage, CreateChatInviteLink, CreateForumTopic,
-        CreateNewStickerSet, DeclineChatJoinRequest, DeleteChatPhoto, DeleteChatStickerSet,
-        DeleteForumTopic, DeleteMessage, DeleteMyCommands, DeleteStickerFromSet,
-        EditChatInviteLink, EditForumTopic, EditGeneralForumTopic, EditMessageCaption,
-        EditMessageLiveLocation, EditMessageMedia, EditMessageReplyMarkup, EditMessageText,
-        ExportChatInviteLink, ForwardMessage, GetChat, GetChatAdministrators, GetChatMember,
-        GetChatMemberCount, GetChatMenuButton, GetCustomEmojiStickers, GetFile,
-        GetForumTopicIconStickers, GetMe, GetMyCommands, GetMyDefaultAdministratorRights,
-        GetStickerSet, GetUpdates, GetUserProfilePhotos, HideGeneralForumTopic, LeaveChat, LogOut,
-        PinChatMessage, PromoteChatMember, ReopenForumTopic, ReopenGeneralForumTopic,
-        RestrictChatMember, RevokeChatInviteLink, SendAnimation, SendAudio, SendChatAction,
-        SendContact, SendDice, SendDocument, SendLocation, SendMediaGroup, SendMessage, SendPhoto,
-        SendPoll, SendSticker, SendVenue, SendVideo, SendVideoNote, SendVoice,
-        SetChatAdministratorCustomTitle, SetChatDescription, SetChatMenuButton, SetChatPermissions,
-        SetChatStickerSet, SetChatTitle, SetMyCommands, SetMyDefaultAdministratorRights,
-        SetStickerPositionInSet, SetStickerSetThumb, StopMessageLiveLocation, StopPoll,
-        TelegramMethod, UnbanChatMember, UnbanChatSenderChat, UnhideGeneralForumTopic,
-        UnpinAllChatMessages, UnpinAllForumTopicMessages, UnpinChatMessage, UploadStickerFile,
+        AddStickerToSet, AnswerCallbackQuery, AnswerInlineQuery, AnswerPreCheckoutQuery,
+        AnswerShippingQuery, AnswerWebAppQuery, ApproveChatJoinRequest, BanChatMember,
+        BanChatSenderChat, CloseForumTopic, CloseGeneralForumTopic, CopyMessage,
+        CreateChatInviteLink, CreateForumTopic, CreateInvoiceLink, CreateNewStickerSet,
+        DeclineChatJoinRequest, DeleteChatPhoto, DeleteChatStickerSet, DeleteForumTopic,
+        DeleteMessage, DeleteMyCommands, DeleteStickerFromSet, EditChatInviteLink, EditForumTopic,
+        EditGeneralForumTopic, EditMessageCaption, EditMessageLiveLocation, EditMessageMedia,
+        EditMessageReplyMarkup, EditMessageText, ExportChatInviteLink, ForwardMessage, GetChat,
+        GetChatAdministrators, GetChatMember, GetChatMemberCount, GetChatMenuButton,
+        GetCustomEmojiStickers, GetFile, GetForumTopicIconStickers, GetMe, GetMyCommands,
+        GetMyDefaultAdministratorRights, GetStickerSet, GetUpdates, GetUserProfilePhotos,
+        HideGeneralForumTopic, LeaveChat, LogOut, PinChatMessage, PromoteChatMember,
+        ReopenForumTopic, ReopenGeneralForumTopic, RestrictChatMember, RevokeChatInviteLink,
+        SendAnimation, SendAudio, SendChatAction, SendContact, SendDice, SendDocument, SendInvoice,
+        SendLocation, SendMediaGroup, SendMessage, SendPhoto, SendPoll, SendSticker, SendVenue,
+        SendVideo, SendVideoNote, SendVoice, SetChatAdministratorCustomTitle, SetChatDescription,
+        SetChatMenuButton, SetChatPermissions, SetChatStickerSet, SetChatTitle, SetMyCommands,
+        SetMyDefaultAdministratorRights, SetPassportDataErrors, SetStickerPositionInSet,
+        SetStickerSetThumb, StopMessageLiveLocation, StopPoll, TelegramMethod, UnbanChatMember,
+        UnbanChatSenderChat, UnhideGeneralForumTopic, UnpinAllChatMessages,
+        UnpinAllForumTopicMessages, UnpinChatMessage, UploadStickerFile,
     },
     types::{
         BotCommand, BotCommandScope, Chat, ChatAdministratorRights, ChatIdKind, ChatInviteLink,
         ChatMember, ChatPermissions, File, ForumTopic, InlineKeyboardMarkup, InlineQueryResult,
-        InputFile, InputMedia, MaskPosition, MenuButton, Message, MessageEntity, MessageId,
-        MessageOrTrue, Poll, ReplyMarkup, SentWebAppMessage, Sticker, StickerSet, Update, User,
-        UserProfilePhotos,
+        InputFile, InputMedia, LabeledPrice, MaskPosition, MenuButton, Message, MessageEntity,
+        MessageId, MessageOrTrue, PassportElementError, Poll, ReplyMarkup, SentWebAppMessage,
+        ShippingOption, Sticker, StickerSet, Update, User, UserProfilePhotos,
     },
 };
 
@@ -265,6 +266,64 @@ impl<Client: Session + Sync> Bot<Client> {
                 next_offset: next_offset.map(Into::into),
                 switch_pm_text: switch_pm_text.map(Into::into),
                 switch_pm_parameter: switch_pm_parameter.map(Into::into),
+            },
+            request_timeout,
+        )
+        .await
+    }
+
+    /// Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an [`Update`](crate::types::Update) with the field `pre_checkout_query`. Use this method to respond to such pre-checkout queries. On success, `True` is returned. Note: The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent. Use this method to respond to such pre-checkout queries.
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#answerprecheckoutquery>
+    /// # Note
+    /// The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent
+    /// # Returns
+    /// On success, `True` is returned
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    pub async fn answer_pre_checkout_query(
+        &self,
+        pre_checkout_query_id: impl Into<String>,
+        ok: bool,
+        error_message: Option<impl Into<String>>,
+        request_timeout: Option<f32>,
+    ) -> Result<bool, SessionErrorKind> {
+        self.send(
+            &AnswerPreCheckoutQuery {
+                pre_checkout_query_id: pre_checkout_query_id.into(),
+                ok,
+                error_message: error_message.map(Into::into),
+            },
+            request_timeout,
+        )
+        .await
+    }
+
+    /// If you sent an invoice requesting a shipping address and the parameter `is_flexible` was specified, the Bot API will send an [`Update`](crate::types::Update) with a `shipping_query` field to the bot. Use this method to reply to shipping queries.
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#answershippingquery>
+    /// # Returns
+    /// On success, `True` is returned
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    pub async fn answer_shipping_query(
+        &self,
+        shipping_query_id: impl Into<String>,
+        ok: bool,
+        shipping_options: Option<Vec<ShippingOption>>,
+        error_message: Option<impl Into<String>>,
+        request_timeout: Option<f32>,
+    ) -> Result<bool, SessionErrorKind> {
+        self.send(
+            &AnswerShippingQuery {
+                shipping_query_id: shipping_query_id.into(),
+                ok,
+                shipping_options,
+                error_message: error_message.map(Into::into),
             },
             request_timeout,
         )
@@ -523,6 +582,70 @@ impl<Client: Session + Sync> Bot<Client> {
                 title: title.into(),
                 icon_color: icon_color.map(Into::into),
                 icon_custom_emoji_id: icon_custom_emoji_id.map(Into::into),
+            },
+            request_timeout,
+        )
+        .await
+    }
+
+    /// Use this method to create a link for an invoice
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#createinvoicelink>
+    /// # Returns
+    /// Returns the created invoice link as `String` on success
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
+    pub async fn create_invoice_link(
+        &self,
+        title: impl Into<String>,
+        description: impl Into<String>,
+        payload: impl Into<String>,
+        provider_token: impl Into<String>,
+        currency: impl Into<String>,
+        prices: Vec<LabeledPrice>,
+        max_tip_amount: Option<i64>,
+        suggested_tip_amounts: Option<Vec<i64>>,
+        start_parameter: Option<impl Into<String>>,
+        provider_data: Option<impl Into<String>>,
+        photo_url: Option<impl Into<String>>,
+        photo_size: Option<i64>,
+        photo_width: Option<i64>,
+        photo_height: Option<i64>,
+        need_name: Option<bool>,
+        need_phone_number: Option<bool>,
+        need_email: Option<bool>,
+        need_shipping_address: Option<bool>,
+        send_phone_number_to_provider: Option<bool>,
+        send_email_to_provider: Option<bool>,
+        is_flexible: Option<bool>,
+        request_timeout: Option<f32>,
+    ) -> Result<String, SessionErrorKind> {
+        self.send(
+            &CreateInvoiceLink {
+                title: title.into(),
+                description: description.into(),
+                payload: payload.into(),
+                provider_token: provider_token.into(),
+                currency: currency.into(),
+                prices,
+                max_tip_amount,
+                suggested_tip_amounts,
+                start_parameter: start_parameter.map(Into::into),
+                provider_data: provider_data.map(Into::into),
+                photo_url: photo_url.map(Into::into),
+                photo_size,
+                photo_width,
+                photo_height,
+                need_name,
+                need_phone_number,
+                need_email,
+                need_shipping_address,
+                send_phone_number_to_provider,
+                send_email_to_provider,
+                is_flexible,
             },
             request_timeout,
         )
@@ -1894,6 +2017,84 @@ impl<Client: Session + Sync> Bot<Client> {
         .await
     }
 
+    /// Use this method to send invoices
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#sendinvoice>
+    /// # Returns
+    /// On success, the sent [`Message`] is returned
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    #[allow(clippy::too_many_arguments)]
+    pub async fn send_invoice(
+        &self,
+        chat_id: impl Into<ChatIdKind>,
+        message_thread_id: Option<i64>,
+        title: impl Into<String>,
+        description: impl Into<String>,
+        payload: impl Into<String>,
+        provider_token: impl Into<String>,
+        currency: impl Into<String>,
+        prices: Vec<LabeledPrice>,
+        max_tip_amount: Option<i64>,
+        suggested_tip_amounts: Option<Vec<i64>>,
+        start_parameter: Option<impl Into<String>>,
+        provider_data: Option<impl Into<String>>,
+        photo_url: Option<impl Into<String>>,
+        photo_size: Option<i64>,
+        photo_width: Option<i64>,
+        photo_height: Option<i64>,
+        need_name: Option<bool>,
+        need_phone_number: Option<bool>,
+        need_email: Option<bool>,
+        need_shipping_address: Option<bool>,
+        send_phone_number_to_provider: Option<bool>,
+        send_email_to_provider: Option<bool>,
+        is_flexible: Option<bool>,
+        disable_notification: Option<bool>,
+        protect_content: Option<bool>,
+        reply_to_message_id: Option<i64>,
+        allow_sending_without_reply: Option<bool>,
+        reply_markup: Option<impl Into<InlineKeyboardMarkup>>,
+        request_timeout: Option<f32>,
+    ) -> Result<Message, SessionErrorKind> {
+        self.send(
+            &SendInvoice {
+                chat_id: chat_id.into(),
+                message_thread_id,
+                title: title.into(),
+                description: description.into(),
+                payload: payload.into(),
+                provider_token: provider_token.into(),
+                currency: currency.into(),
+                prices,
+                max_tip_amount,
+                suggested_tip_amounts,
+                start_parameter: start_parameter.map(Into::into),
+                provider_data: provider_data.map(Into::into),
+                photo_url: photo_url.map(Into::into),
+                photo_size,
+                photo_width,
+                photo_height,
+                need_name,
+                need_phone_number,
+                need_email,
+                need_shipping_address,
+                send_phone_number_to_provider,
+                send_email_to_provider,
+                is_flexible,
+                disable_notification,
+                protect_content,
+                reply_to_message_id,
+                allow_sending_without_reply,
+                reply_markup: reply_markup.map(Into::into),
+            },
+            request_timeout,
+        )
+        .await
+    }
+
     /// Use this method to send point on the map.
     /// # Documentation
     /// <https://core.telegram.org/bots/api#sendlocation>
@@ -2574,6 +2775,33 @@ impl<Client: Session + Sync> Bot<Client> {
             &SetMyDefaultAdministratorRights {
                 rights,
                 for_channels,
+            },
+            request_timeout,
+        )
+        .await
+    }
+
+    /// Informs a user that some of the Telegram Passport elements they provided contains errors. The user will not be able to re-submit their Passport to you until the errors are fixed (the contents of the field for which you returned the error must change).
+    /// # Documentation
+    /// <https://core.telegram.org/bots/api#setpassportdataerrors>
+    /// # Note
+    /// Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason. For example, if a birthday date seems invalid, a submitted document is blurry, a scan shows evidence of tampering, etc. Supply some details in the error message to make sure the user knows how to correct the issues.
+    /// # Returns
+    /// On success, `True` is returned
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    pub async fn set_passport_data_errors(
+        &self,
+        user_id: i64,
+        errors: Vec<impl Into<PassportElementError>>,
+        request_timeout: Option<f32>,
+    ) -> Result<bool, SessionErrorKind> {
+        self.send(
+            &SetPassportDataErrors {
+                user_id,
+                errors: errors.into_iter().map(Into::into).collect(),
             },
             request_timeout,
         )
