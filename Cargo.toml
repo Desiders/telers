@@ -27,3 +27,4 @@ uuid = { version = "1.2", features = ["v4"] }
 [dev-dependencies]
 tokio-test = "0.4"
 serde_path_to_error = "0.1.8"
+pretty_env_logger = "0.4"

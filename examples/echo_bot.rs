@@ -10,32 +10,9 @@ use aiogram_rs::{
     types::Message,
 };
 
-use log::{self, LevelFilter, Log, Metadata, Record};
-use std::env;
-
-struct SimpleLogger;
-
-impl Log for SimpleLogger {
-    fn enabled(&self, _metadata: &Metadata) -> bool {
-        true
-    }
-
-    fn log(&self, record: &Record) {
-        if self.enabled(record.metadata()) {
-            println!("{} - {}", record.level(), record.args());
-        }
-    }
-
-    fn flush(&self) {}
-}
-
-async fn echo_handler<Client: Session + Send + Sync>(
-    bot: Bot<Client>,
-    message: Message,
-) -> HandlerResult {
+async fn echo_handler(bot: Bot<impl Session>, message: Message) -> HandlerResult {
     bot.send(
-        &CopyMessage::new(message.chat.id, message.chat.id, message.message_id)
-            .allow_sending_without_reply(true),
+        &CopyMessage::new(message.chat.id, message.chat.id, message.message_id),
         None,
     )
     .await?;
@@ -45,15 +22,13 @@ async fn echo_handler<Client: Session + Send + Sync>(
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    let Ok(bot_token) = env::var("BOT_TOKEN") else {
+    pretty_env_logger::init();
+
+    let Ok(bot_token) = std::env::var("BOT_TOKEN") else {
         panic!("BOT_TOKEN env variable is not set!");
     };
 
-    log::set_logger(&SimpleLogger)
-        .map(|()| log::set_max_level(LevelFilter::Debug))
-        .unwrap();
-
-    let bot = Bot::<Reqwest>::builder().token(bot_token).build();
+    let bot = Bot::new(bot_token, Reqwest::default());
 
     let mut router = Router::new("main");
     router
