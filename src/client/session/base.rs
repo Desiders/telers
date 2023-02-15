@@ -58,7 +58,7 @@ impl ClientResponse {
 }
 
 #[async_trait]
-pub trait Session {
+pub trait Session: Send + Sync {
     /// Makes a request to Telegram API
     /// # Arguments
     /// * `bot` - Bot instance for building request, it is mainly used for getting bot token
@@ -75,7 +75,7 @@ pub trait Session {
         timeout: Option<f32>,
     ) -> Result<ClientResponse, anyhow::Error>
     where
-        Client: Sync,
+        Client: Session,
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync;
 
@@ -179,7 +179,7 @@ pub trait Session {
         timeout: Option<f32>,
     ) -> Result<Response<T::Return>, SessionErrorKind>
     where
-        Client: Sync,
+        Client: Session,
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync,
     {
@@ -218,7 +218,7 @@ pub trait Session {
         timeout: Option<f32>,
     ) -> Result<T::Return, SessionErrorKind>
     where
-        Client: Sync,
+        Client: Session,
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync,
     {

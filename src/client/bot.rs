@@ -144,7 +144,7 @@ impl<Client> BotBuilder<Client> {
 }
 
 /// A block of Telegram methods
-impl<Client: Session + Sync> Bot<Client> {
+impl<Client: Session> Bot<Client> {
     /// Use this method to send requests to Telegram API
     /// # Arguments
     /// * `method` - Telegram API method

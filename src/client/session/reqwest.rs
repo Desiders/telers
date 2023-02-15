@@ -111,7 +111,7 @@ impl Session for Reqwest {
         timeout: Option<f32>,
     ) -> Result<ClientResponse, anyhow::Error>
     where
-        Client: Sync,
+        Client: Session,
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync,
     {

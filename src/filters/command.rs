@@ -3,7 +3,7 @@ use super::base::Filter;
 use crate::{
     client::{Bot, Session},
     context::Context,
-    error::session,
+    error::SessionErrorKind,
     types::{BotCommand, Update},
 };
 
@@ -23,7 +23,7 @@ pub enum Error {
     #[error("Invalid command")]
     InvalidCommand,
     #[error(transparent)]
-    Session(#[from] session::ErrorKind),
+    Session(#[from] SessionErrorKind),
 }
 
 /// Represents a command pattern type for verification
@@ -240,14 +240,11 @@ impl<'a> Command<'a> {
 
     /// # Errors
     /// If mention is invalid.
-    pub async fn validate_mention<Client>(
+    pub async fn validate_mention(
         &self,
         command: &CommandObject,
-        bot: &Bot<Client>,
-    ) -> Result<()>
-    where
-        Client: Session + Send + Sync,
-    {
+        bot: &Bot<impl Session>,
+    ) -> Result<()> {
         if self.ignore_mention {
             Ok(())
         } else if let Some(ref mention) = command.mention {
@@ -299,14 +296,11 @@ impl<'a> Command<'a> {
     /// - If prefix is invalid
     /// - If mention is invalid
     /// - If command is invalid
-    pub async fn parse_command<Client>(
+    pub async fn parse_command(
         &self,
         text: &str,
-        bot: &Bot<Client>,
-    ) -> Result<CommandObject>
-    where
-        Client: Session + Send + Sync,
-    {
+        bot: &Bot<impl Session>,
+    ) -> Result<CommandObject> {
         let command = CommandObject::extract(text);
 
         self.validate_prefix(&command)?;
@@ -373,7 +367,7 @@ impl CommandObject {
 #[async_trait]
 impl<Client> Filter<Client> for Command<'_>
 where
-    Client: Session + Send + Sync,
+    Client: Session,
 {
     async fn check(&self, bot: &Bot<Client>, update: &Update, context: &Context) -> bool {
         let Some(ref message) = update.message else { return false; };

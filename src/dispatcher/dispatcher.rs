@@ -17,7 +17,7 @@ use log;
 use std::sync::Arc;
 use thiserror;
 use tokio::{
-    self, signal,
+    self,
     sync::mpsc::{self, error::SendError, Sender},
 };
 
@@ -252,7 +252,7 @@ impl<Client> ServiceProvider for DispatcherInner<Client> {}
 
 impl<Client> DispatcherInner<Client>
 where
-    Client: Session + Send + Sync + Clone + 'static,
+    Client: Session + Clone + 'static,
 {
     /// Main entry point for incoming updates
     /// # Arguments
@@ -424,7 +424,7 @@ where
 
         #[cfg(unix)]
         {
-            use signal::unix::{signal, SignalKind};
+            use tokio::signal::unix::{signal, SignalKind};
 
             let mut sigint = signal(SignalKind::interrupt()).expect(
                 "Failed to register SIGINT handler. \
