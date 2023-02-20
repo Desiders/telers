@@ -11,12 +11,8 @@ use crate::{
             },
         },
         middlewares::{
-            inner::{
-                base::Middlewares as InnerMiddlewares, manager::Manager as InnerMiddlewareManager,
-            },
-            outer::{
-                base::Middlewares as OuterMiddlewares, manager::Manager as OuterMiddlewareManager,
-            },
+            inner::{Manager as InnerMiddlewareManager, Middlewares as InnerMiddlewares},
+            outer::{Manager as OuterMiddlewareManager, Middlewares as OuterMiddlewares},
         },
     },
     error::AppErrorKind,
