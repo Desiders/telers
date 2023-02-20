@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setgamescore>
 /// # Returns
-/// On success, the sent [`Message`] is returned
+/// On success, the sent [`MessageOrTrue`] is returned
 #[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct SetGameScore {

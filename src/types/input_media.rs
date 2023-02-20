@@ -5,11 +5,12 @@ use super::{
 use serde::Serialize;
 
 /// This object represents the content of a media message to be sent. It should be one of
-/// - `aiogram_rs.types.input_media_animation.InputMediaAnimation`
-/// - `aiogram_rs.types.input_media_document.InputMediaDocument`
-/// - `aiogram_rs.types.input_media_audio.InputMediaAudio`
-/// - `aiogram_rs.types.input_media_photo.InputMediaPhoto`
-/// - `aiogram_rs.types.input_media_video.InputMediaVideo`
+/// - [`InputMediaAnimation`]
+/// - [`InputMediaDocument`]
+/// - [`InputMediaAudio`]
+/// - [`InputMediaPhoto`]
+/// - [`InputMediaVideo`]
+/// # Documentation
 /// <https://core.telegram.org/bots/api#inputmedia>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 #[serde(tag = "type", rename_all = "snake_case")]

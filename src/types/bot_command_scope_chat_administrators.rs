@@ -2,7 +2,7 @@ use super::ChatIdKind;
 
 use serde::{Deserialize, Serialize};
 
-/// Represents the `scope <https://core.telegram.org/bots/api#botcommandscope>` of bot commands, covering all administrators of a specific group or supergroup chat.
+/// Represents the [`scope`](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all administrators of a specific group or supergroup chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscopechatadministrators>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-/// Represents the `content <https://core.telegram.org/bots/api#inputmessagecontent>` of a venue message to be sent as the result of an inline query.
+/// Represents the [`content`](https://core.telegram.org/bots/api#inputmessagecontent) of a venue message to be sent as the result of an inline query.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputvenuemessagecontent>
 #[skip_serializing_none]
@@ -21,7 +21,7 @@ pub struct InputVenueMessageContent {
     pub foursquare_type: Option<String>,
     /// *Optional*. Google Places identifier of the venue
     pub google_place_id: Option<String>,
-    /// *Optional*. Google Places type of the venue. (See `supported types <https://developers.google.com/places/web-service/supported_types>`.)
+    /// *Optional*. Google Places type of the venue. (See [`supported types`](https://developers.google.com/places/web-service/supported_types).)
     pub google_place_type: Option<String>,
 }
 

@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-/// Describes data sent from a `Web App <https://core.telegram.org/bots/webapps>` to the bot.
+/// Describes data sent from a [`Web App`](https://core.telegram.org/bots/webapps) to the bot.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#webappdata>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]

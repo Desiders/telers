@@ -18,9 +18,9 @@ pub struct Sticker {
     pub width: i64,
     /// Sticker height
     pub height: i64,
-    /// `True`, if the sticker is `animated <https://telegram.org/blog/animated-stickers>`
+    /// `True`, if the sticker is [`animated`](https://telegram.org/blog/animated-stickers)
     pub is_animated: bool,
-    /// `True`, if the sticker is a `video sticker <https://telegram.org/blog/video-stickers-better-reactions>`
+    /// `True`, if the sticker is a [`video sticker`](https://telegram.org/blog/video-stickers-better-reactions)
     pub is_video: bool,
     /// *Optional*. Sticker thumbnail in the .WEBP or .JPG format
     pub thumb: Option<PhotoSize>,

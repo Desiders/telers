@@ -3,13 +3,13 @@ use super::KeyboardButton;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-/// This object represents a `custom keyboard <https://core.telegram.org/bots#keyboards>` with reply options (see `Introduction to bots <https://core.telegram.org/bots#keyboards>` for details and examples).
+/// This object represents a [`custom keyboard`](https://core.telegram.org/bots#keyboards) with reply options (see [`Introduction to bots`](https://core.telegram.org/bots#keyboards) for details and examples).
 /// # Documentation
 /// <https://core.telegram.org/bots/api#replykeyboardmarkup>
 #[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ReplyKeyboardMarkup {
-    // Array of button rows, each represented by an Array of `aiogram_rs.types.keyboard_button.KeyboardButton` objects
+    // Array of button rows, each represented by an Array of [`KeyboardButton`] objects
     pub keyboard: Vec<Vec<KeyboardButton>>,
     /// *Optional*. Requests clients to always show the keyboard when the regular keyboard is hidden. Defaults to false, in which case the custom keyboard can be hidden and opened with a keyboard icon.
     pub is_persistent: Option<bool>,
@@ -19,7 +19,7 @@ pub struct ReplyKeyboardMarkup {
     pub one_time_keyboard: Option<bool>,
     /// *Optional*. The placeholder to be shown in the input field when the keyboard is active; 1-64 characters
     pub input_field_placeholder: Option<String>,
-    /// *Optional*. Use this parameter if you want to show the keyboard to specific users only. Targets: 1) users that are @mentioned in the *text* of the `aiogram_rs.types.message.Message` object; 2) if the bot's message is a reply (has *reply_to_message_id*), sender of the original message.
+    /// *Optional*. Use this parameter if you want to show the keyboard to specific users only. Targets: 1) users that are @mentioned in the *text* of the [`Message`](crate::types::Message) object; 2) if the bot's message is a reply (has *reply_to_message_id*), sender of the original message.
     pub selective: Option<bool>,
 }
 

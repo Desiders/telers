@@ -30,7 +30,7 @@ pub struct InlineQueryResultLocation {
     pub heading: Option<i64>,
     /// *Optional*. For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
     pub proximity_alert_radius: Option<i64>,
-    /// *Optional*. `Inline keyboard <https://core.telegram.org/bots/features#inline-keyboards>` attached to the message
+    /// *Optional*. [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
     pub reply_markup: Option<InlineKeyboardMarkup>,
     /// *Optional*. Content of the message to be sent instead of the location
     pub input_message_content: Option<InputMessageContent>,

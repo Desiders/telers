@@ -21,7 +21,7 @@ pub struct SendAnimation<'a> {
     pub chat_id: ChatIdKind,
     /// Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
     pub message_thread_id: Option<i64>,
-    /// Animation to send. Pass a `file_id` as String to send a animation that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a Animation from the Internet, or upload a new one using `multipart/form-data`. See `more information on Sending Files <https://core.telegram.org/bots/api#sending-files>`.
+    /// Animation to send. Pass a `file_id` as String to send a animation that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a Animation from the Internet, or upload a new one using `multipart/form-data`. See [`more information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
     pub animation: InputFile<'a>,
     /// Duration of sent animation in seconds
     pub duration: Option<i64>,
@@ -29,11 +29,11 @@ pub struct SendAnimation<'a> {
     pub width: Option<i64>,
     /// Animation height
     pub height: Option<i64>,
-    /// Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using `multipart/form-data`. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the thumbnail was uploaded using `multipart/form-data` under <file_attach_name>. `More information on Sending Files <https://core.telegram.org/bots/api#sending-files>`.
+    /// Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using `multipart/form-data`. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the thumbnail was uploaded using `multipart/form-data` under <file_attach_name>. [`More information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
     pub thumb: Option<InputFile<'a>>,
     /// Animation caption (may also be used when resending animations by `file_id`), 0-1024 characters after entities parsing
     pub caption: Option<String>,
-    /// Mode for parsing entities in the animation caption. See `formatting options <https://core.telegram.org/bots/api#formatting-options>` for more details.
+    /// Mode for parsing entities in the animation caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
     pub parse_mode: Option<String>,
     /// A JSON-serialized list of special entities that appear in the caption, which can be specified instead of `parse_mode`
     pub caption_entities: Option<Vec<MessageEntity>>,

@@ -3,7 +3,7 @@ use super::InlineKeyboardMarkup;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-/// Represents a `Game <https://core.telegram.org/bots/api#games>`.
+/// Represents a [`Game`](https://core.telegram.org/bots/api#games).
 /// # Notes
 /// This will only work in Telegram versions released after October 1, 2016. Older clients will not display any inline results if a game result is among them.
 /// # Documentation
@@ -18,7 +18,7 @@ pub struct InlineQueryResultGame {
     pub id: String,
     /// Short name of the game
     pub game_short_name: String,
-    /// *Optional*. `Inline keyboard <https://core.telegram.org/bots/features#inline-keyboards>` attached to the message
+    /// *Optional*. [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 

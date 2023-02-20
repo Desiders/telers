@@ -5,7 +5,7 @@ use crate::{client::Bot, types::Update};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 
-/// Use this method to receive incoming updates using long polling (`wiki <https://en.wikipedia.org/wiki/Push_technology#Long_polling>`).
+/// Use this method to receive incoming updates using long polling ([`wiki`](https://en.wikipedia.org/wiki/Push_technology#Long_polling)).
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getupdates>
 /// # Notes

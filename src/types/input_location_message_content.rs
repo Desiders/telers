@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-/// Represents the `content <https://core.telegram.org/bots/api#inputmessagecontent>` of a location message to be sent as the result of an inline query.
+/// Represents the [`content`](https://core.telegram.org/bots/api#inputmessagecontent) of a location message to be sent as the result of an inline query.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputlocationmessagecontent>
 #[skip_serializing_none]

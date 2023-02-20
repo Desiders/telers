@@ -13,9 +13,9 @@ pub struct StickerSet {
     pub title: String,
     /// Type of stickers in the set, currently one of 'regular', 'mask', 'custom_emoji'
     pub sticker_type: String,
-    /// `True`, if the sticker set contains `animated stickers <https://telegram.org/blog/animated-stickers>`
+    /// `True`, if the sticker set contains [`animated stickers`](https://telegram.org/blog/animated-stickers)
     pub is_animated: bool,
-    /// `True`, if the sticker set contains `video stickers <https://telegram.org/blog/video-stickers-better-reactions>`
+    /// `True`, if the sticker set contains [`video stickers`](https://telegram.org/blog/video-stickers-better-reactions)
     pub is_video: bool,
     /// List of all set stickers
     pub stickers: Vec<Sticker>,

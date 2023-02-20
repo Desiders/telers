@@ -2,7 +2,7 @@ use crate::{error::UnknownUpdateTypeError, types::Update};
 
 use std::fmt::{self, Debug};
 
-/// See `Update <https://core.telegram.org/bots/api#update>` for a complete list of available update types
+/// See [`Update`] for a complete list of available update types
 pub enum UpdateType {
     Message,
     InlineQuery,

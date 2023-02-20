@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-/// Represents the `scope <https://core.telegram.org/bots/api#botcommandscope>` of bot commands, covering all group and supergroup chats.
+/// Represents the [`scope`](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all group and supergroup chats.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscopeallgroupchats>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]

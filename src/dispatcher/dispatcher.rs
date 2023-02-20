@@ -489,7 +489,7 @@ where
     }
 
     /// Polling and startup/shutdown events runner. \
-    /// Run [`Dispatcher::polling`] method for each bot in `bots`. \
+    /// Run `polling` method for each bot in `bots`. \
     /// Wait for exit signal, which will stop polling process for all bots. \
     /// Emit startup events before starting polling process and shutdown events after stopping polling process for all bots.
     /// # Errors
@@ -516,7 +516,7 @@ where
     }
 
     /// Polling runner. \
-    /// Run [`Dispatcher::polling`] method for each bot in `bots`. \
+    /// Run `polling` method for each bot in `bots`. \
     /// Wait for exit signal, which will stop polling process for all bots.
     /// # Panics
     /// If `bots` is empty
@@ -562,9 +562,9 @@ where
 impl<Client> DispatcherInner<Client> {
     /// Call startup events. \
     /// Use this method if you want to emit startup events manually
-    /// or if you use [`Dispatcher::run_polling_without_startup_and_shutdown`] method
+    /// or if you use `run_polling_without_startup_and_shutdown` method
     /// # Notes
-    /// This method is called automatically in [`Dispatcher::run_polling`] method
+    /// This method is called automatically in `run_polling` method
     /// # Errors
     /// If any startup observer returns error
     pub async fn emit_startup(&self) -> SimpleHandlerResult {
@@ -573,9 +573,9 @@ impl<Client> DispatcherInner<Client> {
 
     /// Call shutdown events. \
     /// Use this method if you want to emit shutdown events manually
-    /// or if you use [`Dispatcher::run_polling_without_startup_and_shutdown`] method
+    /// or if you use `run_polling_without_startup_and_shutdown` method
     /// # Notes
-    /// This method is called automatically in [`Dispatcher::run_polling`] method
+    /// This method is called automatically in `run_polling` method
     /// # Errors
     /// If any shutdown observer returns error
     pub async fn emit_shutdown(&self) -> SimpleHandlerResult {

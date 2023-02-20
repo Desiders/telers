@@ -12,7 +12,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#stopmessagelivelocation>
 /// # Returns
-/// On success, if the message is not an inline message, the edited [`Message`] is returned,
+/// On success, if the message is not an inline message, the edited [`MessageOrTrue`] is returned,
 /// otherwise `True` is returned
 #[skip_serializing_none]
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize)]

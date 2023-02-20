@@ -3,7 +3,7 @@ use super::MessageEntity;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-/// Represents the `content <https://core.telegram.org/bots/api#inputmessagecontent>` of a text message to be sent as the result of an inline query.
+/// Represents the [`content`](https://core.telegram.org/bots/api#inputmessagecontent) of a text message to be sent as the result of an inline query.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputtextmessagecontent>
 #[skip_serializing_none]
@@ -11,7 +11,7 @@ use serde_with::skip_serializing_none;
 pub struct InputTextMessageContent {
     /// Text of the message to be sent, 1-4096 characters
     pub message_text: String,
-    /// *Optional*. Mode for parsing entities in the message text. See `formatting options <https://core.telegram.org/bots/api#formatting-options>` for more details.
+    /// *Optional*. Mode for parsing entities in the message text. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
     pub parse_mode: Option<String>,
     /// *Optional*. List of special entities that appear in message text, which can be specified instead of *parse_mode*
     pub entities: Option<Vec<MessageEntity>>,

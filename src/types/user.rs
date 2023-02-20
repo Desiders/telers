@@ -18,17 +18,17 @@ pub struct User {
     pub last_name: Option<String>,
     /// *Optional*. User's or bot's username
     pub username: Option<String>,
-    /// *Optional*. `IETF language tag <https://en.wikipedia.org/wiki/IETF_language_tag>` of the user's language
+    /// *Optional*. [`IETF language tag`](https://en.wikipedia.org/wiki/IETF_language_tag) of the user's language
     pub language_code: Option<String>,
     /// *Optional*. `True`, if this user is a Telegram Premium user
     pub is_premium: Option<bool>,
     /// *Optional*. `True`, if this user added the bot to the attachment menu
     pub added_to_attachment_menu: Option<bool>,
-    /// *Optional*. `True`, if the bot can be invited to groups. Returned only in `aiogram_rs.methods.get_me.GetMe`.
+    /// *Optional*. `True`, if the bot can be invited to groups. Returned only in [`GetMe`](crate::methods::GetMe).
     pub can_join_groups: Option<bool>,
-    /// *Optional*. `True`, if `privacy mode <https://core.telegram.org/bots/features#privacy-modee>` is disabled for the bot. Returned only in `aiogram_rs.methods.get_me.GetMe`.
+    /// *Optional*. `True`, if [`privacy mode`](https://core.telegram.org/bots/features#privacy-modee) is disabled for the bot. Returned only in [`GetMe`](crate::methods::GetMe).
     pub can_read_all_group_messages: Option<bool>,
-    /// *Optional*. `True`, if the bot supports inline queries. Returned only in `aiogram_rs.methods.get_me.GetMe`.
+    /// *Optional*. `True`, if the bot supports inline queries. Returned only in [`GetMe`](crate::methods::GetMe).
     pub supports_inline_queries: Option<bool>,
 }
 

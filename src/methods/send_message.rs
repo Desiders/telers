@@ -22,7 +22,7 @@ pub struct SendMessage {
     pub message_thread_id: Option<i64>,
     /// Text of the message to be sent, 1-4096 characters after entities parsing
     pub text: String,
-    /// Mode for parsing entities in the photo caption. See `formatting options <https://core.telegram.org/bots/api#formatting-options>` for more details.
+    /// Mode for parsing entities in the photo caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
     pub parse_mode: Option<String>,
     /// A JSON-serialized list of special entities that appear in message text, which can be specified instead of `parse_mode`
     pub entities: Option<Vec<MessageEntity>>,

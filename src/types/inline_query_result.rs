@@ -11,27 +11,26 @@ use crate::types::{
 use serde::{Deserialize, Serialize};
 
 /// This object represents one result of an inline query. Telegram clients currently support results of the following 20 types:
-/// - `aiogram_rs.types.inline_query_result_cached_audio.InlineQueryResultCachedAudio`
-/// - `aiogram_rs.types.inline_query_result_cached_document.InlineQueryResultCachedDocument`
-/// - `aiogram_rs.types.inline_query_result_cached_gif.InlineQueryResultCachedGif`
-/// - `aiogram_rs.types.inline_query_result_cached_mpeg4_gif.InlineQueryResultCachedMpeg4Gif`
-/// - `aiogram_rs.types.inline_query_result_cached_photo.InlineQueryResultCachedPhoto`
-/// - `aiogram_rs.types.inline_query_result_cached_sticker.InlineQueryResultCachedSticker`
-/// - `aiogram_rs.types.inline_query_result_cached_video.InlineQueryResultCachedVideo`
-/// - `aiogram_rs.types.inline_query_result_cached_voice.InlineQueryResultCachedVoice`
-/// - `aiogram_rs.types.inline_query_result_article.InlineQueryResultArticle`
-/// - `aiogram_rs.types.inline_query_result_audio.InlineQueryResultAudio`
-/// - `aiogram_rs.types.inline_query_result_contact.InlineQueryResultContact`
-/// - `aiogram_rs.types.inline_query_result_game.InlineQueryResultGame`
-/// - `aiogram_rs.types.inline_query_result_document.InlineQueryResultDocument`
-/// - `aiogram_rs.types.inline_query_result_gif.InlineQueryResultGif`
-/// - `aiogram_rs.types.inline_query_result_location.InlineQueryResultLocation`
-/// - `aiogram_rs.types.inline_query_result_mpeg4_gif.InlineQueryResultMpeg4Gif`
-/// - `aiogram_rs.types.inline_query_result_photo.InlineQueryResultPhoto`
-/// - `aiogram_rs.types.inline_query_result_venue.InlineQueryResultVenue`
-/// - `aiogram_rs.types.inline_query_result_video.InlineQueryResultVideo`
-/// - `aiogram_rs.types.inline_query_result_voice.InlineQueryResultVoice`
-/// # Notes
+/// - [`InlineQueryResultCachedAudio`]
+/// - [`InlineQueryResultCachedDocument`]
+/// - [`InlineQueryResultCachedGif`]
+/// - [`InlineQueryResultCachedMpeg4Gif`]
+/// - [`InlineQueryResultCachedPhoto`]
+/// - [`InlineQueryResultCachedSticker`]
+/// - [`InlineQueryResultCachedVideo`]
+/// - [`InlineQueryResultCachedVoice`]
+/// - [`InlineQueryResultArticle`]
+/// - [`InlineQueryResultPhoto`]
+/// - [`InlineQueryResultGif`]
+/// - [`InlineQueryResultMpeg4Gif`]
+/// - [`InlineQueryResultVideo`]
+/// - [`InlineQueryResultAudio`]
+/// - [`InlineQueryResultVoice`]
+/// - [`InlineQueryResultDocument`]
+/// - [`InlineQueryResultLocation`]
+/// - [`InlineQueryResultVenue`]
+/// - [`InlineQueryResultContact`]
+/// - [`InlineQueryResultGame`]
 /// All URLs passed in inline query results will be available to end users and therefore must be assumed to be **public**.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>

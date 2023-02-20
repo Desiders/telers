@@ -22,9 +22,9 @@ pub struct InlineQueryResultContact {
     pub first_name: String,
     /// *Optional*. Contact's last name
     pub last_name: Option<String>,
-    /// *Optional*. Additional data about the contact in the form of a `vCard <https://en.wikipedia.org/wiki/VCard>`, 0-2048 bytes
+    /// *Optional*. Additional data about the contact in the form of a [`vCard`](https://en.wikipedia.org/wiki/VCard), 0-2048 bytes
     pub vcard: Option<String>,
-    /// *Optional*. `Inline keyboard <https://core.telegram.org/bots/features#inline-keyboards>` attached to the message
+    /// *Optional*. [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
     pub reply_markup: Option<InlineKeyboardMarkup>,
     /// *Optional*. Content of the message to be sent instead of the contact
     pub input_message_content: Option<InputMessageContent>,

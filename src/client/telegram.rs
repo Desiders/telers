@@ -67,7 +67,7 @@ pub struct APIServer {
     base_url: String,
     /// Files URL
     files_url: String,
-    /// Mark this server is in `local mode <https://core.telegram.org/bots/api#using-a-local-bot-api-server>`_
+    /// Mark this server is in [`local mode`](https://core.telegram.org/bots/api#using-a-local-bot-api-server)
     is_local: bool,
     /// Path wrapper for files in local mode
     files_path_wrapper: Arc<dyn FilesPathWrapper>,
@@ -78,7 +78,7 @@ impl APIServer {
     /// # Arguments
     /// * `base_url` - Base URL for API
     /// * `files_url` - Files URL
-    /// * `is_local` - Mark this server is in `local mode <https://core.telegram.org/bots/api#using-a-local-bot-api-server>`_
+    /// * `is_local` - Mark this server is in [`local mode`](https://core.telegram.org/bots/api#using-a-local-bot-api-server)
     /// * `files_path_wrapper` - Path wrapper for files in local mode
     #[must_use]
     pub fn new<T, W>(base_url: &str, files_url: &str, is_local: bool, files_path_wrapper: W) -> Self
@@ -106,7 +106,7 @@ impl APIServer {
         &self.files_url
     }
 
-    /// Check if this server is in `local mode <https://core.telegram.org/bots/api#using-a-local-bot-api-server>`_
+    /// Check if this server is in [`local mode`](https://core.telegram.org/bots/api#using-a-local-bot-api-server)
     #[must_use]
     pub fn is_local(&self) -> bool {
         self.is_local

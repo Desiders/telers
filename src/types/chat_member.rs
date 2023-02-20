@@ -6,12 +6,13 @@ use super::{
 use serde::Deserialize;
 
 /// This object contains information about one member of a chat. Currently, the following 6 types of chat members are supported:
-/// - `aiogram_rs.types.chat_member_owner.ChatMemberOwner`
-/// - `aiogram_rs.types.chat_member_administrator.ChatMemberAdministrator`
-/// - `aiogram_rs.types.chat_member_member.ChatMemberMember`
-/// - `aiogram_rs.types.chat_member_restricted.ChatMemberRestricted`
-/// - `aiogram_rs.types.chat_member_left.ChatMemberLeft`
-/// - `aiogram_rs.types.chat_member_banned.ChatMemberBanned`
+/// - [`ChatMemberOwner`]
+/// - [`ChatMemberAdministrator`]
+/// - [`ChatMemberMember`]
+/// - [`ChatMemberRestricted`]
+/// - [`ChatMemberLeft`]
+/// - [`ChatMemberBanned`]
+/// # Documentation
 /// <https://core.telegram.org/bots/api#chatmember>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 #[serde(rename_all = "snake_case")]
