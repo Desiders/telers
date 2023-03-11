@@ -1,4 +1,4 @@
-use aiogram_rs::{
+use telers::{
     client::{Bot, Reqwest, Session},
     dispatcher::{
         event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
