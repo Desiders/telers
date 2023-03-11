@@ -11,7 +11,10 @@ use crate::{
             },
         },
         middlewares::{
-            inner::{Manager as InnerMiddlewareManager, Middlewares as InnerMiddlewares},
+            inner::{
+                wrap_handler_and_middleware_to_next, Manager as InnerMiddlewareManager,
+                Middlewares as InnerMiddlewares,
+            },
             outer::{Manager as OuterMiddlewareManager, Middlewares as OuterMiddlewares},
         },
     },
@@ -252,7 +255,7 @@ pub struct ObserverInner<Client> {
 
 impl<Client> ServiceProvider for ObserverInner<Client> {}
 
-impl<Client: Clone + 'static> ObserverInner<Client> {
+impl<Client: Send + Sync + Clone + 'static> ObserverInner<Client> {
     /// Propagate event to handlers and stops propagation on first match.
     /// Handler will be called when all its filters is pass.
     /// # Errors
@@ -276,21 +279,19 @@ impl<Client: Clone + 'static> ObserverInner<Client> {
                 continue;
             }
 
-            let response = if self.inner_middlewares.is_empty() {
-                handler.call(handler_request.clone()).await?
-            } else {
-                let middleware = &self.inner_middlewares[0];
-                let next_middlewares = Box::new(self.inner_middlewares.clone().into_iter().skip(1));
-
-                // Call first middleware (it will call next middlewares or handler)
-                middleware
-                    .call(
+            let response = match self.inner_middlewares.split_first() {
+                Some((middleware, middlewares)) => {
+                    let next = Box::new(wrap_handler_and_middleware_to_next(
                         Arc::clone(&handler.service),
-                        handler_request.clone(),
-                        next_middlewares,
-                    )
-                    .await?
-            };
+                        middlewares.to_vec(),
+                    ));
+                    middleware.call(handler_request.clone(), next).await
+                }
+                None => handler
+                    .call(handler_request.clone())
+                    .await
+                    .map_err(AppErrorKind::Extraction),
+            }?;
 
             return match response.handler_result {
                 Ok(EventReturn::Skip) => {

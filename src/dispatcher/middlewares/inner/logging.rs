@@ -1,16 +1,16 @@
 use crate::{
     dispatcher::event::{
-        telegram::{BoxedHandlerService, HandlerRequest, HandlerResponse},
+        telegram::{HandlerRequest, HandlerResponse},
         EventReturn,
     },
     error::AppErrorKind,
 };
 
-use super::base::{call_handler, Middleware, MiddlewaresIter};
+use super::base::{Middleware, Next};
 
 use async_trait::async_trait;
 use log::{self, Level, Log, Record};
-use std::{fmt, sync::Arc, time::Instant};
+use std::{fmt, time::Instant};
 
 const DEFAULT_TARGET: &str = "logging-middleware";
 
@@ -21,10 +21,15 @@ pub struct Logging {
 
 impl Logging {
     #[must_use]
-    pub fn new(logger: Option<&'static dyn Log>, target: Option<&'static str>) -> Self {
+    pub fn new(logger: &'static dyn Log, target: &'static str) -> Self {
+        Self { logger, target }
+    }
+
+    #[must_use]
+    pub fn with_default_target(logger: &'static dyn Log) -> Self {
         Self {
-            logger: logger.unwrap_or_else(log::logger),
-            target: target.unwrap_or(DEFAULT_TARGET),
+            logger,
+            target: DEFAULT_TARGET,
         }
     }
 
@@ -40,7 +45,10 @@ impl Logging {
 impl Default for Logging {
     #[must_use]
     fn default() -> Self {
-        Self::new(None, None)
+        Self {
+            logger: log::logger(),
+            target: DEFAULT_TARGET,
+        }
     }
 }
 
@@ -51,12 +59,11 @@ where
 {
     async fn call(
         &self,
-        handler: Arc<BoxedHandlerService<Client>>,
         request: HandlerRequest<Client>,
-        middlewares: MiddlewaresIter<Client>,
+        next: Next<Client>,
     ) -> Result<HandlerResponse<Client>, AppErrorKind> {
         let now = Instant::now();
-        let result = call_handler(handler, request, middlewares).await;
+        let result = next(request).await;
         let elapsed = now.elapsed();
 
         match result {
@@ -120,12 +127,15 @@ mod tests {
     use crate::{
         client::{Bot, Reqwest},
         context::Context,
-        dispatcher::event::{service::ServiceFactory as _, telegram::handler_service},
+        dispatcher::{
+            event::{service::ServiceFactory as _, telegram::handler_service},
+            middlewares::inner::wrap_handler_and_middleware_to_next,
+        },
         types::Update,
     };
 
     use log::{Log, Metadata, Record};
-    use std::iter;
+    use std::sync::Arc;
     use tokio;
 
     struct SimpleLogger;
@@ -146,7 +156,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_logging() {
-        let middleware = Logging::new(Some(&SimpleLogger), None);
+        let middleware = Logging::with_default_target(&SimpleLogger);
 
         let handler_service_factory =
             handler_service(|| async { Ok(EventReturn::Finish) }).new_service(());
@@ -157,10 +167,14 @@ mod tests {
             Update::default(),
             Context::default(),
         );
-        let res = middleware
-            .call(handler_service, request, Box::new(iter::empty()))
+        let middlewares = vec![];
+        let response = middleware
+            .call(
+                request,
+                wrap_handler_and_middleware_to_next(handler_service, middlewares),
+            )
             .await;
 
-        assert!(res.is_ok());
+        assert!(response.is_ok());
     }
 }

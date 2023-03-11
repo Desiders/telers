@@ -389,7 +389,7 @@ where
             match event_return {
                 // Update request because the middleware could have changed it
                 EventReturn::Finish => request = updated_request,
-                // If middleware returns skip, then we should skip this middleware
+                // If middleware returns skip, then we should skip this middleware and its changes
                 EventReturn::Skip => continue,
                 // If middleware returns cancel, then we should cancel propagation
                 EventReturn::Cancel => {
@@ -527,7 +527,7 @@ mod tests {
         client::Reqwest,
         dispatcher::{
             event::{telegram::HandlerResult as TelegramHandlerResult, EventReturn},
-            middlewares::inner::call_handler,
+            middlewares::inner::Next,
         },
         filters::Command,
     };
@@ -538,8 +538,7 @@ mod tests {
     fn test_router_include() {
         let mut router = Router::<Reqwest>::new("main");
 
-        let inner_middleware =
-            |handler, request, middlewares| call_handler(handler, request, middlewares);
+        let inner_middleware = |request, next: Next<_>| next(request);
         let outer_middleware = |request| async move { Ok((request, EventReturn::default())) };
 
         router.message.inner_middlewares.register(inner_middleware);
@@ -652,7 +651,7 @@ mod tests {
             assert_eq!(observer.handlers.len(), 1);
         });
 
-        let inner_middleware = |handler, request, middlewares| call_handler(handler, request, middlewares);
+        let inner_middleware = |request, next: Next<_>| next(request);
         let outer_middleware = |request| async move { Ok((request, EventReturn::Finish)) };
 
         router.message.inner_middlewares.register(inner_middleware);

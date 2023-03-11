@@ -12,15 +12,15 @@ pub type Middlewares<Client> = Vec<Arc<Box<dyn Middleware<Client>>>>;
 pub trait Middleware<Client>: Send + Sync {
     /// Execute middleware
     /// # Arguments
-    /// * `req` - Data for router service
+    /// * `request` - Data for observers, filters, handler and middlewares
     /// # Returns
-    /// Updated [`Request`] for router service and [`EventReturn`] or [`AppErrorKind`]
+    /// Updated [`Request`] and [`EventReturn`] or [`AppErrorKind`]
     /// # Errors
     /// If outer middleware returns error
     #[must_use]
     async fn call(
         &self,
-        req: Request<Client>,
+        request: Request<Client>,
     ) -> Result<(Request<Client>, EventReturn), AppErrorKind>;
 }
 
