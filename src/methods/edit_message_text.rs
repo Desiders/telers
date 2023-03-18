@@ -98,6 +98,50 @@ impl EditMessageText {
     }
 }
 
+impl EditMessageText {
+    #[must_use]
+    pub fn chat_id_some<T: Into<ChatIdKind>>(mut self, val: Option<T>) -> Self {
+        self.chat_id = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
+        self.message_thread_id = val;
+        self
+    }
+
+    #[must_use]
+    pub fn inline_message_id_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.inline_message_id = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn parse_mode_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.parse_mode = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn entities_some<T: Into<Vec<MessageEntity>>>(mut self, val: Option<T>) -> Self {
+        self.entities = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn disable_web_page_preview_some(mut self, val: Option<bool>) -> Self {
+        self.disable_web_page_preview = val;
+        self
+    }
+
+    #[must_use]
+    pub fn reply_markup_some<T: Into<InlineKeyboardMarkup>>(mut self, val: Option<T>) -> Self {
+        self.reply_markup = val.map(Into::into);
+        self
+    }
+}
+
 impl TelegramMethod for EditMessageText {
     type Method = Self;
     type Return = MessageOrTrue;

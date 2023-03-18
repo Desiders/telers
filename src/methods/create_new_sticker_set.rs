@@ -108,6 +108,38 @@ impl<'a> CreateNewStickerSet<'a> {
     }
 }
 
+impl<'a> CreateNewStickerSet<'a> {
+    #[must_use]
+    pub fn png_sticker_some<T: Into<InputFile<'a>>>(mut self, val: Option<T>) -> Self {
+        self.png_sticker = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn tgs_sticker_some<T: Into<InputFile<'a>>>(mut self, val: Option<T>) -> Self {
+        self.tgs_sticker = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn webm_sticker_some<T: Into<InputFile<'a>>>(mut self, val: Option<T>) -> Self {
+        self.webm_sticker = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn sticker_type_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.sticker_type = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn mask_position_some(mut self, val: Option<MaskPosition>) -> Self {
+        self.mask_position = val;
+        self
+    }
+}
+
 impl<'a> TelegramMethod for CreateNewStickerSet<'a> {
     type Method = Self;
     type Return = bool;

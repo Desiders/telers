@@ -50,6 +50,14 @@ impl PinChatMessage {
     }
 }
 
+impl PinChatMessage {
+    #[must_use]
+    pub fn disable_notification_some(mut self, val: Option<bool>) -> Self {
+        self.disable_notification = val;
+        self
+    }
+}
+
 impl TelegramMethod for PinChatMessage {
     type Method = Self;
     type Return = bool;

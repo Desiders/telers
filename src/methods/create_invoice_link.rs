@@ -219,6 +219,98 @@ impl CreateInvoiceLink {
     }
 }
 
+impl CreateInvoiceLink {
+    #[must_use]
+    pub fn max_tip_amount_some(mut self, val: Option<i64>) -> Self {
+        self.max_tip_amount = val;
+        self
+    }
+
+    #[must_use]
+    pub fn suggested_tip_amounts_some(mut self, val: Option<Vec<i64>>) -> Self {
+        self.suggested_tip_amounts = val;
+        self
+    }
+
+    #[must_use]
+    pub fn start_parameter_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.start_parameter = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn provider_data_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.provider_data = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn photo_url_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.photo_url = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn photo_size_some(mut self, val: Option<i64>) -> Self {
+        self.photo_size = val;
+        self
+    }
+
+    #[must_use]
+    pub fn photo_width_some(mut self, val: Option<i64>) -> Self {
+        self.photo_width = val;
+        self
+    }
+
+    #[must_use]
+    pub fn photo_height_some(mut self, val: Option<i64>) -> Self {
+        self.photo_height = val;
+        self
+    }
+
+    #[must_use]
+    pub fn need_name_some(mut self, val: Option<bool>) -> Self {
+        self.need_name = val;
+        self
+    }
+
+    #[must_use]
+    pub fn need_phone_number_some(mut self, val: Option<bool>) -> Self {
+        self.need_phone_number = val;
+        self
+    }
+
+    #[must_use]
+    pub fn need_email_some(mut self, val: Option<bool>) -> Self {
+        self.need_email = val;
+        self
+    }
+
+    #[must_use]
+    pub fn need_shipping_address_some(mut self, val: Option<bool>) -> Self {
+        self.need_shipping_address = val;
+        self
+    }
+
+    #[must_use]
+    pub fn send_phone_number_to_provider_some(mut self, val: Option<bool>) -> Self {
+        self.send_phone_number_to_provider = val;
+        self
+    }
+
+    #[must_use]
+    pub fn send_email_to_provider_some(mut self, val: Option<bool>) -> Self {
+        self.send_email_to_provider = val;
+        self
+    }
+
+    #[must_use]
+    pub fn is_flexible_some(mut self, val: Option<bool>) -> Self {
+        self.is_flexible = val;
+        self
+    }
+}
+
 impl TelegramMethod for CreateInvoiceLink {
     type Method = Self;
     type Return = String;

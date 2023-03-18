@@ -59,6 +59,20 @@ impl BanChatMember {
     }
 }
 
+impl BanChatMember {
+    #[must_use]
+    pub fn until_date_some(mut self, val: Option<i64>) -> Self {
+        self.until_date = val;
+        self
+    }
+
+    #[must_use]
+    pub fn revoke_messages_some(mut self, val: Option<bool>) -> Self {
+        self.revoke_messages = val;
+        self
+    }
+}
+
 impl TelegramMethod for BanChatMember {
     type Method = Self;
     type Return = bool;

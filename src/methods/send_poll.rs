@@ -202,6 +202,104 @@ impl SendPoll {
     }
 }
 
+impl SendPoll {
+    #[must_use]
+    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
+        self.message_thread_id = val;
+        self
+    }
+
+    #[must_use]
+    pub fn is_anonymous_some(mut self, val: Option<bool>) -> Self {
+        self.is_anonymous = val;
+        self
+    }
+
+    #[must_use]
+    pub fn poll_type_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.poll_type = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn allows_multiple_answers_some(mut self, val: Option<bool>) -> Self {
+        self.allows_multiple_answers = val;
+        self
+    }
+
+    #[must_use]
+    pub fn correct_option_id_some(mut self, val: Option<i64>) -> Self {
+        self.correct_option_id = val;
+        self
+    }
+
+    #[must_use]
+    pub fn explanation_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.explanation = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn explanation_parse_mode_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.explanation_parse_mode = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn explanation_entities_some(mut self, val: Option<Vec<MessageEntity>>) -> Self {
+        self.explanation_entities = val;
+        self
+    }
+
+    #[must_use]
+    pub fn open_period_some(mut self, val: Option<i64>) -> Self {
+        self.open_period = val;
+        self
+    }
+
+    #[must_use]
+    pub fn close_date_some(mut self, val: Option<i64>) -> Self {
+        self.close_date = val;
+        self
+    }
+
+    #[must_use]
+    pub fn is_closed_some(mut self, val: Option<bool>) -> Self {
+        self.is_closed = val;
+        self
+    }
+
+    #[must_use]
+    pub fn disable_notification_some(mut self, val: Option<bool>) -> Self {
+        self.disable_notification = val;
+        self
+    }
+
+    #[must_use]
+    pub fn protect_content_some(mut self, val: Option<bool>) -> Self {
+        self.protect_content = val;
+        self
+    }
+
+    #[must_use]
+    pub fn reply_to_message_id_some(mut self, val: Option<i64>) -> Self {
+        self.reply_to_message_id = val;
+        self
+    }
+
+    #[must_use]
+    pub fn allow_sending_without_reply_some(mut self, val: Option<bool>) -> Self {
+        self.allow_sending_without_reply = val;
+        self
+    }
+
+    #[must_use]
+    pub fn reply_markup_some<T: Into<ReplyMarkup>>(mut self, val: Option<T>) -> Self {
+        self.reply_markup = val.map(Into::into);
+        self
+    }
+}
+
 impl TelegramMethod for SendPoll {
     type Method = Self;
     type Return = Message;

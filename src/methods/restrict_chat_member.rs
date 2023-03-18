@@ -66,6 +66,14 @@ impl RestrictChatMember {
     }
 }
 
+impl RestrictChatMember {
+    #[must_use]
+    pub fn until_date_some(mut self, val: Option<i64>) -> Self {
+        self.until_date = val;
+        self
+    }
+}
+
 impl TelegramMethod for RestrictChatMember {
     type Method = Self;
     type Return = bool;

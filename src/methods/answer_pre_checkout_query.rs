@@ -51,6 +51,14 @@ impl AnswerPreCheckoutQuery {
     }
 }
 
+impl AnswerPreCheckoutQuery {
+    #[must_use]
+    pub fn error_message_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.error_message = val.map(Into::into);
+        self
+    }
+}
+
 impl TelegramMethod for AnswerPreCheckoutQuery {
     type Method = Self;
     type Return = bool;

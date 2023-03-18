@@ -52,7 +52,33 @@ impl GetUpdates {
 
     #[must_use]
     pub fn allowed_updates<T: Into<String>>(mut self, val: Vec<T>) -> Self {
-        self.allowed_updates = Some(val.into_iter().map(Into::into).collect());
+        self.allowed_updates.get_or_insert_with(Vec::new).extend(val.into_iter().map(Into::into));
+        self
+    }
+
+    #[must_use]
+    pub fn allowed_update<T: Into<String>>(mut self, val: T) -> Self {
+        self.allowed_updates.get_or_insert_with(Vec::new).push(val.into());
+        self
+    }
+}
+
+impl GetUpdates {
+    #[must_use]
+    pub fn offset_some(mut self, val: Option<i64>) -> Self {
+        self.offset = val;
+        self
+    }
+
+    #[must_use]
+    pub fn limit_some(mut self, val: Option<i64>) -> Self {
+        self.limit = val;
+        self
+    }
+
+    #[must_use]
+    pub fn timeout_some(mut self, val: Option<i64>) -> Self {
+        self.timeout = val;
         self
     }
 }

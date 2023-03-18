@@ -30,6 +30,14 @@ impl GetChatMenuButton {
     }
 }
 
+impl GetChatMenuButton {
+    #[must_use]
+    pub fn chat_id_some<T: Into<i64>>(mut self, val: T) -> Self {
+        self.chat_id = Some(val.into());
+        self
+    }
+}
+
 impl TelegramMethod for GetChatMenuButton {
     type Method = Self;
     type Return = MenuButton;

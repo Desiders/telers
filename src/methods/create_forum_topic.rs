@@ -62,6 +62,20 @@ impl CreateForumTopic {
     }
 }
 
+impl CreateForumTopic {
+    #[must_use]
+    pub fn icon_color_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.icon_color = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn icon_custom_emoji_id_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.icon_custom_emoji_id = val.map(Into::into);
+        self
+    }
+}
+
 impl TelegramMethod for CreateForumTopic {
     type Method = Self;
     type Return = ForumTopic;

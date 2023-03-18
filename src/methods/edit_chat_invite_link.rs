@@ -80,6 +80,32 @@ impl EditChatInviteLink {
     }
 }
 
+impl EditChatInviteLink {
+    #[must_use]
+    pub fn name_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.name = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn expire_date_some(mut self, val: Option<i64>) -> Self {
+        self.expire_date = val;
+        self
+    }
+
+    #[must_use]
+    pub fn member_limit_some(mut self, val: Option<i64>) -> Self {
+        self.member_limit = val;
+        self
+    }
+
+    #[must_use]
+    pub fn creates_join_request_some(mut self, val: Option<bool>) -> Self {
+        self.creates_join_request = val;
+        self
+    }
+}
+
 impl TelegramMethod for EditChatInviteLink {
     type Method = Self;
     type Return = ChatInviteLink;

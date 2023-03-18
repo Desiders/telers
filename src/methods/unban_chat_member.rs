@@ -50,6 +50,14 @@ impl UnbanChatMember {
     }
 }
 
+impl UnbanChatMember {
+    #[must_use]
+    pub fn only_if_banned_some(mut self, val: Option<bool>) -> Self {
+        self.only_if_banned = val;
+        self
+    }
+}
+
 impl TelegramMethod for UnbanChatMember {
     type Method = Self;
     type Return = bool;

@@ -91,6 +91,32 @@ impl<'a> AddStickerToSet<'a> {
     }
 }
 
+impl<'a> AddStickerToSet<'a> {
+    #[must_use]
+    pub fn png_sticker_some(mut self, val: Option<InputFile<'a>>) -> Self {
+        self.png_sticker = val;
+        self
+    }
+
+    #[must_use]
+    pub fn tgs_sticker_some(mut self, val: Option<InputFile<'a>>) -> Self {
+        self.tgs_sticker = val;
+        self
+    }
+
+    #[must_use]
+    pub fn webm_sticker_some(mut self, val: Option<InputFile<'a>>) -> Self {
+        self.webm_sticker = val;
+        self
+    }
+
+    #[must_use]
+    pub fn mask_position_some(mut self, val: Option<MaskPosition>) -> Self {
+        self.mask_position = val;
+        self
+    }
+}
+
 impl<'a> TelegramMethod for AddStickerToSet<'a> {
     type Method = Self;
     type Return = bool;

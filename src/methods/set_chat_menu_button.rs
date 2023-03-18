@@ -41,6 +41,14 @@ impl SetChatMenuButton {
     }
 }
 
+impl SetChatMenuButton {
+    #[must_use]
+    pub fn menu_button_some<T: Into<MenuButton>>(mut self, val: Option<T>) -> Self {
+        self.menu_button = val.map(Into::into);
+        self
+    }
+}
+
 impl TelegramMethod for SetChatMenuButton {
     type Method = Self;
     type Return = bool;

@@ -61,6 +61,26 @@ impl GetGameHighScores {
     }
 }
 
+impl GetGameHighScores {
+    #[must_use]
+    pub fn chat_id_some<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.chat_id = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn message_id_some<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.message_id = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn inline_message_id_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.inline_message_id = val.map(Into::into);
+        self
+    }
+}
+
 impl TelegramMethod for GetGameHighScores {
     type Method = Self;
     type Return = Vec<GameHighScore>;

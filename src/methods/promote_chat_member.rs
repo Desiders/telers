@@ -149,6 +149,80 @@ impl PromoteChatMember {
     }
 }
 
+impl PromoteChatMember {
+    #[must_use]
+    pub fn is_anonymous_some(mut self, val: Option<bool>) -> Self {
+        self.is_anonymous = val;
+        self
+    }
+
+    #[must_use]
+    pub fn can_manage_chat_some(mut self, val: Option<bool>) -> Self {
+        self.can_manage_chat = val;
+        self
+    }
+
+    #[must_use]
+    pub fn can_post_messages_some(mut self, val: Option<bool>) -> Self {
+        self.can_post_messages = val;
+        self
+    }
+
+    #[must_use]
+    pub fn can_edit_messages_some(mut self, val: Option<bool>) -> Self {
+        self.can_edit_messages = val;
+        self
+    }
+
+    #[must_use]
+    pub fn can_delete_messages_some(mut self, val: Option<bool>) -> Self {
+        self.can_delete_messages = val;
+        self
+    }
+
+    #[must_use]
+    pub fn can_manage_voice_chats_some(mut self, val: Option<bool>) -> Self {
+        self.can_manage_voice_chats = val;
+        self
+    }
+
+    #[must_use]
+    pub fn can_restrict_members_some(mut self, val: Option<bool>) -> Self {
+        self.can_restrict_members = val;
+        self
+    }
+
+    #[must_use]
+    pub fn can_promote_members_some(mut self, val: Option<bool>) -> Self {
+        self.can_promote_members = val;
+        self
+    }
+
+    #[must_use]
+    pub fn can_change_info_some(mut self, val: Option<bool>) -> Self {
+        self.can_change_info = val;
+        self
+    }
+
+    #[must_use]
+    pub fn can_invite_users_some(mut self, val: Option<bool>) -> Self {
+        self.can_invite_users = val;
+        self
+    }
+
+    #[must_use]
+    pub fn can_pin_messages_some(mut self, val: Option<bool>) -> Self {
+        self.can_pin_messages = val;
+        self
+    }
+
+    #[must_use]
+    pub fn can_manage_topics_some(mut self, val: Option<bool>) -> Self {
+        self.can_manage_topics = val;
+        self
+    }
+}
+
 impl TelegramMethod for PromoteChatMember {
     type Method = Self;
     type Return = bool;

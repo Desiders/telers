@@ -143,6 +143,92 @@ impl SendVenue {
     }
 }
 
+impl SendVenue {
+    #[must_use]
+    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
+        self.message_thread_id = val;
+        self
+    }
+
+    #[must_use]
+    pub fn foursquare_id<T: Into<String>>(mut self, val: T) -> Self {
+        self.foursquare_id = Some(val.into());
+        self
+    }
+
+    #[must_use]
+    pub fn foursquare_type<T: Into<String>>(mut self, val: T) -> Self {
+        self.foursquare_type = Some(val.into());
+        self
+    }
+
+    #[must_use]
+    pub fn google_place_id<T: Into<String>>(mut self, val: T) -> Self {
+        self.google_place_id = Some(val.into());
+        self
+    }
+
+    #[must_use]
+    pub fn google_place_type<T: Into<String>>(mut self, val: T) -> Self {
+        self.google_place_type = Some(val.into());
+        self
+    }
+
+    #[must_use]
+    pub fn foursquare_id_some(mut self, val: Option<String>) -> Self {
+        self.foursquare_id = val;
+        self
+    }
+
+    #[must_use]
+    pub fn foursquare_type_some(mut self, val: Option<String>) -> Self {
+        self.foursquare_type = val;
+        self
+    }
+
+    #[must_use]
+    pub fn google_place_id_some(mut self, val: Option<String>) -> Self {
+        self.google_place_id = val;
+        self
+    }
+
+    #[must_use]
+    pub fn google_place_type_some(mut self, val: Option<String>) -> Self {
+        self.google_place_type = val;
+        self
+    }
+
+    #[must_use]
+    pub fn disable_notification_some(mut self, val: Option<bool>) -> Self {
+        self.disable_notification = val;
+        self
+    }
+
+    #[must_use]
+    pub fn protect_content_some(mut self, val: Option<bool>) -> Self {
+        self.protect_content = val;
+        self
+    }
+
+    #[must_use]
+    pub fn reply_to_message_id_some(mut self, val: Option<i64>) -> Self {
+        self.reply_to_message_id = val;
+        self
+    }
+
+    #[must_use]
+    pub fn allow_sending_without_reply_some(mut self, val: Option<bool>) -> Self {
+        self.allow_sending_without_reply = val;
+        self
+    }
+
+    #[must_use]
+    pub fn reply_markup_some<T: Into<ReplyMarkup>>(mut self, val: Option<T>) -> Self {
+        self.reply_markup = val.map(Into::into);
+        self
+    }
+}
+
 impl TelegramMethod for SendVenue {
     type Method = Self;
     type Return = Message;

@@ -71,6 +71,32 @@ impl AnswerCallbackQuery {
     }
 }
 
+impl AnswerCallbackQuery {
+    #[must_use]
+    pub fn text_some(mut self, val: Option<String>) -> Self {
+        self.text = val;
+        self
+    }
+
+    #[must_use]
+    pub fn show_alert_some(mut self, val: Option<bool>) -> Self {
+        self.show_alert = val;
+        self
+    }
+
+    #[must_use]
+    pub fn url_some(mut self, val: Option<String>) -> Self {
+        self.url = val;
+        self
+    }
+
+    #[must_use]
+    pub fn cache_time_some(mut self, val: Option<i32>) -> Self {
+        self.cache_time = val;
+        self
+    }
+}
+
 impl TelegramMethod for AnswerCallbackQuery {
     type Method = Self;
     type Return = bool;

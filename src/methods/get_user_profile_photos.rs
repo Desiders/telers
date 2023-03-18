@@ -50,6 +50,20 @@ impl GetUserProfilePhotos {
     }
 }
 
+impl GetUserProfilePhotos {
+    #[must_use]
+    pub fn offset_some(mut self, val: Option<i64>) -> Self {
+        self.offset = val;
+        self
+    }
+
+    #[must_use]
+    pub fn limit_some(mut self, val: Option<i64>) -> Self {
+        self.limit = val;
+        self
+    }
+}
+
 impl TelegramMethod for GetUserProfilePhotos {
     type Method = Self;
     type Return = UserProfilePhotos;

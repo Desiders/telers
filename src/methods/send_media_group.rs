@@ -90,6 +90,38 @@ impl<'a> SendMediaGroup<'a> {
     }
 }
 
+impl<'a> SendMediaGroup<'a> {
+    #[must_use]
+    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
+        self.message_thread_id = val;
+        self
+    }
+
+    #[must_use]
+    pub fn disable_notification_some(mut self, val: Option<bool>) -> Self {
+        self.disable_notification = val;
+        self
+    }
+
+    #[must_use]
+    pub fn protect_content_some(mut self, val: Option<bool>) -> Self {
+        self.protect_content = val;
+        self
+    }
+
+    #[must_use]
+    pub fn reply_to_message_id_some(mut self, val: Option<i64>) -> Self {
+        self.reply_to_message_id = val;
+        self
+    }
+
+    #[must_use]
+    pub fn allow_sending_without_reply_some(mut self, val: Option<bool>) -> Self {
+        self.allow_sending_without_reply = val;
+        self
+    }
+}
+
 impl<'a> TelegramMethod for SendMediaGroup<'a> {
     type Method = Self;
     type Return = Vec<Message>;

@@ -90,6 +90,38 @@ impl AnswerInlineQuery {
     }
 }
 
+impl AnswerInlineQuery {
+    #[must_use]
+    pub fn cache_time_some(mut self, val: Option<i32>) -> Self {
+        self.cache_time = val;
+        self
+    }
+
+    #[must_use]
+    pub fn is_personal_some(mut self, val: Option<bool>) -> Self {
+        self.is_personal = val;
+        self
+    }
+
+    #[must_use]
+    pub fn next_offset_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.next_offset = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn switch_pm_text_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.switch_pm_text = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn switch_pm_parameter_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.switch_pm_parameter = val.map(Into::into);
+        self
+    }
+}
+
 impl TelegramMethod for AnswerInlineQuery {
     type Method = Self;
     type Return = bool;

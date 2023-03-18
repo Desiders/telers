@@ -162,6 +162,86 @@ impl<'a> SendAudio<'a> {
     }
 }
 
+impl<'a> SendAudio<'a> {
+    #[must_use]
+    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
+        self.message_thread_id = val;
+        self
+    }
+
+    #[must_use]
+    pub fn caption_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.caption = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn parse_mode_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.parse_mode = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn caption_entities_some(mut self, val: Option<Vec<MessageEntity>>) -> Self {
+        self.caption_entities = val;
+        self
+    }
+
+    #[must_use]
+    pub fn duration_some(mut self, val: Option<i64>) -> Self {
+        self.duration = val;
+        self
+    }
+
+    #[must_use]
+    pub fn performer_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.performer = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn title_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.title = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn thumb_some<T: Into<InputFile<'a>>>(mut self, val: Option<T>) -> Self {
+        self.thumb = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn disable_notification_some(mut self, val: Option<bool>) -> Self {
+        self.disable_notification = val;
+        self
+    }
+
+    #[must_use]
+    pub fn protect_content_some(mut self, val: Option<bool>) -> Self {
+        self.protect_content = val;
+        self
+    }
+
+    #[must_use]
+    pub fn reply_to_message_id_some(mut self, val: Option<i64>) -> Self {
+        self.reply_to_message_id = val;
+        self
+    }
+
+    #[must_use]
+    pub fn allow_sending_without_reply_some(mut self, val: Option<bool>) -> Self {
+        self.allow_sending_without_reply = val;
+        self
+    }
+
+    #[must_use]
+    pub fn reply_markup_some<T: Into<ReplyMarkup>>(mut self, val: Option<T>) -> Self {
+        self.reply_markup = val.map(Into::into);
+        self
+    }
+}
+
 impl<'a> TelegramMethod for SendAudio<'a> {
     type Method = Self;
     type Return = Message;

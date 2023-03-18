@@ -35,7 +35,7 @@ impl EditForumTopic {
     }
 
     #[must_use]
-    pub fn chat_id<C: Into<ChatIdKind>>(mut self, val: C) -> Self {
+    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
         self.chat_id = val.into();
         self
     }
@@ -55,6 +55,14 @@ impl EditForumTopic {
     #[must_use]
     pub fn icon_custom_emoji_id<T: Into<String>>(mut self, val: T) -> Self {
         self.icon_custom_emoji_id = Some(val.into());
+        self
+    }
+}
+
+impl EditForumTopic {
+    #[must_use]
+    pub fn icon_custom_emoji_id_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.icon_custom_emoji_id = val.map(Into::into);
         self
     }
 }

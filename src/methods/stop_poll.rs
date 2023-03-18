@@ -53,6 +53,14 @@ impl StopPoll {
     }
 }
 
+impl StopPoll {
+    #[must_use]
+    pub fn reply_markup_some<T: Into<InlineKeyboardMarkup>>(mut self, val: Option<T>) -> Self {
+        self.reply_markup = val.map(Into::into);
+        self
+    }
+}
+
 impl TelegramMethod for StopPoll {
     type Method = Self;
     type Return = Poll;

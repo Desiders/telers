@@ -30,6 +30,14 @@ impl GetMyDefaultAdministratorRights {
     }
 }
 
+impl GetMyDefaultAdministratorRights {
+    #[must_use]
+    pub fn for_channels_some(mut self, val: Option<bool>) -> Self {
+        self.for_channels = val;
+        self
+    }
+}
+
 impl TelegramMethod for GetMyDefaultAdministratorRights {
     type Method = Self;
     type Return = ChatAdministratorRights;

@@ -51,6 +51,14 @@ impl<'a> SetStickerSetThumb<'a> {
     }
 }
 
+impl<'a> SetStickerSetThumb<'a> {
+    #[must_use]
+    pub fn thumb_some<T: Into<InputFile<'a>>>(mut self, val: Option<T>) -> Self {
+        self.thumb = val.map(Into::into);
+        self
+    }
+}
+
 impl TelegramMethod for SetStickerSetThumb<'_> {
     type Method = Self;
     type Return = bool;

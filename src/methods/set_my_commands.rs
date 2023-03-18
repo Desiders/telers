@@ -53,6 +53,20 @@ impl SetMyCommands {
     }
 }
 
+impl SetMyCommands {
+    #[must_use]
+    pub fn scope_some<T: Into<BotCommandScope>>(mut self, val: Option<T>) -> Self {
+        self.scope = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn language_code_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.language_code = val.map(Into::into);
+        self
+    }
+}
+
 impl TelegramMethod for SetMyCommands {
     type Method = Self;
     type Return = bool;

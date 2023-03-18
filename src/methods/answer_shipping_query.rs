@@ -59,6 +59,20 @@ impl AnswerShippingQuery {
     }
 }
 
+impl AnswerShippingQuery {
+    #[must_use]
+    pub fn shipping_options_some(mut self, val: Option<Vec<ShippingOption>>) -> Self {
+        self.shipping_options = val;
+        self
+    }
+
+    #[must_use]
+    pub fn error_message_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.error_message = val.map(Into::into);
+        self
+    }
+}
+
 impl TelegramMethod for AnswerShippingQuery {
     type Method = Self;
     type Return = bool;

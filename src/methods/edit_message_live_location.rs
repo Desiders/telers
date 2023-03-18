@@ -108,6 +108,50 @@ impl EditMessageLiveLocation {
     }
 }
 
+impl EditMessageLiveLocation {
+    #[must_use]
+    pub fn chat_id_some<T: Into<ChatIdKind>>(mut self, val: Option<T>) -> Self {
+        self.chat_id = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn message_id_some(mut self, val: Option<i64>) -> Self {
+        self.message_id = val;
+        self
+    }
+
+    #[must_use]
+    pub fn inline_message_id_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+        self.inline_message_id = val.map(Into::into);
+        self
+    }
+
+    #[must_use]
+    pub fn horizontal_accuracy_some(mut self, val: Option<f64>) -> Self {
+        self.horizontal_accuracy = val;
+        self
+    }
+
+    #[must_use]
+    pub fn heading_some(mut self, val: Option<i64>) -> Self {
+        self.heading = val;
+        self
+    }
+
+    #[must_use]
+    pub fn proximity_alert_radius_some(mut self, val: Option<i64>) -> Self {
+        self.proximity_alert_radius = val;
+        self
+    }
+
+    #[must_use]
+    pub fn reply_markup_some<T: Into<InlineKeyboardMarkup>>(mut self, val: Option<T>) -> Self {
+        self.reply_markup = val.map(Into::into);
+        self
+    }
+}
+
 impl TelegramMethod for EditMessageLiveLocation {
     type Method = Self;
     type Return = MessageOrTrue;

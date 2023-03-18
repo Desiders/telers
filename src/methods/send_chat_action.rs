@@ -54,6 +54,14 @@ impl SendChatAction {
     }
 }
 
+impl SendChatAction {
+    #[must_use]
+    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
+        self.message_thread_id = val;
+        self
+    }
+}
+
 impl TelegramMethod for SendChatAction {
     type Method = Self;
     type Return = bool;

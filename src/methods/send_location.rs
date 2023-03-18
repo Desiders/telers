@@ -143,6 +143,68 @@ impl SendLocation {
     }
 }
 
+impl SendLocation {
+    #[must_use]
+    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
+        self.message_thread_id = val;
+        self
+    }
+
+    #[must_use]
+    pub fn horizontal_accuracy_some(mut self, val: Option<f64>) -> Self {
+        self.horizontal_accuracy = val;
+        self
+    }
+
+    #[must_use]
+    pub fn live_period_some(mut self, val: Option<i64>) -> Self {
+        self.live_period = val;
+        self
+    }
+
+    #[must_use]
+    pub fn heading_some(mut self, val: Option<i64>) -> Self {
+        self.heading = val;
+        self
+    }
+
+    #[must_use]
+    pub fn proximity_alert_radius_some(mut self, val: Option<i64>) -> Self {
+        self.proximity_alert_radius = val;
+        self
+    }
+
+    #[must_use]
+    pub fn disable_notification_some(mut self, val: Option<bool>) -> Self {
+        self.disable_notification = val;
+        self
+    }
+
+    #[must_use]
+    pub fn protect_content_some(mut self, val: Option<bool>) -> Self {
+        self.protect_content = val;
+        self
+    }
+
+    #[must_use]
+    pub fn reply_to_message_id_some(mut self, val: Option<i64>) -> Self {
+        self.reply_to_message_id = val;
+        self
+    }
+
+    #[must_use]
+    pub fn allow_sending_without_reply_some(mut self, val: Option<bool>) -> Self {
+        self.allow_sending_without_reply = val;
+        self
+    }
+
+    #[must_use]
+    pub fn reply_markup_some<T: Into<ReplyMarkup>>(mut self, val: Option<T>) -> Self {
+        self.reply_markup = val.map(Into::into);
+        self
+    }
+}
+
 impl TelegramMethod for SendLocation {
     type Method = Self;
     type Return = Message;

@@ -38,7 +38,7 @@ impl SetPassportDataErrors {
 
     #[must_use]
     pub fn errors<T: Into<PassportElementError>>(mut self, val: Vec<T>) -> Self {
-        self.errors = val.into_iter().map(Into::into).collect();
+        self.errors.extend(val.into_iter().map(Into::into));
         self
     }
 
