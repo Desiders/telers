@@ -1,5 +1,7 @@
 use super::User;
 
+use crate::enums::ChatMemberStatus;
+
 use serde::Deserialize;
 
 /// Represents a [`chat member`](https://core.telegram.org/bots/api#chatmember) that owns the chat and has all administrator privileges.
@@ -8,6 +10,7 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct ChatMemberOwner {
     /// The member's status in the chat, always 'creator'
+    #[serde(default = "owner")]
     pub status: String,
     /// Information about the user
     pub user: User,
@@ -15,4 +18,8 @@ pub struct ChatMemberOwner {
     pub is_anonymous: bool,
     /// *Optional*. Custom title for this user
     pub custom_title: Option<String>,
+}
+
+fn owner() -> String {
+    ChatMemberStatus::Creator.into()
 }

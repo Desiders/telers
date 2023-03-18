@@ -1,5 +1,7 @@
 use super::{InlineKeyboardMarkup, InputMessageContent};
 
+use crate::enums::InlineQueryResultType;
+
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -12,7 +14,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultVenue {
     /// Type of the result, must be *venue*
-    #[serde(rename = "type")]
+    #[serde(rename = "type", default = "venue")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -152,7 +154,7 @@ impl Default for InlineQueryResultVenue {
     #[must_use]
     fn default() -> Self {
         Self {
-            result_type: "venue".to_string(),
+            result_type: venue(),
             id: String::default(),
             latitude: 0.0,
             longitude: 0.0,
@@ -169,4 +171,8 @@ impl Default for InlineQueryResultVenue {
             thumb_height: None,
         }
     }
+}
+
+fn venue() -> String {
+    InlineQueryResultType::Venue.into()
 }

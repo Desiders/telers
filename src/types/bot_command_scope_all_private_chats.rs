@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::enums::BotCommandScopeType;
+
 /// Represents the [`scope`](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all private chats.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscopeallprivatechats>
@@ -27,5 +29,5 @@ impl Default for BotCommandScopeAllPrivateChats {
 }
 
 fn all_private_chats() -> String {
-    "all_private_chats".to_string()
+    BotCommandScopeType::AllPrivateChats.into()
 }

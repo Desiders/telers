@@ -1,5 +1,7 @@
 use super::{InlineKeyboardMarkup, InputMessageContent, MessageEntity};
 
+use crate::enums::InlineQueryResultType;
+
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -10,7 +12,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultCachedVideo {
     /// Type of the result, must be *video*
-    #[serde(rename = "type")]
+    #[serde(rename = "type", default = "video")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -102,7 +104,7 @@ impl Default for InlineQueryResultCachedVideo {
     #[must_use]
     fn default() -> Self {
         Self {
-            result_type: "video".to_string(),
+            result_type: video(),
             id: String::default(),
             title: String::default(),
             video_file_id: String::default(),
@@ -114,4 +116,8 @@ impl Default for InlineQueryResultCachedVideo {
             input_message_content: None,
         }
     }
+}
+
+fn video() -> String {
+    InlineQueryResultType::Video.into()
 }

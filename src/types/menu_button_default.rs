@@ -1,3 +1,5 @@
+use crate::enums::MenuButtonType;
+
 use serde::{Deserialize, Serialize};
 
 /// Describes that no specific value for the menu button was set.
@@ -6,7 +8,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct MenuButtonDefault {
     /// Type of the button, must be *default*
-    #[serde(rename = "type")]
+    #[serde(rename = "type", default = "default")]
     pub button_type: String,
 }
 
@@ -21,7 +23,11 @@ impl Default for MenuButtonDefault {
     #[must_use]
     fn default() -> Self {
         Self {
-            button_type: "default".to_string(),
+            button_type: default(),
         }
     }
+}
+
+fn default() -> String {
+    MenuButtonType::Default.into()
 }

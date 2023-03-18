@@ -1,5 +1,7 @@
 use super::{InlineKeyboardMarkup, InputMessageContent};
 
+use crate::enums::InlineQueryResultType;
+
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -12,7 +14,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultCachedSticker {
     /// Type of the result, must be *sticker*
-    #[serde(rename = "type")]
+    #[serde(rename = "type", default = "sticker")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -63,11 +65,15 @@ impl Default for InlineQueryResultCachedSticker {
     #[must_use]
     fn default() -> Self {
         Self {
-            result_type: "sticker".to_string(),
+            result_type: sticker(),
             id: String::default(),
             sticker_file_id: String::default(),
             reply_markup: None,
             input_message_content: None,
         }
     }
+}
+
+fn sticker() -> String {
+    InlineQueryResultType::Sticker.into()
 }

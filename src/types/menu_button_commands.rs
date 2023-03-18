@@ -1,3 +1,5 @@
+use crate::enums::MenuButtonType;
+
 use serde::{Deserialize, Serialize};
 
 /// Represents a menu button, which opens the bot's list of commands.
@@ -6,7 +8,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct MenuButtonCommands {
     /// Type of the button, must be *commands*
-    #[serde(rename = "type")]
+    #[serde(rename = "type", default = "commands")]
     pub button_type: String,
 }
 
@@ -21,7 +23,11 @@ impl Default for MenuButtonCommands {
     #[must_use]
     fn default() -> Self {
         Self {
-            button_type: "commands".to_string(),
+            button_type: commands(),
         }
     }
+}
+
+fn commands() -> String {
+    MenuButtonType::Commands.into()
 }

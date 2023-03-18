@@ -7,7 +7,7 @@ use super::{
     VideoChatStarted, VideoNote, Voice, WebAppData, WriteAccessAllowed,
 };
 
-use crate::error::ConvertUpdateToTypeError;
+use crate::{enums::ContentType, error::ConvertUpdateToTypeError};
 
 use serde::Deserialize;
 
@@ -165,6 +165,93 @@ impl Message {
             Some(caption)
         } else {
             None
+        }
+    }
+
+    #[must_use]
+    pub fn content_type(&self) -> ContentType {
+        if let Some(_) = self.text {
+            ContentType::Text
+        } else if let Some(_) = self.audio {
+            ContentType::Audio
+        } else if let Some(_) = self.document {
+            ContentType::Document
+        } else if let Some(_) = self.photo {
+            ContentType::Photo
+        } else if let Some(_) = self.sticker {
+            ContentType::Sticker
+        } else if let Some(_) = self.video {
+            ContentType::Video
+        } else if let Some(_) = self.voice {
+            ContentType::Voice
+        } else if let Some(_) = self.video_note {
+            ContentType::VideoNote
+        } else if let Some(_) = self.contact {
+            ContentType::Contact
+        } else if let Some(_) = self.location {
+            ContentType::Location
+        } else if let Some(_) = self.venue {
+            ContentType::Venue
+        } else if let Some(_) = self.poll {
+            ContentType::Poll
+        } else if let Some(_) = self.new_chat_members {
+            ContentType::NewChatMembers
+        } else if let Some(_) = self.left_chat_member {
+            ContentType::LeftChatMember
+        } else if let Some(_) = self.new_chat_title {
+            ContentType::NewChatTitle
+        } else if let Some(_) = self.new_chat_photo {
+            ContentType::NewChatPhoto
+        } else if let Some(_) = self.delete_chat_photo {
+            ContentType::DeleteChatPhoto
+        } else if let Some(_) = self.group_chat_created {
+            ContentType::GroupChatCreated
+        } else if let Some(_) = self.supergroup_chat_created {
+            ContentType::SupergroupChatCreated
+        } else if let Some(_) = self.channel_chat_created {
+            ContentType::ChannelChatCreated
+        } else if let Some(_) = self.migrate_to_chat_id {
+            ContentType::MigrateToChatId
+        } else if let Some(_) = self.migrate_from_chat_id {
+            ContentType::MigrateFromChatId
+        } else if let Some(_) = self.pinned_message {
+            ContentType::PinnedMessage
+        } else if let Some(_) = self.invoice {
+            ContentType::Invoice
+        } else if let Some(_) = self.successful_payment {
+            ContentType::SuccessfulPayment
+        } else if let Some(_) = self.connected_website {
+            ContentType::ConnectedWebsite
+        } else if let Some(_) = self.write_access_allowed {
+            ContentType::WriteAccessAllowed
+        } else if let Some(_) = self.passport_data {
+            ContentType::PassportData
+        } else if let Some(_) = self.proximity_alert_triggered {
+            ContentType::ProximityAlertTriggered
+        } else if let Some(_) = self.forum_topic_created {
+            ContentType::ForumTopicCreated
+        } else if let Some(_) = self.forum_topic_edited {
+            ContentType::ForumTopicEdited
+        } else if let Some(_) = self.forum_topic_closed {
+            ContentType::ForumTopicClosed
+        } else if let Some(_) = self.forum_topic_reopened {
+            ContentType::ForumTopicReopened
+        } else if let Some(_) = self.general_forum_topic_hidden {
+            ContentType::GeneralForumTopicHidden
+        } else if let Some(_) = self.general_forum_topic_unhidden {
+            ContentType::GeneralForumTopicUnhidden
+        } else if let Some(_) = self.video_chat_scheduled {
+            ContentType::VideoChatScheduled
+        } else if let Some(_) = self.video_chat_started {
+            ContentType::VideoChatStarted
+        } else if let Some(_) = self.video_chat_ended {
+            ContentType::VideoChatEnded
+        } else if let Some(_) = self.video_chat_participants_invited {
+            ContentType::VideoChatParticipantsInvited
+        } else if let Some(_) = self.web_app_data {
+            ContentType::WebAppData
+        } else {
+            ContentType::Unknown
         }
     }
 }

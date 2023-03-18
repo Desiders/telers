@@ -1,5 +1,7 @@
 use super::{InputFile, MessageEntity};
 
+use crate::enums::InputMediaType;
+
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 
@@ -10,7 +12,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct InputMediaPhoto<'a> {
     /// Type of the result, must be *photo*
-    #[serde(rename = "type")]
+    #[serde(rename = "type", default = "photo")]
     pub media_type: String,
     /// File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass 'attach://<file_attach_name>' to upload a new one using `multipart/form-data` under <file_attach_name> name. [`More information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
     pub media: InputFile<'a>,
@@ -28,7 +30,7 @@ impl<'a> InputMediaPhoto<'a> {
     #[must_use]
     pub fn new<T: Into<InputFile<'a>>>(media: T) -> Self {
         Self {
-            media_type: "photo".to_string(),
+            media_type: photo(),
             media: media.into(),
             caption: None,
             parse_mode: None,
@@ -66,4 +68,8 @@ impl<'a> InputMediaPhoto<'a> {
         self.has_spoiler = Some(val);
         self
     }
+}
+
+fn photo() -> String {
+    InputMediaType::Photo.into()
 }

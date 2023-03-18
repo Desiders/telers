@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::enums::BotCommandScopeType;
+
 /// Represents the [`scope`](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all group and supergroup chat administrators.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscopeallchatadministrators>
@@ -27,5 +29,5 @@ impl Default for BotCommandScopeAllChatAdministrators {
 }
 
 fn all_chat_administrators() -> String {
-    "all_chat_administrators".to_string()
+    BotCommandScopeType::AllChatAdministrators.into()
 }

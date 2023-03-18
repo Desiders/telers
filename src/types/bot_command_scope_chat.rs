@@ -1,5 +1,7 @@
 use super::ChatIdKind;
 
+use crate::enums::BotCommandScopeType;
+
 use serde::{Deserialize, Serialize};
 
 /// Represents the [`scope`](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering a specific chat.
@@ -31,5 +33,5 @@ impl BotCommandScopeChat {
 }
 
 fn chat() -> String {
-    "chat".to_string()
+    BotCommandScopeType::Chat.into()
 }

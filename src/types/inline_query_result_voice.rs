@@ -1,5 +1,7 @@
 use super::{InlineKeyboardMarkup, InputMessageContent, MessageEntity};
 
+use crate::enums::InlineQueryResultType;
+
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -12,7 +14,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultVoice {
     /// Type of the result, must be *voice*
-    #[serde(rename = "type")]
+    #[serde(rename = "type", default = "voice")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -104,7 +106,7 @@ impl Default for InlineQueryResultVoice {
     #[must_use]
     fn default() -> Self {
         Self {
-            result_type: "voice".to_string(),
+            result_type: voice(),
             id: String::default(),
             voice_url: String::default(),
             title: String::default(),
@@ -116,4 +118,8 @@ impl Default for InlineQueryResultVoice {
             input_message_content: None,
         }
     }
+}
+
+fn voice() -> String {
+    InlineQueryResultType::Voice.into()
 }

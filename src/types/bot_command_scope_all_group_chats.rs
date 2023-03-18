@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::enums::BotCommandScopeType;
+
 /// Represents the [`scope`](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all group and supergroup chats.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscopeallgroupchats>
@@ -27,5 +29,5 @@ impl Default for BotCommandScopeAllGroupChats {
 }
 
 fn all_group_chats() -> String {
-    "all_group_chats".to_string()
+    BotCommandScopeType::AllGroupChats.into()
 }

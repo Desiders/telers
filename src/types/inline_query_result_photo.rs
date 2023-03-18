@@ -1,5 +1,7 @@
 use super::{InlineKeyboardMarkup, InputMessageContent, MessageEntity};
 
+use crate::enums::InlineQueryResultType;
+
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -10,7 +12,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultPhoto {
     /// Type of the result, must be *photo*
-    #[serde(rename = "type")]
+    #[serde(rename = "type", default = "photo")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -126,7 +128,7 @@ impl Default for InlineQueryResultPhoto {
     #[must_use]
     fn default() -> Self {
         Self {
-            result_type: "photo".to_string(),
+            result_type: photo(),
             id: String::default(),
             photo_url: String::default(),
             thumb_url: String::default(),
@@ -141,4 +143,8 @@ impl Default for InlineQueryResultPhoto {
             input_message_content: None,
         }
     }
+}
+
+fn photo() -> String {
+    InlineQueryResultType::Photo.into()
 }

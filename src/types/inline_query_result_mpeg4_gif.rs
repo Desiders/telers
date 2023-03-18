@@ -1,5 +1,7 @@
 use super::{InlineKeyboardMarkup, InputMessageContent, MessageEntity};
 
+use crate::enums::InlineQueryResultType;
+
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -10,7 +12,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultMpeg4Gif {
     /// Type of the result, must be *mpeg4_gif*
-    #[serde(rename = "type")]
+    #[serde(rename = "type", default = "mpeg4_gif")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -134,7 +136,7 @@ impl Default for InlineQueryResultMpeg4Gif {
     #[must_use]
     fn default() -> Self {
         Self {
-            result_type: "mpeg4_gif".to_string(),
+            result_type: mpeg4_gif(),
             id: String::default(),
             mpeg4_url: String::default(),
             thumb_url: String::default(),
@@ -150,4 +152,8 @@ impl Default for InlineQueryResultMpeg4Gif {
             input_message_content: None,
         }
     }
+}
+
+fn mpeg4_gif() -> String {
+    InlineQueryResultType::Mpeg4Gif.into()
 }

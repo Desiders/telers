@@ -1,5 +1,7 @@
 use super::User;
 
+use crate::enums::ChatMemberStatus;
+
 use serde::Deserialize;
 
 /// Represents a [`chat member`](https://core.telegram.org/bots/api#chatmember) that has some additional privileges.
@@ -9,6 +11,7 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct ChatMemberAdministrator {
     /// The member's status in the chat, always 'administrator'
+    #[serde(default = "administrator")]
     pub status: String,
     /// Information about the user
     pub user: User,
@@ -38,4 +41,8 @@ pub struct ChatMemberAdministrator {
     pub can_pin_messages: Option<bool>,
     /// *Optional*. Custom title for this user
     pub custom_title: Option<String>,
+}
+
+fn administrator() -> String {
+    ChatMemberStatus::Administrator.into()
 }

@@ -1,5 +1,7 @@
 use super::User;
 
+use crate::enums::ChatMemberStatus;
+
 use serde::Deserialize;
 
 /// Represents a [`chat member`](https://core.telegram.org/bots/api#chatmember) that is under certain restrictions in the chat. Supergroups only.
@@ -9,6 +11,7 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct ChatMemberRestricted {
     /// The member's status in the chat, always 'restricted'
+    #[serde(default = "restricted")]
     pub status: String,
     /// Information about the user
     pub user: User,
@@ -34,4 +37,8 @@ pub struct ChatMemberRestricted {
     pub can_add_web_page_previews: bool,
     /// Date when restrictions will be lifted for this user; unix time. If 0, then the user is restricted forever
     pub until_date: i64,
+}
+
+fn restricted() -> String {
+    ChatMemberStatus::Restricted.into()
 }

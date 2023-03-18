@@ -1,5 +1,7 @@
 use super::{InlineKeyboardMarkup, InputMessageContent, InputTextMessageContent};
 
+use crate::enums::InlineQueryResultType;
+
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -10,7 +12,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultArticle {
     /// Type of the result, must be *article*
-    #[serde(rename = "type")]
+    #[serde(rename = "type", default = "article")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -114,7 +116,7 @@ impl Default for InlineQueryResultArticle {
     #[must_use]
     fn default() -> Self {
         Self {
-            result_type: "article".to_string(),
+            result_type: article(),
             id: String::default(),
             title: String::default(),
             input_message_content: InputMessageContent::Text(InputTextMessageContent::default()),
@@ -127,4 +129,8 @@ impl Default for InlineQueryResultArticle {
             thumb_height: None,
         }
     }
+}
+
+fn article() -> String {
+    InlineQueryResultType::Article.into()
 }

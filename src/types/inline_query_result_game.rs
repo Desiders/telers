@@ -1,5 +1,7 @@
 use super::InlineKeyboardMarkup;
 
+use crate::enums::InlineQueryResultType;
+
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -12,7 +14,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultGame {
     /// Type of the result, must be *game*
-    #[serde(rename = "type")]
+    #[serde(rename = "type", default = "game")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -55,10 +57,14 @@ impl Default for InlineQueryResultGame {
     #[must_use]
     fn default() -> Self {
         Self {
-            result_type: "game".to_string(),
+            result_type: game(),
             id: String::default(),
             game_short_name: String::default(),
             reply_markup: None,
         }
     }
+}
+
+fn game() -> String {
+    InlineQueryResultType::Game.into()
 }

@@ -1,5 +1,7 @@
 use super::WebAppInfo;
 
+use crate::enums::MenuButtonType;
+
 use serde::{Deserialize, Serialize};
 
 /// Represents a menu button, which launches a [`Web App`](https://core.telegram.org/bots/webapps).
@@ -8,7 +10,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct MenuButtonWebApp {
     /// Type of the button, must be `web_app`
-    #[serde(rename = "type")]
+    #[serde(rename = "type", default = "web_app_type")]
     pub button_type: String,
     /// Text on the button
     pub text: String,
@@ -20,7 +22,7 @@ impl MenuButtonWebApp {
     #[must_use]
     pub fn new<T: Into<String>>(text: T, web_app: WebAppInfo) -> Self {
         Self {
-            button_type: "web_app".to_string(),
+            button_type: web_app_type(),
             text: text.into(),
             web_app,
         }
@@ -43,9 +45,13 @@ impl Default for MenuButtonWebApp {
     #[must_use]
     fn default() -> Self {
         Self {
-            button_type: "web_app".to_string(),
+            button_type: web_app_type(),
             text: String::default(),
             web_app: WebAppInfo::default(),
         }
     }
+}
+
+fn web_app_type() -> String {
+    MenuButtonType::WebApp.into()
 }

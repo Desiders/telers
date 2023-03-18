@@ -1,5 +1,7 @@
 use super::ChatIdKind;
 
+use crate::enums::BotCommandScopeType;
+
 use serde::{Deserialize, Serialize};
 
 /// Represents the [`scope`](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering a specific member of a group or supergroup chat.
@@ -40,5 +42,5 @@ impl BotCommandScopeChatMember {
 }
 
 fn chat_member() -> String {
-    "chat_member".to_string()
+    BotCommandScopeType::ChatMember.into()
 }

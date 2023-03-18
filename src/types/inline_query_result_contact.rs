@@ -1,5 +1,7 @@
 use super::{InlineKeyboardMarkup, InputMessageContent};
 
+use crate::enums::InlineQueryResultType;
+
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -12,7 +14,7 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct InlineQueryResultContact {
     /// Type of the result, must be *contact*
-    #[serde(rename = "type")]
+    #[serde(rename = "type", default = "contact")]
     pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
@@ -112,7 +114,7 @@ impl Default for InlineQueryResultContact {
     #[must_use]
     fn default() -> Self {
         Self {
-            result_type: "contact".to_string(),
+            result_type: contact(),
             id: String::default(),
             phone_number: String::default(),
             first_name: String::default(),
@@ -125,4 +127,8 @@ impl Default for InlineQueryResultContact {
             thumb_height: None,
         }
     }
+}
+
+fn contact() -> String {
+    InlineQueryResultType::Contact.into()
 }
