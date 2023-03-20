@@ -24,6 +24,8 @@ backoff = "0.4"
 bytes = "1.3"
 uuid = { version = "1.2", features = ["v4"] }
 
+redis = { version = "0.22", features = ["tokio-comp"] }
+
 [dev-dependencies]
 tokio-test = "0.4"
 serde_path_to_error = "0.1.8"
