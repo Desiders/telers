@@ -23,6 +23,7 @@ impl Debug for InlineQueryResultType {
 }
 
 impl InlineQueryResultType {
+    #[must_use]
     pub const fn as_str(&self) -> &'static str {
         match self {
             InlineQueryResultType::Article => "article",
@@ -42,6 +43,7 @@ impl InlineQueryResultType {
         }
     }
 
+    #[must_use]
     pub const fn all() -> &'static [InlineQueryResultType; 14] {
         &[
             InlineQueryResultType::Article,

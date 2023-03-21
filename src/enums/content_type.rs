@@ -58,6 +58,7 @@ impl Debug for ContentType {
 }
 
 impl ContentType {
+    #[must_use]
     pub const fn as_str(&self) -> &'static str {
         match self {
             ContentType::Text => "text",
@@ -109,6 +110,60 @@ impl ContentType {
             ContentType::WebAppData => "web_app_data",
             ContentType::Unknown => "unknown",
         }
+    }
+
+    #[must_use]
+    pub const fn all() -> &'static [ContentType; 48] {
+        &[
+            ContentType::Text,
+            ContentType::Animation,
+            ContentType::Audio,
+            ContentType::Document,
+            ContentType::Photo,
+            ContentType::Sticker,
+            ContentType::Video,
+            ContentType::VideoNote,
+            ContentType::Voice,
+            ContentType::HasMediaSpoiler,
+            ContentType::Contact,
+            ContentType::Dice,
+            ContentType::Game,
+            ContentType::Poll,
+            ContentType::Venue,
+            ContentType::Location,
+            ContentType::NewChatMembers,
+            ContentType::LeftChatMember,
+            ContentType::NewChatTitle,
+            ContentType::NewChatPhoto,
+            ContentType::DeleteChatPhoto,
+            ContentType::GroupChatCreated,
+            ContentType::SupergroupChatCreated,
+            ContentType::ChannelChatCreated,
+            ContentType::MessageAutoDeleteTimerChanged,
+            ContentType::MigrateToChatId,
+            ContentType::MigrateFromChatId,
+            ContentType::PinnedMessage,
+            ContentType::Invoice,
+            ContentType::SuccessfulPayment,
+            ContentType::UserShared,
+            ContentType::ChatShared,
+            ContentType::ConnectedWebsite,
+            ContentType::WriteAccessAllowed,
+            ContentType::PassportData,
+            ContentType::ProximityAlertTriggered,
+            ContentType::ForumTopicCreated,
+            ContentType::ForumTopicEdited,
+            ContentType::ForumTopicClosed,
+            ContentType::ForumTopicReopened,
+            ContentType::GeneralForumTopicHidden,
+            ContentType::GeneralForumTopicUnhidden,
+            ContentType::VideoChatScheduled,
+            ContentType::VideoChatStarted,
+            ContentType::VideoChatEnded,
+            ContentType::VideoChatParticipantsInvited,
+            ContentType::WebAppData,
+            ContentType::Unknown,
+        ]
     }
 }
 

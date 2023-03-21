@@ -20,6 +20,7 @@ impl Debug for ChatAction {
 }
 
 impl ChatAction {
+    #[must_use]
     pub const fn as_str(&self) -> &'static str {
         match self {
             ChatAction::Typing => "typing",
@@ -35,6 +36,7 @@ impl ChatAction {
         }
     }
 
+    #[must_use]
     pub const fn all() -> &'static [ChatAction; 10] {
         &[
             ChatAction::Typing,

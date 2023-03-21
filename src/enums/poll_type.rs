@@ -12,6 +12,7 @@ impl Debug for PollType {
 }
 
 impl PollType {
+    #[must_use]
     pub const fn as_str(&self) -> &'static str {
         match self {
             PollType::Regular => "regular",
@@ -19,6 +20,7 @@ impl PollType {
         }
     }
 
+    #[must_use]
     pub const fn all() -> &'static [PollType; 2] {
         &[PollType::Regular, PollType::Quiz]
     }

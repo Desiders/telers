@@ -14,6 +14,7 @@ impl Debug for MaskPositionPoint {
 }
 
 impl MaskPositionPoint {
+    #[must_use]
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Forehead => "forehead",
@@ -23,6 +24,7 @@ impl MaskPositionPoint {
         }
     }
 
+    #[must_use]
     pub fn all() -> &'static [Self; 4] {
         &[Self::Forehead, Self::Eyes, Self::Mouth, Self::Chin]
     }

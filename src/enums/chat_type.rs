@@ -14,6 +14,7 @@ impl Debug for ChatType {
 }
 
 impl ChatType {
+    #[must_use]
     pub const fn as_str(&self) -> &'static str {
         match self {
             ChatType::Private => "private",
@@ -23,6 +24,7 @@ impl ChatType {
         }
     }
 
+    #[must_use]
     pub const fn all() -> &'static [ChatType; 4] {
         &[
             ChatType::Private,

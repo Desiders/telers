@@ -13,6 +13,7 @@ impl Debug for StickerType {
 }
 
 impl StickerType {
+    #[must_use]
     pub const fn as_str(&self) -> &'static str {
         match self {
             StickerType::Regular => "regular",
@@ -21,6 +22,7 @@ impl StickerType {
         }
     }
 
+    #[must_use]
     pub const fn all() -> &'static [StickerType; 3] {
         &[
             StickerType::Regular,

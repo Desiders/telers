@@ -13,6 +13,7 @@ impl Debug for StickerFormat {
 }
 
 impl StickerFormat {
+    #[must_use]
     pub const fn as_str(&self) -> &'static str {
         match self {
             StickerFormat::Static => "static",
@@ -21,6 +22,7 @@ impl StickerFormat {
         }
     }
 
+    #[must_use]
     pub const fn all() -> &'static [StickerFormat; 3] {
         &[
             StickerFormat::Static,

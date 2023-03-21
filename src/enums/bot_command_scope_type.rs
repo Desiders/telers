@@ -17,6 +17,7 @@ impl Debug for BotCommandScopeType {
 }
 
 impl BotCommandScopeType {
+    #[must_use]
     pub const fn as_str(&self) -> &'static str {
         match self {
             BotCommandScopeType::Default => "default",
@@ -29,6 +30,7 @@ impl BotCommandScopeType {
         }
     }
 
+    #[must_use]
     pub const fn all() -> &'static [BotCommandScopeType; 7] {
         &[
             BotCommandScopeType::Default,

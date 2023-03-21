@@ -170,85 +170,85 @@ impl Message {
 
     #[must_use]
     pub fn content_type(&self) -> ContentType {
-        if let Some(_) = self.text {
+        if self.text.is_some() {
             ContentType::Text
-        } else if let Some(_) = self.audio {
+        } else if self.audio.is_some() {
             ContentType::Audio
-        } else if let Some(_) = self.document {
+        } else if self.document.is_some() {
             ContentType::Document
-        } else if let Some(_) = self.photo {
+        } else if self.photo.is_some() {
             ContentType::Photo
-        } else if let Some(_) = self.sticker {
+        } else if self.sticker.is_some() {
             ContentType::Sticker
-        } else if let Some(_) = self.video {
+        } else if self.video.is_some() {
             ContentType::Video
-        } else if let Some(_) = self.voice {
+        } else if self.voice.is_some() {
             ContentType::Voice
-        } else if let Some(_) = self.video_note {
+        } else if self.video_note.is_some() {
             ContentType::VideoNote
-        } else if let Some(_) = self.contact {
+        } else if self.contact.is_some() {
             ContentType::Contact
-        } else if let Some(_) = self.location {
+        } else if self.location.is_some() {
             ContentType::Location
-        } else if let Some(_) = self.venue {
+        } else if self.venue.is_some() {
             ContentType::Venue
-        } else if let Some(_) = self.poll {
+        } else if self.poll.is_some() {
             ContentType::Poll
-        } else if let Some(_) = self.new_chat_members {
+        } else if self.new_chat_members.is_some() {
             ContentType::NewChatMembers
-        } else if let Some(_) = self.left_chat_member {
+        } else if self.left_chat_member.is_some() {
             ContentType::LeftChatMember
-        } else if let Some(_) = self.new_chat_title {
+        } else if self.new_chat_title.is_some() {
             ContentType::NewChatTitle
-        } else if let Some(_) = self.new_chat_photo {
+        } else if self.new_chat_photo.is_some() {
             ContentType::NewChatPhoto
-        } else if let Some(_) = self.delete_chat_photo {
+        } else if self.delete_chat_photo.is_some() {
             ContentType::DeleteChatPhoto
-        } else if let Some(_) = self.group_chat_created {
+        } else if self.group_chat_created.is_some() {
             ContentType::GroupChatCreated
-        } else if let Some(_) = self.supergroup_chat_created {
+        } else if self.supergroup_chat_created.is_some() {
             ContentType::SupergroupChatCreated
-        } else if let Some(_) = self.channel_chat_created {
+        } else if self.channel_chat_created.is_some() {
             ContentType::ChannelChatCreated
-        } else if let Some(_) = self.migrate_to_chat_id {
+        } else if self.migrate_to_chat_id.is_some() {
             ContentType::MigrateToChatId
-        } else if let Some(_) = self.migrate_from_chat_id {
+        } else if self.migrate_from_chat_id.is_some() {
             ContentType::MigrateFromChatId
-        } else if let Some(_) = self.pinned_message {
+        } else if self.pinned_message.is_some() {
             ContentType::PinnedMessage
-        } else if let Some(_) = self.invoice {
+        } else if self.invoice.is_some() {
             ContentType::Invoice
-        } else if let Some(_) = self.successful_payment {
+        } else if self.successful_payment.is_some() {
             ContentType::SuccessfulPayment
-        } else if let Some(_) = self.connected_website {
+        } else if self.connected_website.is_some() {
             ContentType::ConnectedWebsite
-        } else if let Some(_) = self.write_access_allowed {
+        } else if self.write_access_allowed.is_some() {
             ContentType::WriteAccessAllowed
-        } else if let Some(_) = self.passport_data {
+        } else if self.passport_data.is_some() {
             ContentType::PassportData
-        } else if let Some(_) = self.proximity_alert_triggered {
+        } else if self.proximity_alert_triggered.is_some() {
             ContentType::ProximityAlertTriggered
-        } else if let Some(_) = self.forum_topic_created {
+        } else if self.forum_topic_created.is_some() {
             ContentType::ForumTopicCreated
-        } else if let Some(_) = self.forum_topic_edited {
+        } else if self.forum_topic_edited.is_some() {
             ContentType::ForumTopicEdited
-        } else if let Some(_) = self.forum_topic_closed {
+        } else if self.forum_topic_closed.is_some() {
             ContentType::ForumTopicClosed
-        } else if let Some(_) = self.forum_topic_reopened {
+        } else if self.forum_topic_reopened.is_some() {
             ContentType::ForumTopicReopened
-        } else if let Some(_) = self.general_forum_topic_hidden {
+        } else if self.general_forum_topic_hidden.is_some() {
             ContentType::GeneralForumTopicHidden
-        } else if let Some(_) = self.general_forum_topic_unhidden {
+        } else if self.general_forum_topic_unhidden.is_some() {
             ContentType::GeneralForumTopicUnhidden
-        } else if let Some(_) = self.video_chat_scheduled {
+        } else if self.video_chat_scheduled.is_some() {
             ContentType::VideoChatScheduled
-        } else if let Some(_) = self.video_chat_started {
+        } else if self.video_chat_started.is_some() {
             ContentType::VideoChatStarted
-        } else if let Some(_) = self.video_chat_ended {
+        } else if self.video_chat_ended.is_some() {
             ContentType::VideoChatEnded
-        } else if let Some(_) = self.video_chat_participants_invited {
+        } else if self.video_chat_participants_invited.is_some() {
             ContentType::VideoChatParticipantsInvited
-        } else if let Some(_) = self.web_app_data {
+        } else if self.web_app_data.is_some() {
             ContentType::WebAppData
         } else {
             ContentType::Unknown

@@ -26,6 +26,7 @@ impl Debug for MessageEntityType {
 }
 
 impl MessageEntityType {
+    #[must_use]
     pub const fn as_str(&self) -> &'static str {
         match self {
             MessageEntityType::Mention => "mention",
@@ -47,6 +48,7 @@ impl MessageEntityType {
         }
     }
 
+    #[must_use]
     pub const fn all() -> &'static [MessageEntityType; 16] {
         &[
             MessageEntityType::Mention,

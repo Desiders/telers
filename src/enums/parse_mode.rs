@@ -13,6 +13,7 @@ impl Debug for ParseMode {
 }
 
 impl ParseMode {
+    #[must_use]
     pub const fn as_str(&self) -> &'static str {
         match self {
             ParseMode::Markdown => "Markdown",
@@ -21,6 +22,7 @@ impl ParseMode {
         }
     }
 
+    #[must_use]
     pub const fn all() -> &'static [ParseMode; 3] {
         &[ParseMode::Markdown, ParseMode::MarkdownV2, ParseMode::HTML]
     }

@@ -15,6 +15,7 @@ impl Debug for InputMediaType {
 }
 
 impl InputMediaType {
+    #[must_use]
     pub const fn as_str(&self) -> &'static str {
         match self {
             InputMediaType::Animation => "animation",
@@ -25,6 +26,7 @@ impl InputMediaType {
         }
     }
 
+    #[must_use]
     pub const fn all() -> &'static [InputMediaType; 5] {
         &[
             InputMediaType::Animation,

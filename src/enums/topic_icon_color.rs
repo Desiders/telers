@@ -16,6 +16,7 @@ impl Debug for TopicIconColor {
 }
 
 impl TopicIconColor {
+    #[must_use]
     pub const fn as_str(&self) -> &'static str {
         match self {
             TopicIconColor::Blue => "0x6FB9F0",
@@ -27,6 +28,7 @@ impl TopicIconColor {
         }
     }
 
+    #[must_use]
     pub const fn all() -> &'static [TopicIconColor; 6] {
         &[
             TopicIconColor::Blue,

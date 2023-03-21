@@ -13,6 +13,7 @@ impl Debug for MenuButtonType {
 }
 
 impl MenuButtonType {
+    #[must_use]
     pub const fn as_str(&self) -> &'static str {
         match self {
             MenuButtonType::Commands => "commands",
@@ -21,6 +22,7 @@ impl MenuButtonType {
         }
     }
 
+    #[must_use]
     pub const fn all() -> &'static [MenuButtonType; 3] {
         &[
             MenuButtonType::Commands,

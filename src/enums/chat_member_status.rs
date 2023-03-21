@@ -16,6 +16,7 @@ impl Debug for ChatMemberStatus {
 }
 
 impl ChatMemberStatus {
+    #[must_use]
     pub const fn as_str(&self) -> &'static str {
         match self {
             ChatMemberStatus::Creator => "creator",
@@ -27,6 +28,7 @@ impl ChatMemberStatus {
         }
     }
 
+    #[must_use]
     pub const fn all() -> &'static [ChatMemberStatus; 6] {
         &[
             ChatMemberStatus::Creator,
