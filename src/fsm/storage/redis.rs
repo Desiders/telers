@@ -3,18 +3,16 @@ use super::{Storage, StorageKey};
 use async_trait::async_trait;
 use redis::{aio::Connection, Client, RedisError};
 use serde::{de::DeserializeOwned, Serialize};
-use std::{collections::HashMap, hash::BuildHasher};
+use std::collections::HashMap;
 use thiserror;
 use tokio::sync::Mutex;
 
-const DEFAULT_PREFIX: &'static str = "fsm";
-const DEFAULT_SEPARATOR: &'static str = ":";
+const DEFAULT_PREFIX: &str = "fsm";
+const DEFAULT_SEPARATOR: &str = ":";
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Part {
     State,
     Data,
-    Lock,
 }
 
 impl Part {
@@ -22,7 +20,6 @@ impl Part {
         match self {
             Part::State => "state",
             Part::Data => "data",
-            Part::Lock => "lock",
         }
     }
 }
@@ -247,15 +244,14 @@ impl Storage for Redis {
     /// # Arguments
     /// * `key` - Specified key to set data
     /// * `value` - Set data for specified key, if value is empty, then data will be removed
-    async fn set_data<Key, Data, S>(
+    async fn set_data<Key, Data>(
         &self,
         key: &StorageKey,
-        value: HashMap<Key, Data, S>,
+        value: HashMap<Key, Data>,
     ) -> Result<(), Self::Error>
     where
         Data: Serialize + Send,
         Key: Serialize + Into<String> + Send,
-        S: BuildHasher + Send,
     {
         let mut connection = self.get_connection().await?;
         let key = self.key_builder.build(key, Part::Data);
@@ -289,13 +285,9 @@ impl Storage for Redis {
     /// * `key` - Specified key to get data
     /// # Returns
     /// * Data for specified key, if data is not exists, then empty `HashMap` will be returned
-    async fn get_data<Data, S>(
-        &self,
-        key: &StorageKey,
-    ) -> Result<HashMap<String, Data, S>, Self::Error>
+    async fn get_data<Data>(&self, key: &StorageKey) -> Result<HashMap<String, Data>, Self::Error>
     where
         Data: DeserializeOwned,
-        S: BuildHasher + Default + Send,
     {
         let mut connection = self.get_connection().await?;
         let key = self.key_builder.build(key, Part::Data);
@@ -307,7 +299,6 @@ impl Storage for Redis {
             Some(value) => value,
             None => return Ok(HashMap::default()),
         };
-        let value: HashMap<String, Data, S> = serde_json::from_str(&value)?;
-        Ok(value)
+        Ok(serde_json::from_str(&value)?)
     }
 }

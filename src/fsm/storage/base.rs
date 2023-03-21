@@ -1,8 +1,8 @@
 use async_trait::async_trait;
 use serde::{de::DeserializeOwned, Serialize};
-use std::{collections::HashMap, error::Error as StdError, hash::BuildHasher};
+use std::{collections::HashMap, error::Error as StdError};
 
-const DEFAULT_DESTINY: &'static str = "default";
+const DEFAULT_DESTINY: &str = "default";
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct StorageKey {
@@ -64,26 +64,21 @@ pub trait Storage {
     /// # Arguments
     /// * `key` - Specified key to set data
     /// * `value` - Set data for specified key, if value is empty, then data will be removed
-    async fn set_data<Key, Data, S>(
+    async fn set_data<Key, Data>(
         &self,
         key: &StorageKey,
-        value: HashMap<Key, Data, S>,
+        value: HashMap<Key, Data>,
     ) -> Result<(), Self::Error>
     where
         Data: Serialize + Send,
-        Key: Serialize + Into<String> + Send,
-        S: BuildHasher + Send;
+        Key: Serialize + Into<String> + Send;
 
     /// Get data for specified key
     /// # Arguments
     /// * `key` - Specified key to get data
     /// # Returns
     /// * Data for specified key, if data is not exists, then empty `HashMap` will be returned
-    async fn get_data<Data, S>(
-        &self,
-        key: &StorageKey,
-    ) -> Result<HashMap<String, Data, S>, Self::Error>
+    async fn get_data<Data>(&self, key: &StorageKey) -> Result<HashMap<String, Data>, Self::Error>
     where
-        Data: DeserializeOwned,
-        S: BuildHasher + Default + Send;
+        Data: DeserializeOwned;
 }
