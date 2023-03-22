@@ -156,34 +156,42 @@ impl<Client> DispatcherBuilder<Client> {
     /// Set bot to dispatcher. Bot used for getting updates.
     /// You can use this method multiple times to add multiple bots or just use `bots` method.
     #[must_use]
-    pub fn bot(mut self, val: Bot<Client>) -> Self {
-        self.bots.push(val);
-        self
+    pub fn bot(self, val: Bot<Client>) -> Self {
+        Self {
+            bots: self.bots.into_iter().chain(Some(val)).collect(),
+            ..self
+        }
     }
 
     /// Set bots to dispatcher. Bots used for getting updates.
     /// All bots use the same dispatcher, but each bot has the own polling process.
     /// This can be useful if you want to run multibots with a single dispatcher logic.
     #[must_use]
-    pub fn bots(mut self, val: Vec<Bot<Client>>) -> Self {
-        self.bots.extend(val);
-        self
+    pub fn bots(self, val: Vec<Bot<Client>>) -> Self {
+        Self {
+            bots: self.bots.into_iter().chain(val).collect(),
+            ..self
+        }
     }
 
     /// Set timeout in seconds for long polling.
     /// Short polling should be used for testing purposes only.
     #[must_use]
-    pub fn polling_timeout(mut self, val: i64) -> Self {
-        self.polling_timeout = Some(val);
-        self
+    pub fn polling_timeout(self, val: i64) -> Self {
+        Self {
+            polling_timeout: Some(val),
+            ..self
+        }
     }
 
     /// Set backoff strategy for polling.
     /// Backoff used for handling server-side errors.
     #[must_use]
-    pub fn backoff(mut self, val: ExponentialBackoff<SystemClock>) -> Self {
-        self.backoff = val;
-        self
+    pub fn backoff(self, val: ExponentialBackoff<SystemClock>) -> Self {
+        Self {
+            backoff: val,
+            ..self
+        }
     }
 
     /// Set allowed update for polling.
@@ -202,7 +210,9 @@ impl<Client> DispatcherBuilder<Client> {
     /// Specify an empty list to receive all update types except `chat_member` (default).
     #[must_use]
     pub fn allowed_updates<T: Into<String>>(mut self, val: Vec<T>) -> Self {
-        self.allowed_updates = Some(val.into_iter().map(Into::into).collect());
+        self.allowed_updates
+            .get_or_insert_with(Vec::new)
+            .extend(val.into_iter().map(Into::into));
         self
     }
 

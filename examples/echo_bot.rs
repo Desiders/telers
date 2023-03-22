@@ -1,8 +1,7 @@
 use telers::{
-    client::{Bot, Reqwest, Session},
+    client::Bot,
     dispatcher::{
         event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
-        middlewares::inner::Logging as LoggingMiddleware,
         Dispatcher, Router,
     },
     enums::UpdateType,
@@ -10,7 +9,7 @@ use telers::{
     types::Message,
 };
 
-async fn echo_handler(bot: Bot<impl Session>, message: Message) -> HandlerResult {
+async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
     bot.send(
         &CopyMessage::new(message.chat.id, message.chat.id, message.message_id),
         None,
@@ -28,13 +27,9 @@ async fn main() {
         panic!("BOT_TOKEN env variable is not set!");
     };
 
-    let bot = Bot::new(bot_token, Reqwest::default());
+    let bot = Bot::new(bot_token);
 
     let mut router = Router::new("main");
-    router
-        .message
-        .inner_middlewares
-        .register(LoggingMiddleware::default());
     router.message.register_no_filters(echo_handler);
 
     let dispatcher = Dispatcher::builder()

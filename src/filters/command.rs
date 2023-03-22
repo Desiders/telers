@@ -9,7 +9,7 @@ use crate::{
 
 use async_trait::async_trait;
 use regex::Regex;
-use std::borrow::Cow;
+use std::{borrow::Cow, iter::once};
 use thiserror;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -154,33 +154,47 @@ impl<'a> CommandBuilder<'a> {
     /// If `ignore_case` is `true` and `command`, which contains [`Regex`] pattern,
     /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
     #[must_use]
-    pub fn commands<T: Into<PatternType<'a>>>(mut self, val: Vec<T>) -> Self {
-        self.commands = val.into_iter().map(Into::into).collect();
-        self
+    pub fn commands<T: Into<PatternType<'a>>>(self, val: Vec<T>) -> Self {
+        Self {
+            commands: self
+                .commands
+                .into_iter()
+                .chain(val.into_iter().map(Into::into))
+                .collect(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn command<T: Into<PatternType<'a>>>(mut self, val: T) -> Self {
-        self.commands.push(val.into());
-        self
+    pub fn command<T: Into<PatternType<'a>>>(self, val: T) -> Self {
+        Self {
+            commands: self.commands.into_iter().chain(once(val.into())).collect(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn prefix(mut self, val: &'a str) -> Self {
-        self.prefix = val;
-        self
+    pub fn prefix(self, val: &'a str) -> Self {
+        Self {
+            prefix: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn ignore_case(mut self, val: bool) -> Self {
-        self.ignore_case = val;
-        self
+    pub fn ignore_case(self, val: bool) -> Self {
+        Self {
+            ignore_case: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn ignore_mention(mut self, val: bool) -> Self {
-        self.ignore_mention = val;
-        self
+    pub fn ignore_mention(self, val: bool) -> Self {
+        Self {
+            ignore_mention: val,
+            ..self
+        }
     }
 
     /// # Panics

@@ -1,4 +1,4 @@
-use super::session::base::Session;
+use super::{session::base::Session, Reqwest};
 
 use crate::{
     error::SessionErrorKind,
@@ -35,7 +35,10 @@ use crate::{
     },
 };
 
-use std::fmt::{self, Debug, Formatter};
+use std::{
+    borrow::Cow,
+    fmt::{self, Debug, Formatter},
+};
 
 /// Hide token for privacy. \
 /// If token length is less than 4, then it will be hidden as `*`. \
@@ -57,20 +60,30 @@ fn hide_token(token: &str) -> String {
 
 /// Represents a bot with a token for getting updates and sending requests to Telegram API
 #[derive(Clone, Default)]
-pub struct Bot<Client> {
+pub struct Bot<Client = Reqwest> {
     /// Bot token, which is used to receive updates and send requests to the Telegram API
-    token: String,
+    token: Cow<'static, str>,
     /// Bot token, which is used in `Debug` implementation for privacy
     hidden_token: String,
     /// Client for sending requests to Telegram API
     client: Client,
 }
 
+impl Bot<Reqwest> {
+    #[must_use]
+    pub fn new<T>(token: T) -> Self
+    where
+        T: Into<Cow<'static, str>>,
+    {
+        Self::with_client(token, Reqwest::default())
+    }
+}
+
 impl<Client> Bot<Client> {
     #[must_use]
-    pub fn new<T>(token: T, client: Client) -> Self
+    pub fn with_client<T>(token: T, client: Client) -> Self
     where
-        T: Into<String>,
+        T: Into<Cow<'static, str>>,
     {
         let token = token.into();
         let hidden_token = hide_token(&token);
@@ -98,48 +111,6 @@ impl<Client> Debug for Bot<Client> {
         f.debug_struct("Bot")
             .field("token", &self.hidden_token)
             .finish()
-    }
-}
-
-impl<Client: Default> Bot<Client> {
-    #[must_use]
-    pub fn builder() -> BotBuilder<Client> {
-        BotBuilder::default()
-    }
-}
-
-#[allow(clippy::module_name_repetitions)]
-#[derive(Default)]
-pub struct BotBuilder<Client> {
-    token: String,
-    client: Client,
-}
-
-impl<Client> BotBuilder<Client> {
-    /// Set bot token, which is used to receive updates and send requests to the Telegram API
-    #[must_use]
-    pub fn token<T: Into<String>>(mut self, val: T) -> Self {
-        self.token = val.into();
-        self
-    }
-
-    /// Set client for sending requests to Telegram API
-    #[must_use]
-    pub fn client(mut self, val: Client) -> Self {
-        self.client = val;
-        self
-    }
-
-    #[must_use]
-    pub fn build(self) -> Bot<Client> {
-        let token = self.token;
-        let hidden_token = hide_token(&token);
-
-        Bot {
-            token,
-            hidden_token,
-            client: self.client,
-        }
     }
 }
 
