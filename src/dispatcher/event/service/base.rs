@@ -12,7 +12,7 @@ pub trait Service<Req> {
 
     /// Process the event and return the asynchronous response
     #[must_use]
-    fn call(&self, req: Req) -> Self::Future;
+    fn call(&self, request: Req) -> Self::Future;
 }
 
 impl<'a, S, Req> Service<Req> for &'a S

@@ -1,4 +1,4 @@
-use super::text;
+use super::TextDecoration;
 
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -26,7 +26,7 @@ pub struct Decoration {
     regex: Regex,
 }
 
-impl text::Decoration for Decoration {
+impl TextDecoration for Decoration {
     /// Decorate text with `bold` tag
     fn bold(&self, text: &str) -> String {
         format!("*{text}*")
@@ -79,7 +79,7 @@ impl text::Decoration for Decoration {
 
     /// Quote symbols, that can be interpreted as markdown
     fn quote(&self, text: &str) -> String {
-        self.regex.replace_all(text, r"\\\1").to_string()
+        self.regex.replacen(text, 0, r"\$1").to_string()
     }
 }
 
@@ -92,7 +92,7 @@ impl Decoration {
     #[must_use]
     pub fn new(quote_pattern: &str) -> Self {
         Self {
-            regex: Regex::new(quote_pattern).unwrap(),
+            regex: Regex::new(quote_pattern).expect("Invalid quote pattern"),
         }
     }
 }
@@ -105,3 +105,94 @@ impl Default for Decoration {
 }
 
 pub static DECORATION: Lazy<Decoration> = Lazy::new(Decoration::default);
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_bold() {
+        assert_eq!(DECORATION.bold("text"), "*text*");
+    }
+
+    #[test]
+    fn test_italic() {
+        assert_eq!(DECORATION.italic("text"), "_\rtext_\r");
+    }
+
+    #[test]
+    fn test_code() {
+        assert_eq!(DECORATION.code("text"), "`text`");
+    }
+
+    #[test]
+    fn test_underline() {
+        assert_eq!(DECORATION.underline("text"), "__\rtext__\r");
+    }
+
+    #[test]
+    fn test_strikethrough() {
+        assert_eq!(DECORATION.strikethrough("text"), "~text~");
+    }
+
+    #[test]
+    fn test_spoiler() {
+        assert_eq!(DECORATION.spoiler("text"), "|text|");
+    }
+
+    #[test]
+    fn test_pre() {
+        assert_eq!(DECORATION.pre("text"), "```\ntext\n```");
+    }
+
+    #[test]
+    fn test_pre_language() {
+        assert_eq!(
+            DECORATION.pre_language("text", "language"),
+            "```language\ntext\n```"
+        );
+    }
+
+    #[test]
+    fn test_link() {
+        assert_eq!(DECORATION.link("text", "url"), "[text](url)");
+    }
+
+    #[test]
+    fn test_custom_emoji() {
+        assert_eq!(
+            DECORATION.custom_emoji("text", "emoji_id"),
+            "[text](tg://emoji?id=emoji_id)"
+        );
+    }
+
+    #[test]
+    fn test_quote() {
+        assert_eq!(DECORATION.quote("test"), "test");
+        assert_eq!(DECORATION.quote("[test]"), r"\[test\]");
+        assert_eq!(DECORATION.quote("test ` test"), r"test \` test");
+        assert_eq!(DECORATION.quote("test * test"), r"test \* test");
+        assert_eq!(DECORATION.quote("test _ test"), r"test \_ test");
+        assert_eq!(DECORATION.quote("test ~ test"), r"test \~ test");
+        assert_eq!(DECORATION.quote("test | test"), r"test \| test");
+        assert_eq!(DECORATION.quote("test > test"), r"test \> test");
+        assert_eq!(DECORATION.quote("test # test"), r"test \# test");
+        assert_eq!(DECORATION.quote("test + test"), r"test \+ test");
+        assert_eq!(DECORATION.quote("test - test"), r"test \- test");
+        assert_eq!(DECORATION.quote("test = test"), r"test \= test");
+        assert_eq!(DECORATION.quote("test . test"), r"test \. test");
+        assert_eq!(DECORATION.quote("test ! test"), r"test \! test");
+        assert_eq!(DECORATION.quote("test [ test"), r"test \[ test");
+        assert_eq!(DECORATION.quote("test ] test"), r"test \] test");
+        assert_eq!(DECORATION.quote("test ( test"), r"test \( test");
+        assert_eq!(DECORATION.quote("test ) test"), r"test \) test");
+        assert_eq!(DECORATION.quote("test { test"), r"test \{ test");
+        assert_eq!(DECORATION.quote("test } test"), r"test \} test");
+
+        // Test for all symbols (yes, I'm paranoid)
+        assert_eq!(
+            DECORATION.quote("test ` * _ ~ | > # + - = . ! [ ] ( ) { } test"),
+            r"test \` \* \_ \~ \| \> \# \+ \- \= \. \! \[ \] \( \) \{ \} test"
+        );
+    }
+}

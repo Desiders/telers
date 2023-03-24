@@ -228,29 +228,51 @@ impl<Client> Router<Client> {
         self.include_router(router);
     }
 
-    /// Resolve registered event names.
-    /// Is useful for getting updates only for registered event types.
-    /// # Arguments
-    /// * `skip_events` - Skip specified event names
+    /// Resolve registered update types.
+    /// Is useful for getting updates only for registered update types.
+    /// # Warning
+    /// This method doesn't preserve registration order of update types
     /// # Returns
-    /// Registered event names
+    /// Registered update types
     #[must_use]
-    pub fn resolve_used_update_types(&self, skip_events: &[&str]) -> Vec<&str> {
+    pub fn resolve_used_update_types(&self) -> Vec<UpdateType> {
         let mut used_update_types = HashSet::new();
 
         self.sub_routers.iter().for_each(|router| {
-            used_update_types.extend(router.resolve_used_update_types(skip_events));
+            used_update_types.extend(router.resolve_used_update_types());
         });
 
-        for observer in self.telegram_observers() {
-            let event_name = observer.event_name;
-
-            if !observer.handlers.is_empty() && !skip_events.contains(&event_name) {
-                used_update_types.insert(event_name);
-            }
-        }
+        used_update_types.extend(
+            self.telegram_observers()
+                .iter()
+                .filter(|observer| !observer.handlers.is_empty())
+                .map(|observer| {
+                    observer.event_name.try_into().expect(
+                        "Can't convert event name to UpdateType. This is a bug. Please, report it.",
+                    )
+                }),
+        );
 
         used_update_types.into_iter().collect()
+    }
+
+    /// Resolve registered update types with skip update types.
+    /// Is useful for getting updates only for registered update types with skip some updates types.
+    /// # Arguments
+    /// * `skip_updates` - Skip update types
+    /// # Warning
+    /// This method doesn't preserve registration order of update types
+    /// # Returns
+    /// Registered update types
+    #[must_use]
+    pub fn resolve_used_update_types_with_skip(
+        &self,
+        skip_updates: &[UpdateType],
+    ) -> Vec<UpdateType> {
+        self.resolve_used_update_types()
+            .into_iter()
+            .filter(|update_type| !skip_updates.contains(update_type))
+            .collect()
     }
 }
 
@@ -743,5 +765,49 @@ mod tests {
             },
             _ => panic!("Unexpected result"),
         }
+    }
+
+    #[test]
+    fn test_resolve_used_update_types() {
+        let mut router = Router::<Reqwest>::new("test");
+
+        router
+            .message
+            .register_no_filters(|| async { Ok(EventReturn::Finish) });
+        router
+            .edited_message
+            .register_no_filters(|| async { Ok(EventReturn::Finish) });
+
+        let update_types = router.resolve_used_update_types();
+
+        assert_eq!(update_types.len(), 2);
+        assert!(update_types.contains(&UpdateType::Message));
+        assert!(update_types.contains(&UpdateType::EditedMessage));
+
+        let mut router2 = Router::<Reqwest>::new("test2");
+
+        router2
+            .message
+            .register_no_filters(|| async { Ok(EventReturn::Finish) });
+        router2
+            .channel_post
+            .register_no_filters(|| async { Ok(EventReturn::Finish) });
+
+        assert_eq!(router2.resolve_used_update_types().len(), 2);
+
+        router.include(router2);
+
+        let update_types = router.resolve_used_update_types();
+
+        assert_eq!(update_types.len(), 3);
+        assert!(update_types.contains(&UpdateType::Message));
+        assert!(update_types.contains(&UpdateType::EditedMessage));
+        assert!(update_types.contains(&UpdateType::ChannelPost));
+
+        let update_types = router.resolve_used_update_types_with_skip(&[UpdateType::Message]);
+
+        assert_eq!(update_types.len(), 2);
+        assert!(update_types.contains(&UpdateType::EditedMessage));
+        assert!(update_types.contains(&UpdateType::ChannelPost));
     }
 }

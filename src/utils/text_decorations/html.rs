@@ -1,4 +1,4 @@
-use super::text;
+use super::TextDecoration;
 
 use once_cell::sync::Lazy;
 
@@ -37,7 +37,7 @@ pub struct Decoration {
     emoji_tag: &'static str,
 }
 
-impl text::Decoration for Decoration {
+impl TextDecoration for Decoration {
     /// Decorate text with `bold` tag
     fn bold(&self, text: &str) -> String {
         format!("<{tag}>{text}</{tag}>", tag = self.bold_tag)
@@ -135,3 +135,74 @@ impl Default for Decoration {
 }
 
 pub static DECORATION: Lazy<Decoration> = Lazy::new(Decoration::default);
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_bold() {
+        assert_eq!(DECORATION.bold("text"), "<b>text</b>");
+    }
+
+    #[test]
+    fn test_italic() {
+        assert_eq!(DECORATION.italic("text"), "<i>text</i>");
+    }
+
+    #[test]
+    fn test_code() {
+        assert_eq!(DECORATION.code("text"), "<code>text</code>");
+    }
+
+    #[test]
+    fn test_underline() {
+        assert_eq!(DECORATION.underline("text"), "<u>text</u>");
+    }
+
+    #[test]
+    fn test_strikethrough() {
+        assert_eq!(DECORATION.strikethrough("text"), "<s>text</s>");
+    }
+
+    #[test]
+    fn test_spoiler() {
+        assert_eq!(DECORATION.spoiler("text"), "<tg-spoiler>text</tg-spoiler>");
+    }
+
+    #[test]
+    fn test_pre() {
+        assert_eq!(DECORATION.pre("text"), "<pre>text</pre>");
+    }
+
+    #[test]
+    fn test_pre_language() {
+        assert_eq!(
+            DECORATION.pre_language("text", "python"),
+            "<pre><code class=\"language-python\">text</code></pre>"
+        );
+    }
+
+    #[test]
+    fn test_link() {
+        assert_eq!(
+            DECORATION.link("text", "http://example.com"),
+            "<a href=\"http://example.com\">text</a>"
+        );
+    }
+
+    #[test]
+    fn test_custom_emoji() {
+        assert_eq!(
+            DECORATION.custom_emoji("text", "emoji_id"),
+            "<tg-emoji data-emoji-id=\"emoji_id\">text</tg-emoji>"
+        );
+    }
+
+    #[test]
+    fn test_quote() {
+        assert_eq!(DECORATION.quote("text"), "text");
+        assert_eq!(DECORATION.quote("<text>"), "&lt;text&gt;");
+        assert_eq!(DECORATION.quote("&text"), "&amp;text");
+    }
+}

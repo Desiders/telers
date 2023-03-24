@@ -599,6 +599,7 @@ mod tests {
     use crate::{
         client::Reqwest,
         dispatcher::event::bases::{EventReturn, PropagateEventResult},
+        enums::UpdateType,
         types::Message,
     };
 
@@ -657,5 +658,26 @@ mod tests {
         // Should return error, because `Update` is empty and `UpdateType` will be unknown
         let response = dispatcher.feed_update(bot, Update::default()).await;
         assert!(response.is_err());
+    }
+
+    #[test]
+    fn test_builder() {
+        let bot = Bot::new("token");
+
+        let dispatcher = Dispatcher::builder()
+            .main_router(Router::new("main"))
+            .bot(bot.clone())
+            .bots(vec![bot])
+            .polling_timeout(123)
+            .allowed_update(UpdateType::Message)
+            .allowed_updates(vec![
+                UpdateType::InlineQuery,
+                UpdateType::ChosenInlineResult,
+            ])
+            .build();
+
+        assert_eq!(dispatcher.bots.len(), 2);
+        assert_eq!(dispatcher.polling_timeout, Some(123));
+        assert_eq!(dispatcher.allowed_updates.unwrap().len(), 3);
     }
 }
