@@ -3,6 +3,7 @@ use crate::{error::UnknownUpdateTypeError, types::Update};
 use std::fmt::{self, Debug};
 
 /// See [`Update`] for a complete list of available update types
+#[derive(Clone, Eq, PartialEq, Hash)]
 pub enum UpdateType {
     Message,
     InlineQuery,
@@ -156,6 +157,32 @@ impl<'a> TryFrom<&'a Update> for UpdateType {
             Err(UnknownUpdateTypeError::new(format!(
                 "Unknown update type: {update:?}"
             )))
+        }
+    }
+}
+
+impl<'a> TryFrom<&'a str> for UpdateType {
+    type Error = UnknownUpdateTypeError;
+
+    fn try_from(value: &'a str) -> Result<Self, Self::Error> {
+        match value {
+            "message" => Ok(UpdateType::Message),
+            "inline_query" => Ok(UpdateType::InlineQuery),
+            "chosen_inline_result" => Ok(UpdateType::ChosenInlineResult),
+            "callback_query" => Ok(UpdateType::CallbackQuery),
+            "channel_post" => Ok(UpdateType::ChannelPost),
+            "edited_message" => Ok(UpdateType::EditedMessage),
+            "edited_channel_post" => Ok(UpdateType::EditedChannelPost),
+            "shipping_query" => Ok(UpdateType::ShippingQuery),
+            "pre_checkout_query" => Ok(UpdateType::PreCheckoutQuery),
+            "poll" => Ok(UpdateType::Poll),
+            "poll_answer" => Ok(UpdateType::PollAnswer),
+            "my_chat_member" => Ok(UpdateType::MyChatMember),
+            "chat_member" => Ok(UpdateType::ChatMember),
+            "chat_join_request" => Ok(UpdateType::ChatJoinRequest),
+            _ => Err(UnknownUpdateTypeError::new(format!(
+                "Unknown update type: {value:?}"
+            ))),
         }
     }
 }

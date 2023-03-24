@@ -1,4 +1,6 @@
 use std::fmt::{self, Debug};
+
+#[derive(Clone, Eq, PartialEq, Hash)]
 pub enum InlineQueryResultType {
     Article,
     Audio,

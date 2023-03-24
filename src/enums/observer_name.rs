@@ -1,4 +1,7 @@
+use std::fmt::{self, Debug};
+
 /// Enums, which are used to identify default [telegram observers](`crate::dispatcher::event::telegram::observer::Observer`).
+#[derive(Clone, Eq, PartialEq, Hash)]
 pub enum Telegram {
     Message,
     InlineQuery,
@@ -14,6 +17,12 @@ pub enum Telegram {
     MyChatMember,
     ChatMember,
     ChatJoinRequest,
+}
+
+impl Debug for Telegram {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
 }
 
 impl Telegram {

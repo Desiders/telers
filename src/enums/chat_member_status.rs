@@ -1,5 +1,6 @@
 use std::fmt::{self, Debug};
 
+#[derive(Clone, Eq, PartialEq, Hash)]
 pub enum ChatMemberStatus {
     Creator,
     Administrator,
