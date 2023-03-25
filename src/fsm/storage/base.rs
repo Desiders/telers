@@ -42,7 +42,7 @@ pub trait Storage {
     /// # Arguments
     /// * `key` - Specified key to set state
     /// * `value` - Set state for specified key
-    async fn set_sate<Value>(&self, key: &StorageKey, value: Value) -> Result<(), Self::Error>
+    async fn set_state<Value>(&self, key: &StorageKey, value: Value) -> Result<(), Self::Error>
     where
         Value: Into<Cow<'static, str>> + Send;
 

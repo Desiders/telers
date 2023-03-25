@@ -47,7 +47,7 @@ impl Storage for Memory {
     /// # Arguments
     /// * `key` - Specified key to set state
     /// * `value` - Set state for specified key
-    async fn set_sate<Value>(&self, key: &StorageKey, value: Value) -> Result<(), Self::Error>
+    async fn set_state<Value>(&self, key: &StorageKey, value: Value) -> Result<(), Self::Error>
     where
         Value: Into<Cow<'static, str>> + Send,
     {
@@ -185,8 +185,8 @@ mod tests {
         assert_eq!(storage.get_state(&key1).await.unwrap(), None);
         assert_eq!(storage.get_state(&key2).await.unwrap(), None);
 
-        storage.set_sate(&key1, "state1").await.unwrap();
-        storage.set_sate(&key2, "state2").await.unwrap();
+        storage.set_state(&key1, "state1").await.unwrap();
+        storage.set_state(&key2, "state2").await.unwrap();
 
         assert_eq!(
             storage.get_state(&key1).await.unwrap(),
