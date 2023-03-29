@@ -5,18 +5,25 @@ use serde::{de::DeserializeOwned, Serialize};
 use std::{
     borrow::Cow,
     collections::{hash_map::Entry, HashMap},
+    sync::Arc,
 };
 use tokio::sync::Mutex;
 
-#[derive(Default)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 struct Record {
     state: Option<Cow<'static, str>>,
     data: HashMap<Cow<'static, str>, Vec<u8>>,
 }
 
-#[derive(Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Memory {
-    storage: Mutex<HashMap<StorageKey, Record>>,
+    storage: Arc<Mutex<HashMap<StorageKey, Record>>>,
+}
+
+impl PartialEq for Memory {
+    fn eq(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.storage, &other.storage)
+    }
 }
 
 impl Memory {
@@ -46,7 +53,7 @@ impl Storage for Memory {
     /// Set state for specified key
     /// # Arguments
     /// * `key` - Specified key to set state
-    /// * `value` - Set state for specified key
+    /// * `value` - State for specified key
     async fn set_state<Value>(&self, key: &StorageKey, value: Value) -> Result<(), Self::Error>
     where
         Value: Into<Cow<'static, str>> + Send,
@@ -69,7 +76,7 @@ impl Storage for Memory {
     /// # Arguments
     /// * `key` - Specified key to get state
     /// # Returns
-    /// * State for specified key, if state is no exists, then `None` will be return
+    /// State for specified key, if state is no exists, then `None` will be return
     async fn get_state(&self, key: &StorageKey) -> Result<Option<Cow<'static, str>>, Self::Error> {
         Ok(self
             .storage
@@ -95,7 +102,7 @@ impl Storage for Memory {
     /// Set data for specified key
     /// # Arguments
     /// * `key` - Specified key to set data
-    /// * `value` - Set data for specified key, if empty, then data will be clear
+    /// * `value` - Data for specified key, if empty, then data will be clear
     async fn set_data<Key, Data>(
         &self,
         key: &StorageKey,
@@ -147,7 +154,7 @@ impl Storage for Memory {
     /// # Arguments
     /// * `key` - Specified key to get data
     /// # Returns
-    /// * Data for specified key, if data is no exists, then empty `HashMap` will be return
+    /// Data for specified key, if data is no exists, then empty `HashMap` will be return
     async fn get_data<Data>(
         &self,
         key: &StorageKey,

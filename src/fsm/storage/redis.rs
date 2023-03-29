@@ -3,7 +3,7 @@ use super::{Storage, StorageKey};
 use async_trait::async_trait;
 use redis::{aio::Connection, Client, RedisError};
 use serde::{de::DeserializeOwned, Serialize};
-use std::{borrow::Cow, collections::HashMap};
+use std::{borrow::Cow, collections::HashMap, sync::Arc};
 use thiserror;
 use tokio::sync::Mutex;
 
@@ -36,6 +36,7 @@ pub trait KeyBuilder: Send + Sync {
     fn build(&self, key: &StorageKey, part: Part) -> String;
 }
 
+#[derive(Debug)]
 pub struct DefaultKeyBuilder {
     prefix: &'static str,
     separator: &'static str,
@@ -104,9 +105,10 @@ impl KeyBuilder for DefaultKeyBuilder {
     }
 }
 
+#[derive(Clone)]
 pub struct Redis {
-    client: Mutex<Client>,
-    key_builder: Box<dyn KeyBuilder>,
+    client: Arc<Mutex<Client>>,
+    key_builder: Arc<Box<dyn KeyBuilder>>,
     state_ttl: Option<u64>,
     data_ttl: Option<u64>,
 }
@@ -115,17 +117,20 @@ impl Redis {
     #[must_use]
     pub fn new(client: Client) -> Self {
         Self {
-            client: Mutex::new(client),
-            key_builder: Box::<DefaultKeyBuilder>::default(),
+            client: Arc::new(Mutex::new(client)),
+            key_builder: Arc::new(Box::<DefaultKeyBuilder>::default()),
             state_ttl: None,
             data_ttl: None,
         }
     }
 
     #[must_use]
-    pub fn key_builder(self, key_builder: Box<dyn KeyBuilder>) -> Self {
+    pub fn key_builder<T>(self, key_builder: T) -> Self
+    where
+        T: Into<Arc<Box<dyn KeyBuilder>>>,
+    {
         Self {
-            key_builder,
+            key_builder: key_builder.into(),
             ..self
         }
     }
@@ -182,7 +187,7 @@ impl Storage for Redis {
     /// Set state for specified key
     /// # Arguments
     /// * `key` - Specified key to set state
-    /// * `value` - Set state for specified key
+    /// * `value` - State for specified key
     async fn set_state<Value>(&self, key: &StorageKey, value: Value) -> Result<(), Self::Error>
     where
         Value: Into<Cow<'static, str>> + Send,
@@ -212,7 +217,7 @@ impl Storage for Redis {
     /// # Arguments
     /// * `key` - Specified key to get state
     /// # Returns
-    /// * State for specified key, if state is no exists, then `None` will be return
+    /// State for specified key, if state is no exists, then `None` will be return
     async fn get_state(&self, key: &StorageKey) -> Result<Option<Cow<'static, str>>, Self::Error> {
         let mut connection = self.get_connection().await?;
         let key = self.key_builder.build(key, Part::State);
@@ -241,7 +246,7 @@ impl Storage for Redis {
     /// Set data for specified key
     /// # Arguments
     /// * `key` - Specified key to set data
-    /// * `value` - Set data for specified key, if empty, then data will be clear
+    /// * `value` - Data for specified key, if empty, then data will be clear
     async fn set_data<Key, Data>(
         &self,
         key: &StorageKey,
@@ -276,7 +281,7 @@ impl Storage for Redis {
     /// # Arguments
     /// * `key` - Specified key to get data
     /// # Returns
-    /// * Data for specified key, if data is no exists, then empty `HashMap` will be return
+    /// Data for specified key, if data is no exists, then empty `HashMap` will be return
     async fn get_data<Data>(
         &self,
         key: &StorageKey,

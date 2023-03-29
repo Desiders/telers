@@ -1,7 +1,10 @@
 pub mod context;
 pub mod storage;
+pub mod strategy;
 
+pub use context::FSMContext;
 pub use storage::{Storage, StorageKey};
+pub use strategy::Strategy;
 
 #[cfg(feature = "redis-storage")]
 pub use storage::{
