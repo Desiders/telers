@@ -7,7 +7,7 @@ use crate::{
     fsm::{
         storage::base::{StorageKey, DEFAULT_DESTINY},
         strategy::Strategy,
-        FSMContext as Context, Storage,
+        Context, Storage,
     },
     types::User,
 };
@@ -71,7 +71,7 @@ where
     fn resolve_event_context(
         &self,
         bot_id: i64,
-        context: Arc<RequestContext>,
+        context: &Arc<RequestContext>,
     ) -> Option<Context<S>> {
         let user = context.get("event_user").expect(
             "Event context should contain user. \
@@ -82,8 +82,8 @@ where
              This is a bug, please report it.",
         );
 
-        let user_id = user.downcast_ref().and_then(|user: &User| Some(user.id));
-        let chat_id = chat.downcast_ref().and_then(|chat: &User| Some(chat.id));
+        let user_id = user.downcast_ref().map(|user: &User| user.id);
+        let chat_id = chat.downcast_ref().map(|chat: &User| chat.id);
 
         self.resolve_context(bot_id, chat_id, user_id)
     }
@@ -126,9 +126,7 @@ where
         &self,
         request: RouterRequest<Client>,
     ) -> Result<MiddlewareResponse<Client>, AppErrorKind> {
-        if let Some(fsm_context) =
-            self.resolve_event_context(Arc::clone(&request.bot).id(), request.context.clone())
-        {
+        if let Some(fsm_context) = self.resolve_event_context(request.bot.id(), &request.context) {
             let state = fsm_context
                 .get_state()
                 .await

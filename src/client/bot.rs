@@ -33,7 +33,7 @@ use crate::{
         MessageEntity, MessageId, MessageOrTrue, PassportElementError, Poll, ReplyMarkup,
         SentWebAppMessage, ShippingOption, Sticker, StickerSet, Update, User, UserProfilePhotos,
     },
-    utils::token::{extract_bot_id, hide_token},
+    utils::token,
 };
 
 use std::{
@@ -76,8 +76,8 @@ impl<Client> Bot<Client> {
         T: Into<Cow<'static, str>>,
     {
         let token = token.into();
-        let bot_id = extract_bot_id(&token).expect("This bot token is invalid, please check it");
-        let hidden_token = hide_token(&token);
+        let bot_id = token::extract_bot_id(&token).expect("This bot token is invalid, please check it");
+        let hidden_token = token::hide(&token);
 
         Self {
             token,

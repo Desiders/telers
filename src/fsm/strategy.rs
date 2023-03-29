@@ -48,7 +48,8 @@ pub struct IdPair {
 }
 
 impl Strategy {
-    /// Apply strategy to `chat_id` and `user_id`.
+    /// Apply strategy to `chat_id` and `user_id`
+    #[must_use]
     pub fn apply(&self, chat_id: i64, user_id: i64) -> IdPair {
         match self {
             Strategy::UserInChat => IdPair { chat_id, user_id },

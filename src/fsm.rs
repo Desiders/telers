@@ -2,7 +2,7 @@ pub mod context;
 pub mod storage;
 pub mod strategy;
 
-pub use context::FSMContext;
+pub use context::Context;
 pub use storage::{Storage, StorageKey};
 pub use strategy::Strategy;
 
