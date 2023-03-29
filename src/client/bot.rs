@@ -33,6 +33,7 @@ use crate::{
         MessageEntity, MessageId, MessageOrTrue, PassportElementError, Poll, ReplyMarkup,
         SentWebAppMessage, ShippingOption, Sticker, StickerSet, Update, User, UserProfilePhotos,
     },
+    utils::token::{extract_bot_id, hide_token},
 };
 
 use std::{
@@ -40,36 +41,25 @@ use std::{
     fmt::{self, Debug, Formatter},
 };
 
-/// Hide token for privacy. \
-/// If token length is less than 4, then it will be hidden as `*`. \
-/// For example,
-/// `1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11` will be hidden as `12********11`
-fn hide_token(token: &str) -> String {
-    let token_len = token.len();
-
-    if token_len < 4 {
-        return "*".repeat(token_len);
-    }
-
-    let mut hidden = String::with_capacity(token_len);
-    hidden.push_str(&token[..2]);
-    hidden.push_str(&"*".repeat(8));
-    hidden.push_str(&token[token_len - 2..]);
-    hidden
-}
-
 /// Represents a bot with a token for getting updates and sending requests to Telegram API
+/// # Warning
+/// Using `default` method isn't recommended, because it doesn't check the token for validity.
+/// This method is only for testing purposes.
 #[derive(Clone, Default)]
 pub struct Bot<Client = Reqwest> {
     /// Bot token, which is used to receive updates and send requests to the Telegram API
     token: Cow<'static, str>,
     /// Bot token, which is used in `Debug` implementation for privacy
     hidden_token: String,
+    /// Bot id, extracted from the token
+    bot_id: i64,
     /// Client for sending requests to Telegram API
     client: Client,
 }
 
 impl Bot<Reqwest> {
+    /// # Panics
+    /// Panics if the token is invalid
     #[must_use]
     pub fn new<T>(token: T) -> Self
     where
@@ -86,11 +76,13 @@ impl<Client> Bot<Client> {
         T: Into<Cow<'static, str>>,
     {
         let token = token.into();
+        let bot_id = extract_bot_id(&token).expect("This bot token is invalid, please check it");
         let hidden_token = hide_token(&token);
 
         Self {
             token,
             hidden_token,
+            bot_id,
             client,
         }
     }
@@ -103,6 +95,11 @@ impl<Client> Bot<Client> {
     #[must_use]
     pub fn hidden_token(&self) -> &str {
         &self.hidden_token
+    }
+
+    #[must_use]
+    pub fn id(&self) -> i64 {
+        self.bot_id
     }
 }
 
@@ -3165,20 +3162,5 @@ impl<Client: Session> Bot<Client> {
             request_timeout,
         )
         .await
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    #[rustfmt::skip]
-    fn test_hide_token() {
-        assert_eq!(hide_token("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"), "12********11");
-        assert_eq!(hide_token("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew1"), "12********w1");
-        assert_eq!(hide_token("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew"), "12********ew");
-        assert_eq!(hide_token("123"), "***");
-        assert_eq!(hide_token("1234"), "12********34");
     }
 }
