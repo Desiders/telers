@@ -6,4 +6,4 @@ pub mod router;
 
 #[allow(clippy::module_name_repetitions)]
 pub use dispatcher::{Dispatcher, DispatcherBuilder};
-pub use router::Router;
+pub use router::{Request as RouterRequest, Response as RouterResponse, Router};

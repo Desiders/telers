@@ -7,6 +7,7 @@ use async_trait::async_trait;
 use std::{future::Future, sync::Arc};
 
 pub type Middlewares<Client> = Vec<Arc<Box<dyn Middleware<Client>>>>;
+pub type MiddlewareResponse<Client> = (Request<Client>, EventReturn);
 
 #[async_trait]
 pub trait Middleware<Client>: Send + Sync {
@@ -17,11 +18,10 @@ pub trait Middleware<Client>: Send + Sync {
     /// Updated [`Request`] and [`EventReturn`] or [`AppErrorKind`]
     /// # Errors
     /// If outer middleware returns error
-    #[must_use]
     async fn call(
         &self,
         request: Request<Client>,
-    ) -> Result<(Request<Client>, EventReturn), AppErrorKind>;
+    ) -> Result<MiddlewareResponse<Client>, AppErrorKind>;
 }
 
 #[async_trait]
@@ -29,12 +29,12 @@ impl<Client, Func, Fut> Middleware<Client> for Func
 where
     Client: Send + Sync + 'static,
     Func: Fn(Request<Client>) -> Fut + Send + Sync,
-    Fut: Future<Output = Result<(Request<Client>, EventReturn), AppErrorKind>> + Send,
+    Fut: Future<Output = Result<MiddlewareResponse<Client>, AppErrorKind>> + Send,
 {
     async fn call(
         &self,
         request: Request<Client>,
-    ) -> Result<(Request<Client>, EventReturn), AppErrorKind> {
+    ) -> Result<MiddlewareResponse<Client>, AppErrorKind> {
         self(request).await
     }
 }

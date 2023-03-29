@@ -662,7 +662,7 @@ mod tests {
 
     #[test]
     fn test_builder() {
-        let bot = Bot::new("token");
+        let bot = Bot::<Reqwest>::default();
 
         let dispatcher = Dispatcher::builder()
             .main_router(Router::new("main"))

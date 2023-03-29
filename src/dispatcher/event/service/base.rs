@@ -24,7 +24,7 @@ where
     type Future = S::Future;
 
     fn call(&self, request: Req) -> S::Future {
-        (**self).call(request)
+        S::call(self, request)
     }
 }
 
@@ -37,7 +37,7 @@ where
     type Future = S::Future;
 
     fn call(&self, request: Req) -> S::Future {
-        (**self).call(request)
+        S::call(self, request)
     }
 }
 

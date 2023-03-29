@@ -1,3 +1,5 @@
+use super::base::{Middleware, Next};
+
 use crate::{
     dispatcher::event::{
         telegram::{HandlerRequest, HandlerResponse},
@@ -5,8 +7,6 @@ use crate::{
     },
     error::AppErrorKind,
 };
-
-use super::base::{Middleware, Next};
 
 use async_trait::async_trait;
 use log::{self, Level, Log, Record};
