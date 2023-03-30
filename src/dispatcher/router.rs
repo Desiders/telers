@@ -111,6 +111,16 @@ pub struct Router<Client> {
     pub chat_member: TelegramObserver<Client>,
     pub chat_join_request: TelegramObserver<Client>,
 
+    /// This special event observer is used to handle all telegram events.
+    /// It's called for router and its sub routers and before other telegram observers.
+    /// This observer is useful for register important middlewares (often libraries) like `FSMContext` and `UserContext`,
+    /// that set up context for other.
+    ///
+    /// The order of calls looks simplistically like this:
+    /// Dispatcher -> Router -> Update observer -> Sub routers -> Update observer
+    ///            -> Router -> Other telegram observers -> Sub routers -> Other telegram observers
+    pub update: TelegramObserver<Client>,
+
     pub startup: SimpleObserver,
     pub shutdown: SimpleObserver,
 }
@@ -142,6 +152,7 @@ where
             my_chat_member: TelegramObserver::new(TelegramObserverName::MyChatMember.as_str()),
             chat_member: TelegramObserver::new(TelegramObserverName::ChatMember.as_str()),
             chat_join_request: TelegramObserver::new(TelegramObserverName::ChatJoinRequest.as_str()),
+            update: TelegramObserver::new(TelegramObserverName::Update.as_str()),
             startup: SimpleObserver::new(SimpleObserverName::Startup.as_str()),
             shutdown: SimpleObserver::new(SimpleObserverName::Shutdown.as_str()),
         }
@@ -166,6 +177,7 @@ impl<Client> Router<Client> {
             &self.my_chat_member,
             &self.chat_member,
             &self.chat_join_request,
+            &self.update,
         ]
     }
 
@@ -206,7 +218,8 @@ impl<Client> Router<Client> {
             poll_answer,
             my_chat_member,
             chat_member,
-            chat_join_request
+            chat_join_request,
+            update
         );
 
         sub_router.sub_routers.iter_mut().for_each(|sub_router| {
@@ -330,6 +343,7 @@ impl<Client> ToServiceProvider for Router<Client> {
         let my_chat_member = self.my_chat_member.to_service_provider(config)?;
         let chat_member = self.chat_member.to_service_provider(config)?;
         let chat_join_request = self.chat_join_request.to_service_provider(config)?;
+        let update = self.update.to_service_provider(config)?;
         let startup = self.startup.to_service_provider(config)?;
         let shutdown = self.shutdown.to_service_provider(config)?;
 
@@ -350,6 +364,7 @@ impl<Client> ToServiceProvider for Router<Client> {
             my_chat_member,
             chat_member,
             chat_join_request,
+            update,
             startup,
             shutdown,
         })
@@ -375,6 +390,7 @@ pub struct RouterInner<Client> {
     my_chat_member: TelegramObserverInner<Client>,
     chat_member: TelegramObserverInner<Client>,
     chat_join_request: TelegramObserverInner<Client>,
+    update: TelegramObserverInner<Client>,
 
     startup: SimpleObserverInner,
     shutdown: SimpleObserverInner,
@@ -402,6 +418,8 @@ where
         update_type: &UpdateType,
         request: Request<Client>,
     ) -> Result<Response<Client>, AppErrorKind> {
+        self.propagate_update_event(request.clone()).await?;
+
         let observer = self.telegram_observer_by_update_type(update_type);
 
         let mut request = request;
@@ -425,6 +443,90 @@ where
 
         self.propagate_event_by_observer(observer, update_type, request)
             .await
+    }
+
+    /// Propagate update event to routers
+    /// # Errors
+    /// - If any outer middleware returns error
+    /// - If any inner middleware returns error
+    /// - If any handler returns error. Probably it's error to extract args to the handler
+    #[async_recursion]
+    #[must_use]
+    async fn propagate_update_event(
+        &self,
+        request: Request<Client>,
+    ) -> Result<Response<Client>, AppErrorKind> {
+        let mut request = request;
+        for middleware in &self.update.outer_middlewares {
+            let (updated_request, event_return) = middleware.call(request.clone()).await?;
+
+            match event_return {
+                // Update request because the middleware could have changed it
+                EventReturn::Finish => request = updated_request,
+                // If middleware returns skip, then we should skip this middleware and its changes
+                EventReturn::Skip => continue,
+                // If middleware returns cancel, then we should cancel propagation
+                EventReturn::Cancel => {
+                    return Ok(Response {
+                        request,
+                        propagate_result: PropagateEventResult::Rejected,
+                    })
+                }
+            }
+        }
+
+        self.propagate_update_event_by_observer(request).await
+    }
+
+    /// Propagate event to routers by observer
+    /// # Errors
+    /// - If any outer middleware returns error
+    /// - If any inner middleware returns error
+    /// - If any handler returns error. Probably it's error to extract args to the handler
+    async fn propagate_update_event_by_observer(
+        &self,
+        request: Request<Client>,
+    ) -> Result<Response<Client>, AppErrorKind> {
+        let observer_request = request.clone().into();
+        let observer_response = self.update.trigger(observer_request).await?;
+
+        match observer_response.propagate_result {
+            // Propagate event to sub routers
+            PropagateEventResult::Unhandled => {}
+            // Return a response if the event handled
+            PropagateEventResult::Handled(response) => {
+                return Ok(Response {
+                    request,
+                    propagate_result: PropagateEventResult::Handled(response),
+                });
+            }
+            // Return a response if the event rejected
+            // Router don't know about rejected event by observer
+            PropagateEventResult::Rejected => {
+                return Ok(Response {
+                    request,
+                    propagate_result: PropagateEventResult::Unhandled,
+                });
+            }
+        };
+
+        // Propagate event to sub routers' observer
+        for router in &self.sub_routers {
+            let router_response = router.propagate_update_event(request.clone()).await?;
+            match router_response.propagate_result {
+                // Propagate event to next sub router's observer if the event unhandled by the sub router's observer
+                PropagateEventResult::Unhandled => continue,
+                PropagateEventResult::Handled(_) | PropagateEventResult::Rejected => {
+                    return Ok(router_response)
+                }
+            };
+        }
+
+        // Return a response if the event unhandled by observer
+        Ok(Response {
+            request,
+            propagate_result: PropagateEventResult::Unhandled,
+        })
     }
 
     /// Propagate event to routers by observer
@@ -652,6 +754,7 @@ mod tests {
         router.my_chat_member.register_no_filters(telegram_handler);
         router.chat_member.register_no_filters(telegram_handler);
         router.chat_join_request.register_no_filters(telegram_handler);
+        router.update.register_no_filters(telegram_handler);
         // Event observers
         router.startup.register(simple_handler, ());
         router.shutdown.register(simple_handler, ());

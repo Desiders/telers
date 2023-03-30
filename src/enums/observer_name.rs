@@ -17,6 +17,7 @@ pub enum Telegram {
     MyChatMember,
     ChatMember,
     ChatJoinRequest,
+    Update,
 }
 
 impl Debug for Telegram {
@@ -43,11 +44,12 @@ impl Telegram {
             Telegram::MyChatMember => "my_chat_member",
             Telegram::ChatMember => "chat_member",
             Telegram::ChatJoinRequest => "chat_join_request",
+            Telegram::Update => "update",
         }
     }
 
     #[must_use]
-    pub const fn all() -> &'static [Telegram; 14] {
+    pub const fn all() -> &'static [Telegram; 15] {
         &[
             Telegram::Message,
             Telegram::InlineQuery,
@@ -63,6 +65,7 @@ impl Telegram {
             Telegram::MyChatMember,
             Telegram::ChatMember,
             Telegram::ChatJoinRequest,
+            Telegram::Update,
         ]
     }
 }
