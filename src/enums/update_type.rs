@@ -3,7 +3,7 @@ use crate::{error::UnknownUpdateTypeError, types::Update};
 use std::fmt::{self, Debug};
 
 /// See [`Update`] for a complete list of available update types
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum UpdateType {
     Message,
     InlineQuery,
@@ -71,12 +71,6 @@ impl UpdateType {
 
 impl From<UpdateType> for String {
     fn from(update_type: UpdateType) -> Self {
-        update_type.as_str().to_string()
-    }
-}
-
-impl<'a> From<&'a UpdateType> for String {
-    fn from(update_type: &'a UpdateType) -> Self {
         update_type.as_str().to_string()
     }
 }

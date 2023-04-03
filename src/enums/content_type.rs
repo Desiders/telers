@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug};
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ContentType {
     Text,
     Animation,
@@ -170,12 +170,6 @@ impl ContentType {
 
 impl From<ContentType> for String {
     fn from(content_type: ContentType) -> Self {
-        content_type.as_str().to_string()
-    }
-}
-
-impl<'a> From<&'a ContentType> for String {
-    fn from(content_type: &'a ContentType) -> Self {
         content_type.as_str().to_string()
     }
 }

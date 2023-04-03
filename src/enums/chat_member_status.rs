@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug};
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ChatMemberStatus {
     Creator,
     Administrator,
@@ -44,12 +44,6 @@ impl ChatMemberStatus {
 
 impl From<ChatMemberStatus> for String {
     fn from(status: ChatMemberStatus) -> Self {
-        status.as_str().to_string()
-    }
-}
-
-impl<'a> From<&'a ChatMemberStatus> for String {
-    fn from(status: &'a ChatMemberStatus) -> Self {
         status.as_str().to_string()
     }
 }

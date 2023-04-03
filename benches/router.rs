@@ -226,7 +226,7 @@ fn router_benchmark(c: &mut Criterion) {
             let request = black_box(Request::new(bot, update, context));
 
             router_service
-                .propagate_event(black_box(&UpdateType::Message), request)
+                .propagate_event(black_box(UpdateType::Message), request)
                 .await
                 .unwrap();
         })
@@ -248,7 +248,7 @@ fn router_benchmark(c: &mut Criterion) {
             let request = black_box(Request::new(bot, update, context));
 
             router_service
-                .propagate_event(black_box(&UpdateType::Message), request)
+                .propagate_event(black_box(UpdateType::Message), request)
                 .await
                 .unwrap();
         })

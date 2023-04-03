@@ -260,7 +260,7 @@ impl<Client> Router<Client> {
                 .iter()
                 .filter(|observer| !observer.handlers.is_empty())
                 .map(|observer| {
-                    observer.event_name.try_into().expect(
+                    <&str as TryInto<UpdateType>>::try_into(observer.event_name).expect(
                         "Can't convert event name to UpdateType. This is a bug. Please, report it.",
                     )
                 }),
@@ -415,7 +415,7 @@ where
     #[must_use]
     pub async fn propagate_event(
         &self,
-        update_type: &UpdateType,
+        update_type: UpdateType,
         request: Request<Client>,
     ) -> Result<Response<Client>, AppErrorKind> {
         self.propagate_update_event(request.clone()).await?;
@@ -537,7 +537,7 @@ where
     async fn propagate_event_by_observer(
         &self,
         observer: &TelegramObserverInner<Client>,
-        update_type: &UpdateType,
+        update_type: UpdateType,
         request: Request<Client>,
     ) -> Result<Response<Client>, AppErrorKind> {
         let observer_request = request.clone().into();
@@ -587,7 +587,7 @@ impl<Client> RouterInner<Client> {
     #[must_use]
     pub const fn telegram_observer_by_update_type(
         &self,
-        update_type: &UpdateType,
+        update_type: UpdateType,
     ) -> &TelegramObserverInner<Client> {
         match update_type {
             UpdateType::Message => &self.message,
@@ -816,7 +816,7 @@ mod tests {
 
         let request = Request::new(bot, update, context);
         let response = router_service
-            .propagate_event(&UpdateType::Message, request.clone())
+            .propagate_event(UpdateType::Message, request.clone())
             .await
             .unwrap();
 
@@ -830,7 +830,7 @@ mod tests {
         }
 
         let response = router_service
-            .propagate_event(&UpdateType::CallbackQuery, request.clone())
+            .propagate_event(UpdateType::CallbackQuery, request.clone())
             .await
             .unwrap();
 
@@ -849,7 +849,7 @@ mod tests {
         let router_service = router.to_service_provider(()).unwrap();
 
         let response = router_service
-            .propagate_event(&UpdateType::Message, request.clone())
+            .propagate_event(UpdateType::Message, request.clone())
             .await
             .unwrap();
 
@@ -870,7 +870,7 @@ mod tests {
         let router_service = router.to_service_provider(()).unwrap();
 
         let response = router_service
-            .propagate_event(&UpdateType::CallbackQuery, request)
+            .propagate_event(UpdateType::CallbackQuery, request)
             .await
             .unwrap();
 

@@ -3,7 +3,7 @@ use std::{
     ops::{Range, RangeInclusive},
 };
 
-#[derive(Clone, Eq, Hash, PartialEq)]
+#[derive(Copy, Clone, Eq, Hash, PartialEq)]
 pub enum DiceEmoji {
     Dice,
     Dart,
@@ -55,12 +55,6 @@ impl From<DiceEmoji> for Range<i64> {
 
 impl From<DiceEmoji> for String {
     fn from(val: DiceEmoji) -> Self {
-        val.as_str().to_string()
-    }
-}
-
-impl<'a> From<&'a DiceEmoji> for String {
-    fn from(val: &'a DiceEmoji) -> Self {
         val.as_str().to_string()
     }
 }

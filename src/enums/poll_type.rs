@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug};
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum PollType {
     Regular,
     Quiz,
@@ -29,12 +29,6 @@ impl PollType {
 
 impl From<PollType> for String {
     fn from(action: PollType) -> Self {
-        action.as_str().to_string()
-    }
-}
-
-impl<'a> From<&'a PollType> for String {
-    fn from(action: &'a PollType) -> Self {
         action.as_str().to_string()
     }
 }

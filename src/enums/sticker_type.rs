@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug};
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum StickerType {
     Regular,
     Mask,
@@ -35,12 +35,6 @@ impl StickerType {
 
 impl From<StickerType> for String {
     fn from(action: StickerType) -> Self {
-        action.as_str().to_string()
-    }
-}
-
-impl<'a> From<&'a StickerType> for String {
-    fn from(action: &'a StickerType) -> Self {
         action.as_str().to_string()
     }
 }

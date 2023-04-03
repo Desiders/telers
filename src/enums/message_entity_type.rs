@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug};
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum MessageEntityType {
     Mention,
     Hashtag,
@@ -74,12 +74,6 @@ impl MessageEntityType {
 
 impl From<MessageEntityType> for String {
     fn from(entity_type: MessageEntityType) -> Self {
-        entity_type.as_str().to_string()
-    }
-}
-
-impl<'a> From<&'a MessageEntityType> for String {
-    fn from(entity_type: &'a MessageEntityType) -> Self {
         entity_type.as_str().to_string()
     }
 }

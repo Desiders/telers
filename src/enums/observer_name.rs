@@ -1,7 +1,7 @@
 use std::fmt::{self, Debug};
 
 /// Enums, which are used to identify default [telegram observers](`crate::dispatcher::event::telegram::observer::Observer`).
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Telegram {
     Message,
     InlineQuery,
@@ -70,6 +70,12 @@ impl Telegram {
     }
 }
 
+impl From<Telegram> for String {
+    fn from(scope: Telegram) -> Self {
+        scope.as_str().to_string()
+    }
+}
+
 /// Enums, which are used to identify default [simple observers](`crate::dispatcher::event::simple::observer::Observer`).
 pub enum Simple {
     Startup,
@@ -88,5 +94,11 @@ impl Simple {
     #[must_use]
     pub const fn all() -> &'static [Simple; 2] {
         &[Simple::Startup, Simple::Shutdown]
+    }
+}
+
+impl From<Simple> for String {
+    fn from(scope: Simple) -> Self {
+        scope.as_str().to_string()
     }
 }

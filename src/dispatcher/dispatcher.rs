@@ -295,7 +295,7 @@ where
 
         Ok(self
             .main_router
-            .propagate_event(&update_type, Request::new(bot, update, Context::default()))
+            .propagate_event(update_type, Request::new(bot, update, Context::default()))
             .await)
     }
 

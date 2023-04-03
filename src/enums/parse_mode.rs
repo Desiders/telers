@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug};
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ParseMode {
     Markdown,
     MarkdownV2,
@@ -31,12 +31,6 @@ impl ParseMode {
 
 impl From<ParseMode> for String {
     fn from(parse_mode: ParseMode) -> Self {
-        parse_mode.as_str().to_string()
-    }
-}
-
-impl<'a> From<&'a ParseMode> for String {
-    fn from(parse_mode: &'a ParseMode) -> Self {
         parse_mode.as_str().to_string()
     }
 }

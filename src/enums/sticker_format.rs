@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug};
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum StickerFormat {
     Static,
     Animated,
@@ -35,12 +35,6 @@ impl StickerFormat {
 
 impl From<StickerFormat> for String {
     fn from(format: StickerFormat) -> Self {
-        format.as_str().to_string()
-    }
-}
-
-impl<'a> From<&'a StickerFormat> for String {
-    fn from(format: &'a StickerFormat) -> Self {
         format.as_str().to_string()
     }
 }

@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug};
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum InputMediaType {
     Animation,
     Audio,
@@ -41,12 +41,6 @@ impl InputMediaType {
 
 impl From<InputMediaType> for String {
     fn from(media_type: InputMediaType) -> Self {
-        media_type.as_str().to_string()
-    }
-}
-
-impl<'a> From<&'a InputMediaType> for String {
-    fn from(media_type: &'a InputMediaType) -> Self {
         media_type.as_str().to_string()
     }
 }

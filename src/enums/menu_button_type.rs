@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug};
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum MenuButtonType {
     Commands,
     WebApp,
@@ -35,12 +35,6 @@ impl MenuButtonType {
 
 impl From<MenuButtonType> for String {
     fn from(button_type: MenuButtonType) -> Self {
-        button_type.as_str().to_string()
-    }
-}
-
-impl<'a> From<&'a MenuButtonType> for String {
-    fn from(button_type: &'a MenuButtonType) -> Self {
         button_type.as_str().to_string()
     }
 }

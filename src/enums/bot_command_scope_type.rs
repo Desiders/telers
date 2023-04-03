@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug};
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum BotCommandScopeType {
     Default,
     AllPrivateChats,
@@ -47,12 +47,6 @@ impl BotCommandScopeType {
 
 impl From<BotCommandScopeType> for String {
     fn from(scope: BotCommandScopeType) -> Self {
-        scope.as_str().to_string()
-    }
-}
-
-impl<'a> From<&'a BotCommandScopeType> for String {
-    fn from(scope: &'a BotCommandScopeType) -> Self {
         scope.as_str().to_string()
     }
 }

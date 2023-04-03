@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug};
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum MaskPositionPoint {
     Forehead,
     Eyes,
@@ -33,12 +33,6 @@ impl MaskPositionPoint {
 
 impl From<MaskPositionPoint> for String {
     fn from(point: MaskPositionPoint) -> Self {
-        point.as_str().to_string()
-    }
-}
-
-impl<'a> From<&'a MaskPositionPoint> for String {
-    fn from(point: &'a MaskPositionPoint) -> Self {
         point.as_str().to_string()
     }
 }

@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug};
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum TopicIconColor {
     Blue,
     Yellow,
@@ -44,12 +44,6 @@ impl TopicIconColor {
 
 impl From<TopicIconColor> for String {
     fn from(color: TopicIconColor) -> Self {
-        color.as_str().to_string()
-    }
-}
-
-impl<'a> From<&'a TopicIconColor> for String {
-    fn from(color: &'a TopicIconColor) -> Self {
         color.as_str().to_string()
     }
 }

@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug};
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum InlineQueryResultType {
     Article,
     Audio,
@@ -68,12 +68,6 @@ impl InlineQueryResultType {
 
 impl From<InlineQueryResultType> for String {
     fn from(inline_query_result_type: InlineQueryResultType) -> Self {
-        inline_query_result_type.as_str().to_string()
-    }
-}
-
-impl<'a> From<&'a InlineQueryResultType> for String {
-    fn from(inline_query_result_type: &'a InlineQueryResultType) -> Self {
         inline_query_result_type.as_str().to_string()
     }
 }

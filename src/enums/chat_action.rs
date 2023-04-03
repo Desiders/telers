@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug};
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ChatAction {
     Typing,
     UploadPhoto,
@@ -56,12 +56,6 @@ impl ChatAction {
 
 impl From<ChatAction> for String {
     fn from(action: ChatAction) -> Self {
-        action.as_str().to_string()
-    }
-}
-
-impl<'a> From<&'a ChatAction> for String {
-    fn from(action: &'a ChatAction) -> Self {
         action.as_str().to_string()
     }
 }

@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug};
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ChatType {
     Private,
     Group,
@@ -38,12 +38,6 @@ impl ChatType {
 
 impl From<ChatType> for String {
     fn from(chat_type: ChatType) -> Self {
-        chat_type.as_str().to_string()
-    }
-}
-
-impl<'a> From<&'a ChatType> for String {
-    fn from(chat_type: &'a ChatType) -> Self {
         chat_type.as_str().to_string()
     }
 }
