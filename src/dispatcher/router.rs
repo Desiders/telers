@@ -794,8 +794,23 @@ mod tests {
 
         let mut router = Router::new("test1");
         router
+            .update
+            .outer_middlewares
+            .register(|request: Request<Reqwest>| async move {
+                request.context.insert("test", Box::new("test"));
+
+                Ok((request, EventReturn::Finish))
+            });
+        router
             .message
-            .register_no_filters(|| async { Ok(EventReturn::Finish) });
+            .register_no_filters(|context: Arc<Context>| async move {
+                assert_eq!(
+                    context.get("test").unwrap().downcast_ref::<&str>().unwrap(),
+                    &"test"
+                );
+
+                Ok(EventReturn::Finish)
+            });
 
         let router_service = router.to_service_provider(()).unwrap();
 
