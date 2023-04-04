@@ -76,7 +76,8 @@ impl<Client> Bot<Client> {
         T: Into<Cow<'static, str>>,
     {
         let token = token.into();
-        let bot_id = token::extract_bot_id(&token).expect("This bot token is invalid, please check it");
+        let bot_id =
+            token::extract_bot_id(&token).expect("This bot token is invalid, please check it");
         let hidden_token = token::hide(&token);
 
         Self {

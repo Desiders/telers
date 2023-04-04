@@ -32,13 +32,24 @@ pub struct Reqwest {
 
 impl Reqwest {
     #[must_use]
-    pub fn new<T>(client: Client, api: T) -> Self
+    pub fn new<T>(client: Client) -> Self
     where
         T: Into<Cow<'static, telegram::APIServer>>,
     {
         Self {
             client,
+            api: Cow::Borrowed(&telegram::PRODUCTION),
+        }
+    }
+
+    #[must_use]
+    pub fn api<T>(self, api: T) -> Self
+    where
+        T: Into<Cow<'static, telegram::APIServer>>,
+    {
+        Self {
             api: api.into(),
+            ..self
         }
     }
 
