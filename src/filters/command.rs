@@ -9,10 +9,10 @@ use crate::{
 
 use async_trait::async_trait;
 use regex::Regex;
-use std::{borrow::Cow, iter::once};
+use std::{borrow::Cow, iter::once, result::Result as StdResult};
 use thiserror;
 
-pub type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = StdResult<T, Error>;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

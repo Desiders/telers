@@ -1,8 +1,8 @@
 use dashmap::DashMap;
 use std::any::Any;
 
-/// Creates for each update and can be passed to all handlers, filters and middlewares. \
-/// Can be used to store data that is needed to transfer between handlers, filters and middlewares.
+/// Creates for each update. \
+/// Can be used to store data that is needed to transfer between handlers, filters, middlewares and etc.
 pub type Context = DashMap<&'static str, Box<dyn Any + Send + Sync>>;
 
 #[cfg(test)]

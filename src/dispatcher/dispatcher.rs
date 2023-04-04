@@ -44,6 +44,7 @@ enum PollingError {
 pub struct Dispatcher<Client> {
     main_router: Router<Client>,
     bots: Vec<Bot<Client>>,
+    context: Context,
     polling_timeout: Option<i64>,
     backoff: ExponentialBackoff<SystemClock>,
     allowed_updates: Option<Vec<String>>,
@@ -57,6 +58,9 @@ impl<Client> Dispatcher<Client> {
     /// * `bots` -
     /// Bots, which will be used for getting updates.
     /// All bots use the same dispatcher, but each bot has the own polling process.
+    /// * `context` -
+    /// Context, which will be used for dispatching updates.
+    /// It can be used to store data that is needed to transfer between handlers, filters, middlewares and etc.
     /// * `polling_timeout` -
     /// Timeout in seconds for long polling.
     /// Short polling should be used for testing purposes only.
@@ -69,6 +73,7 @@ impl<Client> Dispatcher<Client> {
     pub fn new<AllowedUpdate>(
         main_router: Router<Client>,
         bots: Vec<Bot<Client>>,
+        context: Context,
         polling_timeout: Option<i64>,
         backoff: ExponentialBackoff<SystemClock>,
         allowed_updates: Option<Vec<AllowedUpdate>>,
@@ -79,6 +84,7 @@ impl<Client> Dispatcher<Client> {
         Self {
             main_router,
             bots,
+            context,
             polling_timeout,
             backoff,
             allowed_updates: allowed_updates
@@ -106,6 +112,7 @@ where
         Self {
             main_router: Router::default(),
             bots: vec![],
+            context: Context::default(),
             polling_timeout: Some(DEFAULT_POLLING_TIMEOUT),
             backoff: ExponentialBackoff::default(),
             allowed_updates: None,
@@ -117,6 +124,7 @@ where
 pub struct DispatcherBuilder<Client> {
     main_router: Router<Client>,
     bots: Vec<Bot<Client>>,
+    context: Context,
     polling_timeout: Option<i64>,
     backoff: ExponentialBackoff<SystemClock>,
     allowed_updates: Option<Vec<String>>,
@@ -131,6 +139,7 @@ where
         Self {
             main_router: Router::default(),
             bots: vec![],
+            context: Context::default(),
             polling_timeout: Some(DEFAULT_POLLING_TIMEOUT),
             backoff: ExponentialBackoff::default(),
             allowed_updates: None,
@@ -170,6 +179,16 @@ impl<Client> DispatcherBuilder<Client> {
     pub fn bots(self, val: Vec<Bot<Client>>) -> Self {
         Self {
             bots: self.bots.into_iter().chain(val).collect(),
+            ..self
+        }
+    }
+
+    /// Set context, which will be used for dispatching updates.
+    /// It can be used to store data that is needed to transfer between handlers, filters, middlewares and etc.
+    #[must_use]
+    pub fn context(self, val: Context) -> Self {
+        Self {
+            context: val,
             ..self
         }
     }
@@ -221,6 +240,7 @@ impl<Client> DispatcherBuilder<Client> {
         Dispatcher {
             main_router: self.main_router,
             bots: self.bots,
+            context: self.context,
             polling_timeout: self.polling_timeout,
             backoff: self.backoff,
             allowed_updates: self.allowed_updates,
@@ -242,6 +262,7 @@ impl<Client> ToServiceProvider for Dispatcher<Client> {
         Ok(Arc::new(DispatcherInner {
             main_router,
             bots: self.bots,
+            context: Arc::new(self.context),
             polling_timeout: self.polling_timeout,
             backoff: self.backoff,
             allowed_updates: self.allowed_updates,
@@ -253,6 +274,7 @@ impl<Client> ToServiceProvider for Dispatcher<Client> {
 pub struct DispatcherInner<Client> {
     main_router: RouterInner<Client>,
     bots: Vec<Bot<Client>>,
+    context: Arc<Context>,
     polling_timeout: Option<i64>,
     backoff: ExponentialBackoff<SystemClock>,
     allowed_updates: Option<Vec<String>>,
@@ -264,7 +286,7 @@ impl<Client> DispatcherInner<Client>
 where
     Client: Session + Clone + 'static,
 {
-    /// Main entry point for incoming updates
+    /// Main entry point for incoming updates with context in [`Dispatcher`]
     /// # Arguments
     /// * `bot` - [`Bot`] which will be used for creating [`Request`]
     /// * `update` - [`Update`] which will be processed
@@ -295,7 +317,48 @@ where
 
         Ok(self
             .main_router
-            .propagate_event(update_type, Request::new(bot, update, Context::default()))
+            .propagate_event(
+                update_type,
+                Request::new(bot, update, Arc::clone(&self.context)),
+            )
+            .await)
+    }
+
+    /// Main entry point for incoming updates with user context
+    /// # Arguments
+    /// * `bot` - [`Bot`] which will be used for creating [`Request`]
+    /// * `update` - [`Update`] which will be processed
+    /// * `context` - [`Context`] which will be used for dispatching updates
+    /// # Errors
+    /// Returns [`UnknownUpdateTypeError`] if update type is not supported, or [`AppErrorKind`] if any of this error occurs:
+    /// - If any outer middleware returns error
+    /// - If any inner middleware returns error
+    /// - If any handler returns error. Probably it's error to extract args to the handler.
+    pub async fn feed_update_with_context<B, U, C>(
+        self: Arc<Self>,
+        bot: B,
+        update: U,
+        context: C,
+    ) -> Result<Result<Response<Client>, AppErrorKind>, UnknownUpdateTypeError>
+    where
+        B: Into<Arc<Bot<Client>>>,
+        U: Into<Arc<Update>>,
+        C: Into<Arc<Context>>,
+    {
+        let update: Arc<Update> = update.into();
+
+        let update_type = match update.as_ref().try_into() {
+            Ok(update_type) => update_type,
+            Err(err) => {
+                log::error!("{err}");
+
+                return Err(err);
+            }
+        };
+
+        Ok(self
+            .main_router
+            .propagate_event(update_type, Request::new(bot, update, context.into()))
             .await)
     }
 
