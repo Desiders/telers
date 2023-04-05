@@ -1,8 +1,9 @@
+use super::FromEventAndContext;
+
 use crate::{
     client::Bot,
     context::Context,
     error::ConvertUpdateToTypeError,
-    extract::FromEventAndContext,
     types::{
         CallbackQuery, ChatJoinRequest, ChatMemberUpdated, ChosenInlineResult, InlineQuery,
         Message, Poll, PollAnswer, PreCheckoutQuery, ShippingQuery, Update,

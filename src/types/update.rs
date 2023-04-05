@@ -55,18 +55,12 @@ impl Update {
             Some(&chosen_inline_result.from)
         } else if let Some(callback_query) = &self.callback_query {
             Some(&callback_query.from)
-        } else if let Some(_) = &self.channel_post {
-            None
         } else if let Some(message) = &self.edited_message {
             message.from.as_ref()
-        } else if let Some(_) = &self.edited_channel_post {
-            None
         } else if let Some(shipping_query) = &self.shipping_query {
             Some(&shipping_query.from)
         } else if let Some(pre_checkout_query) = &self.pre_checkout_query {
             Some(&pre_checkout_query.from)
-        } else if let Some(_) = &self.poll {
-            None
         } else if let Some(poll_answer) = &self.poll_answer {
             Some(&poll_answer.user)
         } else if let Some(chat_member_updated) = &self.my_chat_member {
@@ -75,6 +69,12 @@ impl Update {
             Some(&chat_member_updated.from)
         } else if let Some(chat_join_request) = &self.chat_join_request {
             Some(&chat_join_request.from)
+        // } else if self.channel_post.is_some()
+        //     | self.edited_channel_post.is_some()
+        //     | self.poll.is_some()
+        // {
+        //     // These updates don't have a user, so we return `None`
+        //     None
         } else {
             None
         }
@@ -91,10 +91,6 @@ impl Update {
     pub fn chat(&self) -> Option<&Chat> {
         if let Some(message) = &self.message {
             Some(&message.chat)
-        } else if let Some(_) = &self.inline_query {
-            None
-        } else if let Some(_) = &self.chosen_inline_result {
-            None
         } else if let Some(callback_query) = &self.callback_query {
             Some(&callback_query.message.as_ref()?.chat)
         } else if let Some(message) = &self.channel_post {
@@ -103,20 +99,21 @@ impl Update {
             Some(&message.chat)
         } else if let Some(message) = &self.edited_channel_post {
             Some(&message.chat)
-        } else if let Some(_) = &self.shipping_query {
-            None
-        } else if let Some(_) = &self.pre_checkout_query {
-            None
-        } else if let Some(_) = &self.poll {
-            None
-        } else if let Some(_) = &self.poll_answer {
-            None
         } else if let Some(chat_member_updated) = &self.my_chat_member {
             Some(&chat_member_updated.chat)
         } else if let Some(chat_member_updated) = &self.chat_member {
             Some(&chat_member_updated.chat)
         } else if let Some(chat_join_request) = &self.chat_join_request {
             Some(&chat_join_request.chat)
+        // } else if self.inline_query.is_some()
+        //     | self.chosen_inline_result.is_some()
+        //     | self.shipping_query.is_some()
+        //     | self.pre_checkout_query.is_some()
+        //     | self.poll.is_some()
+        //     | self.poll_answer.is_some()
+        // {
+        //     // These updates don't have a chat, so we return `None`
+        //     None
         } else {
             None
         }

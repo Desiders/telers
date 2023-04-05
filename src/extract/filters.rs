@@ -37,5 +37,7 @@ mod tests {
         fn assert_impl_handler<T: FromEventAndContext<Reqwest>>(_: impl Handler<T>) {}
 
         assert_impl_handler(|_: CommandObject| async { unreachable!() });
+        assert_impl_handler(|_: Option<CommandObject>| async { unreachable!() });
+        assert_impl_handler(|_: Result<CommandObject, ExtractionError>| async { unreachable!() });
     }
 }
