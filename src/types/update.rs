@@ -44,15 +44,10 @@ pub struct Update {
 }
 
 impl Update {
+    /// Returns the [`User`] who sent the update
     #[must_use]
     pub fn user(&self) -> Option<&User> {
         if let Some(message) = &self.message {
-            message.from.as_ref()
-        } else if let Some(message) = &self.edited_message {
-            message.from.as_ref()
-        } else if let Some(message) = &self.channel_post {
-            message.from.as_ref()
-        } else if let Some(message) = &self.edited_channel_post {
             message.from.as_ref()
         } else if let Some(inline_query) = &self.inline_query {
             Some(&inline_query.from)
@@ -60,33 +55,62 @@ impl Update {
             Some(&chosen_inline_result.from)
         } else if let Some(callback_query) = &self.callback_query {
             Some(&callback_query.from)
+        } else if let Some(_) = &self.channel_post {
+            None
+        } else if let Some(message) = &self.edited_message {
+            message.from.as_ref()
+        } else if let Some(_) = &self.edited_channel_post {
+            None
         } else if let Some(shipping_query) = &self.shipping_query {
             Some(&shipping_query.from)
         } else if let Some(pre_checkout_query) = &self.pre_checkout_query {
             Some(&pre_checkout_query.from)
+        } else if let Some(_) = &self.poll {
+            None
         } else if let Some(poll_answer) = &self.poll_answer {
             Some(&poll_answer.user)
         } else if let Some(chat_member_updated) = &self.my_chat_member {
             Some(&chat_member_updated.from)
         } else if let Some(chat_member_updated) = &self.chat_member {
             Some(&chat_member_updated.from)
+        } else if let Some(chat_join_request) = &self.chat_join_request {
+            Some(&chat_join_request.from)
         } else {
             None
         }
     }
 
+    /// Alias to [`Update::user`] method
+    #[must_use]
+    pub fn from(&self) -> Option<&User> {
+        self.user()
+    }
+
+    /// Returns the [`Chat`] where the update was sent
     #[must_use]
     pub fn chat(&self) -> Option<&Chat> {
         if let Some(message) = &self.message {
             Some(&message.chat)
-        } else if let Some(message) = &self.edited_message {
-            Some(&message.chat)
+        } else if let Some(_) = &self.inline_query {
+            None
+        } else if let Some(_) = &self.chosen_inline_result {
+            None
+        } else if let Some(callback_query) = &self.callback_query {
+            Some(&callback_query.message.as_ref()?.chat)
         } else if let Some(message) = &self.channel_post {
+            Some(&message.chat)
+        } else if let Some(message) = &self.edited_message {
             Some(&message.chat)
         } else if let Some(message) = &self.edited_channel_post {
             Some(&message.chat)
-        } else if let Some(callback_query) = &self.callback_query {
-            Some(&callback_query.message.as_ref()?.chat)
+        } else if let Some(_) = &self.shipping_query {
+            None
+        } else if let Some(_) = &self.pre_checkout_query {
+            None
+        } else if let Some(_) = &self.poll {
+            None
+        } else if let Some(_) = &self.poll_answer {
+            None
         } else if let Some(chat_member_updated) = &self.my_chat_member {
             Some(&chat_member_updated.chat)
         } else if let Some(chat_member_updated) = &self.chat_member {
@@ -96,5 +120,11 @@ impl Update {
         } else {
             None
         }
+    }
+
+    /// Shortcut to get both [`User`] and [`Chat`] from the update
+    #[must_use]
+    pub fn user_and_chat(&self) -> (Option<&User>, Option<&Chat>) {
+        (self.user(), self.chat())
     }
 }
