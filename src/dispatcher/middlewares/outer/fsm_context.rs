@@ -73,17 +73,11 @@ where
         bot_id: i64,
         context: &Arc<RequestContext>,
     ) -> Option<Context<S>> {
-        let user = context.get("event_user").expect(
-            "Event context should contain user. \
-             This is a bug, please report it.",
-        );
-        let chat = context.get("event_chat").expect(
-            "Event context should contain chat. \
-             This is a bug, please report it.",
-        );
+        let user = context.get("event_user");
+        let chat = context.get("event_chat");
 
-        let user_id = user.downcast_ref().map(|user: &User| user.id);
-        let chat_id = chat.downcast_ref().map(|chat: &User| chat.id);
+        let user_id = user.and_then(|user| user.downcast_ref().map(|user: &User| user.id));
+        let chat_id = chat.and_then(|user| user.downcast_ref().map(|chat: &User| chat.id));
 
         self.resolve_context(bot_id, chat_id, user_id)
     }
@@ -126,19 +120,19 @@ where
         &self,
         request: RouterRequest<Client>,
     ) -> Result<MiddlewareResponse<Client>, AppErrorKind> {
-        if let Some(fsm_context) = self.resolve_event_context(request.bot.id(), &request.context) {
+        let context = &request.context;
+
+        if let Some(fsm_context) = self.resolve_event_context(request.bot.id(), context) {
             let state = fsm_context
                 .get_state()
                 .await
                 .map_err(|err| anyhow!("Failed to get FSM state: {err}"))?;
 
-            request.context.insert("state", Box::new(state));
-            request.context.insert("fsm_context", Box::new(fsm_context));
+            context.insert("state", Box::new(state));
+            context.insert("fsm_context", Box::new(fsm_context));
         }
 
-        request
-            .context
-            .insert("fsm_storage", Box::new(self.storage.clone()));
+        context.insert("fsm_storage", Box::new(self.storage.clone()));
 
         Ok((request, EventReturn::default()))
     }
