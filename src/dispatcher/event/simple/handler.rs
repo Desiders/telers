@@ -88,7 +88,7 @@ where
 mod factory_handlers {
     use super::{Future, Handler};
 
-    // `Handler` implementation for functions
+    // `Handler` implementation for function-like
     macro_rules! factory ({ $($param:ident)* } => {
         impl<Func, Fut, $($param,)*> Handler<($($param,)*)> for Func
         where

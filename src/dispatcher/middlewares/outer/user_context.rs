@@ -7,6 +7,8 @@ use crate::{
 
 use async_trait::async_trait;
 
+/// Middleware for adding [`crate::types::User`] and [`crate::types::Chat`] to context,
+/// if they are present in [`crate::types::Update`] struct
 #[derive(Debug, Default, Clone)]
 pub struct UserContext;
 

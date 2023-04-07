@@ -1,5 +1,8 @@
 use std::fmt::{self, Debug};
 
+/// This enum represents all possible types of the mask position point
+/// # Documentation
+/// <https://core.telegram.org/bots/api#maskposition>
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum MaskPositionPoint {
     Forehead,

@@ -15,6 +15,10 @@ struct Record {
     data: HashMap<Cow<'static, str>, Vec<u8>>,
 }
 
+/// This is a simple thread-safe in-memory storage implementation used for testing purposes usually
+/// # Warning
+/// This storage isn't recommended for production use, because it doesn't persist data between restarts. \
+/// It's recommended to use a database instead and other storage implementations, like [`super::Redis`]
 #[derive(Debug, Default, Clone)]
 pub struct Memory {
     storage: Arc<Mutex<HashMap<StorageKey, Record>>>,
@@ -76,7 +80,7 @@ impl Storage for Memory {
     /// # Arguments
     /// * `key` - Specified key to get state
     /// # Returns
-    /// State for specified key, if state is no exists, then `None` will be return
+    /// State for specified key, if state is no exists, then [`None`] will be return
     async fn get_state(&self, key: &StorageKey) -> Result<Option<Cow<'static, str>>, Self::Error> {
         Ok(self
             .storage
@@ -154,7 +158,7 @@ impl Storage for Memory {
     /// # Arguments
     /// * `key` - Specified key to get data
     /// # Returns
-    /// Data for specified key, if data is no exists, then empty `HashMap` will be return
+    /// Data for specified key, if data is no exists, then empty [`HashMap`] will be return
     async fn get_data<Data>(
         &self,
         key: &StorageKey,

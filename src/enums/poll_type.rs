@@ -1,5 +1,8 @@
 use std::fmt::{self, Debug};
 
+/// This enum represents all possible types of the poll
+/// # Documentation
+/// <https://core.telegram.org/bots/api#poll>
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum PollType {
     Regular,

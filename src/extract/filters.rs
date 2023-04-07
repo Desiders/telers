@@ -5,6 +5,7 @@ use crate::{
 
 use std::sync::Arc;
 
+/// To be able to use [`CommandObject`] from [`crate::filters::command::Command`] filter as handler argument
 impl<Client> FromEventAndContext<Client> for CommandObject {
     type Error = ExtractionError;
 

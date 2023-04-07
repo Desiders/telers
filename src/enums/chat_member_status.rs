@@ -1,5 +1,8 @@
 use std::fmt::{self, Debug};
 
+/// This enum represents all possible types of the chat member status
+/// # Documentation
+/// <https://core.telegram.org/bots/api#chatmember>
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ChatMemberStatus {
     Creator,

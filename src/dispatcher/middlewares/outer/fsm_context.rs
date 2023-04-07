@@ -16,6 +16,7 @@ use anyhow::anyhow;
 use async_trait::async_trait;
 use std::sync::Arc;
 
+/// Middleware for creating FSM [`Context`]
 pub struct FSMContext<S> {
     storage: S,
     strategy: Strategy,

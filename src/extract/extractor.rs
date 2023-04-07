@@ -8,8 +8,8 @@ pub trait FromEventAndContext<Client>: Sized {
 
     /// Extracts data from [`Update`], [`Context`] and [`Bot`] to handler argument
     /// # Returns
-    /// `Ok(Self)` if extraction was successful,
-    /// `Err(Self::Error)` otherwise
+    /// [`Ok(Self)`] if extraction was successful,
+    /// [`Err(Self::Error)`] otherwise
     /// # Errors
     /// [`ExtractionError`] if extraction was unsuccessful
     fn extract(
@@ -19,6 +19,9 @@ pub trait FromEventAndContext<Client>: Sized {
     ) -> Result<Self, Self::Error>;
 }
 
+/// To be able to use [`Option`] as handler argument
+/// This implementation will return [`None`] if extraction was unsuccessful, and [`Some(value)`] otherwise
+/// Useful for optional arguments
 impl<Client, T: FromEventAndContext<Client>> FromEventAndContext<Client> for Option<T> {
     type Error = Infallible;
 
@@ -34,6 +37,10 @@ impl<Client, T: FromEventAndContext<Client>> FromEventAndContext<Client> for Opt
     }
 }
 
+/// To be able to use [`Result`] as handler argument
+/// This implementation will return [`Ok(value)`] if extraction was successful, and [`Err(error)`] otherwise,
+/// where `error` is `T::Error` converted to `E`
+/// Useful for optional arguments
 impl<Client, T, E> FromEventAndContext<Client> for Result<T, E>
 where
     T: FromEventAndContext<Client>,
@@ -50,6 +57,9 @@ where
     }
 }
 
+/// To be able to use [`Box`] as handler argument
+/// This implementation will return [`Box(value)`] if extraction was successful, and [`Err(error)`] otherwise
+/// Useful for arguments with dynamic size
 impl<Client, T: FromEventAndContext<Client>> FromEventAndContext<Client> for Box<T> {
     type Error = T::Error;
 
@@ -62,6 +72,9 @@ impl<Client, T: FromEventAndContext<Client>> FromEventAndContext<Client> for Box
     }
 }
 
+/// To be able to use [`Pin<Box>`] as handler argument
+/// This implementation will return [`Pin(value)`] if extraction was successful, and [`Err(error)`] otherwise
+/// Useful for arguments with dynamic size, which should be pinned
 impl<Client, T: FromEventAndContext<Client>> FromEventAndContext<Client> for Pin<Box<T>> {
     type Error = T::Error;
 
@@ -75,6 +88,7 @@ impl<Client, T: FromEventAndContext<Client>> FromEventAndContext<Client> for Pin
 }
 
 /// To be able to use handler without arguments
+/// Handler without arguments will be called with [`()`] argument (unit type)
 impl<Client> FromEventAndContext<Client> for () {
     type Error = Infallible;
 
@@ -88,11 +102,12 @@ impl<Client> FromEventAndContext<Client> for () {
 }
 
 #[allow(non_snake_case)]
-#[doc(hidden)]
 mod factory_from_event_and_context {
     use super::{Arc, Bot, Context, ExtractionError, FromEventAndContext, Update};
 
-    // `FromEventAndContext` implementation for tuple arguments, which implements `FromEventAndContext`
+    /// [`FromEventAndContext`] implementation for tuple arguments, which implements [`FromEventAndContext`]
+    /// for each of its arguments, and returns [`Ok((value1, value2, ...))`] if extraction was successful,
+    /// and [`Err(error)`] otherwise, where `error` is `T::Error` converted to [`ExtractionError`]
     macro_rules! factory {
         ($fut:ident; $($T:ident),*) => {
             impl<Client, $($T: FromEventAndContext<Client>),+> FromEventAndContext<Client> for ($($T,)+) {

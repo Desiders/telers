@@ -8,14 +8,12 @@ use std::fmt::{self, Debug, Formatter};
 /// Simple events observer
 /// Is used for managing events isn't related with Telegram (For example startup/shutdown events)
 pub struct Observer {
+    /// Can be used for logging and debugging
     pub event_name: &'static str,
     pub handlers: Vec<HandlerObject>,
 }
 
 impl Observer {
-    /// Create a new event observer
-    /// # Arguments
-    /// * `event_name` - Event observer name, can be used for logging
     #[must_use]
     pub fn new(event_name: &'static str) -> Self {
         Self {
@@ -25,9 +23,6 @@ impl Observer {
     }
 
     /// Register event handler
-    /// # Arguments
-    /// * `handler` - [`Handler`] for the observer
-    /// * `args` - Arguments, that will be passed to the handler
     pub fn register<H, Args>(&mut self, handler: H, args: Args)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
@@ -38,12 +33,7 @@ impl Observer {
         self.handlers.push(HandlerObject::new(handler, args));
     }
 
-    /// Register event handler
-    /// # Notes
-    /// This method is alias to [`Observer::register`] method
-    /// # Arguments
-    /// * `handler` - [`Handler`] for the observer
-    /// * `args` - Arguments, that will be passed to the handler
+    /// Alias to [`Observer::register`] method
     pub fn on<H, Args>(&mut self, handler: H, args: Args)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
@@ -115,7 +105,8 @@ impl Debug for ObserverInner {
 impl ServiceProvider for ObserverInner {}
 
 impl ObserverInner {
-    /// Propagate event to handlers. \
+    /// Propagate event to handlers
+    ///
     /// If any handler returns error, then propagation will be stopped and error will be returned.
     /// # Errors
     /// If any handler returns error

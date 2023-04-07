@@ -1,5 +1,8 @@
 use std::fmt::{self, Debug};
 
+/// This enum represents all possible types of the sticker
+/// # Documentation
+/// <https://core.telegram.org/bots/api#sticker>
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum StickerType {
     Regular,

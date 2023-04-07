@@ -2,6 +2,14 @@ use anyhow;
 use std::fmt::Debug;
 use thiserror;
 
+/// This enum represents all possible errors that can be returned from Telegram API
+/// # Note
+/// This enum isn't complete. If you find a new error, please open an issue or pull request.
+///
+/// All possible errors aren't documented in the official Telegram API documentation and usually
+/// defined by messages in the responses, but these messages can be changed in the future (frequent situation).
+/// So, many errors are represents as [`ErrorKind::BadRequest`], and we are not trying to distinguish them
+/// for stability. Thanks Telegram API for this ^_^
 #[derive(thiserror::Error, Debug)]
 pub enum ErrorKind {
     #[error("TelegramNetworkError: {message:?}")]
@@ -39,7 +47,7 @@ pub enum ErrorKind {
         url: &'static str, // https://core.telegram.org/bots/api#sending-files
         message: String,
     },
-    /// Error is not documented in the official Telegram API documentation or new API is not supported yet.
+    /// To possible handle unsupported errors, that can be added in the new versions of the Telegram API.
     /// This is necessary to support the "old" API if the "new" API has released a new exception.
     #[error(transparent)]
     UnknownError(#[from] anyhow::Error),

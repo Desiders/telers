@@ -12,7 +12,8 @@ use crate::{
 
 use std::{convert::Infallible, sync::Arc};
 
-/// To be able to use [`Bot`] in handler arguments
+/// To be able to use [`Bot`] in handler arguments,
+/// this implementation will clone [`Bot`] and return it
 impl<Client: Clone> FromEventAndContext<Client> for Bot<Client> {
     type Error = Infallible;
 
@@ -25,7 +26,8 @@ impl<Client: Clone> FromEventAndContext<Client> for Bot<Client> {
     }
 }
 
-/// To be able to use [`Arc<Bot>`] in handler arguments
+/// To be able to use [`Arc<Bot>`] in handler arguments,
+/// this implementation will return [`Arc<Bot>`] without cloning [`Bot`] itself
 impl<Client> FromEventAndContext<Client> for Arc<Bot<Client>> {
     type Error = Infallible;
 
@@ -38,7 +40,8 @@ impl<Client> FromEventAndContext<Client> for Arc<Bot<Client>> {
     }
 }
 
-/// To be able to use [`Update`] in handler arguments
+/// To be able to use [`Update`] in handler arguments,
+/// this implementation will clone [`Update`] and return it
 impl<Client> FromEventAndContext<Client> for Update {
     type Error = Infallible;
 
@@ -51,7 +54,8 @@ impl<Client> FromEventAndContext<Client> for Update {
     }
 }
 
-/// To be able to use [`Arc<Update>`] in handler arguments
+/// To be able to use [`Arc<Update>`] in handler arguments,
+/// this implementation will return [`Arc<Update>`] without cloning [`Update`] itself
 impl<Client> FromEventAndContext<Client> for Arc<Update> {
     type Error = Infallible;
 
@@ -64,7 +68,11 @@ impl<Client> FromEventAndContext<Client> for Arc<Update> {
     }
 }
 
-/// To be able to use [`Context`] in handler arguments
+/// To be able to use [`Arc<Context>`] in handler arguments,
+/// this implementation will return [`Arc<Context>`] without cloning [`Context`] itself
+/// # Note
+/// Currently implementation of [`FromEventAndContext`] for [`Arc<Context>`] is required,
+/// because [`Context`] can't be cloned directly, so [`Arc<Context>`] is used instead
 impl<Client> FromEventAndContext<Client> for Arc<Context> {
     type Error = Infallible;
 
@@ -77,7 +85,8 @@ impl<Client> FromEventAndContext<Client> for Arc<Context> {
     }
 }
 
-/// To be able to use [`Message`] in handler arguments
+/// To be able to use [`Message`] in handler arguments,
+/// this implementation will try to convert [`Update`] to [`Message`] and clone it
 impl<Client> FromEventAndContext<Client> for Message {
     type Error = ConvertUpdateToTypeError;
 
@@ -90,7 +99,8 @@ impl<Client> FromEventAndContext<Client> for Message {
     }
 }
 
-/// To be able to use [`CallbackQuery`] in handler arguments
+/// To be able to use [`CallbackQuery`] in handler arguments,
+/// this implementation will try to convert [`Update`] to [`CallbackQuery`] and clone it
 impl<Client> FromEventAndContext<Client> for CallbackQuery {
     type Error = ConvertUpdateToTypeError;
 
@@ -103,7 +113,8 @@ impl<Client> FromEventAndContext<Client> for CallbackQuery {
     }
 }
 
-/// To be able to use [`ChosenInlineResult`] in handler arguments
+/// To be able to use [`ChosenInlineResult`] in handler arguments,
+/// this implementation will try to convert [`Update`] to [`ChosenInlineResult`] and clone it
 impl<Client> FromEventAndContext<Client> for ChosenInlineResult {
     type Error = ConvertUpdateToTypeError;
 
@@ -116,7 +127,8 @@ impl<Client> FromEventAndContext<Client> for ChosenInlineResult {
     }
 }
 
-/// To be able to use [`ShippingQuery`] in handler arguments
+/// To be able to use [`ShippingQuery`] in handler arguments,
+/// this implementation will try to convert [`Update`] to [`ShippingQuery`] and clone it
 impl<Client> FromEventAndContext<Client> for ShippingQuery {
     type Error = ConvertUpdateToTypeError;
 
@@ -129,7 +141,8 @@ impl<Client> FromEventAndContext<Client> for ShippingQuery {
     }
 }
 
-/// To be able to use [`PreCheckoutQuery`] in handler arguments
+/// To be able to use [`PreCheckoutQuery`] in handler arguments,
+/// this implementation will try to convert [`Update`] to [`PreCheckoutQuery`] and clone it
 impl<Client> FromEventAndContext<Client> for PreCheckoutQuery {
     type Error = ConvertUpdateToTypeError;
 
@@ -142,7 +155,8 @@ impl<Client> FromEventAndContext<Client> for PreCheckoutQuery {
     }
 }
 
-/// To be able to use [`PollAnswer`] in handler arguments
+/// To be able to use [`PollAnswer`] in handler arguments,
+/// this implementation will try to convert [`Update`] to [`PollAnswer`] and clone it
 impl<Client> FromEventAndContext<Client> for PollAnswer {
     type Error = ConvertUpdateToTypeError;
 
@@ -155,7 +169,8 @@ impl<Client> FromEventAndContext<Client> for PollAnswer {
     }
 }
 
-/// To be able to use [`ChatMemberUpdated`] in handler arguments
+/// To be able to use [`ChatMemberUpdated`] in handler arguments,
+/// this implementation will try to convert [`Update`] to [`ChatMemberUpdated`] and clone it
 impl<Client> FromEventAndContext<Client> for ChatMemberUpdated {
     type Error = ConvertUpdateToTypeError;
 
@@ -168,7 +183,8 @@ impl<Client> FromEventAndContext<Client> for ChatMemberUpdated {
     }
 }
 
-/// To be able to use [`ChatJoinRequest`] in handler arguments
+/// To be able to use [`ChatJoinRequest`] in handler arguments,
+/// this implementation will try to convert [`Update`] to [`ChatJoinRequest`] and clone it
 impl<Client> FromEventAndContext<Client> for ChatJoinRequest {
     type Error = ConvertUpdateToTypeError;
 
@@ -181,7 +197,8 @@ impl<Client> FromEventAndContext<Client> for ChatJoinRequest {
     }
 }
 
-/// To be able to use [`InlineQuery`] in handler arguments
+/// To be able to use [`InlineQuery`] in handler arguments,
+/// this implementation will try to convert [`Update`] to [`InlineQuery`] and clone it
 impl<Client> FromEventAndContext<Client> for InlineQuery {
     type Error = ConvertUpdateToTypeError;
 
@@ -194,7 +211,8 @@ impl<Client> FromEventAndContext<Client> for InlineQuery {
     }
 }
 
-/// To be able to use [`Poll`] in handler arguments
+/// To be able to use [`Poll`] in handler arguments,
+/// this implementation will try to convert [`Update`] to [`Poll`] and clone it
 impl<Client> FromEventAndContext<Client> for Poll {
     type Error = ConvertUpdateToTypeError;
 

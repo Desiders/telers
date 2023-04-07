@@ -1,5 +1,8 @@
 use std::fmt::{self, Debug};
 
+/// This enum represents all possible types of the content of the message
+/// # Documentation
+/// <https://core.telegram.org/bots/api#message>
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ContentType {
     Text,

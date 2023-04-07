@@ -74,6 +74,7 @@ pub struct Response<Client> {
 
 /// Event observer for telegram events
 pub struct Observer<Client> {
+    /// Can be used for logging and debugging
     pub event_name: &'static str,
     pub handlers: Vec<HandlerObject<Client>>,
     pub inner_middlewares: InnerMiddlewareManager<Client>,
@@ -87,9 +88,6 @@ impl<Client> Observer<Client>
 where
     Client: Send + Sync + 'static,
 {
-    /// Create a new event observer
-    /// # Arguments
-    /// * `event_name` - Event observer name, can be used for logging
     #[allow(unreachable_code)]
     #[must_use]
     pub fn new(event_name: &'static str) -> Self {
@@ -108,9 +106,6 @@ where
     }
 
     /// Register handler with filters
-    /// # Arguments
-    /// * `handler` - [`Handler`] for the observer
-    /// * `filters` - [`Filter`]s for the handler
     pub fn register<H, Args, F>(&mut self, handler: H, filters: Vec<F>)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
@@ -124,8 +119,6 @@ where
     }
 
     /// Register handler without filters
-    /// # Arguments
-    /// * `handler` - [`Handler`] for the observer
     pub fn register_no_filters<H, Args>(&mut self, handler: H)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
@@ -137,12 +130,7 @@ where
         self.handlers.push(HandlerObject::new_no_filters(handler));
     }
 
-    /// Register handler with filters
-    /// # Notes
-    /// This method is alias to [`Observer::register`] method
-    /// # Arguments
-    /// * `handler` - [`Handler`] for the observer
-    /// * `filters` - [`Filter`]s for the handler
+    /// Alias to [`Observer::register`] method
     pub fn on<H, Args, F>(&mut self, handler: H, filters: Vec<F>)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
@@ -155,11 +143,7 @@ where
         self.register(handler, filters);
     }
 
-    /// Register handler without filters
-    /// # Notes
-    /// This method is alias to [`Observer::register_no_filters`] method
-    /// # Arguments
-    /// * `handler` - [`Handler`] for the observer
+    /// Alias to [`Observer::register_no_filters`] method
     pub fn on_no_filters<H, Args>(&mut self, handler: H)
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
@@ -294,9 +278,7 @@ impl<Client: Send + Sync + Clone + 'static> ObserverInner<Client> {
             }?;
 
             return match response.handler_result {
-                Ok(EventReturn::Skip) => {
-                    continue;
-                }
+                Ok(EventReturn::Skip) => continue,
                 Ok(EventReturn::Cancel) => Ok(Response {
                     request,
                     propagate_result: PropagateEventResult::Rejected,

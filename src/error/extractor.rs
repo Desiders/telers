@@ -1,6 +1,7 @@
 use std::{borrow::Cow, convert::Infallible};
 use thiserror;
 
+/// This struct represents all possible errors that can occur in the extraction process
 #[derive(thiserror::Error, Debug)]
 #[error("Extraction error: {msg}")]
 pub struct Error {

@@ -3,6 +3,10 @@ use super::ExtractionError;
 use std::borrow::Cow;
 use thiserror;
 
+/// This error occurs when the update type cannot be converted to the desired type.
+///
+/// For example, if you try to convert an update to a [`crate::types::Message`] type,
+/// but the update represents a [`crate::types::CallbackQuery`].
 #[derive(thiserror::Error, Debug)]
 #[error("Convert update to type error: {msg}")]
 pub struct ConvertUpdateToType {

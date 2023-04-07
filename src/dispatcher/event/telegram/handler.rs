@@ -20,7 +20,6 @@ pub type BoxedHandlerService<Client> =
 pub type BoxedHandlerServiceFactory<Client> =
     BoxServiceFactory<(), Request<Client>, Response<Client>, ExtractionError, ()>;
 
-/// Request for a handler service
 #[derive(Debug, Clone)]
 pub struct Request<Client> {
     pub bot: Arc<Bot<Client>>,
@@ -208,11 +207,10 @@ where
 }
 
 #[allow(non_snake_case)]
-#[doc(hidden)]
 mod factory_handlers {
     use super::{Future, Handler};
 
-    // `Handler` implementation for functions
+    // `Handler` implementation for function-like
     macro_rules! factory ({ $($param:ident)* } => {
         impl<Func, Fut, $($param,)*> Handler<($($param,)*)> for Func
         where

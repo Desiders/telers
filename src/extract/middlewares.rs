@@ -9,6 +9,7 @@ use crate::{
 
 use std::sync::Arc;
 
+/// To be able to use [`User`] from [`crate::dispatcher::middlewares::outer::user_context::UserContext`] middleware as handler argument
 impl<Client> FromEventAndContext<Client> for User {
     type Error = ExtractionError;
 
@@ -31,6 +32,7 @@ impl<Client> FromEventAndContext<Client> for User {
     }
 }
 
+/// To be able to use [`Chat`] from [`crate::dispatcher::middlewares::outer::user_context::UserContext`] middleware as handler argument
 impl<Client> FromEventAndContext<Client> for Chat {
     type Error = ExtractionError;
 

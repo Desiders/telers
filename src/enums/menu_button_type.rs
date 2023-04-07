@@ -1,5 +1,8 @@
 use std::fmt::{self, Debug};
 
+/// This enum represents all possible types of the menu button
+/// # Documentation
+/// <https://core.telegram.org/bots/api#menubutton>
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum MenuButtonType {
     Commands,

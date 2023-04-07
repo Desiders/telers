@@ -1,5 +1,8 @@
 use std::fmt::{self, Debug};
 
+/// This enum represents all possible types of the parse mode
+/// # Documentation
+/// <https://core.telegram.org/bots/api#formatting-options>
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ParseMode {
     Markdown,

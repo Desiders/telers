@@ -1,5 +1,8 @@
 use std::fmt::{self, Debug};
 
+/// This enum represents all possible types of the message entity
+/// # Documentation
+/// <https://core.telegram.org/bots/api#messageentity>
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum MessageEntityType {
     Mention,

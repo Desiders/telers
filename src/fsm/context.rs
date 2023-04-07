@@ -3,6 +3,7 @@ use super::{Storage, StorageKey};
 use serde::{de::DeserializeOwned, Serialize};
 use std::{borrow::Cow, collections::HashMap};
 
+/// Context is used to manage state and data of the user in specified storage
 pub struct Context<S> {
     storage: S,
     key: StorageKey,
@@ -39,7 +40,7 @@ where
 
     /// Get current state
     /// # Returns
-    /// State, if state is no exists, then `None` will be return
+    /// State, if state is no exists, then [`None`] will be return
     /// # Errors
     /// If storage error occurs, when get state
     pub async fn get_state(&self) -> Result<Option<Cow<'static, str>>, S::Error> {
@@ -68,7 +69,7 @@ where
 
     /// Get current data
     /// # Returns
-    /// Data, if data is no exists, then empty `HashMap` will be return
+    /// Data, if data is no exists, then empty [`HashMap`] will be return
     /// # Errors
     /// If storage error occurs, when get data
     pub async fn get_data<Data>(&self) -> Result<HashMap<Cow<'static, str>, Data>, S::Error>

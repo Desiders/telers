@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug};
 
-/// Enums, which are used to identify default [telegram observers](`crate::dispatcher::event::telegram::observer::Observer`).
+/// Enums, which are used to identify default [telegram observers](`crate::dispatcher::event::telegram::Observer`)
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Telegram {
     Message,

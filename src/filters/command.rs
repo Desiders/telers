@@ -14,6 +14,7 @@ use thiserror;
 
 pub type Result<T> = StdResult<T, Error>;
 
+/// This enum represents all possible errors that can occur when using the command filter
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Invalid prefix")]
@@ -22,6 +23,8 @@ pub enum Error {
     InvalidMention,
     #[error("Invalid command")]
     InvalidCommand,
+    /// Occurs when the filter try to get the bot username. \
+    /// For more information about the error, see [`SessionErrorKind`]
     #[error(transparent)]
     Session(#[from] SessionErrorKind),
 }
@@ -29,8 +32,12 @@ pub enum Error {
 /// Represents a command pattern type for verification
 /// # Variants
 /// * `Text(str)` - A command pattern with text
-/// * `Object(BotCommand)` - A command pattern with [`BotCommand`] object
-/// * `Regex(Regex)` - A command pattern with regex
+/// * `Object(BotCommand)` -
+/// A command pattern with [`BotCommand`] object. \
+/// Just a shortcut for `Text(command.command)`.
+/// * `Regex(Regex)` -
+/// A command pattern with regex, compiled with [`Regex`] struct. \
+/// If filter used with `ignore_case` flag, then the regex will be compiled with `(?i)` flag (ignore case sensitive flag).
 #[derive(Debug, Clone)]
 pub enum PatternType<'a> {
     Text(Cow<'a, str>),
@@ -62,6 +69,10 @@ impl From<Regex> for PatternType<'_> {
     }
 }
 
+/// This filter checks if the message is a command
+///
+/// You can use parsed command using [`CommandObject`] struct in handler arguments,
+/// or get it from [`Context`] by `command` key.
 #[derive(Debug, Clone)]
 pub struct Command<'a> {
     /// List of commands ([`Cow`], [`BotCommand`] or compiled [`Regex`] patterns)
@@ -85,12 +96,15 @@ impl<'a> Command<'a> {
     /// If `ignore_case` is `true` and `command`, which contains [`Regex`] pattern,
     /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
     #[must_use]
-    pub fn new<T: Into<PatternType<'a>>>(
+    pub fn new<T>(
         commands: Vec<T>,
         prefix: &'a str,
         ignore_case: bool,
         ignore_mention: bool,
-    ) -> Self {
+    ) -> Self
+    where
+        T: Into<PatternType<'a>>,
+    {
         let commands = if ignore_case {
             commands
                 .into_iter()

@@ -1,5 +1,8 @@
 use std::fmt::{self, Debug};
 
+/// This enum represents all possible types of the bot command scope
+/// # Documentation
+/// <https://core.telegram.org/bots/api#botcommandscope>
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum BotCommandScopeType {
     Default,

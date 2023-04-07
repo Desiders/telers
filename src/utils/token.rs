@@ -12,6 +12,8 @@ pub(crate) fn hide(token: &str) -> String {
 }
 
 /// Validate telegram token
+/// # Returns
+/// `true` if token is valid, otherwise `false`
 #[must_use]
 pub fn validate(token: &str) -> bool {
     for symbol in token.chars() {

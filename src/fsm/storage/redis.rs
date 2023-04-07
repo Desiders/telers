@@ -105,11 +105,15 @@ impl KeyBuilder for DefaultKeyBuilder {
     }
 }
 
+/// This is a thread-safe storage implementation for redis
 #[derive(Clone)]
 pub struct Redis {
     client: Arc<Mutex<Client>>,
+    /// Key builder for redis keys, used to build redis keys for specified key and part
     key_builder: Arc<Box<dyn KeyBuilder>>,
+    /// TTL for state, if [`None`] then state will not be deleted
     state_ttl: Option<u64>,
+    /// TTL for data, if [`None`] then data will not be deleted
     data_ttl: Option<u64>,
 }
 
@@ -217,7 +221,7 @@ impl Storage for Redis {
     /// # Arguments
     /// * `key` - Specified key to get state
     /// # Returns
-    /// State for specified key, if state is no exists, then `None` will be return
+    /// State for specified key, if state is no exists, then [`None`] will be return
     async fn get_state(&self, key: &StorageKey) -> Result<Option<Cow<'static, str>>, Self::Error> {
         let mut connection = self.get_connection().await?;
         let key = self.key_builder.build(key, Part::State);
@@ -281,7 +285,7 @@ impl Storage for Redis {
     /// # Arguments
     /// * `key` - Specified key to get data
     /// # Returns
-    /// Data for specified key, if data is no exists, then empty `HashMap` will be return
+    /// Data for specified key, if data is no exists, then empty [`HashMap`] will be return
     async fn get_data<Data>(
         &self,
         key: &StorageKey,

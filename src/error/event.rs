@@ -3,7 +3,10 @@ use super::{SessionErrorKind, TelegramErrorKind};
 use anyhow;
 use thiserror;
 
-/// Error, which can be returned from handlers, filters and middlewares by user
+/// This struct represents all possible errors that can occur in the handlers
+///
+/// Usually, in handlers returns [`SessionErrorKind`] or [`TelegramErrorKind`] errors,
+/// but you can return any error that implements [`Into<anyhow::Error>`] trait.
 #[derive(thiserror::Error, Debug)]
 #[error(transparent)]
 pub struct Error {
@@ -17,12 +20,14 @@ impl Error {
     }
 }
 
+/// To possible to wrap [`TelegramErrorKind`] errors in [`Error`] struct without explicit conversion
 impl From<TelegramErrorKind> for Error {
     fn from(err: TelegramErrorKind) -> Self {
         Self::new(err)
     }
 }
 
+/// To possible to wrap [`SessionErrorKind`] errors in [`Error`] struct without explicit conversion
 impl From<SessionErrorKind> for Error {
     fn from(err: SessionErrorKind) -> Self {
         Self::new(err)

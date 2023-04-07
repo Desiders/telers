@@ -3,6 +3,8 @@ use super::TelegramErrorKind;
 use anyhow;
 use thiserror;
 
+/// This enum represents all possible errors that can occur in the process of sending requests to the Telegram API
+/// and parsing responses
 #[derive(thiserror::Error, Debug)]
 pub enum ErrorKind {
     /// Error while sending request or decoding response

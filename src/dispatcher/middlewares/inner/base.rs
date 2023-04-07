@@ -9,7 +9,9 @@ use crate::{
 use async_trait::async_trait;
 use std::{future::Future, pin::Pin, sync::Arc};
 
+/// List of middlewares
 pub type Middlewares<Client> = Vec<Arc<Box<dyn Middleware<Client>>>>;
+/// The middleware chain and the handler at the end
 pub type Next<Client> = Box<
     dyn Fn(
             HandlerRequest<Client>,
@@ -19,6 +21,16 @@ pub type Next<Client> = Box<
         + Sync,
 >;
 
+/// Inner middlewares called after outer middlewares, after filters, but before handlers.
+/// If filters aren't passed, then inner middlewares aren't called.
+///
+/// Prefer to use inner middlewares over outer middlewares in some cases:
+/// - If you need to call middlewares after filters and before handlers
+/// - If you need to manipulate with call of next middleware or handler
+/// - If you need to manipulate with [`HandlerRequest`] or [`HandlerResponse`]
+/// Usually inner middlewares are more relevant than outer middlewares.
+///
+/// Implement this trait for your own middlewares
 #[async_trait]
 pub trait Middleware<Client>: Send + Sync {
     /// Execute middleware
@@ -38,6 +50,7 @@ pub trait Middleware<Client>: Send + Sync {
     ) -> Result<HandlerResponse<Client>, AppErrorKind>;
 }
 
+/// To possible use function-like as middlewares
 #[async_trait]
 impl<Client, Func, Fut> Middleware<Client> for Func
 where
@@ -50,6 +63,7 @@ where
     }
 }
 
+/// This function is used to wrap handler and middlewares to [`Next`] function
 #[must_use]
 pub fn wrap_handler_and_middleware_to_next<Client>(
     handler: Arc<BoxedHandlerService<Client>>,

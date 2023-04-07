@@ -1,5 +1,6 @@
 use std::fmt::{self, Debug};
 
+/// This enum represents all possible types of the topic icon color
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum TopicIconColor {
     Blue,

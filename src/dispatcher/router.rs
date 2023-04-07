@@ -31,7 +31,6 @@ use std::{
     sync::Arc,
 };
 
-/// Request for a router service
 #[derive(Debug, Clone)]
 pub struct Request<Client> {
     pub bot: Arc<Bot<Client>>,
@@ -69,7 +68,6 @@ impl<Client> From<Request<Client>> for TelegramObserverRequest<Client> {
     }
 }
 
-/// Response from a router service
 #[derive(Debug)]
 pub struct Response<Client> {
     pub request: Request<Client>,
@@ -90,10 +88,13 @@ impl<Client> Response<Client> {
 /// Event handlers can be registered in observer by following methods:
 /// - By observer method - [`router.<event_type>.register(handler, <filters, ...>)`
 /// - By observer method - [`router.<event_type>.on(handler, <filters, ...>)`
-/// - By observer method (if no filters) - [`router.<event_type>.register_no_filters(handler)`
-/// - By observer method (if no filters) - [`router.<event_type>.on_no_filters(handler)`
+/// - By observer method (if without filters) - [`router.<event_type>.register_no_filters(handler)`
+/// - By observer method (if without filters) - [`router.<event_type>.on_no_filters(handler)`
 pub struct Router<Client> {
+    /// Can be used for logging and debugging
     pub router_name: &'static str,
+    /// Sub routers of this router. \
+    /// If update is processed by this router, it will be propagated to sub routers.
     pub sub_routers: Vec<Router<Client>>,
 
     pub message: TelegramObserver<Client>,
@@ -129,9 +130,6 @@ impl<Client> Router<Client>
 where
     Client: Send + Sync + 'static,
 {
-    /// Create a new router
-    /// # Arguments
-    /// * `router_name` - Router name, can be used for logging
     #[must_use]
     #[rustfmt::skip]
     pub fn new(router_name: &'static str) -> Self {
@@ -186,14 +184,14 @@ impl<Client> Router<Client> {
         vec![&self.startup, &self.shutdown]
     }
 
-    /// Register inner middlewares to sub router (and sub routers of sub router)
-    fn register_inner_middlewares_in_sub_router(&self, sub_router: &mut Router<Client>) {
+    /// Register inner middlewares in router and sub routers of the router
+    fn register_inner_middlewares(&self, router: &mut Router<Client>) {
         // Register middlewares of current router observers to sub router observers at first positions
         macro_rules! register_middlewares {
             ($observer:ident) => {
                 let mut index = 0;
                 for middleware in &self.$observer.inner_middlewares.middlewares {
-                    sub_router.$observer.inner_middlewares.register_wrapper_at_position(index, Arc::clone(middleware));
+                    router.$observer.inner_middlewares.register_wrapper_at_position(index, Arc::clone(middleware));
                     index += 1;
                 }
             };
@@ -222,16 +220,17 @@ impl<Client> Router<Client> {
             update
         );
 
-        sub_router.sub_routers.iter_mut().for_each(|sub_router| {
-            self.register_inner_middlewares_in_sub_router(sub_router);
+        router.sub_routers.iter_mut().for_each(|sub_router| {
+            self.register_inner_middlewares(sub_router);
         });
     }
 
-    /// Include a sub router.
-    /// This method will register all middlewares of current router (and parent routers),
-    /// which registered before call this method, to sub router (and sub routers of sub router).
+    /// Include a sub router
+    ///
+    /// This method will register all middlewares of router,
+    /// which registered before call this method, in sub router
     pub fn include_router(&mut self, mut router: Router<Client>) {
-        self.register_inner_middlewares_in_sub_router(&mut router);
+        self.register_inner_middlewares(&mut router);
 
         self.sub_routers.push(router);
     }
@@ -241,8 +240,9 @@ impl<Client> Router<Client> {
         self.include_router(router);
     }
 
-    /// Resolve registered update types.
-    /// Is useful for getting updates only for registered update types.
+    /// Resolve registered update types
+    ///
+    /// Is useful for getting updates only for registered update types
     /// # Warning
     /// This method doesn't preserve registration order of update types
     /// # Returns
@@ -269,8 +269,9 @@ impl<Client> Router<Client> {
         used_update_types.into_iter().collect()
     }
 
-    /// Resolve registered update types with skip update types.
-    /// Is useful for getting updates only for registered update types with skip some updates types.
+    /// Resolve registered update types with skip update types
+    ///
+    /// Is useful for getting updates only for registered update types with skip some updates types
     /// # Arguments
     /// * `skip_updates` - Skip update types
     /// # Warning
@@ -410,7 +411,8 @@ where
     /// # Warning
     /// This function doesn't compare the update type with the request update type.
     /// Assumed that [`UpdateType`] is correct because it is derived from [`Update`].
-    /// This behaviour allows you not to get recursively [`UpdateType`] and can be used in tests.
+    /// This behaviour allows you not to check recursively [`UpdateType`] and can be used for testing purposes,
+    /// but it's not recommended to use it in production.
     #[async_recursion]
     #[must_use]
     pub async fn propagate_event(
@@ -607,7 +609,7 @@ impl<Client> RouterInner<Client> {
         }
     }
 
-    /// Call startup events
+    /// Emit startup events
     /// # Errors
     /// If any startup observer returns error
     pub async fn emit_startup(&self) -> SimpleHandlerResult {
@@ -621,7 +623,7 @@ impl<Client> RouterInner<Client> {
         Ok(())
     }
 
-    /// Call shutdown events
+    /// Emit shutdown events
     /// # Errors
     /// If any shutdown observer returns error
     pub async fn emit_shutdown(&self) -> SimpleHandlerResult {

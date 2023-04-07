@@ -23,7 +23,7 @@ use tokio::{
 
 /// Maximum size of the channel for listener updates
 const GET_UPDATES_SIZE: usize = 100;
-/// Default timeout for polling
+/// Default timeout for long polling
 const DEFAULT_POLLING_TIMEOUT: i64 = 30;
 
 /// Error which may occur while listening updates
@@ -42,53 +42,42 @@ enum PollingError {
 
 /// Dispatcher using to dispatch incoming updates to the routers
 pub struct Dispatcher<Client> {
+    /// Main router, which will be used for dispatching updates
     main_router: Router<Client>,
+    /// Bots, which will be used for getting updates. \
+    /// All bots use the same dispatcher, but each bot has the own polling process.
     bots: Vec<Bot<Client>>,
+    /// Context, which will be used for storing data that is needed to transfer between handlers, filters, middlewares and etc. \
+    /// On every update, the context will be reset to the default state (empty or context, which passed by the user),
+    /// so if you want to store data between updates, you should use own database or something like that.
     context: Context,
+    /// Timeout in seconds for long polling
     polling_timeout: Option<i64>,
+    /// Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
     backoff: ExponentialBackoff<SystemClock>,
-    allowed_updates: Option<Vec<String>>,
+    /// Allowed updates for polling. \
+    /// List of the update types you want your bot to receive,
+    /// specify an empty list to receive all update types except `chat_member` (default).
+    allowed_updates: Vec<String>,
 }
 
 impl<Client> Dispatcher<Client> {
-    /// Create a new dispatcher
-    /// # Arguments
-    /// * `main_router` -
-    /// Main router, which will be used for dispatching updates
-    /// * `bots` -
-    /// Bots, which will be used for getting updates.
-    /// All bots use the same dispatcher, but each bot has the own polling process.
-    /// * `context` -
-    /// Context, which will be used for dispatching updates.
-    /// It can be used to store data that is needed to transfer between handlers, filters, middlewares and etc.
-    /// * `polling_timeout` -
-    /// Timeout in seconds for long polling.
-    /// Short polling should be used for testing purposes only.
-    /// * `allowed_updates` -
-    /// Allowed updates for polling.
-    /// List of the update types you want your bot to receive.
-    /// Specify an empty list to receive all update types except `chat_member` (default).
-    /// * `backoff` - Backoff used for handling server-side errors
     #[must_use]
-    pub fn new<AllowedUpdate>(
+    pub fn new(
         main_router: Router<Client>,
         bots: Vec<Bot<Client>>,
         context: Context,
         polling_timeout: Option<i64>,
         backoff: ExponentialBackoff<SystemClock>,
-        allowed_updates: Option<Vec<AllowedUpdate>>,
-    ) -> Self
-    where
-        AllowedUpdate: Into<String>,
-    {
+        allowed_updates: Vec<impl Into<String>>,
+    ) -> Self {
         Self {
             main_router,
             bots,
             context,
             polling_timeout,
             backoff,
-            allowed_updates: allowed_updates
-                .map(|allowed_updates| allowed_updates.into_iter().map(Into::into).collect()),
+            allowed_updates: allowed_updates.into_iter().map(Into::into).collect(),
         }
     }
 }
@@ -115,7 +104,7 @@ where
             context: Context::default(),
             polling_timeout: Some(DEFAULT_POLLING_TIMEOUT),
             backoff: ExponentialBackoff::default(),
-            allowed_updates: None,
+            allowed_updates: vec![],
         }
     }
 }
@@ -127,7 +116,7 @@ pub struct DispatcherBuilder<Client> {
     context: Context,
     polling_timeout: Option<i64>,
     backoff: ExponentialBackoff<SystemClock>,
-    allowed_updates: Option<Vec<String>>,
+    allowed_updates: Vec<String>,
 }
 
 impl<Client> Default for DispatcherBuilder<Client>
@@ -142,14 +131,13 @@ where
             context: Context::default(),
             polling_timeout: Some(DEFAULT_POLLING_TIMEOUT),
             backoff: ExponentialBackoff::default(),
-            allowed_updates: None,
+            allowed_updates: vec![],
         }
     }
 }
 
 /// A block of consuming builder
 impl<Client> DispatcherBuilder<Client> {
-    /// Set main router, which will be used for dispatching updates
     #[must_use]
     pub fn main_router(mut self, val: Router<Client>) -> Self {
         self.main_router = val;
@@ -162,8 +150,6 @@ impl<Client> DispatcherBuilder<Client> {
         self.main_router(val)
     }
 
-    /// Set bot to dispatcher. Bot used for getting updates.
-    /// You can use this method multiple times to add multiple bots or just use `bots` method.
     #[must_use]
     pub fn bot(self, val: Bot<Client>) -> Self {
         Self {
@@ -172,9 +158,6 @@ impl<Client> DispatcherBuilder<Client> {
         }
     }
 
-    /// Set bots to dispatcher. Bots used for getting updates.
-    /// All bots use the same dispatcher, but each bot has the own polling process.
-    /// This can be useful if you want to run multibots with a single dispatcher logic.
     #[must_use]
     pub fn bots(self, val: Vec<Bot<Client>>) -> Self {
         Self {
@@ -183,8 +166,6 @@ impl<Client> DispatcherBuilder<Client> {
         }
     }
 
-    /// Set context, which will be used for dispatching updates.
-    /// It can be used to store data that is needed to transfer between handlers, filters, middlewares and etc.
     #[must_use]
     pub fn context(self, val: Context) -> Self {
         Self {
@@ -193,8 +174,6 @@ impl<Client> DispatcherBuilder<Client> {
         }
     }
 
-    /// Set timeout in seconds for long polling.
-    /// Short polling should be used for testing purposes only.
     #[must_use]
     pub fn polling_timeout(self, val: i64) -> Self {
         Self {
@@ -203,8 +182,6 @@ impl<Client> DispatcherBuilder<Client> {
         }
     }
 
-    /// Set backoff strategy for polling.
-    /// Backoff used for handling server-side errors.
     #[must_use]
     pub fn backoff(self, val: ExponentialBackoff<SystemClock>) -> Self {
         Self {
@@ -213,25 +190,15 @@ impl<Client> DispatcherBuilder<Client> {
         }
     }
 
-    /// Set allowed update for polling.
-    /// Update type you want your bot to receive.
-    /// You can use this method multiple times to add multiple allowed updates or just use `allowed_updates` method.
     #[must_use]
     pub fn allowed_update<T: Into<String>>(mut self, val: T) -> Self {
-        self.allowed_updates
-            .get_or_insert_with(Vec::new)
-            .push(val.into());
+        self.allowed_updates.push(val.into());
         self
     }
 
-    /// Set allowed updates for polling.
-    /// List of the update types you want your bot to receive.
-    /// Specify an empty list to receive all update types except `chat_member` (default).
     #[must_use]
     pub fn allowed_updates<T: Into<String>>(mut self, val: Vec<T>) -> Self {
-        self.allowed_updates
-            .get_or_insert_with(Vec::new)
-            .extend(val.into_iter().map(Into::into));
+        self.allowed_updates.extend(val.into_iter().map(Into::into));
         self
     }
 
@@ -277,7 +244,7 @@ pub struct DispatcherInner<Client> {
     context: Arc<Context>,
     polling_timeout: Option<i64>,
     backoff: ExponentialBackoff<SystemClock>,
-    allowed_updates: Option<Vec<String>>,
+    allowed_updates: Vec<String>,
 }
 
 impl<Client> ServiceProvider for DispatcherInner<Client> {}
@@ -286,12 +253,9 @@ impl<Client> DispatcherInner<Client>
 where
     Client: Session + Clone + 'static,
 {
-    /// Main entry point for incoming updates with context in [`Dispatcher`]
-    /// # Arguments
-    /// * `bot` - [`Bot`] which will be used for creating [`Request`]
-    /// * `update` - [`Update`] which will be processed
+    /// Main entry point for incoming updates
     /// # Errors
-    /// Returns [`UnknownUpdateTypeError`] if update type is not supported, or [`AppErrorKind`] if any of this error occurs:
+    /// Returns [`UnknownUpdateTypeError`] if update type isn't supported, or [`AppErrorKind`] if any of this error occurs:
     /// - If any outer middleware returns error
     /// - If any inner middleware returns error
     /// - If any handler returns error. Probably it's error to extract args to the handler.
@@ -325,10 +289,6 @@ where
     }
 
     /// Main entry point for incoming updates with user context
-    /// # Arguments
-    /// * `bot` - [`Bot`] which will be used for creating [`Request`]
-    /// * `update` - [`Update`] which will be processed
-    /// * `context` - [`Context`] which will be used for dispatching updates
     /// # Errors
     /// Returns [`UnknownUpdateTypeError`] if update type is not supported, or [`AppErrorKind`] if any of this error occurs:
     /// - If any outer middleware returns error
@@ -363,24 +323,14 @@ where
     }
 
     /// Endless updates reader with correctly handling any server-side or connection errors.
-    /// So you may not worry that the polling will stop working. \
+    /// So you may not worry that the polling will stop working.
     /// We use exponential backoff algorithm for handling server-side errors.
-    /// # Arguments
-    /// * `bot` - [`Bot`] which will be used for getting updates
-    /// * `polling_timeout` -
-    /// Timeout in seconds for long polling.
-    /// Should be positive, short polling should be used for testing purposes only.
-    /// * `allowed_updates` -
-    /// List of the update types you want your bot to receive.
-    /// Specify an empty list to receive all update types except `chat_member` (default).
-    /// * `update_sender` - Sender for sending updates
-    /// * `backoff` - Backoff used for handling server-side errors
     /// # Errors
     /// If sender channel is disconnected
     async fn listen_updates(
         bot: Arc<Bot<Client>>,
         polling_timeout: Option<i64>,
-        allowed_updates: Option<Vec<String>>,
+        allowed_updates: Vec<String>,
         update_sender: Sender<Box<Update>>,
         mut backoff: ExponentialBackoff<SystemClock>,
     ) -> Result<(), ListenerError<Box<Update>>> {
@@ -393,7 +343,7 @@ where
             offset: None,
             limit: Some(GET_UPDATES_SIZE.try_into().unwrap()),
             timeout: polling_timeout,
-            allowed_updates,
+            allowed_updates: Some(allowed_updates),
         };
 
         // Flag for handling connection errors.
@@ -451,27 +401,17 @@ where
         }
     }
 
-    /// Internal polling process. \
+    /// Internal polling process
+    ///
     /// It will create a channel for sending updates and spawn a task for listening updates. \
     /// Wait for exit signal, which will stop polling process.
-    /// # Arguments
-    /// * `bot` -
-    /// Bot which will be used for getting updates and creating [`Request`]. \
-    /// Check methods [`DispatcherService::listen_updates`] and [`DispatcherService::feed_update`] for more info.
-    /// * `polling_timeout` -
-    /// Timeout in seconds for long polling.
-    /// Defaults to 0. Should be positive, short polling should be used for testing purposes only.
-    /// * `allowed_updates` -
-    /// List of the update types you want your bot to receive.
-    /// Specify an empty list to receive all update types except `chat_member` (default).
-    /// * `backoff` - Backoff used for handling server-side errors.
     /// # Panics
     /// If failed to register exit signal handlers
     async fn polling(
         self: Arc<Self>,
         bot: Bot<Client>,
         polling_timeout: Option<i64>,
-        allowed_updates: Option<Vec<String>>,
+        allowed_updates: Vec<String>,
         backoff: ExponentialBackoff<SystemClock>,
     ) -> PollingError {
         let bot = Arc::new(bot);
@@ -561,10 +501,7 @@ where
         }
     }
 
-    /// Polling and startup/shutdown events runner. \
-    /// Run `polling` method for each bot in `bots`. \
-    /// Wait for exit signal, which will stop polling process for all bots. \
-    /// Emit startup events before starting polling process and shutdown events after stopping polling process for all bots.
+    /// External polling process runner for multiple bots and emit startup and shutdown observers
     /// # Errors
     /// - If any startup observer returns error
     /// - If any shutdown observer returns error
@@ -572,30 +509,29 @@ where
     /// - If `bots` is empty
     /// - If failed to register exit signal handlers
     pub async fn run_polling(self: Arc<Self>) -> Result<(), AppErrorKind> {
-        if let Err(extraction_err) = self.main_router.emit_startup().await {
-            log::error!("Error while emit startup: {extraction_err}");
+        if let Err(err) = self.main_router.emit_startup().await {
+            log::error!("Error while emit startup: {err}");
 
-            return Err(AppErrorKind::User(extraction_err.into()));
+            return Err(AppErrorKind::User(err.into()));
         }
 
         let dispatcher = Arc::clone(&self);
         dispatcher.run_polling_without_startup_and_shutdown().await;
 
-        self.emit_shutdown().await.map_err(|event_err| {
-            log::error!("Error while emit shutdown: {event_err}");
+        self.emit_shutdown().await.map_err(|err| {
+            log::error!("Error while emit shutdown: {err}");
 
-            AppErrorKind::User(event_err.into())
+            AppErrorKind::User(err.into())
         })
     }
 
-    /// Polling runner. \
-    /// Run `polling` method for each bot in `bots`. \
-    /// Wait for exit signal, which will stop polling process for all bots.
+    /// External polling process runner for multiple bots
     /// # Panics
     /// If `bots` is empty
     pub async fn run_polling_without_startup_and_shutdown(self: Arc<Self>) {
         let bots = self.bots.clone();
         let bots_len = bots.len();
+
         assert_ne!(bots_len, 0);
 
         let handles = bots
@@ -633,22 +569,24 @@ where
 }
 
 impl<Client> DispatcherInner<Client> {
-    /// Call startup events. \
+    /// Emit startup events
+    ///
     /// Use this method if you want to emit startup events manually
-    /// or if you use `run_polling_without_startup_and_shutdown` method
     /// # Notes
-    /// This method is called automatically in `run_polling` method
+    /// This method is called automatically in `run_polling` method,
+    /// but not in `run_polling_without_startup_and_shutdown` method
     /// # Errors
     /// If any startup observer returns error
     pub async fn emit_startup(&self) -> SimpleHandlerResult {
         self.main_router.emit_startup().await
     }
 
-    /// Call shutdown events. \
+    /// Emit shutdown events
+    ///
     /// Use this method if you want to emit shutdown events manually
-    /// or if you use `run_polling_without_startup_and_shutdown` method
     /// # Notes
-    /// This method is called automatically in `run_polling` method
+    /// This method is called automatically in `run_polling` method,
+    /// but not in `run_polling_without_startup_and_shutdown` method
     /// # Errors
     /// If any shutdown observer returns error
     pub async fn emit_shutdown(&self) -> SimpleHandlerResult {
@@ -741,6 +679,6 @@ mod tests {
 
         assert_eq!(dispatcher.bots.len(), 2);
         assert_eq!(dispatcher.polling_timeout, Some(123));
-        assert_eq!(dispatcher.allowed_updates.unwrap().len(), 3);
+        assert_eq!(dispatcher.allowed_updates.len(), 3);
     }
 }

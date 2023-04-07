@@ -2,7 +2,11 @@ use dashmap::DashMap;
 use std::any::Any;
 
 /// Creates for each update. \
-/// Can be used to store data that is needed to transfer between handlers, filters, middlewares and etc.
+/// Can be used to store data between handlers, filters, middlewares and etc.
+///
+/// Usually you don't need to use this type directly in handlers,
+/// implement [`crate::extract::FromEventAndContext`] for your own types if you need to use it in handlers more clean way.
+/// This trait is implemented for many types by default (include filters and middlewares).
 pub type Context = DashMap<&'static str, Box<dyn Any + Send + Sync>>;
 
 #[cfg(test)]

@@ -4,6 +4,7 @@ use std::{borrow::Cow, collections::HashMap, error::Error as StdError, sync::Arc
 
 pub const DEFAULT_DESTINY: &str = "default";
 
+/// Storage key is used to identify the state and data of the user in the storage
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct StorageKey {
     pub bot_id: i64,
@@ -29,6 +30,10 @@ impl StorageKey {
     }
 }
 
+/// Storage is used to store state and data of the user
+/// # Note
+/// Storage is part of the FSM pattern,
+/// don't use it for other purposes like database and store user data not related with state machine
 #[async_trait]
 pub trait Storage: Clone {
     type Error: StdError;
@@ -50,7 +55,7 @@ pub trait Storage: Clone {
     /// # Arguments
     /// * `key` - Specified key to get state
     /// # Returns
-    /// State for specified key, if state is no exists, then `None` will be return
+    /// State for specified key, if state is no exists, then [`None`] will be return
     async fn get_state(&self, key: &StorageKey) -> Result<Option<Cow<'static, str>>, Self::Error>;
 
     /// Remove data for specified key
@@ -75,7 +80,7 @@ pub trait Storage: Clone {
     /// # Arguments
     /// * `key` - Specified key to get data
     /// # Returns
-    /// Data for specified key, if data is no exists, then empty `HashMap` will be return
+    /// Data for specified key, if data is no exists, then empty [`HashMap`] will be return
     async fn get_data<Data>(
         &self,
         key: &StorageKey,

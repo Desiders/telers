@@ -3,6 +3,9 @@ use std::{
     ops::{Range, RangeInclusive},
 };
 
+/// This enum represents all possible types of the dice emoji
+/// # Documentation
+/// <https://core.telegram.org/bots/api#dice>
 #[derive(Copy, Clone, Eq, Hash, PartialEq)]
 pub enum DiceEmoji {
     Dice,
