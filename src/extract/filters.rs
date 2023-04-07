@@ -15,7 +15,7 @@ impl<Client> FromEventAndContext<Client> for CommandObject {
         context: Arc<Context>,
     ) -> Result<Self, Self::Error> {
         match context.get("command") {
-            Some(command) => match command.downcast_ref::<CommandObject>() {
+            Some(command) => match command.downcast_ref::<Self>() {
                 Some(command) => Ok((*command).clone()),
                 None => Err(ExtractionError::new(format!(
                     "Failed to downcast command, got `{command:?}` instead `CommandObject`"

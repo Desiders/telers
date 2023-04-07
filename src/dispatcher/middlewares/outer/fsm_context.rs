@@ -14,7 +14,6 @@ use crate::{
 
 use anyhow::anyhow;
 use async_trait::async_trait;
-use std::sync::Arc;
 
 /// Middleware for creating FSM [`Context`]
 pub struct FSMContext<S> {
@@ -69,11 +68,7 @@ where
     S: Clone,
 {
     #[must_use]
-    fn resolve_event_context(
-        &self,
-        bot_id: i64,
-        context: &Arc<RequestContext>,
-    ) -> Option<Context<S>> {
+    fn resolve_event_context(&self, bot_id: i64, context: &RequestContext) -> Option<Context<S>> {
         let user = context.get("event_user");
         let chat = context.get("event_chat");
 
@@ -121,7 +116,7 @@ where
         &self,
         request: RouterRequest<Client>,
     ) -> Result<MiddlewareResponse<Client>, AppErrorKind> {
-        let context = &request.context;
+        let context = request.context.as_ref();
 
         if let Some(fsm_context) = self.resolve_event_context(request.bot.id(), context) {
             let state = fsm_context

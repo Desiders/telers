@@ -15,6 +15,18 @@ impl<S> Context<S> {
     }
 }
 
+impl<S> Clone for Context<S>
+where
+    S: Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            storage: self.storage.clone(),
+            key: self.key.clone(),
+        }
+    }
+}
+
 impl<S> Context<S>
 where
     S: Storage,
