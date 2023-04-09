@@ -6,6 +6,7 @@ use async_trait::async_trait;
 use std::borrow::Cow;
 
 #[derive(Default, Clone, PartialEq, Eq)]
+#[allow(clippy::module_name_repetitions)]
 pub enum StateType<'a, B: 'a>
 where
     B: ToOwned + PartialEq<&'a str>,
@@ -21,10 +22,19 @@ where
 
 impl<'a, B: 'a> From<B> for StateType<'a, B>
 where
-    B: ToOwned + PartialEq<&'a str>,
+    B: ToOwned<Owned = B> + PartialEq<&'a str>,
 {
     fn from(value: B) -> Self {
-        Self::Equal(Cow::Owned(value.to_owned()))
+        Self::Equal(Cow::Owned(value))
+    }
+}
+
+impl<'a: 'b, 'b, B: 'a> From<&'a B> for StateType<'b, B>
+where
+    B: ToOwned<Owned = B> + PartialEq<&'b str>,
+{
+    fn from(value: &'a B) -> Self {
+        Self::Equal(Cow::Borrowed(value))
     }
 }
 
@@ -35,7 +45,7 @@ where
 pub enum Infallible {}
 
 impl ToOwned for Infallible {
-    type Owned = Infallible;
+    type Owned = Self;
 
     fn to_owned(&self) -> Self::Owned {
         unreachable!()
@@ -57,6 +67,7 @@ where
 
 impl State<'static> {
     /// Create new state filter, which allow any state
+    #[must_use]
     pub fn any() -> Self {
         Self {
             allowed_states: vec![StateType::Any],
@@ -64,6 +75,7 @@ impl State<'static> {
     }
 
     /// Create new state filter, which allow only no state
+    #[must_use]
     pub fn none() -> Self {
         Self {
             allowed_states: vec![StateType::None],
@@ -76,6 +88,7 @@ where
     B: ToOwned + PartialEq<&'a str>,
 {
     /// Create new state filter
+    #[must_use]
     pub fn one<T>(val: T) -> Self
     where
         T: Into<StateType<'a, B>>,
@@ -86,6 +99,7 @@ where
     }
 
     /// Create new state filter with many states
+    #[must_use]
     pub fn many<T, S>(val: T) -> Self
     where
         T: IntoIterator<Item = S>,
@@ -115,14 +129,17 @@ impl<'a, B: 'a> State<'a, B>
 where
     B: ToOwned + PartialEq<&'a str>,
 {
+    #[must_use]
     fn is_allow_any(&self) -> bool {
         matches!(self.allowed_states[0], StateType::Any)
     }
 
+    #[must_use]
     fn is_allow_only_none(&self) -> bool {
         matches!(self.allowed_states[0], StateType::None)
     }
 
+    #[must_use]
     pub fn check(&self, state: Option<&'static str>) -> bool {
         let Some(state) = state else {
             return self.is_allow_only_none();
