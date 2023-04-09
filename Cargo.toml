@@ -38,7 +38,7 @@ bytes = "1.3"
 # For possible create `id` in `InputFile`
 uuid = { version = "1.2", features = ["v4"] }
 
-redis = { version = "0.22", features = ["tokio-comp"], optional = true }
+redis = { version = "0.23", features = ["tokio-comp"], optional = true }
 bincode = { version = "1.3", optional = true }
 
 [dev-dependencies]
