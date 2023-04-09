@@ -1,111 +1,95 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use std::collections::HashMap;
 use telers::fsm::{
     storage::{Storage, StorageKey},
     MemoryStorage,
 };
+use tokio::runtime::Builder;
 
 fn memory_storage_benchmark(c: &mut Criterion) {
-    c.bench_function("create", |b| b.iter(|| MemoryStorage::default()));
-    c.bench_function("set_state", |b| {
-        b.iter(|| async {
-            let storage = black_box(MemoryStorage::default());
-            let key = black_box(StorageKey::new(0, 1, 2));
-            let value = black_box("test");
+    c.bench_with_input(
+        BenchmarkId::new("set_state", "no display data"),
+        &{
+            let storage = MemoryStorage::default();
+            let key = StorageKey::new(0, 1, 2);
+            let value = "test";
 
-            storage.set_state(&key, value).await.unwrap();
-        })
-    });
-    c.bench_function("get_state", |b| {
-        b.iter(|| async {
-            let storage = black_box(MemoryStorage::default());
-            let key = black_box(StorageKey::new(0, 1, 2));
+            (storage, key, value)
+        },
+        |b, (storage, key, value)| {
+            b.to_async(Builder::new_current_thread().build().unwrap())
+                .iter(|| storage.set_state(&key, *value))
+        },
+    );
+    c.bench_with_input(
+        BenchmarkId::new("get_state", "no display data"),
+        &{
+            let storage = MemoryStorage::default();
+            let key = StorageKey::new(0, 1, 2);
 
-            storage.get_state(&key).await.unwrap();
-        })
-    });
-    c.bench_function("get_state_with_set_state", |b| {
-        b.iter(|| async {
-            let storage = black_box(MemoryStorage::default());
-            let key = black_box(StorageKey::new(0, 1, 2));
-            let value = black_box("test");
+            (storage, key)
+        },
+        |b, (storage, key)| {
+            b.to_async(Builder::new_current_thread().build().unwrap())
+                .iter(|| storage.get_state(&key))
+        },
+    );
+    c.bench_with_input(
+        BenchmarkId::new("remove_state", "no display data"),
+        &{
+            let storage = MemoryStorage::default();
+            let key = StorageKey::new(0, 1, 2);
 
-            storage.set_state(&key, value).await.unwrap();
-            storage.get_state(&key).await.unwrap();
-        })
-    });
-    c.bench_function("remove_state", |b| {
-        b.iter(|| async {
-            let storage = black_box(MemoryStorage::default());
-            let key = black_box(StorageKey::new(0, 1, 2));
-
-            storage.remove_state(&key).await.unwrap();
-        })
-    });
-    c.bench_function("remove_state_with_set_state", |b| {
-        b.iter(|| async {
-            let storage = black_box(MemoryStorage::default());
-            let key = black_box(StorageKey::new(0, 1, 2));
-            let value = black_box("test");
-
-            storage.set_state(&key, value).await.unwrap();
-            storage.remove_state(&key).await.unwrap();
-        })
-    });
-    c.bench_function("set_data", |b| {
-        b.iter(|| async {
-            let storage = black_box(MemoryStorage::default());
-            let key = black_box(StorageKey::new(0, 1, 2));
-            let value = black_box("test");
+            (storage, key)
+        },
+        |b, (storage, key)| {
+            b.to_async(Builder::new_current_thread().build().unwrap())
+                .iter(|| storage.remove_state(&key))
+        },
+    );
+    c.bench_with_input(
+        BenchmarkId::new("set_data", "no display data"),
+        &{
+            let storage = MemoryStorage::default();
+            let key = StorageKey::new(0, 1, 2);
+            let value = "test";
 
             let mut data = HashMap::new();
             data.insert("test", value);
 
-            storage.set_data(&key, data).await.unwrap();
-        })
-    });
-    c.bench_function("get_data", |b| {
-        b.iter(|| async {
-            let storage = black_box(MemoryStorage::default());
-            let key = black_box(StorageKey::new(0, 1, 2));
+            (storage, key, data)
+        },
+        |b, (storage, key, data)| {
+            b.to_async(Builder::new_current_thread().build().unwrap())
+                .iter(|| storage.set_data(&key, data.clone()))
+        },
+    );
+    c.bench_with_input(
+        BenchmarkId::new("get_data", "no display data"),
+        &{
+            let storage = MemoryStorage::default();
+            let key = StorageKey::new(0, 1, 2);
 
-            storage.get_data::<String>(&key).await.unwrap();
-        })
-    });
-    c.bench_function("get_data_with_set_data", |b| {
-        b.iter(|| async {
-            let storage = black_box(MemoryStorage::default());
-            let key = black_box(StorageKey::new(0, 1, 2));
-            let value = black_box("test");
+            (storage, key)
+        },
+        |b, (storage, key)| {
+            b.to_async(Builder::new_current_thread().build().unwrap())
+                .iter(|| storage.get_data::<String>(&key))
+        },
+    );
+    c.bench_with_input(
+        BenchmarkId::new("remove_data", "no display data"),
+        &{
+            let storage = MemoryStorage::default();
+            let key = StorageKey::new(0, 1, 2);
 
-            let mut data = HashMap::new();
-            data.insert("test", value);
-
-            storage.set_data(&key, data).await.unwrap();
-            storage.get_data::<String>(&key).await.unwrap();
-        })
-    });
-    c.bench_function("remove_data", |b| {
-        b.iter(|| async {
-            let storage = black_box(MemoryStorage::default());
-            let key = black_box(StorageKey::new(0, 1, 2));
-
-            storage.remove_data(&key).await.unwrap();
-        })
-    });
-    c.bench_function("remove_data_with_set_data", |b| {
-        b.iter(|| async {
-            let storage = black_box(MemoryStorage::default());
-            let key = black_box(StorageKey::new(0, 1, 2));
-            let value = black_box("test");
-
-            let mut data = HashMap::new();
-            data.insert("test", value);
-
-            storage.set_data(&key, data).await.unwrap();
-            storage.remove_data(&key).await.unwrap();
-        })
-    });
+            (storage, key)
+        },
+        |b, (storage, key)| {
+            b.to_async(Builder::new_current_thread().build().unwrap())
+                .iter(|| storage.remove_data(&key))
+        },
+    );
 }
 
 criterion_group!(benches, memory_storage_benchmark);
