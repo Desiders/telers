@@ -22,7 +22,6 @@ jobs:
           - { name: Windows, os: windows-latest, triple: x86_64-pc-windows-msvc }
         version:
           - stable
-          - beta
     name: ${{ matrix.target.name }} / ${{ matrix.version }}
     runs-on: ${{ matrix.target.os }}
     timeout-minutes: 45
