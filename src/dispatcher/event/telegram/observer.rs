@@ -12,7 +12,7 @@ use crate::{
         },
         middlewares::{
             inner::{
-                wrap_handler_and_middleware_to_next, Manager as InnerMiddlewareManager,
+                wrap_handler_and_middlewares_to_next, Manager as InnerMiddlewareManager,
                 Middlewares as InnerMiddlewares,
             },
             outer::{Manager as OuterMiddlewareManager, Middlewares as OuterMiddlewares},
@@ -265,7 +265,7 @@ impl<Client: Send + Sync + Clone + 'static> ObserverInner<Client> {
 
             let response = match self.inner_middlewares.split_first() {
                 Some((middleware, middlewares)) => {
-                    let next = Box::new(wrap_handler_and_middleware_to_next(
+                    let next = Box::new(wrap_handler_and_middlewares_to_next(
                         Arc::clone(&handler.service),
                         middlewares.to_vec(),
                     ));

@@ -65,24 +65,25 @@ where
 
 /// This function is used to wrap handler and middlewares to [`Next`] function
 #[must_use]
-pub fn wrap_handler_and_middleware_to_next<Client>(
+pub fn wrap_handler_and_middlewares_to_next<T, Client>(
     handler: Arc<BoxedHandlerService<Client>>,
-    middlewares: Middlewares<Client>,
+    middlewares: T,
 ) -> Next<Client>
 where
     Client: Send + Sync + 'static,
+    T: IntoIterator<Item = Arc<Box<dyn Middleware<Client>>>> + Send + Sync + 'static,
+    T::IntoIter: Clone + Send + Sync,
 {
+    let middlewares = middlewares.into_iter();
+
     Box::new(move |request: HandlerRequest<Client>| {
         let handler = handler.clone();
-        let middlewares = middlewares.clone();
+        let mut middlewares = middlewares.clone();
 
         Box::pin(async move {
-            match middlewares.split_first() {
-                Some((middleware, middlewares)) => {
-                    let next = Box::new(wrap_handler_and_middleware_to_next(
-                        handler,
-                        middlewares.to_vec(),
-                    ));
+            match middlewares.next() {
+                Some(middleware) => {
+                    let next = Box::new(wrap_handler_and_middlewares_to_next(handler, middlewares));
                     middleware.call(request, next).await
                 }
                 None => handler
@@ -124,11 +125,10 @@ mod tests {
             Update::default(),
             Context::default(),
         );
-        let middlewares = vec![];
         let response = Middleware::call(
             &test_middleware,
             request,
-            wrap_handler_and_middleware_to_next(handler_service, middlewares),
+            wrap_handler_and_middlewares_to_next(handler_service, []),
         )
         .await
         .unwrap();

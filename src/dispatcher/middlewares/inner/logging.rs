@@ -129,7 +129,7 @@ mod tests {
         context::Context,
         dispatcher::{
             event::{service::ServiceFactory as _, telegram::handler_service},
-            middlewares::inner::wrap_handler_and_middleware_to_next,
+            middlewares::inner::wrap_handler_and_middlewares_to_next,
         },
         types::Update,
     };
@@ -167,11 +167,10 @@ mod tests {
             Update::default(),
             Context::default(),
         );
-        let middlewares = vec![];
         let response = middleware
             .call(
                 request,
-                wrap_handler_and_middleware_to_next(handler_service, middlewares),
+                wrap_handler_and_middlewares_to_next(handler_service, []),
             )
             .await;
 
