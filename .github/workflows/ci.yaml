@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  pull_request:
+    # branches:
+    #   - dev-1.x
+  push:
+    # branches:
+    #   - dev-1.x
+
+permissions:
+  contents: read
+
+jobs:
+  build_and_test:
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - { name: Linux, os: ubuntu-latest, triple: x86_64-unknown-linux-gnu }
+          - { name: macOS, os: macos-latest, triple: x86_64-apple-darwin }
+          - { name: Windows, os: windows-latest, triple: x86_64-pc-windows-msvc }
+        version:
+          - stable
+          - beta
+    name: ${{ matrix.target.name }} / ${{ matrix.version }}
+    runs-on: ${{ matrix.target.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@nightly
+      - name: Cargo build
+        run: cargo build --all-features
+      - name: Cargo test
+        run: cargo test --lib --tests --all-features
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@clippy
+      - run: cargo clippy -- -W clippy::pedantic
+
+  outdated:
+    name: Outdated
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/install@cargo-outdated
+      - run: cargo outdated --workspace --exit-code 1
