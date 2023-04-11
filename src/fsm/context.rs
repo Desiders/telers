@@ -40,14 +40,14 @@ where
 
     /// Set current state
     /// # Arguments
-    /// * `value` - State
+    /// * `state` - State
     /// # Errors
     /// If storage error occurs, when set state
-    pub async fn set_state<Value>(&self, value: Value) -> Result<(), S::Error>
+    pub async fn set_state<State>(&self, state: State) -> Result<(), S::Error>
     where
-        Value: Into<Cow<'static, str>> + Send,
+        State: Into<Cow<'static, str>> + Send,
     {
-        self.storage.set_state(&self.key, value).await
+        self.storage.set_state(&self.key, state).await
     }
 
     /// Get current state
@@ -68,15 +68,15 @@ where
 
     /// Set current data
     /// # Arguments
-    /// * `value` - Data, if empty, then data will be clear
+    /// * `data` - Data, if empty, then data will be clear
     /// # Errors
     /// If storage error occurs, when set data
-    pub async fn set_data<Key, Data>(&self, value: HashMap<Key, Data>) -> Result<(), S::Error>
+    pub async fn set_data<Key, Data>(&self, data: HashMap<Key, Data>) -> Result<(), S::Error>
     where
         Data: Serialize + Send,
         Key: Serialize + Into<Cow<'static, str>> + Send,
     {
-        self.storage.set_data(&self.key, value).await
+        self.storage.set_data(&self.key, data).await
     }
 
     /// Get current data

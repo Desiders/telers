@@ -57,18 +57,18 @@ impl Storage for Memory {
     /// Set state for specified key
     /// # Arguments
     /// * `key` - Specified key to set state
-    /// * `value` - State for specified key
-    async fn set_state<Value>(&self, key: &StorageKey, value: Value) -> Result<(), Self::Error>
+    /// * `state` - State for specified key
+    async fn set_state<State>(&self, key: &StorageKey, state: State) -> Result<(), Self::Error>
     where
-        Value: Into<Cow<'static, str>> + Send,
+        State: Into<Cow<'static, str>> + Send,
     {
         match self.storage.lock().await.entry(key.clone()) {
             Entry::Occupied(mut entry) => {
-                entry.get_mut().state = Some(value.into());
+                entry.get_mut().state = Some(state.into());
             }
             Entry::Vacant(entry) => {
                 entry.insert(Record {
-                    state: Some(value.into()),
+                    state: Some(state.into()),
                     data: HashMap::default(),
                 });
             }
@@ -106,35 +106,35 @@ impl Storage for Memory {
     /// Set data for specified key
     /// # Arguments
     /// * `key` - Specified key to set data
-    /// * `value` - Data for specified key, if empty, then data will be clear
+    /// * `data` - Data for specified key, if empty, then data will be clear
     async fn set_data<Key, Data>(
         &self,
         key: &StorageKey,
-        value: HashMap<Key, Data>,
+        data: HashMap<Key, Data>,
     ) -> Result<(), Self::Error>
     where
         Data: Serialize + Send,
         Key: Serialize + Into<Cow<'static, str>> + Send,
     {
-        let value_len = value.len();
+        let data_len = data.len();
 
         match self.storage.lock().await.entry(key.clone()) {
             Entry::Occupied(mut entry) => {
-                if value_len == 0 {
+                if data_len == 0 {
                     entry.get_mut().data.clear();
                     return Ok(());
                 }
 
-                let mut data = HashMap::with_capacity(value_len);
+                let mut new_data = HashMap::with_capacity(data_len);
 
-                for (key, value) in value {
-                    data.insert(key.into(), bincode::serialize(&value)?);
+                for (key, value) in data {
+                    new_data.insert(key.into(), bincode::serialize(&value)?);
                 }
 
-                entry.get_mut().data = data;
+                entry.get_mut().data = new_data;
             }
             Entry::Vacant(entry) => {
-                if value_len == 0 {
+                if data_len == 0 {
                     entry.insert(Record {
                         state: None,
                         data: HashMap::default(),
@@ -142,13 +142,16 @@ impl Storage for Memory {
                     return Ok(());
                 }
 
-                let mut data = HashMap::with_capacity(value_len);
+                let mut new_data = HashMap::with_capacity(data_len);
 
-                for (key, value) in value {
-                    data.insert(key.into(), bincode::serialize(&value)?);
+                for (key, value) in data {
+                    new_data.insert(key.into(), bincode::serialize(&value)?);
                 }
 
-                entry.insert(Record { state: None, data });
+                entry.insert(Record {
+                    state: None,
+                    data: new_data,
+                });
             }
         }
         Ok(())

@@ -191,26 +191,26 @@ impl Storage for Redis {
     /// Set state for specified key
     /// # Arguments
     /// * `key` - Specified key to set state
-    /// * `value` - State for specified key
-    async fn set_state<Value>(&self, key: &StorageKey, value: Value) -> Result<(), Self::Error>
+    /// * `state` - State for specified key
+    async fn set_state<State>(&self, key: &StorageKey, state: State) -> Result<(), Self::Error>
     where
-        Value: Into<Cow<'static, str>> + Send,
+        State: Into<Cow<'static, str>> + Send,
     {
         let mut connection = self.get_connection().await?;
         let key = self.key_builder.build(key, Part::State);
-        let value = value.into();
+        let state = state.into();
 
         if let Some(state_ttl) = self.state_ttl {
             redis::cmd("SETEX")
                 .arg(&key)
                 .arg(state_ttl)
-                .arg(value.as_ref())
+                .arg(state.as_ref())
                 .query_async(&mut connection)
                 .await?;
         } else {
             redis::cmd("SET")
                 .arg(&key)
-                .arg(value.as_ref())
+                .arg(state.as_ref())
                 .query_async(&mut connection)
                 .await?;
         }
@@ -226,11 +226,11 @@ impl Storage for Redis {
         let mut connection = self.get_connection().await?;
         let key = self.key_builder.build(key, Part::State);
 
-        let value: Option<String> = redis::cmd("GET")
+        let state: Option<String> = redis::cmd("GET")
             .arg(&key)
             .query_async(&mut connection)
             .await?;
-        Ok(value.map(Cow::Owned))
+        Ok(state.map(Cow::Owned))
     }
 
     /// Remove data for specified key
@@ -250,11 +250,11 @@ impl Storage for Redis {
     /// Set data for specified key
     /// # Arguments
     /// * `key` - Specified key to set data
-    /// * `value` - Data for specified key, if empty, then data will be clear
+    /// * `data` - Data for specified key, if empty, then data will be clear
     async fn set_data<Key, Data>(
         &self,
         key: &StorageKey,
-        value: HashMap<Key, Data>,
+        data: HashMap<Key, Data>,
     ) -> Result<(), Self::Error>
     where
         Data: Serialize + Send,
@@ -262,19 +262,19 @@ impl Storage for Redis {
     {
         let mut connection = self.get_connection().await?;
         let key = self.key_builder.build(key, Part::Data);
-        let value = serde_json::to_string(&value)?;
+        let data = serde_json::to_string(&data)?;
 
         if let Some(data_ttl) = self.data_ttl {
             redis::cmd("SETEX")
                 .arg(&key)
                 .arg(data_ttl)
-                .arg(&value)
+                .arg(&data)
                 .query_async(&mut connection)
                 .await?;
         } else {
             redis::cmd("SET")
                 .arg(&key)
-                .arg(&value)
+                .arg(&data)
                 .query_async(&mut connection)
                 .await?;
         }
@@ -296,13 +296,13 @@ impl Storage for Redis {
         let mut connection = self.get_connection().await?;
         let key = self.key_builder.build(key, Part::Data);
 
-        let value: Option<String> = redis::cmd("GET")
+        let data: Option<String> = redis::cmd("GET")
             .arg(&key)
             .query_async(&mut connection)
             .await?;
 
-        match value {
-            Some(value) => Ok(serde_json::from_str(&value)?),
+        match data {
+            Some(data) => Ok(serde_json::from_str(&data)?),
             None => Ok(HashMap::default()),
         }
     }

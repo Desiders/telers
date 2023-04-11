@@ -46,10 +46,10 @@ pub trait Storage: Clone {
     /// Set state for specified key
     /// # Arguments
     /// * `key` - Specified key to set state
-    /// * `value` - State for specified key
-    async fn set_state<Value>(&self, key: &StorageKey, value: Value) -> Result<(), Self::Error>
+    /// * `state` - State for specified key
+    async fn set_state<State>(&self, key: &StorageKey, state: State) -> Result<(), Self::Error>
     where
-        Value: Into<Cow<'static, str>> + Send;
+        State: Into<Cow<'static, str>> + Send;
 
     /// Get state for specified key
     /// # Arguments
@@ -66,11 +66,11 @@ pub trait Storage: Clone {
     /// Set data for specified key
     /// # Arguments
     /// * `key` - Specified key to set data
-    /// * `value` - Data for specified key, if empty, then data will be clear
+    /// * `data` - Data for specified key, if empty, then data will be clear
     async fn set_data<Key, Data>(
         &self,
         key: &StorageKey,
-        value: HashMap<Key, Data>,
+        data: HashMap<Key, Data>,
     ) -> Result<(), Self::Error>
     where
         Data: Serialize + Send,
@@ -100,11 +100,11 @@ where
         S::remove_state(self, key).await
     }
 
-    async fn set_state<Value>(&self, key: &StorageKey, value: Value) -> Result<(), Self::Error>
+    async fn set_state<State>(&self, key: &StorageKey, state: State) -> Result<(), Self::Error>
     where
-        Value: Into<Cow<'static, str>> + Send,
+        State: Into<Cow<'static, str>> + Send,
     {
-        S::set_state(self, key, value).await
+        S::set_state(self, key, state).await
     }
 
     async fn get_state(&self, key: &StorageKey) -> Result<Option<Cow<'static, str>>, Self::Error> {
@@ -118,13 +118,13 @@ where
     async fn set_data<Key, Data>(
         &self,
         key: &StorageKey,
-        value: HashMap<Key, Data>,
+        data: HashMap<Key, Data>,
     ) -> Result<(), Self::Error>
     where
         Data: Serialize + Send,
         Key: Serialize + Into<Cow<'static, str>> + Send,
     {
-        S::set_data(self, key, value).await
+        S::set_data(self, key, data).await
     }
 
     async fn get_data<Data>(
@@ -149,11 +149,11 @@ where
         S::remove_state(self, key).await
     }
 
-    async fn set_state<Value>(&self, key: &StorageKey, value: Value) -> Result<(), Self::Error>
+    async fn set_state<State>(&self, key: &StorageKey, state: State) -> Result<(), Self::Error>
     where
-        Value: Into<Cow<'static, str>> + Send,
+        State: Into<Cow<'static, str>> + Send,
     {
-        S::set_state(self, key, value).await
+        S::set_state(self, key, state).await
     }
 
     async fn get_state(&self, key: &StorageKey) -> Result<Option<Cow<'static, str>>, Self::Error> {
@@ -167,13 +167,13 @@ where
     async fn set_data<Key, Data>(
         &self,
         key: &StorageKey,
-        value: HashMap<Key, Data>,
+        data: HashMap<Key, Data>,
     ) -> Result<(), Self::Error>
     where
         Data: Serialize + Send,
         Key: Serialize + Into<Cow<'static, str>> + Send,
     {
-        S::set_data(self, key, value).await
+        S::set_data(self, key, data).await
     }
 
     async fn get_data<Data>(
