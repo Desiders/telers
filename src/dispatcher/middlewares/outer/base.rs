@@ -34,6 +34,20 @@ pub trait Middleware<Client>: Send + Sync {
     ) -> Result<MiddlewareResponse<Client>, AppErrorKind>;
 }
 
+#[async_trait]
+impl<T, Client> Middleware<Client> for Arc<T>
+where
+    T: Middleware<Client>,
+    Client: Send + Sync + 'static,
+{
+    async fn call(
+        &self,
+        request: RouterRequest<Client>,
+    ) -> Result<MiddlewareResponse<Client>, AppErrorKind> {
+        T::call(self, request).await
+    }
+}
+
 /// To possible use function-like as middlewares
 #[async_trait]
 impl<Client, Func, Fut> Middleware<Client> for Func
