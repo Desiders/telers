@@ -47,10 +47,6 @@ pub struct Dispatcher<Client> {
     /// Bots, which will be used for getting updates. \
     /// All bots use the same dispatcher, but each bot has the own polling process.
     bots: Vec<Bot<Client>>,
-    /// Context, which will be used for storing data that is needed to transfer between handlers, filters, middlewares and etc. \
-    /// On every update, the context will be reset to the default state (empty or context, which passed by the user),
-    /// so if you want to store data between updates, you should use own database or something like that.
-    context: Context,
     /// Timeout in seconds for long polling
     polling_timeout: Option<i64>,
     /// Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
@@ -66,7 +62,6 @@ impl<Client> Dispatcher<Client> {
     pub fn new(
         main_router: Router<Client>,
         bots: Vec<Bot<Client>>,
-        context: Context,
         polling_timeout: Option<i64>,
         backoff: ExponentialBackoff<SystemClock>,
         allowed_updates: Vec<impl Into<String>>,
@@ -74,7 +69,6 @@ impl<Client> Dispatcher<Client> {
         Self {
             main_router,
             bots,
-            context,
             polling_timeout,
             backoff,
             allowed_updates: allowed_updates.into_iter().map(Into::into).collect(),
@@ -101,7 +95,6 @@ where
         Self {
             main_router: Router::default(),
             bots: vec![],
-            context: Context::default(),
             polling_timeout: Some(DEFAULT_POLLING_TIMEOUT),
             backoff: ExponentialBackoff::default(),
             allowed_updates: vec![],
@@ -113,7 +106,6 @@ where
 pub struct DispatcherBuilder<Client> {
     main_router: Router<Client>,
     bots: Vec<Bot<Client>>,
-    context: Context,
     polling_timeout: Option<i64>,
     backoff: ExponentialBackoff<SystemClock>,
     allowed_updates: Vec<String>,
@@ -128,7 +120,6 @@ where
         Self {
             main_router: Router::default(),
             bots: vec![],
-            context: Context::default(),
             polling_timeout: Some(DEFAULT_POLLING_TIMEOUT),
             backoff: ExponentialBackoff::default(),
             allowed_updates: vec![],
@@ -167,14 +158,6 @@ impl<Client> DispatcherBuilder<Client> {
     }
 
     #[must_use]
-    pub fn context(self, val: Context) -> Self {
-        Self {
-            context: val,
-            ..self
-        }
-    }
-
-    #[must_use]
     pub fn polling_timeout(self, val: i64) -> Self {
         Self {
             polling_timeout: Some(val),
@@ -207,7 +190,6 @@ impl<Client> DispatcherBuilder<Client> {
         Dispatcher {
             main_router: self.main_router,
             bots: self.bots,
-            context: self.context,
             polling_timeout: self.polling_timeout,
             backoff: self.backoff,
             allowed_updates: self.allowed_updates,
@@ -215,21 +197,23 @@ impl<Client> DispatcherBuilder<Client> {
     }
 }
 
-impl<Client> ToServiceProvider for Dispatcher<Client> {
+impl<Client> ToServiceProvider for Dispatcher<Client>
+where
+    Client: Send + Sync + 'static,
+{
     type Config = ();
     type ServiceProvider = Arc<DispatcherInner<Client>>;
     type InitError = ();
 
     fn to_service_provider(
         self,
-        config: Self::Config,
+        _config: Self::Config,
     ) -> Result<Self::ServiceProvider, Self::InitError> {
-        let main_router = self.main_router.to_service_provider(config)?;
+        let main_router = self.main_router.to_service_provider_default()?;
 
         Ok(Arc::new(DispatcherInner {
             main_router,
             bots: self.bots,
-            context: Arc::new(self.context),
             polling_timeout: self.polling_timeout,
             backoff: self.backoff,
             allowed_updates: self.allowed_updates,
@@ -241,7 +225,6 @@ impl<Client> ToServiceProvider for Dispatcher<Client> {
 pub struct DispatcherInner<Client> {
     main_router: RouterInner<Client>,
     bots: Vec<Bot<Client>>,
-    context: Arc<Context>,
     polling_timeout: Option<i64>,
     backoff: ExponentialBackoff<SystemClock>,
     allowed_updates: Vec<String>,
@@ -281,10 +264,7 @@ where
 
         Ok(self
             .main_router
-            .propagate_event(
-                update_type,
-                Request::new(bot, update, Arc::clone(&self.context)),
-            )
+            .propagate_event(update_type, Request::new(bot, update, Context::default()))
             .await)
     }
 
@@ -618,7 +598,7 @@ mod tests {
         let dispatcher = Dispatcher::builder()
             .main_router(router)
             .build()
-            .to_service_provider(())
+            .to_service_provider_default()
             .unwrap();
 
         let response = dispatcher
@@ -641,7 +621,7 @@ mod tests {
         let dispatcher = Dispatcher::builder()
             .main_router(router)
             .build()
-            .to_service_provider(())
+            .to_service_provider_default()
             .unwrap();
 
         let response = Arc::clone(&dispatcher)
