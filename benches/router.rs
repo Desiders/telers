@@ -35,7 +35,7 @@ fn propagate_event_benchmark(c: &mut Criterion) {
                 .message
                 .register_no_filters(|| async { Ok(EventReturn::Finish) });
 
-            let router_service = router.to_service_provider(()).unwrap();
+            let router_service = router.to_service_provider_default().unwrap();
 
             let bot = Bot::<Reqwest>::default();
             let context = Context::new();
@@ -67,7 +67,7 @@ fn propagate_event_benchmark(c: &mut Criterion) {
                 .register_no_filters(|| async { Ok(EventReturn::Finish) });
             router.include(sub_router);
 
-            let router_service = router.to_service_provider(()).unwrap();
+            let router_service = router.to_service_provider_default().unwrap();
 
             let bot = Bot::<Reqwest>::default();
             let context = Context::new();
@@ -94,7 +94,7 @@ fn propagate_event_benchmark(c: &mut Criterion) {
                 .message
                 .register_no_filters(|| async { Ok(EventReturn::Finish) });
 
-            let router_service = router.to_service_provider(()).unwrap();
+            let router_service = router.to_service_provider_default().unwrap();
 
             let bot = Bot::<Reqwest>::default();
             let context = Context::new();
@@ -125,7 +125,7 @@ fn propagate_event_benchmark(c: &mut Criterion) {
                 .inner_middlewares
                 .register(|request: HandlerRequest<_>, next: Next<_>| next(request));
 
-            let router_service = router.to_service_provider(()).unwrap();
+            let router_service = router.to_service_provider_default().unwrap();
 
             let bot = Bot::<Reqwest>::default();
             let context = Context::new();
@@ -164,7 +164,7 @@ fn propagate_event_benchmark(c: &mut Criterion) {
                 .register_no_filters(|| async { Ok(EventReturn::Finish) });
             router.include(sub_router);
 
-            let router_service = router.to_service_provider(()).unwrap();
+            let router_service = router.to_service_provider_default().unwrap();
 
             let bot = Bot::<Reqwest>::default();
             let context = Context::new();

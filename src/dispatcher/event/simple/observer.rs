@@ -145,7 +145,7 @@ mod tests {
         observer.register(on_startup, ("Hello, world!",));
         observer.register(on_shutdown, ("Goodbye, world!",));
 
-        let observer_service = observer.to_service_provider(()).unwrap();
+        let observer_service = observer.to_service_provider_default().unwrap();
 
         observer_service.trigger(()).await.unwrap();
     }
@@ -168,7 +168,7 @@ mod tests {
         observer.register(on_startup, ("Hello, world!",));
         observer.register(on_shutdown, ("Goodbye, world!",));
 
-        let observer_service = observer.to_service_provider(()).unwrap();
+        let observer_service = observer.to_service_provider_default().unwrap();
 
         observer_service.trigger(()).await.unwrap_err();
     }

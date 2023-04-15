@@ -89,4 +89,15 @@ pub trait ToServiceProvider {
         self,
         config: Self::Config,
     ) -> Result<Self::ServiceProvider, Self::InitError>;
+
+    /// Convert the service factory to the service using default config
+    /// # Errors
+    /// If the service cannot be created by the factory
+    fn to_service_provider_default(self) -> Result<Self::ServiceProvider, Self::InitError>
+    where
+        Self::Config: Default,
+        Self: Sized,
+    {
+        self.to_service_provider(Default::default())
+    }
 }

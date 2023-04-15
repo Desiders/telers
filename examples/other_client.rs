@@ -44,7 +44,7 @@ async fn main() {
         .build();
 
     match dispatcher
-        .to_service_provider(())
+        .to_service_provider_default()
         .unwrap()
         .run_polling()
         .await

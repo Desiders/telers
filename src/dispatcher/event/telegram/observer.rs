@@ -330,7 +330,7 @@ mod tests {
             Ok(EventReturn::Finish)
         });
 
-        let observer_service = observer.to_service_provider(()).unwrap();
+        let observer_service = observer.to_service_provider_default().unwrap();
         let request = Request::new(bot, Update::default(), context);
         let response = observer_service.trigger(request.clone()).await.unwrap();
 
@@ -371,7 +371,7 @@ mod tests {
             Ok(EventReturn::Finish)
         });
 
-        let observer_service = observer.to_service_provider(()).unwrap();
+        let observer_service = observer.to_service_provider_default().unwrap();
         let request = Request::new(Bot::default(), Update::default(), Context::default());
         let response = observer_service.trigger(request).await.unwrap();
 
@@ -395,7 +395,7 @@ mod tests {
         observer.register_no_filters(|| async { Ok(EventReturn::Skip) });
         observer.register_no_filters(|| async { Ok(EventReturn::Finish) });
 
-        let observer_service = observer.to_service_provider(()).unwrap();
+        let observer_service = observer.to_service_provider_default().unwrap();
 
         let request = Request::new(bot, update, context);
         let response = observer_service.trigger(request.clone()).await.unwrap();
@@ -413,7 +413,7 @@ mod tests {
         observer.register_no_filters(|| async { Ok(EventReturn::Skip) });
         observer.register_no_filters(|| async { Ok(EventReturn::Cancel) });
 
-        let observer_service = observer.to_service_provider(()).unwrap();
+        let observer_service = observer.to_service_provider_default().unwrap();
 
         let response = observer_service.trigger(request).await.unwrap();
 

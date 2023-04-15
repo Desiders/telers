@@ -91,7 +91,7 @@ mod tests {
                 Ok(EventReturn::default())
             });
 
-        let router_service = router.to_service_provider(()).unwrap();
+        let router_service = router.to_service_provider_default().unwrap();
 
         let request = RouterRequest::new(bot, update, context);
         router_service
@@ -131,7 +131,7 @@ mod tests {
                 Ok(EventReturn::default())
             });
 
-        let router_service = router.to_service_provider(()).unwrap();
+        let router_service = router.to_service_provider_default().unwrap();
 
         let request = RouterRequest::new(bot, update, context);
         router_service
