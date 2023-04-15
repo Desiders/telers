@@ -140,7 +140,7 @@ where
     }
 
     #[must_use]
-    pub fn check(&self, state: Option<&'static str>) -> bool {
+    pub fn check(&self, state: Option<&'a str>) -> bool {
         let Some(state) = state else {
             return self.is_allow_only_none();
         };
@@ -163,19 +163,19 @@ where
 }
 
 #[async_trait]
-impl<'a, Client, B: 'a> Filter<Client> for State<'a, B>
+impl<Client, B> Filter<Client> for State<'_, B>
 where
-    B: ToOwned + PartialEq<&'a str> + Sync,
+    for<'a> B: ToOwned + PartialEq<&'a str> + Sync,
     B::Owned: Send + Sync,
 {
     async fn check(&self, _bot: &Bot<Client>, _update: &Update, context: &Context) -> bool {
-        match context.get("state") {
+        match context.get("fsm_state") {
             Some(state) => {
                 let state = state
-                    .downcast_ref::<Cow<&'static str>>()
+                    .downcast_ref::<Cow<str>>()
                     .expect("State isn't `Cow<str>`");
 
-                self.check(Some(state.as_ref()))
+                self.check(Some(state))
             }
             None => self.check(None),
         }
