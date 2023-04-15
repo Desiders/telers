@@ -119,14 +119,13 @@ where
         let context = request.context.as_ref();
 
         if let Some(fsm_context) = self.resolve_event_context(request.bot.id(), context) {
-            fsm_context
+            if let Some(state) = fsm_context
                 .get_state()
                 .await
                 .map_err(|err| anyhow!("Failed to get FSM state: {err}"))?
-                .map(|state| {
-                    // Insert FSM state into context, if it isn't `None`
-                    context.insert("fsm_state", Box::new(state));
-                });
+            {
+                context.insert("fsm_state", Box::new(state));
+            }
 
             context.insert("fsm_context", Box::new(fsm_context));
         }
