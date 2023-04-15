@@ -36,7 +36,7 @@ impl StorageKey {
 /// don't use it for other purposes like database and store user data not related with state machine
 #[async_trait]
 pub trait Storage: Clone {
-    type Error: StdError;
+    type Error: StdError + Into<anyhow::Error>;
 
     /// Remove state for specified key
     /// # Arguments
