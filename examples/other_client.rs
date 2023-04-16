@@ -1,3 +1,30 @@
+//! This example shows how to use in handler custom client.
+//!
+//! Usually you don't need to use custom client, because [`telers`] provides default client, which is [`Reqwest`],
+//! but if you want to use custom client, you can do it by using [`Bot::with_client`] method and use it in handlers.
+//!
+//! You can use any client, which implements [`Session`] trait and use it in handlers:
+//! ```ignore
+//! async fn handler(bot: Bot<impl Session>) -> HandlerResult {
+//!    // ...
+//! }
+//! ```
+//! You the same can use another client and use it directly:
+//! ```ignore
+//! async fn handler(bot: Bot<SomeClientDirectly>) -> HandlerResult {
+//!     // ...
+//! }
+//! ```
+//!
+//! You can run this example by setting `BOT_TOKEN` environment variable and running:
+//! ```bash
+//! BOT_TOKEN=your_bot_token cargo run --example other_client
+//! ```
+//! We the same recommend to set `RUST_LOG` environment variable to see logs:
+//! ```bash
+//! RUST_LOG=info BOT_TOKEN=your_bot_token cargo run --example other_client
+//! ```
+
 use telers::{
     client::{Bot, Reqwest, Session},
     dispatcher::{
@@ -9,8 +36,6 @@ use telers::{
     types::Message,
 };
 
-/// This example shows how to use in handler custom client.
-/// In this case we use `Reqwest` client, but you can use any other client, which implements `Session` trait.
 async fn echo_handler(bot: Bot<impl Session>, message: Message) -> HandlerResult {
     bot.send(
         &CopyMessage::new(message.chat.id, message.chat.id, message.message_id),
@@ -29,9 +54,6 @@ async fn main() {
         panic!("BOT_TOKEN env variable is not set!");
     };
 
-    // Create bot with custom client, in this case we use `Reqwest` client, which is default client in `telers`,
-    // but you can use any other client, which implements `Session` trait.
-    // This call is equivalent to `Bot::new(bot_token)`.
     let bot = Bot::with_client(bot_token, Reqwest::default());
 
     let mut router = Router::new("main");
