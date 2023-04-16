@@ -29,23 +29,29 @@ impl SetChatMenuButton {
     }
 
     #[must_use]
-    pub fn chat_id(mut self, val: i64) -> Self {
-        self.chat_id = val;
-        self
+    pub fn chat_id(self, val: i64) -> Self {
+        Self {
+            chat_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn menu_button<T: Into<MenuButton>>(mut self, val: T) -> Self {
-        self.menu_button = Some(val.into());
-        self
+    pub fn menu_button(self, val: impl Into<MenuButton>) -> Self {
+        Self {
+            menu_button: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl SetChatMenuButton {
     #[must_use]
-    pub fn menu_button_some<T: Into<MenuButton>>(mut self, val: Option<T>) -> Self {
-        self.menu_button = val.map(Into::into);
-        self
+    pub fn menu_button_option(self, val: Option<impl Into<MenuButton>>) -> Self {
+        Self {
+            menu_button: val.map(Into::into),
+            ..self
+        }
     }
 }
 

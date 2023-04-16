@@ -53,38 +53,50 @@ impl InputVenueMessageContent {
     }
 
     #[must_use]
-    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
-        self.title = val.into();
-        self
+    pub fn title(self, val: impl Into<String>) -> Self {
+        Self {
+            title: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn address<T: Into<String>>(mut self, val: T) -> Self {
-        self.address = val.into();
-        self
+    pub fn address(self, val: impl Into<String>) -> Self {
+        Self {
+            address: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn foursquare_id<T: Into<String>>(mut self, val: T) -> Self {
-        self.foursquare_id = Some(val.into());
-        self
+    pub fn foursquare_id(self, val: impl Into<String>) -> Self {
+        Self {
+            foursquare_id: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn foursquare_type<T: Into<String>>(mut self, val: T) -> Self {
-        self.foursquare_type = Some(val.into());
-        self
+    pub fn foursquare_type(self, val: impl Into<String>) -> Self {
+        Self {
+            foursquare_type: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn google_place_id<T: Into<String>>(mut self, val: T) -> Self {
-        self.google_place_id = Some(val.into());
-        self
+    pub fn google_place_id(self, val: impl Into<String>) -> Self {
+        Self {
+            google_place_id: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn google_place_type<T: Into<String>>(mut self, val: T) -> Self {
-        self.google_place_type = Some(val.into());
-        self
+    pub fn google_place_type(self, val: impl Into<String>) -> Self {
+        Self {
+            google_place_type: Some(val.into()),
+            ..self
+        }
     }
 }

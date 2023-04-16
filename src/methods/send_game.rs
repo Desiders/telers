@@ -36,7 +36,7 @@ pub struct SendGame {
 
 impl SendGame {
     #[must_use]
-    pub fn new<T: Into<String>>(chat_id: i64, game_short_name: T) -> Self {
+    pub fn new(chat_id: i64, game_short_name: impl Into<String>) -> Self {
         Self {
             chat_id,
             message_thread_id: None,
@@ -50,89 +50,117 @@ impl SendGame {
     }
 
     #[must_use]
-    pub fn chat_id(mut self, val: i64) -> Self {
-        self.chat_id = val;
-        self
+    pub fn chat_id(self, val: i64) -> Self {
+        Self {
+            chat_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_thread_id(mut self, val: i64) -> Self {
-        self.message_thread_id = Some(val);
-        self
+    pub fn message_thread_id(self, val: i64) -> Self {
+        Self {
+            message_thread_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn game_short_name<T: Into<String>>(mut self, val: T) -> Self {
-        self.game_short_name = val.into();
-        self
+    pub fn game_short_name(self, val: impl Into<String>) -> Self {
+        Self {
+            game_short_name: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification(mut self, val: bool) -> Self {
-        self.disable_notification = Some(val);
-        self
+    pub fn disable_notification(self, val: bool) -> Self {
+        Self {
+            disable_notification: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn protect_content(mut self, val: bool) -> Self {
-        self.protect_content = Some(val);
-        self
+    pub fn protect_content(self, val: bool) -> Self {
+        Self {
+            protect_content: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_to_message_id(mut self, val: i64) -> Self {
-        self.reply_to_message_id = Some(val);
-        self
+    pub fn reply_to_message_id(self, val: i64) -> Self {
+        Self {
+            reply_to_message_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allow_sending_without_reply(mut self, val: bool) -> Self {
-        self.allow_sending_without_reply = Some(val);
-        self
+    pub fn allow_sending_without_reply(self, val: bool) -> Self {
+        Self {
+            allow_sending_without_reply: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup<T: Into<InlineKeyboardMarkup>>(mut self, val: T) -> Self {
-        self.reply_markup = Some(val.into());
-        self
+    pub fn reply_markup(self, val: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl SendGame {
     #[must_use]
-    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
-        self.message_thread_id = val;
-        self
+    pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            message_thread_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification_some(mut self, val: Option<bool>) -> Self {
-        self.disable_notification = val;
-        self
+    pub fn disable_notification_option(self, val: Option<bool>) -> Self {
+        Self {
+            disable_notification: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn protect_content_some(mut self, val: Option<bool>) -> Self {
-        self.protect_content = val;
-        self
+    pub fn protect_content_option(self, val: Option<bool>) -> Self {
+        Self {
+            protect_content: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_to_message_id_some(mut self, val: Option<i64>) -> Self {
-        self.reply_to_message_id = val;
-        self
+    pub fn reply_to_message_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            reply_to_message_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allow_sending_without_reply_some(mut self, val: Option<bool>) -> Self {
-        self.allow_sending_without_reply = val;
-        self
+    pub fn allow_sending_without_reply_option(self, val: Option<bool>) -> Self {
+        Self {
+            allow_sending_without_reply: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup_some<T: Into<InlineKeyboardMarkup>>(mut self, val: Option<T>) -> Self {
-        self.reply_markup = val.map(Into::into);
-        self
+    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
     }
 }
 

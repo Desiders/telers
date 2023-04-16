@@ -34,7 +34,7 @@ pub struct EditMessageCaption {
 
 impl EditMessageCaption {
     #[must_use]
-    pub fn new<T: Into<String>>(caption: T) -> Self {
+    pub fn new(caption: impl Into<String>) -> Self {
         Self {
             chat_id: None,
             message_thread_id: None,
@@ -47,89 +47,138 @@ impl EditMessageCaption {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = Some(val.into());
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_thread_id(mut self, val: i64) -> Self {
-        self.message_thread_id = Some(val);
-        self
+    pub fn message_thread_id(self, val: i64) -> Self {
+        Self {
+            message_thread_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn inline_message_id<T: Into<String>>(mut self, val: T) -> Self {
-        self.inline_message_id = Some(val.into());
-        self
+    pub fn inline_message_id(self, val: impl Into<String>) -> Self {
+        Self {
+            inline_message_id: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn caption<T: Into<String>>(mut self, val: T) -> Self {
-        self.caption = val.into();
-        self
+    pub fn caption(self, val: impl Into<String>) -> Self {
+        Self {
+            caption: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn parse_mode<T: Into<String>>(mut self, val: T) -> Self {
-        self.parse_mode = Some(val.into());
-        self
+    pub fn parse_mode(self, val: impl Into<String>) -> Self {
+        Self {
+            parse_mode: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn caption_entities<T: Into<Vec<MessageEntity>>>(mut self, val: T) -> Self {
-        self.caption_entities = Some(val.into());
-        self
+    pub fn caption_entity(self, val: MessageEntity) -> Self {
+        Self {
+            caption_entities: Some(
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(Some(val))
+                    .collect(),
+            ),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup<T: Into<InlineKeyboardMarkup>>(mut self, val: T) -> Self {
-        self.reply_markup = Some(val.into());
-        self
+    pub fn caption_entities(self, val: impl IntoIterator<Item = MessageEntity>) -> Self {
+        Self {
+            caption_entities: Some(
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect(),
+            ),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn reply_markup(self, val: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl EditMessageCaption {
     #[must_use]
-    pub fn chat_id_some<T: Into<ChatIdKind>>(mut self, val: Option<T>) -> Self {
-        self.chat_id = val.map(Into::into);
-        self
+    pub fn chat_id_option(self, val: Option<impl Into<ChatIdKind>>) -> Self {
+        Self {
+            chat_id: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
-        self.message_thread_id = val;
-        self
+    pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            message_thread_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn inline_message_id_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.inline_message_id = val.map(Into::into);
-        self
+    pub fn inline_message_id_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            inline_message_id: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn caption_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.caption = val.map(Into::into).unwrap_or_default();
-        self
+    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            parse_mode: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn parse_mode_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.parse_mode = val.map(Into::into);
-        self
+    pub fn caption_entities_option(
+        self,
+        val: Option<impl IntoIterator<Item = MessageEntity>>,
+    ) -> Self {
+        Self {
+            caption_entities: val.map(|val| {
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect()
+            }),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn caption_entities_some<T: Into<Vec<MessageEntity>>>(mut self, val: Option<T>) -> Self {
-        self.caption_entities = val.map(Into::into);
-        self
-    }
-
-    #[must_use]
-    pub fn reply_markup_some<T: Into<InlineKeyboardMarkup>>(mut self, val: Option<T>) -> Self {
-        self.reply_markup = val.map(Into::into);
-        self
+    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
     }
 }
 

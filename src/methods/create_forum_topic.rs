@@ -28,7 +28,7 @@ pub struct CreateForumTopic {
 
 impl CreateForumTopic {
     #[must_use]
-    pub fn new<C: Into<ChatIdKind>, T: Into<String>>(chat_id: C, title: T) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, title: impl Into<String>) -> Self {
         Self {
             chat_id: chat_id.into(),
             title: title.into(),
@@ -38,41 +38,53 @@ impl CreateForumTopic {
     }
 
     #[must_use]
-    pub fn chat_id<C: Into<ChatIdKind>>(mut self, val: C) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
-        self.title = val.into();
-        self
+    pub fn title(self, val: impl Into<String>) -> Self {
+        Self {
+            title: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn icon_color<T: Into<String>>(mut self, val: T) -> Self {
-        self.icon_color = Some(val.into());
-        self
+    pub fn icon_color(self, val: impl Into<String>) -> Self {
+        Self {
+            icon_color: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn icon_custom_emoji_id<T: Into<String>>(mut self, val: T) -> Self {
-        self.icon_custom_emoji_id = Some(val.into());
-        self
+    pub fn icon_custom_emoji_id(self, val: impl Into<String>) -> Self {
+        Self {
+            icon_custom_emoji_id: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl CreateForumTopic {
     #[must_use]
-    pub fn icon_color_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.icon_color = val.map(Into::into);
-        self
+    pub fn icon_color_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            icon_color: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn icon_custom_emoji_id_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.icon_custom_emoji_id = val.map(Into::into);
-        self
+    pub fn icon_custom_emoji_id_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            icon_custom_emoji_id: val.map(Into::into),
+            ..self
+        }
     }
 }
 

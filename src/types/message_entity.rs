@@ -55,7 +55,7 @@ impl MessageEntity {
     }
 
     #[must_use]
-    pub fn url<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn url(mut self, val: impl Into<String>) -> Self {
         self.url = Some(val.into());
         self
     }
@@ -67,13 +67,13 @@ impl MessageEntity {
     }
 
     #[must_use]
-    pub fn language<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn language(mut self, val: impl Into<String>) -> Self {
         self.language = Some(val.into());
         self
     }
 
     #[must_use]
-    pub fn custom_emoji_id<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn custom_emoji_id(mut self, val: impl Into<String>) -> Self {
         self.custom_emoji_id = Some(val.into());
         self
     }

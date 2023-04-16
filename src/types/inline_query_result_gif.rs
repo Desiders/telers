@@ -54,19 +54,19 @@ impl InlineQueryResultGif {
     }
 
     #[must_use]
-    pub fn id<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn id(mut self, val: impl Into<String>) -> Self {
         self.id = val.into();
         self
     }
 
     #[must_use]
-    pub fn gif_url<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn gif_url(mut self, val: impl Into<String>) -> Self {
         self.gif_url = val.into();
         self
     }
 
     #[must_use]
-    pub fn thumb_url<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn thumb_url(mut self, val: impl Into<String>) -> Self {
         self.thumb_url = val.into();
         self
     }
@@ -90,39 +90,67 @@ impl InlineQueryResultGif {
     }
 
     #[must_use]
-    pub fn thumb_mime_type<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn thumb_mime_type(mut self, val: impl Into<String>) -> Self {
         self.thumb_mime_type = Some(val.into());
         self
     }
 
     #[must_use]
-    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn title(mut self, val: impl Into<String>) -> Self {
         self.title = Some(val.into());
         self
     }
 
     #[must_use]
-    pub fn caption<T: Into<String>>(mut self, val: T) -> Self {
-        self.caption = Some(val.into());
-        self
+    pub fn caption(self, val: impl Into<String>) -> Self {
+        Self {
+            caption: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn parse_mode<T: Into<String>>(mut self, val: T) -> Self {
-        self.parse_mode = Some(val.into());
-        self
+    pub fn parse_mode(self, val: impl Into<String>) -> Self {
+        Self {
+            parse_mode: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn caption_entities(mut self, val: Vec<MessageEntity>) -> Self {
-        self.caption_entities = Some(val);
-        self
+    pub fn caption_entity(self, val: MessageEntity) -> Self {
+        Self {
+            caption_entities: Some(
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(Some(val))
+                    .collect(),
+            ),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup<T: Into<InlineKeyboardMarkup>>(mut self, val: T) -> Self {
-        self.reply_markup = Some(val.into());
-        self
+    pub fn caption_entities(self, val: impl IntoIterator<Item = MessageEntity>) -> Self {
+        Self {
+            caption_entities: Some(
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect(),
+            ),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn reply_markup(self, val: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]

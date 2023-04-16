@@ -29,26 +29,34 @@ impl InputContactMessageContent {
     }
 
     #[must_use]
-    pub fn phone_number<T: Into<String>>(mut self, val: T) -> Self {
-        self.phone_number = val.into();
-        self
+    pub fn phone_number(self, val: impl Into<String>) -> Self {
+        Self {
+            phone_number: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn first_name<T: Into<String>>(mut self, val: T) -> Self {
-        self.first_name = val.into();
-        self
+    pub fn first_name(self, val: impl Into<String>) -> Self {
+        Self {
+            first_name: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn last_name<T: Into<String>>(mut self, val: T) -> Self {
-        self.last_name = Some(val.into());
-        self
+    pub fn last_name(self, val: impl Into<String>) -> Self {
+        Self {
+            last_name: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn vcard<T: Into<String>>(mut self, val: T) -> Self {
-        self.vcard = Some(val.into());
-        self
+    pub fn vcard(self, val: impl Into<String>) -> Self {
+        Self {
+            vcard: Some(val.into()),
+            ..self
+        }
     }
 }

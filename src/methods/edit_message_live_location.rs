@@ -54,101 +54,127 @@ impl EditMessageLiveLocation {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = Some(val.into());
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_id(mut self, val: i64) -> Self {
-        self.message_id = Some(val);
-        self
+    pub fn message_id(self, val: i64) -> Self {
+        Self {
+            message_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn inline_message_id<T: Into<String>>(mut self, val: T) -> Self {
-        self.inline_message_id = Some(val.into());
-        self
+    pub fn inline_message_id(self, val: impl Into<String>) -> Self {
+        Self {
+            inline_message_id: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn longitude(mut self, val: f64) -> Self {
-        self.longitude = val;
-        self
+    pub fn longitude(self, val: f64) -> Self {
+        Self {
+            longitude: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn latitude(mut self, val: f64) -> Self {
-        self.latitude = val;
-        self
+    pub fn latitude(self, val: f64) -> Self {
+        Self {
+            latitude: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn horizontal_accuracy(mut self, val: f64) -> Self {
-        self.horizontal_accuracy = Some(val);
-        self
+    pub fn horizontal_accuracy(self, val: f64) -> Self {
+        Self {
+            horizontal_accuracy: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn heading(mut self, val: i64) -> Self {
-        self.heading = Some(val);
-        self
+    pub fn heading(self, val: i64) -> Self {
+        Self {
+            heading: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn proximity_alert_radius(mut self, val: i64) -> Self {
-        self.proximity_alert_radius = Some(val);
-        self
+    pub fn proximity_alert_radius(self, val: i64) -> Self {
+        Self {
+            proximity_alert_radius: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup<T: Into<InlineKeyboardMarkup>>(mut self, val: T) -> Self {
-        self.reply_markup = Some(val.into());
-        self
+    pub fn reply_markup(self, val: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl EditMessageLiveLocation {
     #[must_use]
-    pub fn chat_id_some<T: Into<ChatIdKind>>(mut self, val: Option<T>) -> Self {
-        self.chat_id = val.map(Into::into);
-        self
+    pub fn chat_id_option(self, val: Option<impl Into<ChatIdKind>>) -> Self {
+        Self {
+            chat_id: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_id_some(mut self, val: Option<i64>) -> Self {
-        self.message_id = val;
-        self
+    pub fn message_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            message_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn inline_message_id_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.inline_message_id = val.map(Into::into);
-        self
+    pub fn inline_message_id_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            inline_message_id: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn horizontal_accuracy_some(mut self, val: Option<f64>) -> Self {
+    pub fn horizontal_accuracy_option(mut self, val: Option<f64>) -> Self {
         self.horizontal_accuracy = val;
         self
     }
 
     #[must_use]
-    pub fn heading_some(mut self, val: Option<i64>) -> Self {
+    pub fn heading_option(mut self, val: Option<i64>) -> Self {
         self.heading = val;
         self
     }
 
     #[must_use]
-    pub fn proximity_alert_radius_some(mut self, val: Option<i64>) -> Self {
+    pub fn proximity_alert_radius_option(mut self, val: Option<i64>) -> Self {
         self.proximity_alert_radius = val;
         self
     }
 
     #[must_use]
-    pub fn reply_markup_some<T: Into<InlineKeyboardMarkup>>(mut self, val: Option<T>) -> Self {
-        self.reply_markup = val.map(Into::into);
-        self
+    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
     }
 }
 

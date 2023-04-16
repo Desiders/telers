@@ -21,7 +21,7 @@ impl LabeledPrice {
     }
 
     #[must_use]
-    pub fn label<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn label(mut self, val: impl Into<String>) -> Self {
         self.label = val.into();
         self
     }

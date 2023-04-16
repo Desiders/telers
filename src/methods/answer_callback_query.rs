@@ -30,7 +30,7 @@ pub struct AnswerCallbackQuery {
 
 impl AnswerCallbackQuery {
     #[must_use]
-    pub fn new<T: Into<String>>(callback_query_id: T) -> Self {
+    pub fn new(callback_query_id: impl Into<String>) -> Self {
         Self {
             callback_query_id: callback_query_id.into(),
             text: None,
@@ -41,59 +41,77 @@ impl AnswerCallbackQuery {
     }
 
     #[must_use]
-    pub fn callback_query_id<T: Into<String>>(mut self, val: T) -> Self {
-        self.callback_query_id = val.into();
-        self
+    pub fn callback_query_id(self, val: impl Into<String>) -> Self {
+        Self {
+            callback_query_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn text<T: Into<String>>(mut self, val: T) -> Self {
-        self.text = Some(val.into());
-        self
+    pub fn text(self, val: impl Into<String>) -> Self {
+        Self {
+            text: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn show_alert(mut self, val: bool) -> Self {
-        self.show_alert = Some(val);
-        self
+    pub fn show_alert(self, val: bool) -> Self {
+        Self {
+            show_alert: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn url<T: Into<String>>(mut self, val: T) -> Self {
-        self.url = Some(val.into());
-        self
+    pub fn url(self, val: impl Into<String>) -> Self {
+        Self {
+            url: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn cache_time(mut self, val: i32) -> Self {
-        self.cache_time = Some(val);
-        self
+    pub fn cache_time(self, val: i32) -> Self {
+        Self {
+            cache_time: Some(val),
+            ..self
+        }
     }
 }
 
 impl AnswerCallbackQuery {
     #[must_use]
-    pub fn text_some(mut self, val: Option<String>) -> Self {
-        self.text = val;
-        self
+    pub fn text_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            text: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn show_alert_some(mut self, val: Option<bool>) -> Self {
-        self.show_alert = val;
-        self
+    pub fn show_alert_option(self, val: Option<bool>) -> Self {
+        Self {
+            show_alert: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn url_some(mut self, val: Option<String>) -> Self {
-        self.url = val;
-        self
+    pub fn url_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            url: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn cache_time_some(mut self, val: Option<i32>) -> Self {
-        self.cache_time = val;
-        self
+    pub fn cache_time_option(self, val: Option<i32>) -> Self {
+        Self {
+            cache_time: val,
+            ..self
+        }
     }
 }
 

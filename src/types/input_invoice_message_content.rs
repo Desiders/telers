@@ -73,61 +73,97 @@ impl InputInvoiceMessageContent {
     }
 
     #[must_use]
-    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
-        self.title = val.into();
-        self
+    pub fn title(self, val: impl Into<String>) -> Self {
+        Self {
+            title: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn description<T: Into<String>>(mut self, val: T) -> Self {
-        self.description = val.into();
-        self
+    pub fn description(self, val: impl Into<String>) -> Self {
+        Self {
+            description: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn payload<T: Into<String>>(mut self, val: T) -> Self {
-        self.payload = val.into();
-        self
+    pub fn payload(self, val: impl Into<String>) -> Self {
+        Self {
+            payload: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn provider_token<T: Into<String>>(mut self, val: T) -> Self {
-        self.provider_token = val.into();
-        self
+    pub fn provider_token(self, val: impl Into<String>) -> Self {
+        Self {
+            provider_token: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn currency<T: Into<String>>(mut self, val: T) -> Self {
-        self.currency = val.into();
-        self
+    pub fn currency(self, val: impl Into<String>) -> Self {
+        Self {
+            currency: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn prices(mut self, val: Vec<LabeledPrice>) -> Self {
-        self.prices = val;
-        self
+    pub fn price(self, val: LabeledPrice) -> Self {
+        Self {
+            prices: self.prices.into_iter().chain(Some(val)).collect(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn max_tip_amount(mut self, val: i64) -> Self {
-        self.max_tip_amount = Some(val);
-        self
+    pub fn prices(self, val: impl IntoIterator<Item = LabeledPrice>) -> Self {
+        Self {
+            prices: self.prices.into_iter().chain(val).collect(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn suggested_tip_amounts(mut self, val: Vec<i64>) -> Self {
-        self.suggested_tip_amounts = Some(val);
-        self
+    pub fn suggested_tip_amount(self, val: i64) -> Self {
+        Self {
+            suggested_tip_amounts: Some(
+                self.suggested_tip_amounts
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(Some(val))
+                    .collect(),
+            ),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn provider_data<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn suggested_tip_amounts(self, val: impl IntoIterator<Item = i64>) -> Self {
+        Self {
+            suggested_tip_amounts: Some(
+                self.suggested_tip_amounts
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect(),
+            ),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn provider_data(mut self, val: impl Into<String>) -> Self {
         self.provider_data = Some(val.into());
         self
     }
 
     #[must_use]
-    pub fn photo_url<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn photo_url(mut self, val: impl Into<String>) -> Self {
         self.photo_url = Some(val.into());
         self
     }

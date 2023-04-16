@@ -23,7 +23,11 @@ pub struct SetPassportDataErrors {
 
 impl SetPassportDataErrors {
     #[must_use]
-    pub fn new<T: Into<PassportElementError>>(user_id: i64, errors: Vec<T>) -> Self {
+    pub fn new<T, I>(user_id: i64, errors: I) -> Self
+    where
+        T: Into<PassportElementError>,
+        I: IntoIterator<Item = T>,
+    {
         Self {
             user_id,
             errors: errors.into_iter().map(Into::into).collect(),
@@ -31,21 +35,35 @@ impl SetPassportDataErrors {
     }
 
     #[must_use]
-    pub fn user_id(mut self, val: i64) -> Self {
-        self.user_id = val;
-        self
+    pub fn user_id(self, val: i64) -> Self {
+        Self {
+            user_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn errors<T: Into<PassportElementError>>(mut self, val: Vec<T>) -> Self {
-        self.errors.extend(val.into_iter().map(Into::into));
-        self
+    pub fn error(self, val: impl Into<PassportElementError>) -> Self {
+        Self {
+            errors: self.errors.into_iter().chain(Some(val.into())).collect(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn error<T: Into<PassportElementError>>(mut self, val: T) -> Self {
-        self.errors.push(val.into());
-        self
+    pub fn errors<T, I>(self, val: I) -> Self
+    where
+        T: Into<PassportElementError>,
+        I: IntoIterator<Item = T>,
+    {
+        Self {
+            errors: self
+                .errors
+                .into_iter()
+                .chain(val.into_iter().map(Into::into))
+                .collect(),
+            ..self
+        }
     }
 }
 

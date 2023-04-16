@@ -61,45 +61,79 @@ impl<'a> InputMediaVideo<'a> {
     }
 
     #[must_use]
-    pub fn thumb<T: Into<InputFile<'a>>>(mut self, val: T) -> Self {
-        self.thumb = Some(val.into());
-        self
+    pub fn thumb(self, val: impl Into<InputFile<'a>>) -> Self {
+        Self {
+            thumb: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn caption<T: Into<String>>(mut self, val: T) -> Self {
-        self.caption = Some(val.into());
-        self
+    pub fn caption(self, val: impl Into<String>) -> Self {
+        Self {
+            caption: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn parse_mode<T: Into<String>>(mut self, val: T) -> Self {
-        self.parse_mode = Some(val.into());
-        self
+    pub fn parse_mode(self, val: impl Into<String>) -> Self {
+        Self {
+            parse_mode: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn caption_entities(mut self, val: Vec<MessageEntity>) -> Self {
-        self.caption_entities = Some(val);
-        self
+    pub fn caption_entity(self, val: MessageEntity) -> Self {
+        Self {
+            caption_entities: Some(
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(Some(val))
+                    .collect(),
+            ),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn width(mut self, val: i64) -> Self {
-        self.width = Some(val);
-        self
+    pub fn caption_entities(self, val: impl IntoIterator<Item = MessageEntity>) -> Self {
+        Self {
+            caption_entities: Some(
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect(),
+            ),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn height(mut self, val: i64) -> Self {
-        self.height = Some(val);
-        self
+    pub fn width(self, val: i64) -> Self {
+        Self {
+            width: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn duration(mut self, val: i64) -> Self {
-        self.duration = Some(val);
-        self
+    pub fn height(self, val: i64) -> Self {
+        Self {
+            height: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn duration(self, val: i64) -> Self {
+        Self {
+            duration: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
@@ -109,9 +143,11 @@ impl<'a> InputMediaVideo<'a> {
     }
 
     #[must_use]
-    pub fn has_spoiler(mut self, val: bool) -> Self {
-        self.has_spoiler = Some(val);
-        self
+    pub fn has_spoiler(self, val: bool) -> Self {
+        Self {
+            has_spoiler: Some(val),
+            ..self
+        }
     }
 }
 

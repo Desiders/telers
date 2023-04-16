@@ -32,10 +32,12 @@ pub struct AnswerInlineQuery {
 
 impl AnswerInlineQuery {
     #[must_use]
-    pub fn new<T: Into<String>, E: Into<InlineQueryResult>>(
-        inline_query_id: T,
-        results: Vec<E>,
-    ) -> Self {
+    pub fn new<T, R, I>(inline_query_id: T, results: I) -> Self
+    where
+        T: Into<String>,
+        R: Into<InlineQueryResult>,
+        I: IntoIterator<Item = R>,
+    {
         Self {
             inline_query_id: inline_query_id.into(),
             results: results.into_iter().map(Into::into).collect(),
@@ -48,77 +50,109 @@ impl AnswerInlineQuery {
     }
 
     #[must_use]
-    pub fn results<T: Into<InlineQueryResult>>(mut self, val: Vec<T>) -> Self {
-        self.results = val.into_iter().map(Into::into).collect();
-        self
+    pub fn result(self, val: impl Into<InlineQueryResult>) -> Self {
+        Self {
+            results: self.results.into_iter().chain(Some(val.into())).collect(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn result<T: Into<InlineQueryResult>>(mut self, val: T) -> Self {
-        self.results.push(val.into());
-        self
+    pub fn results<T, I>(self, val: I) -> Self
+    where
+        T: Into<InlineQueryResult>,
+        I: IntoIterator<Item = T>,
+    {
+        Self {
+            results: self
+                .results
+                .into_iter()
+                .chain(val.into_iter().map(Into::into))
+                .collect(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn cache_time(mut self, val: i32) -> Self {
-        self.cache_time = Some(val);
-        self
+    pub fn cache_time(self, val: i32) -> Self {
+        Self {
+            cache_time: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn is_personal(mut self, val: bool) -> Self {
-        self.is_personal = Some(val);
-        self
+    pub fn is_personal(self, val: bool) -> Self {
+        Self {
+            is_personal: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn next_offset<T: Into<String>>(mut self, val: T) -> Self {
-        self.next_offset = Some(val.into());
-        self
+    pub fn next_offset(self, val: impl Into<String>) -> Self {
+        Self {
+            next_offset: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn switch_pm_text<T: Into<String>>(mut self, val: T) -> Self {
-        self.switch_pm_text = Some(val.into());
-        self
+    pub fn switch_pm_text(self, val: impl Into<String>) -> Self {
+        Self {
+            switch_pm_text: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn switch_pm_parameter<T: Into<String>>(mut self, val: T) -> Self {
-        self.switch_pm_parameter = Some(val.into());
-        self
+    pub fn switch_pm_parameter(self, val: impl Into<String>) -> Self {
+        Self {
+            switch_pm_parameter: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl AnswerInlineQuery {
     #[must_use]
-    pub fn cache_time_some(mut self, val: Option<i32>) -> Self {
-        self.cache_time = val;
-        self
+    pub fn cache_time_option(self, val: Option<i32>) -> Self {
+        Self {
+            cache_time: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn is_personal_some(mut self, val: Option<bool>) -> Self {
-        self.is_personal = val;
-        self
+    pub fn is_personal_option(self, val: Option<bool>) -> Self {
+        Self {
+            is_personal: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn next_offset_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.next_offset = val.map(Into::into);
-        self
+    pub fn next_offset_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            next_offset: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn switch_pm_text_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.switch_pm_text = val.map(Into::into);
-        self
+    pub fn switch_pm_text_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            switch_pm_text: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn switch_pm_parameter_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.switch_pm_parameter = val.map(Into::into);
-        self
+    pub fn switch_pm_parameter_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            switch_pm_parameter: val.map(Into::into),
+            ..self
+        }
     }
 }
 

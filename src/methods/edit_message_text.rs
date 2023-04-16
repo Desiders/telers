@@ -36,7 +36,7 @@ pub struct EditMessageText {
 
 impl EditMessageText {
     #[must_use]
-    pub fn new<T: Into<String>>(text: T) -> Self {
+    pub fn new(text: impl Into<String>) -> Self {
         Self {
             chat_id: None,
             message_thread_id: None,
@@ -50,95 +50,137 @@ impl EditMessageText {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = Some(val.into());
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_thread_id(mut self, val: i64) -> Self {
-        self.message_thread_id = Some(val);
-        self
+    pub fn message_thread_id(self, val: i64) -> Self {
+        Self {
+            message_thread_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn inline_message_id<T: Into<String>>(mut self, val: T) -> Self {
-        self.inline_message_id = Some(val.into());
-        self
+    pub fn inline_message_id(self, val: impl Into<String>) -> Self {
+        Self {
+            inline_message_id: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn text<T: Into<String>>(mut self, val: T) -> Self {
-        self.text = val.into();
-        self
+    pub fn text(self, val: impl Into<String>) -> Self {
+        Self {
+            text: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn parse_mode<T: Into<String>>(mut self, val: T) -> Self {
-        self.parse_mode = Some(val.into());
-        self
+    pub fn parse_mode(self, val: impl Into<String>) -> Self {
+        Self {
+            parse_mode: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn entities<T: Into<Vec<MessageEntity>>>(mut self, val: T) -> Self {
-        self.entities = Some(val.into());
-        self
+    pub fn entities(self, val: impl IntoIterator<Item = MessageEntity>) -> Self {
+        Self {
+            entities: Some(
+                self.entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect(),
+            ),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_web_page_preview(mut self, val: bool) -> Self {
-        self.disable_web_page_preview = Some(val);
-        self
+    pub fn disable_web_page_preview(self, val: bool) -> Self {
+        Self {
+            disable_web_page_preview: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup<T: Into<InlineKeyboardMarkup>>(mut self, val: T) -> Self {
-        self.reply_markup = Some(val.into());
-        self
+    pub fn reply_markup(self, val: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl EditMessageText {
     #[must_use]
-    pub fn chat_id_some<T: Into<ChatIdKind>>(mut self, val: Option<T>) -> Self {
-        self.chat_id = val.map(Into::into);
-        self
+    pub fn chat_id_option(self, val: Option<impl Into<ChatIdKind>>) -> Self {
+        Self {
+            chat_id: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
-        self.message_thread_id = val;
-        self
+    pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            message_thread_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn inline_message_id_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.inline_message_id = val.map(Into::into);
-        self
+    pub fn inline_message_id_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            inline_message_id: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn parse_mode_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.parse_mode = val.map(Into::into);
-        self
+    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            parse_mode: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn entities_some<T: Into<Vec<MessageEntity>>>(mut self, val: Option<T>) -> Self {
-        self.entities = val.map(Into::into);
-        self
+    pub fn entities_option(self, val: Option<impl IntoIterator<Item = MessageEntity>>) -> Self {
+        Self {
+            entities: val.map(|val| {
+                self.entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect()
+            }),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_web_page_preview_some(mut self, val: Option<bool>) -> Self {
-        self.disable_web_page_preview = val;
-        self
+    pub fn disable_web_page_preview_option(self, val: Option<bool>) -> Self {
+        Self {
+            disable_web_page_preview: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup_some<T: Into<InlineKeyboardMarkup>>(mut self, val: Option<T>) -> Self {
-        self.reply_markup = val.map(Into::into);
-        self
+    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
     }
 }
 

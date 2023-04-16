@@ -31,19 +31,19 @@ impl LoginUrl {
     }
 
     #[must_use]
-    pub fn url<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn url(mut self, val: impl Into<String>) -> Self {
         self.url = val.into();
         self
     }
 
     #[must_use]
-    pub fn forward_text<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn forward_text(mut self, val: impl Into<String>) -> Self {
         self.forward_text = Some(val.into());
         self
     }
 
     #[must_use]
-    pub fn bot_username<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn bot_username(mut self, val: impl Into<String>) -> Self {
         self.bot_username = Some(val.into());
         self
     }

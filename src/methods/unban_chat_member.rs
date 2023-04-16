@@ -23,7 +23,7 @@ pub struct UnbanChatMember {
 
 impl UnbanChatMember {
     #[must_use]
-    pub fn new<T: Into<ChatIdKind>>(chat_id: T, user_id: i64) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, user_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
             user_id,
@@ -32,29 +32,37 @@ impl UnbanChatMember {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn user_id(mut self, val: i64) -> Self {
-        self.user_id = val;
-        self
+    pub fn user_id(self, val: i64) -> Self {
+        Self {
+            user_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn only_if_banned(mut self, val: bool) -> Self {
-        self.only_if_banned = Some(val);
-        self
+    pub fn only_if_banned(self, val: bool) -> Self {
+        Self {
+            only_if_banned: Some(val),
+            ..self
+        }
     }
 }
 
 impl UnbanChatMember {
     #[must_use]
-    pub fn only_if_banned_some(mut self, val: Option<bool>) -> Self {
-        self.only_if_banned = val;
-        self
+    pub fn only_if_banned_option(self, val: Option<bool>) -> Self {
+        Self {
+            only_if_banned: val,
+            ..self
+        }
     }
 }
 

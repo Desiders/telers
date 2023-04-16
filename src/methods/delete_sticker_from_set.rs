@@ -19,16 +19,17 @@ pub struct DeleteStickerFromSet {
 
 impl DeleteStickerFromSet {
     #[must_use]
-    pub fn new<T: Into<String>>(sticker: T) -> Self {
+    pub fn new(sticker: impl Into<String>) -> Self {
         Self {
             sticker: sticker.into(),
         }
     }
 
     #[must_use]
-    pub fn sticker<T: Into<String>>(mut self, val: T) -> Self {
-        self.sticker = val.into();
-        self
+    pub fn sticker(self, val: impl Into<String>) -> Self {
+        Self {
+            sticker: val.into(),
+        }
     }
 }
 

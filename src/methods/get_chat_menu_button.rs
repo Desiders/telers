@@ -24,17 +24,15 @@ impl GetChatMenuButton {
     }
 
     #[must_use]
-    pub fn chat_id(mut self, val: i64) -> Self {
-        self.chat_id = Some(val);
-        self
+    pub fn chat_id(self, val: i64) -> Self {
+        Self { chat_id: Some(val) }
     }
 }
 
 impl GetChatMenuButton {
     #[must_use]
-    pub fn chat_id_some<T: Into<i64>>(mut self, val: T) -> Self {
-        self.chat_id = Some(val.into());
-        self
+    pub fn chat_id_option(self, val: i64) -> Self {
+        Self { chat_id: Some(val) }
     }
 }
 

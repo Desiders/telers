@@ -21,7 +21,7 @@ pub struct SetChatTitle {
 
 impl SetChatTitle {
     #[must_use]
-    pub fn new<C: Into<ChatIdKind>, T: Into<String>>(chat_id: C, title: T) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, title: impl Into<String>) -> Self {
         Self {
             chat_id: chat_id.into(),
             title: title.into(),
@@ -29,15 +29,19 @@ impl SetChatTitle {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
-        self.title = val.into();
-        self
+    pub fn title(self, val: impl Into<String>) -> Self {
+        Self {
+            title: val.into(),
+            ..self
+        }
     }
 }
 

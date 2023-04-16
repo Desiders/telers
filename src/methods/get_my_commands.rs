@@ -29,29 +29,37 @@ impl GetMyCommands {
     }
 
     #[must_use]
-    pub fn scope<T: Into<BotCommandScope>>(mut self, val: T) -> Self {
-        self.scope = Some(val.into());
-        self
+    pub fn scope(self, val: impl Into<BotCommandScope>) -> Self {
+        Self {
+            scope: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn language_code<T: Into<String>>(mut self, val: T) -> Self {
-        self.language_code = Some(val.into());
-        self
+    pub fn language_code(self, val: impl Into<String>) -> Self {
+        Self {
+            language_code: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl GetMyCommands {
     #[must_use]
-    pub fn scope_some<T: Into<BotCommandScope>>(mut self, val: Option<T>) -> Self {
-        self.scope = val.map(Into::into);
-        self
+    pub fn scope_option(self, val: Option<impl Into<BotCommandScope>>) -> Self {
+        Self {
+            scope: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn language_code_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.language_code = val.map(Into::into);
-        self
+    pub fn language_code_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            language_code: val.map(Into::into),
+            ..self
+        }
     }
 }
 

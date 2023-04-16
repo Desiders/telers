@@ -21,7 +21,7 @@ pub struct SetChatPhoto<'a> {
 
 impl<'a> SetChatPhoto<'a> {
     #[must_use]
-    pub fn new<C: Into<ChatIdKind>, P: Into<InputFile<'a>>>(chat_id: C, photo: P) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, photo: impl Into<InputFile<'a>>) -> Self {
         Self {
             chat_id: chat_id.into(),
             photo: photo.into(),
@@ -29,15 +29,19 @@ impl<'a> SetChatPhoto<'a> {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn photo<P: Into<InputFile<'a>>>(mut self, val: P) -> Self {
-        self.photo = val.into();
-        self
+    pub fn photo(self, val: impl Into<InputFile<'a>>) -> Self {
+        Self {
+            photo: val.into(),
+            ..self
+        }
     }
 }
 

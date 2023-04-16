@@ -23,7 +23,7 @@ pub struct PinChatMessage {
 
 impl PinChatMessage {
     #[must_use]
-    pub fn new<T: Into<ChatIdKind>>(chat_id: T, message_id: i64) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, message_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
             message_id,
@@ -32,29 +32,37 @@ impl PinChatMessage {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_id(mut self, val: i64) -> Self {
-        self.message_id = val;
-        self
+    pub fn message_id(self, val: i64) -> Self {
+        Self {
+            message_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification(mut self, val: bool) -> Self {
-        self.disable_notification = Some(val);
-        self
+    pub fn disable_notification(self, val: bool) -> Self {
+        Self {
+            disable_notification: Some(val),
+            ..self
+        }
     }
 }
 
 impl PinChatMessage {
     #[must_use]
-    pub fn disable_notification_some(mut self, val: Option<bool>) -> Self {
-        self.disable_notification = val;
-        self
+    pub fn disable_notification_option(self, val: Option<bool>) -> Self {
+        Self {
+            disable_notification: val,
+            ..self
+        }
     }
 }
 

@@ -44,7 +44,11 @@ pub struct CopyMessage {
 
 impl CopyMessage {
     #[must_use]
-    pub fn new<T: Into<ChatIdKind>>(chat_id: T, from_chat_id: T, message_id: i64) -> Self {
+    pub fn new(
+        chat_id: impl Into<ChatIdKind>,
+        from_chat_id: impl Into<ChatIdKind>,
+        message_id: i64,
+    ) -> Self {
         Self {
             chat_id: chat_id.into(),
             message_thread_id: None,
@@ -62,131 +66,202 @@ impl CopyMessage {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_thread_id(mut self, val: i64) -> Self {
-        self.message_thread_id = Some(val);
-        self
+    pub fn message_thread_id(self, val: i64) -> Self {
+        Self {
+            message_thread_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn from_chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.from_chat_id = val.into();
-        self
+    pub fn from_chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            from_chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_id(mut self, val: i64) -> Self {
-        self.message_id = val;
-        self
+    pub fn message_id(self, val: i64) -> Self {
+        Self {
+            message_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn caption<T: Into<String>>(mut self, val: T) -> Self {
-        self.caption = Some(val.into());
-        self
+    pub fn caption(self, val: impl Into<String>) -> Self {
+        Self {
+            caption: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn parse_mode<T: Into<String>>(mut self, val: T) -> Self {
-        self.parse_mode = Some(val.into());
-        self
+    pub fn parse_mode(self, val: impl Into<String>) -> Self {
+        Self {
+            parse_mode: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn caption_entities(mut self, val: Vec<MessageEntity>) -> Self {
-        self.caption_entities = Some(val);
-        self
+    pub fn caption_entity(self, val: MessageEntity) -> Self {
+        Self {
+            caption_entities: Some(
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(Some(val))
+                    .collect(),
+            ),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification(mut self, val: bool) -> Self {
-        self.disable_notification = Some(val);
-        self
+    pub fn caption_entities(self, val: impl IntoIterator<Item = MessageEntity>) -> Self {
+        Self {
+            caption_entities: Some(
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect(),
+            ),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn protect_content(mut self, val: bool) -> Self {
-        self.protect_content = Some(val);
-        self
+    pub fn disable_notification(self, val: bool) -> Self {
+        Self {
+            disable_notification: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_to_message_id(mut self, val: i64) -> Self {
-        self.reply_to_message_id = Some(val);
-        self
+    pub fn protect_content(self, val: bool) -> Self {
+        Self {
+            protect_content: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allow_sending_without_reply(mut self, val: bool) -> Self {
-        self.allow_sending_without_reply = Some(val);
-        self
+    pub fn reply_to_message_id(self, val: i64) -> Self {
+        Self {
+            reply_to_message_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup<T: Into<ReplyMarkup>>(mut self, val: T) -> Self {
-        self.reply_markup = Some(val.into());
-        self
+    pub fn allow_sending_without_reply(self, val: bool) -> Self {
+        Self {
+            allow_sending_without_reply: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn reply_markup(self, val: impl Into<ReplyMarkup>) -> Self {
+        Self {
+            reply_markup: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl CopyMessage {
     #[must_use]
-    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
-        self.message_thread_id = val;
-        self
+    pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            message_thread_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn caption_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.caption = val.map(Into::into);
-        self
+    pub fn caption_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            caption: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn parse_mode_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.parse_mode = val.map(Into::into);
-        self
+    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            parse_mode: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn caption_entities_some(mut self, val: Option<Vec<MessageEntity>>) -> Self {
-        self.caption_entities = val;
-        self
+    pub fn caption_entities_option(
+        self,
+        val: Option<impl IntoIterator<Item = MessageEntity>>,
+    ) -> Self {
+        Self {
+            caption_entities: val.map(|val| {
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect()
+            }),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification_some(mut self, val: Option<bool>) -> Self {
-        self.disable_notification = val;
-        self
+    pub fn disable_notification_option(self, val: Option<bool>) -> Self {
+        Self {
+            disable_notification: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn protect_content_some(mut self, val: Option<bool>) -> Self {
-        self.protect_content = val;
-        self
+    pub fn protect_content_option(self, val: Option<bool>) -> Self {
+        Self {
+            protect_content: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_to_message_id_some(mut self, val: Option<i64>) -> Self {
-        self.reply_to_message_id = val;
-        self
+    pub fn reply_to_message_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            reply_to_message_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allow_sending_without_reply_some(mut self, val: Option<bool>) -> Self {
-        self.allow_sending_without_reply = val;
-        self
+    pub fn allow_sending_without_reply_option(self, val: Option<bool>) -> Self {
+        Self {
+            allow_sending_without_reply: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup_some<T: Into<ReplyMarkup>>(mut self, val: Option<T>) -> Self {
-        self.reply_markup = val.map(Into::into);
-        self
+    pub fn reply_markup_option(self, val: Option<impl Into<ReplyMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
     }
 }
 

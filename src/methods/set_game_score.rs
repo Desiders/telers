@@ -44,77 +44,95 @@ impl SetGameScore {
     }
 
     #[must_use]
-    pub fn user_id(mut self, val: i64) -> Self {
-        self.user_id = val;
-        self
+    pub fn user_id(self, val: i64) -> Self {
+        Self {
+            user_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn score(mut self, val: u64) -> Self {
-        self.score = val;
-        self
+    pub fn score(self, val: u64) -> Self {
+        Self { score: val, ..self }
     }
 
     #[must_use]
-    pub fn force(mut self, val: bool) -> Self {
-        self.force = Some(val);
-        self
+    pub fn force(self, val: bool) -> Self {
+        Self {
+            force: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_edit_message(mut self, val: bool) -> Self {
-        self.disable_edit_message = Some(val);
-        self
+    pub fn disable_edit_message(self, val: bool) -> Self {
+        Self {
+            disable_edit_message: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn chat_id(mut self, val: i64) -> Self {
-        self.chat_id = Some(val);
-        self
+    pub fn chat_id(self, val: i64) -> Self {
+        Self {
+            chat_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_id(mut self, val: i64) -> Self {
-        self.message_id = Some(val);
-        self
+    pub fn message_id(self, val: i64) -> Self {
+        Self {
+            message_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn inline_message_id<T: Into<String>>(mut self, val: T) -> Self {
-        self.inline_message_id = Some(val.into());
-        self
+    pub fn inline_message_id(self, val: impl Into<String>) -> Self {
+        Self {
+            inline_message_id: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl SetGameScore {
     #[must_use]
-    pub fn force_some(mut self, val: Option<bool>) -> Self {
-        self.force = val;
-        self
+    pub fn force_option(self, val: Option<bool>) -> Self {
+        Self { force: val, ..self }
     }
 
     #[must_use]
-    pub fn disable_edit_message_some(mut self, val: Option<bool>) -> Self {
-        self.disable_edit_message = val;
-        self
+    pub fn disable_edit_message_option(self, val: Option<bool>) -> Self {
+        Self {
+            disable_edit_message: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn chat_id_some(mut self, val: Option<i64>) -> Self {
-        self.chat_id = val;
-        self
+    pub fn chat_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            chat_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_id_some(mut self, val: Option<i64>) -> Self {
-        self.message_id = val;
-        self
+    pub fn message_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            message_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn inline_message_id_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.inline_message_id = val.map(Into::into);
-        self
+    pub fn inline_message_id_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            inline_message_id: val.map(Into::into),
+            ..self
+        }
     }
 }
 

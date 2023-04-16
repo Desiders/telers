@@ -26,7 +26,7 @@ pub struct StopPoll {
 
 impl StopPoll {
     #[must_use]
-    pub fn new<T: Into<ChatIdKind>>(chat_id: T, message_id: i64) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, message_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
             message_id,
@@ -35,29 +35,37 @@ impl StopPoll {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_id(mut self, val: i64) -> Self {
-        self.message_id = val;
-        self
+    pub fn message_id(self, val: i64) -> Self {
+        Self {
+            message_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup<T: Into<InlineKeyboardMarkup>>(mut self, val: T) -> Self {
-        self.reply_markup = Some(val.into());
-        self
+    pub fn reply_markup(self, val: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl StopPoll {
     #[must_use]
-    pub fn reply_markup_some<T: Into<InlineKeyboardMarkup>>(mut self, val: Option<T>) -> Self {
-        self.reply_markup = val.map(Into::into);
-        self
+    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
     }
 }
 

@@ -26,15 +26,19 @@ impl DeleteMyCommands {
     }
 
     #[must_use]
-    pub fn scope<T: Into<BotCommandScope>>(mut self, val: T) -> Self {
-        self.scope = Some(val.into());
-        self
+    pub fn scope(self, val: impl Into<BotCommandScope>) -> Self {
+        Self {
+            scope: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn language_code<T: Into<String>>(mut self, val: T) -> Self {
-        self.language_code = Some(val.into());
-        self
+    pub fn language_code(self, val: impl Into<String>) -> Self {
+        Self {
+            language_code: Some(val.into()),
+            ..self
+        }
     }
 }
 

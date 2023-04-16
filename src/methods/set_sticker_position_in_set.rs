@@ -21,7 +21,7 @@ pub struct SetStickerPositionInSet {
 
 impl SetStickerPositionInSet {
     #[must_use]
-    pub fn new<T: Into<String>>(sticker: T, position: i64) -> Self {
+    pub fn new(sticker: impl Into<String>, position: i64) -> Self {
         Self {
             sticker: sticker.into(),
             position,
@@ -29,15 +29,19 @@ impl SetStickerPositionInSet {
     }
 
     #[must_use]
-    pub fn sticker<T: Into<String>>(mut self, val: T) -> Self {
-        self.sticker = val.into();
-        self
+    pub fn sticker(self, val: impl Into<String>) -> Self {
+        Self {
+            sticker: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn position(mut self, val: i64) -> Self {
-        self.position = val;
-        self
+    pub fn position(self, val: i64) -> Self {
+        Self {
+            position: val,
+            ..self
+        }
     }
 }
 

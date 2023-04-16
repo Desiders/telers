@@ -1,6 +1,6 @@
 use crate::{
     client::Bot,
-    types::{InputFile, InputFileKind, InputMedia, ResponseParameters},
+    types::{InputFile, InputFileKind, InputMedia, InputSticker, ResponseParameters},
 };
 
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
@@ -154,4 +154,20 @@ pub(super) fn prepare_input_media_single<'a, S: BuildHasher>(
             prepare_file_with_id(files, &inner.media);
         }
     }
+}
+
+pub(super) fn prepare_input_stickers<'a, S: BuildHasher>(
+    files: &mut HashMap<&'a str, &'a InputFile<'a>, S>,
+    input_stickers: &'a Vec<InputSticker<'a>>,
+) {
+    for input_sticker in input_stickers {
+        prepare_input_sticker(files, input_sticker);
+    }
+}
+
+pub(super) fn prepare_input_sticker<'a, S: BuildHasher>(
+    files: &mut HashMap<&'a str, &'a InputFile<'a>, S>,
+    input_sticker: &'a InputSticker<'a>,
+) {
+    prepare_file_with_id(files, &input_sticker.sticker);
 }

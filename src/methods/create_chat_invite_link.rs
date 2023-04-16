@@ -30,7 +30,7 @@ pub struct CreateChatInviteLink {
 
 impl CreateChatInviteLink {
     #[must_use]
-    pub fn new<T: Into<ChatIdKind>>(chat_id: T) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>) -> Self {
         Self {
             chat_id: chat_id.into(),
             invite_link: None,
@@ -41,59 +41,77 @@ impl CreateChatInviteLink {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn invite_link<T: Into<String>>(mut self, val: T) -> Self {
-        self.invite_link = Some(val.into());
-        self
+    pub fn invite_link(self, val: impl Into<String>) -> Self {
+        Self {
+            invite_link: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn expire_date(mut self, val: i64) -> Self {
-        self.expire_date = Some(val);
-        self
+    pub fn expire_date(self, val: i64) -> Self {
+        Self {
+            expire_date: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn member_limit(mut self, val: i64) -> Self {
-        self.member_limit = Some(val);
-        self
+    pub fn member_limit(self, val: i64) -> Self {
+        Self {
+            member_limit: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn creates_join_request(mut self, val: bool) -> Self {
-        self.creates_join_request = Some(val);
-        self
+    pub fn creates_join_request(self, val: bool) -> Self {
+        Self {
+            creates_join_request: Some(val),
+            ..self
+        }
     }
 }
 
 impl CreateChatInviteLink {
     #[must_use]
-    pub fn invite_link_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.invite_link = val.map(Into::into);
-        self
+    pub fn invite_link_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            invite_link: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn expire_date_some(mut self, val: Option<i64>) -> Self {
-        self.expire_date = val;
-        self
+    pub fn expire_date_option(self, val: Option<i64>) -> Self {
+        Self {
+            expire_date: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn member_limit_some(mut self, val: Option<i64>) -> Self {
-        self.member_limit = val;
-        self
+    pub fn member_limit_option(self, val: Option<i64>) -> Self {
+        Self {
+            member_limit: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn creates_join_request_some(mut self, val: Option<bool>) -> Self {
-        self.creates_join_request = val;
-        self
+    pub fn creates_join_request_option(self, val: Option<bool>) -> Self {
+        Self {
+            creates_join_request: val,
+            ..self
+        }
     }
 }
 

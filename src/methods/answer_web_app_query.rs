@@ -24,10 +24,7 @@ pub struct AnswerWebAppQuery {
 
 impl AnswerWebAppQuery {
     #[must_use]
-    pub fn new<T: Into<String>, E: Into<InlineQueryResult>>(
-        web_app_query_id: T,
-        result: E,
-    ) -> Self {
+    pub fn new(web_app_query_id: impl Into<String>, result: impl Into<InlineQueryResult>) -> Self {
         Self {
             web_app_query_id: web_app_query_id.into(),
             result: result.into(),
@@ -35,15 +32,19 @@ impl AnswerWebAppQuery {
     }
 
     #[must_use]
-    pub fn web_app_query_id<T: Into<String>>(mut self, val: T) -> Self {
-        self.web_app_query_id = val.into();
-        self
+    pub fn web_app_query_id(self, val: impl Into<String>) -> Self {
+        Self {
+            web_app_query_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn result<T: Into<InlineQueryResult>>(mut self, val: T) -> Self {
-        self.result = val.into();
-        self
+    pub fn result(self, val: impl Into<InlineQueryResult>) -> Self {
+        Self {
+            result: val.into(),
+            ..self
+        }
     }
 }
 

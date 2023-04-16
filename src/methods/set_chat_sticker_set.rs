@@ -21,7 +21,7 @@ pub struct SetChatStickerSet {
 
 impl SetChatStickerSet {
     #[must_use]
-    pub fn new<C: Into<ChatIdKind>, T: Into<String>>(chat_id: C, sticker_set_name: T) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, sticker_set_name: impl Into<String>) -> Self {
         Self {
             chat_id: chat_id.into(),
             sticker_set_name: sticker_set_name.into(),
@@ -29,15 +29,19 @@ impl SetChatStickerSet {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn sticker_set_name<T: Into<String>>(mut self, val: T) -> Self {
-        self.sticker_set_name = val.into();
-        self
+    pub fn sticker_set_name(self, val: impl Into<String>) -> Self {
+        Self {
+            sticker_set_name: val.into(),
+            ..self
+        }
     }
 }
 

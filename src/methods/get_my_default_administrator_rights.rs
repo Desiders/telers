@@ -24,17 +24,17 @@ impl GetMyDefaultAdministratorRights {
     }
 
     #[must_use]
-    pub fn for_channels(mut self, val: bool) -> Self {
-        self.for_channels = Some(val);
-        self
+    pub fn for_channels(self, val: bool) -> Self {
+        Self {
+            for_channels: Some(val),
+        }
     }
 }
 
 impl GetMyDefaultAdministratorRights {
     #[must_use]
-    pub fn for_channels_some(mut self, val: Option<bool>) -> Self {
-        self.for_channels = val;
-        self
+    pub fn for_channels_option(self, val: Option<bool>) -> Self {
+        Self { for_channels: val }
     }
 }
 

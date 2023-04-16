@@ -25,7 +25,7 @@ pub struct EditForumTopic {
 
 impl EditForumTopic {
     #[must_use]
-    pub fn new<T: Into<ChatIdKind>>(chat_id: T, message_thread_id: i64) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, message_thread_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
             message_thread_id,
@@ -35,33 +35,41 @@ impl EditForumTopic {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_thread_id(mut self, val: i64) -> Self {
-        self.message_thread_id = val;
-        self
+    pub fn message_thread_id(self, val: i64) -> Self {
+        Self {
+            message_thread_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn name<T: Into<String>>(mut self, val: T) -> Self {
-        self.name = Some(val.into());
-        self
+    pub fn name(self, val: impl Into<String>) -> Self {
+        Self {
+            name: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn icon_custom_emoji_id<T: Into<String>>(mut self, val: T) -> Self {
-        self.icon_custom_emoji_id = Some(val.into());
-        self
+    pub fn icon_custom_emoji_id(self, val: impl Into<String>) -> Self {
+        Self {
+            icon_custom_emoji_id: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl EditForumTopic {
     #[must_use]
-    pub fn icon_custom_emoji_id_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
+    pub fn icon_custom_emoji_id_option(mut self, val: Option<impl Into<String>>) -> Self {
         self.icon_custom_emoji_id = val.map(Into::into);
         self
     }

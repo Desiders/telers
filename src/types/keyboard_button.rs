@@ -27,7 +27,7 @@ pub struct KeyboardButton {
 
 impl KeyboardButton {
     #[must_use]
-    pub fn new<T: Into<String>>(text: T) -> Self {
+    pub fn new(text: impl Into<String>) -> Self {
         Self {
             text: text.into(),
             request_contact: None,
@@ -38,9 +38,11 @@ impl KeyboardButton {
     }
 
     #[must_use]
-    pub fn text<T: Into<String>>(mut self, val: T) -> Self {
-        self.text = val.into();
-        self
+    pub fn text(self, val: impl Into<String>) -> Self {
+        Self {
+            text: val.into(),
+            ..self
+        }
     }
 
     #[must_use]

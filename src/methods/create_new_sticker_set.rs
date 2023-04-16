@@ -1,15 +1,12 @@
-use super::base::{prepare_file_with_value, Request, TelegramMethod};
+use super::base::{prepare_input_stickers, Request, TelegramMethod};
 
-use crate::{
-    client::Bot,
-    types::{InputFile, MaskPosition},
-};
+use crate::{client::Bot, types::InputSticker};
 
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 use std::collections::HashMap;
 
-/// Use this method to create a new sticker set owned by a user. The bot will be able to edit the sticker set thus created. You `must` use exactly one of the fields `png_sticker`, `tgs_sticker`, or `webm_sticker`.
+/// Use this method to create a new sticker set owned by a user. The bot will be able to edit the sticker set thus created.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#createnewstickerset>
 /// # Returns
@@ -23,120 +20,116 @@ pub struct CreateNewStickerSet<'a> {
     pub name: String,
     /// Sticker set title, 1-64 characters
     pub title: String,
-    /// `PNG` image with the sticker, must be up to 512 kilobytes in size, dimensions must not exceed 512px, and either width or height must be exactly 512px. Pass a `file_id` as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. [More info on Sending Files »](https://core.telegram.org/bots/api#sending-files)
-    pub png_sticker: Option<InputFile<'a>>,
-    /// `TGS` animation with the sticker, uploaded using multipart/form-data. See [https://core.telegram.org/animated_stickers#technical-requirements](https://core.telegram.org/animated_stickers#technical-requirements) for technical requirements.
-    pub tgs_sticker: Option<InputFile<'a>>,
-    /// `Webm` image with the sticker, must be up to 512 kilobytes in size, dimensions must not exceed 512px, and either width or height must be exactly 512px. Pass a `file_id` as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. [More info on Sending Files »](https://core.telegram.org/bots/api#sending-files)
-    pub webm_sticker: Option<InputFile<'a>>,
+    /// A JSON-serialized list of 1-50 initial stickers to be added to the sticker set
+    pub stickers: Vec<InputSticker<'a>>,
+    /// Format of stickers in the set, must be one of `static`, `animated`, `video`
+    pub sticker_format: String,
     /// Type of stickers in the set, pass `regular` or `mask`. Custom emoji sticker sets can't be created via the Bot API at the moment. By default, a regular sticker set is created.
     pub sticker_type: Option<String>,
-    /// One or more emoji corresponding to the sticker
-    pub emojis: String,
-    /// A JSON-serialized object for position where the mask should be placed on faces
-    pub mask_position: Option<MaskPosition>,
+    /// Pass `True` if stickers in the sticker set must be repainted to the color of text when used in messages, the accent color if used as emoji status, white on chat photos, or another appropriate color based on context; for custom emoji sticker sets only
+    pub needs_repainting: Option<bool>,
 }
 
 impl<'a> CreateNewStickerSet<'a> {
     #[must_use]
-    pub fn new<T: Into<String>>(user_id: i64, name: T, title: T, emojis: T) -> Self {
+    pub fn new(
+        user_id: i64,
+        name: impl Into<String>,
+        title: impl Into<String>,
+        stickers: impl IntoIterator<Item = InputSticker<'a>>,
+        sticker_format: impl Into<String>,
+    ) -> Self {
         Self {
             user_id,
             name: name.into(),
             title: title.into(),
-            emojis: emojis.into(),
-            png_sticker: None,
-            tgs_sticker: None,
-            webm_sticker: None,
+            stickers: stickers.into_iter().collect(),
+            sticker_format: sticker_format.into(),
             sticker_type: None,
-            mask_position: None,
+            needs_repainting: None,
         }
     }
 
     #[must_use]
-    pub fn user_id(mut self, val: i64) -> Self {
-        self.user_id = val;
-        self
+    pub fn user_id(self, val: i64) -> Self {
+        Self {
+            user_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn name<T: Into<String>>(mut self, val: T) -> Self {
-        self.name = val.into();
-        self
+    pub fn name(self, val: impl Into<String>) -> Self {
+        Self {
+            name: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
-        self.title = val.into();
-        self
+    pub fn title(self, val: impl Into<String>) -> Self {
+        Self {
+            title: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn png_sticker<T: Into<InputFile<'a>>>(mut self, val: T) -> Self {
-        self.png_sticker = Some(val.into());
-        self
+    pub fn sticker(self, val: InputSticker<'a>) -> Self {
+        Self {
+            stickers: self.stickers.into_iter().chain(Some(val)).collect(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn tgs_sticker<T: Into<InputFile<'a>>>(mut self, val: T) -> Self {
-        self.tgs_sticker = Some(val.into());
-        self
+    pub fn stickers(self, val: impl IntoIterator<Item = InputSticker<'a>>) -> Self {
+        Self {
+            stickers: self.stickers.into_iter().chain(val).collect(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn webm_sticker<T: Into<InputFile<'a>>>(mut self, val: T) -> Self {
-        self.webm_sticker = Some(val.into());
-        self
+    pub fn sticker_format(self, val: impl Into<String>) -> Self {
+        Self {
+            sticker_format: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn sticker_type<T: Into<String>>(mut self, val: T) -> Self {
-        self.sticker_type = Some(val.into());
-        self
+    pub fn sticker_type(self, val: impl Into<String>) -> Self {
+        Self {
+            sticker_type: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn emojis<T: Into<String>>(mut self, val: T) -> Self {
-        self.emojis = val.into();
-        self
-    }
-
-    #[must_use]
-    pub fn mask_position(mut self, val: MaskPosition) -> Self {
-        self.mask_position = Some(val);
-        self
+    pub fn needs_repainting(self, val: bool) -> Self {
+        Self {
+            needs_repainting: Some(val),
+            ..self
+        }
     }
 }
 
 impl<'a> CreateNewStickerSet<'a> {
     #[must_use]
-    pub fn png_sticker_some<T: Into<InputFile<'a>>>(mut self, val: Option<T>) -> Self {
-        self.png_sticker = val.map(Into::into);
-        self
+    pub fn sticker_type_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            sticker_type: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn tgs_sticker_some<T: Into<InputFile<'a>>>(mut self, val: Option<T>) -> Self {
-        self.tgs_sticker = val.map(Into::into);
-        self
-    }
-
-    #[must_use]
-    pub fn webm_sticker_some<T: Into<InputFile<'a>>>(mut self, val: Option<T>) -> Self {
-        self.webm_sticker = val.map(Into::into);
-        self
-    }
-
-    #[must_use]
-    pub fn sticker_type_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.sticker_type = val.map(Into::into);
-        self
-    }
-
-    #[must_use]
-    pub fn mask_position_some(mut self, val: Option<MaskPosition>) -> Self {
-        self.mask_position = val;
-        self
+    pub fn needs_repainting_option(self, val: Option<bool>) -> Self {
+        Self {
+            needs_repainting: val,
+            ..self
+        }
     }
 }
 
@@ -146,12 +139,7 @@ impl<'a> TelegramMethod for CreateNewStickerSet<'a> {
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = HashMap::new();
-        if let Some(png_sticker) = &self.png_sticker {
-            prepare_file_with_value(&mut files, png_sticker, "png_sticker");
-        }
-        if let Some(tgs_sticker) = &self.tgs_sticker {
-            prepare_file_with_value(&mut files, tgs_sticker, "tgs_sticker");
-        }
+        prepare_input_stickers(&mut files, &self.stickers);
 
         Request::new("createNewStickerSet", self, Some(files))
     }

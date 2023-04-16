@@ -47,26 +47,34 @@ impl InputLocationMessageContent {
     }
 
     #[must_use]
-    pub fn horizontal_accuracy(mut self, val: f64) -> Self {
-        self.horizontal_accuracy = Some(val);
-        self
+    pub fn horizontal_accuracy(self, val: f64) -> Self {
+        Self {
+            horizontal_accuracy: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn live_period(mut self, val: i64) -> Self {
-        self.live_period = Some(val);
-        self
+    pub fn live_period(self, val: i64) -> Self {
+        Self {
+            live_period: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn heading(mut self, val: i64) -> Self {
-        self.heading = Some(val);
-        self
+    pub fn heading(self, val: i64) -> Self {
+        Self {
+            heading: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn proximity_alert_radius(mut self, val: i64) -> Self {
-        self.proximity_alert_radius = Some(val);
-        self
+    pub fn proximity_alert_radius(self, val: i64) -> Self {
+        Self {
+            proximity_alert_radius: Some(val),
+            ..self
+        }
     }
 }

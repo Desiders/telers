@@ -25,7 +25,7 @@ pub struct AnswerPreCheckoutQuery {
 
 impl AnswerPreCheckoutQuery {
     #[must_use]
-    pub fn new<T: Into<String>>(pre_checkout_query_id: T, ok: bool) -> Self {
+    pub fn new(pre_checkout_query_id: impl Into<String>, ok: bool) -> Self {
         Self {
             pre_checkout_query_id: pre_checkout_query_id.into(),
             ok,
@@ -33,29 +33,34 @@ impl AnswerPreCheckoutQuery {
         }
     }
     #[must_use]
-    pub fn pre_checkout_query_id<T: Into<String>>(mut self, val: T) -> Self {
-        self.pre_checkout_query_id = val.into();
-        self
+    pub fn pre_checkout_query_id(self, val: impl Into<String>) -> Self {
+        Self {
+            pre_checkout_query_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn ok(mut self, val: bool) -> Self {
-        self.ok = val;
-        self
+    pub fn ok(self, val: bool) -> Self {
+        Self { ok: val, ..self }
     }
 
     #[must_use]
-    pub fn error_message<T: Into<String>>(mut self, val: T) -> Self {
-        self.error_message = Some(val.into());
-        self
+    pub fn error_message(self, val: impl Into<String>) -> Self {
+        Self {
+            error_message: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl AnswerPreCheckoutQuery {
     #[must_use]
-    pub fn error_message_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.error_message = val.map(Into::into);
-        self
+    pub fn error_message_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            error_message: val.map(Into::into),
+            ..self
+        }
     }
 }
 

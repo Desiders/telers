@@ -61,7 +61,7 @@ impl ReplyKeyboardMarkup {
     }
 
     #[must_use]
-    pub fn input_field_placeholder<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn input_field_placeholder(mut self, val: impl Into<String>) -> Self {
         self.input_field_placeholder = Some(val.into());
         self
     }

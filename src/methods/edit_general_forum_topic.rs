@@ -21,7 +21,7 @@ pub struct EditGeneralForumTopic {
 
 impl EditGeneralForumTopic {
     #[must_use]
-    pub fn new<C: Into<ChatIdKind>, T: Into<String>>(chat_id: C, name: T) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, name: impl Into<String>) -> Self {
         Self {
             chat_id: chat_id.into(),
             name: name.into(),
@@ -29,15 +29,19 @@ impl EditGeneralForumTopic {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn name<T: Into<String>>(mut self, val: T) -> Self {
-        self.name = val.into();
-        self
+    pub fn name(self, val: impl Into<String>) -> Self {
+        Self {
+            name: val.into(),
+            ..self
+        }
     }
 }
 

@@ -32,9 +32,9 @@ pub struct ForwardMessage {
 
 impl ForwardMessage {
     #[must_use]
-    pub fn new<T: Into<ChatIdKind>>(
-        chat_id: T,
-        from_chat_id: T,
+    pub fn new(
+        chat_id: impl Into<ChatIdKind>,
+        from_chat_id: impl Into<ChatIdKind>,
         message_id: i64,
         disable_notification: bool,
         protect_content: bool,
@@ -50,47 +50,61 @@ impl ForwardMessage {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_thread_id(mut self, val: i64) -> Self {
-        self.message_thread_id = Some(val);
-        self
+    pub fn message_thread_id(self, val: i64) -> Self {
+        Self {
+            message_thread_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn from_chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.from_chat_id = val.into();
-        self
+    pub fn from_chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            from_chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_id(mut self, val: i64) -> Self {
-        self.message_id = val;
-        self
+    pub fn message_id(self, val: i64) -> Self {
+        Self {
+            message_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification(mut self, val: bool) -> Self {
-        self.disable_notification = val;
-        self
+    pub fn disable_notification(self, val: bool) -> Self {
+        Self {
+            disable_notification: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn protect_content(mut self, val: bool) -> Self {
-        self.protect_content = val;
-        self
+    pub fn protect_content(self, val: bool) -> Self {
+        Self {
+            protect_content: val,
+            ..self
+        }
     }
 }
 
 impl ForwardMessage {
     #[must_use]
-    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
-        self.message_thread_id = val;
-        self
+    pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            message_thread_id: val,
+            ..self
+        }
     }
 }
 

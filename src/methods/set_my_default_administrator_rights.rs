@@ -26,29 +26,37 @@ impl SetMyDefaultAdministratorRights {
     }
 
     #[must_use]
-    pub fn rights(mut self, val: ChatAdministratorRights) -> Self {
-        self.rights = Some(val);
-        self
+    pub fn rights(self, val: ChatAdministratorRights) -> Self {
+        Self {
+            rights: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn for_channels(mut self, val: bool) -> Self {
-        self.for_channels = Some(val);
-        self
+    pub fn for_channels(self, val: bool) -> Self {
+        Self {
+            for_channels: Some(val),
+            ..self
+        }
     }
 }
 
 impl SetMyDefaultAdministratorRights {
     #[must_use]
-    pub fn rights_some(mut self, val: Option<ChatAdministratorRights>) -> Self {
-        self.rights = val;
-        self
+    pub fn rights_option(self, val: Option<ChatAdministratorRights>) -> Self {
+        Self {
+            rights: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn for_channels_some(mut self, val: Option<bool>) -> Self {
-        self.for_channels = val;
-        self
+    pub fn for_channels_option(self, val: Option<bool>) -> Self {
+        Self {
+            for_channels: val,
+            ..self
+        }
     }
 }
 

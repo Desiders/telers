@@ -19,16 +19,17 @@ pub struct DeleteChatPhoto {
 
 impl DeleteChatPhoto {
     #[must_use]
-    pub fn new<C: Into<ChatIdKind>>(chat_id: C) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>) -> Self {
         Self {
             chat_id: chat_id.into(),
         }
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+        }
     }
 }
 

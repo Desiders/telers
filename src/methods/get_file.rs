@@ -21,16 +21,17 @@ pub struct GetFile {
 
 impl GetFile {
     #[must_use]
-    pub fn new<T: Into<String>>(file_id: T) -> Self {
+    pub fn new(file_id: impl Into<String>) -> Self {
         Self {
             file_id: file_id.into(),
         }
     }
 
     #[must_use]
-    pub fn file_id<T: Into<String>>(mut self, file_id: T) -> Self {
-        self.file_id = file_id.into();
-        self
+    pub fn file_id(self, val: impl Into<String>) -> Self {
+        Self {
+            file_id: val.into(),
+        }
     }
 }
 

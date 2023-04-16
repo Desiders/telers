@@ -24,7 +24,7 @@ pub struct SetStickerSetThumb<'a> {
 
 impl<'a> SetStickerSetThumb<'a> {
     #[must_use]
-    pub fn new<S: Into<String>>(name: S, user_id: i64) -> Self {
+    pub fn new(name: impl Into<String>, user_id: i64) -> Self {
         Self {
             name: name.into(),
             user_id,
@@ -33,29 +33,37 @@ impl<'a> SetStickerSetThumb<'a> {
     }
 
     #[must_use]
-    pub fn name<T: Into<String>>(mut self, val: T) -> Self {
-        self.name = val.into();
-        self
+    pub fn name(self, val: impl Into<String>) -> Self {
+        Self {
+            name: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn user_id(mut self, val: i64) -> Self {
-        self.user_id = val;
-        self
+    pub fn user_id(self, val: i64) -> Self {
+        Self {
+            user_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn thumb<T: Into<InputFile<'a>>>(mut self, val: T) -> Self {
-        self.thumb = Some(val.into());
-        self
+    pub fn thumb(self, val: impl Into<InputFile<'a>>) -> Self {
+        Self {
+            thumb: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl<'a> SetStickerSetThumb<'a> {
     #[must_use]
-    pub fn thumb_some<T: Into<InputFile<'a>>>(mut self, val: Option<T>) -> Self {
-        self.thumb = val.map(Into::into);
-        self
+    pub fn thumb_option(self, val: Option<impl Into<InputFile<'a>>>) -> Self {
+        Self {
+            thumb: val.map(Into::into),
+            ..self
+        }
     }
 }
 

@@ -59,11 +59,11 @@ pub struct SendPoll {
 
 impl SendPoll {
     #[must_use]
-    pub fn new<C: Into<ChatIdKind>, T: Into<String>>(
-        chat_id: C,
-        question: T,
-        options: Vec<T>,
-    ) -> Self {
+    pub fn new<T, I>(chat_id: impl Into<ChatIdKind>, question: T, options: I) -> Self
+    where
+        T: Into<String>,
+        I: IntoIterator<Item = T>,
+    {
         Self {
             chat_id: chat_id.into(),
             message_thread_id: None,
@@ -88,215 +88,324 @@ impl SendPoll {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_thread_id(mut self, val: i64) -> Self {
-        self.message_thread_id = Some(val);
-        self
+    pub fn message_thread_id(self, val: i64) -> Self {
+        Self {
+            message_thread_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn question<T: Into<String>>(mut self, val: T) -> Self {
-        self.question = val.into();
-        self
+    pub fn question(self, val: impl Into<String>) -> Self {
+        Self {
+            question: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn options<T: Into<String>>(mut self, val: Vec<T>) -> Self {
-        self.options = val.into_iter().map(Into::into).collect();
-        self
+    pub fn option(self, val: impl Into<String>) -> Self {
+        Self {
+            options: self.options.into_iter().chain(Some(val.into())).collect(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn is_anonymous(mut self, val: bool) -> Self {
-        self.is_anonymous = Some(val);
-        self
+    pub fn options<T, I>(self, val: I) -> Self
+    where
+        T: Into<String>,
+        I: IntoIterator<Item = T>,
+    {
+        Self {
+            options: self
+                .options
+                .into_iter()
+                .chain(val.into_iter().map(Into::into))
+                .collect(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn poll_type<T: Into<String>>(mut self, val: T) -> Self {
-        self.poll_type = Some(val.into());
-        self
+    pub fn is_anonymous(self, val: bool) -> Self {
+        Self {
+            is_anonymous: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allows_multiple_answers(mut self, val: bool) -> Self {
-        self.allows_multiple_answers = Some(val);
-        self
+    pub fn poll_type(self, val: impl Into<String>) -> Self {
+        Self {
+            poll_type: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn correct_option_id(mut self, val: i64) -> Self {
-        self.correct_option_id = Some(val);
-        self
+    pub fn allows_multiple_answers(self, val: bool) -> Self {
+        Self {
+            allows_multiple_answers: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn explanation<T: Into<String>>(mut self, val: T) -> Self {
-        self.explanation = Some(val.into());
-        self
+    pub fn correct_option_id(self, val: i64) -> Self {
+        Self {
+            correct_option_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn explanation_parse_mode<T: Into<String>>(mut self, val: T) -> Self {
-        self.explanation_parse_mode = Some(val.into());
-        self
+    pub fn explanation(self, val: impl Into<String>) -> Self {
+        Self {
+            explanation: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn explanation_entities(mut self, val: Vec<MessageEntity>) -> Self {
-        self.explanation_entities = Some(val);
-        self
+    pub fn explanation_parse_mode(self, val: impl Into<String>) -> Self {
+        Self {
+            explanation_parse_mode: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn open_period(mut self, val: i64) -> Self {
-        self.open_period = Some(val);
-        self
+    pub fn explanation_entity(self, val: MessageEntity) -> Self {
+        Self {
+            explanation_entities: Some(
+                self.explanation_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(Some(val))
+                    .collect(),
+            ),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn close_date(mut self, val: i64) -> Self {
-        self.close_date = Some(val);
-        self
+    pub fn explanation_entities(self, val: impl IntoIterator<Item = MessageEntity>) -> Self {
+        Self {
+            explanation_entities: Some(
+                self.explanation_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect(),
+            ),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn is_closed(mut self, val: bool) -> Self {
-        self.is_closed = Some(val);
-        self
+    pub fn open_period(self, val: i64) -> Self {
+        Self {
+            open_period: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification(mut self, val: bool) -> Self {
-        self.disable_notification = Some(val);
-        self
+    pub fn close_date(self, val: i64) -> Self {
+        Self {
+            close_date: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn protect_content(mut self, val: bool) -> Self {
-        self.protect_content = Some(val);
-        self
+    pub fn is_closed(self, val: bool) -> Self {
+        Self {
+            is_closed: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_to_message_id(mut self, val: i64) -> Self {
-        self.reply_to_message_id = Some(val);
-        self
+    pub fn disable_notification(self, val: bool) -> Self {
+        Self {
+            disable_notification: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allow_sending_without_reply(mut self, val: bool) -> Self {
-        self.allow_sending_without_reply = Some(val);
-        self
+    pub fn protect_content(self, val: bool) -> Self {
+        Self {
+            protect_content: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup<T: Into<ReplyMarkup>>(mut self, val: T) -> Self {
-        self.reply_markup = Some(val.into());
-        self
+    pub fn reply_to_message_id(self, val: i64) -> Self {
+        Self {
+            reply_to_message_id: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn allow_sending_without_reply(self, val: bool) -> Self {
+        Self {
+            allow_sending_without_reply: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn reply_markup(self, val: impl Into<ReplyMarkup>) -> Self {
+        Self {
+            reply_markup: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl SendPoll {
     #[must_use]
-    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
-        self.message_thread_id = val;
-        self
+    pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            message_thread_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn is_anonymous_some(mut self, val: Option<bool>) -> Self {
-        self.is_anonymous = val;
-        self
+    pub fn is_anonymous_option(self, val: Option<bool>) -> Self {
+        Self {
+            is_anonymous: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn poll_type_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.poll_type = val.map(Into::into);
-        self
+    pub fn poll_type_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            poll_type: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allows_multiple_answers_some(mut self, val: Option<bool>) -> Self {
-        self.allows_multiple_answers = val;
-        self
+    pub fn allows_multiple_answers_option(self, val: Option<bool>) -> Self {
+        Self {
+            allows_multiple_answers: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn correct_option_id_some(mut self, val: Option<i64>) -> Self {
-        self.correct_option_id = val;
-        self
+    pub fn correct_option_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            correct_option_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn explanation_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.explanation = val.map(Into::into);
-        self
+    pub fn explanation_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            explanation: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn explanation_parse_mode_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.explanation_parse_mode = val.map(Into::into);
-        self
+    pub fn explanation_parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            explanation_parse_mode: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn explanation_entities_some(mut self, val: Option<Vec<MessageEntity>>) -> Self {
-        self.explanation_entities = val;
-        self
+    pub fn explanation_entities_option(
+        self,
+        val: Option<impl IntoIterator<Item = MessageEntity>>,
+    ) -> Self {
+        Self {
+            explanation_entities: val.map(|val| val.into_iter().collect()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn open_period_some(mut self, val: Option<i64>) -> Self {
-        self.open_period = val;
-        self
+    pub fn open_period_option(self, val: Option<i64>) -> Self {
+        Self {
+            open_period: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn close_date_some(mut self, val: Option<i64>) -> Self {
-        self.close_date = val;
-        self
+    pub fn close_date_option(self, val: Option<i64>) -> Self {
+        Self {
+            close_date: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn is_closed_some(mut self, val: Option<bool>) -> Self {
-        self.is_closed = val;
-        self
+    pub fn is_closed_option(self, val: Option<bool>) -> Self {
+        Self {
+            is_closed: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification_some(mut self, val: Option<bool>) -> Self {
-        self.disable_notification = val;
-        self
+    pub fn disable_notification_option(self, val: Option<bool>) -> Self {
+        Self {
+            disable_notification: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn protect_content_some(mut self, val: Option<bool>) -> Self {
-        self.protect_content = val;
-        self
+    pub fn protect_content_option(self, val: Option<bool>) -> Self {
+        Self {
+            protect_content: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_to_message_id_some(mut self, val: Option<i64>) -> Self {
-        self.reply_to_message_id = val;
-        self
+    pub fn reply_to_message_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            reply_to_message_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allow_sending_without_reply_some(mut self, val: Option<bool>) -> Self {
-        self.allow_sending_without_reply = val;
-        self
+    pub fn allow_sending_without_reply_option(self, val: Option<bool>) -> Self {
+        Self {
+            allow_sending_without_reply: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup_some<T: Into<ReplyMarkup>>(mut self, val: Option<T>) -> Self {
-        self.reply_markup = val.map(Into::into);
-        self
+    pub fn reply_markup_option(self, val: Option<impl Into<ReplyMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
     }
 }
 

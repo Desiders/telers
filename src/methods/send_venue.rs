@@ -50,12 +50,12 @@ pub struct SendVenue {
 
 impl SendVenue {
     #[must_use]
-    pub fn new<C: Into<ChatIdKind>, T: Into<String>>(
-        chat_id: C,
+    pub fn new(
+        chat_id: impl Into<ChatIdKind>,
         longitude: f64,
         latitude: f64,
-        title: T,
-        address: T,
+        title: impl Into<String>,
+        address: impl Into<String>,
     ) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -77,155 +77,205 @@ impl SendVenue {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_thread_id(mut self, val: i64) -> Self {
-        self.message_thread_id = Some(val);
-        self
+    pub fn message_thread_id(self, val: i64) -> Self {
+        Self {
+            message_thread_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn longitude(mut self, val: f64) -> Self {
-        self.longitude = val;
-        self
+    pub fn longitude(self, val: f64) -> Self {
+        Self {
+            longitude: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn latitude(mut self, val: f64) -> Self {
-        self.latitude = val;
-        self
+    pub fn latitude(self, val: f64) -> Self {
+        Self {
+            latitude: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
-        self.title = val.into();
-        self
+    pub fn title(self, val: impl Into<String>) -> Self {
+        Self {
+            title: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn address<T: Into<String>>(mut self, val: T) -> Self {
-        self.address = val.into();
-        self
+    pub fn address(self, val: impl Into<String>) -> Self {
+        Self {
+            address: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification(mut self, val: bool) -> Self {
-        self.disable_notification = Some(val);
-        self
+    pub fn foursquare_id(self, val: impl Into<String>) -> Self {
+        Self {
+            foursquare_id: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn protect_content(mut self, val: bool) -> Self {
-        self.protect_content = Some(val);
-        self
+    pub fn foursquare_type(self, val: impl Into<String>) -> Self {
+        Self {
+            foursquare_type: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_to_message_id(mut self, val: i64) -> Self {
-        self.reply_to_message_id = Some(val);
-        self
+    pub fn google_place_id(self, val: impl Into<String>) -> Self {
+        Self {
+            google_place_id: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allow_sending_without_reply(mut self, val: bool) -> Self {
-        self.allow_sending_without_reply = Some(val);
-        self
+    pub fn google_place_type(self, val: impl Into<String>) -> Self {
+        Self {
+            google_place_type: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup<T: Into<ReplyMarkup>>(mut self, val: T) -> Self {
-        self.reply_markup = Some(val.into());
-        self
+    pub fn disable_notification(self, val: bool) -> Self {
+        Self {
+            disable_notification: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn protect_content(self, val: bool) -> Self {
+        Self {
+            protect_content: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn reply_to_message_id(self, val: i64) -> Self {
+        Self {
+            reply_to_message_id: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn allow_sending_without_reply(self, val: bool) -> Self {
+        Self {
+            allow_sending_without_reply: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn reply_markup(self, val: impl Into<ReplyMarkup>) -> Self {
+        Self {
+            reply_markup: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl SendVenue {
     #[must_use]
-    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
-        self.message_thread_id = val;
-        self
+    pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            message_thread_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn foursquare_id<T: Into<String>>(mut self, val: T) -> Self {
-        self.foursquare_id = Some(val.into());
-        self
+    pub fn foursquare_id_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            foursquare_id: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn foursquare_type<T: Into<String>>(mut self, val: T) -> Self {
-        self.foursquare_type = Some(val.into());
-        self
+    pub fn foursquare_type_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            foursquare_type: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn google_place_id<T: Into<String>>(mut self, val: T) -> Self {
-        self.google_place_id = Some(val.into());
-        self
+    pub fn google_place_id_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            google_place_id: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn google_place_type<T: Into<String>>(mut self, val: T) -> Self {
-        self.google_place_type = Some(val.into());
-        self
+    pub fn google_place_type_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            google_place_type: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn foursquare_id_some(mut self, val: Option<String>) -> Self {
-        self.foursquare_id = val;
-        self
+    pub fn disable_notification_option(self, val: Option<bool>) -> Self {
+        Self {
+            disable_notification: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn foursquare_type_some(mut self, val: Option<String>) -> Self {
-        self.foursquare_type = val;
-        self
+    pub fn protect_content_option(self, val: Option<bool>) -> Self {
+        Self {
+            protect_content: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn google_place_id_some(mut self, val: Option<String>) -> Self {
-        self.google_place_id = val;
-        self
+    pub fn reply_to_message_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            reply_to_message_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn google_place_type_some(mut self, val: Option<String>) -> Self {
-        self.google_place_type = val;
-        self
+    pub fn allow_sending_without_reply_option(self, val: Option<bool>) -> Self {
+        Self {
+            allow_sending_without_reply: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification_some(mut self, val: Option<bool>) -> Self {
-        self.disable_notification = val;
-        self
-    }
-
-    #[must_use]
-    pub fn protect_content_some(mut self, val: Option<bool>) -> Self {
-        self.protect_content = val;
-        self
-    }
-
-    #[must_use]
-    pub fn reply_to_message_id_some(mut self, val: Option<i64>) -> Self {
-        self.reply_to_message_id = val;
-        self
-    }
-
-    #[must_use]
-    pub fn allow_sending_without_reply_some(mut self, val: Option<bool>) -> Self {
-        self.allow_sending_without_reply = val;
-        self
-    }
-
-    #[must_use]
-    pub fn reply_markup_some<T: Into<ReplyMarkup>>(mut self, val: Option<T>) -> Self {
-        self.reply_markup = val.map(Into::into);
-        self
+    pub fn reply_markup_option(self, val: Option<impl Into<ReplyMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
     }
 }
 

@@ -16,7 +16,7 @@ impl WebAppInfo {
     }
 
     #[must_use]
-    pub fn url<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn url(mut self, val: impl Into<String>) -> Self {
         self.url = val.into();
         self
     }

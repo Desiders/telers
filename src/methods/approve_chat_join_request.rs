@@ -21,7 +21,7 @@ pub struct ApproveChatJoinRequest {
 
 impl ApproveChatJoinRequest {
     #[must_use]
-    pub fn new<T: Into<ChatIdKind>>(chat_id: T, user_id: i64) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, user_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
             user_id,
@@ -29,15 +29,19 @@ impl ApproveChatJoinRequest {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn user_id(mut self, val: i64) -> Self {
-        self.user_id = val;
-        self
+    pub fn user_id(self, val: i64) -> Self {
+        Self {
+            user_id: val,
+            ..self
+        }
     }
 }
 

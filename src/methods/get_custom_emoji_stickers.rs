@@ -19,22 +19,40 @@ pub struct GetCustomEmojiStickers {
 
 impl GetCustomEmojiStickers {
     #[must_use]
-    pub fn new<T: Into<String>>(custom_emoji_ids: Vec<T>) -> Self {
+    pub fn new<T, I>(custom_emoji_ids: I) -> Self
+    where
+        T: Into<String>,
+        I: IntoIterator<Item = T>,
+    {
         Self {
             custom_emoji_ids: custom_emoji_ids.into_iter().map(Into::into).collect(),
         }
     }
 
     #[must_use]
-    pub fn custom_emoji_ids<T: Into<String>>(mut self, val: Vec<T>) -> Self {
-        self.custom_emoji_ids = val.into_iter().map(Into::into).collect();
-        self
+    pub fn custom_emoji_id(self, val: impl Into<String>) -> Self {
+        Self {
+            custom_emoji_ids: self
+                .custom_emoji_ids
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        }
     }
 
     #[must_use]
-    pub fn custom_emoji_id<T: Into<String>>(mut self, val: T) -> Self {
-        self.custom_emoji_ids.push(val.into());
-        self
+    pub fn custom_emoji_ids<T, I>(self, val: I) -> Self
+    where
+        T: Into<String>,
+        I: IntoIterator<Item = T>,
+    {
+        Self {
+            custom_emoji_ids: self
+                .custom_emoji_ids
+                .into_iter()
+                .chain(val.into_iter().map(Into::into))
+                .collect(),
+        }
     }
 }
 

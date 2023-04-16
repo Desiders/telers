@@ -57,7 +57,7 @@ impl InlineQueryResultLocation {
     }
 
     #[must_use]
-    pub fn id<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn id(mut self, val: impl Into<String>) -> Self {
         self.id = val.into();
         self
     }
@@ -75,39 +75,51 @@ impl InlineQueryResultLocation {
     }
 
     #[must_use]
-    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
-        self.title = val.into();
-        self
+    pub fn title(self, val: impl Into<String>) -> Self {
+        Self {
+            title: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn horizontal_accuracy(mut self, val: f64) -> Self {
-        self.horizontal_accuracy = Some(val);
-        self
+    pub fn horizontal_accuracy(self, val: f64) -> Self {
+        Self {
+            horizontal_accuracy: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn live_period(mut self, val: i64) -> Self {
-        self.live_period = Some(val);
-        self
+    pub fn live_period(self, val: i64) -> Self {
+        Self {
+            live_period: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn heading(mut self, val: i64) -> Self {
-        self.heading = Some(val);
-        self
+    pub fn heading(self, val: i64) -> Self {
+        Self {
+            heading: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn proximity_alert_radius(mut self, val: i64) -> Self {
-        self.proximity_alert_radius = Some(val);
-        self
+    pub fn proximity_alert_radius(self, val: i64) -> Self {
+        Self {
+            proximity_alert_radius: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup<T: Into<InlineKeyboardMarkup>>(mut self, val: T) -> Self {
-        self.reply_markup = Some(val.into());
-        self
+    pub fn reply_markup(self, val: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
@@ -117,7 +129,7 @@ impl InlineQueryResultLocation {
     }
 
     #[must_use]
-    pub fn thumb_url<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn thumb_url(mut self, val: impl Into<String>) -> Self {
         self.thumb_url = Some(val.into());
         self
     }

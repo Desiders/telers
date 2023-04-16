@@ -19,7 +19,7 @@ impl KeyboardButtonPollType {
     }
 
     #[must_use]
-    pub fn keyboard_type<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn keyboard_type(mut self, val: impl Into<String>) -> Self {
         self.keyboard_type = Some(val.into());
         self
     }

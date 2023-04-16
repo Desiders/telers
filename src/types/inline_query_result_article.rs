@@ -52,15 +52,17 @@ impl InlineQueryResultArticle {
     }
 
     #[must_use]
-    pub fn id<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn id(mut self, val: impl Into<String>) -> Self {
         self.id = val.into();
         self
     }
 
     #[must_use]
-    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
-        self.title = val.into();
-        self
+    pub fn title(self, val: impl Into<String>) -> Self {
+        Self {
+            title: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
@@ -70,13 +72,15 @@ impl InlineQueryResultArticle {
     }
 
     #[must_use]
-    pub fn reply_markup<T: Into<InlineKeyboardMarkup>>(mut self, val: T) -> Self {
-        self.reply_markup = Some(val.into());
-        self
+    pub fn reply_markup(self, val: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn url<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn url(mut self, val: impl Into<String>) -> Self {
         self.url = Some(val.into());
         self
     }
@@ -88,13 +92,13 @@ impl InlineQueryResultArticle {
     }
 
     #[must_use]
-    pub fn description<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn description(mut self, val: impl Into<String>) -> Self {
         self.description = Some(val.into());
         self
     }
 
     #[must_use]
-    pub fn thumb_url<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn thumb_url(mut self, val: impl Into<String>) -> Self {
         self.thumb_url = Some(val.into());
         self
     }

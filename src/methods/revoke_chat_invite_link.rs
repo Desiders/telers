@@ -24,7 +24,7 @@ pub struct RevokeChatInviteLink {
 
 impl RevokeChatInviteLink {
     #[must_use]
-    pub fn new<C: Into<ChatIdKind>, T: Into<String>>(chat_id: C, invite_link: T) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, invite_link: impl Into<String>) -> Self {
         Self {
             chat_id: chat_id.into(),
             invite_link: invite_link.into(),
@@ -32,15 +32,19 @@ impl RevokeChatInviteLink {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn invite_link<T: Into<String>>(mut self, val: T) -> Self {
-        self.invite_link = val.into();
-        self
+    pub fn invite_link(self, val: impl Into<String>) -> Self {
+        Self {
+            invite_link: val.into(),
+            ..self
+        }
     }
 }
 

@@ -59,12 +59,12 @@ pub struct CreateInvoiceLink {
 
 impl CreateInvoiceLink {
     #[must_use]
-    pub fn new<S: Into<String>>(
-        title: S,
-        description: S,
-        payload: S,
-        provider_token: S,
-        currency: S,
+    pub fn new(
+        title: impl Into<String>,
+        description: impl Into<String>,
+        payload: impl Into<String>,
+        provider_token: impl Into<String>,
+        currency: impl Into<String>,
         prices: Vec<LabeledPrice>,
     ) -> Self {
         Self {
@@ -93,221 +93,327 @@ impl CreateInvoiceLink {
     }
 
     #[must_use]
-    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
-        self.title = val.into();
-        self
+    pub fn title(self, val: impl Into<String>) -> Self {
+        Self {
+            title: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn description<T: Into<String>>(mut self, val: T) -> Self {
-        self.description = val.into();
-        self
+    pub fn description(self, val: impl Into<String>) -> Self {
+        Self {
+            description: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn payload<T: Into<String>>(mut self, val: T) -> Self {
-        self.payload = val.into();
-        self
+    pub fn payload(self, val: impl Into<String>) -> Self {
+        Self {
+            payload: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn provider_token<T: Into<String>>(mut self, val: T) -> Self {
-        self.provider_token = val.into();
-        self
+    pub fn provider_token(self, val: impl Into<String>) -> Self {
+        Self {
+            provider_token: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn currency<T: Into<String>>(mut self, val: T) -> Self {
-        self.currency = val.into();
-        self
+    pub fn currency(self, val: impl Into<String>) -> Self {
+        Self {
+            currency: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn prices(mut self, val: Vec<LabeledPrice>) -> Self {
-        self.prices = val;
-        self
+    pub fn price(self, val: LabeledPrice) -> Self {
+        Self {
+            prices: self.prices.into_iter().chain(Some(val)).collect(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn max_tip_amount(mut self, val: i64) -> Self {
-        self.max_tip_amount = Some(val);
-        self
+    pub fn prices(self, val: impl IntoIterator<Item = LabeledPrice>) -> Self {
+        Self {
+            prices: self.prices.into_iter().chain(val).collect(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn suggested_tip_amounts(mut self, val: Vec<i64>) -> Self {
-        self.suggested_tip_amounts = Some(val);
-        self
+    pub fn max_tip_amount(self, val: i64) -> Self {
+        Self {
+            max_tip_amount: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn start_parameter<T: Into<String>>(mut self, val: T) -> Self {
-        self.start_parameter = Some(val.into());
-        self
+    pub fn suggested_tip_amount(self, val: i64) -> Self {
+        Self {
+            suggested_tip_amounts: Some(
+                self.suggested_tip_amounts
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(Some(val))
+                    .collect(),
+            ),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn provider_data<T: Into<String>>(mut self, val: T) -> Self {
-        self.provider_data = Some(val.into());
-        self
+    pub fn suggested_tip_amounts(self, val: impl IntoIterator<Item = i64>) -> Self {
+        Self {
+            suggested_tip_amounts: Some(
+                self.suggested_tip_amounts
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect(),
+            ),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn photo_url<T: Into<String>>(mut self, val: T) -> Self {
-        self.photo_url = Some(val.into());
-        self
+    pub fn start_parameter(self, val: impl Into<String>) -> Self {
+        Self {
+            start_parameter: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn photo_size(mut self, val: i64) -> Self {
-        self.photo_size = Some(val);
-        self
+    pub fn provider_data(self, val: impl Into<String>) -> Self {
+        Self {
+            provider_data: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn photo_width(mut self, val: i64) -> Self {
-        self.photo_width = Some(val);
-        self
+    pub fn photo_url(self, val: impl Into<String>) -> Self {
+        Self {
+            photo_url: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn photo_height(mut self, val: i64) -> Self {
-        self.photo_height = Some(val);
-        self
+    pub fn photo_size(self, val: i64) -> Self {
+        Self {
+            photo_size: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn need_name(mut self, val: bool) -> Self {
-        self.need_name = Some(val);
-        self
+    pub fn photo_width(self, val: i64) -> Self {
+        Self {
+            photo_width: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn need_phone_number(mut self, val: bool) -> Self {
-        self.need_phone_number = Some(val);
-        self
+    pub fn photo_height(self, val: i64) -> Self {
+        Self {
+            photo_height: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn need_email(mut self, val: bool) -> Self {
-        self.need_email = Some(val);
-        self
+    pub fn need_name(self, val: bool) -> Self {
+        Self {
+            need_name: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn need_shipping_address(mut self, val: bool) -> Self {
-        self.need_shipping_address = Some(val);
-        self
+    pub fn need_phone_number(self, val: bool) -> Self {
+        Self {
+            need_phone_number: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn send_phone_number_to_provider(mut self, val: bool) -> Self {
-        self.send_phone_number_to_provider = Some(val);
-        self
+    pub fn need_email(self, val: bool) -> Self {
+        Self {
+            need_email: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn send_email_to_provider(mut self, val: bool) -> Self {
-        self.send_email_to_provider = Some(val);
-        self
+    pub fn need_shipping_address(self, val: bool) -> Self {
+        Self {
+            need_shipping_address: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn is_flexible(mut self, val: bool) -> Self {
-        self.is_flexible = Some(val);
-        self
+    pub fn send_phone_number_to_provider(self, val: bool) -> Self {
+        Self {
+            send_phone_number_to_provider: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn send_email_to_provider(self, val: bool) -> Self {
+        Self {
+            send_email_to_provider: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn is_flexible(self, val: bool) -> Self {
+        Self {
+            is_flexible: Some(val),
+            ..self
+        }
     }
 }
 
 impl CreateInvoiceLink {
     #[must_use]
-    pub fn max_tip_amount_some(mut self, val: Option<i64>) -> Self {
-        self.max_tip_amount = val;
-        self
+    pub fn max_tip_amount_option(self, val: Option<i64>) -> Self {
+        Self {
+            max_tip_amount: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn suggested_tip_amounts_some(mut self, val: Option<Vec<i64>>) -> Self {
-        self.suggested_tip_amounts = val;
-        self
+    pub fn suggested_tip_amounts_option(self, val: Option<impl IntoIterator<Item = i64>>) -> Self {
+        Self {
+            suggested_tip_amounts: val.map(|val| {
+                self.suggested_tip_amounts
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect()
+            }),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn start_parameter_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.start_parameter = val.map(Into::into);
-        self
+    pub fn start_parameter_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            start_parameter: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn provider_data_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.provider_data = val.map(Into::into);
-        self
+    pub fn provider_data_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            provider_data: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn photo_url_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.photo_url = val.map(Into::into);
-        self
+    pub fn photo_url_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            photo_url: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn photo_size_some(mut self, val: Option<i64>) -> Self {
-        self.photo_size = val;
-        self
+    pub fn photo_size_option(self, val: Option<i64>) -> Self {
+        Self {
+            photo_size: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn photo_width_some(mut self, val: Option<i64>) -> Self {
-        self.photo_width = val;
-        self
+    pub fn photo_width_option(self, val: Option<i64>) -> Self {
+        Self {
+            photo_width: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn photo_height_some(mut self, val: Option<i64>) -> Self {
-        self.photo_height = val;
-        self
+    pub fn photo_height_option(self, val: Option<i64>) -> Self {
+        Self {
+            photo_height: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn need_name_some(mut self, val: Option<bool>) -> Self {
-        self.need_name = val;
-        self
+    pub fn need_name_option(self, val: Option<bool>) -> Self {
+        Self {
+            need_name: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn need_phone_number_some(mut self, val: Option<bool>) -> Self {
-        self.need_phone_number = val;
-        self
+    pub fn need_phone_number_option(self, val: Option<bool>) -> Self {
+        Self {
+            need_phone_number: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn need_email_some(mut self, val: Option<bool>) -> Self {
-        self.need_email = val;
-        self
+    pub fn need_email_option(self, val: Option<bool>) -> Self {
+        Self {
+            need_email: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn need_shipping_address_some(mut self, val: Option<bool>) -> Self {
-        self.need_shipping_address = val;
-        self
+    pub fn need_shipping_address_option(self, val: Option<bool>) -> Self {
+        Self {
+            need_shipping_address: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn send_phone_number_to_provider_some(mut self, val: Option<bool>) -> Self {
-        self.send_phone_number_to_provider = val;
-        self
+    pub fn send_phone_number_to_provider_option(self, val: Option<bool>) -> Self {
+        Self {
+            send_phone_number_to_provider: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn send_email_to_provider_some(mut self, val: Option<bool>) -> Self {
-        self.send_email_to_provider = val;
-        self
+    pub fn send_email_to_provider_option(self, val: Option<bool>) -> Self {
+        Self {
+            send_email_to_provider: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn is_flexible_some(mut self, val: Option<bool>) -> Self {
-        self.is_flexible = val;
-        self
+    pub fn is_flexible_option(self, val: Option<bool>) -> Self {
+        Self {
+            is_flexible: val,
+            ..self
+        }
     }
 }
 

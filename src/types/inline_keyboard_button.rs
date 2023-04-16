@@ -31,7 +31,7 @@ pub struct InlineKeyboardButton {
 
 impl InlineKeyboardButton {
     #[must_use]
-    pub fn new<T: Into<String>>(text: T) -> Self {
+    pub fn new(text: impl Into<String>) -> Self {
         Self {
             text: text.into(),
             url: None,
@@ -46,19 +46,21 @@ impl InlineKeyboardButton {
     }
 
     #[must_use]
-    pub fn text<T: Into<String>>(mut self, val: T) -> Self {
-        self.text = val.into();
-        self
+    pub fn text(self, val: impl Into<String>) -> Self {
+        Self {
+            text: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn url<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn url(mut self, val: impl Into<String>) -> Self {
         self.url = Some(val.into());
         self
     }
 
     #[must_use]
-    pub fn callback_data<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn callback_data(mut self, val: impl Into<String>) -> Self {
         self.callback_data = Some(val.into());
         self
     }
@@ -76,13 +78,13 @@ impl InlineKeyboardButton {
     }
 
     #[must_use]
-    pub fn switch_inline_query<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn switch_inline_query(mut self, val: impl Into<String>) -> Self {
         self.switch_inline_query = Some(val.into());
         self
     }
 
     #[must_use]
-    pub fn switch_inline_query_current_chat<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn switch_inline_query_current_chat(mut self, val: impl Into<String>) -> Self {
         self.switch_inline_query_current_chat = Some(val.into());
         self
     }

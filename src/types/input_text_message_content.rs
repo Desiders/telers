@@ -31,26 +31,52 @@ impl InputTextMessageContent {
     }
 
     #[must_use]
-    pub fn message_text<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn message_text(mut self, val: impl Into<String>) -> Self {
         self.message_text = val.into();
         self
     }
 
     #[must_use]
-    pub fn parse_mode<T: Into<String>>(mut self, val: T) -> Self {
-        self.parse_mode = Some(val.into());
-        self
+    pub fn parse_mode(self, val: impl Into<String>) -> Self {
+        Self {
+            parse_mode: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn entities(mut self, val: Vec<MessageEntity>) -> Self {
-        self.entities = Some(val);
-        self
+    pub fn entity(self, val: MessageEntity) -> Self {
+        Self {
+            entities: Some(
+                self.entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(Some(val))
+                    .collect(),
+            ),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_web_page_preview(mut self, val: bool) -> Self {
-        self.disable_web_page_preview = Some(val);
-        self
+    pub fn entities(self, val: impl IntoIterator<Item = MessageEntity>) -> Self {
+        Self {
+            entities: Some(
+                self.entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect(),
+            ),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn disable_web_page_preview(self, val: bool) -> Self {
+        Self {
+            disable_web_page_preview: Some(val),
+            ..self
+        }
     }
 }

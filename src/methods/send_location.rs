@@ -46,7 +46,7 @@ pub struct SendLocation {
 
 impl SendLocation {
     #[must_use]
-    pub fn new<T: Into<ChatIdKind>>(chat_id: T, longitude: f64, latitude: f64) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, longitude: f64, latitude: f64) -> Self {
         Self {
             chat_id: chat_id.into(),
             message_thread_id: None,
@@ -65,143 +65,189 @@ impl SendLocation {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_thread_id(mut self, val: i64) -> Self {
-        self.message_thread_id = Some(val);
-        self
+    pub fn message_thread_id(self, val: i64) -> Self {
+        Self {
+            message_thread_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn longitude(mut self, val: f64) -> Self {
-        self.longitude = val;
-        self
+    pub fn longitude(self, val: f64) -> Self {
+        Self {
+            longitude: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn latitude(mut self, val: f64) -> Self {
-        self.latitude = val;
-        self
+    pub fn latitude(self, val: f64) -> Self {
+        Self {
+            latitude: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn horizontal_accuracy(mut self, val: f64) -> Self {
-        self.horizontal_accuracy = Some(val);
-        self
+    pub fn horizontal_accuracy(self, val: f64) -> Self {
+        Self {
+            horizontal_accuracy: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn live_period(mut self, val: i64) -> Self {
-        self.live_period = Some(val);
-        self
+    pub fn live_period(self, val: i64) -> Self {
+        Self {
+            live_period: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn heading(mut self, val: i64) -> Self {
-        self.heading = Some(val);
-        self
+    pub fn heading(self, val: i64) -> Self {
+        Self {
+            heading: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn proximity_alert_radius(mut self, val: i64) -> Self {
-        self.proximity_alert_radius = Some(val);
-        self
+    pub fn proximity_alert_radius(self, val: i64) -> Self {
+        Self {
+            proximity_alert_radius: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification(mut self, val: bool) -> Self {
-        self.disable_notification = Some(val);
-        self
+    pub fn disable_notification(self, val: bool) -> Self {
+        Self {
+            disable_notification: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn protect_content(mut self, val: bool) -> Self {
-        self.protect_content = Some(val);
-        self
+    pub fn protect_content(self, val: bool) -> Self {
+        Self {
+            protect_content: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_to_message_id(mut self, val: i64) -> Self {
-        self.reply_to_message_id = Some(val);
-        self
+    pub fn reply_to_message_id(self, val: i64) -> Self {
+        Self {
+            reply_to_message_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allow_sending_without_reply(mut self, val: bool) -> Self {
-        self.allow_sending_without_reply = Some(val);
-        self
+    pub fn allow_sending_without_reply(self, val: bool) -> Self {
+        Self {
+            allow_sending_without_reply: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup<T: Into<ReplyMarkup>>(mut self, val: T) -> Self {
-        self.reply_markup = Some(val.into());
-        self
+    pub fn reply_markup(self, val: impl Into<ReplyMarkup>) -> Self {
+        Self {
+            reply_markup: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl SendLocation {
     #[must_use]
-    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
-        self.message_thread_id = val;
-        self
+    pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            message_thread_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn horizontal_accuracy_some(mut self, val: Option<f64>) -> Self {
-        self.horizontal_accuracy = val;
-        self
+    pub fn horizontal_accuracy_option(self, val: Option<f64>) -> Self {
+        Self {
+            horizontal_accuracy: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn live_period_some(mut self, val: Option<i64>) -> Self {
-        self.live_period = val;
-        self
+    pub fn live_period_option(self, val: Option<i64>) -> Self {
+        Self {
+            live_period: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn heading_some(mut self, val: Option<i64>) -> Self {
-        self.heading = val;
-        self
+    pub fn heading_option(self, val: Option<i64>) -> Self {
+        Self {
+            heading: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn proximity_alert_radius_some(mut self, val: Option<i64>) -> Self {
-        self.proximity_alert_radius = val;
-        self
+    pub fn proximity_alert_radius_option(self, val: Option<i64>) -> Self {
+        Self {
+            proximity_alert_radius: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification_some(mut self, val: Option<bool>) -> Self {
-        self.disable_notification = val;
-        self
+    pub fn disable_notification_option(self, val: Option<bool>) -> Self {
+        Self {
+            disable_notification: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn protect_content_some(mut self, val: Option<bool>) -> Self {
-        self.protect_content = val;
-        self
+    pub fn protect_content_option(self, val: Option<bool>) -> Self {
+        Self {
+            protect_content: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_to_message_id_some(mut self, val: Option<i64>) -> Self {
-        self.reply_to_message_id = val;
-        self
+    pub fn reply_to_message_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            reply_to_message_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allow_sending_without_reply_some(mut self, val: Option<bool>) -> Self {
-        self.allow_sending_without_reply = val;
-        self
+    pub fn allow_sending_without_reply_option(self, val: Option<bool>) -> Self {
+        Self {
+            allow_sending_without_reply: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup_some<T: Into<ReplyMarkup>>(mut self, val: Option<T>) -> Self {
-        self.reply_markup = val.map(Into::into);
-        self
+    pub fn reply_markup_option(self, val: Option<impl Into<ReplyMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
     }
 }
 

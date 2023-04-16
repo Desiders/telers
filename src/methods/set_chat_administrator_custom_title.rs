@@ -23,10 +23,10 @@ pub struct SetChatAdministratorCustomTitle {
 
 impl SetChatAdministratorCustomTitle {
     #[must_use]
-    pub fn new<C: Into<ChatIdKind>, T: Into<String>>(
-        chat_id: C,
+    pub fn new(
+        chat_id: impl Into<ChatIdKind>,
         user_id: i64,
-        custom_title: T,
+        custom_title: impl Into<String>,
     ) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -36,21 +36,27 @@ impl SetChatAdministratorCustomTitle {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn user_id(mut self, val: i64) -> Self {
-        self.user_id = val;
-        self
+    pub fn user_id(self, val: i64) -> Self {
+        Self {
+            user_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn custom_title<T: Into<String>>(mut self, val: T) -> Self {
-        self.custom_title = val.into();
-        self
+    pub fn custom_title(self, val: impl Into<String>) -> Self {
+        Self {
+            custom_title: val.into(),
+            ..self
+        }
     }
 }
 

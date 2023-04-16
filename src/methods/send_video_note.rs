@@ -43,7 +43,7 @@ pub struct SendVideoNote<'a> {
 
 impl<'a> SendVideoNote<'a> {
     #[must_use]
-    pub fn new<C: Into<ChatIdKind>, A: Into<InputFile<'a>>>(chat_id: C, video_note: A) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, video_note: impl Into<InputFile<'a>>) -> Self {
         Self {
             chat_id: chat_id.into(),
             message_thread_id: None,
@@ -60,125 +60,165 @@ impl<'a> SendVideoNote<'a> {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_thread_id(mut self, val: i64) -> Self {
-        self.message_thread_id = Some(val);
-        self
+    pub fn message_thread_id(self, val: i64) -> Self {
+        Self {
+            message_thread_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn video_note<T: Into<InputFile<'a>>>(mut self, val: T) -> Self {
-        self.video_note = val.into();
-        self
+    pub fn video_note(self, val: impl Into<InputFile<'a>>) -> Self {
+        Self {
+            video_note: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn duration(mut self, val: i64) -> Self {
-        self.duration = Some(val);
-        self
+    pub fn duration(self, val: i64) -> Self {
+        Self {
+            duration: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn length(mut self, val: i64) -> Self {
-        self.length = Some(val);
-        self
+    pub fn length(self, val: i64) -> Self {
+        Self {
+            length: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn thumb<T: Into<InputFile<'a>>>(mut self, val: T) -> Self {
-        self.thumb = Some(val.into());
-        self
+    pub fn thumb(self, val: impl Into<InputFile<'a>>) -> Self {
+        Self {
+            thumb: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification(mut self, val: bool) -> Self {
-        self.disable_notification = Some(val);
-        self
+    pub fn disable_notification(self, val: bool) -> Self {
+        Self {
+            disable_notification: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn protect_content(mut self, val: bool) -> Self {
-        self.protect_content = Some(val);
-        self
+    pub fn protect_content(self, val: bool) -> Self {
+        Self {
+            protect_content: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_to_message_id(mut self, val: i64) -> Self {
-        self.reply_to_message_id = Some(val);
-        self
+    pub fn reply_to_message_id(self, val: i64) -> Self {
+        Self {
+            reply_to_message_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allow_sending_without_reply(mut self, val: bool) -> Self {
-        self.allow_sending_without_reply = Some(val);
-        self
+    pub fn allow_sending_without_reply(self, val: bool) -> Self {
+        Self {
+            allow_sending_without_reply: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup<T: Into<ReplyMarkup>>(mut self, val: T) -> Self {
-        self.reply_markup = Some(val.into());
-        self
+    pub fn reply_markup(self, val: impl Into<ReplyMarkup>) -> Self {
+        Self {
+            reply_markup: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl<'a> SendVideoNote<'a> {
     #[must_use]
-    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
-        self.message_thread_id = val;
-        self
+    pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            message_thread_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn duration_some(mut self, val: Option<i64>) -> Self {
-        self.duration = val;
-        self
+    pub fn duration_option(self, val: Option<i64>) -> Self {
+        Self {
+            duration: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn length_some(mut self, val: Option<i64>) -> Self {
-        self.length = val;
-        self
+    pub fn length_option(self, val: Option<i64>) -> Self {
+        Self {
+            length: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn thumb_some(mut self, val: Option<InputFile<'a>>) -> Self {
-        self.thumb = val;
-        self
+    pub fn thumb_option(self, val: Option<impl Into<InputFile<'a>>>) -> Self {
+        Self {
+            thumb: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification_some(mut self, val: Option<bool>) -> Self {
-        self.disable_notification = val;
-        self
+    pub fn disable_notification_option(self, val: Option<bool>) -> Self {
+        Self {
+            disable_notification: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn protect_content_some(mut self, val: Option<bool>) -> Self {
-        self.protect_content = val;
-        self
+    pub fn protect_content_option(self, val: Option<bool>) -> Self {
+        Self {
+            protect_content: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_to_message_id_some(mut self, val: Option<i64>) -> Self {
-        self.reply_to_message_id = val;
-        self
+    pub fn reply_to_message_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            reply_to_message_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allow_sending_without_reply_some(mut self, val: Option<bool>) -> Self {
-        self.allow_sending_without_reply = val;
-        self
+    pub fn allow_sending_without_reply_option(self, val: Option<bool>) -> Self {
+        Self {
+            allow_sending_without_reply: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup_some<T: Into<ReplyMarkup>>(mut self, val: Option<T>) -> Self {
-        self.reply_markup = val.map(Into::into);
-        self
+    pub fn reply_markup_option(self, val: Option<impl Into<ReplyMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
     }
 }
 

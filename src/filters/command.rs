@@ -31,11 +31,11 @@ pub enum Error {
 
 /// Represents a command pattern type for verification
 /// # Variants
-/// * `Text(str)` - A command pattern with text
-/// * `Object(BotCommand)` -
+/// * [`PatternType::Text(str)`] - A command pattern with text
+/// * [`PatternType::Object(BotCommand)`] -
 /// A command pattern with [`BotCommand`] object. \
 /// Just a shortcut for `Text(command.command)`.
-/// * `Regex(Regex)` -
+/// * [`PatternType::Regex(Regex)`] -
 /// A command pattern with regex, compiled with [`Regex`] struct. \
 /// If filter used with `ignore_case` flag, then the regex will be compiled with `(?i)` flag (ignore case sensitive flag).
 #[derive(Debug, Clone)]
@@ -96,14 +96,10 @@ impl<'a> Command<'a> {
     /// If `ignore_case` is `true` and `command`, which contains [`Regex`] pattern,
     /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
     #[must_use]
-    pub fn new<T>(
-        commands: Vec<T>,
-        prefix: &'a str,
-        ignore_case: bool,
-        ignore_mention: bool,
-    ) -> Self
+    pub fn new<T, I>(commands: I, prefix: &'a str, ignore_case: bool, ignore_mention: bool) -> Self
     where
         T: Into<PatternType<'a>>,
+        I: IntoIterator<Item = T>,
     {
         let commands = if ignore_case {
             commands
@@ -120,7 +116,13 @@ impl<'a> Command<'a> {
                 })
                 .collect()
         } else {
-            commands.into_iter().map(Into::into).collect()
+            commands
+                .into_iter()
+                .map(|command| match command.into() {
+                    PatternType::Object(command) => PatternType::Text(command.command.into()),
+                    command => command,
+                })
+                .collect()
         };
 
         Self {
@@ -160,29 +162,36 @@ pub struct CommandBuilder<'a> {
 
 impl<'a> CommandBuilder<'a> {
     #[must_use]
-    pub fn new() -> Self {
+    pub fn new() -> CommandBuilder<'a> {
         Self::default()
+    }
+
+    #[must_use]
+    pub fn command<T>(self, val: T) -> Self
+    where
+        T: Into<PatternType<'a>>,
+    {
+        Self {
+            commands: self.commands.into_iter().chain(once(val.into())).collect(),
+            ..self
+        }
     }
 
     /// # Panics
     /// If `ignore_case` is `true` and `command`, which contains [`Regex`] pattern,
     /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
     #[must_use]
-    pub fn commands<T: Into<PatternType<'a>>>(self, val: Vec<T>) -> Self {
+    pub fn commands<T, I>(self, val: I) -> Self
+    where
+        T: Into<PatternType<'a>>,
+        I: IntoIterator<Item = T>,
+    {
         Self {
             commands: self
                 .commands
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn command<T: Into<PatternType<'a>>>(self, val: T) -> Self {
-        Self {
-            commands: self.commands.into_iter().chain(once(val.into())).collect(),
             ..self
         }
     }
@@ -216,30 +225,12 @@ impl<'a> CommandBuilder<'a> {
     /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
     #[must_use]
     pub fn build(self) -> Command<'a> {
-        let commands = if self.ignore_case {
-            self.commands
-                .into_iter()
-                .map(|command| match command {
-                    PatternType::Text(text) => PatternType::Text(text.to_lowercase().into()),
-                    PatternType::Object(command) => {
-                        PatternType::Text(command.command.to_lowercase().into())
-                    }
-                    PatternType::Regex(regex) => PatternType::Regex(
-                        Regex::new(&format!("(?i){regex}"))
-                            .expect("Failed to compile regex with (?i) flag"),
-                    ),
-                })
-                .collect()
-        } else {
-            self.commands
-        };
-
-        Command {
-            commands,
-            prefix: self.prefix,
-            ignore_case: self.ignore_case,
-            ignore_mention: self.ignore_mention,
-        }
+        Command::new(
+            self.commands,
+            self.prefix,
+            self.ignore_case,
+            self.ignore_mention,
+        )
     }
 }
 
@@ -312,7 +303,7 @@ impl<'a> Command<'a> {
                     }
                 }
                 PatternType::Object(_) => unreachable!(
-                    "PatternType::Object should be converted to PatternType::Text before validation"
+                    "`PatternType::Object` should be converted to `PatternType::Text` before validation"
                 ),
             }
         }

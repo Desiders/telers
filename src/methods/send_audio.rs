@@ -51,7 +51,7 @@ pub struct SendAudio<'a> {
 
 impl<'a> SendAudio<'a> {
     #[must_use]
-    pub fn new<C: Into<ChatIdKind>, A: Into<InputFile<'a>>>(chat_id: C, audio: A) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, audio: impl Into<InputFile<'a>>) -> Self {
         Self {
             chat_id: chat_id.into(),
             message_thread_id: None,
@@ -72,173 +72,258 @@ impl<'a> SendAudio<'a> {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_thread_id(mut self, val: i64) -> Self {
-        self.message_thread_id = Some(val);
-        self
+    pub fn message_thread_id(self, val: i64) -> Self {
+        Self {
+            message_thread_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn audio<T: Into<InputFile<'a>>>(mut self, val: T) -> Self {
-        self.audio = val.into();
-        self
+    pub fn audio(self, val: impl Into<InputFile<'a>>) -> Self {
+        Self {
+            audio: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn caption<T: Into<String>>(mut self, val: T) -> Self {
-        self.caption = Some(val.into());
-        self
+    pub fn caption(self, val: impl Into<String>) -> Self {
+        Self {
+            caption: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn parse_mode<T: Into<String>>(mut self, val: T) -> Self {
-        self.parse_mode = Some(val.into());
-        self
+    pub fn parse_mode(self, val: impl Into<String>) -> Self {
+        Self {
+            parse_mode: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn caption_entities(mut self, val: Vec<MessageEntity>) -> Self {
-        self.caption_entities = Some(val);
-        self
+    pub fn caption_entity(self, val: MessageEntity) -> Self {
+        Self {
+            caption_entities: Some(
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(Some(val))
+                    .collect(),
+            ),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn duration(mut self, val: i64) -> Self {
-        self.duration = Some(val);
-        self
+    pub fn caption_entities(self, val: impl IntoIterator<Item = MessageEntity>) -> Self {
+        Self {
+            caption_entities: Some(
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect(),
+            ),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn performer<T: Into<String>>(mut self, val: T) -> Self {
-        self.performer = Some(val.into());
-        self
+    pub fn duration(self, val: i64) -> Self {
+        Self {
+            duration: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn title<T: Into<String>>(mut self, val: T) -> Self {
-        self.title = Some(val.into());
-        self
+    pub fn performer(self, val: impl Into<String>) -> Self {
+        Self {
+            performer: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn thumb<T: Into<InputFile<'a>>>(mut self, val: T) -> Self {
-        self.thumb = Some(val.into());
-        self
+    pub fn title(self, val: impl Into<String>) -> Self {
+        Self {
+            title: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification(mut self, val: bool) -> Self {
-        self.disable_notification = Some(val);
-        self
+    pub fn thumb(self, val: impl Into<InputFile<'a>>) -> Self {
+        Self {
+            thumb: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn protect_content(mut self, val: bool) -> Self {
-        self.protect_content = Some(val);
-        self
+    pub fn disable_notification(self, val: bool) -> Self {
+        Self {
+            disable_notification: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_to_message_id(mut self, val: i64) -> Self {
-        self.reply_to_message_id = Some(val);
-        self
+    pub fn protect_content(self, val: bool) -> Self {
+        Self {
+            protect_content: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allow_sending_without_reply(mut self, val: bool) -> Self {
-        self.allow_sending_without_reply = Some(val);
-        self
+    pub fn reply_to_message_id(self, val: i64) -> Self {
+        Self {
+            reply_to_message_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup<T: Into<ReplyMarkup>>(mut self, val: T) -> Self {
-        self.reply_markup = Some(val.into());
-        self
+    pub fn allow_sending_without_reply(self, val: bool) -> Self {
+        Self {
+            allow_sending_without_reply: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn reply_markup(self, val: impl Into<ReplyMarkup>) -> Self {
+        Self {
+            reply_markup: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl<'a> SendAudio<'a> {
     #[must_use]
-    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
-        self.message_thread_id = val;
-        self
+    pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            message_thread_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn caption_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.caption = val.map(Into::into);
-        self
+    pub fn caption_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            caption: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn parse_mode_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.parse_mode = val.map(Into::into);
-        self
+    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            parse_mode: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn caption_entities_some(mut self, val: Option<Vec<MessageEntity>>) -> Self {
-        self.caption_entities = val;
-        self
+    pub fn caption_entities_option(
+        self,
+        val: Option<impl IntoIterator<Item = MessageEntity>>,
+    ) -> Self {
+        Self {
+            caption_entities: val.map(|val| {
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect()
+            }),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn duration_some(mut self, val: Option<i64>) -> Self {
-        self.duration = val;
-        self
+    pub fn duration_option(self, val: Option<i64>) -> Self {
+        Self {
+            duration: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn performer_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.performer = val.map(Into::into);
-        self
+    pub fn performer_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            performer: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn title_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.title = val.map(Into::into);
-        self
+    pub fn title_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            title: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn thumb_some<T: Into<InputFile<'a>>>(mut self, val: Option<T>) -> Self {
-        self.thumb = val.map(Into::into);
-        self
+    pub fn thumb_option(self, val: Option<impl Into<InputFile<'a>>>) -> Self {
+        Self {
+            thumb: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification_some(mut self, val: Option<bool>) -> Self {
-        self.disable_notification = val;
-        self
+    pub fn disable_notification_option(self, val: Option<bool>) -> Self {
+        Self {
+            disable_notification: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn protect_content_some(mut self, val: Option<bool>) -> Self {
-        self.protect_content = val;
-        self
+    pub fn protect_content_option(self, val: Option<bool>) -> Self {
+        Self {
+            protect_content: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_to_message_id_some(mut self, val: Option<i64>) -> Self {
-        self.reply_to_message_id = val;
-        self
+    pub fn reply_to_message_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            reply_to_message_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allow_sending_without_reply_some(mut self, val: Option<bool>) -> Self {
-        self.allow_sending_without_reply = val;
-        self
+    pub fn allow_sending_without_reply_option(self, val: Option<bool>) -> Self {
+        Self {
+            allow_sending_without_reply: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup_some<T: Into<ReplyMarkup>>(mut self, val: Option<T>) -> Self {
-        self.reply_markup = val.map(Into::into);
-        self
+    pub fn reply_markup_option(self, val: Option<impl Into<ReplyMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
     }
 }
 

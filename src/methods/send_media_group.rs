@@ -35,7 +35,11 @@ pub struct SendMediaGroup<'a> {
 
 impl<'a> SendMediaGroup<'a> {
     #[must_use]
-    pub fn new<C: Into<ChatIdKind>, M: Into<InputMedia<'a>>>(chat_id: C, media: Vec<M>) -> Self {
+    pub fn new<T, I>(chat_id: impl Into<ChatIdKind>, media: I) -> Self
+    where
+        T: Into<InputMedia<'a>>,
+        I: IntoIterator<Item = T>,
+    {
         Self {
             chat_id: chat_id.into(),
             message_thread_id: None,
@@ -48,77 +52,129 @@ impl<'a> SendMediaGroup<'a> {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_thread_id(mut self, val: i64) -> Self {
-        self.message_thread_id = Some(val);
-        self
+    pub fn message_thread_id(self, val: i64) -> Self {
+        Self {
+            message_thread_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn media<T: Into<InputMedia<'a>>>(mut self, val: Vec<T>) -> Self {
-        self.media = val.into_iter().map(Into::into).collect();
-        self
+    pub fn media_single(self, val: impl Into<InputMedia<'a>>) -> Self {
+        Self {
+            media: self.media.into_iter().chain(Some(val.into())).collect(),
+            ..self
+        }
+    }
+
+    /// Alias to [`SendMediaGroup::media_single`] method
+    #[must_use]
+    pub fn single_media(self, val: impl Into<InputMedia<'a>>) -> Self {
+        self.media_single(val)
+    }
+
+    /// Alias to [`SendMediaGroup::media_single`] method
+    #[must_use]
+    pub fn single(self, val: impl Into<InputMedia<'a>>) -> Self {
+        self.media_single(val)
     }
 
     #[must_use]
-    pub fn disable_notification(mut self, val: bool) -> Self {
-        self.disable_notification = Some(val);
-        self
+    pub fn media<T, I>(self, val: I) -> Self
+    where
+        T: Into<InputMedia<'a>>,
+        I: IntoIterator<Item = T>,
+    {
+        Self {
+            media: self
+                .media
+                .into_iter()
+                .chain(val.into_iter().map(Into::into))
+                .collect(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn protect_content(mut self, val: bool) -> Self {
-        self.protect_content = Some(val);
-        self
+    pub fn disable_notification(self, val: bool) -> Self {
+        Self {
+            disable_notification: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_to_message_id(mut self, val: i64) -> Self {
-        self.reply_to_message_id = Some(val);
-        self
+    pub fn protect_content(self, val: bool) -> Self {
+        Self {
+            protect_content: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allow_sending_without_reply(mut self, val: bool) -> Self {
-        self.allow_sending_without_reply = Some(val);
-        self
+    pub fn reply_to_message_id(self, val: i64) -> Self {
+        Self {
+            reply_to_message_id: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn allow_sending_without_reply(self, val: bool) -> Self {
+        Self {
+            allow_sending_without_reply: Some(val),
+            ..self
+        }
     }
 }
 
 impl<'a> SendMediaGroup<'a> {
     #[must_use]
-    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
-        self.message_thread_id = val;
-        self
+    pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            message_thread_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification_some(mut self, val: Option<bool>) -> Self {
-        self.disable_notification = val;
-        self
+    pub fn disable_notification_option(self, val: Option<bool>) -> Self {
+        Self {
+            disable_notification: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn protect_content_some(mut self, val: Option<bool>) -> Self {
-        self.protect_content = val;
-        self
+    pub fn protect_content_option(self, val: Option<bool>) -> Self {
+        Self {
+            protect_content: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_to_message_id_some(mut self, val: Option<i64>) -> Self {
-        self.reply_to_message_id = val;
-        self
+    pub fn reply_to_message_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            reply_to_message_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allow_sending_without_reply_some(mut self, val: Option<bool>) -> Self {
-        self.allow_sending_without_reply = val;
-        self
+    pub fn allow_sending_without_reply_option(self, val: Option<bool>) -> Self {
+        Self {
+            allow_sending_without_reply: val,
+            ..self
+        }
     }
 }
 

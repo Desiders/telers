@@ -37,47 +37,61 @@ impl GetGameHighScores {
     }
 
     #[must_use]
-    pub fn user_id(mut self, val: i64) -> Self {
-        self.user_id = val;
-        self
+    pub fn user_id(self, val: i64) -> Self {
+        Self {
+            user_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn chat_id(mut self, val: i64) -> Self {
-        self.chat_id = Some(val);
-        self
+    pub fn chat_id(self, val: i64) -> Self {
+        Self {
+            chat_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_id(mut self, val: i64) -> Self {
-        self.message_id = Some(val);
-        self
+    pub fn message_id(self, val: i64) -> Self {
+        Self {
+            message_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn inline_message_id<T: Into<String>>(mut self, val: T) -> Self {
-        self.inline_message_id = Some(val.into());
-        self
+    pub fn inline_message_id(self, val: impl Into<String>) -> Self {
+        Self {
+            inline_message_id: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl GetGameHighScores {
     #[must_use]
-    pub fn chat_id_some<T: Into<i64>>(mut self, val: Option<T>) -> Self {
-        self.chat_id = val.map(Into::into);
-        self
+    pub fn chat_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            chat_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_id_some<T: Into<i64>>(mut self, val: Option<T>) -> Self {
-        self.message_id = val.map(Into::into);
-        self
+    pub fn message_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            message_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn inline_message_id_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.inline_message_id = val.map(Into::into);
-        self
+    pub fn inline_message_id_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            inline_message_id: val.map(Into::into),
+            ..self
+        }
     }
 }
 

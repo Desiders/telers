@@ -150,7 +150,7 @@ impl<Client> DispatcherBuilder<Client> {
     }
 
     #[must_use]
-    pub fn bots(self, val: Vec<Bot<Client>>) -> Self {
+    pub fn bots(self, val: impl IntoIterator<Item = Bot<Client>>) -> Self {
         Self {
             bots: self.bots.into_iter().chain(val).collect(),
             ..self
@@ -174,15 +174,31 @@ impl<Client> DispatcherBuilder<Client> {
     }
 
     #[must_use]
-    pub fn allowed_update<T: Into<String>>(mut self, val: T) -> Self {
-        self.allowed_updates.push(val.into());
-        self
+    pub fn allowed_update(self, val: impl Into<String>) -> Self {
+        Self {
+            allowed_updates: self
+                .allowed_updates
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allowed_updates<T: Into<String>>(mut self, val: Vec<T>) -> Self {
-        self.allowed_updates.extend(val.into_iter().map(Into::into));
-        self
+    pub fn allowed_updates<T, I>(self, val: I) -> Self
+    where
+        T: Into<String>,
+        I: IntoIterator<Item = T>,
+    {
+        Self {
+            allowed_updates: self
+                .allowed_updates
+                .into_iter()
+                .chain(val.into_iter().map(Into::into))
+                .collect(),
+            ..self
+        }
     }
 
     #[must_use]

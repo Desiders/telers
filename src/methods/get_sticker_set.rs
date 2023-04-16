@@ -19,14 +19,13 @@ pub struct GetStickerSet {
 
 impl GetStickerSet {
     #[must_use]
-    pub fn new<T: Into<String>>(name: T) -> Self {
+    pub fn new(name: impl Into<String>) -> Self {
         Self { name: name.into() }
     }
 
     #[must_use]
-    pub fn name<T: Into<String>>(mut self, val: T) -> Self {
-        self.name = val.into();
-        self
+    pub fn name(self, val: impl Into<String>) -> Self {
+        Self { name: val.into() }
     }
 }
 

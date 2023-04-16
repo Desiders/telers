@@ -42,10 +42,10 @@ pub struct SendContact {
 
 impl SendContact {
     #[must_use]
-    pub fn new<C: Into<ChatIdKind>, T: Into<String>>(
-        chat_id: C,
-        phone_number: T,
-        first_name: T,
+    pub fn new(
+        chat_id: impl Into<ChatIdKind>,
+        phone_number: impl Into<String>,
+        first_name: impl Into<String>,
     ) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -63,119 +63,157 @@ impl SendContact {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_thread_id(mut self, val: i64) -> Self {
-        self.message_thread_id = Some(val);
-        self
+    pub fn message_thread_id(self, val: i64) -> Self {
+        Self {
+            message_thread_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn phone_number<T: Into<String>>(mut self, val: T) -> Self {
-        self.phone_number = val.into();
-        self
+    pub fn phone_number(self, val: impl Into<String>) -> Self {
+        Self {
+            phone_number: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn first_name<T: Into<String>>(mut self, val: T) -> Self {
-        self.first_name = val.into();
-        self
+    pub fn first_name(self, val: impl Into<String>) -> Self {
+        Self {
+            first_name: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn last_name<T: Into<String>>(mut self, val: T) -> Self {
-        self.last_name = Some(val.into());
-        self
+    pub fn last_name(self, val: impl Into<String>) -> Self {
+        Self {
+            last_name: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn vcard<T: Into<String>>(mut self, val: T) -> Self {
-        self.vcard = Some(val.into());
-        self
+    pub fn vcard(self, val: impl Into<String>) -> Self {
+        Self {
+            vcard: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification(mut self, val: bool) -> Self {
-        self.disable_notification = Some(val);
-        self
+    pub fn disable_notification(self, val: bool) -> Self {
+        Self {
+            disable_notification: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn protect_content(mut self, val: bool) -> Self {
-        self.protect_content = Some(val);
-        self
+    pub fn protect_content(self, val: bool) -> Self {
+        Self {
+            protect_content: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_to_message_id(mut self, val: i64) -> Self {
-        self.reply_to_message_id = Some(val);
-        self
+    pub fn reply_to_message_id(self, val: i64) -> Self {
+        Self {
+            reply_to_message_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allow_sending_without_reply(mut self, val: bool) -> Self {
-        self.allow_sending_without_reply = Some(val);
-        self
+    pub fn allow_sending_without_reply(self, val: bool) -> Self {
+        Self {
+            allow_sending_without_reply: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup<T: Into<ReplyMarkup>>(mut self, val: T) -> Self {
-        self.reply_markup = Some(val.into());
-        self
+    pub fn reply_markup(self, val: impl Into<ReplyMarkup>) -> Self {
+        Self {
+            reply_markup: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl SendContact {
     #[must_use]
-    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
-        self.message_thread_id = val;
-        self
+    pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            message_thread_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn last_name_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.last_name = val.map(Into::into);
-        self
+    pub fn last_name_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            last_name: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn vcard_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.vcard = val.map(Into::into);
-        self
+    pub fn vcard_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            vcard: val.map(Into::into),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_notification_some(mut self, val: Option<bool>) -> Self {
-        self.disable_notification = val;
-        self
+    pub fn disable_notification_option(self, val: Option<bool>) -> Self {
+        Self {
+            disable_notification: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn protect_content_some(mut self, val: Option<bool>) -> Self {
-        self.protect_content = val;
-        self
+    pub fn protect_content_option(self, val: Option<bool>) -> Self {
+        Self {
+            protect_content: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_to_message_id_some(mut self, val: Option<i64>) -> Self {
-        self.reply_to_message_id = val;
-        self
+    pub fn reply_to_message_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            reply_to_message_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allow_sending_without_reply_some(mut self, val: Option<bool>) -> Self {
-        self.allow_sending_without_reply = val;
-        self
+    pub fn allow_sending_without_reply_option(self, val: Option<bool>) -> Self {
+        Self {
+            allow_sending_without_reply: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup_some<T: Into<ReplyMarkup>>(mut self, val: Option<T>) -> Self {
-        self.reply_markup = val.map(Into::into);
-        self
+    pub fn reply_markup_option(self, val: Option<impl Into<ReplyMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
     }
 }
 

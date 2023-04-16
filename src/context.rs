@@ -25,7 +25,7 @@ mod tests {
                 command: "test".to_string(),
                 prefix: "/".to_string(),
                 mention: None,
-                args: Vec::new(),
+                args: vec![],
             }),
         );
         assert_eq!(

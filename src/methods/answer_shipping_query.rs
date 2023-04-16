@@ -25,7 +25,7 @@ pub struct AnswerShippingQuery {
 
 impl AnswerShippingQuery {
     #[must_use]
-    pub fn new<T: Into<String>>(shipping_query_id: T, ok: bool) -> Self {
+    pub fn new(shipping_query_id: impl Into<String>, ok: bool) -> Self {
         Self {
             shipping_query_id: shipping_query_id.into(),
             ok,
@@ -35,41 +35,79 @@ impl AnswerShippingQuery {
     }
 
     #[must_use]
-    pub fn shipping_query_id<T: Into<String>>(mut self, val: T) -> Self {
-        self.shipping_query_id = val.into();
-        self
+    pub fn shipping_query_id(self, val: impl Into<String>) -> Self {
+        Self {
+            shipping_query_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn ok(mut self, val: bool) -> Self {
-        self.ok = val;
-        self
+    pub fn ok(self, val: bool) -> Self {
+        Self { ok: val, ..self }
     }
 
     #[must_use]
-    pub fn shipping_options(mut self, val: Vec<ShippingOption>) -> Self {
-        self.shipping_options = Some(val);
-        self
+    pub fn shipping_option(self, val: ShippingOption) -> Self {
+        Self {
+            shipping_options: Some(
+                self.shipping_options
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(Some(val))
+                    .collect(),
+            ),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn error_message<T: Into<String>>(mut self, val: T) -> Self {
-        self.error_message = Some(val.into());
-        self
+    pub fn shipping_options(self, val: impl IntoIterator<Item = ShippingOption>) -> Self {
+        Self {
+            shipping_options: Some(
+                self.shipping_options
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect(),
+            ),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn error_message(self, val: impl Into<String>) -> Self {
+        Self {
+            error_message: Some(val.into()),
+            ..self
+        }
     }
 }
 
 impl AnswerShippingQuery {
     #[must_use]
-    pub fn shipping_options_some(mut self, val: Option<Vec<ShippingOption>>) -> Self {
-        self.shipping_options = val;
-        self
+    pub fn shipping_options_option(
+        self,
+        val: Option<impl IntoIterator<Item = ShippingOption>>,
+    ) -> Self {
+        Self {
+            shipping_options: val.map(|val| {
+                self.shipping_options
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect()
+            }),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn error_message_some<T: Into<String>>(mut self, val: Option<T>) -> Self {
-        self.error_message = val.map(Into::into);
-        self
+    pub fn error_message_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            error_message: val.map(Into::into),
+            ..self
+        }
     }
 }
 

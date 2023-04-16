@@ -29,7 +29,7 @@ use crate::{
     types::{
         BotCommand, BotCommandScope, Chat, ChatAdministratorRights, ChatIdKind, ChatInviteLink,
         ChatMember, ChatPermissions, File, ForumTopic, GameHighScore, InlineKeyboardMarkup,
-        InlineQueryResult, InputFile, InputMedia, LabeledPrice, MaskPosition, MenuButton, Message,
+        InlineQueryResult, InputFile, InputMedia, InputSticker, LabeledPrice, MenuButton, Message,
         MessageEntity, MessageId, MessageOrTrue, PassportElementError, Poll, ReplyMarkup,
         SentWebAppMessage, ShippingOption, Sticker, StickerSet, Update, User, UserProfilePhotos,
     },
@@ -136,8 +136,11 @@ impl<Client: Session> Bot<Client> {
             .await
     }
 
-    /// Use this method to add a new sticker to a set created by the bot. \
-    /// You **must** use exactly one of the fields `png_sticker`, `tgs_sticker`, or `webm_sticker`. Animated stickers can be added to animated sticker sets and only to them. Animated sticker sets can have up to 50 stickers. Static sticker sets can have up to 120 stickers.
+    /// Use this method to add a new sticker to a set created by the bot.
+    /// The format of the added sticker must match the format of the other stickers in the set.
+    /// Emoji sticker sets can have up to 200 stickers.
+    /// Animated and video sticker sets can have up to 50 stickers.
+    /// Static sticker sets can have up to 120 stickers.
     /// # Documentation
     /// <https://core.telegram.org/bots/api#addstickertoset>
     /// # Returns
@@ -151,22 +154,14 @@ impl<Client: Session> Bot<Client> {
         &self,
         user_id: i64,
         name: impl Into<String>,
-        png_sticker: Option<InputFile<'a>>,
-        tgs_sticker: Option<InputFile<'a>>,
-        webm_sticker: Option<InputFile<'a>>,
-        emojis: impl Into<String>,
-        mask_position: Option<MaskPosition>,
+        sticker: InputSticker<'a>,
         request_timeout: Option<f32>,
     ) -> Result<bool, SessionErrorKind> {
         self.send(
             &AddStickerToSet {
                 user_id,
                 name: name.into(),
-                png_sticker,
-                tgs_sticker,
-                webm_sticker,
-                emojis: emojis.into(),
-                mask_position,
+                sticker,
             },
             request_timeout,
         )
@@ -622,7 +617,7 @@ impl<Client: Session> Bot<Client> {
         .await
     }
 
-    /// Use this method to create a new sticker set owned by a user. The bot will be able to edit the sticker set thus created. You `must` use exactly one of the fields `png_sticker`, `tgs_sticker`, or `webm_sticker`.
+    /// Use this method to create a new sticker set owned by a user. The bot will be able to edit the sticker set thus created.
     /// # Documentation
     /// <https://core.telegram.org/bots/api#createnewstickerset>
     /// # Returns
@@ -637,12 +632,10 @@ impl<Client: Session> Bot<Client> {
         user_id: i64,
         name: impl Into<String>,
         title: impl Into<String>,
-        png_sticker: Option<impl Into<InputFile<'a>>>,
-        tgs_sticker: Option<impl Into<InputFile<'a>>>,
-        webm_sticker: Option<impl Into<InputFile<'a>>>,
+        stickers: impl IntoIterator<Item = InputSticker<'a>>,
+        sticker_format: impl Into<String>,
         sticker_type: Option<impl Into<String>>,
-        emojis: impl Into<String>,
-        mask_position: Option<MaskPosition>,
+        needs_repainting: Option<bool>,
         request_timeout: Option<f32>,
     ) -> Result<bool, SessionErrorKind> {
         self.send(
@@ -650,12 +643,10 @@ impl<Client: Session> Bot<Client> {
                 user_id,
                 name: name.into(),
                 title: title.into(),
-                png_sticker: png_sticker.map(Into::into),
-                tgs_sticker: tgs_sticker.map(Into::into),
-                webm_sticker: webm_sticker.map(Into::into),
+                stickers: stickers.into_iter().map(Into::into).collect(),
+                sticker_format: sticker_format.into(),
                 sticker_type: sticker_type.map(Into::into),
-                emojis: emojis.into(),
-                mask_position,
+                needs_repainting,
             },
             request_timeout,
         )
@@ -3152,13 +3143,15 @@ impl<Client: Session> Bot<Client> {
     pub async fn upload_sticker_file<'a>(
         &self,
         user_id: i64,
-        png_sticker: impl Into<InputFile<'a>>,
+        sticker: impl Into<InputFile<'a>>,
+        sticker_format: Option<impl Into<String>>,
         request_timeout: Option<f32>,
     ) -> Result<File, SessionErrorKind> {
         self.send(
             &UploadStickerFile {
                 user_id,
-                png_sticker: png_sticker.into(),
+                sticker: sticker.into(),
+                sticker_format: sticker_format.map(Into::into),
             },
             request_timeout,
         )

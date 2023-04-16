@@ -1,4 +1,4 @@
-use super::base::{prepare_file_with_value, Request, TelegramMethod};
+use super::base::{prepare_file_with_id, Request, TelegramMethod};
 
 use crate::{
     client::Bot,
@@ -19,29 +19,66 @@ use std::collections::HashMap;
 pub struct UploadStickerFile<'a> {
     /// User identifier of sticker file owner
     pub user_id: i64,
-    /// `PNG` image with the sticker, must be up to 512 kilobytes in size, dimensions must not exceed 512px, and either width or height must be exactly 512px. [More info on Sending Files »](https://core.telegram.org/bots/api#sending-files)
-    pub png_sticker: InputFile<'a>,
+    /// A file with the sticker in `.WEBP`, `.PNG`, `.TGS`, or `.WEBM` format. See <https://core.telegram.org/stickers> for technical requirements. [More info on Sending Files »](https://core.telegram.org/bots/api#sending-files)
+    pub sticker: InputFile<'a>,
+    /// Format of the sticker, must be one of `static`, `animated`, `video`
+    pub sticker_format: Option<String>,
 }
 
 impl<'a> UploadStickerFile<'a> {
     #[must_use]
-    pub fn new<T: Into<InputFile<'a>>>(user_id: i64, png_sticker: T) -> Self {
+    pub fn new(user_id: i64, sticker: impl Into<InputFile<'a>>) -> Self {
         Self {
             user_id,
-            png_sticker: png_sticker.into(),
+            sticker: sticker.into(),
+            sticker_format: None,
         }
     }
 
     #[must_use]
-    pub fn user_id(mut self, val: i64) -> Self {
-        self.user_id = val;
-        self
+    pub fn user_id(self, val: i64) -> Self {
+        Self {
+            user_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn png_sticker<T: Into<InputFile<'a>>>(mut self, val: T) -> Self {
-        self.png_sticker = val.into();
-        self
+    pub fn sticker(self, val: impl Into<InputFile<'a>>) -> Self {
+        Self {
+            sticker: val.into(),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn sticker_format(self, val: impl Into<String>) -> Self {
+        Self {
+            sticker_format: Some(val.into()),
+            ..self
+        }
+    }
+
+    /// Alias to [`UploadStickerFile::sticker_format`] method
+    #[must_use]
+    pub fn format(self, val: impl Into<String>) -> Self {
+        self.sticker_format(val)
+    }
+}
+
+impl UploadStickerFile<'_> {
+    #[must_use]
+    pub fn sticker_format_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            sticker_format: val.map(Into::into),
+            ..self
+        }
+    }
+
+    /// Alias to [`UploadStickerFile::sticker_format_option`] method
+    #[must_use]
+    pub fn format_option(self, val: Option<impl Into<String>>) -> Self {
+        self.sticker_format_option(val)
     }
 }
 
@@ -51,7 +88,7 @@ impl<'a> TelegramMethod for UploadStickerFile<'a> {
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = HashMap::new();
-        prepare_file_with_value(&mut files, &self.png_sticker, "png_sticker");
+        prepare_file_with_id(&mut files, &self.sticker);
 
         Request::new("uploadStickerFile", self, Some(files))
     }

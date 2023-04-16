@@ -28,11 +28,7 @@ pub struct RestrictChatMember {
 
 impl RestrictChatMember {
     #[must_use]
-    pub fn new<T: Into<ChatIdKind>>(
-        chat_id: T,
-        user_id: i64,
-        permissions: ChatPermissions,
-    ) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, user_id: i64, permissions: ChatPermissions) -> Self {
         Self {
             chat_id: chat_id.into(),
             user_id,
@@ -42,35 +38,45 @@ impl RestrictChatMember {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn user_id(mut self, val: i64) -> Self {
-        self.user_id = val;
-        self
+    pub fn user_id(self, val: i64) -> Self {
+        Self {
+            user_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn permissions(mut self, val: ChatPermissions) -> Self {
-        self.permissions = val;
-        self
+    pub fn permissions(self, val: ChatPermissions) -> Self {
+        Self {
+            permissions: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn until_date(mut self, val: i64) -> Self {
-        self.until_date = Some(val);
-        self
+    pub fn until_date(self, val: i64) -> Self {
+        Self {
+            until_date: Some(val),
+            ..self
+        }
     }
 }
 
 impl RestrictChatMember {
     #[must_use]
-    pub fn until_date_some(mut self, val: Option<i64>) -> Self {
-        self.until_date = val;
-        self
+    pub fn until_date_option(self, val: Option<i64>) -> Self {
+        Self {
+            until_date: val,
+            ..self
+        }
     }
 }
 

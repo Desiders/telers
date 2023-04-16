@@ -21,7 +21,7 @@ pub struct UnbanChatSenderChat {
 
 impl UnbanChatSenderChat {
     #[must_use]
-    pub fn new<T: Into<ChatIdKind>>(chat_id: T, sender_chat_id: i64) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, sender_chat_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
             sender_chat_id,
@@ -29,15 +29,19 @@ impl UnbanChatSenderChat {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn sender_chat_id(mut self, val: i64) -> Self {
-        self.sender_chat_id = val;
-        self
+    pub fn sender_chat_id(self, val: i64) -> Self {
+        Self {
+            sender_chat_id: val,
+            ..self
+        }
     }
 }
 

@@ -37,21 +37,23 @@ impl InlineQueryResultCachedSticker {
     }
 
     #[must_use]
-    pub fn id<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn id(mut self, val: impl Into<String>) -> Self {
         self.id = val.into();
         self
     }
 
     #[must_use]
-    pub fn sticker_file_id<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn sticker_file_id(mut self, val: impl Into<String>) -> Self {
         self.sticker_file_id = val.into();
         self
     }
 
     #[must_use]
-    pub fn reply_markup<T: Into<InlineKeyboardMarkup>>(mut self, val: T) -> Self {
-        self.reply_markup = Some(val.into());
-        self
+    pub fn reply_markup(self, val: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]

@@ -35,21 +35,25 @@ impl InlineQueryResultGame {
     }
 
     #[must_use]
-    pub fn id<T: Into<String>>(mut self, val: T) -> Self {
+    pub fn id(mut self, val: impl Into<String>) -> Self {
         self.id = val.into();
         self
     }
 
     #[must_use]
-    pub fn game_short_name<T: Into<String>>(mut self, val: T) -> Self {
-        self.game_short_name = val.into();
-        self
+    pub fn game_short_name(self, val: impl Into<String>) -> Self {
+        Self {
+            game_short_name: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn reply_markup<T: Into<InlineKeyboardMarkup>>(mut self, val: T) -> Self {
-        self.reply_markup = Some(val.into());
-        self
+    pub fn reply_markup(self, val: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(val.into()),
+            ..self
+        }
     }
 }
 

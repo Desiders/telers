@@ -27,7 +27,7 @@ pub struct SendChatAction {
 
 impl SendChatAction {
     #[must_use]
-    pub fn new<C: Into<ChatIdKind>, T: Into<String>>(chat_id: C, action: T) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, action: impl Into<String>) -> Self {
         Self {
             chat_id: chat_id.into(),
             message_thread_id: None,
@@ -36,29 +36,37 @@ impl SendChatAction {
     }
 
     #[must_use]
-    pub fn chat_id<T: Into<ChatIdKind>>(mut self, val: T) -> Self {
-        self.chat_id = val.into();
-        self
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn message_thread_id(mut self, val: i64) -> Self {
-        self.message_thread_id = Some(val);
-        self
+    pub fn message_thread_id(self, val: i64) -> Self {
+        Self {
+            message_thread_id: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn action<T: Into<String>>(mut self, val: T) -> Self {
-        self.action = val.into();
-        self
+    pub fn action(self, val: impl Into<String>) -> Self {
+        Self {
+            action: val.into(),
+            ..self
+        }
     }
 }
 
 impl SendChatAction {
     #[must_use]
-    pub fn message_thread_id_some(mut self, val: Option<i64>) -> Self {
-        self.message_thread_id = val;
-        self
+    pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            message_thread_id: val,
+            ..self
+        }
     }
 }
 

@@ -32,35 +32,42 @@ impl GetUserProfilePhotos {
     }
 
     #[must_use]
-    pub fn user_id(mut self, val: i64) -> Self {
-        self.user_id = val;
-        self
+    pub fn user_id(self, val: i64) -> Self {
+        Self {
+            user_id: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn offset(mut self, val: i64) -> Self {
-        self.offset = Some(val);
-        self
+    pub fn offset(self, val: i64) -> Self {
+        Self {
+            offset: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn limit(mut self, val: i64) -> Self {
-        self.limit = Some(val);
-        self
+    pub fn limit(self, val: i64) -> Self {
+        Self {
+            limit: Some(val),
+            ..self
+        }
     }
 }
 
 impl GetUserProfilePhotos {
     #[must_use]
-    pub fn offset_some(mut self, val: Option<i64>) -> Self {
-        self.offset = val;
-        self
+    pub fn offset_option(self, val: Option<i64>) -> Self {
+        Self {
+            offset: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn limit_some(mut self, val: Option<i64>) -> Self {
-        self.limit = val;
-        self
+    pub fn limit_option(self, val: Option<i64>) -> Self {
+        Self { limit: val, ..self }
     }
 }
 

@@ -33,53 +33,82 @@ impl GetUpdates {
     }
 
     #[must_use]
-    pub fn offset(mut self, val: i64) -> Self {
-        self.offset = Some(val);
-        self
+    pub fn offset(self, val: i64) -> Self {
+        Self {
+            offset: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn limit(mut self, val: i64) -> Self {
-        self.limit = Some(val);
-        self
+    pub fn limit(self, val: i64) -> Self {
+        Self {
+            limit: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn timeout(mut self, val: i64) -> Self {
-        self.timeout = Some(val);
-        self
+    pub fn timeout(self, val: i64) -> Self {
+        Self {
+            timeout: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allowed_updates<T: Into<String>>(mut self, val: Vec<T>) -> Self {
-        self.allowed_updates.get_or_insert_with(Vec::new).extend(val.into_iter().map(Into::into));
-        self
+    pub fn allowed_update(self, val: impl Into<String>) -> Self {
+        Self {
+            allowed_updates: Some(
+                self.allowed_updates
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(Some(val.into()))
+                    .collect(),
+            ),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn allowed_update<T: Into<String>>(mut self, val: T) -> Self {
-        self.allowed_updates.get_or_insert_with(Vec::new).push(val.into());
-        self
+    pub fn allowed_updates<T, I>(self, val: I) -> Self
+    where
+        T: Into<String>,
+        I: IntoIterator<Item = T>,
+    {
+        Self {
+            allowed_updates: Some(
+                self.allowed_updates
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val.into_iter().map(Into::into))
+                    .collect(),
+            ),
+            ..self
+        }
     }
 }
 
 impl GetUpdates {
     #[must_use]
-    pub fn offset_some(mut self, val: Option<i64>) -> Self {
-        self.offset = val;
-        self
+    pub fn offset_option(self, val: Option<i64>) -> Self {
+        Self {
+            offset: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn limit_some(mut self, val: Option<i64>) -> Self {
-        self.limit = val;
-        self
+    pub fn limit_option(self, val: Option<i64>) -> Self {
+        Self { limit: val, ..self }
     }
 
     #[must_use]
-    pub fn timeout_some(mut self, val: Option<i64>) -> Self {
-        self.timeout = val;
-        self
+    pub fn timeout_option(self, val: Option<i64>) -> Self {
+        Self {
+            timeout: val,
+            ..self
+        }
     }
 }
 
