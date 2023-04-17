@@ -25,9 +25,9 @@ pub struct ForwardMessage {
     /// Message identifier in the chat specified in `from_chat_id`
     pub message_id: i64,
     /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound
-    pub disable_notification: bool,
+    pub disable_notification: Option<bool>,
     /// Protects the contents of the sent message from forwarding and saving
-    pub protect_content: bool,
+    pub protect_content: Option<bool>,
 }
 
 impl ForwardMessage {
@@ -36,16 +36,14 @@ impl ForwardMessage {
         chat_id: impl Into<ChatIdKind>,
         from_chat_id: impl Into<ChatIdKind>,
         message_id: i64,
-        disable_notification: bool,
-        protect_content: bool,
     ) -> Self {
         Self {
             chat_id: chat_id.into(),
             message_thread_id: None,
             from_chat_id: from_chat_id.into(),
             message_id,
-            disable_notification,
-            protect_content,
+            disable_notification: None,
+            protect_content: None,
         }
     }
 
@@ -84,7 +82,7 @@ impl ForwardMessage {
     #[must_use]
     pub fn disable_notification(self, val: bool) -> Self {
         Self {
-            disable_notification: val,
+            disable_notification: Some(val),
             ..self
         }
     }
@@ -92,7 +90,7 @@ impl ForwardMessage {
     #[must_use]
     pub fn protect_content(self, val: bool) -> Self {
         Self {
-            protect_content: val,
+            protect_content: Some(val),
             ..self
         }
     }
@@ -103,6 +101,22 @@ impl ForwardMessage {
     pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
         Self {
             message_thread_id: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn disable_notification_option(self, val: Option<bool>) -> Self {
+        Self {
+            disable_notification: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn protect_content_option(self, val: Option<bool>) -> Self {
+        Self {
+            protect_content: val,
             ..self
         }
     }
