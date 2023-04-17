@@ -34,3 +34,21 @@ impl BotCommand {
         }
     }
 }
+
+impl<T: Into<String>> From<[T; 2]> for BotCommand {
+    fn from([command, description]: [T; 2]) -> Self {
+        Self {
+            command: command.into(),
+            description: description.into(),
+        }
+    }
+}
+
+impl<T: Into<String>> From<(T, T)> for BotCommand {
+    fn from((command, description): (T, T)) -> Self {
+        Self {
+            command: command.into(),
+            description: description.into(),
+        }
+    }
+}
