@@ -13,7 +13,7 @@ pub struct InputContactMessageContent {
     pub first_name: String,
     /// Contact's last name
     pub last_name: Option<String>,
-    /// *Optional*. Additional data about the contact in the form of a [`vCard`](https://en.wikipedia.org/wiki/VCard), 0-2048 bytes
+    /// Additional data about the contact in the form of a [`vCard`](https://en.wikipedia.org/wiki/VCard), 0-2048 bytes
     pub vcard: Option<String>,
 }
 

@@ -18,13 +18,13 @@ pub struct MessageEntity {
     pub offset: i64,
     /// Length of the entity in UTF-16 code units
     pub length: i64,
-    /// *Optional*. For 'text_link' only, URL that will be opened after user taps on the text
+    /// For 'text_link' only, URL that will be opened after user taps on the text
     pub url: Option<String>,
-    /// *Optional*. For 'text_mention' only, the mentioned user
+    /// For 'text_mention' only, the mentioned user
     pub user: Option<User>,
-    /// *Optional*. For 'pre' only, the programming language of the entity text
+    /// For 'pre' only, the programming language of the entity text
     pub language: Option<String>,
-    /// *Optional*. For 'custom_emoji' only, unique identifier of the custom emoji. Use [`GetCustomEmojiStickers`](crate::methods::GetCustomEmojiStickers) to get full information about the sticker
+    /// For 'custom_emoji' only, unique identifier of the custom emoji. Use [`GetCustomEmojiStickers`](crate::methods::GetCustomEmojiStickers) to get full information about the sticker
     pub custom_emoji_id: Option<String>,
 }
 

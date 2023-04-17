@@ -24,23 +24,23 @@ pub struct InlineQueryResultDocument {
     pub document_url: String,
     /// MIME type of the content of the file, either 'application/pdf' or 'application/zip'
     pub mime_type: String,
-    /// *Optional*. Caption of the document to be sent, 0-1024 characters after entities parsing
+    /// Caption of the document to be sent, 0-1024 characters after entities parsing
     pub caption: Option<String>,
-    /// *Optional*. Mode for parsing entities in the document caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
+    /// Mode for parsing entities in the document caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
     pub parse_mode: Option<String>,
-    /// *Optional*. List of special entities that appear in the caption, which can be specified instead of *parse_mode*
+    /// List of special entities that appear in the caption, which can be specified instead of *parse_mode*
     pub caption_entities: Option<Vec<MessageEntity>>,
-    /// *Optional*. Short description of the result
+    /// Short description of the result
     pub description: Option<String>,
-    /// *Optional*. Inline keyboard attached to the message
+    /// Inline keyboard attached to the message
     pub reply_markup: Option<InlineKeyboardMarkup>,
-    /// *Optional*. Content of the message to be sent instead of the file
+    /// Content of the message to be sent instead of the file
     pub input_message_content: Option<InputMessageContent>,
-    /// *Optional*. URL of the thumbnail (JPEG only) for the file
+    /// URL of the thumbnail (JPEG only) for the file
     pub thumb_url: Option<String>,
-    /// *Optional*. Thumbnail width
+    /// Thumbnail width
     pub thumb_width: Option<i64>,
-    /// *Optional*. Thumbnail height
+    /// Thumbnail height
     pub thumb_height: Option<i64>,
 }
 

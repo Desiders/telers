@@ -24,23 +24,23 @@ pub struct InlineQueryResultLocation {
     pub longitude: f64,
     /// Location title
     pub title: String,
-    /// *Optional*. The radius of uncertainty for the location, measured in meters; 0-1500
+    /// The radius of uncertainty for the location, measured in meters; 0-1500
     pub horizontal_accuracy: Option<f64>,
-    /// *Optional*. Period in seconds for which the location can be updated, should be between 60 and 86400.
+    /// Period in seconds for which the location can be updated, should be between 60 and 86400.
     pub live_period: Option<i64>,
-    /// *Optional*. For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
+    /// For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
     pub heading: Option<i64>,
-    /// *Optional*. For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
+    /// For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
     pub proximity_alert_radius: Option<i64>,
-    /// *Optional*. [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
+    /// [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
     pub reply_markup: Option<InlineKeyboardMarkup>,
-    /// *Optional*. Content of the message to be sent instead of the location
+    /// Content of the message to be sent instead of the location
     pub input_message_content: Option<InputMessageContent>,
-    /// *Optional*. Url of the thumbnail for the result
+    /// Url of the thumbnail for the result
     pub thumb_url: Option<String>,
-    /// *Optional*. Thumbnail width
+    /// Thumbnail width
     pub thumb_width: Option<i64>,
-    /// *Optional*. Thumbnail height
+    /// Thumbnail height
     pub thumb_height: Option<i64>,
 }
 

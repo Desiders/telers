@@ -13,10 +13,10 @@ pub struct Game {
     pub description: String,
     /// Photo that will be displayed in the game message in chats.
     pub photo: Vec<PhotoSize>,
-    /// *Optional*. Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls [`SetGameScore`](crate::methods::SetGameScore), or manually edited using [`EditMessageText`](crate::methods::EditMessageText). 0-4096 characters.
+    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls [`SetGameScore`](crate::methods::SetGameScore), or manually edited using [`EditMessageText`](crate::methods::EditMessageText). 0-4096 characters.
     pub text: Option<String>,
-    /// *Optional*. Special entities that appear in text, such as usernames, URLs, bot commands, etc.
+    /// Special entities that appear in text, such as usernames, URLs, bot commands, etc.
     pub text_entities: Option<Vec<MessageEntity>>,
-    /// *Optional*. Animation that will be displayed in the game message in chats. Upload via [`BotFather`](https://t.me/botfather)
+    /// Animation that will be displayed in the game message in chats. Upload via [`BotFather`](https://t.me/botfather)
     pub animation: Option<Animation>,
 }

@@ -20,7 +20,7 @@ pub struct InlineQueryResultGame {
     pub id: String,
     /// Short name of the game
     pub game_short_name: String,
-    /// *Optional*. [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
+    /// [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 

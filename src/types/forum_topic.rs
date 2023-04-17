@@ -11,6 +11,6 @@ pub struct ForumTopic {
     pub name: String,
     /// Color of the topic icon in RGB format
     pub icon_color: String,
-    /// *Optional*. Unique identifier of the custom emoji shown as the topic icon
+    /// Unique identifier of the custom emoji shown as the topic icon
     pub icon_custom_emoji_id: Option<String>,
 }

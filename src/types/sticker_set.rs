@@ -19,6 +19,6 @@ pub struct StickerSet {
     pub is_video: bool,
     /// List of all set stickers
     pub stickers: Vec<Sticker>,
-    /// *Optional*. Sticker set thumbnail in the .WEBP, .TGS, or .WEBM format
+    /// Sticker set thumbnail in the .WEBP, .TGS, or .WEBM format
     pub thumb: Option<PhotoSize>,
 }

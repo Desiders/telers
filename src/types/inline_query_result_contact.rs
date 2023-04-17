@@ -22,19 +22,19 @@ pub struct InlineQueryResultContact {
     pub phone_number: String,
     /// Contact's first name
     pub first_name: String,
-    /// *Optional*. Contact's last name
+    /// Contact's last name
     pub last_name: Option<String>,
-    /// *Optional*. Additional data about the contact in the form of a [`vCard`](https://en.wikipedia.org/wiki/VCard), 0-2048 bytes
+    /// Additional data about the contact in the form of a [`vCard`](https://en.wikipedia.org/wiki/VCard), 0-2048 bytes
     pub vcard: Option<String>,
-    /// *Optional*. [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
+    /// [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
     pub reply_markup: Option<InlineKeyboardMarkup>,
-    /// *Optional*. Content of the message to be sent instead of the contact
+    /// Content of the message to be sent instead of the contact
     pub input_message_content: Option<InputMessageContent>,
-    /// *Optional*. Url of the thumbnail for the result
+    /// Url of the thumbnail for the result
     pub thumb_url: Option<String>,
-    /// *Optional*. Thumbnail width
+    /// Thumbnail width
     pub thumb_width: Option<i64>,
-    /// *Optional*. Thumbnail height
+    /// Thumbnail height
     pub thumb_height: Option<i64>,
 }
 

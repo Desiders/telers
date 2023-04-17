@@ -5,6 +5,6 @@ use serde::Deserialize;
 /// <https://core.telegram.org/bots/api#sentwebappmessage>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct SentWebAppMessage {
-    /// *Optional*. Identifier of the sent inline message. Available only if there is an [`inline keyboard`](https://core.telegram.org/bots/api#inlinekeyboardmarkup) attached to the message.
+    /// Identifier of the sent inline message. Available only if there is an [`inline keyboard`](https://core.telegram.org/bots/api#inlinekeyboardmarkup) attached to the message.
     pub inline_message_id: Option<String>,
 }

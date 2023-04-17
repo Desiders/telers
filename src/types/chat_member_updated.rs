@@ -19,7 +19,7 @@ pub struct ChatMemberUpdated {
     pub old_chat_member: ChatMember,
     /// New information about the chat member
     pub new_chat_member: ChatMember,
-    /// *Optional*. Chat invite link, which was used by the user to join the chat; for joining by invite link events only.
+    /// Chat invite link, which was used by the user to join the chat; for joining by invite link events only.
     pub invite_link: Option<ChatInviteLink>,
 }
 

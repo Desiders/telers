@@ -17,12 +17,12 @@ pub struct Video {
     pub height: i64,
     /// Duration of the video in seconds as defined by sender
     pub duration: i64,
-    /// *Optional*. Video thumbnail
+    /// Video thumbnail
     pub thumb: Option<PhotoSize>,
-    /// *Optional*. Original filename as defined by sender
+    /// Original filename as defined by sender
     pub file_name: Option<String>,
-    /// *Optional*. MIME type of the file as defined by sender
+    /// MIME type of the file as defined by sender
     pub mime_type: Option<String>,
-    /// *Optional*. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
+    /// File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
     pub file_size: Option<i64>,
 }

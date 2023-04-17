@@ -25,23 +25,23 @@ pub struct InlineQueryResultVideo {
     pub thumb_url: String,
     /// Title for the result
     pub title: String,
-    /// *Optional*. Caption of the video to be sent, 0-1024 characters after entities parsing
+    /// Caption of the video to be sent, 0-1024 characters after entities parsing
     pub caption: Option<String>,
-    /// *Optional*. Mode for parsing entities in the video caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
+    /// Mode for parsing entities in the video caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
     pub parse_mode: Option<String>,
-    /// *Optional*. List of special entities that appear in the caption, which can be specified instead of *parse_mode*
+    /// List of special entities that appear in the caption, which can be specified instead of *parse_mode*
     pub caption_entities: Option<Vec<MessageEntity>>,
-    /// *Optional*. Video width
+    /// Video width
     pub video_width: Option<i64>,
-    /// *Optional*. Video height
+    /// Video height
     pub video_height: Option<i64>,
-    /// *Optional*. Video duration in seconds
+    /// Video duration in seconds
     pub video_duration: Option<i64>,
-    /// *Optional*. Short description of the result
+    /// Short description of the result
     pub description: Option<String>,
-    /// *Optional*. [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
+    /// [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
     pub reply_markup: Option<InlineKeyboardMarkup>,
-    /// *Optional*. Content of the message to be sent instead of the video. This field is **required** if InlineQueryResultVideo is used to send an HTML-page as a result (e.g., a YouTube video).
+    /// Content of the message to be sent instead of the video. This field is **required** if InlineQueryResultVideo is used to send an HTML-page as a result (e.g., a YouTube video).
     pub input_message_content: Option<InputMessageContent>,
 }
 

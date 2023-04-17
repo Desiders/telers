@@ -16,7 +16,7 @@ pub struct ChatMemberOwner {
     pub user: User,
     /// `True`, if the user's presence in the chat is hidden
     pub is_anonymous: bool,
-    /// *Optional*. Custom title for this user
+    /// Custom title for this user
     pub custom_title: Option<String>,
 }
 

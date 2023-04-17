@@ -338,7 +338,7 @@ pub struct CommandObject {
     pub command: String,
     /// Command prefix
     pub prefix: String,
-    /// *Optional*. Mention in command
+    /// Mention in command
     pub mention: Option<String>,
     /// Command arguments
     pub args: Vec<String>,

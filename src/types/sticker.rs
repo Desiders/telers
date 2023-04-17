@@ -22,18 +22,18 @@ pub struct Sticker {
     pub is_animated: bool,
     /// `True`, if the sticker is a [`video sticker`](https://telegram.org/blog/video-stickers-better-reactions)
     pub is_video: bool,
-    /// *Optional*. Sticker thumbnail in the .WEBP or .JPG format
+    /// Sticker thumbnail in the .WEBP or .JPG format
     pub thumb: Option<PhotoSize>,
-    /// *Optional*. Emoji associated with the sticker
+    /// Emoji associated with the sticker
     pub emoji: Option<String>,
-    /// *Optional*. Name of the sticker set to which the sticker belongs
+    /// Name of the sticker set to which the sticker belongs
     pub set_name: Option<String>,
-    /// *Optional*. For premium regular stickers, premium animation for the sticker
+    /// For premium regular stickers, premium animation for the sticker
     pub premium_animation: Option<File>,
-    /// *Optional*. For mask stickers, the position where the mask should be placed
+    /// For mask stickers, the position where the mask should be placed
     pub mask_position: Option<MaskPosition>,
-    /// *Optional*. For custom emoji stickers, unique identifier of the custom emoji
+    /// For custom emoji stickers, unique identifier of the custom emoji
     pub custom_emoji_id: Option<String>,
-    /// *Optional*. File size in bytes
+    /// File size in bytes
     pub file_size: Option<i64>,
 }

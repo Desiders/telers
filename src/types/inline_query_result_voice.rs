@@ -22,17 +22,17 @@ pub struct InlineQueryResultVoice {
     pub voice_url: String,
     /// Recording title
     pub title: String,
-    /// *Optional*. Caption, 0-1024 characters after entities parsing
+    /// Caption, 0-1024 characters after entities parsing
     pub caption: Option<String>,
-    /// *Optional*. Mode for parsing entities in the voice message caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
+    /// Mode for parsing entities in the voice message caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
     pub parse_mode: Option<String>,
-    /// *Optional*. List of special entities that appear in the caption, which can be specified instead of *parse_mode*
+    /// List of special entities that appear in the caption, which can be specified instead of *parse_mode*
     pub caption_entities: Option<Vec<MessageEntity>>,
-    /// *Optional*. Recording duration in seconds
+    /// Recording duration in seconds
     pub voice_duration: Option<i64>,
-    /// *Optional*. [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
+    /// [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
     pub reply_markup: Option<InlineKeyboardMarkup>,
-    /// *Optional*. Content of the message to be sent instead of the voice recording
+    /// Content of the message to be sent instead of the voice recording
     pub input_message_content: Option<InputMessageContent>,
 }
 

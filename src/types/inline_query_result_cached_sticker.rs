@@ -20,9 +20,9 @@ pub struct InlineQueryResultCachedSticker {
     pub id: String,
     /// A valid file identifier of the sticker
     pub sticker_file_id: String,
-    /// *Optional*. [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
+    /// [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
     pub reply_markup: Option<InlineKeyboardMarkup>,
-    /// *Optional*. Content of the message to be sent instead of the sticker
+    /// Content of the message to be sent instead of the sticker
     pub input_message_content: Option<InputMessageContent>,
 }
 

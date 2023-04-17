@@ -13,11 +13,11 @@ pub struct SuccessfulPayment {
     pub total_amount: i64,
     /// Bot specified invoice payload
     pub invoice_payload: String,
-    /// *Optional*. Identifier of the shipping option chosen by the user
+    /// Identifier of the shipping option chosen by the user
     pub shipping_option_id: Option<String>,
-    /// *Optional*. Order info provided by the user
+    /// Order info provided by the user
     pub order_info: Option<OrderInfo>,
-    /// *Optional*. Telegram payment identifier
+    /// Telegram payment identifier
     pub telegram_payment_charge_id: String,
     /// Provider payment identifier
     pub provider_payment_charge_id: String,

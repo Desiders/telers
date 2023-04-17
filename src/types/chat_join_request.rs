@@ -15,9 +15,9 @@ pub struct ChatJoinRequest {
     pub from: User,
     /// Date the request was sent in Unix time
     pub date: i64,
-    /// *Optional*. Bio of the user.
+    /// Bio of the user.
     pub bio: Option<String>,
-    /// *Optional*. Chat invite link that was used by the user to send the join request
+    /// Chat invite link that was used by the user to send the join request
     pub invite_link: Option<ChatInviteLink>,
 }
 
