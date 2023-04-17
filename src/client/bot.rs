@@ -211,17 +211,21 @@ impl<Client: Session> Bot<Client> {
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
     #[allow(clippy::too_many_arguments)]
-    pub async fn answer_inline_query(
+    pub async fn answer_inline_query<T, I>(
         &self,
         inline_query_id: impl Into<String>,
-        results: Vec<impl Into<InlineQueryResult>>,
+        results: I,
         cache_time: Option<i32>,
         is_personal: Option<bool>,
         next_offset: Option<impl Into<String>>,
         switch_pm_text: Option<impl Into<String>>,
         switch_pm_parameter: Option<impl Into<String>>,
         request_timeout: Option<f32>,
-    ) -> Result<bool, SessionErrorKind> {
+    ) -> Result<bool, SessionErrorKind>
+    where
+        T: Into<InlineQueryResult>,
+        I: IntoIterator<Item = T>,
+    {
         self.send(
             &AnswerInlineQuery {
                 inline_query_id: inline_query_id.into(),
@@ -460,9 +464,9 @@ impl<Client: Session> Bot<Client> {
     pub async fn copy_message(
         &self,
         chat_id: impl Into<ChatIdKind>,
-        message_thread_id: Option<i64>,
         from_chat_id: impl Into<ChatIdKind>,
         message_id: i64,
+        message_thread_id: Option<i64>,
         caption: Option<impl Into<String>>,
         parse_mode: Option<impl Into<String>>,
         caption_entities: Option<Vec<MessageEntity>>,
@@ -570,7 +574,7 @@ impl<Client: Session> Bot<Client> {
         payload: impl Into<String>,
         provider_token: impl Into<String>,
         currency: impl Into<String>,
-        prices: Vec<LabeledPrice>,
+        prices: impl IntoIterator<Item = LabeledPrice>,
         max_tip_amount: Option<i64>,
         suggested_tip_amounts: Option<Vec<i64>>,
         start_parameter: Option<impl Into<String>>,
@@ -595,7 +599,7 @@ impl<Client: Session> Bot<Client> {
                 payload: payload.into(),
                 provider_token: provider_token.into(),
                 currency: currency.into(),
-                prices,
+                prices: prices.into_iter().map(Into::into).collect(),
                 max_tip_amount,
                 suggested_tip_amounts,
                 start_parameter: start_parameter.map(Into::into),
@@ -905,10 +909,10 @@ impl<Client: Session> Bot<Client> {
     #[allow(clippy::too_many_arguments)]
     pub async fn edit_message_caption(
         &self,
+        caption: impl Into<String>,
         chat_id: Option<impl Into<ChatIdKind>>,
         message_thread_id: Option<i64>,
         inline_message_id: Option<impl Into<String>>,
-        caption: impl Into<String>,
         parse_mode: Option<impl Into<String>>,
         caption_entities: Option<Vec<MessageEntity>>,
         reply_markup: Option<impl Into<InlineKeyboardMarkup>>,
@@ -967,11 +971,11 @@ impl<Client: Session> Bot<Client> {
     #[allow(clippy::too_many_arguments)]
     pub async fn edit_message_live_location(
         &self,
+        latitude: f64,
+        longitude: f64,
         chat_id: Option<impl Into<ChatIdKind>>,
         message_id: Option<i64>,
         inline_message_id: Option<impl Into<String>>,
-        latitude: f64,
-        longitude: f64,
         horizontal_accuracy: Option<f64>,
         heading: Option<i64>,
         proximity_alert_radius: Option<i64>,
@@ -1006,10 +1010,10 @@ impl<Client: Session> Bot<Client> {
     /// - If the response represents an telegram api error
     pub async fn edit_message_media<'a>(
         &self,
+        media: impl Into<InputMedia<'a>>,
         chat_id: Option<impl Into<ChatIdKind>>,
         message_id: Option<i64>,
         inline_message_id: Option<impl Into<String>>,
-        media: impl Into<InputMedia<'a>>,
         reply_markup: Option<impl Into<InlineKeyboardMarkup>>,
         request_timeout: Option<f32>,
     ) -> Result<MessageOrTrue, SessionErrorKind> {
@@ -1067,10 +1071,10 @@ impl<Client: Session> Bot<Client> {
     #[allow(clippy::too_many_arguments)]
     pub async fn edit_message_text(
         &self,
+        text: impl Into<String>,
         chat_id: Option<impl Into<ChatIdKind>>,
         message_thread_id: Option<i64>,
         inline_message_id: Option<impl Into<String>>,
-        text: impl Into<String>,
         parse_mode: Option<impl Into<String>>,
         entities: Option<Vec<MessageEntity>>,
         disable_web_page_preview: Option<bool>,
@@ -1131,11 +1135,11 @@ impl<Client: Session> Bot<Client> {
     pub async fn forward_message(
         &self,
         chat_id: impl Into<ChatIdKind>,
-        message_thread_id: Option<i64>,
         from_chat_id: impl Into<ChatIdKind>,
         message_id: i64,
-        disable_notification: bool,
-        protect_content: bool,
+        message_thread_id: Option<i64>,
+        disable_notification: Option<bool>,
+        protect_content: Option<bool>,
         request_timeout: Option<f32>,
     ) -> Result<Message, SessionErrorKind> {
         self.send(
@@ -1273,11 +1277,15 @@ impl<Client: Session> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
-    pub async fn get_custom_emoji_stickers(
+    pub async fn get_custom_emoji_stickers<T, I>(
         &self,
-        custom_emoji_ids: Vec<impl Into<String>>,
+        custom_emoji_ids: I,
         request_timeout: Option<f32>,
-    ) -> Result<Vec<Sticker>, SessionErrorKind> {
+    ) -> Result<Vec<Sticker>, SessionErrorKind>
+    where
+        T: Into<String>,
+        I: IntoIterator<Item = T>,
+    {
         self.send(
             &GetCustomEmojiStickers {
                 custom_emoji_ids: custom_emoji_ids.into_iter().map(Into::into).collect(),
@@ -1753,8 +1761,8 @@ impl<Client: Session> Bot<Client> {
     pub async fn send_animation<'a>(
         &self,
         chat_id: impl Into<ChatIdKind>,
-        message_thread_id: Option<i64>,
         animation: impl Into<InputFile<'a>>,
+        message_thread_id: Option<i64>,
         duration: Option<i64>,
         width: Option<i64>,
         height: Option<i64>,
@@ -1809,8 +1817,8 @@ impl<Client: Session> Bot<Client> {
     pub async fn send_audio<'a>(
         &self,
         chat_id: impl Into<ChatIdKind>,
-        message_thread_id: Option<i64>,
         audio: impl Into<InputFile<'a>>,
+        message_thread_id: Option<i64>,
         caption: Option<impl Into<String>>,
         parse_mode: Option<impl Into<String>>,
         caption_entities: Option<Vec<MessageEntity>>,
@@ -1864,8 +1872,8 @@ impl<Client: Session> Bot<Client> {
     pub async fn send_chat_action(
         &self,
         chat_id: impl Into<ChatIdKind>,
-        message_thread_id: Option<i64>,
         action: impl Into<String>,
+        message_thread_id: Option<i64>,
         request_timeout: Option<f32>,
     ) -> Result<bool, SessionErrorKind> {
         self.send(
@@ -1892,10 +1900,10 @@ impl<Client: Session> Bot<Client> {
     pub async fn send_contact(
         &self,
         chat_id: impl Into<ChatIdKind>,
-        message_thread_id: Option<i64>,
         phone_number: impl Into<String>,
         first_name: impl Into<String>,
         last_name: Option<impl Into<String>>,
+        message_thread_id: Option<i64>,
         vcard: Option<impl Into<String>>,
         disable_notification: Option<bool>,
         protect_content: Option<bool>,
@@ -1936,8 +1944,8 @@ impl<Client: Session> Bot<Client> {
     pub async fn send_dice(
         &self,
         chat_id: impl Into<ChatIdKind>,
-        message_thread_id: Option<i64>,
         emoji: Option<impl Into<String>>,
+        message_thread_id: Option<i64>,
         disable_notification: Option<bool>,
         protect_content: Option<bool>,
         reply_to_message_id: Option<i64>,
@@ -1974,8 +1982,8 @@ impl<Client: Session> Bot<Client> {
     pub async fn send_document<'a>(
         &self,
         chat_id: impl Into<ChatIdKind>,
-        message_thread_id: Option<i64>,
         document: impl Into<InputFile<'a>>,
+        message_thread_id: Option<i64>,
         thumb: Option<impl Into<InputFile<'a>>>,
         caption: Option<impl Into<String>>,
         parse_mode: Option<impl Into<String>>,
@@ -2022,8 +2030,8 @@ impl<Client: Session> Bot<Client> {
     pub async fn send_game(
         &self,
         chat_id: i64,
-        message_thread_id: Option<i64>,
         game_short_name: impl Into<String>,
+        message_thread_id: Option<i64>,
         disable_notification: Option<bool>,
         protect_content: Option<bool>,
         reply_to_message_id: Option<i64>,
@@ -2057,16 +2065,16 @@ impl<Client: Session> Bot<Client> {
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
     #[allow(clippy::too_many_arguments)]
-    pub async fn send_invoice(
+    pub async fn send_invoice<T, I>(
         &self,
         chat_id: impl Into<ChatIdKind>,
-        message_thread_id: Option<i64>,
         title: impl Into<String>,
         description: impl Into<String>,
         payload: impl Into<String>,
         provider_token: impl Into<String>,
         currency: impl Into<String>,
-        prices: Vec<LabeledPrice>,
+        prices: impl IntoIterator<Item = LabeledPrice>,
+        message_thread_id: Option<i64>,
         max_tip_amount: Option<i64>,
         suggested_tip_amounts: Option<Vec<i64>>,
         start_parameter: Option<impl Into<String>>,
@@ -2098,7 +2106,7 @@ impl<Client: Session> Bot<Client> {
                 payload: payload.into(),
                 provider_token: provider_token.into(),
                 currency: currency.into(),
-                prices,
+                prices: prices.into_iter().map(Into::into).collect(),
                 max_tip_amount,
                 suggested_tip_amounts,
                 start_parameter: start_parameter.map(Into::into),
@@ -2138,9 +2146,9 @@ impl<Client: Session> Bot<Client> {
     pub async fn send_location(
         &self,
         chat_id: impl Into<ChatIdKind>,
-        message_thread_id: Option<i64>,
         latitude: f64,
         longitude: f64,
+        message_thread_id: Option<i64>,
         horizontal_accuracy: Option<f64>,
         live_period: Option<i64>,
         heading: Option<i64>,
@@ -2183,17 +2191,21 @@ impl<Client: Session> Bot<Client> {
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
     #[allow(clippy::too_many_arguments)]
-    pub async fn send_media_group<'a>(
+    pub async fn send_media_group<'a, T, I>(
         &self,
         chat_id: impl Into<ChatIdKind>,
+        media: I,
         message_thread_id: Option<i64>,
-        media: Vec<impl Into<InputMedia<'a>>>,
         disable_notification: Option<bool>,
         protect_content: Option<bool>,
         reply_to_message_id: Option<i64>,
         allow_sending_without_reply: Option<bool>,
         request_timeout: Option<f32>,
-    ) -> Result<Vec<Message>, SessionErrorKind> {
+    ) -> Result<Vec<Message>, SessionErrorKind>
+    where
+        T: Into<InputMedia<'a>>,
+        I: IntoIterator<Item = T>,
+    {
         self.send(
             &SendMediaGroup {
                 chat_id: chat_id.into(),
@@ -2222,8 +2234,8 @@ impl<Client: Session> Bot<Client> {
     pub async fn send_message(
         &self,
         chat_id: impl Into<ChatIdKind>,
-        message_thread_id: Option<i64>,
         text: impl Into<String>,
+        message_thread_id: Option<i64>,
         parse_mode: Option<impl Into<String>>,
         entities: Option<Vec<MessageEntity>>,
         disable_web_page_preview: Option<bool>,
@@ -2278,8 +2290,8 @@ impl<Client: Session> Bot<Client> {
     pub async fn send_photo<'a>(
         &self,
         chat_id: impl Into<ChatIdKind>,
-        message_thread_id: Option<i64>,
         photo: impl Into<InputFile<'a>>,
+        message_thread_id: Option<i64>,
         caption: Option<String>,
         parse_mode: Option<String>,
         caption_entities: Option<Vec<MessageEntity>>,
@@ -2321,12 +2333,12 @@ impl<Client: Session> Bot<Client> {
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
     #[allow(clippy::too_many_arguments)]
-    pub async fn send_poll(
+    pub async fn send_poll<T, I>(
         &self,
         chat_id: impl Into<ChatIdKind>,
-        message_thread_id: Option<i64>,
         question: impl Into<String>,
-        options: Vec<impl Into<String>>,
+        options: I,
+        message_thread_id: Option<i64>,
         is_anonymous: Option<bool>,
         poll_type: Option<impl Into<String>>,
         allows_multiple_answers: Option<bool>,
@@ -2343,7 +2355,11 @@ impl<Client: Session> Bot<Client> {
         allow_sending_without_reply: Option<bool>,
         reply_markup: Option<impl Into<ReplyMarkup>>,
         request_timeout: Option<f32>,
-    ) -> Result<Message, SessionErrorKind> {
+    ) -> Result<Message, SessionErrorKind>
+    where
+        T: Into<String>,
+        I: IntoIterator<Item = T>,
+    {
         self.send(
             &SendPoll {
                 chat_id: chat_id.into(),
@@ -2384,8 +2400,8 @@ impl<Client: Session> Bot<Client> {
     pub async fn send_sticker<'a>(
         &self,
         chat_id: impl Into<ChatIdKind>,
-        message_thread_id: Option<i64>,
         sticker: impl Into<InputFile<'a>>,
+        message_thread_id: Option<i64>,
         disable_notification: Option<bool>,
         protect_content: Option<bool>,
         reply_to_message_id: Option<i64>,
@@ -2422,11 +2438,11 @@ impl<Client: Session> Bot<Client> {
     pub async fn send_venue(
         &self,
         chat_id: impl Into<ChatIdKind>,
-        message_thread_id: Option<i64>,
         latitude: f64,
         longitude: f64,
         title: impl Into<String>,
         address: impl Into<String>,
+        message_thread_id: Option<i64>,
         foursquare_id: Option<impl Into<String>>,
         foursquare_type: Option<impl Into<String>>,
         google_place_id: Option<impl Into<String>>,
@@ -2474,8 +2490,8 @@ impl<Client: Session> Bot<Client> {
     pub async fn send_video<'a>(
         &self,
         chat_id: impl Into<ChatIdKind>,
-        message_thread_id: Option<i64>,
         video: impl Into<InputFile<'a>>,
+        message_thread_id: Option<i64>,
         duration: Option<i64>,
         width: Option<i64>,
         height: Option<i64>,
@@ -2530,8 +2546,8 @@ impl<Client: Session> Bot<Client> {
     pub async fn send_video_note<'a>(
         &self,
         chat_id: impl Into<ChatIdKind>,
-        message_thread_id: Option<i64>,
         video_note: impl Into<InputFile<'a>>,
+        message_thread_id: Option<i64>,
         duration: Option<i64>,
         length: Option<i64>,
         thumb: Option<impl Into<InputFile<'a>>>,
@@ -2574,8 +2590,8 @@ impl<Client: Session> Bot<Client> {
     pub async fn send_voice<'a>(
         &self,
         chat_id: impl Into<ChatIdKind>,
-        message_thread_id: Option<i64>,
         voice: impl Into<InputFile<'a>>,
+        message_thread_id: Option<i64>,
         caption: Option<impl Into<String>>,
         parse_mode: Option<impl Into<String>>,
         caption_entities: Option<Vec<MessageEntity>>,
@@ -2804,16 +2820,20 @@ impl<Client: Session> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
-    pub async fn set_my_commands(
+    pub async fn set_my_commands<T, I>(
         &self,
-        commands: Vec<BotCommand>,
+        commands: I,
         scope: Option<impl Into<BotCommandScope>>,
         language_code: Option<impl Into<String>>,
         request_timeout: Option<f32>,
-    ) -> Result<bool, SessionErrorKind> {
+    ) -> Result<bool, SessionErrorKind>
+    where
+        T: Into<BotCommand>,
+        I: IntoIterator<Item = T>,
+    {
         self.send(
             &SetMyCommands {
-                commands,
+                commands: commands.into_iter().map(Into::into).collect(),
                 scope: scope.map(Into::into),
                 language_code: language_code.map(Into::into),
             },
@@ -2858,12 +2878,16 @@ impl<Client: Session> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
-    pub async fn set_passport_data_errors(
+    pub async fn set_passport_data_errors<T, I>(
         &self,
         user_id: i64,
-        errors: Vec<impl Into<PassportElementError>>,
+        errors: I,
         request_timeout: Option<f32>,
-    ) -> Result<bool, SessionErrorKind> {
+    ) -> Result<bool, SessionErrorKind>
+    where
+        T: Into<PassportElementError>,
+        I: IntoIterator<Item = T>,
+    {
         self.send(
             &SetPassportDataErrors {
                 user_id,
