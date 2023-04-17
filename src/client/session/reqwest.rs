@@ -115,6 +115,11 @@ impl Default for Reqwest {
 
 #[async_trait]
 impl Session for Reqwest {
+    #[must_use]
+    fn api(&self) -> &telegram::APIServer {
+        &self.api
+    }
+
     async fn send_request<Client, T>(
         &self,
         bot: &Bot<Client>,

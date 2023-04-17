@@ -1,5 +1,5 @@
 use crate::{
-    client::Bot,
+    client::{telegram::APIServer, Bot},
     error::{SessionErrorKind, TelegramErrorKind},
     methods::{Response, TelegramMethod},
 };
@@ -59,11 +59,15 @@ impl ClientResponse {
 
 #[async_trait]
 pub trait Session: Send + Sync {
+    /// Get configuration of Telegram Bot API server endpoints and local mode
+    #[must_use]
+    fn api(&self) -> &APIServer;
+
     /// Makes a request to Telegram API
     /// # Arguments
     /// * `bot` - Bot instance for building request, it is mainly used for getting bot token
     /// * `method` - Telegram method for building request
-    /// * `timeout` - *Optional*. Request timeout.
+    /// * `timeout` - Request timeout.
     /// If `None`, then client timeout will be used, which is [`DEFAULT_TIMEOUT`] by default.
     /// # Errors
     /// If the request cannot be send or decoded
@@ -166,7 +170,7 @@ pub trait Session: Send + Sync {
     /// # Arguments
     /// * `bot` - Bot instance for building and sending request, it is mainly used for getting bot token
     /// * `method` - Telegram method for building and sending request
-    /// * `timeout` - *Optional*. Request timeout.
+    /// * `timeout` - Request timeout.
     /// If `None`, then client timeout will be used, which is [`DEFAULT_TIMEOUT`] by default.
     /// # Errors
     /// - If the request cannot be send or decoded
@@ -205,7 +209,7 @@ pub trait Session: Send + Sync {
     /// # Arguments
     /// * `bot` - Bot instance for building and sending request, it is mainly used for getting bot token
     /// * `method` - Telegram method for building and sending request
-    /// * `timeout` - *Optional*. Request timeout.
+    /// * `timeout` - Request timeout.
     /// If `None`, then client timeout will be used, which is [`DEFAULT_TIMEOUT`] by default.
     /// # Errors
     /// - If the request cannot be send or decoded
