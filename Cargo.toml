@@ -56,6 +56,10 @@ required-features = ["memory-storage"]
 name = "other_client"
 required-features = []
 
+[[example]]
+name = "local_server"
+required-features = []
+
 [[bench]]
 name = "memory_storage"
 harness = false
