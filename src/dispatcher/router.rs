@@ -205,15 +205,16 @@ where
     ///
     /// This method will register all middlewares of router,
     /// which registered before call this method, in sub router
-    pub fn include_router(&mut self, mut router: Router<Client>) {
+    pub fn include_router(&mut self, mut router: Router<Client>) -> &mut Self {
         self.register_inner_middlewares(&mut router);
 
         self.sub_routers.push(router);
+        self
     }
 
     /// Alias to [`Router::include_router`] method
-    pub fn include(&mut self, router: Router<Client>) {
-        self.include_router(router);
+    pub fn include(&mut self, router: Router<Client>) -> &mut Self {
+        self.include_router(router)
     }
 }
 
@@ -285,8 +286,10 @@ impl<Client> Router<Client> {
     #[must_use]
     pub fn resolve_used_update_types_with_skip(
         &self,
-        skip_updates: &[UpdateType],
+        skip_updates: impl IntoIterator<Item = UpdateType>,
     ) -> Vec<UpdateType> {
+        let skip_updates = skip_updates.into_iter().collect::<HashSet<_>>();
+
         self.resolve_used_update_types()
             .into_iter()
             .filter(|update_type| !skip_updates.contains(update_type))
@@ -1111,24 +1114,28 @@ mod tests {
         router.message.inner_middlewares.register(inner_middleware);
         router.message.outer_middlewares.register(outer_middleware);
 
-        router.include({
-            let mut router = Router::new("sub1");
-            router.include(Router::new("sub1.1"));
-            router.include(Router::new("sub1.2"));
-            router
-        });
-        router.include({
-            let mut router = Router::new("sub2");
-            router.include(Router::new("sub2.1"));
-            router.include(Router::new("sub2.2"));
-            router
-        });
-        router.include({
-            let mut router = Router::new("sub3");
-            router.include(Router::new("sub3.1"));
-            router.include(Router::new("sub3.2"));
-            router
-        });
+        router
+            .include({
+                let mut router = Router::new("sub1");
+                router
+                    .include(Router::new("sub1.1"))
+                    .include(Router::new("sub1.2"));
+                router
+            })
+            .include({
+                let mut router = Router::new("sub2");
+                router
+                    .include(Router::new("sub2.1"))
+                    .include(Router::new("sub2.2"));
+                router
+            })
+            .include({
+                let mut router = Router::new("sub3");
+                router
+                    .include(Router::new("sub3.1"))
+                    .include(Router::new("sub3.2"));
+                router
+            });
 
         assert_eq!(router.sub_routers.len(), 3);
         assert_eq!(router.router_name, "main");
@@ -1363,7 +1370,7 @@ mod tests {
         assert!(update_types.contains(&UpdateType::EditedMessage));
         assert!(update_types.contains(&UpdateType::ChannelPost));
 
-        let update_types = router.resolve_used_update_types_with_skip(&[UpdateType::Message]);
+        let update_types = router.resolve_used_update_types_with_skip([UpdateType::Message]);
 
         assert_eq!(update_types.len(), 2);
         assert!(update_types.contains(&UpdateType::EditedMessage));

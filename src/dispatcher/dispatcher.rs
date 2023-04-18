@@ -22,7 +22,7 @@ use tokio::{
 };
 
 /// Maximum size of the channel for listener updates
-const GET_UPDATES_SIZE: usize = 100;
+const GET_UPDATES_SIZE: i64 = 100;
 /// Default timeout for long polling
 const DEFAULT_POLLING_TIMEOUT: i64 = 30;
 
@@ -323,24 +323,31 @@ where
     /// We use exponential backoff algorithm for handling server-side errors.
     /// # Errors
     /// If sender channel is disconnected
-    async fn listen_updates(
+    async fn listen_updates<T, I>(
         bot: Arc<Bot<Client>>,
         polling_timeout: Option<i64>,
-        allowed_updates: Vec<String>,
+        allowed_updates: I,
         update_sender: Sender<Box<Update>>,
         mut backoff: ExponentialBackoff<SystemClock>,
-    ) -> Result<(), ListenerError<Box<Update>>> {
+    ) -> Result<(), ListenerError<Box<Update>>>
+    where
+        T: Into<String>,
+        I: IntoIterator<Item = T>,
+    {
         let GetUpdates {
             mut offset,
             limit,
             timeout,
             allowed_updates,
-        } = GetUpdates {
-            offset: None,
-            limit: Some(GET_UPDATES_SIZE.try_into().unwrap()),
-            timeout: polling_timeout,
-            allowed_updates: Some(allowed_updates),
-        };
+        } = GetUpdates::new()
+            .limit(GET_UPDATES_SIZE)
+            .timeout_option(polling_timeout)
+            .allowed_updates(
+                allowed_updates
+                    .into_iter()
+                    .map(Into::into)
+                    .collect::<Vec<_>>(),
+            );
 
         // Flag for handling connection errors.
         // If it's true, we will use exponential backoff algorithm to next backoff.
@@ -403,23 +410,18 @@ where
     /// Wait for exit signal, which will stop polling process.
     /// # Panics
     /// If failed to register exit signal handlers
-    async fn polling(
-        self: Arc<Self>,
-        bot: Bot<Client>,
-        polling_timeout: Option<i64>,
-        allowed_updates: Vec<String>,
-        backoff: ExponentialBackoff<SystemClock>,
-    ) -> PollingError {
+    async fn polling(self: Arc<Self>, bot: Bot<Client>) -> PollingError {
         let bot = Arc::new(bot);
 
-        let (sender_update, mut receiver_update) = mpsc::channel(GET_UPDATES_SIZE);
+        let (sender_update, mut receiver_update) =
+            mpsc::channel(GET_UPDATES_SIZE.try_into().unwrap());
 
         let listen_updates_handle = tokio::spawn(Self::listen_updates(
             Arc::clone(&bot),
-            polling_timeout,
-            allowed_updates,
+            self.polling_timeout,
+            self.allowed_updates.clone(),
             sender_update,
-            backoff,
+            self.backoff.clone(),
         ));
 
         let receiver_updates_handle = tokio::spawn(async move {
@@ -535,12 +537,7 @@ where
             .map(|bot| {
                 let dispatcher = Arc::clone(&self);
 
-                tokio::spawn(dispatcher.polling(
-                    bot,
-                    self.polling_timeout,
-                    self.allowed_updates.clone(),
-                    self.backoff.clone(),
-                ))
+                tokio::spawn(dispatcher.polling(bot))
             })
             .collect::<Vec<_>>();
 
