@@ -10,7 +10,7 @@ use async_trait::async_trait;
 use std::{future::Future, pin::Pin, sync::Arc};
 
 /// List of middlewares
-pub type Middlewares<Client> = Vec<Arc<Box<dyn Middleware<Client>>>>;
+pub type Middlewares<Client> = Vec<Arc<dyn Middleware<Client>>>;
 /// The middleware chain and the handler at the end
 pub type Next<Client> = Box<
     dyn Fn(
@@ -51,7 +51,7 @@ pub trait Middleware<Client>: Send + Sync {
 }
 
 #[async_trait]
-impl<T, Client> Middleware<Client> for Arc<T>
+impl<T: ?Sized, Client> Middleware<Client> for Arc<T>
 where
     T: Middleware<Client>,
     Client: Send + Sync + 'static,
@@ -86,7 +86,7 @@ pub fn wrap_handler_and_middlewares_to_next<T, Client>(
 ) -> Next<Client>
 where
     Client: Send + Sync + 'static,
-    T: IntoIterator<Item = Arc<Box<dyn Middleware<Client>>>> + Send + Sync + 'static,
+    T: IntoIterator<Item = Arc<dyn Middleware<Client>>> + Send + Sync + 'static,
     T::IntoIter: Clone + Send + Sync,
 {
     let middlewares = middlewares.into_iter();

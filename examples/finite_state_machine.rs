@@ -21,7 +21,7 @@
 //! RUST_LOG=info BOT_TOKEN=your_bot_token cargo run --example finite_state_machine
 //! ```
 
-use std::{borrow::Cow, collections::HashMap, vec};
+use std::{borrow::Cow, collections::HashMap};
 use telers::{
     client::Bot,
     dispatcher::{
@@ -187,15 +187,16 @@ async fn main() {
 
     router
         .message
-        .register(start_handler::<MemoryStorage>, vec![StateFilter::none()]);
-    router.message.register(
-        name_handler::<MemoryStorage>,
-        vec![StateFilter::one(State::Name)],
-    );
-    router.message.register(
-        language_handler::<MemoryStorage>,
-        vec![StateFilter::one(State::Language)],
-    );
+        .register(start_handler::<MemoryStorage>)
+        .filter(StateFilter::none());
+    router
+        .message
+        .register(name_handler::<MemoryStorage>)
+        .filter(StateFilter::one(State::Name));
+    router
+        .message
+        .register(language_handler::<MemoryStorage>)
+        .filter(StateFilter::one(State::Language));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router)

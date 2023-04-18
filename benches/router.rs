@@ -33,7 +33,7 @@ fn propagate_event_benchmark(c: &mut Criterion) {
             let mut router = Router::<Reqwest>::default();
             router
                 .message
-                .register_no_filters(|| async { Ok(EventReturn::Finish) });
+                .register(|| async { Ok(EventReturn::Finish) });
 
             let router_service = router.to_service_provider_default().unwrap();
 
@@ -60,11 +60,11 @@ fn propagate_event_benchmark(c: &mut Criterion) {
             let mut router = Router::<Reqwest>::default();
             router
                 .message
-                .register_no_filters(|| async { Ok(EventReturn::Finish) });
+                .register(|| async { Ok(EventReturn::Finish) });
             let mut sub_router = Router::<Reqwest>::default();
             sub_router
                 .message
-                .register_no_filters(|| async { Ok(EventReturn::Finish) });
+                .register(|| async { Ok(EventReturn::Finish) });
             router.include(sub_router);
 
             let router_service = router.to_service_provider_default().unwrap();
@@ -92,7 +92,7 @@ fn propagate_event_benchmark(c: &mut Criterion) {
             let mut router = Router::<Reqwest>::default();
             router
                 .message
-                .register_no_filters(|| async { Ok(EventReturn::Finish) });
+                .register(|| async { Ok(EventReturn::Finish) });
 
             let router_service = router.to_service_provider_default().unwrap();
 
@@ -119,7 +119,7 @@ fn propagate_event_benchmark(c: &mut Criterion) {
             let mut router = Router::<Reqwest>::default();
             router
                 .message
-                .register_no_filters(|| async { Ok(EventReturn::Finish) });
+                .register(|| async { Ok(EventReturn::Finish) });
             router
                 .message
                 .inner_middlewares
@@ -153,7 +153,7 @@ fn propagate_event_benchmark(c: &mut Criterion) {
             let mut router = Router::<Reqwest>::default();
             router
                 .message
-                .register_no_filters(|| async { Ok(EventReturn::Finish) });
+                .register(|| async { Ok(EventReturn::Finish) });
             router
                 .message
                 .inner_middlewares
@@ -161,7 +161,7 @@ fn propagate_event_benchmark(c: &mut Criterion) {
             let mut sub_router = Router::<Reqwest>::default();
             sub_router
                 .message
-                .register_no_filters(|| async { Ok(EventReturn::Finish) });
+                .register(|| async { Ok(EventReturn::Finish) });
             router.include(sub_router);
 
             let router_service = router.to_service_provider_default().unwrap();

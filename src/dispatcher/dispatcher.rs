@@ -632,7 +632,7 @@ mod tests {
         let mut router = Router::new("main");
         router
             .message
-            .register_no_filters(|| async { Ok(EventReturn::Finish) });
+            .register(|| async { Ok(EventReturn::Finish) });
 
         let dispatcher = Dispatcher::builder()
             .main_router(router)

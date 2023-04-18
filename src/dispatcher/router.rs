@@ -92,10 +92,8 @@ impl<Client> Response<Client> {
 
 /// Router can route update, and it nested update types like messages, callback query, polls and all other event types.
 /// Event handlers can be registered in observer by following methods:
-/// - By observer method - [`router.<event_type>.register(handler, <filters, ...>)`
-/// - By observer method - [`router.<event_type>.on(handler, <filters, ...>)`
-/// - By observer method (if without filters) - [`router.<event_type>.register_no_filters(handler)`
-/// - By observer method (if without filters) - [`router.<event_type>.on_no_filters(handler)`
+/// - By observer method - [`router.{event_type}.register(handler).filter(...).filters(...)`]
+/// - By observer method - [`router.{event_type}.on(handler).filter(...).filters(...)`]
 pub struct Router<Client> {
     /// Can be used for logging and debugging
     pub router_name: &'static str,
@@ -161,34 +159,6 @@ where
             shutdown: SimpleObserver::new(SimpleObserverName::Shutdown.as_str()),
         }
     }
-}
-
-impl<Client> Router<Client> {
-    #[must_use]
-    pub fn telegram_observers(&self) -> Vec<&TelegramObserver<Client>> {
-        vec![
-            &self.message,
-            &self.edited_message,
-            &self.channel_post,
-            &self.edited_channel_post,
-            &self.inline_query,
-            &self.chosen_inline_result,
-            &self.callback_query,
-            &self.shipping_query,
-            &self.pre_checkout_query,
-            &self.poll,
-            &self.poll_answer,
-            &self.my_chat_member,
-            &self.chat_member,
-            &self.chat_join_request,
-            &self.update,
-        ]
-    }
-
-    #[must_use]
-    pub fn event_observers(&self) -> Vec<&SimpleObserver> {
-        vec![&self.startup, &self.shutdown]
-    }
 
     /// Register inner middlewares in router and sub routers of the router
     fn register_inner_middlewares(&self, router: &mut Router<Client>) {
@@ -197,7 +167,7 @@ impl<Client> Router<Client> {
             ($observer:ident) => {
                 let mut index = 0;
                 for middleware in &self.$observer.inner_middlewares.middlewares {
-                    router.$observer.inner_middlewares.register_wrapper_at_position(index, Arc::clone(middleware));
+                    router.$observer.inner_middlewares.register_at_position(index, Arc::clone(middleware));
                     index += 1;
                 }
             };
@@ -244,6 +214,34 @@ impl<Client> Router<Client> {
     /// Alias to [`Router::include_router`] method
     pub fn include(&mut self, router: Router<Client>) {
         self.include_router(router);
+    }
+}
+
+impl<Client> Router<Client> {
+    #[must_use]
+    pub fn telegram_observers(&self) -> Vec<&TelegramObserver<Client>> {
+        vec![
+            &self.message,
+            &self.edited_message,
+            &self.channel_post,
+            &self.edited_channel_post,
+            &self.inline_query,
+            &self.chosen_inline_result,
+            &self.callback_query,
+            &self.shipping_query,
+            &self.pre_checkout_query,
+            &self.poll,
+            &self.poll_answer,
+            &self.my_chat_member,
+            &self.chat_member,
+            &self.chat_join_request,
+            &self.update,
+        ]
+    }
+
+    #[must_use]
+    pub fn event_observers(&self) -> Vec<&SimpleObserver> {
+        vec![&self.startup, &self.shutdown]
     }
 
     /// Resolve registered update types
@@ -426,7 +424,7 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
             message: self
                 .message
                 .into_iter()
-                .chain(Some(Arc::new(Box::new(val) as Box<_>)))
+                .chain(Some(Arc::new(val) as _))
                 .collect(),
             ..self
         }
@@ -441,7 +439,7 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
             edited_message: self
                 .edited_message
                 .into_iter()
-                .chain(Some(Arc::new(Box::new(val) as Box<_>)))
+                .chain(Some(Arc::new(val) as _))
                 .collect(),
             ..self
         }
@@ -456,7 +454,7 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
             channel_post: self
                 .channel_post
                 .into_iter()
-                .chain(Some(Arc::new(Box::new(val) as Box<_>)))
+                .chain(Some(Arc::new(val) as _))
                 .collect(),
             ..self
         }
@@ -471,7 +469,7 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
             edited_channel_post: self
                 .edited_channel_post
                 .into_iter()
-                .chain(Some(Arc::new(Box::new(val) as Box<_>)))
+                .chain(Some(Arc::new(val) as _))
                 .collect(),
             ..self
         }
@@ -486,7 +484,7 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
             inline_query: self
                 .inline_query
                 .into_iter()
-                .chain(Some(Arc::new(Box::new(val) as Box<_>)))
+                .chain(Some(Arc::new(val) as _))
                 .collect(),
             ..self
         }
@@ -501,7 +499,7 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
             chosen_inline_result: self
                 .chosen_inline_result
                 .into_iter()
-                .chain(Some(Arc::new(Box::new(val) as Box<_>)))
+                .chain(Some(Arc::new(val) as _))
                 .collect(),
             ..self
         }
@@ -516,7 +514,7 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
             callback_query: self
                 .callback_query
                 .into_iter()
-                .chain(Some(Arc::new(Box::new(val) as Box<_>)))
+                .chain(Some(Arc::new(val) as _))
                 .collect(),
             ..self
         }
@@ -531,7 +529,7 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
             shipping_query: self
                 .shipping_query
                 .into_iter()
-                .chain(Some(Arc::new(Box::new(val) as Box<_>)))
+                .chain(Some(Arc::new(val) as _))
                 .collect(),
             ..self
         }
@@ -546,7 +544,7 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
             pre_checkout_query: self
                 .pre_checkout_query
                 .into_iter()
-                .chain(Some(Arc::new(Box::new(val) as Box<_>)))
+                .chain(Some(Arc::new(val) as _))
                 .collect(),
             ..self
         }
@@ -561,7 +559,7 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
             poll: self
                 .poll
                 .into_iter()
-                .chain(Some(Arc::new(Box::new(val) as Box<_>)))
+                .chain(Some(Arc::new(val) as _))
                 .collect(),
             ..self
         }
@@ -576,7 +574,7 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
             poll_answer: self
                 .poll_answer
                 .into_iter()
-                .chain(Some(Arc::new(Box::new(val) as Box<_>)))
+                .chain(Some(Arc::new(val) as _))
                 .collect(),
             ..self
         }
@@ -591,7 +589,7 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
             my_chat_member: self
                 .my_chat_member
                 .into_iter()
-                .chain(Some(Arc::new(Box::new(val) as Box<_>)))
+                .chain(Some(Arc::new(val) as _))
                 .collect(),
             ..self
         }
@@ -606,7 +604,7 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
             chat_member: self
                 .chat_member
                 .into_iter()
-                .chain(Some(Arc::new(Box::new(val) as Box<_>)))
+                .chain(Some(Arc::new(val) as _))
                 .collect(),
             ..self
         }
@@ -621,7 +619,7 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
             chat_join_request: self
                 .chat_join_request
                 .into_iter()
-                .chain(Some(Arc::new(Box::new(val) as Box<_>)))
+                .chain(Some(Arc::new(val) as _))
                 .collect(),
             ..self
         }
@@ -636,7 +634,7 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
             update: self
                 .update
                 .into_iter()
-                .chain(Some(Arc::new(Box::new(val) as Box<_>)))
+                .chain(Some(Arc::new(val) as _))
                 .collect(),
             ..self
         }
@@ -717,7 +715,10 @@ where
     }
 }
 
-impl<Client> ToServiceProvider for Router<Client> {
+impl<Client> ToServiceProvider for Router<Client>
+where
+    Client: Send + Sync + 'static,
+{
     type Config = Config<Client>;
     type ServiceProvider = RouterInner<Client>;
     type InitError = ();
@@ -733,7 +734,7 @@ impl<Client> ToServiceProvider for Router<Client> {
             ($observer:ident) => {
                 let mut index = 0;
                 for middleware in &config.outer_middlewares.$observer {
-                    self.$observer.outer_middlewares.register_wrapper_at_position(index, Arc::clone(middleware));
+                    self.$observer.outer_middlewares.register_at_position(index, Arc::clone(middleware));
                     index += 1;
                 }
             };
@@ -1182,21 +1183,21 @@ mod tests {
 
         let mut router = Router::<Reqwest>::new("main");
         // Telegram event observers
-        router.message.register_no_filters(telegram_handler);
-        router.edited_message.register_no_filters(telegram_handler);
-        router.channel_post.register_no_filters(telegram_handler);
-        router.edited_channel_post.register_no_filters(telegram_handler);
-        router.inline_query.register_no_filters(telegram_handler);
-        router.chosen_inline_result.register_no_filters(telegram_handler);
-        router.callback_query.register_no_filters(telegram_handler);
-        router.shipping_query.register_no_filters(telegram_handler);
-        router.pre_checkout_query.register_no_filters(telegram_handler);
-        router.poll.register_no_filters(telegram_handler);
-        router.poll_answer.register_no_filters(telegram_handler);
-        router.my_chat_member.register_no_filters(telegram_handler);
-        router.chat_member.register_no_filters(telegram_handler);
-        router.chat_join_request.register_no_filters(telegram_handler);
-        router.update.register_no_filters(telegram_handler);
+        router.message.register(telegram_handler);
+        router.edited_message.register(telegram_handler);
+        router.channel_post.register(telegram_handler);
+        router.edited_channel_post.register(telegram_handler);
+        router.inline_query.register(telegram_handler);
+        router.chosen_inline_result.register(telegram_handler);
+        router.callback_query.register(telegram_handler);
+        router.shipping_query.register(telegram_handler);
+        router.pre_checkout_query.register(telegram_handler);
+        router.poll.register(telegram_handler);
+        router.poll_answer.register(telegram_handler);
+        router.my_chat_member.register(telegram_handler);
+        router.chat_member.register(telegram_handler);
+        router.chat_join_request.register(telegram_handler);
+        router.update.register(telegram_handler);
         // Event observers
         router.startup.register(simple_handler, ());
         router.shutdown.register(simple_handler, ());
@@ -1243,16 +1244,14 @@ mod tests {
 
                 Ok((request, EventReturn::Finish))
             });
-        router
-            .message
-            .register_no_filters(|context: Arc<Context>| async move {
-                assert_eq!(
-                    context.get("test").unwrap().downcast_ref::<&str>().unwrap(),
-                    &"test"
-                );
+        router.message.register(|context: Arc<Context>| async move {
+            assert_eq!(
+                context.get("test").unwrap().downcast_ref::<&str>().unwrap(),
+                &"test"
+            );
 
-                Ok(EventReturn::Finish)
-            });
+            Ok(EventReturn::Finish)
+        });
 
         let router_service = router.to_service_provider_default().unwrap();
 
@@ -1286,7 +1285,7 @@ mod tests {
         router.message.filter(Command::default());
         router
             .message
-            .register_no_filters(|| async { Ok(EventReturn::Finish) });
+            .register(|| async { Ok(EventReturn::Finish) });
 
         let router_service = router.to_service_provider_default().unwrap();
 
@@ -1304,10 +1303,10 @@ mod tests {
         let mut router = Router::new("test3");
         router
             .callback_query
-            .register_no_filters(|| async { Ok(EventReturn::Skip) });
+            .register(|| async { Ok(EventReturn::Skip) });
         router
             .callback_query
-            .register_no_filters(|| async { Ok(EventReturn::Finish) });
+            .register(|| async { Ok(EventReturn::Finish) });
 
         let router_service = router.to_service_provider_default().unwrap();
 
@@ -1333,10 +1332,10 @@ mod tests {
 
         router
             .message
-            .register_no_filters(|| async { Ok(EventReturn::Finish) });
+            .register(|| async { Ok(EventReturn::Finish) });
         router
             .edited_message
-            .register_no_filters(|| async { Ok(EventReturn::Finish) });
+            .register(|| async { Ok(EventReturn::Finish) });
 
         let update_types = router.resolve_used_update_types();
 
@@ -1348,10 +1347,10 @@ mod tests {
 
         router2
             .message
-            .register_no_filters(|| async { Ok(EventReturn::Finish) });
+            .register(|| async { Ok(EventReturn::Finish) });
         router2
             .channel_post
-            .register_no_filters(|| async { Ok(EventReturn::Finish) });
+            .register(|| async { Ok(EventReturn::Finish) });
 
         assert_eq!(router2.resolve_used_update_types().len(), 2);
 

@@ -139,7 +139,7 @@ where
 }
 
 #[async_trait]
-impl<S> Storage for Arc<S>
+impl<S: ?Sized> Storage for Arc<S>
 where
     S: Storage + Send + Sync,
 {

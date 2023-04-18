@@ -36,6 +36,15 @@ pub trait KeyBuilder: Send + Sync {
     fn build(&self, key: &StorageKey, part: Part) -> String;
 }
 
+impl<T: ?Sized> KeyBuilder for Arc<T>
+where
+    T: KeyBuilder,
+{
+    fn build(&self, key: &StorageKey, part: Part) -> String {
+        T::build(self, key, part)
+    }
+}
+
 #[derive(Debug)]
 pub struct DefaultKeyBuilder {
     prefix: &'static str,
@@ -110,7 +119,7 @@ impl KeyBuilder for DefaultKeyBuilder {
 pub struct Redis {
     client: Arc<Mutex<Client>>,
     /// Key builder for redis keys, used to build redis keys for specified key and part
-    key_builder: Arc<Box<dyn KeyBuilder>>,
+    key_builder: Arc<dyn KeyBuilder>,
     /// TTL for state, if [`None`] then state will not be deleted
     state_ttl: Option<u64>,
     /// TTL for data, if [`None`] then data will not be deleted
@@ -122,7 +131,7 @@ impl Redis {
     pub fn new(client: Client) -> Self {
         Self {
             client: Arc::new(Mutex::new(client)),
-            key_builder: Arc::new(Box::<DefaultKeyBuilder>::default()),
+            key_builder: Arc::<DefaultKeyBuilder>::default(),
             state_ttl: None,
             data_ttl: None,
         }
@@ -131,10 +140,10 @@ impl Redis {
     #[must_use]
     pub fn key_builder<T>(self, key_builder: T) -> Self
     where
-        T: Into<Arc<Box<dyn KeyBuilder>>>,
+        T: KeyBuilder + 'static,
     {
         Self {
-            key_builder: key_builder.into(),
+            key_builder: Arc::new(key_builder),
             ..self
         }
     }

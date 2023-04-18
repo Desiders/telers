@@ -15,7 +15,7 @@ pub trait Service<Req> {
     fn call(&self, request: Req) -> Self::Future;
 }
 
-impl<'a, S, Req> Service<Req> for &'a S
+impl<'a, S: ?Sized, Req> Service<Req> for &'a S
 where
     S: Service<Req> + 'a,
 {
@@ -28,9 +28,9 @@ where
     }
 }
 
-impl<S, Req> Service<Req> for Box<S>
+impl<S: ?Sized, Req> Service<Req> for Box<S>
 where
-    S: Service<Req> + ?Sized,
+    S: Service<Req>,
 {
     type Response = S::Response;
     type Error = S::Error;
@@ -67,7 +67,7 @@ pub trait ServiceFactory<Req> {
 /// It is used to mark service containers, which will be used to provide [`Service`]s.
 pub trait ServiceProvider {}
 
-impl<S> ServiceProvider for Arc<S> where S: ServiceProvider {}
+impl<S: ?Sized> ServiceProvider for Arc<S> where S: ServiceProvider {}
 
 /// A trait that allows to convert structures, that contains [`ServiceFactory`]s, to [`ServiceProvider`],
 /// which will contains [`Service`]s instead of [`ServiceFactory`]s.

@@ -69,34 +69,14 @@ pub trait Handler<Args> {
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObject<Client> {
     service: BoxedHandlerServiceFactory<Client>,
-    pub filters: Vec<Arc<Box<dyn Filter<Client>>>>,
+    pub(crate) filters: Vec<Arc<dyn Filter<Client>>>,
 }
 
 impl<Client> HandlerObject<Client>
 where
     Client: Send + Sync + 'static,
 {
-    /// Create a new handler with filters
-    pub fn new<H, Args, F>(handler: H, filters: Vec<F>) -> Self
-    where
-        H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send,
-        H::Output: Into<Result>,
-        Args: FromEventAndContext<Client> + Send,
-        Args::Error: Send,
-        F: Filter<Client> + 'static,
-    {
-        Self {
-            service: handler_service(handler),
-            filters: filters
-                .into_iter()
-                .map(|filter| Arc::new(Box::new(filter) as _))
-                .collect(),
-        }
-    }
-
-    /// Create a new handler without filters
-    pub fn new_no_filters<H, Args>(handler: H) -> Self
+    pub fn new<H, Args>(handler: H) -> Self
     where
         H: Handler<Args> + Clone + Send + Sync + 'static,
         H::Future: Send,
@@ -112,18 +92,22 @@ where
 }
 
 impl<Client> HandlerObject<Client> {
-    /// Register filter for the handler
-    pub fn filter<F: Filter<Client> + 'static>(&mut self, filter: F) {
-        self.filters.push(Arc::new(Box::new(filter)));
+    pub fn filter<T>(&mut self, val: T) -> &mut Self
+    where
+        T: Filter<Client> + 'static,
+    {
+        self.filters.push(Arc::new(val));
+        self
     }
 
-    /// Register filters for the handler
-    pub fn filters<F: Filter<Client> + 'static>(&mut self, filters: Vec<F>) {
-        self.filters.extend(
-            filters
-                .into_iter()
-                .map(|filter| Arc::new(Box::new(filter) as _)),
-        );
+    pub fn filters<T, I>(&mut self, val: I) -> &mut Self
+    where
+        T: Filter<Client> + 'static,
+        I: IntoIterator<Item = T>,
+    {
+        self.filters
+            .extend(val.into_iter().map(|val| Arc::new(val) as _));
+        self
     }
 }
 
@@ -148,10 +132,13 @@ impl<Client> ServiceFactory<Request<Client>> for HandlerObject<Client> {
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObjectService<Client> {
     pub(crate) service: Arc<BoxedHandlerService<Client>>,
-    filters: Vec<Arc<Box<dyn Filter<Client>>>>,
+    filters: Vec<Arc<dyn Filter<Client>>>,
 }
 
-impl<Client> HandlerObjectService<Client> {
+impl<Client> HandlerObjectService<Client>
+where
+    Client: Sync,
+{
     /// Check if the handler pass the filters.
     /// If the handler pass all them, it will be called.
     pub async fn check(&self, request: &Request<Client>) -> bool {
@@ -289,21 +276,21 @@ mod tests {
         let filter = Command::default();
 
         let mut handler_object =
-            HandlerObject::<Reqwest>::new_no_filters(|| async { Ok(EventReturn::Finish) });
+            HandlerObject::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
         assert!(handler_object.filters.is_empty());
 
         handler_object.filter(filter.clone());
         assert_eq!(handler_object.filters.len(), 1);
 
-        let handler_object =
-            HandlerObject::<Reqwest>::new(|| async { Ok(EventReturn::Finish) }, vec![filter]);
+        let mut handler_object =
+            HandlerObject::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
+        handler_object.filter(filter);
         assert_eq!(handler_object.filters.len(), 1);
     }
 
     #[tokio::test]
     async fn test_handler_object_service() {
-        let handler_object =
-            HandlerObject::<Reqwest>::new_no_filters(|| async { Ok(EventReturn::Finish) });
+        let handler_object = HandlerObject::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
         let handler_object_service = handler_object.new_service(()).unwrap();
 
         let request = Request::new(Bot::<Reqwest>::default(), Update::default(), Context::new());

@@ -74,22 +74,20 @@ mod tests {
             .update
             .outer_middlewares
             .register(UserContext::default());
-        router
-            .message
-            .register_no_filters(|context: Arc<Context>| async move {
-                context
-                    .get("event_user")
-                    .unwrap()
-                    .downcast_ref::<User>()
-                    .unwrap();
-                context
-                    .get("event_chat")
-                    .unwrap()
-                    .downcast_ref::<Chat>()
-                    .unwrap();
+        router.message.register(|context: Arc<Context>| async move {
+            context
+                .get("event_user")
+                .unwrap()
+                .downcast_ref::<User>()
+                .unwrap();
+            context
+                .get("event_chat")
+                .unwrap()
+                .downcast_ref::<Chat>()
+                .unwrap();
 
-                Ok(EventReturn::default())
-            });
+            Ok(EventReturn::default())
+        });
 
         let router_service = router.to_service_provider_default().unwrap();
 
@@ -112,24 +110,22 @@ mod tests {
             .update
             .outer_middlewares
             .register(UserContext::default());
-        router
-            .message
-            .register_no_filters(|context: Arc<Context>| async move {
-                // This should panic, because update doesn't contain user
-                context
-                    .get("event_user")
-                    .unwrap()
-                    .downcast_ref::<User>()
-                    .unwrap();
-                // This should panic, because update doesn't contain chat
-                context
-                    .get("event_chat")
-                    .unwrap()
-                    .downcast_ref::<Chat>()
-                    .unwrap();
+        router.message.register(|context: Arc<Context>| async move {
+            // This should panic, because update doesn't contain user
+            context
+                .get("event_user")
+                .unwrap()
+                .downcast_ref::<User>()
+                .unwrap();
+            // This should panic, because update doesn't contain chat
+            context
+                .get("event_chat")
+                .unwrap()
+                .downcast_ref::<Chat>()
+                .unwrap();
 
-                Ok(EventReturn::default())
-            });
+            Ok(EventReturn::default())
+        });
 
         let router_service = router.to_service_provider_default().unwrap();
 

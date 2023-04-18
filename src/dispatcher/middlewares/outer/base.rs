@@ -7,7 +7,7 @@ use async_trait::async_trait;
 use std::{future::Future, sync::Arc};
 
 /// List of middlewares
-pub type Middlewares<Client> = Vec<Arc<Box<dyn Middleware<Client>>>>;
+pub type Middlewares<Client> = Vec<Arc<dyn Middleware<Client>>>;
 /// Response from middleware.
 /// First element is/isn't updated [`RouterRequest`] and second is [`EventReturn`] for the manipulate processing event,
 /// see [`EventReturn`] for more info.
@@ -35,7 +35,7 @@ pub trait Middleware<Client>: Send + Sync {
 }
 
 #[async_trait]
-impl<T, Client> Middleware<Client> for Arc<T>
+impl<T: ?Sized, Client> Middleware<Client> for Arc<T>
 where
     T: Middleware<Client>,
     Client: Send + Sync + 'static,

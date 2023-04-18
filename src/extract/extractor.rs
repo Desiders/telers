@@ -60,7 +60,10 @@ where
 /// To be able to use [`Box`] as handler argument
 /// This implementation will return [`Box(value)`] if extraction was successful, and [`Err(error)`] otherwise
 /// Useful for arguments with dynamic size
-impl<Client, T: FromEventAndContext<Client>> FromEventAndContext<Client> for Box<T> {
+impl<Client, T: ?Sized> FromEventAndContext<Client> for Box<T>
+where
+    T: FromEventAndContext<Client>,
+{
     type Error = T::Error;
 
     fn extract(
@@ -75,7 +78,10 @@ impl<Client, T: FromEventAndContext<Client>> FromEventAndContext<Client> for Box
 /// To be able to use [`Pin<Box>`] as handler argument
 /// This implementation will return [`Pin(value)`] if extraction was successful, and [`Err(error)`] otherwise
 /// Useful for arguments with dynamic size, which should be pinned
-impl<Client, T: FromEventAndContext<Client>> FromEventAndContext<Client> for Pin<Box<T>> {
+impl<Client, T: ?Sized> FromEventAndContext<Client> for Pin<Box<T>>
+where
+    T: FromEventAndContext<Client>,
+{
     type Error = T::Error;
 
     fn extract(
