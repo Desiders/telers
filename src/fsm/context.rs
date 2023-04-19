@@ -55,7 +55,7 @@ where
     /// State, if state is no exists, then [`None`] will be return
     /// # Errors
     /// If storage error occurs, when get state
-    pub async fn get_state(&self) -> Result<Option<Cow<'static, str>>, S::Error> {
+    pub async fn get_state(&self) -> Result<Option<String>, S::Error> {
         self.storage.get_state(&self.key).await
     }
 
@@ -79,15 +79,53 @@ where
         self.storage.set_data(&self.key, data).await
     }
 
+    /// Set value to the data for value key
+    /// # Arguments
+    /// * `value_key` - Specified value key to set value to data
+    /// * `value` - Value for value key
+    /// # Errors
+    /// If storage error occurs, when set value to data
+    pub async fn set_value<Key, Value>(&self, value_key: Key, value: Value) -> Result<(), S::Error>
+    where
+        Value: Serialize + Send,
+        Key: Serialize + Into<Cow<'static, str>> + Send,
+    {
+        self.storage.set_value(&self.key, value_key, value).await
+    }
+
     /// Get current data
     /// # Returns
     /// Data, if data is no exists, then empty [`HashMap`] will be return
     /// # Errors
     /// If storage error occurs, when get data
-    pub async fn get_data<Data>(&self) -> Result<HashMap<Cow<'static, str>, Data>, S::Error>
+    pub async fn get_data<Data>(&self) -> Result<HashMap<String, Data>, S::Error>
     where
         Data: DeserializeOwned,
     {
         self.storage.get_data(&self.key).await
+    }
+
+    /// Get value from data for value key
+    /// # Arguments
+    /// * `value_key` - Specified value key to get value from data
+    /// # Returns
+    /// Value, if value is no exists, then [`None`] will be return
+    /// # Errors
+    /// If storage error occurs, when get value from data
+    pub async fn get_value<Key, Value>(&self, value_key: Key) -> Result<Option<Value>, S::Error>
+    where
+        Value: DeserializeOwned,
+        Key: Into<Cow<'static, str>> + Send,
+    {
+        self.storage.get_value(&self.key, value_key).await
+    }
+
+    /// Finish current context by remove state and data.
+    /// This method is just shortcut for [`Context::remove_state`] and [`Context::remove_data`] methods
+    /// # Errors
+    /// If storage error occurs, when remove state or data
+    pub async fn finish(&self) -> Result<(), S::Error> {
+        self.storage.remove_state(&self.key).await?;
+        self.storage.remove_data(&self.key).await
     }
 }

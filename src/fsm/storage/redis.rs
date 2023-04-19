@@ -187,8 +187,8 @@ impl Storage for Redis {
     /// # Arguments
     /// * `key` - Specified key to remove state
     async fn remove_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
-        let mut connection = self.get_connection().await?;
         let key = self.key_builder.build(key, Part::State);
+        let mut connection = self.get_connection().await?;
 
         redis::cmd("DEL")
             .arg(&key)
@@ -205,9 +205,9 @@ impl Storage for Redis {
     where
         State: Into<Cow<'static, str>> + Send,
     {
-        let mut connection = self.get_connection().await?;
         let key = self.key_builder.build(key, Part::State);
         let state = state.into();
+        let mut connection = self.get_connection().await?;
 
         if let Some(state_ttl) = self.state_ttl {
             redis::cmd("SETEX")
@@ -231,23 +231,23 @@ impl Storage for Redis {
     /// * `key` - Specified key to get state
     /// # Returns
     /// State for specified key, if state is no exists, then [`None`] will be return
-    async fn get_state(&self, key: &StorageKey) -> Result<Option<Cow<'static, str>>, Self::Error> {
-        let mut connection = self.get_connection().await?;
+    async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error> {
         let key = self.key_builder.build(key, Part::State);
+        let mut connection = self.get_connection().await?;
 
-        let state: Option<String> = redis::cmd("GET")
+        redis::cmd("GET")
             .arg(&key)
             .query_async(&mut connection)
-            .await?;
-        Ok(state.map(Cow::Owned))
+            .await
+            .map_err(Into::into)
     }
 
     /// Remove data for specified key
     /// # Arguments
     /// * `key` - Specified key to remove data
     async fn remove_data(&self, key: &StorageKey) -> Result<(), Self::Error> {
-        let mut connection = self.get_connection().await?;
         let key = self.key_builder.build(key, Part::Data);
+        let mut connection = self.get_connection().await?;
 
         redis::cmd("DEL")
             .arg(&key)
@@ -260,30 +260,78 @@ impl Storage for Redis {
     /// # Arguments
     /// * `key` - Specified key to set data
     /// * `data` - Data for specified key, if empty, then data will be clear
-    async fn set_data<Key, Data>(
+    async fn set_data<Key, Value>(
         &self,
         key: &StorageKey,
-        data: HashMap<Key, Data>,
+        data: HashMap<Key, Value>,
     ) -> Result<(), Self::Error>
     where
-        Data: Serialize + Send,
+        Value: Serialize + Send,
         Key: Serialize + Into<Cow<'static, str>> + Send,
     {
-        let mut connection = self.get_connection().await?;
         let key = self.key_builder.build(key, Part::Data);
-        let data = serde_json::to_string(&data)?;
+        let plain_json = serde_json::to_string(&data)?;
+        let mut connection = self.get_connection().await?;
 
         if let Some(data_ttl) = self.data_ttl {
             redis::cmd("SETEX")
                 .arg(&key)
                 .arg(data_ttl)
-                .arg(&data)
+                .arg(&plain_json)
                 .query_async(&mut connection)
                 .await?;
         } else {
             redis::cmd("SET")
                 .arg(&key)
-                .arg(&data)
+                .arg(&plain_json)
+                .query_async(&mut connection)
+                .await?;
+        }
+        Ok(())
+    }
+
+    /// Set value to the data for specified key and value key
+    /// # Arguments
+    /// * `key` - Specified key to set data
+    /// * `value_key` - Specified value key to set value to the data
+    /// * `value` - Value for specified key and value key
+    async fn set_value<Key, Value>(
+        &self,
+        key: &StorageKey,
+        value_key: Key,
+        value: Value,
+    ) -> Result<(), Self::Error>
+    where
+        Value: Serialize + Send,
+        Key: Serialize + Into<Cow<'static, str>> + Send,
+    {
+        let key = self.key_builder.build(key, Part::Data);
+        let mut connection = self.get_connection().await?;
+
+        let plain_json: Option<String> = redis::cmd("GET")
+            .arg(&key)
+            .query_async(&mut connection)
+            .await?;
+
+        let mut data = match plain_json {
+            Some(plain_json) => serde_json::from_str(&plain_json)?,
+            None => HashMap::with_capacity(1),
+        };
+
+        data.insert(value_key.into(), serde_json::to_value(value)?);
+
+        let plain_json = serde_json::to_string(&data)?;
+        if let Some(data_ttl) = self.data_ttl {
+            redis::cmd("SETEX")
+                .arg(&key)
+                .arg(data_ttl)
+                .arg(&plain_json)
+                .query_async(&mut connection)
+                .await?;
+        } else {
+            redis::cmd("SET")
+                .arg(&key)
+                .arg(&plain_json)
                 .query_async(&mut connection)
                 .await?;
         }
@@ -295,24 +343,58 @@ impl Storage for Redis {
     /// * `key` - Specified key to get data
     /// # Returns
     /// Data for specified key, if data is no exists, then empty [`HashMap`] will be return
-    async fn get_data<Data>(
-        &self,
-        key: &StorageKey,
-    ) -> Result<HashMap<Cow<'static, str>, Data>, Self::Error>
+    async fn get_data<Value>(&self, key: &StorageKey) -> Result<HashMap<String, Value>, Self::Error>
     where
-        Data: DeserializeOwned,
+        Value: DeserializeOwned,
     {
-        let mut connection = self.get_connection().await?;
         let key = self.key_builder.build(key, Part::Data);
+        let mut connection = self.get_connection().await?;
 
-        let data: Option<String> = redis::cmd("GET")
+        let plain_json: Option<String> = redis::cmd("GET")
             .arg(&key)
             .query_async(&mut connection)
             .await?;
 
-        match data {
-            Some(data) => Ok(serde_json::from_str(&data)?),
+        match plain_json {
+            Some(plain_json) => Ok(serde_json::from_str(&plain_json)?),
             None => Ok(HashMap::default()),
+        }
+    }
+
+    /// Get value from the data for specified key and value key
+    /// # Arguments
+    /// * `key` - Specified key to get data
+    /// * `value_key` - Specified value key to get value from the data
+    /// # Returns
+    /// Value for specified key and value key, if value is no exists, then [`None`] will be return
+    async fn get_value<Key, Value>(
+        &self,
+        key: &StorageKey,
+        value_key: Key,
+    ) -> Result<Option<Value>, Self::Error>
+    where
+        Value: DeserializeOwned,
+        Key: Into<Cow<'static, str>> + Send,
+    {
+        let key = self.key_builder.build(key, Part::Data);
+        let mut connection = self.get_connection().await?;
+
+        let plain_json: Option<String> = redis::cmd("GET")
+            .arg(&key)
+            .query_async(&mut connection)
+            .await?;
+
+        match plain_json {
+            Some(plain_json) => {
+                let data: HashMap<Cow<'static, str>, serde_json::Value> =
+                    serde_json::from_str(&plain_json)?;
+
+                match data.get(&value_key.into()) {
+                    Some(value) => Ok(Some(serde_json::from_value(value.clone())?)),
+                    None => Ok(None),
+                }
+            }
+            None => Ok(None),
         }
     }
 }

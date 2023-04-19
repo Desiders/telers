@@ -56,7 +56,7 @@ pub trait Storage: Clone {
     /// * `key` - Specified key to get state
     /// # Returns
     /// State for specified key, if state is no exists, then [`None`] will be return
-    async fn get_state(&self, key: &StorageKey) -> Result<Option<Cow<'static, str>>, Self::Error>;
+    async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error>;
 
     /// Remove data for specified key
     /// # Arguments
@@ -67,26 +67,55 @@ pub trait Storage: Clone {
     /// # Arguments
     /// * `key` - Specified key to set data
     /// * `data` - Data for specified key, if empty, then data will be clear
-    async fn set_data<Key, Data>(
+    async fn set_data<Key, Value>(
         &self,
         key: &StorageKey,
-        data: HashMap<Key, Data>,
+        data: HashMap<Key, Value>,
     ) -> Result<(), Self::Error>
     where
-        Data: Serialize + Send,
+        Value: Serialize + Send,
+        Key: Serialize + Into<Cow<'static, str>> + Send;
+
+    /// Set value to the data for specified key and value key
+    /// # Arguments
+    /// * `key` - Specified key to set data
+    /// * `value_key` - Specified value key to set value to the data
+    /// * `value` - Value for specified key and value key
+    async fn set_value<Key, Value>(
+        &self,
+        key: &StorageKey,
+        value_key: Key,
+        value: Value,
+    ) -> Result<(), Self::Error>
+    where
+        Value: Serialize + Send,
         Key: Serialize + Into<Cow<'static, str>> + Send;
 
     /// Get data for specified key
     /// # Arguments
     /// * `key` - Specified key to get data
-    /// # Returns
     /// Data for specified key, if data is no exists, then empty [`HashMap`] will be return
-    async fn get_data<Data>(
+    async fn get_data<Value>(
         &self,
         key: &StorageKey,
-    ) -> Result<HashMap<Cow<'static, str>, Data>, Self::Error>
+    ) -> Result<HashMap<String, Value>, Self::Error>
     where
-        Data: DeserializeOwned;
+        Value: DeserializeOwned;
+
+    /// Get value from the data for specified key and value key
+    /// # Arguments
+    /// * `key` - Specified key to get data
+    /// * `value_key` - Specified value key to get value from data
+    /// # Returns
+    /// Value for specified key and value key, if value is no exists, then [`None`] will be return
+    async fn get_value<Key, Value>(
+        &self,
+        key: &StorageKey,
+        value_key: Key,
+    ) -> Result<Option<Value>, Self::Error>
+    where
+        Value: DeserializeOwned,
+        Key: Into<Cow<'static, str>> + Send;
 }
 
 #[async_trait]
@@ -107,7 +136,7 @@ where
         S::set_state(self, key, state).await
     }
 
-    async fn get_state(&self, key: &StorageKey) -> Result<Option<Cow<'static, str>>, Self::Error> {
+    async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error> {
         S::get_state(self, key).await
     }
 
@@ -115,26 +144,48 @@ where
         S::remove_data(self, key).await
     }
 
-    async fn set_data<Key, Data>(
+    async fn set_data<Key, Value>(
         &self,
         key: &StorageKey,
-        data: HashMap<Key, Data>,
+        data: HashMap<Key, Value>,
     ) -> Result<(), Self::Error>
     where
-        Data: Serialize + Send,
+        Value: Serialize + Send,
         Key: Serialize + Into<Cow<'static, str>> + Send,
     {
         S::set_data(self, key, data).await
     }
 
-    async fn get_data<Data>(
+    async fn set_value<Key, Value>(
         &self,
         key: &StorageKey,
-    ) -> Result<HashMap<Cow<'static, str>, Data>, Self::Error>
+        value_key: Key,
+        value: Value,
+    ) -> Result<(), Self::Error>
     where
-        Data: DeserializeOwned,
+        Value: Serialize + Send,
+        Key: Serialize + Into<Cow<'static, str>> + Send,
+    {
+        S::set_value(self, key, value_key, value).await
+    }
+
+    async fn get_data<Value>(&self, key: &StorageKey) -> Result<HashMap<String, Value>, Self::Error>
+    where
+        Value: DeserializeOwned,
     {
         S::get_data(self, key).await
+    }
+
+    async fn get_value<Key, Value>(
+        &self,
+        key: &StorageKey,
+        value_key: Key,
+    ) -> Result<Option<Value>, Self::Error>
+    where
+        Value: DeserializeOwned,
+        Key: Into<Cow<'static, str>> + Send,
+    {
+        S::get_value(self, key, value_key).await
     }
 }
 
@@ -156,7 +207,7 @@ where
         S::set_state(self, key, state).await
     }
 
-    async fn get_state(&self, key: &StorageKey) -> Result<Option<Cow<'static, str>>, Self::Error> {
+    async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error> {
         S::get_state(self, key).await
     }
 
@@ -164,25 +215,47 @@ where
         S::remove_data(self, key).await
     }
 
-    async fn set_data<Key, Data>(
+    async fn set_data<Key, Value>(
         &self,
         key: &StorageKey,
-        data: HashMap<Key, Data>,
+        data: HashMap<Key, Value>,
     ) -> Result<(), Self::Error>
     where
-        Data: Serialize + Send,
+        Value: Serialize + Send,
         Key: Serialize + Into<Cow<'static, str>> + Send,
     {
         S::set_data(self, key, data).await
     }
 
-    async fn get_data<Data>(
+    async fn set_value<Key, Value>(
         &self,
         key: &StorageKey,
-    ) -> Result<HashMap<Cow<'static, str>, Data>, Self::Error>
+        value_key: Key,
+        value: Value,
+    ) -> Result<(), Self::Error>
     where
-        Data: DeserializeOwned,
+        Value: Serialize + Send,
+        Key: Serialize + Into<Cow<'static, str>> + Send,
+    {
+        S::set_value(self, key, value_key, value).await
+    }
+
+    async fn get_data<Value>(&self, key: &StorageKey) -> Result<HashMap<String, Value>, Self::Error>
+    where
+        Value: DeserializeOwned,
     {
         S::get_data(self, key).await
+    }
+
+    async fn get_value<Key, Value>(
+        &self,
+        key: &StorageKey,
+        value_key: Key,
+    ) -> Result<Option<Value>, Self::Error>
+    where
+        Value: DeserializeOwned,
+        Key: Into<Cow<'static, str>> + Send,
+    {
+        S::get_value(self, key, value_key).await
     }
 }

@@ -21,7 +21,7 @@
 //! RUST_LOG=info BOT_TOKEN=your_bot_token cargo run --example finite_state_machine
 //! ```
 
-use std::{borrow::Cow, collections::HashMap};
+use std::borrow::Cow;
 use telers::{
     client::Bot,
     dispatcher::{
@@ -30,7 +30,7 @@ use telers::{
         Dispatcher, Router,
     },
     enums::UpdateType,
-    filters::State as StateFilter,
+    filters::{Command, State as StateFilter},
     fsm::{Context as FSMContext, MemoryStorage, Storage, Strategy},
     methods::SendMessage,
     types::Message,
@@ -38,14 +38,14 @@ use telers::{
 
 /// State of conversation.
 ///
-/// We use it to determine what we should ask user next and implement `From<State> for Cow<'static, str>`
+/// We use it to determine what we should ask user next and implement [`From<State>`] for [`Cow<'static, str>`]
 /// for possible save this state in [`Storage`].
-/// We also implement `PartialEq<&str>` for comparing states with other in [`StateFilter`].
+/// We also implement [`PartialEq<&str>`] for comparing states with other in [`StateFilter`].
 #[derive(Clone)]
 enum State {
-    /// User is asked for his name.
+    /// User is asked for his name
     Name,
-    /// User is asked for his language.
+    /// User is asked for his language
     Language,
 }
 
@@ -93,12 +93,10 @@ async fn name_handler<S: Storage>(bot: Bot, message: Message, fsm: FSMContext<S>
     // TODO: Add validation, e.g. check that name isn't empty
     let name = message.text.unwrap();
 
-    let mut user_info = HashMap::new();
-    // Save user's name to `user_info` map
-    user_info.insert("name", name.clone());
-
-    // Save `user_info` map to FSM storage, because we will need it in `language_handler`
-    fsm.set_data(user_info).await.map_err(Into::into)?;
+    // Save name to FSM storage, because we will need it in `language_handler`
+    fsm.set_value("name", name.clone())
+        .await
+        .map_err(Into::into)?;
     // Set state to `State::Language` to point that we are waiting for user's language
     fsm.set_state(State::Language).await.map_err(Into::into)?;
 
@@ -126,10 +124,9 @@ async fn language_handler<S: Storage>(
     // TODO: Add validation, e.g. check that language isn't empty
     let language = message.text.unwrap();
 
-    // Get map with user's info from FSM storage
-    let user_info = fsm.get_data::<String>().await.map_err(Into::into)?;
-    // Get user's name from map, that we saved in `name_handler`
-    let name = user_info.get("name").unwrap();
+    // Get user's name from FSM storage
+    // TODO: Add validation, e.g. check that name isn't empty
+    let name: String = fsm.get_value("name").await.map_err(Into::into)?.unwrap();
 
     // Check if user's language is acceptable
     match language.to_lowercase().as_str() {
@@ -141,16 +138,13 @@ async fn language_handler<S: Storage>(
             .await?;
 
             // Remove state and data from FSM storage, because we don't need them anymore
-            fsm.remove_state().await.map_err(Into::into)?;
-            fsm.remove_data().await.map_err(Into::into)?;
+            fsm.finish().await.map_err(Into::into)?;
         }
         _ => {
             bot.send(
                 &SendMessage::new(
                     message.chat.id,
-                    format!(
-                        "{name}, I don't speak your language. Please, choose another language :(",
-                    ),
+                    format!("{name}, I don't speak your language. Please, choose another :(",),
                 ),
                 None,
             )
@@ -188,6 +182,7 @@ async fn main() {
     router
         .message
         .register(start_handler::<MemoryStorage>)
+        .filter(Command::builder().command("start").build())
         .filter(StateFilter::none());
     router
         .message

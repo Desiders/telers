@@ -81,13 +81,13 @@ impl Storage for Memory {
     /// * `key` - Specified key to get state
     /// # Returns
     /// State for specified key, if state is no exists, then [`None`] will be return
-    async fn get_state(&self, key: &StorageKey) -> Result<Option<Cow<'static, str>>, Self::Error> {
+    async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error> {
         Ok(self
             .storage
             .lock()
             .await
             .get(key)
-            .and_then(|record| record.state.clone()))
+            .and_then(|record| record.state.as_deref().map(ToOwned::to_owned)))
     }
 
     /// Remove data for specified key
@@ -107,13 +107,13 @@ impl Storage for Memory {
     /// # Arguments
     /// * `key` - Specified key to set data
     /// * `data` - Data for specified key, if empty, then data will be clear
-    async fn set_data<Key, Data>(
+    async fn set_data<Key, Value>(
         &self,
         key: &StorageKey,
-        data: HashMap<Key, Data>,
+        data: HashMap<Key, Value>,
     ) -> Result<(), Self::Error>
     where
-        Data: Serialize + Send,
+        Value: Serialize + Send,
         Key: Serialize + Into<Cow<'static, str>> + Send,
     {
         let data_len = data.len();
@@ -157,17 +157,53 @@ impl Storage for Memory {
         Ok(())
     }
 
+    /// Set value to the data for specified key and value key
+    /// # Arguments
+    /// * `key` - Specified key to set data
+    /// * `value_key` - Specified value key to set value to the data
+    /// * `value` - Value for specified key and value key
+    async fn set_value<Key, Value>(
+        &self,
+        key: &StorageKey,
+        value_key: Key,
+        value: Value,
+    ) -> Result<(), Self::Error>
+    where
+        Value: Serialize + Send,
+        Key: Serialize + Into<Cow<'static, str>> + Send,
+    {
+        match self.storage.lock().await.entry(key.clone()) {
+            Entry::Occupied(mut entry) => {
+                entry
+                    .get_mut()
+                    .data
+                    .insert(value_key.into(), bincode::serialize(&value)?);
+            }
+            Entry::Vacant(entry) => {
+                entry.insert(
+                    Record {
+                        state: None,
+                        data: {
+                            let mut new_data = HashMap::with_capacity(1);
+                            new_data.insert(value_key.into(), bincode::serialize(&value)?);
+                            new_data
+                        },
+                    }
+                    .into(),
+                );
+            }
+        }
+        Ok(())
+    }
+
     /// Get data for specified key
     /// # Arguments
     /// * `key` - Specified key to get data
     /// # Returns
     /// Data for specified key, if data is no exists, then empty [`HashMap`] will be return
-    async fn get_data<Data>(
-        &self,
-        key: &StorageKey,
-    ) -> Result<HashMap<Cow<'static, str>, Data>, Self::Error>
+    async fn get_data<Value>(&self, key: &StorageKey) -> Result<HashMap<String, Value>, Self::Error>
     where
-        Data: DeserializeOwned,
+        Value: DeserializeOwned,
     {
         match self.storage.lock().await.entry(key.clone()) {
             Entry::Occupied(entry) => {
@@ -175,12 +211,37 @@ impl Storage for Memory {
                 let mut data = HashMap::with_capacity(entry_data.len());
 
                 for (key, value) in entry_data {
-                    data.insert(key.clone(), bincode::deserialize(value)?);
+                    data.insert(key.as_ref().to_owned(), bincode::deserialize(value)?);
                 }
 
                 Ok(data)
             }
             Entry::Vacant(_) => Ok(HashMap::default()),
+        }
+    }
+
+    /// Get value from the data for specified key and value key
+    /// # Arguments
+    /// * `key` - Specified key to get data
+    /// * `value_key` - Specified value key to get value from the data
+    /// # Returns
+    /// Value for specified key and value key, if value is no exists, then [`None`] will be return
+    async fn get_value<Key, Value>(
+        &self,
+        key: &StorageKey,
+        value_key: Key,
+    ) -> Result<Option<Value>, Self::Error>
+    where
+        Value: DeserializeOwned,
+        Key: Into<Cow<'static, str>> + Send,
+    {
+        match self.storage.lock().await.entry(key.clone()) {
+            Entry::Occupied(entry) => entry
+                .get()
+                .data
+                .get(&value_key.into())
+                .map_or(Ok(None), |value| Ok(Some(bincode::deserialize(value)?))),
+            Entry::Vacant(_) => Ok(None),
         }
     }
 }
@@ -258,19 +319,59 @@ mod tests {
         assert_eq!(get_data1.len(), 2);
         assert_eq!(get_data2.len(), 2);
 
-        assert_eq!(get_data1.get("key1").unwrap(), &"value1");
-        assert_eq!(get_data1.get("key2").unwrap(), &"value2");
-        assert_eq!(get_data2.get("key3").unwrap(), &"value3");
-        assert_eq!(get_data2.get("key4").unwrap(), &"value4");
+        assert_eq!(get_data1.get("key1").unwrap(), "value1");
+        assert_eq!(get_data1.get("key2").unwrap(), "value2");
+        assert_eq!(get_data2.get("key3").unwrap(), "value3");
+        assert_eq!(get_data2.get("key4").unwrap(), "value4");
+        assert_eq!(
+            storage.get_value::<_, String>(&key1, "key1").await.unwrap(),
+            Some("value1".into())
+        );
+        assert_eq!(
+            storage.get_value::<_, String>(&key1, "key2").await.unwrap(),
+            Some("value2".into())
+        );
+        assert_eq!(
+            storage.get_value::<_, String>(&key2, "key3").await.unwrap(),
+            Some("value3".into())
+        );
+        assert_eq!(
+            storage.get_value::<_, String>(&key2, "key4").await.unwrap(),
+            Some("value4".into())
+        );
+
+        storage.set_value(&key1, "key1", "value11").await.unwrap();
+        storage.set_value(&key1, "key5", "value5").await.unwrap();
+
+        assert_eq!(
+            storage.get_value::<_, String>(&key1, "key1").await.unwrap(),
+            Some("value11".into())
+        );
+        assert_eq!(
+            storage.get_value::<_, String>(&key1, "key5").await.unwrap(),
+            Some("value5".into())
+        );
 
         storage.remove_data(&key1).await.unwrap();
 
         assert_eq!(storage.get_data::<String>(&key1).await.unwrap().len(), 0);
         assert_eq!(storage.get_data::<String>(&key2).await.unwrap().len(), 2);
 
+        assert_eq!(
+            storage.get_value::<_, String>(&key1, "key1").await.unwrap(),
+            None
+        );
+
         storage.remove_data(&key2).await.unwrap();
 
         assert_eq!(storage.get_data::<String>(&key1).await.unwrap().len(), 0);
         assert_eq!(storage.get_data::<String>(&key2).await.unwrap().len(), 0);
+
+        storage.set_value(&key1, "key1", "value1").await.unwrap();
+
+        assert_eq!(
+            storage.get_value::<_, String>(&key1, "key1").await.unwrap(),
+            Some("value1".into())
+        );
     }
 }
