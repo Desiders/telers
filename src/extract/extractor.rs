@@ -114,59 +114,58 @@ mod factory_from_event_and_context {
     /// [`FromEventAndContext`] implementation for tuple arguments, which implements [`FromEventAndContext`]
     /// for each of its arguments, and returns [`Ok((value1, value2, ...))`] if extraction was successful,
     /// and [`Err(error)`] otherwise, where `error` is `T::Error` converted to [`ExtractionError`]
-    macro_rules! factory {
-        ($fut:ident; $($T:ident),*) => {
-            impl<Client, $($T: FromEventAndContext<Client>),+> FromEventAndContext<Client> for ($($T,)+) {
-                type Error = ExtractionError;
+    macro_rules! factory ({ $($param:ident)* } => {
+        impl<Client, $($param: FromEventAndContext<Client>,)*> FromEventAndContext<Client> for ($($param,)*) {
+            type Error = ExtractionError;
 
-                fn extract(bot: Arc<Bot<Client>>, update: Arc<Update>, context: Arc<Context>) -> Result<Self, Self::Error> {
-                    // If any of the arguments fails to extract, the whole extraction fails
-                    Ok(($($T::extract(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context)).map_err(Into::into)?,)+))
-                }
+            #[inline]
+            fn extract(bot: Arc<Bot<Client>>, update: Arc<Update>, context: Arc<Context>) -> Result<Self, Self::Error> {
+                // If any of the arguments fails to extract, the whole extraction fails
+                Ok(($($param::extract(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context)).map_err(Into::into)?,)*))
             }
-        };
-    }
+        }
+    });
 
     // To be able to extract tuple with 1 arguments
-    factory! { TupleFromEventAndContext1; A }
+    factory! { A }
     // To be able to extract tuple with 2 arguments
-    factory! { TupleFromEventAndContext2; A, B }
+    factory! { A B }
     // To be able to extract tuple with 3 arguments
-    factory! { TupleFromEventAndContext3; A, B, C }
+    factory! { A B C }
     // To be able to extract tuple with 4 arguments
-    factory! { TupleFromEventAndContext4; A, B, C, D }
+    factory! { A B C D }
     // To be able to extract tuple with 5 arguments
-    factory! { TupleFromEventAndContext5; A, B, C, D, E }
+    factory! { A B C D E}
     // To be able to extract tuple with 6 arguments
-    factory! { TupleFromEventAndContext6; A, B, C, D, E, F }
+    factory! { A B C D E F }
     // To be able to extract tuple with 7 arguments
-    factory! { TupleFromEventAndContext7; A, B, C, D, E, F, G }
+    factory! { A B C D E F G}
     // To be able to extract tuple with 8 arguments
-    factory! { TupleFromEventAndContext8; A, B, C, D, E, F, G, H }
+    factory! { A B C D E F G H }
     // To be able to extract tuple with 9 arguments
-    factory! { TupleFromEventAndContext9; A, B, C, D, E, F, G, H, I }
+    factory! { A B C D E F G H I}
     // To be able to extract tuple with 10 arguments
-    factory! { TupleFromEventAndContext10; A, B, C, D, E, F, G, H, I, J }
+    factory! { A B C D E F G H I J }
     // To be able to extract tuple with 11 arguments
-    factory! { TupleFromEventAndContext11; A, B, C, D, E, F, G, H, I, J, K }
+    factory! { A B C D E F G H I J K}
     // To be able to extract tuple with 12 arguments
-    factory! { TupleFromEventAndContext12; A, B, C, D, E, F, G, H, I, J, K, L }
+    factory! { A B C D E F G H I J K L }
     // To be able to extract tuple with 13 arguments
-    factory! { TupleFromEventAndContext13; A, B, C, D, E, F, G, H, I, J, K, L, M }
+    factory! { A B C D E F G H I J K L M}
     // To be able to extract tuple with 14 arguments
-    factory! { TupleFromEventAndContext14; A, B, C, D, E, F, G, H, I, J, K, L, M, N }
+    factory! { A B C D E F G H I J K L M N }
     // To be able to extract tuple with 15 arguments
-    factory! { TupleFromEventAndContext15; A, B, C, D, E, F, G, H, I, J, K, L, M, N, O }
+    factory! { A B C D E F G H I J K L M N O}
     // To be able to extract tuple with 16 arguments
-    factory! { TupleFromEventAndContext16; A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P }
+    factory! { A B C D E F G H I J K L M N O P }
     // To be able to extract tuple with 17 arguments
-    factory! { TupleFromEventAndContext17; A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q }
+    factory! { A B C D E F G H I J K L M N O P Q}
     // To be able to extract tuple with 18 arguments
-    factory! { TupleFromEventAndContext18; A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R }
+    factory! { A B C D E F G H I J K L M N O P Q R }
     // To be able to extract tuple with 19 arguments
-    factory! { TupleFromEventAndContext19; A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S }
+    factory! { A B C D E F G H I J K L M N O P Q R S }
     // To be able to extract tuple with 20 arguments
-    factory! { TupleFromEventAndContext20; A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T }
+    factory! { A B C D E F G H I J K L M N O P Q R S T }
 }
 
 #[cfg(test)]

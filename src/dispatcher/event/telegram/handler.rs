@@ -201,7 +201,7 @@ mod factory_handlers {
     macro_rules! factory ({ $($param:ident)* } => {
         impl<Func, Fut, $($param,)*> Handler<($($param,)*)> for Func
         where
-            Func: Fn($($param),*) -> Fut,
+            Func: Fn($($param,)*) -> Fut,
             Fut: Future,
         {
             type Output = Fut::Output;
@@ -241,6 +241,22 @@ mod factory_handlers {
     factory! { A B C D E F G H I J K }
     // To be able to use function with 12 arguments
     factory! { A B C D E F G H I J K L }
+    // To be able to extract tuple with 13 arguments
+    factory! { A B C D E F G H I J K L M}
+    // To be able to extract tuple with 14 arguments
+    factory! { A B C D E F G H I J K L M N }
+    // To be able to extract tuple with 15 arguments
+    factory! { A B C D E F G H I J K L M N O}
+    // To be able to extract tuple with 16 arguments
+    factory! { A B C D E F G H I J K L M N O P }
+    // To be able to extract tuple with 17 arguments
+    factory! { A B C D E F G H I J K L M N O P Q }
+    // To be able to extract tuple with 18 arguments
+    factory! { A B C D E F G H I J K L M N O P Q R }
+    // To be able to extract tuple with 19 arguments
+    factory! { A B C D E F G H I J K L M N O P Q R S }
+    // To be able to extract tuple with 20 arguments
+    factory! { A B C D E F G H I J K L M N O P Q R S T }
 }
 
 #[cfg(test)]
@@ -267,7 +283,15 @@ mod tests {
              _09: (),
              _10: (),
              _11: (),
-             _12: ()| async { unreachable!() },
+             _12: (),
+             _13: (),
+             _14: (),
+             _15: (),
+             _16: (),
+             _17: (),
+             _18: (),
+             _19: (),
+             _20: ()| async { unreachable!() },
         );
     }
 
