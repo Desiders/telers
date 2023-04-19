@@ -172,8 +172,8 @@ where
         match context.get("fsm_state") {
             Some(state) => {
                 let state = state
-                    .downcast_ref::<Cow<str>>()
-                    .expect("State isn't `Cow<str>`");
+                    .downcast_ref::<String>()
+                    .expect("State isn't `String`");
 
                 self.check(Some(state))
             }
