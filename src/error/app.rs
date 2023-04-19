@@ -4,7 +4,7 @@ use anyhow;
 use std::fmt::Debug;
 use thiserror;
 
-/// This enum represents all possible errors that can occur in the application
+/// This enum represents all possible errors that can be returned by the library in processing updates.
 ///
 /// All user errors are wrapped in the [`ErrorKind::User`] variant for possible to determine type of errors
 /// in higher levels of the application. \

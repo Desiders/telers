@@ -5,7 +5,7 @@ use thiserror;
 
 /// This struct represents all possible errors that can occur in the handlers
 ///
-/// Usually, in handlers returns [`SessionErrorKind`] or [`TelegramErrorKind`] errors,
+/// Usually, in handlers returns [`SessionErrorKind`] error or [`TelegramErrorKind`] error,
 /// but you can return any error that implements [`Into<anyhow::Error>`] trait.
 #[derive(thiserror::Error, Debug)]
 #[error(transparent)]

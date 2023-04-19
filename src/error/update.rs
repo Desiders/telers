@@ -6,7 +6,7 @@ use thiserror;
 /// This error occurs when the update type cannot be converted to the desired type.
 ///
 /// For example, if you try to convert an update to a [`crate::types::Message`] type,
-/// but the update represents a [`crate::types::CallbackQuery`].
+/// but the update represents a [`crate::types::CallbackQuery`], you will get this error.
 #[derive(thiserror::Error, Debug)]
 #[error("Convert update to type error: {msg}")]
 pub struct ConvertUpdateToType {
@@ -14,7 +14,10 @@ pub struct ConvertUpdateToType {
 }
 
 impl ConvertUpdateToType {
-    pub fn new<T: Into<Cow<'static, str>>>(msg: T) -> Self {
+    pub fn new<T>(msg: T) -> Self
+    where
+        T: Into<Cow<'static, str>>,
+    {
         Self { msg: msg.into() }
     }
 }
