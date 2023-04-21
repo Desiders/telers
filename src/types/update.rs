@@ -69,12 +69,6 @@ impl Update {
             Some(&chat_member_updated.from)
         } else if let Some(chat_join_request) = &self.chat_join_request {
             Some(&chat_join_request.from)
-        // } else if self.channel_post.is_some()
-        //     | self.edited_channel_post.is_some()
-        //     | self.poll.is_some()
-        // {
-        //     // These updates don't have a user, so we return `None`
-        //     None
         } else {
             None
         }
@@ -105,15 +99,6 @@ impl Update {
             Some(&chat_member_updated.chat)
         } else if let Some(chat_join_request) = &self.chat_join_request {
             Some(&chat_join_request.chat)
-        // } else if self.inline_query.is_some()
-        //     | self.chosen_inline_result.is_some()
-        //     | self.shipping_query.is_some()
-        //     | self.pre_checkout_query.is_some()
-        //     | self.poll.is_some()
-        //     | self.poll_answer.is_some()
-        // {
-        //     // These updates don't have a chat, so we return `None`
-        //     None
         } else {
             None
         }
@@ -123,5 +108,33 @@ impl Update {
     #[must_use]
     pub fn user_and_chat(&self) -> (Option<&User>, Option<&Chat>) {
         (self.user(), self.chat())
+    }
+
+    /// Returns the text from the update, that is, the text of the message, the text of the inline query, etc.
+    #[must_use]
+    pub fn text(&self) -> Option<&str> {
+        if let Some(message) = &self.message {
+            message.text.as_deref()
+        } else if let Some(inline_query) = &self.inline_query {
+            Some(&inline_query.query)
+        } else if let Some(chosen_inline_result) = &self.chosen_inline_result {
+            Some(&chosen_inline_result.query)
+        } else if let Some(callback_query) = &self.callback_query {
+            callback_query.data.as_deref()
+        } else if let Some(message) = &self.edited_message {
+            message.text.as_deref()
+        } else if let Some(channel_post) = &self.channel_post {
+            channel_post.text.as_deref()
+        } else if let Some(edited_channel_post) = &self.edited_channel_post {
+            edited_channel_post.text.as_deref()
+        } else if let Some(shipping_query) = &self.shipping_query {
+            Some(&shipping_query.invoice_payload)
+        } else if let Some(pre_checkout_query) = &self.pre_checkout_query {
+            Some(&pre_checkout_query.invoice_payload)
+        } else if let Some(poll) = &self.poll {
+            Some(&poll.question)
+        } else {
+            None
+        }
     }
 }

@@ -139,10 +139,12 @@ pub struct TextBuilder<'a> {
 }
 
 impl<'a> TextBuilder<'a> {
+    #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
 
+    #[must_use]
     pub fn text(self, val: impl Into<PatternType<'a>>) -> Self {
         Self {
             texts: self.texts.into_iter().chain(Some(val.into())).collect(),
@@ -150,6 +152,7 @@ impl<'a> TextBuilder<'a> {
         }
     }
 
+    #[must_use]
     pub fn texts<T, I>(self, val: I) -> Self
     where
         T: Into<PatternType<'a>>,
@@ -165,6 +168,7 @@ impl<'a> TextBuilder<'a> {
         }
     }
 
+    #[must_use]
     pub fn contains_single(self, val: impl Into<Cow<'a, str>>) -> Self {
         Self {
             contains: self.contains.into_iter().chain(Some(val.into())).collect(),
@@ -172,6 +176,7 @@ impl<'a> TextBuilder<'a> {
         }
     }
 
+    #[must_use]
     pub fn contains<T, I>(self, val: I) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -187,6 +192,7 @@ impl<'a> TextBuilder<'a> {
         }
     }
 
+    #[must_use]
     pub fn starts_with_single(self, val: impl Into<Cow<'a, str>>) -> Self {
         Self {
             starts_with: self
@@ -198,6 +204,7 @@ impl<'a> TextBuilder<'a> {
         }
     }
 
+    #[must_use]
     pub fn starts_with<T, I>(self, starts_with: I) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -213,6 +220,7 @@ impl<'a> TextBuilder<'a> {
         }
     }
 
+    #[must_use]
     pub fn ends_with_single(self, val: impl Into<Cow<'a, str>>) -> Self {
         Self {
             ends_with: self.ends_with.into_iter().chain(Some(val.into())).collect(),
@@ -220,6 +228,7 @@ impl<'a> TextBuilder<'a> {
         }
     }
 
+    #[must_use]
     pub fn ends_with<T, I>(self, ends_with: I) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -235,6 +244,7 @@ impl<'a> TextBuilder<'a> {
         }
     }
 
+    #[must_use]
     pub fn ignore_case(self, ignore_case: bool) -> Self {
         Self {
             ignore_case,
@@ -242,6 +252,7 @@ impl<'a> TextBuilder<'a> {
         }
     }
 
+    #[must_use]
     pub fn build(self) -> Text<'a> {
         Text::new(
             self.texts,
@@ -254,28 +265,7 @@ impl<'a> TextBuilder<'a> {
 }
 
 impl<'a> Text<'a> {
-    fn get_text_from_update<'b>(&self, update: &'b Update) -> Option<&'b str> {
-        if let Some(ref message) = update.message {
-            if let Some(ref text) = message.text {
-                Some(text)
-            } else if let Some(ref caption) = message.caption {
-                Some(caption)
-            } else if let Some(ref poll) = message.poll {
-                Some(&poll.question)
-            } else {
-                None
-            }
-        } else if let Some(ref callback_query) = update.callback_query {
-            callback_query.data.as_deref()
-        } else if let Some(ref inline_query) = update.inline_query {
-            Some(inline_query.query.as_str())
-        } else if let Some(ref poll) = update.poll {
-            Some(poll.question.as_str())
-        } else {
-            None
-        }
-    }
-
+    #[must_use]
     fn prepare_text(&self, text: &str) -> String {
         if self.ignore_case {
             text.to_lowercase()
@@ -284,6 +274,7 @@ impl<'a> Text<'a> {
         }
     }
 
+    #[must_use]
     pub fn validate_texts(&self, text: &str) -> bool {
         let text = self.prepare_text(text);
 
@@ -293,6 +284,7 @@ impl<'a> Text<'a> {
         })
     }
 
+    #[must_use]
     pub fn validate_contains(&self, text: &str) -> bool {
         let text = self.prepare_text(text);
 
@@ -301,6 +293,7 @@ impl<'a> Text<'a> {
             .any(|part_text| text.contains(part_text.as_ref()))
     }
 
+    #[must_use]
     pub fn validate_starts_with(&self, text: &str) -> bool {
         let text = self.prepare_text(text);
 
@@ -309,6 +302,7 @@ impl<'a> Text<'a> {
             .any(|part_text| text.starts_with(part_text.as_ref()))
     }
 
+    #[must_use]
     pub fn validate_ends_with(&self, text: &str) -> bool {
         let text = self.prepare_text(text);
 
@@ -317,19 +311,19 @@ impl<'a> Text<'a> {
             .any(|part_text| text.ends_with(part_text.as_ref()))
     }
 
+    #[must_use]
     pub fn validate_text(&self, text: &str) -> bool {
-        self.validate_texts(&text)
-            || self.validate_contains(&text)
-            || self.validate_starts_with(&text)
-            || self.validate_ends_with(&text)
+        self.validate_texts(text)
+            || self.validate_contains(text)
+            || self.validate_starts_with(text)
+            || self.validate_ends_with(text)
     }
 }
 
 #[async_trait]
 impl<Client> Filter<Client> for Text<'_> {
     async fn check(&self, _bot: &Bot<Client>, update: &Update, _context: &Context) -> bool {
-        self.get_text_from_update(update)
-            .map_or(false, |text| self.validate_text(text))
+        update.text().map_or(false, |text| self.validate_text(text))
     }
 }
 
