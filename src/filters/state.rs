@@ -38,13 +38,13 @@ where
     }
 }
 
-/// Infallible type, which can be used as [`StateType`]'s `B` generic type
+/// Dummy type, which can be used as [`StateType`]'s `B` generic type
 ///
 /// This type is used to allow set type for [`StateType::Any`] and [`StateType::None`],
 /// because they don't need any type and don't use equality comparisons
-pub enum Infallible {}
+pub enum Dummy {}
 
-impl ToOwned for Infallible {
+impl ToOwned for Dummy {
     type Owned = Self;
 
     fn to_owned(&self) -> Self::Owned {
@@ -52,13 +52,13 @@ impl ToOwned for Infallible {
     }
 }
 
-impl PartialEq<&str> for Infallible {
+impl PartialEq<&str> for Dummy {
     fn eq(&self, _: &&str) -> bool {
         unreachable!()
     }
 }
 
-pub struct State<'a, B: 'a = Infallible>
+pub struct State<'a, B: 'a = Dummy>
 where
     B: ToOwned + PartialEq<&'a str>,
 {

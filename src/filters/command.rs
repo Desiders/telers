@@ -31,10 +31,10 @@ pub enum Error {
 
 /// Represents a command pattern type for verification
 /// # Variants
-/// * [`PatternType::Text(str)`] - A command pattern with text
+/// * [`PatternType::Text(Cow<str>)`] - A command pattern with text
 /// * [`PatternType::Object(BotCommand)`] -
 /// A command pattern with [`BotCommand`] object. \
-/// Just a shortcut for `Text(command.command)`.
+/// Just a shortcut for [`PatternType::Text(command.command)`].
 /// * [`PatternType::Regex(Regex)`] -
 /// A command pattern with regex, compiled with [`Regex`] struct. \
 /// If filter used with `ignore_case` flag, then the regex will be compiled with `(?i)` flag (ignore case sensitive flag).
@@ -79,21 +79,21 @@ pub struct Command<'a> {
     commands: Vec<PatternType<'a>>,
     /// Command prefix
     prefix: &'a str,
-    /// Ignore other command case (Does not work with regexp, use flags instead)
+    /// Ignore case sensitive
     ignore_case: bool,
-    /// Ignore bot mention. By default, bot can not handle commands intended for other bots
+    /// Ignore bot mention
     ignore_mention: bool,
 }
 
 impl<'a> Command<'a> {
     /// Creates a new [`Command`] filter
     /// # Arguments
-    /// * `commands` - List of commands ([`Cow`], [`BotCommand`] or compiled [`Regex`] patterns)
+    /// * `commands` - List of commands (texts, [`BotCommand`] or compiled [`Regex`] patterns)
     /// * `prefix` - Command prefix
-    /// * `ignore_case` - Ignore other command case (Does not work with regexp, use flags instead)
-    /// * `ignore_mention` - Ignore bot mention. By default, bot can not handle commands intended for other bots
+    /// * `ignore_case` - Ignore other command case
+    /// * `ignore_mention` - Ignore bot mention
     /// # Panics
-    /// If `ignore_case` is `true` and `command`, which contains [`Regex`] pattern,
+    /// If `ignore_case` is `true` and [`Regex`],
     /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
     #[must_use]
     pub fn new<T, I>(commands: I, prefix: &'a str, ignore_case: bool, ignore_mention: bool) -> Self
@@ -177,9 +177,6 @@ impl<'a> CommandBuilder<'a> {
         }
     }
 
-    /// # Panics
-    /// If `ignore_case` is `true` and `command`, which contains [`Regex`] pattern,
-    /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
     #[must_use]
     pub fn commands<T, I>(self, val: I) -> Self
     where
@@ -221,7 +218,7 @@ impl<'a> CommandBuilder<'a> {
     }
 
     /// # Panics
-    /// If `ignore_case` is `true` and `command`, which contains [`Regex`] pattern,
+    /// If `ignore_case` is `true` and [`Regex`],
     /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
     #[must_use]
     pub fn build(self) -> Command<'a> {
@@ -290,15 +287,15 @@ impl<'a> Command<'a> {
             command.command.clone()
         };
 
-        for command_pattern in &self.commands {
-            match command_pattern {
-                PatternType::Text(other_command) => {
-                    if command == *other_command {
+        for pattern in &self.commands {
+            match pattern {
+                PatternType::Text(allowed_command) => {
+                    if command == *allowed_command {
                         return Ok(());
                     }
                 }
-                PatternType::Regex(other_command) => {
-                    if other_command.is_match(&command) {
+                PatternType::Regex(regex) => {
+                    if regex.is_match(&command) {
                         return Ok(());
                     }
                 }

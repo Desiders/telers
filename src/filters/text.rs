@@ -1,0 +1,484 @@
+use super::base::Filter;
+
+use crate::{client::Bot, context::Context, types::Update};
+
+use async_trait::async_trait;
+use regex::Regex;
+use std::borrow::Cow;
+
+/// Represents a command pattern type for verification
+/// # Variants
+/// * [`PatternType::Text(Cow<str>)`] - A command pattern with text
+/// * [`PatternType::Regex(Regex)`] -
+/// A command pattern with regex, compiled with [`Regex`] struct. \
+/// If filter used with `ignore_case` flag, then the regex will be compiled with `(?i)` flag (ignore case sensitive flag).
+#[derive(Debug, Clone)]
+pub enum PatternType<'a> {
+    Text(Cow<'a, str>),
+    Regex(Regex),
+}
+
+impl<'a> From<Cow<'a, str>> for PatternType<'a> {
+    fn from(text: Cow<'a, str>) -> Self {
+        Self::Text(text)
+    }
+}
+
+impl<'a> From<&'a str> for PatternType<'a> {
+    fn from(text: &'a str) -> Self {
+        Self::Text(Cow::Borrowed(text))
+    }
+}
+
+impl From<Regex> for PatternType<'_> {
+    fn from(regex: Regex) -> Self {
+        Self::Regex(regex)
+    }
+}
+
+/// This filter checks if the message text matches the specified pattern
+#[derive(Debug, Default, Clone)]
+pub struct Text<'a> {
+    /// List of texts or compiled [`Regex`] patterns that must be equal to the text of the message
+    texts: Vec<PatternType<'a>>,
+    /// List of texts that must be contained in the text of the message
+    contains: Vec<Cow<'a, str>>,
+    /// List of texts that must be at the beginning of the text of the message
+    starts_with: Vec<Cow<'a, str>>,
+    /// List of texts that must be at the end of the text of the message
+    ends_with: Vec<Cow<'a, str>>,
+    /// Ignore case sensitive
+    ignore_case: bool,
+}
+
+impl<'a> Text<'a> {
+    /// Creates a new [`Text`] filter
+    /// # Arguments
+    /// * `texts` -
+    /// List of texts or compiled [`Regex`] patterns that must be equal to the text of the message
+    /// * `contains` -
+    /// List of texts that must be contained in the text of the message
+    /// * `starts_with` -
+    /// List of texts that must be at the beginning of the text of the message
+    /// * `ends_with` -
+    /// List of texts that must be at the end of the text of the message
+    /// # Panics
+    /// If `ignore_case` is `true` and [`Regex`],
+    /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
+    pub fn new<T, I1, C, I2, S, I3, E, I4>(
+        texts: I1,
+        contains: I2,
+        starts_with: I3,
+        ends_with: I4,
+        ignore_case: bool,
+    ) -> Self
+    where
+        T: Into<PatternType<'a>>,
+        I1: IntoIterator<Item = T>,
+        C: Into<Cow<'a, str>>,
+        I2: IntoIterator<Item = C>,
+        S: Into<Cow<'a, str>>,
+        I3: IntoIterator<Item = S>,
+        E: Into<Cow<'a, str>>,
+        I4: IntoIterator<Item = E>,
+    {
+        if ignore_case {
+            Self {
+                texts: texts
+                    .into_iter()
+                    .map(|text| match text.into() {
+                        PatternType::Text(text) => PatternType::Text(text.to_lowercase().into()),
+                        PatternType::Regex(regex) => PatternType::Regex(
+                            Regex::new(&format!("(?i){regex}"))
+                                .expect("Failed to compile regex with (?i) flag"),
+                        ),
+                    })
+                    .collect(),
+                contains: contains
+                    .into_iter()
+                    .map(|val| val.into().to_lowercase().into())
+                    .collect(),
+                starts_with: starts_with
+                    .into_iter()
+                    .map(|val| val.into().to_lowercase().into())
+                    .collect(),
+                ends_with: ends_with
+                    .into_iter()
+                    .map(|val| val.into().to_lowercase().into())
+                    .collect(),
+                ignore_case,
+            }
+        } else {
+            Self {
+                texts: texts.into_iter().map(Into::into).collect(),
+                contains: contains.into_iter().map(Into::into).collect(),
+                starts_with: starts_with.into_iter().map(Into::into).collect(),
+                ends_with: ends_with.into_iter().map(Into::into).collect(),
+                ignore_case,
+            }
+        }
+    }
+
+    /// # Panics
+    /// If `ignore_case` is `true` and [`Regex`],
+    /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
+    #[must_use]
+    pub fn builder() -> TextBuilder<'a> {
+        TextBuilder::new()
+    }
+}
+
+#[allow(clippy::module_name_repetitions)]
+#[derive(Debug, Default, Clone)]
+pub struct TextBuilder<'a> {
+    texts: Vec<PatternType<'a>>,
+    contains: Vec<Cow<'a, str>>,
+    starts_with: Vec<Cow<'a, str>>,
+    ends_with: Vec<Cow<'a, str>>,
+    ignore_case: bool,
+}
+
+impl<'a> TextBuilder<'a> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn text(self, val: impl Into<PatternType<'a>>) -> Self {
+        Self {
+            texts: self.texts.into_iter().chain(Some(val.into())).collect(),
+            ..self
+        }
+    }
+
+    pub fn texts<T, I>(self, val: I) -> Self
+    where
+        T: Into<PatternType<'a>>,
+        I: IntoIterator<Item = T>,
+    {
+        Self {
+            texts: self
+                .texts
+                .into_iter()
+                .chain(val.into_iter().map(Into::into))
+                .collect(),
+            ..self
+        }
+    }
+
+    pub fn contains_single(self, val: impl Into<Cow<'a, str>>) -> Self {
+        Self {
+            contains: self.contains.into_iter().chain(Some(val.into())).collect(),
+            ..self
+        }
+    }
+
+    pub fn contains<T, I>(self, val: I) -> Self
+    where
+        T: Into<Cow<'a, str>>,
+        I: IntoIterator<Item = T>,
+    {
+        Self {
+            contains: self
+                .contains
+                .into_iter()
+                .chain(val.into_iter().map(Into::into))
+                .collect(),
+            ..self
+        }
+    }
+
+    pub fn starts_with_single(self, val: impl Into<Cow<'a, str>>) -> Self {
+        Self {
+            starts_with: self
+                .starts_with
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+            ..self
+        }
+    }
+
+    pub fn starts_with<T, I>(self, starts_with: I) -> Self
+    where
+        T: Into<Cow<'a, str>>,
+        I: IntoIterator<Item = T>,
+    {
+        Self {
+            starts_with: self
+                .starts_with
+                .into_iter()
+                .chain(starts_with.into_iter().map(Into::into))
+                .collect(),
+            ..self
+        }
+    }
+
+    pub fn ends_with_single(self, val: impl Into<Cow<'a, str>>) -> Self {
+        Self {
+            ends_with: self.ends_with.into_iter().chain(Some(val.into())).collect(),
+            ..self
+        }
+    }
+
+    pub fn ends_with<T, I>(self, ends_with: I) -> Self
+    where
+        T: Into<Cow<'a, str>>,
+        I: IntoIterator<Item = T>,
+    {
+        Self {
+            ends_with: self
+                .ends_with
+                .into_iter()
+                .chain(ends_with.into_iter().map(Into::into))
+                .collect(),
+            ..self
+        }
+    }
+
+    pub fn ignore_case(self, ignore_case: bool) -> Self {
+        Self {
+            ignore_case,
+            ..self
+        }
+    }
+
+    pub fn build(self) -> Text<'a> {
+        Text::new(
+            self.texts,
+            self.contains,
+            self.starts_with,
+            self.ends_with,
+            self.ignore_case,
+        )
+    }
+}
+
+impl<'a> Text<'a> {
+    fn get_text_from_update<'b>(&self, update: &'b Update) -> Option<&'b str> {
+        if let Some(ref message) = update.message {
+            if let Some(ref text) = message.text {
+                Some(text)
+            } else if let Some(ref caption) = message.caption {
+                Some(caption)
+            } else if let Some(ref poll) = message.poll {
+                Some(&poll.question)
+            } else {
+                None
+            }
+        } else if let Some(ref callback_query) = update.callback_query {
+            callback_query.data.as_deref()
+        } else if let Some(ref inline_query) = update.inline_query {
+            Some(inline_query.query.as_str())
+        } else if let Some(ref poll) = update.poll {
+            Some(poll.question.as_str())
+        } else {
+            None
+        }
+    }
+
+    fn prepare_text(&self, text: &str) -> String {
+        if self.ignore_case {
+            text.to_lowercase()
+        } else {
+            text.to_owned()
+        }
+    }
+
+    pub fn validate_texts(&self, text: &str) -> bool {
+        let text = self.prepare_text(text);
+
+        self.texts.iter().any(|pattern| match pattern {
+            PatternType::Text(allowed_text) => allowed_text == &text,
+            PatternType::Regex(regex) => regex.is_match(&text),
+        })
+    }
+
+    pub fn validate_contains(&self, text: &str) -> bool {
+        let text = self.prepare_text(text);
+
+        self.contains
+            .iter()
+            .any(|part_text| text.contains(part_text.as_ref()))
+    }
+
+    pub fn validate_starts_with(&self, text: &str) -> bool {
+        let text = self.prepare_text(text);
+
+        self.starts_with
+            .iter()
+            .any(|part_text| text.starts_with(part_text.as_ref()))
+    }
+
+    pub fn validate_ends_with(&self, text: &str) -> bool {
+        let text = self.prepare_text(text);
+
+        self.ends_with
+            .iter()
+            .any(|part_text| text.ends_with(part_text.as_ref()))
+    }
+
+    pub fn validate_text(&self, text: &str) -> bool {
+        self.validate_texts(&text)
+            || self.validate_contains(&text)
+            || self.validate_starts_with(&text)
+            || self.validate_ends_with(&text)
+    }
+}
+
+#[async_trait]
+impl<Client> Filter<Client> for Text<'_> {
+    async fn check(&self, _bot: &Bot<Client>, update: &Update, _context: &Context) -> bool {
+        self.get_text_from_update(update)
+            .map_or(false, |text| self.validate_text(text))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn text_validate_texts() {
+        let text = Text::builder().text("text").text("text2").build();
+
+        assert!(text.validate_texts("text"));
+        assert!(text.validate_texts("text2"));
+        assert!(!text.validate_texts("text3"));
+        assert!(!text.validate_texts("TEXT"));
+        assert!(!text.validate_texts("TEXT2"));
+        assert!(!text.validate_texts("TEXT3"));
+
+        let text = Text::builder()
+            .text("text")
+            .text("text2")
+            .ignore_case(true)
+            .build();
+
+        assert!(text.validate_texts("text"));
+        assert!(text.validate_texts("text2"));
+        assert!(!text.validate_texts("text3"));
+        assert!(text.validate_texts("TEXT"));
+        assert!(text.validate_texts("TEXT2"));
+        assert!(!text.validate_texts("TEXT3"));
+    }
+
+    #[test]
+    fn text_validate_contains() {
+        let text = Text::builder()
+            .contains_single("foo")
+            .contains_single("bar")
+            .build();
+
+        assert!(text.validate_contains("foo"));
+        assert!(text.validate_contains("bar"));
+        assert!(text.validate_contains("foobar"));
+        assert!(text.validate_contains("foob"));
+        assert!(text.validate_contains("oobar"));
+        assert!(!text.validate_contains("fo"));
+        assert!(!text.validate_contains("ba"));
+        assert!(!text.validate_contains("FOO"));
+        assert!(!text.validate_contains("BAR"));
+        assert!(!text.validate_contains("FOOBAR"));
+        assert!(!text.validate_contains("FOOB"));
+        assert!(!text.validate_contains("OOBAR"));
+
+        let text = Text::builder()
+            .contains_single("foo")
+            .contains_single("bar")
+            .ignore_case(true)
+            .build();
+
+        assert!(text.validate_contains("foo"));
+        assert!(text.validate_contains("bar"));
+        assert!(text.validate_contains("foobar"));
+        assert!(text.validate_contains("foob"));
+        assert!(text.validate_contains("oobar"));
+        assert!(!text.validate_contains("fo"));
+        assert!(!text.validate_contains("ba"));
+        assert!(text.validate_contains("FOO"));
+        assert!(text.validate_contains("BAR"));
+        assert!(text.validate_contains("FOOBAR"));
+        assert!(text.validate_contains("FOOB"));
+        assert!(text.validate_contains("OOBAR"));
+    }
+
+    #[test]
+    fn text_validate_starts_with() {
+        let text = Text::builder()
+            .starts_with_single("foo")
+            .starts_with_single("bar")
+            .build();
+
+        assert!(text.validate_starts_with("foo"));
+        assert!(text.validate_starts_with("bar"));
+        assert!(text.validate_starts_with("foobar"));
+        assert!(text.validate_starts_with("foob"));
+        assert!(!text.validate_starts_with("oobar"));
+        assert!(!text.validate_starts_with("fo"));
+        assert!(!text.validate_starts_with("ba"));
+        assert!(!text.validate_starts_with("FOO"));
+        assert!(!text.validate_starts_with("BAR"));
+        assert!(!text.validate_starts_with("FOOBAR"));
+        assert!(!text.validate_starts_with("FOOB"));
+        assert!(!text.validate_starts_with("OOBAR"));
+
+        let text = Text::builder()
+            .starts_with_single("foo")
+            .starts_with_single("bar")
+            .ignore_case(true)
+            .build();
+
+        assert!(text.validate_starts_with("foo"));
+        assert!(text.validate_starts_with("bar"));
+        assert!(text.validate_starts_with("foobar"));
+        assert!(text.validate_starts_with("foob"));
+        assert!(!text.validate_starts_with("oobar"));
+        assert!(!text.validate_starts_with("fo"));
+        assert!(!text.validate_starts_with("ba"));
+        assert!(text.validate_starts_with("FOO"));
+        assert!(text.validate_starts_with("BAR"));
+        assert!(text.validate_starts_with("FOOBAR"));
+        assert!(text.validate_starts_with("FOOB"));
+        assert!(!text.validate_starts_with("OOBAR"));
+    }
+
+    #[test]
+    fn text_validate_ends_with() {
+        let text = Text::builder()
+            .ends_with_single("foo")
+            .ends_with_single("bar")
+            .build();
+
+        assert!(text.validate_ends_with("foo"));
+        assert!(text.validate_ends_with("bar"));
+        assert!(text.validate_ends_with("foobar"));
+        assert!(!text.validate_ends_with("foob"));
+        assert!(text.validate_ends_with("oobar"));
+        assert!(!text.validate_ends_with("fo"));
+        assert!(!text.validate_ends_with("ba"));
+        assert!(!text.validate_ends_with("FOO"));
+        assert!(!text.validate_ends_with("BAR"));
+        assert!(!text.validate_ends_with("FOOBAR"));
+        assert!(!text.validate_ends_with("FOOB"));
+        assert!(!text.validate_ends_with("OOBAR"));
+
+        let text = Text::builder()
+            .ends_with_single("foo")
+            .ends_with_single("bar")
+            .ignore_case(true)
+            .build();
+
+        assert!(text.validate_ends_with("foo"));
+        assert!(text.validate_ends_with("bar"));
+        assert!(text.validate_ends_with("foobar"));
+        assert!(!text.validate_ends_with("foob"));
+        assert!(text.validate_ends_with("oobar"));
+        assert!(!text.validate_ends_with("fo"));
+        assert!(!text.validate_ends_with("ba"));
+        assert!(text.validate_ends_with("FOO"));
+        assert!(text.validate_ends_with("BAR"));
+        assert!(text.validate_ends_with("FOOBAR"));
+        assert!(!text.validate_ends_with("FOOB"));
+        assert!(text.validate_ends_with("OOBAR"));
+    }
+}
