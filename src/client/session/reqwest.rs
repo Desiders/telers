@@ -70,7 +70,7 @@ impl Reqwest {
                     InputFileKind::Id(_) | InputFileKind::Url(_) => continue,
                 };
 
-                match read_file_fut.await {
+                match Box::pin(read_file_fut).await {
                     Ok(bytes) => {
                         let body = Body::from(bytes);
                         let mut part = Part::stream(body);
@@ -133,8 +133,7 @@ impl Session for Reqwest {
     {
         let request = method.build_request(bot);
         let url = self.api.api_url(bot.token(), request.method_name);
-        let form = self
-            .build_form_data(request.data, request.files)
+        let form = Box::pin(self.build_form_data(request.data, request.files))
             .await
             .map_err(|err| {
                 log::error!("Cannot build a form: {err}");

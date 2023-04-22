@@ -28,6 +28,7 @@ impl ChatType {
 }
 
 impl ChatType {
+    #[must_use]
     pub fn validate_chat_type(&self, chat_type: ChatTypeEnum) -> bool {
         self.chat_types
             .iter()

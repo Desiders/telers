@@ -10,12 +10,14 @@ pub struct ContentType {
 }
 
 impl ContentType {
+    #[must_use]
     pub fn one(content_type: impl Into<ContentTypeEnum>) -> Self {
         Self {
             content_types: vec![content_type.into()],
         }
     }
 
+    #[must_use]
     pub fn many<T, I>(content_types: I) -> Self
     where
         T: Into<ContentTypeEnum>,
@@ -28,6 +30,7 @@ impl ContentType {
 }
 
 impl ContentType {
+    #[must_use]
     pub fn validate_content_type(&self, content_type: ContentTypeEnum) -> bool {
         self.content_types
             .iter()
