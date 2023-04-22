@@ -158,10 +158,10 @@ pub struct Message {
 
 impl Message {
     #[must_use]
-    pub fn get_text_or_caption(&self) -> Option<&String> {
-        if let Some(ref text) = self.text {
+    pub fn get_text_or_caption(&self) -> Option<&str> {
+        if let Some(text) = &self.text {
             Some(text)
-        } else if let Some(ref caption) = self.caption {
+        } else if let Some(caption) = &self.caption {
             Some(caption)
         } else {
             None
