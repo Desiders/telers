@@ -70,6 +70,12 @@ impl Telegram {
     }
 }
 
+impl<'a> PartialEq<&'a str> for Telegram {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
+    }
+}
+
 impl From<Telegram> for String {
     fn from(scope: Telegram) -> Self {
         scope.as_str().to_string()
@@ -94,6 +100,12 @@ impl Simple {
     #[must_use]
     pub const fn all() -> &'static [Simple; 2] {
         &[Simple::Startup, Simple::Shutdown]
+    }
+}
+
+impl<'a> PartialEq<&'a str> for Simple {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
     }
 }
 

@@ -36,6 +36,12 @@ impl MenuButtonType {
     }
 }
 
+impl<'a> PartialEq<&'a str> for MenuButtonType {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
+    }
+}
+
 impl From<MenuButtonType> for String {
     fn from(button_type: MenuButtonType) -> Self {
         button_type.as_str().to_string()

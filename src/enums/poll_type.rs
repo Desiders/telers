@@ -30,6 +30,12 @@ impl PollType {
     }
 }
 
+impl<'a> PartialEq<&'a str> for PollType {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
+    }
+}
+
 impl From<PollType> for String {
     fn from(action: PollType) -> Self {
         action.as_str().to_string()

@@ -32,6 +32,12 @@ impl ParseMode {
     }
 }
 
+impl<'a> PartialEq<&'a str> for ParseMode {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str().to_lowercase() == other.to_lowercase()
+    }
+}
+
 impl From<ParseMode> for String {
     fn from(parse_mode: ParseMode) -> Self {
         parse_mode.as_str().to_string()

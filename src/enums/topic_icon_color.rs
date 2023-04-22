@@ -43,6 +43,12 @@ impl TopicIconColor {
     }
 }
 
+impl<'a> PartialEq<&'a str> for TopicIconColor {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
+    }
+}
+
 impl From<TopicIconColor> for String {
     fn from(color: TopicIconColor) -> Self {
         color.as_str().to_string()

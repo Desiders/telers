@@ -57,6 +57,12 @@ impl ChatAction {
     }
 }
 
+impl<'a> PartialEq<&'a str> for ChatAction {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
+    }
+}
+
 impl From<ChatAction> for String {
     fn from(action: ChatAction) -> Self {
         action.as_str().to_string()

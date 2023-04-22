@@ -69,6 +69,12 @@ impl InlineQueryResultType {
     }
 }
 
+impl<'a> PartialEq<&'a str> for InlineQueryResultType {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
+    }
+}
+
 impl From<InlineQueryResultType> for String {
     fn from(inline_query_result_type: InlineQueryResultType) -> Self {
         inline_query_result_type.as_str().to_string()

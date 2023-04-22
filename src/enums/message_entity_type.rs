@@ -75,6 +75,12 @@ impl MessageEntityType {
     }
 }
 
+impl<'a> PartialEq<&'a str> for MessageEntityType {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
+    }
+}
+
 impl From<MessageEntityType> for String {
     fn from(entity_type: MessageEntityType) -> Self {
         entity_type.as_str().to_string()

@@ -45,6 +45,12 @@ impl ChatMemberStatus {
     }
 }
 
+impl<'a> PartialEq<&'a str> for ChatMemberStatus {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
+    }
+}
+
 impl From<ChatMemberStatus> for String {
     fn from(status: ChatMemberStatus) -> Self {
         status.as_str().to_string()

@@ -56,6 +56,12 @@ impl From<DiceEmoji> for Range<i64> {
     }
 }
 
+impl<'a> PartialEq<&'a str> for DiceEmoji {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
+    }
+}
+
 impl From<DiceEmoji> for String {
     fn from(val: DiceEmoji) -> Self {
         val.as_str().to_string()

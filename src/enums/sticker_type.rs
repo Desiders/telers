@@ -36,6 +36,12 @@ impl StickerType {
     }
 }
 
+impl<'a> PartialEq<&'a str> for StickerType {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
+    }
+}
+
 impl From<StickerType> for String {
     fn from(action: StickerType) -> Self {
         action.as_str().to_string()

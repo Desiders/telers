@@ -39,6 +39,12 @@ impl ChatType {
     }
 }
 
+impl<'a> PartialEq<&'a str> for ChatType {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
+    }
+}
+
 impl From<ChatType> for String {
     fn from(chat_type: ChatType) -> Self {
         chat_type.as_str().to_string()

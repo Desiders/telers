@@ -42,6 +42,12 @@ impl InputMediaType {
     }
 }
 
+impl<'a> PartialEq<&'a str> for InputMediaType {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
+    }
+}
+
 impl From<InputMediaType> for String {
     fn from(media_type: InputMediaType) -> Self {
         media_type.as_str().to_string()
