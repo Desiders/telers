@@ -1,5 +1,7 @@
 use super::telegram::handler::Response;
 
+use crate::error::EventError;
+
 /// Response, which can be returned from handlers, filters and middlewares by user.
 /// This indicates how [`crate::dispatcher::Dispatcher`] should process response.
 /// # Notes
@@ -31,31 +33,22 @@ pub enum EventReturn {
     Finish,
 }
 
-/// Shortcut for [`EventReturn::Skip`]
-pub struct SkipEvent;
-
-impl From<SkipEvent> for EventReturn {
-    fn from(_: SkipEvent) -> Self {
-        Self::Skip
-    }
+/// Shortcut for [`Ok(EventReturn::Skip)`]
+#[allow(clippy::missing_errors_doc)]
+pub fn skip_event() -> Result<EventReturn, EventError> {
+    Ok(EventReturn::Skip)
 }
 
-/// Shortcut for [`EventReturn::Cancel`]
-pub struct CancelEvent;
-
-impl From<CancelEvent> for EventReturn {
-    fn from(_: CancelEvent) -> Self {
-        Self::Cancel
-    }
+/// Shortcut for [`Ok(EventReturn::Cancel)`]
+#[allow(clippy::missing_errors_doc)]
+pub fn cancel_event() -> Result<EventReturn, EventError> {
+    Ok(EventReturn::Cancel)
 }
 
-/// Shortcut for [`EventReturn::Finish`]
-pub struct FinishEvent;
-
-impl From<FinishEvent> for EventReturn {
-    fn from(_: FinishEvent) -> Self {
-        Self::Finish
-    }
+/// Shortcut for [`Ok(EventReturn::Finish)`]
+#[allow(clippy::missing_errors_doc)]
+pub fn finish_event() -> Result<EventReturn, EventError> {
+    Ok(EventReturn::Finish)
 }
 
 /// Response, which can be returned from routers and observers by program.
