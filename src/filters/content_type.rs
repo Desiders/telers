@@ -28,12 +28,7 @@ impl ContentType {
 }
 
 impl ContentType {
-    pub fn validate_content_type<T>(&self, content_type: T) -> bool
-    where
-        T: Into<ContentTypeEnum>,
-    {
-        let content_type = content_type.into();
-
+    pub fn validate_content_type(&self, content_type: ContentTypeEnum) -> bool {
         self.content_types
             .iter()
             .any(|allowed_content_type| allowed_content_type == &content_type)
@@ -60,9 +55,5 @@ mod tests {
         assert!(filter.validate_content_type(ContentTypeEnum::Text));
         assert!(filter.validate_content_type(ContentTypeEnum::Photo));
         assert!(!filter.validate_content_type(ContentTypeEnum::Audio));
-
-        assert!(filter.validate_content_type("text"));
-        assert!(filter.validate_content_type("photo"));
-        assert!(!filter.validate_content_type("audio"));
     }
 }
