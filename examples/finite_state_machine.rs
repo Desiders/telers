@@ -29,8 +29,9 @@ use telers::{
         middlewares::outer::FSMContext as FSMContextMiddleware,
         Dispatcher, Router,
     },
+    enums::ContentType as ContentTypeEnum,
     enums::UpdateType,
-    filters::{Command, State as StateFilter},
+    filters::{Command, ContentType, State as StateFilter},
     fsm::{Context as FSMContext, MemoryStorage, Storage, Strategy},
     methods::SendMessage,
     types::Message,
@@ -175,22 +176,24 @@ async fn main() {
 
     // Register fsm middleware for possible managing states and fsm data (e.g. user's name and language for this example)
     router
-        .message
+        .update
         .outer_middlewares
         .register(FSMContextMiddleware::new(storage).strategy(Strategy::UserInChat));
 
     router
         .message
         .register(start_handler::<MemoryStorage>)
-        .filter(Command::builder().command("start").build())
+        .filter(Command::one("start"))
         .filter(StateFilter::none());
     router
         .message
         .register(name_handler::<MemoryStorage>)
+        .filter(ContentType::one(ContentTypeEnum::Text))
         .filter(StateFilter::one(State::Name));
     router
         .message
         .register(language_handler::<MemoryStorage>)
+        .filter(ContentType::one(ContentTypeEnum::Text))
         .filter(StateFilter::one(State::Language));
 
     let dispatcher = Dispatcher::builder()
