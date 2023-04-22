@@ -1,5 +1,7 @@
 use super::{ChatLocation, ChatPermissions, ChatPhoto, Message};
 
+use crate::enums::ChatType;
+
 use serde::Deserialize;
 
 /// This object represents a chat.
@@ -9,7 +11,7 @@ use serde::Deserialize;
 pub struct Chat {
     /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in i64erpreting it. But it has at most 52 significant bits, so a signed 64-bit i64eger or double-precision float type are safe for storing this identifier.
     pub id: i64,
-    /// Type of chat, can be either 'private', 'group', 'supergroup' or 'channel'
+    /// Type of chat, can be either `private`, `group`, `supergroup` or `channel`
     #[serde(rename = "type")]
     pub chat_type: String,
     /// Title, for supergroups, channels and group chats
@@ -64,4 +66,45 @@ pub struct Chat {
     pub linked_chat_id: Option<i64>,
     /// For supergroups, the location to which the supergroup is connected. Returned only in [`GetChat`](crate::methods::GetChat).
     pub location: Option<ChatLocation>,
+}
+
+impl Chat {
+    /// # Returns
+    /// [`Some(ChatType)`] if chat type is known, [`None`] otherwise.
+    /// This need because Telegram can add new chat types, and we don't want to break API, but this case unlikely.
+    #[must_use]
+    pub fn chat_type(&self) -> Option<ChatType> {
+        match self.chat_type.as_str() {
+            "private" => Some(ChatType::Private),
+            "group" => Some(ChatType::Group),
+            "supergroup" => Some(ChatType::Supergroup),
+            "channel" => Some(ChatType::Channel),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub fn is_private(&self) -> bool {
+        self.chat_type == "private"
+    }
+
+    #[must_use]
+    pub fn is_group(&self) -> bool {
+        self.chat_type == "group"
+    }
+
+    #[must_use]
+    pub fn is_supergroup(&self) -> bool {
+        self.chat_type == "supergroup"
+    }
+
+    #[must_use]
+    pub fn is_group_or_supergroup(&self) -> bool {
+        self.is_group() || self.is_supergroup()
+    }
+
+    #[must_use]
+    pub fn is_channel(&self) -> bool {
+        self.chat_type == "channel"
+    }
 }
