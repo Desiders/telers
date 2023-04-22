@@ -133,6 +133,22 @@ impl<'a> Command<'a> {
         }
     }
 
+    /// Creates a new [`Command`] filter with passed command and default values
+    #[must_use]
+    pub fn one(val: impl Into<PatternType<'a>>) -> Self {
+        Self::builder().command(val).build()
+    }
+
+    /// Creates a new [`Command`] filter with passed commands and default values
+    #[must_use]
+    pub fn many<T, I>(commands: I) -> Self
+    where
+        T: Into<PatternType<'a>>,
+        I: IntoIterator<Item = T>,
+    {
+        Self::builder().commands(commands).build()
+    }
+
     #[must_use]
     pub fn builder() -> CommandBuilder<'a> {
         CommandBuilder::new()
@@ -167,10 +183,7 @@ impl<'a> CommandBuilder<'a> {
     }
 
     #[must_use]
-    pub fn command<T>(self, val: T) -> Self
-    where
-        T: Into<PatternType<'a>>,
-    {
+    pub fn command(self, val: impl Into<PatternType<'a>>) -> Self {
         Self {
             commands: self.commands.into_iter().chain(once(val.into())).collect(),
             ..self

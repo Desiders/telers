@@ -89,25 +89,22 @@ where
 {
     /// Create new state filter
     #[must_use]
-    pub fn one<T>(val: T) -> Self
-    where
-        T: Into<StateType<'a, B>>,
-    {
+    pub fn one(state: impl Into<StateType<'a, B>>) -> Self {
         Self {
-            allowed_states: vec![val.into()],
+            allowed_states: vec![state.into()],
         }
     }
 
     /// Create new state filter with many states
     #[must_use]
-    pub fn many<T, S>(val: T) -> Self
+    pub fn many<T, S>(states: T) -> Self
     where
         T: IntoIterator<Item = S>,
         S: Into<StateType<'a, B>>,
     {
         let mut allowed_states = Vec::new();
 
-        for state in val {
+        for state in states {
             let state = state.into();
 
             // If state is `Any` or `None`, then clear all previous states and add only this one,
