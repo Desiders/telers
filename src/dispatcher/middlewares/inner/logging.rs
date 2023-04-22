@@ -26,19 +26,29 @@ impl Logging {
     }
 
     #[must_use]
-    pub fn with_default_target(logger: &'static dyn Log) -> Self {
+    pub fn with_logger(logger: &'static dyn Log) -> Self {
+        Self::new(logger, DEFAULT_TARGET)
+    }
+
+    #[must_use]
+    pub fn with_target(target: &'static str) -> Self {
+        Self::new(log::logger(), target)
+    }
+
+    #[must_use]
+    pub fn logger(self, val: &'static dyn Log) -> Self {
         Self {
-            logger,
-            target: DEFAULT_TARGET,
+            logger: val,
+            ..self
         }
     }
 
-    fn record<'a>(&self, level: Level, args: fmt::Arguments<'a>) -> Record<'a> {
-        Record::builder()
-            .level(level)
-            .target(self.target)
-            .args(args)
-            .build()
+    #[must_use]
+    pub fn target(self, val: &'static str) -> Self {
+        Self {
+            target: val,
+            ..self
+        }
     }
 }
 
@@ -49,6 +59,16 @@ impl Default for Logging {
             logger: log::logger(),
             target: DEFAULT_TARGET,
         }
+    }
+}
+
+impl Logging {
+    fn record<'a>(&self, level: Level, args: fmt::Arguments<'a>) -> Record<'a> {
+        Record::builder()
+            .level(level)
+            .target(self.target)
+            .args(args)
+            .build()
     }
 }
 
@@ -156,7 +176,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_logging() {
-        let middleware = Logging::with_default_target(&SimpleLogger);
+        let middleware = Logging::with_logger(&SimpleLogger);
 
         let handler_service_factory =
             handler_service(|| async { Ok(EventReturn::Finish) }).new_service(());
