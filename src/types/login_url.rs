@@ -21,7 +21,7 @@ pub struct LoginUrl {
 
 impl LoginUrl {
     #[must_use]
-    pub fn new<T: Into<String>>(url: T) -> Self {
+    pub fn new(url: impl Into<String>) -> Self {
         Self {
             url: url.into(),
             forward_text: None,
@@ -31,26 +31,34 @@ impl LoginUrl {
     }
 
     #[must_use]
-    pub fn url(mut self, val: impl Into<String>) -> Self {
-        self.url = val.into();
-        self
+    pub fn url(self, val: impl Into<String>) -> Self {
+        Self {
+            url: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn forward_text(mut self, val: impl Into<String>) -> Self {
-        self.forward_text = Some(val.into());
-        self
+    pub fn forward_text(self, val: impl Into<String>) -> Self {
+        Self {
+            forward_text: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn bot_username(mut self, val: impl Into<String>) -> Self {
-        self.bot_username = Some(val.into());
-        self
+    pub fn bot_username(self, val: impl Into<String>) -> Self {
+        Self {
+            bot_username: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn request_write_access(mut self, val: bool) -> Self {
-        self.request_write_access = Some(val);
-        self
+    pub fn request_write_access(self, val: bool) -> Self {
+        Self {
+            request_write_access: Some(val),
+            ..self
+        }
     }
 }

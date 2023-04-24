@@ -40,7 +40,11 @@ pub struct InlineQueryResultAudio {
 
 impl InlineQueryResultAudio {
     #[must_use]
-    pub fn new<T: Into<String>>(id: T, audio_url: T, title: T) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        audio_url: impl Into<String>,
+        title: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             audio_url: audio_url.into(),
@@ -50,15 +54,19 @@ impl InlineQueryResultAudio {
     }
 
     #[must_use]
-    pub fn id(mut self, val: impl Into<String>) -> Self {
-        self.id = val.into();
-        self
+    pub fn id(self, val: impl Into<String>) -> Self {
+        Self {
+            id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn audio_url(mut self, val: impl Into<String>) -> Self {
-        self.audio_url = val.into();
-        self
+    pub fn audio_url(self, val: impl Into<String>) -> Self {
+        Self {
+            audio_url: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
@@ -114,15 +122,19 @@ impl InlineQueryResultAudio {
     }
 
     #[must_use]
-    pub fn performer(mut self, val: impl Into<String>) -> Self {
-        self.performer = Some(val.into());
-        self
+    pub fn performer(self, val: impl Into<String>) -> Self {
+        Self {
+            performer: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn audio_duration(mut self, val: i64) -> Self {
-        self.audio_duration = Some(val);
-        self
+    pub fn audio_duration(self, val: i64) -> Self {
+        Self {
+            audio_duration: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
@@ -134,9 +146,11 @@ impl InlineQueryResultAudio {
     }
 
     #[must_use]
-    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
-        self.input_message_content = Some(val);
-        self
+    pub fn input_message_content(self, val: impl Into<InputMessageContent>) -> Self {
+        Self {
+            input_message_content: Some(val.into()),
+            ..self
+        }
     }
 }
 

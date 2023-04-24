@@ -44,7 +44,11 @@ pub struct InlineQueryResultGif {
 
 impl InlineQueryResultGif {
     #[must_use]
-    pub fn new<T: Into<String>>(id: T, gif_url: T, thumb_url: T) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        gif_url: impl Into<String>,
+        thumb_url: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             gif_url: gif_url.into(),
@@ -54,51 +58,67 @@ impl InlineQueryResultGif {
     }
 
     #[must_use]
-    pub fn id(mut self, val: impl Into<String>) -> Self {
-        self.id = val.into();
-        self
+    pub fn id(self, val: impl Into<String>) -> Self {
+        Self {
+            id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn gif_url(mut self, val: impl Into<String>) -> Self {
-        self.gif_url = val.into();
-        self
+    pub fn gif_url(self, val: impl Into<String>) -> Self {
+        Self {
+            gif_url: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn thumb_url(mut self, val: impl Into<String>) -> Self {
-        self.thumb_url = val.into();
-        self
+    pub fn thumb_url(self, val: impl Into<String>) -> Self {
+        Self {
+            thumb_url: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn gif_width(mut self, val: i64) -> Self {
-        self.gif_width = Some(val);
-        self
+    pub fn gif_width(self, val: i64) -> Self {
+        Self {
+            gif_width: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn gif_height(mut self, val: i64) -> Self {
-        self.gif_height = Some(val);
-        self
+    pub fn gif_height(self, val: i64) -> Self {
+        Self {
+            gif_height: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn gif_duration(mut self, val: i64) -> Self {
-        self.gif_duration = Some(val);
-        self
+    pub fn gif_duration(self, val: i64) -> Self {
+        Self {
+            gif_duration: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn thumb_mime_type(mut self, val: impl Into<String>) -> Self {
-        self.thumb_mime_type = Some(val.into());
-        self
+    pub fn thumb_mime_type(self, val: impl Into<String>) -> Self {
+        Self {
+            thumb_mime_type: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn title(mut self, val: impl Into<String>) -> Self {
-        self.title = Some(val.into());
-        self
+    pub fn title(self, val: impl Into<String>) -> Self {
+        Self {
+            title: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
@@ -154,9 +174,11 @@ impl InlineQueryResultGif {
     }
 
     #[must_use]
-    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
-        self.input_message_content = Some(val);
-        self
+    pub fn input_message_content(self, val: impl Into<InputMessageContent>) -> Self {
+        Self {
+            input_message_content: Some(val.into()),
+            ..self
+        }
     }
 }
 

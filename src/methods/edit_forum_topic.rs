@@ -69,9 +69,11 @@ impl EditForumTopic {
 
 impl EditForumTopic {
     #[must_use]
-    pub fn icon_custom_emoji_id_option(mut self, val: Option<impl Into<String>>) -> Self {
-        self.icon_custom_emoji_id = val.map(Into::into);
-        self
+    pub fn icon_custom_emoji_id_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            icon_custom_emoji_id: val.map(Into::into),
+            ..self
+        }
     }
 }
 

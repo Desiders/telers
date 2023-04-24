@@ -26,15 +26,19 @@ impl ForceReply {
     }
 
     #[must_use]
-    pub fn input_field_placeholder(mut self, val: impl Into<String>) -> Self {
-        self.input_field_placeholder = Some(val.into());
-        self
+    pub fn input_field_placeholder(self, val: impl Into<String>) -> Self {
+        Self {
+            input_field_placeholder: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn selective(mut self, val: bool) -> Self {
-        self.selective = Some(val);
-        self
+    pub fn selective(self, val: bool) -> Self {
+        Self {
+            selective: Some(val),
+            ..self
+        }
     }
 }
 

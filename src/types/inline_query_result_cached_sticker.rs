@@ -28,7 +28,7 @@ pub struct InlineQueryResultCachedSticker {
 
 impl InlineQueryResultCachedSticker {
     #[must_use]
-    pub fn new<T: Into<String>>(id: T, sticker_file_id: T) -> Self {
+    pub fn new(id: impl Into<String>, sticker_file_id: impl Into<String>) -> Self {
         Self {
             id: id.into(),
             sticker_file_id: sticker_file_id.into(),
@@ -37,15 +37,19 @@ impl InlineQueryResultCachedSticker {
     }
 
     #[must_use]
-    pub fn id(mut self, val: impl Into<String>) -> Self {
-        self.id = val.into();
-        self
+    pub fn id(self, val: impl Into<String>) -> Self {
+        Self {
+            id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn sticker_file_id(mut self, val: impl Into<String>) -> Self {
-        self.sticker_file_id = val.into();
-        self
+    pub fn sticker_file_id(self, val: impl Into<String>) -> Self {
+        Self {
+            sticker_file_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
@@ -57,9 +61,11 @@ impl InlineQueryResultCachedSticker {
     }
 
     #[must_use]
-    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
-        self.input_message_content = Some(val);
-        self
+    pub fn input_message_content(self, val: impl Into<InputMessageContent>) -> Self {
+        Self {
+            input_message_content: Some(val.into()),
+            ..self
+        }
     }
 }
 

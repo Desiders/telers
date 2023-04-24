@@ -54,50 +54,66 @@ impl InlineKeyboardButton {
     }
 
     #[must_use]
-    pub fn url(mut self, val: impl Into<String>) -> Self {
-        self.url = Some(val.into());
-        self
+    pub fn url(self, val: impl Into<String>) -> Self {
+        Self {
+            url: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn callback_data(mut self, val: impl Into<String>) -> Self {
-        self.callback_data = Some(val.into());
-        self
+    pub fn callback_data(self, val: impl Into<String>) -> Self {
+        Self {
+            callback_data: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn web_app(mut self, val: WebAppInfo) -> Self {
-        self.web_app = Some(val);
-        self
+    pub fn web_app(self, val: WebAppInfo) -> Self {
+        Self {
+            web_app: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn login_url(mut self, val: LoginUrl) -> Self {
-        self.login_url = Some(val);
-        self
+    pub fn login_url(self, val: LoginUrl) -> Self {
+        Self {
+            login_url: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn switch_inline_query(mut self, val: impl Into<String>) -> Self {
-        self.switch_inline_query = Some(val.into());
-        self
+    pub fn switch_inline_query(self, val: impl Into<String>) -> Self {
+        Self {
+            switch_inline_query: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn switch_inline_query_current_chat(mut self, val: impl Into<String>) -> Self {
-        self.switch_inline_query_current_chat = Some(val.into());
-        self
+    pub fn switch_inline_query_current_chat(self, val: impl Into<String>) -> Self {
+        Self {
+            switch_inline_query_current_chat: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn callback_game(mut self, val: CallbackGame) -> Self {
-        self.callback_game = Some(val);
-        self
+    pub fn callback_game(self, val: CallbackGame) -> Self {
+        Self {
+            callback_game: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn pay(mut self, val: bool) -> Self {
-        self.pay = Some(val);
-        self
+    pub fn pay(self, val: bool) -> Self {
+        Self {
+            pay: Some(val),
+            ..self
+        }
     }
 }

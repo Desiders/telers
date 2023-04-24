@@ -20,7 +20,7 @@ pub struct MenuButtonWebApp {
 
 impl MenuButtonWebApp {
     #[must_use]
-    pub fn new<T: Into<String>>(text: T, web_app: WebAppInfo) -> Self {
+    pub fn new(text: impl Into<String>, web_app: WebAppInfo) -> Self {
         Self {
             button_type: web_app_type(),
             text: text.into(),
@@ -29,15 +29,19 @@ impl MenuButtonWebApp {
     }
 
     #[must_use]
-    pub fn text<T: Into<String>>(mut self, text: T) -> Self {
-        self.text = text.into();
-        self
+    pub fn text(self, val: impl Into<String>) -> Self {
+        Self {
+            text: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn web_app(mut self, web_app: WebAppInfo) -> Self {
-        self.web_app = web_app;
-        self
+    pub fn web_app(self, val: WebAppInfo) -> Self {
+        Self {
+            web_app: val,
+            ..self
+        }
     }
 }
 

@@ -36,7 +36,11 @@ pub struct InlineQueryResultCachedVideo {
 
 impl InlineQueryResultCachedVideo {
     #[must_use]
-    pub fn new<T: Into<String>>(id: T, title: T, video_file_id: T) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        title: impl Into<String>,
+        video_file_id: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             title: title.into(),
@@ -46,9 +50,11 @@ impl InlineQueryResultCachedVideo {
     }
 
     #[must_use]
-    pub fn id(mut self, val: impl Into<String>) -> Self {
-        self.id = val.into();
-        self
+    pub fn id(self, val: impl Into<String>) -> Self {
+        Self {
+            id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
@@ -60,9 +66,11 @@ impl InlineQueryResultCachedVideo {
     }
 
     #[must_use]
-    pub fn video_file_id(mut self, val: impl Into<String>) -> Self {
-        self.video_file_id = val.into();
-        self
+    pub fn video_file_id(self, val: impl Into<String>) -> Self {
+        Self {
+            video_file_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
@@ -110,9 +118,11 @@ impl InlineQueryResultCachedVideo {
     }
 
     #[must_use]
-    pub fn description(mut self, val: impl Into<String>) -> Self {
-        self.description = Some(val.into());
-        self
+    pub fn description(self, val: impl Into<String>) -> Self {
+        Self {
+            description: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
@@ -124,9 +134,11 @@ impl InlineQueryResultCachedVideo {
     }
 
     #[must_use]
-    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
-        self.input_message_content = Some(val);
-        self
+    pub fn input_message_content(self, val: impl Into<InputMessageContent>) -> Self {
+        Self {
+            input_message_content: Some(val.into()),
+            ..self
+        }
     }
 }
 

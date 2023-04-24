@@ -11,13 +11,12 @@ pub struct WebAppInfo {
 
 impl WebAppInfo {
     #[must_use]
-    pub fn new<T: Into<String>>(url: T) -> Self {
+    pub fn new(url: impl Into<String>) -> Self {
         Self { url: url.into() }
     }
 
     #[must_use]
-    pub fn url(mut self, val: impl Into<String>) -> Self {
-        self.url = val.into();
-        self
+    pub fn url(self, val: impl Into<String>) -> Self {
+        Self { url: val.into() }
     }
 }

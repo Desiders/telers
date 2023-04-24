@@ -17,29 +17,47 @@ pub struct ShippingOption {
 
 impl ShippingOption {
     #[must_use]
-    pub fn new<T: Into<String>>(id: T, title: T, prices: Vec<LabeledPrice>) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        title: impl Into<String>,
+        prices: impl IntoIterator<Item = LabeledPrice>,
+    ) -> Self {
         Self {
             id: id.into(),
             title: title.into(),
-            prices,
+            prices: prices.into_iter().collect(),
         }
     }
 
     #[must_use]
-    pub fn id<T: Into<String>>(mut self, id: T) -> Self {
-        self.id = id.into();
-        self
+    pub fn id(self, val: impl Into<String>) -> Self {
+        Self {
+            id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn title<T: Into<String>>(mut self, title: T) -> Self {
-        self.title = title.into();
-        self
+    pub fn title(self, val: impl Into<String>) -> Self {
+        Self {
+            title: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn prices(mut self, prices: Vec<LabeledPrice>) -> Self {
-        self.prices = prices;
-        self
+    pub fn price(self, val: LabeledPrice) -> Self {
+        Self {
+            prices: self.prices.into_iter().chain(Some(val)).collect(),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn prices(self, val: impl IntoIterator<Item = LabeledPrice>) -> Self {
+        Self {
+            prices: self.prices.into_iter().chain(val).collect(),
+            ..self
+        }
     }
 }

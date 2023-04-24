@@ -34,7 +34,7 @@ pub struct InlineQueryResultCachedMpeg4Gif {
 
 impl InlineQueryResultCachedMpeg4Gif {
     #[must_use]
-    pub fn new<T: Into<String>>(id: T, mpeg4_file_id: T) -> Self {
+    pub fn new(id: impl Into<String>, mpeg4_file_id: impl Into<String>) -> Self {
         Self {
             id: id.into(),
             mpeg4_file_id: mpeg4_file_id.into(),
@@ -43,21 +43,27 @@ impl InlineQueryResultCachedMpeg4Gif {
     }
 
     #[must_use]
-    pub fn id(mut self, val: impl Into<String>) -> Self {
-        self.id = val.into();
-        self
+    pub fn id(self, val: impl Into<String>) -> Self {
+        Self {
+            id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn mpeg4_file_id(mut self, val: impl Into<String>) -> Self {
-        self.mpeg4_file_id = val.into();
-        self
+    pub fn mpeg4_file_id(self, val: impl Into<String>) -> Self {
+        Self {
+            mpeg4_file_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn title(mut self, val: impl Into<String>) -> Self {
-        self.title = Some(val.into());
-        self
+    pub fn title(self, val: impl Into<String>) -> Self {
+        Self {
+            title: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
@@ -113,9 +119,11 @@ impl InlineQueryResultCachedMpeg4Gif {
     }
 
     #[must_use]
-    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
-        self.input_message_content = Some(val);
-        self
+    pub fn input_message_content(self, val: impl Into<InputMessageContent>) -> Self {
+        Self {
+            input_message_content: Some(val.into()),
+            ..self
+        }
     }
 }
 

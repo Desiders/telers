@@ -34,7 +34,7 @@ pub struct InlineQueryResultCachedGif {
 
 impl InlineQueryResultCachedGif {
     #[must_use]
-    pub fn new<T: Into<String>>(id: T, gif_file_id: T) -> Self {
+    pub fn new(id: impl Into<String>, gif_file_id: impl Into<String>) -> Self {
         Self {
             id: id.into(),
             gif_file_id: gif_file_id.into(),
@@ -43,21 +43,27 @@ impl InlineQueryResultCachedGif {
     }
 
     #[must_use]
-    pub fn id(mut self, val: impl Into<String>) -> Self {
-        self.id = val.into();
-        self
+    pub fn id(self, val: impl Into<String>) -> Self {
+        Self {
+            id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn gif_file_id(mut self, val: impl Into<String>) -> Self {
-        self.gif_file_id = val.into();
-        self
+    pub fn gif_file_id(self, val: impl Into<String>) -> Self {
+        Self {
+            gif_file_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn title(mut self, val: impl Into<String>) -> Self {
-        self.title = Some(val.into());
-        self
+    pub fn title(self, val: impl Into<String>) -> Self {
+        Self {
+            title: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
@@ -113,9 +119,11 @@ impl InlineQueryResultCachedGif {
     }
 
     #[must_use]
-    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
-        self.input_message_content = Some(val);
-        self
+    pub fn input_message_content(self, val: impl Into<InputMessageContent>) -> Self {
+        Self {
+            input_message_content: Some(val.into()),
+            ..self
+        }
     }
 }
 

@@ -26,7 +26,7 @@ pub struct InlineQueryResultGame {
 
 impl InlineQueryResultGame {
     #[must_use]
-    pub fn new<T: Into<String>>(id: T, game_short_name: T) -> Self {
+    pub fn new(id: impl Into<String>, game_short_name: impl Into<String>) -> Self {
         Self {
             id: id.into(),
             game_short_name: game_short_name.into(),
@@ -35,9 +35,11 @@ impl InlineQueryResultGame {
     }
 
     #[must_use]
-    pub fn id(mut self, val: impl Into<String>) -> Self {
-        self.id = val.into();
-        self
+    pub fn id(self, val: impl Into<String>) -> Self {
+        Self {
+            id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]

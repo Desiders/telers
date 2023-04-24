@@ -46,26 +46,34 @@ impl KeyboardButton {
     }
 
     #[must_use]
-    pub fn request_contact(mut self, val: bool) -> Self {
-        self.request_contact = Some(val);
-        self
+    pub fn request_contact(self, val: bool) -> Self {
+        Self {
+            request_contact: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn request_location(mut self, val: bool) -> Self {
-        self.request_location = Some(val);
-        self
+    pub fn request_location(self, val: bool) -> Self {
+        Self {
+            request_location: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn request_poll(mut self, val: KeyboardButtonPollType) -> Self {
-        self.request_poll = Some(val);
-        self
+    pub fn request_poll(self, val: KeyboardButtonPollType) -> Self {
+        Self {
+            request_poll: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn web_app(mut self, val: WebAppInfo) -> Self {
-        self.web_app = Some(val);
-        self
+    pub fn web_app(self, val: WebAppInfo) -> Self {
+        Self {
+            web_app: Some(val),
+            ..self
+        }
     }
 }

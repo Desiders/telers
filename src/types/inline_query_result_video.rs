@@ -47,7 +47,13 @@ pub struct InlineQueryResultVideo {
 
 impl InlineQueryResultVideo {
     #[must_use]
-    pub fn new<T: Into<String>>(id: T, video_url: T, mime_type: T, thumb_url: T, title: T) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        video_url: impl Into<String>,
+        mime_type: impl Into<String>,
+        thumb_url: impl Into<String>,
+        title: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             video_url: video_url.into(),
@@ -59,27 +65,35 @@ impl InlineQueryResultVideo {
     }
 
     #[must_use]
-    pub fn id(mut self, val: impl Into<String>) -> Self {
-        self.id = val.into();
-        self
+    pub fn id(self, val: impl Into<String>) -> Self {
+        Self {
+            id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn video_url(mut self, val: impl Into<String>) -> Self {
-        self.video_url = val.into();
-        self
+    pub fn video_url(self, val: impl Into<String>) -> Self {
+        Self {
+            video_url: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn mime_type(mut self, val: impl Into<String>) -> Self {
-        self.mime_type = val.into();
-        self
+    pub fn mime_type(self, val: impl Into<String>) -> Self {
+        Self {
+            mime_type: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn thumb_url(mut self, val: impl Into<String>) -> Self {
-        self.thumb_url = val.into();
-        self
+    pub fn thumb_url(self, val: impl Into<String>) -> Self {
+        Self {
+            thumb_url: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
@@ -135,27 +149,35 @@ impl InlineQueryResultVideo {
     }
 
     #[must_use]
-    pub fn video_width(mut self, val: i64) -> Self {
-        self.video_width = Some(val);
-        self
+    pub fn video_width(self, val: i64) -> Self {
+        Self {
+            video_width: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn video_height(mut self, val: i64) -> Self {
-        self.video_height = Some(val);
-        self
+    pub fn video_height(self, val: i64) -> Self {
+        Self {
+            video_height: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn video_duration(mut self, val: i64) -> Self {
-        self.video_duration = Some(val);
-        self
+    pub fn video_duration(self, val: i64) -> Self {
+        Self {
+            video_duration: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn description(mut self, val: impl Into<String>) -> Self {
-        self.description = Some(val.into());
-        self
+    pub fn description(self, val: impl Into<String>) -> Self {
+        Self {
+            description: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
@@ -167,9 +189,11 @@ impl InlineQueryResultVideo {
     }
 
     #[must_use]
-    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
-        self.input_message_content = Some(val);
-        self
+    pub fn input_message_content(self, val: impl Into<InputMessageContent>) -> Self {
+        Self {
+            input_message_content: Some(val.into()),
+            ..self
+        }
     }
 }
 

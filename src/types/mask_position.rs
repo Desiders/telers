@@ -17,7 +17,7 @@ pub struct MaskPosition {
 
 impl MaskPosition {
     #[must_use]
-    pub fn new<T: Into<String>>(point: T, x_shift: f64, y_shift: f64, scale: f64) -> Self {
+    pub fn new(point: impl Into<String>, x_shift: f64, y_shift: f64, scale: f64) -> Self {
         Self {
             point: point.into(),
             x_shift,
@@ -27,26 +27,25 @@ impl MaskPosition {
     }
 
     #[must_use]
-    pub fn point<T: Into<String>>(mut self, point: T) -> Self {
-        self.point = point.into();
-        self
+    pub fn point(self, point: impl Into<String>) -> Self {
+        Self {
+            point: point.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn x_shift(mut self, x_shift: f64) -> Self {
-        self.x_shift = x_shift;
-        self
+    pub fn x_shift(self, x_shift: f64) -> Self {
+        Self { x_shift, ..self }
     }
 
     #[must_use]
-    pub fn y_shift(mut self, y_shift: f64) -> Self {
-        self.y_shift = y_shift;
-        self
+    pub fn y_shift(self, y_shift: f64) -> Self {
+        Self { y_shift, ..self }
     }
 
     #[must_use]
-    pub fn scale(mut self, scale: f64) -> Self {
-        self.scale = scale;
-        self
+    pub fn scale(self, scale: f64) -> Self {
+        Self { scale, ..self }
     }
 }

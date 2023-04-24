@@ -46,11 +46,11 @@ pub struct InlineQueryResultDocument {
 
 impl InlineQueryResultDocument {
     #[must_use]
-    pub fn new<T: Into<String>>(
-        id: T,
-        title: T,
-        document_url: T,
-        mime_type: T,
+    pub fn new(
+        id: impl Into<String>,
+        title: impl Into<String>,
+        document_url: impl Into<String>,
+        mime_type: impl Into<String>,
     ) -> InlineQueryResultDocument {
         Self {
             id: id.into(),
@@ -62,9 +62,11 @@ impl InlineQueryResultDocument {
     }
 
     #[must_use]
-    pub fn id(mut self, val: impl Into<String>) -> Self {
-        self.id = val.into();
-        self
+    pub fn id(self, val: impl Into<String>) -> Self {
+        Self {
+            id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
@@ -76,15 +78,19 @@ impl InlineQueryResultDocument {
     }
 
     #[must_use]
-    pub fn document_url(mut self, val: impl Into<String>) -> Self {
-        self.document_url = val.into();
-        self
+    pub fn document_url(self, val: impl Into<String>) -> Self {
+        Self {
+            document_url: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn mime_type(mut self, val: impl Into<String>) -> Self {
-        self.mime_type = val.into();
-        self
+    pub fn mime_type(self, val: impl Into<String>) -> Self {
+        Self {
+            mime_type: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
@@ -132,9 +138,11 @@ impl InlineQueryResultDocument {
     }
 
     #[must_use]
-    pub fn description(mut self, val: impl Into<String>) -> Self {
-        self.description = Some(val.into());
-        self
+    pub fn description(self, val: impl Into<String>) -> Self {
+        Self {
+            description: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
@@ -146,27 +154,35 @@ impl InlineQueryResultDocument {
     }
 
     #[must_use]
-    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
-        self.input_message_content = Some(val);
-        self
+    pub fn input_message_content(self, val: impl Into<InputMessageContent>) -> Self {
+        Self {
+            input_message_content: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn thumb_url(mut self, val: impl Into<String>) -> Self {
-        self.thumb_url = Some(val.into());
-        self
+    pub fn thumb_url(self, val: impl Into<String>) -> Self {
+        Self {
+            thumb_url: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn thumb_width(mut self, val: i64) -> Self {
-        self.thumb_width = Some(val);
-        self
+    pub fn thumb_width(self, val: i64) -> Self {
+        Self {
+            thumb_width: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn thumb_height(mut self, val: i64) -> Self {
-        self.thumb_height = Some(val);
-        self
+    pub fn thumb_height(self, val: i64) -> Self {
+        Self {
+            thumb_height: Some(val),
+            ..self
+        }
     }
 }
 

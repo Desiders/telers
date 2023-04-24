@@ -36,7 +36,7 @@ pub struct InlineQueryResultCachedPhoto {
 
 impl InlineQueryResultCachedPhoto {
     #[must_use]
-    pub fn new<T: Into<String>>(id: T, photo_file_id: T) -> Self {
+    pub fn new(id: impl Into<String>, photo_file_id: impl Into<String>) -> Self {
         Self {
             id: id.into(),
             photo_file_id: photo_file_id.into(),
@@ -45,27 +45,35 @@ impl InlineQueryResultCachedPhoto {
     }
 
     #[must_use]
-    pub fn id(mut self, val: impl Into<String>) -> Self {
-        self.id = val.into();
-        self
+    pub fn id(self, val: impl Into<String>) -> Self {
+        Self {
+            id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn photo_file_id(mut self, val: impl Into<String>) -> Self {
-        self.photo_file_id = val.into();
-        self
+    pub fn photo_file_id(self, val: impl Into<String>) -> Self {
+        Self {
+            photo_file_id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn title(mut self, val: impl Into<String>) -> Self {
-        self.title = Some(val.into());
-        self
+    pub fn title(self, val: impl Into<String>) -> Self {
+        Self {
+            title: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn description(mut self, val: impl Into<String>) -> Self {
-        self.description = Some(val.into());
-        self
+    pub fn description(self, val: impl Into<String>) -> Self {
+        Self {
+            description: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
@@ -121,9 +129,11 @@ impl InlineQueryResultCachedPhoto {
     }
 
     #[must_use]
-    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
-        self.input_message_content = Some(val);
-        self
+    pub fn input_message_content(self, val: impl Into<InputMessageContent>) -> Self {
+        Self {
+            input_message_content: Some(val.into()),
+            ..self
+        }
     }
 }
 

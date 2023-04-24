@@ -37,38 +37,57 @@ impl ReplyKeyboardMarkup {
     }
 
     #[must_use]
-    pub fn is_persistent(mut self, val: bool) -> Self {
-        self.is_persistent = Some(val);
-        self
+    pub fn is_persistent(self, val: bool) -> Self {
+        Self {
+            is_persistent: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn keyboard(mut self, val: Vec<Vec<KeyboardButton>>) -> Self {
-        self.keyboard = val;
-        self
+    pub fn keyboard<T, I>(self, val: I) -> Self
+    where
+        T: IntoIterator<Item = KeyboardButton>,
+        I: IntoIterator<Item = T>,
+    {
+        Self {
+            keyboard: val
+                .into_iter()
+                .map(|val| val.into_iter().collect())
+                .collect(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn resize_keyboard(mut self, val: bool) -> Self {
-        self.resize_keyboard = Some(val);
-        self
+    pub fn resize_keyboard(self, val: bool) -> Self {
+        Self {
+            resize_keyboard: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn one_time_keyboard(mut self, val: bool) -> Self {
-        self.one_time_keyboard = Some(val);
-        self
+    pub fn one_time_keyboard(self, val: bool) -> Self {
+        Self {
+            one_time_keyboard: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn input_field_placeholder(mut self, val: impl Into<String>) -> Self {
-        self.input_field_placeholder = Some(val.into());
-        self
+    pub fn input_field_placeholder(self, val: impl Into<String>) -> Self {
+        Self {
+            input_field_placeholder: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn selective(mut self, val: bool) -> Self {
-        self.selective = Some(val);
-        self
+    pub fn selective(self, val: bool) -> Self {
+        Self {
+            selective: Some(val),
+            ..self
+        }
     }
 }

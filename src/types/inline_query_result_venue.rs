@@ -48,12 +48,12 @@ pub struct InlineQueryResultVenue {
 
 impl InlineQueryResultVenue {
     #[must_use]
-    pub fn new<T: Into<String>>(
-        id: T,
+    pub fn new(
+        id: impl Into<String>,
         latitude: f64,
         longitude: f64,
-        title: T,
-        address: T,
+        title: impl Into<String>,
+        address: impl Into<String>,
     ) -> Self {
         Self {
             id: id.into(),
@@ -66,21 +66,27 @@ impl InlineQueryResultVenue {
     }
 
     #[must_use]
-    pub fn id(mut self, val: impl Into<String>) -> Self {
-        self.id = val.into();
-        self
+    pub fn id(self, val: impl Into<String>) -> Self {
+        Self {
+            id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn latitude(mut self, val: f64) -> Self {
-        self.latitude = val;
-        self
+    pub fn latitude(self, val: f64) -> Self {
+        Self {
+            latitude: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn longitude(mut self, val: f64) -> Self {
-        self.longitude = val;
-        self
+    pub fn longitude(self, val: f64) -> Self {
+        Self {
+            longitude: val,
+            ..self
+        }
     }
 
     #[must_use]
@@ -140,27 +146,35 @@ impl InlineQueryResultVenue {
     }
 
     #[must_use]
-    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
-        self.input_message_content = Some(val);
-        self
+    pub fn input_message_content(self, val: impl Into<InputMessageContent>) -> Self {
+        Self {
+            input_message_content: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn thumb_url(mut self, val: impl Into<String>) -> Self {
-        self.thumb_url = Some(val.into());
-        self
+    pub fn thumb_url(self, val: impl Into<String>) -> Self {
+        Self {
+            thumb_url: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn thumb_width(mut self, val: i64) -> Self {
-        self.thumb_width = Some(val);
-        self
+    pub fn thumb_width(self, val: i64) -> Self {
+        Self {
+            thumb_width: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn thumb_height(mut self, val: i64) -> Self {
-        self.thumb_height = Some(val);
-        self
+    pub fn thumb_height(self, val: i64) -> Self {
+        Self {
+            thumb_height: Some(val),
+            ..self
+        }
     }
 }
 

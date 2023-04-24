@@ -55,9 +55,11 @@ impl<'a> InputMediaVideo<'a> {
     }
 
     #[must_use]
-    pub fn media<T: Into<InputFile<'a>>>(mut self, val: T) -> Self {
-        self.media = val.into();
-        self
+    pub fn media(self, val: impl Into<InputFile<'a>>) -> Self {
+        Self {
+            media: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
@@ -137,9 +139,11 @@ impl<'a> InputMediaVideo<'a> {
     }
 
     #[must_use]
-    pub fn supports_streaming(mut self, val: bool) -> Self {
-        self.supports_streaming = Some(val);
-        self
+    pub fn supports_streaming(self, val: bool) -> Self {
+        Self {
+            supports_streaming: Some(val),
+            ..self
+        }
     }
 
     #[must_use]

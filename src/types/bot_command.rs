@@ -13,7 +13,7 @@ pub struct BotCommand {
 
 impl BotCommand {
     #[must_use]
-    pub fn new<T: Into<String>>(command: T, description: T) -> Self {
+    pub fn new(command: impl Into<String>, description: impl Into<String>) -> Self {
         Self {
             command: command.into(),
             description: description.into(),
@@ -21,9 +21,11 @@ impl BotCommand {
     }
 
     #[must_use]
-    pub fn command(mut self, val: impl Into<String>) -> Self {
-        self.command = val.into();
-        self
+    pub fn command(self, val: impl Into<String>) -> Self {
+        Self {
+            command: val.into(),
+            ..self
+        }
     }
 
     #[must_use]

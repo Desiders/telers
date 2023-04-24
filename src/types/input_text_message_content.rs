@@ -21,7 +21,7 @@ pub struct InputTextMessageContent {
 
 impl InputTextMessageContent {
     #[must_use]
-    pub fn new<T: Into<String>>(message_text: T) -> Self {
+    pub fn new(message_text: impl Into<String>) -> Self {
         Self {
             message_text: message_text.into(),
             parse_mode: None,
@@ -31,9 +31,11 @@ impl InputTextMessageContent {
     }
 
     #[must_use]
-    pub fn message_text(mut self, val: impl Into<String>) -> Self {
-        self.message_text = val.into();
-        self
+    pub fn message_text(self, val: impl Into<String>) -> Self {
+        Self {
+            message_text: val.into(),
+            ..self
+        }
     }
 
     #[must_use]

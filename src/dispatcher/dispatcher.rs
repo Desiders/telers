@@ -130,9 +130,11 @@ where
 /// A block of consuming builder
 impl<Client> DispatcherBuilder<Client> {
     #[must_use]
-    pub fn main_router(mut self, val: Router<Client>) -> Self {
-        self.main_router = val;
-        self
+    pub fn main_router(self, val: Router<Client>) -> Self {
+        Self {
+            main_router: val,
+            ..self
+        }
     }
 
     /// Alias to [`DispatcherBuilder::main_router`] method

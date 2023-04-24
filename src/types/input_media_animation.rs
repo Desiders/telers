@@ -52,9 +52,11 @@ impl<'a> InputMediaAnimation<'a> {
     }
 
     #[must_use]
-    pub fn media<T: Into<InputFile<'a>>>(mut self, val: T) -> Self {
-        self.media = val.into();
-        self
+    pub fn media(self, val: impl Into<InputFile<'a>>) -> Self {
+        Self {
+            media: val.into(),
+            ..self
+        }
     }
 
     #[must_use]

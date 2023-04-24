@@ -185,15 +185,19 @@ impl SendMessage {
     }
 
     #[must_use]
-    pub fn entities_option(mut self, val: Option<Vec<MessageEntity>>) -> Self {
-        self.entities = val;
-        self
+    pub fn entities_option(self, val: Option<impl IntoIterator<Item = MessageEntity>>) -> Self {
+        Self {
+            entities: val.map(|val| val.into_iter().collect()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn disable_web_page_preview_option(mut self, val: Option<bool>) -> Self {
-        self.disable_web_page_preview = val;
-        self
+    pub fn disable_web_page_preview_option(self, val: Option<bool>) -> Self {
+        Self {
+            disable_web_page_preview: val,
+            ..self
+        }
     }
 
     #[must_use]

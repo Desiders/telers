@@ -40,7 +40,11 @@ pub struct InlineQueryResultContact {
 
 impl InlineQueryResultContact {
     #[must_use]
-    pub fn new<T: Into<String>>(id: T, phone_number: T, first_name: T) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        phone_number: impl Into<String>,
+        first_name: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             phone_number: phone_number.into(),
@@ -50,9 +54,11 @@ impl InlineQueryResultContact {
     }
 
     #[must_use]
-    pub fn id(mut self, val: impl Into<String>) -> Self {
-        self.id = val.into();
-        self
+    pub fn id(self, val: impl Into<String>) -> Self {
+        Self {
+            id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
@@ -96,27 +102,35 @@ impl InlineQueryResultContact {
     }
 
     #[must_use]
-    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
-        self.input_message_content = Some(val);
-        self
+    pub fn input_message_content(self, val: impl Into<InputMessageContent>) -> Self {
+        Self {
+            input_message_content: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn thumb_url(mut self, val: impl Into<String>) -> Self {
-        self.thumb_url = Some(val.into());
-        self
+    pub fn thumb_url(self, val: impl Into<String>) -> Self {
+        Self {
+            thumb_url: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn thumb_width(mut self, val: i64) -> Self {
-        self.thumb_width = Some(val);
-        self
+    pub fn thumb_width(self, val: i64) -> Self {
+        Self {
+            thumb_width: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn thumb_height(mut self, val: i64) -> Self {
-        self.thumb_height = Some(val);
-        self
+    pub fn thumb_height(self, val: i64) -> Self {
+        Self {
+            thumb_height: Some(val),
+            ..self
+        }
     }
 }
 

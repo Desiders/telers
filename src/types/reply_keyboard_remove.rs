@@ -23,14 +23,18 @@ impl ReplyKeyboardRemove {
     }
 
     #[must_use]
-    pub fn remove_keyboard(mut self, val: bool) -> Self {
-        self.remove_keyboard = val;
-        self
+    pub fn remove_keyboard(self, val: bool) -> Self {
+        Self {
+            remove_keyboard: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn selective(mut self, val: bool) -> Self {
-        self.selective = Some(val);
-        self
+    pub fn selective(self, val: bool) -> Self {
+        Self {
+            selective: Some(val),
+            ..self
+        }
     }
 }

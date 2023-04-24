@@ -39,10 +39,7 @@ impl<'a> InputSticker<'a> {
     }
 
     #[must_use]
-    pub fn emoji<T>(self, val: T) -> Self
-    where
-        T: Into<String>,
-    {
+    pub fn emoji(self, val: impl Into<String>) -> Self {
         Self {
             emoji_list: self
                 .emoji_list
@@ -88,10 +85,7 @@ impl<'a> InputSticker<'a> {
     }
 
     #[must_use]
-    pub fn keyword<T>(self, val: T) -> Self
-    where
-        T: Into<String>,
-    {
+    pub fn keyword(self, val: impl Into<String>) -> Self {
         Self {
             keywords: Some(
                 self.keywords

@@ -20,8 +20,17 @@ impl InlineKeyboardMarkup {
     }
 
     #[must_use]
-    pub fn inline_keyboard(mut self, val: Vec<Vec<InlineKeyboardButton>>) -> Self {
-        self.inline_keyboard = val;
-        self
+    pub fn inline_keyboard<T, I>(self, val: I) -> Self
+    where
+        T: IntoIterator<Item = InlineKeyboardButton>,
+        I: IntoIterator<Item = T>,
+    {
+        Self {
+            inline_keyboard: self
+                .inline_keyboard
+                .into_iter()
+                .chain(val.into_iter().map(|val| val.into_iter().collect()))
+                .collect(),
+        }
     }
 }

@@ -152,21 +152,27 @@ impl EditMessageLiveLocation {
     }
 
     #[must_use]
-    pub fn horizontal_accuracy_option(mut self, val: Option<f64>) -> Self {
-        self.horizontal_accuracy = val;
-        self
+    pub fn horizontal_accuracy_option(self, val: Option<f64>) -> Self {
+        Self {
+            horizontal_accuracy: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn heading_option(mut self, val: Option<i64>) -> Self {
-        self.heading = val;
-        self
+    pub fn heading_option(self, val: Option<i64>) -> Self {
+        Self {
+            heading: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn proximity_alert_radius_option(mut self, val: Option<i64>) -> Self {
-        self.proximity_alert_radius = val;
-        self
+    pub fn proximity_alert_radius_option(self, val: Option<i64>) -> Self {
+        Self {
+            proximity_alert_radius: val,
+            ..self
+        }
     }
 
     #[must_use]

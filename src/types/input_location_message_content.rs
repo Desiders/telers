@@ -35,15 +35,19 @@ impl InputLocationMessageContent {
     }
 
     #[must_use]
-    pub fn latitude(mut self, val: f64) -> Self {
-        self.latitude = val;
-        self
+    pub fn latitude(self, val: f64) -> Self {
+        Self {
+            latitude: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn longitude(mut self, val: f64) -> Self {
-        self.longitude = val;
-        self
+    pub fn longitude(self, val: f64) -> Self {
+        Self {
+            longitude: val,
+            ..self
+        }
     }
 
     #[must_use]

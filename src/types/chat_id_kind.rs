@@ -9,13 +9,13 @@ pub enum ChatIdKind {
 
 impl ChatIdKind {
     #[must_use]
-    pub fn id(id: i64) -> Self {
-        Self::Id(id)
+    pub fn id(val: i64) -> Self {
+        Self::Id(val)
     }
 
     #[must_use]
-    pub fn username<T: Into<String>>(username: T) -> Self {
-        Self::Username(username.into())
+    pub fn username(val: impl Into<String>) -> Self {
+        Self::Username(val.into())
     }
 }
 

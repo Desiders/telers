@@ -27,7 +27,12 @@ pub struct InputVenueMessageContent {
 
 impl InputVenueMessageContent {
     #[must_use]
-    pub fn new<T: Into<String>>(latitude: f64, longitude: f64, title: T, address: T) -> Self {
+    pub fn new(
+        latitude: f64,
+        longitude: f64,
+        title: impl Into<String>,
+        address: impl Into<String>,
+    ) -> Self {
         Self {
             latitude,
             longitude,
@@ -41,15 +46,19 @@ impl InputVenueMessageContent {
     }
 
     #[must_use]
-    pub fn latitude(mut self, val: f64) -> Self {
-        self.latitude = val;
-        self
+    pub fn latitude(self, val: f64) -> Self {
+        Self {
+            latitude: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn longitude(mut self, val: f64) -> Self {
-        self.longitude = val;
-        self
+    pub fn longitude(self, val: f64) -> Self {
+        Self {
+            longitude: val,
+            ..self
+        }
     }
 
     #[must_use]

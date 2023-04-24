@@ -13,7 +13,7 @@ pub struct LabeledPrice {
 
 impl LabeledPrice {
     #[must_use]
-    pub fn new<T: Into<String>>(label: T, amount: i64) -> Self {
+    pub fn new(label: impl Into<String>, amount: i64) -> Self {
         Self {
             label: label.into(),
             amount,
@@ -21,14 +21,18 @@ impl LabeledPrice {
     }
 
     #[must_use]
-    pub fn label(mut self, val: impl Into<String>) -> Self {
-        self.label = val.into();
-        self
+    pub fn label(self, val: impl Into<String>) -> Self {
+        Self {
+            label: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn amount(mut self, val: i64) -> Self {
-        self.amount = val;
-        self
+    pub fn amount(self, val: i64) -> Self {
+        Self {
+            amount: val,
+            ..self
+        }
     }
 }

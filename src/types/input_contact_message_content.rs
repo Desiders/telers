@@ -19,7 +19,7 @@ pub struct InputContactMessageContent {
 
 impl InputContactMessageContent {
     #[must_use]
-    pub fn new<T: Into<String>>(phone_number: T, first_name: T) -> Self {
+    pub fn new(phone_number: impl Into<String>, first_name: impl Into<String>) -> Self {
         Self {
             phone_number: phone_number.into(),
             first_name: first_name.into(),

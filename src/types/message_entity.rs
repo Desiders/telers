@@ -30,7 +30,7 @@ pub struct MessageEntity {
 
 impl MessageEntity {
     #[must_use]
-    pub fn new<T: Into<String>>(entity_type: T, offset: i64, length: i64) -> Self {
+    pub fn new(entity_type: impl Into<String>, offset: i64, length: i64) -> Self {
         Self {
             entity_type: entity_type.into(),
             offset,
@@ -43,39 +43,51 @@ impl MessageEntity {
     }
 
     #[must_use]
-    pub fn offset(mut self, val: i64) -> Self {
-        self.offset = val;
-        self
+    pub fn offset(self, val: i64) -> Self {
+        Self {
+            offset: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn length(mut self, val: i64) -> Self {
-        self.length = val;
-        self
+    pub fn length(self, val: i64) -> Self {
+        Self {
+            length: val,
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn url(mut self, val: impl Into<String>) -> Self {
-        self.url = Some(val.into());
-        self
+    pub fn url(self, val: impl Into<String>) -> Self {
+        Self {
+            url: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn user(mut self, val: User) -> Self {
-        self.user = Some(val);
-        self
+    pub fn user(self, val: User) -> Self {
+        Self {
+            user: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn language(mut self, val: impl Into<String>) -> Self {
-        self.language = Some(val.into());
-        self
+    pub fn language(self, val: impl Into<String>) -> Self {
+        Self {
+            language: Some(val.into()),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn custom_emoji_id(mut self, val: impl Into<String>) -> Self {
-        self.custom_emoji_id = Some(val.into());
-        self
+    pub fn custom_emoji_id(self, val: impl Into<String>) -> Self {
+        Self {
+            custom_emoji_id: Some(val.into()),
+            ..self
+        }
     }
 }
 

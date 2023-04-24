@@ -37,9 +37,11 @@ impl BanChatSenderChat {
     }
 
     #[must_use]
-    pub fn sender_chat_id(mut self, val: i64) -> Self {
-        self.sender_chat_id = val;
-        self
+    pub fn sender_chat_id(self, val: i64) -> Self {
+        Self {
+            sender_chat_id: val,
+            ..self
+        }
     }
 }
 

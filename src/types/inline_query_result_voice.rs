@@ -38,7 +38,11 @@ pub struct InlineQueryResultVoice {
 
 impl InlineQueryResultVoice {
     #[must_use]
-    pub fn new<T: Into<String>>(id: T, voice_url: T, title: T) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        voice_url: impl Into<String>,
+        title: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             voice_url: voice_url.into(),
@@ -48,15 +52,19 @@ impl InlineQueryResultVoice {
     }
 
     #[must_use]
-    pub fn id(mut self, val: impl Into<String>) -> Self {
-        self.id = val.into();
-        self
+    pub fn id(self, val: impl Into<String>) -> Self {
+        Self {
+            id: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
-    pub fn voice_url(mut self, val: impl Into<String>) -> Self {
-        self.voice_url = val.into();
-        self
+    pub fn voice_url(self, val: impl Into<String>) -> Self {
+        Self {
+            voice_url: val.into(),
+            ..self
+        }
     }
 
     #[must_use]
@@ -112,9 +120,11 @@ impl InlineQueryResultVoice {
     }
 
     #[must_use]
-    pub fn voice_duration(mut self, val: i64) -> Self {
-        self.voice_duration = Some(val);
-        self
+    pub fn voice_duration(self, val: i64) -> Self {
+        Self {
+            voice_duration: Some(val),
+            ..self
+        }
     }
 
     #[must_use]
@@ -126,9 +136,11 @@ impl InlineQueryResultVoice {
     }
 
     #[must_use]
-    pub fn input_message_content(mut self, val: InputMessageContent) -> Self {
-        self.input_message_content = Some(val);
-        self
+    pub fn input_message_content(self, val: impl Into<InputMessageContent>) -> Self {
+        Self {
+            input_message_content: Some(val.into()),
+            ..self
+        }
     }
 }
 
