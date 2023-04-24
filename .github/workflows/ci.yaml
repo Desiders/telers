@@ -28,6 +28,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: ${{ matrix.target.name }}-${{ matrix.version }}
       - name: Cargo build
         run: cargo build --all-features
       - name: Cargo test
@@ -40,6 +43,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: clippy
       - run: cargo clippy -- -W clippy::pedantic
 
   outdated:
@@ -50,4 +56,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: dtolnay/install@cargo-outdated
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: outdated
       - run: cargo outdated --workspace --exit-code 1
