@@ -65,7 +65,7 @@ impl CreateInvoiceLink {
         payload: impl Into<String>,
         provider_token: impl Into<String>,
         currency: impl Into<String>,
-        prices: Vec<LabeledPrice>,
+        prices: impl IntoIterator<Item = LabeledPrice>,
     ) -> Self {
         Self {
             title: title.into(),
@@ -73,7 +73,7 @@ impl CreateInvoiceLink {
             payload: payload.into(),
             provider_token: provider_token.into(),
             currency: currency.into(),
-            prices,
+            prices: prices.into_iter().collect(),
             max_tip_amount: None,
             suggested_tip_amounts: None,
             start_parameter: None,

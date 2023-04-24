@@ -38,7 +38,7 @@ use crate::{
 
 use std::{
     borrow::Cow,
-    fmt::{self, Debug, Formatter},
+    fmt::{self, Debug, Display, Formatter},
 };
 
 /// Represents a bot with a token for getting updates and sending requests to Telegram API
@@ -61,20 +61,14 @@ impl Bot<Reqwest> {
     /// # Panics
     /// Panics if the token is invalid
     #[must_use]
-    pub fn new<T>(token: T) -> Self
-    where
-        T: Into<Cow<'static, str>>,
-    {
+    pub fn new(token: impl Into<Cow<'static, str>>) -> Self {
         Self::with_client(token, Reqwest::default())
     }
 }
 
 impl<Client> Bot<Client> {
     #[must_use]
-    pub fn with_client<T>(token: T, client: Client) -> Self
-    where
-        T: Into<Cow<'static, str>>,
-    {
+    pub fn with_client(token: impl Into<Cow<'static, str>>, client: Client) -> Self {
         let token = token.into();
         let bot_id =
             token::extract_bot_id(&token).expect("This bot token is invalid, please check it");
@@ -109,6 +103,12 @@ impl<Client> Debug for Bot<Client> {
         f.debug_struct("Bot")
             .field("token", &self.hidden_token)
             .finish()
+    }
+}
+
+impl<Client> Display for Bot<Client> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.hidden_token)
     }
 }
 

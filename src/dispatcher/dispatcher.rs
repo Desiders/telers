@@ -336,20 +336,10 @@ where
         T: Into<String>,
         I: IntoIterator<Item = T>,
     {
-        let GetUpdates {
-            mut offset,
-            limit,
-            timeout,
-            allowed_updates,
-        } = GetUpdates::new()
+        let mut method = GetUpdates::new()
             .limit(GET_UPDATES_SIZE)
             .timeout_option(polling_timeout)
-            .allowed_updates(
-                allowed_updates
-                    .into_iter()
-                    .map(Into::into)
-                    .collect::<Vec<_>>(),
-            );
+            .allowed_updates(allowed_updates);
 
         // Flag for handling connection errors.
         // If it's true, we will use exponential backoff algorithm to next backoff.
@@ -357,10 +347,7 @@ where
         let mut failed = false;
 
         loop {
-            let updates = match bot
-                .get_updates(offset, limit, timeout, allowed_updates.clone(), None)
-                .await
-            {
+            let updates = match bot.send(&method, None).await {
                 Ok(updates) => {
                     if updates.is_empty() {
                         continue;
@@ -388,7 +375,7 @@ where
             // All updates with `update_id` less than or equal to `offset` will be marked.
             // as confirmed on the server and will no longer be returned.
             // So we need to set offset to the last update id + 1
-            offset = Some(updates.last().map(|update| update.update_id + 1).unwrap());
+            method.offset = Some(updates.last().map(|update| update.update_id + 1).unwrap());
 
             for update in updates {
                 // `Box` is used to avoid stack overflow, because `Update` is a big struct
@@ -534,19 +521,13 @@ where
 
         assert_ne!(bots_len, 0);
 
-        let handles = bots
-            .into_iter()
-            .map(|bot| {
-                let dispatcher = Arc::clone(&self);
+        let mut handles = Vec::with_capacity(bots_len);
+        for bot in bots {
+            let dispatcher = Arc::clone(&self);
 
-                tokio::spawn(dispatcher.polling(bot))
-            })
-            .collect::<Vec<_>>();
+            log::info!("Polling is started for bot: {bot}");
 
-        if bots_len == 1 {
-            log::info!("Polling is started");
-        } else {
-            log::info!("Polling is started for all bots");
+            handles.push(tokio::spawn(dispatcher.polling(bot)));
         }
 
         for handle in handles {

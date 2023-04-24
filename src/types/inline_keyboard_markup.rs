@@ -15,8 +15,17 @@ pub struct InlineKeyboardMarkup {
 
 impl InlineKeyboardMarkup {
     #[must_use]
-    pub fn new(inline_keyboard: Vec<Vec<InlineKeyboardButton>>) -> Self {
-        Self { inline_keyboard }
+    pub fn new<T, R, I>(inline_keyboard: I) -> Self
+    where
+        T: IntoIterator<Item = InlineKeyboardButton>,
+        I: IntoIterator<Item = T>,
+    {
+        Self {
+            inline_keyboard: inline_keyboard
+                .into_iter()
+                .map(|val| val.into_iter().collect())
+                .collect(),
+        }
     }
 
     #[must_use]

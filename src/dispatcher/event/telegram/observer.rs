@@ -192,7 +192,7 @@ impl<Client> ToServiceProvider for Observer<Client> {
             .handlers
             .iter()
             .map(|handler| handler.new_service(config))
-            .collect::<Result<Vec<_>, _>>()?;
+            .collect::<Result<_, _>>()?;
         let common = self.common.new_service(config)?;
         let inner_middlewares = self.inner_middlewares.middlewares.clone();
         let outer_middlewares = self.outer_middlewares.middlewares.clone();

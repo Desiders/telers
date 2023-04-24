@@ -25,9 +25,16 @@ pub struct ReplyKeyboardMarkup {
 
 impl ReplyKeyboardMarkup {
     #[must_use]
-    pub fn new(keyboard: Vec<Vec<KeyboardButton>>) -> Self {
+    pub fn new<T, I>(keyboard: I) -> Self
+    where
+        T: IntoIterator<Item = KeyboardButton>,
+        I: IntoIterator<Item = T>,
+    {
         Self {
-            keyboard,
+            keyboard: keyboard
+                .into_iter()
+                .map(|val| val.into_iter().collect())
+                .collect(),
             is_persistent: None,
             resize_keyboard: None,
             one_time_keyboard: None,

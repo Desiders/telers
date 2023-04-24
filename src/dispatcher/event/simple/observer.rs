@@ -80,7 +80,7 @@ impl ToServiceProvider for Observer {
             .handlers
             .iter()
             .map(|handler| handler.new_service(config))
-            .collect::<Result<Vec<_>, _>>()?;
+            .collect::<Result<_, _>>()?;
 
         Ok(ObserverInner {
             event_name,

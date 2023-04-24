@@ -773,7 +773,7 @@ where
             .sub_routers
             .into_iter()
             .map(|router| router.to_service_provider(config.clone()))
-            .collect::<Result<Vec<_>, _>>()?;
+            .collect::<Result<_, _>>()?;
         let message = self.message.to_service_provider_default()?;
         let edited_message = self.edited_message.to_service_provider_default()?;
         let channel_post = self.channel_post.to_service_provider_default()?;
