@@ -91,7 +91,7 @@ async fn start_handler<S: Storage>(
 }
 
 async fn name_handler<S: Storage>(bot: Bot, message: Message, fsm: FSMContext<S>) -> HandlerResult {
-    // TODO: Add validation, e.g. check that name isn't empty
+    // `unwrap` is safe here, because we set content type filter
     let name = message.text.unwrap();
 
     // Save name to FSM storage, because we will need it in `language_handler`
@@ -122,12 +122,16 @@ async fn language_handler<S: Storage>(
     message: Message,
     fsm: FSMContext<S>,
 ) -> HandlerResult {
-    // TODO: Add validation, e.g. check that language isn't empty
+    // `unwrap` is safe here, because we set content type filter
     let language = message.text.unwrap();
 
     // Get user's name from FSM storage
     // TODO: Add validation, e.g. check that name isn't empty
-    let name: String = fsm.get_value("name").await.map_err(Into::into)?.unwrap();
+    let name: String = fsm
+        .get_value("name")
+        .await
+        .map_err(Into::into)?
+        .expect("Name should be set");
 
     // Check if user's language is acceptable
     match language.to_lowercase().as_str() {
