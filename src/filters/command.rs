@@ -8,26 +8,9 @@ use crate::{
 };
 
 use async_trait::async_trait;
+use log::error;
 use regex::Regex;
-use std::{borrow::Cow, iter::once, result::Result as StdResult};
-use thiserror;
-
-pub type Result<T> = StdResult<T, Error>;
-
-/// This enum represents all possible errors that can occur when using the command filter
-#[derive(thiserror::Error, Debug)]
-pub enum Error {
-    #[error("Invalid prefix")]
-    InvalidPrefix,
-    #[error("Invalid mention")]
-    InvalidMention,
-    #[error("Invalid command")]
-    InvalidCommand,
-    /// Occurs when the filter try to get the bot username. \
-    /// For more information about the error, see [`SessionErrorKind`]
-    #[error(transparent)]
-    Session(#[from] SessionErrorKind),
-}
+use std::{borrow::Cow, iter::once};
 
 /// Represents a command pattern type for verification
 /// # Variants
@@ -78,7 +61,7 @@ pub struct Command<'a> {
     /// List of commands ([`Cow`], [`BotCommand`] or compiled [`Regex`] patterns)
     commands: Vec<PatternType<'a>>,
     /// Command prefix
-    prefix: &'a str,
+    prefix: char,
     /// Ignore case sensitive
     ignore_case: bool,
     /// Ignore bot mention
@@ -96,7 +79,7 @@ impl<'a> Command<'a> {
     /// If `ignore_case` is `true` and [`Regex`],
     /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
     #[must_use]
-    pub fn new<T, I>(commands: I, prefix: &'a str, ignore_case: bool, ignore_mention: bool) -> Self
+    pub fn new<T, I>(commands: I, prefix: char, ignore_case: bool, ignore_mention: bool) -> Self
     where
         T: Into<PatternType<'a>>,
         I: IntoIterator<Item = T>,
@@ -160,7 +143,7 @@ impl Default for Command<'_> {
     fn default() -> Self {
         Self {
             commands: vec![],
-            prefix: "/",
+            prefix: '/',
             ignore_case: false,
             ignore_mention: false,
         }
@@ -171,7 +154,7 @@ impl Default for Command<'_> {
 #[derive(Debug, Clone)]
 pub struct CommandBuilder<'a> {
     commands: Vec<PatternType<'a>>,
-    prefix: &'a str,
+    prefix: char,
     ignore_case: bool,
     ignore_mention: bool,
 }
@@ -207,7 +190,7 @@ impl<'a> CommandBuilder<'a> {
     }
 
     #[must_use]
-    pub fn prefix(self, val: &'a str) -> Self {
+    pub fn prefix(self, val: char) -> Self {
         Self {
             prefix: val,
             ..self
@@ -249,51 +232,41 @@ impl Default for CommandBuilder<'_> {
     fn default() -> Self {
         Self {
             commands: vec![],
-            prefix: "/",
+            prefix: '/',
             ignore_case: false,
             ignore_mention: false,
         }
     }
 }
 
-impl<'a> Command<'a> {
-    /// # Errors
-    /// If prefix is invalid.
-    pub fn validate_prefix(&self, command: &CommandObject) -> Result<()> {
-        if command.prefix == self.prefix {
-            Ok(())
-        } else {
-            Err(Error::InvalidPrefix)
-        }
+impl Command<'_> {
+    #[must_use]
+    pub fn validate_prefix(&self, command: &CommandObject) -> bool {
+        command.prefix == self.prefix
     }
 
     /// # Errors
-    /// If mention is invalid.
+    /// If error occurred in the process of sending request to the Telegram API or parsing response
+    #[allow(clippy::missing_panics_doc)]
     pub async fn validate_mention(
         &self,
         command: &CommandObject,
         bot: &Bot<impl Session>,
-    ) -> Result<()> {
+    ) -> Result<bool, SessionErrorKind> {
         if self.ignore_mention {
-            Ok(())
+            Ok(true)
         } else if let Some(ref mention) = command.mention {
-            if let Some(ref username) = bot.get_me(None).await?.username {
-                if mention == username {
-                    Ok(())
-                } else {
-                    Err(Error::InvalidMention)
-                }
-            } else {
-                Err(Error::InvalidMention)
-            }
+            bot.get_me(None).await.map(|user| {
+                // `unwrap` is safe here, because bot always has username
+                user.username.unwrap() == *mention
+            })
         } else {
-            Ok(())
+            Ok(true)
         }
     }
 
-    /// # Errors
-    /// If command is invalid.
-    pub fn validate_command(&self, command: &CommandObject) -> Result<()> {
+    #[must_use]
+    pub fn validate_command(&self, command: &CommandObject) -> bool {
         let command = if self.ignore_case {
             command.command.to_lowercase()
         } else {
@@ -304,12 +277,12 @@ impl<'a> Command<'a> {
             match pattern {
                 PatternType::Text(allowed_command) => {
                     if command == *allowed_command {
-                        return Ok(());
+                        return true
                     }
                 }
                 PatternType::Regex(regex) => {
                     if regex.is_match(&command) {
-                        return Ok(());
+                        return true
                     }
                 }
                 PatternType::Object(_) => unreachable!(
@@ -318,25 +291,19 @@ impl<'a> Command<'a> {
             }
         }
 
-        Err(Error::InvalidCommand)
+        false
     }
 
     /// # Errors
-    /// - If prefix is invalid
-    /// - If mention is invalid
-    /// - If command is invalid
-    pub async fn parse_command(
+    /// If error occurred in the process of sending request to the Telegram API or parsing response
+    pub async fn validate_command_object(
         &self,
-        text: &str,
+        command: &CommandObject,
         bot: &Bot<impl Session>,
-    ) -> Result<CommandObject> {
-        let command = CommandObject::extract(text);
-
-        self.validate_prefix(&command)?;
-        self.validate_command(&command)?;
-        self.validate_mention(&command, bot).await?;
-
-        Ok(command)
+    ) -> Result<bool, SessionErrorKind> {
+        Ok(self.validate_prefix(command)
+            && self.validate_command(command)
+            && self.validate_mention(command, bot).await?)
     }
 }
 
@@ -347,7 +314,7 @@ pub struct CommandObject {
     /// Command without prefix and mention
     pub command: String,
     /// Command prefix
-    pub prefix: String,
+    pub prefix: char,
     /// Mention in command
     pub mention: Option<String>,
     /// Command arguments
@@ -356,13 +323,14 @@ pub struct CommandObject {
 
 impl CommandObject {
     /// Extracts [`CommandObject`] from text
+    /// # Re
     #[must_use]
-    pub fn extract(text: &str) -> Self {
+    pub fn extract(text: &str) -> Option<Self> {
         let result: Vec<_> = text.trim().split(' ').collect();
         let full_command = result[0].to_string();
         let args: Vec<String> = result[1..].iter().map(ToString::to_string).collect();
 
-        let prefix = full_command[0..1].to_string();
+        let Some(prefix) = full_command.chars().next() else { return None; };
         let command = full_command[1..].to_string();
 
         // Check if command contains mention, e.g. `/command@mention`, `/command@mention args`
@@ -384,12 +352,12 @@ impl CommandObject {
             (command, None)
         };
 
-        CommandObject {
+        Some(CommandObject {
             command,
             prefix,
             mention,
             args,
-        }
+        })
     }
 }
 
@@ -401,14 +369,26 @@ where
     async fn check(&self, bot: &Bot<Client>, update: &Update, context: &Context) -> bool {
         let Some(ref message) = update.message else { return false; };
         let Some(text) = message.get_text_or_caption() else { return false; };
+        let Some(command) = CommandObject::extract(text) else { return false; };
 
-        match self.parse_command(text, bot).await {
-            Ok(command) => {
-                context.insert("command", Box::new(command));
-                true
+        match self.validate_command_object(&command, bot).await {
+            Ok(result) => {
+                if !result {
+                    return false;
+                }
             }
-            Err(_) => false,
+            Err(err) => {
+                error!(
+                    target: module_path!(),
+                    "Error while validating command: {}", err
+                );
+
+                return false;
+            }
         }
+
+        context.insert("command", Box::new(command));
+        true
     }
 }
 
@@ -418,102 +398,102 @@ mod tests {
 
     #[test]
     fn test_command_extract() {
-        let command_obj = CommandObject::extract("/start");
+        let command_obj = CommandObject::extract("/start").unwrap();
         assert_eq!(command_obj.command, "start");
-        assert_eq!(command_obj.prefix, "/");
+        assert_eq!(command_obj.prefix, '/');
         assert_eq!(command_obj.mention, None);
         assert_eq!(command_obj.args, Vec::<String>::new());
 
-        let command_obj = CommandObject::extract("/start@bot_username");
+        let command_obj = CommandObject::extract("/start@bot_username").unwrap();
         assert_eq!(command_obj.command, "start");
-        assert_eq!(command_obj.prefix, "/");
+        assert_eq!(command_obj.prefix, '/');
         assert_eq!(command_obj.mention, Some("bot_username".to_string()));
         assert_eq!(command_obj.args, Vec::<String>::new());
 
-        let command_obj = CommandObject::extract("/start@");
+        let command_obj = CommandObject::extract("/start@").unwrap();
         assert_eq!(command_obj.command, "start");
-        assert_eq!(command_obj.prefix, "/");
+        assert_eq!(command_obj.prefix, '/');
         assert_eq!(command_obj.mention, None);
         assert_eq!(command_obj.args, Vec::<String>::new());
 
-        let command_obj = CommandObject::extract("/start@bot_username arg1 arg2");
+        let command_obj = CommandObject::extract("/start@bot_username arg1 arg2").unwrap();
         assert_eq!(command_obj.command, "start");
-        assert_eq!(command_obj.prefix, "/");
+        assert_eq!(command_obj.prefix, '/');
         assert_eq!(command_obj.mention, Some("bot_username".to_string()));
         assert_eq!(command_obj.args, vec!["arg1", "arg2"]);
     }
 
     #[test]
     fn test_validate_prefix() {
-        let command = Command::builder().prefix("/").command("start").build();
+        let command = Command::builder().prefix('/').command("start").build();
 
-        let command_obj = CommandObject::extract("/start");
-        assert!(command.validate_prefix(&command_obj).is_ok());
+        let command_obj = CommandObject::extract("/start").unwrap();
+        assert!(command.validate_prefix(&command_obj));
 
-        let command_obj = CommandObject::extract("/start_other");
-        assert!(command.validate_prefix(&command_obj).is_ok());
+        let command_obj = CommandObject::extract("/start_other").unwrap();
+        assert!(command.validate_prefix(&command_obj));
 
-        let command_obj = CommandObject::extract("!start");
-        assert!(command.validate_prefix(&command_obj).is_err());
+        let command_obj = CommandObject::extract("!start").unwrap();
+        assert!(!command.validate_prefix(&command_obj));
     }
 
     #[test]
     fn test_validate_command() {
         let command = Command::builder()
-            .prefix("/")
+            .prefix('/')
             .command("start")
             .ignore_case(false)
             .build();
 
-        let command_obj = CommandObject::extract("/start");
-        assert!(command.validate_command(&command_obj).is_ok());
+        let command_obj = CommandObject::extract("/start").unwrap();
+        assert!(command.validate_command(&command_obj));
 
-        let command_obj = CommandObject::extract("/START");
-        assert!(command.validate_command(&command_obj).is_err());
+        let command_obj = CommandObject::extract("/START").unwrap();
+        assert!(!command.validate_command(&command_obj));
 
-        let command_obj = CommandObject::extract("/stop");
-        assert!(command.validate_command(&command_obj).is_err());
+        let command_obj = CommandObject::extract("/stop").unwrap();
+        assert!(!command.validate_command(&command_obj));
 
-        let command_obj = CommandObject::extract("/STOP");
-        assert!(command.validate_command(&command_obj).is_err());
+        let command_obj = CommandObject::extract("/STOP").unwrap();
+        assert!(!command.validate_command(&command_obj));
 
         let command = Command::builder()
-            .prefix("/")
+            .prefix('/')
             .command("start")
             .ignore_case(true)
             .build();
 
-        let command_obj = CommandObject::extract("/start");
-        assert!(command.validate_command(&command_obj).is_ok());
+        let command_obj = CommandObject::extract("/start").unwrap();
+        assert!(command.validate_command(&command_obj));
 
-        let command_obj = CommandObject::extract("/START");
-        assert!(command.validate_command(&command_obj).is_ok());
+        let command_obj = CommandObject::extract("/START").unwrap();
+        assert!(command.validate_command(&command_obj));
 
-        let command_obj = CommandObject::extract("/stop");
-        assert!(command.validate_command(&command_obj).is_err());
+        let command_obj = CommandObject::extract("/stop").unwrap();
+        assert!(!command.validate_command(&command_obj));
 
-        let command_obj = CommandObject::extract("/STOP");
-        assert!(command.validate_command(&command_obj).is_err());
+        let command_obj = CommandObject::extract("/STOP").unwrap();
+        assert!(!command.validate_command(&command_obj));
 
         // Special case: `command` with uppercase letters and `ignore_case` is `true`
         // command should be converted to lowercase
         let command = Command::builder()
-            .prefix("/")
+            .prefix('/')
             .command("Start")
             .ignore_case(true)
             .build();
 
-        let command_obj = CommandObject::extract("/start");
-        assert!(command.validate_command(&command_obj).is_ok());
+        let command_obj = CommandObject::extract("/start").unwrap();
+        assert!(command.validate_command(&command_obj));
 
-        let command_obj = CommandObject::extract("/START");
-        assert!(command.validate_command(&command_obj).is_ok());
+        let command_obj = CommandObject::extract("/START").unwrap();
+        assert!(command.validate_command(&command_obj));
 
-        let command_obj = CommandObject::extract("/stop");
-        assert!(command.validate_command(&command_obj).is_err());
+        let command_obj = CommandObject::extract("/stop").unwrap();
+        assert!(!command.validate_command(&command_obj));
 
-        let command_obj = CommandObject::extract("/STOP");
-        assert!(command.validate_command(&command_obj).is_err());
+        let command_obj = CommandObject::extract("/STOP").unwrap();
+        assert!(!command.validate_command(&command_obj));
     }
 
     // TODO: Add tests for `validate_mention` method
