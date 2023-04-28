@@ -34,7 +34,7 @@ mod tests {
             "command_object",
             Box::new(CommandObject {
                 command: "test".to_string(),
-                prefix: "/".to_string(),
+                prefix: '/',
                 mention: None,
                 args: vec![],
             }),
@@ -51,7 +51,7 @@ mod tests {
                 .unwrap(),
             CommandObject {
                 command: "test".to_string(),
-                prefix: "/".to_string(),
+                prefix: '/',
                 mention: None,
                 args: vec![],
             }

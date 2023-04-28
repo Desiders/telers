@@ -1,6 +1,6 @@
 use super::telegram::handler::Response;
 
-use crate::error::EventError;
+use crate::error::HandlerError;
 
 /// Response, which can be returned from handlers, filters and middlewares by user.
 /// This indicates how [`crate::dispatcher::Dispatcher`] should process response.
@@ -35,19 +35,19 @@ pub enum EventReturn {
 
 /// Shortcut for [`Ok(EventReturn::Skip)`]
 #[allow(clippy::missing_errors_doc)]
-pub fn skip_event() -> Result<EventReturn, EventError> {
+pub fn skip_event() -> Result<EventReturn, HandlerError> {
     Ok(EventReturn::Skip)
 }
 
 /// Shortcut for [`Ok(EventReturn::Cancel)`]
 #[allow(clippy::missing_errors_doc)]
-pub fn cancel_event() -> Result<EventReturn, EventError> {
+pub fn cancel_event() -> Result<EventReturn, HandlerError> {
     Ok(EventReturn::Cancel)
 }
 
 /// Shortcut for [`Ok(EventReturn::Finish)`]
 #[allow(clippy::missing_errors_doc)]
-pub fn finish_event() -> Result<EventReturn, EventError> {
+pub fn finish_event() -> Result<EventReturn, HandlerError> {
     Ok(EventReturn::Finish)
 }
 

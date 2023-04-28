@@ -122,7 +122,7 @@ impl ObserverInner {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::error::EventError;
+    use crate::error::HandlerError;
 
     use anyhow::anyhow;
     use tokio;
@@ -161,7 +161,7 @@ mod tests {
         async fn on_shutdown(message: &str) -> HandlerResult {
             assert_eq!(message, "Goodbye, world!");
 
-            Err(EventError::new(anyhow!("test")))
+            Err(HandlerError::new(anyhow!("test")))
         }
 
         let mut observer = Observer::new("test");

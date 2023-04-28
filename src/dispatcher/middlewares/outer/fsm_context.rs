@@ -3,7 +3,7 @@ use super::{Middleware, MiddlewareResponse};
 use crate::{
     context::Context as RequestContext,
     dispatcher::{event::EventReturn, RouterRequest},
-    error::AppErrorKind,
+    error::{EventErrorKind, MiddlewareError},
     fsm::{
         storage::base::{StorageKey, DEFAULT_DESTINY},
         strategy::Strategy,
@@ -12,7 +12,6 @@ use crate::{
     types::User,
 };
 
-use anyhow::anyhow;
 use async_trait::async_trait;
 
 /// Middleware for creating FSM [`Context`]
@@ -115,14 +114,14 @@ where
     async fn call(
         &self,
         request: RouterRequest<Client>,
-    ) -> Result<MiddlewareResponse<Client>, AppErrorKind> {
+    ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
         let context = request.context.as_ref();
 
         if let Some(fsm_context) = self.resolve_event_context(request.bot.id(), context) {
             if let Some(state) = fsm_context
                 .get_state()
                 .await
-                .map_err(|err| anyhow!("Failed to get FSM state: {err}"))?
+                .map_err(|err| MiddlewareError::new(err.into()))?
             {
                 context.insert("fsm_state", Box::new(state));
             }

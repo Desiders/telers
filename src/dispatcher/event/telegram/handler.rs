@@ -7,7 +7,7 @@ use crate::{
         },
         EventReturn,
     },
-    error::{EventError, ExtractionError},
+    error::{ExtractionError, HandlerError},
     extract::FromEventAndContext,
     filters::Filter,
     types::Update,
@@ -51,7 +51,7 @@ impl<Client> PartialEq for Request<Client> {
     }
 }
 
-pub type Result = StdResult<EventReturn, EventError>;
+pub type Result = StdResult<EventReturn, HandlerError>;
 
 #[derive(Debug)]
 pub struct Response<Client> {

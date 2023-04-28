@@ -3,7 +3,7 @@ use crate::{
         service::Service,
         telegram::{BoxedHandlerService, HandlerRequest, HandlerResponse},
     },
-    error::AppErrorKind,
+    error::EventErrorKind,
 };
 
 use async_trait::async_trait;
@@ -16,7 +16,7 @@ pub type Next<Client> = Box<
     dyn Fn(
             HandlerRequest<Client>,
         )
-            -> Pin<Box<dyn Future<Output = Result<HandlerResponse<Client>, AppErrorKind>> + Send>>
+            -> Pin<Box<dyn Future<Output = Result<HandlerResponse<Client>, EventErrorKind>> + Send>>
         + Send
         + Sync,
 >;
@@ -38,7 +38,7 @@ pub trait Middleware<Client>: Send + Sync {
     /// * `request` - Data for handler and middlewares
     /// * `next` - Call next middleware or handler, if middlewares are empty or already called
     /// # Returns
-    /// [`HandlerResponse`] from handler or [`AppErrorKind`] if handler or middleware returns an error
+    /// [`HandlerResponse`] from handler or [`EventErrorKind`] if handler or middleware returns an error
     /// # Errors
     /// If any inner middleware returns an error
     /// If handler returns an error. Probably it's the error to extract args to the handler
@@ -47,7 +47,7 @@ pub trait Middleware<Client>: Send + Sync {
         &self,
         request: HandlerRequest<Client>,
         next: Next<Client>,
-    ) -> Result<HandlerResponse<Client>, AppErrorKind>;
+    ) -> Result<HandlerResponse<Client>, EventErrorKind>;
 }
 
 #[async_trait]
@@ -60,7 +60,7 @@ where
         &self,
         request: HandlerRequest<Client>,
         next: Next<Client>,
-    ) -> Result<HandlerResponse<Client>, AppErrorKind> {
+    ) -> Result<HandlerResponse<Client>, EventErrorKind> {
         T::call(self, request, next).await
     }
 }
@@ -71,14 +71,16 @@ impl<Client, Func, Fut> Middleware<Client> for Func
 where
     Client: Send + Sync + 'static,
     Func: Fn(HandlerRequest<Client>, Next<Client>) -> Fut + Send + Sync,
-    Fut: Future<Output = Result<HandlerResponse<Client>, AppErrorKind>> + Send,
+    Fut: Future<Output = Result<HandlerResponse<Client>, EventErrorKind>> + Send,
 {
     async fn call(&self, request: HandlerRequest<Client>, next: Next<Client>) -> Fut::Output {
         self(request, next).await
     }
 }
 
-/// This function is used to wrap handler and middlewares to [`Next`] function
+/// Wrap handler and middlewares to [`Next`] function
+/// # Notes
+/// This function is wrap [`crate::error::HandlerError`] to [`EventErrorKind::Handler`]
 #[must_use]
 pub fn wrap_handler_and_middlewares_to_next<T, Client>(
     handler: Arc<BoxedHandlerService<Client>>,
@@ -98,13 +100,22 @@ where
         Box::pin(async move {
             match middlewares.next() {
                 Some(middleware) => {
-                    let next = Box::new(wrap_handler_and_middlewares_to_next(handler, middlewares));
-                    middleware.call(request, next).await
+                    middleware
+                        .call(
+                            request,
+                            wrap_handler_and_middlewares_to_next(handler, middlewares),
+                        )
+                        .await
                 }
-                None => handler
-                    .call(request)
-                    .await
-                    .map_err(AppErrorKind::Extraction),
+                None => match handler.call(request).await {
+                    Ok(response) => match response.handler_result {
+                        Ok(_) => Ok(response),
+                        // If handler returns an error, then wrap it to event error
+                        Err(err) => Err(EventErrorKind::Handler(err)),
+                    },
+                    // If handler service returns an error, then it's an error to extract args to the handler
+                    Err(err) => Err(EventErrorKind::Extraction(err)),
+                },
             }
         })
     })
@@ -125,7 +136,7 @@ mod tests {
     async fn test_middleware<Client>(
         request: HandlerRequest<Client>,
         next: Next<Client>,
-    ) -> Result<HandlerResponse<Client>, AppErrorKind> {
+    ) -> Result<HandlerResponse<Client>, EventErrorKind> {
         next(request).await
     }
 

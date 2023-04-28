@@ -5,50 +5,21 @@ use crate::{
         telegram::{HandlerRequest, HandlerResponse},
         EventReturn,
     },
-    error::AppErrorKind,
+    error::EventErrorKind,
 };
 
 use async_trait::async_trait;
-use log::{self, Level, Log, Record};
-use std::{fmt, time::Instant};
-
-const DEFAULT_TARGET: &str = "logging-middleware";
+use log::{debug, error};
+use std::time::Instant;
 
 pub struct Logging {
-    logger: &'static dyn Log,
     target: &'static str,
 }
 
 impl Logging {
     #[must_use]
-    pub fn new(logger: &'static dyn Log, target: &'static str) -> Self {
-        Self { logger, target }
-    }
-
-    #[must_use]
-    pub fn with_logger(logger: &'static dyn Log) -> Self {
-        Self::new(logger, DEFAULT_TARGET)
-    }
-
-    #[must_use]
-    pub fn with_target(target: &'static str) -> Self {
-        Self::new(log::logger(), target)
-    }
-
-    #[must_use]
-    pub fn logger(self, val: &'static dyn Log) -> Self {
-        Self {
-            logger: val,
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn target(self, val: &'static str) -> Self {
-        Self {
-            target: val,
-            ..self
-        }
+    pub fn new(target: &'static str) -> Self {
+        Self { target }
     }
 }
 
@@ -56,19 +27,8 @@ impl Default for Logging {
     #[must_use]
     fn default() -> Self {
         Self {
-            logger: log::logger(),
-            target: DEFAULT_TARGET,
+            target: module_path!(),
         }
-    }
-}
-
-impl Logging {
-    fn record<'a>(&self, level: Level, args: fmt::Arguments<'a>) -> Record<'a> {
-        Record::builder()
-            .level(level)
-            .target(self.target)
-            .args(args)
-            .build()
     }
 }
 
@@ -81,58 +41,60 @@ where
         &self,
         request: HandlerRequest<Client>,
         next: Next<Client>,
-    ) -> Result<HandlerResponse<Client>, AppErrorKind> {
+    ) -> Result<HandlerResponse<Client>, EventErrorKind> {
         let now = Instant::now();
         let result = next(request).await;
         let elapsed = now.elapsed();
 
         match result {
-            Ok(ref response) => match response.handler_result {
-                Ok(ref event_return) => match event_return {
-                    EventReturn::Finish => {
-                        self.logger.log(&self.record(
-                            Level::Debug,
-                            format_args!("Handler proccessed. Execution time: {elapsed:.2?}"),
-                        ));
-                    }
-                    EventReturn::Skip => {
-                        self.logger.log(&self.record(
-                            Level::Debug,
-                            format_args!("Handler skipped. Execution time: {elapsed:.2?}"),
-                        ));
-                    }
-                    EventReturn::Cancel => {
-                        self.logger.log(&self.record(
-                            Level::Debug,
-                            format_args!("Handler canceled. Execution time: {elapsed:.2?}"),
-                        ));
-                    }
-                },
-                Err(ref err) => {
-                    self.logger.log(&self.record(
-                        Level::Error,
-                        format_args!(
-                            "Handler returned error: {err}. Execution time: {elapsed:.2?}"
-                        ),
-                    ));
+            // `unwrap` is safe because handler error is wrapped to event error by next function
+            Ok(ref response) => match response.handler_result.as_ref().unwrap() {
+                EventReturn::Finish => {
+                    debug!(
+                        target: self.target,
+                        "Handler finished. Execution time: {elapsed:.2?}",
+                        elapsed = elapsed,
+                    );
+                }
+                EventReturn::Skip => {
+                    debug!(
+                        target: self.target,
+                        "Handler skipped. Execution time: {elapsed:.2?}",
+                        elapsed = elapsed,
+                    );
+                }
+                EventReturn::Cancel => {
+                    debug!(
+                        target: self.target,
+                        "Handler canceled. Execution time: {elapsed:.2?}",
+                        elapsed = elapsed,
+                    );
                 }
             },
             Err(ref err_kind) => match err_kind {
-                AppErrorKind::Extraction(err) => {
-                    self.logger.log(&self.record(
-                        Level::Error,
-                        format_args!(
-                            "Extraction returned error: {err}. Execution time: {elapsed:.2?}"
-                        ),
-                    ));
+                EventErrorKind::Extraction(err) => {
+                    error!(
+                        target: self.target,
+                        "Extraction returned error: {err}. Execution time: {elapsed:.2?}",
+                        err = err,
+                        elapsed = elapsed,
+                    );
                 }
-                AppErrorKind::User(err) => {
-                    self.logger.log(&self.record(
-                        Level::Error,
-                        format_args!(
-                            "Middleware returned error: {err}. Execution time: {elapsed:.2?}"
-                        ),
-                    ));
+                EventErrorKind::Handler(err) => {
+                    error!(
+                        target: self.target,
+                        "Handler returned error: {err}. Execution time: {elapsed:.2?}",
+                        err = err,
+                        elapsed = elapsed,
+                    );
+                }
+                EventErrorKind::Middleware(err) => {
+                    error!(
+                        target: self.target,
+                        "Middleware returned error: {err}. Execution time: {elapsed:.2?}",
+                        err = err,
+                        elapsed = elapsed,
+                    );
                 }
             },
         }
@@ -154,29 +116,11 @@ mod tests {
         types::Update,
     };
 
-    use log::{Log, Metadata, Record};
     use std::sync::Arc;
-    use tokio;
-
-    struct SimpleLogger;
-
-    impl Log for SimpleLogger {
-        fn enabled(&self, _metadata: &Metadata) -> bool {
-            unreachable!();
-        }
-
-        fn log(&self, record: &Record) {
-            println!("{} - {}", record.level(), record.args());
-        }
-
-        fn flush(&self) {
-            unreachable!();
-        }
-    }
 
     #[tokio::test]
     async fn test_logging() {
-        let middleware = Logging::with_logger(&SimpleLogger);
+        let middleware = Logging::default();
 
         let handler_service_factory =
             handler_service(|| async { Ok(EventReturn::Finish) }).new_service(());

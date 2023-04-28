@@ -1,7 +1,7 @@
 use std::{borrow::Cow, convert::Infallible};
 use thiserror;
 
-/// This struct represents error that can occur in the extraction process
+/// Error that can occur when extracting arguments from an event and a context to pass to a handler
 #[derive(thiserror::Error, Debug)]
 #[error("Extraction error: {msg}")]
 pub struct Error {
@@ -9,10 +9,7 @@ pub struct Error {
 }
 
 impl Error {
-    pub fn new<T>(msg: T) -> Self
-    where
-        T: Into<Cow<'static, str>>,
-    {
+    pub fn new(msg: impl Into<Cow<'static, str>>) -> Self {
         Self { msg: msg.into() }
     }
 }

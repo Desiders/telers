@@ -5,8 +5,8 @@ pub mod memory;
 pub mod redis;
 
 #[cfg(feature = "redis-storage")]
-pub use self::redis::{DefaultKeyBuilder, Redis, StorageError as RedisStorageError};
+pub use self::redis::{DefaultKeyBuilder, Redis};
 #[allow(clippy::module_name_repetitions)]
-pub use base::{Storage, StorageKey};
+pub use base::{Error, Storage, StorageKey};
 #[cfg(feature = "memory-storage")]
 pub use memory::Memory;

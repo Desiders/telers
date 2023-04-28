@@ -1,10 +1,9 @@
-use super::{Storage, StorageKey};
+use super::{Error, Storage, StorageKey};
 
 use async_trait::async_trait;
 use redis::{aio::Connection, Client, RedisError};
 use serde::{de::DeserializeOwned, Serialize};
 use std::{borrow::Cow, collections::HashMap, sync::Arc};
-use thiserror;
 use tokio::sync::Mutex;
 
 const DEFAULT_PREFIX: &str = "fsm";
@@ -171,30 +170,27 @@ impl Redis {
     }
 }
 
-#[derive(thiserror::Error, Debug)]
-pub enum StorageError {
-    #[error(transparent)]
-    Redis(#[from] RedisError),
-    #[error(transparent)]
-    Serde(#[from] serde_json::Error),
-}
-
 #[async_trait]
 impl Storage for Redis {
-    type Error = StorageError;
+    type Error = Error;
 
     /// Remove state for specified key
     /// # Arguments
     /// * `key` - Specified key to remove state
     async fn remove_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
         let key = self.key_builder.build(key, Part::State);
-        let mut connection = self.get_connection().await?;
+        let mut connection = self.get_connection().await.map_err(|err| {
+            Error::new(
+                format!("Failed to get redis connection. Storage key: {key}"),
+                err,
+            )
+        })?;
 
         redis::cmd("DEL")
             .arg(&key)
             .query_async(&mut connection)
-            .await?;
-        Ok(())
+            .await
+            .map_err(|err| Error::new(format!("Failed to remove state. Storage key: {key}"), err))
     }
 
     /// Set state for specified key
@@ -207,7 +203,12 @@ impl Storage for Redis {
     {
         let key = self.key_builder.build(key, Part::State);
         let state = state.into();
-        let mut connection = self.get_connection().await?;
+        let mut connection = self.get_connection().await.map_err(|err| {
+            Error::new(
+                format!("Failed to get redis connection. Storage key: {key}"),
+                err,
+            )
+        })?;
 
         if let Some(state_ttl) = self.state_ttl {
             redis::cmd("SETEX")
@@ -215,15 +216,26 @@ impl Storage for Redis {
                 .arg(state_ttl)
                 .arg(state.as_ref())
                 .query_async(&mut connection)
-                .await?;
+                .await
+                .map_err(|err| {
+                    Error::new(
+                        format!("Failed to set state `{state}` with ttl `{state_ttl}`. Storage key: {key}"),
+                        err,
+                    )
+                })
         } else {
             redis::cmd("SET")
                 .arg(&key)
                 .arg(state.as_ref())
                 .query_async(&mut connection)
-                .await?;
+                .await
+                .map_err(|err| {
+                    Error::new(
+                        format!("Failed to set state `{state}`. Storage key: {key}"),
+                        err,
+                    )
+                })
         }
-        Ok(())
     }
 
     /// Get state for specified key
@@ -233,13 +245,18 @@ impl Storage for Redis {
     /// State for specified key, if state is no exists, then [`None`] will be return
     async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error> {
         let key = self.key_builder.build(key, Part::State);
-        let mut connection = self.get_connection().await?;
+        let mut connection = self.get_connection().await.map_err(|err| {
+            Error::new(
+                format!("Failed to get redis connection. Storage key: {key}"),
+                err,
+            )
+        })?;
 
         redis::cmd("GET")
             .arg(&key)
             .query_async(&mut connection)
             .await
-            .map_err(Into::into)
+            .map_err(|err| Error::new(format!("Failed to get state. Storage key: {key}"), err))
     }
 
     /// Remove data for specified key
@@ -247,13 +264,18 @@ impl Storage for Redis {
     /// * `key` - Specified key to remove data
     async fn remove_data(&self, key: &StorageKey) -> Result<(), Self::Error> {
         let key = self.key_builder.build(key, Part::Data);
-        let mut connection = self.get_connection().await?;
+        let mut connection = self.get_connection().await.map_err(|err| {
+            Error::new(
+                format!("Failed to get redis connection. Storage key: {key}"),
+                err,
+            )
+        })?;
 
         redis::cmd("DEL")
             .arg(&key)
             .query_async(&mut connection)
-            .await?;
-        Ok(())
+            .await
+            .map_err(|err| Error::new(format!("Failed to remove data. Storage key: {key}"), err))
     }
 
     /// Set data for specified key
@@ -270,8 +292,15 @@ impl Storage for Redis {
         Key: Serialize + Into<Cow<'static, str>> + Send,
     {
         let key = self.key_builder.build(key, Part::Data);
-        let plain_json = serde_json::to_string(&data)?;
-        let mut connection = self.get_connection().await?;
+        let plain_json = serde_json::to_string(&data).map_err(|err| {
+            Error::new(format!("Failed to serialize data. Storage key: {key}"), err)
+        })?;
+        let mut connection = self.get_connection().await.map_err(|err| {
+            Error::new(
+                format!("Failed to get redis connection. Storage key: {key}"),
+                err,
+            )
+        })?;
 
         if let Some(data_ttl) = self.data_ttl {
             redis::cmd("SETEX")
@@ -279,15 +308,21 @@ impl Storage for Redis {
                 .arg(data_ttl)
                 .arg(&plain_json)
                 .query_async(&mut connection)
-                .await?;
+                .await
+                .map_err(|err| {
+                    Error::new(
+                        format!("Failed to set data with ttl `{data_ttl}`. Storage key: {key}"),
+                        err,
+                    )
+                })
         } else {
             redis::cmd("SET")
                 .arg(&key)
                 .arg(&plain_json)
                 .query_async(&mut connection)
-                .await?;
+                .await
+                .map_err(|err| Error::new(format!("Failed to set data. Storage key: {key}"), err))
         }
-        Ok(())
     }
 
     /// Set value to the data for specified key and value key
@@ -306,36 +341,63 @@ impl Storage for Redis {
         Key: Serialize + Into<Cow<'static, str>> + Send,
     {
         let key = self.key_builder.build(key, Part::Data);
-        let mut connection = self.get_connection().await?;
+        let mut connection = self.get_connection().await.map_err(|err| {
+            Error::new(
+                format!("Failed to get redis connection. Storage key: {key}"),
+                err,
+            )
+        })?;
 
         let plain_json: Option<String> = redis::cmd("GET")
             .arg(&key)
             .query_async(&mut connection)
-            .await?;
+            .await
+            .map_err(|err| Error::new(format!("Failed to get data. Storage key: {key}"), err))?;
 
         let mut data = match plain_json {
-            Some(plain_json) => serde_json::from_str(&plain_json)?,
+            Some(plain_json) => serde_json::from_str(&plain_json).map_err(|err| {
+                Error::new(
+                    format!("Failed to deserialize data. Storage key: {key}"),
+                    err,
+                )
+            })?,
             None => HashMap::with_capacity(1),
         };
 
-        data.insert(value_key.into(), serde_json::to_value(value)?);
+        data.insert(
+            value_key.into(),
+            serde_json::to_value(value).map_err(|err| {
+                Error::new(
+                    format!("Failed to convert value to `serde_json::Value`. Storage key: {key}"),
+                    err,
+                )
+            })?,
+        );
 
-        let plain_json = serde_json::to_string(&data)?;
+        let plain_json = serde_json::to_string(&data).map_err(|err| {
+            Error::new(format!("Failed to serialize data. Storage key: {key}"), err)
+        })?;
         if let Some(data_ttl) = self.data_ttl {
             redis::cmd("SETEX")
                 .arg(&key)
                 .arg(data_ttl)
                 .arg(&plain_json)
                 .query_async(&mut connection)
-                .await?;
+                .await
+                .map_err(|err| {
+                    Error::new(
+                        format!("Failed to set data with ttl `{data_ttl}`. Storage key: {key}"),
+                        err,
+                    )
+                })
         } else {
             redis::cmd("SET")
                 .arg(&key)
                 .arg(&plain_json)
                 .query_async(&mut connection)
-                .await?;
+                .await
+                .map_err(|err| Error::new(format!("Failed to set data. Storage key: {key}"), err))
         }
-        Ok(())
     }
 
     /// Get data for specified key
@@ -348,15 +410,26 @@ impl Storage for Redis {
         Value: DeserializeOwned,
     {
         let key = self.key_builder.build(key, Part::Data);
-        let mut connection = self.get_connection().await?;
+        let mut connection = self.get_connection().await.map_err(|err| {
+            Error::new(
+                format!("Failed to get redis connection. Storage key: {key}"),
+                err,
+            )
+        })?;
 
         let plain_json: Option<String> = redis::cmd("GET")
             .arg(&key)
             .query_async(&mut connection)
-            .await?;
+            .await
+            .map_err(|err| Error::new(format!("Failed to get data. Storage key: {key}"), err))?;
 
         match plain_json {
-            Some(plain_json) => Ok(serde_json::from_str(&plain_json)?),
+            Some(plain_json) => serde_json::from_str(&plain_json).map_err(|err| {
+                Error::new(
+                    format!("Failed to deserialize data. Storage key: {key}"),
+                    err,
+                )
+            }),
             None => Ok(HashMap::default()),
         }
     }
@@ -377,20 +450,40 @@ impl Storage for Redis {
         Key: Into<Cow<'static, str>> + Send,
     {
         let key = self.key_builder.build(key, Part::Data);
-        let mut connection = self.get_connection().await?;
+        let mut connection = self.get_connection().await.map_err(|err| {
+            Error::new(
+                format!("Failed to get redis connection. Storage key: {key}"),
+                err,
+            )
+        })?;
 
         let plain_json: Option<String> = redis::cmd("GET")
             .arg(&key)
             .query_async(&mut connection)
-            .await?;
+            .await
+            .map_err(|err| Error::new(format!("Failed to get data. Storage key: {key}"), err))?;
 
         match plain_json {
             Some(plain_json) => {
                 let data: HashMap<Cow<'static, str>, serde_json::Value> =
-                    serde_json::from_str(&plain_json)?;
+                    serde_json::from_str(&plain_json).map_err(|err| {
+                        Error::new(
+                            format!("Failed to deserialize data. Storage key: {key}"),
+                            err,
+                        )
+                    })?;
 
                 match data.get(&value_key.into()) {
-                    Some(value) => Ok(Some(serde_json::from_value(value.clone())?)),
+                    Some(value) => serde_json::from_value(value.clone()).map_err(
+                        |err| {
+                            Error::new(
+                                format!(
+                                    "Failed to convert `serde_json::Value` to value. Storage key: {key}"
+                                ),
+                                err,
+                            )
+                        },
+                    ).map(Some),
                     None => Ok(None),
                 }
             }

@@ -2,7 +2,7 @@ use super::{Middleware, MiddlewareResponse};
 
 use crate::{
     dispatcher::{event::EventReturn, RouterRequest},
-    error::AppErrorKind,
+    error::EventErrorKind,
 };
 
 use async_trait::async_trait;
@@ -27,7 +27,7 @@ where
     async fn call(
         &self,
         request: RouterRequest<Client>,
-    ) -> Result<MiddlewareResponse<Client>, AppErrorKind> {
+    ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
         let context = &request.context;
         let update = &request.update;
 

@@ -2,8 +2,8 @@ use anyhow;
 use std::fmt::Debug;
 use thiserror;
 
-/// This enum represents all possible errors that can be returned from Telegram Bot API.
-///
+/// Errors that can be returned by the Telegram Bot API.
+/// # Notes
 /// This enum isn't complete. If you find a new error, please open an issue or pull request.
 /// All possible errors aren't documented in the official Telegram API documentation and usually
 /// defined by messages in the responses, but these messages can be changed in the future (frequent situation).

@@ -7,7 +7,7 @@ use crate::{
         service::{ServiceProvider, ToServiceProvider},
         simple::HandlerResult as SimpleHandlerResult,
     },
-    error::{AppErrorKind, UnknownUpdateTypeError},
+    error::{EventErrorKind, UnknownUpdateTypeError},
     methods::GetUpdates,
     types::Update,
 };
@@ -256,7 +256,7 @@ where
 {
     /// Main entry point for incoming updates
     /// # Errors
-    /// Returns [`UnknownUpdateTypeError`] if update type isn't supported, or [`AppErrorKind`] if any of this error occurs:
+    /// Returns [`UnknownUpdateTypeError`] if update type isn't supported, or [`EventErrorKind`] if any of this error occurs:
     /// - If any outer middleware returns error
     /// - If any inner middleware returns error
     /// - If any handler returns error. Probably it's error to extract args to the handler.
@@ -264,7 +264,7 @@ where
         self: Arc<Self>,
         bot: B,
         update: U,
-    ) -> Result<Result<Response<Client>, AppErrorKind>, UnknownUpdateTypeError>
+    ) -> Result<Result<Response<Client>, EventErrorKind>, UnknownUpdateTypeError>
     where
         B: Into<Arc<Bot<Client>>>,
         U: Into<Arc<Update>>,
@@ -288,7 +288,7 @@ where
 
     /// Main entry point for incoming updates with user context
     /// # Errors
-    /// Returns [`UnknownUpdateTypeError`] if update type is not supported, or [`AppErrorKind`] if any of this error occurs:
+    /// Returns [`UnknownUpdateTypeError`] if update type is not supported, or [`EventErrorKind`] if any of this error occurs:
     /// - If any outer middleware returns error
     /// - If any inner middleware returns error
     /// - If any handler returns error. Probably it's error to extract args to the handler.
@@ -297,7 +297,7 @@ where
         bot: B,
         update: U,
         context: C,
-    ) -> Result<Result<Response<Client>, AppErrorKind>, UnknownUpdateTypeError>
+    ) -> Result<Result<Response<Client>, EventErrorKind>, UnknownUpdateTypeError>
     where
         B: Into<Arc<Bot<Client>>>,
         U: Into<Arc<Update>>,
@@ -495,11 +495,11 @@ where
     /// # Panics
     /// - If `bots` is empty
     /// - If failed to register exit signal handlers
-    pub async fn run_polling(self: Arc<Self>) -> Result<(), AppErrorKind> {
+    pub async fn run_polling(self: Arc<Self>) -> Result<(), EventErrorKind> {
         if let Err(err) = self.main_router.emit_startup().await {
             log::error!("Error while emit startup: {err}");
 
-            return Err(AppErrorKind::User(err.into()));
+            return Err(err.into());
         }
 
         let dispatcher = Arc::clone(&self);
@@ -508,7 +508,7 @@ where
         self.emit_shutdown().await.map_err(|err| {
             log::error!("Error while emit shutdown: {err}");
 
-            AppErrorKind::User(err.into())
+            err.into()
         })
     }
 

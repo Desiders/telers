@@ -1,4 +1,4 @@
-use super::{Storage, StorageKey};
+use super::{Error, Storage, StorageKey};
 
 use async_trait::async_trait;
 use serde::{de::DeserializeOwned, Serialize};
@@ -39,7 +39,7 @@ impl Memory {
 
 #[async_trait]
 impl Storage for Memory {
-    type Error = bincode::Error;
+    type Error = Error;
 
     /// Remove state for specified key
     /// # Arguments
@@ -127,8 +127,16 @@ impl Storage for Memory {
 
                 let mut new_data = HashMap::with_capacity(data_len);
 
-                for (key, value) in data {
-                    new_data.insert(key.into(), bincode::serialize(&value)?);
+                for (value_key, value) in data {
+                    new_data.insert(
+                        value_key.into(),
+                        bincode::serialize(&value).map_err(|err| {
+                            Error::new(
+                                format!("Failed to serialize value. Storage key: `{key:?}`"),
+                                err,
+                            )
+                        })?,
+                    );
                 }
 
                 entry.get_mut().data = new_data;
@@ -144,8 +152,16 @@ impl Storage for Memory {
 
                 let mut new_data = HashMap::with_capacity(data_len);
 
-                for (key, value) in data {
-                    new_data.insert(key.into(), bincode::serialize(&value)?);
+                for (value_key, value) in data {
+                    new_data.insert(
+                        value_key.into(),
+                        bincode::serialize(&value).map_err(|err| {
+                            Error::new(
+                                format!("Failed to serialize value. Storage key: `{key:?}`"),
+                                err,
+                            )
+                        })?,
+                    );
                 }
 
                 entry.insert(Record {
@@ -174,10 +190,15 @@ impl Storage for Memory {
     {
         match self.storage.lock().await.entry(key.clone()) {
             Entry::Occupied(mut entry) => {
-                entry
-                    .get_mut()
-                    .data
-                    .insert(value_key.into(), bincode::serialize(&value)?);
+                entry.get_mut().data.insert(
+                    value_key.into(),
+                    bincode::serialize(&value).map_err(|err| {
+                        Error::new(
+                            format!("Failed to serialize value. Storage key: `{key:?}`"),
+                            err,
+                        )
+                    })?,
+                );
             }
             Entry::Vacant(entry) => {
                 entry.insert(
@@ -185,7 +206,17 @@ impl Storage for Memory {
                         state: None,
                         data: {
                             let mut new_data = HashMap::with_capacity(1);
-                            new_data.insert(value_key.into(), bincode::serialize(&value)?);
+                            new_data.insert(
+                                value_key.into(),
+                                bincode::serialize(&value).map_err(|err| {
+                                    Error::new(
+                                        format!(
+                                            "Failed to serialize value. Storage key: `{key:?}`"
+                                        ),
+                                        err,
+                                    )
+                                })?,
+                            );
                             new_data
                         },
                     }
@@ -210,8 +241,16 @@ impl Storage for Memory {
                 let entry_data = &entry.get().data;
                 let mut data = HashMap::with_capacity(entry_data.len());
 
-                for (key, value) in entry_data {
-                    data.insert(key.as_ref().to_owned(), bincode::deserialize(value)?);
+                for (value_key, value) in entry_data {
+                    data.insert(
+                        value_key.as_ref().to_owned(),
+                        bincode::deserialize(value).map_err(|err| {
+                            Error::new(
+                                format!("Failed to deserialize value. Storage key: `{key:?}`"),
+                                err,
+                            )
+                        })?,
+                    );
                 }
 
                 Ok(data)
@@ -236,11 +275,20 @@ impl Storage for Memory {
         Key: Into<Cow<'static, str>> + Send,
     {
         match self.storage.lock().await.entry(key.clone()) {
-            Entry::Occupied(entry) => entry
-                .get()
-                .data
-                .get(&value_key.into())
-                .map_or(Ok(None), |value| Ok(Some(bincode::deserialize(value)?))),
+            Entry::Occupied(entry) => {
+                entry
+                    .get()
+                    .data
+                    .get(&value_key.into())
+                    .map_or(Ok(None), |value| {
+                        Ok(Some(bincode::deserialize(value).map_err(|err| {
+                            Error::new(
+                                format!("Failed to deserialize value. Storage key: `{key:?}`"),
+                                err,
+                            )
+                        })?))
+                    })
+            }
             Entry::Vacant(_) => Ok(None),
         }
     }

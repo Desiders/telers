@@ -2,15 +2,15 @@ use crate::{
     dispatcher::event::service::{
         factory, fn_service, BoxFuture, BoxService, BoxServiceFactory, Service, ServiceFactory,
     },
-    error::EventError,
+    error::HandlerError,
 };
 
 use std::{future::Future, result::Result as StdResult};
 
-pub type BoxedHandlerService = BoxService<(), (), EventError>;
-pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), (), (), EventError, ()>;
+pub type BoxedHandlerService = BoxService<(), (), HandlerError>;
+pub type BoxedHandlerServiceFactory = BoxServiceFactory<(), (), (), HandlerError, ()>;
 
-pub type Result = StdResult<(), EventError>;
+pub type Result = StdResult<(), HandlerError>;
 
 pub trait Handler<Args> {
     type Output;
@@ -41,7 +41,7 @@ impl HandlerObject {
 
 impl ServiceFactory<()> for HandlerObject {
     type Response = ();
-    type Error = EventError;
+    type Error = HandlerError;
     type Config = ();
     type Service = HandlerObjectService;
     type InitError = ();
@@ -60,7 +60,7 @@ pub struct HandlerObjectService {
 
 impl Service<()> for HandlerObjectService {
     type Response = ();
-    type Error = EventError;
+    type Error = HandlerError;
     type Future = BoxFuture<StdResult<Self::Response, Self::Error>>;
 
     fn call(&self, request: ()) -> Self::Future {
@@ -178,7 +178,7 @@ mod tests {
     #[tokio::test]
     async fn test_handler_object_service_error() {
         let handler_object =
-            HandlerObject::new(|| async { Err(EventError::new(anyhow!("test"))) }, ());
+            HandlerObject::new(|| async { Err(HandlerError::new(anyhow!("test"))) }, ());
         let handler_object_service = handler_object.new_service(()).unwrap();
 
         let response = handler_object_service.call(()).await;

@@ -24,7 +24,7 @@ use crate::{
         observer_name::{Simple as SimpleObserverName, Telegram as TelegramObserverName},
         update_type::UpdateType,
     },
-    error::AppErrorKind,
+    error::EventErrorKind,
     types::Update,
 };
 
@@ -863,7 +863,7 @@ where
         &self,
         update_type: UpdateType,
         request: Request<Client>,
-    ) -> Result<Response<Client>, AppErrorKind> {
+    ) -> Result<Response<Client>, EventErrorKind> {
         self.propagate_update_event(request.clone()).await?;
 
         let observer = self.telegram_observer_by_update_type(update_type);
@@ -901,7 +901,7 @@ where
     async fn propagate_update_event(
         &self,
         request: Request<Client>,
-    ) -> Result<Response<Client>, AppErrorKind> {
+    ) -> Result<Response<Client>, EventErrorKind> {
         let mut request = request;
         for middleware in &self.update.outer_middlewares {
             let (updated_request, event_return) = middleware.call(request.clone()).await?;
@@ -932,7 +932,7 @@ where
     async fn propagate_update_event_by_observer(
         &self,
         request: Request<Client>,
-    ) -> Result<Response<Client>, AppErrorKind> {
+    ) -> Result<Response<Client>, EventErrorKind> {
         let observer_request = request.clone().into();
         let observer_response = self.update.trigger(observer_request).await?;
 
@@ -985,7 +985,7 @@ where
         observer: &TelegramObserverInner<Client>,
         update_type: UpdateType,
         request: Request<Client>,
-    ) -> Result<Response<Client>, AppErrorKind> {
+    ) -> Result<Response<Client>, EventErrorKind> {
         let observer_request = request.clone().into();
         let observer_response = observer.trigger(observer_request).await?;
 

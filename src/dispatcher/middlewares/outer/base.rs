@@ -1,6 +1,6 @@
 use crate::{
     dispatcher::{event::EventReturn, RouterRequest},
-    error::AppErrorKind,
+    error::EventErrorKind,
 };
 
 use async_trait::async_trait;
@@ -31,7 +31,7 @@ pub trait Middleware<Client>: Send + Sync {
     async fn call(
         &self,
         request: RouterRequest<Client>,
-    ) -> Result<MiddlewareResponse<Client>, AppErrorKind>;
+    ) -> Result<MiddlewareResponse<Client>, EventErrorKind>;
 }
 
 #[async_trait]
@@ -43,7 +43,7 @@ where
     async fn call(
         &self,
         request: RouterRequest<Client>,
-    ) -> Result<MiddlewareResponse<Client>, AppErrorKind> {
+    ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
         T::call(self, request).await
     }
 }
@@ -54,12 +54,12 @@ impl<Client, Func, Fut> Middleware<Client> for Func
 where
     Client: Send + Sync + 'static,
     Func: Fn(RouterRequest<Client>) -> Fut + Send + Sync,
-    Fut: Future<Output = Result<MiddlewareResponse<Client>, AppErrorKind>> + Send,
+    Fut: Future<Output = Result<MiddlewareResponse<Client>, EventErrorKind>> + Send,
 {
     async fn call(
         &self,
         request: RouterRequest<Client>,
-    ) -> Result<MiddlewareResponse<Client>, AppErrorKind> {
+    ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
         self(request).await
     }
 }

@@ -1,6 +1,9 @@
+use crate::error::{HandlerError, MiddlewareError};
+
 use async_trait::async_trait;
 use serde::{de::DeserializeOwned, Serialize};
-use std::{borrow::Cow, collections::HashMap, error::Error as StdError, sync::Arc};
+use std::{borrow::Cow, collections::HashMap, error::Error as StdError, fmt::Debug, sync::Arc};
+use thiserror;
 
 pub const DEFAULT_DESTINY: &str = "default";
 
@@ -30,13 +33,47 @@ impl StorageKey {
     }
 }
 
+#[derive(thiserror::Error, Debug)]
+#[error("Storage error: {msg}")]
+pub struct Error {
+    msg: Cow<'static, str>,
+    source: Box<dyn StdError + Send + Sync>,
+}
+
+impl Error {
+    #[must_use]
+    pub fn new<T>(msg: impl Into<Cow<'static, str>>, source: T) -> Self
+    where
+        T: StdError + Send + Sync + 'static,
+    {
+        Self {
+            msg: msg.into(),
+            source: Box::new(source),
+        }
+    }
+}
+
+/// To possible to wrap [`Error`] error in [`HandlerError`] struct without explicit conversion
+impl From<Error> for HandlerError {
+    fn from(err: Error) -> Self {
+        Self::new(err)
+    }
+}
+
+/// To possible to wrap [`Error`] error in [`MiddlewareError`] struct without explicit conversion
+impl From<Error> for MiddlewareError {
+    fn from(err: Error) -> Self {
+        Self::new(err)
+    }
+}
+
 /// Storage is used to store state and data of the user
 /// # Note
 /// Storage is part of the FSM pattern,
 /// don't use it for other purposes like database and store user data not related with state machine
 #[async_trait]
 pub trait Storage: Clone {
-    type Error: StdError + Into<anyhow::Error>;
+    type Error: Into<Error>;
 
     /// Remove state for specified key
     /// # Arguments

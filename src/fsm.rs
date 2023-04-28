@@ -7,9 +7,7 @@ pub use storage::{Storage, StorageKey};
 pub use strategy::Strategy;
 
 #[cfg(feature = "redis-storage")]
-pub use storage::{
-    DefaultKeyBuilder as RedisDefaultKeyBuilder, Redis as RedisStorage, RedisStorageError,
-};
+pub use storage::{DefaultKeyBuilder as RedisDefaultKeyBuilder, Redis as RedisStorage};
 
 #[cfg(feature = "memory-storage")]
 pub use storage::Memory as MemoryStorage;

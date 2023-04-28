@@ -18,7 +18,7 @@ use crate::{
             outer::{Manager as OuterMiddlewareManager, Middlewares as OuterMiddlewares},
         },
     },
-    error::AppErrorKind,
+    error::EventErrorKind,
     extract::FromEventAndContext,
     filters::Filter,
     types::Update,
@@ -226,7 +226,7 @@ impl<Client: Send + Sync + Clone + 'static> ObserverInner<Client> {
     pub async fn trigger(
         &self,
         request: Request<Client>,
-    ) -> Result<Response<Client>, AppErrorKind> {
+    ) -> Result<Response<Client>, EventErrorKind> {
         let handler_request = request.clone().into();
 
         // Check observer filters
@@ -253,7 +253,7 @@ impl<Client: Send + Sync + Clone + 'static> ObserverInner<Client> {
                 None => handler
                     .call(handler_request.clone())
                     .await
-                    .map_err(AppErrorKind::Extraction),
+                    .map_err(EventErrorKind::Extraction),
             }?;
 
             return match response.handler_result {
@@ -288,7 +288,7 @@ impl<Client> Debug for ObserverInner<Client> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{client::Reqwest, error::EventError, filters::Command, types::Message};
+    use crate::{client::Reqwest, error::HandlerError, filters::Command, types::Message};
 
     use anyhow::anyhow;
     use tokio;
@@ -301,7 +301,7 @@ mod tests {
 
         let mut observer = Observer::new("test");
         // Register common filter, which handlers can't pass
-        observer.filter(Command::builder().prefix("/").command("start").build());
+        observer.filter(Command::one("start"));
         observer.register(|| async { Ok(EventReturn::Finish) });
         observer.register(|| async {
             unreachable!("It's shouldn't trigger because the first handler handles the event");
@@ -343,7 +343,7 @@ mod tests {
     #[tokio::test]
     async fn test_observer_trigger_error() {
         let mut observer = Observer::<Reqwest>::new("test");
-        observer.register(|| async { Err(EventError::new(anyhow!("test"))) });
+        observer.register(|| async { Err(HandlerError::new(anyhow!("test"))) });
         observer.register(|| async {
             unreachable!("It's shouldn't trigger because the first handler handles the event");
 
