@@ -322,374 +322,15 @@ impl<Client> AsRef<Router<Client>> for Router<Client> {
     }
 }
 
-pub struct OuterMiddlewaresConfig<Client> {
-    message: OuterMiddlewares<Client>,
-    edited_message: OuterMiddlewares<Client>,
-    channel_post: OuterMiddlewares<Client>,
-    edited_channel_post: OuterMiddlewares<Client>,
-    inline_query: OuterMiddlewares<Client>,
-    chosen_inline_result: OuterMiddlewares<Client>,
-    callback_query: OuterMiddlewares<Client>,
-    shipping_query: OuterMiddlewares<Client>,
-    pre_checkout_query: OuterMiddlewares<Client>,
-    poll: OuterMiddlewares<Client>,
-    poll_answer: OuterMiddlewares<Client>,
-    my_chat_member: OuterMiddlewares<Client>,
-    chat_member: OuterMiddlewares<Client>,
-    chat_join_request: OuterMiddlewares<Client>,
-    update: OuterMiddlewares<Client>,
-}
-
-impl<Client> OuterMiddlewaresConfig<Client> {
-    pub fn clear(&mut self) {
-        self.message.clear();
-        self.edited_message.clear();
-        self.channel_post.clear();
-        self.edited_channel_post.clear();
-        self.inline_query.clear();
-        self.chosen_inline_result.clear();
-        self.callback_query.clear();
-        self.shipping_query.clear();
-        self.pre_checkout_query.clear();
-        self.poll.clear();
-        self.poll_answer.clear();
-        self.my_chat_member.clear();
-        self.chat_member.clear();
-        self.chat_join_request.clear();
-        self.update.clear();
-    }
-
-    #[must_use]
-    pub fn builder() -> OuterMiddlewaresConfigBuilder<Client> {
-        OuterMiddlewaresConfigBuilder::default()
-    }
-}
-
-impl<Client> Clone for OuterMiddlewaresConfig<Client> {
-    fn clone(&self) -> Self {
-        Self {
-            message: self.message.clone(),
-            edited_message: self.edited_message.clone(),
-            channel_post: self.channel_post.clone(),
-            edited_channel_post: self.edited_channel_post.clone(),
-            inline_query: self.inline_query.clone(),
-            chosen_inline_result: self.chosen_inline_result.clone(),
-            callback_query: self.callback_query.clone(),
-            shipping_query: self.shipping_query.clone(),
-            pre_checkout_query: self.pre_checkout_query.clone(),
-            poll: self.poll.clone(),
-            poll_answer: self.poll_answer.clone(),
-            my_chat_member: self.my_chat_member.clone(),
-            chat_member: self.chat_member.clone(),
-            chat_join_request: self.chat_join_request.clone(),
-            update: self.update.clone(),
-        }
-    }
-}
-
-impl<Client> Default for OuterMiddlewaresConfig<Client>
-where
-    Client: Send + Sync + 'static,
-{
-    #[must_use]
-    fn default() -> Self {
-        Self::builder()
-            .update(UserContextMiddleware::default())
-            .build()
-    }
-}
-
-pub struct OuterMiddlewaresConfigBuilder<Client> {
-    message: OuterMiddlewares<Client>,
-    edited_message: OuterMiddlewares<Client>,
-    channel_post: OuterMiddlewares<Client>,
-    edited_channel_post: OuterMiddlewares<Client>,
-    inline_query: OuterMiddlewares<Client>,
-    chosen_inline_result: OuterMiddlewares<Client>,
-    callback_query: OuterMiddlewares<Client>,
-    shipping_query: OuterMiddlewares<Client>,
-    pre_checkout_query: OuterMiddlewares<Client>,
-    poll: OuterMiddlewares<Client>,
-    poll_answer: OuterMiddlewares<Client>,
-    my_chat_member: OuterMiddlewares<Client>,
-    chat_member: OuterMiddlewares<Client>,
-    chat_join_request: OuterMiddlewares<Client>,
-    update: OuterMiddlewares<Client>,
-}
-
-impl<Client> OuterMiddlewaresConfigBuilder<Client> {
-    #[must_use]
-    pub fn message<T>(self, val: T) -> Self
-    where
-        T: OuterMiddleware<Client> + 'static,
-    {
-        Self {
-            message: self
-                .message
-                .into_iter()
-                .chain(Some(Arc::new(val) as _))
-                .collect(),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn edited_message<T>(self, val: T) -> Self
-    where
-        T: OuterMiddleware<Client> + 'static,
-    {
-        Self {
-            edited_message: self
-                .edited_message
-                .into_iter()
-                .chain(Some(Arc::new(val) as _))
-                .collect(),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn channel_post<T>(self, val: T) -> Self
-    where
-        T: OuterMiddleware<Client> + 'static,
-    {
-        Self {
-            channel_post: self
-                .channel_post
-                .into_iter()
-                .chain(Some(Arc::new(val) as _))
-                .collect(),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn edited_channel_post<T>(self, val: T) -> Self
-    where
-        T: OuterMiddleware<Client> + 'static,
-    {
-        Self {
-            edited_channel_post: self
-                .edited_channel_post
-                .into_iter()
-                .chain(Some(Arc::new(val) as _))
-                .collect(),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn inline_query<T>(self, val: T) -> Self
-    where
-        T: OuterMiddleware<Client> + 'static,
-    {
-        Self {
-            inline_query: self
-                .inline_query
-                .into_iter()
-                .chain(Some(Arc::new(val) as _))
-                .collect(),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn chosen_inline_result<T>(self, val: T) -> Self
-    where
-        T: OuterMiddleware<Client> + 'static,
-    {
-        Self {
-            chosen_inline_result: self
-                .chosen_inline_result
-                .into_iter()
-                .chain(Some(Arc::new(val) as _))
-                .collect(),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn callback_query<T>(self, val: T) -> Self
-    where
-        T: OuterMiddleware<Client> + 'static,
-    {
-        Self {
-            callback_query: self
-                .callback_query
-                .into_iter()
-                .chain(Some(Arc::new(val) as _))
-                .collect(),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn shipping_query<T>(self, val: T) -> Self
-    where
-        T: OuterMiddleware<Client> + 'static,
-    {
-        Self {
-            shipping_query: self
-                .shipping_query
-                .into_iter()
-                .chain(Some(Arc::new(val) as _))
-                .collect(),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn pre_checkout_query<T>(self, val: T) -> Self
-    where
-        T: OuterMiddleware<Client> + 'static,
-    {
-        Self {
-            pre_checkout_query: self
-                .pre_checkout_query
-                .into_iter()
-                .chain(Some(Arc::new(val) as _))
-                .collect(),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn poll<T>(self, val: T) -> Self
-    where
-        T: OuterMiddleware<Client> + 'static,
-    {
-        Self {
-            poll: self
-                .poll
-                .into_iter()
-                .chain(Some(Arc::new(val) as _))
-                .collect(),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn poll_answer<T>(self, val: T) -> Self
-    where
-        T: OuterMiddleware<Client> + 'static,
-    {
-        Self {
-            poll_answer: self
-                .poll_answer
-                .into_iter()
-                .chain(Some(Arc::new(val) as _))
-                .collect(),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn my_chat_member<T>(self, val: T) -> Self
-    where
-        T: OuterMiddleware<Client> + 'static,
-    {
-        Self {
-            my_chat_member: self
-                .my_chat_member
-                .into_iter()
-                .chain(Some(Arc::new(val) as _))
-                .collect(),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn chat_member<T>(self, val: T) -> Self
-    where
-        T: OuterMiddleware<Client> + 'static,
-    {
-        Self {
-            chat_member: self
-                .chat_member
-                .into_iter()
-                .chain(Some(Arc::new(val) as _))
-                .collect(),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn chat_join_request<T>(self, val: T) -> Self
-    where
-        T: OuterMiddleware<Client> + 'static,
-    {
-        Self {
-            chat_join_request: self
-                .chat_join_request
-                .into_iter()
-                .chain(Some(Arc::new(val) as _))
-                .collect(),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn update<T>(self, val: T) -> Self
-    where
-        T: OuterMiddleware<Client> + 'static,
-    {
-        Self {
-            update: self
-                .update
-                .into_iter()
-                .chain(Some(Arc::new(val) as _))
-                .collect(),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn build(self) -> OuterMiddlewaresConfig<Client> {
-        OuterMiddlewaresConfig {
-            message: self.message,
-            edited_message: self.edited_message,
-            channel_post: self.channel_post,
-            edited_channel_post: self.edited_channel_post,
-            inline_query: self.inline_query,
-            chosen_inline_result: self.chosen_inline_result,
-            callback_query: self.callback_query,
-            shipping_query: self.shipping_query,
-            pre_checkout_query: self.pre_checkout_query,
-            poll: self.poll,
-            poll_answer: self.poll_answer,
-            my_chat_member: self.my_chat_member,
-            chat_member: self.chat_member,
-            chat_join_request: self.chat_join_request,
-            update: self.update,
-        }
-    }
-}
-
-impl<Client> Default for OuterMiddlewaresConfigBuilder<Client> {
-    #[must_use]
-    fn default() -> Self {
-        Self {
-            message: OuterMiddlewares::default(),
-            edited_message: OuterMiddlewares::default(),
-            channel_post: OuterMiddlewares::default(),
-            edited_channel_post: OuterMiddlewares::default(),
-            inline_query: OuterMiddlewares::default(),
-            chosen_inline_result: OuterMiddlewares::default(),
-            callback_query: OuterMiddlewares::default(),
-            shipping_query: OuterMiddlewares::default(),
-            pre_checkout_query: OuterMiddlewares::default(),
-            poll: OuterMiddlewares::default(),
-            poll_answer: OuterMiddlewares::default(),
-            my_chat_member: OuterMiddlewares::default(),
-            chat_member: OuterMiddlewares::default(),
-            chat_join_request: OuterMiddlewares::default(),
-            update: OuterMiddlewares::default(),
-        }
-    }
-}
-
 pub struct Config<Client> {
     outer_middlewares: OuterMiddlewaresConfig<Client>,
+}
+
+impl<Client> Config<Client> {
+    #[must_use]
+    pub fn new(outer_middlewares: OuterMiddlewaresConfig<Client>) -> Self {
+        Self { outer_middlewares }
+    }
 }
 
 impl<Client> Clone for Config<Client> {
@@ -697,13 +338,6 @@ impl<Client> Clone for Config<Client> {
         Self {
             outer_middlewares: self.outer_middlewares.clone(),
         }
-    }
-}
-
-impl<Client> Config<Client> {
-    #[must_use]
-    pub fn new(outer_middlewares: OuterMiddlewaresConfig<Client>) -> Self {
-        Self { outer_middlewares }
     }
 }
 
@@ -1087,6 +721,197 @@ impl<Client> Debug for RouterInner<Client> {
         f.debug_struct("Router")
             .field("router_name", &self.router_name)
             .finish()
+    }
+}
+
+pub struct OuterMiddlewaresConfig<Client> {
+    message: OuterMiddlewares<Client>,
+    edited_message: OuterMiddlewares<Client>,
+    channel_post: OuterMiddlewares<Client>,
+    edited_channel_post: OuterMiddlewares<Client>,
+    inline_query: OuterMiddlewares<Client>,
+    chosen_inline_result: OuterMiddlewares<Client>,
+    callback_query: OuterMiddlewares<Client>,
+    shipping_query: OuterMiddlewares<Client>,
+    pre_checkout_query: OuterMiddlewares<Client>,
+    poll: OuterMiddlewares<Client>,
+    poll_answer: OuterMiddlewares<Client>,
+    my_chat_member: OuterMiddlewares<Client>,
+    chat_member: OuterMiddlewares<Client>,
+    chat_join_request: OuterMiddlewares<Client>,
+    update: OuterMiddlewares<Client>,
+}
+
+impl<Client> OuterMiddlewaresConfig<Client> {
+    pub fn clear(&mut self) {
+        self.message.clear();
+        self.edited_message.clear();
+        self.channel_post.clear();
+        self.edited_channel_post.clear();
+        self.inline_query.clear();
+        self.chosen_inline_result.clear();
+        self.callback_query.clear();
+        self.shipping_query.clear();
+        self.pre_checkout_query.clear();
+        self.poll.clear();
+        self.poll_answer.clear();
+        self.my_chat_member.clear();
+        self.chat_member.clear();
+        self.chat_join_request.clear();
+        self.update.clear();
+    }
+
+    #[must_use]
+    pub fn builder() -> OuterMiddlewaresConfigBuilder<Client> {
+        OuterMiddlewaresConfigBuilder::default()
+    }
+}
+
+impl<Client> OuterMiddlewaresConfig<Client>
+where
+    Client: Send + Sync + 'static,
+{
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
+impl<Client> Clone for OuterMiddlewaresConfig<Client> {
+    fn clone(&self) -> Self {
+        Self {
+            message: self.message.clone(),
+            edited_message: self.edited_message.clone(),
+            channel_post: self.channel_post.clone(),
+            edited_channel_post: self.edited_channel_post.clone(),
+            inline_query: self.inline_query.clone(),
+            chosen_inline_result: self.chosen_inline_result.clone(),
+            callback_query: self.callback_query.clone(),
+            shipping_query: self.shipping_query.clone(),
+            pre_checkout_query: self.pre_checkout_query.clone(),
+            poll: self.poll.clone(),
+            poll_answer: self.poll_answer.clone(),
+            my_chat_member: self.my_chat_member.clone(),
+            chat_member: self.chat_member.clone(),
+            chat_join_request: self.chat_join_request.clone(),
+            update: self.update.clone(),
+        }
+    }
+}
+
+impl<Client> Default for OuterMiddlewaresConfig<Client>
+where
+    Client: Send + Sync + 'static,
+{
+    #[must_use]
+    fn default() -> Self {
+        Self::builder()
+            .update(UserContextMiddleware::default())
+            .build()
+    }
+}
+
+pub struct OuterMiddlewaresConfigBuilder<Client> {
+    message: OuterMiddlewares<Client>,
+    edited_message: OuterMiddlewares<Client>,
+    channel_post: OuterMiddlewares<Client>,
+    edited_channel_post: OuterMiddlewares<Client>,
+    inline_query: OuterMiddlewares<Client>,
+    chosen_inline_result: OuterMiddlewares<Client>,
+    callback_query: OuterMiddlewares<Client>,
+    shipping_query: OuterMiddlewares<Client>,
+    pre_checkout_query: OuterMiddlewares<Client>,
+    poll: OuterMiddlewares<Client>,
+    poll_answer: OuterMiddlewares<Client>,
+    my_chat_member: OuterMiddlewares<Client>,
+    chat_member: OuterMiddlewares<Client>,
+    chat_join_request: OuterMiddlewares<Client>,
+    update: OuterMiddlewares<Client>,
+}
+
+macro_rules! impl_builder_methods {
+    ($($method:ident => $update_type:ident),*) => {
+        $(
+            #[must_use]
+            pub fn $method<T>(self, val: T) -> Self
+            where
+                T: OuterMiddleware<Client> + 'static,
+            {
+                Self {
+                    $update_type: self.$update_type.into_iter().chain(Some(Arc::new(val) as _)).collect(),
+                    ..self
+                }
+            }
+        )*
+    };
+}
+
+impl<Client> OuterMiddlewaresConfigBuilder<Client> {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    impl_builder_methods! {
+        message => message,
+        edited_message => edited_message,
+        channel_post => channel_post,
+        edited_channel_post => edited_channel_post,
+        inline_query => inline_query,
+        chosen_inline_result => chosen_inline_result,
+        callback_query => callback_query,
+        shipping_query => shipping_query,
+        pre_checkout_query => pre_checkout_query,
+        poll => poll,
+        poll_answer => poll_answer,
+        my_chat_member => my_chat_member,
+        chat_member => chat_member,
+        chat_join_request => chat_join_request,
+        update => update
+    }
+
+    #[must_use]
+    pub fn build(self) -> OuterMiddlewaresConfig<Client> {
+        OuterMiddlewaresConfig {
+            message: self.message,
+            edited_message: self.edited_message,
+            channel_post: self.channel_post,
+            edited_channel_post: self.edited_channel_post,
+            inline_query: self.inline_query,
+            chosen_inline_result: self.chosen_inline_result,
+            callback_query: self.callback_query,
+            shipping_query: self.shipping_query,
+            pre_checkout_query: self.pre_checkout_query,
+            poll: self.poll,
+            poll_answer: self.poll_answer,
+            my_chat_member: self.my_chat_member,
+            chat_member: self.chat_member,
+            chat_join_request: self.chat_join_request,
+            update: self.update,
+        }
+    }
+}
+
+impl<Client> Default for OuterMiddlewaresConfigBuilder<Client> {
+    #[must_use]
+    fn default() -> Self {
+        Self {
+            message: OuterMiddlewares::default(),
+            edited_message: OuterMiddlewares::default(),
+            channel_post: OuterMiddlewares::default(),
+            edited_channel_post: OuterMiddlewares::default(),
+            inline_query: OuterMiddlewares::default(),
+            chosen_inline_result: OuterMiddlewares::default(),
+            callback_query: OuterMiddlewares::default(),
+            shipping_query: OuterMiddlewares::default(),
+            pre_checkout_query: OuterMiddlewares::default(),
+            poll: OuterMiddlewares::default(),
+            poll_answer: OuterMiddlewares::default(),
+            my_chat_member: OuterMiddlewares::default(),
+            chat_member: OuterMiddlewares::default(),
+            chat_join_request: OuterMiddlewares::default(),
+            update: OuterMiddlewares::default(),
+        }
     }
 }
 
