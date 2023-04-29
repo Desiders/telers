@@ -90,15 +90,66 @@ impl<Client> Response<Client> {
     }
 }
 
-/// Router can route update, and it nested update types like messages, callback query, polls and all other event types.
-/// Event handlers can be registered in observer by following methods:
-/// - By observer method - [`router.{event_type}.register(handler).filter(...).filters(...)`]
-/// - By observer method - [`router.{event_type}.on(handler).filter(...).filters(...)`]
+/// Router combines all event observers.
+///
+/// Each event observer is a special unit that handles a specific event type.
+/// There are two types of event observers:
+///
+/// - Simple observer - [`SimpleObserver`]
+///
+/// Simple observer is used to handle simple events like startup and shutdown. \
+/// When you register a handler in this observer,
+/// you specify the arguments that pass to the handler when the event is trigger. \
+/// Return type of the handler is `Result<(), HandlerError>`. \
+/// When observer is trigger, it calls all handlers in order of registration and stops if one of them returns an error.
+///
+/// Registration of the handlers looks like this:
+/// ```no_run
+/// async fn on_startup(message: &str) -> HandlerResult {
+///     ...
+/// }
+///
+/// async fn on_shutdown(message: &str) -> HandlerResult {
+///     ...
+/// }
+///
+/// let mut router = Router::new("example");
+/// router.startup.register(on_startup, ("Hello, world!",));
+/// router.shutdown.register(on_shutdown, ("Goodbye, world!",));
+/// ```
+///
+/// - Telegram observer - [`TelegramObserver`]
+///
+/// Telegram observer is used to handle telegram events like messages, callback queries, polls and all other event types. \
+/// You can register a handler with any arguments that implement [`crate::extract::FromEventAndContext`] trait,
+/// see [`crate::extract`] for more details. \
+/// Return type of the handler is `Result<EventReturn, HandlerError>`,
+/// where [`EventReturn`] is a special enum that can be used to control the propagation of the event,
+/// see [`EventReturn`] for more details. \
+/// When observer is trigger, it calls outer middlewares and checks all handlers in order of registration.
+/// It calls all filters for each handler and skips the handler if one of them returns `false`.
+/// If the handler is pass the filters, observer calls inner middlewares and the handler itself (in the middleware).
+/// By default, the first handler that pass the filters stop the propagation of the event, so other handlers aren't calls.
+/// (You can change this behaviour by specify another variant of [`EventReturn`]).
+///
+/// Registration of the handlers looks like this:
+/// ```no_run
+/// async fn on_message(message: Message) -> HandlerResult {
+///    ...
+/// }
+///
+/// async fn on_callback_query(callback_query: CallbackQuery) -> HandlerResult {
+///   ...
+/// }
+///
+/// let mut router = Router::new("example");
+/// router.message.register(on_message);
+/// router.callback_query.register(on_callback_query);
+/// ```
+///
 pub struct Router<Client> {
     /// Can be used for logging and debugging
     pub router_name: &'static str,
-    /// Sub routers of this router. \
-    /// If update is processed by this router, it will be propagated to sub routers.
     pub sub_routers: Vec<Router<Client>>,
 
     pub message: TelegramObserver<Client>,
@@ -201,10 +252,10 @@ where
         });
     }
 
-    /// Include a sub router
-    ///
-    /// This method will register all middlewares of router,
-    /// which registered before call this method, in sub router
+    /// Include a router to the current router as sub router
+    /// # Warning
+    /// This method register all middlewares of the parent router to the sub router.
+    /// If register middlewares to parent router after include sub router, middlewares will not be registered to sub router.
     pub fn include_router(&mut self, mut router: Router<Client>) -> &mut Self {
         self.register_inner_middlewares(&mut router);
 
