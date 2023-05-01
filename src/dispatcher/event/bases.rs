@@ -6,11 +6,7 @@ use crate::error::HandlerError;
 /// This indicates how [`crate::dispatcher::Dispatcher`] should process response.
 /// # Notes
 /// In some cases, some values may represent the same result
-/// # Shortcuts
-/// - [`SkipEvent`] - [`EventReturn::Skip`]
-/// - [`CancelEvent`] - [`EventReturn::Cancel`]
-/// - [`FinishEvent`] - [`EventReturn::Finish`]
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub enum EventReturn {
     /// Skip the event
     ///
@@ -61,27 +57,4 @@ pub enum PropagateEventResult<Client> {
     Unhandled,
     /// Handler was processed with [`Response`]
     Handled(Response<Client>),
-}
-
-mod impl_from {
-    use super::EventReturn;
-
-    macro_rules! default_impl_event_return_from {
-        ($($t:ty),*) => {
-            $(
-                impl From<$t> for EventReturn {
-                    fn from(_: $t) -> Self {
-                        <Self as Default>::default()
-                    }
-                }
-            )*
-        };
-    }
-
-    default_impl_event_return_from! {
-        i8, i16, i32, i64, i128, isize,
-        u8, u16, u32, u64, u128, (), usize,
-        f32, f64, bool,
-        char, &str, String
-    }
 }
