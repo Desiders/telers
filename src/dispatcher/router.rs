@@ -104,7 +104,7 @@ impl<Client> Response<Client> {
 /// When observer is trigger, it calls all handlers in order of registration and stops if one of them returns an error.
 ///
 /// Registration of the handlers looks like this:
-/// ```no_run
+/// ```ignore
 /// async fn on_startup(message: &str) -> HandlerResult {
 ///     ...
 /// }
@@ -133,7 +133,7 @@ impl<Client> Response<Client> {
 /// (You can change this behaviour by specify another variant of [`EventReturn`]).
 ///
 /// Registration of the handlers looks like this:
-/// ```no_run
+/// ```ignore
 /// async fn on_message(message: Message) -> HandlerResult {
 ///    ...
 /// }
@@ -146,9 +146,7 @@ impl<Client> Response<Client> {
 /// router.message.register(on_message);
 /// router.callback_query.register(on_callback_query);
 /// ```
-///
 pub struct Router<Client> {
-    /// Can be used for logging and debugging
     pub router_name: &'static str,
     pub sub_routers: Vec<Router<Client>>,
 
@@ -172,9 +170,9 @@ pub struct Router<Client> {
     /// This observer is useful for register important middlewares (often libraries) like `FSMContext` and `UserContext`,
     /// that set up context for other.
     ///
-    /// The order of calls looks simplistically like this:
-    /// Dispatcher -> Router -> Update observer -> Sub routers -> Update observer
-    ///            -> Router -> Other telegram observers -> Sub routers -> Other telegram observers
+    /// The order of calls looks simplistically like this: \
+    /// `Dispatcher -> Router -> Update observer -> Sub router -> Update observer
+    ///            -> Router -> Telegram observer -> Sub router -> Telegram observer`
     pub update: TelegramObserver<Client>,
 
     pub startup: SimpleObserver,
@@ -542,8 +540,8 @@ where
     /// Assumed that [`UpdateType`] is correct because it is derived from [`Update`].
     /// This behaviour allows you not to check recursively [`UpdateType`] and can be used for testing purposes,
     /// but it's not recommended to use it in production.
-    #[async_recursion]
     #[must_use]
+    #[async_recursion]
     pub async fn propagate_event(
         &self,
         update_type: UpdateType,
@@ -609,7 +607,7 @@ where
         self.propagate_update_event_by_observer(request).await
     }
 
-    /// Propagate event to routers by observer
+    /// Propagate event to routers by update observer
     /// # Errors
     /// - If any outer middleware returns error
     /// - If any inner middleware returns error
@@ -975,13 +973,12 @@ mod tests {
             event::{telegram::HandlerResult as TelegramHandlerResult, EventReturn},
             middlewares::inner::Next,
         },
-        filters::Command,
     };
 
     use tokio;
 
     #[test]
-    fn test_router_include() {
+    fn test_include_router() {
         let mut router = Router::<Reqwest>::new("main");
 
         let inner_middleware = |request, next: Next<_>| next(request);
@@ -1055,7 +1052,7 @@ mod tests {
 
     #[rustfmt::skip]
     #[test]
-    fn test_router_observers_register() {
+    fn test_observer_register() {
         async fn telegram_handler() -> TelegramHandlerResult {
             Ok(EventReturn::Finish)
         }
@@ -1113,38 +1110,25 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_router_propagate_event() {
+    async fn test_propagate_event() {
         let bot = Bot::<Reqwest>::default();
         let context = Context::new();
         let update = Update::default();
 
-        let mut router = Router::new("test1");
+        let request = Request::new(bot, update, context);
+
+        let mut router = Router::new("test_handler");
         router
-            .update
-            .outer_middlewares
-            .register(|request: Request<Reqwest>| async move {
-                request.context.insert("test", Box::new("test"));
-
-                Ok((request, EventReturn::Finish))
-            });
-        router.message.register(|context: Arc<Context>| async move {
-            assert_eq!(
-                context.get("test").unwrap().downcast_ref::<&str>().unwrap(),
-                &"test"
-            );
-
-            Ok(EventReturn::Finish)
-        });
+            .message
+            .register(|| async move { Ok(EventReturn::Finish) });
 
         let router_service = router.to_service_provider_default().unwrap();
-
-        let request = Request::new(bot, update, context);
         let response = router_service
             .propagate_event(UpdateType::Message, request.clone())
             .await
             .unwrap();
 
-        // Event should be handled, because there is a message handler registered
+        // Handler should be called, because it's registered for this event
         match response.propagate_result {
             PropagateEventResult::Handled(response) => match response.handler_result {
                 Ok(EventReturn::Finish) => {}
@@ -1158,17 +1142,30 @@ mod tests {
             .await
             .unwrap();
 
-        // Event shouldn't be handled, because there is no callback query handler registered
+        // Handler shouldn't be called, because it's not registered for this event
         match response.propagate_result {
             PropagateEventResult::Unhandled => {}
             _ => panic!("Unexpected result"),
         }
 
-        let mut router = Router::new("test2");
-        router.message.filter(Command::default());
+        let mut router = Router::new("test_middleware_and_handler");
         router
-            .message
-            .register(|| async { Ok(EventReturn::Finish) });
+            .update
+            .outer_middlewares
+            .register(|request: Request<Reqwest>| async move {
+                request.context.insert("test", Box::new("test"));
+
+                Ok((request, EventReturn::Finish))
+            });
+        router.message.register(|context: Arc<Context>| async move {
+            // Check that middleware was called and context was modified
+            assert_eq!(
+                context.get("test").unwrap().downcast_ref::<&str>().unwrap(),
+                &"test"
+            );
+
+            Ok(EventReturn::Finish)
+        });
 
         let router_service = router.to_service_provider_default().unwrap();
 
@@ -1177,34 +1174,124 @@ mod tests {
             .await
             .unwrap();
 
-        // Event shouldn't be handled, because there is a message handler registered, but it has filter, which doesn't pass
-        match response.propagate_result {
-            PropagateEventResult::Unhandled => {}
-            _ => panic!("Unexpected result"),
-        }
-
-        let mut router = Router::new("test3");
-        router
-            .callback_query
-            .register(|| async { Ok(EventReturn::Skip) });
-        router
-            .callback_query
-            .register(|| async { Ok(EventReturn::Finish) });
-
-        let router_service = router.to_service_provider_default().unwrap();
-
-        let response = router_service
-            .propagate_event(UpdateType::CallbackQuery, request)
-            .await
-            .unwrap();
-
-        // Callback query event should be handled, because there is a callback query handler registered
-        // and it returns `EventReturn::Skip`, so next handler should be called
+        // Handler should be called, because it's registered for this event
         match response.propagate_result {
             PropagateEventResult::Handled(response) => match response.handler_result {
                 Ok(EventReturn::Finish) => {}
                 _ => panic!("Unexpected result"),
             },
+            _ => panic!("Unexpected result"),
+        }
+
+        let mut router = Router::new("test_skip_handler");
+        router
+            .message
+            .register(|| async move { Ok(EventReturn::Skip) });
+        router
+            .message
+            .register(|| async move { Ok(EventReturn::Finish) });
+
+        let router_service = router.to_service_provider_default().unwrap();
+
+        let response = router_service
+            .propagate_event(UpdateType::Message, request.clone())
+            .await
+            .unwrap();
+
+        // Handler should be called, because it's registered for this event.
+        // First handler skipped, so second handler should be called.
+        match response.propagate_result {
+            PropagateEventResult::Handled(response) => match response.handler_result {
+                Ok(EventReturn::Finish) => {}
+                _ => panic!("Unexpected result"),
+            },
+            _ => panic!("Unexpected result"),
+        }
+
+        let mut router = Router::new("test_skip_handler_without_next");
+        router
+            .message
+            .register(|| async move { Ok(EventReturn::Skip) });
+
+        let router_service = router.to_service_provider_default().unwrap();
+
+        let response = router_service
+            .propagate_event(UpdateType::Message, request.clone())
+            .await
+            .unwrap();
+
+        // Handler should be called, because it's registered for this event.
+        // First handler skipped, but there is no next handler, so event should be unhandled.
+        match response.propagate_result {
+            PropagateEventResult::Unhandled => {}
+            _ => panic!("Unexpected result"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_propagate_event_with_filter() {
+        let bot = Bot::<Reqwest>::default();
+        let context = Context::new();
+        let update = Update::default();
+
+        let request = Request::new(bot, update, context);
+
+        let mut router = Router::new("test_handler_with_filter");
+        router
+            .message
+            .register(|| async move { Ok(EventReturn::Finish) })
+            .filter(|_: &Bot<_>, _: &Update, _: &Context| async move { true });
+
+        let router_service = router.to_service_provider_default().unwrap();
+        let response = router_service
+            .propagate_event(UpdateType::Message, request.clone())
+            .await
+            .unwrap();
+
+        // Handler should be called, because filter returns `true`
+        match response.propagate_result {
+            PropagateEventResult::Handled(response) => match response.handler_result {
+                Ok(EventReturn::Finish) => {}
+                _ => panic!("Unexpected result"),
+            },
+            _ => panic!("Unexpected result"),
+        }
+
+        let mut router = Router::new("test_handler_with_fail_filter");
+        router
+            .message
+            .register(|| async move { Ok(EventReturn::Finish) })
+            .filter(|_: &Bot<_>, _: &Update, _: &Context| async move { false });
+
+        let router_service = router.to_service_provider_default().unwrap();
+        let response = router_service
+            .propagate_event(UpdateType::Message, request.clone())
+            .await
+            .unwrap();
+
+        // Handler shouldn't be called, because filter returns `false`
+        match response.propagate_result {
+            PropagateEventResult::Unhandled => {}
+            _ => panic!("Unexpected result"),
+        }
+
+        let mut router = Router::new("test_handler_with_filters_and_one_fail");
+        router
+            .message
+            .register(|| async move { Ok(EventReturn::Finish) })
+            .filter(|_: &Bot<_>, _: &Update, _: &Context| async move { true })
+            .filter(|_: &Bot<_>, _: &Update, _: &Context| async move { true })
+            .filter(|_: &Bot<_>, _: &Update, _: &Context| async move { false });
+
+        let router_service = router.to_service_provider_default().unwrap();
+        let response = router_service
+            .propagate_event(UpdateType::Message, request.clone())
+            .await
+            .unwrap();
+
+        // Handler shouldn't be called, because one filter returns `false`
+        match response.propagate_result {
+            PropagateEventResult::Unhandled => {}
             _ => panic!("Unexpected result"),
         }
     }
