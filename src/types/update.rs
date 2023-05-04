@@ -80,6 +80,12 @@ impl Update {
         self.user()
     }
 
+    /// Returns the user id from the update, that is, the user id of the message, the user id of the inline query, etc.
+    #[must_use]
+    pub fn user_id(&self) -> Option<i64> {
+        self.user().map(|user| user.id)
+    }
+
     /// Returns the [`Chat`] where the update was sent
     #[must_use]
     pub fn chat(&self) -> Option<&Chat> {
@@ -102,6 +108,12 @@ impl Update {
         } else {
             None
         }
+    }
+
+    /// Returns the chat id from the update, that is, the chat id of the message, the chat id of the callback query, etc.
+    #[must_use]
+    pub fn chat_id(&self) -> Option<i64> {
+        self.chat().map(|chat| chat.id)
     }
 
     /// Shortcut to get both [`User`] and [`Chat`] from the update
