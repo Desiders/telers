@@ -63,7 +63,7 @@ impl<'a> Text<'a> {
     /// * `ends_with` -
     /// List of texts that must be at the end of the text of the message
     /// # Panics
-    /// If `ignore_case` is `true` and [`Regex`],
+    /// If `ignore_case` is `true` and [`Regex`]
     /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
     pub fn new<T, I1, C, I2, S, I3, E, I4>(
         texts: I1,
@@ -117,6 +117,70 @@ impl<'a> Text<'a> {
                 ignore_case,
             }
         }
+    }
+
+    /// Creates a new [`Text`] fitler with pass text or compiled [`Regex`] pattern
+    /// # Notes
+    /// This method is just a shortcut to create a filter using the builder
+    #[must_use]
+    pub fn one(text: impl Into<PatternType<'a>>) -> Self {
+        Self::builder().text(text).build()
+    }
+
+    /// Creates a new [`Text`] fitler with pass texts or compiled [`Regex`] patterns
+    /// # Notes
+    /// This method is just a shortcut to create a filter using the builder
+    #[must_use]
+    pub fn many(texts: impl IntoIterator<Item = impl Into<PatternType<'a>>>) -> Self {
+        Self::builder().texts(texts).build()
+    }
+
+    /// Creates a new [`Text`] filter with pass text that must be contained in the text of the message
+    /// # Notes
+    /// This method is just a shortcut to create a filter using the builder
+    #[must_use]
+    pub fn contains_single(val: impl Into<Cow<'a, str>>) -> Self {
+        Self::builder().contains_single(val).build()
+    }
+
+    /// Creates a new [`Text`] filter with pass texts that must be contained in the text of the message
+    /// # Notes
+    /// This method is just a shortcut to create a filter using the builder
+    #[must_use]
+    pub fn contains(val: impl IntoIterator<Item = impl Into<Cow<'a, str>>>) -> Self {
+        Self::builder().contains(val).build()
+    }
+
+    /// Creates a new [`Text`] filter with pass text that must be at the beginning of the text of the message
+    /// # Notes
+    /// This method is just a shortcut to create a filter using the builder
+    #[must_use]
+    pub fn starts_with_single(val: impl Into<Cow<'a, str>>) -> Self {
+        Self::builder().starts_with_single(val).build()
+    }
+
+    /// Creates a new [`Text`] filter with pass texts that must be at the beginning of the text of the message
+    /// # Notes
+    /// This method is just a shortcut to create a filter using the builder
+    #[must_use]
+    pub fn starts_with(val: impl IntoIterator<Item = impl Into<Cow<'a, str>>>) -> Self {
+        Self::builder().starts_with(val).build()
+    }
+
+    /// Creates a new [`Text`] filter with pass text that must be at the end of the text of the message
+    /// # Notes
+    /// This method is just a shortcut to create a filter using the builder
+    #[must_use]
+    pub fn ends_with_single(val: impl Into<Cow<'a, str>>) -> Self {
+        Self::builder().ends_with_single(val).build()
+    }
+
+    /// Creates a new [`Text`] filter with pass texts that must be at the end of the text of the message
+    /// # Notes
+    /// This method is just a shortcut to create a filter using the builder
+    #[must_use]
+    pub fn ends_with(val: impl IntoIterator<Item = impl Into<Cow<'a, str>>>) -> Self {
+        Self::builder().ends_with(val).build()
     }
 
     /// # Panics

@@ -76,7 +76,7 @@ impl<'a> Command<'a> {
     /// * `ignore_case` - Ignore other command case
     /// * `ignore_mention` - Ignore bot mention
     /// # Panics
-    /// If `ignore_case` is `true` and [`Regex`],
+    /// If `ignore_case` is `true` and [`Regex`]
     /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
     #[must_use]
     pub fn new<T, I>(commands: I, prefix: char, ignore_case: bool, ignore_mention: bool) -> Self
@@ -116,13 +116,17 @@ impl<'a> Command<'a> {
         }
     }
 
-    /// Creates a new [`Command`] filter with passed command and default values
+    /// Creates a new [`Command`] filter with pass command
+    /// # Notes
+    /// This method is just a shortcut to create a filter using the builder
     #[must_use]
-    pub fn one(val: impl Into<PatternType<'a>>) -> Self {
-        Self::builder().command(val).build()
+    pub fn one(command: impl Into<PatternType<'a>>) -> Self {
+        Self::builder().command(command).build()
     }
 
-    /// Creates a new [`Command`] filter with passed commands and default values
+    /// Creates a new [`Command`] filter with pass commands
+    /// # Notes
+    /// This method is just a shortcut to create a filter using the builder
     #[must_use]
     pub fn many<T, I>(commands: I) -> Self
     where
