@@ -31,13 +31,6 @@ impl<S> Context<S>
 where
     S: Storage,
 {
-    /// Remove current state
-    /// # Errors
-    /// If storage error occurs, when remove state
-    pub async fn remove_state(&self) -> Result<(), S::Error> {
-        self.storage.remove_state(&self.key).await
-    }
-
     /// Set current state
     /// # Arguments
     /// * `state` - State
@@ -50,20 +43,48 @@ where
         self.storage.set_state(&self.key, state).await
     }
 
+    /// Set previous state as current state
+    /// # Errors
+    /// If storage error occurs, when set previous state
+    /// # Notes
+    /// States stack is used to store states history,
+    /// when user set new state, then current state will be push to the states stack,
+    /// so you can use this method to back to the previous state
+    pub async fn previous_state(&self) -> Result<(), S::Error> {
+        self.storage.previous_state(&self.key).await
+    }
+
     /// Get current state
-    /// # Returns
-    /// State, if state is no exists, then [`None`] will be return
     /// # Errors
     /// If storage error occurs, when get state
+    /// # Returns
+    /// State, if state is no exists, then [`None`] will be return
     pub async fn get_state(&self) -> Result<Option<String>, S::Error> {
         self.storage.get_state(&self.key).await
     }
 
-    /// Remove current data
+    /// Get states stack
     /// # Errors
-    /// If storage error occurs, when remove data
-    pub async fn remove_data(&self) -> Result<(), S::Error> {
-        self.storage.remove_data(&self.key).await
+    /// If storage error occurs, when get states stack
+    /// # Notes
+    /// States stack is used to store states history,
+    /// when user set new state, then current state will be push to the states stack,
+    /// so you can use this method to get states history or back to the previous state
+    /// # Returns
+    /// States, if states is no exists, then empty [`Vec`] will be return
+    pub async fn get_states(&self) -> Result<Vec<String>, S::Error> {
+        self.storage.get_states(&self.key).await
+    }
+
+    /// Remove states stack
+    /// # Errors
+    /// If storage error occurs, when remove states stack
+    /// # Notes
+    /// States stack is used to store states history,
+    /// when user set new state, then current state will be push to the states stack,
+    /// so you can use this method to clear states history
+    pub async fn remove_states(&self) -> Result<(), S::Error> {
+        self.storage.remove_states(&self.key).await
     }
 
     /// Set current data
@@ -94,10 +115,10 @@ where
     }
 
     /// Get current data
-    /// # Returns
-    /// Data, if data is no exists, then empty [`HashMap`] will be return
     /// # Errors
     /// If storage error occurs, when get data
+    /// # Returns
+    /// Data, if data is no exists, then empty [`HashMap`] will be return
     pub async fn get_data<Data>(&self) -> Result<HashMap<String, Data>, S::Error>
     where
         Data: DeserializeOwned,
@@ -108,10 +129,10 @@ where
     /// Get value from data for value key
     /// # Arguments
     /// * `value_key` - Specified value key to get value from data
-    /// # Returns
-    /// Value, if value is no exists, then [`None`] will be return
     /// # Errors
     /// If storage error occurs, when get value from data
+    /// # Returns
+    /// Value, if value is no exists, then [`None`] will be return
     pub async fn get_value<Key, Value>(&self, value_key: Key) -> Result<Option<Value>, S::Error>
     where
         Value: DeserializeOwned,
@@ -120,12 +141,19 @@ where
         self.storage.get_value(&self.key, value_key).await
     }
 
+    /// Remove current data
+    /// # Errors
+    /// If storage error occurs, when remove data
+    pub async fn remove_data(&self) -> Result<(), S::Error> {
+        self.storage.remove_data(&self.key).await
+    }
+
     /// Finish current context by remove state and data.
-    /// This method is just shortcut for [`Context::remove_state`] and [`Context::remove_data`] methods
+    /// This method is just shortcut for [`Context::remove_states`] and [`Context::remove_data`] methods
     /// # Errors
     /// If storage error occurs, when remove state or data
     pub async fn finish(&self) -> Result<(), S::Error> {
-        self.storage.remove_state(&self.key).await?;
+        self.storage.remove_states(&self.key).await?;
         self.storage.remove_data(&self.key).await
     }
 }

@@ -68,17 +68,12 @@ impl From<Error> for MiddlewareError {
 }
 
 /// Storage is used to store state and data of the user
-/// # Note
+/// # Notes
 /// Storage is part of the FSM pattern,
 /// don't use it for other purposes like database and store user data not related with state machine
 #[async_trait]
 pub trait Storage: Clone {
     type Error: Into<Error>;
-
-    /// Remove state for specified key
-    /// # Arguments
-    /// * `key` - Specified key to remove state
-    async fn remove_state(&self, key: &StorageKey) -> Result<(), Self::Error>;
 
     /// Set state for specified key
     /// # Arguments
@@ -88,6 +83,17 @@ pub trait Storage: Clone {
     where
         State: Into<Cow<'static, str>> + Send;
 
+    /// Set previous state as current state
+    /// # Arguments
+    /// * `key` - Specified key to set previous state
+    /// # Errors
+    /// If storage error occurs, when set previous state
+    /// # Notes
+    /// States stack is used to store states history,
+    /// when user set new state, then current state will be push to the states stack,
+    /// so you can use this method to back to the previous state
+    async fn previous_state(&self, key: &StorageKey) -> Result<(), Self::Error>;
+
     /// Get state for specified key
     /// # Arguments
     /// * `key` - Specified key to get state
@@ -95,10 +101,25 @@ pub trait Storage: Clone {
     /// State for specified key, if state is no exists, then [`None`] will be return
     async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error>;
 
-    /// Remove data for specified key
+    /// Get states stack for specified key
     /// # Arguments
-    /// * `key` - Specified key to remove data
-    async fn remove_data(&self, key: &StorageKey) -> Result<(), Self::Error>;
+    /// * `key` - Specified key to get states stack
+    /// # Notes
+    /// States stack is used to store states history,
+    /// when user set new state, then current state will be push to the states stack,
+    /// so you can use this method to get states history or back to the previous state
+    /// # Returns
+    /// States stack for specified key, if states stack is no exists, then empty [`Vec`] will be return
+    async fn get_states(&self, key: &StorageKey) -> Result<Vec<String>, Self::Error>;
+
+    /// Remove states stack for specified key
+    /// # Errors
+    /// If storage error occurs, when remove states stack
+    /// # Notes
+    /// States stack is used to store states history,
+    /// when user set new state, then current state will be push to the states stack,
+    /// so you can use this method to clear states history
+    async fn remove_states(&self, key: &StorageKey) -> Result<(), Self::Error>;
 
     /// Set data for specified key
     /// # Arguments
@@ -131,6 +152,7 @@ pub trait Storage: Clone {
     /// Get data for specified key
     /// # Arguments
     /// * `key` - Specified key to get data
+    /// # Returns
     /// Data for specified key, if data is no exists, then empty [`HashMap`] will be return
     async fn get_data<Value>(
         &self,
@@ -153,6 +175,11 @@ pub trait Storage: Clone {
     where
         Value: DeserializeOwned,
         Key: Into<Cow<'static, str>> + Send;
+
+    /// Remove data for specified key
+    /// # Arguments
+    /// * `key` - Specified key to remove data
+    async fn remove_data(&self, key: &StorageKey) -> Result<(), Self::Error>;
 }
 
 #[async_trait]
@@ -162,10 +189,6 @@ where
 {
     type Error = S::Error;
 
-    async fn remove_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
-        S::remove_state(self, key).await
-    }
-
     async fn set_state<State>(&self, key: &StorageKey, state: State) -> Result<(), Self::Error>
     where
         State: Into<Cow<'static, str>> + Send,
@@ -173,12 +196,20 @@ where
         S::set_state(self, key, state).await
     }
 
+    async fn previous_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
+        S::previous_state(self, key).await
+    }
+
     async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error> {
         S::get_state(self, key).await
     }
 
-    async fn remove_data(&self, key: &StorageKey) -> Result<(), Self::Error> {
-        S::remove_data(self, key).await
+    async fn get_states(&self, key: &StorageKey) -> Result<Vec<String>, Self::Error> {
+        S::get_states(self, key).await
+    }
+
+    async fn remove_states(&self, key: &StorageKey) -> Result<(), Self::Error> {
+        S::remove_states(self, key).await
     }
 
     async fn set_data<Key, Value>(
@@ -223,6 +254,10 @@ where
         Key: Into<Cow<'static, str>> + Send,
     {
         S::get_value(self, key, value_key).await
+    }
+
+    async fn remove_data(&self, key: &StorageKey) -> Result<(), Self::Error> {
+        S::remove_data(self, key).await
     }
 }
 
@@ -233,10 +268,6 @@ where
 {
     type Error = S::Error;
 
-    async fn remove_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
-        S::remove_state(self, key).await
-    }
-
     async fn set_state<State>(&self, key: &StorageKey, state: State) -> Result<(), Self::Error>
     where
         State: Into<Cow<'static, str>> + Send,
@@ -244,12 +275,20 @@ where
         S::set_state(self, key, state).await
     }
 
+    async fn previous_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
+        S::previous_state(self, key).await
+    }
+
     async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error> {
         S::get_state(self, key).await
     }
 
-    async fn remove_data(&self, key: &StorageKey) -> Result<(), Self::Error> {
-        S::remove_data(self, key).await
+    async fn get_states(&self, key: &StorageKey) -> Result<Vec<String>, Self::Error> {
+        S::get_states(self, key).await
+    }
+
+    async fn remove_states(&self, key: &StorageKey) -> Result<(), Self::Error> {
+        S::remove_states(self, key).await
     }
 
     async fn set_data<Key, Value>(
@@ -294,5 +333,9 @@ where
         Key: Into<Cow<'static, str>> + Send,
     {
         S::get_value(self, key, value_key).await
+    }
+
+    async fn remove_data(&self, key: &StorageKey) -> Result<(), Self::Error> {
+        S::remove_data(self, key).await
     }
 }

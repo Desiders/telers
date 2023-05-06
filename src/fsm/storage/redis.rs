@@ -10,7 +10,7 @@ const DEFAULT_PREFIX: &str = "fsm";
 const DEFAULT_SEPARATOR: &str = ":";
 
 pub enum Part {
-    State,
+    States,
     Data,
 }
 
@@ -18,7 +18,7 @@ impl Part {
     #[must_use]
     pub fn as_str(&self) -> &'static str {
         match self {
-            Part::State => "state",
+            Part::States => "states",
             Part::Data => "data",
         }
     }
@@ -119,10 +119,6 @@ pub struct Redis {
     client: Arc<Mutex<Client>>,
     /// Key builder for redis keys, used to build redis keys for specified key and part
     key_builder: Arc<dyn KeyBuilder>,
-    /// TTL for state, if [`None`] then state will not be deleted
-    state_ttl: Option<u64>,
-    /// TTL for data, if [`None`] then data will not be deleted
-    data_ttl: Option<u64>,
 }
 
 impl Redis {
@@ -131,8 +127,6 @@ impl Redis {
         Self {
             client: Arc::new(Mutex::new(client)),
             key_builder: Arc::<DefaultKeyBuilder>::default(),
-            state_ttl: None,
-            data_ttl: None,
         }
     }
 
@@ -143,22 +137,6 @@ impl Redis {
     {
         Self {
             key_builder: Arc::new(key_builder),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn state_ttl(self, state_ttl: u64) -> Self {
-        Self {
-            state_ttl: Some(state_ttl),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn data_ttl(self, data_ttl: u64) -> Self {
-        Self {
-            data_ttl: Some(data_ttl),
             ..self
         }
     }
@@ -174,25 +152,6 @@ impl Redis {
 impl Storage for Redis {
     type Error = Error;
 
-    /// Remove state for specified key
-    /// # Arguments
-    /// * `key` - Specified key to remove state
-    async fn remove_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
-        let key = self.key_builder.build(key, Part::State);
-        let mut connection = self.get_connection().await.map_err(|err| {
-            Error::new(
-                format!("Failed to get redis connection. Storage key: {key}"),
-                err,
-            )
-        })?;
-
-        redis::cmd("DEL")
-            .arg(&key)
-            .query_async(&mut connection)
-            .await
-            .map_err(|err| Error::new(format!("Failed to remove state. Storage key: {key}"), err))
-    }
-
     /// Set state for specified key
     /// # Arguments
     /// * `key` - Specified key to set state
@@ -201,7 +160,7 @@ impl Storage for Redis {
     where
         State: Into<Cow<'static, str>> + Send,
     {
-        let key = self.key_builder.build(key, Part::State);
+        let key = self.key_builder.build(key, Part::States);
         let state = state.into();
         let mut connection = self.get_connection().await.map_err(|err| {
             Error::new(
@@ -210,32 +169,35 @@ impl Storage for Redis {
             )
         })?;
 
-        if let Some(state_ttl) = self.state_ttl {
-            redis::cmd("SETEX")
-                .arg(&key)
-                .arg(state_ttl)
-                .arg(state.as_ref())
-                .query_async(&mut connection)
-                .await
-                .map_err(|err| {
-                    Error::new(
-                        format!("Failed to set state `{state}` with ttl `{state_ttl}`. Storage key: {key}"),
-                        err,
-                    )
-                })
-        } else {
-            redis::cmd("SET")
-                .arg(&key)
-                .arg(state.as_ref())
-                .query_async(&mut connection)
-                .await
-                .map_err(|err| {
-                    Error::new(
-                        format!("Failed to set state `{state}`. Storage key: {key}"),
-                        err,
-                    )
-                })
-        }
+        redis::cmd("RPUSH")
+            .arg(&key)
+            .arg(state.as_ref())
+            .query_async(&mut connection)
+            .await
+            .map_err(|err| Error::new(format!("Failed to set state. Storage key: {key}"), err))
+    }
+
+    /// Set previous state as current state
+    /// # Arguments
+    /// * `key` - Specified key to set previous state
+    /// # Notes
+    /// States stack is used to store states history,
+    /// when user set new state, then current state will be push to the states stack,
+    /// so you can use this method to back to the previous state
+    async fn previous_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
+        let key = self.key_builder.build(key, Part::States);
+        let mut connection = self.get_connection().await.map_err(|err| {
+            Error::new(
+                format!("Failed to get redis connection. Storage key: {key}"),
+                err,
+            )
+        })?;
+
+        redis::cmd("RPOP")
+            .arg(&key)
+            .query_async(&mut connection)
+            .await
+            .map_err(|err| Error::new(format!("Failed to remove state. Storage key: {key}"), err))
     }
 
     /// Get state for specified key
@@ -244,7 +206,7 @@ impl Storage for Redis {
     /// # Returns
     /// State for specified key, if state is no exists, then [`None`] will be return
     async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error> {
-        let key = self.key_builder.build(key, Part::State);
+        let key = self.key_builder.build(key, Part::States);
         let mut connection = self.get_connection().await.map_err(|err| {
             Error::new(
                 format!("Failed to get redis connection. Storage key: {key}"),
@@ -252,18 +214,50 @@ impl Storage for Redis {
             )
         })?;
 
-        redis::cmd("GET")
+        redis::cmd("LINDEX")
             .arg(&key)
+            .arg(-1)
             .query_async(&mut connection)
             .await
             .map_err(|err| Error::new(format!("Failed to get state. Storage key: {key}"), err))
     }
 
-    /// Remove data for specified key
+    /// Get states stack for specified key
     /// # Arguments
-    /// * `key` - Specified key to remove data
-    async fn remove_data(&self, key: &StorageKey) -> Result<(), Self::Error> {
-        let key = self.key_builder.build(key, Part::Data);
+    /// * `key` - Specified key to get states stack
+    /// # Note
+    /// States stack is used to store states history,
+    /// when user set new state, then current state will be push to the states stack,
+    /// so you can use this method to get states history or back to the previous state
+    /// # Returns
+    /// States stack for specified key, if states stack is no exists, then empty [`Vec`] will be return
+    async fn get_states(&self, key: &StorageKey) -> Result<Vec<String>, Self::Error> {
+        let key = self.key_builder.build(key, Part::States);
+        let mut connection = self.get_connection().await.map_err(|err| {
+            Error::new(
+                format!("Failed to get redis connection. Storage key: {key}"),
+                err,
+            )
+        })?;
+
+        redis::cmd("LRANGE")
+            .arg(&key)
+            .arg(0)
+            .arg(-1)
+            .query_async(&mut connection)
+            .await
+            .map_err(|err| Error::new(format!("Failed to get states. Storage key: {key}"), err))
+    }
+
+    /// Remove states stack for specified key
+    /// # Arguments
+    /// * `key` - Specified key to remove states stack
+    /// # Note
+    /// States stack is used to store states history,
+    /// when user set new state, then current state will be push to the states stack,
+    /// so you can use this method to clear states history
+    async fn remove_states(&self, key: &StorageKey) -> Result<(), Self::Error> {
+        let key = self.key_builder.build(key, Part::States);
         let mut connection = self.get_connection().await.map_err(|err| {
             Error::new(
                 format!("Failed to get redis connection. Storage key: {key}"),
@@ -275,7 +269,7 @@ impl Storage for Redis {
             .arg(&key)
             .query_async(&mut connection)
             .await
-            .map_err(|err| Error::new(format!("Failed to remove data. Storage key: {key}"), err))
+            .map_err(|err| Error::new(format!("Failed to remove states. Storage key: {key}"), err))
     }
 
     /// Set data for specified key
@@ -302,27 +296,12 @@ impl Storage for Redis {
             )
         })?;
 
-        if let Some(data_ttl) = self.data_ttl {
-            redis::cmd("SETEX")
-                .arg(&key)
-                .arg(data_ttl)
-                .arg(&plain_json)
-                .query_async(&mut connection)
-                .await
-                .map_err(|err| {
-                    Error::new(
-                        format!("Failed to set data with ttl `{data_ttl}`. Storage key: {key}"),
-                        err,
-                    )
-                })
-        } else {
-            redis::cmd("SET")
-                .arg(&key)
-                .arg(&plain_json)
-                .query_async(&mut connection)
-                .await
-                .map_err(|err| Error::new(format!("Failed to set data. Storage key: {key}"), err))
-        }
+        redis::cmd("SET")
+            .arg(&key)
+            .arg(&plain_json)
+            .query_async(&mut connection)
+            .await
+            .map_err(|err| Error::new(format!("Failed to set data. Storage key: {key}"), err))
     }
 
     /// Set value to the data for specified key and value key
@@ -377,27 +356,13 @@ impl Storage for Redis {
         let plain_json = serde_json::to_string(&data).map_err(|err| {
             Error::new(format!("Failed to serialize data. Storage key: {key}"), err)
         })?;
-        if let Some(data_ttl) = self.data_ttl {
-            redis::cmd("SETEX")
-                .arg(&key)
-                .arg(data_ttl)
-                .arg(&plain_json)
-                .query_async(&mut connection)
-                .await
-                .map_err(|err| {
-                    Error::new(
-                        format!("Failed to set data with ttl `{data_ttl}`. Storage key: {key}"),
-                        err,
-                    )
-                })
-        } else {
-            redis::cmd("SET")
-                .arg(&key)
-                .arg(&plain_json)
-                .query_async(&mut connection)
-                .await
-                .map_err(|err| Error::new(format!("Failed to set data. Storage key: {key}"), err))
-        }
+
+        redis::cmd("SET")
+            .arg(&key)
+            .arg(&plain_json)
+            .query_async(&mut connection)
+            .await
+            .map_err(|err| Error::new(format!("Failed to set data. Storage key: {key}"), err))
     }
 
     /// Get data for specified key
@@ -489,5 +454,24 @@ impl Storage for Redis {
             }
             None => Ok(None),
         }
+    }
+
+    /// Remove data for specified key
+    /// # Arguments
+    /// * `key` - Specified key to remove data
+    async fn remove_data(&self, key: &StorageKey) -> Result<(), Self::Error> {
+        let key = self.key_builder.build(key, Part::Data);
+        let mut connection = self.get_connection().await.map_err(|err| {
+            Error::new(
+                format!("Failed to get redis connection. Storage key: {key}"),
+                err,
+            )
+        })?;
+
+        redis::cmd("DEL")
+            .arg(&key)
+            .query_async(&mut connection)
+            .await
+            .map_err(|err| Error::new(format!("Failed to remove data. Storage key: {key}"), err))
     }
 }

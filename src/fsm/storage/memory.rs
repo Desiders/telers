@@ -11,7 +11,7 @@ use tokio::sync::Mutex;
 
 #[derive(Debug, Default, Clone, Eq, PartialEq)]
 struct Record {
-    state: Option<Cow<'static, str>>,
+    states: Vec<Cow<'static, str>>,
     data: HashMap<Cow<'static, str>, Vec<u8>>,
 }
 
@@ -41,19 +41,6 @@ impl Memory {
 impl Storage for Memory {
     type Error = Error;
 
-    /// Remove state for specified key
-    /// # Arguments
-    /// * `key` - Specified key to remove state
-    async fn remove_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
-        match self.storage.lock().await.entry(key.clone()) {
-            Entry::Occupied(mut entry) => {
-                entry.get_mut().state = None;
-            }
-            Entry::Vacant(_) => {}
-        }
-        Ok(())
-    }
-
     /// Set state for specified key
     /// # Arguments
     /// * `key` - Specified key to set state
@@ -64,15 +51,32 @@ impl Storage for Memory {
     {
         match self.storage.lock().await.entry(key.clone()) {
             Entry::Occupied(mut entry) => {
-                entry.get_mut().state = Some(state.into());
+                entry.get_mut().states.push(state.into());
             }
             Entry::Vacant(entry) => {
                 entry.insert(Record {
-                    state: Some(state.into()),
+                    states: vec![state.into()],
                     data: HashMap::default(),
                 });
             }
         }
+        Ok(())
+    }
+
+    /// Set previous state as current state
+    /// # Arguments
+    /// * `key` - Specified key to set previous state
+    /// # Notes
+    /// States stack is used to store states history,
+    /// when user set new state, then current state will be push to the states stack,
+    /// so you can use this method to back to the previous state
+    async fn previous_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
+        match self.storage.lock().await.entry(key.clone()) {
+            Entry::Occupied(mut entry) => {
+                entry.get_mut().states.pop();
+            }
+            Entry::Vacant(_) => {}
+        };
         Ok(())
     }
 
@@ -87,16 +91,46 @@ impl Storage for Memory {
             .lock()
             .await
             .get(key)
-            .and_then(|record| record.state.as_deref().map(ToOwned::to_owned)))
+            .and_then(|record| record.states.last().map(|state| state.to_string())))
     }
 
-    /// Remove data for specified key
+    /// Get states stack for specified key
     /// # Arguments
-    /// * `key` - Specified key to remove data
-    async fn remove_data(&self, key: &StorageKey) -> Result<(), Self::Error> {
+    /// * `key` - Specified key to get states stack
+    /// # Notes
+    /// States stack is used to store states history,
+    /// when user set new state, then current state will be push to the states stack,
+    /// so you can use this method to get states history or back to the previous state
+    /// # Returns
+    /// States stack for specified key, if states stack is no exists, then empty [`Vec`] will be return
+    async fn get_states(&self, key: &StorageKey) -> Result<Vec<String>, Self::Error> {
+        Ok(self
+            .storage
+            .lock()
+            .await
+            .get(key)
+            .map(|record| {
+                record
+                    .states
+                    .iter()
+                    .map(|state| state.to_string())
+                    .collect()
+            })
+            .unwrap_or_default())
+    }
+
+    /// Remove states stack for specified key
+    /// # Arguments
+    /// * `key` - Specified key to remove states stack
+    /// # Notes
+    /// States stack is used to store states history,
+    /// when user set new state, then current state will be push to the states stack,
+    /// so you can use this method to clear states history
+    async fn remove_states(&self, key: &StorageKey) -> Result<(), Self::Error> {
         match self.storage.lock().await.entry(key.clone()) {
             Entry::Occupied(mut entry) => {
-                entry.get_mut().data.clear();
+                // We can't use `clear` method, because we don't need save allocated capacity
+                entry.get_mut().states = vec![];
             }
             Entry::Vacant(_) => {}
         }
@@ -144,7 +178,7 @@ impl Storage for Memory {
             Entry::Vacant(entry) => {
                 if data_len == 0 {
                     entry.insert(Record {
-                        state: None,
+                        states: vec![],
                         data: HashMap::default(),
                     });
                     return Ok(());
@@ -165,7 +199,7 @@ impl Storage for Memory {
                 }
 
                 entry.insert(Record {
-                    state: None,
+                    states: vec![],
                     data: new_data,
                 });
             }
@@ -203,7 +237,7 @@ impl Storage for Memory {
             Entry::Vacant(entry) => {
                 entry.insert(
                     Record {
-                        state: None,
+                        states: vec![],
                         data: {
                             let mut new_data = HashMap::with_capacity(1);
                             new_data.insert(
@@ -292,6 +326,19 @@ impl Storage for Memory {
             Entry::Vacant(_) => Ok(None),
         }
     }
+
+    /// Remove data for specified key
+    /// # Arguments
+    /// * `key` - Specified key to remove data
+    async fn remove_data(&self, key: &StorageKey) -> Result<(), Self::Error> {
+        match self.storage.lock().await.entry(key.clone()) {
+            Entry::Occupied(mut entry) => {
+                entry.get_mut().data.clear();
+            }
+            Entry::Vacant(_) => {}
+        }
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -320,7 +367,7 @@ mod tests {
             Some("state2".into())
         );
 
-        storage.remove_state(&key1).await.unwrap();
+        storage.previous_state(&key1).await.unwrap();
 
         assert_eq!(storage.get_state(&key1).await.unwrap(), None);
         assert_eq!(
@@ -328,10 +375,26 @@ mod tests {
             Some("state2".into())
         );
 
-        storage.remove_state(&key2).await.unwrap();
+        storage.previous_state(&key2).await.unwrap();
 
         assert_eq!(storage.get_state(&key1).await.unwrap(), None);
         assert_eq!(storage.get_state(&key2).await.unwrap(), None);
+
+        storage.set_state(&key1, "state1").await.unwrap();
+        storage.set_state(&key1, "state2").await.unwrap();
+
+        assert_eq!(
+            storage.get_states(&key1).await.unwrap(),
+            vec!["state1".to_owned(), "state2".to_owned()]
+        );
+
+        storage.remove_states(&key1).await.unwrap();
+
+        assert_eq!(storage.get_state(&key1).await.unwrap(), None);
+        assert_eq!(
+            storage.get_states(&key1).await.unwrap(),
+            Vec::<String>::default(),
+        );
     }
 
     #[tokio::test]
