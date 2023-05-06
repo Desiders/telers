@@ -1,16 +1,29 @@
-//! This example shows how to create a simple echo bot, which will repeat all messages, which it receives.
+//! This example shows how to use in handler custom client.
 //!
-//! You can run this example by setting `BOT_TOKEN` environment variable and running:
-//! ```bash
-//! BOT_TOKEN=your_bot_token cargo run --example echo_bot
+//! Usually you don't need to use custom client, because [`telers`] provides default client, which is [`Reqwest`],
+//! but if you want to use custom client, you can do it by using [`Bot::with_client`] method and use it in handlers.
+//!
+//! You can use any client, which implements [`Session`] trait and use it in handlers:
+//! ```ignore
+//! async fn handler(bot: Bot<impl Session>) -> HandlerResult {
+//!    // ...
+//! }
 //! ```
-//! We the same recommend to set `RUST_LOG` environment variable to see logs:
+//! You the same can use another client and use it directly:
+//! ```ignore
+//! async fn handler(bot: Bot<SomeClientDirectly>) -> HandlerResult {
+//!     // ...
+//! }
+//! ```
+//!
+//! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash
-//! RUST_LOG=info BOT_TOKEN=your_bot_token cargo run --example echo_bot
+//! cd examples
+//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --bin custom_http_client
 //! ```
 
 use telers::{
-    client::Bot,
+    client::{Bot, Reqwest, Session},
     dispatcher::{
         event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
         Dispatcher, Router,
@@ -20,7 +33,7 @@ use telers::{
     types::Message,
 };
 
-async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
+async fn echo_handler(bot: Bot<impl Session>, message: Message) -> HandlerResult {
     bot.send(
         &CopyMessage::new(message.chat.id, message.chat.id, message.message_id),
         None,
@@ -38,7 +51,7 @@ async fn main() {
         panic!("BOT_TOKEN env variable is not set!");
     };
 
-    let bot = Bot::new(bot_token);
+    let bot = Bot::with_client(bot_token, Reqwest::default());
 
     let mut router = Router::new("main");
     router.message.register(echo_handler);

@@ -1,2 +1,3 @@
-/target
-/Cargo.lock
+# Ignore /target and Cargo.lock. We use ** to ignore them in all directories.
+**/target
+**/Cargo.lock

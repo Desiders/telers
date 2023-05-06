@@ -12,13 +12,10 @@
 //!
 //! More information about FSM you can find in [`telers::fsm`] and [`FSMContextMiddleware`] documentation.
 //!
-//! You can run this example by setting `BOT_TOKEN` environment variable and running:
-//! ```bash
-//! BOT_TOKEN=your_bot_token cargo run --example finite_state_machine
-//! ```
-//! We the same recommend to set `RUST_LOG` environment variable to see logs:
-//! ```bash
-//! RUST_LOG=info BOT_TOKEN=your_bot_token cargo run --example finite_state_machine
+//! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
+//! ``bash
+//! cd examples
+//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --bin finite_state_machine
 //! ```
 
 use std::borrow::Cow;
