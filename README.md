@@ -23,8 +23,8 @@ Make sure you have a basic understanding of the [Telegram Bot API](https://core.
  - **Multiple bots**. Telers allows you to create multiple bots in one application without any problems.
 
 ## Examples
- - [Echo bot](examples/echo_bot.rs). This example shows how to create a simple echo bot.
- - [Finite state machine](examples/finite_state_machine.rs). This example shows how to create a simple finite state machine and use it in your bot.
+ - [Echo bot](examples/echo_bot). This example shows how to create a simple echo bot.
+ - [Finite state machine](examples/finite_state_machine). This example shows how to create a simple finite state machine and use it in your bot.
 
 You may consider checking out [this directory](examples) for more examples.
 
