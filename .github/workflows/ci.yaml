@@ -28,9 +28,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@nightly
-      - uses: Swatinem/rust-cache@v2
-        with:
-          prefix-key: ${{ matrix.target.name }}-${{ matrix.version }}
       - name: Cargo build
         run: cargo build --all-features
       - name: Cargo test
