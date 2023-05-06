@@ -61,10 +61,5 @@ name = "local_server"
 required-features = []
 
 [[bench]]
-name = "memory_storage"
-harness = false
-required-features = ["memory-storage"]
-
-[[bench]]
 name = "router"
 harness = false
