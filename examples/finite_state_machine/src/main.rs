@@ -58,7 +58,7 @@ impl State {
 
 // Implementation `PartialEq<&str>` and `From<State> for Cow<'static, str>` for `State` is optional,
 // but it's useful for using enum as state without boilerplate code as `State::Name.as_str()`,
-// because we can use `State::Name` directly and it will be converted to `Cow<'static, str>` automatically.
+// because we can use `State::Name` directly.
 impl PartialEq<&str> for State {
     fn eq(&self, other: &&str) -> bool {
         self.as_str() == *other

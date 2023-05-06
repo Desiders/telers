@@ -3,9 +3,11 @@ members = [
     "echo_bot",
     "finite_state_machine",
     "custom_http_client",
+    "custom_filter",
 ]
 
 [patch.crates-io]
 echo_bot = { path = "./echo_bot" }
 finite_state_machine = { path = "./finite_state_machine" }
 custom_http_client = { path = "./custom_http_client" }
+custom_filter = { path = "./custom_filter" }
