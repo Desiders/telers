@@ -110,7 +110,7 @@ where
             // If state is `Any` or `None`, then clear all previous states and add only this one,
             // because `Any` and `None` are exclusive and can't be combined with other states
             if matches!(state, StateType::Any | StateType::None) {
-                allowed_states.clear();
+                allowed_states = vec![];
                 allowed_states.push(state);
                 break;
             }

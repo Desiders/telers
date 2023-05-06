@@ -155,7 +155,8 @@ impl Storage for Memory {
         match self.storage.lock().await.entry(key.clone()) {
             Entry::Occupied(mut entry) => {
                 if data_len == 0 {
-                    entry.get_mut().data.clear();
+                    // We can't use `clear` method, because we don't need save allocated capacity
+                    entry.get_mut().data = HashMap::default();
                     return Ok(());
                 }
 
@@ -333,7 +334,8 @@ impl Storage for Memory {
     async fn remove_data(&self, key: &StorageKey) -> Result<(), Self::Error> {
         match self.storage.lock().await.entry(key.clone()) {
             Entry::Occupied(mut entry) => {
-                entry.get_mut().data.clear();
+                // We can't use `clear` method, because we don't need save allocated capacity
+                entry.get_mut().data = HashMap::default();
             }
             Entry::Vacant(_) => {}
         }
