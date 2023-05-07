@@ -375,7 +375,8 @@ where
             // All updates with `update_id` less than or equal to `offset` will be marked.
             // as confirmed on the server and will no longer be returned.
             // So we need to set offset to the last update id + 1
-            method.offset = Some(updates.last().map(|update| update.update_id + 1).unwrap());
+            // `unwrap` is safe here, because we checked that updates isn't empty
+            method.offset = Some(updates.last().unwrap().update_id + 1);
 
             for update in updates {
                 // `Box` is used to avoid stack overflow, because `Update` is a big struct
