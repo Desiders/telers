@@ -1,16 +1,46 @@
+use super::{And, Invert, Or};
+
 use crate::{client::Bot, context::Context, types::Update};
 
 use async_trait::async_trait;
 use std::{future::Future, sync::Arc};
 
-/// This trait represents a filter
-///
-/// If the filter returns `true`, then the handler will be executed, otherwise it will not be executed. \
-/// You can use this trait to create your own filters.
 #[async_trait]
 pub trait Filter<Client>: Send + Sync {
-    /// Check if the filter pass
+    /// Check if the filter passes
+    /// # Returns
+    /// `true` if the filter passes, otherwise `false`
     async fn check(&self, bot: &Bot<Client>, update: &Update, context: &Context) -> bool;
+
+    /// Invert result of the filter
+    /// # Notes
+    /// This method is used to create [`Invert`] filter
+    fn invert(self) -> Invert<Client>
+    where
+        Self: Sized + 'static,
+    {
+        Invert::new(self)
+    }
+
+    /// Combine two filters with logical `and`
+    /// # Notes
+    /// This method is used to create [`And`] filter
+    fn and(self, filter: impl Filter<Client> + 'static) -> And<Client>
+    where
+        Self: Sized + 'static,
+    {
+        And::new(self).and(filter)
+    }
+
+    /// Combine two filters with logical `or`
+    /// # Notes
+    /// This method is used to create [`Or`] filter
+    fn or(self, filter: impl Filter<Client> + 'static) -> Or<Client>
+    where
+        Self: Sized + 'static,
+    {
+        Or::new(self).or(filter)
+    }
 }
 
 #[async_trait]

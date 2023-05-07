@@ -1,3 +1,14 @@
+//! Logical filters that allow you to combine other filters.
+//!
+//! By default, the following logical filters are available:
+//! - [`And`] - allows you to combine filters with the logical AND operation.
+//! - [`Or`] - allows you to combine filters with the logical OR operation.
+//! - [`Invert`] - allows you to invert the result of the filter.
+//!
+//! But using these filters directly isn't very convenient,
+//! [`Filter`] trait has methods that allow you to combine filters in a more convenient way,
+//! see [`Filter::and`], [`Filter::or`] and [`Filter::invert`] methods.
+
 use super::base::Filter;
 
 use crate::{client::Bot, context::Context, types::Update};

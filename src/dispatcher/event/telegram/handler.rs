@@ -20,7 +20,7 @@ pub type BoxedHandlerService<Client> =
 pub type BoxedHandlerServiceFactory<Client> =
     BoxServiceFactory<(), Request<Client>, Response<Client>, ExtractionError, ()>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Request<Client> {
     pub bot: Arc<Bot<Client>>,
     pub update: Arc<Update>,
@@ -48,6 +48,16 @@ impl<Client> PartialEq for Request<Client> {
         Arc::ptr_eq(&self.bot, &other.bot)
             && Arc::ptr_eq(&self.update, &other.update)
             && Arc::ptr_eq(&self.context, &other.context)
+    }
+}
+
+impl<Client> Clone for Request<Client> {
+    fn clone(&self) -> Self {
+        Self {
+            bot: self.bot.clone(),
+            update: self.update.clone(),
+            context: self.context.clone(),
+        }
     }
 }
 

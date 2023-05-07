@@ -1,5 +1,5 @@
-//! This example shows how to create a simple filter,
-//! which will allow only uppercase messages for first handler and lowercase for second.
+//! This example shows how to create a simple filter
+//! that allows only uppercase messages for the first handler and lowercase for the second.
 //!
 //! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash
@@ -15,7 +15,7 @@ use telers::{
         Dispatcher, Router,
     },
     enums::UpdateType,
-    filters::{And, Filter, Invert},
+    filters::Filter,
     methods::SendMessage,
     types::{Message, Update},
 };
@@ -90,17 +90,21 @@ async fn main() {
         })
         .filter(
             // This filter will allow messages, that are't uppercase and lowercase.
-            // We can use `And` filter to combine two filters and invert result of it.
-            And::new(Invert::new(UppercaseFilter)).and(Invert::new(
-                // You can see that we retype closure here, this not so convenient as just pass struct
-                |_: &Bot<_>, update: &Update, _: &Context| {
+            // We use `Invert` filter to invert result of `UppercaseFilter` and closure,
+            // and then combine them with `And` filter.
+            UppercaseFilter.invert().and(
+                // This filter will allow only lowercase messages.
+                // we use closure here for example, but you can use any type which implements `Filter` trait, such as `UppercaseFilter`,
+                // but using closure can be not so convenient (lifetimes, type inference).
+                (|_: &Bot<_>, update: &Update, _: &Context| {
                     let result = update
                         .text()
                         .map_or(false, |text| text.to_lowercase() == text);
 
                     async move { result }
-                },
-            )),
+                })
+                .invert(),
+            ),
         );
 
     let dispatcher = Dispatcher::builder()
