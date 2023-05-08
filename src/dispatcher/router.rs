@@ -153,8 +153,11 @@ impl<Client> Response<Client> {
 /// router.callback_query.register(on_callback_query);
 /// ```
 pub struct Router<Client> {
-    pub router_name: &'static str,
-    pub sub_routers: Vec<Router<Client>>,
+    /// Name of the router.
+    /// It can be used for logging and debugging and code clarity.
+    router_name: &'static str,
+    // parent_router: Option<NonNull<Router<Client>>>,
+    sub_routers: Vec<Router<Client>>,
 
     pub message: TelegramObserver<Client>,
     pub edited_message: TelegramObserver<Client>,
@@ -189,6 +192,8 @@ impl<Client> Router<Client>
 where
     Client: Send + Sync + 'static,
 {
+    /// # Arguments
+    /// * `router_name` - Name of the router. It can be used for logging and debugging and code clarity.
     #[must_use]
     #[rustfmt::skip]
     pub fn new(router_name: &'static str) -> Self {
@@ -215,68 +220,44 @@ where
         }
     }
 
-    /// Register inner middlewares in router and sub routers of the router
-    fn register_inner_middlewares(&self, router: &mut Router<Client>) {
-        // Register middlewares of current router observers to sub router observers at first positions
-        macro_rules! register_middlewares {
-            ($observer:ident) => {
-                let mut index = 0;
-                for middleware in &self.$observer.inner_middlewares.middlewares {
-                    router.$observer.inner_middlewares.register_at_position(index, Arc::clone(middleware));
-                    index += 1;
-                }
-            };
-            ($observer:ident, $($observers:ident),+) => {
-                register_middlewares!($observer);
-                register_middlewares!($($observers),+);
-            };
-        }
-
-        // Call register middlewares macro for all telegram event observers
-        register_middlewares!(
-            message,
-            edited_message,
-            channel_post,
-            edited_channel_post,
-            inline_query,
-            chosen_inline_result,
-            callback_query,
-            shipping_query,
-            pre_checkout_query,
-            poll,
-            poll_answer,
-            my_chat_member,
-            chat_member,
-            chat_join_request,
-            update
-        );
-
-        router.sub_routers.iter_mut().for_each(|sub_router| {
-            self.register_inner_middlewares(sub_router);
-        });
-    }
-
     /// Include a router to the current router as sub router
+    /// # Notes
+    /// Inner middlewares of this router will be registered to the sub router and its sub routers
+    /// in the order of registration. Parent middlewares registers on the top of the stack,
+    /// so parent middlewares calls before.
     /// # Warning
-    /// This method register all middlewares of the parent router to the sub router.
-    /// If register middlewares to parent router after include sub router, middlewares will not be registered to sub router.
-    pub fn include_router(&mut self, mut router: Router<Client>) -> &mut Self {
-        self.register_inner_middlewares(&mut router);
-
+    /// You shouldn't count on the fact that the middlewares of this router will be registered to the sub routers
+    /// immediately after calling this method. This implementation detail that can be changed in the future.
+    /// Right now, middlewares registers to the sub routers when the router is converts to the [`RouterInner`]
+    /// by calls `Router::to_service_provider` method.
+    pub fn include_router(&mut self, router: Router<Client>) -> &mut Self {
+        // router.parent_router = Some(NonNull::from(&*self));
         self.sub_routers.push(router);
         self
     }
 
+    /// Include a router to the current router as sub router
+    /// # Notes
+    /// Inner middlewares of this router will be registered to the sub router and its sub routers
+    /// in the order of registration. Parent middlewares registers on the top of the stack,
+    /// so parent middlewares calls before.
+    ///
     /// Alias to [`Router::include_router`] method
+    /// # Warning
+    /// You shouldn't count on the fact that the middlewares of this router will be registered to the sub routers
+    /// immediately after calling this method. This implementation detail that can be changed in the future.
+    /// Right now, middlewares registers to the sub routers when the router is converts to the [`RouterInner`]
+    /// by calls `Router::to_service_provider` method.
     pub fn include(&mut self, router: Router<Client>) -> &mut Self {
         self.include_router(router)
     }
 }
 
 impl<Client> Router<Client> {
+    /// Get all telegram event observers
     #[must_use]
-    pub fn telegram_observers(&self) -> Vec<&TelegramObserver<Client>> {
-        vec![
+    pub const fn telegram_observers(&self) -> [&TelegramObserver<Client>; 15] {
+        [
             &self.message,
             &self.edited_message,
             &self.channel_post,
@@ -295,18 +276,44 @@ impl<Client> Router<Client> {
         ]
     }
 
+    /// Get all telegram event observers as mutable references
+    /// # Notes
+    /// This method is useful for registering middlewares to the many observers without code duplication and macros
     #[must_use]
-    pub fn event_observers(&self) -> Vec<&SimpleObserver> {
-        vec![&self.startup, &self.shutdown]
+    pub fn telegram_observers_mut(&mut self) -> Vec<&mut TelegramObserver<Client>> {
+        let mut observers = Vec::with_capacity(15);
+
+        observers.extend([
+            &mut self.message,
+            &mut self.edited_message,
+            &mut self.channel_post,
+            &mut self.edited_channel_post,
+            &mut self.inline_query,
+            &mut self.chosen_inline_result,
+            &mut self.callback_query,
+            &mut self.shipping_query,
+            &mut self.pre_checkout_query,
+            &mut self.poll,
+            &mut self.poll_answer,
+            &mut self.my_chat_member,
+            &mut self.chat_member,
+            &mut self.chat_join_request,
+            &mut self.update,
+        ]);
+
+        observers
     }
 
-    /// Resolve registered update types
-    ///
-    /// Is useful for getting updates only for registered update types
+    /// Get all simple event observers
+    #[must_use]
+    pub const fn event_observers(&self) -> [&SimpleObserver; 2] {
+        [&self.startup, &self.shutdown]
+    }
+
+    /// Resolve registered update types from the current router and its sub routers.
+    /// It is useful for getting updates only for registered update types.
     /// # Warning
-    /// This method doesn't preserve registration order of update types
-    /// # Returns
-    /// Registered update types
+    /// This method doesn't preserve order registration of update types
     #[must_use]
     pub fn resolve_used_update_types(&self) -> Vec<UpdateType> {
         let mut used_update_types = HashSet::new();
@@ -329,15 +336,12 @@ impl<Client> Router<Client> {
         used_update_types.into_iter().collect()
     }
 
-    /// Resolve registered update types with skip update types
-    ///
-    /// Is useful for getting updates only for registered update types with skip some updates types
+    /// Resolve registered update types from the current router and its sub routers with skip updates types.
+    /// It is useful for getting updates only for registered update types.
     /// # Arguments
     /// * `skip_updates` - Skip update types
     /// # Warning
-    /// This method doesn't preserve registration order of update types
-    /// # Returns
-    /// Registered update types
+    /// This method doesn't preserve order registration of update types
     #[must_use]
     pub fn resolve_used_update_types_with_skip(
         &self,
@@ -416,6 +420,44 @@ where
     }
 }
 
+impl<Client> Default for OuterMiddlewaresConfig<Client>
+where
+    Client: Send + Sync + 'static,
+{
+    #[must_use]
+    fn default() -> Self {
+        Self::builder()
+            .update(UserContextMiddleware::default())
+            .build()
+    }
+}
+
+impl<Client> Default for InnerMiddlewaresConfig<Client>
+where
+    Client: Send + Sync + 'static,
+{
+    #[must_use]
+    fn default() -> Self {
+        Self::builder()
+            .message(LoggingMiddleware::default())
+            .edited_message(LoggingMiddleware::default())
+            .channel_post(LoggingMiddleware::default())
+            .edited_channel_post(LoggingMiddleware::default())
+            .inline_query(LoggingMiddleware::default())
+            .chosen_inline_result(LoggingMiddleware::default())
+            .callback_query(LoggingMiddleware::default())
+            .shipping_query(LoggingMiddleware::default())
+            .pre_checkout_query(LoggingMiddleware::default())
+            .poll(LoggingMiddleware::default())
+            .poll_answer(LoggingMiddleware::default())
+            .my_chat_member(LoggingMiddleware::default())
+            .chat_member(LoggingMiddleware::default())
+            .chat_join_request(LoggingMiddleware::default())
+            .update(LoggingMiddleware::default())
+            .build()
+    }
+}
+
 impl<Client> ToServiceProvider for Router<Client>
 where
     Client: Send + Sync + 'static,
@@ -428,30 +470,21 @@ where
         mut self,
         mut config: Self::Config,
     ) -> Result<Self::ServiceProvider, Self::InitError> {
-        let router_name = self.router_name;
-
-        // Register middlewares to router observers
-        macro_rules! register_middlewares {
+        macro_rules! register_inner_middlewares_to_sub_routers {
             ($($observers:ident),+) => {
                 $(
-                    let mut index = 0;
-                    for middleware in &config.outer_middlewares.$observers {
-                        self.$observers.outer_middlewares.register_at_position(index, Arc::clone(middleware));
-                        index += 1;
-                    }
-                )+
-
-                $(
-                    let mut index = 0;
-                    for middleware in &config.inner_middlewares.$observers {
-                        self.$observers.inner_middlewares.register_at_position(index, Arc::clone(middleware));
-                        index += 1;
-                    }
+                    self.sub_routers.iter_mut().for_each(|sub_router| {
+                        let mut index = 0;
+                        for middleware in &self.$observers.inner_middlewares.middlewares {
+                            sub_router.$observers.inner_middlewares.register_at_position(index, Arc::clone(middleware));
+                            index += 1;
+                        }
+                    });
                 )+
             };
         }
 
-        register_middlewares!(
+        register_inner_middlewares_to_sub_routers!(
             message,
             edited_message,
             channel_post,
@@ -469,35 +502,27 @@ where
             update
         );
 
-        // Clear outer middlewares from config, because they're useless for sub routers
-        config.outer_middlewares.clear();
+        macro_rules! register_middlewares_from_config {
+            ($($observer:ident),+) => {
+                $(
+                    let mut index = 0;
+                    for middleware in &config.outer_middlewares.$observer {
+                        self.$observer.outer_middlewares.register_at_position(index, Arc::clone(middleware));
+                        index += 1;
+                    }
+                )+
 
-        let sub_routers = self
-            .sub_routers
-            .into_iter()
-            .map(|router| router.to_service_provider(config.clone()))
-            .collect::<Result<_, _>>()?;
-        let message = self.message.to_service_provider_default()?;
-        let edited_message = self.edited_message.to_service_provider_default()?;
-        let channel_post = self.channel_post.to_service_provider_default()?;
-        let edited_channel_post = self.edited_channel_post.to_service_provider_default()?;
-        let inline_query = self.inline_query.to_service_provider_default()?;
-        let chosen_inline_result = self.chosen_inline_result.to_service_provider_default()?;
-        let callback_query = self.callback_query.to_service_provider_default()?;
-        let shipping_query = self.shipping_query.to_service_provider_default()?;
-        let pre_checkout_query = self.pre_checkout_query.to_service_provider_default()?;
-        let poll = self.poll.to_service_provider_default()?;
-        let poll_answer = self.poll_answer.to_service_provider_default()?;
-        let my_chat_member = self.my_chat_member.to_service_provider_default()?;
-        let chat_member = self.chat_member.to_service_provider_default()?;
-        let chat_join_request = self.chat_join_request.to_service_provider_default()?;
-        let update = self.update.to_service_provider_default()?;
-        let startup = self.startup.to_service_provider_default()?;
-        let shutdown = self.shutdown.to_service_provider_default()?;
+                $(
+                    let mut index = 0;
+                    for middleware in &config.inner_middlewares.$observer {
+                        self.$observer.inner_middlewares.register_at_position(index, Arc::clone(middleware));
+                        index += 1;
+                    }
+                )+
+            };
+        }
 
-        Ok(RouterInner {
-            router_name,
-            sub_routers,
+        register_middlewares_from_config!(
             message,
             edited_message,
             channel_post,
@@ -512,9 +537,36 @@ where
             my_chat_member,
             chat_member,
             chat_join_request,
-            update,
-            startup,
-            shutdown,
+            update
+        );
+
+        // Clear outer middlewares from the config, because they don't need for sub routers
+        config.outer_middlewares.clear();
+
+        Ok(RouterInner {
+            router_name: self.router_name,
+            sub_routers: self
+                .sub_routers
+                .into_iter()
+                .map(|router| router.to_service_provider(config.clone()))
+                .collect::<Result<_, _>>()?,
+            message: self.message.to_service_provider_default()?,
+            edited_message: self.edited_message.to_service_provider_default()?,
+            channel_post: self.channel_post.to_service_provider_default()?,
+            edited_channel_post: self.edited_channel_post.to_service_provider_default()?,
+            inline_query: self.inline_query.to_service_provider_default()?,
+            chosen_inline_result: self.chosen_inline_result.to_service_provider_default()?,
+            callback_query: self.callback_query.to_service_provider_default()?,
+            shipping_query: self.shipping_query.to_service_provider_default()?,
+            pre_checkout_query: self.pre_checkout_query.to_service_provider_default()?,
+            poll: self.poll.to_service_provider_default()?,
+            poll_answer: self.poll_answer.to_service_provider_default()?,
+            my_chat_member: self.my_chat_member.to_service_provider_default()?,
+            chat_member: self.chat_member.to_service_provider_default()?,
+            chat_join_request: self.chat_join_request.to_service_provider_default()?,
+            update: self.update.to_service_provider_default()?,
+            startup: self.startup.to_service_provider_default()?,
+            shutdown: self.shutdown.to_service_provider_default()?,
         })
     }
 }
@@ -567,11 +619,6 @@ where
         update_type: UpdateType,
         request: Request<Client>,
     ) -> Result<Response<Client>, EventErrorKind> {
-        log::debug!(
-            "Propagating event `{update_type:?}` to router `{}`",
-            self.router_name
-        );
-
         self.propagate_update_event(request.clone()).await?;
 
         let observer = self.telegram_observer_by_update_type(update_type);
@@ -739,6 +786,32 @@ where
 
 impl<Client> RouterInner<Client> {
     #[must_use]
+    pub const fn telegram_observers(&self) -> [&TelegramObserverInner<Client>; 15] {
+        [
+            &self.message,
+            &self.edited_message,
+            &self.channel_post,
+            &self.edited_channel_post,
+            &self.inline_query,
+            &self.chosen_inline_result,
+            &self.callback_query,
+            &self.shipping_query,
+            &self.pre_checkout_query,
+            &self.poll,
+            &self.poll_answer,
+            &self.my_chat_member,
+            &self.chat_member,
+            &self.chat_join_request,
+            &self.update,
+        ]
+    }
+
+    #[must_use]
+    pub const fn event_observers(&self) -> [&SimpleObserverInner; 2] {
+        [&self.startup, &self.shutdown]
+    }
+
+    #[must_use]
     pub const fn telegram_observer_by_update_type(
         &self,
         update_type: UpdateType,
@@ -827,34 +900,72 @@ create_middleware_config_struct!(OuterMiddlewaresConfig, OuterMiddlewares);
 create_middleware_config_struct!(OuterMiddlewaresConfigBuilder, OuterMiddlewares);
 
 macro_rules! impl_middleware_config_base_methods {
-    ($name:ident, $name_builder:ident) => {
+    ($name:ident, $name_builder:ident, $type_middlewares:ident) => {
         impl<Client> $name<Client>
         where
             Client: Send + Sync + 'static,
         {
             #[must_use]
             pub fn new() -> Self {
-                Self::default()
+                Self::builder().build()
             }
         }
 
         impl<Client> $name<Client> {
+            /// Get all observers middlewares as references
+            #[must_use]
+            pub const fn observers_middlewares(&self) -> [&$type_middlewares<Client>; 15] {
+                [
+                    &self.message,
+                    &self.edited_message,
+                    &self.channel_post,
+                    &self.edited_channel_post,
+                    &self.inline_query,
+                    &self.chosen_inline_result,
+                    &self.callback_query,
+                    &self.shipping_query,
+                    &self.pre_checkout_query,
+                    &self.poll,
+                    &self.poll_answer,
+                    &self.my_chat_member,
+                    &self.chat_member,
+                    &self.chat_join_request,
+                    &self.update,
+                ]
+            }
+
+            /// Get all observers middlewares as mutable references
+            /// # Notes
+            /// This method is useful for registering middlewares to the many observers without code duplication and macros
+            #[must_use]
+            pub fn observers_middlewares_mut(&mut self) -> Vec<&mut $type_middlewares<Client>> {
+                let mut observers = Vec::with_capacity(15);
+
+                observers.extend([
+                    &mut self.message,
+                    &mut self.edited_message,
+                    &mut self.channel_post,
+                    &mut self.edited_channel_post,
+                    &mut self.inline_query,
+                    &mut self.chosen_inline_result,
+                    &mut self.callback_query,
+                    &mut self.shipping_query,
+                    &mut self.pre_checkout_query,
+                    &mut self.poll,
+                    &mut self.poll_answer,
+                    &mut self.my_chat_member,
+                    &mut self.chat_member,
+                    &mut self.chat_join_request,
+                    &mut self.update,
+                ]);
+
+                observers
+            }
+
             pub fn clear(&mut self) {
-                self.message.clear();
-                self.edited_message.clear();
-                self.channel_post.clear();
-                self.edited_channel_post.clear();
-                self.inline_query.clear();
-                self.chosen_inline_result.clear();
-                self.callback_query.clear();
-                self.shipping_query.clear();
-                self.pre_checkout_query.clear();
-                self.poll.clear();
-                self.poll_answer.clear();
-                self.my_chat_member.clear();
-                self.chat_member.clear();
-                self.chat_join_request.clear();
-                self.update.clear();
+                self.observers_middlewares_mut()
+                    .iter_mut()
+                    .for_each(|middlewares| middlewares.clear());
             }
 
             #[must_use]
@@ -887,8 +998,16 @@ macro_rules! impl_middleware_config_base_methods {
     };
 }
 
-impl_middleware_config_base_methods!(InnerMiddlewaresConfig, InnerMiddlewaresConfigBuilder);
-impl_middleware_config_base_methods!(OuterMiddlewaresConfig, OuterMiddlewaresConfigBuilder);
+impl_middleware_config_base_methods!(
+    InnerMiddlewaresConfig,
+    InnerMiddlewaresConfigBuilder,
+    InnerMiddlewares
+);
+impl_middleware_config_base_methods!(
+    OuterMiddlewaresConfig,
+    OuterMiddlewaresConfigBuilder,
+    OuterMiddlewares
+);
 
 macro_rules! impl_builder_methods {
     ($type_middleware:ident, $($method:ident => $update_type:ident),*) => {
@@ -905,44 +1024,6 @@ macro_rules! impl_builder_methods {
             }
         )*
     };
-}
-
-impl<Client> Default for InnerMiddlewaresConfig<Client>
-where
-    Client: Send + Sync + 'static,
-{
-    #[must_use]
-    fn default() -> Self {
-        Self::builder()
-            .message(LoggingMiddleware::default())
-            .edited_message(LoggingMiddleware::default())
-            .channel_post(LoggingMiddleware::default())
-            .edited_channel_post(LoggingMiddleware::default())
-            .inline_query(LoggingMiddleware::default())
-            .chosen_inline_result(LoggingMiddleware::default())
-            .callback_query(LoggingMiddleware::default())
-            .shipping_query(LoggingMiddleware::default())
-            .pre_checkout_query(LoggingMiddleware::default())
-            .poll(LoggingMiddleware::default())
-            .poll_answer(LoggingMiddleware::default())
-            .my_chat_member(LoggingMiddleware::default())
-            .chat_member(LoggingMiddleware::default())
-            .chat_join_request(LoggingMiddleware::default())
-            .update(LoggingMiddleware::default())
-            .build()
-    }
-}
-
-impl<Client> Default for OuterMiddlewaresConfig<Client>
-where
-    Client: Send + Sync + 'static,
-{
-    #[must_use]
-    fn default() -> Self {
-        Self::builder()
-            .update(UserContextMiddleware::default())
-            .build()
-    }
 }
 
 macro_rules! impl_middleware_config_builder_base_methods {
@@ -1001,21 +1082,21 @@ macro_rules! impl_middleware_config_builder_base_methods {
             #[must_use]
             fn default() -> Self {
                 Self {
-                    message: Vec::new(),
-                    edited_message: Vec::new(),
-                    channel_post: Vec::new(),
-                    edited_channel_post: Vec::new(),
-                    inline_query: Vec::new(),
-                    chosen_inline_result: Vec::new(),
-                    callback_query: Vec::new(),
-                    shipping_query: Vec::new(),
-                    pre_checkout_query: Vec::new(),
-                    poll: Vec::new(),
-                    poll_answer: Vec::new(),
-                    my_chat_member: Vec::new(),
-                    chat_member: Vec::new(),
-                    chat_join_request: Vec::new(),
-                    update: Vec::new(),
+                    message: vec![],
+                    edited_message: vec![],
+                    channel_post: vec![],
+                    edited_channel_post: vec![],
+                    inline_query: vec![],
+                    chosen_inline_result: vec![],
+                    callback_query: vec![],
+                    shipping_query: vec![],
+                    pre_checkout_query: vec![],
+                    poll: vec![],
+                    poll_answer: vec![],
+                    my_chat_member: vec![],
+                    chat_member: vec![],
+                    chat_join_request: vec![],
+                    update: vec![],
                 }
             }
         }
@@ -1079,44 +1160,57 @@ mod tests {
                 router
             });
 
-        assert_eq!(router.sub_routers.len(), 3);
-        assert_eq!(router.router_name, "main");
+        let router_service = router
+            .to_service_provider(Config::new(
+                OuterMiddlewaresConfig::new(),
+                InnerMiddlewaresConfig::new(),
+            ))
+            .unwrap();
+
+        assert_eq!(router_service.sub_routers.len(), 3);
+        assert_eq!(router_service.router_name, "main");
 
         let message_observer_name = UpdateType::Message.as_str();
 
-        router.sub_routers.into_iter().for_each(|router| {
-            assert_eq!(router.sub_routers.len(), 2);
+        router_service
+            .sub_routers
+            .into_iter()
+            .for_each(|router_service| {
+                assert_eq!(router_service.sub_routers.len(), 2);
 
-            router
-                .telegram_observers()
-                .into_iter()
-                .for_each(|observer| {
-                    if observer.event_name == message_observer_name {
-                        assert_eq!(observer.inner_middlewares.middlewares.len(), 1);
-                    } else {
-                        assert_eq!(observer.inner_middlewares.middlewares.len(), 0);
-                    }
-                    // Router outer middlewares don't clone to children routers
-                    assert_eq!(observer.outer_middlewares.middlewares.len(), 0);
-                });
-
-            router.sub_routers.into_iter().for_each(|router| {
-                assert_eq!(router.sub_routers.len(), 0);
-
-                router
+                router_service
                     .telegram_observers()
                     .into_iter()
                     .for_each(|observer| {
                         if observer.event_name == message_observer_name {
-                            assert_eq!(observer.inner_middlewares.middlewares.len(), 1);
+                            assert_eq!(observer.inner_middlewares.len(), 1);
                         } else {
-                            assert_eq!(observer.inner_middlewares.middlewares.len(), 0);
+                            assert_eq!(observer.inner_middlewares.len(), 0);
                         }
                         // Router outer middlewares don't clone to children routers
-                        assert_eq!(observer.outer_middlewares.middlewares.len(), 0);
+                        assert_eq!(observer.outer_middlewares.len(), 0);
+                    });
+
+                router_service
+                    .sub_routers
+                    .into_iter()
+                    .for_each(|router_service| {
+                        assert_eq!(router_service.sub_routers.len(), 0);
+
+                        router_service
+                            .telegram_observers()
+                            .into_iter()
+                            .for_each(|observer| {
+                                if observer.event_name == message_observer_name {
+                                    assert_eq!(observer.inner_middlewares.len(), 1);
+                                } else {
+                                    assert_eq!(observer.inner_middlewares.len(), 0);
+                                }
+                                // Router outer middlewares don't clone to children routers
+                                assert_eq!(observer.outer_middlewares.len(), 0);
+                            });
                     });
             });
-        });
     }
 
     #[rustfmt::skip]

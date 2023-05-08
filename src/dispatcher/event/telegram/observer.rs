@@ -74,14 +74,13 @@ pub struct Response<Client> {
 
 /// Event observer for telegram events
 pub struct Observer<Client> {
-    /// Can be used for logging and debugging
     pub event_name: &'static str,
+
     pub handlers: Vec<HandlerObject<Client>>,
+    pub common: HandlerObject<Client>,
+
     pub inner_middlewares: InnerMiddlewareManager<Client>,
     pub outer_middlewares: OuterMiddlewareManager<Client>,
-
-    /// Handler, which never will be called, but used for common filters for all handlers in the observer
-    common: HandlerObject<Client>,
 }
 
 impl<Client> Observer<Client>
@@ -209,9 +208,11 @@ impl<Client> ToServiceProvider for Observer<Client> {
 
 #[allow(clippy::module_name_repetitions)]
 pub struct ObserverInner<Client> {
-    event_name: &'static str,
+    pub(crate) event_name: &'static str,
+
     handlers: Vec<HandlerObjectService<Client>>,
     common: HandlerObjectService<Client>,
+
     pub(crate) inner_middlewares: InnerMiddlewares<Client>,
     pub(crate) outer_middlewares: OuterMiddlewares<Client>,
 }

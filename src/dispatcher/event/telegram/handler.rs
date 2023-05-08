@@ -79,7 +79,8 @@ pub trait Handler<Args> {
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObject<Client> {
     service: BoxedHandlerServiceFactory<Client>,
-    pub(crate) filters: Vec<Arc<dyn Filter<Client>>>,
+
+    pub filters: Vec<Arc<dyn Filter<Client>>>,
 }
 
 impl<Client> HandlerObject<Client>
