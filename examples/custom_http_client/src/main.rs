@@ -1,7 +1,7 @@
-//! This example shows how to use in handler custom client.
+//! This example shows how to set a custom client for sending http requests.
 //!
-//! Usually you don't need to use custom client, because [`telers`] provides default client,
-//! but if you want to use custom client, you can do it by using [`Bot::with_client`] method and use it in handlers.
+//! Usually you don't need to use a custom client, because [`telers`] provides default client,
+//! but if you want to use a custom client, you can do it by using [`Bot::with_client`] method and use it in handlers.
 //!
 //! You can use any client, which implements [`Session`] trait and use it in handlers:
 //! ```ignore
