@@ -83,6 +83,12 @@ impl From<UpdateType> for String {
     }
 }
 
+impl<'a> From<&'a UpdateType> for String {
+    fn from(update_type: &'a UpdateType) -> Self {
+        update_type.as_str().to_string()
+    }
+}
+
 impl TryFrom<Update> for UpdateType {
     type Error = UnknownUpdateTypeError;
 
