@@ -7,16 +7,11 @@
 //! and [`Session`]s can be customized to fit your needs. Check [`Reqwest`] for more information about default implementation.
 //! You can check example of create [`Bot`] with "other" client and using it in handlers in `examples/other_client.rs`.
 //!
-//! [`Bot`] supports different ways to send methods to the Telegram Bot API:
-//! - You can use `Bot::send` method, which accepts any type that implements [`crate::methods::TelegramMethod`].
+//! You can use `Bot::send` method, which accepts any type that implements [`crate::methods::TelegramMethod`].
 //! This method is the most comfortable, because you can use any method from [`crate::methods`] module with
 //! implemented builders and you don't need to pass all parameters to it, only required,
 //! and optional by using builder methods. Builders yet can have some useful shortcuts.
 //! Also, you can use your own methods, which implements [`crate::methods::TelegramMethod`].
-//! - You can use `Bot::{method}` methods, which are shortcuts for `Bot::send` method,
-//! where method name is the same as method name in Telegram Bot API, but in snake case.
-//! For example, `Bot::send_message` is a shortcut for `Bot::send` method, where method is [`crate::methods::SendMessage`].
-//! This method isn't so comfortable, because you need to pass all parameters (required and optional) to it.
 //!
 //! # Example
 //! ```ignore
@@ -33,11 +28,6 @@
 //!     bot.send(
 //!         &SendMessage::new(123, "Hello, world!").message_thread_id(123),
 //!         None,
-//!     ).await;
-//!     bot.send_message(
-//!         123, "Hello, world!", Some(123),
-//!         ..., // optional parameters,
-//!         None, // request timeout
 //!     ).await;
 //! }
 //! ```

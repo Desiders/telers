@@ -4,6 +4,7 @@ use crate::{
     client::{Bot, Session},
     context::Context,
     error::SessionErrorKind,
+    methods::GetMe,
     types::{BotCommand, Update},
 };
 
@@ -260,7 +261,7 @@ impl Command<'_> {
         if self.ignore_mention {
             Ok(true)
         } else if let Some(ref mention) = command.mention {
-            bot.get_me(None).await.map(|user| {
+            bot.send(&GetMe::default(), None).await.map(|user| {
                 // `unwrap` is safe here, because bot always has username
                 user.username.unwrap() == *mention
             })
