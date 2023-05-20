@@ -29,12 +29,11 @@ pub struct Request<Client> {
 
 impl<Client> Request<Client> {
     #[must_use]
-    pub fn new<B, U, C>(bot: B, update: U, context: C) -> Self
-    where
-        B: Into<Arc<Bot<Client>>>,
-        U: Into<Arc<Update>>,
-        C: Into<Arc<Context>>,
-    {
+    pub fn new(
+        bot: impl Into<Arc<Bot<Client>>>,
+        update: impl Into<Arc<Update>>,
+        context: impl Into<Arc<Context>>,
+    ) -> Self {
         Self {
             bot: bot.into(),
             update: update.into(),
@@ -54,9 +53,9 @@ impl<Client> PartialEq for Request<Client> {
 impl<Client> Clone for Request<Client> {
     fn clone(&self) -> Self {
         Self {
-            bot: self.bot.clone(),
-            update: self.update.clone(),
-            context: self.context.clone(),
+            bot: Arc::clone(&self.bot),
+            update: Arc::clone(&self.update),
+            context: Arc::clone(&self.context),
         }
     }
 }

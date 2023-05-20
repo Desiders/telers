@@ -43,19 +43,11 @@ use std::{
     sync::Arc,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Request<Client> {
     pub bot: Arc<Bot<Client>>,
     pub update: Arc<Update>,
     pub context: Arc<Context>,
-}
-
-impl<Client> PartialEq for Request<Client> {
-    fn eq(&self, other: &Self) -> bool {
-        Arc::ptr_eq(&self.bot, &other.bot)
-            && Arc::ptr_eq(&self.update, &other.update)
-            && Arc::ptr_eq(&self.context, &other.context)
-    }
 }
 
 impl<Client> Request<Client> {
@@ -71,6 +63,24 @@ impl<Client> Request<Client> {
             update: update.into(),
             context: context.into(),
         }
+    }
+}
+
+impl<Client> Clone for Request<Client> {
+    fn clone(&self) -> Self {
+        Self {
+            bot: Arc::clone(&self.bot),
+            update: Arc::clone(&self.update),
+            context: Arc::clone(&self.context),
+        }
+    }
+}
+
+impl<Client> PartialEq for Request<Client> {
+    fn eq(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.bot, &other.bot)
+            && Arc::ptr_eq(&self.update, &other.update)
+            && Arc::ptr_eq(&self.context, &other.context)
     }
 }
 
@@ -600,7 +610,7 @@ impl<Client> ServiceProvider for RouterInner<Client> {}
 
 impl<Client> RouterInner<Client>
 where
-    Client: Send + Sync + Clone + 'static,
+    Client: Send + Sync + 'static,
 {
     /// Propagate event to routers
     /// # Errors

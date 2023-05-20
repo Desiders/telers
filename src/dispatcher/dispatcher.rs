@@ -252,7 +252,7 @@ impl<Client> ServiceProvider for DispatcherInner<Client> {}
 
 impl<Client> DispatcherInner<Client>
 where
-    Client: Session + Clone + 'static,
+    Client: Session + 'static,
 {
     /// Main entry point for incoming updates
     /// # Errors
@@ -488,7 +488,12 @@ where
             unimplemented!("Exit signals of this platform are not supported");
         }
     }
+}
 
+impl<Client> DispatcherInner<Client>
+where
+    Client: Session + Clone + 'static,
+{
     /// External polling process runner for multiple bots and emit startup and shutdown observers
     /// # Errors
     /// - If any startup observer returns error

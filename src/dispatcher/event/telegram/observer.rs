@@ -29,7 +29,7 @@ use std::{
     sync::Arc,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Request<Client> {
     pub bot: Arc<Bot<Client>>,
     pub update: Arc<Update>,
@@ -38,12 +38,11 @@ pub struct Request<Client> {
 
 impl<Client> Request<Client> {
     #[must_use]
-    pub fn new<B, U, C>(bot: B, update: U, context: C) -> Self
-    where
-        B: Into<Arc<Bot<Client>>>,
-        U: Into<Arc<Update>>,
-        C: Into<Arc<Context>>,
-    {
+    pub fn new(
+        bot: impl Into<Arc<Bot<Client>>>,
+        update: impl Into<Arc<Update>>,
+        context: impl Into<Arc<Context>>,
+    ) -> Self {
         Self {
             bot: bot.into(),
             update: update.into(),
@@ -57,6 +56,16 @@ impl<Client> PartialEq for Request<Client> {
         Arc::ptr_eq(&self.bot, &other.bot)
             && Arc::ptr_eq(&self.update, &other.update)
             && Arc::ptr_eq(&self.context, &other.context)
+    }
+}
+
+impl<Client> Clone for Request<Client> {
+    fn clone(&self) -> Self {
+        Self {
+            bot: Arc::clone(&self.bot),
+            update: Arc::clone(&self.update),
+            context: Arc::clone(&self.context),
+        }
     }
 }
 
@@ -219,7 +228,10 @@ pub struct ObserverInner<Client> {
 
 impl<Client> ServiceProvider for ObserverInner<Client> {}
 
-impl<Client: Send + Sync + Clone + 'static> ObserverInner<Client> {
+impl<Client> ObserverInner<Client>
+where
+    Client: Send + Sync + 'static,
+{
     /// Propagate event to handlers and stops propagation on first match.
     /// Handler will be called when all its filters is pass.
     /// # Errors
