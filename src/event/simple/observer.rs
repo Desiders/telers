@@ -1,4 +1,4 @@
-use crate::dispatcher::event::{
+use crate::event::{
     service::{Service as _, ServiceFactory as _, ServiceProvider, ToServiceProvider},
     simple::handler::{Handler, HandlerObject, HandlerObjectService, Result as HandlerResult},
 };

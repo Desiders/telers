@@ -9,23 +9,17 @@
 //! ```
 
 use telers::{
-    client::Bot,
-    context::Context,
-    dispatcher::{
-        event::{
-            telegram::{HandlerRequest, HandlerResponse, HandlerResult},
-            EventReturn, ToServiceProvider as _,
-        },
-        middlewares::{
-            inner::{Middleware as InnerMiddleware, Next},
-            outer::{Middleware as OuterMiddleware, MiddlewareResponse},
-        },
-        Dispatcher, Router, RouterRequest,
-    },
     enums::UpdateType,
     error::EventErrorKind,
+    event::{
+        telegram::{HandlerRequest, HandlerResponse, HandlerResult},
+        EventReturn, ToServiceProvider as _,
+    },
     methods::SendMessage,
+    middlewares::{outer::MiddlewareResponse, InnerMiddleware, Next, OuterMiddleware},
+    router::{Request as RouterRequest, Router},
     types::Update,
+    Bot, Context, Dispatcher,
 };
 
 use async_trait::async_trait;

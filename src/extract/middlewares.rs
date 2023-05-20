@@ -85,7 +85,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{client::Reqwest, dispatcher::event::telegram::handler::Handler};
+    use crate::{client::Reqwest, event::telegram::handler::Handler};
 
     #[test]
     fn test_middlewares_extract() {

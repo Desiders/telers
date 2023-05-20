@@ -1,11 +1,11 @@
 use super::base::{Middleware, Next};
 
 use crate::{
-    dispatcher::event::{
+    error::EventErrorKind,
+    event::{
         telegram::{HandlerRequest, HandlerResponse},
         EventReturn,
     },
-    error::EventErrorKind,
 };
 
 use async_trait::async_trait;
@@ -109,10 +109,8 @@ mod tests {
     use crate::{
         client::{Bot, Reqwest},
         context::Context,
-        dispatcher::{
-            event::{service::ServiceFactory as _, telegram::handler_service},
-            middlewares::inner::wrap_handler_and_middlewares_to_next,
-        },
+        event::{service::ServiceFactory as _, telegram::handler_service},
+        middlewares::inner::wrap_handler_and_middlewares_to_next,
         types::Update,
     };
 

@@ -1,9 +1,9 @@
 use crate::{
-    dispatcher::event::{
+    error::EventErrorKind,
+    event::{
         service::Service,
         telegram::{BoxedHandlerService, HandlerRequest, HandlerResponse},
     },
-    error::EventErrorKind,
 };
 
 use async_trait::async_trait;
@@ -127,7 +127,7 @@ mod tests {
     use crate::{
         client::{Bot, Reqwest},
         context::Context,
-        dispatcher::event::{service::ServiceFactory as _, telegram::handler_service, EventReturn},
+        event::{service::ServiceFactory as _, telegram::handler_service, EventReturn},
         types::Update,
     };
 

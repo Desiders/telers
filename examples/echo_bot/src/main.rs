@@ -7,14 +7,11 @@
 //! ```
 
 use telers::{
-    client::Bot,
-    dispatcher::{
-        event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
-        Dispatcher, Router,
-    },
     enums::UpdateType,
+    event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
     methods::CopyMessage,
     types::Message,
+    Bot, Dispatcher, Router,
 };
 
 async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {

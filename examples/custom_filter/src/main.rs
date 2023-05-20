@@ -8,16 +8,11 @@
 //! ```
 
 use telers::{
-    client::Bot,
-    context::Context,
-    dispatcher::{
-        event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
-        Dispatcher, Router,
-    },
     enums::UpdateType,
-    filters::Filter,
+    event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
     methods::SendMessage,
     types::{Message, Update},
+    Bot, Context, Dispatcher, Filter, Router,
 };
 
 use async_trait::async_trait;

@@ -1,12 +1,13 @@
+use crate::event::{
+    service::{
+        factory, fn_service, BoxFuture, BoxService, BoxServiceFactory, Service, ServiceFactory,
+    },
+    EventReturn,
+};
+
 use crate::{
     client::Bot,
     context::Context,
-    dispatcher::event::{
-        service::{
-            factory, fn_service, BoxFuture, BoxService, BoxServiceFactory, Service, ServiceFactory,
-        },
-        EventReturn,
-    },
     error::{ExtractionError, HandlerError},
     extract::FromEventAndContext,
     filters::Filter,
@@ -272,7 +273,7 @@ mod factory_handlers {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{client::Reqwest, dispatcher::event::EventReturn, filters::Command};
+    use crate::{client::Reqwest, event::EventReturn, filters::Command};
 
     use tokio;
 

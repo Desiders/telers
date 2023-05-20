@@ -2,13 +2,14 @@ use super::{Middleware, MiddlewareResponse};
 
 use crate::{
     context::Context as RequestContext,
-    dispatcher::{event::EventReturn, RouterRequest},
     error::{EventErrorKind, MiddlewareError},
+    event::EventReturn,
     fsm::{
         storage::base::{StorageKey, DEFAULT_DESTINY},
         strategy::Strategy,
         Context, Storage,
     },
+    router::Request,
     types::User,
 };
 
@@ -113,7 +114,7 @@ where
 {
     async fn call(
         &self,
-        request: RouterRequest<Client>,
+        request: Request<Client>,
     ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
         let context = request.context.as_ref();
 

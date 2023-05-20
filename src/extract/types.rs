@@ -228,7 +228,7 @@ impl<Client> FromEventAndContext<Client> for Poll {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{client::Reqwest, dispatcher::event::telegram::handler::Handler};
+    use crate::{client::Reqwest, event::telegram::handler::Handler};
 
     fn inner_extract<T: FromEventAndContext<Reqwest>>(
         bot: Arc<Bot<Reqwest>>,

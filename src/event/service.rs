@@ -1,5 +1,4 @@
 #[allow(clippy::module_name_repetitions)]
-
 mod base;
 mod boxed;
 mod fn_service;

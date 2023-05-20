@@ -1,7 +1,4 @@
-use crate::{
-    dispatcher::{event::EventReturn, RouterRequest},
-    error::EventErrorKind,
-};
+use crate::{error::EventErrorKind, event::EventReturn, router::Request};
 
 use async_trait::async_trait;
 use std::{future::Future, sync::Arc};
@@ -9,16 +6,16 @@ use std::{future::Future, sync::Arc};
 /// List of middlewares
 pub type Middlewares<Client> = Vec<Arc<dyn Middleware<Client>>>;
 /// Response from middleware.
-/// First element is/isn't updated [`RouterRequest`] and second is [`EventReturn`] for the manipulate processing event,
+/// First element is/isn't updated [`Request`] and second is [`EventReturn`] for the manipulate processing event,
 /// see [`EventReturn`] for more info.
-pub type MiddlewareResponse<Client> = (RouterRequest<Client>, EventReturn);
+pub type MiddlewareResponse<Client> = (Request<Client>, EventReturn);
 
 /// Outer middlewares called before filters, inner middlewares and handlers
 ///
 /// Prefer to use outer middlewares over inner middlewares in some cases:
 /// - If you need to call middlewares before filters, inner middlewares and handlers
-/// - If you need to manipulate with [`RouterRequest`]
-/// Usually outer middlewares are used to manipulate with [`RouterRequest`].
+/// - If you need to manipulate with [`Request`]
+/// Usually outer middlewares are used to manipulate with [`Request`].
 ///
 /// Implement this trait for your own middlewares
 #[async_trait]
@@ -30,7 +27,7 @@ pub trait Middleware<Client>: Send + Sync {
     /// If outer middleware returns error
     async fn call(
         &self,
-        request: RouterRequest<Client>,
+        request: Request<Client>,
     ) -> Result<MiddlewareResponse<Client>, EventErrorKind>;
 }
 
@@ -42,7 +39,7 @@ where
 {
     async fn call(
         &self,
-        request: RouterRequest<Client>,
+        request: Request<Client>,
     ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
         T::call(self, request).await
     }
@@ -53,12 +50,12 @@ where
 impl<Client, Func, Fut> Middleware<Client> for Func
 where
     Client: Send + Sync + 'static,
-    Func: Fn(RouterRequest<Client>) -> Fut + Send + Sync,
+    Func: Fn(Request<Client>) -> Fut + Send + Sync,
     Fut: Future<Output = Result<MiddlewareResponse<Client>, EventErrorKind>> + Send,
 {
     async fn call(
         &self,
-        request: RouterRequest<Client>,
+        request: Request<Client>,
     ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
         self(request).await
     }
@@ -78,9 +75,9 @@ mod tests {
     #[tokio::test]
     async fn test_call() {
         let middleware =
-            |request: RouterRequest<Reqwest>| async move { Ok((request, EventReturn::default())) };
+            |request: Request<Reqwest>| async move { Ok((request, EventReturn::default())) };
 
-        let request = RouterRequest::new(
+        let request = Request::new(
             Bot::<Reqwest>::default(),
             Update::default(),
             Context::default(),

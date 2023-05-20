@@ -24,14 +24,12 @@
 
 use std::borrow::Cow;
 use telers::{
-    client::{session::ClientResponse, telegram, Bot, Session},
-    dispatcher::{
-        event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
-        Dispatcher, Router,
-    },
+    client::{session::ClientResponse, telegram, Session},
     enums::UpdateType,
+    event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
     methods::{CopyMessage, TelegramMethod},
     types::Message,
+    Bot, Dispatcher, Router,
 };
 
 use async_trait::async_trait;

@@ -1,9 +1,6 @@
 use super::{Middleware, MiddlewareResponse};
 
-use crate::{
-    dispatcher::{event::EventReturn, RouterRequest},
-    error::EventErrorKind,
-};
+use crate::{error::EventErrorKind, event::EventReturn, router::Request};
 
 use async_trait::async_trait;
 
@@ -26,7 +23,7 @@ where
 {
     async fn call(
         &self,
-        request: RouterRequest<Client>,
+        request: Request<Client>,
     ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
         let context = &request.context;
         let update = &request.update;
@@ -51,8 +48,9 @@ mod tests {
     use crate::{
         client::{Bot, Reqwest},
         context::Context,
-        dispatcher::{event::ToServiceProvider as _, Router},
         enums::UpdateType,
+        event::ToServiceProvider,
+        router::Router,
         types::{Chat, Message, Update, User},
     };
 
@@ -91,7 +89,7 @@ mod tests {
 
         let router_service = router.to_service_provider_default().unwrap();
 
-        let request = RouterRequest::new(bot, update, context);
+        let request = Request::new(bot, update, context);
         router_service
             .propagate_event(UpdateType::Message, request)
             .await
@@ -129,7 +127,7 @@ mod tests {
 
         let router_service = router.to_service_provider_default().unwrap();
 
-        let request = RouterRequest::new(bot, update, context);
+        let request = Request::new(bot, update, context);
         router_service
             .propagate_event(UpdateType::Message, request)
             .await

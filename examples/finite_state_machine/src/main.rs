@@ -20,18 +20,15 @@
 
 use std::borrow::Cow;
 use telers::{
-    client::Bot,
-    dispatcher::{
-        event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
-        middlewares::outer::FSMContext as FSMContextMiddleware,
-        Dispatcher, Router,
-    },
     enums::ContentType as ContentTypeEnum,
     enums::UpdateType,
+    event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
     filters::{Command, ContentType, State as StateFilter},
     fsm::{Context as FSMContext, MemoryStorage, Storage, Strategy},
     methods::SendMessage,
+    middlewares::outer::FSMContext as FSMContextMiddleware,
     types::Message,
+    Bot, Dispatcher, Router,
 };
 
 /// State of conversation.

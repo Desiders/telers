@@ -1,4 +1,11 @@
-use super::{
+use crate::{
+    client::Bot,
+    context::Context,
+    enums::{
+        observer_name::{Simple as SimpleObserverName, Telegram as TelegramObserverName},
+        update_type::UpdateType,
+    },
+    error::EventErrorKind,
     event::{
         bases::{EventReturn, PropagateEventResult},
         service::{ServiceProvider, ToServiceProvider},
@@ -21,16 +28,6 @@ use super::{
             UserContext as UserContextMiddleware,
         },
     },
-};
-
-use crate::{
-    client::Bot,
-    context::Context,
-    enums::{
-        observer_name::{Simple as SimpleObserverName, Telegram as TelegramObserverName},
-        update_type::UpdateType,
-    },
-    error::EventErrorKind,
     types::Update,
 };
 
@@ -1129,10 +1126,8 @@ mod tests {
     use super::*;
     use crate::{
         client::Reqwest,
-        dispatcher::{
-            event::{telegram::HandlerResult as TelegramHandlerResult, EventReturn},
-            middlewares::inner::Next,
-        },
+        event::{telegram::HandlerResult as TelegramHandlerResult, EventReturn},
+        middlewares::inner::Next,
     };
 
     use tokio;

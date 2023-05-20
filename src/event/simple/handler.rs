@@ -1,8 +1,8 @@
 use crate::{
-    dispatcher::event::service::{
+    error::HandlerError,
+    event::service::{
         factory, fn_service, BoxFuture, BoxService, BoxServiceFactory, Service, ServiceFactory,
     },
-    error::HandlerError,
 };
 
 use std::{future::Future, result::Result as StdResult};

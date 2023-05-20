@@ -1,26 +1,24 @@
 use crate::{
     client::Bot,
     context::Context,
-    dispatcher::{
-        event::{
-            bases::{EventReturn, PropagateEventResult},
-            service::{Service as _, ServiceFactory as _, ServiceProvider, ToServiceProvider},
-            telegram::handler::{
-                Handler, HandlerObject, HandlerObjectService, Request as HandlerRequest,
-                Result as HandlerResult,
-            },
-        },
-        middlewares::{
-            inner::{
-                wrap_handler_and_middlewares_to_next, Manager as InnerMiddlewareManager,
-                Middlewares as InnerMiddlewares,
-            },
-            outer::{Manager as OuterMiddlewareManager, Middlewares as OuterMiddlewares},
+    error::EventErrorKind,
+    event::{
+        bases::{EventReturn, PropagateEventResult},
+        service::{Service as _, ServiceFactory as _, ServiceProvider, ToServiceProvider},
+        telegram::handler::{
+            Handler, HandlerObject, HandlerObjectService, Request as HandlerRequest,
+            Result as HandlerResult,
         },
     },
-    error::EventErrorKind,
     extract::FromEventAndContext,
     filters::Filter,
+    middlewares::{
+        inner::{
+            wrap_handler_and_middlewares_to_next, Manager as InnerMiddlewareManager,
+            Middlewares as InnerMiddlewares,
+        },
+        outer::{Manager as OuterMiddlewareManager, Middlewares as OuterMiddlewares},
+    },
     types::Update,
 };
 
