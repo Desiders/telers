@@ -128,7 +128,7 @@ async fn main() {
         .for_each(|observer| {
             observer
                 .inner_middlewares
-                .register(CounterProcessedHandlers::default())
+                .register(CounterProcessedHandlers::default());
         });
     router.message.register(handler);
 
