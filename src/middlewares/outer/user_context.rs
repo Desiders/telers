@@ -49,8 +49,8 @@ mod tests {
         client::{Bot, Reqwest},
         context::Context,
         enums::UpdateType,
-        event::ToServiceProvider,
-        router::Router,
+        event::ToServiceProvider as _,
+        router::{PropagateEvent as _, Router},
         types::{Chat, Message, Update, User},
     };
 

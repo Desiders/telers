@@ -31,7 +31,7 @@ use crate::{
     types::Update,
 };
 
-use async_recursion::async_recursion;
+use async_trait::async_trait;
 use log;
 use std::{
     collections::HashSet,
@@ -103,6 +103,82 @@ impl<Client> Response<Client> {
     }
 }
 
+#[async_trait]
+pub trait PropagateEvent<Client>: Send + Sync {
+    /// Propagate event
+    /// # Errors
+    /// - If any outer middleware returns error
+    /// - If any inner middleware returns error
+    /// - If any handler returns error. Probably it's error to extract args to the handler
+    async fn propagate_event(
+        &self,
+        update_type: UpdateType,
+        request: Request<Client>,
+    ) -> Result<Response<Client>, EventErrorKind>
+    where
+        Client: Send + Sync + 'static;
+
+    /// Propagate update event
+    /// # Notes
+    /// This calls the special event observer that used to handle all telegram events.
+    /// It's called for router and its sub routers and before other telegram observers.
+    /// # Errors
+    /// - If any outer middleware returns error
+    /// - If any inner middleware returns error
+    /// - If any handler returns error. Probably it's error to extract args to the handler
+    async fn propagate_update_event(
+        &self,
+        request: Request<Client>,
+    ) -> Result<Response<Client>, EventErrorKind>
+    where
+        Client: Send + Sync + 'static;
+
+    /// Emit startup events
+    /// # Errors
+    /// If any startup observer returns error
+    async fn emit_startup(&self) -> SimpleHandlerResult;
+
+    /// Emit shutdown events
+    /// # Errors
+    /// If any shutdown observer returns error
+    async fn emit_shutdown(&self) -> SimpleHandlerResult;
+}
+
+#[async_trait]
+impl<Client, P: ?Sized> PropagateEvent<Client> for Arc<P>
+where
+    P: PropagateEvent<Client> + Send + Sync,
+{
+    async fn propagate_event(
+        &self,
+        update_type: UpdateType,
+        request: Request<Client>,
+    ) -> Result<Response<Client>, EventErrorKind>
+    where
+        Client: Send + Sync + 'static,
+    {
+        P::propagate_event(self, update_type, request).await
+    }
+
+    async fn propagate_update_event(
+        &self,
+        request: Request<Client>,
+    ) -> Result<Response<Client>, EventErrorKind>
+    where
+        Client: Send + Sync + 'static,
+    {
+        P::propagate_update_event(self, request).await
+    }
+
+    async fn emit_startup(&self) -> SimpleHandlerResult {
+        P::emit_startup(self).await
+    }
+
+    async fn emit_shutdown(&self) -> SimpleHandlerResult {
+        P::emit_shutdown(self).await
+    }
+}
+
 /// Router combines all event observers.
 ///
 /// Each event observer is a special unit that handles a specific event type.
@@ -160,10 +236,7 @@ impl<Client> Response<Client> {
 /// router.callback_query.register(on_callback_query);
 /// ```
 pub struct Router<Client> {
-    /// Name of the router.
-    /// It can be used for logging and debugging and code clarity.
     router_name: &'static str,
-    // parent_router: Option<NonNull<Router<Client>>>,
     sub_routers: Vec<Router<Client>>,
 
     pub message: TelegramObserver<Client>,
@@ -237,9 +310,8 @@ where
     /// immediately after calling this method. This implementation detail that can be changed in the future.
     /// Right now, middlewares registers to the sub routers when the router is converts to the [`RouterInner`]
     /// by calls `Router::to_service_provider` method.
-    pub fn include_router(&mut self, router: Router<Client>) -> &mut Self {
-        // router.parent_router = Some(NonNull::from(&*self));
-        self.sub_routers.push(router);
+    pub fn include_router(&mut self, router: impl Into<Router<Client>>) -> &mut Self {
+        self.sub_routers.push(router.into());
         self
     }
 
@@ -255,7 +327,7 @@ where
     /// immediately after calling this method. This implementation detail that can be changed in the future.
     /// Right now, middlewares registers to the sub routers when the router is converts to the [`RouterInner`]
     /// by calls `Router::to_service_provider` method.
-    pub fn include(&mut self, router: Router<Client>) -> &mut Self {
+    pub fn include(&mut self, router: impl Into<Router<Client>>) -> &mut Self {
         self.include_router(router)
     }
 }
@@ -385,83 +457,6 @@ impl<Client> AsRef<Router<Client>> for Router<Client> {
     #[must_use]
     fn as_ref(&self) -> &Self {
         self
-    }
-}
-
-pub struct Config<Client> {
-    outer_middlewares: OuterMiddlewaresConfig<Client>,
-    inner_middlewares: InnerMiddlewaresConfig<Client>,
-}
-
-impl<Client> Config<Client> {
-    #[must_use]
-    pub fn new(
-        outer_middlewares: OuterMiddlewaresConfig<Client>,
-        inner_middlewares: InnerMiddlewaresConfig<Client>,
-    ) -> Self {
-        Self {
-            outer_middlewares,
-            inner_middlewares,
-        }
-    }
-}
-
-impl<Client> Clone for Config<Client> {
-    fn clone(&self) -> Self {
-        Self {
-            outer_middlewares: self.outer_middlewares.clone(),
-            inner_middlewares: self.inner_middlewares.clone(),
-        }
-    }
-}
-
-impl<Client> Default for Config<Client>
-where
-    Client: Send + Sync + 'static,
-{
-    fn default() -> Self {
-        Self {
-            outer_middlewares: OuterMiddlewaresConfig::default(),
-            inner_middlewares: InnerMiddlewaresConfig::default(),
-        }
-    }
-}
-
-impl<Client> Default for OuterMiddlewaresConfig<Client>
-where
-    Client: Send + Sync + 'static,
-{
-    #[must_use]
-    fn default() -> Self {
-        Self::builder()
-            .update(UserContextMiddleware::default())
-            .build()
-    }
-}
-
-impl<Client> Default for InnerMiddlewaresConfig<Client>
-where
-    Client: Send + Sync + 'static,
-{
-    #[must_use]
-    fn default() -> Self {
-        Self::builder()
-            .message(LoggingMiddleware::default())
-            .edited_message(LoggingMiddleware::default())
-            .channel_post(LoggingMiddleware::default())
-            .edited_channel_post(LoggingMiddleware::default())
-            .inline_query(LoggingMiddleware::default())
-            .chosen_inline_result(LoggingMiddleware::default())
-            .callback_query(LoggingMiddleware::default())
-            .shipping_query(LoggingMiddleware::default())
-            .pre_checkout_query(LoggingMiddleware::default())
-            .poll(LoggingMiddleware::default())
-            .poll_answer(LoggingMiddleware::default())
-            .my_chat_member(LoggingMiddleware::default())
-            .chat_member(LoggingMiddleware::default())
-            .chat_join_request(LoggingMiddleware::default())
-            .update(LoggingMiddleware::default())
-            .build()
     }
 }
 
@@ -605,27 +600,16 @@ pub struct RouterInner<Client> {
 
 impl<Client> ServiceProvider for RouterInner<Client> {}
 
-impl<Client> RouterInner<Client>
-where
-    Client: Send + Sync + 'static,
-{
-    /// Propagate event to routers
-    /// # Errors
-    /// - If any outer middleware returns error
-    /// - If any inner middleware returns error
-    /// - If any handler returns error. Probably it's error to extract args to the handler
-    /// # Warning
-    /// This function doesn't compare the update type with the request update type.
-    /// Assumed that [`UpdateType`] is correct because it is derived from [`Update`].
-    /// This behaviour allows you not to check recursively [`UpdateType`] and can be used for testing purposes,
-    /// but it's not recommended to use it in production.
-    #[must_use]
-    #[async_recursion]
-    pub async fn propagate_event(
+#[async_trait]
+impl<Client> PropagateEvent<Client> for RouterInner<Client> {
+    async fn propagate_event(
         &self,
         update_type: UpdateType,
         request: Request<Client>,
-    ) -> Result<Response<Client>, EventErrorKind> {
+    ) -> Result<Response<Client>, EventErrorKind>
+    where
+        Client: Send + Sync + 'static,
+    {
         self.propagate_update_event(request.clone()).await?;
 
         let observer = self.telegram_observer_by_update_type(update_type);
@@ -649,21 +633,55 @@ where
             }
         }
 
-        self.propagate_event_by_observer(observer, update_type, request)
-            .await
+        let observer_request = request.clone().into();
+        let observer_response = observer.trigger(observer_request).await?;
+
+        match observer_response.propagate_result {
+            // Propagate event to sub routers
+            PropagateEventResult::Unhandled => {}
+            // Return a response if the event handled
+            PropagateEventResult::Handled(response) => {
+                return Ok(Response {
+                    request,
+                    propagate_result: PropagateEventResult::Handled(response),
+                });
+            }
+            // Return a response if the event rejected
+            // Router don't know about rejected event by observer
+            PropagateEventResult::Rejected => {
+                return Ok(Response {
+                    request,
+                    propagate_result: PropagateEventResult::Unhandled,
+                });
+            }
+        };
+
+        // Propagate event to sub routers' observer
+        for router in &self.sub_routers {
+            let router_response = router.propagate_event(update_type, request.clone()).await?;
+            match router_response.propagate_result {
+                // Propagate event to next sub router's observer if the event unhandled by the sub router's observer
+                PropagateEventResult::Unhandled => continue,
+                PropagateEventResult::Handled(_) | PropagateEventResult::Rejected => {
+                    return Ok(router_response)
+                }
+            };
+        }
+
+        // Return a response if the event unhandled by observer
+        Ok(Response {
+            request,
+            propagate_result: PropagateEventResult::Unhandled,
+        })
     }
 
-    /// Propagate update event to routers
-    /// # Errors
-    /// - If any outer middleware returns error
-    /// - If any inner middleware returns error
-    /// - If any handler returns error. Probably it's error to extract args to the handler
-    #[async_recursion]
-    #[must_use]
     async fn propagate_update_event(
         &self,
         request: Request<Client>,
-    ) -> Result<Response<Client>, EventErrorKind> {
+    ) -> Result<Response<Client>, EventErrorKind>
+    where
+        Client: Send + Sync + 'static,
+    {
         let mut request = request;
         for middleware in &self.update.outer_middlewares {
             let (updated_request, event_return) = middleware.call(request.clone()).await?;
@@ -683,18 +701,6 @@ where
             }
         }
 
-        self.propagate_update_event_by_observer(request).await
-    }
-
-    /// Propagate event to routers by update observer
-    /// # Errors
-    /// - If any outer middleware returns error
-    /// - If any inner middleware returns error
-    /// - If any handler returns error. Probably it's error to extract args to the handler
-    async fn propagate_update_event_by_observer(
-        &self,
-        request: Request<Client>,
-    ) -> Result<Response<Client>, EventErrorKind> {
         let observer_request = request.clone().into();
         let observer_response = self.update.trigger(observer_request).await?;
 
@@ -737,57 +743,26 @@ where
         })
     }
 
-    /// Propagate event to routers by observer
-    /// # Errors
-    /// - If any outer middleware returns error
-    /// - If any inner middleware returns error
-    /// - If any handler returns error. Probably it's error to extract args to the handler
-    async fn propagate_event_by_observer(
-        &self,
-        observer: &TelegramObserverInner<Client>,
-        update_type: UpdateType,
-        request: Request<Client>,
-    ) -> Result<Response<Client>, EventErrorKind> {
-        let observer_request = request.clone().into();
-        let observer_response = observer.trigger(observer_request).await?;
+    async fn emit_startup(&self) -> SimpleHandlerResult {
+        log::debug!("{self:?}: Emit startup");
 
-        match observer_response.propagate_result {
-            // Propagate event to sub routers
-            PropagateEventResult::Unhandled => {}
-            // Return a response if the event handled
-            PropagateEventResult::Handled(response) => {
-                return Ok(Response {
-                    request,
-                    propagate_result: PropagateEventResult::Handled(response),
-                });
-            }
-            // Return a response if the event rejected
-            // Router don't know about rejected event by observer
-            PropagateEventResult::Rejected => {
-                return Ok(Response {
-                    request,
-                    propagate_result: PropagateEventResult::Unhandled,
-                });
-            }
-        };
-
-        // Propagate event to sub routers' observer
-        for router in &self.sub_routers {
-            let router_response = router.propagate_event(update_type, request.clone()).await?;
-            match router_response.propagate_result {
-                // Propagate event to next sub router's observer if the event unhandled by the sub router's observer
-                PropagateEventResult::Unhandled => continue,
-                PropagateEventResult::Handled(_) | PropagateEventResult::Rejected => {
-                    return Ok(router_response)
-                }
-            };
+        for startup in
+            once(&self.startup).chain(self.sub_routers.iter().map(|router| &router.startup))
+        {
+            startup.trigger(()).await?;
         }
+        Ok(())
+    }
 
-        // Return a response if the event unhandled by observer
-        Ok(Response {
-            request,
-            propagate_result: PropagateEventResult::Unhandled,
-        })
+    async fn emit_shutdown(&self) -> SimpleHandlerResult {
+        log::debug!("{self:?}: Emit shutdown");
+
+        for shutdown in
+            once(&self.shutdown).chain(self.sub_routers.iter().map(|router| &router.shutdown))
+        {
+            shutdown.trigger(()).await?;
+        }
+        Ok(())
     }
 }
 
@@ -840,34 +815,6 @@ impl<Client> RouterInner<Client> {
             UpdateType::ChatJoinRequest => &self.chat_join_request,
         }
     }
-
-    /// Emit startup events
-    /// # Errors
-    /// If any startup observer returns error
-    pub async fn emit_startup(&self) -> SimpleHandlerResult {
-        log::debug!("{self:?}: Emit startup");
-
-        for startup in
-            once(&self.startup).chain(self.sub_routers.iter().map(|router| &router.startup))
-        {
-            startup.trigger(()).await?;
-        }
-        Ok(())
-    }
-
-    /// Emit shutdown events
-    /// # Errors
-    /// If any shutdown observer returns error
-    pub async fn emit_shutdown(&self) -> SimpleHandlerResult {
-        log::debug!("{self:?}: Emit shutdown");
-
-        for shutdown in
-            once(&self.shutdown).chain(self.sub_routers.iter().map(|router| &router.shutdown))
-        {
-            shutdown.trigger(()).await?;
-        }
-        Ok(())
-    }
 }
 
 impl<Client> Debug for RouterInner<Client> {
@@ -875,6 +822,83 @@ impl<Client> Debug for RouterInner<Client> {
         f.debug_struct("Router")
             .field("router_name", &self.router_name)
             .finish()
+    }
+}
+
+pub struct Config<Client> {
+    outer_middlewares: OuterMiddlewaresConfig<Client>,
+    inner_middlewares: InnerMiddlewaresConfig<Client>,
+}
+
+impl<Client> Config<Client> {
+    #[must_use]
+    pub fn new(
+        outer_middlewares: OuterMiddlewaresConfig<Client>,
+        inner_middlewares: InnerMiddlewaresConfig<Client>,
+    ) -> Self {
+        Self {
+            outer_middlewares,
+            inner_middlewares,
+        }
+    }
+}
+
+impl<Client> Clone for Config<Client> {
+    fn clone(&self) -> Self {
+        Self {
+            outer_middlewares: self.outer_middlewares.clone(),
+            inner_middlewares: self.inner_middlewares.clone(),
+        }
+    }
+}
+
+impl<Client> Default for Config<Client>
+where
+    Client: Send + Sync + 'static,
+{
+    fn default() -> Self {
+        Self {
+            outer_middlewares: OuterMiddlewaresConfig::default(),
+            inner_middlewares: InnerMiddlewaresConfig::default(),
+        }
+    }
+}
+
+impl<Client> Default for OuterMiddlewaresConfig<Client>
+where
+    Client: Send + Sync + 'static,
+{
+    #[must_use]
+    fn default() -> Self {
+        Self::builder()
+            .update(UserContextMiddleware::default())
+            .build()
+    }
+}
+
+impl<Client> Default for InnerMiddlewaresConfig<Client>
+where
+    Client: Send + Sync + 'static,
+{
+    #[must_use]
+    fn default() -> Self {
+        Self::builder()
+            .message(LoggingMiddleware::default())
+            .edited_message(LoggingMiddleware::default())
+            .channel_post(LoggingMiddleware::default())
+            .edited_channel_post(LoggingMiddleware::default())
+            .inline_query(LoggingMiddleware::default())
+            .chosen_inline_result(LoggingMiddleware::default())
+            .callback_query(LoggingMiddleware::default())
+            .shipping_query(LoggingMiddleware::default())
+            .pre_checkout_query(LoggingMiddleware::default())
+            .poll(LoggingMiddleware::default())
+            .poll_answer(LoggingMiddleware::default())
+            .my_chat_member(LoggingMiddleware::default())
+            .chat_member(LoggingMiddleware::default())
+            .chat_join_request(LoggingMiddleware::default())
+            .update(LoggingMiddleware::default())
+            .build()
     }
 }
 

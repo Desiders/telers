@@ -1,4 +1,4 @@
-use super::router::{Request, Response, Router, RouterInner};
+use super::router::{PropagateEvent, Request, Response};
 
 use crate::{
     client::{Bot, Session},
@@ -21,19 +21,15 @@ use tokio::{
     sync::mpsc::{self, error::SendError, Sender},
 };
 
-/// Maximum size of the channel for listener updates
 const GET_UPDATES_SIZE: i64 = 100;
-/// Default timeout for long polling
 const DEFAULT_POLLING_TIMEOUT: i64 = 30;
 
-/// Error which may occur while listening updates
 #[derive(thiserror::Error, Debug)]
 enum ListenerError<T> {
     #[error(transparent)]
     SendError(#[from] SendError<T>),
 }
 
-/// Error which may occur while polling
 #[derive(thiserror::Error, Debug)]
 enum PollingError {
     #[error("Polling was aborted by signal")]
@@ -41,31 +37,66 @@ enum PollingError {
 }
 
 /// Dispatcher using to dispatch incoming updates to the routers
-pub struct Dispatcher<Client> {
-    /// Main router, which will be used for dispatching updates
-    main_router: Router<Client>,
-    /// Bots, which will be used for getting updates. \
-    /// All bots use the same dispatcher, but each bot has the own polling process.
+/// # Arguments
+/// * `main_router` -
+/// Main router, whose service will propagate updates to the other routers and its observers
+/// * `bots` -
+/// Bots that will be used for getting updates and sending requests.
+/// All bots use the same dispatcher, but each bot has the own polling process.
+/// Polling process gets updates and propagates them to the main propagator.
+/// * `polling_timeout` -
+/// Timeout in seconds for long polling
+/// * `backoff` -
+/// Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
+/// and set timeout between requests to telegram server
+/// * `allowed_updates` -
+/// List the types of updates you want your bot to receive.
+/// For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types.
+/// See [`crate::enums::UpdateType`] for a complete list of available update types.
+/// By default, all update types except [`crate::enums::UpdateType::ChatMember`] are enabled.
+pub struct Dispatcher<Client, Propagator> {
+    main_router: Propagator,
     bots: Vec<Bot<Client>>,
-    /// Timeout in seconds for long polling
     polling_timeout: Option<i64>,
-    /// Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
     backoff: ExponentialBackoff<SystemClock>,
-    /// Allowed updates for polling. \
-    /// List of the update types you want your bot to receive,
-    /// specify an empty list to receive all update types except `chat_member` (default).
     allowed_updates: Vec<String>,
 }
 
-impl<Client> Dispatcher<Client> {
+impl<Client, Propagator> Dispatcher<Client, Propagator> {
+    /// Creates new dispatcher
+    /// # Arguments
+    /// * `main_router` -
+    /// Main router, whose service will propagate updates to the other routers and its observers
+    /// * `bots` -
+    /// Bots that will be used for getting updates and sending requests.
+    /// All bots use the same dispatcher, but each bot has the own polling process.
+    /// Polling process gets updates and propagates them to the main propagator.
+    /// * `polling_timeout` -
+    /// Timeout in seconds for long polling
+    /// * `backoff` -
+    /// Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
+    /// and set timeout between requests to telegram server
+    /// * `allowed_updates` -
+    /// List the types of updates you want your bot to receive.
+    /// For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types.
+    /// See [`crate::enums::UpdateType`] for a complete list of available update types.
+    /// By default, all update types except [`crate::enums::UpdateType::ChatMember`] are enabled.
     #[must_use]
-    pub fn new(
-        main_router: Router<Client>,
+    pub fn new<Cfg, PropagatorService, InitError>(
+        main_router: Propagator,
         bots: Vec<Bot<Client>>,
         polling_timeout: Option<i64>,
         backoff: ExponentialBackoff<SystemClock>,
         allowed_updates: Vec<impl Into<String>>,
-    ) -> Self {
+    ) -> Self
+    where
+        Propagator: ToServiceProvider<
+            Config = Cfg,
+            ServiceProvider = PropagatorService,
+            InitError = InitError,
+        >,
+        PropagatorService: PropagateEvent<Client>,
+    {
         Self {
             main_router,
             bots,
@@ -76,24 +107,25 @@ impl<Client> Dispatcher<Client> {
     }
 }
 
-impl<Client> Dispatcher<Client>
+impl<Client, Propagator> Dispatcher<Client, Propagator>
 where
-    Client: Send + Sync + 'static,
+    Propagator: Default,
 {
+    /// Creates dispatcher builder with default values
     #[must_use]
-    pub fn builder() -> DispatcherBuilder<Client> {
+    pub fn builder() -> DispatcherBuilder<Client, Propagator> {
         DispatcherBuilder::default()
     }
 }
 
-impl<Client> Default for Dispatcher<Client>
+impl<Client, Propagator> Default for Dispatcher<Client, Propagator>
 where
-    Client: Send + Sync + 'static,
+    Propagator: Default,
 {
     #[must_use]
     fn default() -> Self {
         Self {
-            main_router: Router::default(),
+            main_router: Propagator::default(),
             bots: vec![],
             polling_timeout: Some(DEFAULT_POLLING_TIMEOUT),
             backoff: ExponentialBackoff::default(),
@@ -102,23 +134,41 @@ where
     }
 }
 
+/// Dispatcher builder
+/// # Arguments
+/// * `main_router` -
+/// Main router, whose service will propagate updates to the other routers and its observers
+/// * `bots` -
+/// Bots that will be used for getting updates and sending requests.
+/// All bots use the same dispatcher, but each bot has the own polling process.
+/// Polling process gets updates and propagates them to the main propagator.
+/// * `polling_timeout` -
+/// Timeout in seconds for long polling
+/// * `backoff` -
+/// Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
+/// and set timeout between requests to telegram server
+/// * `allowed_updates` -
+/// List the types of updates you want your bot to receive.
+/// For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types.
+/// See [`crate::enums::UpdateType`] for a complete list of available update types.
+/// By default, all update types except [`crate::enums::UpdateType::ChatMember`] are enabled.
 #[allow(clippy::module_name_repetitions)]
-pub struct DispatcherBuilder<Client> {
-    main_router: Router<Client>,
+pub struct DispatcherBuilder<Client, Propagator> {
+    main_router: Propagator,
     bots: Vec<Bot<Client>>,
     polling_timeout: Option<i64>,
     backoff: ExponentialBackoff<SystemClock>,
     allowed_updates: Vec<String>,
 }
 
-impl<Client> Default for DispatcherBuilder<Client>
+impl<Client, Propagator> Default for DispatcherBuilder<Client, Propagator>
 where
-    Client: Send + Sync + 'static,
+    Propagator: Default,
 {
     #[must_use]
     fn default() -> Self {
         Self {
-            main_router: Router::default(),
+            main_router: Propagator::default(),
             bots: vec![],
             polling_timeout: Some(DEFAULT_POLLING_TIMEOUT),
             backoff: ExponentialBackoff::default(),
@@ -127,22 +177,48 @@ where
     }
 }
 
-/// A block of consuming builder
-impl<Client> DispatcherBuilder<Client> {
+impl<Client, Propagator> DispatcherBuilder<Client, Propagator> {
+    /// Main router, whose service will propagate updates to the other routers and its observers
     #[must_use]
-    pub fn main_router(self, val: Router<Client>) -> Self {
+    pub fn main_router<Cfg, PropagatorService, InitPropagatorServiceError>(
+        self,
+        val: Propagator,
+    ) -> Self
+    where
+        Propagator: ToServiceProvider<
+            Config = Cfg,
+            ServiceProvider = PropagatorService,
+            InitError = InitPropagatorServiceError,
+        >,
+        PropagatorService: PropagateEvent<Client>,
+    {
         Self {
             main_router: val,
             ..self
         }
     }
 
+    /// Main router, whose service will propagate updates to the other routers and its observers
+    /// # Notes
     /// Alias to [`DispatcherBuilder::main_router`] method
     #[must_use]
-    pub fn router(self, val: Router<Client>) -> Self {
+    pub fn router<Cfg, PropagatorService, InitPropagatorServiceError>(self, val: Propagator) -> Self
+    where
+        Propagator: ToServiceProvider<
+            Config = Cfg,
+            ServiceProvider = PropagatorService,
+            InitError = InitPropagatorServiceError,
+        >,
+        PropagatorService: PropagateEvent<Client>,
+    {
         self.main_router(val)
     }
 
+    /// Bots that will be used for getting updates and sending requests.
+    /// All bots use the same dispatcher, but each bot has the own polling process.
+    /// Polling process gets updates and propagates them to the main propagator.
+    /// # Notes
+    /// You can add multiple bots using [`DispatcherBuilder::bots`] method
     #[must_use]
     pub fn bot(self, val: Bot<Client>) -> Self {
         Self {
@@ -151,6 +227,11 @@ impl<Client> DispatcherBuilder<Client> {
         }
     }
 
+    /// Bots that will be used for getting updates and sending requests.
+    /// All bots use the same dispatcher, but each bot has the own polling process.
+    /// Polling process gets updates and propagates them to the main propagator.
+    /// # Notes
+    /// You can add sinlge bot using [`DispatcherBuilder::bot`] method
     #[must_use]
     pub fn bots(self, val: impl IntoIterator<Item = Bot<Client>>) -> Self {
         Self {
@@ -159,6 +240,9 @@ impl<Client> DispatcherBuilder<Client> {
         }
     }
 
+    /// Timeout in seconds for long polling
+    /// # Default
+    /// [`DEFAULT_POLLING_TIMEOUT`]
     #[must_use]
     pub fn polling_timeout(self, val: i64) -> Self {
         Self {
@@ -167,6 +251,8 @@ impl<Client> DispatcherBuilder<Client> {
         }
     }
 
+    /// Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
+    /// and set timeout between requests to telegram server
     #[must_use]
     pub fn backoff(self, val: ExponentialBackoff<SystemClock>) -> Self {
         Self {
@@ -175,6 +261,15 @@ impl<Client> DispatcherBuilder<Client> {
         }
     }
 
+    /// Update type you want your bot to receive.
+    /// For example, specify `message` to only receive this update type.
+    /// See [`crate::enums::UpdateType`] for a complete list of available update types.
+    /// # Default
+    /// All update types except [`crate::enums::UpdateType::ChatMember`] are enabled.
+    /// # Notes
+    /// You can use [`crate::enums::UpdateType`] and pass it to this method, because it implements [`Into<String>`]
+    ///
+    /// You can add multiple update types using [`DispatcherBuilder::allowed_updates`] method
     #[must_use]
     pub fn allowed_update(self, val: impl Into<String>) -> Self {
         Self {
@@ -187,6 +282,15 @@ impl<Client> DispatcherBuilder<Client> {
         }
     }
 
+    /// List the types of updates you want your bot to receive.
+    /// For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types.
+    /// See [`crate::enums::UpdateType`] for a complete list of available update types.
+    /// # Default
+    /// All update types except [`crate::enums::UpdateType::ChatMember`] are enabled.
+    /// # Notes
+    /// You can use [`crate::enums::UpdateType`] and pass it to this method, because it implements [`Into<String>`]
+    ///
+    /// You can add single update type using [`DispatcherBuilder::allowed_update`] method
     #[must_use]
     pub fn allowed_updates<T, I>(self, val: I) -> Self
     where
@@ -203,8 +307,9 @@ impl<Client> DispatcherBuilder<Client> {
         }
     }
 
+    /// Build [`Dispatcher`] with provided configuration
     #[must_use]
-    pub fn build(self) -> Dispatcher<Client> {
+    pub fn build(self) -> Dispatcher<Client, Propagator> {
         Dispatcher {
             main_router: self.main_router,
             bots: self.bots,
@@ -215,19 +320,27 @@ impl<Client> DispatcherBuilder<Client> {
     }
 }
 
-impl<Client> ToServiceProvider for Dispatcher<Client>
+/// This converts all dependencies to [`ServiceProvider`] and creates [`Arc<DispatcherInner>`]
+/// that contains converted [`ServiceProvider`]s.
+impl<Client, PropagatorService, Propagator, Cfg, InitPropagatorServiceError> ToServiceProvider
+    for Dispatcher<Client, Propagator>
 where
     Client: Send + Sync + 'static,
+    Propagator: ToServiceProvider<
+        Config = Cfg,
+        ServiceProvider = PropagatorService,
+        InitError = InitPropagatorServiceError,
+    >,
 {
-    type Config = ();
-    type ServiceProvider = Arc<DispatcherInner<Client>>;
-    type InitError = ();
+    type Config = Cfg;
+    type ServiceProvider = Arc<DispatcherInner<Client, PropagatorService>>;
+    type InitError = InitPropagatorServiceError;
 
     fn to_service_provider(
         self,
-        _config: Self::Config,
+        config: Self::Config,
     ) -> Result<Self::ServiceProvider, Self::InitError> {
-        let main_router = self.main_router.to_service_provider_default()?;
+        let main_router = self.main_router.to_service_provider(config)?;
 
         Ok(Arc::new(DispatcherInner {
             main_router,
@@ -240,26 +353,22 @@ where
 }
 
 #[allow(clippy::module_name_repetitions)]
-pub struct DispatcherInner<Client> {
-    main_router: RouterInner<Client>,
+pub struct DispatcherInner<Client, PropagatorService> {
+    main_router: PropagatorService,
     bots: Vec<Bot<Client>>,
     polling_timeout: Option<i64>,
     backoff: ExponentialBackoff<SystemClock>,
     allowed_updates: Vec<String>,
 }
 
-impl<Client> ServiceProvider for DispatcherInner<Client> {}
+impl<Client, PropagatorService> ServiceProvider for DispatcherInner<Client, PropagatorService> {}
 
-impl<Client> DispatcherInner<Client>
-where
-    Client: Session + 'static,
-{
-    /// Main entry point for incoming updates
+impl<Client, PropagatorService> DispatcherInner<Client, PropagatorService> {
+    /// Main entry point for incoming updates.
+    /// This method will propagate update to the main router.
     /// # Errors
-    /// Returns [`UnknownUpdateTypeError`] if update type isn't supported, or [`EventErrorKind`] if any of this error occurs:
-    /// - If any outer middleware returns error
-    /// - If any inner middleware returns error
-    /// - If any handler returns error. Probably it's error to extract args to the handler.
+    /// - [`UnknownUpdateTypeError`] if update type is unknown
+    /// - [`EventErrorKind`] if propagation event returns error
     pub async fn feed_update<B, U>(
         self: Arc<Self>,
         bot: B,
@@ -268,30 +377,18 @@ where
     where
         B: Into<Arc<Bot<Client>>>,
         U: Into<Arc<Update>>,
+        Client: Send + Sync + 'static,
+        PropagatorService: PropagateEvent<Client>,
     {
-        let update: Arc<Update> = update.into();
-
-        let update_type = match update.as_ref().try_into() {
-            Ok(update_type) => update_type,
-            Err(err) => {
-                log::error!("{err}");
-
-                return Err(err);
-            }
-        };
-
-        Ok(self
-            .main_router
-            .propagate_event(update_type, Request::new(bot, update, Context::default()))
-            .await)
+        self.feed_update_with_context(bot, update, Context::default())
+            .await
     }
 
-    /// Main entry point for incoming updates with user context
+    /// Main entry point for incoming updates with user context.
+    /// This method will propagate update to the main router.
     /// # Errors
-    /// Returns [`UnknownUpdateTypeError`] if update type is not supported, or [`EventErrorKind`] if any of this error occurs:
-    /// - If any outer middleware returns error
-    /// - If any inner middleware returns error
-    /// - If any handler returns error. Probably it's error to extract args to the handler.
+    /// - [`UnknownUpdateTypeError`] if update type is unknown
+    /// - [`EventErrorKind`] if propagation event returns error
     pub async fn feed_update_with_context<B, U, C>(
         self: Arc<Self>,
         bot: B,
@@ -302,6 +399,8 @@ where
         B: Into<Arc<Bot<Client>>>,
         U: Into<Arc<Update>>,
         C: Into<Arc<Context>>,
+        Client: Send + Sync + 'static,
+        PropagatorService: PropagateEvent<Client>,
     {
         let update: Arc<Update> = update.into();
 
@@ -320,9 +419,8 @@ where
             .await)
     }
 
-    /// Endless updates reader with correctly handling any server-side or connection errors.
-    /// So you may not worry that the polling will stop working.
-    /// We use exponential backoff algorithm for handling server-side errors.
+    /// Start listening updates for the bot.
+    /// [`Update`] is sent to the [`Sender`] channel.
     /// # Errors
     /// If sender channel is disconnected
     async fn listen_updates<T, I>(
@@ -335,6 +433,7 @@ where
     where
         T: Into<String>,
         I: IntoIterator<Item = T>,
+        Client: Session,
     {
         let mut method = GetUpdates::new()
             .limit(GET_UPDATES_SIZE)
@@ -394,13 +493,16 @@ where
         }
     }
 
-    /// Internal polling process
-    ///
-    /// It will create a channel for sending updates and spawn a task for listening updates. \
-    /// Wait for exit signal, which will stop polling process.
+    /// Internal polling process.
+    /// Start listening updates for the bot and propagate them to the main router.
+    /// Wait exit signal to stop polling.
     /// # Panics
     /// If failed to register exit signal handlers
-    async fn polling(self: Arc<Self>, bot: Bot<Client>) -> PollingError {
+    async fn polling(self: Arc<Self>, bot: Bot<Client>) -> PollingError
+    where
+        Client: Session + 'static,
+        PropagatorService: PropagateEvent<Client> + 'static,
+    {
         let bot = Arc::new(bot);
 
         let (sender_update, mut receiver_update) =
@@ -488,20 +590,19 @@ where
             unimplemented!("Exit signals of this platform are not supported");
         }
     }
-}
 
-impl<Client> DispatcherInner<Client>
-where
-    Client: Session + Clone + 'static,
-{
     /// External polling process runner for multiple bots and emit startup and shutdown observers
     /// # Errors
     /// - If any startup observer returns error
     /// - If any shutdown observer returns error
     /// # Panics
-    /// - If `bots` is empty
     /// - If failed to register exit signal handlers
-    pub async fn run_polling(self: Arc<Self>) -> Result<(), EventErrorKind> {
+    /// - If bots is empty
+    pub async fn run_polling(self: Arc<Self>) -> Result<(), EventErrorKind>
+    where
+        Client: Session + Clone + 'static,
+        PropagatorService: PropagateEvent<Client> + 'static,
+    {
         if let Err(err) = self.main_router.emit_startup().await {
             log::error!("Error while emit startup: {err}");
 
@@ -520,12 +621,19 @@ where
 
     /// External polling process runner for multiple bots
     /// # Panics
-    /// If `bots` is empty
-    pub async fn run_polling_without_startup_and_shutdown(self: Arc<Self>) {
+    /// If bots is empty
+    pub async fn run_polling_without_startup_and_shutdown(self: Arc<Self>)
+    where
+        Client: Session + Clone + 'static,
+        PropagatorService: PropagateEvent<Client> + 'static,
+    {
         let bots = self.bots.clone();
         let bots_len = bots.len();
 
-        assert_ne!(bots_len, 0);
+        assert!(
+            bots_len < 1,
+            "You must add at least one bot to the dispatcher"
+        );
 
         let mut handles = Vec::with_capacity(bots_len);
         for bot in bots {
@@ -548,30 +656,32 @@ where
             log::warn!("Polling is finished for all bots");
         }
     }
-}
 
-impl<Client> DispatcherInner<Client> {
-    /// Emit startup events
-    ///
+    /// Emit startup events.
     /// Use this method if you want to emit startup events manually
     /// # Notes
     /// This method is called automatically in `run_polling` method,
     /// but not in `run_polling_without_startup_and_shutdown` method
     /// # Errors
     /// If any startup observer returns error
-    pub async fn emit_startup(&self) -> SimpleHandlerResult {
+    pub async fn emit_startup(&self) -> SimpleHandlerResult
+    where
+        PropagatorService: PropagateEvent<Client>,
+    {
         self.main_router.emit_startup().await
     }
 
-    /// Emit shutdown events
-    ///
+    /// Emit shutdown events.
     /// Use this method if you want to emit shutdown events manually
     /// # Notes
     /// This method is called automatically in `run_polling` method,
     /// but not in `run_polling_without_startup_and_shutdown` method
     /// # Errors
     /// If any shutdown observer returns error
-    pub async fn emit_shutdown(&self) -> SimpleHandlerResult {
+    pub async fn emit_shutdown(&self) -> SimpleHandlerResult
+    where
+        PropagatorService: PropagateEvent<Client>,
+    {
         self.main_router.emit_shutdown().await
     }
 }
@@ -583,6 +693,7 @@ mod tests {
         client::Reqwest,
         enums::UpdateType,
         event::bases::{EventReturn, PropagateEventResult},
+        router::Router,
         types::Message,
     };
 
