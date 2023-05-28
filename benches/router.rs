@@ -4,7 +4,7 @@ use telers::{
     enums::UpdateType,
     event::{telegram::HandlerRequest, EventReturn, ToServiceProvider as _},
     middlewares::inner::Next,
-    router::{Request, RouterInner},
+    router::{PropagateEvent as _, Request, RouterInner},
     types::{CallbackQuery, Message, Update},
     Bot, Context, Router,
 };
