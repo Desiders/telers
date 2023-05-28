@@ -1,15 +1,12 @@
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use telers::{
-    client::{Bot, Reqwest},
-    context::Context,
-    dispatcher::{
-        event::{telegram::HandlerRequest, EventReturn, ToServiceProvider as _},
-        middlewares::inner::Next,
-        router::{Request, RouterInner},
-        Router,
-    },
+    client::Reqwest,
     enums::UpdateType,
+    event::{telegram::HandlerRequest, EventReturn, ToServiceProvider as _},
+    middlewares::inner::Next,
+    router::{Request, RouterInner},
     types::{CallbackQuery, Message, Update},
+    Bot, Context, Router,
 };
 use tokio::runtime::Builder;
 
