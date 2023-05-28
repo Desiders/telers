@@ -36,24 +36,7 @@ enum PollingError {
     Aborted,
 }
 
-/// Dispatcher using to dispatch incoming updates to the routers
-/// # Arguments
-/// * `main_router` -
-/// Main router, whose service will propagate updates to the other routers and its observers
-/// * `bots` -
-/// Bots that will be used for getting updates and sending requests.
-/// All bots use the same dispatcher, but each bot has the own polling process.
-/// Polling process gets updates and propagates them to the main propagator.
-/// * `polling_timeout` -
-/// Timeout in seconds for long polling
-/// * `backoff` -
-/// Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
-/// and set timeout between requests to telegram server
-/// * `allowed_updates` -
-/// List the types of updates you want your bot to receive.
-/// For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types.
-/// See [`crate::enums::UpdateType`] for a complete list of available update types.
-/// By default, all update types except [`crate::enums::UpdateType::ChatMember`] are enabled.
+/// Dispatcher using to dispatch incoming updates to the main router
 pub struct Dispatcher<Client, Propagator> {
     main_router: Propagator,
     bots: Vec<Bot<Client>>,
@@ -134,24 +117,6 @@ where
     }
 }
 
-/// Dispatcher builder
-/// # Arguments
-/// * `main_router` -
-/// Main router, whose service will propagate updates to the other routers and its observers
-/// * `bots` -
-/// Bots that will be used for getting updates and sending requests.
-/// All bots use the same dispatcher, but each bot has the own polling process.
-/// Polling process gets updates and propagates them to the main propagator.
-/// * `polling_timeout` -
-/// Timeout in seconds for long polling
-/// * `backoff` -
-/// Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
-/// and set timeout between requests to telegram server
-/// * `allowed_updates` -
-/// List the types of updates you want your bot to receive.
-/// For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types.
-/// See [`crate::enums::UpdateType`] for a complete list of available update types.
-/// By default, all update types except [`crate::enums::UpdateType::ChatMember`] are enabled.
 #[allow(clippy::module_name_repetitions)]
 pub struct DispatcherBuilder<Client, Propagator> {
     main_router: Propagator,
