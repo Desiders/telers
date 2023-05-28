@@ -308,7 +308,7 @@ where
     /// # Warning
     /// You shouldn't count on the fact that the middlewares of this router will be registered to the sub routers
     /// immediately after calling this method. This implementation detail that can be changed in the future.
-    /// Right now, middlewares registers to the sub routers when the router is converts to the [`RouterInner`]
+    /// Right now, middlewares registers to the sub routers when the router is converts to the [`RouterService`]
     /// by calls `Router::to_service_provider` method.
     pub fn include_router(&mut self, router: impl Into<Router<Client>>) -> &mut Self {
         self.sub_routers.push(router.into());
@@ -325,7 +325,7 @@ where
     /// # Warning
     /// You shouldn't count on the fact that the middlewares of this router will be registered to the sub routers
     /// immediately after calling this method. This implementation detail that can be changed in the future.
-    /// Right now, middlewares registers to the sub routers when the router is converts to the [`RouterInner`]
+    /// Right now, middlewares registers to the sub routers when the router is converts to the [`RouterService`]
     /// by calls `Router::to_service_provider` method.
     pub fn include(&mut self, router: impl Into<Router<Client>>) -> &mut Self {
         self.include_router(router)
@@ -465,7 +465,7 @@ where
     Client: Send + Sync + 'static,
 {
     type Config = Config<Client>;
-    type ServiceProvider = RouterInner<Client>;
+    type ServiceProvider = RouterService<Client>;
     type InitError = ();
 
     fn to_service_provider(
@@ -545,7 +545,7 @@ where
         // Clear outer middlewares from the config, because they don't need for sub routers
         config.outer_middlewares.clear();
 
-        Ok(RouterInner {
+        Ok(RouterService {
             router_name: self.router_name,
             sub_routers: self
                 .sub_routers
@@ -574,9 +574,9 @@ where
 }
 
 #[allow(clippy::module_name_repetitions)]
-pub struct RouterInner<Client> {
+pub struct RouterService<Client> {
     router_name: &'static str,
-    sub_routers: Vec<RouterInner<Client>>,
+    sub_routers: Vec<RouterService<Client>>,
 
     message: TelegramObserverInner<Client>,
     edited_message: TelegramObserverInner<Client>,
@@ -598,10 +598,10 @@ pub struct RouterInner<Client> {
     shutdown: SimpleObserverInner,
 }
 
-impl<Client> ServiceProvider for RouterInner<Client> {}
+impl<Client> ServiceProvider for RouterService<Client> {}
 
 #[async_trait]
-impl<Client> PropagateEvent<Client> for RouterInner<Client> {
+impl<Client> PropagateEvent<Client> for RouterService<Client> {
     async fn propagate_event(
         &self,
         update_type: UpdateType,
@@ -766,7 +766,7 @@ impl<Client> PropagateEvent<Client> for RouterInner<Client> {
     }
 }
 
-impl<Client> RouterInner<Client> {
+impl<Client> RouterService<Client> {
     #[must_use]
     pub const fn telegram_observers(&self) -> [&TelegramObserverInner<Client>; 15] {
         [
@@ -817,7 +817,7 @@ impl<Client> RouterInner<Client> {
     }
 }
 
-impl<Client> Debug for RouterInner<Client> {
+impl<Client> Debug for RouterService<Client> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Router")
             .field("router_name", &self.router_name)

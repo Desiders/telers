@@ -4,7 +4,7 @@ use telers::{
     enums::UpdateType,
     event::{telegram::HandlerRequest, EventReturn, ToServiceProvider as _},
     middlewares::inner::Next,
-    router::{PropagateEvent as _, Request, RouterInner},
+    router::{PropagateEvent as _, Request, RouterService},
     types::{CallbackQuery, Message, Update},
     Bot, Context, Router,
 };
@@ -12,7 +12,7 @@ use tokio::runtime::Builder;
 
 fn propagate_event_benchmark(c: &mut Criterion) {
     async fn propagate_event<Client>(
-        router_service: &RouterInner<Client>,
+        router_service: &RouterService<Client>,
         request: Request<Client>,
         update_type: UpdateType,
     ) where

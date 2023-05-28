@@ -285,7 +285,7 @@ impl<Client, Propagator> DispatcherBuilder<Client, Propagator> {
     }
 }
 
-/// This converts all dependencies to [`ServiceProvider`] and creates [`Arc<DispatcherInner>`]
+/// This converts all dependencies to [`ServiceProvider`] and creates [`Arc<DispatcherService>`]
 /// that contains converted [`ServiceProvider`]s.
 impl<Client, PropagatorService, Propagator, Cfg, InitPropagatorServiceError> ToServiceProvider
     for Dispatcher<Client, Propagator>
@@ -298,7 +298,7 @@ where
     >,
 {
     type Config = Cfg;
-    type ServiceProvider = Arc<DispatcherInner<Client, PropagatorService>>;
+    type ServiceProvider = Arc<DispatcherService<Client, PropagatorService>>;
     type InitError = InitPropagatorServiceError;
 
     fn to_service_provider(
@@ -307,7 +307,7 @@ where
     ) -> Result<Self::ServiceProvider, Self::InitError> {
         let main_router = self.main_router.to_service_provider(config)?;
 
-        Ok(Arc::new(DispatcherInner {
+        Ok(Arc::new(DispatcherService {
             main_router,
             bots: self.bots,
             polling_timeout: self.polling_timeout,
@@ -318,7 +318,7 @@ where
 }
 
 #[allow(clippy::module_name_repetitions)]
-pub struct DispatcherInner<Client, PropagatorService> {
+pub struct DispatcherService<Client, PropagatorService> {
     main_router: PropagatorService,
     bots: Vec<Bot<Client>>,
     polling_timeout: Option<i64>,
@@ -326,9 +326,9 @@ pub struct DispatcherInner<Client, PropagatorService> {
     allowed_updates: Vec<String>,
 }
 
-impl<Client, PropagatorService> ServiceProvider for DispatcherInner<Client, PropagatorService> {}
+impl<Client, PropagatorService> ServiceProvider for DispatcherService<Client, PropagatorService> {}
 
-impl<Client, PropagatorService> DispatcherInner<Client, PropagatorService> {
+impl<Client, PropagatorService> DispatcherService<Client, PropagatorService> {
     /// Main entry point for incoming updates.
     /// This method will propagate update to the main router.
     /// # Errors
