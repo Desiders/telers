@@ -20,6 +20,8 @@ pub struct SetChatPermissions {
     pub chat_id: ChatIdKind,
     /// A JSON-serialized object for new default chat permissions
     pub permissions: ChatPermissions,
+    /// Pass `True` if chat permissions are set independently. Otherwise, the `can_send_other_messages` and `can_add_web_page_previews` permissions will imply the `can_send_messages`, `can_send_audios`, `can_send_documents`, `can_send_photos`, `can_send_videos`, `can_send_video_notes`, and `can_send_voice_notes` permissions; the `can_send_polls` permission will imply the `can_send_messages` permission.
+    pub use_independent_chat_permissions: Option<bool>,
 }
 
 impl SetChatPermissions {
@@ -28,6 +30,7 @@ impl SetChatPermissions {
         Self {
             chat_id: chat_id.into(),
             permissions,
+            use_independent_chat_permissions: None,
         }
     }
 
@@ -43,6 +46,24 @@ impl SetChatPermissions {
     pub fn permissions(self, val: ChatPermissions) -> Self {
         Self {
             permissions: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn use_independent_chat_permissions(self, val: bool) -> Self {
+        Self {
+            use_independent_chat_permissions: Some(val),
+            ..self
+        }
+    }
+}
+
+impl SetChatPermissions {
+    #[must_use]
+    pub fn use_independent_chat_permissions_option(self, val: Option<bool>) -> Self {
+        Self {
+            use_independent_chat_permissions: val,
             ..self
         }
     }

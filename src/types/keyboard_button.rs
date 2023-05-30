@@ -1,4 +1,6 @@
-use super::{KeyboardButtonPollType, WebAppInfo};
+use super::{
+    KeyboardButtonPollType, KeyboardButtonRequestChat, KeyboardButtonRequestUser, WebAppInfo,
+};
 
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -15,6 +17,10 @@ use serde_with::skip_serializing_none;
 pub struct KeyboardButton {
     /// Text of the button. If none of the optional fields are used, it will be sent as a message when the button is pressed
     pub text: String,
+    /// If specified, pressing the button will open a list of suitable users. Tapping on any user will send their identifier to the bot in a `user_shared` service message. Available in private chats only.
+    pub request_user: Option<KeyboardButtonRequestUser>,
+    /// If specified, pressing the button will open a list of suitable chats. Tapping on a chat will send its identifier to the bot in a `chat_shared` service message. Available in private chats only.
+    pub request_chat: Option<KeyboardButtonRequestChat>,
     /// If `True`, the user's phone number will be sent as a contact when the button is pressed. Available in private chats only.
     pub request_contact: Option<bool>,
     /// If `True`, the user's current location will be sent when the button is pressed. Available in private chats only.
@@ -30,6 +36,8 @@ impl KeyboardButton {
     pub fn new(text: impl Into<String>) -> Self {
         Self {
             text: text.into(),
+            request_user: None,
+            request_chat: None,
             request_contact: None,
             request_location: None,
             request_poll: None,
@@ -41,6 +49,22 @@ impl KeyboardButton {
     pub fn text(self, val: impl Into<String>) -> Self {
         Self {
             text: val.into(),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn request_user(self, val: KeyboardButtonRequestUser) -> Self {
+        Self {
+            request_user: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn request_chat(self, val: KeyboardButtonRequestChat) -> Self {
+        Self {
+            request_chat: Some(val),
             ..self
         }
     }

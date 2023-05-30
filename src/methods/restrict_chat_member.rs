@@ -22,6 +22,8 @@ pub struct RestrictChatMember {
     pub user_id: i64,
     /// A JSON-serialized object for new user permissions
     pub permissions: ChatPermissions,
+    /// Pass `True` if chat permissions are set independently. Otherwise, the `can_send_other_messages` and `can_add_web_page_previews` permissions will imply the `can_send_messages`, `can_send_audios`, `can_send_documents`, `can_send_photos`, `can_send_videos`, `can_send_video_notes`, and `can_send_voice_notes` permissions; the `can_send_polls` permission will imply the `can_send_messages` permission.
+    pub use_independent_chat_permissions: Option<bool>,
     /// Date when restrictions will be lifted for the user, unix time. If user is restricted for more than 366 days or less than 30 seconds from the current time, they are considered to be restricted forever
     pub until_date: Option<i64>,
 }
@@ -33,6 +35,7 @@ impl RestrictChatMember {
             chat_id: chat_id.into(),
             user_id,
             permissions,
+            use_independent_chat_permissions: None,
             until_date: None,
         }
     }
@@ -62,6 +65,14 @@ impl RestrictChatMember {
     }
 
     #[must_use]
+    pub fn use_independent_chat_permissions(self, val: bool) -> Self {
+        Self {
+            use_independent_chat_permissions: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
     pub fn until_date(self, val: i64) -> Self {
         Self {
             until_date: Some(val),
@@ -71,6 +82,14 @@ impl RestrictChatMember {
 }
 
 impl RestrictChatMember {
+    #[must_use]
+    pub fn use_independent_chat_permissions_option(self, val: Option<bool>) -> Self {
+        Self {
+            use_independent_chat_permissions: val,
+            ..self
+        }
+    }
+
     #[must_use]
     pub fn until_date_option(self, val: Option<i64>) -> Self {
         Self {

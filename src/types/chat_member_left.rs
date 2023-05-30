@@ -4,7 +4,7 @@ use crate::enums::ChatMemberStatus;
 
 use serde::Deserialize;
 
-/// Represents a [`chat member`](https://core.telegram.org/bots/api#chatmember) that isn't currently a member of the chat, but may join it themselves.
+/// Represents a [`ChatMember`](crate::types::ChatMember) that isn't currently a member of the chat, but may join it themselves.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberleft>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]

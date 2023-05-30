@@ -4,7 +4,7 @@ use crate::enums::ChatMemberStatus;
 
 use serde::Deserialize;
 
-/// Represents a [`chat member`](https://core.telegram.org/bots/api#chatmember) that owns the chat and has all administrator privileges.
+/// Represents a [`ChatMember`](crate::types::ChatMember) that owns the chat and has all administrator privileges.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberowner>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]

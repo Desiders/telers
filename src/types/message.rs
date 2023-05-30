@@ -1,10 +1,11 @@
 use super::{
-    Animation, Audio, Chat, Contact, Dice, Document, ForumTopicClosed, ForumTopicCreated,
-    ForumTopicEdited, ForumTopicReopened, Game, GeneralForumTopicHidden, GeneralForumTopicUnhidden,
-    InlineKeyboardMarkup, Invoice, Location, MessageAutoDeleteTimerChanged, MessageEntity,
-    PassportData, PhotoSize, Poll, ProximityAlertTriggered, Sticker, SuccessfulPayment, Update,
-    User, Venue, Video, VideoChatEnded, VideoChatParticipantsInvited, VideoChatScheduled,
-    VideoChatStarted, VideoNote, Voice, WebAppData, WriteAccessAllowed,
+    Animation, Audio, Chat, ChatShared, Contact, Dice, Document, ForumTopicClosed,
+    ForumTopicCreated, ForumTopicEdited, ForumTopicReopened, Game, GeneralForumTopicHidden,
+    GeneralForumTopicUnhidden, InlineKeyboardMarkup, Invoice, Location,
+    MessageAutoDeleteTimerChanged, MessageEntity, PassportData, PhotoSize, Poll,
+    ProximityAlertTriggered, Sticker, SuccessfulPayment, Update, User, UserShared, Venue, Video,
+    VideoChatEnded, VideoChatParticipantsInvited, VideoChatScheduled, VideoChatStarted, VideoNote,
+    Voice, WebAppData, WriteAccessAllowed,
 };
 
 use crate::{enums::ContentType, error::ConvertUpdateToTypeError};
@@ -122,6 +123,10 @@ pub struct Message {
     pub invoice: Option<Invoice>,
     /// Message is a service message about a successful payment, information about the payment. [`More about payments`](https://core.telegram.org/bots/api#payments)
     pub successful_payment: Option<SuccessfulPayment>,
+    /// Service message: a user was shared with the bot
+    pub user_shared: Option<UserShared>,
+    /// Service message: a chat was shared with the bot
+    pub chat_shared: Option<ChatShared>,
     /// The domain name of the website on which the user has logged in. [`More about Telegram Login`](https://core.telegram.org/widgets/login)
     pub connected_website: Option<String>,
     /// Service message: the user allowed the bot added to the attachment menu to write messages
@@ -220,6 +225,10 @@ impl Message {
             ContentType::Invoice
         } else if self.successful_payment.is_some() {
             ContentType::SuccessfulPayment
+        } else if self.user_shared.is_some() {
+            ContentType::UserShared
+        } else if self.chat_shared.is_some() {
+            ContentType::ChatShared
         } else if self.connected_website.is_some() {
             ContentType::ConnectedWebsite
         } else if self.write_access_allowed.is_some() {

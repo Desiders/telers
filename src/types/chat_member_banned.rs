@@ -4,7 +4,7 @@ use crate::enums::ChatMemberStatus;
 
 use serde::Deserialize;
 
-/// Represents a [`chat member`](https://core.telegram.org/bots/api#chatmember) that was banned in the chat and can't return to the chat or view chat messages.
+/// Represents a [`ChatMember`](crate::types::ChatMember) that was banned in the chat and can't return to the chat or view chat messages.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberbanned>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]

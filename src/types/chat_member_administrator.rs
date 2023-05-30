@@ -4,7 +4,7 @@ use crate::enums::ChatMemberStatus;
 
 use serde::Deserialize;
 
-/// Represents a [`chat member`](https://core.telegram.org/bots/api#chatmember) that has some additional privileges.
+/// Represents a [`ChatMember`](crate::types::ChatMember) that has some additional privileges.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberadministrator>
 #[allow(clippy::struct_excessive_bools)]
