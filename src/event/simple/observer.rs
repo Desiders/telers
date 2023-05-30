@@ -68,7 +68,7 @@ impl AsRef<Observer> for Observer {
 
 impl ToServiceProvider for Observer {
     type Config = ();
-    type ServiceProvider = ObserverInner;
+    type ServiceProvider = ObserverService;
     type InitError = ();
 
     fn to_service_provider(
@@ -82,29 +82,29 @@ impl ToServiceProvider for Observer {
             .map(|handler| handler.new_service(config))
             .collect::<Result<_, _>>()?;
 
-        Ok(ObserverInner {
+        Ok(ObserverService {
             event_name,
             handlers,
         })
     }
 }
 
-pub struct ObserverInner {
+pub struct ObserverService {
     event_name: &'static str,
     handlers: Vec<HandlerObjectService>,
 }
 
-impl Debug for ObserverInner {
+impl Debug for ObserverService {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.debug_struct("ObserverInner")
+        f.debug_struct("ObserverService")
             .field("event_name", &self.event_name)
             .finish()
     }
 }
 
-impl ServiceProvider for ObserverInner {}
+impl ServiceProvider for ObserverService {}
 
-impl ObserverInner {
+impl ObserverService {
     /// Propagate event to handlers
     ///
     /// If any handler returns error, then propagation will be stopped and error will be returned.

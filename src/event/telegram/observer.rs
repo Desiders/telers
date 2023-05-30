@@ -186,7 +186,7 @@ impl<Client> AsRef<Observer<Client>> for Observer<Client> {
 
 impl<Client> ToServiceProvider for Observer<Client> {
     type Config = ();
-    type ServiceProvider = ObserverInner<Client>;
+    type ServiceProvider = ObserverService<Client>;
     type InitError = ();
 
     fn to_service_provider(
@@ -203,7 +203,7 @@ impl<Client> ToServiceProvider for Observer<Client> {
         let inner_middlewares = self.inner_middlewares.middlewares.clone();
         let outer_middlewares = self.outer_middlewares.middlewares.clone();
 
-        Ok(ObserverInner {
+        Ok(ObserverService {
             event_name,
             handlers,
             common,
@@ -214,7 +214,7 @@ impl<Client> ToServiceProvider for Observer<Client> {
 }
 
 #[allow(clippy::module_name_repetitions)]
-pub struct ObserverInner<Client> {
+pub struct ObserverService<Client> {
     pub(crate) event_name: &'static str,
 
     handlers: Vec<HandlerObjectService<Client>>,
@@ -224,9 +224,9 @@ pub struct ObserverInner<Client> {
     pub(crate) outer_middlewares: OuterMiddlewares<Client>,
 }
 
-impl<Client> ServiceProvider for ObserverInner<Client> {}
+impl<Client> ServiceProvider for ObserverService<Client> {}
 
-impl<Client> ObserverInner<Client>
+impl<Client> ObserverService<Client>
 where
     Client: Send + Sync + 'static,
 {
@@ -288,9 +288,9 @@ where
     }
 }
 
-impl<Client> Debug for ObserverInner<Client> {
+impl<Client> Debug for ObserverService<Client> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.debug_struct("ObserverInner")
+        f.debug_struct("ObserverService")
             .field("event_name", &self.event_name)
             .finish()
     }

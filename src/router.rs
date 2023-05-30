@@ -11,10 +11,10 @@ use crate::{
         service::{ServiceProvider, ToServiceProvider},
         simple::{
             handler::Result as SimpleHandlerResult,
-            observer::{Observer as SimpleObserver, ObserverInner as SimpleObserverInner},
+            observer::{Observer as SimpleObserver, ObserverService as SimpleObserverService},
         },
         telegram::observer::{
-            Observer as TelegramObserver, ObserverInner as TelegramObserverInner,
+            Observer as TelegramObserver, ObserverService as TelegramObserverService,
             Request as TelegramObserverRequest,
         },
     },
@@ -578,24 +578,24 @@ pub struct RouterService<Client> {
     router_name: &'static str,
     sub_routers: Vec<RouterService<Client>>,
 
-    message: TelegramObserverInner<Client>,
-    edited_message: TelegramObserverInner<Client>,
-    channel_post: TelegramObserverInner<Client>,
-    edited_channel_post: TelegramObserverInner<Client>,
-    inline_query: TelegramObserverInner<Client>,
-    chosen_inline_result: TelegramObserverInner<Client>,
-    callback_query: TelegramObserverInner<Client>,
-    shipping_query: TelegramObserverInner<Client>,
-    pre_checkout_query: TelegramObserverInner<Client>,
-    poll: TelegramObserverInner<Client>,
-    poll_answer: TelegramObserverInner<Client>,
-    my_chat_member: TelegramObserverInner<Client>,
-    chat_member: TelegramObserverInner<Client>,
-    chat_join_request: TelegramObserverInner<Client>,
-    update: TelegramObserverInner<Client>,
+    message: TelegramObserverService<Client>,
+    edited_message: TelegramObserverService<Client>,
+    channel_post: TelegramObserverService<Client>,
+    edited_channel_post: TelegramObserverService<Client>,
+    inline_query: TelegramObserverService<Client>,
+    chosen_inline_result: TelegramObserverService<Client>,
+    callback_query: TelegramObserverService<Client>,
+    shipping_query: TelegramObserverService<Client>,
+    pre_checkout_query: TelegramObserverService<Client>,
+    poll: TelegramObserverService<Client>,
+    poll_answer: TelegramObserverService<Client>,
+    my_chat_member: TelegramObserverService<Client>,
+    chat_member: TelegramObserverService<Client>,
+    chat_join_request: TelegramObserverService<Client>,
+    update: TelegramObserverService<Client>,
 
-    startup: SimpleObserverInner,
-    shutdown: SimpleObserverInner,
+    startup: SimpleObserverService,
+    shutdown: SimpleObserverService,
 }
 
 impl<Client> ServiceProvider for RouterService<Client> {}
@@ -768,7 +768,7 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
 
 impl<Client> RouterService<Client> {
     #[must_use]
-    pub const fn telegram_observers(&self) -> [&TelegramObserverInner<Client>; 15] {
+    pub const fn telegram_observers(&self) -> [&TelegramObserverService<Client>; 15] {
         [
             &self.message,
             &self.edited_message,
@@ -789,7 +789,7 @@ impl<Client> RouterService<Client> {
     }
 
     #[must_use]
-    pub const fn event_observers(&self) -> [&SimpleObserverInner; 2] {
+    pub const fn event_observers(&self) -> [&SimpleObserverService; 2] {
         [&self.startup, &self.shutdown]
     }
 
@@ -797,7 +797,7 @@ impl<Client> RouterService<Client> {
     pub const fn telegram_observer_by_update_type(
         &self,
         update_type: UpdateType,
-    ) -> &TelegramObserverInner<Client> {
+    ) -> &TelegramObserverService<Client> {
         match update_type {
             UpdateType::Message => &self.message,
             UpdateType::EditedMessage => &self.edited_message,
