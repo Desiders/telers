@@ -50,9 +50,6 @@ pub struct DefaultKeyBuilder {
     separator: &'static str,
     with_bot_id: bool,
     with_destiny: bool,
-
-    /// Capacity of parts, used to pre-allocate memory
-    parts_capacity: usize,
 }
 
 impl DefaultKeyBuilder {
@@ -68,16 +65,6 @@ impl DefaultKeyBuilder {
             separator,
             with_bot_id,
             with_destiny,
-            parts_capacity: {
-                let mut count = 4;
-                if with_destiny {
-                    count += 1;
-                }
-                if with_bot_id {
-                    count += 1;
-                }
-                count
-            },
         }
     }
 }
@@ -94,8 +81,11 @@ impl KeyBuilder for DefaultKeyBuilder {
         let bot_id = key.bot_id.to_string();
         let chat_id = key.chat_id.to_string();
         let user_id = key.user_id.to_string();
+        let message_thread_id = key
+            .message_thread_id
+            .map(|message_thread_id| message_thread_id.to_string());
 
-        let mut parts = Vec::with_capacity(self.parts_capacity);
+        let mut parts = vec![];
 
         parts.push(self.prefix);
         if self.with_destiny {
@@ -106,6 +96,9 @@ impl KeyBuilder for DefaultKeyBuilder {
         }
 
         parts.push(&chat_id);
+        if let Some(message_thread_id) = &message_thread_id {
+            parts.push(message_thread_id);
+        }
         parts.push(&user_id);
         parts.push(part.as_str());
 

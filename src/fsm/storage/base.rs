@@ -13,16 +13,18 @@ pub struct StorageKey {
     pub bot_id: i64,
     pub chat_id: i64,
     pub user_id: i64,
+    pub message_thread_id: Option<i64>,
     pub destiny: &'static str,
 }
 
 impl StorageKey {
     #[must_use]
-    pub fn new(bot_id: i64, chat_id: i64, user_id: i64) -> Self {
+    pub fn new(bot_id: i64, chat_id: i64, user_id: i64, message_thread_id: Option<i64>) -> Self {
         Self {
             bot_id,
             chat_id,
             user_id,
+            message_thread_id,
             destiny: DEFAULT_DESTINY,
         }
     }

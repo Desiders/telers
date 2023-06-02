@@ -36,6 +36,10 @@ where
             context.insert("event_chat", Box::new(chat.clone()));
         }
 
+        if let Some(message_thread_id) = update.message_thread_id() {
+            context.insert("event_message_thread_id", Box::new(message_thread_id));
+        }
+
         Ok((request, EventReturn::default()))
     }
 }
@@ -60,6 +64,7 @@ mod tests {
         let context = Context::new();
         let update = Update {
             message: Some(Message {
+                message_thread_id: Some(1),
                 chat: Box::new(Chat::default()),
                 from: Some(User::default()),
                 ..Default::default()
@@ -82,6 +87,11 @@ mod tests {
                 .get("event_chat")
                 .unwrap()
                 .downcast_ref::<Chat>()
+                .unwrap();
+            context
+                .get("event_message_thread_id")
+                .unwrap()
+                .downcast_ref::<i64>()
                 .unwrap();
 
             Ok(EventReturn::default())
@@ -120,6 +130,12 @@ mod tests {
                 .get("event_chat")
                 .unwrap()
                 .downcast_ref::<Chat>()
+                .unwrap();
+            // This should panic, because update doesn't contain message thread id
+            context
+                .get("event_message_thread_id")
+                .unwrap()
+                .downcast_ref::<i64>()
                 .unwrap();
 
             Ok(EventReturn::default())

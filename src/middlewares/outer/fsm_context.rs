@@ -71,11 +71,14 @@ where
     fn resolve_event_context(&self, bot_id: i64, context: &RequestContext) -> Option<Context<S>> {
         let user = context.get("event_user");
         let chat = context.get("event_chat");
+        let message_thread_id = context.get("event_message_message_thread_id");
 
         let user_id = user.and_then(|user| user.downcast_ref().map(|user: &User| user.id));
         let chat_id = chat.and_then(|user| user.downcast_ref().map(|chat: &User| chat.id));
+        let message_thread_id = message_thread_id
+            .and_then(|message_thread_id| message_thread_id.downcast_ref().copied());
 
-        self.resolve_context(bot_id, chat_id, user_id)
+        self.resolve_context(bot_id, chat_id, user_id, message_thread_id)
     }
 
     #[must_use]
@@ -84,22 +87,37 @@ where
         bot_id: i64,
         chat_id: Option<i64>,
         user_id: Option<i64>,
+        message_thread_id: Option<i64>,
     ) -> Option<Context<S>> {
         user_id.map(|user_id| {
-            let id_pair = self.strategy.apply(chat_id.unwrap_or(user_id), user_id);
+            let id_pair =
+                self.strategy
+                    .apply(chat_id.unwrap_or(user_id), user_id, message_thread_id);
 
-            self.get_context(bot_id, id_pair.chat_id, id_pair.user_id)
+            self.get_context(
+                bot_id,
+                id_pair.chat_id,
+                id_pair.user_id,
+                id_pair.message_thread_id,
+            )
         })
     }
 
     #[must_use]
-    fn get_context(&self, bot_id: i64, chat_id: i64, user_id: i64) -> Context<S> {
+    fn get_context(
+        &self,
+        bot_id: i64,
+        chat_id: i64,
+        user_id: i64,
+        message_thread_id: Option<i64>,
+    ) -> Context<S> {
         Context::new(
             self.storage.clone(),
             StorageKey {
                 bot_id,
                 chat_id,
                 user_id,
+                message_thread_id,
                 destiny: self.destiny,
             },
         )

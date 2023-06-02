@@ -15,6 +15,8 @@ pub enum Strategy {
     Chat,
     /// `user_id` + `user_id`
     GlobalUser,
+    /// `user_id` + `chat_id` + `message_thread_id`
+    UserInThread,
 }
 
 impl Debug for Strategy {
@@ -36,30 +38,41 @@ impl Strategy {
             Strategy::UserInChat => "user_in_chat",
             Strategy::Chat => "chat",
             Strategy::GlobalUser => "global_user",
+            Strategy::UserInThread => "user_in_thread",
         }
     }
 }
 
-/// Chat and user id pair.
-/// This struct is used to store `chat_id` and `chat_id` pair, that can be equal in some cases.
 pub struct IdPair {
     pub chat_id: i64,
     pub user_id: i64,
+    pub message_thread_id: Option<i64>,
 }
 
 impl Strategy {
-    /// Apply strategy to `chat_id` and `user_id`
+    /// Apply strategy to `chat_id`, `user_id` and `message_thread_id`
     #[must_use]
-    pub fn apply(&self, chat_id: i64, user_id: i64) -> IdPair {
+    pub fn apply(&self, chat_id: i64, user_id: i64, message_thread_id: Option<i64>) -> IdPair {
         match self {
-            Strategy::UserInChat => IdPair { chat_id, user_id },
+            Strategy::UserInChat => IdPair {
+                chat_id,
+                user_id,
+                message_thread_id: None,
+            },
             Strategy::Chat => IdPair {
                 chat_id,
                 user_id: chat_id,
+                message_thread_id: None,
             },
             Strategy::GlobalUser => IdPair {
                 chat_id: user_id,
                 user_id,
+                message_thread_id: None,
+            },
+            Strategy::UserInThread => IdPair {
+                chat_id,
+                user_id,
+                message_thread_id,
             },
         }
     }
