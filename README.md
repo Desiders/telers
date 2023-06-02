@@ -12,14 +12,14 @@ An asynchronous framework for Telegram Bot API written in Rust
 
 <b>Telers make it easy to create Telegram bots</b> in Rust.
 
-Make sure you have a basic understanding of the [Telegram Bot API](https://core.telegram.org/bots/api) before you start.
+Make sure you have a basic understanding of the [Telegram Bot API](https://core.telegram.org/bots/api) before you start, because **all types and methods in telers have the same fields and types as in Telegram Bot API**.
 
 ## Highlights
  - **Asynchronous**. Telers is built on top of [Tokio](https://tokio.rs/), a powerful asynchronous runtime for Rust.
  - **Easy to use**. Telers provides a simple and intuitive API to create Telegram bots.
  - **Based on** [aiogram](https://github.com/aiogram/aiogram). Telers is inspired by [aiogram](https://github.com/aiogram/aiogram), a Python framework for Telegram Bot API. Telers tries to provide the same API as aiogram, so if you know aiogram, you can easily start using this framework.
  - **Middlewares**, **Filters** and **Handlers**. Telers provides a powerful system of middlewares, filters and handlers. You can use middlewares to modify incoming/outgoing updates (logging, database connections, etc.), filters to filter incoming updates and handlers to handle incoming updates.
- - **Powerful extractors**. Telers provides a powerful system of extractors. You can use extractors to extract data from incoming updates and context (middlewares, filters, etc.), and pass it to your handlers.
+ - **Powerful extractors**. Telers provides a simple system of extractors. You can use extractors to extract data from incoming updates and context (middlewares, filters, etc.), and pass it to your handlers directly.
  - **Multiple bots**. Telers allows you to create multiple bots in one application without any problems.
 
 ## Examples
