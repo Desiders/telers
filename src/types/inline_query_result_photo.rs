@@ -19,7 +19,7 @@ pub struct InlineQueryResultPhoto {
     /// A valid URL of the photo. Photo must be in **JPEG** format. Photo size must not exceed 5MB
     pub photo_url: String,
     /// URL of the thumbnail for the photo
-    pub thumb_url: String,
+    pub thumbnail_url: String,
     /// Width of the photo
     pub photo_width: Option<i64>,
     /// Height of the photo
@@ -45,12 +45,12 @@ impl InlineQueryResultPhoto {
     pub fn new(
         id: impl Into<String>,
         photo_url: impl Into<String>,
-        thumb_url: impl Into<String>,
+        thumbnail_url: impl Into<String>,
     ) -> Self {
         Self {
             id: id.into(),
             photo_url: photo_url.into(),
-            thumb_url: thumb_url.into(),
+            thumbnail_url: thumbnail_url.into(),
             ..Default::default()
         }
     }
@@ -72,9 +72,9 @@ impl InlineQueryResultPhoto {
     }
 
     #[must_use]
-    pub fn thumb_url(self, val: impl Into<String>) -> Self {
+    pub fn thumbnail_url(self, val: impl Into<String>) -> Self {
         Self {
-            thumb_url: val.into(),
+            thumbnail_url: val.into(),
             ..self
         }
     }
@@ -179,7 +179,7 @@ impl Default for InlineQueryResultPhoto {
             result_type: photo(),
             id: String::default(),
             photo_url: String::default(),
-            thumb_url: String::default(),
+            thumbnail_url: String::default(),
             photo_width: None,
             photo_height: None,
             title: None,

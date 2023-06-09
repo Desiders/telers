@@ -22,7 +22,7 @@ pub struct InlineQueryResultVideo {
     /// MIME type of the content of the video URL, 'text/html' or 'video/mp4'
     pub mime_type: String,
     /// URL of the thumbnail (JPEG only) for the video
-    pub thumb_url: String,
+    pub thumbnail_url: String,
     /// Title for the result
     pub title: String,
     /// Caption of the video to be sent, 0-1024 characters after entities parsing
@@ -51,14 +51,14 @@ impl InlineQueryResultVideo {
         id: impl Into<String>,
         video_url: impl Into<String>,
         mime_type: impl Into<String>,
-        thumb_url: impl Into<String>,
+        thumbnail_url: impl Into<String>,
         title: impl Into<String>,
     ) -> Self {
         Self {
             id: id.into(),
             video_url: video_url.into(),
             mime_type: mime_type.into(),
-            thumb_url: thumb_url.into(),
+            thumbnail_url: thumbnail_url.into(),
             title: title.into(),
             ..Default::default()
         }
@@ -89,9 +89,9 @@ impl InlineQueryResultVideo {
     }
 
     #[must_use]
-    pub fn thumb_url(self, val: impl Into<String>) -> Self {
+    pub fn thumbnail_url(self, val: impl Into<String>) -> Self {
         Self {
-            thumb_url: val.into(),
+            thumbnail_url: val.into(),
             ..self
         }
     }
@@ -205,7 +205,7 @@ impl Default for InlineQueryResultVideo {
             id: String::default(),
             video_url: String::default(),
             mime_type: String::default(),
-            thumb_url: String::default(),
+            thumbnail_url: String::default(),
             title: String::default(),
             caption: None,
             parse_mode: None,

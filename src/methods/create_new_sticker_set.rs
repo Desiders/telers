@@ -24,7 +24,7 @@ pub struct CreateNewStickerSet<'a> {
     pub stickers: Vec<InputSticker<'a>>,
     /// Format of stickers in the set, must be one of `static`, `animated`, `video`
     pub sticker_format: String,
-    /// Type of stickers in the set, pass `regular` or `mask`. Custom emoji sticker sets can't be created via the Bot API at the moment. By default, a regular sticker set is created.
+    /// Type of stickers in the set, pass `regular`, `mask` or `custom_emoji`. By default, a regular sticker set is created.
     pub sticker_type: Option<String>,
     /// Pass `True` if stickers in the sticker set must be repainted to the color of text when used in messages, the accent color if used as emoji status, white on chat photos, or another appropriate color based on context; for custom emoji sticker sets only
     pub needs_repainting: Option<bool>,

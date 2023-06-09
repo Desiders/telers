@@ -28,7 +28,7 @@ pub struct SendVideoNote<'a> {
     /// Video width and height, i.e. diameter of the video message
     pub length: Option<i64>,
     /// Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using `multipart/form-data`. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the thumbnail was uploaded using `multipart/form-data` under <file_attach_name>. [`More information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
-    pub thumb: Option<InputFile<'a>>,
+    pub thumbnail: Option<InputFile<'a>>,
     /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound
     pub disable_notification: Option<bool>,
     /// Protects the contents of the sent message from forwarding and saving
@@ -50,7 +50,7 @@ impl<'a> SendVideoNote<'a> {
             video_note: video_note.into(),
             duration: None,
             length: None,
-            thumb: None,
+            thumbnail: None,
             disable_notification: None,
             protect_content: None,
             reply_to_message_id: None,
@@ -102,7 +102,7 @@ impl<'a> SendVideoNote<'a> {
     #[must_use]
     pub fn thumb(self, val: impl Into<InputFile<'a>>) -> Self {
         Self {
-            thumb: Some(val.into()),
+            thumbnail: Some(val.into()),
             ..self
         }
     }
@@ -174,9 +174,9 @@ impl<'a> SendVideoNote<'a> {
     }
 
     #[must_use]
-    pub fn thumb_option(self, val: Option<impl Into<InputFile<'a>>>) -> Self {
+    pub fn thumbnail_option(self, val: Option<impl Into<InputFile<'a>>>) -> Self {
         Self {
-            thumb: val.map(Into::into),
+            thumbnail: val.map(Into::into),
             ..self
         }
     }
@@ -230,8 +230,8 @@ impl<'a> TelegramMethod for SendVideoNote<'a> {
         let mut files = HashMap::new();
         prepare_file_with_value(&mut files, &self.video_note, "video_note");
 
-        if let Some(file) = &self.thumb {
-            prepare_file_with_value(&mut files, file, "thumb");
+        if let Some(file) = &self.thumbnail {
+            prepare_file_with_value(&mut files, file, "thumbnail");
         }
 
         Request::new("sendVideoNote", self, Some(files))

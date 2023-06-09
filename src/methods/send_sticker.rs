@@ -23,6 +23,8 @@ pub struct SendSticker<'a> {
     pub message_thread_id: Option<i64>,
     /// Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .WEBP file from the Internet, or upload a new one using multipart/form-data. [More info on Sending Files »](https://core.telegram.org/bots/api#sending-files)
     pub sticker: InputFile<'a>,
+    /// Emoji associated with the sticker; only for just uploaded stickers
+    pub emoji: Option<String>,
     /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound
     pub disable_notification: Option<bool>,
     /// Protects the contents of the sent message from forwarding and saving
@@ -42,6 +44,7 @@ impl<'a> SendSticker<'a> {
             chat_id: chat_id.into(),
             message_thread_id: None,
             sticker: sticker.into(),
+            emoji: None,
             disable_notification: None,
             protect_content: None,
             reply_to_message_id: None,
@@ -70,6 +73,14 @@ impl<'a> SendSticker<'a> {
     pub fn sticker(self, val: impl Into<InputFile<'a>>) -> Self {
         Self {
             sticker: val.into(),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn emoji(self, val: impl Into<String>) -> Self {
+        Self {
+            emoji: Some(val.into()),
             ..self
         }
     }
@@ -120,6 +131,14 @@ impl<'a> SendSticker<'a> {
     pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
         Self {
             message_thread_id: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn emoji_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            emoji: val.map(Into::into),
             ..self
         }
     }

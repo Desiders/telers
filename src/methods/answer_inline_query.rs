@@ -1,6 +1,9 @@
 use super::base::{Request, TelegramMethod};
 
-use crate::{client::Bot, types::InlineQueryResult};
+use crate::{
+    client::Bot,
+    types::{InlineQueryResult, InlineQueryResultsButton},
+};
 
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -23,11 +26,8 @@ pub struct AnswerInlineQuery {
     pub is_personal: Option<bool>,
     /// Pass the offset that a client should send in the next query with the same text to receive more results. Pass an empty string if there are no more results or if you don‘t support pagination. Offset length can’t exceed 64 bytes.
     pub next_offset: Option<String>,
-    /// If passed, clients will display a button with specified text that switches the user to a private chat with the bot and sends the bot a start message with the parameter `switch_pm_parameter`
-    pub switch_pm_text: Option<String>,
-    /// [Deep-linking](https://core.telegram.org/bots/features#deep-linking) parameter for the /start message sent to the bot when user presses the switch button. 1-64 characters, only `A-Z`, `a-z`, `0-9`, `_` and `-` are allowed.
-    /// Example: An inline bot that sends YouTube videos can ask the user to connect the bot to their YouTube account to adapt search results accordingly. To do this, it displays a ‘Connect your YouTube account’ button above the results, or even before showing any. The user presses the button, switches to a private chat with the bot and, in doing so, passes a start parameter that instructs the bot to return an oauth link. Once done, the bot can offer a switch_inline button so that the user can easily return to the chat where they wanted to use the bot's inline capabilities.
-    pub switch_pm_parameter: Option<String>,
+    /// A JSON-serialized object describing a button to be shown above inline query results
+    pub button: Option<InlineQueryResultsButton>,
 }
 
 impl AnswerInlineQuery {
@@ -44,8 +44,7 @@ impl AnswerInlineQuery {
             cache_time: None,
             is_personal: None,
             next_offset: None,
-            switch_pm_text: None,
-            switch_pm_parameter: None,
+            button: None,
         }
     }
 
@@ -98,17 +97,9 @@ impl AnswerInlineQuery {
     }
 
     #[must_use]
-    pub fn switch_pm_text(self, val: impl Into<String>) -> Self {
+    pub fn button(self, val: InlineQueryResultsButton) -> Self {
         Self {
-            switch_pm_text: Some(val.into()),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn switch_pm_parameter(self, val: impl Into<String>) -> Self {
-        Self {
-            switch_pm_parameter: Some(val.into()),
+            button: Some(val),
             ..self
         }
     }
@@ -140,17 +131,9 @@ impl AnswerInlineQuery {
     }
 
     #[must_use]
-    pub fn switch_pm_text_option(self, val: Option<impl Into<String>>) -> Self {
+    pub fn button_option(self, val: Option<InlineQueryResultsButton>) -> Self {
         Self {
-            switch_pm_text: val.map(Into::into),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn switch_pm_parameter_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            switch_pm_parameter: val.map(Into::into),
+            button: val,
             ..self
         }
     }

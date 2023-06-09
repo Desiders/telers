@@ -18,7 +18,7 @@ pub struct Video {
     /// Duration of the video in seconds as defined by sender
     pub duration: i64,
     /// Video thumbnail
-    pub thumb: Option<PhotoSize>,
+    pub thumbnail: Option<PhotoSize>,
     /// Original filename as defined by sender
     pub file_name: Option<String>,
     /// MIME type of the file as defined by sender

@@ -30,7 +30,7 @@ pub struct SendVideo<'a> {
     /// Video height
     pub height: Option<i64>,
     /// Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using `multipart/form-data`. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the thumbnail was uploaded using `multipart/form-data` under <file_attach_name>. [`More information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
-    pub thumb: Option<InputFile<'a>>,
+    pub thumbnail: Option<InputFile<'a>>,
     /// Video caption (may also be used when resending videos by `file_id`), 0-1024 characters after entities parsing
     pub caption: Option<String>,
     /// Mode for parsing entities in the video caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
@@ -63,7 +63,7 @@ impl<'a> SendVideo<'a> {
             duration: None,
             width: None,
             height: None,
-            thumb: None,
+            thumbnail: None,
             caption: None,
             parse_mode: None,
             caption_entities: None,
@@ -128,7 +128,7 @@ impl<'a> SendVideo<'a> {
     #[must_use]
     pub fn thumb(self, val: impl Into<InputFile<'a>>) -> Self {
         Self {
-            thumb: Some(val.into()),
+            thumbnail: Some(val.into()),
             ..self
         }
     }
@@ -265,9 +265,9 @@ impl<'a> SendVideo<'a> {
     }
 
     #[must_use]
-    pub fn thumb_option(self, val: Option<impl Into<InputFile<'a>>>) -> Self {
+    pub fn thumbnail_option(self, val: Option<impl Into<InputFile<'a>>>) -> Self {
         Self {
-            thumb: val.map(Into::into),
+            thumbnail: val.map(Into::into),
             ..self
         }
     }
@@ -370,8 +370,8 @@ impl<'a> TelegramMethod for SendVideo<'a> {
         let mut files = HashMap::new();
         prepare_file_with_value(&mut files, &self.video, "video");
 
-        if let Some(file) = &self.thumb {
-            prepare_file_with_value(&mut files, file, "thumb");
+        if let Some(file) = &self.thumbnail {
+            prepare_file_with_value(&mut files, file, "thumbnail");
         }
 
         Request::new("sendVideo", self, Some(files))

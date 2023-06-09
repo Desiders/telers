@@ -37,11 +37,11 @@ pub struct InlineQueryResultLocation {
     /// Content of the message to be sent instead of the location
     pub input_message_content: Option<InputMessageContent>,
     /// Url of the thumbnail for the result
-    pub thumb_url: Option<String>,
+    pub thumbnail_url: Option<String>,
     /// Thumbnail width
-    pub thumb_width: Option<i64>,
+    pub thumbnail_width: Option<i64>,
     /// Thumbnail height
-    pub thumb_height: Option<i64>,
+    pub thumbnail_height: Option<i64>,
 }
 
 impl InlineQueryResultLocation {
@@ -142,25 +142,25 @@ impl InlineQueryResultLocation {
     }
 
     #[must_use]
-    pub fn thumb_url(self, val: impl Into<String>) -> Self {
+    pub fn thumbnail_url(self, val: impl Into<String>) -> Self {
         Self {
-            thumb_url: Some(val.into()),
+            thumbnail_url: Some(val.into()),
             ..self
         }
     }
 
     #[must_use]
-    pub fn thumb_width(self, val: i64) -> Self {
+    pub fn thumbnail_width(self, val: i64) -> Self {
         Self {
-            thumb_width: Some(val),
+            thumbnail_width: Some(val),
             ..self
         }
     }
 
     #[must_use]
-    pub fn thumb_height(self, val: i64) -> Self {
+    pub fn thumbnail_height(self, val: i64) -> Self {
         Self {
-            thumb_height: Some(val),
+            thumbnail_height: Some(val),
             ..self
         }
     }
@@ -181,9 +181,9 @@ impl Default for InlineQueryResultLocation {
             proximity_alert_radius: None,
             reply_markup: None,
             input_message_content: None,
-            thumb_url: None,
-            thumb_width: None,
-            thumb_height: None,
+            thumbnail_url: None,
+            thumbnail_width: None,
+            thumbnail_height: None,
         }
     }
 }

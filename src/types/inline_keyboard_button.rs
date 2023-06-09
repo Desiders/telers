@@ -1,4 +1,4 @@
-use super::{CallbackGame, LoginUrl, WebAppInfo};
+use super::{CallbackGame, LoginUrl, SwitchInlineQueryChosenChat, WebAppInfo};
 
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -23,6 +23,8 @@ pub struct InlineKeyboardButton {
     pub switch_inline_query: Option<String>,
     /// If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted.
     pub switch_inline_query_current_chat: Option<String>,
+    /// If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field
+    pub switch_inline_query_chosen_chat: Option<SwitchInlineQueryChosenChat>,
     /// Description of the game that will be launched when the user presses the button.
     pub callback_game: Option<CallbackGame>,
     /// Specify `True`, to send a [`Pay button`](https://core.telegram.org/bots/api#payments).
@@ -40,6 +42,7 @@ impl InlineKeyboardButton {
             login_url: None,
             switch_inline_query: None,
             switch_inline_query_current_chat: None,
+            switch_inline_query_chosen_chat: None,
             callback_game: None,
             pay: None,
         }
@@ -97,6 +100,14 @@ impl InlineKeyboardButton {
     pub fn switch_inline_query_current_chat(self, val: impl Into<String>) -> Self {
         Self {
             switch_inline_query_current_chat: Some(val.into()),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn switch_inline_query_chosen_chat(self, val: SwitchInlineQueryChosenChat) -> Self {
+        Self {
+            switch_inline_query_chosen_chat: Some(val),
             ..self
         }
     }

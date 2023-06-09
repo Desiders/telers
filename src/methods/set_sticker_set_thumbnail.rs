@@ -8,27 +8,27 @@ use std::collections::HashMap;
 
 /// Use this method to set the thumbnail of a sticker set. Animated thumbnails can be set for animated sticker sets only. Video thumbnails can be set only for video sticker sets only.
 /// # Documentation
-/// <https://core.telegram.org/bots/api#setstickersetthumb>
+/// <https://core.telegram.org/bots/api#setstickersetthumbnail>
 /// # Returns
 /// Returns `True` on success
 #[skip_serializing_none]
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
-pub struct SetStickerSetThumb<'a> {
+pub struct SetStickerSetThumbnail<'a> {
     /// Sticker set name
     pub name: String,
     /// User identifier of the sticker set owner
     pub user_id: i64,
     /// A *PNG* image with the thumbnail, must be up to 128 kilobytes in size and have width and height exactly 100px, or a *TGS* animation with the thumbnail up to 32 kilobytes in size; see <https://core.telegram.org/stickers#animated-sticker-requirements> for animated sticker technical requirements, or a *WEBM* video with the thumbnail up to 32 kilobytes in size; see <https://core.telegram.org/stickers#video-sticker-requirements> for video sticker technical requirements. Pass a `file_id` as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. [`More info on Sending Files`](https://core.telegram.org/bots/api#sending-files). Animated sticker set thumbnails can't be uploaded via HTTP URL.
-    pub thumb: Option<InputFile<'a>>,
+    pub thumbnail: Option<InputFile<'a>>,
 }
 
-impl<'a> SetStickerSetThumb<'a> {
+impl<'a> SetStickerSetThumbnail<'a> {
     #[must_use]
     pub fn new(name: impl Into<String>, user_id: i64) -> Self {
         Self {
             name: name.into(),
             user_id,
-            thumb: None,
+            thumbnail: None,
         }
     }
 
@@ -51,32 +51,32 @@ impl<'a> SetStickerSetThumb<'a> {
     #[must_use]
     pub fn thumb(self, val: impl Into<InputFile<'a>>) -> Self {
         Self {
-            thumb: Some(val.into()),
+            thumbnail: Some(val.into()),
             ..self
         }
     }
 }
 
-impl<'a> SetStickerSetThumb<'a> {
+impl<'a> SetStickerSetThumbnail<'a> {
     #[must_use]
-    pub fn thumb_option(self, val: Option<impl Into<InputFile<'a>>>) -> Self {
+    pub fn thumbnail_option(self, val: Option<impl Into<InputFile<'a>>>) -> Self {
         Self {
-            thumb: val.map(Into::into),
+            thumbnail: val.map(Into::into),
             ..self
         }
     }
 }
 
-impl TelegramMethod for SetStickerSetThumb<'_> {
+impl TelegramMethod for SetStickerSetThumbnail<'_> {
     type Method = Self;
     type Return = bool;
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = HashMap::new();
-        if let Some(thumb) = &self.thumb {
-            prepare_file_with_value(&mut files, thumb, "thumb");
+        if let Some(thumb) = &self.thumbnail {
+            prepare_file_with_value(&mut files, thumb, "thumbnail");
         }
 
-        Request::new("setStickerSetThumb", self, Some(files))
+        Request::new("setStickerSetThumbnail", self, Some(files))
     }
 }

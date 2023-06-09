@@ -18,7 +18,7 @@ pub struct Animation {
     /// Duration of the video in seconds as defined by sender
     pub duration: i64,
     /// Animation thumbnail as defined by sender
-    pub thumb: Option<PhotoSize>,
+    pub thumbnail: Option<PhotoSize>,
     /// Original animation filename as defined by sender
     pub file_name: Option<String>,
     /// MIME type of the file as defined by sender

@@ -23,7 +23,7 @@ pub struct Sticker {
     /// `True`, if the sticker is a [`video sticker`](https://telegram.org/blog/video-stickers-better-reactions)
     pub is_video: bool,
     /// Sticker thumbnail in the .WEBP or .JPG format
-    pub thumb: Option<PhotoSize>,
+    pub thumbnail: Option<PhotoSize>,
     /// Emoji associated with the sticker
     pub emoji: Option<String>,
     /// Name of the sticker set to which the sticker belongs
@@ -34,6 +34,8 @@ pub struct Sticker {
     pub mask_position: Option<MaskPosition>,
     /// For custom emoji stickers, unique identifier of the custom emoji
     pub custom_emoji_id: Option<String>,
+    /// `True`, if the sticker must be repainted to a text color in messages, the color of the Telegram Premium badge in emoji status, white color on chat photos, or another appropriate color in other places
+    pub needs_repainting: Option<bool>,
     /// File size in bytes
     pub file_size: Option<i64>,
 }

@@ -29,11 +29,11 @@ pub struct InlineQueryResultArticle {
     /// Short description of the result
     pub description: Option<String>,
     /// Url of the thumbnail for the result
-    pub thumb_url: Option<String>,
+    pub thumbnail_url: Option<String>,
     /// Thumbnail width
-    pub thumb_width: Option<i64>,
+    pub thumbnail_width: Option<i64>,
     /// Thumbnail height
-    pub thumb_height: Option<i64>,
+    pub thumbnail_height: Option<i64>,
 }
 
 impl InlineQueryResultArticle {
@@ -108,25 +108,25 @@ impl InlineQueryResultArticle {
     }
 
     #[must_use]
-    pub fn thumb_url(self, val: impl Into<String>) -> Self {
+    pub fn thumbnail_url(self, val: impl Into<String>) -> Self {
         Self {
-            thumb_url: Some(val.into()),
+            thumbnail_url: Some(val.into()),
             ..self
         }
     }
 
     #[must_use]
-    pub fn thumb_width(self, val: i64) -> Self {
+    pub fn thumbnail_width(self, val: i64) -> Self {
         Self {
-            thumb_width: Some(val),
+            thumbnail_width: Some(val),
             ..self
         }
     }
 
     #[must_use]
-    pub fn thumb_height(self, val: i64) -> Self {
+    pub fn thumbnail_height(self, val: i64) -> Self {
         Self {
-            thumb_height: Some(val),
+            thumbnail_height: Some(val),
             ..self
         }
     }
@@ -144,9 +144,9 @@ impl Default for InlineQueryResultArticle {
             url: None,
             hide_url: None,
             description: None,
-            thumb_url: None,
-            thumb_width: None,
-            thumb_height: None,
+            thumbnail_url: None,
+            thumbnail_width: None,
+            thumbnail_height: None,
         }
     }
 }

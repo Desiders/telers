@@ -19,7 +19,7 @@ pub struct InlineQueryResultMpeg4Gif {
     /// A valid URL for the MPEG4 file. File size must not exceed 1MB
     pub mpeg4_url: String,
     /// URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
-    pub thumb_url: String,
+    pub thumbnail_url: String,
     /// Video width
     pub mpeg4_width: Option<i64>,
     /// Video height
@@ -27,7 +27,7 @@ pub struct InlineQueryResultMpeg4Gif {
     /// Optional*. Video duration in seconds
     pub mpeg4_duration: Option<i64>,
     /// MIME type of the thumbnail, must be one of 'image/jpeg', 'image/gif', or 'video/mp4'. Defaults to 'image/jpeg'
-    pub thumb_mime_type: Option<String>,
+    pub thumbnail_mime_type: Option<String>,
     /// Title for the result
     pub title: Option<String>,
     /// Caption of the MPEG-4 file to be sent, 0-1024 characters after entities parsing
@@ -47,12 +47,12 @@ impl InlineQueryResultMpeg4Gif {
     pub fn new(
         id: impl Into<String>,
         mpeg4_url: impl Into<String>,
-        thumb_url: impl Into<String>,
+        thumbnail_url: impl Into<String>,
     ) -> Self {
         Self {
             id: id.into(),
             mpeg4_url: mpeg4_url.into(),
-            thumb_url: thumb_url.into(),
+            thumbnail_url: thumbnail_url.into(),
             ..Default::default()
         }
     }
@@ -74,9 +74,9 @@ impl InlineQueryResultMpeg4Gif {
     }
 
     #[must_use]
-    pub fn thumb_url(self, val: impl Into<String>) -> Self {
+    pub fn thumbnail_url(self, val: impl Into<String>) -> Self {
         Self {
-            thumb_url: val.into(),
+            thumbnail_url: val.into(),
             ..self
         }
     }
@@ -106,9 +106,9 @@ impl InlineQueryResultMpeg4Gif {
     }
 
     #[must_use]
-    pub fn thumb_mime_type(self, val: impl Into<String>) -> Self {
+    pub fn thumbnail_mime_type(self, val: impl Into<String>) -> Self {
         Self {
-            thumb_mime_type: Some(val.into()),
+            thumbnail_mime_type: Some(val.into()),
             ..self
         }
     }
@@ -189,11 +189,11 @@ impl Default for InlineQueryResultMpeg4Gif {
             result_type: mpeg4_gif(),
             id: String::default(),
             mpeg4_url: String::default(),
-            thumb_url: String::default(),
+            thumbnail_url: String::default(),
             mpeg4_width: None,
             mpeg4_height: None,
             mpeg4_duration: None,
-            thumb_mime_type: None,
+            thumbnail_mime_type: None,
             title: None,
             caption: None,
             parse_mode: None,
