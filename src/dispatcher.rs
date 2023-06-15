@@ -596,7 +596,7 @@ impl<Client, PropagatorService> DispatcherService<Client, PropagatorService> {
         let bots_len = bots.len();
 
         assert!(
-            bots_len < 1,
+            bots_len > 0,
             "You must add at least one bot to the dispatcher"
         );
 
