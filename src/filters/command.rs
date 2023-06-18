@@ -328,19 +328,24 @@ pub struct CommandObject {
 
 impl CommandObject {
     /// Extracts [`CommandObject`] from text
-    /// # Re
     #[must_use]
     pub fn extract(text: &str) -> Option<Self> {
         let result: Vec<_> = text.trim().split(' ').collect();
         let full_command = result[0].to_string();
-        let args: Vec<String> = result[1..].iter().map(ToString::to_string).collect();
+        let args = result[1..].iter().map(ToString::to_string).collect();
 
-        let Some(prefix) = full_command.chars().next() else { return None; };
-        let command = full_command[1..].to_string();
+        let mut full_command_chars = full_command.chars();
+
+        let Some(prefix) = full_command_chars.next() else { return None; };
+
+        let command = full_command_chars.as_str();
+        if command.is_empty() {
+            return None;
+        }
 
         // Check if command contains mention, e.g. `/command@mention`, `/command@mention args`
         // and extract it, if it exists and isn't empty
-        let (command, mention) = if command.contains('@') {
+        let (command, mention) = if !command.starts_with('@') && command.contains('@') {
             let result: Vec<_> = command.split('@').collect();
 
             let command = result[0].to_string();
@@ -354,7 +359,7 @@ impl CommandObject {
 
             (command, mention)
         } else {
-            (command, None)
+            (command.to_owned(), None)
         };
 
         Some(CommandObject {
@@ -421,11 +426,70 @@ mod tests {
         assert_eq!(command_obj.mention, None);
         assert_eq!(command_obj.args, Vec::<String>::new());
 
+        let command_obj = CommandObject::extract("/@").unwrap();
+        assert_eq!(command_obj.command, "@");
+        assert_eq!(command_obj.prefix, '/');
+        assert_eq!(command_obj.mention, None);
+        assert_eq!(command_obj.args, Vec::<String>::new());
+
+        let command_obj = CommandObject::extract("@/").unwrap();
+        assert_eq!(command_obj.command, "/");
+        assert_eq!(command_obj.prefix, '@');
+        assert_eq!(command_obj.mention, None);
+        assert_eq!(command_obj.args, Vec::<String>::new());
+
+        let command_obj = CommandObject::extract("/@ arg1 arg2").unwrap();
+        assert_eq!(command_obj.command, "@");
+        assert_eq!(command_obj.prefix, '/');
+        assert_eq!(command_obj.mention, None);
+        assert_eq!(command_obj.args, vec!["arg1", "arg2"]);
+
+        let command_obj = CommandObject::extract("/@bot_username").unwrap();
+        assert_eq!(command_obj.command, "@bot_username");
+        assert_eq!(command_obj.prefix, '/');
+        assert_eq!(command_obj.mention, None);
+        assert_eq!(command_obj.args, Vec::<String>::new());
+
+        let command_obj = CommandObject::extract("@start@bot_username").unwrap();
+        assert_eq!(command_obj.command, "start");
+        assert_eq!(command_obj.prefix, '@');
+        assert_eq!(command_obj.mention, Some("bot_username".to_string()));
+        assert_eq!(command_obj.args, Vec::<String>::new());
+
         let command_obj = CommandObject::extract("/start@bot_username arg1 arg2").unwrap();
         assert_eq!(command_obj.command, "start");
         assert_eq!(command_obj.prefix, '/');
         assert_eq!(command_obj.mention, Some("bot_username".to_string()));
         assert_eq!(command_obj.args, vec!["arg1", "arg2"]);
+
+        let command_obj = CommandObject::extract("Telegram says: 123").unwrap();
+        assert_eq!(command_obj.command, "elegram");
+        assert_eq!(command_obj.prefix, 'T');
+        assert_eq!(command_obj.mention, None);
+        assert_eq!(command_obj.args, vec!["says:", "123"]);
+
+        let command_obj = CommandObject::extract("One two").unwrap();
+        assert_eq!(command_obj.command, "ne");
+        assert_eq!(command_obj.prefix, 'O');
+        assert_eq!(command_obj.mention, None);
+        assert_eq!(command_obj.args, vec!["two"]);
+
+        let command_obj = CommandObject::extract("Один два").unwrap();
+        assert_eq!(command_obj.command, "дин");
+        assert_eq!(command_obj.prefix, 'О');
+        assert_eq!(command_obj.mention, None);
+        assert_eq!(command_obj.args, vec!["два"]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_command_extract_panic() {
+        assert!(
+            // Returns `None`, because prefix is empty
+            CommandObject::extract("").is_some()
+            // Returns `None`, because command is empty
+            || CommandObject::extract("/").is_some()
+        );
     }
 
     #[test]
