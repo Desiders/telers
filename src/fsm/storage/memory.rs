@@ -91,7 +91,7 @@ impl Storage for Memory {
             .lock()
             .await
             .get(key)
-            .and_then(|record| record.states.last().map(|state| state.to_string())))
+            .and_then(|record| record.states.last().map(ToString::to_string)))
     }
 
     /// Get states stack for specified key
@@ -109,13 +109,7 @@ impl Storage for Memory {
             .lock()
             .await
             .get(key)
-            .map(|record| {
-                record
-                    .states
-                    .iter()
-                    .map(|state| state.to_string())
-                    .collect()
-            })
+            .map(|record| record.states.iter().map(ToString::to_string).collect())
             .unwrap_or_default())
     }
 
@@ -236,27 +230,22 @@ impl Storage for Memory {
                 );
             }
             Entry::Vacant(entry) => {
-                entry.insert(
-                    Record {
-                        states: vec![],
-                        data: {
-                            let mut new_data = HashMap::with_capacity(1);
-                            new_data.insert(
-                                value_key.into(),
-                                bincode::serialize(&value).map_err(|err| {
-                                    Error::new(
-                                        format!(
-                                            "Failed to serialize value. Storage key: `{key:?}`"
-                                        ),
-                                        err,
-                                    )
-                                })?,
-                            );
-                            new_data
-                        },
-                    }
-                    .into(),
-                );
+                entry.insert(Record {
+                    states: vec![],
+                    data: {
+                        let mut new_data = HashMap::with_capacity(1);
+                        new_data.insert(
+                            value_key.into(),
+                            bincode::serialize(&value).map_err(|err| {
+                                Error::new(
+                                    format!("Failed to serialize value. Storage key: `{key:?}`"),
+                                    err,
+                                )
+                            })?,
+                        );
+                        new_data
+                    },
+                });
             }
         }
         Ok(())
