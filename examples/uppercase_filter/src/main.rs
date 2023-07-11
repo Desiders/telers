@@ -4,7 +4,7 @@
 //! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash
 //! cd examples
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --bin custom_filter
+//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --bin uppercase_filter
 //! ```
 
 use telers::{

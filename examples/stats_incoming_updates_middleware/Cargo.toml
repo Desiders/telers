@@ -1,5 +1,5 @@
 [package]
-name = "custom_http_client"
+name = "stats_incoming_updates_middleware"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,4 +9,3 @@ tokio = { version = "1.28", features = ["macros"] }
 log = "0.4"
 pretty_env_logger = "0.4"
 async-trait = "0.1"
-anyhow = "1.0"

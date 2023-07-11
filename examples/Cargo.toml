@@ -2,14 +2,14 @@
 members = [
     "echo_bot",
     "finite_state_machine",
-    "custom_http_client",
-    "custom_filter",
-    "custom_middleware",
+    "bot_http_client",
+    "uppercase_filter",
+    "stats_incoming_updates_middleware",
 ]
 
 [patch.crates-io]
 echo_bot = { path = "./echo_bot" }
 finite_state_machine = { path = "./finite_state_machine" }
-custom_http_client = { path = "./custom_http_client" }
-custom_filter = { path = "./custom_filter" }
-custom_middleware = { path = "./custom_middleware" }
+bot_http_client = { path = "./bot_http_client" }
+uppercase_filter = { path = "./uppercase_filter" }
+stats_incoming_updates_middleware = { path = "./stats_incoming_updates_middleware" }

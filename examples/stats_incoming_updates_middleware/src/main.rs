@@ -1,11 +1,11 @@
-//! This example shows how to create a simple middleware counter for incoming updates and processed handlers.
-//! Every time a new update is received, the counter is incremented. The counter is also incremented every time a handler is called.
-//! Counter is passes to the handler in context.
+//! This example shows how to create a simple middleware count for incoming updates and processed handlers.
+//! Every time a new update is received, the count is incremented. The count is also incremented every time a handler is called.
+//! count is passes to the handler in context.
 //!
 //! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash
 //! cd examples
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --bin custom_middleware
+//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --bin stats_incoming_updates_middleware
 //! ```
 
 use telers::{
@@ -29,12 +29,12 @@ use std::sync::{
 };
 
 #[derive(Default)]
-struct CounterIncomingUpdates {
-    counter: AtomicUsize,
+struct IncomingUpdates {
+    count: AtomicUsize,
 }
 
 #[async_trait]
-impl<Client> OuterMiddleware<Client> for CounterIncomingUpdates
+impl<Client> OuterMiddleware<Client> for IncomingUpdates
 where
     Client: Send + Sync + 'static,
 {
@@ -42,11 +42,11 @@ where
         &self,
         request: RouterRequest<Client>,
     ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
-        self.counter.fetch_add(1, Ordering::SeqCst);
+        self.count.fetch_add(1, Ordering::SeqCst);
 
         request.context.insert(
-            "count_incoming_updates",
-            Box::new(self.counter.load(Ordering::SeqCst)),
+            "incoming_updates_count",
+            Box::new(self.count.load(Ordering::SeqCst)),
         );
 
         Ok((request, EventReturn::Finish))
@@ -54,14 +54,14 @@ where
 }
 
 /// # Warning
-/// If the handler returns an error, the counter not increments
+/// If the handler returns an error, the count not increments
 #[derive(Default)]
-struct CounterProcessedHandlers {
-    counter: AtomicUsize,
+struct ProcessedHandlers {
+    count: AtomicUsize,
 }
 
 #[async_trait]
-impl<Client> InnerMiddleware<Client> for CounterProcessedHandlers
+impl<Client> InnerMiddleware<Client> for ProcessedHandlers
 where
     Client: Send + Sync + 'static,
 {
@@ -71,13 +71,13 @@ where
         next: Next<Client>,
     ) -> Result<HandlerResponse<Client>, EventErrorKind> {
         request.context.insert(
-            "count_processed_handlers",
-            Box::new(self.counter.load(Ordering::SeqCst)),
+            "processed_handlers_count",
+            Box::new(self.count.load(Ordering::SeqCst)),
         );
 
         let response = next(request).await?;
 
-        self.counter.fetch_add(1, Ordering::SeqCst);
+        self.count.fetch_add(1, Ordering::SeqCst);
 
         Ok(response)
     }
@@ -85,14 +85,14 @@ where
 
 async fn handler(bot: Bot, update: Update, context: Arc<Context>) -> HandlerResult {
     let text = format!(
-        "Hello! Users sent me {} updates. I processed {} handlers successfully for them.",
+        "Hello! Users sent me {} updates and I processed {} handlers successfully for them.",
         context
-            .get("count_incoming_updates")
+            .get("incoming_updates_count")
             .unwrap()
             .downcast_ref::<usize>()
             .unwrap(),
         context
-            .get("count_processed_handlers")
+            .get("processed_handlers_count")
             .unwrap()
             .downcast_ref::<usize>()
             .unwrap()
@@ -120,7 +120,7 @@ async fn main() {
     router
         .update
         .outer_middlewares
-        .register(CounterIncomingUpdates::default());
+        .register(IncomingUpdates::default());
     // Register inner middleware for all telegram observers
     router
         .telegram_observers_mut()
@@ -128,7 +128,7 @@ async fn main() {
         .for_each(|observer| {
             observer
                 .inner_middlewares
-                .register(CounterProcessedHandlers::default());
+                .register(ProcessedHandlers::default());
         });
     router.message.register(handler);
 
