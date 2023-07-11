@@ -301,6 +301,7 @@ where
     type ServiceProvider = Arc<DispatcherService<Client, PropagatorService>>;
     type InitError = InitPropagatorServiceError;
 
+    #[allow(clippy::arc_with_non_send_sync)]
     fn to_service_provider(
         self,
         config: Self::Config,

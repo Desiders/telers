@@ -40,7 +40,5 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@nightly
-        with:
-          components: clippy,rustc-dev
+      - uses: dtolnay/rust-toolchain@clippy
       - run: cargo clippy --all --all-features -- -W clippy::pedantic
