@@ -36,20 +36,11 @@ jobs:
   clippy:
     name: Clippy
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@clippy
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo clippy --all -- -W clippy::pedantic
-
-  outdated:
-    name: Outdated
-    runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v3
-      - uses: dtolnay/install@cargo-outdated
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo outdated --workspace --exit-code 1
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: clippy,rustc-dev
+      - run: cargo clippy --all --all-features -- -W clippy::pedantic

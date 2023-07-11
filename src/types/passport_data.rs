@@ -1,6 +1,6 @@
 use super::{EncryptedCredentials, EncryptedPassportElement};
 
-use serde::{Deserialize};
+use serde::Deserialize;
 
 /// Describes Telegram Passport data shared with the bot by the user.
 /// # Documentation
