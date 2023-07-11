@@ -2,8 +2,7 @@
 //!
 //! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash
-//! cd examples
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --bin echo_bot
+//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package echo_bot
 //! ```
 
 use telers::{

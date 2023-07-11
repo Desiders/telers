@@ -1,11 +1,11 @@
-//! This example shows how to create a simple middleware count for incoming updates and processed handlers.
-//! Every time a new update is received, the count is incremented. The count is also incremented every time a handler is called.
-//! count is passes to the handler in context.
+//! This example shows how to create a simple middleware that counter incoming updates and processed handlers.
+//! [`IncomingUpdates`] middleware counter increments when an update arrives.
+//! [`ProcessedHandlers`] middleware counter increments when a handler successfully processed.
+//! Every counterer is passes to the handler in the context.
 //!
 //! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash
-//! cd examples
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --bin stats_incoming_updates_middleware
+//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package stats_incoming_updates_middleware
 //! ```
 
 use telers::{
@@ -30,7 +30,7 @@ use std::sync::{
 
 #[derive(Default)]
 struct IncomingUpdates {
-    count: AtomicUsize,
+    counter: AtomicUsize,
 }
 
 #[async_trait]
@@ -42,11 +42,11 @@ where
         &self,
         request: RouterRequest<Client>,
     ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
-        self.count.fetch_add(1, Ordering::SeqCst);
+        self.counter.fetch_add(1, Ordering::SeqCst);
 
         request.context.insert(
-            "incoming_updates_count",
-            Box::new(self.count.load(Ordering::SeqCst)),
+            "incoming_updates_counter",
+            Box::new(self.counter.load(Ordering::SeqCst)),
         );
 
         Ok((request, EventReturn::Finish))
@@ -54,10 +54,10 @@ where
 }
 
 /// # Warning
-/// If the handler returns an error, the count not increments
+/// If the handler returns an error, the counter not increments
 #[derive(Default)]
 struct ProcessedHandlers {
-    count: AtomicUsize,
+    counter: AtomicUsize,
 }
 
 #[async_trait]
@@ -71,13 +71,13 @@ where
         next: Next<Client>,
     ) -> Result<HandlerResponse<Client>, EventErrorKind> {
         request.context.insert(
-            "processed_handlers_count",
-            Box::new(self.count.load(Ordering::SeqCst)),
+            "processed_handlers_counter",
+            Box::new(self.counter.load(Ordering::SeqCst)),
         );
 
         let response = next(request).await?;
 
-        self.count.fetch_add(1, Ordering::SeqCst);
+        self.counter.fetch_add(1, Ordering::SeqCst);
 
         Ok(response)
     }
@@ -87,12 +87,12 @@ async fn handler(bot: Bot, update: Update, context: Arc<Context>) -> HandlerResu
     let text = format!(
         "Hello! Users sent me {} updates and I processed {} handlers successfully for them.",
         context
-            .get("incoming_updates_count")
+            .get("incoming_updates_counter")
             .unwrap()
             .downcast_ref::<usize>()
             .unwrap(),
         context
-            .get("processed_handlers_count")
+            .get("processed_handlers_counter")
             .unwrap()
             .downcast_ref::<usize>()
             .unwrap()
