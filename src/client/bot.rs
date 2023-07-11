@@ -33,6 +33,8 @@ impl Bot<Reqwest> {
 }
 
 impl<Client> Bot<Client> {
+    /// # Panics
+    /// Panics if the token is invalid
     #[must_use]
     pub fn with_client(token: impl Into<Cow<'static, str>>, client: Client) -> Self {
         let token = token.into();

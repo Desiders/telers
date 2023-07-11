@@ -393,6 +393,8 @@ impl<Client> Router<Client> {
     /// It is useful for getting updates only for registered update types.
     /// # Warning
     /// This method doesn't preserve order registration of update types
+    /// # Panics
+    /// If can't convert observer event name to [`UpdateType`]
     #[must_use]
     pub fn resolve_used_update_types(&self) -> Vec<UpdateType> {
         let mut used_update_types = HashSet::new();
@@ -439,6 +441,7 @@ impl<Client> Debug for Router<Client> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Router")
             .field("router_name", &self.router_name)
+            .field("sub_routers", &self.sub_routers)
             .finish()
     }
 }
@@ -870,9 +873,7 @@ where
 {
     #[must_use]
     fn default() -> Self {
-        Self::builder()
-            .update(UserContextMiddleware::default())
-            .build()
+        Self::builder().update(UserContextMiddleware::new()).build()
     }
 }
 

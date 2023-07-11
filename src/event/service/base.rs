@@ -1,4 +1,4 @@
-use std::{future::Future, sync::Arc};
+use std::{future::Future, rc::Rc, sync::Arc};
 
 pub trait Service<Req> {
     /// Response given by the service
@@ -68,6 +68,8 @@ pub trait ServiceFactory<Req> {
 pub trait ServiceProvider {}
 
 impl<S: ?Sized> ServiceProvider for Arc<S> where S: ServiceProvider {}
+
+impl<S: ?Sized> ServiceProvider for Rc<S> where S: ServiceProvider {}
 
 /// A trait that allows to convert structures, that contains [`ServiceFactory`]s, to [`ServiceProvider`],
 /// which will contains [`Service`]s instead of [`ServiceFactory`]s.
