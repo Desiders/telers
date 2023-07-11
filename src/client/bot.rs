@@ -84,7 +84,6 @@ impl<Client> Display for Bot<Client> {
     }
 }
 
-/// A block of Telegram methods
 impl<Client: Session> Bot<Client> {
     /// Use this method to send requests to Telegram API
     /// # Arguments
