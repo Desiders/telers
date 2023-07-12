@@ -35,13 +35,22 @@
 //! These methods are useful for testing or if you want to use your own update source.
 //! Second method allows you to pass [`Context`] with own data, which will be used in the handlers, middlewares, etc. (see [`context module`] for more information).
 //!
-//! Check out the [`examples`] directory for usage examples.
+//! Check out the [examples] directory for usage examples.
 //!
 //! [`Router`]: crate::router::Router
 //! [`UpdateType`]: crate::enums::UpdateType
 //! [`ChatMember`]: crate::enums::UpdateType::ChatMember
 //! [`router module`]: crate::router
 //! [`context module`]: crate::context
+//! [`Dispatcher::new`]: Dispatcher#method.new
+//! [`DispatcherBuilder::polling_timeout`]: DispatcherBuilder#method.polling_timeout
+//! [`DispatcherBuilder::backoff`]: DispatcherBuilder#method.backoff
+//! [`Dispatcher::run_polling`]: DispatcherService#method.run_polling
+//! [`Dispatcher::emit_startup`] : DispatcherService#method.emit_startup
+//! [`Dispatcher::emit_shutdown`] : DispatcherService#method.emit_shutdown
+//! [`Dispatcher::run_polling_without_startup_and_shutdown`] : DispatcherService#method.run_polling_without_startup_and_shutdown
+//! [`Dispatcher::feed_update`] : DispatcherService#method.feed_update
+//! [`Dispatcher::feed_update_with_context`] : DispatcherService#method.feed_update_with_context
 
 use super::router::{PropagateEvent, Request, Response};
 
