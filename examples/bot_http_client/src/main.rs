@@ -1,4 +1,4 @@
-//! This example shows how to set a custom client for sending http requests.
+//! This example shows how to set a custom bot HTTP client for sending HTTP requests.
 //!
 //! Usually you don't need to use a custom client, because [`telers`] provides default client,
 //! but if you want to use a custom client, you can do it by using [`Bot::with_client`] method and use it in handlers.
@@ -20,6 +20,8 @@
 //! ```bash
 //! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package bot_http_client
 //! ```
+//!
+//! [`Bot::with_client`]: telers::Bot#method.with_client
 
 use std::borrow::Cow;
 use telers::{

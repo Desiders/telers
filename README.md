@@ -24,10 +24,10 @@ Make sure you have a basic understanding of the [Telegram Bot API](https://core.
 
 ## Examples
  - [Echo bot](examples/echo_bot). This example shows how to create a simple echo bot.
- - [Finite state machine](examples/finite_state_machine). This example shows how to create a simple finite state machine and use it in your bot.
- - [Custom http client](examples/custom_http_client). This example shows how to set a custom client for sending http requests.
- - [Custom filter](examples/custom_filter). This example shows how to create a custom filter.
- - [Custom middleware](examples/custom_middleware). This example shows how to create a custom middleware.
+ - [Finite state machine](examples/finite_state_machine). This example shows how to implement a simple finite state machine (conversation).
+ - [Bot http client](examples/bot_http_client). This example shows how to set a custom bot HTTP client.
+ - [Uppercase filter](examples/uppercase_filter). This example shows how to create a simple uppercase filter.
+ - [Stats incoming updates middleware](examples/stats_incoming_updates_middleware). This example shows how to create a simple middleware that counter incoming updates and processed handlers.
 
 You may consider checking out [this directory](examples) for more examples.
 
