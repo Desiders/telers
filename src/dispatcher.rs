@@ -46,11 +46,11 @@
 //! [`DispatcherBuilder::polling_timeout`]: DispatcherBuilder#method.polling_timeout
 //! [`DispatcherBuilder::backoff`]: DispatcherBuilder#method.backoff
 //! [`Dispatcher::run_polling`]: DispatcherService#method.run_polling
-//! [`Dispatcher::emit_startup`] : DispatcherService#method.emit_startup
-//! [`Dispatcher::emit_shutdown`] : DispatcherService#method.emit_shutdown
-//! [`Dispatcher::run_polling_without_startup_and_shutdown`] : DispatcherService#method.run_polling_without_startup_and_shutdown
-//! [`Dispatcher::feed_update`] : DispatcherService#method.feed_update
-//! [`Dispatcher::feed_update_with_context`] : DispatcherService#method.feed_update_with_context
+//! [`Dispatcher::emit_startup`]: DispatcherService#method.emit_startup
+//! [`Dispatcher::emit_shutdown`]: DispatcherService#method.emit_shutdown
+//! [`Dispatcher::run_polling_without_startup_and_shutdown`]: DispatcherService#method.run_polling_without_startup_and_shutdown
+//! [`Dispatcher::feed_update`]: DispatcherService#method.feed_update
+//! [`Dispatcher::feed_update_with_context`]: DispatcherService#method.feed_update_with_context
 
 use super::router::{PropagateEvent, Request, Response};
 
@@ -355,6 +355,7 @@ where
     type ServiceProvider = Arc<DispatcherService<Client, PropagatorService>>;
     type InitError = InitPropagatorServiceError;
 
+    #[allow(unknown_lints)]
     #[allow(clippy::arc_with_non_send_sync)]
     fn to_service_provider(
         self,

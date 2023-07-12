@@ -1,19 +1,39 @@
-//! Context that is used to transmit data between processing-units when propagating an event (middleware, filters, handlers, etc.).
+//! [`Context`] is a type that is used to transmit data between processing-units when propagating an event.
+//! Context creates at the start of the event propagation by [`Dispatcher`] and pass to every processing-unit.
+//! Processing-units can add their own data to context and use data from context that was added by others.
 //!
-//! Usually you don't need to use this type directly in handlers,
-//! implement [`crate::extract::FromEventAndContext`] for your own types if you need to use it in handlers more clean way.
-//! [`crate::extract::FromEventAndContext`] is implemented for many types by default (include base filters and middlewares),
-//! so you can use them in handlers.
-//! Check [`crate::extract`] documentation for more information.
+//! In [`OuterMiddleware`] context is passed as [`RouterRequest`] field `context`.
+//! Modify context in outer middlewares if you need to pass some data to next outer/inner middlewares or to filters.
+//! Usually data for handlers is passed by inner middlewares, but you can use outer middlewares for this too.
+//! Check [`outer middleware module`] documentation for more information (**recommended**).
 //!
-//! [`Context`] is implemented as [`DashMap`], so it is thread-safe and can be used in async handlers.
-//! Every value that is stored in [`Context`] is wrapped in [`Box`] and can be accessed by [`str`] key.
-//! Values can be of any type that implements [`Any`], [`Send`] and [`Sync`] traits.
+//! In [`InnerMiddleware`] context is passed as [`HandlerRequest`] field `context`.
+//! Modify context in inner middlewares if you need to pass some data to next inner middlewares or to handler.
+//! Check [`inner middleware module`] documentation for more information (**recommended**).
 //!
-//! Start of the event propagation is `Dispatcher::feed_update` method,
-//! where [`Context`] it's creates and pass to every processing-unit.
-//! You the same can use `Dispatcher::feed_update_with_context` method
-//! for passing your own [`Context`] for propagation event.
+//! In [`Filter`] context is passed as parameter `context` in [`Filter::check`] method.
+//! Usually you don't need to change the context in filters, and it's better to use middleware for that, but you can do it.
+//! Check [`filter module`] documentation for more information.
+//!
+//! In [`Handler`] context is can be passed as parameter of handler function.
+//! You can use context in handlers to get data that was added by middlewares and filters.
+//! For convenience, you can implement [`FromEventAndContext`] for your own types and use them as handler arguments,
+//! so you don't need to pass context as parameter of handler and extract data from context manually.
+//! Check [`extract module`] documentation for more information (**recommended**).
+//!
+//! [`Dispatcher`]: crate::Dispatcher
+//! [`OuterMiddleware`]: crate::middlewares::OuterMiddleware
+//! [`InnerMiddleware`]: crate::middlewares::InnerMiddleware
+//! [`RouterRequest`]: crate::router::Request
+//! [`HandlerRequest`]: crate::handler::Request
+//! [`Filter`]: crate::filters::Filter
+//! [`Filter::check`]: crate::filters::Filter#method.check
+//! [`Handler`]: crate::event::telegram::Handler
+//! [`FromEventAndContext`]: crate::extract::FromEventAndContext
+//! [`outer middleware module`]: crate::middlewares::outer
+//! [`inner middleware module`]: crate::middlewares::inner
+//! [`filter module`]: crate::filters
+//! [`extract module`]: crate::extract
 
 use dashmap::DashMap;
 use std::any::Any;
