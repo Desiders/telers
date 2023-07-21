@@ -5,6 +5,7 @@ use crate::{
 };
 
 use async_trait::async_trait;
+use log::error;
 use serde::de::DeserializeOwned;
 use std::ops::RangeInclusive;
 
@@ -97,7 +98,10 @@ pub trait Session: Send + Sync {
     ) -> Result<(), TelegramErrorKind> {
         if status_code.is_success() && response.ok {
             if response.result.is_none() {
-                log::error!("Contract violation: result is empty in success response");
+                error!(
+                    target: module_path!(),
+                    "Contract violation: result is empty in success response"
+                );
 
                 let err: TelegramErrorKind =
                     anyhow::Error::msg("Contract violation: result is empty in success response")
@@ -113,7 +117,10 @@ pub trait Session: Send + Sync {
             description.to_string()
         } else {
             // Descriptions for every error mentioned in errors (https://core.telegram.org/api/errors)
-            log::error!("Contract violation: description is empty in error response");
+            error!(
+                target: module_path!(),
+                "Contract violation: description is empty in error response"
+            );
 
             let err: TelegramErrorKind =
                 anyhow::Error::msg("Contract violation: description is empty in error response")
@@ -157,7 +164,7 @@ pub trait Session: Send + Sync {
                 }
             }
             _ => {
-                log::error!("Contract violation: unknown status code");
+                error!(target: module_path!(), "Contract violation: unknown status code");
 
                 anyhow::Error::msg(message).into()
             }
@@ -187,15 +194,12 @@ pub trait Session: Send + Sync {
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync,
     {
-        let client_response = self
-            .send_request(bot, method, timeout)
-            .await
-            .map_err(SessionErrorKind::Client)?;
+        let client_response = self.send_request(bot, method, timeout).await?;
 
         let telegram_response = method
             .build_response(&client_response.content)
             .map_err(|err| {
-                log::error!("Cannot parse response: {err}");
+                error!(target: module_path!(), "Cannot parse response: {err}");
 
                 SessionErrorKind::Parse(err)
             })?;

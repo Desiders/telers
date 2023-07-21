@@ -35,7 +35,7 @@
 //! These methods are useful for testing or if you want to use your own update source.
 //! Second method allows you to pass [`Context`] with own data, which will be used in the handlers, middlewares, etc. (see [`context module`] for more information).
 //!
-//! Check out the [examples] directory for usage examples.
+//! Check out the examples directory for usage examples.
 //!
 //! [`Router`]: crate::router::Router
 //! [`UpdateType`]: crate::enums::UpdateType
@@ -67,13 +67,10 @@ use crate::{
 };
 
 use backoff::{backoff::Backoff as _, exponential::ExponentialBackoff, SystemClock};
-use log;
+use log::{error, info, warn};
 use std::sync::Arc;
 use thiserror;
-use tokio::{
-    self,
-    sync::mpsc::{self, error::SendError, Sender},
-};
+use tokio::sync::mpsc::{channel as mspc_channel, error::SendError, Sender};
 
 const GET_UPDATES_SIZE: i64 = 100;
 const DEFAULT_POLLING_TIMEOUT: i64 = 30;
@@ -428,7 +425,7 @@ impl<Client, PropagatorService> DispatcherService<Client, PropagatorService> {
         let update_type = match update.as_ref().try_into() {
             Ok(update_type) => update_type,
             Err(err) => {
-                log::error!("{err}");
+                error!(target: module_path!(), "{err}");
 
                 return Err(err);
             }
@@ -476,14 +473,12 @@ impl<Client, PropagatorService> DispatcherService<Client, PropagatorService> {
                     updates
                 }
                 Err(err) => {
-                    log::error!("{err}");
+                    error!(target: module_path!(), "Failed to fetch updates: {err}");
 
                     failed = true;
 
                     if let Some(backoff) = backoff.next_backoff() {
-                        log::error!("Failed to fetch updates");
-
-                        log::warn!("Sleep for {backoff:?} seconds and try again...");
+                        warn!(target: module_path!(), "Sleep for {backoff:?} seconds and try again...");
                         tokio::time::sleep(backoff).await;
                     }
                     continue;
@@ -505,7 +500,7 @@ impl<Client, PropagatorService> DispatcherService<Client, PropagatorService> {
 
             // If we successfully connected to the server, we will reset backoff config
             if failed {
-                log::info!("Connection established successfully");
+                info!(target: module_path!(), "Connection established successfully");
 
                 failed = false;
 
@@ -527,7 +522,7 @@ impl<Client, PropagatorService> DispatcherService<Client, PropagatorService> {
         let bot = Arc::new(bot);
 
         let (sender_update, mut receiver_update) =
-            mpsc::channel(GET_UPDATES_SIZE.try_into().unwrap());
+            mspc_channel(GET_UPDATES_SIZE.try_into().unwrap());
 
         let listen_updates_handle = tokio::spawn(Self::listen_updates(
             Arc::clone(&bot),
@@ -561,10 +556,10 @@ impl<Client, PropagatorService> DispatcherService<Client, PropagatorService> {
 
             tokio::select! {
                 _ = sigint.recv() => {
-                    log::warn!("SIGINT signal received");
+                    warn!(target: module_path!(), "SIGINT signal received");
                 },
                 _ = sigterm.recv() => {
-                    log::warn!("SIGTERM signal received");
+                    warn!(target: module_path!(), "SIGTERM signal received");
                 },
             }
         }
@@ -583,10 +578,10 @@ impl<Client, PropagatorService> DispatcherService<Client, PropagatorService> {
 
             tokio::select! {
                 _ = ctrl_c.recv() => {
-                    log::warn!("CTRL+C signal received");
+                    warn!(target: module_path!(), "CTRL+C signal received");
                 },
                 _ = ctrl_break.recv() => {
-                    log::warn!("CTRL+BREAK signal received");
+                    warn!(target: module_path!(), "CTRL+BREAK signal received");
                 },
             }
         }
@@ -600,7 +595,8 @@ impl<Client, PropagatorService> DispatcherService<Client, PropagatorService> {
         }
         #[cfg(not(any(unix, windows)))]
         {
-            log::warn!(
+            warn!(
+                target: module_path!(),
                 "Exit signals of this platform are not supported, \
                 so polling process will never stop by signal and shutdown events will never be emitted.",
             );
@@ -625,7 +621,7 @@ impl<Client, PropagatorService> DispatcherService<Client, PropagatorService> {
         PropagatorService: PropagateEvent<Client> + 'static,
     {
         if let Err(err) = self.main_router.emit_startup().await {
-            log::error!("Error while emit startup: {err}");
+            error!(target: module_path!(), "Error while emit startup: {err}");
 
             return Err(err.into());
         }
@@ -634,7 +630,7 @@ impl<Client, PropagatorService> DispatcherService<Client, PropagatorService> {
         dispatcher.run_polling_without_startup_and_shutdown().await;
 
         self.emit_shutdown().await.map_err(|err| {
-            log::error!("Error while emit shutdown: {err}");
+            error!(target: module_path!(), "Error while emit shutdown: {err}");
 
             err.into()
         })
@@ -660,21 +656,21 @@ impl<Client, PropagatorService> DispatcherService<Client, PropagatorService> {
         for bot in bots {
             let dispatcher = Arc::clone(&self);
 
-            log::info!("Polling is started for bot: {bot}");
+            info!(target: module_path!(), "Polling is started for bot: {bot}");
 
             handles.push(tokio::spawn(dispatcher.polling(bot)));
         }
 
         for handle in handles {
             if let Err(err) = handle.await {
-                log::error!("Task failed to execute to completion: {err}");
+                error!(target: module_path!(), "Task failed to execute to completion: {err}");
             }
         }
 
         if bots_len == 1 {
-            log::warn!("Polling is finished");
+            warn!(target: module_path!(), "Polling is finished");
         } else {
-            log::warn!("Polling is finished for all bots");
+            warn!(target: module_path!(), "Polling is finished for all bots");
         }
     }
 

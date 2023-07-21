@@ -1,11 +1,13 @@
 //! Telegram Bot API server configuration.
 //!
 //! This module contains [`APIServer`] struct, which represents configuration of Telegram Bot API server.
-//! By default [`super::Session`] implementations use [`PRODUCTION`] configuration, but you can use [`TEST`] configuration
+//! By default [`Session`] implementations use [`PRODUCTION`] configuration, but you can use [`TEST`] configuration
 //! for testing your bot.
 //!
 //! You can create [`APIServer`] directly for using local Telegram Bot API server,
 //! see example of using local Telegram Bot API server in `examples/local_server.rs`.
+//!
+//! [`Session`]: crate::client::Session
 
 use once_cell::sync::Lazy;
 use std::{

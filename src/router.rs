@@ -32,7 +32,7 @@ use crate::{
 };
 
 use async_trait::async_trait;
-use log;
+use log::{self, debug};
 use std::{
     collections::HashSet,
     fmt::{self, Debug, Formatter},
@@ -747,7 +747,7 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
     }
 
     async fn emit_startup(&self) -> SimpleHandlerResult {
-        log::debug!("{self:?}: Emit startup");
+        debug!("{self:?}: Emit startup");
 
         for startup in
             once(&self.startup).chain(self.sub_routers.iter().map(|router| &router.startup))
@@ -758,7 +758,7 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
     }
 
     async fn emit_shutdown(&self) -> SimpleHandlerResult {
-        log::debug!("{self:?}: Emit shutdown");
+        debug!("{self:?}: Emit shutdown");
 
         for shutdown in
             once(&self.shutdown).chain(self.sub_routers.iter().map(|router| &router.shutdown))

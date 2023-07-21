@@ -13,7 +13,7 @@ use thiserror;
 pub enum ErrorKind {
     /// Error while sending request or decoding response
     #[error(transparent)]
-    Client(anyhow::Error),
+    Client(#[from] anyhow::Error),
     /// Error while parsing JSON
     #[error(transparent)]
     Parse(#[from] serde_json::Error),

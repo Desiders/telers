@@ -1,3 +1,7 @@
+//! Reqwest session implementation
+//!
+//! This module contains [`Reqwest`] struct, which is default implementation of [`Session`].
+
 use super::base::{ClientResponse, Session, DEFAULT_TIMEOUT};
 
 use crate::{
@@ -8,6 +12,7 @@ use crate::{
 };
 
 use async_trait::async_trait;
+use log::error;
 use reqwest::{
     multipart::{Form, Part},
     Body, Client, ClientBuilder,
@@ -83,9 +88,9 @@ impl Reqwest {
                     }
                     Err(err) => {
                         if let Some(file_name) = file_name {
-                            log::error!("Cannot read a file with name `{file_name}`: {err}");
+                            error!(target: module_path!(), "Cannot read a file with name `{file_name}`: {err}");
                         } else {
-                            log::error!("Cannot read a file: {err}");
+                            error!(target: module_path!(), "Cannot read a file: {err}");
                         }
 
                         return Err(err.into());
@@ -136,7 +141,7 @@ impl Session for Reqwest {
         let form = Box::pin(self.build_form_data(request.data, request.files))
             .await
             .map_err(|err| {
-                log::error!("Cannot build a form: {err}");
+                error!(target: module_path!(), "Cannot build a form: {err}");
 
                 err
             })?;
@@ -152,14 +157,14 @@ impl Session for Reqwest {
         .send()
         .await
         .map_err(|err| {
-            log::error!("Cannot send a request: {err}");
+            error!(target: module_path!(), "Cannot send a request: {err}");
 
             err
         })?;
 
         let status_code = response.status().as_u16();
         let content = response.text().await.map_err(|err| {
-            log::error!("Cannot decode a response: {err}");
+            error!(target: module_path!(), "Cannot decode a response: {err}");
 
             err
         })?;

@@ -1,12 +1,12 @@
 use reqwest::multipart::{Form, Part};
 use serde::{
-    ser::{self, Impossible, SerializeSeq, SerializeStruct},
+    ser::{Error as SerError, Impossible, SerializeSeq, SerializeStruct},
     Serialize, Serializer,
 };
 use std::{
     borrow::Cow,
     cell::RefCell,
-    fmt::{self, Display, Write},
+    fmt::{Display, Error as FmtError, Write},
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -16,7 +16,7 @@ pub(crate) enum Error {
     #[error(transparent)]
     Json(#[from] serde_json::Error),
     #[error(transparent)]
-    Fmt(#[from] fmt::Error),
+    Fmt(#[from] FmtError),
 }
 
 impl Error {
@@ -25,7 +25,7 @@ impl Error {
     }
 }
 
-impl ser::Error for Error {
+impl SerError for Error {
     fn custom<T: Display>(msg: T) -> Self {
         Self::Custom(msg.to_string().into())
     }

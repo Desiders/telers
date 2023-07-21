@@ -2,16 +2,16 @@
 //! which not so comfortable and not so safe, because you can make a typo in string and it will compile without errors.
 //!
 //! This module contains enums for:
-//! - [`BotCommandScopeType`]: Scope of bot commands, which is used in [`crate::types::BotCommandScope`].
+//! - [`BotCommandScopeType`]: Scope of bot commands, which is used in [`BotCommandScope`].
 //! - [`ChatAction`]: Type of action to broadcast.
 //! - [`ChatMemberStatus`]: Status of a chat member.
 //! - [`ChatType`]: Type of a chat.
 //! - [`ContentType`]: Type of a content.
 //! - [`DiceEmoji`]: Emoji on which the dice throw animation is based.
-//! - [`InlineQueryResultType`]: Type of the result, which is used in [`crate::types::InlineQueryResult`].
-//! - [`InputMediaType`]: Type of the media to send, which is used in [`crate::types::InputMedia`].
+//! - [`InlineQueryResultType`]: Type of the result, which is used in [`InlineQueryResult`].
+//! - [`InputMediaType`]: Type of the media to send, which is used in [`InputMedia`].
 //! - [`MaskPositionPoint`]: Part of the face, relative to which the mask should be placed.
-//! - [`MenuButtonType`]: Type of a button in a custom keyboard, which is used in [`crate::types::MenuButton`].
+//! - [`MenuButtonType`]: Type of a button in a custom keyboard, which is used in [`MenuButton`].
 //! - [`MessageEntityType`]: Type of a message entity.
 //! - [`ParseMode`]: Mode for parsing entities in the message text.
 //! - [`PollType`]: Type of a poll.
@@ -20,9 +20,15 @@
 //! - [`TopicIconColor`]: Color of a topic icon.
 //! - [`UpdateType`]: Type of an incoming update.
 //!
-//! You can pass these enums to methods, because they implement [`std::convert::Into`] trait for [`String`].
+//! You can pass these enums to methods, because they implement [`Into`] trait for [`String`].
 //!
 //! Every enum has a `all` method that returns a list of all possible variants of the enum.
+//!
+//! [`BotCommandScope`]: crate::types::BotCommandScope
+//! [`InlineQueryResult`]: crate::types::InlineQueryResult
+//! [`InputMedia`]: crate::types::InputMedia
+//! [`MenuButton`]: crate::types::MenuButton
+//! [`Into`]: std::convert::Into
 
 pub mod bot_command_scope_type;
 pub mod chat_action;

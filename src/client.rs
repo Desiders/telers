@@ -7,11 +7,11 @@
 //! and [`Session`]s can be customized to fit your needs. Check [`Reqwest`] for more information about default implementation.
 //! You can check example of create [`Bot`] with "other" client and using it in handlers in `examples/other_client.rs`.
 //!
-//! You can use `Bot::send` method, which accepts any type that implements [`crate::methods::TelegramMethod`].
-//! This method is the most comfortable, because you can use any method from [`crate::methods`] module with
+//! You can use `Bot::send` method, which accepts any type that implements [`TelegramMethod`].
+//! This method is the most comfortable, because you can use any method from [`methods module`] with
 //! implemented builders and you don't need to pass all parameters to it, only required,
 //! and optional by using builder methods. Builders yet can have some useful shortcuts.
-//! Also, you can use your own methods, which implements [`crate::methods::TelegramMethod`].
+//! Also, you can use your own methods, which implements [`TelegramMethod`].
 //!
 //! # Example
 //! ```ignore
@@ -32,15 +32,21 @@
 //! }
 //! ```
 //!
-//! [`bot`] module contains [`Bot`] struct, which is the main entry point for the library.
+//! [`bot module`] contains [`Bot`] struct, which is the main entry point for the library.
 //! Check this module documentation for more information.
 //!
-//! [`session`] module contains [`Session`] trait, which is used to send requests to Telegram Bot API.
+//! [`session module`] contains [`Session`] trait, which is used to send requests to Telegram Bot API.
 //! Check this module documentation for more information or if you want to use your own client.
 //!
-//! [`telegram`] module contains configuration of Telegram Bot API, which is used by [`Session`] implementations
+//! [`telegram module`] contains configuration of Telegram Bot API, which is used by [`Session`] implementations
 //! for building URLs for requests and set Telegram Bot API server configuration.
 //! Check this module documentation for more information or if you want to use local Telegram Bot API server.
+//!
+//! [`TelegramMethod`]: crate::methods::TelegramMethod
+//! [`methods module`]: crate::methods
+//! [`bot module`]: crate::client::bot
+//! [`session module`]: crate::client::session
+//! [`telegram module`]: crate::client::telegram
 
 pub mod bot;
 pub mod session;

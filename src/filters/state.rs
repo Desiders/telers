@@ -42,6 +42,8 @@ where
 ///
 /// This type is used to allow set type for [`StateType::Any`] and [`StateType::None`],
 /// because they don't need any type and don't use equality comparisons
+///
+/// It also doesn't allow you to combine [`StateType::Any`] and [`StateType::None`] with other types
 pub enum Dummy {}
 
 impl ToOwned for Dummy {

@@ -5,10 +5,14 @@
 //!
 //! [`Session::send_request`] method is used to send requests and returns [`ClientResponse`] instance,
 //! which is used to get response from Telegram Bot API.
-//! It accepts [`crate::client::Bot`] instance, which is used for building request (for example, to get token),
-//! and [`crate::methods::TelegramMethod`] instance, which is used for building request and [`ClientResponse`] instance,
-//! because [`crate::methods::TelegramMethod`] contains information about response type and request data.
-//! Check [`crate::methods`] module for more information about methods.
+//! It accepts [`Bot`] instance, which is used for building request (for example, to get token),
+//! and [`TelegramMethod`] instance, which is used for building request and [`ClientResponse`] instance,
+//! because [`TelegramMethod`] contains information about response type and request data.
+//! Check [`methods module`] for more information about methods.
+//!
+//! [`Bot`]: crate::client::Bot
+//! [`TelegramMethod`]: crate::methods::TelegramMethod
+//! [`methods module`]: crate::methods
 
 pub mod base;
 pub mod reqwest;

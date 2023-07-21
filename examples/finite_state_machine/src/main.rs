@@ -17,6 +17,7 @@
 //! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package finite_state_machine
 //! ```
 
+use log::{error, info};
 use std::borrow::Cow;
 use telers::{
     enums::ContentType as ContentTypeEnum,
@@ -208,7 +209,7 @@ async fn main() {
         .run_polling()
         .await
     {
-        Ok(_) => log::info!("Bot stopped"),
-        Err(err) => log::error!("Bot stopped with error: {err}"),
+        Ok(_) => info!("Bot stopped"),
+        Err(err) => error!("Bot stopped with error: {err}"),
     }
 }

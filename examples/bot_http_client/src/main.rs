@@ -23,6 +23,8 @@
 //!
 //! [`Bot::with_client`]: telers::Bot#method.with_client
 
+use async_trait::async_trait;
+use log::{error, info};
 use std::borrow::Cow;
 use telers::{
     client::{session::ClientResponse, telegram, Session},
@@ -32,8 +34,6 @@ use telers::{
     types::Message,
     Bot, Dispatcher, Router,
 };
-
-use async_trait::async_trait;
 
 #[derive(Clone)]
 struct CustomClient {
@@ -107,7 +107,7 @@ async fn main() {
         .run_polling()
         .await
     {
-        Ok(_) => log::info!("Bot stopped"),
-        Err(err) => log::error!("Bot stopped with error: {err}"),
+        Ok(_) => info!("Bot stopped"),
+        Err(err) => error!("Bot stopped with error: {err}"),
     }
 }
