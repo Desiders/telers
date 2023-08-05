@@ -1,18 +1,12 @@
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Display};
 
 /// This enum represents all possible types of the poll
 /// # Documentation
 /// <https://core.telegram.org/bots/api#poll>
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum PollType {
     Regular,
     Quiz,
-}
-
-impl Debug for PollType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
 }
 
 impl PollType {
@@ -30,14 +24,20 @@ impl PollType {
     }
 }
 
-impl<'a> PartialEq<&'a str> for PollType {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+impl Display for PollType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
 impl From<PollType> for String {
     fn from(action: PollType) -> Self {
-        action.as_str().to_string()
+        action.as_str().to_owned()
+    }
+}
+
+impl<'a> PartialEq<&'a str> for PollType {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
     }
 }

@@ -1,11 +1,11 @@
 use crate::{errors::UnknownUpdateTypeError, types::Update};
 
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Display};
 
 /// This enum represents all possible types of the update
 /// # Documentation
 /// <https://core.telegram.org/bots/api#update>
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum UpdateType {
     Message,
     InlineQuery,
@@ -21,12 +21,6 @@ pub enum UpdateType {
     MyChatMember,
     ChatMember,
     ChatJoinRequest,
-}
-
-impl Debug for UpdateType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
 }
 
 impl UpdateType {
@@ -71,61 +65,27 @@ impl UpdateType {
     }
 }
 
-impl<'a> PartialEq<&'a str> for UpdateType {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
-    }
-}
-
-impl From<UpdateType> for String {
-    fn from(update_type: UpdateType) -> Self {
-        update_type.as_str().to_string()
+impl Display for UpdateType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
 impl<'a> From<&'a UpdateType> for String {
     fn from(update_type: &'a UpdateType) -> Self {
-        update_type.as_str().to_string()
+        update_type.to_string()
     }
 }
 
-impl TryFrom<Update> for UpdateType {
-    type Error = UnknownUpdateTypeError;
+impl From<UpdateType> for String {
+    fn from(update_type: UpdateType) -> Self {
+        update_type.to_string()
+    }
+}
 
-    fn try_from(update: Update) -> Result<Self, Self::Error> {
-        if update.message.is_some() {
-            Ok(UpdateType::Message)
-        } else if update.inline_query.is_some() {
-            Ok(UpdateType::InlineQuery)
-        } else if update.chosen_inline_result.is_some() {
-            Ok(UpdateType::ChosenInlineResult)
-        } else if update.callback_query.is_some() {
-            Ok(UpdateType::CallbackQuery)
-        } else if update.channel_post.is_some() {
-            Ok(UpdateType::ChannelPost)
-        } else if update.edited_message.is_some() {
-            Ok(UpdateType::EditedMessage)
-        } else if update.edited_channel_post.is_some() {
-            Ok(UpdateType::EditedChannelPost)
-        } else if update.shipping_query.is_some() {
-            Ok(UpdateType::ShippingQuery)
-        } else if update.pre_checkout_query.is_some() {
-            Ok(UpdateType::PreCheckoutQuery)
-        } else if update.poll.is_some() {
-            Ok(UpdateType::Poll)
-        } else if update.poll_answer.is_some() {
-            Ok(UpdateType::PollAnswer)
-        } else if update.my_chat_member.is_some() {
-            Ok(UpdateType::MyChatMember)
-        } else if update.chat_member.is_some() {
-            Ok(UpdateType::ChatMember)
-        } else if update.chat_join_request.is_some() {
-            Ok(UpdateType::ChatJoinRequest)
-        } else {
-            Err(UnknownUpdateTypeError::new(format!(
-                "Unknown update type: {update:?}"
-            )))
-        }
+impl<'a> PartialEq<&'a str> for UpdateType {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
     }
 }
 
@@ -162,10 +122,16 @@ impl<'a> TryFrom<&'a Update> for UpdateType {
         } else if update.chat_join_request.is_some() {
             Ok(UpdateType::ChatJoinRequest)
         } else {
-            Err(UnknownUpdateTypeError::new(format!(
-                "Unknown update type: {update:?}"
-            )))
+            Err(UnknownUpdateTypeError::new(format!("{update:?}")))
         }
+    }
+}
+
+impl TryFrom<Update> for UpdateType {
+    type Error = UnknownUpdateTypeError;
+
+    fn try_from(update: Update) -> Result<Self, Self::Error> {
+        Self::try_from(&update)
     }
 }
 
@@ -188,9 +154,7 @@ impl<'a> TryFrom<&'a str> for UpdateType {
             "my_chat_member" => Ok(UpdateType::MyChatMember),
             "chat_member" => Ok(UpdateType::ChatMember),
             "chat_join_request" => Ok(UpdateType::ChatJoinRequest),
-            _ => Err(UnknownUpdateTypeError::new(format!(
-                "Unknown update type: {value:?}"
-            ))),
+            _ => Err(UnknownUpdateTypeError::new(value.to_owned())),
         }
     }
 }

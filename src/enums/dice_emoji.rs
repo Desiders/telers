@@ -1,12 +1,12 @@
 use std::{
-    fmt::{self, Debug},
+    fmt::{self, Debug, Display},
     ops::{Range, RangeInclusive},
 };
 
 /// This enum represents all possible types of the dice emoji
 /// # Documentation
 /// <https://core.telegram.org/bots/api#dice>
-#[derive(Copy, Clone, Eq, Hash, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, Hash, PartialEq)]
 pub enum DiceEmoji {
     Dice,
     Dart,
@@ -30,12 +30,6 @@ impl DiceEmoji {
     }
 }
 
-impl Debug for DiceEmoji {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
-}
-
 impl From<DiceEmoji> for RangeInclusive<i64> {
     fn from(val: DiceEmoji) -> Self {
         match val {
@@ -56,14 +50,20 @@ impl From<DiceEmoji> for Range<i64> {
     }
 }
 
-impl<'a> PartialEq<&'a str> for DiceEmoji {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+impl Display for DiceEmoji {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
 impl From<DiceEmoji> for String {
     fn from(val: DiceEmoji) -> Self {
-        val.as_str().to_string()
+        val.as_str().to_owned()
+    }
+}
+
+impl<'a> PartialEq<&'a str> for DiceEmoji {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
     }
 }

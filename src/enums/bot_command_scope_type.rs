@@ -1,9 +1,9 @@
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Display};
 
 /// This enum represents all possible types of the bot command scope
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscope>
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum BotCommandScopeType {
     Default,
     AllPrivateChats,
@@ -12,12 +12,6 @@ pub enum BotCommandScopeType {
     Chat,
     ChatAdministrators,
     ChatMember,
-}
-
-impl Debug for BotCommandScopeType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
 }
 
 impl BotCommandScopeType {
@@ -48,14 +42,20 @@ impl BotCommandScopeType {
     }
 }
 
-impl<'a> PartialEq<&'a str> for BotCommandScopeType {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+impl Display for BotCommandScopeType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
 impl From<BotCommandScopeType> for String {
     fn from(scope: BotCommandScopeType) -> Self {
-        scope.as_str().to_string()
+        scope.as_str().to_owned()
+    }
+}
+
+impl<'a> PartialEq<&'a str> for BotCommandScopeType {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
     }
 }

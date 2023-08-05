@@ -1,7 +1,7 @@
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Display};
 
 /// Enums, which are used to identify default [telegram observers](`crate::dispatcher::event::telegram::Observer`)
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Telegram {
     Message,
     InlineQuery,
@@ -18,12 +18,6 @@ pub enum Telegram {
     ChatMember,
     ChatJoinRequest,
     Update,
-}
-
-impl Debug for Telegram {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
 }
 
 impl Telegram {
@@ -70,19 +64,26 @@ impl Telegram {
     }
 }
 
+impl Display for Telegram {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
+
+impl From<Telegram> for String {
+    fn from(scope: Telegram) -> Self {
+        scope.as_str().to_owned()
+    }
+}
+
 impl<'a> PartialEq<&'a str> for Telegram {
     fn eq(&self, other: &&'a str) -> bool {
         self.as_str() == *other
     }
 }
 
-impl From<Telegram> for String {
-    fn from(scope: Telegram) -> Self {
-        scope.as_str().to_string()
-    }
-}
-
 /// Enums, which are used to identify default [simple observers](`crate::dispatcher::event::simple::observer::Observer`).
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Simple {
     Startup,
     Shutdown,
@@ -103,14 +104,20 @@ impl Simple {
     }
 }
 
-impl<'a> PartialEq<&'a str> for Simple {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+impl Display for Simple {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
 impl From<Simple> for String {
     fn from(scope: Simple) -> Self {
-        scope.as_str().to_string()
+        scope.as_str().to_owned()
+    }
+}
+
+impl<'a> PartialEq<&'a str> for Simple {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
     }
 }

@@ -1,9 +1,9 @@
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Display};
 
 /// This enum represents all possible types of the message entity
 /// # Documentation
 /// <https://core.telegram.org/bots/api#messageentity>
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum MessageEntityType {
     Mention,
     Hashtag,
@@ -21,12 +21,6 @@ pub enum MessageEntityType {
     TextLink,
     TextMention,
     CustomEmoji,
-}
-
-impl Debug for MessageEntityType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
 }
 
 impl MessageEntityType {
@@ -75,14 +69,20 @@ impl MessageEntityType {
     }
 }
 
-impl<'a> PartialEq<&'a str> for MessageEntityType {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+impl Display for MessageEntityType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
 impl From<MessageEntityType> for String {
     fn from(entity_type: MessageEntityType) -> Self {
-        entity_type.as_str().to_string()
+        entity_type.as_str().to_owned()
+    }
+}
+
+impl<'a> PartialEq<&'a str> for MessageEntityType {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
     }
 }

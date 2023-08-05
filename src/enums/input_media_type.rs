@@ -1,21 +1,15 @@
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Display};
 
 /// This enum represents all possible types of the input media
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmedia>
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum InputMediaType {
     Animation,
     Audio,
     Document,
     Photo,
     Video,
-}
-
-impl Debug for InputMediaType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
 }
 
 impl InputMediaType {
@@ -42,14 +36,20 @@ impl InputMediaType {
     }
 }
 
-impl<'a> PartialEq<&'a str> for InputMediaType {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+impl Display for InputMediaType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
 impl From<InputMediaType> for String {
     fn from(media_type: InputMediaType) -> Self {
-        media_type.as_str().to_string()
+        media_type.as_str().to_owned()
+    }
+}
+
+impl<'a> PartialEq<&'a str> for InputMediaType {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
     }
 }

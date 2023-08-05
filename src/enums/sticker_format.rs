@@ -1,19 +1,13 @@
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Display};
 
 /// This enum represents all possible types of the sticker
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sticker>
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum StickerFormat {
     Static,
     Animated,
     Video,
-}
-
-impl Debug for StickerFormat {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
 }
 
 impl StickerFormat {
@@ -36,14 +30,20 @@ impl StickerFormat {
     }
 }
 
-impl<'a> PartialEq<&'a str> for StickerFormat {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+impl Display for StickerFormat {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
 impl From<StickerFormat> for String {
     fn from(format: StickerFormat) -> Self {
-        format.as_str().to_string()
+        format.as_str().to_owned()
+    }
+}
+
+impl<'a> PartialEq<&'a str> for StickerFormat {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
     }
 }

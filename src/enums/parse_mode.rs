@@ -1,19 +1,13 @@
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Display};
 
 /// This enum represents all possible types of the parse mode
 /// # Documentation
 /// <https://core.telegram.org/bots/api#formatting-options>
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ParseMode {
     Markdown,
     MarkdownV2,
     HTML,
-}
-
-impl Debug for ParseMode {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
 }
 
 impl ParseMode {
@@ -32,14 +26,20 @@ impl ParseMode {
     }
 }
 
-impl<'a> PartialEq<&'a str> for ParseMode {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_str().to_lowercase() == other.to_lowercase()
+impl Display for ParseMode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
 impl From<ParseMode> for String {
     fn from(parse_mode: ParseMode) -> Self {
-        parse_mode.as_str().to_string()
+        parse_mode.as_str().to_owned()
+    }
+}
+
+impl<'a> PartialEq<&'a str> for ParseMode {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str().to_lowercase() == other.to_lowercase()
     }
 }

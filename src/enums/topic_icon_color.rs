@@ -1,7 +1,7 @@
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Display};
 
 /// This enum represents all possible types of the topic icon color
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum TopicIconColor {
     Blue,
     Yellow,
@@ -9,12 +9,6 @@ pub enum TopicIconColor {
     Green,
     Rose,
     Red,
-}
-
-impl Debug for TopicIconColor {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
 }
 
 impl TopicIconColor {
@@ -43,14 +37,20 @@ impl TopicIconColor {
     }
 }
 
-impl<'a> PartialEq<&'a str> for TopicIconColor {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+impl Display for TopicIconColor {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
 impl From<TopicIconColor> for String {
     fn from(color: TopicIconColor) -> Self {
-        color.as_str().to_string()
+        color.as_str().to_owned()
+    }
+}
+
+impl<'a> PartialEq<&'a str> for TopicIconColor {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
     }
 }

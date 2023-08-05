@@ -1,9 +1,9 @@
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Display};
 
 /// This enum represents all possible types of the chat member status
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmember>
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ChatMemberStatus {
     Creator,
     Administrator,
@@ -11,12 +11,6 @@ pub enum ChatMemberStatus {
     Restricted,
     Left,
     Kicked,
-}
-
-impl Debug for ChatMemberStatus {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
 }
 
 impl ChatMemberStatus {
@@ -45,14 +39,20 @@ impl ChatMemberStatus {
     }
 }
 
-impl<'a> PartialEq<&'a str> for ChatMemberStatus {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+impl Display for ChatMemberStatus {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
 impl From<ChatMemberStatus> for String {
     fn from(status: ChatMemberStatus) -> Self {
-        status.as_str().to_string()
+        status.as_str().to_owned()
+    }
+}
+
+impl<'a> PartialEq<&'a str> for ChatMemberStatus {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
     }
 }

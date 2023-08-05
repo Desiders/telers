@@ -1,9 +1,9 @@
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Display};
 
 /// This enum represents all possible types of the chat action
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sendchataction>
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ChatAction {
     Typing,
     UploadPhoto,
@@ -15,12 +15,6 @@ pub enum ChatAction {
     FindLocation,
     RecordVideoNote,
     UploadVideoNote,
-}
-
-impl Debug for ChatAction {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
 }
 
 impl ChatAction {
@@ -57,14 +51,20 @@ impl ChatAction {
     }
 }
 
-impl<'a> PartialEq<&'a str> for ChatAction {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+impl Display for ChatAction {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
 impl From<ChatAction> for String {
     fn from(action: ChatAction) -> Self {
-        action.as_str().to_string()
+        action.as_str().to_owned()
+    }
+}
+
+impl<'a> PartialEq<&'a str> for ChatAction {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
     }
 }

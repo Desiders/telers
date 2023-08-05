@@ -1,19 +1,13 @@
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Display};
 
 /// This enum represents all possible types of the sticker
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sticker>
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum StickerType {
     Regular,
     Mask,
     CustomEmoji,
-}
-
-impl Debug for StickerType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
 }
 
 impl StickerType {
@@ -36,14 +30,20 @@ impl StickerType {
     }
 }
 
-impl<'a> PartialEq<&'a str> for StickerType {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+impl Display for StickerType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
 impl From<StickerType> for String {
     fn from(action: StickerType) -> Self {
-        action.as_str().to_string()
+        action.as_str().to_owned()
+    }
+}
+
+impl<'a> PartialEq<&'a str> for StickerType {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
     }
 }

@@ -1,9 +1,9 @@
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Display};
 
 /// This enum represents all possible types of the inline query result
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum InlineQueryResultType {
     Article,
     Audio,
@@ -19,12 +19,6 @@ pub enum InlineQueryResultType {
     Video,
     VideoNote,
     Voice,
-}
-
-impl Debug for InlineQueryResultType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
 }
 
 impl InlineQueryResultType {
@@ -69,14 +63,20 @@ impl InlineQueryResultType {
     }
 }
 
-impl<'a> PartialEq<&'a str> for InlineQueryResultType {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+impl Display for InlineQueryResultType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
 impl From<InlineQueryResultType> for String {
     fn from(inline_query_result_type: InlineQueryResultType) -> Self {
-        inline_query_result_type.as_str().to_string()
+        inline_query_result_type.as_str().to_owned()
+    }
+}
+
+impl<'a> PartialEq<&'a str> for InlineQueryResultType {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
     }
 }

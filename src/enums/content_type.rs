@@ -1,9 +1,9 @@
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Display};
 
 /// This enum represents all possible types of the content of the message
 /// # Documentation
 /// <https://core.telegram.org/bots/api#message>
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ContentType {
     Text,
     Animation,
@@ -53,12 +53,6 @@ pub enum ContentType {
     VideoChatParticipantsInvited,
     WebAppData,
     Unknown,
-}
-
-impl Debug for ContentType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
 }
 
 impl ContentType {
@@ -171,14 +165,20 @@ impl ContentType {
     }
 }
 
-impl<'a> PartialEq<&'a str> for ContentType {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+impl Display for ContentType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
 impl From<ContentType> for String {
     fn from(content_type: ContentType) -> Self {
-        content_type.as_str().to_string()
+        content_type.as_str().to_owned()
+    }
+}
+
+impl<'a> PartialEq<&'a str> for ContentType {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
     }
 }

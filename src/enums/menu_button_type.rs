@@ -1,19 +1,13 @@
-use std::fmt::{self, Debug};
+use std::fmt::{self, Debug, Display};
 
 /// This enum represents all possible types of the menu button
 /// # Documentation
 /// <https://core.telegram.org/bots/api#menubutton>
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum MenuButtonType {
     Commands,
     WebApp,
     Default,
-}
-
-impl Debug for MenuButtonType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
 }
 
 impl MenuButtonType {
@@ -36,14 +30,20 @@ impl MenuButtonType {
     }
 }
 
-impl<'a> PartialEq<&'a str> for MenuButtonType {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+impl Display for MenuButtonType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
 impl From<MenuButtonType> for String {
     fn from(button_type: MenuButtonType) -> Self {
-        button_type.as_str().to_string()
+        button_type.as_str().to_owned()
+    }
+}
+
+impl<'a> PartialEq<&'a str> for MenuButtonType {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.as_str() == *other
     }
 }
