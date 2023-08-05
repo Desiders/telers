@@ -383,6 +383,8 @@ where
 
         match self.validate_command_object(&command, bot).await {
             Ok(result) => {
+                context.insert("command", Box::new(command));
+
                 if !result {
                     return false;
                 }
@@ -397,7 +399,6 @@ where
             }
         }
 
-        context.insert("command", Box::new(command));
         true
     }
 }
