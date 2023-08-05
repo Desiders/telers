@@ -1,7 +1,7 @@
 use super::base::{Middleware, Next};
 
 use crate::{
-    error::EventErrorKind,
+    errors::EventErrorKind,
     event::{
         telegram::{HandlerRequest, HandlerResponse},
         EventReturn,

@@ -1,5 +1,5 @@
 use crate::{
-    client::Bot, context::Context, error::ExtractionError, extract::FromEventAndContext,
+    client::Bot, context::Context, errors::ExtractionError, extract::FromEventAndContext,
     filters::command::CommandObject, types::Update,
 };
 

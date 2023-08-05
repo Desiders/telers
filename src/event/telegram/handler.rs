@@ -8,8 +8,8 @@ use crate::event::{
 use crate::{
     client::Bot,
     context::Context,
-    error::{ExtractionError, HandlerError},
-    extract::FromEventAndContext,
+    errors::{ExtractionError, HandlerError},
+    extractors::FromEventAndContext,
     filters::Filter,
     types::Update,
 };

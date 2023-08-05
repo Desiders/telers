@@ -1,5 +1,5 @@
 use crate::{
-    error::HandlerError,
+    errors::HandlerError,
     event::service::{
         factory, fn_service, BoxFuture, BoxService, BoxServiceFactory, Service, ServiceFactory,
     },

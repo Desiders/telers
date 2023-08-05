@@ -1,4 +1,4 @@
-use crate::{error::UnknownUpdateTypeError, types::Update};
+use crate::{errors::UnknownUpdateTypeError, types::Update};
 
 use std::fmt::{self, Debug};
 

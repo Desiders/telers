@@ -3,7 +3,7 @@ use super::FromEventAndContext;
 use crate::{
     client::Bot,
     context::Context,
-    error::ExtractionError,
+    errors::ExtractionError,
     fsm::Context as FSMContext,
     types::{Chat, Update, User},
 };

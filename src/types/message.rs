@@ -8,7 +8,7 @@ use super::{
     Voice, WebAppData, WriteAccessAllowed,
 };
 
-use crate::{enums::ContentType, error::ConvertUpdateToTypeError};
+use crate::{enums::ContentType, errors::ConvertUpdateToTypeError};
 
 use serde::Deserialize;
 

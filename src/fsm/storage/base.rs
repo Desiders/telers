@@ -1,4 +1,4 @@
-use crate::error::{HandlerError, MiddlewareError};
+use crate::errors::{HandlerError, MiddlewareError};
 
 use async_trait::async_trait;
 use serde::{de::DeserializeOwned, Serialize};

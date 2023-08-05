@@ -1,6 +1,6 @@
 use crate::{
     client::{telegram::APIServer, Bot},
-    error::{SessionErrorKind, TelegramErrorKind},
+    errors::{SessionErrorKind, TelegramErrorKind},
     methods::{Response, TelegramMethod},
 };
 

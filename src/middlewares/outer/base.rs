@@ -1,4 +1,4 @@
-use crate::{error::EventErrorKind, event::EventReturn, router::Request};
+use crate::{errors::EventErrorKind, event::EventReturn, router::Request};
 
 use async_trait::async_trait;
 use std::{future::Future, sync::Arc};

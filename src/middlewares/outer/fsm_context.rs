@@ -2,7 +2,7 @@ use super::{Middleware, MiddlewareResponse};
 
 use crate::{
     context::Context as RequestContext,
-    error::{EventErrorKind, MiddlewareError},
+    errors::{EventErrorKind, MiddlewareError},
     event::EventReturn,
     fsm::{
         storage::base::{StorageKey, DEFAULT_DESTINY},

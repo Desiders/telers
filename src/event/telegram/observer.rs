@@ -1,7 +1,7 @@
 use crate::{
     client::Bot,
     context::Context,
-    error::EventErrorKind,
+    errors::EventErrorKind,
     event::{
         bases::{EventReturn, PropagateEventResult},
         service::{Service as _, ServiceFactory as _, ServiceProvider, ToServiceProvider},
@@ -10,7 +10,7 @@ use crate::{
             Result as HandlerResult,
         },
     },
-    extract::FromEventAndContext,
+    extractors::FromEventAndContext,
     filters::Filter,
     middlewares::{
         inner::{
@@ -299,7 +299,7 @@ impl<Client> Debug for ObserverService<Client> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{client::Reqwest, error::HandlerError, filters::Command, types::Message};
+    use crate::{client::Reqwest, errors::HandlerError, filters::Command, types::Message};
 
     use anyhow::anyhow;
     use tokio;

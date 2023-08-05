@@ -11,7 +11,7 @@
 use log::{error, info};
 use telers::{
     enums::UpdateType,
-    error::EventErrorKind,
+    errors::EventErrorKind,
     event::{
         telegram::{HandlerRequest, HandlerResponse, HandlerResult},
         EventReturn, ToServiceProvider as _,

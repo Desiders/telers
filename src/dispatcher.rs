@@ -57,7 +57,7 @@ use super::router::{PropagateEvent, Request, Response};
 use crate::{
     client::{Bot, Session},
     context::Context,
-    error::{EventErrorKind, UnknownUpdateTypeError},
+    errors::{EventErrorKind, UnknownUpdateTypeError},
     event::{
         service::{ServiceProvider, ToServiceProvider},
         simple::HandlerResult as SimpleHandlerResult,

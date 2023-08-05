@@ -1,5 +1,5 @@
 use crate::{
-    error::EventErrorKind,
+    errors::EventErrorKind,
     event::{
         service::Service,
         telegram::{BoxedHandlerService, HandlerRequest, HandlerResponse},

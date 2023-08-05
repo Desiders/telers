@@ -1,6 +1,6 @@
 use super::telegram::handler::Response;
 
-use crate::error::HandlerError;
+use crate::errors::HandlerError;
 
 /// Response, which can be returned from handlers, filters and middlewares by user.
 /// This indicates how [`crate::dispatcher::Dispatcher`] should process response.

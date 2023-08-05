@@ -1,6 +1,6 @@
 use super::{session::base::Session, Reqwest};
 
-use crate::{error::SessionErrorKind, methods::TelegramMethod, utils::token};
+use crate::{errors::SessionErrorKind, methods::TelegramMethod, utils::token};
 
 use std::{
     borrow::Cow,

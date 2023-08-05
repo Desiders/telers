@@ -1,4 +1,4 @@
-use crate::{client::Bot, context::Context, error::ExtractionError, types::Update};
+use crate::{client::Bot, context::Context, errors::ExtractionError, types::Update};
 
 use std::{convert::Infallible, pin::Pin, sync::Arc};
 

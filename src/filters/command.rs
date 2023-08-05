@@ -3,7 +3,7 @@ use super::base::Filter;
 use crate::{
     client::{Bot, Session},
     context::Context,
-    error::SessionErrorKind,
+    errors::SessionErrorKind,
     methods::GetMe,
     types::{BotCommand, Update},
 };

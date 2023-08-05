@@ -1,6 +1,6 @@
 use super::{Chat, ChatInviteLink, ChatMember, Update, User};
 
-use crate::error::ConvertUpdateToTypeError;
+use crate::errors::ConvertUpdateToTypeError;
 
 use serde::Deserialize;
 

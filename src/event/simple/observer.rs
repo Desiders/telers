@@ -122,7 +122,7 @@ impl ObserverService {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::error::HandlerError;
+    use crate::errors::HandlerError;
 
     use anyhow::anyhow;
     use tokio;

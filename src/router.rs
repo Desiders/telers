@@ -5,7 +5,7 @@ use crate::{
         observer_name::{Simple as SimpleObserverName, Telegram as TelegramObserverName},
         update_type::UpdateType,
     },
-    error::EventErrorKind,
+    errors::EventErrorKind,
     event::{
         bases::{EventReturn, PropagateEventResult},
         service::{ServiceProvider, ToServiceProvider},
