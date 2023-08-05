@@ -8,10 +8,13 @@ pub trait FromEventAndContext<Client>: Sized {
 
     /// Extracts data from [`Update`], [`Context`] and [`Bot`] to handler argument
     /// # Returns
-    /// [`Ok(Self)`] if extraction was successful,
-    /// [`Err(Self::Error)`] otherwise
+    /// [`Ok(Self)`] if extraction was successful and [`Err(Self::Error)`] otherwise
     /// # Errors
-    /// [`ExtractionError`] if extraction was unsuccessful
+    /// If extraction was unsuccessful
+    /// Possible variants:
+    /// * No found data in context by key
+    /// * Data in context by key has wrong type. For example, you try to extract `i32` from `String`.
+    /// * Custom user error
     fn extract(
         bot: Arc<Bot<Client>>,
         update: Arc<Update>,
@@ -109,18 +112,17 @@ impl<Client> FromEventAndContext<Client> for () {
 
 #[allow(non_snake_case)]
 mod factory_from_event_and_context {
+    //! This module is used to implement [`FromEventAndContext`] for tuple arguments, each of which implements it
+    //! If one of the arguments fails to extract, the whole extraction fails, and the error is returned
+
     use super::{Arc, Bot, Context, ExtractionError, FromEventAndContext, Update};
 
-    /// [`FromEventAndContext`] implementation for tuple arguments, which implements [`FromEventAndContext`]
-    /// for each of its arguments, and returns [`Ok((value1, value2, ...))`] if extraction was successful,
-    /// and [`Err(error)`] otherwise, where `error` is `T::Error` converted to [`ExtractionError`]
     macro_rules! factory ({ $($param:ident)* } => {
         impl<Client, $($param: FromEventAndContext<Client>,)*> FromEventAndContext<Client> for ($($param,)*) {
             type Error = ExtractionError;
 
             #[inline]
             fn extract(bot: Arc<Bot<Client>>, update: Arc<Update>, context: Arc<Context>) -> Result<Self, Self::Error> {
-                // If any of the arguments fails to extract, the whole extraction fails
                 Ok(($($param::extract(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context)).map_err(Into::into)?,)*))
             }
         }
@@ -176,6 +178,35 @@ mod tests {
         context::Context,
         types::Update,
     };
+
+    #[test]
+    fn test_arg_number() {
+        fn assert_impl_handler<Client, T: FromEventAndContext<Client>>(_: T) {}
+
+        assert_impl_handler::<Reqwest, _>(());
+        assert_impl_handler::<Reqwest, _>((
+            (), // 1
+            (), // 2
+            (), // 3
+            (), // 4
+            (), // 5
+            (), // 6
+            (), // 7
+            (), // 8
+            (), // 9
+            (), // 10
+            (), // 11
+            (), // 12
+            (), // 13
+            (), // 14
+            (), // 15
+            (), // 16
+            (), // 17
+            (), // 18
+            (), // 19
+            (), // 20
+        ));
+    }
 
     #[test]
     fn test_extract() {

@@ -206,9 +206,10 @@ where
 
 #[allow(non_snake_case)]
 mod factory_handlers {
+    //! This module is used to implement [`Handler`] for function-like with 0-20 arguments
+
     use super::{Future, Handler};
 
-    // `Handler` implementation for function-like
     macro_rules! factory ({ $($param:ident)* } => {
         impl<Func, Fut, $($param,)*> Handler<($($param,)*)> for Func
         where
