@@ -23,6 +23,28 @@ pub struct ChatJoinRequest {
     pub invite_link: Option<ChatInviteLink>,
 }
 
+impl ChatJoinRequest {
+    /// Gets the chat ID from the chat join request
+    #[must_use]
+    pub const fn chat_id(&self) -> i64 {
+        self.chat.id
+    }
+
+    /// Gets the sender user ID from the chat join request
+    #[must_use]
+    pub const fn sender_user_id(&self) -> i64 {
+        self.from.id
+    }
+
+    /// Gets the sender user ID from the chat join request
+    /// # Notes
+    /// Alias to `sender_user_id` method
+    #[must_use]
+    pub const fn user_id(&self) -> i64 {
+        self.sender_user_id()
+    }
+}
+
 impl TryFrom<Update> for ChatJoinRequest {
     type Error = ConvertUpdateToTypeError;
 
@@ -30,9 +52,7 @@ impl TryFrom<Update> for ChatJoinRequest {
         if let Some(chat_join_request) = update.chat_join_request {
             Ok(chat_join_request)
         } else {
-            Err(ConvertUpdateToTypeError::new(format!(
-                "Update `{update:?}` doesn't contain `ChatJoinRequest`"
-            )))
+            Err(ConvertUpdateToTypeError::new("ChatJoinRequest"))
         }
     }
 }

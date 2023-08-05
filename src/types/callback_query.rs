@@ -26,6 +26,52 @@ pub struct CallbackQuery {
     pub game_short_name: Option<String>,
 }
 
+impl CallbackQuery {
+    /// Gets the sender user ID from the callback query
+    #[must_use]
+    pub const fn sender_user_id(&self) -> i64 {
+        self.from.id
+    }
+
+    /// Gets the sender user ID from the callback query
+    /// # Notes
+    /// Alias to `sender_user_id` method
+    #[must_use]
+    pub const fn user_id(&self) -> i64 {
+        self.sender_user_id()
+    }
+
+    /// Gets the chat ID from the callback query
+    #[must_use]
+    pub const fn chat_id(&self) -> Option<i64> {
+        if let Some(message) = &self.message {
+            Some(message.chat.id)
+        } else {
+            None
+        }
+    }
+
+    /// Gets the message ID from the message of callback query
+    #[must_use]
+    pub const fn message_id(&self) -> Option<i64> {
+        if let Some(message) = &self.message {
+            Some(message.message_id)
+        } else {
+            None
+        }
+    }
+
+    /// Gets the message text from the message of callback query
+    #[must_use]
+    pub fn message_text(&self) -> Option<&str> {
+        if let Some(message) = &self.message {
+            message.text.as_deref()
+        } else {
+            None
+        }
+    }
+}
+
 impl TryFrom<Update> for CallbackQuery {
     type Error = ConvertUpdateToTypeError;
 
@@ -33,9 +79,7 @@ impl TryFrom<Update> for CallbackQuery {
         if let Some(callback_query) = update.callback_query {
             Ok(callback_query)
         } else {
-            Err(ConvertUpdateToTypeError::new(format!(
-                "Update `{update:?}` doesn't contain `CallbackQuery`"
-            )))
+            Err(ConvertUpdateToTypeError::new("CallbackQuery"))
         }
     }
 }

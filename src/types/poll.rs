@@ -45,9 +45,7 @@ impl TryFrom<Update> for Poll {
         if let Some(poll) = update.poll {
             Ok(poll)
         } else {
-            Err(ConvertUpdateToTypeError::new(format!(
-                "Update {update:?} doesn't contain `Poll`"
-            )))
+            Err(ConvertUpdateToTypeError::new("Poll"))
         }
     }
 }

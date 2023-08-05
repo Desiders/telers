@@ -25,6 +25,22 @@ pub struct PreCheckoutQuery {
     pub order_info: Option<OrderInfo>,
 }
 
+impl PreCheckoutQuery {
+    /// Gets the sender user ID from the pre-checkout query
+    #[must_use]
+    pub const fn sender_user_id(&self) -> i64 {
+        self.from.id
+    }
+
+    /// Gets the sender user ID from the pre-checkout query
+    /// # Notes
+    /// Alias to `sender_user_id` method
+    #[must_use]
+    pub const fn user_id(&self) -> i64 {
+        self.sender_user_id()
+    }
+}
+
 impl TryFrom<Update> for PreCheckoutQuery {
     type Error = ConvertUpdateToTypeError;
 
@@ -32,9 +48,7 @@ impl TryFrom<Update> for PreCheckoutQuery {
         if let Some(pre_checkout_query) = update.pre_checkout_query {
             Ok(pre_checkout_query)
         } else {
-            Err(ConvertUpdateToTypeError::new(format!(
-                "Update `{update:?}` doesn't contain `PreCheckoutQuery`"
-            )))
+            Err(ConvertUpdateToTypeError::new("PreCheckoutQuery"))
         }
     }
 }

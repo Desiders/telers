@@ -19,6 +19,22 @@ pub struct ShippingQuery {
     pub shipping_address: ShippingAddress,
 }
 
+impl ShippingQuery {
+    /// Gets the sender user ID from the shipping query
+    #[must_use]
+    pub const fn sender_user_id(&self) -> i64 {
+        self.from.id
+    }
+
+    /// Gets the sender user ID from the shipping query
+    /// # Notes
+    /// Alias to `sender_user_id` method
+    #[must_use]
+    pub const fn user_id(&self) -> i64 {
+        self.sender_user_id()
+    }
+}
+
 impl TryFrom<Update> for ShippingQuery {
     type Error = ConvertUpdateToTypeError;
 
@@ -26,9 +42,7 @@ impl TryFrom<Update> for ShippingQuery {
         if let Some(shipping_query) = update.shipping_query {
             Ok(shipping_query)
         } else {
-            Err(ConvertUpdateToTypeError::new(format!(
-                "Update `{update:?}` doesn't contain `ShippingQuery`"
-            )))
+            Err(ConvertUpdateToTypeError::new("ShippingQuery"))
         }
     }
 }

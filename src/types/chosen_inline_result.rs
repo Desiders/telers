@@ -30,9 +30,7 @@ impl TryFrom<Update> for ChosenInlineResult {
         if let Some(chosen_inline_result) = update.chosen_inline_result {
             Ok(chosen_inline_result)
         } else {
-            Err(ConvertUpdateToTypeError::new(format!(
-                "Update `{update:?}` doesn't contain `ChosenInlineResult`"
-            )))
+            Err(ConvertUpdateToTypeError::new("ChosenInlineResult"))
         }
     }
 }

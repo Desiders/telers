@@ -17,6 +17,22 @@ pub struct PollAnswer {
     pub option_ids: Vec<i64>,
 }
 
+impl PollAnswer {
+    /// Gets the sender user ID from the poll answer
+    #[must_use]
+    pub const fn sender_user_id(&self) -> i64 {
+        self.user.id
+    }
+
+    /// Gets the sender user ID from the poll answer
+    /// # Notes
+    /// Alias to `sender_user_id` method
+    #[must_use]
+    pub const fn user_id(&self) -> i64 {
+        self.sender_user_id()
+    }
+}
+
 impl TryFrom<Update> for PollAnswer {
     type Error = ConvertUpdateToTypeError;
 
@@ -24,9 +40,7 @@ impl TryFrom<Update> for PollAnswer {
         if let Some(poll_answer) = update.poll_answer {
             Ok(poll_answer)
         } else {
-            Err(ConvertUpdateToTypeError::new(format!(
-                "Update `{update:?}` doesn't contain `PollAnswer`"
-            )))
+            Err(ConvertUpdateToTypeError::new("PollAnswer"))
         }
     }
 }

@@ -46,7 +46,7 @@ pub struct Update {
 impl Update {
     /// Gets the [`User`] who sent the update
     #[must_use]
-    pub fn user(&self) -> Option<&User> {
+    pub const fn user(&self) -> Option<&User> {
         if let Some(message) = &self.message {
             message.from.as_ref()
         } else if let Some(inline_query) = &self.inline_query {
@@ -78,23 +78,31 @@ impl Update {
     /// # Notes
     /// Alias to `user` method
     #[must_use]
-    pub fn from(&self) -> Option<&User> {
+    pub const fn from(&self) -> Option<&User> {
         self.user()
     }
 
     /// Gets the user ID from the update
     #[must_use]
-    pub fn user_id(&self) -> Option<i64> {
-        self.user().map(|user| user.id)
+    pub const fn user_id(&self) -> Option<i64> {
+        if let Some(user) = self.user() {
+            Some(user.id)
+        } else {
+            None
+        }
     }
 
     /// Gets the [`Chat`] where the update was sent
     #[must_use]
-    pub fn chat(&self) -> Option<&Chat> {
+    pub const fn chat(&self) -> Option<&Chat> {
         if let Some(message) = &self.message {
             Some(&message.chat)
         } else if let Some(callback_query) = &self.callback_query {
-            Some(&callback_query.message.as_ref()?.chat)
+            if let Some(message) = &callback_query.message {
+                Some(&message.chat)
+            } else {
+                None
+            }
         } else if let Some(message) = &self.channel_post {
             Some(&message.chat)
         } else if let Some(message) = &self.edited_message {
@@ -114,15 +122,19 @@ impl Update {
 
     /// Gets the chat ID from the update
     #[must_use]
-    pub fn chat_id(&self) -> Option<i64> {
-        self.chat().map(|chat| chat.id)
+    pub const fn chat_id(&self) -> Option<i64> {
+        if let Some(chat) = self.chat() {
+            Some(chat.id)
+        } else {
+            None
+        }
     }
 
     /// Gets [`User`] and [`Chat`] from the update
     /// # Notes
     /// Shortcut to `user` and `chat` methods
     #[must_use]
-    pub fn user_and_chat(&self) -> (Option<&User>, Option<&Chat>) {
+    pub const fn user_and_chat(&self) -> (Option<&User>, Option<&Chat>) {
         (self.user(), self.chat())
     }
 
@@ -130,19 +142,43 @@ impl Update {
     #[must_use]
     pub fn text(&self) -> Option<&str> {
         if let Some(message) = &self.message {
-            message.text.as_deref()
+            if let Some(text) = &message.text {
+                Some(text)
+            } else if let Some(caption) = &message.caption {
+                Some(caption)
+            } else {
+                None
+            }
         } else if let Some(inline_query) = &self.inline_query {
             Some(&inline_query.query)
         } else if let Some(chosen_inline_result) = &self.chosen_inline_result {
             Some(&chosen_inline_result.query)
         } else if let Some(callback_query) = &self.callback_query {
             callback_query.data.as_deref()
-        } else if let Some(message) = &self.edited_message {
-            message.text.as_deref()
+        } else if let Some(edited_message) = &self.edited_message {
+            if let Some(text) = &edited_message.text {
+                Some(text)
+            } else if let Some(caption) = &edited_message.caption {
+                Some(caption)
+            } else {
+                None
+            }
         } else if let Some(channel_post) = &self.channel_post {
-            channel_post.text.as_deref()
+            if let Some(text) = &channel_post.text {
+                Some(text)
+            } else if let Some(caption) = &channel_post.caption {
+                Some(caption)
+            } else {
+                None
+            }
         } else if let Some(edited_channel_post) = &self.edited_channel_post {
-            edited_channel_post.text.as_deref()
+            if let Some(text) = &edited_channel_post.text {
+                Some(text)
+            } else if let Some(caption) = &edited_channel_post.caption {
+                Some(caption)
+            } else {
+                None
+            }
         } else if let Some(shipping_query) = &self.shipping_query {
             Some(&shipping_query.invoice_payload)
         } else if let Some(pre_checkout_query) = &self.pre_checkout_query {
@@ -156,13 +192,17 @@ impl Update {
 
     /// Gets the message thread ID from the update
     #[must_use]
-    pub fn message_thread_id(&self) -> Option<i64> {
+    pub const fn message_thread_id(&self) -> Option<i64> {
         if let Some(message) = &self.message {
             message.message_thread_id
         } else if let Some(message) = &self.edited_message {
             message.message_thread_id
         } else if let Some(callback_query) = &self.callback_query {
-            callback_query.message.as_ref()?.message_thread_id
+            if let Some(message) = &callback_query.message {
+                message.message_thread_id
+            } else {
+                None
+            }
         } else {
             None
         }
@@ -172,7 +212,7 @@ impl Update {
     /// # Notes
     /// Alias to `message_thread_id` method
     #[must_use]
-    pub fn thread_id(&self) -> Option<i64> {
+    pub const fn thread_id(&self) -> Option<i64> {
         self.message_thread_id()
     }
 }

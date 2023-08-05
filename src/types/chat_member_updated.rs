@@ -25,6 +25,20 @@ pub struct ChatMemberUpdated {
     pub via_chat_folder_invite_link: Option<bool>,
 }
 
+impl ChatMemberUpdated {
+    /// Gets the chat ID from the chat member updated
+    #[must_use]
+    pub const fn chat_id(&self) -> i64 {
+        self.chat.id
+    }
+
+    /// Gets the user ID from the chat member updated
+    #[must_use]
+    pub const fn user_id(&self) -> i64 {
+        self.from.id
+    }
+}
+
 impl TryFrom<Update> for ChatMemberUpdated {
     type Error = ConvertUpdateToTypeError;
 
@@ -34,9 +48,7 @@ impl TryFrom<Update> for ChatMemberUpdated {
         } else if let Some(chat_member_updated) = update.chat_member {
             Ok(chat_member_updated)
         } else {
-            Err(ConvertUpdateToTypeError::new(format!(
-                "Update `{update:?}` doesn't contain `ChatMemberUpdated`"
-            )))
+            Err(ConvertUpdateToTypeError::new("ChatMemberUpdated"))
         }
     }
 }

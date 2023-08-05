@@ -162,6 +162,79 @@ pub struct Message {
 }
 
 impl Message {
+    /// Gets the sender user ID from the message
+    #[must_use]
+    pub const fn sender_user_id(&self) -> Option<i64> {
+        if let Some(from) = &self.from {
+            Some(from.id)
+        } else {
+            None
+        }
+    }
+
+    /// Gets the sender user ID from the message
+    /// # Notes
+    /// Alias to `sender_user_id` method
+    #[must_use]
+    pub const fn user_id(&self) -> Option<i64> {
+        self.sender_user_id()
+    }
+
+    /// Gets the forward user ID from the message
+    #[must_use]
+    pub const fn forward_user_id(&self) -> Option<i64> {
+        if let Some(forward_from) = &self.forward_from {
+            Some(forward_from.id)
+        } else {
+            None
+        }
+    }
+
+    /// Gets the sender chat ID from the message
+    #[must_use]
+    pub const fn sender_chat_id(&self) -> i64 {
+        self.chat.id
+    }
+
+    /// Gets the sender chat ID from the message
+    /// # Notes
+    /// Alias to `sender_chat_id` method
+    #[must_use]
+    pub const fn chat_id(&self) -> i64 {
+        self.sender_chat_id()
+    }
+
+    /// Gets the forward chat ID from the message
+    #[must_use]
+    pub const fn forward_chat_id(&self) -> Option<i64> {
+        if let Some(forward_from_chat) = &self.forward_from_chat {
+            Some(forward_from_chat.id)
+        } else {
+            None
+        }
+    }
+
+    /// Gets the via bot ID from the message
+    #[must_use]
+    pub const fn via_bot_id(&self) -> Option<i64> {
+        if let Some(via_bot) = &self.via_bot {
+            Some(via_bot.id)
+        } else {
+            None
+        }
+    }
+
+    /// Gets the user shared ID from the message
+    #[must_use]
+    pub const fn user_shared_id(&self) -> Option<i64> {
+        if let Some(user_shared) = &self.user_shared {
+            Some(user_shared.user_id)
+        } else {
+            None
+        }
+    }
+
+    /// Gets the text or caption from the message
     #[must_use]
     pub fn get_text_or_caption(&self) -> Option<&str> {
         if let Some(text) = &self.text {
@@ -173,8 +246,9 @@ impl Message {
         }
     }
 
+    /// Gets the content type of the message
     #[must_use]
-    pub fn content_type(&self) -> ContentType {
+    pub const fn content_type(&self) -> ContentType {
         if self.text.is_some() {
             ContentType::Text
         } else if self.audio.is_some() {
@@ -263,6 +337,32 @@ impl Message {
             ContentType::Unknown
         }
     }
+
+    /// Gets file ID from the message
+    /// # Notes
+    /// If the content type is `ContentType::Photo`, it will return the last photo's file ID
+    #[must_use]
+    pub fn file_id(&self) -> Option<&str> {
+        if let Some(audio) = &self.audio {
+            Some(&audio.file_id)
+        } else if let Some(document) = &self.document {
+            Some(&document.file_id)
+        } else if let Some(photo) = &self.photo {
+            Some(&photo[photo.len() - 1].file_id)
+        } else if let Some(sticker) = &self.sticker {
+            Some(&sticker.file_id)
+        } else if let Some(video) = &self.video {
+            Some(&video.file_id)
+        } else if let Some(voice) = &self.voice {
+            Some(&voice.file_id)
+        } else if let Some(video_note) = &self.video_note {
+            Some(&video_note.file_id)
+        } else if let Some(animation) = &self.animation {
+            Some(&animation.file_id)
+        } else {
+            None
+        }
+    }
 }
 
 impl TryFrom<Update> for Message {
@@ -278,9 +378,7 @@ impl TryFrom<Update> for Message {
         } else if let Some(message) = update.edited_channel_post {
             Ok(message)
         } else {
-            Err(ConvertUpdateToTypeError::new(format!(
-                "Update `{update:?}` doesn't contain `Message`",
-            )))
+            Err(ConvertUpdateToTypeError::new("Message"))
         }
     }
 }
