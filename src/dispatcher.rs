@@ -75,13 +75,13 @@ use tokio::sync::mpsc::{channel as mspc_channel, error::SendError, Sender};
 const GET_UPDATES_SIZE: i64 = 100;
 const DEFAULT_POLLING_TIMEOUT: i64 = 30;
 
-#[derive(thiserror::Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 enum ListenerError<T> {
     #[error(transparent)]
     SendError(#[from] SendError<T>),
 }
 
-#[derive(thiserror::Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 enum PollingError {
     #[error("Polling was aborted by signal")]
     Aborted,

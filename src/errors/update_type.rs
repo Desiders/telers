@@ -5,17 +5,19 @@ use thiserror;
 ///
 /// This error is need to possible handle incorrect update types or unsupported update types,
 /// that can be added in the new versions of the Telegram Bot API.
-#[derive(thiserror::Error, Debug)]
-#[error("Unknown update type error: {msg}")]
+#[derive(Debug, thiserror::Error)]
+#[error("Unknown update type `{raw_type}`")]
 pub struct UnknownUpdateType {
-    msg: Cow<'static, str>,
+    raw_type: Cow<'static, str>,
 }
 
 impl UnknownUpdateType {
-    pub fn new<T>(msg: T) -> Self
+    pub fn new<T>(raw_type: T) -> Self
     where
         T: Into<Cow<'static, str>>,
     {
-        Self { msg: msg.into() }
+        Self {
+            raw_type: raw_type.into(),
+        }
     }
 }

@@ -35,7 +35,7 @@ impl StorageKey {
     }
 }
 
-#[derive(thiserror::Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 #[error("Storage error: {msg}")]
 pub struct Error {
     msg: Cow<'static, str>,

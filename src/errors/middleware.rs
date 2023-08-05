@@ -2,7 +2,7 @@ use anyhow;
 use thiserror;
 
 /// Error that can occur when processing an inner middleware
-#[derive(thiserror::Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 #[error(transparent)]
 pub struct Error {
     #[from]

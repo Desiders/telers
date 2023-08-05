@@ -9,7 +9,7 @@ use thiserror;
 /// defined by messages in the responses, but these messages can be changed in the future (frequent situation).
 /// So, many errors are represents as [`ErrorKind::BadRequest`], and we are not trying to distinguish them
 /// for stability. Thanks Telegram Bot API for this ^_^.
-#[derive(thiserror::Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum ErrorKind {
     #[error("TelegramNetworkError: {message:?}")]
     NetworkError { message: String },

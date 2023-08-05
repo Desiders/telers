@@ -9,7 +9,7 @@ use thiserror;
 /// for example [`serde_json::Error`].
 ///
 /// Possible Telegram Bot API errors are described in enum [`TelegramErrorKind`], check it out.
-#[derive(thiserror::Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum ErrorKind {
     /// Error while sending request or decoding response
     #[error(transparent)]

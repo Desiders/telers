@@ -6,7 +6,7 @@ use thiserror;
 /// Error that can occur when processing a handler.
 /// Usually it is a wrapper for [`SessionErrorKind`] or [`TelegramErrorKind`] errors,
 /// but it can also be a wrapper for any other error, for example, [`std::io::Error`].
-#[derive(thiserror::Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 #[error(transparent)]
 pub struct Error {
     #[from]
