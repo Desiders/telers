@@ -21,11 +21,6 @@
 /// - Data to extract must be cloneable, it's cloned from reference to context
 /// - First generic or type must be a client
 /// - Trailing comma is optional
-/// # Variants
-/// * Variant with client generic or type and generics
-/// * Variant with client generic or type and no generics
-/// * Variant with client generic or type, generics and no key
-/// * Variant with client generic or type, no generics and no key
 /// # Examples
 /// ```ignore
 /// use std::sync::Arc;
@@ -53,20 +48,17 @@
 #[allow(clippy::module_name_repetitions)]
 #[macro_export]
 macro_rules! from_context_impl {
-    // Variant with client generic or type and generics
     (
         [
-            $client_generic_or_type:ident,
-            $(
+            $client_generic_or_type:ident
+            $(,
                 $generic:tt
                 $(:
                     $generic_bound:tt $(+ $generic_bounds:tt)*
                 )?
-            ),* $(,)?
+            )* $(,)?
         ],
-        $(
-            $type_name:ty
-        ),+,
+        $type_name:ty,
         $key:literal $(,)?
     ) => {
         impl<
@@ -76,9 +68,9 @@ macro_rules! from_context_impl {
                     $generic_bound $(+ $generic_bounds)*
                 )?
             ),*
-        > FromEventAndContext<$client_generic_or_type> for $($type_name),+
+        > FromEventAndContext<$client_generic_or_type> for $type_name
         where
-            $($type_name: 'static),+
+            $type_name: 'static,
         {
             type Error = ExtractionError;
 
@@ -93,10 +85,9 @@ macro_rules! from_context_impl {
                         None => Err(ExtractionError::new(concat!(
                             "Data in context by key `",
                             $key,
-                            "` has wrong type. Expected `",
-                            stringify!($($type_name),+),
-                            "`, found `",
-                            stringify!(any::type_name_of_val(data)),
+                            "` has wrong type expected `",
+                            stringify!($type_name),
+                            "`",
                         ))),
                     },
                     None => Err(ExtractionError::new(concat!(
@@ -109,41 +100,17 @@ macro_rules! from_context_impl {
         }
     };
 
-    // Variant with client generic or type and no generics
     (
         [
-            $client_generic_or_type:ident $(,)?
-        ],
-        $(
-            $type_name:ty
-        ),+,
-        $key:literal $(,)?
-    ) => {
-        from_context_impl!(
-            [
-                $client_generic_or_type,
-            ],
-            $(
-                $type_name
-            ),+,
-            $key
-        );
-    };
-
-    // Variant with client generic or type, generics and no key
-    (
-        [
-            $client_generic_or_type:ident,
-            $(
+            $client_generic_or_type:ident
+            $(,
                 $generic:tt
                 $(:
                     $generic_bound:tt $(+ $generic_bounds:tt)*
                 )?
-            ),* $(,)?
+            )* $(,)?
         ],
-        $(
-            $type_name:ty
-        ),+ $(,)?
+        $type_name:ty $(,)?
     ) => {
         impl<
             $client_generic_or_type,
@@ -152,9 +119,9 @@ macro_rules! from_context_impl {
                     $generic_bound $(+ $generic_bounds)*
                 )?
             ),*
-        > FromEventAndContext<$client_generic_or_type> for $($type_name),+
+        > FromEventAndContext<$client_generic_or_type> for $type_name
         where
-            $($type_name: 'static),+
+            $type_name: 'static,
         {
             type Error = ExtractionError;
 
@@ -171,30 +138,173 @@ macro_rules! from_context_impl {
 
                 Err(ExtractionError::new(concat!(
                     "No found data in context with type `",
-                    stringify!($($type_name),+),
+                    stringify!($type_name),
                     '`'
                 )))
             }
         }
     };
+}
 
-    // Variant with client generic or type, no generics and no key
+/// Implements [`super::FromEventAndContext`] for types that can be extracts from the context by key and converted to another type.
+/// This macro is similar to [`from_context_impl!`] but it converts extracted data to another type.
+/// It's useful when you want to implement [`super::FromEventAndContext`] for foreign types and orphans rules don't allow you to do it,
+/// so you can create a wrapper type and implement for it.
+/// # Syntax
+/// ```ignore
+/// from_context_into_impl!(
+///     [client_generic_or_type] |
+///         [client_generic_or_type, generic1, ...] |.
+///         [client_generic_or_type, generic1: generic1_bound + ..., ...] |
+///         [client_generic_or_type, generic1: generic1_bound + ... + 'static, ...] // `'static` lifetime is implicitly added to generics
+///     ,
+///     type_to_extract => wrapper_type_to_convert |
+///         type_to_extract<generic1, ...> => wrapper_type_to_convert<generic1, ...>
+///     ,
+///     key_in_context (optional) // if not specified, search will be by type (expensive operation)
+///     ,
+/// );
+/// ```
+/// # Notes
+/// - Extracted data must be convertible to the wrapper type
+/// - If you want to search data in the context by key, you must specify it in the third argument or search will be by type (expensive operation)
+/// - This macro throws a runtime extraction error if the data in the context by key has wrong type or no found
+/// - Lifetimes except `'static` aren't supported. `'static` lifetime is implicitly adding to generics and types that are passes to extract
+/// - Data to extract must be cloneable, it's cloned from reference to context
+/// - First generic or type must be a client
+/// - Trailing comma is optional
+/// # Examples
+/// ```ignore
+/// use std::sync::Arc;
+/// use telers::{
+///     errors::ExtractionError,
+///     event::{telegram::HandlerResult, EventReturn},
+///     extractors::{from_context_impl, FromEventAndContext},
+///     types::Update,
+///     Bot, Context,
+/// };
+///
+/// #[derive(Clone)]
+/// struct A;
+///
+/// struct Wrapper<A>(A);
+///
+/// #[derive(Clone)]
+/// struct B<T, U>(T, U);
+///
+/// impl<T> From<T> for Wrapper<T> {
+///    fn from(data: T) -> Self {
+///       Self(data)
+/// }
+///
+/// from_context_impl!([Client], A => Wrapper<A>, "a");
+/// from_context_into_impl!([Client, T: Clone, U: Clone], B<T, U> => Wrapper<B<T, U>>, "b");
+///
+///async fn handler<T: Clone, U: Clone>(_bot: Bot, _a: Wrapper<A>, _b: B<T, U>) -> HandlerResult {
+///    todo!()
+/// }
+/// ```
+#[allow(clippy::module_name_repetitions)]
+#[macro_export]
+macro_rules! from_context_into_impl {
     (
         [
-            $client_generic_or_type:ident $(,)?
+            $client_generic_or_type:ident
+            $(,
+                $generic:tt
+                $(:
+                    $generic_bound:tt $(+ $generic_bounds:tt)*
+                )?
+            )* $(,)?
         ],
-        $(
-            $type_name:ty
-        ),+ $(,)?
+        $type_name:ty
+        =>
+        $wrapper_type:ty,
+        $key:literal $(,)?
     ) => {
-        from_context_impl!(
-            [
-                $client_generic_or_type,
-            ],
+        impl<
+            $client_generic_or_type,
             $(
-                $type_name
-            ),+,
-        );
+                $generic $(:
+                    $generic_bound $(+ $generic_bounds)*
+                )?
+            ),*
+        > FromEventAndContext<$client_generic_or_type> for $wrapper_type
+        where
+            $type_name: 'static,
+            $wrapper_type: From<$type_name>,
+        {
+            type Error = ExtractionError;
+
+            fn extract(
+                _bot: Arc<Bot<$client_generic_or_type>>,
+                _update: Arc<Update>,
+                context: Arc<Context>,
+            ) -> Result<Self, Self::Error> {
+                match context.get($key) {
+                    Some(data) => match data.downcast_ref::<$type_name>() {
+                        Some(data) => Ok(data.clone().into()),
+                        None => Err(ExtractionError::new(concat!(
+                            "Data in context by key `",
+                            $key,
+                            "` has wrong type expected `",
+                            stringify!($type_name),
+                            "`",
+                        ))),
+                    },
+                    None => Err(ExtractionError::new(concat!(
+                        "No found data in context by key `",
+                        $key,
+                        '`'
+                    ))),
+                }
+            }
+        }
+    };
+
+    (
+        [
+            $client_generic_or_type:ident
+            $(,
+                $generic:tt
+                $(:
+                    $generic_bound:tt $(+ $generic_bounds:tt)*
+                )?
+            )* $(,)?
+        ],
+        $type_name:ty => $wrapper_type:ty $(,)?
+    ) => {
+        impl<
+            $client_generic_or_type,
+            $(
+                $generic $(:
+                    $generic_bound $(+ $generic_bounds)*
+                )?
+            ),*
+        > FromEventAndContext<$client_generic_or_type> for $type_name
+        where
+            $type_name: 'static,
+        {
+            type Error = ExtractionError;
+
+            fn extract(
+                _bot: Arc<Bot<$client_generic_or_type>>,
+                _update: Arc<Update>,
+                context: Arc<Context>,
+            ) -> Result<Self, Self::Error> {
+                for ref_multi in context.iter() {
+                    if let Some(data) = ref_multi.value().downcast_ref::<Self>() {
+                        return Ok(data.clone().into());
+                    };
+                }
+
+                Err(ExtractionError::new(concat!(
+                    "No found data in context with type `",
+                    stringify!($type_name),
+                    '`'
+                )))
+            }
+        }
     };
 }
 
@@ -254,10 +364,22 @@ mod tests {
             }
         }
 
+        #[derive(Debug, PartialEq)]
+        struct Wrapper<T>(T);
+
+        impl<T> From<T> for Wrapper<T> {
+            fn from(data: T) -> Self {
+                Self(data)
+            }
+        }
+
         from_context_impl!([Client], A, "a");
         from_context_impl!([Client, T], B<T>, "b");
         from_context_impl!([Client, T: Clone, U: Clone], C<T, U>, "c");
         from_context_impl!([Client], D);
+
+        from_context_into_impl!([Client], A => Wrapper<A>, "a");
+        from_context_into_impl!([Client, T: Clone, U: Clone], C<T, U> => Wrapper<C<T, U>>, "c");
 
         let bot = Arc::new(Bot::<Reqwest>::default());
         let update = Arc::new(Update::default());
@@ -291,6 +413,14 @@ mod tests {
         assert_eq!(
             D(Arc::new(Box::new(A))),
             D::extract(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context)).unwrap()
+        );
+        assert_eq!(
+            Wrapper(A),
+            Wrapper::extract(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context)).unwrap()
+        );
+        assert_eq!(
+            Wrapper(C(1i32, 2i64)),
+            Wrapper::extract(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context)).unwrap()
         );
     }
 }
