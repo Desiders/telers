@@ -1,18 +1,21 @@
 //! This module contains functionality for extracting data from the event and context to the handler arguments.
 //!
-//! [`FromEventAndContext`] is the main trait for extracting data from the event and context to the handler arguments.
+//! [`FromEventAndContext`] is the main trait to extracts data from the event and context to the handler arguments.
 //!
-//! By default [`FromEventAndContext`] is implemented for [`Option`] and [`Result`],
-//! so you can use [`Option`] and [`Result`] to make arguments optional and handle errors of extraction.
+//! The trait is implements for [`Option<T>`], [`Result<T, E>`], [`Box<T>`] and [`Pin<Box<T>>`] where `T: FromEventAndContext`,
+//! also for the most common middlewares, types and filters (some of them creates structs, for example [`CommandObject`] by command filter).
+//! You can use these as handler arguments.
 //!
-//! You can implement [`FromEventAndContext`] for your own types and use them as handler arguments.
-//! [`FromEventAndContext`] is implemented for the most common filters, middlewares and types.
+//! You can implement [`FromEventAndContext`] for your own types directly or using the [`from_context_impl`] macro.
+//! Check out the [`from_context_impl`] macro documentation for more information.
 //!
-//! Important, that limit of the number of arguments in the handler is 20.
+//! [`CommandObject`]: crate::filters::CommandObject
 
 mod extractor;
 mod filters;
+mod from_context;
 mod middlewares;
 mod types;
 
+pub use crate::from_context_impl;
 pub use extractor::FromEventAndContext;
