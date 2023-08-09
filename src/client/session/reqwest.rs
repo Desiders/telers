@@ -12,7 +12,6 @@ use crate::{
 };
 
 use async_trait::async_trait;
-use log::error;
 use reqwest::{
     multipart::{Form, Part},
     Body, Client, ClientBuilder,
@@ -20,6 +19,7 @@ use reqwest::{
 use serde::Serialize;
 use std::{borrow::Cow, collections::HashMap, io, time::Duration};
 use thiserror;
+use tracing::{event, field, instrument, Level, Span};
 
 #[derive(Debug, thiserror::Error)]
 pub(crate) enum BuildFormError {
@@ -58,6 +58,7 @@ impl Reqwest {
         }
     }
 
+    #[instrument(skip(self, data))]
     async fn build_form_data<'a, T>(
         &self,
         data: &T,
@@ -77,6 +78,7 @@ impl Reqwest {
 
                 match Box::pin(read_file_fut).await {
                     Ok(bytes) => {
+                        // TODO: Add using stream for files
                         let body = Body::from(bytes);
                         let mut part = Part::stream(body);
 
@@ -88,9 +90,17 @@ impl Reqwest {
                     }
                     Err(err) => {
                         if let Some(file_name) = file_name {
-                            error!(target: module_path!(), "Cannot read a file with name `{file_name}`: {err}");
+                            event!(
+                                Level::ERROR,
+                                error = %err,
+                                "Cannot read a file with name `{file_name}`",
+                            );
                         } else {
-                            error!(target: module_path!(), "Cannot read a file: {err}");
+                            event!(
+                                Level::ERROR,
+                                error = %err,
+                                "Cannot read a file",
+                            );
                         }
 
                         return Err(err.into());
@@ -125,6 +135,7 @@ impl Session for Reqwest {
         &self.api
     }
 
+    #[instrument(skip(self, bot, method, timeout), fields(files, method_name, timeout))]
     async fn send_request<Client, T>(
         &self,
         bot: &Bot<Client>,
@@ -137,16 +148,28 @@ impl Session for Reqwest {
         T::Method: Send + Sync,
     {
         let request = method.build_request(bot);
-        let url = self.api.api_url(bot.token(), request.method_name);
+
+        Span::current()
+            .record("files", field::debug(&request.files))
+            .record("method_name", request.method_name);
+
         let form = Box::pin(self.build_form_data(request.data, request.files))
             .await
             .map_err(|err| {
-                error!(target: module_path!(), "Cannot build a form: {err}");
+                event!(
+                    Level::ERROR,
+                    error = %err,
+                    "Cannot build a form",
+                );
 
                 err
             })?;
 
+        let url = self.api.api_url(&bot.token, request.method_name);
+
         let response = if let Some(timeout) = timeout {
+            Span::current().record("timeout", timeout);
+
             self.client
                 .post(url)
                 .multipart(form)
@@ -157,14 +180,24 @@ impl Session for Reqwest {
         .send()
         .await
         .map_err(|err| {
-            error!(target: module_path!(), "Cannot send a request: {err}");
+            event!(
+                Level::ERROR,
+                error = %err,
+                "Cannot send a request",
+            );
 
             err
         })?;
 
         let status_code = response.status().as_u16();
+
         let content = response.text().await.map_err(|err| {
-            error!(target: module_path!(), "Cannot decode a response: {err}");
+            event!(
+                Level::ERROR,
+                error = %err,
+                status_code,
+                "Cannot get a response content",
+            );
 
             err
         })?;

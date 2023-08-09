@@ -6,6 +6,7 @@ use std::{
     borrow::Cow,
     fmt::{self, Debug, Display, Formatter},
 };
+use tracing::instrument;
 
 /// Represents a bot with a token for getting updates and sending requests to Telegram API
 /// # Warning
@@ -14,11 +15,11 @@ use std::{
 #[derive(Clone, Default)]
 pub struct Bot<Client: ?Sized = Reqwest> {
     /// Bot token, which is used to receive updates and send requests to the Telegram API
-    token: Cow<'static, str>,
+    pub token: Cow<'static, str>,
     /// Bot token, which is used in `Debug` implementation for privacy
-    hidden_token: String,
+    pub hidden_token: String,
     /// Bot id, extracted from the token
-    bot_id: i64,
+    pub bot_id: i64,
     /// Client for sending requests to Telegram API
     client: Client,
 }
@@ -52,21 +53,6 @@ impl<Client> Bot<Client> {
             client,
         }
     }
-
-    #[must_use]
-    pub fn token(&self) -> &str {
-        &self.token
-    }
-
-    #[must_use]
-    pub fn hidden_token(&self) -> &str {
-        &self.hidden_token
-    }
-
-    #[must_use]
-    pub const fn id(&self) -> i64 {
-        self.bot_id
-    }
 }
 
 impl<Client> Debug for Bot<Client> {
@@ -93,6 +79,7 @@ impl<Client: Session> Bot<Client> {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
+    #[instrument(skip(self, method, request_timeout))]
     pub async fn send<T>(
         &self,
         method: &T,

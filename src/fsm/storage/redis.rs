@@ -3,12 +3,19 @@ use super::{Error, Storage, StorageKey};
 use async_trait::async_trait;
 use redis::{aio::Connection, Client, RedisError};
 use serde::{de::DeserializeOwned, Serialize};
-use std::{borrow::Cow, collections::HashMap, sync::Arc};
+use std::{
+    borrow::Cow,
+    collections::HashMap,
+    fmt::{self, Debug, Display, Formatter},
+    sync::Arc,
+};
 use tokio::sync::Mutex;
+use tracing::{event, field, instrument, Level, Span};
 
 const DEFAULT_PREFIX: &str = "fsm";
 const DEFAULT_SEPARATOR: &str = ":";
 
+#[derive(Debug)]
 pub enum Part {
     States,
     Data,
@@ -21,6 +28,12 @@ impl Part {
             Part::States => "states",
             Part::Data => "data",
         }
+    }
+}
+
+impl Display for Part {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
     }
 }
 
@@ -149,13 +162,21 @@ impl Storage for Redis {
     /// # Arguments
     /// * `key` - Specified key to set state
     /// * `state` - State for specified key
+    #[instrument(skip(self, key, state), fields(key, state))]
     async fn set_state<State>(&self, key: &StorageKey, state: State) -> Result<(), Self::Error>
     where
         State: Into<Cow<'static, str>> + Send,
     {
         let key = self.key_builder.build(key, Part::States);
         let state = state.into();
+
+        Span::current()
+            .record("key", &key)
+            .record("state", state.as_ref());
+
         let mut connection = self.get_connection().await.map_err(|err| {
+            event!(Level::ERROR, error = %err, "Failed to get redis connection");
+
             Error::new(
                 format!("Failed to get redis connection. Storage key: {key}"),
                 err,
@@ -167,7 +188,11 @@ impl Storage for Redis {
             .arg(state.as_ref())
             .query_async(&mut connection)
             .await
-            .map_err(|err| Error::new(format!("Failed to set state. Storage key: {key}"), err))
+            .map_err(|err| {
+                event!(Level::ERROR, error = %err, "Failed to set state");
+
+                Error::new(format!("Failed to set state. Storage key: {key}"), err)
+            })
     }
 
     /// Set previous state as current state
@@ -177,9 +202,15 @@ impl Storage for Redis {
     /// States stack is used to store states history,
     /// when user set new state, then current state will be push to the states stack,
     /// so you can use this method to back to the previous state
+    #[instrument(skip(self, key), fields(key))]
     async fn previous_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
         let key = self.key_builder.build(key, Part::States);
+
+        Span::current().record("key", &key);
+
         let mut connection = self.get_connection().await.map_err(|err| {
+            event!(Level::ERROR, error = %err, "Failed to get redis connection");
+
             Error::new(
                 format!("Failed to get redis connection. Storage key: {key}"),
                 err,
@@ -190,7 +221,11 @@ impl Storage for Redis {
             .arg(&key)
             .query_async(&mut connection)
             .await
-            .map_err(|err| Error::new(format!("Failed to remove state. Storage key: {key}"), err))
+            .map_err(|err| {
+                event!(Level::ERROR, error = %err, "Failed to remove state");
+
+                Error::new(format!("Failed to remove state. Storage key: {key}"), err)
+            })
     }
 
     /// Get state for specified key
@@ -198,9 +233,15 @@ impl Storage for Redis {
     /// * `key` - Specified key to get state
     /// # Returns
     /// State for specified key, if state is no exists, then [`None`] will be return
+    #[instrument(skip(self, key), fields(key))]
     async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error> {
         let key = self.key_builder.build(key, Part::States);
+
+        Span::current().record("key", &key);
+
         let mut connection = self.get_connection().await.map_err(|err| {
+            event!(Level::ERROR, error = %err, "Failed to get redis connection");
+
             Error::new(
                 format!("Failed to get redis connection. Storage key: {key}"),
                 err,
@@ -212,7 +253,11 @@ impl Storage for Redis {
             .arg(-1)
             .query_async(&mut connection)
             .await
-            .map_err(|err| Error::new(format!("Failed to get state. Storage key: {key}"), err))
+            .map_err(|err| {
+                event!(Level::ERROR, error = %err, "Failed to get state");
+
+                Error::new(format!("Failed to get state. Storage key: {key}"), err)
+            })
     }
 
     /// Get states stack for specified key
@@ -224,9 +269,15 @@ impl Storage for Redis {
     /// so you can use this method to get states history or back to the previous state
     /// # Returns
     /// States stack for specified key, if states stack is no exists, then empty [`Vec`] will be return
+    #[instrument(skip(self, key), fields(key))]
     async fn get_states(&self, key: &StorageKey) -> Result<Vec<String>, Self::Error> {
         let key = self.key_builder.build(key, Part::States);
+
+        Span::current().record("key", &key);
+
         let mut connection = self.get_connection().await.map_err(|err| {
+            event!(Level::ERROR, error = %err, "Failed to get redis connection");
+
             Error::new(
                 format!("Failed to get redis connection. Storage key: {key}"),
                 err,
@@ -239,7 +290,11 @@ impl Storage for Redis {
             .arg(-1)
             .query_async(&mut connection)
             .await
-            .map_err(|err| Error::new(format!("Failed to get states. Storage key: {key}"), err))
+            .map_err(|err| {
+                event!(Level::ERROR, error = %err, "Failed to get states");
+
+                Error::new(format!("Failed to get states. Storage key: {key}"), err)
+            })
     }
 
     /// Remove states stack for specified key
@@ -249,9 +304,15 @@ impl Storage for Redis {
     /// States stack is used to store states history,
     /// when user set new state, then current state will be push to the states stack,
     /// so you can use this method to clear states history
+    #[instrument(skip(self, key), fields(key))]
     async fn remove_states(&self, key: &StorageKey) -> Result<(), Self::Error> {
         let key = self.key_builder.build(key, Part::States);
+
+        Span::current().record("key", &key);
+
         let mut connection = self.get_connection().await.map_err(|err| {
+            event!(Level::ERROR, error = %err, "Failed to get redis connection");
+
             Error::new(
                 format!("Failed to get redis connection. Storage key: {key}"),
                 err,
@@ -262,13 +323,18 @@ impl Storage for Redis {
             .arg(&key)
             .query_async(&mut connection)
             .await
-            .map_err(|err| Error::new(format!("Failed to remove states. Storage key: {key}"), err))
+            .map_err(|err| {
+                event!(Level::ERROR, error = %err, "Failed to remove states");
+
+                Error::new(format!("Failed to remove states. Storage key: {key}"), err)
+            })
     }
 
     /// Set data for specified key
     /// # Arguments
     /// * `key` - Specified key to set data
     /// * `data` - Data for specified key, if empty, then data will be clear
+    #[instrument(skip(self, key, data), fields(key))]
     async fn set_data<Key, Value>(
         &self,
         key: &StorageKey,
@@ -279,10 +345,17 @@ impl Storage for Redis {
         Key: Serialize + Into<Cow<'static, str>> + Send,
     {
         let key = self.key_builder.build(key, Part::Data);
+
+        Span::current().record("key", &key);
+
         let plain_json = serde_json::to_string(&data).map_err(|err| {
+            event!(Level::ERROR, error = %err, "Failed to serialize data");
+
             Error::new(format!("Failed to serialize data. Storage key: {key}"), err)
         })?;
         let mut connection = self.get_connection().await.map_err(|err| {
+            event!(Level::ERROR, error = %err, "Failed to get redis connection");
+
             Error::new(
                 format!("Failed to get redis connection. Storage key: {key}"),
                 err,
@@ -294,7 +367,11 @@ impl Storage for Redis {
             .arg(&plain_json)
             .query_async(&mut connection)
             .await
-            .map_err(|err| Error::new(format!("Failed to set data. Storage key: {key}"), err))
+            .map_err(|err| {
+                event!(Level::ERROR, error = %err, "Failed to set data");
+
+                Error::new(format!("Failed to set data. Storage key: {key}"), err)
+            })
     }
 
     /// Set value to the data for specified key and value key
@@ -302,6 +379,7 @@ impl Storage for Redis {
     /// * `key` - Specified key to set data
     /// * `value_key` - Specified value key to set value to the data
     /// * `value` - Value for specified key and value key
+    #[instrument(skip(self, key, value_key, value), fields(key, value_key, data))]
     async fn set_value<Key, Value>(
         &self,
         key: &StorageKey,
@@ -313,7 +391,12 @@ impl Storage for Redis {
         Key: Serialize + Into<Cow<'static, str>> + Send,
     {
         let key = self.key_builder.build(key, Part::Data);
+
+        Span::current().record("key", &key);
+
         let mut connection = self.get_connection().await.map_err(|err| {
+            event!(Level::ERROR, error = %err, "Failed to get redis connection");
+
             Error::new(
                 format!("Failed to get redis connection. Storage key: {key}"),
                 err,
@@ -324,10 +407,21 @@ impl Storage for Redis {
             .arg(&key)
             .query_async(&mut connection)
             .await
-            .map_err(|err| Error::new(format!("Failed to get data. Storage key: {key}"), err))?;
+            .map_err(|err| {
+                event!(Level::ERROR, error = %err, "Failed to get data");
+
+                Error::new(format!("Failed to get data. Storage key: {key}"), err)
+            })?;
 
         let mut data = match plain_json {
             Some(plain_json) => serde_json::from_str(&plain_json).map_err(|err| {
+                event!(
+                    Level::ERROR,
+                    error = %err,
+                    json = %plain_json,
+                    "Failed to deserialize data",
+                );
+
                 Error::new(
                     format!("Failed to deserialize data. Storage key: {key}"),
                     err,
@@ -336,9 +430,15 @@ impl Storage for Redis {
             None => HashMap::with_capacity(1),
         };
 
+        let value_key = value_key.into();
+
+        Span::current().record("value_key", value_key.as_ref());
+
         data.insert(
-            value_key.into(),
+            value_key,
             serde_json::to_value(value).map_err(|err| {
+                event!(Level::ERROR, error = %err, "Failed to convert value to `serde_json::Value`");
+
                 Error::new(
                     format!("Failed to convert value to `serde_json::Value`. Storage key: {key}"),
                     err,
@@ -346,7 +446,11 @@ impl Storage for Redis {
             })?,
         );
 
+        Span::current().record("data", field::debug(&data));
+
         let plain_json = serde_json::to_string(&data).map_err(|err| {
+            event!(Level::ERROR, error = %err, "Failed to serialize data");
+
             Error::new(format!("Failed to serialize data. Storage key: {key}"), err)
         })?;
 
@@ -355,7 +459,11 @@ impl Storage for Redis {
             .arg(&plain_json)
             .query_async(&mut connection)
             .await
-            .map_err(|err| Error::new(format!("Failed to set data. Storage key: {key}"), err))
+            .map_err(|err| {
+                event!(Level::ERROR, error = %err, "Failed to set data");
+
+                Error::new(format!("Failed to set data. Storage key: {key}"), err)
+            })
     }
 
     /// Get data for specified key
@@ -363,12 +471,18 @@ impl Storage for Redis {
     /// * `key` - Specified key to get data
     /// # Returns
     /// Data for specified key, if data is no exists, then empty [`HashMap`] will be return
+    #[instrument(skip(self, key))]
     async fn get_data<Value>(&self, key: &StorageKey) -> Result<HashMap<String, Value>, Self::Error>
     where
         Value: DeserializeOwned,
     {
         let key = self.key_builder.build(key, Part::Data);
+
+        Span::current().record("key", &key);
+
         let mut connection = self.get_connection().await.map_err(|err| {
+            event!(Level::ERROR, error = %err, "Failed to get redis connection");
+
             Error::new(
                 format!("Failed to get redis connection. Storage key: {key}"),
                 err,
@@ -379,10 +493,21 @@ impl Storage for Redis {
             .arg(&key)
             .query_async(&mut connection)
             .await
-            .map_err(|err| Error::new(format!("Failed to get data. Storage key: {key}"), err))?;
+            .map_err(|err| {
+                event!(Level::ERROR, error = %err, "Failed to get data");
+
+                Error::new(format!("Failed to get data. Storage key: {key}"), err)
+            })?;
 
         match plain_json {
             Some(plain_json) => serde_json::from_str(&plain_json).map_err(|err| {
+                event!(
+                    Level::ERROR,
+                    error = %err,
+                    json = %plain_json,
+                    "Failed to deserialize data",
+                );
+
                 Error::new(
                     format!("Failed to deserialize data. Storage key: {key}"),
                     err,
@@ -398,6 +523,7 @@ impl Storage for Redis {
     /// * `value_key` - Specified value key to get value from the data
     /// # Returns
     /// Value for specified key and value key, if value is no exists, then [`None`] will be return
+    #[instrument(skip(self, key, value_key), fields(key))]
     async fn get_value<Key, Value>(
         &self,
         key: &StorageKey,
@@ -408,7 +534,12 @@ impl Storage for Redis {
         Key: Into<Cow<'static, str>> + Send,
     {
         let key = self.key_builder.build(key, Part::Data);
+
+        Span::current().record("key", &key);
+
         let mut connection = self.get_connection().await.map_err(|err| {
+            event!(Level::ERROR, error = %err, "Failed to get redis connection");
+
             Error::new(
                 format!("Failed to get redis connection. Storage key: {key}"),
                 err,
@@ -419,12 +550,23 @@ impl Storage for Redis {
             .arg(&key)
             .query_async(&mut connection)
             .await
-            .map_err(|err| Error::new(format!("Failed to get data. Storage key: {key}"), err))?;
+            .map_err(|err| {
+                event!(Level::ERROR, error = %err, "Failed to get data");
+
+                Error::new(format!("Failed to get data. Storage key: {key}"), err)
+            })?;
 
         match plain_json {
             Some(plain_json) => {
                 let data: HashMap<Cow<'static, str>, serde_json::Value> =
                     serde_json::from_str(&plain_json).map_err(|err| {
+                        event!(
+                            Level::ERROR,
+                            error = %err,
+                            json = %plain_json,
+                            "Failed to deserialize data",
+                        );
+
                         Error::new(
                             format!("Failed to deserialize data. Storage key: {key}"),
                             err,
@@ -434,6 +576,13 @@ impl Storage for Redis {
                 match data.get(&value_key.into()) {
                     Some(value) => serde_json::from_value(value.clone()).map_err(
                         |err| {
+                            event!(
+                                Level::ERROR,
+                                error = %err,
+                                value = %value,
+                                "Failed to convert `serde_json::Value` to value",
+                            );
+
                             Error::new(
                                 format!(
                                     "Failed to convert `serde_json::Value` to value. Storage key: {key}"
@@ -452,9 +601,15 @@ impl Storage for Redis {
     /// Remove data for specified key
     /// # Arguments
     /// * `key` - Specified key to remove data
+    #[instrument(skip(self, key), fields(key))]
     async fn remove_data(&self, key: &StorageKey) -> Result<(), Self::Error> {
         let key = self.key_builder.build(key, Part::Data);
+
+        Span::current().record("key", &key);
+
         let mut connection = self.get_connection().await.map_err(|err| {
+            event!(Level::ERROR, error = %err, "Failed to get redis connection");
+
             Error::new(
                 format!("Failed to get redis connection. Storage key: {key}"),
                 err,
@@ -465,6 +620,10 @@ impl Storage for Redis {
             .arg(&key)
             .query_async(&mut connection)
             .await
-            .map_err(|err| Error::new(format!("Failed to remove data. Storage key: {key}"), err))
+            .map_err(|err| {
+                event!(Level::ERROR, error = %err, "Failed to remove data");
+
+                Error::new(format!("Failed to remove data. Storage key: {key}"), err)
+            })
     }
 }

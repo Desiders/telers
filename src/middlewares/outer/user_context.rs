@@ -3,6 +3,7 @@ use super::{Middleware, MiddlewareResponse};
 use crate::{errors::EventErrorKind, event::EventReturn, router::Request};
 
 use async_trait::async_trait;
+use tracing::instrument;
 
 /// Middleware for adding [`crate::types::User`] and [`crate::types::Chat`] to context,
 /// if they are present in [`crate::types::Update`] struct
@@ -21,6 +22,7 @@ impl<Client> Middleware<Client> for UserContext
 where
     Client: Send + Sync + 'static,
 {
+    #[instrument(skip(self, request))]
     async fn call(
         &self,
         request: Request<Client>,

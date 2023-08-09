@@ -32,15 +32,14 @@ use crate::{
 };
 
 use async_trait::async_trait;
-use log::{self, debug};
 use std::{
     collections::HashSet,
     fmt::{self, Debug, Formatter},
     iter::once,
     sync::Arc,
 };
+use tracing::{event, instrument, Level};
 
-#[derive(Debug)]
 pub struct Request<Client> {
     pub bot: Arc<Bot<Client>>,
     pub update: Arc<Update>,
@@ -49,12 +48,11 @@ pub struct Request<Client> {
 
 impl<Client> Request<Client> {
     #[must_use]
-    pub fn new<B, U, C>(bot: B, update: U, context: C) -> Self
-    where
-        B: Into<Arc<Bot<Client>>>,
-        U: Into<Arc<Update>>,
-        C: Into<Arc<Context>>,
-    {
+    pub fn new(
+        bot: impl Into<Arc<Bot<Client>>>,
+        update: impl Into<Arc<Update>>,
+        context: impl Into<Arc<Context>>,
+    ) -> Self {
         Self {
             bot: bot.into(),
             update: update.into(),
@@ -73,6 +71,16 @@ impl<Client> Clone for Request<Client> {
     }
 }
 
+impl<Client> Debug for Request<Client> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Request")
+            .field("bot", &self.bot)
+            .field("update", &self.update)
+            .field("context", &self.context)
+            .finish()
+    }
+}
+
 impl<Client> PartialEq for Request<Client> {
     fn eq(&self, other: &Self) -> bool {
         Arc::ptr_eq(&self.bot, &other.bot)
@@ -87,7 +95,6 @@ impl<Client> From<Request<Client>> for TelegramObserverRequest<Client> {
     }
 }
 
-#[derive(Debug)]
 pub struct Response<Client> {
     pub request: Request<Client>,
     pub propagate_result: PropagateEventResult<Client>,
@@ -100,6 +107,15 @@ impl<Client> Response<Client> {
             request,
             propagate_result,
         }
+    }
+}
+
+impl<Client> Debug for Response<Client> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Response")
+            .field("request", &self.request)
+            .field("propagate_result", &self.propagate_result)
+            .finish()
     }
 }
 
@@ -605,6 +621,7 @@ impl<Client> ServiceProvider for RouterService<Client> {}
 
 #[async_trait]
 impl<Client> PropagateEvent<Client> for RouterService<Client> {
+    #[instrument(skip(self, update_type, request), fields(router_name = self.router_name))]
     async fn propagate_event(
         &self,
         update_type: UpdateType,
@@ -615,6 +632,8 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
     {
         self.propagate_update_event(request.clone()).await?;
 
+        event!(Level::TRACE, "Propagate event to router");
+
         let observer = self.telegram_observer_by_update_type(update_type);
 
         let mut request = request;
@@ -623,15 +642,25 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
 
             match event_return {
                 // Update request because the middleware could have changed it
-                EventReturn::Finish => request = updated_request,
+                EventReturn::Finish => {
+                    event!(Level::TRACE, "Middleware returns finish");
+
+                    request = updated_request;
+                }
                 // If middleware returns skip, then we should skip this middleware and its changes
-                EventReturn::Skip => continue,
+                EventReturn::Skip => {
+                    event!(Level::TRACE, "Middleware returns skip");
+
+                    continue;
+                }
                 // If middleware returns cancel, then we should cancel propagation
                 EventReturn::Cancel => {
+                    event!(Level::TRACE, "Middleware returns cancel");
+
                     return Ok(Response {
                         request,
                         propagate_result: PropagateEventResult::Rejected,
-                    })
+                    });
                 }
             }
         }
@@ -641,9 +670,13 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
 
         match observer_response.propagate_result {
             // Propagate event to sub routers
-            PropagateEventResult::Unhandled => {}
+            PropagateEventResult::Unhandled => {
+                event!(Level::TRACE, "Event unhandled by router");
+            }
             // Return a response if the event handled
             PropagateEventResult::Handled(response) => {
+                event!(Level::TRACE, "Event handled by router");
+
                 return Ok(Response {
                     request,
                     propagate_result: PropagateEventResult::Handled(response),
@@ -652,6 +685,8 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
             // Return a response if the event rejected
             // Router don't know about rejected event by observer
             PropagateEventResult::Rejected => {
+                event!(Level::TRACE, "Event rejected by router");
+
                 return Ok(Response {
                     request,
                     propagate_result: PropagateEventResult::Unhandled,
@@ -664,9 +699,20 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
             let router_response = router.propagate_event(update_type, request.clone()).await?;
             match router_response.propagate_result {
                 // Propagate event to next sub router's observer if the event unhandled by the sub router's observer
-                PropagateEventResult::Unhandled => continue,
-                PropagateEventResult::Handled(_) | PropagateEventResult::Rejected => {
-                    return Ok(router_response)
+                PropagateEventResult::Unhandled => {
+                    event!(Level::TRACE, "Event unhandled by syb router");
+
+                    continue;
+                }
+                PropagateEventResult::Handled(_) => {
+                    event!(Level::TRACE, "Event handled by sub router");
+
+                    return Ok(router_response);
+                }
+                PropagateEventResult::Rejected => {
+                    event!(Level::TRACE, "Event rejected by sub router");
+
+                    return Ok(router_response);
                 }
             };
         }
@@ -678,6 +724,7 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
         })
     }
 
+    #[instrument(skip(self, request), fields(router_name = self.router_name))]
     async fn propagate_update_event(
         &self,
         request: Request<Client>,
@@ -685,21 +732,33 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
     where
         Client: Send + Sync + 'static,
     {
+        event!(Level::TRACE, "Propagate update event to router");
+
         let mut request = request;
         for middleware in &self.update.outer_middlewares {
             let (updated_request, event_return) = middleware.call(request.clone()).await?;
 
             match event_return {
                 // Update request because the middleware could have changed it
-                EventReturn::Finish => request = updated_request,
+                EventReturn::Finish => {
+                    event!(Level::TRACE, "Middleware returns finish");
+
+                    request = updated_request;
+                }
                 // If middleware returns skip, then we should skip this middleware and its changes
-                EventReturn::Skip => continue,
+                EventReturn::Skip => {
+                    event!(Level::TRACE, "Middleware returns skip");
+
+                    continue;
+                }
                 // If middleware returns cancel, then we should cancel propagation
                 EventReturn::Cancel => {
+                    event!(Level::TRACE, "Middleware returns cancel");
+
                     return Ok(Response {
                         request,
                         propagate_result: PropagateEventResult::Rejected,
-                    })
+                    });
                 }
             }
         }
@@ -709,9 +768,13 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
 
         match observer_response.propagate_result {
             // Propagate event to sub routers
-            PropagateEventResult::Unhandled => {}
+            PropagateEventResult::Unhandled => {
+                event!(Level::TRACE, "Update event unhandled by router");
+            }
             // Return a response if the event handled
             PropagateEventResult::Handled(response) => {
+                event!(Level::TRACE, "Update event handled by router");
+
                 return Ok(Response {
                     request,
                     propagate_result: PropagateEventResult::Handled(response),
@@ -720,6 +783,8 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
             // Return a response if the event rejected
             // Router don't know about rejected event by observer
             PropagateEventResult::Rejected => {
+                event!(Level::TRACE, "Update event rejected by router");
+
                 return Ok(Response {
                     request,
                     propagate_result: PropagateEventResult::Unhandled,
@@ -732,9 +797,20 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
             let router_response = router.propagate_update_event(request.clone()).await?;
             match router_response.propagate_result {
                 // Propagate event to next sub router's observer if the event unhandled by the sub router's observer
-                PropagateEventResult::Unhandled => continue,
-                PropagateEventResult::Handled(_) | PropagateEventResult::Rejected => {
-                    return Ok(router_response)
+                PropagateEventResult::Unhandled => {
+                    event!(Level::TRACE, "Update event unhandled by sub router");
+
+                    continue;
+                }
+                PropagateEventResult::Handled(_) => {
+                    event!(Level::TRACE, "Update event handled by sub router");
+
+                    return Ok(router_response);
+                }
+                PropagateEventResult::Rejected => {
+                    event!(Level::TRACE, "Update event rejected by sub router");
+
+                    return Ok(router_response);
                 }
             };
         }
@@ -746,9 +822,8 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
         })
     }
 
+    #[instrument(skip(self), fields(router_name = self.router_name))]
     async fn emit_startup(&self) -> SimpleHandlerResult {
-        debug!("{self:?}: Emit startup");
-
         for startup in
             once(&self.startup).chain(self.sub_routers.iter().map(|router| &router.startup))
         {
@@ -757,9 +832,8 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
         Ok(())
     }
 
+    #[instrument(skip(self), fields(router_name = self.router_name))]
     async fn emit_shutdown(&self) -> SimpleHandlerResult {
-        debug!("{self:?}: Emit shutdown");
-
         for shutdown in
             once(&self.shutdown).chain(self.sub_routers.iter().map(|router| &router.shutdown))
         {
@@ -824,6 +898,7 @@ impl<Client> Debug for RouterService<Client> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Router")
             .field("router_name", &self.router_name)
+            .field("sub_routers", &self.sub_routers)
             .finish()
     }
 }

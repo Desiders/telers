@@ -14,6 +14,8 @@ use crate::{
 };
 
 use async_trait::async_trait;
+use std::fmt::{self, Debug, Formatter};
+use tracing::instrument;
 
 /// Middleware for creating FSM [`Context`]
 pub struct FSMContext<S> {
@@ -63,6 +65,15 @@ where
     }
 }
 
+impl<S> Debug for FSMContext<S> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("FSMContext")
+            .field("strategy", &self.strategy)
+            .field("destiny", &self.destiny)
+            .finish()
+    }
+}
+
 impl<S> FSMContext<S>
 where
     S: Clone,
@@ -71,7 +82,7 @@ where
     fn resolve_event_context(&self, bot_id: i64, context: &RequestContext) -> Option<Context<S>> {
         let user = context.get("event_user");
         let chat = context.get("event_chat");
-        let message_thread_id = context.get("event_message_message_thread_id");
+        let message_thread_id = context.get("event_message_thread_id");
 
         let user_id = user.and_then(|user| user.downcast_ref().map(|user: &User| user.id));
         let chat_id = chat.and_then(|user| user.downcast_ref().map(|chat: &User| chat.id));
@@ -130,13 +141,14 @@ where
     Client: Send + Sync + 'static,
     S: Storage + Send + Sync + 'static,
 {
+    #[instrument(skip(self, request))]
     async fn call(
         &self,
         request: Request<Client>,
     ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
         let context = request.context.as_ref();
 
-        if let Some(fsm_context) = self.resolve_event_context(request.bot.id(), context) {
+        if let Some(fsm_context) = self.resolve_event_context(request.bot.bot_id, context) {
             if let Some(state) = fsm_context
                 .get_state()
                 .await

@@ -4,6 +4,7 @@ use crate::event::{
 };
 
 use std::fmt::{self, Debug, Formatter};
+use tracing::instrument;
 
 /// Simple events observer
 /// Is used for managing events isn't related with Telegram (For example startup/shutdown events)
@@ -110,6 +111,7 @@ impl ObserverService {
     /// If any handler returns error, then propagation will be stopped and error will be returned.
     /// # Errors
     /// If any handler returns error
+    #[instrument(skip(self, request))]
     pub async fn trigger(&self, request: ()) -> HandlerResult {
         for handler in &self.handlers {
             handler.call(request).await?;

@@ -24,7 +24,7 @@ impl<'a> InputSticker<'a> {
     pub fn new(sticker: impl Into<InputFile<'a>>) -> Self {
         Self {
             sticker: sticker.into(),
-            emoji_list: Vec::new(),
+            emoji_list: vec![],
             mask_position: None,
             keywords: None,
         }

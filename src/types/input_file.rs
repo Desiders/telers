@@ -11,7 +11,7 @@ const DEFAULT_CHUNK_SIZE: usize = 64 * 1024; // 64 KiB
 /// Must be posted using `multipart/form-data` in the usual way that files are uploaded via the browser.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputfile>
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Debug, Clone, Eq, Hash, PartialEq)]
 pub struct InputFile<'a>(FileKind<'a>);
 
 impl<'a> InputFile<'a> {
@@ -236,7 +236,7 @@ impl<'a> FSFile<'a> {
         let mut file = tokio::fs::File::open(&self.path).await?;
         let mut buffer = [0; DEFAULT_CHUNK_SIZE];
 
-        let mut result = Vec::new();
+        let mut result = vec![];
         while let Ok(size) = file.read(&mut buffer).await {
             if size == 0 {
                 break;

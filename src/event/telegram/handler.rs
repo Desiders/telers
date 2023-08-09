@@ -14,14 +14,19 @@ use crate::{
     types::Update,
 };
 
-use std::{future::Future, result::Result as StdResult, sync::Arc};
+use std::{
+    fmt::{self, Debug, Formatter},
+    future::Future,
+    result::Result as StdResult,
+    sync::Arc,
+};
+use tracing::{event, instrument, Level};
 
 pub type BoxedHandlerService<Client> =
     BoxService<Request<Client>, Response<Client>, ExtractionError>;
 pub type BoxedHandlerServiceFactory<Client> =
     BoxServiceFactory<(), Request<Client>, Response<Client>, ExtractionError, ()>;
 
-#[derive(Debug)]
 pub struct Request<Client> {
     pub bot: Arc<Bot<Client>>,
     pub update: Arc<Update>,
@@ -40,6 +45,16 @@ impl<Client> Request<Client> {
             update: update.into(),
             context: context.into(),
         }
+    }
+}
+
+impl<Client> Debug for Request<Client> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Request")
+            .field("bot", &self.bot)
+            .field("update", &self.update)
+            .field("context", &self.context)
+            .finish()
     }
 }
 
@@ -63,10 +78,18 @@ impl<Client> Clone for Request<Client> {
 
 pub type Result = StdResult<EventReturn, HandlerError>;
 
-#[derive(Debug)]
 pub struct Response<Client> {
     pub request: Request<Client>,
     pub handler_result: Result,
+}
+
+impl<Client> Debug for Response<Client> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Response")
+            .field("request", &self.request)
+            .field("handler_result", &self.handler_result)
+            .finish()
+    }
 }
 
 pub trait Handler<Args> {
@@ -152,6 +175,7 @@ where
 {
     /// Check if the handler pass the filters.
     /// If the handler pass all them, it will be called.
+    #[instrument(skip(self, request))]
     pub async fn check(&self, request: &Request<Client>) -> bool {
         for filter in &self.filters {
             if !filter
@@ -176,6 +200,7 @@ impl<Client> Service<Request<Client>> for HandlerObjectService<Client> {
 }
 
 #[allow(clippy::module_name_repetitions)]
+#[instrument(skip(handler))]
 pub fn handler_service<Client, H, Args>(handler: H) -> BoxedHandlerServiceFactory<Client>
 where
     Client: Send + Sync + 'static,
@@ -198,7 +223,20 @@ where
                     request,
                     handler_result: handler.call(extracted_args).await.into(),
                 }),
-                Err(extraction_err) => Err(extraction_err.into()),
+                Err(extraction_err) => {
+                    let extraction_err = extraction_err.into();
+
+                    event!(
+                        Level::ERROR,
+                        error = %extraction_err,
+                        bot = ?request.bot,
+                        update = ?request.update,
+                        context = ?request.context,
+                        "Failed to extract arguments",
+                    );
+
+                    Err(extraction_err)
+                }
             }
         }
     }))

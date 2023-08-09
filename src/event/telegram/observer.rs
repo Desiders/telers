@@ -26,8 +26,8 @@ use std::{
     fmt::{self, Debug, Formatter},
     sync::Arc,
 };
+use tracing::{event, instrument, Level};
 
-#[derive(Debug)]
 pub struct Request<Client> {
     pub bot: Arc<Bot<Client>>,
     pub update: Arc<Update>,
@@ -49,14 +49,6 @@ impl<Client> Request<Client> {
     }
 }
 
-impl<Client> PartialEq for Request<Client> {
-    fn eq(&self, other: &Self) -> bool {
-        Arc::ptr_eq(&self.bot, &other.bot)
-            && Arc::ptr_eq(&self.update, &other.update)
-            && Arc::ptr_eq(&self.context, &other.context)
-    }
-}
-
 impl<Client> Clone for Request<Client> {
     fn clone(&self) -> Self {
         Self {
@@ -67,16 +59,42 @@ impl<Client> Clone for Request<Client> {
     }
 }
 
+impl<Client> Debug for Request<Client> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Request")
+            .field("bot", &self.bot)
+            .field("update", &self.update)
+            .field("context", &self.context)
+            .finish()
+    }
+}
+
+impl<Client> PartialEq for Request<Client> {
+    fn eq(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.bot, &other.bot)
+            && Arc::ptr_eq(&self.update, &other.update)
+            && Arc::ptr_eq(&self.context, &other.context)
+    }
+}
+
 impl<Client> From<Request<Client>> for HandlerRequest<Client> {
     fn from(req: Request<Client>) -> Self {
         Self::new(req.bot, req.update, req.context)
     }
 }
 
-#[derive(Debug)]
 pub struct Response<Client> {
     pub request: Request<Client>,
     pub propagate_result: PropagateEventResult<Client>,
+}
+
+impl<Client> Debug for Response<Client> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Response")
+            .field("request", &self.request)
+            .field("propagate_result", &self.propagate_result)
+            .finish()
+    }
 }
 
 /// Event observer for telegram events
@@ -234,24 +252,30 @@ where
     /// Handler will be called when all its filters is pass.
     /// # Errors
     /// - If any handler returns error. Probably it's error to extract args to the handler.
+    #[instrument(skip(self, request))]
     pub async fn trigger(
         &self,
         request: Request<Client>,
     ) -> Result<Response<Client>, EventErrorKind> {
-        let handler_request = request.clone().into();
+        let handler_request: HandlerRequest<Client> = request.clone().into();
 
         // Check observer filters
         if !self.common.check(&handler_request).await {
+            event!(Level::TRACE, "Request are not pass observer filters");
+
             return Ok(Response {
                 request,
                 propagate_result: PropagateEventResult::Rejected,
             });
         }
 
+        // Check handlers filters
         for handler in &self.handlers {
             if !handler.check(&handler_request).await {
                 continue;
             }
+
+            event!(Level::TRACE, "Request are pass handler filters");
 
             let response = match self.inner_middlewares.split_first() {
                 Some((middleware, middlewares)) => {
@@ -268,17 +292,41 @@ where
             }?;
 
             return match response.handler_result {
-                Ok(EventReturn::Skip) => continue,
-                Ok(EventReturn::Cancel) => Ok(Response {
-                    request,
-                    propagate_result: PropagateEventResult::Rejected,
-                }),
-                Ok(EventReturn::Finish) | Err(_) => Ok(Response {
-                    request,
-                    propagate_result: PropagateEventResult::Handled(response),
-                }),
+                Ok(EventReturn::Skip) => {
+                    event!(Level::TRACE, "Handler returns skip");
+
+                    continue;
+                }
+                Ok(EventReturn::Cancel) => {
+                    event!(Level::TRACE, "Handler returns cancel");
+
+                    Ok(Response {
+                        request,
+                        propagate_result: PropagateEventResult::Rejected,
+                    })
+                }
+                Ok(EventReturn::Finish) => {
+                    event!(Level::TRACE, "Handler returns finish");
+
+                    Ok(Response {
+                        request,
+                        propagate_result: PropagateEventResult::Handled(response),
+                    })
+                }
+                // If the handler returns an error, the propagation result will be handled because the error is the correct result of the handler
+                // (from the point of view of observer)
+                Err(_) => {
+                    event!(Level::TRACE, "Handler returns error");
+
+                    Ok(Response {
+                        request,
+                        propagate_result: PropagateEventResult::Handled(response),
+                    })
+                }
             };
         }
+
+        event!(Level::TRACE, "Request are not pass handlers filters");
 
         // Return a response if the event unhandled by observer
         Ok(Response {

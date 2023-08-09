@@ -104,7 +104,7 @@ where
         T: IntoIterator<Item = S>,
         S: Into<StateType<'a, B>>,
     {
-        let mut allowed_states = Vec::new();
+        let mut allowed_states = vec![];
 
         for state in states {
             let state = state.into();

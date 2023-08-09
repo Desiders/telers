@@ -9,9 +9,9 @@ use crate::{
 };
 
 use async_trait::async_trait;
-use log::error;
 use regex::Regex;
 use std::{borrow::Cow, iter::once};
+use tracing::{event, instrument, Level};
 
 /// Represents a command pattern type for verification
 /// # Variants
@@ -76,35 +76,50 @@ impl<'a> Command<'a> {
     /// * `prefix` - Command prefix
     /// * `ignore_case` - Ignore other command case
     /// * `ignore_mention` - Ignore bot mention
-    /// # Panics
-    /// If `ignore_case` is `true` and [`Regex`]
-    /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
     #[must_use]
-    pub fn new<T, I>(commands: I, prefix: char, ignore_case: bool, ignore_mention: bool) -> Self
+    #[instrument(skip(commands))]
+    pub fn new<CommandType, Commands>(
+        commands: Commands,
+        prefix: char,
+        ignore_case: bool,
+        ignore_mention: bool,
+    ) -> Self
     where
-        T: Into<PatternType<'a>>,
-        I: IntoIterator<Item = T>,
+        CommandType: Into<PatternType<'a>>,
+        Commands: IntoIterator<Item = CommandType>,
     {
         let commands = if ignore_case {
             commands
                 .into_iter()
                 .map(|command| match command.into() {
                     PatternType::Text(text) => PatternType::Text(text.to_lowercase().into()),
+                    // We convert object to text, because this pattern type is just a shortcut for text
                     PatternType::Object(command) => {
                         PatternType::Text(command.command.to_lowercase().into())
                     }
-                    PatternType::Regex(regex) => PatternType::Regex(
-                        Regex::new(&format!("(?i){regex}"))
-                            .expect("Failed to compile regex with (?i) flag"),
-                    ),
+                    PatternType::Regex(regex) => {
+                        if ignore_mention {
+                            event!(Level::WARN, "Ignore mention flag doesn't work with regexes");
+                        }
+
+                        PatternType::Regex(regex)
+                    }
                 })
                 .collect()
         } else {
             commands
                 .into_iter()
                 .map(|command| match command.into() {
+                    PatternType::Text(text) => PatternType::Text(text),
+                    // We convert object to text, because this pattern type is just a shortcut for text
                     PatternType::Object(command) => PatternType::Text(command.command.into()),
-                    command => command,
+                    PatternType::Regex(regex) => {
+                        if ignore_mention {
+                            event!(Level::WARN, "Ignore mention flag doesn't work with regexes");
+                        }
+
+                        PatternType::Regex(regex)
+                    }
                 })
                 .collect()
         };
@@ -119,15 +134,26 @@ impl<'a> Command<'a> {
 
     /// Creates a new [`Command`] filter with pass command
     /// # Notes
-    /// This method is just a shortcut to create a filter using the builder
+    /// - This method is just a shortcut to create a filter using the builder
+    /// - By default, the prefix is `/`. If you want to change it, use [`Command::one_with_prefix`] instead.
     #[must_use]
     pub fn one(command: impl Into<PatternType<'a>>) -> Self {
         Self::builder().command(command).build()
     }
 
+    /// Creates a new [`Command`] filter with pass command and prefix
+    /// # Notes
+    /// - This method is just a shortcut to create a filter using the builder.
+    /// - By default, the prefix is `/`, so you can use [`Command::one`] instead. Use this method if you want to change the it.
+    #[must_use]
+    pub fn one_with_prefix(command: impl Into<PatternType<'a>>, prefix: char) -> Self {
+        Self::builder().command(command).prefix(prefix).build()
+    }
+
     /// Creates a new [`Command`] filter with pass commands
     /// # Notes
-    /// This method is just a shortcut to create a filter using the builder
+    /// - This method is just a shortcut to create a filter using the builder
+    /// - By default, the prefix is `/`. If you want to change it, use [`Command::many_with_prefix`] instead.
     #[must_use]
     pub fn many<T, I>(commands: I) -> Self
     where
@@ -135,6 +161,19 @@ impl<'a> Command<'a> {
         I: IntoIterator<Item = T>,
     {
         Self::builder().commands(commands).build()
+    }
+
+    /// Creates a new [`Command`] filter with pass commands and prefix
+    /// # Notes
+    /// - This method is just a shortcut to create a filter using the builder
+    /// - By default, the prefix is `/`, so you can use [`Command::many`] instead. Use this method if you want to change the it.
+    #[must_use]
+    pub fn many_with_prefix<T, I>(commands: I, prefix: char) -> Self
+    where
+        T: Into<PatternType<'a>>,
+        I: IntoIterator<Item = T>,
+    {
+        Self::builder().commands(commands).prefix(prefix).build()
     }
 
     #[must_use]
@@ -218,9 +257,6 @@ impl<'a> CommandBuilder<'a> {
         }
     }
 
-    /// # Panics
-    /// If `ignore_case` is `true` and [`Regex`],
-    /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
     #[must_use]
     pub fn build(self) -> Command<'a> {
         Command::new(
@@ -376,6 +412,7 @@ impl<Client> Filter<Client> for Command<'_>
 where
     Client: Session,
 {
+    #[instrument]
     async fn check(&self, bot: &Bot<Client>, update: &Update, context: &Context) -> bool {
         let Some(ref message) = update.message else { return false; };
         let Some(text) = message.get_text_or_caption() else { return false; };
@@ -390,10 +427,7 @@ where
                 }
             }
             Err(err) => {
-                error!(
-                    target: module_path!(),
-                    "Error while validating command: {}", err
-                );
+                event!(Level::ERROR, error = %err, "Failed to validate command object");
 
                 return false;
             }

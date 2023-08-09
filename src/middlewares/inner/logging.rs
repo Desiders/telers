@@ -9,9 +9,13 @@ use crate::{
 };
 
 use async_trait::async_trait;
-use log::{debug, error};
-use std::time::Instant;
+use std::{
+    fmt::{self, Display, Formatter},
+    time::Instant,
+};
+use tracing::{event, instrument, Level};
 
+#[derive(Debug)]
 pub struct Logging {
     target: &'static str,
 }
@@ -32,11 +36,18 @@ impl Default for Logging {
     }
 }
 
+impl Display for Logging {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "Logging({})", self.target)
+    }
+}
+
 #[async_trait]
 impl<Client> Middleware<Client> for Logging
 where
     Client: Send + Sync + 'static,
 {
+    #[instrument(skip(self, request, next), fields(target = self.target))]
     async fn call(
         &self,
         request: HandlerRequest<Client>,
@@ -50,50 +61,46 @@ where
             // `unwrap` is safe because handler error is wrapped to event error by next function
             Ok(ref response) => match response.handler_result.as_ref().unwrap() {
                 EventReturn::Finish => {
-                    debug!(
-                        target: self.target,
+                    event!(
+                        Level::DEBUG,
                         "Handler finished. Execution time: {elapsed:.2?}",
-                        elapsed = elapsed,
                     );
                 }
                 EventReturn::Skip => {
-                    debug!(
-                        target: self.target,
+                    event!(
+                        Level::DEBUG,
                         "Handler skipped. Execution time: {elapsed:.2?}",
-                        elapsed = elapsed,
                     );
                 }
                 EventReturn::Cancel => {
-                    debug!(
-                        target: self.target,
+                    event!(
+                        Level::DEBUG,
                         "Handler canceled. Execution time: {elapsed:.2?}",
-                        elapsed = elapsed,
                     );
                 }
             },
             Err(ref err_kind) => match err_kind {
                 EventErrorKind::Extraction(err) => {
-                    error!(
-                        target: self.target,
-                        "Extraction returned error: {err}. Execution time: {elapsed:.2?}",
-                        err = err,
-                        elapsed = elapsed,
+                    event!(
+                        Level::ERROR,
+                        error = %err,
+                        "Extraction returns error. Execution time: {elapsed:.2?}",
+
                     );
                 }
                 EventErrorKind::Handler(err) => {
-                    error!(
-                        target: self.target,
-                        "Handler returned error: {err}. Execution time: {elapsed:.2?}",
-                        err = err,
-                        elapsed = elapsed,
+                    event!(
+                        Level::ERROR,
+                        error = %err,
+                        "Handler returns error. Execution time: {elapsed:.2?}",
+
                     );
                 }
                 EventErrorKind::Middleware(err) => {
-                    error!(
-                        target: self.target,
-                        "Middleware returned error: {err}. Execution time: {elapsed:.2?}",
-                        err = err,
-                        elapsed = elapsed,
+                    event!(
+                        Level::ERROR,
+                        error = %err,
+                        "Middleware returns error. Execution time: {elapsed:.2?}",
                     );
                 }
             },

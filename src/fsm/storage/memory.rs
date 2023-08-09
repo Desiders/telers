@@ -8,6 +8,7 @@ use std::{
     sync::Arc,
 };
 use tokio::sync::Mutex;
+use tracing::{event, instrument, Level, Span};
 
 #[derive(Debug, Default, Clone, Eq, PartialEq)]
 struct Record {
@@ -135,6 +136,7 @@ impl Storage for Memory {
     /// # Arguments
     /// * `key` - Specified key to set data
     /// * `data` - Data for specified key, if empty, then data will be clear
+    #[instrument(skip(self, data))]
     async fn set_data<Key, Value>(
         &self,
         key: &StorageKey,
@@ -160,6 +162,8 @@ impl Storage for Memory {
                     new_data.insert(
                         value_key.into(),
                         bincode::serialize(&value).map_err(|err| {
+                            event!(Level::ERROR, "Failed to serialize value");
+
                             Error::new(
                                 format!("Failed to serialize value. Storage key: `{key:?}`"),
                                 err,
@@ -185,6 +189,8 @@ impl Storage for Memory {
                     new_data.insert(
                         value_key.into(),
                         bincode::serialize(&value).map_err(|err| {
+                            event!(Level::ERROR, "Failed to serialize value");
+
                             Error::new(
                                 format!("Failed to serialize value. Storage key: `{key:?}`"),
                                 err,
@@ -207,6 +213,7 @@ impl Storage for Memory {
     /// * `key` - Specified key to set data
     /// * `value_key` - Specified value key to set value to the data
     /// * `value` - Value for specified key and value key
+    #[instrument(skip(self, value_key, value), fields(value_key))]
     async fn set_value<Key, Value>(
         &self,
         key: &StorageKey,
@@ -217,11 +224,17 @@ impl Storage for Memory {
         Value: Serialize + Send,
         Key: Serialize + Into<Cow<'static, str>> + Send,
     {
+        let value_key = value_key.into();
+
+        Span::current().record("value_key", value_key.as_ref());
+
         match self.storage.lock().await.entry(key.clone()) {
             Entry::Occupied(mut entry) => {
                 entry.get_mut().data.insert(
-                    value_key.into(),
+                    value_key,
                     bincode::serialize(&value).map_err(|err| {
+                        event!(Level::ERROR, "Failed to serialize value");
+
                         Error::new(
                             format!("Failed to serialize value. Storage key: `{key:?}`"),
                             err,
@@ -235,8 +248,10 @@ impl Storage for Memory {
                     data: {
                         let mut new_data = HashMap::with_capacity(1);
                         new_data.insert(
-                            value_key.into(),
+                            value_key,
                             bincode::serialize(&value).map_err(|err| {
+                                event!(Level::ERROR, "Failed to serialize value");
+
                                 Error::new(
                                     format!("Failed to serialize value. Storage key: `{key:?}`"),
                                     err,
@@ -256,6 +271,7 @@ impl Storage for Memory {
     /// * `key` - Specified key to get data
     /// # Returns
     /// Data for specified key, if data is no exists, then empty [`HashMap`] will be return
+    #[instrument(skip(self))]
     async fn get_data<Value>(&self, key: &StorageKey) -> Result<HashMap<String, Value>, Self::Error>
     where
         Value: DeserializeOwned,
@@ -269,6 +285,8 @@ impl Storage for Memory {
                     data.insert(
                         value_key.as_ref().to_owned(),
                         bincode::deserialize(value).map_err(|err| {
+                            event!(Level::ERROR, "Failed to deserialize value");
+
                             Error::new(
                                 format!("Failed to deserialize value. Storage key: `{key:?}`"),
                                 err,
@@ -289,6 +307,7 @@ impl Storage for Memory {
     /// * `value_key` - Specified value key to get value from the data
     /// # Returns
     /// Value for specified key and value key, if value is no exists, then [`None`] will be return
+    #[instrument(skip(self, value_key), fields(value_key))]
     async fn get_value<Key, Value>(
         &self,
         key: &StorageKey,
@@ -298,21 +317,21 @@ impl Storage for Memory {
         Value: DeserializeOwned,
         Key: Into<Cow<'static, str>> + Send,
     {
+        let value_key = value_key.into();
+
+        Span::current().record("value_key", value_key.as_ref());
+
         match self.storage.lock().await.entry(key.clone()) {
-            Entry::Occupied(entry) => {
-                entry
-                    .get()
-                    .data
-                    .get(&value_key.into())
-                    .map_or(Ok(None), |value| {
-                        Ok(Some(bincode::deserialize(value).map_err(|err| {
-                            Error::new(
-                                format!("Failed to deserialize value. Storage key: `{key:?}`"),
-                                err,
-                            )
-                        })?))
-                    })
-            }
+            Entry::Occupied(entry) => entry.get().data.get(&value_key).map_or(Ok(None), |value| {
+                Ok(Some(bincode::deserialize(value).map_err(|err| {
+                    event!(Level::ERROR, "Failed to deserialize value");
+
+                    Error::new(
+                        format!("Failed to deserialize value. Storage key: `{key:?}`"),
+                        err,
+                    )
+                })?))
+            }),
             Entry::Vacant(_) => Ok(None),
         }
     }
