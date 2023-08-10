@@ -8,6 +8,8 @@ use serde::Deserialize;
 /// **NOTE:** After the user presses a callback button, Telegram clients will display a progress bar until you call [`AnswerCallbackQuery`](crate::methods::AnswerCallbackQuery). It is, therefore, necessary to react by calling [`AnswerCallbackQuery`](crate::methods::AnswerCallbackQuery) even if no notification to the user is needed (e.g., without specifying any of the optional parameters).
 /// # Documentation
 /// <https://core.telegram.org/bots/api#callbackquery>
+/// # Warnings
+/// This structure has so big size, so it's recommended to use it inside [`std::sync::Arc`], [`Box`] and other smart pointers
 #[derive(Default, Clone, Debug, PartialEq, Deserialize)]
 pub struct CallbackQuery {
     /// Unique identifier for this query

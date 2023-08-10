@@ -428,6 +428,8 @@ impl<Client, PropagatorService, BackoffType>
     /// # Errors
     /// - [`UnknownUpdateTypeError`] if update type is unknown
     /// - [`EventErrorKind`] if propagation event returns error
+    /// # Warnings
+    /// Pass the update as wrapped in [`Arc`] or [`Box`] because [`Update`] is a large structure, so you may get a stack overflow error
     #[instrument(skip(self, bot, update, context), fields(bot_id, update_id, update_type))]
     pub async fn feed_update_with_context(
         self: Arc<Self>,
@@ -819,7 +821,7 @@ mod tests {
         }
 
         // Should return error, because `Update` is empty and `UpdateType` will be unknown
-        let response = dispatcher.feed_update(bot, Update::default()).await;
+        let response = dispatcher.feed_update(bot, Box::new(Update::default())).await;
         assert!(response.is_err());
     }
 

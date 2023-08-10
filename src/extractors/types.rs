@@ -42,6 +42,8 @@ impl<Client> FromEventAndContext<Client> for Arc<Bot<Client>> {
 
 /// To be able to use [`Update`] in handler arguments,
 /// this implementation will clone [`Update`] and return it
+/// # Warnings
+/// [`Update`] has so big size, so it's recommended to use it inside [`std::sync::Arc`], [`Box`] and other smart pointers
 impl<Client> FromEventAndContext<Client> for Update {
     type Error = Infallible;
 
