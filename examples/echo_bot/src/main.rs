@@ -5,7 +5,6 @@
 //! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package echo_bot
 //! ```
 
-use log::{error, info};
 use telers::{
     enums::UpdateType,
     event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
@@ -13,6 +12,8 @@ use telers::{
     types::Message,
     Bot, Dispatcher, Router,
 };
+use tracing::{event, Level};
+use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
     bot.send(
@@ -26,7 +27,10 @@ async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    pretty_env_logger::init();
+    tracing_subscriber::registry()
+        .with(fmt::layer())
+        .with(EnvFilter::from_env("RUST_LOG"))
+        .init();
 
     let Ok(bot_token) = std::env::var("BOT_TOKEN") else {
         panic!("BOT_TOKEN env variable is not set!");
@@ -49,7 +53,7 @@ async fn main() {
         .run_polling()
         .await
     {
-        Ok(_) => info!("Bot stopped"),
-        Err(err) => error!("Bot stopped with error: {err}"),
+        Ok(_) => event!(Level::INFO, "Bot stopped"),
+        Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
     }
 }
