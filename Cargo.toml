@@ -1,6 +1,6 @@
 [package]
 name = "telers"
-version = "1.0.0-alpha.4"
+version = "1.0.0-alpha.5"
 edition = "2021"
 description = "An asynchronous framework for Telegram Bot API written in Rust"
 repository = "https://github.com/Desiders/telers"
