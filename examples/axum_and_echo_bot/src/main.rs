@@ -26,6 +26,7 @@ async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
     Ok(EventReturn::Finish)
 }
 
+#[allow(clippy::unused_async)]
 async fn hello_world_handler() -> &'static str {
     "Hello, World!"
 }
@@ -50,20 +51,19 @@ async fn main() {
         .main_router(router)
         .bot(bot)
         .allowed_update(UpdateType::Message)
-        .build();
+        .build()
+        .to_service_provider_default()
+        .unwrap();
 
-    let dispatcher = dispatcher.to_service_provider_default().unwrap();
-
-    let app = AxumRouter::new().route("/", get(hello_world_handler));
+    let app = AxumRouter::new()
+        .route("/", get(hello_world_handler))
+        .into_make_service();
 
     let server = Server::bind(&"0.0.0.0:3000".parse().unwrap());
 
-    let dispatcher_handle = tokio::spawn(dispatcher.run_polling());
-    let server_handle = tokio::spawn(server.serve(app.into_make_service()));
-
     tokio::join!(
         async {
-            match dispatcher_handle.await {
+            match tokio::spawn(dispatcher.run_polling()).await {
                 Ok(Ok(_)) => {}
                 Ok(Err(err)) => {
                     event!(Level::ERROR, "Error in dispatcher: {:?}", err);
@@ -74,7 +74,7 @@ async fn main() {
             }
         },
         async {
-            match server_handle.await {
+            match tokio::spawn(server.serve(app)).await {
                 Ok(Ok(_)) => {}
                 Ok(Err(err)) => {
                     event!(Level::ERROR, "Error in server: {:?}", err);
