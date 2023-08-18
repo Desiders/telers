@@ -1,0 +1,11 @@
+[package]
+name = "axum_and_echo_bot"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+telers = { path = "../..", features = ["default"] }
+tokio = { version = "1.28", features = ["macros", "rt-multi-thread"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] } 
+axum = "0.6"
