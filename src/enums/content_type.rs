@@ -1,3 +1,5 @@
+use crate::types::Message;
+
 use std::fmt::{self, Debug, Display};
 
 /// This enum represents all possible types of the content of the message
@@ -11,6 +13,7 @@ pub enum ContentType {
     Document,
     Photo,
     Sticker,
+    Story,
     Video,
     VideoNote,
     Voice,
@@ -65,6 +68,7 @@ impl ContentType {
             ContentType::Document => "document",
             ContentType::Photo => "photo",
             ContentType::Sticker => "sticker",
+            ContentType::Story => "story",
             ContentType::Video => "video",
             ContentType::VideoNote => "video_note",
             ContentType::Voice => "voice",
@@ -111,7 +115,7 @@ impl ContentType {
     }
 
     #[must_use]
-    pub const fn all() -> &'static [ContentType; 48] {
+    pub const fn all() -> &'static [ContentType; 49] {
         &[
             ContentType::Text,
             ContentType::Animation,
@@ -119,6 +123,7 @@ impl ContentType {
             ContentType::Document,
             ContentType::Photo,
             ContentType::Sticker,
+            ContentType::Story,
             ContentType::Video,
             ContentType::VideoNote,
             ContentType::Voice,
@@ -180,5 +185,73 @@ impl From<ContentType> for String {
 impl<'a> PartialEq<&'a str> for ContentType {
     fn eq(&self, other: &&'a str) -> bool {
         self.as_str() == *other
+    }
+}
+
+impl From<&Message> for ContentType {
+    fn from(message: &Message) -> Self {
+        macro_rules! is_some_return {
+            ( $field:ident => $variant:ident ) => {
+                if message.$field.is_some() {
+                    return ContentType::$variant;
+                }
+            };
+            ( $($field:ident => $variant:ident),* ) => {
+                $(is_some_return!($field => $variant);)*
+            };
+        }
+
+        is_some_return!(
+            text => Text,
+            animation => Animation,
+            audio => Audio,
+            document => Document,
+            photo => Photo,
+            sticker => Sticker,
+            story => Story,
+            video => Video,
+            video_note => VideoNote,
+            voice => Voice,
+            has_media_spoiler => HasMediaSpoiler,
+            contact => Contact,
+            dice => Dice,
+            game => Game,
+            poll => Poll,
+            venue => Venue,
+            location => Location,
+            new_chat_members => NewChatMembers,
+            left_chat_member => LeftChatMember,
+            new_chat_title => NewChatTitle,
+            new_chat_photo => NewChatPhoto,
+            delete_chat_photo => DeleteChatPhoto,
+            group_chat_created => GroupChatCreated,
+            supergroup_chat_created => SupergroupChatCreated,
+            channel_chat_created => ChannelChatCreated,
+            message_auto_delete_timer_changed => MessageAutoDeleteTimerChanged,
+            migrate_to_chat_id => MigrateToChatId,
+            migrate_from_chat_id => MigrateFromChatId,
+            pinned_message => PinnedMessage,
+            invoice => Invoice,
+            successful_payment => SuccessfulPayment,
+            user_shared => UserShared,
+            chat_shared => ChatShared,
+            connected_website => ConnectedWebsite,
+            write_access_allowed => WriteAccessAllowed,
+            passport_data => PassportData,
+            proximity_alert_triggered => ProximityAlertTriggered,
+            forum_topic_created => ForumTopicCreated,
+            forum_topic_edited => ForumTopicEdited,
+            forum_topic_closed => ForumTopicClosed,
+            forum_topic_reopened => ForumTopicReopened,
+            general_forum_topic_hidden => GeneralForumTopicHidden,
+            general_forum_topic_unhidden => GeneralForumTopicUnhidden,
+            video_chat_scheduled => VideoChatScheduled,
+            video_chat_started => VideoChatStarted,
+            video_chat_ended => VideoChatEnded,
+            video_chat_participants_invited => VideoChatParticipantsInvited,
+            web_app_data => WebAppData
+        );
+
+        ContentType::Unknown
     }
 }

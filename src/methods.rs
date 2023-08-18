@@ -105,6 +105,7 @@ pub mod unban_chat_sender_chat;
 pub mod unhide_general_forum_topic;
 pub mod unpin_all_chat_messages;
 pub mod unpin_all_forum_topic_messages;
+pub mod unpin_all_general_forum_topic_messages;
 pub mod unpin_chat_message;
 pub mod upload_sticker_file;
 
@@ -215,5 +216,6 @@ pub use unban_chat_sender_chat::UnbanChatSenderChat;
 pub use unhide_general_forum_topic::UnhideGeneralForumTopic;
 pub use unpin_all_chat_messages::UnpinAllChatMessages;
 pub use unpin_all_forum_topic_messages::UnpinAllForumTopicMessages;
+pub use unpin_all_general_forum_topic_messages::UnpinAllGeneralForumTopicMessages;
 pub use unpin_chat_message::UnpinChatMessage;
 pub use upload_sticker_file::UploadStickerFile;

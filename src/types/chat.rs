@@ -30,6 +30,8 @@ pub struct Chat {
     pub active_usernames: Option<Vec<String>>,
     /// Custom emoji identifier of emoji status of the other party in a private chat. Returned only in [`GetChat`](crate::methods::GetChat).
     pub emoji_status_custom_emoji_id: Option<String>,
+    /// Expiration date of the emoji status of the other party in a private chat, if any. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub emoji_status_expiration_date: Option<i64>,
     /// Bio of the other party in a private chat. Returned only in [`GetChat`](crate::methods::GetChat).
     pub bio: Option<String>,
     /// `True`, if privacy settings of the other party in the private chat allows to use `tg://user?id=<user_id>` links only in chats with the user. Returned only in [`GetChat`](crate::methods::GetChat).
@@ -85,17 +87,17 @@ impl Chat {
 
     #[must_use]
     pub fn is_private(&self) -> bool {
-        self.chat_type == "private"
+        matches!(self.chat_type(), Some(ChatType::Private))
     }
 
     #[must_use]
     pub fn is_group(&self) -> bool {
-        self.chat_type == "group"
+        matches!(self.chat_type(), Some(ChatType::Group))
     }
 
     #[must_use]
     pub fn is_supergroup(&self) -> bool {
-        self.chat_type == "supergroup"
+        matches!(self.chat_type(), Some(ChatType::Supergroup))
     }
 
     #[must_use]
@@ -105,6 +107,6 @@ impl Chat {
 
     #[must_use]
     pub fn is_channel(&self) -> bool {
-        self.chat_type == "channel"
+        matches!(self.chat_type(), Some(ChatType::Channel))
     }
 }

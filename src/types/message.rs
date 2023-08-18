@@ -3,9 +3,9 @@ use super::{
     ForumTopicCreated, ForumTopicEdited, ForumTopicReopened, Game, GeneralForumTopicHidden,
     GeneralForumTopicUnhidden, InlineKeyboardMarkup, Invoice, Location,
     MessageAutoDeleteTimerChanged, MessageEntity, PassportData, PhotoSize, Poll,
-    ProximityAlertTriggered, Sticker, SuccessfulPayment, Update, User, UserShared, Venue, Video,
-    VideoChatEnded, VideoChatParticipantsInvited, VideoChatScheduled, VideoChatStarted, VideoNote,
-    Voice, WebAppData, WriteAccessAllowed,
+    ProximityAlertTriggered, Sticker, Story, SuccessfulPayment, Update, User, UserShared, Venue,
+    Video, VideoChatEnded, VideoChatParticipantsInvited, VideoChatScheduled, VideoChatStarted,
+    VideoNote, Voice, WebAppData, WriteAccessAllowed,
 };
 
 use crate::{enums::ContentType, errors::ConvertUpdateToTypeError};
@@ -73,6 +73,8 @@ pub struct Message {
     pub photo: Option<Vec<PhotoSize>>,
     /// Message is a sticker, information about the sticker
     pub sticker: Option<Sticker>,
+    /// Message is a forwarded story
+    pub story: Option<Story>,
     /// Message is a video, information about the video
     pub video: Option<Video>,
     /// Message is a [`video note`](https://telegram.org/blog/video-messages-and-telescope), information about the video message
@@ -250,94 +252,8 @@ impl Message {
 
     /// Gets the content type of the message
     #[must_use]
-    pub const fn content_type(&self) -> ContentType {
-        if self.text.is_some() {
-            ContentType::Text
-        } else if self.audio.is_some() {
-            ContentType::Audio
-        } else if self.document.is_some() {
-            ContentType::Document
-        } else if self.photo.is_some() {
-            ContentType::Photo
-        } else if self.sticker.is_some() {
-            ContentType::Sticker
-        } else if self.video.is_some() {
-            ContentType::Video
-        } else if self.voice.is_some() {
-            ContentType::Voice
-        } else if self.video_note.is_some() {
-            ContentType::VideoNote
-        } else if self.contact.is_some() {
-            ContentType::Contact
-        } else if self.location.is_some() {
-            ContentType::Location
-        } else if self.venue.is_some() {
-            ContentType::Venue
-        } else if self.poll.is_some() {
-            ContentType::Poll
-        } else if self.new_chat_members.is_some() {
-            ContentType::NewChatMembers
-        } else if self.left_chat_member.is_some() {
-            ContentType::LeftChatMember
-        } else if self.new_chat_title.is_some() {
-            ContentType::NewChatTitle
-        } else if self.new_chat_photo.is_some() {
-            ContentType::NewChatPhoto
-        } else if self.delete_chat_photo.is_some() {
-            ContentType::DeleteChatPhoto
-        } else if self.group_chat_created.is_some() {
-            ContentType::GroupChatCreated
-        } else if self.supergroup_chat_created.is_some() {
-            ContentType::SupergroupChatCreated
-        } else if self.channel_chat_created.is_some() {
-            ContentType::ChannelChatCreated
-        } else if self.migrate_to_chat_id.is_some() {
-            ContentType::MigrateToChatId
-        } else if self.migrate_from_chat_id.is_some() {
-            ContentType::MigrateFromChatId
-        } else if self.pinned_message.is_some() {
-            ContentType::PinnedMessage
-        } else if self.invoice.is_some() {
-            ContentType::Invoice
-        } else if self.successful_payment.is_some() {
-            ContentType::SuccessfulPayment
-        } else if self.user_shared.is_some() {
-            ContentType::UserShared
-        } else if self.chat_shared.is_some() {
-            ContentType::ChatShared
-        } else if self.connected_website.is_some() {
-            ContentType::ConnectedWebsite
-        } else if self.write_access_allowed.is_some() {
-            ContentType::WriteAccessAllowed
-        } else if self.passport_data.is_some() {
-            ContentType::PassportData
-        } else if self.proximity_alert_triggered.is_some() {
-            ContentType::ProximityAlertTriggered
-        } else if self.forum_topic_created.is_some() {
-            ContentType::ForumTopicCreated
-        } else if self.forum_topic_edited.is_some() {
-            ContentType::ForumTopicEdited
-        } else if self.forum_topic_closed.is_some() {
-            ContentType::ForumTopicClosed
-        } else if self.forum_topic_reopened.is_some() {
-            ContentType::ForumTopicReopened
-        } else if self.general_forum_topic_hidden.is_some() {
-            ContentType::GeneralForumTopicHidden
-        } else if self.general_forum_topic_unhidden.is_some() {
-            ContentType::GeneralForumTopicUnhidden
-        } else if self.video_chat_scheduled.is_some() {
-            ContentType::VideoChatScheduled
-        } else if self.video_chat_started.is_some() {
-            ContentType::VideoChatStarted
-        } else if self.video_chat_ended.is_some() {
-            ContentType::VideoChatEnded
-        } else if self.video_chat_participants_invited.is_some() {
-            ContentType::VideoChatParticipantsInvited
-        } else if self.web_app_data.is_some() {
-            ContentType::WebAppData
-        } else {
-            ContentType::Unknown
-        }
+    pub fn content_type(&self) -> ContentType {
+        ContentType::from(self)
     }
 
     /// Gets file ID from the message

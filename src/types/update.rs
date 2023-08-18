@@ -64,7 +64,11 @@ impl Update {
         } else if let Some(pre_checkout_query) = &self.pre_checkout_query {
             Some(&pre_checkout_query.from)
         } else if let Some(poll_answer) = &self.poll_answer {
-            Some(&poll_answer.user)
+            if let Some(user) = &poll_answer.user {
+                Some(user)
+            } else {
+                None
+            }
         } else if let Some(chat_member_updated) = &self.my_chat_member {
             Some(&chat_member_updated.from)
         } else if let Some(chat_member_updated) = &self.chat_member {
