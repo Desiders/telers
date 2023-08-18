@@ -60,6 +60,7 @@ members = [
 
 [patch.crates-io]
 echo_bot = { path = "./examples/echo_bot" }
+axum_and_echo_bot = { path = "./examples/axum_and_echo_bot" }
 finite_state_machine = { path = "./examples/finite_state_machine" }
 bot_http_client = { path = "./examples/bot_http_client" }
 uppercase_filter = { path = "./examples/uppercase_filter" }
