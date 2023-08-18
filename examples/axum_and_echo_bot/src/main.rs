@@ -1,4 +1,5 @@
-//! This example shows how to create a simple echo bot, which will repeat all messages, which it receives.
+//! This example shows how to create a simple echo bot, which will repeat all messages, which it receives
+//! and how to run it parallel with polling axum server.
 //!
 //! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash
