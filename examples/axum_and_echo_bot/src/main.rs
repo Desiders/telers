@@ -74,6 +74,9 @@ async fn main() {
             }
         },
         async {
+            // Check graceful shutdown example of axum server:
+            // https://github.com/tokio-rs/axum/tree/main/examples/graceful-shutdown
+            // Telers provides graceful shutdown out of the box, so you don't need to do anything special.
             match tokio::spawn(server.serve(app)).await {
                 Ok(Ok(_)) => {}
                 Ok(Err(err)) => {
