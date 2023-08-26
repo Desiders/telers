@@ -144,7 +144,7 @@ impl Update {
         (self.user(), self.chat())
     }
 
-    /// Gets the text from the update, that is, the text of the message, the text of the inline query, etc.
+    /// Gets the text from the update, that is, the text of the message, the text of the inline query, the data of the callback query, etc.
     #[must_use]
     pub fn text(&self) -> Option<&str> {
         if let Some(message) = &self.message {

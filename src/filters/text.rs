@@ -36,16 +36,18 @@ impl From<Regex> for PatternType<'_> {
     }
 }
 
-/// This filter checks if the message text matches the specified pattern
+/// This filter checks if the text matches the specified pattern.
+/// # Notes
+/// Gets the text from the update, that is, the text of the message, the text of the inline query, the data of the callback query, etc.
 #[derive(Debug, Default, Clone)]
 pub struct Text<'a> {
-    /// List of texts or compiled [`Regex`] patterns that must be equal to the text of the message
+    /// List of texts or compiled [`Regex`] patterns that must be equal to the text
     texts: Vec<PatternType<'a>>,
-    /// List of texts that must be contained in the text of the message
+    /// List of texts that must be contained in the text
     contains: Vec<Cow<'a, str>>,
-    /// List of texts that must be at the beginning of the text of the message
+    /// List of texts that must be at the beginning of the text
     starts_with: Vec<Cow<'a, str>>,
-    /// List of texts that must be at the end of the text of the message
+    /// List of texts that must be at the end of the text
     ends_with: Vec<Cow<'a, str>>,
     /// Ignore case sensitive
     ignore_case: bool,
@@ -55,13 +57,13 @@ impl<'a> Text<'a> {
     /// Creates a new [`Text`] filter
     /// # Arguments
     /// * `texts` -
-    /// List of texts or compiled [`Regex`] patterns that must be equal to the text of the message
+    /// List of texts or compiled [`Regex`] patterns that must be equal to the text
     /// * `contains` -
-    /// List of texts that must be contained in the text of the message
+    /// List of texts that must be contained in the text
     /// * `starts_with` -
-    /// List of texts that must be at the beginning of the text of the message
+    /// List of texts that must be at the beginning of the text
     /// * `ends_with` -
-    /// List of texts that must be at the end of the text of the message
+    /// List of texts that must be at the end of the text
     /// # Panics
     /// If `ignore_case` is `true` and [`Regex`]
     /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
@@ -135,7 +137,7 @@ impl<'a> Text<'a> {
         Self::builder().texts(texts).build()
     }
 
-    /// Creates a new [`Text`] filter with pass text that must be contained in the text of the message
+    /// Creates a new [`Text`] filter with pass text that must be contained in the text
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
@@ -143,7 +145,7 @@ impl<'a> Text<'a> {
         Self::builder().contains_single(val).build()
     }
 
-    /// Creates a new [`Text`] filter with pass texts that must be contained in the text of the message
+    /// Creates a new [`Text`] filter with pass texts that must be contained in the text
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
@@ -151,7 +153,7 @@ impl<'a> Text<'a> {
         Self::builder().contains(val).build()
     }
 
-    /// Creates a new [`Text`] filter with pass text that must be at the beginning of the text of the message
+    /// Creates a new [`Text`] filter with pass text that must be at the beginning of the text
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
@@ -159,7 +161,7 @@ impl<'a> Text<'a> {
         Self::builder().starts_with_single(val).build()
     }
 
-    /// Creates a new [`Text`] filter with pass texts that must be at the beginning of the text of the message
+    /// Creates a new [`Text`] filter with pass texts that must be at the beginning of the text
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
@@ -167,7 +169,7 @@ impl<'a> Text<'a> {
         Self::builder().starts_with(val).build()
     }
 
-    /// Creates a new [`Text`] filter with pass text that must be at the end of the text of the message
+    /// Creates a new [`Text`] filter with pass text that must be at the end of the text
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
@@ -175,7 +177,7 @@ impl<'a> Text<'a> {
         Self::builder().ends_with_single(val).build()
     }
 
-    /// Creates a new [`Text`] filter with pass texts that must be at the end of the text of the message
+    /// Creates a new [`Text`] filter with pass texts that must be at the end of the text
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
