@@ -15,7 +15,7 @@ pub struct InlineKeyboardMarkup {
 
 impl InlineKeyboardMarkup {
     #[must_use]
-    pub fn new<T, R, I>(inline_keyboard: I) -> Self
+    pub fn new<T, I>(inline_keyboard: I) -> Self
     where
         T: IntoIterator<Item = InlineKeyboardButton>,
         I: IntoIterator<Item = T>,
