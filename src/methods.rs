@@ -1,3 +1,36 @@
+//! This module contains telegram methods from the [Telegram Bot API](https://core.telegram.org/bots/api).
+//! Each method has a description and a link to the official documentation.
+//!
+//! Telegram methods are represented by structs that implement the [`TelegramMethod`] trait.
+//! Each method has `new` function that creates a new instance of the method and accepts required parameters,
+//! for optional parameters there are builder-like methods that return a new instance of the method with the specified parameter.
+//!
+//! Some parameters that wrapped in an [`Option`] from the telegram types,
+//! can be passed using `{parameter}_option` method, which accepts an [`Option`] and returns a new instance of the method.
+//! These methods are useful when you have some optional parameters that you want to pass to the method from the types without boilerplate code.
+//! For example:
+//! ```ignore
+//! async fn handler(bot: Bot, message: Message) -> HandlerResult {
+//!     // Equivalent to:
+//!     // let method = if let Some(message_thread_id) = message.message_thread_id {
+//!     //     SendMessage::new(message.chat.id, "Hello world!").message_thread_id(message_thread_id);
+//!     // } else {
+//!     //     SendMessage::new(message.chat.id, "Hello world!");
+//!     // };
+//!
+//!     bot.send(
+//!         &SendMessage::new(message.chat.id, "Hello world!")
+//!             .message_thread_id_option(message.message_thread_id),
+//!         None,
+//!     )
+//!     .await?;
+//!
+//!     Ok(EventReturn::Finish)
+//! }
+//! ```
+//!
+//! You can check example of usage methods in the `examples` directory.
+
 pub mod add_sticker_to_set;
 pub mod answer_callback_query;
 pub mod answer_inline_query;
