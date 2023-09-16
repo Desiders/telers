@@ -1,3 +1,33 @@
+//! This module contains telegram types from the [Telegram Bot API](https://core.telegram.org/bots/api).
+//! Each type has a description and a link to the official documentation.
+//!
+//! Telegram types are represented as Rust structs, if a field:
+//! - is optional, it will be wrapped in [`Option`],
+//! - is an array, it will be wrapped in [`Vec`],
+//! - is a recursive type, it will be wrapped in [`Box`].
+//! - is a tagged union, it will be wrapped in `enum` with variants named as in the documentation,
+//! - is a string, it will be represented as [`String`],
+//! - is a number, it will be represented as [`i64`].
+//! - is a boolean, it will be represented as [`bool`],
+//! - is a file, it will be represented as [`InputFile`],
+//! - is a chat id with kind (integer or string), it will be represented as [`ChatIdKind`],
+//! - is a date, it will be represented as [`i64`] (unix timestamp).
+//!
+//! Tagged unions are represented as enums with variants named as in the documentation
+//! and we implement [`From`] trait for them to make it easier to convert from them to the enum.
+//! For example, [`BotCommandScope`] is represented as enum with variants:
+//! - [`BotCommandScopeDefault`]
+//! - [`BotCommandScopeAllPrivateChats`]
+//! - [`BotCommandScopeAllGroupChats`]
+//! - [`BotCommandScopeAllChatAdministrators`]
+//! - [`BotCommandScopeChat`]
+//! - [`BotCommandScopeChatAdministrators`]
+//! - [`BotCommandScopeChatMember`]
+//! Each variant has an implementation of [`From`] trait to convert from the variant to the [`BotCommandScope`],
+//! so you can write `from` and `into` to convert between them instead of boilerplate code.
+//! Many methods in the library accept "union" and tagged types as generic parameters with `Into` trait bounds,
+//! so you can pass any of the variants to them.
+
 pub mod animation;
 pub mod audio;
 pub mod bot_command;
