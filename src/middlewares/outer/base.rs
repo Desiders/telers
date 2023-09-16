@@ -14,7 +14,7 @@ pub type MiddlewareResponse<Client> = (Request<Client>, EventReturn);
 ///
 /// Prefer to use outer middlewares over inner middlewares in some cases:
 /// - If you need to call middlewares before filters, inner middlewares and handlers
-/// - If you need to manipulate with [`Request`]
+/// - If you need to manipulate with [`Request`] and [`crate::context::Context`] in it
 /// Usually outer middlewares are used to manipulate with [`Request`].
 ///
 /// Implement this trait for your own middlewares
