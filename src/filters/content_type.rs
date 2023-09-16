@@ -4,12 +4,16 @@ use crate::{client::Bot, context::Context, enums::ContentType as ContentTypeEnum
 
 use async_trait::async_trait;
 
+/// Filter for checking the type of content
 #[derive(Debug, Clone)]
 pub struct ContentType {
     content_types: Vec<ContentTypeEnum>,
 }
 
 impl ContentType {
+    /// Creates a new [`ContentType`] filter with one allowed content type
+    /// # Notes
+    /// You can use [`ContentTypeEnum`] or its string representation
     #[must_use]
     pub fn one(content_type: impl Into<ContentTypeEnum>) -> Self {
         Self {
@@ -17,6 +21,9 @@ impl ContentType {
         }
     }
 
+    /// Creates a new [`ContentType`] filter with many allowed content types
+    /// # Notes
+    /// You can use [`ContentTypeEnum`] or its string representation
     #[must_use]
     pub fn many<T, I>(content_types: I) -> Self
     where

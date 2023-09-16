@@ -4,18 +4,25 @@ use crate::{client::Bot, context::Context, enums::ChatType as ChatTypeEnum, type
 
 use async_trait::async_trait;
 
+/// Filter for checking the type of chat
 #[derive(Debug, Clone)]
 pub struct ChatType {
     chat_types: Vec<ChatTypeEnum>,
 }
 
 impl ChatType {
+    /// Creates a new [`ChatType`] filter with one allowed chat type.
+    /// # Notes
+    /// You can use [`ChatTypeEnum`] or its string representation.
     pub fn one(chat_type: impl Into<ChatTypeEnum>) -> Self {
         Self {
             chat_types: vec![chat_type.into()],
         }
     }
 
+    /// Creates a new [`ChatType`] filter with many allowed chat types.
+    /// # Notes
+    /// You can use [`ChatTypeEnum`] or its string representation.
     pub fn many<T, I>(chat_types: I) -> Self
     where
         T: Into<ChatTypeEnum>,

@@ -53,8 +53,12 @@ impl From<Regex> for PatternType<'_> {
     }
 }
 
-/// This filter checks if the message is a command
+/// This filter checks if the message is a command.
 ///
+/// Filter accepts [`PatternType`] that represents a command pattern type for verification,
+/// for example, text, [`BotCommand`] or [`Regex`].
+///
+/// # Notes
 /// You can use parsed command using [`CommandObject`] struct in handler arguments,
 /// or get it from [`Context`] by `command` key.
 #[derive(Debug, Clone)]
