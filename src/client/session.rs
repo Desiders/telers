@@ -8,7 +8,7 @@
 //! It accepts [`Bot`] instance, which is used for building request (for example, to get token),
 //! and [`TelegramMethod`] instance, which is used for building request and [`ClientResponse`] instance,
 //! because [`TelegramMethod`] contains information about response type and request data.
-//! Check [`methods module`] for more information about methods.
+//! Check [`methods module`] documentation for more information about methods.
 //!
 //! [`Bot`]: crate::client::Bot
 //! [`TelegramMethod`]: crate::methods::TelegramMethod

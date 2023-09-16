@@ -5,7 +5,7 @@
 //!
 //! [`Bot`] supports different [`Session`] implementations, which are used to send requests,
 //! and [`Session`]s can be customized to fit your needs. Check [`Reqwest`] for more information about default implementation.
-//! You can check example of create [`Bot`] with "other" client and using it in handlers in `examples/other_client.rs`.
+//! You can check example of create [`Bot`] with "other" client and using it in handlers in `examples/bot_http_client`.
 //!
 //! You can use `Bot::send` method, which accepts any type that implements [`TelegramMethod`].
 //! This method is the most comfortable, because you can use any method from [`methods module`] with

@@ -5,7 +5,7 @@
 //! for testing your bot.
 //!
 //! You can create [`APIServer`] directly for using local Telegram Bot API server,
-//! see example of using local Telegram Bot API server in `examples/local_server.rs`.
+//! see example of using local Telegram Bot API server in `examples/local_server`.
 //!
 //! [`Session`]: crate::client::Session
 

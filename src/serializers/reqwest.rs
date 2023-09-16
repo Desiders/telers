@@ -1,3 +1,9 @@
+//! Default serializer for `reqwest` crate.
+//!
+//! Check [`serializers module`] documentation for more information about serializers.
+//!
+//! [`serializers module`]: crate::serializers
+
 use reqwest::multipart::{Form, Part};
 use serde::{
     ser::{Error as SerError, Impossible, SerializeSeq, SerializeStruct},
