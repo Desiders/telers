@@ -56,6 +56,14 @@
 //! You can use [`Router::include_router`] method to include a router to the current router as sub router.
 //! Inner middlewares of the parent router will be registered to the sub router and its sub routers in the order of registration.
 //! Parent middlewares registers on the top of the stack, so parent middlewares calls before.
+//! You shouldn't count on the fact that the middlewares of the parent router will be registered to the sub routers
+//! immediately after calling this method. This implementation detail that can be changed in the future.
+//!
+//! [`OuterMiddlewaresConfig`] and [`InnerMiddlewaresConfig`] are used to configure outer and inner middlewares, respectively,
+//! or just use [`OuterMiddlewaresConfigBuilder`] and [`InnerMiddlewaresConfigBuilder`] to create a config step by step.
+//! You can use [`OuterMiddlewaresConfig::default`] and [`InnerMiddlewaresConfig::default`] to create a default config
+//! with [`LoggingMiddleware`] to log all incoming updates and [`UserContextMiddleware`] to set up user context.
+//! All config middlewares are registered in the order of registration and before other middlewares.
 //!
 //! You can propagate event with calls [`PropagateEvent::propagate_event`] or [`PropagateEvent::propagate_update_event`],
 //! [`PropagateEvent::emit_startup`], [`PropagateEvent::emit_shutdown`] methods, but it's better to use [`Dispatcher`] that does it for you.
