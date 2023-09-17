@@ -1,5 +1,5 @@
 [package]
-name = "uppercase_filter"
+name = "text_case_filter"
 version = "0.1.0"
 edition = "2021"
 

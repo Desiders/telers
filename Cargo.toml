@@ -54,7 +54,7 @@ members = [
     "./examples/axum_and_echo_bot",
     "./examples/finite_state_machine",
     "./examples/bot_http_client",
-    "./examples/uppercase_filter",
+    "./examples/text_case_filter",
     "./examples/stats_incoming_updates_middleware",
     "./examples/router_tree",
 ]
@@ -64,6 +64,6 @@ echo_bot = { path = "./examples/echo_bot" }
 axum_and_echo_bot = { path = "./examples/axum_and_echo_bot" }
 finite_state_machine = { path = "./examples/finite_state_machine" }
 bot_http_client = { path = "./examples/bot_http_client" }
-uppercase_filter = { path = "./examples/uppercase_filter" }
+text_case_filter = { path = "./examples/text_case_filter" }
 stats_incoming_updates_middleware = { path = "./examples/stats_incoming_updates_middleware" }
 router_tree = { path = "./examples/router_tree" }

@@ -1,10 +1,12 @@
 //! This example shows how to create a simple filter
-//! that allows only uppercase messages for the first handler and lowercase for the second.
+//! that allows only uppercase messages for the first handler and any for the second.
 //!
 //! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package uppercase_filter
+//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package text_case_filter
 //! ```
+
+use std::future::Future;
 
 use telers::{
     enums::UpdateType,
@@ -29,6 +31,17 @@ impl<Client> Filter<Client> for UppercaseFilter {
     }
 }
 
+/// # Notes
+/// We use here `async move` block to get result without capturing variables
+fn lowercase_filter(_bot: &Bot, update: &Update, _context: &Context) -> impl Future<Output = bool>
+where {
+    let result = update
+        .text()
+        .map_or(false, |text| text.to_lowercase() == text);
+
+    async move { result }
+}
+
 async fn uppercase_handler(bot: Bot, message: Message) -> HandlerResult {
     bot.send(
         &SendMessage::new(message.chat.id, "Uppercase message!"),
@@ -42,6 +55,16 @@ async fn uppercase_handler(bot: Bot, message: Message) -> HandlerResult {
 async fn lowercase_handler(bot: Bot, message: Message) -> HandlerResult {
     bot.send(
         &SendMessage::new(message.chat.id, "Lowercase message!"),
+        None,
+    )
+    .await?;
+
+    Ok(EventReturn::Finish)
+}
+
+async fn any_case_handler(bot: Bot, message: Message) -> HandlerResult {
+    bot.send(
+        &SendMessage::new(message.chat.id, "Any case message!"),
         None,
     )
     .await?;
@@ -67,44 +90,11 @@ async fn main() {
         .message
         .register(uppercase_handler)
         .filter(UppercaseFilter);
-    router.message.register(lowercase_handler).filter(
-        // This filter will allow only lowercase messages.
-        // Closure is used here, but you can use any type which implements `Filter` trait, such as `UppercaseFilter`,
-        // but using closure can be not so convenient (lifetimes, type inference).
-        |_: &Bot<_>, update: &Update, _: &Context| {
-            let result = update
-                .text()
-                .map_or(false, |text| text.to_lowercase() == text);
-
-            async move { result }
-        },
-    );
     router
         .message
-        .register(|bot: Bot, message: Message| async move {
-            bot.send(&SendMessage::new(message.chat.id, "Any message!"), None)
-                .await?;
-
-            Ok(EventReturn::Finish)
-        })
-        .filter(
-            // This filter will allow messages, that are't uppercase and lowercase.
-            // We use `Invert` filter to invert result of `UppercaseFilter` and closure,
-            // and then combine them with `And` filter.
-            UppercaseFilter.invert().and(
-                // This filter will allow only lowercase messages.
-                // we use closure here for example, but you can use any type which implements `Filter` trait, such as `UppercaseFilter`,
-                // but using closure can be not so convenient (lifetimes, type inference).
-                (|_: &Bot<_>, update: &Update, _: &Context| {
-                    let result = update
-                        .text()
-                        .map_or(false, |text| text.to_lowercase() == text);
-
-                    async move { result }
-                })
-                .invert(),
-            ),
-        );
+        .register(lowercase_handler)
+        .filter(lowercase_filter);
+    router.message.register(any_case_handler);
 
     let dispatcher = Dispatcher::builder()
         .main_router(router)

@@ -3,7 +3,7 @@
 //!
 //! [`Filter`] is a trait that accepts [`bot`], [`update`] and [`context`] and returns `true` if the filter passes, otherwise `false`.
 //! You can use [`Filter`] trait to create your own filters or use one of the ready-made implementations.
-//! Most likely you will have to write your filters, so we recommend you to check out the `examples/uppercase_filter` to see how to create your own filters
+//! Most likely you will have to write your filters, so we recommend you to check out the `examples/text_case_filter` to see how to create your own filters
 //! and check ready-made implementations.
 //!
 //! Filters can be combined with logical operators [`And`] and [`Or`] and inverted with [`Invert`].

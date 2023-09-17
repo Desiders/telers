@@ -27,7 +27,7 @@ Make sure you have a basic understanding of the [Telegram Bot API](https://core.
  - [Axum and echo bot](examples/axum_and_echo_bot). This example shows how to create a simple echo bot and run it parallel with polling axum server.
  - [Finite state machine](examples/finite_state_machine). This example shows how to implement a simple finite state machine (conversation).
  - [Bot http client](examples/bot_http_client). This example shows how to set a custom bot HTTP client.
- - [Uppercase filter](examples/uppercase_filter). This example shows how to create a simple uppercase filter.
+ - [Text case filter](examples/text_case_filter). This example shows how to create a simple text case filter.
  - [Stats incoming updates middleware](examples/stats_incoming_updates_middleware). This example shows how to create a simple middleware that counter incoming updates and processed handlers.
 
 You may consider checking out [this directory](examples) for more examples.
