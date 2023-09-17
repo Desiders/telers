@@ -80,7 +80,7 @@ where
 
 /// Wrap handler and middlewares to [`Next`] function
 /// # Notes
-/// This function is wrap [`crate::error::HandlerError`] to [`EventErrorKind::Handler`]
+/// This function is wrap [`crate::errors::HandlerError`] to [`EventErrorKind::Handler`]
 #[must_use]
 pub fn wrap_handler_and_middlewares_to_next<T, Client>(
     handler: Arc<BoxedHandlerService<Client>>,

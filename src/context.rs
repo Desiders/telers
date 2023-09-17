@@ -25,7 +25,7 @@
 //! [`OuterMiddleware`]: crate::middlewares::OuterMiddleware
 //! [`InnerMiddleware`]: crate::middlewares::InnerMiddleware
 //! [`RouterRequest`]: crate::router::Request
-//! [`HandlerRequest`]: crate::handler::Request
+//! [`HandlerRequest`]: crate::event::telegram::handler::Request
 //! [`Filter`]: crate::filters::Filter
 //! [`Filter::check`]: crate::filters::Filter#method.check
 //! [`Handler`]: crate::event::telegram::Handler

@@ -204,6 +204,7 @@ macro_rules! from_context_impl {
 ///    todo!()
 /// }
 /// ```
+#[allow(rustdoc::invalid_rust_codeblocks)]
 #[allow(clippy::module_name_repetitions)]
 #[macro_export]
 macro_rules! from_context_into_impl {

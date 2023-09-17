@@ -10,6 +10,7 @@
 //! Check out the [`from_context_impl`] and [`from_context_into_impl`] macro documentation for more information.
 //!
 //! [`CommandObject`]: crate::filters::CommandObject
+//! [`Pin<Box<T>>`]: std::pin::Pin
 
 mod extractor;
 mod filters;

@@ -36,7 +36,7 @@
 //! Filter accepts [`text pattern type`] that represents a text pattern type to check for equality, so you can use [`Regex`] or [`Cow`] to check the text.
 //! You can create a filter with `one` or `many` if you want to check the text with the exact value.
 //! If you want to check the text with `contains`, `starts_with` or `ends_with` methods that accept only [`Cow`],
-//! you can create a filter with `contains_single`, `contains`, `starts_with_single`, `starts_with`, `ends_with_single, or `ends_with` methods,
+//! you can create a filter with `contains_single`, `contains`, `starts_with_single`, `starts_with`, `ends_with_single`, or `ends_with` methods,
 //! or use [`TextBuilder`] to create a filter step by step.
 //! * [`User`]:
 //! Filter for checking the user.
@@ -55,7 +55,7 @@
 //! [`Regex`]: regex::Regex
 //! [`context`]: crate::context::Context
 //! [`command pattern type`]: command::PatternType
-//! [`text pattern type`]: text::PatternTyp
+//! [`text pattern type`]: text::PatternType
 //! [`bot`]: crate::client::Bot
 //! [`update`]: crate::types::Update
 

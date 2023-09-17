@@ -74,7 +74,8 @@ use tracing::{event, instrument, Level, Span, field};
 
 const GET_UPDATES_SIZE: i64 = 100;
 const CHANNEL_UPDATES_SIZE: usize = 100;
-const DEFAULT_POLLING_TIMEOUT: i64 = 30;
+
+pub const DEFAULT_POLLING_TIMEOUT: i64 = 30;
 
 #[derive(Debug, thiserror::Error)]
 enum ListenerError<T> {
