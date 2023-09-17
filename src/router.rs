@@ -844,59 +844,35 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
         let observer_response = self.update.trigger(observer_request).await?;
 
         match observer_response.propagate_result {
-            // Propagate event to sub routers
+            // Return a response if the event unhandled by observer
             PropagateEventResult::Unhandled => {
                 event!(Level::TRACE, "Update event unhandled by router");
+
+                Ok(Response {
+                    request,
+                    propagate_result: PropagateEventResult::Unhandled,
+                })
             }
             // Return a response if the event handled
             PropagateEventResult::Handled(response) => {
                 event!(Level::TRACE, "Update event handled by router");
 
-                return Ok(Response {
+                Ok(Response {
                     request,
                     propagate_result: PropagateEventResult::Handled(response),
-                });
+                })
             }
             // Return a response if the event rejected
             // Router don't know about rejected event by observer
             PropagateEventResult::Rejected => {
                 event!(Level::TRACE, "Update event rejected by router");
 
-                return Ok(Response {
+                Ok(Response {
                     request,
                     propagate_result: PropagateEventResult::Unhandled,
-                });
+                })
             }
-        };
-
-        // Propagate event to sub routers' observer
-        for router in &self.sub_routers {
-            let router_response = router.propagate_update_event(request.clone()).await?;
-            match router_response.propagate_result {
-                // Propagate event to next sub router's observer if the event unhandled by the sub router's observer
-                PropagateEventResult::Unhandled => {
-                    event!(Level::TRACE, "Update event unhandled by sub router");
-
-                    continue;
-                }
-                PropagateEventResult::Handled(_) => {
-                    event!(Level::TRACE, "Update event handled by sub router");
-
-                    return Ok(router_response);
-                }
-                PropagateEventResult::Rejected => {
-                    event!(Level::TRACE, "Update event rejected by sub router");
-
-                    return Ok(router_response);
-                }
-            };
         }
-
-        // Return a response if the event unhandled by observer
-        Ok(Response {
-            request,
-            propagate_result: PropagateEventResult::Unhandled,
-        })
     }
 
     #[instrument(skip(self), fields(router_name = self.router_name))]
