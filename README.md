@@ -2,6 +2,30 @@
 
 <h1><code>telers</code></h1>
 
+<div>
+<table>
+<tr>
+
+<td>
+<a href="https://docs.rs/telers">
+<img src="https://img.shields.io/docsrs/telers"></img>
+</a>
+</td>
+
+<td>
+<a href="https://crates.io/crates/telers">
+<img src="https://img.shields.io/crates/v/telers"></img>
+</a>
+</td>
+
+<a href="https://core.telegram.org/bots/api">
+<img src="https://img.shields.io/badge/Telegram%20Bot%20API-6.8-blue?style=flat-square&logo=telegram&label=Telegram%20Bot%20API">
+</a>
+
+</tr>
+</table>
+</div>
+
 <h3>
 An asynchronous framework for Telegram Bot API written in Rust
 </h3>
@@ -15,7 +39,7 @@ An asynchronous framework for Telegram Bot API written in Rust
 Make sure you have a basic understanding of the [Telegram Bot API](https://core.telegram.org/bots/api) before you start, because **all types and methods in telers have the same fields and types as in Telegram Bot API**.
 
 ## Highlights
- - **Asynchronous**. Telers is built on top of [Tokio](https://tokio.rs/), a powerful asynchronous runtime for Rust.
+ - **Asynchronous**. Telers is built on top of [Tokio](https://tokio.rs), a powerful asynchronous runtime for Rust.
  - **Easy to use**. Telers provides a simple and intuitive API to create Telegram bots.
  - **Based on** [aiogram](https://github.com/aiogram/aiogram). Telers is inspired by [aiogram](https://github.com/aiogram/aiogram), a Python framework for Telegram Bot API. Telers tries to provide the same API as aiogram, so if you know aiogram, you can easily start using this framework.
  - **Middlewares**, **Filters** and **Handlers**. Telers provides a powerful system of middlewares, filters and handlers. You can use middlewares to modify incoming/outgoing updates (logging, database connections, etc.), filters to filter incoming updates and handlers to handle incoming updates.
