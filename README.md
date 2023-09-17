@@ -2,29 +2,15 @@
 
 <h1><code>telers</code></h1>
 
-<div>
-<table>
-<tr>
-
-<td>
 <a href="https://docs.rs/telers">
-<img src="https://img.shields.io/docsrs/telers?style=flat-square"></img>
+<img src="https://img.shields.io/docsrs/telers?style=flat-square"/>
 </a>
-</td>
-
-<td>
 <a href="https://crates.io/crates/telers">
-<img src="https://img.shields.io/crates/v/telers?style=flat-square"></img>
+<img src="https://img.shields.io/crates/v/telers?style=flat-square"/>
 </a>
-</td>
-
 <a href="https://core.telegram.org/bots/api">
-<img src="https://img.shields.io/badge/Telegram%20Bot%20API-6.8-blue?style=flat-square&logo=telegram&label=Telegram%20Bot%20API">
+<img src="https://img.shields.io/badge/Telegram%20Bot%20API-6.8-blue?style=flat-square&logo=telegram&label=Telegram%20Bot%20API"/>
 </a>
-
-</tr>
-</table>
-</div>
 
 <h3>
 An asynchronous framework for Telegram Bot API written in Rust
