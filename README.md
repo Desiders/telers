@@ -8,13 +8,13 @@
 
 <td>
 <a href="https://docs.rs/telers">
-<img src="https://img.shields.io/docsrs/telers"></img>
+<img src="https://img.shields.io/docsrs/telers?style=flat-square"></img>
 </a>
 </td>
 
 <td>
 <a href="https://crates.io/crates/telers">
-<img src="https://img.shields.io/crates/v/telers"></img>
+<img src="https://img.shields.io/crates/v/telers?style=flat-square"></img>
 </a>
 </td>
 
