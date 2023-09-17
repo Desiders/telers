@@ -9,7 +9,11 @@ use crate::{
 use async_trait::async_trait;
 use std::borrow::Cow;
 
-/// This filter checks if the user username, first name, last name, language code or ID is equal to one of the specified
+/// Filter for checking the user.
+/// This filter checks if the user username, first name, last name, language code or ID is equal to one of the specified.
+/// # Notes
+/// This filter checks user data step by step using the logical operator `or`,
+/// so if at least one check is successful, the filter will return the value `true`.
 #[derive(Debug, Clone)]
 pub struct User<'a> {
     /// List of usernames of the users
@@ -32,6 +36,9 @@ impl<'a> User<'a> {
     /// * `last_names` - List of last names of the users
     /// * `language_codes` - List of language codes of the users
     /// * `ids` - List of user IDs of the users
+    /// # Notes
+    /// This filter checks user data step by step using the logical operator `or`,
+    /// so if at least one check is successful, the filter will return the value `true`.
     pub fn new<T, I1, C, I2, S, I3, E, I4, I5>(
         usernames: I1,
         first_names: I2,

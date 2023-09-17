@@ -8,8 +8,9 @@ use std::borrow::Cow;
 
 /// Represents a command pattern type for verification
 /// # Variants
-/// * [`PatternType::Text(Cow<str>)`] - A command pattern with text
-/// * [`PatternType::Regex(Regex)`] -
+/// * [`PatternType::Text(Cow<str>)`]:
+/// A command pattern with text
+/// * [`PatternType::Regex(Regex)`]:
 /// A command pattern with regex, compiled with [`Regex`] struct. \
 /// If filter used with `ignore_case` flag, then the regex will be compiled with `(?i)` flag (ignore case sensitive flag).
 #[derive(Debug, Clone)]
@@ -121,7 +122,7 @@ impl<'a> Text<'a> {
         }
     }
 
-    /// Creates a new [`Text`] fitler with pass text or compiled [`Regex`] pattern
+    /// Creates a new [`Text`] fitler with pass text or compiled [`Regex`] pattern that must be equal to the text
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
@@ -129,7 +130,7 @@ impl<'a> Text<'a> {
         Self::builder().text(text).build()
     }
 
-    /// Creates a new [`Text`] fitler with pass texts or compiled [`Regex`] patterns
+    /// Creates a new [`Text`] fitler with pass texts or compiled [`Regex`] patterns that must be equal to the text
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
