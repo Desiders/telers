@@ -19,7 +19,7 @@
 //! You can use context in handlers to get data that was added by middlewares and filters.
 //! For convenience, you can implement [`FromEventAndContext`] for your own types and use them as handler arguments,
 //! so you don't need to pass context as parameter of handler and extract data from context manually.
-//! Check [`extract module`] documentation for more information (**recommended**).
+//! Check [`extractors module`] documentation for more information (**recommended**).
 //!
 //! [`Dispatcher`]: crate::Dispatcher
 //! [`OuterMiddleware`]: crate::middlewares::OuterMiddleware
@@ -29,11 +29,11 @@
 //! [`Filter`]: crate::filters::Filter
 //! [`Filter::check`]: crate::filters::Filter#method.check
 //! [`Handler`]: crate::event::telegram::Handler
-//! [`FromEventAndContext`]: crate::extract::FromEventAndContext
+//! [`FromEventAndContext`]: crate::extractors::FromEventAndContext
 //! [`outer middleware module`]: crate::middlewares::outer
 //! [`inner middleware module`]: crate::middlewares::inner
 //! [`filter module`]: crate::filters
-//! [`extract module`]: crate::extract
+//! [`extractors module`]: crate::extractors
 
 use dashmap::DashMap;
 use std::any::Any;
