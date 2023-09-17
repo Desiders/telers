@@ -8,6 +8,11 @@
 //! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package stats_incoming_updates_middleware
 //! ```
 
+use async_trait::async_trait;
+use std::sync::{
+    atomic::{AtomicUsize, Ordering},
+    Arc,
+};
 use telers::{
     enums::UpdateType,
     errors::EventErrorKind,
@@ -23,12 +28,6 @@ use telers::{
 };
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
-
-use async_trait::async_trait;
-use std::sync::{
-    atomic::{AtomicUsize, Ordering},
-    Arc,
-};
 
 #[derive(Default)]
 struct IncomingUpdates {

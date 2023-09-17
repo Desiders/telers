@@ -56,6 +56,7 @@ members = [
     "./examples/bot_http_client",
     "./examples/uppercase_filter",
     "./examples/stats_incoming_updates_middleware",
+    "./examples/router_tree",
 ]
 
 [patch.crates-io]
@@ -65,3 +66,4 @@ finite_state_machine = { path = "./examples/finite_state_machine" }
 bot_http_client = { path = "./examples/bot_http_client" }
 uppercase_filter = { path = "./examples/uppercase_filter" }
 stats_incoming_updates_middleware = { path = "./examples/stats_incoming_updates_middleware" }
+router_tree = { path = "./examples/router_tree" }
