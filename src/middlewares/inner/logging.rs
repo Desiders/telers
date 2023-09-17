@@ -16,29 +16,25 @@ use std::{
 use tracing::{event, instrument, Level};
 
 #[derive(Debug)]
-pub struct Logging {
-    target: &'static str,
-}
+pub struct Logging;
 
 impl Logging {
     #[must_use]
-    pub fn new(target: &'static str) -> Self {
-        Self { target }
+    pub const fn new() -> Self {
+        Self {}
     }
 }
 
 impl Default for Logging {
     #[must_use]
     fn default() -> Self {
-        Self {
-            target: module_path!(),
-        }
+        Self::new()
     }
 }
 
 impl Display for Logging {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "Logging({})", self.target)
+        write!(f, "Logging")
     }
 }
 
@@ -47,7 +43,7 @@ impl<Client> Middleware<Client> for Logging
 where
     Client: Send + Sync + 'static,
 {
-    #[instrument(skip(self, request, next), fields(target = self.target))]
+    #[instrument(skip(self, request, next))]
     async fn call(
         &self,
         request: HandlerRequest<Client>,
@@ -125,8 +121,6 @@ mod tests {
 
     #[tokio::test]
     async fn test_logging() {
-        let middleware = Logging::default();
-
         let handler_service_factory =
             handler_service(|| async { Ok(EventReturn::Finish) }).new_service(());
         let handler_service = Arc::new(handler_service_factory.unwrap());
@@ -136,7 +130,7 @@ mod tests {
             Update::default(),
             Context::default(),
         );
-        let response = middleware
+        let response = Logging
             .call(
                 request,
                 wrap_handler_and_middlewares_to_next(handler_service, []),
