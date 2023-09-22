@@ -35,6 +35,7 @@ dashmap = "5.4"
 regex = "1.6"
 backoff = "0.4"
 bytes = "1.3"
+pathdiff = "0.2"
 uuid = { version = "1.2", features = ["v4"] }
 
 redis = { version = "0.23", features = ["tokio-comp"], optional = true }

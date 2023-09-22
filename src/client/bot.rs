@@ -9,9 +9,6 @@ use std::{
 use tracing::instrument;
 
 /// Represents a bot with a token for getting updates and sending requests to Telegram API
-/// # Warning
-/// Using `default` method isn't recommended, because it doesn't check the token for validity.
-/// This method is only for testing purposes.
 #[derive(Clone, Default)]
 pub struct Bot<Client: ?Sized = Reqwest> {
     /// Bot token, which is used to receive updates and send requests to the Telegram API

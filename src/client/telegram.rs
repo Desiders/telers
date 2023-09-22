@@ -10,6 +10,7 @@
 //! [`Session`]: crate::client::Session
 
 use once_cell::sync::Lazy;
+use pathdiff::diff_paths;
 use std::{
     fmt::Debug,
     path::{Path, PathBuf},
@@ -19,54 +20,65 @@ use std::{
 pub trait FilesPathWrapper: Debug + Send + Sync {
     /// Converts a path to a local path
     #[must_use]
-    fn to_local(&self, path: &Path) -> PathBuf;
+    fn to_local(&self, path: &Path) -> Option<PathBuf>;
 
     /// Converts a path to a server path
     #[must_use]
-    fn to_server(&self, path: &Path) -> PathBuf;
+    fn to_server(&self, path: &Path) -> Option<PathBuf>;
 }
 
 impl<T: ?Sized> FilesPathWrapper for Arc<T>
 where
     T: FilesPathWrapper,
 {
-    fn to_local(&self, path: &Path) -> PathBuf {
+    fn to_local(&self, path: &Path) -> Option<PathBuf> {
         T::to_local(self, path)
     }
 
-    fn to_server(&self, path: &Path) -> PathBuf {
+    fn to_server(&self, path: &Path) -> Option<PathBuf> {
         T::to_server(self, path)
     }
 }
 
-/// Bare wrapper for files path in local mode.
+/// Bare wrapper for server and local paths.
 ///
-/// You can use this wrapper for cases, when you have a full path to the file on the server,
-/// because this wrapper just return the same path, which you passed to it without any changes.
-#[derive(Debug)]
+/// This wrapper just return the same path, which you passed to it without any changes.
+#[derive(Debug, Clone, Copy, Default)]
 pub struct BareFilesPathWrapper;
 
-impl FilesPathWrapper for BareFilesPathWrapper {
-    fn to_local(&self, path: &Path) -> PathBuf {
-        path.to_path_buf()
-    }
-
-    fn to_server(&self, path: &Path) -> PathBuf {
-        path.to_path_buf()
+impl BareFilesPathWrapper {
+    #[must_use]
+    pub const fn new() -> Self {
+        Self
     }
 }
 
-/// Simple wrapper for files path in local mode.
+impl FilesPathWrapper for BareFilesPathWrapper {
+    /// # Returns
+    /// Always `Some(path)`
+    fn to_local(&self, path: &Path) -> Option<PathBuf> {
+        Some(path.to_path_buf())
+    }
+
+    /// # Returns
+    /// Always `Some(path)`
+    fn to_server(&self, path: &Path) -> Option<PathBuf> {
+        Some(path.to_path_buf())
+    }
+}
+
+/// Wrapper for files path with different server and local paths.
 ///
-/// You can use this wrapper for cases, when you want set a base path for files on the server,
-/// and a base path for files on the local machine. This wrapper will return a resolved path.
+/// This wrapper resolve local path from server path and vice versa.
+/// # Notes
+/// It uses [`pathdiff::diff_paths`] for resolving paths.
 #[derive(Debug)]
-pub struct SimpleFilesPathWrapper {
+pub struct FilesDiffPathWrapper {
     server_path: PathBuf,
     local_path: PathBuf,
 }
 
-impl SimpleFilesPathWrapper {
+impl FilesDiffPathWrapper {
     #[must_use]
     pub fn new(server_path: PathBuf, local_path: PathBuf) -> Self {
         Self {
@@ -74,21 +86,29 @@ impl SimpleFilesPathWrapper {
             local_path,
         }
     }
-
-    #[must_use]
-    fn resolve(base1: &Path, base2: &Path, path: &Path) -> PathBuf {
-        let relative = base1.join(path);
-        base2.join(relative)
-    }
 }
 
-impl FilesPathWrapper for SimpleFilesPathWrapper {
-    fn to_local(&self, path: &Path) -> PathBuf {
-        Self::resolve(&self.server_path, &self.local_path, path)
+impl FilesPathWrapper for FilesDiffPathWrapper {
+    /// # Warning
+    /// `..` in `path` and similar will not be resolved,
+    /// for example,`/etc/telegram-bot-api/data/../data/test_path` will be resolved to `/opt/app/data/../data/test_path`
+    fn to_local(&self, path: &Path) -> Option<PathBuf> {
+        if let Some(relative_path) = diff_paths(path, &self.server_path) {
+            Some(self.local_path.join(relative_path))
+        } else {
+            None
+        }
     }
 
-    fn to_server(&self, path: &Path) -> PathBuf {
-        Self::resolve(&self.local_path, &self.server_path, path)
+    /// # Warning
+    /// `..` in `path` and similar will not be resolved,
+    /// for example,`/opt/app/data/../data/test_path` will be resolved to `/etc/telegram-bot-api/data/../data/test_path`
+    fn to_server(&self, path: &Path) -> Option<PathBuf> {
+        if let Some(relative_path) = diff_paths(path, &self.local_path) {
+            Some(self.server_path.join(relative_path))
+        } else {
+            None
+        }
     }
 }
 
@@ -133,7 +153,7 @@ impl APIServer {
 
     /// Check if this server is in [`local mode`](https://core.telegram.org/bots/api#using-a-local-bot-api-server)
     #[must_use]
-    pub fn is_local(&self) -> bool {
+    pub const fn is_local(&self) -> bool {
         self.is_local
     }
 
@@ -251,6 +271,37 @@ mod tests {
                 "test_path"
             ),
             "https://api.telegram.org/file/bot1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/test/test_path"
+        );
+    }
+
+    #[test]
+    fn test_bare_files_path_wrapper() {
+        let wrapper = BareFilesPathWrapper;
+
+        assert_eq!(
+            wrapper.to_local(Path::new("test_path")),
+            Some(PathBuf::from("test_path")),
+        );
+        assert_eq!(
+            wrapper.to_server(Path::new("test_path")),
+            Some(PathBuf::from("test_path")),
+        );
+    }
+
+    #[test]
+    fn test_files_diff_path_wrapper() {
+        let wrapper = FilesDiffPathWrapper::new(
+            PathBuf::from("/etc/telegram-bot-api/data"),
+            PathBuf::from("/opt/app/data"),
+        );
+
+        assert_eq!(
+            wrapper.to_local(Path::new("/etc/telegram-bot-api/data/test_path")),
+            Some(PathBuf::from("/opt/app/data/test_path")),
+        );
+        assert_eq!(
+            wrapper.to_server(Path::new("/opt/app/data/test_path")),
+            Some(PathBuf::from("/etc/telegram-bot-api/data/test_path")),
         );
     }
 }
