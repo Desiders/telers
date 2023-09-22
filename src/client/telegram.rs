@@ -93,22 +93,14 @@ impl FilesPathWrapper for FilesDiffPathWrapper {
     /// `..` in `path` and similar will not be resolved,
     /// for example,`/etc/telegram-bot-api/data/../data/test_path` will be resolved to `/opt/app/data/../data/test_path`
     fn to_local(&self, path: &Path) -> Option<PathBuf> {
-        if let Some(relative_path) = diff_paths(path, &self.server_path) {
-            Some(self.local_path.join(relative_path))
-        } else {
-            None
-        }
+        diff_paths(path, &self.server_path).map(|relative_path| self.local_path.join(relative_path))
     }
 
     /// # Warning
     /// `..` in `path` and similar will not be resolved,
     /// for example,`/opt/app/data/../data/test_path` will be resolved to `/etc/telegram-bot-api/data/../data/test_path`
     fn to_server(&self, path: &Path) -> Option<PathBuf> {
-        if let Some(relative_path) = diff_paths(path, &self.local_path) {
-            Some(self.server_path.join(relative_path))
-        } else {
-            None
-        }
+        diff_paths(path, &self.local_path).map(|relative_path| self.server_path.join(relative_path))
     }
 }
 
