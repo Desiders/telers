@@ -1,4 +1,4 @@
-use super::base::{prepare_file_with_value, Request, TelegramMethod};
+use super::base::{prepare_file, Request, TelegramMethod};
 
 use crate::{
     client::Bot,
@@ -7,7 +7,6 @@ use crate::{
 
 use serde::Serialize;
 use serde_with::skip_serializing_none;
-use std::collections::HashMap;
 
 /// Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS (other formats may be sent as [Audio](crate::types::Audio) or [Document](crate::types::Document)). Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future.
 /// # Documentation
@@ -275,8 +274,8 @@ impl<'a> TelegramMethod for SendVoice<'a> {
     type Return = Message;
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        let mut files = HashMap::new();
-        prepare_file_with_value(&mut files, &self.voice, "voice");
+        let mut files = vec![];
+        prepare_file(&mut files, &self.voice);
 
         Request::new("sendVoice", self, Some(files))
     }

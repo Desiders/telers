@@ -1,4 +1,4 @@
-use super::base::{prepare_file_with_value, Request, TelegramMethod};
+use super::base::{prepare_file, Request, TelegramMethod};
 
 use crate::{
     client::Bot,
@@ -7,7 +7,6 @@ use crate::{
 
 use serde::Serialize;
 use serde_with::skip_serializing_none;
-use std::collections::HashMap;
 
 /// Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound). Bots can currently send animation files of up to 50 MB in size, this limit may be changed in the future.
 /// # Documentation
@@ -367,11 +366,11 @@ impl<'a> TelegramMethod for SendAnimation<'a> {
     type Return = Message;
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        let mut files = HashMap::new();
-        prepare_file_with_value(&mut files, &self.animation, "animation");
+        let mut files = vec![];
+        prepare_file(&mut files, &self.animation);
 
         if let Some(file) = &self.thumbnail {
-            prepare_file_with_value(&mut files, file, "thumbnail");
+            prepare_file(&mut files, file);
         }
 
         Request::new("sendAnimation", self, Some(files))

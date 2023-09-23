@@ -1,4 +1,4 @@
-use super::base::{prepare_file_with_value, Request, TelegramMethod};
+use super::base::{prepare_file, Request, TelegramMethod};
 
 use crate::{
     client::Bot,
@@ -7,7 +7,6 @@ use crate::{
 
 use serde::Serialize;
 use serde_with::skip_serializing_none;
-use std::collections::HashMap;
 
 /// Use this method to send photos.
 /// # Documentation
@@ -275,8 +274,8 @@ impl<'a> TelegramMethod for SendPhoto<'a> {
     type Return = Message;
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        let mut files = HashMap::new();
-        prepare_file_with_value(&mut files, &self.photo, "photo");
+        let mut files = vec![];
+        prepare_file(&mut files, &self.photo);
 
         Request::new("sendPhoto", self, Some(files))
     }

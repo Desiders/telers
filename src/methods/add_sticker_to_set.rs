@@ -4,7 +4,6 @@ use crate::{client::Bot, types::InputSticker};
 
 use serde::Serialize;
 use serde_with::skip_serializing_none;
-use std::collections::HashMap;
 
 /// Use this method to add a new sticker to a set created by the bot.
 /// The format of the added sticker must match the format of the other stickers in the set.
@@ -70,7 +69,7 @@ impl<'a> TelegramMethod for AddStickerToSet<'a> {
     type Return = bool;
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        let mut files = HashMap::new();
+        let mut files = vec![];
         prepare_input_sticker(&mut files, &self.sticker);
 
         Request::new("addStickerToSet", self, Some(files))

@@ -1,4 +1,4 @@
-use super::base::{prepare_input_media, Request, TelegramMethod};
+use super::base::{prepare_input_media_group, Request, TelegramMethod};
 
 use crate::{
     client::Bot,
@@ -7,7 +7,6 @@ use crate::{
 
 use serde::Serialize;
 use serde_with::skip_serializing_none;
-use std::collections::HashMap;
 
 /// Use this method to send a group of photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type.
 /// # Documentation
@@ -183,8 +182,8 @@ impl<'a> TelegramMethod for SendMediaGroup<'a> {
     type Return = Vec<Message>;
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        let mut files = HashMap::new();
-        prepare_input_media(&mut files, &self.media);
+        let mut files = vec![];
+        prepare_input_media_group(&mut files, &self.media);
 
         Request::new("sendMediaGroup", self, Some(files))
     }

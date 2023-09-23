@@ -5,7 +5,6 @@ use crate::{
 
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json;
-use std::{collections::HashMap, hash::BuildHasher};
 
 /// This object represents a request to Telegram API
 pub struct Request<'a, T>
@@ -17,7 +16,7 @@ where
     /// Telegram API method data
     pub data: &'a T,
     /// Files to send
-    pub files: Option<HashMap<&'a str, &'a InputFile<'a>>>,
+    pub files: Option<Vec<&'a InputFile<'a>>>,
 }
 
 impl<'a, T> Request<'a, T>
@@ -28,7 +27,7 @@ where
     pub fn new(
         method_name: &'static str,
         data: &'a T,
-        files: Option<HashMap<&'a str, &'a InputFile<'a>>>,
+        files: Option<Vec<&'a InputFile<'a>>>,
     ) -> Self {
         Self {
             method_name,
@@ -93,81 +92,62 @@ pub trait TelegramMethod {
     }
 }
 
-pub(super) fn prepare_file_with_id<'a, S: BuildHasher>(
-    files: &mut HashMap<&'a str, &'a InputFile<'a>, S>,
-    file: &'a InputFile<'a>,
-) {
-    match file.kind() {
-        InputFileKind::FS(inner) => {
-            files.insert(inner.str_to_file(), file);
-        }
-        InputFileKind::Id(_) | InputFileKind::Url(_) => {
-            // This file not require be in multipart/form-data
-            // So we don't need to add it to files
-        }
-    }
-}
-
-pub(super) fn prepare_file_with_value<'a, S: BuildHasher>(
-    files: &mut HashMap<&'a str, &'a InputFile<'a>, S>,
-    file: &'a InputFile<'a>,
-    value: &'a str,
-) {
+pub(super) fn prepare_file<'a>(files: &mut Vec<&'a InputFile<'a>>, file: &'a InputFile<'a>) {
     match file.kind() {
         InputFileKind::FS(_) => {
-            files.insert(value, file);
+            files.push(file);
         }
         InputFileKind::Id(_) | InputFileKind::Url(_) => {
-            // This file not require be in multipart/form-data
+            // This file not require be in `multipart/form-data`
             // So we don't need to add it to files
         }
     }
 }
 
-pub(super) fn prepare_input_media<'a, S: BuildHasher>(
-    files: &mut HashMap<&'a str, &'a InputFile<'a>, S>,
-    input_media_list: &'a Vec<InputMedia<'a>>,
-) {
-    for input_media in input_media_list {
-        prepare_input_media_single(files, input_media);
-    }
-}
-
-pub(super) fn prepare_input_media_single<'a, S: BuildHasher>(
-    files: &mut HashMap<&'a str, &'a InputFile<'a>, S>,
+pub(super) fn prepare_input_media<'a>(
+    files: &mut Vec<&'a InputFile<'a>>,
     input_media: &'a InputMedia<'a>,
 ) {
     match input_media {
         InputMedia::Animation(inner) => {
-            prepare_file_with_id(files, &inner.media);
+            prepare_file(files, &inner.media);
         }
         InputMedia::Audio(inner) => {
-            prepare_file_with_id(files, &inner.media);
+            prepare_file(files, &inner.media);
         }
         InputMedia::Document(inner) => {
-            prepare_file_with_id(files, &inner.media);
+            prepare_file(files, &inner.media);
         }
         InputMedia::Photo(inner) => {
-            prepare_file_with_id(files, &inner.media);
+            prepare_file(files, &inner.media);
         }
         InputMedia::Video(inner) => {
-            prepare_file_with_id(files, &inner.media);
+            prepare_file(files, &inner.media);
         }
     }
 }
 
-pub(super) fn prepare_input_stickers<'a, S: BuildHasher>(
-    files: &mut HashMap<&'a str, &'a InputFile<'a>, S>,
-    input_stickers: &'a Vec<InputSticker<'a>>,
+pub(super) fn prepare_input_media_group<'a>(
+    files: &mut Vec<&'a InputFile<'a>>,
+    input_media_group: &'a [InputMedia<'a>],
+) {
+    for input_media in input_media_group {
+        prepare_input_media(files, input_media);
+    }
+}
+
+pub(super) fn prepare_input_sticker<'a>(
+    files: &mut Vec<&'a InputFile<'a>>,
+    input_sticker: &'a InputSticker<'a>,
+) {
+    prepare_file(files, &input_sticker.sticker);
+}
+
+pub(super) fn prepare_input_stickers<'a>(
+    files: &mut Vec<&'a InputFile<'a>>,
+    input_stickers: &'a [InputSticker<'a>],
 ) {
     for input_sticker in input_stickers {
         prepare_input_sticker(files, input_sticker);
     }
-}
-
-pub(super) fn prepare_input_sticker<'a, S: BuildHasher>(
-    files: &mut HashMap<&'a str, &'a InputFile<'a>, S>,
-    input_sticker: &'a InputSticker<'a>,
-) {
-    prepare_file_with_id(files, &input_sticker.sticker);
 }

@@ -1,11 +1,17 @@
-use bytes::Bytes;
+use bytes::{Bytes, BytesMut};
+use futures::{Stream, TryFutureExt as _, TryStreamExt as _};
 use serde::{Serialize, Serializer};
-use std::{borrow::Cow, io, path::PathBuf};
-use tokio::{self, io::AsyncReadExt as _};
+use std::{
+    borrow::Cow,
+    io,
+    path::{Path, PathBuf},
+};
+use tokio_util::codec::{BytesCodec, FramedRead};
 use uuid::Uuid;
 
 const ATTACH_PREFIX: &str = "attach://";
-const DEFAULT_CHUNK_SIZE: usize = 64 * 1024; // 64 KiB
+
+pub const DEFAULT_CAPACITY: usize = 64 * 1024; // 64 KiB
 
 /// This object represents the contents of a file to be uploaded.
 /// Must be posted using `multipart/form-data` in the usual way that files are uploaded via the browser.
@@ -15,48 +21,24 @@ const DEFAULT_CHUNK_SIZE: usize = 64 * 1024; // 64 KiB
 pub struct InputFile<'a>(FileKind<'a>);
 
 impl<'a> InputFile<'a> {
-    /// Creates a new `InputFile` from a file id
+    /// Creates a new [`InputFile`] with [`FileKind::Id`]
     #[must_use]
-    pub fn id<T: Into<Cow<'a, str>>>(id: T) -> Self {
+    pub fn id(id: impl Into<Cow<'a, str>>) -> Self {
         Self(FileKind::Id(FileId::new(id)))
     }
 
-    /// Creates a new `InputFile` from a url
+    /// Creates a new [`InputFile`] with [`FileKind::Url`]
     #[must_use]
-    pub fn url<T: Into<Cow<'a, str>>>(url: T) -> Self {
+    pub fn url(url: impl Into<Cow<'a, str>>) -> Self {
         Self(FileKind::Url(UrlFile::new(url)))
     }
 
-    /// Creates a new `InputFile` from a file system path
+    /// Creates a new [`InputFile`] with [`FileKind::FS`]
     #[must_use]
-    pub fn fs<P, F>(path: P, filename: Option<F>) -> Self
-    where
-        P: Into<PathBuf>,
-        F: Into<Cow<'a, str>>,
-    {
+    pub fn fs(path: impl Into<PathBuf>, file_name: Option<&'a str>) -> Self {
         let id = Uuid::new_v4();
 
-        Self(FileKind::FS(FSFile::new(id, path, filename)))
-    }
-
-    /// Alias to [`InputFile::fs`] method
-    #[must_use]
-    pub fn path<P, F>(path: P, filename: Option<F>) -> Self
-    where
-        P: Into<PathBuf>,
-        F: Into<Cow<'a, str>>,
-    {
-        Self::fs(path, filename)
-    }
-
-    /// Alias to [`InputFile::fs`] method
-    #[must_use]
-    pub fn file_path<P, F>(path: P, filename: Option<F>) -> Self
-    where
-        P: Into<PathBuf>,
-        F: Into<Cow<'a, str>>,
-    {
-        Self::fs(path, filename)
+        Self(FileKind::FS(FSFile::new(id, path, file_name)))
     }
 }
 
@@ -139,10 +121,11 @@ pub struct FileId<'a> {
 
 impl<'a> FileId<'a> {
     #[must_use]
-    pub fn new<T: Into<Cow<'a, str>>>(id: T) -> Self {
+    pub fn new(id: impl Into<Cow<'a, str>>) -> Self {
         Self { id: id.into() }
     }
 
+    /// Gets string to file as ID
     #[must_use]
     pub fn str_to_file(&self) -> &str {
         &self.id
@@ -161,10 +144,11 @@ pub struct UrlFile<'a> {
 
 impl<'a> UrlFile<'a> {
     #[must_use]
-    pub fn new<T: Into<Cow<'a, str>>>(url: T) -> Self {
+    pub fn new(url: impl Into<Cow<'a, str>>) -> Self {
         Self { url: url.into() }
     }
 
+    /// Gets string to file as URL
     #[must_use]
     pub fn str_to_file(&self) -> &str {
         &self.url
@@ -179,31 +163,24 @@ impl<'a> UrlFile<'a> {
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct FSFile<'a> {
     id: Uuid,
-    filename: Option<Cow<'a, str>>,
+    file_name: Option<&'a str>,
     path: PathBuf,
-    string_to_file: String,
+    str_to_file: String,
 }
 
 impl<'a> FSFile<'a> {
     #[must_use]
-    pub fn new<P, F>(id: Uuid, path: P, filename: Option<F>) -> Self
-    where
-        P: Into<PathBuf>,
-        F: Into<Cow<'a, str>>,
-    {
-        let string_to_file = format!("{ATTACH_PREFIX}{id}");
+    pub fn new(id: impl Into<Uuid>, path: impl Into<PathBuf>, file_name: Option<&'a str>) -> Self {
+        let id = id.into();
+
+        let str_to_file = format!("{ATTACH_PREFIX}{id}");
 
         Self {
             id,
-            filename: filename.map(Into::into),
+            file_name: file_name.map(Into::into),
             path: path.into(),
-            string_to_file,
+            str_to_file,
         }
-    }
-
-    #[must_use]
-    pub fn str_to_file(&self) -> &str {
-        &self.string_to_file
     }
 
     #[must_use]
@@ -212,39 +189,54 @@ impl<'a> FSFile<'a> {
     }
 
     #[must_use]
-    pub fn id(&self) -> &Uuid {
+    pub const fn id(&self) -> &Uuid {
         &self.id
     }
 
-    /// Returns file name
+    /// Gets passed filename or filename by path
     /// # Returns
-    /// - If file name was set by [`InputFile::fs`], returns it
-    /// - Otherwise returns file name from path if it exists and is valid Unicode, otherwise returns `None`
+    /// If filename is not passed and filename by path is not valid Unicode, returns `None`.
     #[must_use]
     pub fn file_name(&self) -> Option<&str> {
-        if let Some(filename) = &self.filename {
-            return Some(filename.as_ref());
-        }
-
-        self.path.file_name()?.to_str()
+        self.file_name
+            .or(self.path.file_name().and_then(|os_str| os_str.to_str()))
     }
 
-    /// Reads file from filesystem and returns it as a vector of bytes
+    /// Gets path to file
+    #[must_use]
+    pub fn path(&self) -> &Path {
+        self.path.as_path()
+    }
+
+    /// Gets string to file as path in format `attach://{id}`
+    #[must_use]
+    pub fn str_to_file(&self) -> &str {
+        &self.str_to_file
+    }
+
+    /// Opens a file and returns a stream of its bytes with a specified capacity for the underlying buffer
     /// # Errors
-    /// If file can't be read or if path doesn't already exist
-    pub async fn read(&self) -> Result<Bytes, io::Error> {
-        let mut file = tokio::fs::File::open(&self.path).await?;
-        let mut buffer = [0; DEFAULT_CHUNK_SIZE];
+    /// Returns an error if the file cannot be opened or read
+    pub fn stream_with_capacity(
+        self,
+        capacity: usize,
+    ) -> impl Stream<Item = Result<Bytes, io::Error>> {
+        tokio::fs::File::open(self.path)
+            .map_ok(move |file| {
+                FramedRead::with_capacity(file, BytesCodec::new(), capacity)
+                    .map_ok(BytesMut::freeze)
+            })
+            .try_flatten_stream()
+    }
 
-        let mut result = vec![];
-        while let Ok(size) = file.read(&mut buffer).await {
-            if size == 0 {
-                break;
-            }
-
-            result.extend(buffer);
-        }
-
-        Ok(Bytes::from(result))
+    /// Opens a file and returns a stream of its bytes with a default capacity for the underlying buffer
+    /// # Notes
+    /// If you want to specify the capacity, use `stream_with_capacity` method instead.
+    ///
+    /// The default capacity is [`DEFAULT_CAPACITY`].
+    /// # Errors
+    /// Returns an error if the file cannot be opened or read
+    pub fn stream(self) -> impl Stream<Item = Result<Bytes, io::Error>> {
+        self.stream_with_capacity(DEFAULT_CAPACITY)
     }
 }

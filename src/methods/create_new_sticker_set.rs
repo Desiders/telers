@@ -4,7 +4,6 @@ use crate::{client::Bot, types::InputSticker};
 
 use serde::Serialize;
 use serde_with::skip_serializing_none;
-use std::collections::HashMap;
 
 /// Use this method to create a new sticker set owned by a user. The bot will be able to edit the sticker set thus created.
 /// # Documentation
@@ -138,7 +137,7 @@ impl<'a> TelegramMethod for CreateNewStickerSet<'a> {
     type Return = bool;
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        let mut files = HashMap::new();
+        let mut files = vec![];
         prepare_input_stickers(&mut files, &self.stickers);
 
         Request::new("createNewStickerSet", self, Some(files))

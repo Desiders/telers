@@ -58,7 +58,7 @@ where
     /// # Errors
     /// If storage error occurs, when get state
     /// # Returns
-    /// State, if state is no exists, then [`None`] will be return
+    /// State, if state is no exists, then `None` will be return
     pub async fn get_state(&self) -> Result<Option<String>, S::Error> {
         self.storage.get_state(&self.key).await
     }
@@ -132,7 +132,7 @@ where
     /// # Errors
     /// If storage error occurs, when get value from data
     /// # Returns
-    /// Value, if value is no exists, then [`None`] will be return
+    /// Value, if value is no exists, then `None` will be return
     pub async fn get_value<Key, Value>(&self, value_key: Key) -> Result<Option<Value>, S::Error>
     where
         Value: DeserializeOwned,

@@ -17,17 +17,8 @@ use reqwest::{
     Body, Client, ClientBuilder,
 };
 use serde::Serialize;
-use std::{borrow::Cow, collections::HashMap, io, time::Duration};
-use thiserror;
+use std::{borrow::Cow, time::Duration};
 use tracing::{event, field, instrument, Level, Span};
-
-#[derive(Debug, thiserror::Error)]
-pub(crate) enum BuildFormError {
-    #[error(transparent)]
-    Serializer(#[from] SerializerError),
-    #[error(transparent)]
-    Io(#[from] io::Error),
-}
 
 #[derive(Debug, Clone)]
 pub struct Reqwest {
@@ -37,10 +28,7 @@ pub struct Reqwest {
 
 impl Reqwest {
     #[must_use]
-    pub fn new<T>(client: Client) -> Self
-    where
-        T: Into<Cow<'static, telegram::APIServer>>,
-    {
+    pub fn new(client: Client) -> Self {
         Self {
             client,
             api: Cow::Borrowed(&telegram::PRODUCTION),
@@ -48,10 +36,7 @@ impl Reqwest {
     }
 
     #[must_use]
-    pub fn api<T>(self, api: T) -> Self
-    where
-        T: Into<Cow<'static, telegram::APIServer>>,
-    {
+    pub fn with_api_server(self, api: impl Into<Cow<'static, telegram::APIServer>>) -> Self {
         Self {
             api: api.into(),
             ..self
@@ -59,54 +44,36 @@ impl Reqwest {
     }
 
     #[instrument(skip(self, data))]
-    async fn build_form_data<'a, T>(
+    async fn build_form_data<'a, Data: ?Sized>(
         &self,
-        data: &T,
-        files: Option<HashMap<&str, &InputFile<'a>>>,
-    ) -> Result<Form, BuildFormError>
+        data: &Data,
+        files: Option<&[&'a InputFile<'a>]>,
+    ) -> Result<Form, SerializerError>
     where
-        T: Serialize + ?Sized,
+        Data: Serialize,
     {
         let mut form = data.serialize(MultipartSerializer::new())?;
 
-        if let Some(files) = files {
-            for (value, file) in files {
-                let (read_file_fut, file_name) = match file.kind() {
-                    InputFileKind::FS(file) => (file.read(), file.file_name()),
-                    InputFileKind::Id(_) | InputFileKind::Url(_) => continue,
-                };
+        let Some(files) = files else { return Ok(form); };
 
-                match Box::pin(read_file_fut).await {
-                    Ok(bytes) => {
-                        // TODO: Add using stream for files
-                        let body = Body::from(bytes);
-                        let mut part = Part::stream(body);
+        for file in files {
+            let file = match file.kind() {
+                InputFileKind::FS(file) => file,
+                InputFileKind::Id(_) | InputFileKind::Url(_) => continue,
+            };
 
-                        if let Some(file_name) = file_name {
-                            part = part.file_name(file_name.to_string());
-                        }
+            let id = file.id();
+            let file_name = file.file_name();
+            let stream = file.clone().stream();
 
-                        form = form.part((*value).to_string(), part);
-                    }
-                    Err(err) => {
-                        if let Some(file_name) = file_name {
-                            event!(
-                                Level::ERROR,
-                                error = %err,
-                                "Cannot read a file with name `{file_name}`",
-                            );
-                        } else {
-                            event!(
-                                Level::ERROR,
-                                error = %err,
-                                "Cannot read a file",
-                            );
-                        }
+            let body = Body::wrap_stream(stream);
+            let part = if let Some(file_name) = file_name {
+                Part::stream(body).file_name(file_name.to_string())
+            } else {
+                Part::stream(body)
+            };
 
-                        return Err(err.into());
-                    }
-                }
-            }
+            form = form.part(id.to_string(), part);
         }
 
         Ok(form)
@@ -153,7 +120,8 @@ impl Session for Reqwest {
             .record("files", field::debug(&request.files))
             .record("method_name", request.method_name);
 
-        let form = Box::pin(self.build_form_data(request.data, request.files))
+        let form = self
+            .build_form_data(request.data, request.files.as_deref())
             .await
             .map_err(|err| {
                 event!(

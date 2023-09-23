@@ -232,7 +232,7 @@ impl Storage for Redis {
     /// # Arguments
     /// * `key` - Specified key to get state
     /// # Returns
-    /// State for specified key, if state is no exists, then [`None`] will be return
+    /// State for specified key, if state is no exists, then `None` will be return
     #[instrument(skip(self, key), fields(key))]
     async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error> {
         let key = self.key_builder.build(key, Part::States);
@@ -522,7 +522,7 @@ impl Storage for Redis {
     /// * `key` - Specified key to get data
     /// * `value_key` - Specified value key to get value from the data
     /// # Returns
-    /// Value for specified key and value key, if value is no exists, then [`None`] will be return
+    /// Value for specified key and value key, if value is no exists, then `None` will be return
     #[instrument(skip(self, key, value_key), fields(key))]
     async fn get_value<Key, Value>(
         &self,

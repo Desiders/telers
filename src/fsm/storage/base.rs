@@ -100,7 +100,7 @@ pub trait Storage: Clone {
     /// # Arguments
     /// * `key` - Specified key to get state
     /// # Returns
-    /// State for specified key, if state is no exists, then [`None`] will be return
+    /// State for specified key, if state is no exists, then `None` will be return
     async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error>;
 
     /// Get states stack for specified key
@@ -168,7 +168,7 @@ pub trait Storage: Clone {
     /// * `key` - Specified key to get data
     /// * `value_key` - Specified value key to get value from data
     /// # Returns
-    /// Value for specified key and value key, if value is no exists, then [`None`] will be return
+    /// Value for specified key and value key, if value is no exists, then `None` will be return
     async fn get_value<Key, Value>(
         &self,
         key: &StorageKey,

@@ -1,4 +1,4 @@
-use super::base::{prepare_file_with_id, Request, TelegramMethod};
+use super::base::{prepare_file, Request, TelegramMethod};
 
 use crate::{
     client::Bot,
@@ -7,7 +7,6 @@ use crate::{
 
 use serde::Serialize;
 use serde_with::skip_serializing_none;
-use std::collections::HashMap;
 
 /// Use this method to upload a .PNG file with a sticker for later use in [`CreateNewStickerSet`](crate::methods::CreateNewStickerSet) and [`AddStickerToSet`](crate::methods::AddStickerToSet) methods (can be used multiple times)
 /// # Documentation
@@ -87,8 +86,8 @@ impl<'a> TelegramMethod for UploadStickerFile<'a> {
     type Return = File;
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        let mut files = HashMap::new();
-        prepare_file_with_id(&mut files, &self.sticker);
+        let mut files = vec![];
+        prepare_file(&mut files, &self.sticker);
 
         Request::new("uploadStickerFile", self, Some(files))
     }

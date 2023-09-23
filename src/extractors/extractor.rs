@@ -23,7 +23,7 @@ pub trait FromEventAndContext<Client>: Sized {
 }
 
 /// To be able to use [`Option`] as handler argument
-/// This implementation will return [`None`] if extraction was unsuccessful, and [`Some(value)`] otherwise
+/// This implementation will return `None` if extraction was unsuccessful, and [`Some(value)`] otherwise
 /// Useful for optional arguments
 impl<Client, T: FromEventAndContext<Client>> FromEventAndContext<Client> for Option<T> {
     type Error = Infallible;

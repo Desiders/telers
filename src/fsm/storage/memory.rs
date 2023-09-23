@@ -85,7 +85,7 @@ impl Storage for Memory {
     /// # Arguments
     /// * `key` - Specified key to get state
     /// # Returns
-    /// State for specified key, if state is no exists, then [`None`] will be return
+    /// State for specified key, if state is no exists, then `None` will be return
     async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error> {
         Ok(self
             .storage
@@ -306,7 +306,7 @@ impl Storage for Memory {
     /// * `key` - Specified key to get data
     /// * `value_key` - Specified value key to get value from the data
     /// # Returns
-    /// Value for specified key and value key, if value is no exists, then [`None`] will be return
+    /// Value for specified key and value key, if value is no exists, then `None` will be return
     #[instrument(skip(self, value_key), fields(value_key))]
     async fn get_value<Key, Value>(
         &self,

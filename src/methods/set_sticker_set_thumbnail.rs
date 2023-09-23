@@ -1,10 +1,9 @@
-use super::base::{prepare_file_with_value, Request, TelegramMethod};
+use super::base::{prepare_file, Request, TelegramMethod};
 
 use crate::{client::Bot, types::InputFile};
 
 use serde::Serialize;
 use serde_with::skip_serializing_none;
-use std::collections::HashMap;
 
 /// Use this method to set the thumbnail of a sticker set. Animated thumbnails can be set for animated sticker sets only. Video thumbnails can be set only for video sticker sets only.
 /// # Documentation
@@ -72,9 +71,9 @@ impl TelegramMethod for SetStickerSetThumbnail<'_> {
     type Return = bool;
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        let mut files = HashMap::new();
+        let mut files = vec![];
         if let Some(thumb) = &self.thumbnail {
-            prepare_file_with_value(&mut files, thumb, "thumbnail");
+            prepare_file(&mut files, thumb);
         }
 
         Request::new("setStickerSetThumbnail", self, Some(files))

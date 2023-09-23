@@ -1,4 +1,4 @@
-use super::base::{prepare_file_with_value, Request, TelegramMethod};
+use super::base::{prepare_file, Request, TelegramMethod};
 
 use crate::{
     client::Bot,
@@ -7,7 +7,6 @@ use crate::{
 
 use serde::Serialize;
 use serde_with::skip_serializing_none;
-use std::collections::HashMap;
 
 /// As of [v.4.0](https://telegram.org/blog/video-messages-and-telescope), Telegram clients support rounded square MPEG4 videos of up to 1 minute long. Use this method to send video messages.
 /// # Documentation
@@ -227,11 +226,11 @@ impl<'a> TelegramMethod for SendVideoNote<'a> {
     type Return = Message;
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        let mut files = HashMap::new();
-        prepare_file_with_value(&mut files, &self.video_note, "video_note");
+        let mut files = vec![];
+        prepare_file(&mut files, &self.video_note);
 
         if let Some(file) = &self.thumbnail {
-            prepare_file_with_value(&mut files, file, "thumbnail");
+            prepare_file(&mut files, file);
         }
 
         Request::new("sendVideoNote", self, Some(files))

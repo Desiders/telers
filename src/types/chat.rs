@@ -72,7 +72,7 @@ pub struct Chat {
 
 impl Chat {
     /// # Returns
-    /// [`Some(ChatType)`] if chat type is known, [`None`] otherwise.
+    /// [`Some(ChatType)`] if chat type is known, `None` otherwise.
     /// This need because Telegram can add new chat types, and we don't want to break API, but this case unlikely.
     #[must_use]
     pub fn chat_type(&self) -> Option<ChatType> {

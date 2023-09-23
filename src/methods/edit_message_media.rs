@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-
-use super::base::{prepare_input_media_single, Request, TelegramMethod};
+use super::base::{prepare_input_media, Request, TelegramMethod};
 
 use crate::{
     client::Bot,
@@ -122,8 +120,8 @@ impl TelegramMethod for EditMessageMedia<'_> {
     type Return = MessageOrTrue;
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        let mut files = HashMap::new();
-        prepare_input_media_single(&mut files, &self.media);
+        let mut files = vec![];
+        prepare_input_media(&mut files, &self.media);
 
         Request::new("editMessageMedia", self, Some(files))
     }
