@@ -1,9 +1,9 @@
-//! This example shows how to create a simple filter
-//! that allows only uppercase messages for the first handler and any for the second.
+//! This example shows how to create text case filters.
+//! First filter checks if the message is uppercase, second filter checks if the message is lowercase.
 //!
 //! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package text_case_filter
+//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package text_case_filters
 //! ```
 
 use std::future::Future;

@@ -1,4 +1,4 @@
-//! This example shows how to create a simple router tree.
+//! This example shows how to create a router tree.
 //!
 //! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash

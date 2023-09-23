@@ -33,12 +33,13 @@ Make sure you have a basic understanding of the [Telegram Bot API](https://core.
  - **Multiple bots**. Telers allows you to create multiple bots in one application without any problems.
 
 ## Examples
- - [Echo bot](examples/echo_bot). This example shows how to create a simple echo bot.
- - [Axum and echo bot](examples/axum_and_echo_bot). This example shows how to create a simple echo bot and run it parallel with polling axum server.
- - [Finite state machine](examples/finite_state_machine). This example shows how to implement a simple finite state machine (conversation).
+ - [Echo bot](examples/echo_bot). This example shows how to create a echo bot.
+ - [Text case filters](examples/text_case_filters). This example shows how to create text case filters.
+ - [Stats updates middleware](examples/stats_incoming_updates_middleware). This example shows how to create a middleware that counter incoming updates.
+ - [Finite state machine](examples/finite_state_machine). This example shows how to use a finite state machine (conversation).
+ - [Router tree](examples/router_tree). This example shows how to create a router tree.
  - [Bot http client](examples/bot_http_client). This example shows how to set a custom bot HTTP client.
- - [Text case filter](examples/text_case_filter). This example shows how to create a simple text case filter.
- - [Stats incoming updates middleware](examples/stats_incoming_updates_middleware). This example shows how to create a simple middleware that counter incoming updates and processed handlers.
+ - [Axum and echo bot](examples/axum_and_echo_bot). This example shows how to create a echo bot and how to run it parallel with polling axum server.
 
 You may consider checking out [this directory](examples) for more examples.
 

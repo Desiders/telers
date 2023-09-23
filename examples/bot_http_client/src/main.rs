@@ -1,4 +1,4 @@
-//! This example shows how to set a custom bot HTTP client for sending HTTP requests.
+//! This example shows how to set a custom bot HTTP client.
 //!
 //! Usually you don't need to use a custom client, because [`telers`] provides default client,
 //! but if you want to use a custom client, you can do it by using [`Bot::with_client`] method and use it in handlers.

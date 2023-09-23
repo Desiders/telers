@@ -56,16 +56,16 @@ members = [
     "./examples/axum_and_echo_bot",
     "./examples/finite_state_machine",
     "./examples/bot_http_client",
-    "./examples/text_case_filter",
+    "./examples/text_case_filters",
     "./examples/stats_incoming_updates_middleware",
     "./examples/router_tree",
 ]
 
 [patch.crates-io]
 echo_bot = { path = "./examples/echo_bot" }
-axum_and_echo_bot = { path = "./examples/axum_and_echo_bot" }
-finite_state_machine = { path = "./examples/finite_state_machine" }
-bot_http_client = { path = "./examples/bot_http_client" }
-text_case_filter = { path = "./examples/text_case_filter" }
+text_case_filters = { path = "./examples/text_case_filters" }
 stats_incoming_updates_middleware = { path = "./examples/stats_incoming_updates_middleware" }
+finite_state_machine = { path = "./examples/finite_state_machine" }
 router_tree = { path = "./examples/router_tree" }
+bot_http_client = { path = "./examples/bot_http_client" }
+axum_and_echo_bot = { path = "./examples/axum_and_echo_bot" }

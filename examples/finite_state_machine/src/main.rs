@@ -1,4 +1,4 @@
-//! This example shows how to use [`FSMContextMiddleware`] and [`StateFilter`] to implement a simple conversation with a user.
+//! This example shows how to use [`FSMContextMiddleware`] and [`StateFilter`] to use a finite state machine with a user.
 //! In this example we will ask user for his name and language,
 //! if languase isn't "acceptable", we will ask him to choose another one.
 //! After that all steps will be finished and we will send a message with user's name and language to him and
