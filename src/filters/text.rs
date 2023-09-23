@@ -37,7 +37,7 @@ impl From<Regex> for PatternType<'_> {
     }
 }
 
-/// This filter checks if the text matches the specified pattern.
+/// This filter checks if the text matches the specified pattern
 /// # Notes
 /// Gets the text from the update, that is, the text of the message, the text of the inline query, the data of the callback query, etc.
 #[derive(Debug, Default, Clone)]

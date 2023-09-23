@@ -74,18 +74,6 @@ impl<'a> SendMediaGroup<'a> {
         }
     }
 
-    /// Alias to [`SendMediaGroup::media_single`] method
-    #[must_use]
-    pub fn single_media(self, val: impl Into<InputMedia<'a>>) -> Self {
-        self.media_single(val)
-    }
-
-    /// Alias to [`SendMediaGroup::media_single`] method
-    #[must_use]
-    pub fn single(self, val: impl Into<InputMedia<'a>>) -> Self {
-        self.media_single(val)
-    }
-
     #[must_use]
     pub fn media<T, I>(self, val: I) -> Self
     where
