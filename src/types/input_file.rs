@@ -3,6 +3,7 @@ use futures::{Stream, TryFutureExt as _, TryStreamExt as _};
 use serde::{Serialize, Serializer};
 use std::{
     borrow::Cow,
+    ffi::OsStr,
     io,
     path::{Path, PathBuf},
 };
@@ -199,7 +200,7 @@ impl<'a> FSFile<'a> {
     #[must_use]
     pub fn file_name(&self) -> Option<&str> {
         self.file_name
-            .or(self.path.file_name().and_then(|os_str| os_str.to_str()))
+            .or(self.path.file_name().and_then(OsStr::to_str))
     }
 
     /// Gets path to file
