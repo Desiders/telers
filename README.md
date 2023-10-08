@@ -36,7 +36,7 @@ Make sure you have a basic understanding of the [Telegram Bot API](https://core.
  - [Echo bot](examples/echo_bot). This example shows how to create a echo bot.
  - [Text case filters](examples/text_case_filters). This example shows how to create text case filters.
  - [Stats updates middleware](examples/stats_incoming_updates_middleware). This example shows how to create a middleware that counter incoming updates.
- - [Input file](examples/input_file). This example shows how to send a photo from a file.
+ - [Input file](examples/input_file). This example shows how to send files by the bot.
  - [Finite state machine](examples/finite_state_machine). This example shows how to use a finite state machine (conversation).
  - [Router tree](examples/router_tree). This example shows how to send files by the bot.
  - [Bot http client](examples/bot_http_client). This example shows how to set a custom bot HTTP client.
