@@ -1,4 +1,4 @@
-//! This example shows how to use [`InputFile`] and sends files by the bot.
+//! This example shows how to use [`InputFile`] and send files by the bot.
 //!
 //! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash
