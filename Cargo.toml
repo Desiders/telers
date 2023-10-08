@@ -59,6 +59,7 @@ members = [
     "./examples/text_case_filters",
     "./examples/stats_incoming_updates_middleware",
     "./examples/router_tree",
+    "./examples/input_file",
 ]
 
 [patch.crates-io]
@@ -69,3 +70,4 @@ finite_state_machine = { path = "./examples/finite_state_machine" }
 router_tree = { path = "./examples/router_tree" }
 bot_http_client = { path = "./examples/bot_http_client" }
 axum_and_echo_bot = { path = "./examples/axum_and_echo_bot" }
+input_file = { path = "./examples/input_file" }
