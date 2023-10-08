@@ -57,23 +57,36 @@ impl Reqwest {
         let Some(files) = files else { return Ok(form); };
 
         for file in files {
-            let file = match file.kind() {
-                InputFileKind::FS(file) => file,
+            match file.kind() {
+                InputFileKind::FS(file) => {
+                    let id = file.id();
+                    let file_name = file.file_name();
+                    let stream = file.clone().stream();
+
+                    let body = Body::wrap_stream(stream);
+                    let part = if let Some(file_name) = file_name {
+                        Part::stream(body).file_name(file_name.to_string())
+                    } else {
+                        Part::stream(body).file_name(file.id().to_string())
+                    };
+
+                    form = form.part(id.to_string(), part);
+                }
+                InputFileKind::Buffered(file) => {
+                    let id = file.id();
+                    let file_name = file.file_name();
+                    let bytes = file.bytes();
+
+                    let part = if let Some(file_name) = file_name {
+                        Part::bytes(bytes.to_vec()).file_name(file_name.to_string())
+                    } else {
+                        Part::bytes(bytes.to_vec()).file_name(file.id().to_string())
+                    };
+
+                    form = form.part(id.to_string(), part);
+                }
                 InputFileKind::Id(_) | InputFileKind::Url(_) => continue,
             };
-
-            let id = file.id();
-            let file_name = file.file_name();
-            let stream = file.clone().stream();
-
-            let body = Body::wrap_stream(stream);
-            let part = if let Some(file_name) = file_name {
-                Part::stream(body).file_name(file_name.to_string())
-            } else {
-                Part::stream(body)
-            };
-
-            form = form.part(id.to_string(), part);
         }
 
         Ok(form)

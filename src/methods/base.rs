@@ -94,7 +94,7 @@ pub trait TelegramMethod {
 
 pub(super) fn prepare_file<'a>(files: &mut Vec<&'a InputFile<'a>>, file: &'a InputFile<'a>) {
     match file.kind() {
-        InputFileKind::FS(_) => {
+        InputFileKind::FS(_) | InputFileKind::Buffered(_) => {
             files.push(file);
         }
         InputFileKind::Id(_) | InputFileKind::Url(_) => {

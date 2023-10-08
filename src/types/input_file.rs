@@ -37,9 +37,13 @@ impl<'a> InputFile<'a> {
     /// Creates a new [`InputFile`] with [`FileKind::FS`]
     #[must_use]
     pub fn fs(path: impl Into<PathBuf>, file_name: Option<&'a str>) -> Self {
-        let id = Uuid::new_v4();
+        Self(FileKind::FS(FSFile::new(path, file_name)))
+    }
 
-        Self(FileKind::FS(FSFile::new(id, path, file_name)))
+    /// Creates a new [`InputFile`] with [`FileKind::Buffered`]
+    #[must_use]
+    pub fn buffered(bytes: impl Into<Bytes>, file_name: Option<&'a str>) -> Self {
+        Self(FileKind::Buffered(BufferedFile::new(bytes, file_name)))
     }
 }
 
@@ -58,6 +62,7 @@ impl<'a> InputFile<'a> {
             FileKind::Id(file) => file.str_to_file(),
             FileKind::Url(file) => file.str_to_file(),
             FileKind::FS(file) => file.str_to_file(),
+            FileKind::Buffered(file) => file.str_to_file(),
         }
     }
 
@@ -72,6 +77,7 @@ impl<'a> InputFile<'a> {
             FileKind::Id(file) => file.is_require_multipart(),
             FileKind::Url(file) => file.is_require_multipart(),
             FileKind::FS(file) => file.is_require_multipart(),
+            FileKind::Buffered(file) => file.is_require_multipart(),
         }
     }
 
@@ -108,11 +114,18 @@ impl<'a> From<FSFile<'a>> for InputFile<'a> {
     }
 }
 
+impl<'a> From<BufferedFile<'a>> for InputFile<'a> {
+    fn from(buffered_file: BufferedFile<'a>) -> Self {
+        Self(FileKind::Buffered(buffered_file))
+    }
+}
+
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum FileKind<'a> {
     Id(FileId<'a>),
     Url(UrlFile<'a>),
     FS(FSFile<'a>),
+    Buffered(BufferedFile<'a>),
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
@@ -171,9 +184,29 @@ pub struct FSFile<'a> {
 
 impl<'a> FSFile<'a> {
     #[must_use]
-    pub fn new(id: impl Into<Uuid>, path: impl Into<PathBuf>, file_name: Option<&'a str>) -> Self {
-        let id = id.into();
+    pub fn new(path: impl Into<PathBuf>, file_name: Option<&'a str>) -> Self {
+        let id = Uuid::new_v4();
 
+        let str_to_file = format!("{ATTACH_PREFIX}{id}");
+
+        Self {
+            id,
+            file_name: file_name.map(Into::into),
+            path: path.into(),
+            str_to_file,
+        }
+    }
+
+    /// Creates a new [`FSFile`] with specified ID
+    /// # Notes
+    /// If you want to create a new [`FSFile`] with random ID, use [`FSFile::new`] method instead.
+    #[must_use]
+    pub fn new_with_id(
+        id: impl Into<Uuid>,
+        path: impl Into<PathBuf>,
+        file_name: Option<&'a str>,
+    ) -> Self {
+        let id = id.into();
         let str_to_file = format!("{ATTACH_PREFIX}{id}");
 
         Self {
@@ -196,7 +229,7 @@ impl<'a> FSFile<'a> {
 
     /// Gets passed filename or filename by path
     /// # Returns
-    /// If filename is not passed and filename by path is not valid Unicode, returns `None`.
+    /// If filename is not passed and filename by path is not valid Unicode, returns `None`
     #[must_use]
     pub fn file_name(&self) -> Option<&str> {
         self.file_name
@@ -214,7 +247,9 @@ impl<'a> FSFile<'a> {
     pub fn str_to_file(&self) -> &str {
         &self.str_to_file
     }
+}
 
+impl<'a> FSFile<'a> {
     /// Opens a file and returns a stream of its bytes with a specified capacity for the underlying buffer
     /// # Errors
     /// Returns an error if the file cannot be opened or read
@@ -239,5 +274,80 @@ impl<'a> FSFile<'a> {
     /// Returns an error if the file cannot be opened or read
     pub fn stream(self) -> impl Stream<Item = Result<Bytes, io::Error>> {
         self.stream_with_capacity(DEFAULT_CAPACITY)
+    }
+}
+
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+pub struct BufferedFile<'a> {
+    id: Uuid,
+    bytes: Bytes,
+    file_name: Option<&'a str>,
+    str_to_file: String,
+}
+
+impl<'a> BufferedFile<'a> {
+    #[must_use]
+    pub fn new(bytes: impl Into<Bytes>, file_name: Option<&'a str>) -> Self {
+        let id = Uuid::new_v4();
+        let bytes = bytes.into();
+
+        let str_to_file = format!("{ATTACH_PREFIX}{id}");
+
+        Self {
+            id,
+            bytes,
+            file_name: file_name.map(Into::into),
+            str_to_file,
+        }
+    }
+
+    /// Creates a new [`BufferedFile`] with specified ID
+    /// # Notes
+    /// If you want to create a new [`BufferedFile`] with random ID, use [`BufferedFile::new`] method instead
+    #[must_use]
+    pub fn new_with_id(
+        id: impl Into<Uuid>,
+        bytes: impl Into<Bytes>,
+        file_name: Option<&'a str>,
+    ) -> Self {
+        let id = id.into();
+        let bytes = bytes.into();
+
+        let str_to_file = format!("{ATTACH_PREFIX}{id}");
+
+        Self {
+            id,
+            bytes,
+            file_name: file_name.map(Into::into),
+            str_to_file,
+        }
+    }
+
+    #[must_use]
+    pub const fn is_require_multipart(&self) -> bool {
+        true
+    }
+
+    #[must_use]
+    pub const fn id(&self) -> &Uuid {
+        &self.id
+    }
+
+    /// Gets passed filename
+    #[must_use]
+    pub fn file_name(&self) -> Option<&str> {
+        self.file_name
+    }
+
+    /// Gets bytes of file
+    #[must_use]
+    pub fn bytes(&self) -> &Bytes {
+        &self.bytes
+    }
+
+    /// Gets string to file as path in format `attach://{id}`
+    #[must_use]
+    pub fn str_to_file(&self) -> &str {
+        &self.str_to_file
     }
 }
