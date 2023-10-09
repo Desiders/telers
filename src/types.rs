@@ -181,6 +181,7 @@ pub mod video_note;
 pub mod voice;
 pub mod web_app_data;
 pub mod web_app_info;
+pub mod web_app_user;
 pub mod webhook_info;
 pub mod write_access_allowed;
 
@@ -340,5 +341,6 @@ pub use video_note::VideoNote;
 pub use voice::Voice;
 pub use web_app_data::WebAppData;
 pub use web_app_info::WebAppInfo;
+pub use web_app_user::WebAppUser;
 pub use webhook_info::WebhookInfo;
 pub use write_access_allowed::WriteAccessAllowed;

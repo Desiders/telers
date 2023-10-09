@@ -30,7 +30,7 @@ pub struct Chat {
     pub active_usernames: Option<Vec<String>>,
     /// Custom emoji identifier of emoji status of the other party in a private chat. Returned only in [`GetChat`](crate::methods::GetChat).
     pub emoji_status_custom_emoji_id: Option<String>,
-    /// Expiration date of the emoji status of the other party in a private chat, if any. Returned only in [`GetChat`](crate::methods::GetChat).
+    /// Expiration date of the emoji status of the other party in a private chat in Unix time, if any. Returned only in [`GetChat`](crate::methods::GetChat).
     pub emoji_status_expiration_date: Option<i64>,
     /// Bio of the other party in a private chat. Returned only in [`GetChat`](crate::methods::GetChat).
     pub bio: Option<String>,

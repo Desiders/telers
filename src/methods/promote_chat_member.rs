@@ -19,7 +19,7 @@ pub struct PromoteChatMember {
     pub user_id: i64,
     /// Pass `True` if the administrator's presence in the chat is hidden
     pub is_anonymous: Option<bool>,
-    /// Pass `True`, if the administrator can access the chat event log, chat statistics, message statistics in channels, see channel members, see anonymous administrators in supergroups and ignore slow mode. Implied by any other administrator privilege
+    /// Pass `True`, if the administrator can access the chat event log, chat statistics, boost list in channels, message statistics in channels, see channel members, see anonymous administrators in supergroups and ignore slow mode. Implied by any other administrator privilege
     pub can_manage_chat: Option<bool>,
     /// Pass `True`, if the administrator can create channel posts, channels only
     pub can_post_messages: Option<bool>,
@@ -39,6 +39,12 @@ pub struct PromoteChatMember {
     pub can_invite_users: Option<bool>,
     /// Pass `True` if the administrator can pin messages, supergroups only
     pub can_pin_messages: Option<bool>,
+    /// Pass `True`, if the administrator can post stories in the channel; channels only
+    pub can_post_stories: Option<bool>,
+    /// Pass `True`, if the administrator can edit stories posted by other users; channels only
+    pub can_edit_stories: Option<bool>,
+    /// Pass `True`` if the administrator can delete stories posted by other users; channels only
+    pub can_delete_stories: Option<bool>,
     /// Pass `True` if the user is allowed to create, rename, close, and reopen forum topics, supergroups only
     pub can_manage_topics: Option<bool>,
 }
@@ -60,6 +66,9 @@ impl PromoteChatMember {
             can_change_info: None,
             can_invite_users: None,
             can_pin_messages: None,
+            can_post_stories: None,
+            can_edit_stories: None,
+            can_delete_stories: None,
             can_manage_topics: None,
         }
     }

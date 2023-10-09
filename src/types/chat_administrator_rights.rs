@@ -10,7 +10,7 @@ use serde_with::skip_serializing_none;
 pub struct ChatAdministratorRights {
     /// `True`, if the user's presence in the chat is hidden
     pub is_anonymous: bool,
-    /// `True`, if the administrator can access the chat event log, chat statistics, message statistics in channels, see channel members, see anonymous administrators in supergroups and ignore slow mode. Implied by any other administrator privilege
+    /// `True`, if the administrator can access the chat event log, chat statistics, boost list in channels, message statistics in channels, see channel members, see anonymous administrators in supergroups and ignore slow mode. Implied by any other administrator privilege
     pub can_manage_chat: bool,
     /// `True`, if the administrator can delete messages of other users
     pub can_delete_messages: bool,
@@ -24,12 +24,18 @@ pub struct ChatAdministratorRights {
     pub can_change_info: bool,
     /// `True`, if the user is allowed to invite new users to the chat
     pub can_invite_users: bool,
-    /// `True`, if the administrator can post in the channel; channels only
+    /// `True`, if the administrator can post messages in the channel; channels only
     pub can_post_messages: Option<bool>,
     /// `True`, if the administrator can edit messages of other users and can pin messages; channels only
     pub can_edit_messages: Option<bool>,
     /// `True`, if the user is allowed to pin messages; groups and supergroups only
     pub can_pin_messages: Option<bool>,
+    /// `True`, if the administrator can post stories in the channel; channels only
+    pub can_post_stories: Option<bool>,
+    /// `True`, if the administrator can edit stories posted by other users; channels only
+    pub can_edit_stories: Option<bool>,
+    /// `True`, if the administrator can delete stories posted by other users; channels only
+    pub can_delete_stories: Option<bool>,
     /// `True`, if the user is allowed to create, rename, close, and reopen forum topics; supergroups only
     pub can_manage_topics: Option<bool>,
 }
@@ -59,6 +65,9 @@ impl ChatAdministratorRights {
             can_post_messages: None,
             can_edit_messages: None,
             can_pin_messages: None,
+            can_post_stories: None,
+            can_edit_stories: None,
+            can_delete_stories: None,
             can_manage_topics: None,
         }
     }
@@ -147,6 +156,30 @@ impl ChatAdministratorRights {
     pub fn can_pin_messages(self, val: bool) -> Self {
         Self {
             can_pin_messages: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn can_post_stories(self, val: bool) -> Self {
+        Self {
+            can_post_stories: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn can_edit_stories(self, val: bool) -> Self {
+        Self {
+            can_edit_stories: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn can_delete_stories(self, val: bool) -> Self {
+        Self {
+            can_delete_stories: Some(val),
             ..self
         }
     }
