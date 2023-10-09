@@ -9,7 +9,7 @@
 <img src="https://img.shields.io/crates/v/telers?style=flat-square"/>
 </a>
 <a href="https://core.telegram.org/bots/api">
-<img src="https://img.shields.io/badge/Telegram%20Bot%20API-6.8-blue?style=flat-square&logo=telegram&label=Telegram%20Bot%20API"/>
+<img src="https://img.shields.io/badge/Telegram%20Bot%20API-6.9-blue?style=flat-square&logo=telegram&label=Telegram%20Bot%20API"/>
 </a>
 
 <h3>
