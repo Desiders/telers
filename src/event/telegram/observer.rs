@@ -292,11 +292,13 @@ where
             }?;
 
             return match response.handler_result {
+                // If the handler or middleware returns skip, then we should skip it
                 Ok(EventReturn::Skip) => {
                     event!(Level::TRACE, "Handler returns skip");
 
                     continue;
                 }
+                // If the handler or middleware returns cancel, then we should stop propagation
                 Ok(EventReturn::Cancel) => {
                     event!(Level::TRACE, "Handler returns cancel");
 
@@ -305,6 +307,7 @@ where
                         propagate_result: PropagateEventResult::Rejected,
                     })
                 }
+                // If the handler or middleware returns finish, then we should stop propagation and return a response
                 Ok(EventReturn::Finish) => {
                     event!(Level::TRACE, "Handler returns finish");
 
@@ -313,8 +316,9 @@ where
                         propagate_result: PropagateEventResult::Handled(response),
                     })
                 }
-                // If the handler returns an error, the propagation result will be handled because the error is the correct result of the handler
-                // (from the point of view of observer)
+                // If the handler or middleware returns an error,
+                // then we should stop propagation and return a response because the error is the correct result
+                // from the point of view of observer
                 Err(_) => {
                     event!(Level::TRACE, "Handler returns error");
 
@@ -328,7 +332,7 @@ where
 
         event!(Level::TRACE, "Request are not pass handlers filters");
 
-        // Return a response if the event unhandled by observer
+        // If all handlers are not pass filters, then we should call common handler
         Ok(Response {
             request,
             propagate_result: PropagateEventResult::Unhandled,

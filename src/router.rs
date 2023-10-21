@@ -56,8 +56,6 @@
 //! You can use [`Router::include_router`] method to include a router to the current router as sub router.
 //! Inner middlewares of the parent router will be registered to the sub router and its sub routers in the order of registration.
 //! Parent middlewares registers on the top of the stack, so parent middlewares calls before.
-//! You shouldn't count on the fact that the middlewares of the parent router will be registered to the sub routers
-//! immediately after calling this method. This implementation detail that can be changed in the future.
 //!
 //! [`OuterMiddlewaresConfig`] and [`InnerMiddlewaresConfig`] are used to configure outer and inner middlewares, respectively,
 //! or just use [`OuterMiddlewaresConfigBuilder`] and [`InnerMiddlewaresConfigBuilder`] to create a config step by step.
@@ -66,7 +64,54 @@
 //! All config middlewares are registered in the order of registration and before other middlewares.
 //!
 //! You can propagate event with calls [`PropagateEvent::propagate_event`] or [`PropagateEvent::propagate_update_event`],
-//! [`PropagateEvent::emit_startup`], [`PropagateEvent::emit_shutdown`] methods, but it's better to use [`Dispatcher`] that does it for you.
+//! [`PropagateEvent::emit_startup`], [`PropagateEvent::emit_shutdown`] methods in [`Router`],
+//! but it's better to use [`Dispatcher`] that does it for you.
+//!
+//! Order of event propagation when propagate event is called for router:
+//! 1) Call outer middlewares of update observer in order of registration;
+//! 1.1) If middleware returns [`EventReturn::Finish`], then update [`Request`] because the middleware could have changed it and go to the 1 step;
+//! 1.2) If middleware returns [`EventReturn::Skip`], then skip this middleware and go to the 1 step;
+//! 1.3) If middleware returns [`EventReturn::Cancel`], then cancel propagation of outer middlewares of update observer and go to the 2 step;
+//! 1.4) If all middlewares by step 1.1 are passed or skipped on 1.2 or propagation cancelled by step 1.3, then go to the 2 step;
+//! 2) Call filters of handlers of update observer in order of registration;
+//! 2.1) If one of the handler filters returns `false`, then skip the handler and go back to the 2 step;
+//! 2.2) If any handler filter returns `true`, then go to the 3 step;
+//! 2.3) If all handlers are skipped on 2.1, then go to the 4 step;
+//! 3) Call inner middlewares of update observer and the handler itself (handler is called in the middleware);
+//! 3.1) If the handler or middleware returns [`EventReturn::Skip`], then we should skip it and go to the 3 step;
+//! 3.2) If the handler or middleware returns [`EventReturn::Cancel`], then we should stop propagation of innder middlewares of update observer
+//! and go to the 4 step;
+//! 3.3) If the handler or middleware returns [`EventReturn::Finish`], then we should stop propagation and return a response and go to the 4 step;
+//! 3.4) If the handler of middleware returns error, then we should stop propagation and return a response
+//! because the error is the correct result from the point of view of observer and go to the 4 step;
+//! 3.5) If all handlers or middlewares are skipped on 3.1, then go to the 4 step;
+//! 4) Stop propagation of update observer;
+//! 5) Check which observer respond to the current [`UpdateType`];
+//! 6) Call outer middlewares of the observer in order of registration;
+//! 6.1) If middleware returns [`EventReturn::Finish`], then update [`Request`] because the middleware could have changed it and go to the 6 step;
+//! 6.2) If middleware returns [`EventReturn::Skip`], then skip this middleware and go to the 6 step;
+//! 6.3) If middleware returns [`EventReturn::Cancel`], then cancel event propagation and go to the 10 step;
+//! 6.4) If all middlewares by step 1.1 are passed or skipped on 1.2, then go to the 7 step;
+//! 7) Call filters of handlers of the observer in order of registration;
+//! 7.1) If one of the handler filters returns `false`, then skip the handler and go back to the 7 step;
+//! 7.2) If any handler filter returns `true`, then go to the 8 step;
+//! 7.3) If all handlers are skipped on 7.1, then cancel propagation of the observer and go to the 9 step;
+//! 8) Call inner middlewares of the observer and the handler itself (handler is called in the middleware);
+//! 8.1) If the handler or middleware returns [`EventReturn::Skip`], then we should skip it and go to the 8 step;
+//! 8.2) If the handler or middleware returns [`EventReturn::Cancel`], then we should stop propagation of the observer
+//! and go to the 10 step;
+//! 8.3) If the handler or middleware returns [`EventReturn::Finish`], then we should stop propagation and return a response
+//! and go to the 10 step;
+//! 8.4) If the handler of middleware returns error, then we should stop propagation and return a response
+//! because the error is the correct result from the point of view of observer and go to the 10 step;
+//! 8.5) If all handlers or middlewares are skipped on 8.1, then go to the 9 step;
+//! 9) Check to which router from current router's sub routers propagate event next;
+//! 9.1) If there is no sub routers, then go to the 10 step;
+//! 9.2) If there is sub routers, then go to the 1 step for the first sub router;
+//! 9.2.1) If the propagate event [`PropagateEventResult::Unhandled`] by the sub router's observer, then go to the 9 step;
+//! 9.2.2) If the propagate event [`PropagateEventResult::Handled`] by the sub router's observer, then go to the 10 step;
+//! 9.2.3) If the propagate event [`PropagateEventResult::Rejected`], then return an unhandled response and go to the 10 step;
+//! 10) Finish event propagation.
 //!
 //! [`Simple observer`]: SimpleObserver
 //! [`Telegram observer`]: TelegramObserver
@@ -351,10 +396,6 @@ pub struct Router<Client> {
     /// It's called for router and its sub routers and before other telegram observers.
     /// This observer is useful for register important middlewares (often libraries) like `FSMContext` and `UserContext`,
     /// that set up context for other.
-    ///
-    /// The order of calls looks simplistically like this: \
-    /// `Dispatcher -> Router -> Update observer -> Sub router -> Update observer
-    ///            -> Router -> Telegram observer -> Sub router -> Telegram observer`
     pub update: TelegramObserver<Client>,
 
     pub startup: SimpleObserver,
@@ -398,11 +439,6 @@ where
     /// Inner middlewares of this router will be registered to the sub router and its sub routers
     /// in the order of registration. Parent middlewares registers on the top of the stack,
     /// so parent middlewares calls before.
-    /// # Warning
-    /// You shouldn't count on the fact that the middlewares of this router will be registered to the sub routers
-    /// immediately after calling this method. This implementation detail that can be changed in the future.
-    /// Right now, middlewares registers to the sub routers when the router is converts to the [`RouterService`]
-    /// by calls `Router::to_service_provider` method.
     pub fn include_router(&mut self, router: impl Into<Router<Client>>) -> &mut Self {
         self.sub_routers.push(router.into());
         self
@@ -415,11 +451,6 @@ where
     /// so parent middlewares calls before.
     ///
     /// Alias to [`Router::include_router`] method
-    /// # Warning
-    /// You shouldn't count on the fact that the middlewares of this router will be registered to the sub routers
-    /// immediately after calling this method. This implementation detail that can be changed in the future.
-    /// Right now, middlewares registers to the sub routers when the router is converts to the [`RouterService`]
-    /// by calls `Router::to_service_provider` method.
     pub fn include(&mut self, router: impl Into<Router<Client>>) -> &mut Self {
         self.include_router(router)
     }
@@ -482,51 +513,56 @@ impl<Client> Router<Client> {
         [&self.startup, &self.shutdown]
     }
 
-    /// Resolve registered update types from the current router and its sub routers.
-    /// It is useful for getting updates only for registered update types.
-    /// # Warning
-    /// This method doesn't preserve order registration of update types
+    /// Resolve used update types from the current router and its sub routers with skip some update types.
+    /// If observer has no handlers, then it will be skipped.
+    /// If observer update type is in the skip list, then it will be skipped.
+    /// This method is useful for getting updates only for registered update types.
     /// # Panics
     /// If can't convert observer event name to [`UpdateType`]
     #[must_use]
-    pub fn resolve_used_update_types(&self) -> Vec<UpdateType> {
-        let mut used_update_types = HashSet::new();
-
-        self.sub_routers.iter().for_each(|router| {
-            used_update_types.extend(router.resolve_used_update_types());
-        });
-
-        used_update_types.extend(
-            self.telegram_observers()
-                .iter()
-                .filter(|observer| !observer.handlers.is_empty())
-                .map(|observer| {
-                    <&str as TryInto<UpdateType>>::try_into(observer.event_name).expect(
-                        "Can't convert event name to UpdateType. This is a bug. Please, report it.",
-                    )
-                }),
-        );
-
-        used_update_types.into_iter().collect()
-    }
-
-    /// Resolve registered update types from the current router and its sub routers with skip updates types.
-    /// It is useful for getting updates only for registered update types.
-    /// # Arguments
-    /// * `skip_updates` - Skip update types
-    /// # Warning
-    /// This method doesn't preserve order registration of update types
-    #[must_use]
     pub fn resolve_used_update_types_with_skip(
         &self,
-        skip_updates: impl IntoIterator<Item = UpdateType>,
-    ) -> Vec<UpdateType> {
-        let skip_updates = skip_updates.into_iter().collect::<HashSet<_>>();
+        skip_update_types: impl IntoIterator<Item = UpdateType>,
+    ) -> HashSet<UpdateType> {
+        let skip_update_types = skip_update_types.into_iter().collect::<HashSet<_>>();
+        let mut used_update_types = HashSet::new();
 
-        self.resolve_used_update_types()
-            .into_iter()
-            .filter(|update_type| !skip_updates.contains(update_type))
-            .collect()
+        for observer in self.telegram_observers() {
+            if observer.handlers.is_empty() {
+                continue;
+            }
+
+            #[allow(clippy::expect_fun_call)]
+            let update_type = <&str as TryInto<UpdateType>>::try_into(observer.event_name).expect(
+                format!(
+                    "Can't convert event name to UpdateType. This is a bug. Please, report it. Event name: {}",
+                    observer.event_name
+                ).as_str(),
+            );
+
+            if skip_update_types.contains(&update_type) {
+                continue;
+            }
+
+            used_update_types.insert(update_type);
+        }
+
+        for router in &self.sub_routers {
+            used_update_types
+                .extend(router.resolve_used_update_types_with_skip(skip_update_types.clone()));
+        }
+
+        used_update_types
+    }
+
+    /// Resolve used update types from the current router and its sub routers.
+    /// If observer has no handlers, then it will be skipped.
+    /// This method is useful for getting updates only for registered update types.
+    /// # Panics
+    /// If can't convert observer event name to [`UpdateType`]
+    #[must_use]
+    pub fn resolve_used_update_types(&self) -> HashSet<UpdateType> {
+        self.resolve_used_update_types_with_skip([])
     }
 }
 
@@ -718,7 +754,7 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
             let (updated_request, event_return) = middleware.call(request.clone()).await?;
 
             match event_return {
-                // Update request because the middleware could have changed it
+                // If middleware returns finish, then update request because the middleware could have changed it
                 EventReturn::Finish => {
                     event!(Level::TRACE, "Middleware returns finish");
 
@@ -746,11 +782,11 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
         let observer_response = observer.trigger(observer_request).await?;
 
         match observer_response.propagate_result {
-            // Propagate event to sub routers
+            // If observer returns unhandled, then propagate event to sub routers' observers
             PropagateEventResult::Unhandled => {
                 event!(Level::TRACE, "Event unhandled by router");
             }
-            // Return a response if the event handled
+            // If observer returns handled, then return a response
             PropagateEventResult::Handled(response) => {
                 event!(Level::TRACE, "Event handled by router");
 
@@ -759,8 +795,8 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
                     propagate_result: PropagateEventResult::Handled(response),
                 });
             }
-            // Return a response if the event rejected
-            // Router don't know about rejected event by observer
+            // If observer returns rejected, then return a response.
+            // Router don't know about rejected event by observer, so it returns unhandled response.
             PropagateEventResult::Rejected => {
                 event!(Level::TRACE, "Event rejected by router");
 
@@ -771,21 +807,23 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
             }
         };
 
-        // Propagate event to sub routers' observer
+        // Propagate event to sub routers' observers
         for router in &self.sub_routers {
             let router_response = router.propagate_event(update_type, request.clone()).await?;
             match router_response.propagate_result {
-                // Propagate event to next sub router's observer if the event unhandled by the sub router's observer
+                // If the event unhandled by the sub router's observer, then propagate event to next sub router's observer
                 PropagateEventResult::Unhandled => {
                     event!(Level::TRACE, "Event unhandled by syb router");
 
                     continue;
                 }
+                // If the event handled by the sub router's observer, then return a response
                 PropagateEventResult::Handled(_) => {
                     event!(Level::TRACE, "Event handled by sub router");
 
                     return Ok(router_response);
                 }
+                // If the event rejected by the sub router's observer, then return a response.
                 PropagateEventResult::Rejected => {
                     event!(Level::TRACE, "Event rejected by sub router");
 
@@ -816,7 +854,7 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
             let (updated_request, event_return) = middleware.call(request.clone()).await?;
 
             match event_return {
-                // Update request because the middleware could have changed it
+                // If middleware returns finish, then update request because the middleware could have changed it
                 EventReturn::Finish => {
                     event!(Level::TRACE, "Middleware returns finish");
 
@@ -844,7 +882,7 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
         let observer_response = self.update.trigger(observer_request).await?;
 
         match observer_response.propagate_result {
-            // Return a response if the event unhandled by observer
+            // If observer returns unhandled, then return an unhandled response
             PropagateEventResult::Unhandled => {
                 event!(Level::TRACE, "Update event unhandled by router");
 
@@ -853,7 +891,7 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
                     propagate_result: PropagateEventResult::Unhandled,
                 })
             }
-            // Return a response if the event handled
+            // If observer returns handled, then return a handled response
             PropagateEventResult::Handled(response) => {
                 event!(Level::TRACE, "Update event handled by router");
 
@@ -862,8 +900,8 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
                     propagate_result: PropagateEventResult::Handled(response),
                 })
             }
-            // Return a response if the event rejected
-            // Router don't know about rejected event by observer
+            // If observer returns rejected, then return an unhandled response.
+            // Router don't know about rejected event by observer, so it returns unhandled response.
             PropagateEventResult::Rejected => {
                 event!(Level::TRACE, "Update event rejected by router");
 
@@ -1648,6 +1686,8 @@ mod tests {
         router.include(router2);
 
         let update_types = router.resolve_used_update_types();
+
+        println!("{:?}", update_types);
 
         assert_eq!(update_types.len(), 3);
         assert!(update_types.contains(&UpdateType::Message));

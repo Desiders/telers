@@ -41,7 +41,7 @@
 /// from_context_impl!([Client], A, "a");
 /// from_context_impl!([Client, T: Clone, U: Clone], B<T, U>, "b");
 ///
-/// async fn handler<T: Clone, U: Clone>(_bot: Bot, _a: A, _b: B<T, U>) -> HandlerResult {
+/// async fn handler<T: Clone, U: Clone>(_a: A, _b: B<T, U>) -> HandlerResult {
 ///    todo!()
 /// }
 /// ```
@@ -195,13 +195,19 @@ macro_rules! from_context_impl {
 /// impl<T> From<T> for Wrapper<T> {
 ///    fn from(data: T) -> Self {
 ///       Self(data)
+///    }
 /// }
 ///
-/// from_context_impl!([Client], A => Wrapper<A>, "a");
+/// from_context_into_impl!([Client], A => Wrapper<A>, "a");
 /// from_context_into_impl!([Client, T: Clone, U: Clone], B<T, U> => Wrapper<B<T, U>>, "b");
 ///
-///async fn handler<T: Clone, U: Clone>(_bot: Bot, _a: Wrapper<A>, _b: B<T, U>) -> HandlerResult {
-///    todo!()
+/// async fn handler<T: Clone, U: Clone>(
+///     _a: A,
+///     _a_wrapper: Wrapper<A>,
+///     _b: B<T, U>,
+///     _b_wrapper: Wrapper<B<T, U>>,
+/// ) -> HandlerResult {
+///     todo!()
 /// }
 /// ```
 #[allow(rustdoc::invalid_rust_codeblocks)]
