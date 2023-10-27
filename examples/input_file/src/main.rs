@@ -82,17 +82,15 @@ async fn input_file_handler(bot: Bot, message: Message) -> telegram::HandlerResu
     let cat_url_input_file = InputFile::url(CAT_URL);
 
     // Using `InputFile::fs` to send file by path in file system
-    let cat_fs_input_file = InputFile::fs(CAT_FS_PATH, None);
+    let cat_fs_input_file = InputFile::fs(CAT_FS_PATH);
 
     // Using `InputFile::buffered` to send file by bytes
-    let cat_buffered_input_file = InputFile::buffered(
-        tokio::fs::read(CAT_FS_PATH).await.map_err(|err| {
+    let cat_buffered_input_file =
+        InputFile::buffered(tokio::fs::read(CAT_FS_PATH).await.map_err(|err| {
             event!(Level::ERROR, error = %err, "Failed to read file bytes");
 
             HandlerError::new(err)
-        })?,
-        None,
-    );
+        })?);
 
     let result_message = bot
         .send(

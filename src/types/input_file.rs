@@ -36,14 +36,26 @@ impl<'a> InputFile<'a> {
 
     /// Creates a new [`InputFile`] with [`FileKind::FS`]
     #[must_use]
-    pub fn fs(path: impl Into<PathBuf>, file_name: Option<&'a str>) -> Self {
-        Self(FileKind::FS(FSFile::new(path, file_name)))
+    pub fn fs(path: impl Into<PathBuf>) -> Self {
+        Self(FileKind::FS(FSFile::new(path)))
+    }
+
+    /// Creates a new [`InputFile`] with [`FileKind::FS`] and specified filename
+    #[must_use]
+    pub fn fs_with_name(path: impl Into<PathBuf>, name: impl Into<Cow<'a, str>>) -> Self {
+        Self(FileKind::FS(FSFile::new_with_name(path, name)))
     }
 
     /// Creates a new [`InputFile`] with [`FileKind::Buffered`]
     #[must_use]
-    pub fn buffered(bytes: impl Into<Bytes>, file_name: Option<&'a str>) -> Self {
-        Self(FileKind::Buffered(BufferedFile::new(bytes, file_name)))
+    pub fn buffered(bytes: impl Into<Bytes>) -> Self {
+        Self(FileKind::Buffered(BufferedFile::new(bytes)))
+    }
+
+    /// Creates a new [`InputFile`] with [`FileKind::Buffered`] and specified filename
+    #[must_use]
+    pub fn buffered_with_name(bytes: impl Into<Bytes>, name: impl Into<Cow<'a, str>>) -> Self {
+        Self(FileKind::Buffered(BufferedFile::new_with_name(bytes, name)))
     }
 }
 
@@ -177,41 +189,35 @@ impl<'a> UrlFile<'a> {
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct FSFile<'a> {
     id: Uuid,
-    file_name: Option<&'a str>,
+    file_name: Option<Cow<'a, str>>,
     path: PathBuf,
     str_to_file: String,
 }
 
 impl<'a> FSFile<'a> {
     #[must_use]
-    pub fn new(path: impl Into<PathBuf>, file_name: Option<&'a str>) -> Self {
+    pub fn new(path: impl Into<PathBuf>) -> Self {
         let id = Uuid::new_v4();
 
         let str_to_file = format!("{ATTACH_PREFIX}{id}");
 
         Self {
             id,
-            file_name: file_name.map(Into::into),
+            file_name: None,
             path: path.into(),
             str_to_file,
         }
     }
 
-    /// Creates a new [`FSFile`] with specified ID
-    /// # Notes
-    /// If you want to create a new [`FSFile`] with random ID, use [`FSFile::new`] method instead.
+    /// Creates a new [`FSFile`] with specified filename
     #[must_use]
-    pub fn new_with_id(
-        id: impl Into<Uuid>,
-        path: impl Into<PathBuf>,
-        file_name: Option<&'a str>,
-    ) -> Self {
-        let id = id.into();
+    pub fn new_with_name(path: impl Into<PathBuf>, name: impl Into<Cow<'a, str>>) -> Self {
+        let id = Uuid::new_v4();
         let str_to_file = format!("{ATTACH_PREFIX}{id}");
 
         Self {
             id,
-            file_name: file_name.map(Into::into),
+            file_name: Some(name.into()),
             path: path.into(),
             str_to_file,
         }
@@ -233,6 +239,7 @@ impl<'a> FSFile<'a> {
     #[must_use]
     pub fn file_name(&self) -> Option<&str> {
         self.file_name
+            .as_deref()
             .or(self.path.file_name().and_then(OsStr::to_str))
     }
 
@@ -281,13 +288,13 @@ impl<'a> FSFile<'a> {
 pub struct BufferedFile<'a> {
     id: Uuid,
     bytes: Bytes,
-    file_name: Option<&'a str>,
+    file_name: Option<Cow<'a, str>>,
     str_to_file: String,
 }
 
 impl<'a> BufferedFile<'a> {
     #[must_use]
-    pub fn new(bytes: impl Into<Bytes>, file_name: Option<&'a str>) -> Self {
+    pub fn new(bytes: impl Into<Bytes>) -> Self {
         let id = Uuid::new_v4();
         let bytes = bytes.into();
 
@@ -296,21 +303,15 @@ impl<'a> BufferedFile<'a> {
         Self {
             id,
             bytes,
-            file_name: file_name.map(Into::into),
+            file_name: None,
             str_to_file,
         }
     }
 
-    /// Creates a new [`BufferedFile`] with specified ID
-    /// # Notes
-    /// If you want to create a new [`BufferedFile`] with random ID, use [`BufferedFile::new`] method instead
+    /// Creates a new [`BufferedFile`] with specified filename
     #[must_use]
-    pub fn new_with_id(
-        id: impl Into<Uuid>,
-        bytes: impl Into<Bytes>,
-        file_name: Option<&'a str>,
-    ) -> Self {
-        let id = id.into();
+    pub fn new_with_name(bytes: impl Into<Bytes>, name: impl Into<Cow<'a, str>>) -> Self {
+        let id = Uuid::new_v4();
         let bytes = bytes.into();
 
         let str_to_file = format!("{ATTACH_PREFIX}{id}");
@@ -318,7 +319,7 @@ impl<'a> BufferedFile<'a> {
         Self {
             id,
             bytes,
-            file_name: file_name.map(Into::into),
+            file_name: Some(name.into()),
             str_to_file,
         }
     }
@@ -336,7 +337,7 @@ impl<'a> BufferedFile<'a> {
     /// Gets passed filename
     #[must_use]
     pub fn file_name(&self) -> Option<&str> {
-        self.file_name
+        self.file_name.as_deref()
     }
 
     /// Gets bytes of file
