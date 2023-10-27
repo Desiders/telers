@@ -53,3 +53,9 @@ impl TelegramMethod for CloseForumTopic {
         Request::new("closeForumTopic", self, None)
     }
 }
+
+impl AsRef<CloseForumTopic> for CloseForumTopic {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

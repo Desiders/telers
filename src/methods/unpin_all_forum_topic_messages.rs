@@ -53,3 +53,9 @@ impl TelegramMethod for UnpinAllForumTopicMessages {
         Request::new("unpinAllForumTopicMessages", self, None)
     }
 }
+
+impl AsRef<UnpinAllForumTopicMessages> for UnpinAllForumTopicMessages {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

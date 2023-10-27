@@ -417,3 +417,9 @@ impl TelegramMethod for SendPoll {
         Request::new("sendPoll", self, None)
     }
 }
+
+impl AsRef<SendPoll> for SendPoll {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

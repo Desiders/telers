@@ -77,3 +77,9 @@ impl TelegramMethod for StopPoll {
         Request::new("stopPoll", self, None)
     }
 }
+
+impl AsRef<StopPoll> for StopPoll {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

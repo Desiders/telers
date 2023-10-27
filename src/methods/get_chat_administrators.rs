@@ -44,3 +44,9 @@ impl TelegramMethod for GetChatAdministrators {
         Request::new("getChatAdministrators", self, None)
     }
 }
+
+impl AsRef<GetChatAdministrators> for GetChatAdministrators {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

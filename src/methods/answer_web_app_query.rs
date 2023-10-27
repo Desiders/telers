@@ -56,3 +56,9 @@ impl TelegramMethod for AnswerWebAppQuery {
         Request::new("answerWebAppQuery", self, None)
     }
 }
+
+impl AsRef<AnswerWebAppQuery> for AnswerWebAppQuery {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

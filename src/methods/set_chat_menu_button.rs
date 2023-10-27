@@ -63,3 +63,9 @@ impl TelegramMethod for SetChatMenuButton {
         Request::new("setChatMenuButton", self, None)
     }
 }
+
+impl AsRef<SetChatMenuButton> for SetChatMenuButton {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

@@ -225,3 +225,9 @@ impl TelegramMethod for SendContact {
         Request::new("sendContact", self, None)
     }
 }
+
+impl AsRef<SendContact> for SendContact {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

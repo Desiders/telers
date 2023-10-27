@@ -41,3 +41,9 @@ impl TelegramMethod for GetChatMemberCount {
         Request::new("getChatMemberCount", self, None)
     }
 }
+
+impl AsRef<GetChatMemberCount> for GetChatMemberCount {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

@@ -16,7 +16,7 @@ where
     /// Telegram API method data
     pub data: &'a T,
     /// Files to send
-    pub files: Option<Vec<&'a InputFile<'a>>>,
+    pub files: Option<Box<[&'a InputFile<'a>]>>,
 }
 
 impl<'a, T> Request<'a, T>
@@ -27,7 +27,7 @@ where
     pub fn new(
         method_name: &'static str,
         data: &'a T,
-        files: Option<Vec<&'a InputFile<'a>>>,
+        files: Option<Box<[&'a InputFile<'a>]>>,
     ) -> Self {
         Self {
             method_name,

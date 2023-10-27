@@ -53,3 +53,9 @@ impl TelegramMethod for ApproveChatJoinRequest {
         Request::new("approveChatJoinRequest", self, None)
     }
 }
+
+impl AsRef<ApproveChatJoinRequest> for ApproveChatJoinRequest {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

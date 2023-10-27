@@ -44,3 +44,9 @@ impl TelegramMethod for GetChat {
         Request::new("getChat", self, None)
     }
 }
+
+impl AsRef<GetChat> for GetChat {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

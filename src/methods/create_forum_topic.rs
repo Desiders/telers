@@ -96,3 +96,9 @@ impl TelegramMethod for CreateForumTopic {
         Request::new("createForumTopic", self, None)
     }
 }
+
+impl AsRef<CreateForumTopic> for CreateForumTopic {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

@@ -46,3 +46,9 @@ impl TelegramMethod for GetMyDefaultAdministratorRights {
         Request::new("getMyDefaultAdministratorRights", self, None)
     }
 }
+
+impl AsRef<GetMyDefaultAdministratorRights> for GetMyDefaultAdministratorRights {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

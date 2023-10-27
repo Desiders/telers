@@ -41,3 +41,9 @@ impl TelegramMethod for DeleteChatStickerSet {
         Request::new("deleteChatStickerSet", self, None)
     }
 }
+
+impl AsRef<DeleteChatStickerSet> for DeleteChatStickerSet {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

@@ -123,6 +123,12 @@ impl TelegramMethod for EditMessageMedia<'_> {
         let mut files = vec![];
         prepare_input_media(&mut files, &self.media);
 
-        Request::new("editMessageMedia", self, Some(files))
+        Request::new("editMessageMedia", self, Some(files.into()))
+    }
+}
+
+impl<'a> AsRef<EditMessageMedia<'a>> for EditMessageMedia<'a> {
+    fn as_ref(&self) -> &Self {
+        self
     }
 }

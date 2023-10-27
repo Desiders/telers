@@ -43,3 +43,9 @@ impl TelegramMethod for GetFile {
         Request::new("getFile", self, None)
     }
 }
+
+impl AsRef<GetFile> for GetFile {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

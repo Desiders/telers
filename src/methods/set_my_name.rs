@@ -68,3 +68,9 @@ impl TelegramMethod for SetMyName {
         Request::new("setMyName", self, None)
     }
 }
+
+impl AsRef<SetMyName> for SetMyName {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

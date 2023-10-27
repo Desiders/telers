@@ -26,3 +26,9 @@ impl TelegramMethod for Close {
         Request::new("close", self, None)
     }
 }
+
+impl AsRef<Close> for Close {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

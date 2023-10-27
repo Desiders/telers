@@ -500,7 +500,7 @@ impl<Client, PropagatorService, BackoffType>
                 "Send `getUpdates` request to the Telegram server",
             );
 
-            let updates = match bot.send(&method, None).await {
+            let updates = match bot.send(&method).await {
                 Ok(updates) => {
                     if updates.is_empty() {
                         event!(Level::TRACE, "No updates received");

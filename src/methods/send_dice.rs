@@ -180,3 +180,9 @@ impl TelegramMethod for SendDice {
         Request::new("sendDice", self, None)
     }
 }
+
+impl AsRef<SendDice> for SendDice {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

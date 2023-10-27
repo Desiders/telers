@@ -53,3 +53,9 @@ impl TelegramMethod for BanChatSenderChat {
         Request::new("banChatSenderChat", self, None)
     }
 }
+
+impl AsRef<BanChatSenderChat> for BanChatSenderChat {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

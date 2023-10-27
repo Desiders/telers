@@ -64,3 +64,9 @@ impl TelegramMethod for GetCustomEmojiStickers {
         Request::new("getCustomEmojiStickers", self, None)
     }
 }
+
+impl AsRef<GetCustomEmojiStickers> for GetCustomEmojiStickers {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

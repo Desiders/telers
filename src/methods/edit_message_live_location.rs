@@ -192,3 +192,9 @@ impl TelegramMethod for EditMessageLiveLocation {
         Request::new("editMessageLiveLocation", self, None)
     }
 }
+
+impl AsRef<EditMessageLiveLocation> for EditMessageLiveLocation {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

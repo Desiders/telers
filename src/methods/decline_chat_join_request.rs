@@ -53,3 +53,9 @@ impl TelegramMethod for DeclineChatJoinRequest {
         Request::new("declineChatJoinRequest", self, None)
     }
 }
+
+impl AsRef<DeclineChatJoinRequest> for DeclineChatJoinRequest {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

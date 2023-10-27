@@ -273,3 +273,9 @@ impl TelegramMethod for CopyMessage {
         Request::new("copyMessage", self, None)
     }
 }
+
+impl AsRef<CopyMessage> for CopyMessage {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

@@ -249,3 +249,9 @@ impl TelegramMethod for SendMessage {
         Request::new("sendMessage", self, None)
     }
 }
+
+impl AsRef<SendMessage> for SendMessage {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

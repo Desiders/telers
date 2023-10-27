@@ -53,3 +53,9 @@ impl TelegramMethod for SetChatStickerSet {
         Request::new("setChatStickerSet", self, None)
     }
 }
+
+impl AsRef<SetChatStickerSet> for SetChatStickerSet {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

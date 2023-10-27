@@ -29,3 +29,9 @@ impl TelegramMethod for GetForumTopicIconStickers {
         Request::new("getForumTopicIconStickers", self, None)
     }
 }
+
+impl AsRef<GetForumTopicIconStickers> for GetForumTopicIconStickers {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

@@ -53,3 +53,9 @@ impl TelegramMethod for SetStickerPositionInSet {
         Request::new("setStickerPositionInSet", self, None)
     }
 }
+
+impl AsRef<SetStickerPositionInSet> for SetStickerPositionInSet {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

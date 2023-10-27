@@ -56,3 +56,9 @@ impl TelegramMethod for RevokeChatInviteLink {
         Request::new("revokeChatInviteLink", self, None)
     }
 }
+
+impl AsRef<RevokeChatInviteLink> for RevokeChatInviteLink {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

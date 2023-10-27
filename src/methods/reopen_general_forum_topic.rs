@@ -41,3 +41,9 @@ impl TelegramMethod for ReopenGeneralForumTopic {
         Request::new("reopenGeneralForumTopic", self, None)
     }
 }
+
+impl AsRef<ReopenGeneralForumTopic> for ReopenGeneralForumTopic {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

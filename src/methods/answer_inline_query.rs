@@ -147,3 +147,9 @@ impl TelegramMethod for AnswerInlineQuery {
         Request::new("answerInlineQuery", self, None)
     }
 }
+
+impl AsRef<AnswerInlineQuery> for AnswerInlineQuery {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

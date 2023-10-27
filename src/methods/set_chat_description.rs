@@ -53,3 +53,9 @@ impl TelegramMethod for SetChatDescription {
         Request::new("setChatDescription", self, None)
     }
 }
+
+impl AsRef<SetChatDescription> for SetChatDescription {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

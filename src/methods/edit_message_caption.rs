@@ -190,3 +190,9 @@ impl TelegramMethod for EditMessageCaption {
         Request::new("editMessageCaption", self, None)
     }
 }
+
+impl AsRef<EditMessageCaption> for EditMessageCaption {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

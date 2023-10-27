@@ -41,3 +41,9 @@ impl TelegramMethod for DeleteChatPhoto {
         Request::new("deleteChatPhoto", self, None)
     }
 }
+
+impl AsRef<DeleteChatPhoto> for DeleteChatPhoto {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

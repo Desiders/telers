@@ -75,3 +75,9 @@ impl TelegramMethod for SetPassportDataErrors {
         Request::new("setPassportDataErrors", self, None)
     }
 }
+
+impl AsRef<SetPassportDataErrors> for SetPassportDataErrors {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

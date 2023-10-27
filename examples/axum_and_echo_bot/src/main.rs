@@ -17,10 +17,11 @@ use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
-    bot.send(
-        &CopyMessage::new(message.chat.id, message.chat.id, message.message_id),
-        None,
-    )
+    bot.send(CopyMessage::new(
+        message.chat.id,
+        message.chat.id,
+        message.message_id,
+    ))
     .await?;
 
     Ok(EventReturn::Finish)

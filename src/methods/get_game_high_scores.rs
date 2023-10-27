@@ -103,3 +103,9 @@ impl TelegramMethod for GetGameHighScores {
         Request::new("getGameHighScores", self, None)
     }
 }
+
+impl AsRef<GetGameHighScores> for GetGameHighScores {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

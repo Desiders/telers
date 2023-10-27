@@ -100,7 +100,7 @@ async fn handler(bot: Bot, update: Update, context: Arc<Context>) -> HandlerResu
     );
 
     if let Some(chat) = update.chat() {
-        bot.send(&SendMessage::new(chat.id, text), None).await?;
+        bot.send(SendMessage::new(chat.id, text)).await?;
     }
 
     Ok(EventReturn::Finish)

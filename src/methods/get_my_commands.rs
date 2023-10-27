@@ -71,3 +71,9 @@ impl TelegramMethod for GetMyCommands {
         Request::new("getMyCommands", self, None)
     }
 }
+
+impl AsRef<GetMyCommands> for GetMyCommands {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

@@ -89,6 +89,12 @@ impl<'a> TelegramMethod for UploadStickerFile<'a> {
         let mut files = vec![];
         prepare_file(&mut files, &self.sticker);
 
-        Request::new("uploadStickerFile", self, Some(files))
+        Request::new("uploadStickerFile", self, Some(files.into()))
+    }
+}
+
+impl<'a> AsRef<UploadStickerFile<'a>> for UploadStickerFile<'a> {
+    fn as_ref(&self) -> &Self {
+        self
     }
 }

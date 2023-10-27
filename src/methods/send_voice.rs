@@ -277,6 +277,12 @@ impl<'a> TelegramMethod for SendVoice<'a> {
         let mut files = vec![];
         prepare_file(&mut files, &self.voice);
 
-        Request::new("sendVoice", self, Some(files))
+        Request::new("sendVoice", self, Some(files.into()))
+    }
+}
+
+impl<'a> AsRef<SendVoice<'a>> for SendVoice<'a> {
+    fn as_ref(&self) -> &Self {
+        self
     }
 }

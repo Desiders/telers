@@ -68,3 +68,9 @@ impl TelegramMethod for SetChatAdministratorCustomTitle {
         Request::new("SetChatAdministratorCustomTitle", self, None)
     }
 }
+
+impl AsRef<SetChatAdministratorCustomTitle> for SetChatAdministratorCustomTitle {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

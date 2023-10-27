@@ -233,6 +233,12 @@ impl<'a> TelegramMethod for SendVideoNote<'a> {
             prepare_file(&mut files, file);
         }
 
-        Request::new("sendVideoNote", self, Some(files))
+        Request::new("sendVideoNote", self, Some(files.into()))
+    }
+}
+
+impl<'a> AsRef<SendVideoNote<'a>> for SendVideoNote<'a> {
+    fn as_ref(&self) -> &Self {
+        self
     }
 }

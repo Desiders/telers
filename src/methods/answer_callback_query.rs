@@ -123,3 +123,9 @@ impl TelegramMethod for AnswerCallbackQuery {
         Request::new("answerCallbackQuery", self, None)
     }
 }
+
+impl AsRef<AnswerCallbackQuery> for AnswerCallbackQuery {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

@@ -192,3 +192,9 @@ impl TelegramMethod for EditMessageText {
         Request::new("editMessageText", self, None)
     }
 }
+
+impl AsRef<EditMessageText> for EditMessageText {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

@@ -50,3 +50,9 @@ impl TelegramMethod for DeleteMyCommands {
         Request::new("deleteMyCommands", self, None)
     }
 }
+
+impl AsRef<DeleteMyCommands> for DeleteMyCommands {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

@@ -277,6 +277,12 @@ impl<'a> TelegramMethod for SendPhoto<'a> {
         let mut files = vec![];
         prepare_file(&mut files, &self.photo);
 
-        Request::new("sendPhoto", self, Some(files))
+        Request::new("sendPhoto", self, Some(files.into()))
+    }
+}
+
+impl<'a> AsRef<SendPhoto<'a>> for SendPhoto<'a> {
+    fn as_ref(&self) -> &Self {
+        self
     }
 }

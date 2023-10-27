@@ -144,3 +144,9 @@ impl TelegramMethod for SetGameScore {
         Request::new("setGameScore", self, None)
     }
 }
+
+impl AsRef<SetGameScore> for SetGameScore {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

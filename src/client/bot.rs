@@ -71,23 +71,43 @@ impl<Client: Session> Bot<Client> {
     /// Use this method to send requests to Telegram API
     /// # Arguments
     /// * `method` - Telegram API method
+    /// # Errors
+    /// - If the request cannot be send or decoded
+    /// - If the response cannot be parsed
+    /// - If the response represents an telegram api error
+    #[instrument(skip(self, method))]
+    pub async fn send<T, TRef>(&self, method: TRef) -> Result<T::Return, SessionErrorKind>
+    where
+        T: TelegramMethod + Send + Sync,
+        T::Method: Send + Sync,
+        TRef: AsRef<T>,
+    {
+        self.client
+            .make_request_and_get_result(self, method.as_ref(), None)
+            .await
+    }
+
+    /// Use this method to send requests to Telegram API with timeout
+    /// # Arguments
+    /// * `method` - Telegram API method
     /// * `request_timeout` - Request timeout
     /// # Errors
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
     #[instrument(skip(self, method, request_timeout))]
-    pub async fn send<T>(
+    pub async fn send_with_timeout<T, TRef>(
         &self,
-        method: &T,
-        request_timeout: Option<f32>,
+        method: TRef,
+        request_timeout: f32,
     ) -> Result<T::Return, SessionErrorKind>
     where
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync,
+        TRef: AsRef<T>,
     {
         self.client
-            .make_request_and_get_result(self, method, request_timeout)
+            .make_request_and_get_result(self, method.as_ref(), Some(request_timeout))
             .await
     }
 }

@@ -259,3 +259,9 @@ impl TelegramMethod for SendLocation {
         Request::new("sendLocation", self, None)
     }
 }
+
+impl AsRef<SendLocation> for SendLocation {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

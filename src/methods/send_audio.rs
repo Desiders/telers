@@ -338,6 +338,12 @@ impl<'a> TelegramMethod for SendAudio<'a> {
             prepare_file(&mut files, file);
         }
 
-        Request::new("sendAudio", self, Some(files))
+        Request::new("sendAudio", self, Some(files.into()))
+    }
+}
+
+impl<'a> AsRef<SendAudio<'a>> for SendAudio<'a> {
+    fn as_ref(&self) -> &Self {
+        self
     }
 }

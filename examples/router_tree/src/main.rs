@@ -52,23 +52,21 @@ where
 }
 
 async fn start_private(bot: Bot, message: Message) -> HandlerResult {
-    bot.send(
-        &SendMessage::new(
-            message.chat.id,
-            "Hello! I'm echo bot that will repeat all your messages!",
-        ),
-        None,
-    )
+    bot.send(SendMessage::new(
+        message.chat.id,
+        "Hello! I'm echo bot that will repeat all your messages!",
+    ))
     .await?;
 
     Ok(EventReturn::Finish)
 }
 
 async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
-    bot.send(
-        &CopyMessage::new(message.chat.id, message.chat.id, message.message_id),
-        None,
-    )
+    bot.send(CopyMessage::new(
+        message.chat.id,
+        message.chat.id,
+        message.message_id,
+    ))
     .await?;
 
     Ok(EventReturn::Finish)
@@ -84,8 +82,7 @@ async fn stats_echo_router(bot: Bot, message: Message, context: Arc<Context>) ->
             .unwrap()
     );
 
-    bot.send(&SendMessage::new(message.chat.id, text), None)
-        .await?;
+    bot.send(SendMessage::new(message.chat.id, text)).await?;
 
     Ok(EventReturn::Finish)
 }

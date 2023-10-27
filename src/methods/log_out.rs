@@ -27,3 +27,9 @@ impl TelegramMethod for LogOut {
         Request::new("logOut", self, None)
     }
 }
+
+impl AsRef<LogOut> for LogOut {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

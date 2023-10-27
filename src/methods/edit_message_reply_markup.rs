@@ -107,3 +107,9 @@ impl TelegramMethod for EditMessageReplyMarkup {
         Request::new("editMessageReplyMarkup", self, None)
     }
 }
+
+impl AsRef<EditMessageReplyMarkup> for EditMessageReplyMarkup {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

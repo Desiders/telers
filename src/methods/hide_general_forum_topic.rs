@@ -41,3 +41,9 @@ impl TelegramMethod for HideGeneralForumTopic {
         Request::new("hideGeneralForumTopic", self, None)
     }
 }
+
+impl AsRef<HideGeneralForumTopic> for HideGeneralForumTopic {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

@@ -292,3 +292,9 @@ impl TelegramMethod for PromoteChatMember {
         Request::new("promoteChatMember", self, None)
     }
 }
+
+impl AsRef<PromoteChatMember> for PromoteChatMember {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

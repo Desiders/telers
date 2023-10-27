@@ -93,17 +93,14 @@ async fn input_file_handler(bot: Bot, message: Message) -> telegram::HandlerResu
         })?);
 
     let result_message = bot
-        .send(
-            &SendMediaGroup::new(
-                message.chat_id(),
-                [
-                    InputMediaPhoto::new(cat_url_input_file).caption("Cat by URL"),
-                    InputMediaPhoto::new(cat_fs_input_file).caption("Cat by file system"),
-                    InputMediaPhoto::new(cat_buffered_input_file).caption("Cat by bytes"),
-                ],
-            ),
-            None,
-        )
+        .send(SendMediaGroup::new(
+            message.chat_id(),
+            [
+                InputMediaPhoto::new(cat_url_input_file).caption("Cat by URL"),
+                InputMediaPhoto::new(cat_fs_input_file).caption("Cat by file system"),
+                InputMediaPhoto::new(cat_buffered_input_file).caption("Cat by bytes"),
+            ],
+        ))
         .await?;
 
     // Using `InputFile::id` to send file by telegram file ID.
@@ -121,7 +118,6 @@ async fn input_file_handler(bot: Bot, message: Message) -> telegram::HandlerResu
 
     bot.send(
         &SendPhoto::new(message.chat_id(), cat_id_input_file).caption("Cat by telegram file ID"),
-        None,
     )
     .await?;
 

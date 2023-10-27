@@ -77,3 +77,9 @@ impl TelegramMethod for SetChatPermissions {
         Request::new("setChatPermissions", self, None)
     }
 }
+
+impl AsRef<SetChatPermissions> for SetChatPermissions {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

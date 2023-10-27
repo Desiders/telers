@@ -72,3 +72,9 @@ impl TelegramMethod for AnswerPreCheckoutQuery {
         Request::new("answerPreCheckoutQuery", self, None)
     }
 }
+
+impl AsRef<AnswerPreCheckoutQuery> for AnswerPreCheckoutQuery {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

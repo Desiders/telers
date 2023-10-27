@@ -27,3 +27,9 @@ impl TelegramMethod for GetMe {
         Request::new("getMe", self, None)
     }
 }
+
+impl AsRef<GetMe> for GetMe {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

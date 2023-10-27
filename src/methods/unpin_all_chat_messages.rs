@@ -41,3 +41,9 @@ impl TelegramMethod for UnpinAllChatMessages {
         Request::new("unpinAllChatMessages", self, None)
     }
 }
+
+impl AsRef<UnpinAllChatMessages> for UnpinAllChatMessages {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

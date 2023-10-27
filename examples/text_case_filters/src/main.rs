@@ -43,31 +43,22 @@ where {
 }
 
 async fn uppercase_handler(bot: Bot, message: Message) -> HandlerResult {
-    bot.send(
-        &SendMessage::new(message.chat.id, "Uppercase message!"),
-        None,
-    )
-    .await?;
+    bot.send(SendMessage::new(message.chat.id, "Uppercase message!"))
+        .await?;
 
     Ok(EventReturn::Finish)
 }
 
 async fn lowercase_handler(bot: Bot, message: Message) -> HandlerResult {
-    bot.send(
-        &SendMessage::new(message.chat.id, "Lowercase message!"),
-        None,
-    )
-    .await?;
+    bot.send(SendMessage::new(message.chat.id, "Lowercase message!"))
+        .await?;
 
     Ok(EventReturn::Finish)
 }
 
 async fn any_case_handler(bot: Bot, message: Message) -> HandlerResult {
-    bot.send(
-        &SendMessage::new(message.chat.id, "Any case message!"),
-        None,
-    )
-    .await?;
+    bot.send(&SendMessage::new(message.chat.id, "Any case message!"))
+        .await?;
 
     Ok(EventReturn::Finish)
 }

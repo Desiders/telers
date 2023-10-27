@@ -173,6 +173,12 @@ impl<'a> TelegramMethod for SendMediaGroup<'a> {
         let mut files = vec![];
         prepare_input_media_group(&mut files, &self.media);
 
-        Request::new("sendMediaGroup", self, Some(files))
+        Request::new("sendMediaGroup", self, Some(files.into()))
+    }
+}
+
+impl<'a> AsRef<SendMediaGroup<'a>> for SendMediaGroup<'a> {
+    fn as_ref(&self) -> &Self {
+        self
     }
 }

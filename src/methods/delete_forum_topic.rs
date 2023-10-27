@@ -53,3 +53,9 @@ impl TelegramMethod for DeleteForumTopic {
         Request::new("deleteForumTopic", self, None)
     }
 }
+
+impl AsRef<DeleteForumTopic> for DeleteForumTopic {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

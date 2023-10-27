@@ -107,3 +107,9 @@ impl TelegramMethod for RestrictChatMember {
         Request::new("restrictChatMember", self, None)
     }
 }
+
+impl AsRef<RestrictChatMember> for RestrictChatMember {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

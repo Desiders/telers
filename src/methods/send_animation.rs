@@ -373,6 +373,12 @@ impl<'a> TelegramMethod for SendAnimation<'a> {
             prepare_file(&mut files, file);
         }
 
-        Request::new("sendAnimation", self, Some(files))
+        Request::new("sendAnimation", self, Some(files.into()))
+    }
+}
+
+impl<'a> AsRef<SendAnimation<'a>> for SendAnimation<'a> {
+    fn as_ref(&self) -> &Self {
+        self
     }
 }

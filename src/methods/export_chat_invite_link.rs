@@ -43,3 +43,9 @@ impl TelegramMethod for ExportChatInviteLink {
         Request::new("exportChatInviteLink", self, None)
     }
 }
+
+impl AsRef<ExportChatInviteLink> for ExportChatInviteLink {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

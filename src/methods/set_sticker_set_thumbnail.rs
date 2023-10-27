@@ -76,6 +76,12 @@ impl TelegramMethod for SetStickerSetThumbnail<'_> {
             prepare_file(&mut files, thumb);
         }
 
-        Request::new("setStickerSetThumbnail", self, Some(files))
+        Request::new("setStickerSetThumbnail", self, Some(files.into()))
+    }
+}
+
+impl<'a> AsRef<SetStickerSetThumbnail<'a>> for SetStickerSetThumbnail<'a> {
+    fn as_ref(&self) -> &Self {
+        self
     }
 }

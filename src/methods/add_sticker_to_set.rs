@@ -72,6 +72,12 @@ impl<'a> TelegramMethod for AddStickerToSet<'a> {
         let mut files = vec![];
         prepare_input_sticker(&mut files, &self.sticker);
 
-        Request::new("addStickerToSet", self, Some(files))
+        Request::new("addStickerToSet", self, Some(files.into()))
+    }
+}
+
+impl<'a> AsRef<AddStickerToSet<'a>> for AddStickerToSet<'a> {
+    fn as_ref(&self) -> &Self {
+        self
     }
 }

@@ -292,6 +292,12 @@ impl<'a> TelegramMethod for SendDocument<'a> {
             prepare_file(&mut files, file);
         }
 
-        Request::new("sendDocument", self, Some(files))
+        Request::new("sendDocument", self, Some(files.into()))
+    }
+}
+
+impl<'a> AsRef<SendDocument<'a>> for SendDocument<'a> {
+    fn as_ref(&self) -> &Self {
+        self
     }
 }

@@ -53,3 +53,9 @@ impl TelegramMethod for SetStickerSetTitle {
         Request::new("setStickerSetTitle", self, None)
     }
 }
+
+impl AsRef<SetStickerSetTitle> for SetStickerSetTitle {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

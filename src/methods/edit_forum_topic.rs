@@ -85,3 +85,9 @@ impl TelegramMethod for EditForumTopic {
         Request::new("editForumTopic", self, None)
     }
 }
+
+impl AsRef<EditForumTopic> for EditForumTopic {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

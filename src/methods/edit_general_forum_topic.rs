@@ -53,3 +53,9 @@ impl TelegramMethod for EditGeneralForumTopic {
         Request::new("editGeneralForumTopic", self, None)
     }
 }
+
+impl AsRef<EditGeneralForumTopic> for EditGeneralForumTopic {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

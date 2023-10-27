@@ -63,3 +63,9 @@ impl TelegramMethod for SetCustomEmojiStickerSetThumbnail {
         Request::new("setCustomEmojiStickerSetThumbnail", self, None)
     }
 }
+
+impl AsRef<SetCustomEmojiStickerSetThumbnail> for SetCustomEmojiStickerSetThumbnail {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

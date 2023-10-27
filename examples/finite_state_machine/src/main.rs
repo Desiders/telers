@@ -74,10 +74,10 @@ async fn start_handler<S: Storage>(
     message: Message,
     fsm: FSMContext<S>,
 ) -> HandlerResult {
-    bot.send(
-        &SendMessage::new(message.chat.id, "Hello! What's your name?"),
-        None,
-    )
+    bot.send(SendMessage::new(
+        message.chat.id,
+        "Hello! What's your name?",
+    ))
     .await?;
 
     // We set state to `State::Name` to point that we are waiting for user's name.
@@ -103,13 +103,10 @@ async fn name_handler<S: Storage>(bot: Bot, message: Message, fsm: FSMContext<S>
     // because we want to be sure that we will receive message from user in the same state
     // (user can send message to bot before we set state and data to FSM storage, but it's rare case)
 
-    bot.send(
-        &SendMessage::new(
-            message.chat.id,
-            format!("Nice to meet you, {name}! What's your native language?"),
-        ),
-        None,
-    )
+    bot.send(&SendMessage::new(
+        message.chat.id,
+        format!("Nice to meet you, {name}! What's your native language?"),
+    ))
     .await?;
 
     Ok(EventReturn::Finish)
@@ -134,23 +131,20 @@ async fn language_handler<S: Storage>(
     // Check if user's language is acceptable
     match language.to_lowercase().as_str() {
         "english" | "en" => {
-            bot.send(
-                &SendMessage::new(message.chat.id, format!("{name}, let's talk!")),
-                None,
-            )
+            bot.send(&SendMessage::new(
+                message.chat.id,
+                format!("{name}, let's talk!"),
+            ))
             .await?;
 
             // Remove state and data from FSM storage, because we don't need them anymore
             fsm.finish().await.map_err(Into::into)?;
         }
         _ => {
-            bot.send(
-                &SendMessage::new(
-                    message.chat.id,
-                    format!("{name}, I don't speak your language. Please, choose another :(",),
-                ),
-                None,
-            )
+            bot.send(&SendMessage::new(
+                message.chat.id,
+                format!("{name}, I don't speak your language. Please, choose another :(",),
+            ))
             .await?;
 
             // We don't need this, because `State::Language` is already set and doesn't change automatically

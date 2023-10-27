@@ -78,3 +78,9 @@ impl TelegramMethod for SendChatAction {
         Request::new("sendChatAction", self, None)
     }
 }
+
+impl AsRef<SendChatAction> for SendChatAction {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

@@ -120,3 +120,9 @@ impl TelegramMethod for GetUpdates {
         Request::new("getUpdates", self, None)
     }
 }
+
+impl AsRef<GetUpdates> for GetUpdates {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

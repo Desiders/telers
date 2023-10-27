@@ -108,3 +108,9 @@ impl TelegramMethod for StopMessageLiveLocation {
         Request::new("stopMessageLiveLocation", self, None)
     }
 }
+
+impl AsRef<StopMessageLiveLocation> for StopMessageLiveLocation {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

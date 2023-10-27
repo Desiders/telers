@@ -74,3 +74,9 @@ impl TelegramMethod for PinChatMessage {
         Request::new("pinChatMessage", self, None)
     }
 }
+
+impl AsRef<PinChatMessage> for PinChatMessage {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

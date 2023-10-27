@@ -53,3 +53,9 @@ impl TelegramMethod for SetChatPhoto {
         Request::new("setChatPhoto", self, None)
     }
 }
+
+impl AsRef<SetChatPhoto<'_>> for SetChatPhoto<'_> {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

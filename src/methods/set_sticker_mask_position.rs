@@ -53,3 +53,9 @@ impl TelegramMethod for SetStickerMaskPosition {
         Request::new("setStickerMaskPosition", self, None)
     }
 }
+
+impl AsRef<SetStickerMaskPosition> for SetStickerMaskPosition {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

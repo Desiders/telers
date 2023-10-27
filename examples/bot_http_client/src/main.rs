@@ -74,10 +74,11 @@ impl Session for CustomClient {
 }
 
 async fn echo_handler(bot: Bot<impl Session>, message: Message) -> HandlerResult {
-    bot.send(
-        &CopyMessage::new(message.chat.id, message.chat.id, message.message_id),
-        None,
-    )
+    bot.send(CopyMessage::new(
+        message.chat.id,
+        message.chat.id,
+        message.message_id,
+    ))
     .await?;
 
     Ok(EventReturn::Finish)

@@ -130,3 +130,9 @@ impl TelegramMethod for ForwardMessage {
         Request::new("forwardMessage", self, None)
     }
 }
+
+impl AsRef<ForwardMessage> for ForwardMessage {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

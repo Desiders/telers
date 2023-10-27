@@ -48,3 +48,9 @@ impl TelegramMethod for GetMyName {
         Request::new("getMyName", self, None)
     }
 }
+
+impl AsRef<GetMyName> for GetMyName {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

@@ -69,3 +69,9 @@ impl TelegramMethod for SetStickerKeywords {
         Request::new("setStickerKeywords", self, None)
     }
 }
+
+impl AsRef<SetStickerKeywords> for SetStickerKeywords {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

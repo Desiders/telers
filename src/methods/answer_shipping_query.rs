@@ -119,3 +119,9 @@ impl TelegramMethod for AnswerShippingQuery {
         Request::new("answerShippingQuery", self, None)
     }
 }
+
+impl AsRef<AnswerShippingQuery> for AnswerShippingQuery {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

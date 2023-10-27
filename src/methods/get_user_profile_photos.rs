@@ -79,3 +79,9 @@ impl TelegramMethod for GetUserProfilePhotos {
         Request::new("getUserProfilePhotos", self, None)
     }
 }
+
+impl AsRef<GetUserProfilePhotos> for GetUserProfilePhotos {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

@@ -73,3 +73,9 @@ impl TelegramMethod for SetStickerEmojiList {
         Request::new("setStickerEmojiList", self, None)
     }
 }
+
+impl AsRef<SetStickerEmojiList> for SetStickerEmojiList {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

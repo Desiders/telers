@@ -37,3 +37,9 @@ impl TelegramMethod for GetStickerSet {
         Request::new("getStickerSet", self, None)
     }
 }
+
+impl AsRef<GetStickerSet> for GetStickerSet {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

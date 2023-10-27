@@ -62,3 +62,9 @@ impl TelegramMethod for DeleteMessage {
         Request::new("deleteMessage", self, None)
     }
 }
+
+impl AsRef<DeleteMessage> for DeleteMessage {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

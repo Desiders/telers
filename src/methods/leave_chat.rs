@@ -41,3 +41,9 @@ impl TelegramMethod for LeaveChat {
         Request::new("leaveChat", self, None)
     }
 }
+
+impl AsRef<LeaveChat> for LeaveChat {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

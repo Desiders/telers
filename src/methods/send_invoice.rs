@@ -532,3 +532,9 @@ impl TelegramMethod for SendInvoice {
         Request::new("sendInvoice", self, None)
     }
 }
+
+impl AsRef<SendInvoice> for SendInvoice {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

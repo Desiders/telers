@@ -172,3 +172,9 @@ impl TelegramMethod for SendGame {
         Request::new("sendGame", self, None)
     }
 }
+
+impl AsRef<SendGame> for SendGame {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

@@ -425,3 +425,9 @@ impl TelegramMethod for CreateInvoiceLink {
         Request::new("createInvoiceLink", self, None)
     }
 }
+
+impl AsRef<CreateInvoiceLink> for CreateInvoiceLink {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

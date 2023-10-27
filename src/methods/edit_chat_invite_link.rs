@@ -134,3 +134,9 @@ impl TelegramMethod for EditChatInviteLink {
         Request::new("editChatInviteLink", self, None)
     }
 }
+
+impl AsRef<EditChatInviteLink> for EditChatInviteLink {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}

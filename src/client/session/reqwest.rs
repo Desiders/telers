@@ -47,7 +47,7 @@ impl Reqwest {
     async fn build_form_data<'a, Data: ?Sized>(
         &self,
         data: &Data,
-        files: Option<&[&'a InputFile<'a>]>,
+        files: Option<&[&InputFile<'a>]>,
     ) -> Result<Form, SerializerError>
     where
         Data: Serialize,
