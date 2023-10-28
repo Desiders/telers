@@ -4,10 +4,13 @@ use serde::{Serialize, Serializer};
 use std::{
     borrow::Cow,
     ffi::OsStr,
+    fmt::{self, Debug, Formatter},
+    hash::{Hash, Hasher},
     io,
     path::{Path, PathBuf},
 };
 use tokio_util::codec::{BytesCodec, FramedRead};
+use triomphe::Arc as TriompheArc;
 use uuid::Uuid;
 
 const ATTACH_PREFIX: &str = "attach://";
@@ -18,7 +21,7 @@ pub const DEFAULT_CAPACITY: usize = 64 * 1024; // 64 KiB
 /// Must be posted using `multipart/form-data` in the usual way that files are uploaded via the browser.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputfile>
-#[derive(Debug, Clone, Eq, Hash, PartialEq)]
+#[derive(Debug, Clone, Hash, PartialEq)]
 pub struct InputFile<'a>(FileKind<'a>);
 
 impl<'a> InputFile<'a> {
@@ -57,6 +60,23 @@ impl<'a> InputFile<'a> {
     pub fn buffered_with_name(bytes: impl Into<Bytes>, name: impl Into<Cow<'a, str>>) -> Self {
         Self(FileKind::Buffered(BufferedFile::new_with_name(bytes, name)))
     }
+
+    /// Creates a new [`InputFile`] with [`FileKind::Stream`]
+    #[must_use]
+    pub fn stream(
+        stream: impl Stream<Item = Result<Bytes, io::Error>> + Unpin + Send + Sync + 'static,
+    ) -> Self {
+        Self(FileKind::Stream(StreamFile::new(stream)))
+    }
+
+    /// Creates a new [`InputFile`] with [`FileKind::Stream`] and specified filename
+    #[must_use]
+    pub fn stream_with_name(
+        stream: impl Stream<Item = Result<Bytes, io::Error>> + Unpin + Send + Sync + 'static,
+        name: impl Into<Cow<'a, str>>,
+    ) -> Self {
+        Self(FileKind::Stream(StreamFile::new_with_name(stream, name)))
+    }
 }
 
 impl<'a> InputFile<'a> {
@@ -75,6 +95,7 @@ impl<'a> InputFile<'a> {
             FileKind::Url(file) => file.str_to_file(),
             FileKind::FS(file) => file.str_to_file(),
             FileKind::Buffered(file) => file.str_to_file(),
+            FileKind::Stream(file) => file.str_to_file(),
         }
     }
 
@@ -90,6 +111,7 @@ impl<'a> InputFile<'a> {
             FileKind::Url(file) => file.is_require_multipart(),
             FileKind::FS(file) => file.is_require_multipart(),
             FileKind::Buffered(file) => file.is_require_multipart(),
+            FileKind::Stream(file) => file.is_require_multipart(),
         }
     }
 
@@ -132,15 +154,22 @@ impl<'a> From<BufferedFile<'a>> for InputFile<'a> {
     }
 }
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+impl<'a> From<StreamFile<'a>> for InputFile<'a> {
+    fn from(stream_file: StreamFile<'a>) -> Self {
+        Self(FileKind::Stream(stream_file))
+    }
+}
+
+#[derive(Debug, Clone, Hash, PartialEq)]
 pub enum FileKind<'a> {
     Id(FileId<'a>),
     Url(UrlFile<'a>),
     FS(FSFile<'a>),
     Buffered(BufferedFile<'a>),
+    Stream(StreamFile<'a>),
 }
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct FileId<'a> {
     id: Cow<'a, str>,
 }
@@ -163,7 +192,7 @@ impl<'a> FileId<'a> {
     }
 }
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct UrlFile<'a> {
     url: Cow<'a, str>,
 }
@@ -186,7 +215,7 @@ impl<'a> UrlFile<'a> {
     }
 }
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FSFile<'a> {
     id: Uuid,
     file_name: Option<Cow<'a, str>>,
@@ -284,7 +313,13 @@ impl<'a> FSFile<'a> {
     }
 }
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+impl Hash for FSFile<'_> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BufferedFile<'a> {
     id: Uuid,
     bytes: Bytes,
@@ -344,6 +379,110 @@ impl<'a> BufferedFile<'a> {
     #[must_use]
     pub fn bytes(&self) -> &Bytes {
         &self.bytes
+    }
+
+    /// Gets string to file as path in format `attach://{id}`
+    #[must_use]
+    pub fn str_to_file(&self) -> &str {
+        &self.str_to_file
+    }
+}
+
+impl Hash for BufferedFile<'_> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
+    }
+}
+
+/// # Warning
+/// We use [`TriompheArc`] because to share [`Stream`] between threads without copying it
+#[derive(Clone)]
+pub struct StreamFile<'a> {
+    id: Uuid,
+    file_name: Option<Cow<'a, str>>,
+    stream: TriompheArc<Box<dyn Stream<Item = Result<Bytes, io::Error>> + Send + Sync + Unpin>>,
+    str_to_file: Box<str>,
+}
+
+impl Debug for StreamFile<'_> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("StreamFile")
+            .field("id", &self.id)
+            .field("file_name", &self.file_name)
+            .field("stream", &"...")
+            .field("str_to_file", &self.str_to_file)
+            .finish()
+    }
+}
+
+impl PartialEq for StreamFile<'_> {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
+impl Hash for StreamFile<'_> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
+    }
+}
+
+impl<'a> StreamFile<'a> {
+    #[must_use]
+    pub fn new(
+        stream: impl Stream<Item = Result<Bytes, io::Error>> + Send + Sync + Unpin + 'static,
+    ) -> Self {
+        let id = Uuid::new_v4();
+
+        let str_to_file = format!("{ATTACH_PREFIX}{id}");
+
+        Self {
+            id,
+            file_name: None,
+            stream: TriompheArc::new(Box::new(stream)),
+            str_to_file: str_to_file.into(),
+        }
+    }
+
+    /// Creates a new [`FSFile`] with specified filename
+    #[must_use]
+    pub fn new_with_name(
+        stream: impl Stream<Item = Result<Bytes, io::Error>> + Send + Sync + Unpin + 'static,
+        name: impl Into<Cow<'a, str>>,
+    ) -> Self {
+        let id = Uuid::new_v4();
+        let str_to_file = format!("{ATTACH_PREFIX}{id}");
+
+        Self {
+            id,
+            file_name: Some(name.into()),
+            stream: TriompheArc::new(Box::new(stream)),
+            str_to_file: str_to_file.into(),
+        }
+    }
+
+    #[must_use]
+    pub const fn is_require_multipart(&self) -> bool {
+        true
+    }
+
+    #[must_use]
+    pub const fn id(&self) -> &Uuid {
+        &self.id
+    }
+
+    /// Gets passed filename
+    #[must_use]
+    pub fn file_name(&self) -> Option<&str> {
+        self.file_name.as_deref()
+    }
+
+    /// Gets stream
+    #[must_use]
+    pub fn stream(
+        &self,
+    ) -> TriompheArc<Box<dyn Stream<Item = Result<Bytes, io::Error>> + Send + Sync + Unpin>> {
+        self.stream.clone()
     }
 
     /// Gets string to file as path in format `attach://{id}`

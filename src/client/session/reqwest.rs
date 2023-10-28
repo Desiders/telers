@@ -19,6 +19,7 @@ use reqwest::{
 use serde::Serialize;
 use std::{borrow::Cow, time::Duration};
 use tracing::{event, field, instrument, Level, Span};
+use triomphe::Arc as TriompheArc;
 
 #[derive(Debug, Clone)]
 pub struct Reqwest {
@@ -83,6 +84,25 @@ impl Reqwest {
                         Part::bytes(bytes.to_vec()).file_name(file_name.to_string())
                     } else {
                         Part::bytes(bytes.to_vec()).file_name(id.clone())
+                    };
+
+                    form = form.part(id, part);
+                }
+                InputFileKind::Stream(file) => {
+                    let id = file.id().to_string();
+                    let file_name = file.file_name();
+                    let stream = match TriompheArc::try_unwrap(file.stream()) {
+                        Ok(stream) => stream,
+                        Err(_) => {
+                            panic!("Cannot unwrap a stream. `InputFile::stream` shouldn't have more than one strong reference");
+                        }
+                    };
+
+                    let body = Body::wrap_stream(stream);
+                    let part = if let Some(file_name) = file_name {
+                        Part::stream(body).file_name(file_name.to_owned())
+                    } else {
+                        Part::stream(body).file_name(id.clone())
                     };
 
                     form = form.part(id, part);
