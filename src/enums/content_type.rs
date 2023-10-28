@@ -1,6 +1,9 @@
 use crate::types::Message;
 
-use std::fmt::{self, Debug, Display};
+use std::{
+    fmt::{self, Debug, Display},
+    ops::Deref,
+};
 
 /// This enum represents all possible types of the content of the message
 /// # Documentation
@@ -170,9 +173,23 @@ impl ContentType {
     }
 }
 
+impl Deref for ContentType {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.as_str()
+    }
+}
+
 impl Display for ContentType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
+    }
+}
+
+impl From<ContentType> for Box<str> {
+    fn from(content_type: ContentType) -> Self {
+        content_type.into()
     }
 }
 
@@ -184,7 +201,7 @@ impl From<ContentType> for String {
 
 impl<'a> PartialEq<&'a str> for ContentType {
     fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+        self == other
     }
 }
 

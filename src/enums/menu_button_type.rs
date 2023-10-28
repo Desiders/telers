@@ -1,4 +1,7 @@
-use std::fmt::{self, Debug, Display};
+use std::{
+    fmt::{self, Debug, Display},
+    ops::Deref,
+};
 
 /// This enum represents all possible types of the menu button
 /// # Documentation
@@ -30,9 +33,23 @@ impl MenuButtonType {
     }
 }
 
+impl Deref for MenuButtonType {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.as_str()
+    }
+}
+
 impl Display for MenuButtonType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
+    }
+}
+
+impl From<MenuButtonType> for Box<str> {
+    fn from(button_type: MenuButtonType) -> Self {
+        button_type.into()
     }
 }
 
@@ -44,6 +61,6 @@ impl From<MenuButtonType> for String {
 
 impl<'a> PartialEq<&'a str> for MenuButtonType {
     fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+        self == other
     }
 }

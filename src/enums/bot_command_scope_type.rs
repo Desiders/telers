@@ -1,4 +1,7 @@
-use std::fmt::{self, Debug, Display};
+use std::{
+    fmt::{self, Debug, Display},
+    ops::Deref,
+};
 
 /// This enum represents all possible types of the bot command scope
 /// # Documentation
@@ -42,9 +45,23 @@ impl BotCommandScopeType {
     }
 }
 
+impl Deref for BotCommandScopeType {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.as_str()
+    }
+}
+
 impl Display for BotCommandScopeType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
+    }
+}
+
+impl From<BotCommandScopeType> for Box<str> {
+    fn from(scope: BotCommandScopeType) -> Self {
+        scope.into()
     }
 }
 
@@ -56,6 +73,6 @@ impl From<BotCommandScopeType> for String {
 
 impl<'a> PartialEq<&'a str> for BotCommandScopeType {
     fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+        self == other
     }
 }

@@ -1,4 +1,7 @@
-use std::fmt::{self, Debug, Display};
+use std::{
+    fmt::{self, Debug, Display},
+    ops::Deref,
+};
 
 /// This enum represents all possible types of the inline query result
 /// # Documentation
@@ -63,9 +66,23 @@ impl InlineQueryResultType {
     }
 }
 
+impl Deref for InlineQueryResultType {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.as_str()
+    }
+}
+
 impl Display for InlineQueryResultType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
+    }
+}
+
+impl From<InlineQueryResultType> for Box<str> {
+    fn from(inline_query_result_type: InlineQueryResultType) -> Self {
+        inline_query_result_type.into()
     }
 }
 
@@ -77,6 +94,6 @@ impl From<InlineQueryResultType> for String {
 
 impl<'a> PartialEq<&'a str> for InlineQueryResultType {
     fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+        self == other
     }
 }

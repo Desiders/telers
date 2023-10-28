@@ -1,4 +1,7 @@
-use std::fmt::{self, Debug, Display};
+use std::{
+    fmt::{self, Debug, Display},
+    ops::Deref,
+};
 
 /// This enum represents all possible types of the chat member status
 /// # Documentation
@@ -39,9 +42,23 @@ impl ChatMemberStatus {
     }
 }
 
+impl Deref for ChatMemberStatus {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.as_str()
+    }
+}
+
 impl Display for ChatMemberStatus {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
+    }
+}
+
+impl From<ChatMemberStatus> for Box<str> {
+    fn from(status: ChatMemberStatus) -> Self {
+        status.into()
     }
 }
 
@@ -53,6 +70,6 @@ impl From<ChatMemberStatus> for String {
 
 impl<'a> PartialEq<&'a str> for ChatMemberStatus {
     fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+        self == other
     }
 }

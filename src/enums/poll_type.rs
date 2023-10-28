@@ -1,4 +1,7 @@
-use std::fmt::{self, Debug, Display};
+use std::{
+    fmt::{self, Debug, Display},
+    ops::Deref,
+};
 
 /// This enum represents all possible types of the poll
 /// # Documentation
@@ -24,9 +27,23 @@ impl PollType {
     }
 }
 
+impl Deref for PollType {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.as_str()
+    }
+}
+
 impl Display for PollType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
+    }
+}
+
+impl From<PollType> for Box<str> {
+    fn from(action: PollType) -> Self {
+        action.into()
     }
 }
 
@@ -38,6 +55,6 @@ impl From<PollType> for String {
 
 impl<'a> PartialEq<&'a str> for PollType {
     fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+        self == other
     }
 }

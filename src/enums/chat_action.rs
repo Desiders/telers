@@ -1,4 +1,7 @@
-use std::fmt::{self, Debug, Display};
+use std::{
+    fmt::{self, Debug, Display},
+    ops::Deref,
+};
 
 /// This enum represents all possible types of the chat action
 /// # Documentation
@@ -51,6 +54,14 @@ impl ChatAction {
     }
 }
 
+impl Deref for ChatAction {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.as_str()
+    }
+}
+
 impl Display for ChatAction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
@@ -65,6 +76,6 @@ impl From<ChatAction> for String {
 
 impl<'a> PartialEq<&'a str> for ChatAction {
     fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+        self == other
     }
 }

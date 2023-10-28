@@ -1,4 +1,7 @@
-use std::fmt::{self, Debug, Display};
+use std::{
+    fmt::{self, Debug, Display},
+    ops::Deref,
+};
 
 /// This enum represents all possible types of the parse mode
 /// # Documentation
@@ -26,9 +29,23 @@ impl ParseMode {
     }
 }
 
+impl Deref for ParseMode {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.as_str()
+    }
+}
+
 impl Display for ParseMode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
+    }
+}
+
+impl From<ParseMode> for Box<str> {
+    fn from(parse_mode: ParseMode) -> Self {
+        parse_mode.into()
     }
 }
 

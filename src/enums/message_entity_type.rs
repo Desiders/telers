@@ -1,4 +1,7 @@
-use std::fmt::{self, Debug, Display};
+use std::{
+    fmt::{self, Debug, Display},
+    ops::Deref,
+};
 
 /// This enum represents all possible types of the message entity
 /// # Documentation
@@ -69,9 +72,23 @@ impl MessageEntityType {
     }
 }
 
+impl Deref for MessageEntityType {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.as_str()
+    }
+}
+
 impl Display for MessageEntityType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
+    }
+}
+
+impl From<MessageEntityType> for Box<str> {
+    fn from(entity_type: MessageEntityType) -> Self {
+        entity_type.into()
     }
 }
 
@@ -83,6 +100,6 @@ impl From<MessageEntityType> for String {
 
 impl<'a> PartialEq<&'a str> for MessageEntityType {
     fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+        self == other
     }
 }

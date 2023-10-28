@@ -1,6 +1,6 @@
 use std::{
     fmt::{self, Debug, Display},
-    ops::{Range, RangeInclusive},
+    ops::{Deref, Range, RangeInclusive},
 };
 
 /// This enum represents all possible types of the dice emoji
@@ -50,9 +50,23 @@ impl From<DiceEmoji> for Range<i64> {
     }
 }
 
+impl Deref for DiceEmoji {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.as_str()
+    }
+}
+
 impl Display for DiceEmoji {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
+    }
+}
+
+impl From<DiceEmoji> for Box<str> {
+    fn from(val: DiceEmoji) -> Self {
+        val.into()
     }
 }
 
@@ -64,6 +78,6 @@ impl From<DiceEmoji> for String {
 
 impl<'a> PartialEq<&'a str> for DiceEmoji {
     fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+        self == other
     }
 }

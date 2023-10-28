@@ -1,4 +1,7 @@
-use std::fmt::{self, Debug, Display};
+use std::{
+    fmt::{self, Debug, Display},
+    ops::Deref,
+};
 
 /// Enums, which are used to identify default [telegram observers](`crate::event::telegram::Observer`)
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
@@ -64,9 +67,23 @@ impl Telegram {
     }
 }
 
+impl Deref for Telegram {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.as_str()
+    }
+}
+
 impl Display for Telegram {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
+    }
+}
+
+impl From<Telegram> for Box<str> {
+    fn from(scope: Telegram) -> Self {
+        scope.into()
     }
 }
 
@@ -78,7 +95,7 @@ impl From<Telegram> for String {
 
 impl<'a> PartialEq<&'a str> for Telegram {
     fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+        self == other
     }
 }
 
@@ -104,9 +121,23 @@ impl Simple {
     }
 }
 
+impl Deref for Simple {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.as_str()
+    }
+}
+
 impl Display for Simple {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
+    }
+}
+
+impl From<Simple> for Box<str> {
+    fn from(scope: Simple) -> Self {
+        scope.into()
     }
 }
 
@@ -118,6 +149,6 @@ impl From<Simple> for String {
 
 impl<'a> PartialEq<&'a str> for Simple {
     fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+        self == other
     }
 }

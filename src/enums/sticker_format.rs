@@ -1,4 +1,7 @@
-use std::fmt::{self, Debug, Display};
+use std::{
+    fmt::{self, Debug, Display},
+    ops::Deref,
+};
 
 /// This enum represents all possible types of the sticker
 /// # Documentation
@@ -30,9 +33,23 @@ impl StickerFormat {
     }
 }
 
+impl Deref for StickerFormat {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.as_str()
+    }
+}
+
 impl Display for StickerFormat {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
+    }
+}
+
+impl From<StickerFormat> for Box<str> {
+    fn from(format: StickerFormat) -> Self {
+        format.into()
     }
 }
 
@@ -44,6 +61,6 @@ impl From<StickerFormat> for String {
 
 impl<'a> PartialEq<&'a str> for StickerFormat {
     fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+        self == other
     }
 }

@@ -1,6 +1,9 @@
 use crate::{errors::UnknownUpdateTypeError, types::Update};
 
-use std::fmt::{self, Debug, Display};
+use std::{
+    fmt::{self, Debug, Display},
+    ops::Deref,
+};
 
 /// This enum represents all possible types of the update
 /// # Documentation
@@ -65,6 +68,14 @@ impl UpdateType {
     }
 }
 
+impl Deref for UpdateType {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.as_str()
+    }
+}
+
 impl Display for UpdateType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
@@ -85,7 +96,7 @@ impl From<UpdateType> for String {
 
 impl<'a> PartialEq<&'a str> for UpdateType {
     fn eq(&self, other: &&'a str) -> bool {
-        self.as_str() == *other
+        self == other
     }
 }
 
