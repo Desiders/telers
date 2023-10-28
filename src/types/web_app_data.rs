@@ -6,7 +6,7 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct WebAppData {
     /// The data. Be aware that a bad client can send arbitrary data in this field.
-    pub data: String,
+    pub data: Box<str>,
     /// Text of the `web_app` keyboard button from which the Web App was opened. Be aware that a bad client can send arbitrary data in this field.
-    pub button_text: String,
+    pub button_text: Box<str>,
 }

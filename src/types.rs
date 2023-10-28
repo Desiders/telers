@@ -3,10 +3,10 @@
 //!
 //! Telegram types are represented as Rust structs, if a field:
 //! - is optional, it will be wrapped in [`Option`],
-//! - is an array, it will be wrapped in [`Vec`],
+//! - is an array, it will be wrapped in [`Vec`] or slice wrapped in [`Box`],
 //! - is a recursive type, it will be wrapped in [`Box`].
 //! - is a tagged union, it will be wrapped in `enum` with variants named as in the documentation,
-//! - is a string, it will be represented as [`String`],
+//! - is a string, it will be represented as [`String`] or [`str`] wrapped in [`Box`],
 //! - is a number, it will be represented as [`i64`].
 //! - is a boolean, it will be represented as [`bool`],
 //! - is a file, it will be represented as [`InputFile`],

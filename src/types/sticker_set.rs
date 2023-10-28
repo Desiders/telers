@@ -8,11 +8,11 @@ use serde::Deserialize;
 #[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct StickerSet {
     /// Sticker set name
-    pub name: String,
+    pub name: Box<str>,
     /// Sticker set title
-    pub title: String,
+    pub title: Box<str>,
     /// Type of stickers in the set, currently one of 'regular', 'mask', 'custom_emoji'
-    pub sticker_type: String,
+    pub sticker_type: Box<str>,
     /// `True`, if the sticker set contains [`animated stickers`](https://telegram.org/blog/animated-stickers)
     pub is_animated: bool,
     /// `True`, if the sticker set contains [`video stickers`](https://telegram.org/blog/video-stickers-better-reactions)

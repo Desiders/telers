@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 pub struct KeyboardButtonPollType {
     /// If *quiz* is passed, the user will be allowed to create only polls in the quiz mode. If *regular* is passed, only regular polls will be allowed. Otherwise, the user will be allowed to create a poll of any type.
     #[serde(rename = "type")]
-    pub keyboard_type: Option<String>,
+    pub keyboard_type: Option<Box<str>>,
 }
 
 impl KeyboardButtonPollType {
@@ -19,7 +19,7 @@ impl KeyboardButtonPollType {
     }
 
     #[must_use]
-    pub fn keyboard_type(self, val: impl Into<String>) -> Self {
+    pub fn keyboard_type(self, val: impl Into<Box<str>>) -> Self {
         Self {
             keyboard_type: Some(val.into()),
         }

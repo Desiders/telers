@@ -6,7 +6,7 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct Dice {
     /// Emoji on which the dice throw animation is based
-    pub emoji: String,
+    pub emoji: Box<str>,
     /// Value of the dice, 1-6 for '🎲', '🎯' and '🎳' base emoji, 1-5 for '🏀' and '⚽' base emoji, 1-64 for '🎰' base emoji
     pub value: i64,
 }

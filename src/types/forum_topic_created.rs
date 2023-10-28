@@ -6,9 +6,9 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct ForumTopicCreated {
     /// Name of the topic
-    pub name: String,
+    pub name: Box<str>,
     /// Color of the topic icon in RGB format
     pub icon_color: i64,
     /// Unique identifier of the custom emoji shown as the topic icon
-    pub icon_custom_emoji_id: String,
+    pub icon_custom_emoji_id: Box<str>,
 }

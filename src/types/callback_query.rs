@@ -13,19 +13,19 @@ use serde::Deserialize;
 #[derive(Default, Clone, Debug, PartialEq, Deserialize)]
 pub struct CallbackQuery {
     /// Unique identifier for this query
-    pub id: String,
+    pub id: Box<str>,
     /// Sender
     pub from: User,
     /// Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent. Useful for high scores in [`games`](https://core.telegram.org/bots/api#games).
-    pub chat_instance: String,
+    pub chat_instance: Box<str>,
     /// Message with the callback button that originated the query. Note that message content and message date will not be available if the message is too old
     pub message: Option<Message>,
     /// Identifier of the message sent via the bot in inline mode, that originated the query.
-    pub inline_message_id: Option<String>,
+    pub inline_message_id: Option<Box<str>>,
     /// Data associated with the callback button. Be aware that the message originated the query can contain no callback buttons with this data.
-    pub data: Option<String>,
+    pub data: Option<Box<str>>,
     /// Short name of a [`Game`](https://core.telegram.org/bots/api#games) to be returned, serves as the unique identifier for the game
-    pub game_short_name: Option<String>,
+    pub game_short_name: Option<Box<str>>,
 }
 
 impl CallbackQuery {

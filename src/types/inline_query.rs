@@ -10,15 +10,15 @@ use serde::Deserialize;
 #[derive(Default, Clone, Debug, PartialEq, Deserialize)]
 pub struct InlineQuery {
     /// Unique identifier for this query
-    pub id: String,
+    pub id: Box<str>,
     /// Sender
     pub from: User,
     /// Text of the query (up to 256 characters)
-    pub query: String,
+    pub query: Box<str>,
     /// Offset of the results to be returned, can be controlled by the bot
-    pub offset: String,
+    pub offset: Box<str>,
     /// Type of the chat from which the inline query was sent. Can be either 'sender' for a private chat with the inline query sender, 'private', 'group', 'supergroup', or 'channel'. The chat type should be always known for requests sent from official clients and most third-party clients, unless the request was sent from a secret chat
-    pub chat_type: Option<String>,
+    pub chat_type: Option<Box<str>>,
     /// Sender location, only for bots that request user location
     pub location: Option<Location>,
 }

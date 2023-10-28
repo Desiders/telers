@@ -10,5 +10,5 @@ pub struct ChatLocation {
     /// The location to which the supergroup is connected. Can't be a live location.
     pub location: Location,
     /// Location address; 1-64 characters, as defined by the chat owner
-    pub address: String,
+    pub address: Box<str>,
 }

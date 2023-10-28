@@ -8,5 +8,5 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct VideoChatParticipantsInvited {
     /// New members that were invited to the video chat
-    pub users: Vec<User>,
+    pub users: Box<[User]>,
 }

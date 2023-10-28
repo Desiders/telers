@@ -191,7 +191,7 @@ pub struct FSFile<'a> {
     id: Uuid,
     file_name: Option<Cow<'a, str>>,
     path: PathBuf,
-    str_to_file: String,
+    str_to_file: Box<str>,
 }
 
 impl<'a> FSFile<'a> {
@@ -205,7 +205,7 @@ impl<'a> FSFile<'a> {
             id,
             file_name: None,
             path: path.into(),
-            str_to_file,
+            str_to_file: str_to_file.into(),
         }
     }
 
@@ -219,7 +219,7 @@ impl<'a> FSFile<'a> {
             id,
             file_name: Some(name.into()),
             path: path.into(),
-            str_to_file,
+            str_to_file: str_to_file.into(),
         }
     }
 
@@ -289,7 +289,7 @@ pub struct BufferedFile<'a> {
     id: Uuid,
     bytes: Bytes,
     file_name: Option<Cow<'a, str>>,
-    str_to_file: String,
+    str_to_file: Box<str>,
 }
 
 impl<'a> BufferedFile<'a> {
@@ -304,7 +304,7 @@ impl<'a> BufferedFile<'a> {
             id,
             bytes,
             file_name: None,
-            str_to_file,
+            str_to_file: str_to_file.into(),
         }
     }
 
@@ -320,7 +320,7 @@ impl<'a> BufferedFile<'a> {
             id,
             bytes,
             file_name: Some(name.into()),
-            str_to_file,
+            str_to_file: str_to_file.into(),
         }
     }
 

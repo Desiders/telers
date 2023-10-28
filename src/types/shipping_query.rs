@@ -10,11 +10,11 @@ use serde::Deserialize;
 #[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct ShippingQuery {
     /// Unique query identifier
-    pub id: String,
+    pub id: Box<str>,
     /// User who sent the query
     pub from: User,
     /// Bot specified invoice payload
-    pub invoice_payload: String,
+    pub invoice_payload: Box<str>,
     /// User specified shipping address
     pub shipping_address: ShippingAddress,
 }

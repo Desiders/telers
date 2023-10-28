@@ -38,9 +38,9 @@ pub struct Message {
     /// For messages forwarded from channels, identifier of the original message in the channel
     pub forward_from_message_id: Option<i64>,
     /// For forwarded messages that were originally sent in channels or by an anonymous chat administrator, signature of the message sender if present
-    pub forward_signature: Option<String>,
+    pub forward_signature: Option<Box<str>>,
     /// Sender's name for messages forwarded from users who disallow adding a link to their account in forwarded messages
-    pub forward_sender_name: Option<String>,
+    pub forward_sender_name: Option<Box<str>>,
     /// For forwarded messages, date the original message was sent in Unix time
     pub forward_date: Option<i64>,
     /// `True`, if the message is sent to a forum topic
@@ -56,11 +56,11 @@ pub struct Message {
     /// `True`, if the message can't be forwarded
     pub has_protected_content: Option<bool>,
     /// The unique identifier of a media message group this message belongs to
-    pub media_group_id: Option<String>,
+    pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    pub author_signature: Option<String>,
+    pub author_signature: Option<Box<str>>,
     /// For text messages, the actual UTF-8 text of the message
-    pub text: Option<String>,
+    pub text: Option<Box<str>>,
     /// For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
     pub entities: Option<Vec<MessageEntity>>,
     /// Message is an animation, information about the animation. For backward compatibility, when this field is set, the *document* field will also be set
@@ -82,9 +82,9 @@ pub struct Message {
     /// Message is a voice message, information about the file
     pub voice: Option<Voice>,
     /// Caption for the animation, audio, document, photo, video or voice
-    pub caption: Option<String>,
+    pub caption: Option<Box<str>>,
     /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    pub caption_entities: Option<Vec<MessageEntity>>,
+    pub caption_entities: Option<Box<[MessageEntity]>>,
     /// `True`, if the message media is covered by a spoiler animation
     pub has_media_spoiler: Option<bool>,
     /// Message is a shared contact, information about the contact
@@ -100,13 +100,13 @@ pub struct Message {
     /// Message is a shared location, information about the location
     pub location: Option<Location>,
     /// New members that were added to the group or supergroup and information about them (the bot itself may be one of these members)
-    pub new_chat_members: Option<Vec<User>>,
+    pub new_chat_members: Option<Box<[User]>>,
     /// A member was removed from the group, information about them (this member may be the bot itself)
     pub left_chat_member: Option<User>,
     /// A chat title was changed to this value
-    pub new_chat_title: Option<String>,
+    pub new_chat_title: Option<Box<str>>,
     /// A chat photo was change to this value
-    pub new_chat_photo: Option<Vec<PhotoSize>>,
+    pub new_chat_photo: Option<Box<[PhotoSize]>>,
     /// Service message: the chat photo was deleted
     pub delete_chat_photo: Option<bool>,
     /// Service message: the group has been created
@@ -132,7 +132,7 @@ pub struct Message {
     /// Service message: a chat was shared with the bot
     pub chat_shared: Option<ChatShared>,
     /// The domain name of the website on which the user has logged in. [`More about Telegram Login`](https://core.telegram.org/widgets/login)
-    pub connected_website: Option<String>,
+    pub connected_website: Option<Box<str>>,
     /// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess
     pub write_access_allowed: Option<WriteAccessAllowed>,
     /// Telegram Passport data

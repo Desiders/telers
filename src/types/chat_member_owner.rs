@@ -11,15 +11,15 @@ use serde::Deserialize;
 pub struct ChatMemberOwner {
     /// The member's status in the chat, always 'creator'
     #[serde(default = "owner")]
-    pub status: String,
+    pub status: Box<str>,
     /// Information about the user
     pub user: User,
     /// `True`, if the user's presence in the chat is hidden
     pub is_anonymous: bool,
     /// Custom title for this user
-    pub custom_title: Option<String>,
+    pub custom_title: Option<Box<str>>,
 }
 
-fn owner() -> String {
+fn owner() -> Box<str> {
     ChatMemberStatus::Creator.into()
 }

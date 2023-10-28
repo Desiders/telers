@@ -9,7 +9,7 @@ use crate::enums::BotCommandScopeType;
 pub struct BotCommandScopeAllGroupChats {
     /// Scope type, must be *all_group_chats*
     #[serde(rename = "type", default = "all_group_chats")]
-    pub scope_type: String,
+    pub scope_type: Box<str>,
 }
 
 impl BotCommandScopeAllGroupChats {
@@ -28,6 +28,6 @@ impl Default for BotCommandScopeAllGroupChats {
     }
 }
 
-fn all_group_chats() -> String {
+fn all_group_chats() -> Box<str> {
     BotCommandScopeType::AllGroupChats.into()
 }

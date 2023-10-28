@@ -10,13 +10,13 @@ use serde::Deserialize;
 #[derive(Default, Clone, Debug, PartialEq, Deserialize)]
 pub struct PollAnswer {
     /// Unique poll identifier
-    pub poll_id: String,
+    pub poll_id: Box<str>,
     /// The chat that changed the answer to the poll, if the voter is anonymous
     pub voter_chat: Option<Chat>,
     /// The user that changed the answer to the poll, if the voter isn't anonymous
     pub user: Option<User>,
     /// 0-based identifiers of answer options, chosen by the user. May be empty if the user retracted their vote.
-    pub option_ids: Vec<i64>,
+    pub option_ids: Box<[i64]>,
 }
 
 impl PollAnswer {

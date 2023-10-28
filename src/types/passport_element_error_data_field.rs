@@ -6,12 +6,12 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
 pub struct PassportElementErrorDataField {
     /// Error source, must be *data*
-    pub source: String,
+    pub source: Box<str>,
     /// The section of the user's Telegram Passport which has the error, one of 'personal_details', 'passport', 'driver_license', 'identity_card', 'internal_passport', 'address'
     #[serde(rename = "type")]
-    pub element_type: String,
+    pub element_type: Box<str>,
     /// Base64-encoded data hash
-    pub data_hash: String,
+    pub data_hash: Box<str>,
     /// Error message
-    pub message: String,
+    pub message: Box<str>,
 }

@@ -6,5 +6,5 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct BotDescription {
     /// The bot's description
-    pub description: String,
+    pub description: Box<str>,
 }

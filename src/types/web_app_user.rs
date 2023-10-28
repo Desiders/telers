@@ -10,13 +10,13 @@ pub struct WebAppUser {
     /// `True`, if this user is a bot. Returns in the [receiver](https://core.telegram.org/bots/webapps#webappinitdata) field only.
     pub is_bot: Option<bool>,
     /// First name of the user or bot.
-    pub first_name: String,
+    pub first_name: Box<str>,
     /// Last name of the user or bot.
-    pub last_name: Option<String>,
+    pub last_name: Option<Box<str>>,
     /// Username of the user or bot.
-    pub username: Option<String>,
+    pub username: Option<Box<str>>,
     /// [IETF language tag language tag](https://en.wikipedia.org/wiki/IETF_language_tag) of the user's language. Returns in user field only.
-    pub language_code: Option<String>,
+    pub language_code: Option<Box<str>>,
     /// `True`, if this user is a Telegram Premium user.
     pub is_premium: Option<bool>,
     /// `True`, if this user added the bot to the attachment menu.
@@ -24,5 +24,5 @@ pub struct WebAppUser {
     /// `True`, if this user allowed the bot to message them.
     pub allows_write_to_pm: Option<bool>,
     /// URL of the user’s profile photo. The photo can be in .jpeg or .svg formats. Only returned for Mini Apps launched from the attachment menu.
-    pub photo_url: Option<String>,
+    pub photo_url: Option<Box<str>>,
 }

@@ -8,7 +8,7 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct ChatInviteLink {
     /// The invite link. If the link was created by another chat administrator, then the second part of the link will be replaced with '…'.
-    pub invite_link: String,
+    pub invite_link: Box<str>,
     /// Creator of the link
     pub creator: User,
     /// `True`, if users joining the chat via the link need to be approved by chat administrators
@@ -18,7 +18,7 @@ pub struct ChatInviteLink {
     /// `True`, if the link is revoked
     pub is_revoked: bool,
     /// Invite link name
-    pub name: Option<String>,
+    pub name: Option<Box<str>>,
     /// Point in time (Unix timestamp) when the link will expire or has been expired
     pub expire_date: Option<i64>,
     /// The maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999

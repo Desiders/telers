@@ -8,11 +8,11 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct OrderInfo {
     /// User name
-    pub name: Option<String>,
+    pub name: Option<Box<str>>,
     /// User's phone number
-    pub phone_number: Option<String>,
+    pub phone_number: Option<Box<str>>,
     /// User email
-    pub email: Option<String>,
+    pub email: Option<Box<str>>,
     /// User shipping address
     pub shipping_address: Option<ShippingAddress>,
 }

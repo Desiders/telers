@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 #[serde(untagged, rename_all = "snake_case")]
 pub enum ChatIdKind {
     Id(i64),
-    Username(String),
+    Username(Box<str>),
 }
 
 impl ChatIdKind {
@@ -14,7 +14,7 @@ impl ChatIdKind {
     }
 
     #[must_use]
-    pub fn username(val: impl Into<String>) -> Self {
+    pub fn username(val: impl Into<Box<str>>) -> Self {
         Self::Username(val.into())
     }
 }
@@ -25,14 +25,14 @@ impl From<i64> for ChatIdKind {
     }
 }
 
-impl From<String> for ChatIdKind {
-    fn from(username: String) -> Self {
+impl From<Box<str>> for ChatIdKind {
+    fn from(username: Box<str>) -> Self {
         Self::Username(username)
     }
 }
 
 impl From<&str> for ChatIdKind {
     fn from(username: &str) -> Self {
-        Self::Username(username.to_string())
+        Self::Username(username.into())
     }
 }

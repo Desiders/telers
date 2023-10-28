@@ -11,11 +11,11 @@ use serde::Deserialize;
 pub struct ChatMemberLeft {
     /// The member's status in the chat, always 'left'
     #[serde(default = "left")]
-    pub status: String,
+    pub status: Box<str>,
     /// Information about the user
     pub user: User,
 }
 
-fn left() -> String {
+fn left() -> Box<str> {
     ChatMemberStatus::Left.into()
 }

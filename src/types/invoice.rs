@@ -6,13 +6,13 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct Invoice {
     /// Product name
-    pub title: String,
+    pub title: Box<str>,
     /// Product description
-    pub description: String,
+    pub description: Box<str>,
     /// Unique bot deep-linking parameter that can be used to generate this invoice
-    pub start_parameter: String,
+    pub start_parameter: Box<str>,
     /// Three-letter ISO 4217 [`currency`](https://core.telegram.org/bots/payments#supported-currencies) code
-    pub currency: String,
+    pub currency: Box<str>,
     /// Total price in the *smallest units* of the currency (integer, **not** float/double). For example, for a price of `US$ 1.45` pass `amount = 145`. See the *exp* parameter in [`currencies.json`](https://core.telegram.org/bots/payments/currencies.json), it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
     pub total_amount: i64,
 }

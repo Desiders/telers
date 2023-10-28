@@ -8,7 +8,7 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct PassportData {
     /// Array with information about documents and other Telegram Passport elements that was shared with the bot
-    pub data: Vec<EncryptedPassportElement>,
+    pub data: Box<[EncryptedPassportElement]>,
     /// Encrypted credentials required to decrypt the data
     pub credentials: EncryptedCredentials,
 }

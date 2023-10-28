@@ -8,15 +8,15 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct Game {
     /// Title of the game
-    pub title: String,
+    pub title: Box<str>,
     /// Description of the game
-    pub description: String,
+    pub description: Box<str>,
     /// Photo that will be displayed in the game message in chats.
-    pub photo: Vec<PhotoSize>,
+    pub photo: Box<[PhotoSize]>,
     /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls [`SetGameScore`](crate::methods::SetGameScore), or manually edited using [`EditMessageText`](crate::methods::EditMessageText). 0-4096 characters.
-    pub text: Option<String>,
+    pub text: Option<Box<str>>,
     /// Special entities that appear in text, such as usernames, URLs, bot commands, etc.
-    pub text_entities: Option<Vec<MessageEntity>>,
+    pub text_entities: Option<Box<[MessageEntity]>>,
     /// Animation that will be displayed in the game message in chats. Upload via [`BotFather`](https://t.me/botfather)
     pub animation: Option<Animation>,
 }

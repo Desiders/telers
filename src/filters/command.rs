@@ -303,7 +303,7 @@ impl Command<'_> {
         } else if let Some(ref mention) = command.mention {
             bot.send(GetMe::default()).await.map(|user| {
                 // `unwrap` is safe here, because bot always has username
-                user.username.unwrap() == mention.as_ref()
+                user.username.unwrap() == *mention
             })
         } else {
             Ok(true)

@@ -6,7 +6,7 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct ForumTopicEdited {
     /// New name of the topic, if it was edited
-    pub name: Option<String>,
-    /// New identifier of the custom emoji shown as the topic icon, if it was edited; an empty string if the icon was removed
-    pub icon_custom_emoji_id: Option<String>,
+    pub name: Option<Box<str>>,
+    /// New identifier of the custom emoji shown as the topic icon, if it was edited; an empty Box<str> if the icon was removed
+    pub icon_custom_emoji_id: Option<Box<str>>,
 }

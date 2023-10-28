@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 pub struct MenuButtonDefault {
     /// Type of the button, must be *default*
     #[serde(rename = "type", default = "default")]
-    pub button_type: String,
+    pub button_type: Box<str>,
 }
 
 impl MenuButtonDefault {
@@ -28,6 +28,6 @@ impl Default for MenuButtonDefault {
     }
 }
 
-fn default() -> String {
+fn default() -> Box<str> {
     MenuButtonType::Default.into()
 }

@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 pub struct BotCommandScopeDefault {
     /// Scope type, must be *default*
     #[serde(rename = "type", default = "default")]
-    scope_type: String,
+    scope_type: Box<str>,
 }
 
 impl BotCommandScopeDefault {
@@ -28,6 +28,6 @@ impl Default for BotCommandScopeDefault {
     }
 }
 
-fn default() -> String {
+fn default() -> Box<str> {
     BotCommandScopeType::Default.into()
 }

@@ -12,7 +12,7 @@ use serde::Deserialize;
 pub struct ChatMemberRestricted {
     /// The member's status in the chat, always 'restricted'
     #[serde(default = "restricted")]
-    pub status: String,
+    pub status: Box<str>,
     /// Information about the user
     pub user: User,
     /// `True`, if the user is a member of the chat at the moment of the request
@@ -49,6 +49,6 @@ pub struct ChatMemberRestricted {
     pub until_date: i64,
 }
 
-fn restricted() -> String {
+fn restricted() -> Box<str> {
     ChatMemberStatus::Restricted.into()
 }

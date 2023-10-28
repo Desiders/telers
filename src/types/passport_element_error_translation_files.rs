@@ -6,12 +6,12 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
 pub struct PassportElementErrorTranslationFiles {
     /// Error source, must be *translation_files*
-    pub source: String,
+    pub source: Box<str>,
     /// Type of element of the user's Telegram Passport which has the issue, one of 'passport', 'driver_license', 'identity_card', 'internal_passport', 'utility_bill', 'bank_statement', 'rental_agreement', 'passport_registration', 'temporary_registration'
     #[serde(rename = "type")]
-    pub element_type: String,
+    pub element_type: Box<str>,
     /// List of base64-encoded file hashes
-    pub file_hashes: Vec<String>,
+    pub file_hashes: Vec<Box<str>>,
     /// Error message
-    pub message: String,
+    pub message: Box<str>,
 }

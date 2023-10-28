@@ -8,7 +8,7 @@ pub struct WriteAccessAllowed {
     /// `True`, if the access was granted after the user accepted an explicit request from a Web App sent by the method [requestWriteAccess](https://core.telegram.org/bots/webapps#initializing-mini-apps)
     pub from_request: Option<bool>,
     /// Name of the Web App which was launched from a link
-    pub web_app_name: Option<String>,
+    pub web_app_name: Option<Box<str>>,
     /// `True`, if the access was granted when the bot was added to the attachment or side menu
     pub from_attachment_menu: Option<bool>,
 }

@@ -113,7 +113,7 @@ async fn input_file_handler(bot: Bot, message: Message) -> telegram::HandlerResu
             .last()
             .expect("Photo is empty")
             .file_id
-            .as_str(),
+            .as_ref(),
     );
 
     bot.send(

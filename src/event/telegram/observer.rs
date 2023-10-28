@@ -395,7 +395,7 @@ mod tests {
             request.bot,
             Update {
                 message: Some(Message {
-                    text: Some("/start".to_string()),
+                    text: Some("/start".into()),
                     ..Default::default()
                 }),
                 ..Default::default()

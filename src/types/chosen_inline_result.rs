@@ -12,15 +12,15 @@ use serde::Deserialize;
 #[derive(Default, Clone, Debug, PartialEq, Deserialize)]
 pub struct ChosenInlineResult {
     /// The unique identifier for the result that was chosen
-    pub result_id: String,
+    pub result_id: Box<str>,
     /// The user that chose the result
     pub from: User,
     /// Sender location, only for bots that require user location
     pub location: Option<Location>,
     /// Identifier of the sent inline message. Available only if there is an [`inline keyboard`](https://core.telegram.org/bots/api#inlinekeyboardmarkup) attached to the message. Will be also received in [`callback queries`](https://core.telegram.org/bots/api#callbackquery) and can be used to [`edit`](https://core.telegram.org/bots/api#updating-messages) the message.
-    pub inline_message_id: Option<String>,
+    pub inline_message_id: Option<Box<str>>,
     /// The query that was used to obtain the result
-    pub query: String,
+    pub query: Box<str>,
 }
 
 impl TryFrom<Update> for ChosenInlineResult {

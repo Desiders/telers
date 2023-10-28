@@ -6,9 +6,9 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
 pub struct PhotoSize {
     /// Identifier for this file, which can be used to download or reuse the file
-    pub file_id: String,
+    pub file_id: Box<str>,
     /// Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-    pub file_unique_id: String,
+    pub file_unique_id: Box<str>,
     /// Photo width
     pub width: i64,
     /// Photo height

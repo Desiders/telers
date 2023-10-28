@@ -12,7 +12,7 @@ use serde::Deserialize;
 pub struct ChatMemberAdministrator {
     /// The member's status in the chat, always 'administrator'
     #[serde(default = "administrator")]
-    pub status: String,
+    pub status: Box<str>,
     /// Information about the user
     pub user: User,
     /// `True`, if the bot is allowed to edit administrator privileges of that user
@@ -48,9 +48,9 @@ pub struct ChatMemberAdministrator {
     /// `True`, if the user is allowed to create, rename, close, and reopen forum topics; supergroups only
     pub can_manage_topics: Option<bool>,
     /// Custom title for this user
-    pub custom_title: Option<String>,
+    pub custom_title: Option<Box<str>>,
 }
 
-fn administrator() -> String {
+fn administrator() -> Box<str> {
     ChatMemberStatus::Administrator.into()
 }

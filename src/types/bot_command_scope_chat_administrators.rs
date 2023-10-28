@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 pub struct BotCommandScopeChatAdministrators {
     /// Scope type, must be *chat_administrators*
     #[serde(rename = "type", default = "chat_administrators")]
-    pub scope_type: String,
+    pub scope_type: Box<str>,
     /// Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
     pub chat_id: ChatIdKind,
 }
@@ -34,6 +34,6 @@ impl BotCommandScopeChatAdministrators {
     }
 }
 
-fn chat_administrators() -> String {
+fn chat_administrators() -> Box<str> {
     BotCommandScopeType::ChatAdministrators.into()
 }
