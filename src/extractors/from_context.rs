@@ -408,7 +408,7 @@ mod tests {
         );
         assert_eq!(
             B::<i32> {
-                _phantom: PhantomData,
+                _phantom: PhantomData
             },
             B::<i32>::extract(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context)).unwrap()
         );

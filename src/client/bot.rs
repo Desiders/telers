@@ -36,11 +36,10 @@ impl<Client> Bot<Client> {
     #[must_use]
     pub fn with_client(token: impl Into<Cow<'static, str>>, client: Client) -> Self {
         let token = token.into();
-        let bot_id =
-            token::extract_bot_id(&token).expect(
-                "This bot token is invalid, please check it. \
-                If you test your bot, and you don't have a token, use `Bot::default` method instead of `Bot::new`."
-            );
+        let bot_id = token::extract_bot_id(&token).expect(
+            "This bot token is invalid, please check it. \
+                If you test your bot, and you don't have a token, use `Bot::default` method instead of `Bot::new`.",
+        );
         let hidden_token = token::hide(&token);
 
         Self {

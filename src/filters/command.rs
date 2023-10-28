@@ -323,17 +323,17 @@ impl Command<'_> {
             match pattern {
                 PatternType::Text(allowed_command) => {
                     if command_ref == allowed_command {
-                        return true
+                        return true;
                     }
                 }
                 PatternType::Regex(regex) => {
                     if regex.is_match(&command) {
-                        return true
+                        return true;
                     }
                 }
-                PatternType::Object(_) => unreachable!(
-                    "`PatternType::Object` should be converted to `PatternType::Text` before validation"
-                ),
+                PatternType::Object(_) => {
+                    unreachable!("`PatternType::Object` should be converted to `PatternType::Text` before validation")
+                }
             }
         }
 
@@ -380,7 +380,9 @@ impl CommandObject {
 
         let mut full_command_chars = full_command.chars();
 
-        let Some(prefix) = full_command_chars.next() else { return None; };
+        let Some(prefix) = full_command_chars.next() else {
+            return None;
+        };
 
         let command = full_command_chars.as_str();
         if command.is_empty() {
@@ -422,9 +424,15 @@ where
 {
     #[instrument]
     async fn check(&self, bot: &Bot<Client>, update: &Update, context: &Context) -> bool {
-        let Some(ref message) = update.message else { return false; };
-        let Some(text) = message.get_text_or_caption() else { return false; };
-        let Some(command) = CommandObject::extract(text) else { return false; };
+        let Some(ref message) = update.message else {
+            return false;
+        };
+        let Some(text) = message.get_text_or_caption() else {
+            return false;
+        };
+        let Some(command) = CommandObject::extract(text) else {
+            return false;
+        };
 
         match self.validate_command_object(&command, bot).await {
             Ok(result) => {

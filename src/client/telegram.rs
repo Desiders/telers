@@ -231,10 +231,9 @@ mod tests {
             BareFilesPathWrapper,
         );
         assert_eq!(
-            server.api_url(
-                "1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
-                "getUpdates"
-            ).as_ref(),
+            server
+                .api_url("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11", "getUpdates")
+                .as_ref(),
             "https://api.telegram.org/bot1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/test/getUpdates"
         );
     }
@@ -248,10 +247,9 @@ mod tests {
             BareFilesPathWrapper,
         );
         assert_eq!(
-            server.file_url(
-                "1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
-                "test_path"
-            ).as_ref(),
+            server
+                .file_url("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11", "test_path")
+                .as_ref(),
             "https://api.telegram.org/file/bot1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/test_path"
         );
 
@@ -262,10 +260,9 @@ mod tests {
             BareFilesPathWrapper,
         );
         assert_eq!(
-            server.file_url(
-                "1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
-                "test_path"
-            ).as_ref(),
+            server
+                .file_url("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11", "test_path")
+                .as_ref(),
             "https://api.telegram.org/file/bot1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/test/test_path"
         );
     }

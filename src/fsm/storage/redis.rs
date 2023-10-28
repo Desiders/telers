@@ -449,10 +449,7 @@ impl Storage for Redis {
             serde_json::to_value(value).map_err(|err| {
                 event!(Level::ERROR, error = %err, "Failed to convert value to `serde_json::Value`");
 
-                Error::new(
-                    format!("Failed to convert value to `serde_json::Value`. Storage key: {key}"),
-                    err,
-                )
+                Error::new(format!("Failed to convert value to `serde_json::Value`. Storage key: {key}"), err)
             })?,
         );
 
@@ -589,8 +586,8 @@ impl Storage for Redis {
                     })?;
 
                 match data.get(value_key.into().as_ref()) {
-                    Some(value) => serde_json::from_value(value.clone()).map_err(
-                        |err| {
+                    Some(value) => serde_json::from_value(value.clone())
+                        .map_err(|err| {
                             event!(
                                 Level::ERROR,
                                 error = %err,
@@ -598,14 +595,9 @@ impl Storage for Redis {
                                 "Failed to convert `serde_json::Value` to value",
                             );
 
-                            Error::new(
-                                format!(
-                                    "Failed to convert `serde_json::Value` to value. Storage key: {key}"
-                                ),
-                                err,
-                            )
-                        },
-                    ).map(Some),
+                            Error::new(format!("Failed to convert `serde_json::Value` to value. Storage key: {key}"), err)
+                        })
+                        .map(Some),
                     None => Ok(None),
                 }
             }

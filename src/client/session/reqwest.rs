@@ -54,7 +54,9 @@ impl Reqwest {
     {
         let mut form = data.serialize(MultipartSerializer::new())?;
 
-        let Some(files) = files else { return Ok(form); };
+        let Some(files) = files else {
+            return Ok(form);
+        };
 
         for file in files {
             match file.kind() {

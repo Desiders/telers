@@ -531,7 +531,8 @@ impl<Client> Router<Client> {
                 format!(
                     "Can't convert event name to UpdateType. This is a bug. Please, report it. Event name: {}",
                     observer.event_name
-                ).as_str(),
+                )
+                .as_str(),
             );
 
             if skip_update_types.contains(&update_type) {

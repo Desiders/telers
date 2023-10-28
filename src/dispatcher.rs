@@ -70,7 +70,7 @@ use backoff::{backoff::Backoff, exponential::ExponentialBackoff, SystemClock};
 use std::sync::Arc;
 use thiserror;
 use tokio::sync::mpsc::{channel as mspc_channel, error::SendError, Sender};
-use tracing::{event, instrument, Level, Span, field};
+use tracing::{event, field, instrument, Level, Span};
 
 const GET_UPDATES_SIZE: i64 = 100;
 const CHANNEL_UPDATES_SIZE: usize = 100;
@@ -142,7 +142,10 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
             bots: bots.into_iter().collect(),
             polling_timeout,
             backoff,
-            allowed_updates: allowed_updates.into_iter().map(|allowed_update| allowed_update.into().into_boxed_str()).collect(),
+            allowed_updates: allowed_updates
+                .into_iter()
+                .map(|allowed_update| allowed_update.into().into_boxed_str())
+                .collect(),
         }
     }
 }
@@ -165,7 +168,9 @@ where
     /// Creates a new dispatcher with default values and custom backoff.
     /// By default, the backoff is [`ExponentialBackoff`].
     #[must_use]
-    pub fn builder_with_backoff(val: BackoffType) -> DispatcherBuilder<Client, Propagator, BackoffType> {
+    pub fn builder_with_backoff(
+        val: BackoffType,
+    ) -> DispatcherBuilder<Client, Propagator, BackoffType> {
         DispatcherBuilder::default_with_backoff(val)
     }
 }
@@ -196,7 +201,8 @@ where
     }
 }
 
-impl<Client, Propagator, BackoffType> DispatcherBuilder<Client, Propagator, BackoffType> where
+impl<Client, Propagator, BackoffType> DispatcherBuilder<Client, Propagator, BackoffType>
+where
     Propagator: Default,
 {
     /// Creates a new dispatcher builder with default values and custom backoff.
@@ -216,10 +222,7 @@ impl<Client, Propagator, BackoffType> DispatcherBuilder<Client, Propagator, Back
 impl<Client, Propagator, BackoffType> DispatcherBuilder<Client, Propagator, BackoffType> {
     /// Main router, whose service will propagate updates to the other routers and its observers
     #[must_use]
-    pub fn main_router<Cfg, PropagatorService, InitError>(
-        self,
-        val: Propagator,
-    ) -> Self
+    pub fn main_router<Cfg, PropagatorService, InitError>(self, val: Propagator) -> Self
     where
         Propagator: ToServiceProvider<
             Config = Cfg,
@@ -351,22 +354,23 @@ impl<Client, Propagator, BackoffType> DispatcherBuilder<Client, Propagator, Back
             bots: self.bots.into(),
             polling_timeout: self.polling_timeout,
             backoff: self.backoff,
-            allowed_updates: self.allowed_updates.into_iter().map(String::into_boxed_str).collect(),
+            allowed_updates: self
+                .allowed_updates
+                .into_iter()
+                .map(String::into_boxed_str)
+                .collect(),
         }
     }
 }
 
 /// This converts all dependencies to [`ServiceProvider`] and creates [`Arc<DispatcherService>`]
 /// that contains converted [`ServiceProvider`]s.
-impl<Client, BackoffType, PropagatorService, Propagator, Cfg, InitError>
-    ToServiceProvider for Dispatcher<Client, Propagator, BackoffType>
+impl<Client, BackoffType, PropagatorService, Propagator, Cfg, InitError> ToServiceProvider
+    for Dispatcher<Client, Propagator, BackoffType>
 where
     Client: Send + Sync + 'static,
-    Propagator: ToServiceProvider<
-        Config = Cfg,
-        ServiceProvider = PropagatorService,
-        InitError = InitError,
-    >,
+    Propagator:
+        ToServiceProvider<Config = Cfg, ServiceProvider = PropagatorService, InitError = InitError>,
 {
     type Config = Cfg;
     type ServiceProvider = Arc<DispatcherService<Client, PropagatorService, BackoffType>>;
@@ -431,7 +435,10 @@ impl<Client, PropagatorService, BackoffType>
     /// - [`EventErrorKind`] if propagation event returns error
     /// # Warnings
     /// Pass the update as wrapped in [`Arc`] or [`Box`] because [`Update`] is a large structure, so you may get a stack overflow error
-    #[instrument(skip(self, bot, update, context), fields(bot_id, update_id, update_type))]
+    #[instrument(
+        skip(self, bot, update, context),
+        fields(bot_id, update_id, update_type)
+    )]
     pub async fn feed_update_with_context(
         self: Arc<Self>,
         bot: impl Into<Arc<Bot<Client>>>,
@@ -503,7 +510,7 @@ impl<Client, PropagatorService, BackoffType>
             let updates = match bot.send(&method).await {
                 Ok(updates) => {
                     // Get last update id to set offset or skip updates if it's empty
-                    let Some(Update{ update_id, ..}) = updates.last() else {
+                    let Some(Update { update_id, .. }) = updates.last() else {
                         event!(Level::TRACE, "No updates received");
 
                         continue;
@@ -533,7 +540,10 @@ impl<Client, PropagatorService, BackoffType>
                     failed = true;
 
                     if let Some(duration) = backoff.next_backoff() {
-                        event!(Level::WARN, "Sleep for {duration:?} seconds and try again...");
+                        event!(
+                            Level::WARN,
+                            "Sleep for {duration:?} seconds and try again..."
+                        );
 
                         tokio::time::sleep(duration).await;
                     }
@@ -643,7 +653,8 @@ impl<Client, PropagatorService, BackoffType>
         }
         #[cfg(not(any(unix, windows)))]
         {
-            event!(Level::WARN, 
+            event!(
+                Level::WARN,
                 "Exit signals of this platform are not supported, \
                 so polling process will never stop by signal and shutdown events will never be emitted.",
             );
@@ -824,7 +835,9 @@ mod tests {
         }
 
         // Should return error, because `Update` is empty and `UpdateType` will be unknown
-        let response = dispatcher.feed_update(bot, Box::new(Update::default())).await;
+        let response = dispatcher
+            .feed_update(bot, Box::new(Update::default()))
+            .await;
         assert!(response.is_err());
     }
 
@@ -838,10 +851,7 @@ mod tests {
             .bots([bot])
             .polling_timeout(123)
             .allowed_update(UpdateType::Message)
-            .allowed_updates([
-                UpdateType::InlineQuery,
-                UpdateType::ChosenInlineResult,
-            ])
+            .allowed_updates([UpdateType::InlineQuery, UpdateType::ChosenInlineResult])
             .build();
 
         assert_eq!(dispatcher.bots.len(), 2);
