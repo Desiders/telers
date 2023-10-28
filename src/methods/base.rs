@@ -48,28 +48,9 @@ where
 pub struct Response<T> {
     pub ok: bool,
     pub result: Option<T>,
-    pub description: Option<String>,
+    pub description: Option<Box<str>>,
     pub error_code: Option<i16>,
     pub parameters: Option<ResponseParameters>,
-}
-
-impl<T: DeserializeOwned> Response<T> {
-    #[must_use]
-    pub fn new(
-        ok: bool,
-        result: Option<T>,
-        description: Option<String>,
-        error_code: Option<i16>,
-        parameters: Option<ResponseParameters>,
-    ) -> Self {
-        Self {
-            ok,
-            result,
-            description,
-            error_code,
-            parameters,
-        }
-    }
 }
 
 pub trait TelegramMethod {

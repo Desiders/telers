@@ -122,7 +122,7 @@ async fn language_handler<S: Storage>(
 
     // Get user's name from FSM storage
     // TODO: Add validation, e.g. check that name isn't empty
-    let name: String = fsm
+    let name: Box<str> = fsm
         .get_value("name")
         .await
         .map_err(Into::into)?

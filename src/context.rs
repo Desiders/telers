@@ -50,18 +50,59 @@ mod tests {
         let context = Context::new();
 
         context.insert("test", Box::new(1));
-        context.insert(
-            "command_object",
-            Box::new(CommandObject {
-                command: "test".to_string(),
-                prefix: '/',
-                mention: None,
-                args: vec![],
-            }),
-        );
         assert_eq!(
             *context.get("test").unwrap().downcast_ref::<i32>().unwrap(),
             1
+        );
+
+        context.insert("test_box", Box::new(Box::new("test")));
+        assert_eq!(
+            *context
+                .get("test_box")
+                .unwrap()
+                .downcast_ref::<Box<&str>>()
+                .unwrap(),
+            Box::new("test"),
+        );
+
+        context.insert("test_str", Box::new("test"));
+        assert_eq!(
+            *context
+                .get("test_str")
+                .unwrap()
+                .downcast_ref::<&str>()
+                .unwrap(),
+            "test"
+        );
+
+        context.insert("test_str_box", Box::new(Box::new("test")));
+        assert_eq!(
+            *context
+                .get("test_str_box")
+                .unwrap()
+                .downcast_ref::<Box<&str>>()
+                .unwrap(),
+            Box::new("test")
+        );
+
+        context.insert("test_string", Box::new("test".to_string()));
+        assert_eq!(
+            *context
+                .get("test_string")
+                .unwrap()
+                .downcast_ref::<String>()
+                .unwrap(),
+            "test".to_string()
+        );
+
+        context.insert(
+            "command_object",
+            Box::new(CommandObject {
+                command: "test".into(),
+                prefix: '/',
+                mention: None,
+                args: [].into(),
+            }),
         );
         assert_eq!(
             *context
@@ -70,10 +111,10 @@ mod tests {
                 .downcast_ref::<CommandObject>()
                 .unwrap(),
             CommandObject {
-                command: "test".to_string(),
+                command: "test".into(),
                 prefix: '/',
                 mention: None,
-                args: vec![],
+                args: [].into(),
             }
         );
     }

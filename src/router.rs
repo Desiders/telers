@@ -141,14 +141,8 @@ use crate::{
         },
     },
     middlewares::{
-        inner::{
-            Logging as LoggingMiddleware, Middleware as InnerMiddleware,
-            Middlewares as InnerMiddlewares,
-        },
-        outer::{
-            Middleware as OuterMiddleware, Middlewares as OuterMiddlewares,
-            UserContext as UserContextMiddleware,
-        },
+        inner::{Logging as LoggingMiddleware, Middleware as InnerMiddleware},
+        outer::{Middleware as OuterMiddleware, UserContext as UserContextMiddleware},
     },
     types::Update,
 };
@@ -528,7 +522,7 @@ impl<Client> Router<Client> {
         let mut used_update_types = HashSet::new();
 
         for observer in self.telegram_observers() {
-            if observer.handlers.is_empty() {
+            if observer.handlers().is_empty() {
                 continue;
             }
 
@@ -640,7 +634,7 @@ where
             ($($observer:ident),+) => {
                 $(
                     let mut index = 0;
-                    for middleware in &config.outer_middlewares.$observer {
+                    for middleware in config.outer_middlewares.$observer.iter() {
                         self.$observer.outer_middlewares.register_at_position(index, Arc::clone(middleware));
                         index += 1;
                     }
@@ -648,7 +642,7 @@ where
 
                 $(
                     let mut index = 0;
-                    for middleware in &config.inner_middlewares.$observer {
+                    for middleware in config.inner_middlewares.$observer.iter() {
                         self.$observer.inner_middlewares.register_at_position(index, Arc::clone(middleware));
                         index += 1;
                     }
@@ -674,8 +668,8 @@ where
             update
         );
 
-        // Clear outer middlewares from the config, because they don't need for sub routers
-        config.outer_middlewares.clear();
+        // We don't need to register config outer middlewares to sub routers
+        config.outer_middlewares = OuterMiddlewaresConfig::new();
 
         Ok(RouterService {
             router_name: self.router_name,
@@ -708,7 +702,7 @@ where
 #[allow(clippy::module_name_repetitions)]
 pub struct RouterService<Client> {
     router_name: &'static str,
-    sub_routers: Vec<RouterService<Client>>,
+    sub_routers: Box<[RouterService<Client>]>,
 
     message: TelegramObserverService<Client>,
     edited_message: TelegramObserverService<Client>,
@@ -750,7 +744,7 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
         let observer = self.telegram_observer_by_update_type(update_type);
 
         let mut request = request;
-        for middleware in &observer.outer_middlewares {
+        for middleware in observer.outer_middlewares().iter() {
             let (updated_request, event_return) = middleware.call(request.clone()).await?;
 
             match event_return {
@@ -808,7 +802,7 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
         };
 
         // Propagate event to sub routers' observers
-        for router in &self.sub_routers {
+        for router in self.sub_routers.iter() {
             let router_response = router.propagate_event(update_type, request.clone()).await?;
             match router_response.propagate_result {
                 // If the event unhandled by the sub router's observer, then propagate event to next sub router's observer
@@ -850,7 +844,7 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
         event!(Level::TRACE, "Propagate update event to router");
 
         let mut request = request;
-        for middleware in &self.update.outer_middlewares {
+        for middleware in self.update.outer_middlewares().iter() {
             let (updated_request, event_return) = middleware.call(request.clone()).await?;
 
             match event_return {
@@ -1012,15 +1006,6 @@ impl<Client> Config<Client> {
     }
 }
 
-impl<Client> Clone for Config<Client> {
-    fn clone(&self) -> Self {
-        Self {
-            outer_middlewares: self.outer_middlewares.clone(),
-            inner_middlewares: self.inner_middlewares.clone(),
-        }
-    }
-}
-
 impl<Client> Default for Config<Client>
 where
     Client: Send + Sync + 'static,
@@ -1033,13 +1018,257 @@ where
     }
 }
 
+impl<Client> Clone for Config<Client> {
+    fn clone(&self) -> Self {
+        Self {
+            outer_middlewares: self.outer_middlewares.clone(),
+            inner_middlewares: self.inner_middlewares.clone(),
+        }
+    }
+}
+
+pub struct OuterMiddlewaresConfig<Client> {
+    pub message: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+    pub edited_message: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+    pub channel_post: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+    pub edited_channel_post: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+    pub inline_query: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+    pub chosen_inline_result: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+    pub callback_query: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+    pub shipping_query: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+    pub pre_checkout_query: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+    pub poll: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+    pub poll_answer: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+    pub my_chat_member: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+    pub chat_member: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+    pub chat_join_request: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+    pub update: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+}
+
+impl<Client> OuterMiddlewaresConfig<Client> {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::builder().build()
+    }
+
+    #[must_use]
+    pub fn builder() -> OuterMiddlewaresConfigBuilder<Client> {
+        OuterMiddlewaresConfigBuilder::default()
+    }
+}
+
 impl<Client> Default for OuterMiddlewaresConfig<Client>
 where
     Client: Send + Sync + 'static,
 {
+    fn default() -> Self {
+        Self::builder().update(UserContextMiddleware).build()
+    }
+}
+
+impl<Client> Clone for OuterMiddlewaresConfig<Client> {
+    fn clone(&self) -> Self {
+        Self {
+            message: self.message.clone(),
+            edited_message: self.edited_message.clone(),
+            channel_post: self.channel_post.clone(),
+            edited_channel_post: self.edited_channel_post.clone(),
+            inline_query: self.inline_query.clone(),
+            chosen_inline_result: self.chosen_inline_result.clone(),
+            callback_query: self.callback_query.clone(),
+            shipping_query: self.shipping_query.clone(),
+            pre_checkout_query: self.pre_checkout_query.clone(),
+            poll: self.poll.clone(),
+            poll_answer: self.poll_answer.clone(),
+            my_chat_member: self.my_chat_member.clone(),
+            chat_member: self.chat_member.clone(),
+            chat_join_request: self.chat_join_request.clone(),
+            update: self.update.clone(),
+        }
+    }
+}
+
+pub struct OuterMiddlewaresConfigBuilder<Client> {
+    pub message: Vec<Arc<dyn OuterMiddleware<Client>>>,
+    pub edited_message: Vec<Arc<dyn OuterMiddleware<Client>>>,
+    pub channel_post: Vec<Arc<dyn OuterMiddleware<Client>>>,
+    pub edited_channel_post: Vec<Arc<dyn OuterMiddleware<Client>>>,
+    pub inline_query: Vec<Arc<dyn OuterMiddleware<Client>>>,
+    pub chosen_inline_result: Vec<Arc<dyn OuterMiddleware<Client>>>,
+    pub callback_query: Vec<Arc<dyn OuterMiddleware<Client>>>,
+    pub shipping_query: Vec<Arc<dyn OuterMiddleware<Client>>>,
+    pub pre_checkout_query: Vec<Arc<dyn OuterMiddleware<Client>>>,
+    pub poll: Vec<Arc<dyn OuterMiddleware<Client>>>,
+    pub poll_answer: Vec<Arc<dyn OuterMiddleware<Client>>>,
+    pub my_chat_member: Vec<Arc<dyn OuterMiddleware<Client>>>,
+    pub chat_member: Vec<Arc<dyn OuterMiddleware<Client>>>,
+    pub chat_join_request: Vec<Arc<dyn OuterMiddleware<Client>>>,
+    pub update: Vec<Arc<dyn OuterMiddleware<Client>>>,
+}
+
+impl<Client> OuterMiddlewaresConfigBuilder<Client> {
+    #[must_use]
+    pub fn message(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.message.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn edited_message(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.edited_message.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn channel_post(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.channel_post.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn edited_channel_post(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.edited_channel_post.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn inline_query(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.inline_query.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn chosen_inline_result(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.chosen_inline_result.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn callback_query(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.callback_query.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn shipping_query(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.shipping_query.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn pre_checkout_query(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.pre_checkout_query.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn poll(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.poll.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn poll_answer(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.poll_answer.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn my_chat_member(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.my_chat_member.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn chat_member(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.chat_member.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn chat_join_request(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.chat_join_request.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn update(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.update.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn build(self) -> OuterMiddlewaresConfig<Client> {
+        OuterMiddlewaresConfig {
+            message: self.message.into(),
+            edited_message: self.edited_message.into(),
+            channel_post: self.channel_post.into(),
+            edited_channel_post: self.edited_channel_post.into(),
+            inline_query: self.inline_query.into(),
+            chosen_inline_result: self.chosen_inline_result.into(),
+            callback_query: self.callback_query.into(),
+            shipping_query: self.shipping_query.into(),
+            pre_checkout_query: self.pre_checkout_query.into(),
+            poll: self.poll.into(),
+            poll_answer: self.poll_answer.into(),
+            my_chat_member: self.my_chat_member.into(),
+            chat_member: self.chat_member.into(),
+            chat_join_request: self.chat_join_request.into(),
+            update: self.update.into(),
+        }
+    }
+}
+
+impl<Client> Default for OuterMiddlewaresConfigBuilder<Client> {
     #[must_use]
     fn default() -> Self {
-        Self::builder().update(UserContextMiddleware::new()).build()
+        Self {
+            message: vec![],
+            edited_message: vec![],
+            channel_post: vec![],
+            edited_channel_post: vec![],
+            inline_query: vec![],
+            chosen_inline_result: vec![],
+            callback_query: vec![],
+            shipping_query: vec![],
+            pre_checkout_query: vec![],
+            poll: vec![],
+            poll_answer: vec![],
+            my_chat_member: vec![],
+            chat_member: vec![],
+            chat_join_request: vec![],
+            update: vec![],
+        }
+    }
+}
+
+pub struct InnerMiddlewaresConfig<Client> {
+    pub message: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    pub edited_message: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    pub channel_post: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    pub edited_channel_post: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    pub inline_query: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    pub chosen_inline_result: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    pub callback_query: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    pub shipping_query: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    pub pre_checkout_query: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    pub poll: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    pub poll_answer: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    pub my_chat_member: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    pub chat_member: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    pub chat_join_request: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    pub update: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+}
+
+impl<Client> InnerMiddlewaresConfig<Client> {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::builder().build()
+    }
+
+    #[must_use]
+    pub fn builder() -> InnerMiddlewaresConfigBuilder<Client> {
+        InnerMiddlewaresConfigBuilder::default()
     }
 }
 
@@ -1047,270 +1276,204 @@ impl<Client> Default for InnerMiddlewaresConfig<Client>
 where
     Client: Send + Sync + 'static,
 {
-    #[must_use]
     fn default() -> Self {
+        let logging_middleware = Arc::new(LoggingMiddleware);
+
         Self::builder()
-            .message(LoggingMiddleware)
-            .edited_message(LoggingMiddleware)
-            .channel_post(LoggingMiddleware)
-            .edited_channel_post(LoggingMiddleware)
-            .inline_query(LoggingMiddleware)
-            .chosen_inline_result(LoggingMiddleware)
-            .callback_query(LoggingMiddleware)
-            .shipping_query(LoggingMiddleware)
-            .pre_checkout_query(LoggingMiddleware)
-            .poll(LoggingMiddleware)
-            .poll_answer(LoggingMiddleware)
-            .my_chat_member(LoggingMiddleware)
-            .chat_member(LoggingMiddleware)
-            .chat_join_request(LoggingMiddleware)
-            .update(LoggingMiddleware)
+            .message(logging_middleware.clone())
+            .edited_message(logging_middleware.clone())
+            .channel_post(logging_middleware.clone())
+            .edited_channel_post(logging_middleware.clone())
+            .inline_query(logging_middleware.clone())
+            .chosen_inline_result(logging_middleware.clone())
+            .callback_query(logging_middleware.clone())
+            .shipping_query(logging_middleware.clone())
+            .pre_checkout_query(logging_middleware.clone())
+            .poll(logging_middleware.clone())
+            .poll_answer(logging_middleware.clone())
+            .my_chat_member(logging_middleware.clone())
+            .chat_member(logging_middleware.clone())
+            .chat_join_request(logging_middleware.clone())
+            .update(logging_middleware)
             .build()
     }
 }
 
-macro_rules! create_middleware_config_struct {
-    ($name:ident, $type_middlewares:ident) => {
-        pub struct $name<Client> {
-            message: $type_middlewares<Client>,
-            edited_message: $type_middlewares<Client>,
-            channel_post: $type_middlewares<Client>,
-            edited_channel_post: $type_middlewares<Client>,
-            inline_query: $type_middlewares<Client>,
-            chosen_inline_result: $type_middlewares<Client>,
-            callback_query: $type_middlewares<Client>,
-            shipping_query: $type_middlewares<Client>,
-            pre_checkout_query: $type_middlewares<Client>,
-            poll: $type_middlewares<Client>,
-            poll_answer: $type_middlewares<Client>,
-            my_chat_member: $type_middlewares<Client>,
-            chat_member: $type_middlewares<Client>,
-            chat_join_request: $type_middlewares<Client>,
-            update: $type_middlewares<Client>,
+impl<Client> Clone for InnerMiddlewaresConfig<Client> {
+    fn clone(&self) -> Self {
+        Self {
+            message: self.message.clone(),
+            edited_message: self.edited_message.clone(),
+            channel_post: self.channel_post.clone(),
+            edited_channel_post: self.edited_channel_post.clone(),
+            inline_query: self.inline_query.clone(),
+            chosen_inline_result: self.chosen_inline_result.clone(),
+            callback_query: self.callback_query.clone(),
+            shipping_query: self.shipping_query.clone(),
+            pre_checkout_query: self.pre_checkout_query.clone(),
+            poll: self.poll.clone(),
+            poll_answer: self.poll_answer.clone(),
+            my_chat_member: self.my_chat_member.clone(),
+            chat_member: self.chat_member.clone(),
+            chat_join_request: self.chat_join_request.clone(),
+            update: self.update.clone(),
         }
-    };
+    }
 }
 
-create_middleware_config_struct!(InnerMiddlewaresConfig, InnerMiddlewares);
-create_middleware_config_struct!(InnerMiddlewaresConfigBuilder, InnerMiddlewares);
-
-create_middleware_config_struct!(OuterMiddlewaresConfig, OuterMiddlewares);
-create_middleware_config_struct!(OuterMiddlewaresConfigBuilder, OuterMiddlewares);
-
-macro_rules! impl_middleware_config_base_methods {
-    ($name:ident, $name_builder:ident, $type_middlewares:ident) => {
-        impl<Client> $name<Client>
-        where
-            Client: Send + Sync + 'static,
-        {
-            #[must_use]
-            pub fn new() -> Self {
-                Self::builder().build()
-            }
-        }
-
-        impl<Client> $name<Client> {
-            /// Get all observers middlewares as references
-            #[must_use]
-            pub const fn observers_middlewares(&self) -> [&$type_middlewares<Client>; 15] {
-                [
-                    &self.message,
-                    &self.edited_message,
-                    &self.channel_post,
-                    &self.edited_channel_post,
-                    &self.inline_query,
-                    &self.chosen_inline_result,
-                    &self.callback_query,
-                    &self.shipping_query,
-                    &self.pre_checkout_query,
-                    &self.poll,
-                    &self.poll_answer,
-                    &self.my_chat_member,
-                    &self.chat_member,
-                    &self.chat_join_request,
-                    &self.update,
-                ]
-            }
-
-            /// Get all observers middlewares as mutable references
-            /// # Notes
-            /// This method is useful for registering middlewares to the many observers without code duplication and macros
-            #[must_use]
-            pub fn observers_middlewares_mut(&mut self) -> Vec<&mut $type_middlewares<Client>> {
-                let mut observers = Vec::with_capacity(15);
-
-                observers.extend([
-                    &mut self.message,
-                    &mut self.edited_message,
-                    &mut self.channel_post,
-                    &mut self.edited_channel_post,
-                    &mut self.inline_query,
-                    &mut self.chosen_inline_result,
-                    &mut self.callback_query,
-                    &mut self.shipping_query,
-                    &mut self.pre_checkout_query,
-                    &mut self.poll,
-                    &mut self.poll_answer,
-                    &mut self.my_chat_member,
-                    &mut self.chat_member,
-                    &mut self.chat_join_request,
-                    &mut self.update,
-                ]);
-
-                observers
-            }
-
-            pub fn clear(&mut self) {
-                self.observers_middlewares_mut()
-                    .iter_mut()
-                    .for_each(|middlewares| middlewares.clear());
-            }
-
-            #[must_use]
-            pub fn builder() -> $name_builder<Client> {
-                $name_builder::default()
-            }
-        }
-
-        impl<Client> Clone for $name<Client> {
-            fn clone(&self) -> Self {
-                Self {
-                    message: self.message.clone(),
-                    edited_message: self.edited_message.clone(),
-                    channel_post: self.channel_post.clone(),
-                    edited_channel_post: self.edited_channel_post.clone(),
-                    inline_query: self.inline_query.clone(),
-                    chosen_inline_result: self.chosen_inline_result.clone(),
-                    callback_query: self.callback_query.clone(),
-                    shipping_query: self.shipping_query.clone(),
-                    pre_checkout_query: self.pre_checkout_query.clone(),
-                    poll: self.poll.clone(),
-                    poll_answer: self.poll_answer.clone(),
-                    my_chat_member: self.my_chat_member.clone(),
-                    chat_member: self.chat_member.clone(),
-                    chat_join_request: self.chat_join_request.clone(),
-                    update: self.update.clone(),
-                }
-            }
-        }
-    };
+pub struct InnerMiddlewaresConfigBuilder<Client> {
+    pub message: Vec<Arc<dyn InnerMiddleware<Client>>>,
+    pub edited_message: Vec<Arc<dyn InnerMiddleware<Client>>>,
+    pub channel_post: Vec<Arc<dyn InnerMiddleware<Client>>>,
+    pub edited_channel_post: Vec<Arc<dyn InnerMiddleware<Client>>>,
+    pub inline_query: Vec<Arc<dyn InnerMiddleware<Client>>>,
+    pub chosen_inline_result: Vec<Arc<dyn InnerMiddleware<Client>>>,
+    pub callback_query: Vec<Arc<dyn InnerMiddleware<Client>>>,
+    pub shipping_query: Vec<Arc<dyn InnerMiddleware<Client>>>,
+    pub pre_checkout_query: Vec<Arc<dyn InnerMiddleware<Client>>>,
+    pub poll: Vec<Arc<dyn InnerMiddleware<Client>>>,
+    pub poll_answer: Vec<Arc<dyn InnerMiddleware<Client>>>,
+    pub my_chat_member: Vec<Arc<dyn InnerMiddleware<Client>>>,
+    pub chat_member: Vec<Arc<dyn InnerMiddleware<Client>>>,
+    pub chat_join_request: Vec<Arc<dyn InnerMiddleware<Client>>>,
+    pub update: Vec<Arc<dyn InnerMiddleware<Client>>>,
 }
 
-impl_middleware_config_base_methods!(
-    InnerMiddlewaresConfig,
-    InnerMiddlewaresConfigBuilder,
-    InnerMiddlewares
-);
-impl_middleware_config_base_methods!(
-    OuterMiddlewaresConfig,
-    OuterMiddlewaresConfigBuilder,
-    OuterMiddlewares
-);
+impl<Client> InnerMiddlewaresConfigBuilder<Client> {
+    #[must_use]
+    pub fn message(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.message.push(Arc::new(val));
+        self
+    }
 
-macro_rules! impl_builder_methods {
-    ($type_middleware:ident, $($method:ident => $update_type:ident),*) => {
-        $(
-            #[must_use]
-            pub fn $method<T>(self, val: T) -> Self
-            where
-                T: $type_middleware<Client> + 'static,
-            {
-                Self {
-                    $update_type: self.$update_type.into_iter().chain(Some(Arc::new(val) as _)).collect(),
-                    ..self
-                }
-            }
-        )*
-    };
+    #[must_use]
+    pub fn edited_message(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.edited_message.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn channel_post(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.channel_post.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn edited_channel_post(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.edited_channel_post.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn inline_query(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.inline_query.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn chosen_inline_result(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.chosen_inline_result.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn callback_query(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.callback_query.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn shipping_query(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.shipping_query.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn pre_checkout_query(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.pre_checkout_query.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn poll(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.poll.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn poll_answer(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.poll_answer.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn my_chat_member(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.my_chat_member.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn chat_member(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.chat_member.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn chat_join_request(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.chat_join_request.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn update(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.update.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn build(self) -> InnerMiddlewaresConfig<Client> {
+        InnerMiddlewaresConfig {
+            message: self.message.into(),
+            edited_message: self.edited_message.into(),
+            channel_post: self.channel_post.into(),
+            edited_channel_post: self.edited_channel_post.into(),
+            inline_query: self.inline_query.into(),
+            chosen_inline_result: self.chosen_inline_result.into(),
+            callback_query: self.callback_query.into(),
+            shipping_query: self.shipping_query.into(),
+            pre_checkout_query: self.pre_checkout_query.into(),
+            poll: self.poll.into(),
+            poll_answer: self.poll_answer.into(),
+            my_chat_member: self.my_chat_member.into(),
+            chat_member: self.chat_member.into(),
+            chat_join_request: self.chat_join_request.into(),
+            update: self.update.into(),
+        }
+    }
 }
 
-macro_rules! impl_middleware_config_builder_base_methods {
-    ($name:ident, $name_builder:ident, $type_middleware:ident) => {
-        impl<Client> $name_builder<Client>
-        where
-            Client: Send + Sync + 'static,
-        {
-            #[must_use]
-            pub fn new() -> Self {
-                Self::default()
-            }
-
-            impl_builder_methods! {
-                $type_middleware,
-                message => message,
-                edited_message => edited_message,
-                channel_post => channel_post,
-                edited_channel_post => edited_channel_post,
-                inline_query => inline_query,
-                chosen_inline_result => chosen_inline_result,
-                callback_query => callback_query,
-                shipping_query => shipping_query,
-                pre_checkout_query => pre_checkout_query,
-                poll => poll,
-                poll_answer => poll_answer,
-                my_chat_member => my_chat_member,
-                chat_member => chat_member,
-                chat_join_request => chat_join_request,
-                update => update
-            }
-
-            #[must_use]
-            pub fn build(self) -> $name<Client> {
-                $name {
-                    message: self.message,
-                    edited_message: self.edited_message,
-                    channel_post: self.channel_post,
-                    edited_channel_post: self.edited_channel_post,
-                    inline_query: self.inline_query,
-                    chosen_inline_result: self.chosen_inline_result,
-                    callback_query: self.callback_query,
-                    shipping_query: self.shipping_query,
-                    pre_checkout_query: self.pre_checkout_query,
-                    poll: self.poll,
-                    poll_answer: self.poll_answer,
-                    my_chat_member: self.my_chat_member,
-                    chat_member: self.chat_member,
-                    chat_join_request: self.chat_join_request,
-                    update: self.update,
-                }
-            }
+impl<Client> Default for InnerMiddlewaresConfigBuilder<Client> {
+    #[must_use]
+    fn default() -> Self {
+        Self {
+            message: vec![],
+            edited_message: vec![],
+            channel_post: vec![],
+            edited_channel_post: vec![],
+            inline_query: vec![],
+            chosen_inline_result: vec![],
+            callback_query: vec![],
+            shipping_query: vec![],
+            pre_checkout_query: vec![],
+            poll: vec![],
+            poll_answer: vec![],
+            my_chat_member: vec![],
+            chat_member: vec![],
+            chat_join_request: vec![],
+            update: vec![],
         }
-
-        impl<Client> Default for $name_builder<Client> {
-            #[must_use]
-            fn default() -> Self {
-                Self {
-                    message: vec![],
-                    edited_message: vec![],
-                    channel_post: vec![],
-                    edited_channel_post: vec![],
-                    inline_query: vec![],
-                    chosen_inline_result: vec![],
-                    callback_query: vec![],
-                    shipping_query: vec![],
-                    pre_checkout_query: vec![],
-                    poll: vec![],
-                    poll_answer: vec![],
-                    my_chat_member: vec![],
-                    chat_member: vec![],
-                    chat_join_request: vec![],
-                    update: vec![],
-                }
-            }
-        }
-    };
+    }
 }
-
-impl_middleware_config_builder_base_methods!(
-    InnerMiddlewaresConfig,
-    InnerMiddlewaresConfigBuilder,
-    InnerMiddleware
-);
-impl_middleware_config_builder_base_methods!(
-    OuterMiddlewaresConfig,
-    OuterMiddlewaresConfigBuilder,
-    OuterMiddleware
-);
 
 #[cfg(test)]
 mod tests {
@@ -1379,12 +1542,12 @@ mod tests {
                     .into_iter()
                     .for_each(|observer| {
                         if observer.event_name == message_observer_name {
-                            assert_eq!(observer.inner_middlewares.len(), 1);
+                            assert_eq!(observer.inner_middlewares().len(), 1);
                         } else {
-                            assert_eq!(observer.inner_middlewares.len(), 0);
+                            assert_eq!(observer.inner_middlewares().len(), 0);
                         }
                         // Router outer middlewares don't clone to children routers
-                        assert_eq!(observer.outer_middlewares.len(), 0);
+                        assert_eq!(observer.outer_middlewares().len(), 0);
                     });
 
                 router_service
@@ -1398,12 +1561,12 @@ mod tests {
                             .into_iter()
                             .for_each(|observer| {
                                 if observer.event_name == message_observer_name {
-                                    assert_eq!(observer.inner_middlewares.len(), 1);
+                                    assert_eq!(observer.inner_middlewares().len(), 1);
                                 } else {
-                                    assert_eq!(observer.inner_middlewares.len(), 0);
+                                    assert_eq!(observer.inner_middlewares().len(), 0);
                                 }
                                 // Router outer middlewares don't clone to children routers
-                                assert_eq!(observer.outer_middlewares.len(), 0);
+                                assert_eq!(observer.outer_middlewares().len(), 0);
                             });
                     });
             });
@@ -1446,16 +1609,16 @@ mod tests {
             .telegram_observers()
             .into_iter()
             .for_each(|observer| {
-                assert_eq!(observer.handlers.len(), 1);
+                assert_eq!(observer.handlers().len(), 1);
 
-                observer.handlers.iter().for_each(|handler| {
+                observer.handlers().iter().for_each(|handler| {
                     assert!(handler.filters.is_empty());
                 });
             });
 
         // Check event observers
         router.event_observers().into_iter().for_each(|observer| {
-            assert_eq!(observer.handlers.len(), 1);
+            assert_eq!(observer.handlers().len(), 1);
         });
 
         let inner_middleware = |request, next: Next<_>| next(request);

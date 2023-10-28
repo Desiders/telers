@@ -154,11 +154,10 @@ impl<Client> ServiceFactory<Request<Client>> for HandlerObject<Client> {
 
     fn new_service(&self, config: Self::Config) -> StdResult<Self::Service, Self::InitError> {
         let service = self.service.new_service(config)?;
-        let filters = self.filters.clone();
 
         Ok(HandlerObjectService {
             service: Arc::new(service),
-            filters,
+            filters: self.filters.clone().into(),
         })
     }
 }
@@ -166,7 +165,7 @@ impl<Client> ServiceFactory<Request<Client>> for HandlerObject<Client> {
 #[allow(clippy::module_name_repetitions)]
 pub struct HandlerObjectService<Client> {
     pub(crate) service: Arc<BoxedHandlerService<Client>>,
-    filters: Vec<Arc<dyn Filter<Client>>>,
+    filters: Box<[Arc<dyn Filter<Client>>]>,
 }
 
 impl<Client> HandlerObjectService<Client>
@@ -177,7 +176,7 @@ where
     /// If the handler pass all them, it will be called.
     #[instrument(skip(self, request))]
     pub async fn check(&self, request: &Request<Client>) -> bool {
-        for filter in &self.filters {
+        for filter in self.filters.iter() {
             if !filter
                 .check(&request.bot, &request.update, &request.context)
                 .await
@@ -211,14 +210,14 @@ where
     Args::Error: Send,
 {
     factory(fn_service(move |request: Request<Client>| {
+        let bot = Arc::clone(&request.bot);
+        let update = Arc::clone(&request.update);
+        let context = Arc::clone(&request.context);
+
         let handler = handler.clone();
 
         async move {
-            match Args::extract(
-                Arc::clone(&request.bot),
-                Arc::clone(&request.update),
-                Arc::clone(&request.context),
-            ) {
+            match Args::extract(bot, update, context) {
                 Ok(extracted_args) => Ok(Response {
                     request,
                     handler_result: handler.call(extracted_args).await.into(),
@@ -367,7 +366,11 @@ mod tests {
         let handler_object = HandlerObject::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
         let handler_object_service = handler_object.new_service(()).unwrap();
 
-        let request = Request::new(Bot::<Reqwest>::default(), Update::default(), Context::new());
+        let request = Request::new(
+            Bot::<Reqwest>::default(),
+            Update::default(),
+            Context::default(),
+        );
         let response = handler_object_service.call(request).await.unwrap();
 
         match response.handler_result {

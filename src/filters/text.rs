@@ -43,13 +43,13 @@ impl From<Regex> for PatternType<'_> {
 #[derive(Debug, Default, Clone)]
 pub struct Text<'a> {
     /// List of texts or compiled [`Regex`] patterns that must be equal to the text
-    texts: Vec<PatternType<'a>>,
+    texts: Box<[PatternType<'a>]>,
     /// List of texts that must be contained in the text
-    contains: Vec<Cow<'a, str>>,
+    contains: Box<[Cow<'a, str>]>,
     /// List of texts that must be at the beginning of the text
-    starts_with: Vec<Cow<'a, str>>,
+    starts_with: Box<[Cow<'a, str>]>,
     /// List of texts that must be at the end of the text
-    ends_with: Vec<Cow<'a, str>>,
+    ends_with: Box<[Cow<'a, str>]>,
     /// Ignore case sensitive
     ignore_case: bool,
 }
@@ -191,7 +191,7 @@ impl<'a> Text<'a> {
     /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
     #[must_use]
     pub fn builder() -> TextBuilder<'a> {
-        TextBuilder::new()
+        TextBuilder::default()
     }
 }
 
@@ -206,11 +206,6 @@ pub struct TextBuilder<'a> {
 }
 
 impl<'a> TextBuilder<'a> {
-    #[must_use]
-    pub fn new() -> Self {
-        Self::default()
-    }
-
     #[must_use]
     pub fn text(self, val: impl Into<PatternType<'a>>) -> Self {
         Self {
@@ -333,20 +328,22 @@ impl<'a> TextBuilder<'a> {
 
 impl<'a> Text<'a> {
     #[must_use]
-    fn prepare_text(&self, text: &str) -> String {
+    fn prepare_text(&self, text: &str) -> Box<str> {
         if self.ignore_case {
             text.to_lowercase()
         } else {
             text.to_owned()
         }
+        .into()
     }
 
     #[must_use]
     pub fn validate_texts(&self, text: &str) -> bool {
         let text = self.prepare_text(text);
+        let text_ref = text.as_ref();
 
         self.texts.iter().any(|pattern| match pattern {
-            PatternType::Text(allowed_text) => allowed_text == &text,
+            PatternType::Text(allowed_text) => allowed_text == text_ref,
             PatternType::Regex(regex) => regex.is_match(&text),
         })
     }

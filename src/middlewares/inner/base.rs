@@ -9,8 +9,6 @@ use crate::{
 use async_trait::async_trait;
 use std::{future::Future, pin::Pin, sync::Arc};
 
-/// List of middlewares
-pub type Middlewares<Client> = Vec<Arc<dyn Middleware<Client>>>;
 /// The middleware chain and the handler at the end
 pub type Next<Client> = Box<
     dyn Fn(
@@ -82,32 +80,20 @@ where
 /// # Notes
 /// This function is wrap [`crate::errors::HandlerError`] to [`EventErrorKind::Handler`]
 #[must_use]
-pub fn wrap_handler_and_middlewares_to_next<T, Client>(
+pub fn wrap_handler_and_middlewares_to_next<Client>(
     handler: Arc<BoxedHandlerService<Client>>,
-    middlewares: T,
+    middlewares: Box<[Arc<dyn Middleware<Client>>]>,
 ) -> Next<Client>
 where
     Client: Send + Sync + 'static,
-    T: IntoIterator<Item = Arc<dyn Middleware<Client>>> + Send + Sync + 'static,
-    T::IntoIter: Clone + Send + Sync,
 {
-    let middlewares = middlewares.into_iter();
-
     Box::new(move |request: HandlerRequest<Client>| {
+        let middlewares = middlewares.clone();
         let handler = handler.clone();
-        let mut middlewares = middlewares.clone();
 
         Box::pin(async move {
-            match middlewares.next() {
-                Some(middleware) => {
-                    middleware
-                        .call(
-                            request,
-                            wrap_handler_and_middlewares_to_next(handler, middlewares),
-                        )
-                        .await
-                }
-                None => match handler.call(request).await {
+            let Some((middleware, middlewares)) = middlewares.split_first() else {
+                return match handler.call(request).await {
                     Ok(response) => match response.handler_result {
                         Ok(_) => Ok(response),
                         // If handler returns an error, then wrap it to event error
@@ -115,8 +101,15 @@ where
                     },
                     // If handler service returns an error, then it's an error to extract args to the handler
                     Err(err) => Err(EventErrorKind::Extraction(err)),
-                },
-            }
+                };
+            };
+
+            middleware
+                .call(
+                    request,
+                    wrap_handler_and_middlewares_to_next(handler, middlewares.into()),
+                )
+                .await
         })
     })
 }
@@ -130,8 +123,6 @@ mod tests {
         event::{service::ServiceFactory as _, telegram::handler_service, EventReturn},
         types::Update,
     };
-
-    use tokio;
 
     async fn test_middleware<Client>(
         request: HandlerRequest<Client>,
@@ -154,7 +145,7 @@ mod tests {
         let response = Middleware::call(
             &test_middleware,
             request,
-            wrap_handler_and_middlewares_to_next(handler_service, []),
+            wrap_handler_and_middlewares_to_next(handler_service, [].into()),
         )
         .await
         .unwrap();

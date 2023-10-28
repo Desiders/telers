@@ -17,15 +17,15 @@ use std::borrow::Cow;
 #[derive(Debug, Clone)]
 pub struct User<'a> {
     /// List of usernames of the users
-    usernames: Vec<Cow<'a, str>>,
+    usernames: Box<[Cow<'a, str>]>,
     /// List of first names of the users
-    first_names: Vec<Cow<'a, str>>,
+    first_names: Box<[Cow<'a, str>]>,
     /// List of last names of the users
-    last_names: Vec<Cow<'a, str>>,
+    last_names: Box<[Cow<'a, str>]>,
     /// List of language codes of the users
-    language_codes: Vec<Cow<'a, str>>,
+    language_codes: Box<[Cow<'a, str>]>,
     /// List of user IDs of the users
-    ids: Vec<i64>,
+    ids: Box<[i64]>,
 }
 
 impl<'a> User<'a> {
@@ -164,7 +164,7 @@ impl<'a> User<'a> {
 
     #[must_use]
     pub fn builder() -> UserBuilder<'a> {
-        UserBuilder::new()
+        UserBuilder::default()
     }
 }
 
@@ -179,11 +179,6 @@ pub struct UserBuilder<'a> {
 }
 
 impl<'a> UserBuilder<'a> {
-    #[must_use]
-    pub fn new() -> Self {
-        Self::default()
-    }
-
     #[must_use]
     pub fn username(self, val: impl Into<Cow<'a, str>>) -> Self {
         Self {
@@ -314,13 +309,13 @@ impl<'a> UserBuilder<'a> {
 
     #[must_use]
     pub fn build(self) -> User<'a> {
-        User {
-            usernames: self.usernames,
-            first_names: self.first_names,
-            last_names: self.last_names,
-            language_codes: self.language_codes,
-            ids: self.ids,
-        }
+        User::new(
+            self.usernames,
+            self.first_names,
+            self.last_names,
+            self.language_codes,
+            self.ids,
+        )
     }
 }
 

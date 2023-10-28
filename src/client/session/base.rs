@@ -62,15 +62,15 @@ impl From<u16> for StatusCode {
 #[derive(Debug)]
 pub struct ClientResponse {
     pub status_code: StatusCode,
-    pub content: String,
+    pub content: Box<str>,
 }
 
 impl ClientResponse {
     #[must_use]
-    pub fn new(status_code: impl Into<StatusCode>, content: String) -> Self {
+    pub fn new(status_code: impl Into<StatusCode>, content: impl Into<Box<str>>) -> Self {
         Self {
             status_code: status_code.into(),
-            content,
+            content: content.into(),
         }
     }
 }
@@ -136,14 +136,13 @@ pub trait Session: Send + Sync {
             Span::current().record("ok", false);
         }
 
-        let message = if let Some(ref description) = response.description {
-            description.to_string()
-        } else {
+        let Some(message) = response.description.clone() else {
             // Descriptions for every error mentioned in errors (https://core.telegram.org/api/errors)
             event!(
                 Level::ERROR,
-                description = ?response.description,
-                "Contract violation: description is empty in error response"
+                error_code = ?response.error_code,
+                parameters = ?response.parameters,
+                "Contract violation: description is empty in error response",
             );
 
             let err: TelegramErrorKind =
@@ -153,7 +152,7 @@ pub trait Session: Send + Sync {
             return Err(err);
         };
 
-        Span::current().record("error_message", &message);
+        Span::current().record("error_message", message.as_ref());
 
         if let Some(ref parameters) = response.parameters {
             if let Some(retry_after) = parameters.retry_after {
@@ -236,16 +235,19 @@ pub trait Session: Send + Sync {
                 err
             })?;
 
-        let telegram_response = method.build_response(&response.content).map_err(|err| {
-            event!(
-                Level::ERROR,
-                error = %err,
-                response_content = ?response.content,
-                "Cannot parse response content",
-            );
+        let telegram_response =
+            method
+                .build_response(response.content.as_ref())
+                .map_err(|err| {
+                    event!(
+                        Level::ERROR,
+                        error = %err,
+                        response_content = ?response.content,
+                        "Cannot parse response content",
+                    );
 
-            err
-        })?;
+                    err
+                })?;
 
         self.check_response(&telegram_response, &response.status_code)
             .map_err(|err| {

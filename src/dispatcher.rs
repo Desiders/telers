@@ -92,10 +92,10 @@ enum PollingError {
 /// Dispatcher using to dispatch incoming updates to the main router
 pub struct Dispatcher<Client, Propagator, BackoffType = ExponentialBackoff<SystemClock>> {
     main_router: Propagator,
-    bots: Vec<Bot<Client>>,
+    bots: Box<[Bot<Client>]>,
     polling_timeout: Option<i64>,
     backoff: BackoffType,
-    allowed_updates: Vec<String>,
+    allowed_updates: Box<[Box<str>]>,
 }
 
 impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType> {
@@ -142,7 +142,7 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
             bots: bots.into_iter().collect(),
             polling_timeout,
             backoff,
-            allowed_updates: allowed_updates.into_iter().map(Into::into).collect(),
+            allowed_updates: allowed_updates.into_iter().map(|allowed_update| allowed_update.into().into_boxed_str()).collect(),
         }
     }
 }
@@ -348,10 +348,10 @@ impl<Client, Propagator, BackoffType> DispatcherBuilder<Client, Propagator, Back
     pub fn build(self) -> Dispatcher<Client, Propagator, BackoffType> {
         Dispatcher {
             main_router: self.main_router,
-            bots: self.bots,
+            bots: self.bots.into(),
             polling_timeout: self.polling_timeout,
             backoff: self.backoff,
-            allowed_updates: self.allowed_updates,
+            allowed_updates: self.allowed_updates.into_iter().map(String::into_boxed_str).collect(),
         }
     }
 }
@@ -391,10 +391,10 @@ where
 #[allow(clippy::module_name_repetitions)]
 pub struct DispatcherService<Client, PropagatorService, BackoffType> {
     main_router: PropagatorService,
-    bots: Vec<Bot<Client>>,
+    bots: Box<[Bot<Client>]>,
     polling_timeout: Option<i64>,
     backoff: BackoffType,
-    allowed_updates: Vec<String>,
+    allowed_updates: Box<[Box<str>]>,
 }
 
 impl<Client, PropagatorService, BackoffType> ServiceProvider
@@ -474,7 +474,7 @@ impl<Client, PropagatorService, BackoffType>
     async fn listen_updates(
         bot: Arc<Bot<Client>>,
         polling_timeout: Option<i64>,
-        allowed_updates: Vec<String>,
+        allowed_updates: Box<[Box<str>]>,
         update_sender: Sender<Box<Update>>,
         mut backoff: BackoffType,
     ) -> Result<(), ListenerError<Box<Update>>>
@@ -487,7 +487,7 @@ impl<Client, PropagatorService, BackoffType>
         let mut method = GetUpdates::new()
             .limit(GET_UPDATES_SIZE)
             .timeout_option(polling_timeout)
-            .allowed_updates(allowed_updates);
+            .allowed_updates(allowed_updates.iter().map(AsRef::as_ref));
 
         // Flag for handling connection errors.
         // If it's true, we will use backoff algorithm to next backoff.
@@ -502,17 +502,27 @@ impl<Client, PropagatorService, BackoffType>
 
             let updates = match bot.send(&method).await {
                 Ok(updates) => {
-                    if updates.is_empty() {
+                    // Get last update id to set offset or skip updates if it's empty
+                    let Some(Update{ update_id, ..}) = updates.last() else {
                         event!(Level::TRACE, "No updates received");
 
                         continue;
-                    }
+                    };
 
                     event!(
                         Level::TRACE,
                         updates_len = updates.len(),
+                        last_update_id = update_id,
                         "Received updates from the Telegram server",
                     );
+
+                    // The `getUpdates` method returns the earliest 100 unconfirmed updates.
+                    // To confirm an update, use the offset parameter when calling `getUpdates`.
+                    // All updates with `update_id` less than or equal to `offset` will be marked.
+                    // as confirmed on the server and will no longer be returned.
+                    // So we need to set offset to the last update id + 1
+                    // `unwrap` is safe here, because we checked that updates isn't empty
+                    method.offset = Some(update_id + 1);
 
                     updates
                 }
@@ -530,14 +540,6 @@ impl<Client, PropagatorService, BackoffType>
                     continue;
                 }
             };
-
-            // The `getUpdates` method returns the earliest 100 unconfirmed updates.
-            // To confirm an update, use the offset parameter when calling `getUpdates`.
-            // All updates with `update_id` less than or equal to `offset` will be marked.
-            // as confirmed on the server and will no longer be returned.
-            // So we need to set offset to the last update id + 1
-            // `unwrap` is safe here, because we checked that updates isn't empty
-            method.offset = Some(updates.last().unwrap().update_id + 1);
 
             for update in updates {
                 event!(Level::TRACE, "Send update to the listener",);
@@ -706,7 +708,7 @@ impl<Client, PropagatorService, BackoffType>
         );
 
         let mut handles = Vec::with_capacity(bots_len);
-        for bot in bots {
+        for bot in bots.into_vec() {
             let dispatcher = Arc::clone(&self);
 
             event!(Level::INFO, bot = %bot, "Polling is started for bot");
@@ -833,10 +835,10 @@ mod tests {
         let dispatcher = Dispatcher::builder()
             .main_router(Router::new("main"))
             .bot(bot.clone())
-            .bots(vec![bot])
+            .bots([bot])
             .polling_timeout(123)
             .allowed_update(UpdateType::Message)
-            .allowed_updates(vec![
+            .allowed_updates([
                 UpdateType::InlineQuery,
                 UpdateType::ChosenInlineResult,
             ])

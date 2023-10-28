@@ -14,7 +14,7 @@ pub struct Bot<Client: ?Sized = Reqwest> {
     /// Bot token, which is used to receive updates and send requests to the Telegram API
     pub token: Cow<'static, str>,
     /// Bot token, which is used in `Debug` implementation for privacy
-    pub hidden_token: String,
+    pub hidden_token: Box<str>,
     /// Bot id, extracted from the token
     pub bot_id: i64,
     /// Client for sending requests to Telegram API

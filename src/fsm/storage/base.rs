@@ -94,14 +94,14 @@ pub trait Storage: Clone {
     /// States stack is used to store states history,
     /// when user set new state, then current state will be push to the states stack,
     /// so you can use this method to back to the previous state
-    async fn previous_state(&self, key: &StorageKey) -> Result<(), Self::Error>;
+    async fn set_previous_state(&self, key: &StorageKey) -> Result<(), Self::Error>;
 
     /// Get state for specified key
     /// # Arguments
     /// * `key` - Specified key to get state
     /// # Returns
     /// State for specified key, if state is no exists, then `None` will be return
-    async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error>;
+    async fn get_state(&self, key: &StorageKey) -> Result<Option<Box<str>>, Self::Error>;
 
     /// Get states stack for specified key
     /// # Arguments
@@ -111,8 +111,8 @@ pub trait Storage: Clone {
     /// when user set new state, then current state will be push to the states stack,
     /// so you can use this method to get states history or back to the previous state
     /// # Returns
-    /// States stack for specified key, if states stack is no exists, then empty [`Vec`] will be return
-    async fn get_states(&self, key: &StorageKey) -> Result<Vec<String>, Self::Error>;
+    /// States stack for specified key, if states stack is no exists, then empty slice will be return
+    async fn get_states(&self, key: &StorageKey) -> Result<Box<[Box<str>]>, Self::Error>;
 
     /// Remove states stack for specified key
     /// # Errors
@@ -159,7 +159,7 @@ pub trait Storage: Clone {
     async fn get_data<Value>(
         &self,
         key: &StorageKey,
-    ) -> Result<HashMap<String, Value>, Self::Error>
+    ) -> Result<HashMap<Box<str>, Value>, Self::Error>
     where
         Value: DeserializeOwned;
 
@@ -198,15 +198,15 @@ where
         S::set_state(self, key, state).await
     }
 
-    async fn previous_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
-        S::previous_state(self, key).await
+    async fn set_previous_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
+        S::set_previous_state(self, key).await
     }
 
-    async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error> {
+    async fn get_state(&self, key: &StorageKey) -> Result<Option<Box<str>>, Self::Error> {
         S::get_state(self, key).await
     }
 
-    async fn get_states(&self, key: &StorageKey) -> Result<Vec<String>, Self::Error> {
+    async fn get_states(&self, key: &StorageKey) -> Result<Box<[Box<str>]>, Self::Error> {
         S::get_states(self, key).await
     }
 
@@ -239,7 +239,10 @@ where
         S::set_value(self, key, value_key, value).await
     }
 
-    async fn get_data<Value>(&self, key: &StorageKey) -> Result<HashMap<String, Value>, Self::Error>
+    async fn get_data<Value>(
+        &self,
+        key: &StorageKey,
+    ) -> Result<HashMap<Box<str>, Value>, Self::Error>
     where
         Value: DeserializeOwned,
     {
@@ -277,15 +280,15 @@ where
         S::set_state(self, key, state).await
     }
 
-    async fn previous_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
-        S::previous_state(self, key).await
+    async fn set_previous_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
+        S::set_previous_state(self, key).await
     }
 
-    async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error> {
+    async fn get_state(&self, key: &StorageKey) -> Result<Option<Box<str>>, Self::Error> {
         S::get_state(self, key).await
     }
 
-    async fn get_states(&self, key: &StorageKey) -> Result<Vec<String>, Self::Error> {
+    async fn get_states(&self, key: &StorageKey) -> Result<Box<[Box<str>]>, Self::Error> {
         S::get_states(self, key).await
     }
 
@@ -318,7 +321,10 @@ where
         S::set_value(self, key, value_key, value).await
     }
 
-    async fn get_data<Value>(&self, key: &StorageKey) -> Result<HashMap<String, Value>, Self::Error>
+    async fn get_data<Value>(
+        &self,
+        key: &StorageKey,
+    ) -> Result<HashMap<Box<str>, Value>, Self::Error>
     where
         Value: DeserializeOwned,
     {

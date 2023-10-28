@@ -7,7 +7,7 @@ use async_trait::async_trait;
 /// Filter for checking the type of chat
 #[derive(Debug, Clone)]
 pub struct ChatType {
-    chat_types: Vec<ChatTypeEnum>,
+    chat_types: Box<[ChatTypeEnum]>,
 }
 
 impl ChatType {
@@ -16,7 +16,7 @@ impl ChatType {
     /// You can use [`ChatTypeEnum`] or its string representation.
     pub fn one(chat_type: impl Into<ChatTypeEnum>) -> Self {
         Self {
-            chat_types: vec![chat_type.into()],
+            chat_types: [chat_type.into()].into(),
         }
     }
 

@@ -1,14 +1,14 @@
 /// Hide telegram token for privacy. \
 /// For example,
 /// `1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11` will be hidden as `12********11`
-pub(crate) fn hide(token: &str) -> String {
+pub(crate) fn hide(token: &str) -> Box<str> {
     let token_len = token.len();
 
     let mut hidden = String::with_capacity(token_len);
     hidden.push_str(&token[..2]);
     hidden.push_str(&"*".repeat(8));
     hidden.push_str(&token[token_len - 2..]);
-    hidden
+    hidden.into()
 }
 
 /// Validate telegram token
@@ -45,15 +45,15 @@ mod tests {
     #[test]
     fn test_hide() {
         assert_eq!(
-            hide("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"),
+            hide("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11").as_ref(),
             "12********11"
         );
         assert_eq!(
-            hide("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew1"),
+            hide("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew1").as_ref(),
             "12********w1"
         );
         assert_eq!(
-            hide("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew"),
+            hide("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew").as_ref(),
             "12********ew"
         );
     }

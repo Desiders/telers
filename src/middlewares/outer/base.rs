@@ -3,8 +3,6 @@ use crate::{errors::EventErrorKind, event::EventReturn, router::Request};
 use async_trait::async_trait;
 use std::{future::Future, sync::Arc};
 
-/// List of middlewares
-pub type Middlewares<Client> = Vec<Arc<dyn Middleware<Client>>>;
 /// Response from middleware.
 /// First element is/isn't updated [`Request`] and second is [`EventReturn`] for the manipulate processing event,
 /// see [`EventReturn`] for more info.

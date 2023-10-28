@@ -7,7 +7,7 @@ use async_trait::async_trait;
 /// Filter for checking the type of content
 #[derive(Debug, Clone)]
 pub struct ContentType {
-    content_types: Vec<ContentTypeEnum>,
+    content_types: Box<[ContentTypeEnum]>,
 }
 
 impl ContentType {
@@ -17,7 +17,7 @@ impl ContentType {
     #[must_use]
     pub fn one(content_type: impl Into<ContentTypeEnum>) -> Self {
         Self {
-            content_types: vec![content_type.into()],
+            content_types: [content_type.into()].into(),
         }
     }
 

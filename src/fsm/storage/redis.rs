@@ -45,14 +45,14 @@ pub trait KeyBuilder: Send + Sync {
     /// # Returns
     /// Redis key for specified key and part
     #[must_use]
-    fn build(&self, key: &StorageKey, part: Part) -> String;
+    fn build(&self, key: &StorageKey, part: Part) -> Box<str>;
 }
 
 impl<T: ?Sized> KeyBuilder for Arc<T>
 where
     T: KeyBuilder,
 {
-    fn build(&self, key: &StorageKey, part: Part) -> String {
+    fn build(&self, key: &StorageKey, part: Part) -> Box<str> {
         T::build(self, key, part)
     }
 }
@@ -90,7 +90,7 @@ impl Default for DefaultKeyBuilder {
 }
 
 impl KeyBuilder for DefaultKeyBuilder {
-    fn build(&self, key: &StorageKey, part: Part) -> String {
+    fn build(&self, key: &StorageKey, part: Part) -> Box<str> {
         let bot_id = key.bot_id.to_string();
         let chat_id = key.chat_id.to_string();
         let user_id = key.user_id.to_string();
@@ -115,7 +115,7 @@ impl KeyBuilder for DefaultKeyBuilder {
         parts.push(&user_id);
         parts.push(part.as_str());
 
-        parts.join(self.separator)
+        parts.join(self.separator).into_boxed_str()
     }
 }
 
@@ -168,11 +168,13 @@ impl Storage for Redis {
         State: Into<Cow<'static, str>> + Send,
     {
         let key = self.key_builder.build(key, Part::States);
+        let key_ref = key.as_ref();
         let state = state.into();
+        let state_ref = state.as_ref();
 
         Span::current()
-            .record("key", &key)
-            .record("state", state.as_ref());
+            .record("key", key_ref)
+            .record("state", state_ref);
 
         let mut connection = self.get_connection().await.map_err(|err| {
             event!(Level::ERROR, error = %err, "Failed to get redis connection");
@@ -184,8 +186,8 @@ impl Storage for Redis {
         })?;
 
         redis::cmd("RPUSH")
-            .arg(&key)
-            .arg(state.as_ref())
+            .arg(key_ref)
+            .arg(state_ref)
             .query_async(&mut connection)
             .await
             .map_err(|err| {
@@ -203,10 +205,11 @@ impl Storage for Redis {
     /// when user set new state, then current state will be push to the states stack,
     /// so you can use this method to back to the previous state
     #[instrument(skip(self, key), fields(key))]
-    async fn previous_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
+    async fn set_previous_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
         let key = self.key_builder.build(key, Part::States);
+        let key_ref = key.as_ref();
 
-        Span::current().record("key", &key);
+        Span::current().record("key", key_ref);
 
         let mut connection = self.get_connection().await.map_err(|err| {
             event!(Level::ERROR, error = %err, "Failed to get redis connection");
@@ -218,7 +221,7 @@ impl Storage for Redis {
         })?;
 
         redis::cmd("RPOP")
-            .arg(&key)
+            .arg(key_ref)
             .query_async(&mut connection)
             .await
             .map_err(|err| {
@@ -234,10 +237,11 @@ impl Storage for Redis {
     /// # Returns
     /// State for specified key, if state is no exists, then `None` will be return
     #[instrument(skip(self, key), fields(key))]
-    async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error> {
+    async fn get_state(&self, key: &StorageKey) -> Result<Option<Box<str>>, Self::Error> {
         let key = self.key_builder.build(key, Part::States);
+        let key_ref = key.as_ref();
 
-        Span::current().record("key", &key);
+        Span::current().record("key", key_ref);
 
         let mut connection = self.get_connection().await.map_err(|err| {
             event!(Level::ERROR, error = %err, "Failed to get redis connection");
@@ -249,10 +253,11 @@ impl Storage for Redis {
         })?;
 
         redis::cmd("LINDEX")
-            .arg(&key)
+            .arg(key_ref)
             .arg(-1)
-            .query_async(&mut connection)
+            .query_async::<_, Option<String>>(&mut connection)
             .await
+            .map(|state| state.map(Into::into))
             .map_err(|err| {
                 event!(Level::ERROR, error = %err, "Failed to get state");
 
@@ -268,12 +273,13 @@ impl Storage for Redis {
     /// when user set new state, then current state will be push to the states stack,
     /// so you can use this method to get states history or back to the previous state
     /// # Returns
-    /// States stack for specified key, if states stack is no exists, then empty [`Vec`] will be return
+    /// States stack for specified key, if states stack is no exists, then empty slice will be return
     #[instrument(skip(self, key), fields(key))]
-    async fn get_states(&self, key: &StorageKey) -> Result<Vec<String>, Self::Error> {
+    async fn get_states(&self, key: &StorageKey) -> Result<Box<[Box<str>]>, Self::Error> {
         let key = self.key_builder.build(key, Part::States);
+        let key_ref = key.as_ref();
 
-        Span::current().record("key", &key);
+        Span::current().record("key", key_ref);
 
         let mut connection = self.get_connection().await.map_err(|err| {
             event!(Level::ERROR, error = %err, "Failed to get redis connection");
@@ -285,11 +291,12 @@ impl Storage for Redis {
         })?;
 
         redis::cmd("LRANGE")
-            .arg(&key)
+            .arg(key_ref)
             .arg(0)
             .arg(-1)
-            .query_async(&mut connection)
+            .query_async::<_, Vec<String>>(&mut connection)
             .await
+            .map(|states| states.into_iter().map(Into::into).collect())
             .map_err(|err| {
                 event!(Level::ERROR, error = %err, "Failed to get states");
 
@@ -307,8 +314,9 @@ impl Storage for Redis {
     #[instrument(skip(self, key), fields(key))]
     async fn remove_states(&self, key: &StorageKey) -> Result<(), Self::Error> {
         let key = self.key_builder.build(key, Part::States);
+        let key_ref = key.as_ref();
 
-        Span::current().record("key", &key);
+        Span::current().record("key", key_ref);
 
         let mut connection = self.get_connection().await.map_err(|err| {
             event!(Level::ERROR, error = %err, "Failed to get redis connection");
@@ -320,7 +328,7 @@ impl Storage for Redis {
         })?;
 
         redis::cmd("DEL")
-            .arg(&key)
+            .arg(key_ref)
             .query_async(&mut connection)
             .await
             .map_err(|err| {
@@ -345,8 +353,9 @@ impl Storage for Redis {
         Key: Serialize + Into<Cow<'static, str>> + Send,
     {
         let key = self.key_builder.build(key, Part::Data);
+        let key_ref = key.as_ref();
 
-        Span::current().record("key", &key);
+        Span::current().record("key", key_ref);
 
         let plain_json = serde_json::to_string(&data).map_err(|err| {
             event!(Level::ERROR, error = %err, "Failed to serialize data");
@@ -363,8 +372,8 @@ impl Storage for Redis {
         })?;
 
         redis::cmd("SET")
-            .arg(&key)
-            .arg(&plain_json)
+            .arg(key_ref)
+            .arg(plain_json.as_str())
             .query_async(&mut connection)
             .await
             .map_err(|err| {
@@ -391,8 +400,9 @@ impl Storage for Redis {
         Key: Serialize + Into<Cow<'static, str>> + Send,
     {
         let key = self.key_builder.build(key, Part::Data);
+        let key_ref = key.as_ref();
 
-        Span::current().record("key", &key);
+        Span::current().record("key", key_ref);
 
         let mut connection = self.get_connection().await.map_err(|err| {
             event!(Level::ERROR, error = %err, "Failed to get redis connection");
@@ -404,7 +414,7 @@ impl Storage for Redis {
         })?;
 
         let plain_json: Option<String> = redis::cmd("GET")
-            .arg(&key)
+            .arg(key_ref)
             .query_async(&mut connection)
             .await
             .map_err(|err| {
@@ -414,7 +424,7 @@ impl Storage for Redis {
             })?;
 
         let mut data = match plain_json {
-            Some(plain_json) => serde_json::from_str(&plain_json).map_err(|err| {
+            Some(plain_json) => serde_json::from_str(plain_json.as_str()).map_err(|err| {
                 event!(
                     Level::ERROR,
                     error = %err,
@@ -455,8 +465,8 @@ impl Storage for Redis {
         })?;
 
         redis::cmd("SET")
-            .arg(&key)
-            .arg(&plain_json)
+            .arg(key_ref)
+            .arg(plain_json.as_str())
             .query_async(&mut connection)
             .await
             .map_err(|err| {
@@ -472,13 +482,17 @@ impl Storage for Redis {
     /// # Returns
     /// Data for specified key, if data is no exists, then empty [`HashMap`] will be return
     #[instrument(skip(self, key))]
-    async fn get_data<Value>(&self, key: &StorageKey) -> Result<HashMap<String, Value>, Self::Error>
+    async fn get_data<Value>(
+        &self,
+        key: &StorageKey,
+    ) -> Result<HashMap<Box<str>, Value>, Self::Error>
     where
         Value: DeserializeOwned,
     {
         let key = self.key_builder.build(key, Part::Data);
+        let key_ref = key.as_ref();
 
-        Span::current().record("key", &key);
+        Span::current().record("key", key_ref);
 
         let mut connection = self.get_connection().await.map_err(|err| {
             event!(Level::ERROR, error = %err, "Failed to get redis connection");
@@ -490,7 +504,7 @@ impl Storage for Redis {
         })?;
 
         let plain_json: Option<String> = redis::cmd("GET")
-            .arg(&key)
+            .arg(key_ref)
             .query_async(&mut connection)
             .await
             .map_err(|err| {
@@ -500,7 +514,7 @@ impl Storage for Redis {
             })?;
 
         match plain_json {
-            Some(plain_json) => serde_json::from_str(&plain_json).map_err(|err| {
+            Some(plain_json) => serde_json::from_str(plain_json.as_str()).map_err(|err| {
                 event!(
                     Level::ERROR,
                     error = %err,
@@ -534,8 +548,9 @@ impl Storage for Redis {
         Key: Into<Cow<'static, str>> + Send,
     {
         let key = self.key_builder.build(key, Part::Data);
+        let key_ref = key.as_ref();
 
-        Span::current().record("key", &key);
+        Span::current().record("key", key_ref);
 
         let mut connection = self.get_connection().await.map_err(|err| {
             event!(Level::ERROR, error = %err, "Failed to get redis connection");
@@ -547,7 +562,7 @@ impl Storage for Redis {
         })?;
 
         let plain_json: Option<String> = redis::cmd("GET")
-            .arg(&key)
+            .arg(key_ref)
             .query_async(&mut connection)
             .await
             .map_err(|err| {
@@ -558,8 +573,8 @@ impl Storage for Redis {
 
         match plain_json {
             Some(plain_json) => {
-                let data: HashMap<Cow<'static, str>, serde_json::Value> =
-                    serde_json::from_str(&plain_json).map_err(|err| {
+                let data: HashMap<Box<str>, serde_json::Value> =
+                    serde_json::from_str(plain_json.as_str()).map_err(|err| {
                         event!(
                             Level::ERROR,
                             error = %err,
@@ -573,7 +588,7 @@ impl Storage for Redis {
                         )
                     })?;
 
-                match data.get(&value_key.into()) {
+                match data.get(value_key.into().as_ref()) {
                     Some(value) => serde_json::from_value(value.clone()).map_err(
                         |err| {
                             event!(
@@ -604,8 +619,9 @@ impl Storage for Redis {
     #[instrument(skip(self, key), fields(key))]
     async fn remove_data(&self, key: &StorageKey) -> Result<(), Self::Error> {
         let key = self.key_builder.build(key, Part::Data);
+        let key_ref = key.as_ref();
 
-        Span::current().record("key", &key);
+        Span::current().record("key", key_ref);
 
         let mut connection = self.get_connection().await.map_err(|err| {
             event!(Level::ERROR, error = %err, "Failed to get redis connection");
@@ -617,7 +633,7 @@ impl Storage for Redis {
         })?;
 
         redis::cmd("DEL")
-            .arg(&key)
+            .arg(key_ref)
             .query_async(&mut connection)
             .await
             .map_err(|err| {

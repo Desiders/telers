@@ -13,7 +13,7 @@ use tracing::{event, instrument, Level, Span};
 #[derive(Debug, Default, Clone, Eq, PartialEq)]
 struct Record {
     states: Vec<Cow<'static, str>>,
-    data: HashMap<Cow<'static, str>, Vec<u8>>,
+    data: HashMap<Cow<'static, str>, Box<[u8]>>,
 }
 
 /// This is a simple thread-safe in-memory storage implementation used for testing purposes usually
@@ -71,7 +71,7 @@ impl Storage for Memory {
     /// States stack is used to store states history,
     /// when user set new state, then current state will be push to the states stack,
     /// so you can use this method to back to the previous state
-    async fn previous_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
+    async fn set_previous_state(&self, key: &StorageKey) -> Result<(), Self::Error> {
         match self.storage.lock().await.entry(key.clone()) {
             Entry::Occupied(mut entry) => {
                 entry.get_mut().states.pop();
@@ -86,13 +86,13 @@ impl Storage for Memory {
     /// * `key` - Specified key to get state
     /// # Returns
     /// State for specified key, if state is no exists, then `None` will be return
-    async fn get_state(&self, key: &StorageKey) -> Result<Option<String>, Self::Error> {
+    async fn get_state(&self, key: &StorageKey) -> Result<Option<Box<str>>, Self::Error> {
         Ok(self
             .storage
             .lock()
             .await
             .get(key)
-            .and_then(|record| record.states.last().map(ToString::to_string)))
+            .and_then(|record| record.states.last().map(|state| state.as_ref().into())))
     }
 
     /// Get states stack for specified key
@@ -103,14 +103,20 @@ impl Storage for Memory {
     /// when user set new state, then current state will be push to the states stack,
     /// so you can use this method to get states history or back to the previous state
     /// # Returns
-    /// States stack for specified key, if states stack is no exists, then empty [`Vec`] will be return
-    async fn get_states(&self, key: &StorageKey) -> Result<Vec<String>, Self::Error> {
+    /// States stack for specified key, if states stack is no exists, then empty slice will be return
+    async fn get_states(&self, key: &StorageKey) -> Result<Box<[Box<str>]>, Self::Error> {
         Ok(self
             .storage
             .lock()
             .await
             .get(key)
-            .map(|record| record.states.iter().map(ToString::to_string).collect())
+            .map(|record| {
+                record
+                    .states
+                    .iter()
+                    .map(|state| state.as_ref().into())
+                    .collect()
+            })
             .unwrap_or_default())
     }
 
@@ -151,7 +157,7 @@ impl Storage for Memory {
         match self.storage.lock().await.entry(key.clone()) {
             Entry::Occupied(mut entry) => {
                 if data_len == 0 {
-                    // We can't use `clear` method, because we don't need save allocated capacity
+                    // We don't use `clear` method, because we don't need save allocated capacity
                     entry.get_mut().data = HashMap::default();
                     return Ok(());
                 }
@@ -161,14 +167,16 @@ impl Storage for Memory {
                 for (value_key, value) in data {
                     new_data.insert(
                         value_key.into(),
-                        bincode::serialize(&value).map_err(|err| {
-                            event!(Level::ERROR, "Failed to serialize value");
+                        bincode::serialize(&value)
+                            .map_err(|err| {
+                                event!(Level::ERROR, "Failed to serialize value");
 
-                            Error::new(
-                                format!("Failed to serialize value. Storage key: `{key:?}`"),
-                                err,
-                            )
-                        })?,
+                                Error::new(
+                                    format!("Failed to serialize value. Storage key: `{key:?}`"),
+                                    err,
+                                )
+                            })?
+                            .into(),
                     );
                 }
 
@@ -188,14 +196,16 @@ impl Storage for Memory {
                 for (value_key, value) in data {
                     new_data.insert(
                         value_key.into(),
-                        bincode::serialize(&value).map_err(|err| {
-                            event!(Level::ERROR, "Failed to serialize value");
+                        bincode::serialize(&value)
+                            .map_err(|err| {
+                                event!(Level::ERROR, "Failed to serialize value");
 
-                            Error::new(
-                                format!("Failed to serialize value. Storage key: `{key:?}`"),
-                                err,
-                            )
-                        })?,
+                                Error::new(
+                                    format!("Failed to serialize value. Storage key: `{key:?}`"),
+                                    err,
+                                )
+                            })?
+                            .into(),
                     );
                 }
 
@@ -232,14 +242,16 @@ impl Storage for Memory {
             Entry::Occupied(mut entry) => {
                 entry.get_mut().data.insert(
                     value_key,
-                    bincode::serialize(&value).map_err(|err| {
-                        event!(Level::ERROR, "Failed to serialize value");
+                    bincode::serialize(&value)
+                        .map_err(|err| {
+                            event!(Level::ERROR, "Failed to serialize value");
 
-                        Error::new(
-                            format!("Failed to serialize value. Storage key: `{key:?}`"),
-                            err,
-                        )
-                    })?,
+                            Error::new(
+                                format!("Failed to serialize value. Storage key: `{key:?}`"),
+                                err,
+                            )
+                        })?
+                        .into(),
                 );
             }
             Entry::Vacant(entry) => {
@@ -249,14 +261,18 @@ impl Storage for Memory {
                         let mut new_data = HashMap::with_capacity(1);
                         new_data.insert(
                             value_key,
-                            bincode::serialize(&value).map_err(|err| {
-                                event!(Level::ERROR, "Failed to serialize value");
+                            bincode::serialize(&value)
+                                .map_err(|err| {
+                                    event!(Level::ERROR, "Failed to serialize value");
 
-                                Error::new(
-                                    format!("Failed to serialize value. Storage key: `{key:?}`"),
-                                    err,
-                                )
-                            })?,
+                                    Error::new(
+                                        format!(
+                                            "Failed to serialize value. Storage key: `{key:?}`"
+                                        ),
+                                        err,
+                                    )
+                                })?
+                                .into(),
                         );
                         new_data
                     },
@@ -272,7 +288,10 @@ impl Storage for Memory {
     /// # Returns
     /// Data for specified key, if data is no exists, then empty [`HashMap`] will be return
     #[instrument(skip(self))]
-    async fn get_data<Value>(&self, key: &StorageKey) -> Result<HashMap<String, Value>, Self::Error>
+    async fn get_data<Value>(
+        &self,
+        key: &StorageKey,
+    ) -> Result<HashMap<Box<str>, Value>, Self::Error>
     where
         Value: DeserializeOwned,
     {
@@ -283,7 +302,7 @@ impl Storage for Memory {
 
                 for (value_key, value) in entry_data {
                     data.insert(
-                        value_key.as_ref().to_owned(),
+                        value_key.as_ref().into(),
                         bincode::deserialize(value).map_err(|err| {
                             event!(Level::ERROR, "Failed to deserialize value");
 
@@ -377,7 +396,7 @@ mod tests {
             Some("state2".into())
         );
 
-        storage.previous_state(&key1).await.unwrap();
+        storage.set_previous_state(&key1).await.unwrap();
 
         assert_eq!(storage.get_state(&key1).await.unwrap(), None);
         assert_eq!(
@@ -385,7 +404,7 @@ mod tests {
             Some("state2".into())
         );
 
-        storage.previous_state(&key2).await.unwrap();
+        storage.set_previous_state(&key2).await.unwrap();
 
         assert_eq!(storage.get_state(&key1).await.unwrap(), None);
         assert_eq!(storage.get_state(&key2).await.unwrap(), None);
@@ -395,16 +414,13 @@ mod tests {
 
         assert_eq!(
             storage.get_states(&key1).await.unwrap(),
-            vec!["state1".to_owned(), "state2".to_owned()]
+            ["state1".into(), "state2".into()].into()
         );
 
         storage.remove_states(&key1).await.unwrap();
 
         assert_eq!(storage.get_state(&key1).await.unwrap(), None);
-        assert_eq!(
-            storage.get_states(&key1).await.unwrap(),
-            Vec::<String>::default(),
-        );
+        assert_eq!(storage.get_states(&key1).await.unwrap(), [].into());
     }
 
     #[tokio::test]
@@ -415,11 +431,11 @@ mod tests {
         let key2 = StorageKey::new(2, 1, 0, None);
 
         assert_eq!(
-            storage.get_data::<String>(&key1).await.unwrap(),
+            storage.get_data::<Box<str>>(&key1).await.unwrap(),
             HashMap::default()
         );
         assert_eq!(
-            storage.get_data::<String>(&key2).await.unwrap(),
+            storage.get_data::<Box<str>>(&key2).await.unwrap(),
             HashMap::default()
         );
 
@@ -434,65 +450,96 @@ mod tests {
         storage.set_data(&key1, data1).await.unwrap();
         storage.set_data(&key2, data2).await.unwrap();
 
-        let get_data1 = storage.get_data::<String>(&key1).await.unwrap();
-        let get_data2 = storage.get_data::<String>(&key2).await.unwrap();
+        let get_data1 = storage.get_data::<Box<str>>(&key1).await.unwrap();
+        let get_data2 = storage.get_data::<Box<str>>(&key2).await.unwrap();
 
         assert_eq!(get_data1.len(), 2);
         assert_eq!(get_data2.len(), 2);
 
-        assert_eq!(get_data1.get("key1").unwrap(), "value1");
-        assert_eq!(get_data1.get("key2").unwrap(), "value2");
-        assert_eq!(get_data2.get("key3").unwrap(), "value3");
-        assert_eq!(get_data2.get("key4").unwrap(), "value4");
+        assert_eq!(get_data1.get("key1").unwrap().as_ref(), "value1");
+        assert_eq!(get_data1.get("key2").unwrap().as_ref(), "value2");
+        assert_eq!(get_data2.get("key3").unwrap().as_ref(), "value3");
+        assert_eq!(get_data2.get("key4").unwrap().as_ref(), "value4");
         assert_eq!(
-            storage.get_value::<_, String>(&key1, "key1").await.unwrap(),
-            Some("value1".into())
+            storage
+                .get_value::<_, Box<str>>(&key1, "key1")
+                .await
+                .unwrap()
+                .as_deref(),
+            Some("value1")
         );
         assert_eq!(
-            storage.get_value::<_, String>(&key1, "key2").await.unwrap(),
-            Some("value2".into())
+            storage
+                .get_value::<_, Box<str>>(&key1, "key2")
+                .await
+                .unwrap()
+                .as_deref(),
+            Some("value2")
         );
         assert_eq!(
-            storage.get_value::<_, String>(&key2, "key3").await.unwrap(),
-            Some("value3".into())
+            storage
+                .get_value::<_, Box<str>>(&key2, "key3")
+                .await
+                .unwrap()
+                .as_deref(),
+            Some("value3")
         );
         assert_eq!(
-            storage.get_value::<_, String>(&key2, "key4").await.unwrap(),
-            Some("value4".into())
+            storage
+                .get_value::<_, Box<str>>(&key2, "key4")
+                .await
+                .unwrap()
+                .as_deref(),
+            Some("value4")
         );
 
         storage.set_value(&key1, "key1", "value11").await.unwrap();
         storage.set_value(&key1, "key5", "value5").await.unwrap();
 
         assert_eq!(
-            storage.get_value::<_, String>(&key1, "key1").await.unwrap(),
-            Some("value11".into())
+            storage
+                .get_value::<_, Box<str>>(&key1, "key1")
+                .await
+                .unwrap()
+                .as_deref(),
+            Some("value11")
         );
         assert_eq!(
-            storage.get_value::<_, String>(&key1, "key5").await.unwrap(),
-            Some("value5".into())
+            storage
+                .get_value::<_, Box<str>>(&key1, "key5")
+                .await
+                .unwrap()
+                .as_deref(),
+            Some("value5")
         );
 
         storage.remove_data(&key1).await.unwrap();
 
-        assert_eq!(storage.get_data::<String>(&key1).await.unwrap().len(), 0);
-        assert_eq!(storage.get_data::<String>(&key2).await.unwrap().len(), 2);
+        assert_eq!(storage.get_data::<Box<str>>(&key1).await.unwrap().len(), 0);
+        assert_eq!(storage.get_data::<Box<str>>(&key2).await.unwrap().len(), 2);
 
         assert_eq!(
-            storage.get_value::<_, String>(&key1, "key1").await.unwrap(),
+            storage
+                .get_value::<_, Box<str>>(&key1, "key1")
+                .await
+                .unwrap(),
             None
         );
 
         storage.remove_data(&key2).await.unwrap();
 
-        assert_eq!(storage.get_data::<String>(&key1).await.unwrap().len(), 0);
-        assert_eq!(storage.get_data::<String>(&key2).await.unwrap().len(), 0);
+        assert_eq!(storage.get_data::<Box<str>>(&key1).await.unwrap().len(), 0);
+        assert_eq!(storage.get_data::<Box<str>>(&key2).await.unwrap().len(), 0);
 
         storage.set_value(&key1, "key1", "value1").await.unwrap();
 
         assert_eq!(
-            storage.get_value::<_, String>(&key1, "key1").await.unwrap(),
-            Some("value1".into())
+            storage
+                .get_value::<_, Box<str>>(&key1, "key1")
+                .await
+                .unwrap()
+                .as_deref(),
+            Some("value1")
         );
     }
 }

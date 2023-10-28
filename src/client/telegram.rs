@@ -108,9 +108,9 @@ impl FilesPathWrapper for FilesDiffPathWrapper {
 #[derive(Clone, Debug)]
 pub struct APIServer {
     /// Base URL for API
-    base_url: String,
+    base_url: Box<str>,
     /// Files URL
-    files_url: String,
+    files_url: Box<str>,
     /// Mark this server is in [`local mode`](https://core.telegram.org/bots/api#using-a-local-bot-api-server)
     is_local: bool,
     /// Path wrapper for files in local mode
@@ -124,8 +124,8 @@ impl APIServer {
         T: FilesPathWrapper + 'static,
     {
         Self {
-            base_url: base_url.trim_end_matches('/').to_string(),
-            files_url: files_url.trim_end_matches('/').to_string(),
+            base_url: base_url.trim_end_matches('/').into(),
+            files_url: files_url.trim_end_matches('/').into(),
             is_local,
             files_path_wrapper: Arc::new(files_path_wrapper),
         }
@@ -160,10 +160,11 @@ impl APIServer {
     /// * `token` - Bot token
     /// * `method_name` - API method name (case insensitive)
     #[must_use]
-    pub fn api_url(&self, token: &str, method_name: &str) -> String {
+    pub fn api_url(&self, token: &str, method_name: &str) -> Box<str> {
         self.base_url
             .replace("{token}", token)
             .replace("{method_name}", method_name)
+            .into()
     }
 
     /// Generate URL for downloading file
@@ -171,10 +172,11 @@ impl APIServer {
     /// * `token` - Bot token
     /// * `path` - Path to file
     #[must_use]
-    pub fn file_url(&self, token: &str, path: &str) -> String {
+    pub fn file_url(&self, token: &str, path: &str) -> Box<str> {
         self.files_url
             .replace("{token}", token)
             .replace("{path}", path)
+            .into()
     }
 }
 
@@ -213,10 +215,12 @@ mod tests {
             BareFilesPathWrapper,
         );
         assert_eq!(
-            server.api_url(
-                "1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
-                "getUpdates"
-            ),
+            server
+                .api_url(
+                    "1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+                    "getUpdates"
+                )
+                .as_ref(),
             "https://api.telegram.org/bot1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/getUpdates"
         );
 
@@ -230,7 +234,7 @@ mod tests {
             server.api_url(
                 "1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
                 "getUpdates"
-            ),
+            ).as_ref(),
             "https://api.telegram.org/bot1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/test/getUpdates"
         );
     }
@@ -247,7 +251,7 @@ mod tests {
             server.file_url(
                 "1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
                 "test_path"
-            ),
+            ).as_ref(),
             "https://api.telegram.org/file/bot1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/test_path"
         );
 
@@ -261,7 +265,7 @@ mod tests {
             server.file_url(
                 "1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
                 "test_path"
-            ),
+            ).as_ref(),
             "https://api.telegram.org/file/bot1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/test/test_path"
         );
     }

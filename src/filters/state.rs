@@ -64,7 +64,7 @@ pub struct State<'a, B: 'a = Dummy>
 where
     B: ToOwned + PartialEq<&'a str>,
 {
-    allowed_states: Vec<StateType<'a, B>>,
+    allowed_states: Box<[StateType<'a, B>]>,
 }
 
 impl State<'static> {
@@ -72,7 +72,7 @@ impl State<'static> {
     #[must_use]
     pub fn any() -> Self {
         Self {
-            allowed_states: vec![StateType::Any],
+            allowed_states: [StateType::Any].into(),
         }
     }
 
@@ -80,7 +80,7 @@ impl State<'static> {
     #[must_use]
     pub fn none() -> Self {
         Self {
-            allowed_states: vec![StateType::None],
+            allowed_states: [StateType::None].into(),
         }
     }
 }
@@ -93,7 +93,7 @@ where
     #[must_use]
     pub fn one(state: impl Into<StateType<'a, B>>) -> Self {
         Self {
-            allowed_states: vec![state.into()],
+            allowed_states: [state.into()].into(),
         }
     }
 
@@ -120,7 +120,9 @@ where
             allowed_states.push(state);
         }
 
-        Self { allowed_states }
+        Self {
+            allowed_states: allowed_states.into(),
+        }
     }
 }
 
@@ -171,10 +173,10 @@ where
         match context.get("fsm_state") {
             Some(state) => {
                 let state = state
-                    .downcast_ref::<String>()
+                    .downcast_ref::<Box<str>>()
                     .expect("State isn't `String`");
 
-                self.check(Some(state))
+                self.check(Some(state.as_ref()))
             }
             None => self.check(None),
         }

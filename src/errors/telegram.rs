@@ -12,39 +12,39 @@ use thiserror;
 #[derive(Debug, thiserror::Error)]
 pub enum ErrorKind {
     #[error("TelegramNetworkError: {message:?}")]
-    NetworkError { message: String },
+    NetworkError { message: Box<str> },
     #[error(
         "TelegramRetryAfter: {message:?} ({retry_after:?} seconds) (see {url:?} for more info)"
     )]
     RetryAfter {
         url: &'static str, // https://core.telegram.org/bots/faq#my-bot-is-hitting-limits-how-do-i-avoid-this
-        message: String,
+        message: Box<str>,
         retry_after: i64,
     },
     #[error("TelegramMigrateToChat: {message:?} (migrate to chat id: {migrate_to_chat_id:?}, see {url:?} for more info)")]
     MigrateToChat {
         url: &'static str, // https://core.telegram.org/bots/api#responseparameters
-        message: String,
+        message: Box<str>,
         migrate_to_chat_id: i64,
     },
     #[error("TelegramBadRequest: {message:?}")]
-    BadRequest { message: String },
+    BadRequest { message: Box<str> },
     #[error("TelegramNotFound: {message:?}")]
-    NotFound { message: String },
+    NotFound { message: Box<str> },
     #[error("TelegramConflictError: {message:?}")]
-    ConflictError { message: String },
+    ConflictError { message: Box<str> },
     #[error("TelegramForbidden: {message:?}")]
-    Forbidden { message: String },
+    Forbidden { message: Box<str> },
     #[error("TelegramUnauthorized: {message:?}")]
-    Unauthorized { message: String },
+    Unauthorized { message: Box<str> },
     #[error("TelegramServerError: {message:?}")]
-    ServerError { message: String },
+    ServerError { message: Box<str> },
     #[error("TelegramRestartingTelegram: {message:?}")]
-    RestartingTelegram { message: String },
+    RestartingTelegram { message: Box<str> },
     #[error("TelegramTooLarge: {message:?} (see {url:?} for more info)")]
     EntityTooLarge {
         url: &'static str, // https://core.telegram.org/bots/api#sending-files
-        message: String,
+        message: Box<str>,
     },
     /// To possible handle unsupported errors, that can be added in the new versions of the Telegram API.
     /// This is necessary to support the "old" API if the "new" API has released a new exception.

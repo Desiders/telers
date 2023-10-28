@@ -59,31 +59,31 @@ impl Reqwest {
         for file in files {
             match file.kind() {
                 InputFileKind::FS(file) => {
-                    let id = file.id();
+                    let id = file.id().to_string();
                     let file_name = file.file_name();
                     let stream = file.clone().stream();
 
                     let body = Body::wrap_stream(stream);
                     let part = if let Some(file_name) = file_name {
-                        Part::stream(body).file_name(file_name.to_string())
+                        Part::stream(body).file_name(file_name.to_owned())
                     } else {
-                        Part::stream(body).file_name(file.id().to_string())
+                        Part::stream(body).file_name(id.clone())
                     };
 
-                    form = form.part(id.to_string(), part);
+                    form = form.part(id, part);
                 }
                 InputFileKind::Buffered(file) => {
-                    let id = file.id();
+                    let id = file.id().to_string();
                     let file_name = file.file_name();
                     let bytes = file.bytes();
 
                     let part = if let Some(file_name) = file_name {
                         Part::bytes(bytes.to_vec()).file_name(file_name.to_string())
                     } else {
-                        Part::bytes(bytes.to_vec()).file_name(file.id().to_string())
+                        Part::bytes(bytes.to_vec()).file_name(id.clone())
                     };
 
-                    form = form.part(id.to_string(), part);
+                    form = form.part(id, part);
                 }
                 InputFileKind::Id(_) | InputFileKind::Url(_) => continue,
             };
@@ -152,11 +152,11 @@ impl Session for Reqwest {
             Span::current().record("timeout", timeout);
 
             self.client
-                .post(url)
+                .post(url.as_ref())
                 .multipart(form)
                 .timeout(Duration::from_secs_f32(timeout))
         } else {
-            self.client.post(url).multipart(form)
+            self.client.post(url.as_ref()).multipart(form)
         }
         .send()
         .await

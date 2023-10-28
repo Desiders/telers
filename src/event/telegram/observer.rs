@@ -15,9 +15,9 @@ use crate::{
     middlewares::{
         inner::{
             wrap_handler_and_middlewares_to_next, Manager as InnerMiddlewareManager,
-            Middlewares as InnerMiddlewares,
+            Middleware as InnerMiddleware,
         },
-        outer::{Manager as OuterMiddlewareManager, Middlewares as OuterMiddlewares},
+        outer::{Manager as OuterMiddlewareManager, Middleware as OuterMiddleware},
     },
     types::Update,
 };
@@ -101,20 +101,20 @@ impl<Client> Debug for Response<Client> {
 pub struct Observer<Client> {
     pub event_name: &'static str,
 
-    pub handlers: Vec<HandlerObject<Client>>,
-    pub common: HandlerObject<Client>,
+    handlers: Vec<HandlerObject<Client>>,
+    common: HandlerObject<Client>,
 
     pub inner_middlewares: InnerMiddlewareManager<Client>,
     pub outer_middlewares: OuterMiddlewareManager<Client>,
 }
 
-impl<Client> Observer<Client>
-where
-    Client: Send + Sync + 'static,
-{
+impl<Client> Observer<Client> {
     #[allow(unreachable_code)]
     #[must_use]
-    pub fn new(event_name: &'static str) -> Self {
+    pub fn new(event_name: &'static str) -> Self
+    where
+        Client: Send + Sync + 'static,
+    {
         Self {
             event_name,
             handlers: vec![],
@@ -129,9 +129,15 @@ where
         }
     }
 
+    #[must_use]
+    pub fn handlers(&self) -> &[HandlerObject<Client>] {
+        &self.handlers
+    }
+
     #[allow(clippy::missing_panics_doc)]
     pub fn register<H, Args>(&mut self, handler: H) -> &mut HandlerObject<Client>
     where
+        Client: Send + Sync + 'static,
         H: Handler<Args> + Clone + Send + Sync + 'static,
         H::Future: Send,
         H::Output: Into<HandlerResult>,
@@ -146,6 +152,7 @@ where
     /// Alias to [`Observer::register`] method
     pub fn on<H, Args>(&mut self, handler: H) -> &mut HandlerObject<Client>
     where
+        Client: Send + Sync + 'static,
         H: Handler<Args> + Clone + Send + Sync + 'static,
         H::Future: Send,
         H::Output: Into<HandlerResult>,
@@ -154,9 +161,7 @@ where
     {
         self.register(handler)
     }
-}
 
-impl<Client> Observer<Client> {
     /// Register filter for all handlers in the observer
     pub fn filter<T>(&mut self, val: T) -> &mut Self
     where
@@ -211,22 +216,16 @@ impl<Client> ToServiceProvider for Observer<Client> {
         self,
         config: Self::Config,
     ) -> Result<Self::ServiceProvider, Self::InitError> {
-        let event_name = self.event_name;
-        let handlers = self
-            .handlers
-            .iter()
-            .map(|handler| handler.new_service(config))
-            .collect::<Result<_, _>>()?;
-        let common = self.common.new_service(config)?;
-        let inner_middlewares = self.inner_middlewares.middlewares.clone();
-        let outer_middlewares = self.outer_middlewares.middlewares.clone();
-
         Ok(ObserverService {
-            event_name,
-            handlers,
-            common,
-            inner_middlewares,
-            outer_middlewares,
+            event_name: self.event_name,
+            handlers: self
+                .handlers
+                .iter()
+                .map(|handler| handler.new_service(config))
+                .collect::<Result<_, _>>()?,
+            common: self.common.new_service(config)?,
+            inner_middlewares: self.inner_middlewares.middlewares.into(),
+            outer_middlewares: self.outer_middlewares.middlewares.into(),
         })
     }
 }
@@ -235,19 +234,16 @@ impl<Client> ToServiceProvider for Observer<Client> {
 pub struct ObserverService<Client> {
     pub(crate) event_name: &'static str,
 
-    handlers: Vec<HandlerObjectService<Client>>,
+    handlers: Box<[HandlerObjectService<Client>]>,
     common: HandlerObjectService<Client>,
 
-    pub(crate) inner_middlewares: InnerMiddlewares<Client>,
-    pub(crate) outer_middlewares: OuterMiddlewares<Client>,
+    inner_middlewares: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    outer_middlewares: Box<[Arc<dyn OuterMiddleware<Client>>]>,
 }
 
 impl<Client> ServiceProvider for ObserverService<Client> {}
 
-impl<Client> ObserverService<Client>
-where
-    Client: Send + Sync + 'static,
-{
+impl<Client> ObserverService<Client> {
     /// Propagate event to handlers and stops propagation on first match.
     /// Handler will be called when all its filters is pass.
     /// # Errors
@@ -256,7 +252,10 @@ where
     pub async fn trigger(
         &self,
         request: Request<Client>,
-    ) -> Result<Response<Client>, EventErrorKind> {
+    ) -> Result<Response<Client>, EventErrorKind>
+    where
+        Client: Send + Sync + 'static,
+    {
         let handler_request: HandlerRequest<Client> = request.clone().into();
 
         // Check observer filters
@@ -270,7 +269,7 @@ where
         }
 
         // Check handlers filters
-        for handler in &self.handlers {
+        for handler in self.handlers.iter() {
             if !handler.check(&handler_request).await {
                 continue;
             }
@@ -281,7 +280,7 @@ where
                 Some((middleware, middlewares)) => {
                     let next = Box::new(wrap_handler_and_middlewares_to_next(
                         Arc::clone(&handler.service),
-                        middlewares.to_vec(),
+                        middlewares.into(),
                     ));
                     middleware.call(handler_request.clone(), next).await
                 }
@@ -337,6 +336,16 @@ where
             request,
             propagate_result: PropagateEventResult::Unhandled,
         })
+    }
+
+    #[must_use]
+    pub fn inner_middlewares(&self) -> &[Arc<dyn InnerMiddleware<Client>>] {
+        &self.inner_middlewares
+    }
+
+    #[must_use]
+    pub fn outer_middlewares(&self) -> &[Arc<dyn OuterMiddleware<Client>>] {
+        &self.outer_middlewares
     }
 }
 

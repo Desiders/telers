@@ -9,9 +9,9 @@ use tracing::instrument;
 /// Simple events observer
 /// Is used for managing events isn't related with Telegram (For example startup/shutdown events)
 pub struct Observer {
-    /// Can be used for logging and debugging
     pub event_name: &'static str,
-    pub handlers: Vec<HandlerObject>,
+
+    handlers: Vec<HandlerObject>,
 }
 
 impl Observer {
@@ -21,6 +21,11 @@ impl Observer {
             event_name,
             handlers: vec![],
         }
+    }
+
+    #[must_use]
+    pub fn handlers(&self) -> &[HandlerObject] {
+        &self.handlers
     }
 
     /// Register event handler
@@ -92,7 +97,7 @@ impl ToServiceProvider for Observer {
 
 pub struct ObserverService {
     event_name: &'static str,
-    handlers: Vec<HandlerObjectService>,
+    handlers: Box<[HandlerObjectService]>,
 }
 
 impl Debug for ObserverService {
@@ -113,7 +118,7 @@ impl ObserverService {
     /// If any handler returns error
     #[instrument(skip(self, request))]
     pub async fn trigger(&self, request: ()) -> HandlerResult {
-        for handler in &self.handlers {
+        for handler in self.handlers.iter() {
             handler.call(request).await?;
         }
 

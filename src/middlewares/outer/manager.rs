@@ -1,10 +1,10 @@
-use super::base::{Middleware, Middlewares};
+use super::base::Middleware;
 
 use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct Manager<Client> {
-    pub middlewares: Middlewares<Client>,
+    pub middlewares: Vec<Arc<dyn Middleware<Client>>>,
 }
 
 impl<Client> Manager<Client> {
@@ -32,7 +32,7 @@ impl<Client> Manager<Client> {
 impl<Client> Default for Manager<Client> {
     fn default() -> Self {
         Self {
-            middlewares: Middlewares::new(),
+            middlewares: vec![],
         }
     }
 }

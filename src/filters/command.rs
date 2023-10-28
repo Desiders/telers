@@ -64,7 +64,7 @@ impl From<Regex> for PatternType<'_> {
 #[derive(Debug, Clone)]
 pub struct Command<'a> {
     /// List of commands ([`Cow`], [`BotCommand`] or compiled [`Regex`] patterns)
-    commands: Vec<PatternType<'a>>,
+    commands: Box<[PatternType<'a>]>,
     /// Command prefix
     prefix: char,
     /// Ignore case sensitive
@@ -190,7 +190,7 @@ impl Default for Command<'_> {
     #[must_use]
     fn default() -> Self {
         Self {
-            commands: vec![],
+            commands: Box::new([]),
             prefix: '/',
             ignore_case: false,
             ignore_mention: false,
@@ -303,7 +303,7 @@ impl Command<'_> {
         } else if let Some(ref mention) = command.mention {
             bot.send(GetMe::default()).await.map(|user| {
                 // `unwrap` is safe here, because bot always has username
-                user.username.unwrap() == *mention
+                user.username.unwrap() == mention.as_ref()
             })
         } else {
             Ok(true)
@@ -313,15 +313,16 @@ impl Command<'_> {
     #[must_use]
     pub fn validate_command(&self, command: &CommandObject) -> bool {
         let command = if self.ignore_case {
-            command.command.to_lowercase()
+            command.command.to_lowercase().into_boxed_str()
         } else {
             command.command.clone()
         };
+        let command_ref = command.as_ref();
 
-        for pattern in &self.commands {
+        for pattern in self.commands.iter() {
             match pattern {
                 PatternType::Text(allowed_command) => {
-                    if command == *allowed_command {
+                    if command_ref == allowed_command {
                         return true
                     }
                 }
@@ -357,22 +358,25 @@ impl Command<'_> {
 #[derive(Debug, Clone, Eq, Hash, PartialEq)]
 pub struct CommandObject {
     /// Command without prefix and mention
-    pub command: String,
+    pub command: Box<str>,
     /// Command prefix
     pub prefix: char,
     /// Mention in command
-    pub mention: Option<String>,
+    pub mention: Option<Box<str>>,
     /// Command arguments
-    pub args: Vec<String>,
+    pub args: Box<[Box<str>]>,
 }
 
 impl CommandObject {
     /// Extracts [`CommandObject`] from text
     #[must_use]
     pub fn extract(text: &str) -> Option<Self> {
-        let result: Vec<_> = text.trim().split(' ').collect();
-        let full_command = result[0].to_string();
-        let args = result[1..].iter().map(ToString::to_string).collect();
+        let result: Box<[&str]> = text.trim().split(' ').collect();
+        let full_command = result[0];
+        let args = result[1..]
+            .iter()
+            .map(|arg| (*arg).to_owned().into_boxed_str())
+            .collect();
 
         let mut full_command_chars = full_command.chars();
 
@@ -386,10 +390,10 @@ impl CommandObject {
         // Check if command contains mention, e.g. `/command@mention`, `/command@mention args`
         // and extract it, if it exists and isn't empty
         let (command, mention) = if !command.starts_with('@') && command.contains('@') {
-            let result: Vec<_> = command.split('@').collect();
+            let result: Box<[&str]> = command.split('@').collect();
 
-            let command = result[0].to_string();
-            let mention = result[1].to_string();
+            let command = result[0];
+            let mention = result[1];
 
             let mention = if mention.is_empty() {
                 None
@@ -399,13 +403,13 @@ impl CommandObject {
 
             (command, mention)
         } else {
-            (command.to_owned(), None)
+            (command, None)
         };
 
         Some(CommandObject {
-            command,
+            command: command.into(),
             prefix,
-            mention,
+            mention: mention.map(Into::into),
             args,
         })
     }
@@ -448,76 +452,76 @@ mod tests {
     #[test]
     fn test_command_extract() {
         let command_obj = CommandObject::extract("/start").unwrap();
-        assert_eq!(command_obj.command, "start");
+        assert_eq!(command_obj.command.as_ref(), "start");
         assert_eq!(command_obj.prefix, '/');
         assert_eq!(command_obj.mention, None);
-        assert_eq!(command_obj.args, Vec::<String>::new());
+        assert_eq!(command_obj.args, [].into());
 
         let command_obj = CommandObject::extract("/start@bot_username").unwrap();
-        assert_eq!(command_obj.command, "start");
+        assert_eq!(command_obj.command.as_ref(), "start");
         assert_eq!(command_obj.prefix, '/');
-        assert_eq!(command_obj.mention, Some("bot_username".to_string()));
-        assert_eq!(command_obj.args, Vec::<String>::new());
+        assert_eq!(command_obj.mention.as_deref(), Some("bot_username"));
+        assert_eq!(command_obj.args, [].into());
 
         let command_obj = CommandObject::extract("/start@").unwrap();
-        assert_eq!(command_obj.command, "start");
+        assert_eq!(command_obj.command.as_ref(), "start");
         assert_eq!(command_obj.prefix, '/');
         assert_eq!(command_obj.mention, None);
-        assert_eq!(command_obj.args, Vec::<String>::new());
+        assert_eq!(command_obj.args, [].into());
 
         let command_obj = CommandObject::extract("/@").unwrap();
-        assert_eq!(command_obj.command, "@");
+        assert_eq!(command_obj.command.as_ref(), "@");
         assert_eq!(command_obj.prefix, '/');
         assert_eq!(command_obj.mention, None);
-        assert_eq!(command_obj.args, Vec::<String>::new());
+        assert_eq!(command_obj.args, [].into());
 
         let command_obj = CommandObject::extract("@/").unwrap();
-        assert_eq!(command_obj.command, "/");
+        assert_eq!(command_obj.command.as_ref(), "/");
         assert_eq!(command_obj.prefix, '@');
         assert_eq!(command_obj.mention, None);
-        assert_eq!(command_obj.args, Vec::<String>::new());
+        assert_eq!(command_obj.args, [].into());
 
         let command_obj = CommandObject::extract("/@ arg1 arg2").unwrap();
-        assert_eq!(command_obj.command, "@");
+        assert_eq!(command_obj.command.as_ref(), "@");
         assert_eq!(command_obj.prefix, '/');
         assert_eq!(command_obj.mention, None);
-        assert_eq!(command_obj.args, vec!["arg1", "arg2"]);
+        assert!(command_obj.args == Box::new(["arg1".into(), "arg2".into()]) as Box<_>);
 
         let command_obj = CommandObject::extract("/@bot_username").unwrap();
-        assert_eq!(command_obj.command, "@bot_username");
+        assert_eq!(command_obj.command.as_ref(), "@bot_username");
         assert_eq!(command_obj.prefix, '/');
         assert_eq!(command_obj.mention, None);
-        assert_eq!(command_obj.args, Vec::<String>::new());
+        assert_eq!(command_obj.args, [].into());
 
         let command_obj = CommandObject::extract("@start@bot_username").unwrap();
-        assert_eq!(command_obj.command, "start");
+        assert_eq!(command_obj.command.as_ref(), "start");
         assert_eq!(command_obj.prefix, '@');
-        assert_eq!(command_obj.mention, Some("bot_username".to_string()));
-        assert_eq!(command_obj.args, Vec::<String>::new());
+        assert_eq!(command_obj.mention.as_deref(), Some("bot_username"));
+        assert_eq!(command_obj.args, [].into());
 
         let command_obj = CommandObject::extract("/start@bot_username arg1 arg2").unwrap();
-        assert_eq!(command_obj.command, "start");
+        assert_eq!(command_obj.command.as_ref(), "start");
         assert_eq!(command_obj.prefix, '/');
-        assert_eq!(command_obj.mention, Some("bot_username".to_string()));
-        assert_eq!(command_obj.args, vec!["arg1", "arg2"]);
+        assert_eq!(command_obj.mention.as_deref(), Some("bot_username"));
+        assert!(command_obj.args == Box::new(["arg1".into(), "arg2".into()]) as Box<_>);
 
         let command_obj = CommandObject::extract("Telegram says: 123").unwrap();
-        assert_eq!(command_obj.command, "elegram");
+        assert_eq!(command_obj.command.as_ref(), "elegram");
         assert_eq!(command_obj.prefix, 'T');
         assert_eq!(command_obj.mention, None);
-        assert_eq!(command_obj.args, vec!["says:", "123"]);
+        assert!(command_obj.args == Box::new(["says:".into(), "123".into()]) as Box<_>);
 
         let command_obj = CommandObject::extract("One two").unwrap();
-        assert_eq!(command_obj.command, "ne");
+        assert_eq!(command_obj.command.as_ref(), "ne");
         assert_eq!(command_obj.prefix, 'O');
         assert_eq!(command_obj.mention, None);
-        assert_eq!(command_obj.args, vec!["two"]);
+        assert!(command_obj.args == Box::new(["two".into()]) as Box<_>);
 
         let command_obj = CommandObject::extract("Один два").unwrap();
-        assert_eq!(command_obj.command, "дин");
+        assert_eq!(command_obj.command.as_ref(), "дин");
         assert_eq!(command_obj.prefix, 'О');
         assert_eq!(command_obj.mention, None);
-        assert_eq!(command_obj.args, vec!["два"]);
+        assert!(command_obj.args == Box::new(["два".into()]) as Box<_>);
     }
 
     #[test]

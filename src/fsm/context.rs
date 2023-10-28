@@ -50,8 +50,8 @@ where
     /// States stack is used to store states history,
     /// when user set new state, then current state will be push to the states stack,
     /// so you can use this method to back to the previous state
-    pub async fn previous_state(&self) -> Result<(), S::Error> {
-        self.storage.previous_state(&self.key).await
+    pub async fn set_previous_state(&self) -> Result<(), S::Error> {
+        self.storage.set_previous_state(&self.key).await
     }
 
     /// Get current state
@@ -59,7 +59,7 @@ where
     /// If storage error occurs, when get state
     /// # Returns
     /// State, if state is no exists, then `None` will be return
-    pub async fn get_state(&self) -> Result<Option<String>, S::Error> {
+    pub async fn get_state(&self) -> Result<Option<Box<str>>, S::Error> {
         self.storage.get_state(&self.key).await
     }
 
@@ -71,8 +71,8 @@ where
     /// when user set new state, then current state will be push to the states stack,
     /// so you can use this method to get states history or back to the previous state
     /// # Returns
-    /// States, if states is no exists, then empty [`Vec`] will be return
-    pub async fn get_states(&self) -> Result<Vec<String>, S::Error> {
+    /// States, if states is no exists, then empty slice will be return
+    pub async fn get_states(&self) -> Result<Box<[Box<str>]>, S::Error> {
         self.storage.get_states(&self.key).await
     }
 
@@ -119,7 +119,7 @@ where
     /// If storage error occurs, when get data
     /// # Returns
     /// Data, if data is no exists, then empty [`HashMap`] will be return
-    pub async fn get_data<Data>(&self) -> Result<HashMap<String, Data>, S::Error>
+    pub async fn get_data<Data>(&self) -> Result<HashMap<Box<str>, Data>, S::Error>
     where
         Data: DeserializeOwned,
     {

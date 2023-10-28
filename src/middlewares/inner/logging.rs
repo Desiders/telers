@@ -15,20 +15,13 @@ use std::{
 };
 use tracing::{event, instrument, Level};
 
-#[derive(Debug)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct Logging;
 
 impl Logging {
     #[must_use]
     pub const fn new() -> Self {
         Self {}
-    }
-}
-
-impl Default for Logging {
-    #[must_use]
-    fn default() -> Self {
-        Self::new()
     }
 }
 
@@ -133,7 +126,7 @@ mod tests {
         let response = Logging
             .call(
                 request,
-                wrap_handler_and_middlewares_to_next(handler_service, []),
+                wrap_handler_and_middlewares_to_next(handler_service, [].into()),
             )
             .await;
 
