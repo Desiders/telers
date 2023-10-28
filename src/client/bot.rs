@@ -56,7 +56,7 @@ impl<Client> Debug for Bot<Client> {
         f.debug_struct("Bot")
             .field("token", &self.hidden_token)
             .field("bot_id", &self.bot_id)
-            .finish()
+            .finish_non_exhaustive()
     }
 }
 

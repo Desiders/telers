@@ -566,7 +566,7 @@ impl<Client> Debug for Router<Client> {
         f.debug_struct("Router")
             .field("router_name", &self.router_name)
             .field("sub_routers", &self.sub_routers)
-            .finish()
+            .finish_non_exhaustive()
     }
 }
 
@@ -745,7 +745,7 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
         let observer = self.telegram_observer_by_update_type(update_type);
 
         let mut request = request;
-        for middleware in observer.outer_middlewares().iter() {
+        for middleware in observer.outer_middlewares() {
             let (updated_request, event_return) = middleware.call(request.clone()).await?;
 
             match event_return {
@@ -803,7 +803,7 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
         };
 
         // Propagate event to sub routers' observers
-        for router in self.sub_routers.iter() {
+        for router in &*self.sub_routers {
             let router_response = router.propagate_event(update_type, request.clone()).await?;
             match router_response.propagate_result {
                 // If the event unhandled by the sub router's observer, then propagate event to next sub router's observer
@@ -845,7 +845,7 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
         event!(Level::TRACE, "Propagate update event to router");
 
         let mut request = request;
-        for middleware in self.update.outer_middlewares().iter() {
+        for middleware in self.update.outer_middlewares() {
             let (updated_request, event_return) = middleware.call(request.clone()).await?;
 
             match event_return {
@@ -985,7 +985,7 @@ impl<Client> Debug for RouterService<Client> {
         f.debug_struct("Router")
             .field("router_name", &self.router_name)
             .field("sub_routers", &self.sub_routers)
-            .finish()
+            .finish_non_exhaustive()
     }
 }
 
@@ -1534,7 +1534,7 @@ mod tests {
 
         router_service
             .sub_routers
-            .into_iter()
+            .iter()
             .for_each(|router_service| {
                 assert_eq!(router_service.sub_routers.len(), 2);
 
@@ -1553,7 +1553,7 @@ mod tests {
 
                 router_service
                     .sub_routers
-                    .into_iter()
+                    .iter()
                     .for_each(|router_service| {
                         assert_eq!(router_service.sub_routers.len(), 0);
 
@@ -1851,7 +1851,7 @@ mod tests {
 
         let update_types = router.resolve_used_update_types();
 
-        println!("{:?}", update_types);
+        println!("{update_types:?}");
 
         assert_eq!(update_types.len(), 3);
         assert!(update_types.contains(&UpdateType::Message));

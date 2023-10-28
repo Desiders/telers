@@ -70,7 +70,7 @@ impl<S> Debug for FSMContext<S> {
         f.debug_struct("FSMContext")
             .field("strategy", &self.strategy)
             .field("destiny", &self.destiny)
-            .finish()
+            .finish_non_exhaustive()
     }
 }
 

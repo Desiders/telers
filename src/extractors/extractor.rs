@@ -214,7 +214,7 @@ mod tests {
         let update = Arc::new(Update::default());
         let context = Arc::new(Context::default());
 
-        let _: () =
+        let (): () =
             FromEventAndContext::extract(bot.clone(), update.clone(), context.clone()).unwrap();
         let _: Option<()> =
             FromEventAndContext::extract(bot.clone(), update.clone(), context.clone()).unwrap();

@@ -91,11 +91,8 @@ impl Reqwest {
                 InputFileKind::Stream(file) => {
                     let id = file.id().to_string();
                     let file_name = file.file_name();
-                    let stream = match TriompheArc::try_unwrap(file.stream()) {
-                        Ok(stream) => stream,
-                        Err(_) => {
-                            panic!("Cannot unwrap a stream. `InputFile::stream` shouldn't have more than one strong reference");
-                        }
+                    let Ok(stream) = TriompheArc::try_unwrap(file.stream()) else {
+                        panic!("Cannot unwrap a stream. `InputFile::stream` shouldn't have more than one strong reference");
                     };
 
                     let body = Body::wrap_stream(stream);

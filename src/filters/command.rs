@@ -319,7 +319,7 @@ impl Command<'_> {
         };
         let command_ref = command.as_ref();
 
-        for pattern in self.commands.iter() {
+        for pattern in &*self.commands {
             match pattern {
                 PatternType::Text(allowed_command) => {
                     if command_ref == allowed_command {

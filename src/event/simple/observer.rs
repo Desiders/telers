@@ -55,7 +55,7 @@ impl Debug for Observer {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Observer")
             .field("event_name", &self.event_name)
-            .finish()
+            .finish_non_exhaustive()
     }
 }
 
@@ -104,7 +104,7 @@ impl Debug for ObserverService {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("ObserverService")
             .field("event_name", &self.event_name)
-            .finish()
+            .finish_non_exhaustive()
     }
 }
 
@@ -116,9 +116,10 @@ impl ObserverService {
     /// If any handler returns error, then propagation will be stopped and error will be returned.
     /// # Errors
     /// If any handler returns error
+    #[allow(clippy::let_unit_value)]
     #[instrument(skip(self, request))]
     pub async fn trigger(&self, request: ()) -> HandlerResult {
-        for handler in self.handlers.iter() {
+        for handler in &*self.handlers {
             handler.call(request).await?;
         }
 

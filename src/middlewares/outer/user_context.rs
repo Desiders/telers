@@ -67,7 +67,7 @@ mod tests {
         let update = Update {
             message: Some(Message {
                 message_thread_id: Some(1),
-                chat: Box::new(Chat::default()),
+                chat: Box::<Chat>::default(),
                 from: Some(User::default()),
                 ..Default::default()
             }),
@@ -78,7 +78,7 @@ mod tests {
         router
             .update
             .outer_middlewares
-            .register(UserContext::default());
+            .register(UserContext);
         router.message.register(|context: Arc<Context>| async move {
             context
                 .get("event_user")
@@ -119,7 +119,7 @@ mod tests {
         router
             .update
             .outer_middlewares
-            .register(UserContext::default());
+            .register(UserContext);
         router.message.register(|context: Arc<Context>| async move {
             // This should panic, because update doesn't contain user
             context

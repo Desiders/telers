@@ -10,6 +10,7 @@ use telers::{
 };
 use tokio::runtime::Builder;
 
+#[allow(clippy::too_many_lines)]
 fn propagate_event_benchmark(c: &mut Criterion) {
     async fn propagate_event<Client>(
         router_service: &RouterService<Client>,
@@ -47,7 +48,7 @@ fn propagate_event_benchmark(c: &mut Criterion) {
         },
         |b, (router_service, request, update_type)| {
             b.to_async(Builder::new_current_thread().build().unwrap())
-                .iter(|| propagate_event(router_service, request.clone(), *update_type))
+                .iter(|| propagate_event(router_service, request.clone(), *update_type));
         },
     );
 
@@ -79,7 +80,7 @@ fn propagate_event_benchmark(c: &mut Criterion) {
         },
         |b, (router_service, request, update_type)| {
             b.to_async(Builder::new_current_thread().build().unwrap())
-                .iter(|| propagate_event(router_service, request.clone(), *update_type))
+                .iter(|| propagate_event(router_service, request.clone(), *update_type));
         },
     );
 
@@ -106,7 +107,7 @@ fn propagate_event_benchmark(c: &mut Criterion) {
         },
         |b, (router_service, request, update_type)| {
             b.to_async(Builder::new_current_thread().build().unwrap())
-                .iter(|| propagate_event(router_service, request.clone(), *update_type))
+                .iter(|| propagate_event(router_service, request.clone(), *update_type));
         },
     );
 
@@ -137,7 +138,7 @@ fn propagate_event_benchmark(c: &mut Criterion) {
         },
         |b, (router_service, request, update_type)| {
             b.to_async(Builder::new_current_thread().build().unwrap())
-                .iter(|| propagate_event(router_service, request.clone(), *update_type))
+                .iter(|| propagate_event(router_service, request.clone(), *update_type));
         },
     );
 
@@ -176,7 +177,7 @@ fn propagate_event_benchmark(c: &mut Criterion) {
         },
         |b, (router_service, request, update_type)| {
             b.to_async(Builder::new_current_thread().build().unwrap())
-                .iter(|| propagate_event(router_service, request.clone(), *update_type))
+                .iter(|| propagate_event(router_service, request.clone(), *update_type));
         },
     );
 }

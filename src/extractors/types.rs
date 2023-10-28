@@ -232,6 +232,7 @@ mod tests {
     use super::*;
     use crate::{client::Reqwest, event::telegram::handler::Handler};
 
+    #[allow(clippy::needless_pass_by_value)]
     fn inner_extract<T: FromEventAndContext<Reqwest>>(
         bot: Arc<Bot<Reqwest>>,
         update: Arc<Update>,
@@ -261,6 +262,7 @@ mod tests {
         assert_impl_handler(|_: Poll| async { unreachable!() });
     }
 
+    #[allow(clippy::too_many_lines)]
     #[test]
     fn test_extract() {
         let bot = Arc::new(Bot::default());
