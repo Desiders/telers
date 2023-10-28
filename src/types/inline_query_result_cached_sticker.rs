@@ -11,7 +11,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultcachedsticker>
 #[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct InlineQueryResultCachedSticker {
     /// Type of the result, must be *sticker*
     #[serde(rename = "type", default = "sticker")]

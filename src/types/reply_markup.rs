@@ -3,7 +3,7 @@ use super::{ForceReply, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboard
 use serde::{Deserialize, Serialize};
 
 /// This object represents all possible types of reply markup
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(untagged)]
 pub enum ReplyMarkup {
     InlineKeyboard(InlineKeyboardMarkup),

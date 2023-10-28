@@ -2,7 +2,7 @@ use super::Message;
 
 use serde::Deserialize;
 
-#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(untagged)]
 pub enum MessageOrTrue {
     Message(Message),

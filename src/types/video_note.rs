@@ -5,7 +5,7 @@ use serde::Deserialize;
 /// This object represents a [`video message`](https://telegram.org/blog/video-messages-and-telescope) (available in Telegram apps as of [`v.4.0`](https://telegram.org/blog/video-messages-and-telescope)).
 /// # Documentation
 /// <https://core.telegram.org/bots/api#videonote>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct VideoNote {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: Box<str>,

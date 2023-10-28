@@ -11,7 +11,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// Returns a [`UserProfilePhotos`] object
 #[skip_serializing_none]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct GetUserProfilePhotos {
     /// Unique identifier of the target user
     pub user_id: i64,

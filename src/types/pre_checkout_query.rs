@@ -7,7 +7,7 @@ use serde::Deserialize;
 /// This object contains information about an incoming pre-checkout query.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#precheckoutquery>
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct PreCheckoutQuery {
     /// Unique query identifier
     pub id: Box<str>,

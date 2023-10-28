@@ -5,7 +5,7 @@ use serde::Deserialize;
 /// This object represents an audio file to be treated as music by the Telegram clients.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#audio>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct Audio {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: Box<str>,

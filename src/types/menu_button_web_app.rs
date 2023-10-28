@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 /// Represents a menu button, which launches a [`Web App`](https://core.telegram.org/bots/webapps).
 /// # Documentation
 /// <https://core.telegram.org/bots/api#menubuttonwebapp>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct MenuButtonWebApp {
     /// Type of the button, must be `web_app`
     #[serde(rename = "type", default = "web_app_type")]

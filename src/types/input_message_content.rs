@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 /// - [`InputInvoiceMessageContent`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmessagecontent>
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(untagged)]
 pub enum InputMessageContent {
     Text(InputTextMessageContent),

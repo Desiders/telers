@@ -148,7 +148,7 @@ async fn main() {
         .run_polling()
         .await
     {
-        Ok(_) => event!(Level::INFO, "Bot stopped"),
+        Ok(()) => event!(Level::INFO, "Bot stopped"),
         Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
     }
 }

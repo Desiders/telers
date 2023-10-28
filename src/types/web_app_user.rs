@@ -3,7 +3,7 @@ use serde::Deserialize;
 /// This object contains the data of the Mini App user.
 /// # Documentation
 /// <https://core.telegram.org/bots/webapps#webappuser>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct WebAppUser {
     /// A unique identifier for the user or bot. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. It has at most 52 significant bits, so a 64-bit integer or a double-precision float type is safe for storing this identifier.
     pub id: i64,

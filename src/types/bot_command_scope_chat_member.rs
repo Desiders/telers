@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 /// Represents the [`scope`](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering a specific member of a group or supergroup chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscopechatmember>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct BotCommandScopeChatMember {
     /// Scope type, must be *chat_member*
     #[serde(rename = "type", default = "chat_member")]

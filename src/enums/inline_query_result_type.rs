@@ -6,7 +6,7 @@ use std::{
 /// This enum represents all possible types of the inline query result
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum InlineQueryResultType {
     Article,
     Audio,

@@ -14,7 +14,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// On success, `True` is returned
 #[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct AnswerInlineQuery {
     /// Unique identifier for the answered query
     pub inline_query_id: String,

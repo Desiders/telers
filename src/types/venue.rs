@@ -5,7 +5,7 @@ use serde::Deserialize;
 /// This object represents a venue.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#venue>
-#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct Venue {
     /// Venue location. Can't be a live location
     pub location: Location,

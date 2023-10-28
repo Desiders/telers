@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 /// This object represents a button to be shown above inline query results. You **must** use exactly one of the optional fields.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultsbutton>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct InlineQueryResultsButton {
     /// Label text on the button
     pub text: String,

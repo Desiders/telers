@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultcachedgif>
 #[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct InlineQueryResultCachedGif {
     /// Type of the result, must be *gif*
     #[serde(rename = "type", default = "gif")]

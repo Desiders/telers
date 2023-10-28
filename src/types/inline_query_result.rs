@@ -34,7 +34,7 @@ use serde::{Deserialize, Serialize};
 /// All URLs passed in inline query results will be available to end users and therefore must be assumed to be **public**.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum InlineQueryResult {
     #[serde(rename = "audio")]

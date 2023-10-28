@@ -11,7 +11,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// Returns the created invoice link as `String` on success
 #[skip_serializing_none]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct CreateInvoiceLink {
     /// Product name, 1-32 characters
     pub title: String,

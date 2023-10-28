@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 /// This object represents a bot command.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommand>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct BotCommand {
     /// Text of the command, 1-32 characters. Can contain only lowercase English letters, digits and underscores.
     pub command: String,

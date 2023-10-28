@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 /// This will only work in Telegram versions released after 9 April, 2016. Older clients will display *unsupported message*.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinekeyboardmarkup>
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct InlineKeyboardMarkup {
     /// Array of button rows, each represented by an Array of [`InlineKeyboardButton`] objects
     pub inline_keyboard: Vec<Vec<InlineKeyboardButton>>,

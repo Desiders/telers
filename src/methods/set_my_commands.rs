@@ -14,7 +14,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// Returns `True` on success
 #[skip_serializing_none]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct SetMyCommands {
     /// A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
     pub commands: Vec<BotCommand>,

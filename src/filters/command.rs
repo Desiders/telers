@@ -355,7 +355,7 @@ impl Command<'_> {
 
 /// Represents parsed command from text
 #[allow(clippy::module_name_repetitions)]
-#[derive(Debug, Clone, Eq, Hash, PartialEq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct CommandObject {
     /// Command without prefix and mention
     pub command: Box<str>,

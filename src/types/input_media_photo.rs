@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmediaphoto>
 #[skip_serializing_none]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize)]
 pub struct InputMediaPhoto<'a> {
     /// Type of the result, must be *photo*
     #[serde(rename = "type", default = "photo")]

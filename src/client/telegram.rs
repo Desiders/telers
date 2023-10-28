@@ -105,7 +105,7 @@ impl FilesPathWrapper for FilesDiffPathWrapper {
 }
 
 /// Configuration of Telegram Bot API server endpoints and local mode
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone)]
 pub struct APIServer {
     /// Base URL for API
     base_url: Box<str>,

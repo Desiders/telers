@@ -11,7 +11,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// On success, the sent [`MessageOrTrue`] is returned
 #[skip_serializing_none]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct SetGameScore {
     /// User identifier
     pub user_id: i64,

@@ -10,7 +10,7 @@ use std::{
 use tokio::sync::Mutex;
 use tracing::{event, instrument, Level, Span};
 
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 struct Record {
     states: Vec<Cow<'static, str>>,
     data: HashMap<Cow<'static, str>, Box<[u8]>>,

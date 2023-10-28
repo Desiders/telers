@@ -7,7 +7,7 @@ use serde::Deserialize;
 /// This object represents a chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chat>
-#[derive(Default, Clone, Debug, PartialEq, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Deserialize)]
 pub struct Chat {
     /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in i64erpreting it. But it has at most 52 significant bits, so a signed 64-bit i64eger or double-precision float type are safe for storing this identifier.
     pub id: i64,

@@ -5,7 +5,7 @@ use serde::Deserialize;
 /// This object represent a user's profile pictures.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#userprofilephotos>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct UserProfilePhotos {
     /// Total number of profile pictures the target user has
     pub total_count: i64,

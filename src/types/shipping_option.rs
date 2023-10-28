@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 /// This object represents one shipping option.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#shippingoption>
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct ShippingOption {
     /// Shipping option identifier
     pub id: String,

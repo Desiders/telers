@@ -13,7 +13,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// On success, a [`File`] object is returned
 #[skip_serializing_none]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct GetFile {
     /// File identifier to get info about
     pub file_id: String,

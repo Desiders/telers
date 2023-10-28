@@ -7,7 +7,7 @@ use std::fmt::{self, Display};
 /// If you use `GlobalUser` strategy, then the user will have the same data and state in all chats.
 ///
 /// In case of direct messages, `chat_id` and `user_id` will be equal, so all strategies will work the same way.
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Strategy {
     /// `user_id` + `chat_id`
     UserInChat,

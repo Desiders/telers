@@ -6,7 +6,7 @@ use std::{
 /// This enum represents all possible types of the dice emoji
 /// # Documentation
 /// <https://core.telegram.org/bots/api#dice>
-#[derive(Debug, Copy, Clone, Eq, Hash, PartialEq)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum DiceEmoji {
     Dice,
     Dart,

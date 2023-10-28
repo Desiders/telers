@@ -5,7 +5,7 @@ use serde::Deserialize;
 /// This object contains basic information about a successful payment.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#successfulpayment>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct SuccessfulPayment {
     /// Three-letter ISO 4217 [`currency`](https://core.telegram.org/bots/payments#supported-currencies) code
     pub currency: Box<str>,

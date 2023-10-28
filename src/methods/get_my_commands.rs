@@ -14,7 +14,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// Returns an Array of [`BotCommand`] objects. If commands aren't set, an empty list is returned.
 #[skip_serializing_none]
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct GetMyCommands {
     /// A JSON-serialized object, describing scope of users. Defaults to [`BotCommandScopeDefault`](crate::types::BotCommandScopeDefault).
     pub scope: Option<BotCommandScope>,

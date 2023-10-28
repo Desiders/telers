@@ -11,7 +11,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// Returns `True` on success
 #[skip_serializing_none]
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct SetMyDefaultAdministratorRights {
     /// A JSON-serialized object describing new default administrator rights. If not specified, the default administrator rights will be cleared.
     pub rights: Option<ChatAdministratorRights>,

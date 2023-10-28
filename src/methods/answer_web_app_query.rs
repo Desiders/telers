@@ -14,7 +14,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// On success, a [`SentWebAppMessage`] object is returned
 #[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct AnswerWebAppQuery {
     /// Unique identifier for the query to be answered
     pub web_app_query_id: String,

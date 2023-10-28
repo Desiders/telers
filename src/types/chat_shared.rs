@@ -3,7 +3,7 @@ use serde::Deserialize;
 /// This object contains information about the chat whose identifier was shared with the bot using a [`KeyboardButtonRequestChat`](crate::types::KeyboardButtonRequestChat) button.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatshared>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct ChatShared {
     /// Identifier of the request
     pub request_id: i64,

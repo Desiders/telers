@@ -17,7 +17,7 @@ use serde::Deserialize;
 /// <https://core.telegram.org/bots/api#message>
 /// # Warnings
 /// This structure has so big size, so it's recommended to use it inside [`std::sync::Arc`], [`Box`] and other smart pointers
-#[derive(Default, Clone, Debug, PartialEq, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Deserialize)]
 pub struct Message {
     /// Unique message identifier inside this chat
     pub message_id: i64,

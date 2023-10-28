@@ -11,7 +11,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// Returns `i64` on success
 #[skip_serializing_none]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct GetChatMemberCount {
     /// Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`)
     pub chat_id: ChatIdKind,

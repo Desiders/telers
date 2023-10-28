@@ -14,7 +14,7 @@ use serde::Deserialize;
 /// - [`ChatMemberBanned`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmember>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "status")]
 pub enum ChatMember {

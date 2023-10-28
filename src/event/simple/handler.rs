@@ -170,7 +170,7 @@ mod tests {
         let response = handler_object_service.call(()).await;
 
         match response {
-            Ok(_) => {}
+            Ok(()) => {}
             _ => panic!("Unexpected result"),
         }
     }

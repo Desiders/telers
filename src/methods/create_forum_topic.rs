@@ -14,7 +14,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// Returns information about the created topic as a [`ForumTopic`] object
 #[skip_serializing_none]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct CreateForumTopic {
     /// Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
     pub chat_id: ChatIdKind,

@@ -19,7 +19,7 @@ use serde::{Deserialize, Serialize};
 /// - [`PassportElementErrorUnspecified`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerror>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(tag = "source", rename_all = "snake_case")]
 pub enum PassportElementError {
     DataField(PassportElementErrorDataField),

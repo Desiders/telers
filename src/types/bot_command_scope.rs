@@ -16,7 +16,7 @@ use super::{
 /// - [`BotCommandScopeChatMember`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscope>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum BotCommandScope {
     Default(BotCommandScopeDefault),

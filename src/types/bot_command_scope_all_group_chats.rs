@@ -5,7 +5,7 @@ use crate::enums::BotCommandScopeType;
 /// Represents the [`scope`](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all group and supergroup chats.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscopeallgroupchats>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct BotCommandScopeAllGroupChats {
     /// Scope type, must be *all_group_chats*
     #[serde(rename = "type", default = "all_group_chats")]

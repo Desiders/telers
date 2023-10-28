@@ -8,7 +8,7 @@ use serde::Deserialize;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberadministrator>
 #[allow(clippy::struct_excessive_bools)]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct ChatMemberAdministrator {
     /// The member's status in the chat, always 'administrator'
     #[serde(default = "administrator")]

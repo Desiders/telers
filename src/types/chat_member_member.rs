@@ -7,7 +7,7 @@ use serde::Deserialize;
 /// Represents a [`ChatMember`](crate::types::ChatMember) that has no additional privileges or restrictions.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmembermember>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct ChatMemberMember {
     /// The member's status in the chat, always 'member'
     #[serde(default = "member")]

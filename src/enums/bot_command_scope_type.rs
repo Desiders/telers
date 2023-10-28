@@ -6,7 +6,7 @@ use std::{
 /// This enum represents all possible types of the bot command scope
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscope>
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum BotCommandScopeType {
     Default,
     AllPrivateChats,

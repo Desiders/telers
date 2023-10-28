@@ -11,7 +11,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultvenue>
 #[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct InlineQueryResultVenue {
     /// Type of the result, must be *venue*
     #[serde(rename = "type", default = "venue")]

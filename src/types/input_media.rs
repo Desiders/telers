@@ -12,7 +12,7 @@ use serde::Serialize;
 /// - [`InputMediaVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmedia>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum InputMedia<'a> {
     Animation(InputMediaAnimation<'a>),

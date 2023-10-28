@@ -7,7 +7,7 @@ use serde::Deserialize;
 /// Represents a [`ChatMember`](crate::types::ChatMember) that was banned in the chat and can't return to the chat or view chat messages.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberbanned>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct ChatMemberBanned {
     /// The member's status in the chat, always 'kicked'
     #[serde(default = "kicked")]

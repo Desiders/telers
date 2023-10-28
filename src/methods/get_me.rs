@@ -9,7 +9,7 @@ use serde::Serialize;
 /// <https://core.telegram.org/bots/api#getme>
 /// # Returns
 /// Returns basic information about the bot in form of a [`User`] object
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct GetMe {}
 
 impl GetMe {

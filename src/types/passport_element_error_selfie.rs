@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 /// Represents an issue with the selfie with a document. The error is considered resolved when the file with the selfie changes.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerrorselfie>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct PassportElementErrorSelfie {
     /// Error source, must be *selfie*
     pub source: Box<str>,

@@ -11,7 +11,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// Returns [`MenuButton`] on success
 #[skip_serializing_none]
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct GetChatMenuButton {
     /// Unique identifier for the target private chat. If not specified, default bot's menu button will be returned
     pub chat_id: Option<i64>,

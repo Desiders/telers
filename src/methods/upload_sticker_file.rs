@@ -14,7 +14,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// Returns the uploaded [`File`] on success
 #[skip_serializing_none]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Serialize)]
 pub struct UploadStickerFile<'a> {
     /// User identifier of sticker file owner
     pub user_id: i64,

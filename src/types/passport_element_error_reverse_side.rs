@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 /// Represents an issue with the reverse side of a document. The error is considered resolved when the file with reverse side of the document changes.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerrorreverseside>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct PassportElementErrorReverseSide {
     /// Error source, must be *reverse_side*
     pub source: Box<str>,

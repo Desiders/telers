@@ -11,7 +11,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// Returns `True` on success
 #[skip_serializing_none]
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct SetMyName {
     /// New bot name; 0-64 characters. Pass an empty string to remove the dedicated name for the given language.
     pub name: Option<String>,

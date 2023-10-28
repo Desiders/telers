@@ -10,7 +10,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultvideo>
 #[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct InlineQueryResultVideo {
     /// Type of the result, must be *video*
     #[serde(rename = "type", default = "video")]

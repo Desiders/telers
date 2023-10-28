@@ -11,7 +11,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// Returns `True` on success
 #[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct CreateNewStickerSet<'a> {
     /// User identifier of created sticker set owner
     pub user_id: i64,

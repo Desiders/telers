@@ -5,7 +5,7 @@ use serde::Deserialize;
 /// Represents an invite link for a chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatinvitelink>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct ChatInviteLink {
     /// The invite link. If the link was created by another chat administrator, then the second part of the link will be replaced with '…'.
     pub invite_link: Box<str>,

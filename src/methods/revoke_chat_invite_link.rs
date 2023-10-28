@@ -14,7 +14,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// Returns the revoked invite link as [`ChatInviteLink`] object
 #[skip_serializing_none]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct RevokeChatInviteLink {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatIdKind,

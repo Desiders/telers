@@ -13,7 +13,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// Returns an Array of [`GameHighScore`] objects
 #[skip_serializing_none]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct GetGameHighScores {
     /// Target user id
     pub user_id: i64,

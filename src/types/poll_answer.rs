@@ -7,7 +7,7 @@ use serde::Deserialize;
 /// This object represents an answer of a user in a non-anonymous poll.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#pollanswer>
-#[derive(Default, Clone, Debug, PartialEq, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Deserialize)]
 pub struct PollAnswer {
     /// Unique poll identifier
     pub poll_id: Box<str>,

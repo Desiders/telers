@@ -9,7 +9,7 @@ use serde::Deserialize;
 /// <https://core.telegram.org/bots/api#chatjoinrequest>
 /// # Warnings
 /// This structure has so big size, so it's recommended to use it inside [`std::sync::Arc`], [`Box`] and other smart pointers
-#[derive(Default, Clone, Debug, PartialEq, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Deserialize)]
 pub struct ChatJoinRequest {
     /// Chat to which the request was sent
     pub chat: Chat,

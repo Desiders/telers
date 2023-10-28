@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 /// If a menu button other than [`MenuButtonDefault`] is set for a private chat, then it is applied in the chat. Otherwise the default menu button is applied. By default, the menu button opens the list of bot commands.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#menubutton>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum MenuButton {
     Commands(MenuButtonCommands),

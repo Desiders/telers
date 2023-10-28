@@ -65,7 +65,7 @@ async fn main() {
     tokio::join!(
         async {
             match tokio::spawn(dispatcher.run_polling()).await {
-                Ok(Ok(_)) => {}
+                Ok(Ok(())) => {}
                 Ok(Err(err)) => {
                     event!(Level::ERROR, "Error in dispatcher: {:?}", err);
                 }
@@ -79,7 +79,7 @@ async fn main() {
             // https://github.com/tokio-rs/axum/tree/main/examples/graceful-shutdown
             // Telers provides graceful shutdown out of the box, so you don't need to do anything special.
             match tokio::spawn(server.serve(app)).await {
-                Ok(Ok(_)) => {}
+                Ok(Ok(())) => {}
                 Ok(Err(err)) => {
                     event!(Level::ERROR, "Error in server: {:?}", err);
                 }

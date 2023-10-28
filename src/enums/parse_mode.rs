@@ -6,7 +6,7 @@ use std::{
 /// This enum represents all possible types of the parse mode
 /// # Documentation
 /// <https://core.telegram.org/bots/api#formatting-options>
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ParseMode {
     Markdown,
     MarkdownV2,

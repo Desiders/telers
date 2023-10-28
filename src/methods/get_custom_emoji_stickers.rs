@@ -11,7 +11,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// Returns an Array of [`Sticker`] objects
 #[skip_serializing_none]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct GetCustomEmojiStickers {
     /// List of custom emoji identifiers. At most 200 custom emoji identifiers can be specified.
     pub custom_emoji_ids: Vec<String>,

@@ -15,7 +15,7 @@ use serde_with::skip_serializing_none;
 /// On success, if the edited message is not an inline message, the edited [`MessageOrTrue`] is returned,
 /// otherwise `True` is returned
 #[skip_serializing_none]
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct EditMessageLiveLocation {
     /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: Option<ChatIdKind>,

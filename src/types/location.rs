@@ -4,7 +4,7 @@ use serde::Deserialize;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#location>
 
-#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct Location {
     /// Longitude as defined by sender
     pub longitude: f64,

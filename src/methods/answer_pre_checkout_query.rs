@@ -13,7 +13,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// On success, `True` is returned
 #[skip_serializing_none]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct AnswerPreCheckoutQuery {
     /// Unique identifier for the query to be answered
     pub pre_checkout_query_id: String,

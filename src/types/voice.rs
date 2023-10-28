@@ -3,7 +3,7 @@ use serde::Deserialize;
 /// This object represents a voice note.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#voice>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct Voice {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: Box<str>,

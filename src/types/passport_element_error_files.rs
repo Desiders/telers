@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 /// Represents an issue with a list of scans. The error is considered resolved when the list of files containing the scans changes.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerrorfiles>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct PassportElementErrorFiles {
     /// Error source, must be *files*
     pub source: Box<str>,

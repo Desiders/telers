@@ -5,7 +5,7 @@ use crate::enums::BotCommandScopeType;
 /// Represents the [`scope`](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all private chats.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscopeallprivatechats>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct BotCommandScopeAllPrivateChats {
     /// Scope type, must be *all_private_chats*
     #[serde(rename = "type", default = "all_private_chats")]

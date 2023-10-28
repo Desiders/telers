@@ -5,7 +5,7 @@ use serde::Deserialize;
 /// This object represents a sticker.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sticker>
-#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct Sticker {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: Box<str>,

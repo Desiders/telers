@@ -6,7 +6,7 @@ use std::{
 /// This enum represents all possible types of the chat action
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sendchataction>
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ChatAction {
     Typing,
     UploadPhoto,

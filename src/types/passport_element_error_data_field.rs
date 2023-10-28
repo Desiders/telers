@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 /// Represents an issue in one of the data fields that was provided by the user. The error is considered resolved when the field's value changes.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerrordatafield>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct PassportElementErrorDataField {
     /// Error source, must be *data*
     pub source: Box<str>,

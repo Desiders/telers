@@ -7,7 +7,7 @@ use serde::Deserialize;
 /// This object contains information about an incoming shipping query.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#shippingquery>
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct ShippingQuery {
     /// Unique query identifier
     pub id: Box<str>,

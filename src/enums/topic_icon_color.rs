@@ -4,7 +4,7 @@ use std::{
 };
 
 /// This enum represents all possible types of the topic icon color
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum TopicIconColor {
     Blue,
     Yellow,

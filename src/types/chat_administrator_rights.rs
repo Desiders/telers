@@ -6,7 +6,7 @@ use serde_with::skip_serializing_none;
 /// <https://core.telegram.org/bots/api#chatadministratorrights>
 #[allow(clippy::struct_excessive_bools)]
 #[skip_serializing_none]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct ChatAdministratorRights {
     /// `True`, if the user's presence in the chat is hidden
     pub is_anonymous: bool,

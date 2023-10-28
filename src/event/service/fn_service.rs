@@ -111,10 +111,10 @@ mod tests {
 
     use tokio;
 
-    #[derive(Debug, Eq, PartialEq)]
+    #[derive(Debug, PartialEq, Eq)]
     struct TestRequest;
 
-    #[derive(Debug, Eq, PartialEq)]
+    #[derive(Debug, PartialEq, Eq)]
     struct TestConfig;
 
     #[tokio::test]

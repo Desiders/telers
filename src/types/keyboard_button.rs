@@ -13,7 +13,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#keyboardbutton>
 #[skip_serializing_none]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct KeyboardButton {
     /// Text of the button. If none of the optional fields are used, it will be sent as a message when the button is pressed
     pub text: String,

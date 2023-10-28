@@ -9,7 +9,7 @@ use serde::Serialize;
 /// <https://core.telegram.org/bots/api#logout>
 /// # Returns
 /// Returns `True` on success
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Serialize)]
+#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct LogOut {}
 
 impl LogOut {

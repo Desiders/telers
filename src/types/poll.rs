@@ -7,7 +7,7 @@ use serde::Deserialize;
 /// This object contains information about a poll.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#poll>
-#[derive(Default, Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct Poll {
     /// Unique poll identifier
     pub id: Box<str>,

@@ -5,7 +5,7 @@ use serde::Deserialize;
 /// This object represents a sticker set.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#stickerset>
-#[derive(Clone, Debug, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct StickerSet {
     /// Sticker set name
     pub name: Box<str>,

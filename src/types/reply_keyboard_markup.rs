@@ -7,7 +7,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#replykeyboardmarkup>
 #[skip_serializing_none]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct ReplyKeyboardMarkup {
     // Array of button rows, each represented by an Array of [`KeyboardButton`] objects
     pub keyboard: Vec<Vec<KeyboardButton>>,

@@ -8,7 +8,7 @@ use serde::Deserialize;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberrestricted>
 #[allow(clippy::struct_excessive_bools)]
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct ChatMemberRestricted {
     /// The member's status in the chat, always 'restricted'
     #[serde(default = "restricted")]

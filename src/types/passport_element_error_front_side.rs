@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 /// Represents an issue with the front side of a document. The error is considered resolved when the file with the front side of the document changes.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerrorfrontside>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct PassportElementErrorFrontSide {
     /// Error source, must be *front_side*
     pub source: Box<str>,

@@ -3,7 +3,7 @@ use serde::Deserialize;
 /// This object represents a service message about a new forum topic created in the chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#forumtopicedited>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct ForumTopicEdited {
     /// New name of the topic, if it was edited
     pub name: Option<Box<str>>,

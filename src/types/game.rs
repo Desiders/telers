@@ -5,7 +5,7 @@ use serde::Deserialize;
 /// This object represents a game. Use `BotFather` to create and edit games, their short names will act as unique identifiers.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#game>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct Game {
     /// Title of the game
     pub title: Box<str>,

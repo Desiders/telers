@@ -5,7 +5,7 @@ use serde::Deserialize;
 /// This object represents a video file.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#video>
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct Video {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: Box<str>,
