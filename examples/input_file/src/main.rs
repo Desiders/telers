@@ -5,6 +5,8 @@
 //! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package input_file
 //! ```
 
+use bytes::BytesMut;
+use futures::{TryFutureExt as _, TryStreamExt as _};
 use telers::{
     enums::UpdateType,
     errors::HandlerError,
@@ -14,11 +16,14 @@ use telers::{
     types::{InputFile, InputMediaPhoto, Message},
     Bot, Dispatcher,
 };
+use tokio_util::codec::{BytesCodec, FramedRead};
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 const CAT_URL: &str = "https://http.cat/images/200.jpg";
 const CAT_FS_PATH: &str = "cat.jpg";
+
+const DEFAULT_CAPACITY: usize = 64 * 1024; // 64 KiB
 
 /// This handler will be called on bot startup.
 /// It will download file from URL and save it to the file system as `cat.jpg` for further usage in handlers.
@@ -92,6 +97,16 @@ async fn input_file_handler(bot: Bot, message: Message) -> telegram::HandlerResu
             HandlerError::new(err)
         })?);
 
+    // Using `InputFile::stream` to send file by stream
+    let cat_stream_input_file = InputFile::stream(Box::pin(
+        tokio::fs::File::open(CAT_FS_PATH)
+            .map_ok(move |file| {
+                FramedRead::with_capacity(file, BytesCodec::new(), DEFAULT_CAPACITY)
+                    .map_ok(BytesMut::freeze)
+            })
+            .try_flatten_stream(),
+    ));
+
     let result_message = bot
         .send(SendMediaGroup::new(
             message.chat_id(),
@@ -99,6 +114,7 @@ async fn input_file_handler(bot: Bot, message: Message) -> telegram::HandlerResu
                 InputMediaPhoto::new(cat_url_input_file).caption("Cat by URL"),
                 InputMediaPhoto::new(cat_fs_input_file).caption("Cat by file system"),
                 InputMediaPhoto::new(cat_buffered_input_file).caption("Cat by bytes"),
+                InputMediaPhoto::new(cat_stream_input_file).caption("Cat by stream"),
             ],
         ))
         .await?;
