@@ -36,13 +36,13 @@ impl<'a> InputFile<'a> {
 
     /// Creates a new [`InputFile`] with [`FileKind::FS`]
     #[must_use]
-    pub fn fs(path: impl Into<PathBuf>) -> Self {
+    pub fn fs(path: impl AsRef<Path>) -> Self {
         Self(FileKind::FS(FSFile::new(path)))
     }
 
     /// Creates a new [`InputFile`] with [`FileKind::FS`] and specified filename
     #[must_use]
-    pub fn fs_with_name(path: impl Into<PathBuf>, name: impl Into<Cow<'a, str>>) -> Self {
+    pub fn fs_with_name(path: impl AsRef<Path>, name: impl Into<Cow<'a, str>>) -> Self {
         Self(FileKind::FS(FSFile::new_with_name(path, name)))
     }
 
@@ -196,7 +196,7 @@ pub struct FSFile<'a> {
 
 impl<'a> FSFile<'a> {
     #[must_use]
-    pub fn new(path: impl Into<PathBuf>) -> Self {
+    pub fn new(path: impl AsRef<Path>) -> Self {
         let id = Uuid::new_v4();
 
         let str_to_file = format!("{ATTACH_PREFIX}{id}");
@@ -204,21 +204,21 @@ impl<'a> FSFile<'a> {
         Self {
             id,
             file_name: None,
-            path: path.into(),
+            path: path.as_ref().to_owned(),
             str_to_file: str_to_file.into(),
         }
     }
 
     /// Creates a new [`FSFile`] with specified filename
     #[must_use]
-    pub fn new_with_name(path: impl Into<PathBuf>, name: impl Into<Cow<'a, str>>) -> Self {
+    pub fn new_with_name(path: impl AsRef<Path>, name: impl Into<Cow<'a, str>>) -> Self {
         let id = Uuid::new_v4();
         let str_to_file = format!("{ATTACH_PREFIX}{id}");
 
         Self {
             id,
             file_name: Some(name.into()),
-            path: path.into(),
+            path: path.as_ref().to_owned(),
             str_to_file: str_to_file.into(),
         }
     }
