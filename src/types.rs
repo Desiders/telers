@@ -262,8 +262,8 @@ pub use inline_query_result_voice::InlineQueryResultVoice;
 pub use inline_query_results_button::InlineQueryResultsButton;
 pub use input_contact_message_content::InputContactMessageContent;
 pub use input_file::{
-    FSFile as InputFSFile, FileId as InputFileId, FileKind as InputFileKind, InputFile,
-    UrlFile as InputUrlFile,
+    BufferedFile as InputBufferedFile, FSFile as InputFSFile, FileId as InputFileId,
+    FileKind as InputFileKind, InputFile, StreamFile as InputStreamFile, UrlFile as InputUrlFile,
 };
 pub use input_invoice_message_content::InputInvoiceMessageContent;
 pub use input_location_message_content::InputLocationMessageContent;
