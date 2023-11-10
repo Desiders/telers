@@ -100,7 +100,7 @@ async fn input_file_handler(bot: Bot, message: Message) -> telegram::HandlerResu
     // Using `InputFile::stream` to send file by stream
     let cat_stream_input_file = InputFile::stream(Box::pin(
         tokio::fs::File::open(CAT_FS_PATH)
-            .map_ok(move |file| {
+            .map_ok(|file| {
                 FramedRead::with_capacity(file, BytesCodec::new(), DEFAULT_CAPACITY)
                     .map_ok(BytesMut::freeze)
             })

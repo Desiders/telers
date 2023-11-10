@@ -835,9 +835,7 @@ mod tests {
         }
 
         // Should return error, because `Update` is empty and `UpdateType` will be unknown
-        let response = dispatcher
-            .feed_update(bot, Box::<Update>::default())
-            .await;
+        let response = dispatcher.feed_update(bot, Box::<Update>::default()).await;
         assert!(response.is_err());
     }
 

@@ -75,10 +75,7 @@ mod tests {
         };
 
         let mut router = Router::new("main");
-        router
-            .update
-            .outer_middlewares
-            .register(UserContext);
+        router.update.outer_middlewares.register(UserContext);
         router.message.register(|context: Arc<Context>| async move {
             context
                 .get("event_user")
@@ -116,10 +113,7 @@ mod tests {
         let update = Update::default();
 
         let mut router = Router::new("main");
-        router
-            .update
-            .outer_middlewares
-            .register(UserContext);
+        router.update.outer_middlewares.register(UserContext);
         router.message.register(|context: Arc<Context>| async move {
             // This should panic, because update doesn't contain user
             context
