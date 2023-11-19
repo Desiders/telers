@@ -19,7 +19,7 @@ pub struct EditMessageText {
     /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: Option<ChatIdKind>,
     /// Required if `inline_message_id` is not specified. Identifier of the message to edit
-    pub message_thread_id: Option<i64>,
+    pub message_id: Option<i64>,
     /// Required if chat_id and message_id are not specified. Identifier of the inline message
     pub inline_message_id: Option<String>,
     /// New text of the message, 1-4096 characters after entities parsing
@@ -39,7 +39,7 @@ impl EditMessageText {
     pub fn new(text: impl Into<String>) -> Self {
         Self {
             chat_id: None,
-            message_thread_id: None,
+            message_id: None,
             inline_message_id: None,
             text: text.into(),
             parse_mode: None,
@@ -58,9 +58,9 @@ impl EditMessageText {
     }
 
     #[must_use]
-    pub fn message_thread_id(self, val: i64) -> Self {
+    pub fn message_id(self, val: i64) -> Self {
         Self {
-            message_thread_id: Some(val),
+            message_id: Some(val),
             ..self
         }
     }
@@ -132,7 +132,7 @@ impl EditMessageText {
     #[must_use]
     pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
         Self {
-            message_thread_id: val,
+            message_id: val,
             ..self
         }
     }
