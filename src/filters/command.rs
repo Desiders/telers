@@ -436,20 +436,20 @@ where
 
         match self.validate_command_object(&command, bot).await {
             Ok(result) => {
-                context.insert("command", Box::new(command));
-
                 if !result {
-                    return false;
+                    false
+                } else {
+                    context.insert("command", Box::new(command));
+
+                    true
                 }
             }
             Err(err) => {
                 event!(Level::ERROR, error = %err, "Failed to validate command object");
 
-                return false;
+                false
             }
         }
-
-        true
     }
 }
 
