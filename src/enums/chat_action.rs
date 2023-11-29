@@ -54,6 +54,12 @@ impl From<ChatAction> for Box<str> {
     }
 }
 
+impl From<ChatAction> for String {
+    fn from(chat_action: ChatAction) -> Self {
+        chat_action.as_ref().to_owned()
+    }
+}
+
 impl<'a> PartialEq<&'a str> for ChatAction {
     fn eq(&self, other: &&'a str) -> bool {
         self.as_ref() == *other

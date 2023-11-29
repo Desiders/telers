@@ -43,6 +43,12 @@ impl From<ChatMemberStatus> for Box<str> {
     }
 }
 
+impl From<ChatMemberStatus> for String {
+    fn from(status: ChatMemberStatus) -> Self {
+        status.as_ref().to_owned()
+    }
+}
+
 impl<'a> PartialEq<&'a str> for ChatMemberStatus {
     fn eq(&self, other: &&'a str) -> bool {
         self.as_ref() == *other

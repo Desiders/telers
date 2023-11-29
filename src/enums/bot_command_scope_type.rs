@@ -42,6 +42,12 @@ impl From<BotCommandScopeType> for Box<str> {
     }
 }
 
+impl From<BotCommandScopeType> for String {
+    fn from(scope: BotCommandScopeType) -> Self {
+        scope.as_ref().to_owned()
+    }
+}
+
 impl<'a> PartialEq<&'a str> for BotCommandScopeType {
     fn eq(&self, other: &&'a str) -> bool {
         self.as_ref() == *other

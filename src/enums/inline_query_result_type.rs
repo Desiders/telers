@@ -63,6 +63,12 @@ impl From<InlineQueryResultType> for Box<str> {
     }
 }
 
+impl From<InlineQueryResultType> for String {
+    fn from(inline_query_result_type: InlineQueryResultType) -> Self {
+        inline_query_result_type.as_ref().to_owned()
+    }
+}
+
 impl<'a> PartialEq<&'a str> for InlineQueryResultType {
     fn eq(&self, other: &&'a str) -> bool {
         self.as_ref() == *other

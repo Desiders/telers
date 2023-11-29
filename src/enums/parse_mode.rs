@@ -26,6 +26,12 @@ impl From<ParseMode> for Box<str> {
     }
 }
 
+impl From<ParseMode> for String {
+    fn from(parse_mode: ParseMode) -> Self {
+        parse_mode.as_ref().to_owned()
+    }
+}
+
 impl<'a> PartialEq<&'a str> for ParseMode {
     fn eq(&self, other: &&'a str) -> bool {
         self.as_ref().to_lowercase() == other.to_lowercase()

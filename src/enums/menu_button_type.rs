@@ -30,6 +30,12 @@ impl From<MenuButtonType> for Box<str> {
     }
 }
 
+impl From<MenuButtonType> for String {
+    fn from(button_type: MenuButtonType) -> Self {
+        button_type.as_ref().to_owned()
+    }
+}
+
 impl<'a> PartialEq<&'a str> for MenuButtonType {
     fn eq(&self, other: &&'a str) -> bool {
         self.as_ref() == *other

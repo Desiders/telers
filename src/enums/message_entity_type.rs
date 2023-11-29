@@ -69,6 +69,12 @@ impl From<MessageEntityType> for Box<str> {
     }
 }
 
+impl From<MessageEntityType> for String {
+    fn from(entity_type: MessageEntityType) -> Self {
+        entity_type.as_ref().to_owned()
+    }
+}
+
 impl<'a> PartialEq<&'a str> for MessageEntityType {
     fn eq(&self, other: &&'a str) -> bool {
         self.as_ref() == *other

@@ -30,6 +30,12 @@ impl From<StickerType> for Box<str> {
     }
 }
 
+impl From<StickerType> for String {
+    fn from(action: StickerType) -> Self {
+        action.as_ref().to_owned()
+    }
+}
+
 impl<'a> PartialEq<&'a str> for StickerType {
     fn eq(&self, other: &&'a str) -> bool {
         self.as_ref() == *other

@@ -28,6 +28,12 @@ impl From<MaskPositionPoint> for Box<str> {
     }
 }
 
+impl From<MaskPositionPoint> for String {
+    fn from(point: MaskPositionPoint) -> Self {
+        point.as_ref().to_owned()
+    }
+}
+
 impl<'a> PartialEq<&'a str> for MaskPositionPoint {
     fn eq(&self, other: &&'a str) -> bool {
         self.as_ref() == *other

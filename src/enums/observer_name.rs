@@ -64,6 +64,12 @@ impl From<Telegram> for Box<str> {
     }
 }
 
+impl From<Telegram> for String {
+    fn from(scope: Telegram) -> Self {
+        scope.as_ref().to_owned()
+    }
+}
+
 impl<'a> PartialEq<&'a str> for Telegram {
     fn eq(&self, other: &&'a str) -> bool {
         self.as_ref() == *other

@@ -60,6 +60,12 @@ impl From<DiceEmoji> for Box<str> {
     }
 }
 
+impl From<DiceEmoji> for String {
+    fn from(dice_emoji: DiceEmoji) -> Self {
+        dice_emoji.as_ref().to_owned()
+    }
+}
+
 impl<'a> PartialEq<&'a str> for DiceEmoji {
     fn eq(&self, other: &&'a str) -> bool {
         self.as_ref() == *other

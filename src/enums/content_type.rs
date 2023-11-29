@@ -170,6 +170,12 @@ impl From<ContentType> for Box<str> {
     }
 }
 
+impl From<ContentType> for String {
+    fn from(content_type: ContentType) -> Self {
+        content_type.as_ref().to_owned()
+    }
+}
+
 impl<'a> PartialEq<&'a str> for ContentType {
     fn eq(&self, other: &&'a str) -> bool {
         self.as_ref() == *other

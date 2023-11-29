@@ -36,6 +36,12 @@ impl From<InputMediaType> for Box<str> {
     }
 }
 
+impl From<InputMediaType> for String {
+    fn from(media_type: InputMediaType) -> Self {
+        media_type.as_ref().to_owned()
+    }
+}
+
 impl<'a> PartialEq<&'a str> for InputMediaType {
     fn eq(&self, other: &&'a str) -> bool {
         self.as_ref() == *other

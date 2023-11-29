@@ -37,6 +37,12 @@ impl From<TopicIconColor> for Box<str> {
     }
 }
 
+impl From<TopicIconColor> for String {
+    fn from(color: TopicIconColor) -> Self {
+        color.as_ref().to_owned()
+    }
+}
+
 impl<'a> PartialEq<&'a str> for TopicIconColor {
     fn eq(&self, other: &&'a str) -> bool {
         self.as_ref() == *other
