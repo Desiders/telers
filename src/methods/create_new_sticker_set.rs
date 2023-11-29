@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#createnewstickerset>
 /// # Returns
-/// Returns `True` on success
+/// Returns `true` on success
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct CreateNewStickerSet<'a> {
@@ -25,7 +25,7 @@ pub struct CreateNewStickerSet<'a> {
     pub sticker_format: String,
     /// Type of stickers in the set, pass `regular`, `mask` or `custom_emoji`. By default, a regular sticker set is created.
     pub sticker_type: Option<String>,
-    /// Pass `True` if stickers in the sticker set must be repainted to the color of text when used in messages, the accent color if used as emoji status, white on chat photos, or another appropriate color based on context; for custom emoji sticker sets only
+    /// Pass `true` if stickers in the sticker set must be repainted to the color of text when used in messages, the accent color if used as emoji status, white on chat photos, or another appropriate color based on context; for custom emoji sticker sets only
     pub needs_repainting: Option<bool>,
 }
 

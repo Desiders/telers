@@ -17,9 +17,9 @@ pub struct SetGameScore {
     pub user_id: i64,
     /// New score, must be non-negative
     pub score: u64,
-    /// Pass `True`, if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters
+    /// Pass `true`, if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters
     pub force: Option<bool>,
-    /// Pass `True`, if the game message should not be automatically edited to include the current scoreboard
+    /// Pass `true`, if the game message should not be automatically edited to include the current scoreboard
     pub disable_edit_message: Option<bool>,
     /// Required if `inline_message_id` is not specified. Unique identifier for the target chat
     pub chat_id: Option<i64>,

@@ -1,5 +1,4 @@
 use anyhow;
-use std::fmt::Debug;
 use thiserror;
 
 /// Errors that can be returned by the Telegram Bot API.

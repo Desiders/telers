@@ -163,14 +163,13 @@ impl<'a> User<'a> {
     }
 
     #[must_use]
-    pub fn builder() -> UserBuilder<'a> {
-        UserBuilder::default()
+    pub fn builder() -> Builder<'a> {
+        Builder::default()
     }
 }
 
-#[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Default, Clone)]
-pub struct UserBuilder<'a> {
+pub struct Builder<'a> {
     usernames: Vec<Cow<'a, str>>,
     first_names: Vec<Cow<'a, str>>,
     last_names: Vec<Cow<'a, str>>,
@@ -178,7 +177,7 @@ pub struct UserBuilder<'a> {
     ids: Vec<i64>,
 }
 
-impl<'a> UserBuilder<'a> {
+impl<'a> Builder<'a> {
     #[must_use]
     pub fn username(self, val: impl Into<Cow<'a, str>>) -> Self {
         Self {
@@ -376,7 +375,10 @@ impl<'a> User<'a> {
 #[async_trait]
 impl<Client> Filter<Client> for User<'_> {
     async fn check(&self, _bot: &Bot<Client>, update: &Update, _context: &Context) -> bool {
-        update.user().map_or(false, |user| self.validate(user))
+        match update.from() {
+            Some(user) => self.validate(user),
+            None => false,
+        }
     }
 }
 

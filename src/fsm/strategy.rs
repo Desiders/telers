@@ -26,6 +26,7 @@ impl Display for Strategy {
 }
 
 impl Default for Strategy {
+    #[must_use]
     fn default() -> Self {
         Self::UserInChat
     }

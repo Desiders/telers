@@ -1,5 +1,3 @@
-use crate::types::MessageEntity;
-
 #[must_use]
 pub fn add_surrogates(text: &str) -> Vec<u16> {
     text.encode_utf16().collect()
@@ -23,36 +21,6 @@ pub fn remove_surrogates(text: &[u16]) -> String {
 /// - These links will work **only** if they are used inside an inline link or in an inline keyboard button. For example, they will not work, when used in a message text.
 /// - Unless the user is a member in the chat where they were mentioned, these mentions are only guaranteed to work if the user has contacted the bot in private in the past or has sent a callback query to the bot via an inline button and doesn't have Forwarded Messages privacy enabled for the bot.
 pub trait Decoration {
-    /// Decorate text by [`MessageEntity`]
-    #[must_use]
-    fn apply_entity(&self, entity: &MessageEntity, text: &str) -> String {
-        match entity.entity_type.as_str() {
-            "mention" | "hashtag" | "cashtag" | "bot_command" => text.to_string(),
-            "bold" => self.bold(text),
-            "italic" => self.italic(text),
-            "underline" => self.underline(text),
-            "strikethrough" => self.strikethrough(text),
-            "spoiler" => self.spoiler(text),
-            "pre" => {
-                if let Some(language) = &entity.language {
-                    self.pre_language(text, language)
-                } else {
-                    self.pre(text)
-                }
-            }
-            "text_mention" => self.link(
-                text,
-                &format!(
-                    "tg://user?id={user_id}",
-                    user_id = entity.user.as_ref().unwrap().id
-                ),
-            ),
-            "text_link" => self.link(text, entity.url.as_ref().unwrap()),
-            "custom_emoji" => self.custom_emoji(text, entity.custom_emoji_id.as_ref().unwrap()),
-            _ => self.quote(text),
-        }
-    }
-
     /// Decorate text with `bold` tag
     #[must_use]
     fn bold(&self, text: &str) -> String;

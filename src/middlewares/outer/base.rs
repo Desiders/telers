@@ -65,7 +65,7 @@ mod tests {
     use crate::{
         client::{Bot, Reqwest},
         context::Context,
-        types::Update,
+        types::{Message, Update, UpdateKind},
     };
 
     use tokio;
@@ -76,9 +76,12 @@ mod tests {
             |request: Request<Reqwest>| async move { Ok((request, EventReturn::default())) };
 
         let request = Request::new(
-            Bot::<Reqwest>::default(),
-            Update::default(),
-            Context::default(),
+            Arc::new(Bot::<Reqwest>::default()),
+            Arc::new(Update {
+                id: 0,
+                kind: UpdateKind::Message(Message::default()),
+            }),
+            Arc::new(Context::default()),
         );
 
         let (updated_request, _) = Middleware::call(&middleware, request.clone())

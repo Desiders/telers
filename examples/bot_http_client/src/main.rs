@@ -42,6 +42,7 @@ struct CustomClient {
 }
 
 impl Default for CustomClient {
+    #[must_use]
     fn default() -> Self {
         Self {
             api: Cow::Borrowed(&telegram::PRODUCTION),
@@ -75,9 +76,9 @@ impl Session for CustomClient {
 
 async fn echo_handler(bot: Bot<impl Session>, message: Message) -> HandlerResult {
     bot.send(CopyMessage::new(
-        message.chat.id,
-        message.chat.id,
-        message.message_id,
+        message.chat().id(),
+        message.chat().id(),
+        message.id(),
     ))
     .await?;
 

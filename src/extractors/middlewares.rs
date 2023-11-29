@@ -1,4 +1,4 @@
-use super::{from_context_impl, FromEventAndContext};
+use super::{from_context, FromEventAndContext};
 
 use crate::{
     client::Bot,
@@ -10,6 +10,6 @@ use crate::{
 
 use std::sync::Arc;
 
-from_context_impl!([Client], User, "event_user");
-from_context_impl!([Client], Chat, "event_chat");
-from_context_impl!([Client, S: Clone], FSMContext<S>, "fsm_context");
+from_context!([Client], User, "event_user");
+from_context!([Client], Chat, "event_chat");
+from_context!([Client, S: Clone], FSMContext<S>, "fsm_context");

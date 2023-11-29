@@ -9,15 +9,15 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#answershippingquery>
 /// # Returns
-/// On success, `True` is returned
+/// On success, `true` is returned
 #[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct AnswerShippingQuery {
     /// Unique identifier for the query to be answered
     pub shipping_query_id: String,
-    /// Pass `True` if delivery to the specified address is possible and `False` if there are any problems (for example, if delivery to the specified address is not possible)
+    /// Pass `true` if delivery to the specified address is possible and `False` if there are any problems (for example, if delivery to the specified address is not possible)
     pub ok: bool,
-    /// Required if `ok` is `True`. A JSON-serialized array of available shipping options.
+    /// Required if `ok` is `true`. A JSON-serialized array of available shipping options.
     pub shipping_options: Option<Vec<ShippingOption>>,
     /// Required if `ok` is `False`. Error message in human readable form that explains why it is impossible to complete the order (e.g. "Sorry, delivery to your desired address is unavailable'). Telegram will display this message to the user.
     pub error_message: Option<String>,

@@ -9,13 +9,13 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setmydefaultadministratorrights>
 /// # Returns
-/// Returns `True` on success
+/// Returns `true` on success
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct SetMyDefaultAdministratorRights {
     /// A JSON-serialized object describing new default administrator rights. If not specified, the default administrator rights will be cleared.
     pub rights: Option<ChatAdministratorRights>,
-    /// Pass `True` to change the default administrator rights of the bot in channels. Otherwise, the default administrator rights of the bot for groups and supergroups will be changed.
+    /// Pass `true` to change the default administrator rights of the bot in channels. Otherwise, the default administrator rights of the bot for groups and supergroups will be changed.
     pub for_channels: Option<bool>,
 }
 
@@ -26,9 +26,9 @@ impl SetMyDefaultAdministratorRights {
     }
 
     #[must_use]
-    pub fn rights(self, val: ChatAdministratorRights) -> Self {
+    pub fn rights(self, val: impl Into<ChatAdministratorRights>) -> Self {
         Self {
-            rights: Some(val),
+            rights: Some(val.into()),
             ..self
         }
     }
@@ -44,9 +44,9 @@ impl SetMyDefaultAdministratorRights {
 
 impl SetMyDefaultAdministratorRights {
     #[must_use]
-    pub fn rights_option(self, val: Option<ChatAdministratorRights>) -> Self {
+    pub fn rights_option(self, val: Option<impl Into<ChatAdministratorRights>>) -> Self {
         Self {
-            rights: val,
+            rights: val.map(Into::into),
             ..self
         }
     }

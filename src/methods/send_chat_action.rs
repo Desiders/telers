@@ -13,7 +13,7 @@ use serde_with::skip_serializing_none;
 /// # Example
 /// The [ImageBot](https://t.me/imagebot) needs some time to process a request and upload the image. Instead of sending a text message along the lines of “Retrieving image, please wait…”, the bot may use [`SendChatAction`](crate::methods::SendChatAction) with `action = upload_photo`. The user will see a “sending photo” status for the bot.
 /// # Returns
-/// Returns `True` on success
+/// Returns `true` on success
 #[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct SendChatAction {

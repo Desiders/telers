@@ -24,7 +24,7 @@ pub struct CreateChatInviteLink {
     pub expire_date: Option<i64>,
     /// The maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
     pub member_limit: Option<i64>,
-    /// `True`, if users joining the chat via the link need to be approved by chat administrators. If `True`, `member_limit` can't be specified
+    /// `true`, if users joining the chat via the link need to be approved by chat administrators. If `true`, `member_limit` can't be specified
     pub creates_join_request: Option<bool>,
 }
 

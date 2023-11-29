@@ -1,7 +1,7 @@
 /// Implements [`super::FromEventAndContext`] for types that can be extracts from the context by key
 /// # Syntax
 /// ```ignore
-/// from_context_impl!(
+/// from_context!(
 ///     [client_generic_or_type] |
 ///         [client_generic_or_type, generic1, ...] |.
 ///         [client_generic_or_type, generic1: generic1_bound + ..., ...] |
@@ -27,7 +27,7 @@
 /// use telers::{
 ///     errors::ExtractionError,
 ///     event::{telegram::HandlerResult, EventReturn},
-///     extractors::{from_context_impl, FromEventAndContext},
+///     extractors::{from_context, FromEventAndContext},
 ///     types::Update,
 ///     Bot, Context,
 /// };
@@ -38,16 +38,15 @@
 /// #[derive(Debug, Clone)]
 /// struct B<T, U>(T, U);
 ///
-/// from_context_impl!([Client], A, "a");
-/// from_context_impl!([Client, T: Clone, U: Clone], B<T, U>, "b");
+/// from_context!([Client], A, "a");
+/// from_context!([Client, T: Clone, U: Clone], B<T, U>, "b");
 ///
 /// async fn handler<T: Clone, U: Clone>(_a: A, _b: B<T, U>) -> HandlerResult {
 ///    todo!()
 /// }
 /// ```
-#[allow(clippy::module_name_repetitions)]
 #[macro_export]
-macro_rules! from_context_impl {
+macro_rules! from_context {
     (
         [
             $client_generic_or_type:ident
@@ -147,12 +146,12 @@ macro_rules! from_context_impl {
 }
 
 /// Implements [`super::FromEventAndContext`] for types that can be extracts from the context by key and converted to another type.
-/// This macro is similar to [`from_context_impl!`] but it converts extracted data to another type.
+/// This macro is similar to [`from_context!`] but it converts extracted data to another type.
 /// It's useful when you want to implement [`super::FromEventAndContext`] for foreign types and orphans rules don't allow you to do it,
 /// so you can create a wrapper type and implement for it.
 /// # Syntax
 /// ```ignore
-/// from_context_into_impl!(
+/// from_context_into!(
 ///     [client_generic_or_type] |
 ///         [client_generic_or_type, generic1, ...] |.
 ///         [client_generic_or_type, generic1: generic1_bound + ..., ...] |
@@ -179,7 +178,7 @@ macro_rules! from_context_impl {
 /// use telers::{
 ///     errors::ExtractionError,
 ///     event::{telegram::HandlerResult, EventReturn},
-///     extractors::{from_context_impl, FromEventAndContext},
+///     extractors::{from_context, FromEventAndContext},
 ///     types::Update,
 ///     Bot, Context,
 /// };
@@ -198,8 +197,8 @@ macro_rules! from_context_impl {
 ///    }
 /// }
 ///
-/// from_context_into_impl!([Client], A => Wrapper<A>, "a");
-/// from_context_into_impl!([Client, T: Clone, U: Clone], B<T, U> => Wrapper<B<T, U>>, "b");
+/// from_context_into!([Client], A => Wrapper<A>, "a");
+/// from_context_into!([Client, T: Clone, U: Clone], B<T, U> => Wrapper<B<T, U>>, "b");
 ///
 /// async fn handler<T: Clone, U: Clone>(
 ///     _a: A,
@@ -210,10 +209,9 @@ macro_rules! from_context_impl {
 ///     todo!()
 /// }
 /// ```
-#[allow(rustdoc::invalid_rust_codeblocks)]
 #[allow(clippy::module_name_repetitions)]
 #[macro_export]
-macro_rules! from_context_into_impl {
+macro_rules! from_context_into {
     (
         [
             $client_generic_or_type:ident
@@ -380,13 +378,13 @@ mod tests {
             }
         }
 
-        from_context_impl!([Client], A, "a");
-        from_context_impl!([Client, T], B<T>, "b");
-        from_context_impl!([Client, T: Clone, U: Clone], C<T, U>, "c");
-        from_context_impl!([Client], D);
+        from_context!([Client], A, "a");
+        from_context!([Client, T], B<T>, "b");
+        from_context!([Client, T: Clone, U: Clone], C<T, U>, "c");
+        from_context!([Client], D);
 
-        from_context_into_impl!([Client], A => Wrapper<A>, "a");
-        from_context_into_impl!([Client, T: Clone, U: Clone], C<T, U> => Wrapper<C<T, U>>, "c");
+        from_context_into!([Client], A => Wrapper<A>, "a");
+        from_context_into!([Client, T: Clone, U: Clone], C<T, U> => Wrapper<C<T, U>>, "c");
 
         let bot = Arc::new(Bot::<Reqwest>::default());
         let update = Arc::new(Update::default());

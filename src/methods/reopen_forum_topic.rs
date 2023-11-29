@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#reopenforumtopic>
 /// # Returns
-/// Returns `True` on success
+/// Returns `true` on success
 #[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct ReopenForumTopic {

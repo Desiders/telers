@@ -70,9 +70,9 @@ pub mod user;
 
 pub use base::Filter;
 pub use chat_type::ChatType;
-pub use command::{Command, CommandBuilder, CommandObject};
+pub use command::{Builder as CommandBuilder, Command, CommandObject};
 pub use content_type::ContentType;
 pub use logical::{And, Invert, Or};
 pub use state::{State, StateType};
-pub use text::{Text, TextBuilder};
-pub use user::{User, UserBuilder};
+pub use text::{Builder as TextBuilder, Text};
+pub use user::{Builder as UserBuilder, User};

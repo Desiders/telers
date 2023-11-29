@@ -18,9 +18,9 @@ use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt
 
 async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
     bot.send(CopyMessage::new(
-        message.chat.id,
-        message.chat.id,
-        message.message_id,
+        message.chat().id(),
+        message.chat().id(),
+        message.id(),
     ))
     .await?;
 

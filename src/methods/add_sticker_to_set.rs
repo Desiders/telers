@@ -13,7 +13,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#addstickertoset>
 /// # Returns
-/// `True` on success
+/// `true` on success
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct AddStickerToSet<'a> {

@@ -28,7 +28,7 @@ pub struct SendGame {
     pub protect_content: Option<bool>,
     /// If the message is a reply, ID of the original message
     pub reply_to_message_id: Option<i64>,
-    /// Pass `True`, if the message should be sent even if the specified replied-to message is not found
+    /// Pass `true`, if the message should be sent even if the specified replied-to message is not found
     pub allow_sending_without_reply: Option<bool>,
     /// A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). If empty, one ‘Play game_title’ button will be shown. If not empty, the first button must launch the game.
     pub reply_markup: Option<InlineKeyboardMarkup>,

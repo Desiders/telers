@@ -1,5 +1,5 @@
 //! [`Dispatcher`] is the main part of the library, which contains functionality for handling updates and dispatching them to the router.
-//! You can create [`Dispatcher`] with [`Dispatcher::new`] method or using [`DispatcherBuilder`] (**recommended**).
+//! You can create [`Dispatcher`] with [`Dispatcher::new`] method or using [`Builder`] (**recommended**).
 //!
 //! Components of the dispatcher:
 //! * [`Bot`]:
@@ -12,9 +12,9 @@
 //! See [`router module`] for more information (**recommended**).
 //! * `Polling timeout`:
 //! Timeout in seconds for long polling.
-//! By default, it's 30 seconds, but you can change it with [`DispatcherBuilder::polling_timeout`] method.
+//! By default, it's 30 seconds, but you can change it with [`Builder::polling_timeout`] method.
 //! Polling sends [`GetUpdates`] request to the Telegram API and will wait for `polling_timeout` seconds.
-//! If there are no updates, it will send the same request again, so often as you set it in [`DispatcherBuilder::backoff`] method.
+//! If there are no updates, it will send the same request again, so often as you set it in [`Builder::backoff`] method.
 //! * [`ExponentialBackoff`]:
 //! Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
 //! and set timeout between requests to telegram server.
@@ -43,21 +43,22 @@
 //! [`router module`]: crate::router
 //! [`context module`]: crate::context
 //! [`Dispatcher::new`]: Dispatcher#method.new
-//! [`DispatcherBuilder::polling_timeout`]: DispatcherBuilder#method.polling_timeout
-//! [`DispatcherBuilder::backoff`]: DispatcherBuilder#method.backoff
-//! [`Dispatcher::run_polling`]: DispatcherService#method.run_polling
-//! [`Dispatcher::emit_startup`]: DispatcherService#method.emit_startup
-//! [`Dispatcher::emit_shutdown`]: DispatcherService#method.emit_shutdown
-//! [`Dispatcher::run_polling_without_startup_and_shutdown`]: DispatcherService#method.run_polling_without_startup_and_shutdown
-//! [`Dispatcher::feed_update`]: DispatcherService#method.feed_update
-//! [`Dispatcher::feed_update_with_context`]: DispatcherService#method.feed_update_with_context
+//! [`Builder::polling_timeout`]: Builder#method.polling_timeout
+//! [`Builder::backoff`]: Builder#method.backoff
+//! [`Dispatcher::run_polling`]: Service#method.run_polling
+//! [`Dispatcher::emit_startup`]: Service#method.emit_startup
+//! [`Dispatcher::emit_shutdown`]: Service#method.emit_shutdown
+//! [`Dispatcher::run_polling_without_startup_and_shutdown`]: Service#method.run_polling_without_startup_and_shutdown
+//! [`Dispatcher::feed_update`]: Service#method.feed_update
+//! [`Dispatcher::feed_update_with_context`]: Service#method.feed_update_with_context
 
 use super::router::{PropagateEvent, Request, Response};
 
 use crate::{
     client::{Bot, Session},
     context::Context,
-    errors::{EventErrorKind, UnknownUpdateTypeError},
+    enums::UpdateType,
+    errors::EventErrorKind,
     event::{
         service::{ServiceProvider, ToServiceProvider},
         simple::HandlerResult as SimpleHandlerResult,
@@ -67,7 +68,7 @@ use crate::{
 };
 
 use backoff::{backoff::Backoff, exponential::ExponentialBackoff, SystemClock};
-use std::sync::Arc;
+use std::{borrow::Cow, sync::Arc};
 use thiserror;
 use tokio::sync::mpsc::{channel as mspc_channel, error::SendError, Sender};
 use tracing::{event, field, instrument, Level, Span};
@@ -95,7 +96,7 @@ pub struct Dispatcher<Client, Propagator, BackoffType = ExponentialBackoff<Syste
     bots: Box<[Bot<Client>]>,
     polling_timeout: Option<i64>,
     backoff: BackoffType,
-    allowed_updates: Box<[Box<str>]>,
+    allowed_updates: Box<[Cow<'static, str>]>,
 }
 
 impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType> {
@@ -128,7 +129,7 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
     where
         Bots: IntoIterator<Item = Bot<Client>>,
         BackoffType: Backoff,
-        AllowedUpdate: Into<String>,
+        AllowedUpdate: Into<Cow<'static, str>>,
         AllowedUpdates: IntoIterator<Item = AllowedUpdate>,
         Propagator: ToServiceProvider<
             Config = Cfg,
@@ -142,10 +143,7 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
             bots: bots.into_iter().collect(),
             polling_timeout,
             backoff,
-            allowed_updates: allowed_updates
-                .into_iter()
-                .map(|allowed_update| allowed_update.into().into_boxed_str())
-                .collect(),
+            allowed_updates: allowed_updates.into_iter().map(Into::into).collect(),
         }
     }
 }
@@ -156,8 +154,8 @@ where
 {
     /// Creates a new dispatcher with default values
     #[must_use]
-    pub fn builder() -> DispatcherBuilder<Client, Propagator> {
-        DispatcherBuilder::default()
+    pub fn builder() -> Builder<Client, Propagator> {
+        Builder::default()
     }
 }
 
@@ -168,23 +166,20 @@ where
     /// Creates a new dispatcher with default values and custom backoff.
     /// By default, the backoff is [`ExponentialBackoff`].
     #[must_use]
-    pub fn builder_with_backoff(
-        val: BackoffType,
-    ) -> DispatcherBuilder<Client, Propagator, BackoffType> {
-        DispatcherBuilder::default_with_backoff(val)
+    pub fn builder_with_backoff(val: BackoffType) -> Builder<Client, Propagator, BackoffType> {
+        Builder::default_with_backoff(val)
     }
 }
 
-#[allow(clippy::module_name_repetitions)]
-pub struct DispatcherBuilder<Client, Propagator, BackoffType = ExponentialBackoff<SystemClock>> {
+pub struct Builder<Client, Propagator, BackoffType = ExponentialBackoff<SystemClock>> {
     main_router: Propagator,
     bots: Vec<Bot<Client>>,
     polling_timeout: Option<i64>,
     backoff: BackoffType,
-    allowed_updates: Vec<String>,
+    allowed_updates: Vec<Cow<'static, str>>,
 }
 
-impl<Client, Propagator> Default for DispatcherBuilder<Client, Propagator>
+impl<Client, Propagator> Default for Builder<Client, Propagator>
 where
     Propagator: Default,
 {
@@ -201,7 +196,7 @@ where
     }
 }
 
-impl<Client, Propagator, BackoffType> DispatcherBuilder<Client, Propagator, BackoffType>
+impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType>
 where
     Propagator: Default,
 {
@@ -219,7 +214,7 @@ where
     }
 }
 
-impl<Client, Propagator, BackoffType> DispatcherBuilder<Client, Propagator, BackoffType> {
+impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     /// Main router, whose service will propagate updates to the other routers and its observers
     #[must_use]
     pub fn main_router<Cfg, PropagatorService, InitError>(self, val: Propagator) -> Self
@@ -239,7 +234,7 @@ impl<Client, Propagator, BackoffType> DispatcherBuilder<Client, Propagator, Back
 
     /// Main router, whose service will propagate updates to the other routers and its observers
     /// # Notes
-    /// Alias to [`DispatcherBuilder::main_router`] method
+    /// Alias to [`Builder::main_router`] method
     #[must_use]
     pub fn router<Cfg, PropagatorService, InitError>(self, val: Propagator) -> Self
     where
@@ -257,7 +252,7 @@ impl<Client, Propagator, BackoffType> DispatcherBuilder<Client, Propagator, Back
     /// All bots use the same dispatcher, but each bot has the own polling process.
     /// Polling process gets updates and propagates them to the main propagator.
     /// # Notes
-    /// You can add multiple bots using [`DispatcherBuilder::bots`] method
+    /// You can add multiple bots using [`Builder::bots`] method
     #[must_use]
     pub fn bot(self, val: Bot<Client>) -> Self {
         Self {
@@ -270,7 +265,7 @@ impl<Client, Propagator, BackoffType> DispatcherBuilder<Client, Propagator, Back
     /// All bots use the same dispatcher, but each bot has the own polling process.
     /// Polling process gets updates and propagates them to the main propagator.
     /// # Notes
-    /// You can add sinlge bot using [`DispatcherBuilder::bot`] method
+    /// You can add sinlge bot using [`Builder::bot`] method
     #[must_use]
     pub fn bots(self, val: impl IntoIterator<Item = Bot<Client>>) -> Self {
         Self {
@@ -308,9 +303,9 @@ impl<Client, Propagator, BackoffType> DispatcherBuilder<Client, Propagator, Back
     /// # Notes
     /// You can use [`crate::enums::UpdateType`] and pass it to this method, because it implements [`Into<String>`]
     ///
-    /// You can add multiple update types using [`DispatcherBuilder::allowed_updates`] method
+    /// You can add multiple update types using [`Builder::allowed_updates`] method
     #[must_use]
-    pub fn allowed_update(self, val: impl Into<String>) -> Self {
+    pub fn allowed_update(self, val: impl Into<Cow<'static, str>>) -> Self {
         Self {
             allowed_updates: self
                 .allowed_updates
@@ -329,11 +324,11 @@ impl<Client, Propagator, BackoffType> DispatcherBuilder<Client, Propagator, Back
     /// # Notes
     /// You can use [`crate::enums::UpdateType`] and pass it to this method, because it implements [`Into<String>`]
     ///
-    /// You can add single update type using [`DispatcherBuilder::allowed_update`] method
+    /// You can add single update type using [`Builder::allowed_update`] method
     #[must_use]
     pub fn allowed_updates<T, I>(self, val: I) -> Self
     where
-        T: Into<String>,
+        T: Into<Cow<'static, str>>,
         I: IntoIterator<Item = T>,
     {
         Self {
@@ -354,16 +349,12 @@ impl<Client, Propagator, BackoffType> DispatcherBuilder<Client, Propagator, Back
             bots: self.bots.into(),
             polling_timeout: self.polling_timeout,
             backoff: self.backoff,
-            allowed_updates: self
-                .allowed_updates
-                .into_iter()
-                .map(String::into_boxed_str)
-                .collect(),
+            allowed_updates: self.allowed_updates.into_iter().collect(),
         }
     }
 }
 
-/// This converts all dependencies to [`ServiceProvider`] and creates [`Arc<DispatcherService>`]
+/// This converts all dependencies to [`ServiceProvider`] and creates [`Arc<Service>`]
 /// that contains converted [`ServiceProvider`]s.
 impl<Client, BackoffType, PropagatorService, Propagator, Cfg, InitError> ToServiceProvider
     for Dispatcher<Client, Propagator, BackoffType>
@@ -373,7 +364,7 @@ where
         ToServiceProvider<Config = Cfg, ServiceProvider = PropagatorService, InitError = InitError>,
 {
     type Config = Cfg;
-    type ServiceProvider = Arc<DispatcherService<Client, PropagatorService, BackoffType>>;
+    type ServiceProvider = Arc<Service<Client, PropagatorService, BackoffType>>;
     type InitError = InitError;
 
     fn to_service_provider(
@@ -382,7 +373,7 @@ where
     ) -> Result<Self::ServiceProvider, Self::InitError> {
         let main_router = self.main_router.to_service_provider(config)?;
 
-        Ok(Arc::new(DispatcherService {
+        Ok(Arc::new(Service {
             main_router,
             bots: self.bots,
             polling_timeout: self.polling_timeout,
@@ -392,85 +383,65 @@ where
     }
 }
 
-#[allow(clippy::module_name_repetitions)]
-pub struct DispatcherService<Client, PropagatorService, BackoffType> {
+pub struct Service<Client, PropagatorService, BackoffType> {
     main_router: PropagatorService,
     bots: Box<[Bot<Client>]>,
     polling_timeout: Option<i64>,
     backoff: BackoffType,
-    allowed_updates: Box<[Box<str>]>,
+    allowed_updates: Box<[Cow<'static, str>]>,
 }
 
 impl<Client, PropagatorService, BackoffType> ServiceProvider
-    for DispatcherService<Client, PropagatorService, BackoffType>
+    for Service<Client, PropagatorService, BackoffType>
 {
 }
 
-impl<Client, PropagatorService, BackoffType>
-    DispatcherService<Client, PropagatorService, BackoffType>
-{
+impl<Client, PropagatorService, BackoffType> Service<Client, PropagatorService, BackoffType> {
     /// Main entry point for incoming updates.
     /// This method will propagate update to the main router.
-    /// # Errors
-    /// - [`UnknownUpdateTypeError`] if update type is unknown
-    /// - [`EventErrorKind`] if propagation event returns error
     #[instrument(skip(self, bot, update))]
     pub async fn feed_update(
         self: Arc<Self>,
-        bot: impl Into<Arc<Bot<Client>>>,
-        update: impl Into<Arc<Update>>,
-    ) -> Result<Result<Response<Client>, EventErrorKind>, UnknownUpdateTypeError>
+        bot: Arc<Bot<Client>>,
+        update: Arc<Update>,
+    ) -> Result<Response<Client>, EventErrorKind>
     where
         Client: Send + Sync + 'static,
         PropagatorService: PropagateEvent<Client>,
     {
-        self.feed_update_with_context(bot, update, Context::default())
+        self.feed_update_with_context(bot, update, Arc::new(Context::default()))
             .await
     }
 
     /// Main entry point for incoming updates with user context.
     /// This method will propagate update to the main router.
-    /// # Errors
-    /// - [`UnknownUpdateTypeError`] if update type is unknown
-    /// - [`EventErrorKind`] if propagation event returns error
-    /// # Warnings
-    /// Pass the update as wrapped in [`Arc`] or [`Box`] because [`Update`] is a large structure, so you may get a stack overflow error
     #[instrument(
         skip(self, bot, update, context),
         fields(bot_id, update_id, update_type)
     )]
     pub async fn feed_update_with_context(
         self: Arc<Self>,
-        bot: impl Into<Arc<Bot<Client>>>,
-        update: impl Into<Arc<Update>>,
-        context: impl Into<Arc<Context>>,
-    ) -> Result<Result<Response<Client>, EventErrorKind>, UnknownUpdateTypeError>
+        bot: Arc<Bot<Client>>,
+        update: Arc<Update>,
+        context: Arc<Context>,
+    ) -> Result<Response<Client>, EventErrorKind>
     where
         Client: Send + Sync + 'static,
         PropagatorService: PropagateEvent<Client>,
     {
-        let update: Arc<Update> = update.into();
+        let update: Arc<Update> = update;
+        let update_type = UpdateType::from(update.as_ref());
 
-        let update_type = match update.as_ref().try_into() {
-            Ok(update_type) => update_type,
-            Err(err) => {
-                event!(Level::ERROR, update = ?update, error = %err);
-
-                return Err(err);
-            }
-        };
-
-        let bot: Arc<Bot<Client>> = bot.into();
+        let bot: Arc<Bot<Client>> = bot;
 
         Span::current()
             .record("bot_id", bot.bot_id)
-            .record("update_id", update.update_id)
+            .record("update_id", update.id)
             .record("update_type", field::debug(&update_type));
 
-        Ok(self
-            .main_router
+        self.main_router
             .propagate_event(update_type, Request::new(bot, update, context))
-            .await)
+            .await
     }
 
     /// Start listening updates for the bot.
@@ -481,10 +452,10 @@ impl<Client, PropagatorService, BackoffType>
     async fn listen_updates(
         bot: Arc<Bot<Client>>,
         polling_timeout: Option<i64>,
-        allowed_updates: Box<[Box<str>]>,
-        update_sender: Sender<Box<Update>>,
+        allowed_updates: Box<[Cow<'static, str>]>,
+        update_sender: Sender<Update>,
         mut backoff: BackoffType,
-    ) -> Result<(), ListenerError<Box<Update>>>
+    ) -> Result<(), ListenerError<Update>>
     where
         Client: Session,
         BackoffType: Backoff,
@@ -510,7 +481,7 @@ impl<Client, PropagatorService, BackoffType>
             let updates = match bot.send(&method).await {
                 Ok(updates) => {
                     // Get last update id to set offset or skip updates if it's empty
-                    let Some(Update { update_id, .. }) = updates.last() else {
+                    let Some(Update { id, .. }) = updates.last() else {
                         event!(Level::TRACE, "No updates received");
 
                         continue;
@@ -519,7 +490,7 @@ impl<Client, PropagatorService, BackoffType>
                     event!(
                         Level::TRACE,
                         updates_len = updates.len(),
-                        last_update_id = update_id,
+                        last_update_id = id,
                         "Received updates from the Telegram server",
                     );
 
@@ -529,7 +500,7 @@ impl<Client, PropagatorService, BackoffType>
                     // as confirmed on the server and will no longer be returned.
                     // So we need to set offset to the last update id + 1
                     // `unwrap` is safe here, because we checked that updates isn't empty
-                    method.offset = Some(update_id + 1);
+                    method.offset = Some(id + 1);
 
                     updates
                 }
@@ -555,7 +526,7 @@ impl<Client, PropagatorService, BackoffType>
                 event!(Level::TRACE, "Send update to the listener",);
 
                 // `Box` is used to avoid stack overflow, because `Update` is a big struct
-                update_sender.send(Box::new(update)).await?;
+                update_sender.send(update).await?;
             }
 
             // If we successfully connected to the server, we will reset backoff config
@@ -598,14 +569,14 @@ impl<Client, PropagatorService, BackoffType>
             while let Some(update) = receiver_update.recv().await {
                 event!(
                     Level::TRACE,
-                    update_id = update.update_id,
+                    update_id = update.id,
                     "Received update from the listener"
                 );
 
                 let dispatcher = Arc::clone(&self);
                 let bot = Arc::clone(&bot);
 
-                tokio::spawn(dispatcher.feed_update(bot, update));
+                tokio::spawn(dispatcher.feed_update(bot, Arc::new(update)));
             }
         });
 
@@ -776,10 +747,8 @@ mod tests {
     use super::*;
     use crate::{
         client::Reqwest,
-        enums::UpdateType,
         event::bases::{EventReturn, PropagateEventResult},
         router::Router,
-        types::Message,
     };
 
     use tokio;
@@ -787,10 +756,7 @@ mod tests {
     #[tokio::test]
     async fn test_feed_update() {
         let bot = Arc::new(Bot::<Reqwest>::default());
-        let update = Arc::new(Update {
-            message: Some(Message::default()),
-            ..Default::default()
-        });
+        let update = Arc::new(Update::default());
 
         let router = Router::new("main");
         let dispatcher = Dispatcher::builder()
@@ -802,7 +768,6 @@ mod tests {
         let response = dispatcher
             .feed_update(Arc::clone(&bot), Arc::clone(&update))
             .await
-            .unwrap()
             .unwrap();
 
         // Event shouldn't be handled, because there is no any handler registered
@@ -825,7 +790,6 @@ mod tests {
         let response = Arc::clone(&dispatcher)
             .feed_update(Arc::clone(&bot), update)
             .await
-            .unwrap()
             .unwrap();
 
         // Event should be handled
@@ -833,10 +797,6 @@ mod tests {
             PropagateEventResult::Handled(_) => {}
             _ => panic!("Unexpected result"),
         }
-
-        // Should return error, because `Update` is empty and `UpdateType` will be unknown
-        let response = dispatcher.feed_update(bot, Box::<Update>::default()).await;
-        assert!(response.is_err());
     }
 
     #[test]

@@ -41,19 +41,19 @@ pub struct CreateInvoiceLink {
     pub photo_width: Option<i64>,
     /// Photo height
     pub photo_height: Option<i64>,
-    /// Pass `True` if you require the user's full name to complete the order
+    /// Pass `true` if you require the user's full name to complete the order
     pub need_name: Option<bool>,
-    /// Pass `True` if you require the user's phone number to complete the order
+    /// Pass `true` if you require the user's phone number to complete the order
     pub need_phone_number: Option<bool>,
-    /// Pass `True` if you require the user's email address to complete the order
+    /// Pass `true` if you require the user's email address to complete the order
     pub need_email: Option<bool>,
-    /// Pass `True` if you require the user's shipping address to complete the order
+    /// Pass `true` if you require the user's shipping address to complete the order
     pub need_shipping_address: Option<bool>,
-    /// Pass `True` if the user's phone number should be sent to provider
+    /// Pass `true` if the user's phone number should be sent to provider
     pub send_phone_number_to_provider: Option<bool>,
-    /// Pass `True` if the user's email address should be sent to provider
+    /// Pass `true` if the user's email address should be sent to provider
     pub send_email_to_provider: Option<bool>,
-    /// Pass `True` if the final price depends on the shipping method
+    /// Pass `true` if the final price depends on the shipping method
     pub is_flexible: Option<bool>,
 }
 

@@ -46,11 +46,10 @@ impl ChatType {
 #[async_trait]
 impl<Client> Filter<Client> for ChatType {
     async fn check(&self, _bot: &Bot<Client>, update: &Update, _context: &Context) -> bool {
-        update.chat().map_or(false, |message| {
-            message
-                .chat_type()
-                .map_or(false, |chat_type| self.validate_chat_type(chat_type))
-        })
+        match update.chat() {
+            Some(chat) => self.validate_chat_type(ChatTypeEnum::from(chat)),
+            None => false,
+        }
     }
 }
 

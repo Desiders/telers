@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setstickersetthumbnail>
 /// # Returns
-/// Returns `True` on success
+/// Returns `true` on success
 #[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Serialize)]
 pub struct SetStickerSetThumbnail<'a> {
@@ -48,7 +48,7 @@ impl<'a> SetStickerSetThumbnail<'a> {
     }
 
     #[must_use]
-    pub fn thumb(self, val: impl Into<InputFile<'a>>) -> Self {
+    pub fn thumbnail(self, val: impl Into<InputFile<'a>>) -> Self {
         Self {
             thumbnail: Some(val.into()),
             ..self

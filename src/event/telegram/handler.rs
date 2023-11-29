@@ -35,15 +35,11 @@ pub struct Request<Client> {
 
 impl<Client> Request<Client> {
     #[must_use]
-    pub fn new(
-        bot: impl Into<Arc<Bot<Client>>>,
-        update: impl Into<Arc<Update>>,
-        context: impl Into<Arc<Context>>,
-    ) -> Self {
+    pub fn new(bot: Arc<Bot<Client>>, update: Arc<Update>, context: Arc<Context>) -> Self {
         Self {
-            bot: bot.into(),
-            update: update.into(),
-            context: context.into(),
+            bot,
+            update,
+            context,
         }
     }
 }
@@ -311,7 +307,12 @@ mod factory_handlers {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{client::Reqwest, event::EventReturn, filters::Command};
+    use crate::{
+        client::Reqwest,
+        event::EventReturn,
+        filters::Command,
+        types::{Message, UpdateKind},
+    };
 
     use tokio;
 
@@ -367,9 +368,12 @@ mod tests {
         let handler_object_service = handler_object.new_service(()).unwrap();
 
         let request = Request::new(
-            Bot::<Reqwest>::default(),
-            Update::default(),
-            Context::default(),
+            Arc::new(Bot::<Reqwest>::default()),
+            Arc::new(Update {
+                id: 0,
+                kind: UpdateKind::Message(Message::default()),
+            }),
+            Arc::new(Context::default()),
         );
         let response = handler_object_service.call(request).await.unwrap();
 

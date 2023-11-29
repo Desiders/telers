@@ -190,14 +190,13 @@ impl<'a> Text<'a> {
     /// If `ignore_case` is `true` and [`Regex`],
     /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
     #[must_use]
-    pub fn builder() -> TextBuilder<'a> {
-        TextBuilder::default()
+    pub fn builder() -> Builder<'a> {
+        Builder::default()
     }
 }
 
-#[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Default, Clone)]
-pub struct TextBuilder<'a> {
+pub struct Builder<'a> {
     texts: Vec<PatternType<'a>>,
     contains: Vec<Cow<'a, str>>,
     starts_with: Vec<Cow<'a, str>>,
@@ -205,7 +204,7 @@ pub struct TextBuilder<'a> {
     ignore_case: bool,
 }
 
-impl<'a> TextBuilder<'a> {
+impl<'a> Builder<'a> {
     #[must_use]
     pub fn text(self, val: impl Into<PatternType<'a>>) -> Self {
         Self {

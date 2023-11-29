@@ -28,7 +28,7 @@ pub struct SendPhoto<'a> {
     pub parse_mode: Option<String>,
     /// A JSON-serialized list of special entities that appear in the caption, which can be specified instead of `parse_mode`
     pub caption_entities: Option<Vec<MessageEntity>>,
-    /// Pass `True` if the photo needs to be covered with a spoiler animation
+    /// Pass `true` if the photo needs to be covered with a spoiler animation
     pub has_spoiler: Option<bool>,
     /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound
     pub disable_notification: Option<bool>,
@@ -36,7 +36,7 @@ pub struct SendPhoto<'a> {
     pub protect_content: Option<bool>,
     /// If the message is a reply, *id* of the original message
     pub reply_to_message_id: Option<i64>,
-    /// Pass `True` if the message should be sent even if the specified replied-to message is not found
+    /// Pass `true` if the message should be sent even if the specified replied-to message is not found
     pub allow_sending_without_reply: Option<bool>,
     /// Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove reply keyboard or to force a reply from the user.
     pub reply_markup: Option<ReplyMarkup>,

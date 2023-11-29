@@ -5,7 +5,7 @@ use crate::{
     context::Context,
     errors::SessionErrorKind,
     methods::GetMe,
-    types::{BotCommand, Update},
+    types::{BotCommand, Update, UpdateKind},
 };
 
 use async_trait::async_trait;
@@ -181,8 +181,8 @@ impl<'a> Command<'a> {
     }
 
     #[must_use]
-    pub fn builder() -> CommandBuilder<'a> {
-        CommandBuilder::new()
+    pub fn builder() -> Builder<'a> {
+        Builder::new()
     }
 }
 
@@ -198,18 +198,17 @@ impl Default for Command<'_> {
     }
 }
 
-#[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Clone)]
-pub struct CommandBuilder<'a> {
+pub struct Builder<'a> {
     commands: Vec<PatternType<'a>>,
     prefix: char,
     ignore_case: bool,
     ignore_mention: bool,
 }
 
-impl<'a> CommandBuilder<'a> {
+impl<'a> Builder<'a> {
     #[must_use]
-    pub fn new() -> CommandBuilder<'a> {
+    pub fn new() -> Builder<'a> {
         Self::default()
     }
 
@@ -272,7 +271,7 @@ impl<'a> CommandBuilder<'a> {
     }
 }
 
-impl Default for CommandBuilder<'_> {
+impl Default for Builder<'_> {
     #[must_use]
     fn default() -> Self {
         Self {
@@ -301,7 +300,7 @@ impl Command<'_> {
         if self.ignore_mention {
             Ok(true)
         } else if let Some(ref mention) = command.mention {
-            bot.send(GetMe::default()).await.map(|user| {
+            bot.send(GetMe).await.map(|user| {
                 // `unwrap` is safe here, because bot always has username
                 user.username.unwrap() == *mention
             })
@@ -424,10 +423,10 @@ where
 {
     #[instrument]
     async fn check(&self, bot: &Bot<Client>, update: &Update, context: &Context) -> bool {
-        let Some(ref message) = update.message else {
+        let UpdateKind::Message(message) = update.kind() else {
             return false;
         };
-        let Some(text) = message.get_text_or_caption() else {
+        let Some(text) = message.text_or_caption() else {
             return false;
         };
         let Some(command) = CommandObject::extract(text) else {
@@ -436,12 +435,12 @@ where
 
         match self.validate_command_object(&command, bot).await {
             Ok(result) => {
-                if !result {
-                    false
-                } else {
+                if result {
                     context.insert("command", Box::new(command));
 
                     true
+                } else {
+                    false
                 }
             }
             Err(err) => {

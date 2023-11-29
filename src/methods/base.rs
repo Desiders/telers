@@ -1,6 +1,6 @@
 use crate::{
     client::Bot,
-    types::{InputFile, InputFileKind, InputMedia, InputSticker, ResponseParameters},
+    types::{InputFile, InputMedia, InputSticker, ResponseParameters},
 };
 
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
@@ -40,7 +40,7 @@ where
 /// This object represents a response from Telegram API. It's returned by making requests to Telegram API, for more info check [Telegram API docs](https://core.telegram.org/bots/api#making-requests)
 /// # Notes
 /// - The response contains a JSON object, which always has a Boolean field `ok` and may have an optional String field `description` with a human-readable description of the result.
-/// - If `ok` equals `True`, the request was successful and the result of the query can be found in the `result` field.
+/// - If `ok` equals `true`, the request was successful and the result of the query can be found in the `result` field.
 /// - In case of an unsuccessful request, `ok` equals false and the error is explained in the `description`.
 /// - An Integer `error_code` field is also returned, but its contents are subject to change in the future.
 /// - Some errors may also have an optional field `parameters` of the type [`ResponseParameters`], which can help to automatically handle the error.
@@ -69,16 +69,16 @@ pub trait TelegramMethod {
     /// # Errors
     /// - If the response cannot be parsed
     fn build_response(&self, content: &str) -> Result<Response<Self::Return>, serde_json::Error> {
-        serde_json::from_str::<Response<Self::Return>>(content)
+        serde_json::from_str(content)
     }
 }
 
 pub(super) fn prepare_file<'a>(files: &mut Vec<&'a InputFile<'a>>, file: &'a InputFile<'a>) {
-    match file.kind() {
-        InputFileKind::FS(_) | InputFileKind::Buffered(_) | InputFileKind::Stream(_) => {
+    match file {
+        InputFile::FS(_) | InputFile::Buffered(_) | InputFile::Stream(_) => {
             files.push(file);
         }
-        InputFileKind::Id(_) | InputFileKind::Url(_) => {
+        InputFile::Id(_) | InputFile::Url(_) => {
             // This file not require be in `multipart/form-data`
             // So we don't need to add it to files
         }

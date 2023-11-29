@@ -8,7 +8,7 @@ use serde::Serialize;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#close>
 /// # Returns
-/// Returns `True` on success
+/// Returns `true` on success
 #[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct Close {}
 

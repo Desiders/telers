@@ -17,7 +17,7 @@ pub mod utils;
 
 pub use client::Bot;
 pub use context::Context;
-pub use dispatcher::{Dispatcher, DispatcherBuilder};
+pub use dispatcher::{Builder as DispatcherBuilder, Dispatcher};
 pub use filters::Filter;
 pub use fsm::Context as FSMContext;
 pub use router::Router;

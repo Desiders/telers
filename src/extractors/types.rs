@@ -1,12 +1,25 @@
-use super::FromEventAndContext;
+use super::{from_update, try_from_update, FromEventAndContext};
 
 use crate::{
     client::Bot,
     context::Context,
-    errors::ConvertUpdateToTypeError,
+    errors::ConvertToTypeError,
     types::{
         CallbackQuery, ChatJoinRequest, ChatMemberUpdated, ChosenInlineResult, InlineQuery,
-        Message, Poll, PollAnswer, PreCheckoutQuery, ShippingQuery, Update,
+        Message, MessageAnimation, MessageAudio, MessageChannelChatCreated, MessageChatShared,
+        MessageConnectedWebsite, MessageContact, MessageDeleteChatPhoto, MessageDice,
+        MessageDocument, MessageEmpty, MessageForumTopicClosed, MessageForumTopicCreated,
+        MessageForumTopicEdited, MessageForumTopicReopened, MessageForward, MessageForwardedFrom,
+        MessageGame, MessageGeneralForumTopicHidden, MessageGeneralForumTopicUnhidden,
+        MessageGroupChatCreated, MessageInvoice, MessageLeftChatMember, MessageLocation,
+        MessageMessageAutoDeleteTimerChanged, MessageMigrateFromChat, MessageMigrateToChat,
+        MessageNewChatMembers, MessageNewChatPhoto, MessageNewChatTitle, MessagePassportData,
+        MessagePhoto, MessagePinned, MessagePoll, MessageProximityAlertTriggered, MessageSticker,
+        MessageStory, MessageSuccessfulPayment, MessageSupergroupChatCreated, MessageText,
+        MessageUserShared, MessageVenue, MessageVideo, MessageVideoChatEnded,
+        MessageVideoChatParticipantsInvited, MessageVideoChatScheduled, MessageVideoChatStarted,
+        MessageVideoNote, MessageVoice, MessageWebAppData, MessageWriteAccessAllowed, Poll,
+        PollAnswer, PollQuiz, PollRegular, PreCheckoutQuery, ShippingQuery, Update, UpdateKind,
     },
 };
 
@@ -42,8 +55,6 @@ impl<Client> FromEventAndContext<Client> for Arc<Bot<Client>> {
 
 /// To be able to use [`Update`] in handler arguments,
 /// this implementation will clone [`Update`] and return it
-/// # Warnings
-/// [`Update`] has so big size, so it's recommended to use it inside [`std::sync::Arc`], [`Box`] and other smart pointers
 impl<Client> FromEventAndContext<Client> for Update {
     type Error = Infallible;
 
@@ -87,150 +98,95 @@ impl<Client> FromEventAndContext<Client> for Arc<Context> {
     }
 }
 
-/// To be able to use [`Message`] in handler arguments,
-/// this implementation will try to convert [`Update`] to [`Message`] and clone it
-impl<Client> FromEventAndContext<Client> for Message {
-    type Error = ConvertUpdateToTypeError;
+// To be able to use [`UpdateKind`] in handler arguments
+from_update!([Client], UpdateKind);
 
-    fn extract(
-        _bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        _context: Arc<Context>,
-    ) -> Result<Self, Self::Error> {
-        Message::try_from((*update).clone())
-    }
-}
+// To be able to use [`Message`] and all variants in handler arguments
+try_from_update!([Client], Message);
+try_from_update!([Client], MessageText);
+try_from_update!([Client], MessageAnimation);
+try_from_update!([Client], MessageAudio);
+try_from_update!([Client], MessageChannelChatCreated);
+try_from_update!([Client], MessageUserShared);
+try_from_update!([Client], MessageChatShared);
+try_from_update!([Client], MessageConnectedWebsite);
+try_from_update!([Client], MessageContact);
+try_from_update!([Client], MessageDeleteChatPhoto);
+try_from_update!([Client], MessageDice);
+try_from_update!([Client], MessageDocument);
+try_from_update!([Client], MessageForumTopicClosed);
+try_from_update!([Client], MessageForumTopicCreated);
+try_from_update!([Client], MessageForumTopicEdited);
+try_from_update!([Client], MessageForumTopicReopened);
+try_from_update!([Client], MessageForward);
+try_from_update!([Client], MessageForwardedFrom);
+try_from_update!([Client], MessageGame);
+try_from_update!([Client], MessageGeneralForumTopicHidden);
+try_from_update!([Client], MessageGeneralForumTopicUnhidden);
+try_from_update!([Client], MessageGroupChatCreated);
+try_from_update!([Client], MessageInvoice);
+try_from_update!([Client], MessageLeftChatMember);
+try_from_update!([Client], MessageLocation);
+try_from_update!([Client], MessageMessageAutoDeleteTimerChanged);
+try_from_update!([Client], MessageMigrateFromChat);
+try_from_update!([Client], MessageMigrateToChat);
+try_from_update!([Client], MessageNewChatMembers);
+try_from_update!([Client], MessageNewChatPhoto);
+try_from_update!([Client], MessageNewChatTitle);
+try_from_update!([Client], MessagePassportData);
+try_from_update!([Client], MessagePhoto);
+try_from_update!([Client], MessagePinned);
+try_from_update!([Client], MessagePoll);
+try_from_update!([Client], MessageProximityAlertTriggered);
+try_from_update!([Client], MessageSticker);
+try_from_update!([Client], MessageStory);
+try_from_update!([Client], MessageSuccessfulPayment);
+try_from_update!([Client], MessageSupergroupChatCreated);
+try_from_update!([Client], MessageVenue);
+try_from_update!([Client], MessageVideo);
+try_from_update!([Client], MessageVideoChatEnded);
+try_from_update!([Client], MessageVideoChatParticipantsInvited);
+try_from_update!([Client], MessageVideoChatScheduled);
+try_from_update!([Client], MessageVideoChatStarted);
+try_from_update!([Client], MessageVideoNote);
+try_from_update!([Client], MessageVoice);
+try_from_update!([Client], MessageWebAppData);
+try_from_update!([Client], MessageWriteAccessAllowed);
+try_from_update!([Client], MessageEmpty);
 
-/// To be able to use [`CallbackQuery`] in handler arguments,
-/// this implementation will try to convert [`Update`] to [`CallbackQuery`] and clone it
-impl<Client> FromEventAndContext<Client> for CallbackQuery {
-    type Error = ConvertUpdateToTypeError;
+// To be able to use [`Poll`] and all [`PollKind`] variants in handler arguments
+try_from_update!([Client], Poll);
+try_from_update!([Client], PollRegular);
+try_from_update!([Client], PollQuiz);
 
-    fn extract(
-        _bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        _context: Arc<Context>,
-    ) -> Result<Self, Self::Error> {
-        CallbackQuery::try_from((*update).clone())
-    }
-}
+// To be able to use [`CallbackQuery`] in handler arguments
+try_from_update!([Client], CallbackQuery);
 
-/// To be able to use [`ChosenInlineResult`] in handler arguments,
-/// this implementation will try to convert [`Update`] to [`ChosenInlineResult`] and clone it
-impl<Client> FromEventAndContext<Client> for ChosenInlineResult {
-    type Error = ConvertUpdateToTypeError;
+// To be able to use [`ChosenInlineResult`] in handler arguments
+try_from_update!([Client], ChosenInlineResult);
 
-    fn extract(
-        _bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        _context: Arc<Context>,
-    ) -> Result<Self, Self::Error> {
-        ChosenInlineResult::try_from((*update).clone())
-    }
-}
+// To be able to use [`ShippingQuery`] in handler arguments
+try_from_update!([Client], ShippingQuery);
 
-/// To be able to use [`ShippingQuery`] in handler arguments,
-/// this implementation will try to convert [`Update`] to [`ShippingQuery`] and clone it
-impl<Client> FromEventAndContext<Client> for ShippingQuery {
-    type Error = ConvertUpdateToTypeError;
+// To be able to use [`PreCheckoutQuery`] in handler arguments
+try_from_update!([Client], PreCheckoutQuery);
 
-    fn extract(
-        _bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        _context: Arc<Context>,
-    ) -> Result<Self, Self::Error> {
-        ShippingQuery::try_from((*update).clone())
-    }
-}
+// To be able to use [`PollAnswer`] in handler arguments
+try_from_update!([Client], PollAnswer);
 
-/// To be able to use [`PreCheckoutQuery`] in handler arguments,
-/// this implementation will try to convert [`Update`] to [`PreCheckoutQuery`] and clone it
-impl<Client> FromEventAndContext<Client> for PreCheckoutQuery {
-    type Error = ConvertUpdateToTypeError;
+// To be able to use [`ChatMemberUpdated`] in handler arguments
+try_from_update!([Client], ChatMemberUpdated);
 
-    fn extract(
-        _bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        _context: Arc<Context>,
-    ) -> Result<Self, Self::Error> {
-        PreCheckoutQuery::try_from((*update).clone())
-    }
-}
+// To be able to use [`ChatJoinRequest`] in handler arguments
+try_from_update!([Client], ChatJoinRequest);
 
-/// To be able to use [`PollAnswer`] in handler arguments,
-/// this implementation will try to convert [`Update`] to [`PollAnswer`] and clone it
-impl<Client> FromEventAndContext<Client> for PollAnswer {
-    type Error = ConvertUpdateToTypeError;
-
-    fn extract(
-        _bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        _context: Arc<Context>,
-    ) -> Result<Self, Self::Error> {
-        PollAnswer::try_from((*update).clone())
-    }
-}
-
-/// To be able to use [`ChatMemberUpdated`] in handler arguments,
-/// this implementation will try to convert [`Update`] to [`ChatMemberUpdated`] and clone it
-impl<Client> FromEventAndContext<Client> for ChatMemberUpdated {
-    type Error = ConvertUpdateToTypeError;
-
-    fn extract(
-        _bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        _context: Arc<Context>,
-    ) -> Result<Self, Self::Error> {
-        ChatMemberUpdated::try_from((*update).clone())
-    }
-}
-
-/// To be able to use [`ChatJoinRequest`] in handler arguments,
-/// this implementation will try to convert [`Update`] to [`ChatJoinRequest`] and clone it
-impl<Client> FromEventAndContext<Client> for ChatJoinRequest {
-    type Error = ConvertUpdateToTypeError;
-
-    fn extract(
-        _bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        _context: Arc<Context>,
-    ) -> Result<Self, Self::Error> {
-        ChatJoinRequest::try_from((*update).clone())
-    }
-}
-
-/// To be able to use [`InlineQuery`] in handler arguments,
-/// this implementation will try to convert [`Update`] to [`InlineQuery`] and clone it
-impl<Client> FromEventAndContext<Client> for InlineQuery {
-    type Error = ConvertUpdateToTypeError;
-
-    fn extract(
-        _bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        _context: Arc<Context>,
-    ) -> Result<Self, Self::Error> {
-        InlineQuery::try_from((*update).clone())
-    }
-}
-
-/// To be able to use [`Poll`] in handler arguments,
-/// this implementation will try to convert [`Update`] to [`Poll`] and clone it
-impl<Client> FromEventAndContext<Client> for Poll {
-    type Error = ConvertUpdateToTypeError;
-
-    fn extract(
-        _bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        _context: Arc<Context>,
-    ) -> Result<Self, Self::Error> {
-        Poll::try_from((*update).clone())
-    }
-}
+// To be able to use [`InlineQuery`] in handler arguments
+try_from_update!([Client], InlineQuery);
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{client::Reqwest, event::telegram::handler::Handler};
+    use crate::{client::Reqwest, errors::ConvertToTypeError, event::telegram::handler::Handler};
 
     #[allow(clippy::needless_pass_by_value)]
     fn inner_extract<T: FromEventAndContext<Reqwest>>(
@@ -248,9 +204,63 @@ mod tests {
         assert_impl_handler(|_: Bot<Reqwest>| async { unreachable!() });
         assert_impl_handler(|_: Arc<Bot<Reqwest>>| async { unreachable!() });
         assert_impl_handler(|_: Update| async { unreachable!() });
+        assert_impl_handler(|_: UpdateKind| async { unreachable!() });
         assert_impl_handler(|_: Arc<Update>| async { unreachable!() });
         assert_impl_handler(|_: Arc<Context>| async { unreachable!() });
         assert_impl_handler(|_: Message| async { unreachable!() });
+        assert_impl_handler(|_: MessageText| async { unreachable!() });
+        assert_impl_handler(|_: MessageAnimation| async { unreachable!() });
+        assert_impl_handler(|_: MessageAudio| async { unreachable!() });
+        assert_impl_handler(|_: MessageChannelChatCreated| async { unreachable!() });
+        assert_impl_handler(|_: MessageUserShared| async { unreachable!() });
+        assert_impl_handler(|_: MessageChatShared| async { unreachable!() });
+        assert_impl_handler(|_: MessageConnectedWebsite| async { unreachable!() });
+        assert_impl_handler(|_: MessageContact| async { unreachable!() });
+        assert_impl_handler(|_: MessageDeleteChatPhoto| async { unreachable!() });
+        assert_impl_handler(|_: MessageDice| async { unreachable!() });
+        assert_impl_handler(|_: MessageDocument| async { unreachable!() });
+        assert_impl_handler(|_: MessageForumTopicClosed| async { unreachable!() });
+        assert_impl_handler(|_: MessageForumTopicCreated| async { unreachable!() });
+        assert_impl_handler(|_: MessageForumTopicEdited| async { unreachable!() });
+        assert_impl_handler(|_: MessageForumTopicReopened| async { unreachable!() });
+        assert_impl_handler(|_: MessageForward| async { unreachable!() });
+        assert_impl_handler(|_: MessageForwardedFrom| async { unreachable!() });
+        assert_impl_handler(|_: MessageGame| async { unreachable!() });
+        assert_impl_handler(|_: MessageGeneralForumTopicHidden| async { unreachable!() });
+        assert_impl_handler(|_: MessageGeneralForumTopicUnhidden| async { unreachable!() });
+        assert_impl_handler(|_: MessageGroupChatCreated| async { unreachable!() });
+        assert_impl_handler(|_: MessageInvoice| async { unreachable!() });
+        assert_impl_handler(|_: MessageLeftChatMember| async { unreachable!() });
+        assert_impl_handler(|_: MessageLocation| async { unreachable!() });
+        assert_impl_handler(|_: MessageMessageAutoDeleteTimerChanged| async { unreachable!() });
+        assert_impl_handler(|_: MessageMigrateFromChat| async { unreachable!() });
+        assert_impl_handler(|_: MessageMigrateToChat| async { unreachable!() });
+        assert_impl_handler(|_: MessageNewChatMembers| async { unreachable!() });
+        assert_impl_handler(|_: MessageNewChatPhoto| async { unreachable!() });
+        assert_impl_handler(|_: MessageNewChatTitle| async { unreachable!() });
+        assert_impl_handler(|_: MessagePassportData| async { unreachable!() });
+        assert_impl_handler(|_: MessagePhoto| async { unreachable!() });
+        assert_impl_handler(|_: MessagePinned| async { unreachable!() });
+        assert_impl_handler(|_: MessagePoll| async { unreachable!() });
+        assert_impl_handler(|_: MessageProximityAlertTriggered| async { unreachable!() });
+        assert_impl_handler(|_: MessageSticker| async { unreachable!() });
+        assert_impl_handler(|_: MessageStory| async { unreachable!() });
+        assert_impl_handler(|_: MessageSuccessfulPayment| async { unreachable!() });
+        assert_impl_handler(|_: MessageSupergroupChatCreated| async { unreachable!() });
+        assert_impl_handler(|_: MessageVenue| async { unreachable!() });
+        assert_impl_handler(|_: MessageVideo| async { unreachable!() });
+        assert_impl_handler(|_: MessageVideoChatEnded| async { unreachable!() });
+        assert_impl_handler(|_: MessageVideoChatParticipantsInvited| async { unreachable!() });
+        assert_impl_handler(|_: MessageVideoChatScheduled| async { unreachable!() });
+        assert_impl_handler(|_: MessageVideoChatStarted| async { unreachable!() });
+        assert_impl_handler(|_: MessageVideoNote| async { unreachable!() });
+        assert_impl_handler(|_: MessageVoice| async { unreachable!() });
+        assert_impl_handler(|_: MessageWebAppData| async { unreachable!() });
+        assert_impl_handler(|_: MessageWriteAccessAllowed| async { unreachable!() });
+        assert_impl_handler(|_: MessageEmpty| async { unreachable!() });
+        assert_impl_handler(|_: Poll| async { unreachable!() });
+        assert_impl_handler(|_: PollRegular| async { unreachable!() });
+        assert_impl_handler(|_: PollQuiz| async { unreachable!() });
         assert_impl_handler(|_: CallbackQuery| async { unreachable!() });
         assert_impl_handler(|_: ChosenInlineResult| async { unreachable!() });
         assert_impl_handler(|_: ShippingQuery| async { unreachable!() });
@@ -259,7 +269,6 @@ mod tests {
         assert_impl_handler(|_: ChatMemberUpdated| async { unreachable!() });
         assert_impl_handler(|_: ChatJoinRequest| async { unreachable!() });
         assert_impl_handler(|_: InlineQuery| async { unreachable!() });
-        assert_impl_handler(|_: Poll| async { unreachable!() });
     }
 
     #[allow(clippy::too_many_lines)]
@@ -285,7 +294,7 @@ mod tests {
             .unwrap();
 
         inner_extract::<Message>(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context))
-            .unwrap_err();
+            .unwrap();
         inner_extract::<CallbackQuery>(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context))
             .unwrap_err();
         inner_extract::<ChosenInlineResult>(
@@ -327,7 +336,7 @@ mod tests {
             Arc::clone(&context),
         )
         .unwrap()
-        .is_none());
+        .is_some());
         assert!(inner_extract::<Option<CallbackQuery>>(
             Arc::clone(&bot),
             Arc::clone(&update),
@@ -392,70 +401,70 @@ mod tests {
         .unwrap()
         .is_none());
 
-        inner_extract::<Result<Message, ConvertUpdateToTypeError>>(
+        inner_extract::<Result<Message, ConvertToTypeError>>(
+            Arc::clone(&bot),
+            Arc::clone(&update),
+            Arc::clone(&context),
+        )
+        .unwrap()
+        .unwrap();
+        inner_extract::<Result<CallbackQuery, ConvertToTypeError>>(
             Arc::clone(&bot),
             Arc::clone(&update),
             Arc::clone(&context),
         )
         .unwrap()
         .unwrap_err();
-        inner_extract::<Result<CallbackQuery, ConvertUpdateToTypeError>>(
+        inner_extract::<Result<ChosenInlineResult, ConvertToTypeError>>(
             Arc::clone(&bot),
             Arc::clone(&update),
             Arc::clone(&context),
         )
         .unwrap()
         .unwrap_err();
-        inner_extract::<Result<ChosenInlineResult, ConvertUpdateToTypeError>>(
+        inner_extract::<Result<ShippingQuery, ConvertToTypeError>>(
             Arc::clone(&bot),
             Arc::clone(&update),
             Arc::clone(&context),
         )
         .unwrap()
         .unwrap_err();
-        inner_extract::<Result<ShippingQuery, ConvertUpdateToTypeError>>(
+        inner_extract::<Result<PreCheckoutQuery, ConvertToTypeError>>(
             Arc::clone(&bot),
             Arc::clone(&update),
             Arc::clone(&context),
         )
         .unwrap()
         .unwrap_err();
-        inner_extract::<Result<PreCheckoutQuery, ConvertUpdateToTypeError>>(
+        inner_extract::<Result<PollAnswer, ConvertToTypeError>>(
             Arc::clone(&bot),
             Arc::clone(&update),
             Arc::clone(&context),
         )
         .unwrap()
         .unwrap_err();
-        inner_extract::<Result<PollAnswer, ConvertUpdateToTypeError>>(
+        inner_extract::<Result<ChatMemberUpdated, ConvertToTypeError>>(
             Arc::clone(&bot),
             Arc::clone(&update),
             Arc::clone(&context),
         )
         .unwrap()
         .unwrap_err();
-        inner_extract::<Result<ChatMemberUpdated, ConvertUpdateToTypeError>>(
+        inner_extract::<Result<ChatJoinRequest, ConvertToTypeError>>(
             Arc::clone(&bot),
             Arc::clone(&update),
             Arc::clone(&context),
         )
         .unwrap()
         .unwrap_err();
-        inner_extract::<Result<ChatJoinRequest, ConvertUpdateToTypeError>>(
+        inner_extract::<Result<InlineQuery, ConvertToTypeError>>(
             Arc::clone(&bot),
             Arc::clone(&update),
             Arc::clone(&context),
         )
         .unwrap()
         .unwrap_err();
-        inner_extract::<Result<InlineQuery, ConvertUpdateToTypeError>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .unwrap_err();
-        inner_extract::<Result<Poll, ConvertUpdateToTypeError>>(
+        inner_extract::<Result<Poll, ConvertToTypeError>>(
             Arc::clone(&bot),
             Arc::clone(&update),
             Arc::clone(&context),

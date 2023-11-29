@@ -133,11 +133,11 @@ use crate::{
         service::{ServiceProvider, ToServiceProvider},
         simple::{
             handler::Result as SimpleHandlerResult,
-            observer::{Observer as SimpleObserver, ObserverService as SimpleObserverService},
+            observer::{Observer as SimpleObserver, Service as SimpleObserverService},
         },
         telegram::observer::{
-            Observer as TelegramObserver, ObserverService as TelegramObserverService,
-            Request as TelegramObserverRequest,
+            Observer as TelegramObserver, Request as TelegramObserverRequest,
+            Service as TelegramObserverService,
         },
     },
     middlewares::{
@@ -164,15 +164,11 @@ pub struct Request<Client> {
 
 impl<Client> Request<Client> {
     #[must_use]
-    pub fn new(
-        bot: impl Into<Arc<Bot<Client>>>,
-        update: impl Into<Arc<Update>>,
-        context: impl Into<Arc<Context>>,
-    ) -> Self {
+    pub fn new(bot: Arc<Bot<Client>>, update: Arc<Update>, context: Arc<Context>) -> Self {
         Self {
-            bot: bot.into(),
-            update: update.into(),
-            context: context.into(),
+            bot,
+            update,
+            context,
         }
     }
 }
@@ -408,23 +404,23 @@ where
         Self {
             router_name,
             sub_routers: vec![],
-            message: TelegramObserver::new(TelegramObserverName::Message.as_str()),
-            edited_message: TelegramObserver::new(TelegramObserverName::EditedMessage.as_str()),
-            channel_post: TelegramObserver::new(TelegramObserverName::ChannelPost.as_str()),
-            edited_channel_post: TelegramObserver::new(TelegramObserverName::EditedChannelPost.as_str()),
-            inline_query: TelegramObserver::new(TelegramObserverName::InlineQuery.as_str()),
-            chosen_inline_result: TelegramObserver::new(TelegramObserverName::ChosenInlineResult.as_str()),
-            callback_query: TelegramObserver::new(TelegramObserverName::CallbackQuery.as_str()),
-            shipping_query: TelegramObserver::new(TelegramObserverName::ShippingQuery.as_str()),
-            pre_checkout_query: TelegramObserver::new(TelegramObserverName::PreCheckoutQuery.as_str()),
-            poll: TelegramObserver::new(TelegramObserverName::Poll.as_str()),
-            poll_answer: TelegramObserver::new(TelegramObserverName::PollAnswer.as_str()),
-            my_chat_member: TelegramObserver::new(TelegramObserverName::MyChatMember.as_str()),
-            chat_member: TelegramObserver::new(TelegramObserverName::ChatMember.as_str()),
-            chat_join_request: TelegramObserver::new(TelegramObserverName::ChatJoinRequest.as_str()),
-            update: TelegramObserver::new(TelegramObserverName::Update.as_str()),
-            startup: SimpleObserver::new(SimpleObserverName::Startup.as_str()),
-            shutdown: SimpleObserver::new(SimpleObserverName::Shutdown.as_str()),
+            message: TelegramObserver::new(TelegramObserverName::Message.as_ref()),
+            edited_message: TelegramObserver::new(TelegramObserverName::EditedMessage.as_ref()),
+            channel_post: TelegramObserver::new(TelegramObserverName::ChannelPost.as_ref()),
+            edited_channel_post: TelegramObserver::new(TelegramObserverName::EditedChannelPost.as_ref()),
+            inline_query: TelegramObserver::new(TelegramObserverName::InlineQuery.as_ref()),
+            chosen_inline_result: TelegramObserver::new(TelegramObserverName::ChosenInlineResult.as_ref()),
+            callback_query: TelegramObserver::new(TelegramObserverName::CallbackQuery.as_ref()),
+            shipping_query: TelegramObserver::new(TelegramObserverName::ShippingQuery.as_ref()),
+            pre_checkout_query: TelegramObserver::new(TelegramObserverName::PreCheckoutQuery.as_ref()),
+            poll: TelegramObserver::new(TelegramObserverName::Poll.as_ref()),
+            poll_answer: TelegramObserver::new(TelegramObserverName::PollAnswer.as_ref()),
+            my_chat_member: TelegramObserver::new(TelegramObserverName::MyChatMember.as_ref()),
+            chat_member: TelegramObserver::new(TelegramObserverName::ChatMember.as_ref()),
+            chat_join_request: TelegramObserver::new(TelegramObserverName::ChatJoinRequest.as_ref()),
+            update: TelegramObserver::new(TelegramObserverName::Update.as_ref()),
+            startup: SimpleObserver::new(SimpleObserverName::Startup.as_ref()),
+            shutdown: SimpleObserver::new(SimpleObserverName::Shutdown.as_ref()),
         }
     }
 
@@ -592,7 +588,7 @@ where
     Client: Send + Sync + 'static,
 {
     type Config = Config<Client>;
-    type ServiceProvider = RouterService<Client>;
+    type ServiceProvider = Service<Client>;
     type InitError = ();
 
     fn to_service_provider(
@@ -672,7 +668,7 @@ where
         // We don't need to register config outer middlewares to sub routers
         config.outer_middlewares = OuterMiddlewaresConfig::new();
 
-        Ok(RouterService {
+        Ok(Service {
             router_name: self.router_name,
             sub_routers: self
                 .sub_routers
@@ -700,10 +696,9 @@ where
     }
 }
 
-#[allow(clippy::module_name_repetitions)]
-pub struct RouterService<Client> {
+pub struct Service<Client> {
     router_name: &'static str,
-    sub_routers: Box<[RouterService<Client>]>,
+    sub_routers: Box<[Service<Client>]>,
 
     message: TelegramObserverService<Client>,
     edited_message: TelegramObserverService<Client>,
@@ -725,10 +720,10 @@ pub struct RouterService<Client> {
     shutdown: SimpleObserverService,
 }
 
-impl<Client> ServiceProvider for RouterService<Client> {}
+impl<Client> ServiceProvider for Service<Client> {}
 
 #[async_trait]
-impl<Client> PropagateEvent<Client> for RouterService<Client> {
+impl<Client> PropagateEvent<Client> for Service<Client> {
     #[instrument(skip(self, update_type, request), fields(router_name = self.router_name))]
     async fn propagate_event(
         &self,
@@ -929,7 +924,7 @@ impl<Client> PropagateEvent<Client> for RouterService<Client> {
     }
 }
 
-impl<Client> RouterService<Client> {
+impl<Client> Service<Client> {
     #[must_use]
     pub const fn telegram_observers(&self) -> [&TelegramObserverService<Client>; 15] {
         [
@@ -980,7 +975,7 @@ impl<Client> RouterService<Client> {
     }
 }
 
-impl<Client> Debug for RouterService<Client> {
+impl<Client> Debug for Service<Client> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Router")
             .field("router_name", &self.router_name)
@@ -1011,6 +1006,7 @@ impl<Client> Default for Config<Client>
 where
     Client: Send + Sync + 'static,
 {
+    #[must_use]
     fn default() -> Self {
         Self {
             outer_middlewares: OuterMiddlewaresConfig::default(),
@@ -1062,6 +1058,7 @@ impl<Client> Default for OuterMiddlewaresConfig<Client>
 where
     Client: Send + Sync + 'static,
 {
+    #[must_use]
     fn default() -> Self {
         Self::builder().update(UserContextMiddleware).build()
     }
@@ -1277,6 +1274,7 @@ impl<Client> Default for InnerMiddlewaresConfig<Client>
 where
     Client: Send + Sync + 'static,
 {
+    #[must_use]
     fn default() -> Self {
         let logging_middleware = Arc::new(LoggingMiddleware);
 
@@ -1530,7 +1528,7 @@ mod tests {
         assert_eq!(router_service.sub_routers.len(), 3);
         assert_eq!(router_service.router_name, "main");
 
-        let message_observer_name = UpdateType::Message.as_str();
+        let message_observer_name = UpdateType::Message;
 
         router_service
             .sub_routers
@@ -1542,7 +1540,7 @@ mod tests {
                     .telegram_observers()
                     .into_iter()
                     .for_each(|observer| {
-                        if observer.event_name == message_observer_name {
+                        if message_observer_name.eq(&observer.event_name) {
                             assert_eq!(observer.inner_middlewares().len(), 1);
                         } else {
                             assert_eq!(observer.inner_middlewares().len(), 0);
@@ -1561,7 +1559,7 @@ mod tests {
                             .telegram_observers()
                             .into_iter()
                             .for_each(|observer| {
-                                if observer.event_name == message_observer_name {
+                                if message_observer_name.eq(&observer.event_name) {
                                     assert_eq!(observer.inner_middlewares().len(), 1);
                                 } else {
                                     assert_eq!(observer.inner_middlewares().len(), 0);
@@ -1638,7 +1636,7 @@ mod tests {
         let context = Context::new();
         let update = Update::default();
 
-        let request = Request::new(bot, update, context);
+        let request = Request::new(Arc::new(bot), Arc::new(update), Arc::new(context));
 
         let mut router = Router::new("test_handler");
         router
@@ -1757,7 +1755,7 @@ mod tests {
         let context = Context::new();
         let update = Update::default();
 
-        let request = Request::new(bot, update, context);
+        let request = Request::new(Arc::new(bot), Arc::new(update), Arc::new(context));
 
         let mut router = Router::new("test_handler_with_filter");
         router

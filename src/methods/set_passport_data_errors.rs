@@ -11,7 +11,7 @@ use serde_with::skip_serializing_none;
 /// # Note
 /// Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason. For example, if a birthday date seems invalid, a submitted document is blurry, a scan shows evidence of tampering, etc. Supply some details in the error message to make sure the user knows how to correct the issues.
 /// # Returns
-/// On success, `True` is returned
+/// On success, `true` is returned
 #[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct SetPassportDataErrors {

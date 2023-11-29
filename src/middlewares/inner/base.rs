@@ -121,7 +121,7 @@ mod tests {
         client::{Bot, Reqwest},
         context::Context,
         event::{service::ServiceFactory as _, telegram::handler_service, EventReturn},
-        types::Update,
+        types::{Message, Update, UpdateKind},
     };
 
     async fn test_middleware<Client>(
@@ -138,9 +138,12 @@ mod tests {
         let handler_service = Arc::new(handler_service_factory.unwrap());
 
         let request = HandlerRequest::new(
-            Bot::<Reqwest>::default(),
-            Update::default(),
-            Context::default(),
+            Arc::new(Bot::<Reqwest>::default()),
+            Arc::new(Update {
+                id: 0,
+                kind: UpdateKind::Message(Message::default()),
+            }),
+            Arc::new(Context::default()),
         );
         let response = Middleware::call(
             &test_middleware,

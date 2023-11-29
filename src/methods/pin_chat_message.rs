@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#pinchatmessage>
 /// # Returns
-/// Returns `True` on success
+/// Returns `true` on success
 #[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct PinChatMessage {
@@ -17,7 +17,7 @@ pub struct PinChatMessage {
     pub chat_id: ChatIdKind,
     /// Identifier of a message to pin
     pub message_id: i64,
-    /// Pass `True`, if it is not necessary to send a notification to all chat members about the new pinned message. Notifications are always disabled in channels and private_chats.
+    /// Pass `true`, if it is not necessary to send a notification to all chat members about the new pinned message. Notifications are always disabled in channels and private_chats.
     pub disable_notification: Option<bool>,
 }
 

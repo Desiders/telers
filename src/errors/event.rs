@@ -1,6 +1,5 @@
 use super::{ExtractionError, HandlerError, MiddlewareError};
 
-use std::fmt::Debug;
 use thiserror;
 
 /// Possible errors that can occur when processing an event

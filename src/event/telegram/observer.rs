@@ -36,15 +36,11 @@ pub struct Request<Client> {
 
 impl<Client> Request<Client> {
     #[must_use]
-    pub fn new(
-        bot: impl Into<Arc<Bot<Client>>>,
-        update: impl Into<Arc<Update>>,
-        context: impl Into<Arc<Context>>,
-    ) -> Self {
+    pub fn new(bot: Arc<Bot<Client>>, update: Arc<Update>, context: Arc<Context>) -> Self {
         Self {
-            bot: bot.into(),
-            update: update.into(),
-            context: context.into(),
+            bot,
+            update,
+            context,
         }
     }
 }
@@ -102,7 +98,7 @@ pub struct Observer<Client> {
     pub event_name: &'static str,
 
     handlers: Vec<HandlerObject<Client>>,
-    common: HandlerObject<Client>,
+    common: Box<HandlerObject<Client>>,
 
     pub inner_middlewares: InnerMiddlewareManager<Client>,
     pub outer_middlewares: OuterMiddlewareManager<Client>,
@@ -118,12 +114,12 @@ impl<Client> Observer<Client> {
         Self {
             event_name,
             handlers: vec![],
-            common: HandlerObject::<Client>::new(|| async move {
+            common: Box::new(HandlerObject::<Client>::new(|| async move {
                 // This handler never will be called, so we can use `unreachable!` macro
                 ({
                     unreachable!("This handler never will be used");
                 }) as Result<_, _>
-            }),
+            })),
             inner_middlewares: InnerMiddlewareManager::<Client>::default(),
             outer_middlewares: OuterMiddlewareManager::<Client>::default(),
         }
@@ -209,14 +205,14 @@ impl<Client> AsRef<Observer<Client>> for Observer<Client> {
 
 impl<Client> ToServiceProvider for Observer<Client> {
     type Config = ();
-    type ServiceProvider = ObserverService<Client>;
+    type ServiceProvider = Service<Client>;
     type InitError = ();
 
     fn to_service_provider(
         self,
         config: Self::Config,
     ) -> Result<Self::ServiceProvider, Self::InitError> {
-        Ok(ObserverService {
+        Ok(Service {
             event_name: self.event_name,
             handlers: self
                 .handlers
@@ -230,8 +226,7 @@ impl<Client> ToServiceProvider for Observer<Client> {
     }
 }
 
-#[allow(clippy::module_name_repetitions)]
-pub struct ObserverService<Client> {
+pub struct Service<Client> {
     pub(crate) event_name: &'static str,
 
     handlers: Box<[HandlerObjectService<Client>]>,
@@ -241,9 +236,9 @@ pub struct ObserverService<Client> {
     outer_middlewares: Box<[Arc<dyn OuterMiddleware<Client>>]>,
 }
 
-impl<Client> ServiceProvider for ObserverService<Client> {}
+impl<Client> ServiceProvider for Service<Client> {}
 
-impl<Client> ObserverService<Client> {
+impl<Client> Service<Client> {
     /// Propagate event to handlers and stops propagation on first match.
     /// Handler will be called when all its filters is pass.
     /// # Errors
@@ -349,9 +344,9 @@ impl<Client> ObserverService<Client> {
     }
 }
 
-impl<Client> Debug for ObserverService<Client> {
+impl<Client> Debug for Service<Client> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.debug_struct("ObserverService")
+        f.debug_struct("Service")
             .field("event_name", &self.event_name)
             .finish_non_exhaustive()
     }
@@ -360,7 +355,12 @@ impl<Client> Debug for ObserverService<Client> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{client::Reqwest, errors::HandlerError, filters::Command, types::Message};
+    use crate::{
+        client::Reqwest,
+        errors::HandlerError,
+        filters::Command,
+        types::{Message, MessageText, UpdateKind},
+    };
 
     use anyhow::anyhow;
     use tokio;
@@ -382,7 +382,14 @@ mod tests {
         });
 
         let observer_service = observer.to_service_provider_default().unwrap();
-        let request = Request::new(bot, Update::default(), context);
+        let request = Request::new(
+            Arc::new(bot),
+            Arc::new(Update {
+                id: 0,
+                kind: UpdateKind::Message(Message::default()),
+            }),
+            Arc::new(context),
+        );
         let response = observer_service.trigger(request.clone()).await.unwrap();
 
         // Filter not pass, so handler should be rejected
@@ -393,13 +400,13 @@ mod tests {
 
         let request = Request::new(
             request.bot,
-            Update {
-                message: Some(Message {
-                    text: Some("/start".into()),
+            Arc::new(Update {
+                kind: UpdateKind::Message(Message::Text(MessageText {
+                    text: "/start".to_owned().into(),
                     ..Default::default()
-                }),
+                })),
                 ..Default::default()
-            },
+            }),
             request.context,
         );
         let response = observer_service.trigger(request).await.unwrap();
@@ -423,7 +430,14 @@ mod tests {
         });
 
         let observer_service = observer.to_service_provider_default().unwrap();
-        let request = Request::new(Bot::default(), Update::default(), Context::default());
+        let request = Request::new(
+            Arc::new(Bot::default()),
+            Arc::new(Update {
+                id: 0,
+                kind: UpdateKind::Message(Message::default()),
+            }),
+            Arc::new(Context::default()),
+        );
         let response = observer_service.trigger(request).await.unwrap();
 
         // First handler returns error, second handler shouldn't be called
@@ -448,7 +462,7 @@ mod tests {
 
         let observer_service = observer.to_service_provider_default().unwrap();
 
-        let request = Request::new(bot, update, context);
+        let request = Request::new(Arc::new(bot), Arc::new(update), Arc::new(context));
         let response = observer_service.trigger(request.clone()).await.unwrap();
 
         // First handler returns `EventReturn::Skip`, so second handler should be called

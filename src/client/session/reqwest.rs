@@ -8,7 +8,7 @@ use crate::{
     client::{telegram, Bot},
     methods::TelegramMethod,
     serializers::reqwest::{Error as SerializerError, MultipartSerializer},
-    types::{InputFile, InputFileKind},
+    types::InputFile,
 };
 
 use async_trait::async_trait;
@@ -59,8 +59,8 @@ impl Reqwest {
         };
 
         for (index, file) in files.iter().enumerate() {
-            match file.kind() {
-                InputFileKind::FS(file) => {
+            match file {
+                InputFile::FS(file) => {
                     let id = file.id().to_string();
                     let file_name = file.file_name();
                     let stream = file.clone().stream();
@@ -74,7 +74,7 @@ impl Reqwest {
 
                     form = form.part(id, part);
                 }
-                InputFileKind::Buffered(file) => {
+                InputFile::Buffered(file) => {
                     let id = file.id().to_string();
                     let file_name = file.file_name();
                     let bytes = file.bytes();
@@ -87,7 +87,7 @@ impl Reqwest {
 
                     form = form.part(id, part);
                 }
-                InputFileKind::Stream(file) => {
+                InputFile::Stream(file) => {
                     let Some(stream) = file.take_stream() else {
                         return Err(SerializerError::Custom(Cow::Owned(format!(
                             "File stream with index `{index}` already taken. \
@@ -106,7 +106,7 @@ impl Reqwest {
 
                     form = form.part(id, part);
                 }
-                InputFileKind::Id(_) | InputFileKind::Url(_) => continue,
+                InputFile::Id(_) | InputFile::Url(_) => continue,
             };
         }
 

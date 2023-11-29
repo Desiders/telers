@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#promotechatmember>
 /// # Returns
-/// Returns `True` on success
+/// Returns `true` on success
 #[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct PromoteChatMember {
@@ -17,35 +17,35 @@ pub struct PromoteChatMember {
     pub chat_id: ChatIdKind,
     /// Unique identifier of the target user
     pub user_id: i64,
-    /// Pass `True` if the administrator's presence in the chat is hidden
+    /// Pass `true` if the administrator's presence in the chat is hidden
     pub is_anonymous: Option<bool>,
-    /// Pass `True`, if the administrator can access the chat event log, chat statistics, boost list in channels, message statistics in channels, see channel members, see anonymous administrators in supergroups and ignore slow mode. Implied by any other administrator privilege
+    /// Pass `true`, if the administrator can access the chat event log, chat statistics, boost list in channels, message statistics in channels, see channel members, see anonymous administrators in supergroups and ignore slow mode. Implied by any other administrator privilege
     pub can_manage_chat: Option<bool>,
-    /// Pass `True`, if the administrator can create channel posts, channels only
+    /// Pass `true`, if the administrator can create channel posts, channels only
     pub can_post_messages: Option<bool>,
-    /// Pass `True`, if the administrator can edit messages of other users and can pin messages, channels only
+    /// Pass `true`, if the administrator can edit messages of other users and can pin messages, channels only
     pub can_edit_messages: Option<bool>,
-    /// Pass `True`, if the administrator can delete messages of other users
+    /// Pass `true`, if the administrator can delete messages of other users
     pub can_delete_messages: Option<bool>,
-    /// Pass `True`, if the administrator can manage video chats
+    /// Pass `true`, if the administrator can manage video chats
     pub can_manage_voice_chats: Option<bool>,
-    /// Pass `True`, if the administrator can restrict, ban or unban chat members
+    /// Pass `true`, if the administrator can restrict, ban or unban chat members
     pub can_restrict_members: Option<bool>,
-    /// Pass `True`, if the administrator can add new administrators with a subset of his own privileges or demote administrators that they has promoted, directly or indirectly (promoted by administrators that were appointed by him)
+    /// Pass `true`, if the administrator can add new administrators with a subset of his own privileges or demote administrators that they has promoted, directly or indirectly (promoted by administrators that were appointed by him)
     pub can_promote_members: Option<bool>,
-    /// Pass `True`, if the administrator can change the chat title, photo and other settings
+    /// Pass `true`, if the administrator can change the chat title, photo and other settings
     pub can_change_info: Option<bool>,
-    /// Pass `True`, if the administrator can invite new users to the chat
+    /// Pass `true`, if the administrator can invite new users to the chat
     pub can_invite_users: Option<bool>,
-    /// Pass `True` if the administrator can pin messages, supergroups only
+    /// Pass `true` if the administrator can pin messages, supergroups only
     pub can_pin_messages: Option<bool>,
-    /// Pass `True`, if the administrator can post stories in the channel; channels only
+    /// Pass `true`, if the administrator can post stories in the channel; channels only
     pub can_post_stories: Option<bool>,
-    /// Pass `True`, if the administrator can edit stories posted by other users; channels only
+    /// Pass `true`, if the administrator can edit stories posted by other users; channels only
     pub can_edit_stories: Option<bool>,
-    /// Pass `True`` if the administrator can delete stories posted by other users; channels only
+    /// Pass `true`` if the administrator can delete stories posted by other users; channels only
     pub can_delete_stories: Option<bool>,
-    /// Pass `True` if the user is allowed to create, rename, close, and reopen forum topics, supergroups only
+    /// Pass `true` if the user is allowed to create, rename, close, and reopen forum topics, supergroups only
     pub can_manage_topics: Option<bool>,
 }
 

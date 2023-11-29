@@ -13,13 +13,13 @@
 //! async fn handler(bot: Bot, message: Message) -> HandlerResult {
 //!     // Equivalent to:
 //!     // let method = if let Some(message_thread_id) = message.message_thread_id {
-//!     //     SendMessage::new(message.chat.id, "Hello world!").message_thread_id(message_thread_id);
+//!     //     SendMessage::new(message.chat.id(), "Hello world!").message_thread_id(message_thread_id);
 //!     // } else {
-//!     //     SendMessage::new(message.chat.id, "Hello world!");
+//!     //     SendMessage::new(message.chat.id(), "Hello world!");
 //!     // };
 //!
 //!     bot.send(
-//!         &SendMessage::new(message.chat.id, "Hello world!")
+//!         &SendMessage::new(message.chat.id(), "Hello world!")
 //!             .message_thread_id_option(message.message_thread_id),
 //!         None,
 //!     )

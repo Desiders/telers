@@ -11,7 +11,7 @@ use serde_with::skip_serializing_none;
 /// # Notes
 /// Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via @BotFather and accept the terms. Otherwise, you may use links like `t.me/your_bot?start=XXXX` that open your bot with a parameter.
 /// # Returns
-/// On success, `True` is returned
+/// On success, `true` is returned
 #[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct AnswerCallbackQuery {

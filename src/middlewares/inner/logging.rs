@@ -107,7 +107,7 @@ mod tests {
         context::Context,
         event::{service::ServiceFactory as _, telegram::handler_service},
         middlewares::inner::wrap_handler_and_middlewares_to_next,
-        types::Update,
+        types::{Message, Update, UpdateKind},
     };
 
     use std::sync::Arc;
@@ -119,9 +119,12 @@ mod tests {
         let handler_service = Arc::new(handler_service_factory.unwrap());
 
         let request = HandlerRequest::new(
-            Bot::<Reqwest>::default(),
-            Update::default(),
-            Context::default(),
+            Arc::new(Bot::<Reqwest>::default()),
+            Arc::new(Update {
+                id: 0,
+                kind: UpdateKind::Message(Message::default()),
+            }),
+            Arc::new(Context::default()),
         );
         let response = Logging
             .call(

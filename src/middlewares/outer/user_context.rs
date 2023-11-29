@@ -30,8 +30,8 @@ where
         let context = &request.context;
         let update = &request.update;
 
-        if let Some(user) = update.user() {
-            context.insert("event_user", Box::new(user.clone()));
+        if let Some(from) = update.from() {
+            context.insert("event_user", Box::new(from.clone()));
         }
 
         if let Some(chat) = update.chat() {
@@ -57,7 +57,7 @@ mod tests {
         enums::UpdateType,
         event::ToServiceProvider as _,
         router::{PropagateEvent as _, Router},
-        types::{Chat, Message, Update, User},
+        types::{Chat, Message, MessageText, Update, UpdateKind, User},
     };
 
     #[tokio::test]
@@ -65,12 +65,11 @@ mod tests {
         let bot = Bot::<Reqwest>::default();
         let context = Context::new();
         let update = Update {
-            message: Some(Message {
-                message_thread_id: Some(1),
-                chat: Box::<Chat>::default(),
+            kind: UpdateKind::Message(Message::Text(MessageText {
                 from: Some(User::default()),
+                thread_id: Some(1),
                 ..Default::default()
-            }),
+            })),
             ..Default::default()
         };
 
@@ -98,7 +97,7 @@ mod tests {
 
         let router_service = router.to_service_provider_default().unwrap();
 
-        let request = Request::new(bot, update, context);
+        let request = Request::new(Arc::new(bot), Arc::new(update), Arc::new(context));
         router_service
             .propagate_event(UpdateType::Message, request)
             .await
@@ -139,7 +138,7 @@ mod tests {
 
         let router_service = router.to_service_provider_default().unwrap();
 
-        let request = Request::new(bot, update, context);
+        let request = Request::new(Arc::new(bot), Arc::new(update), Arc::new(context));
         router_service
             .propagate_event(UpdateType::Message, request)
             .await

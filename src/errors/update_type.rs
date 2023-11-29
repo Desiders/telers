@@ -1,4 +1,4 @@
-use std::{borrow::Cow, fmt::Debug};
+use std::borrow::Cow;
 use thiserror;
 
 /// Error that can occur when update type is unknown.

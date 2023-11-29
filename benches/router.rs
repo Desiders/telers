@@ -1,11 +1,12 @@
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
+use std::sync::Arc;
 use telers::{
     client::Reqwest,
     enums::UpdateType,
     event::{telegram::HandlerRequest, EventReturn, ToServiceProvider as _},
     middlewares::inner::Next,
-    router::{PropagateEvent as _, Request, RouterService},
-    types::{CallbackQuery, Message, Update},
+    router::{PropagateEvent as _, Request, Service as RouterService},
+    types::{CallbackQuery, Message, Update, UpdateKind},
     Bot, Context, Router,
 };
 use tokio::runtime::Builder;
@@ -38,11 +39,11 @@ fn propagate_event_benchmark(c: &mut Criterion) {
             let bot = Bot::<Reqwest>::default();
             let context = Context::new();
             let update = Update {
-                message: Some(Message::default()),
-                ..Default::default()
+                id: 0,
+                kind: UpdateKind::Message(Message::default()),
             };
 
-            let request = Request::new(bot, update, context);
+            let request = Request::new(Arc::new(bot), Arc::new(update), Arc::new(context));
 
             (router_service, request, UpdateType::Message)
         },
@@ -70,11 +71,11 @@ fn propagate_event_benchmark(c: &mut Criterion) {
             let bot = Bot::<Reqwest>::default();
             let context = Context::new();
             let update = Update {
-                message: Some(Message::default()),
-                ..Default::default()
+                id: 0,
+                kind: UpdateKind::Message(Message::default()),
             };
 
-            let request = Request::new(bot, update, context);
+            let request = Request::new(Arc::new(bot), Arc::new(update), Arc::new(context));
 
             (router_service, request, UpdateType::Message)
         },
@@ -97,11 +98,11 @@ fn propagate_event_benchmark(c: &mut Criterion) {
             let bot = Bot::<Reqwest>::default();
             let context = Context::new();
             let update = Update {
-                callback_query: Some(CallbackQuery::default()),
-                ..Default::default()
+                id: 0,
+                kind: UpdateKind::CallbackQuery(CallbackQuery::default()),
             };
 
-            let request = Request::new(bot, update, context);
+            let request = Request::new(Arc::new(bot), Arc::new(update), Arc::new(context));
 
             (router_service, request, UpdateType::CallbackQuery)
         },
@@ -128,11 +129,11 @@ fn propagate_event_benchmark(c: &mut Criterion) {
             let bot = Bot::<Reqwest>::default();
             let context = Context::new();
             let update = Update {
-                message: Some(Message::default()),
-                ..Default::default()
+                id: 0,
+                kind: UpdateKind::Message(Message::default()),
             };
 
-            let request = Request::new(bot, update, context);
+            let request = Request::new(Arc::new(bot), Arc::new(update), Arc::new(context));
 
             (router_service, request, UpdateType::Message)
         },
@@ -167,11 +168,11 @@ fn propagate_event_benchmark(c: &mut Criterion) {
             let bot = Bot::<Reqwest>::default();
             let context = Context::new();
             let update = Update {
-                message: Some(Message::default()),
-                ..Default::default()
+                id: 0,
+                kind: UpdateKind::Message(Message::default()),
             };
 
-            let request = Request::new(bot, update, context);
+            let request = Request::new(Arc::new(bot), Arc::new(update), Arc::new(context));
 
             (router_service, request, UpdateType::Message)
         },

@@ -26,7 +26,7 @@ use telers::{
     fsm::{Context as FSMContext, MemoryStorage, Storage, Strategy},
     methods::SendMessage,
     middlewares::outer::FSMContext as FSMContextMiddleware,
-    types::Message,
+    types::{Message, MessageText},
     Bot, Dispatcher, Router,
 };
 use tracing::{event, Level};
@@ -75,7 +75,7 @@ async fn start_handler<S: Storage>(
     fsm: FSMContext<S>,
 ) -> HandlerResult {
     bot.send(SendMessage::new(
-        message.chat.id,
+        message.chat().id(),
         "Hello! What's your name?",
     ))
     .await?;
@@ -88,9 +88,12 @@ async fn start_handler<S: Storage>(
     Ok(EventReturn::Finish)
 }
 
-async fn name_handler<S: Storage>(bot: Bot, message: Message, fsm: FSMContext<S>) -> HandlerResult {
-    // `unwrap` is safe here, because we set content type filter
-    let name = message.text.unwrap();
+async fn name_handler<S: Storage>(
+    bot: Bot,
+    message: MessageText,
+    fsm: FSMContext<S>,
+) -> HandlerResult {
+    let name = message.text;
 
     // Save name to FSM storage, because we will need it in `language_handler`
     fsm.set_value("name", name.clone())
@@ -104,7 +107,7 @@ async fn name_handler<S: Storage>(bot: Bot, message: Message, fsm: FSMContext<S>
     // (user can send message to bot before we set state and data to FSM storage, but it's rare case)
 
     bot.send(&SendMessage::new(
-        message.chat.id,
+        message.chat.id(),
         format!("Nice to meet you, {name}! What's your native language?"),
     ))
     .await?;
@@ -114,11 +117,10 @@ async fn name_handler<S: Storage>(bot: Bot, message: Message, fsm: FSMContext<S>
 
 async fn language_handler<S: Storage>(
     bot: Bot,
-    message: Message,
+    message: MessageText,
     fsm: FSMContext<S>,
 ) -> HandlerResult {
-    // `unwrap` is safe here, because we set content type filter
-    let language = message.text.unwrap();
+    let language = message.text;
 
     // Get user's name from FSM storage
     // TODO: Add validation, e.g. check that name isn't empty
@@ -132,7 +134,7 @@ async fn language_handler<S: Storage>(
     match language.to_lowercase().as_str() {
         "english" | "en" => {
             bot.send(&SendMessage::new(
-                message.chat.id,
+                message.chat.id(),
                 format!("{name}, let's talk!"),
             ))
             .await?;
@@ -142,7 +144,7 @@ async fn language_handler<S: Storage>(
         }
         _ => {
             bot.send(&SendMessage::new(
-                message.chat.id,
+                message.chat.id(),
                 format!("{name}, I don't speak your language. Please, choose another :(",),
             ))
             .await?;

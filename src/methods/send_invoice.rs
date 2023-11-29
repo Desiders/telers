@@ -48,19 +48,19 @@ pub struct SendInvoice {
     pub photo_width: Option<i64>,
     /// Photo height
     pub photo_height: Option<i64>,
-    /// Pass `True` if you require the user's full name to complete the order
+    /// Pass `true` if you require the user's full name to complete the order
     pub need_name: Option<bool>,
-    /// Pass `True` if you require the user's phone number to complete the order
+    /// Pass `true` if you require the user's phone number to complete the order
     pub need_phone_number: Option<bool>,
-    /// Pass `True` if you require the user's email address to complete the order
+    /// Pass `true` if you require the user's email address to complete the order
     pub need_email: Option<bool>,
-    /// Pass `True` if you require the user's shipping address to complete the order
+    /// Pass `true` if you require the user's shipping address to complete the order
     pub need_shipping_address: Option<bool>,
-    /// Pass `True` if the user's phone number should be sent to provider
+    /// Pass `true` if the user's phone number should be sent to provider
     pub send_phone_number_to_provider: Option<bool>,
-    /// Pass `True` if the user's email address should be sent to provider
+    /// Pass `true` if the user's email address should be sent to provider
     pub send_email_to_provider: Option<bool>,
-    /// Pass `True` if the final price depends on the shipping method
+    /// Pass `true` if the final price depends on the shipping method
     pub is_flexible: Option<bool>,
     /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound.
     pub disable_notification: Option<bool>,
@@ -68,7 +68,7 @@ pub struct SendInvoice {
     pub protect_content: Option<bool>,
     /// If the message is a reply, ID of the original message
     pub reply_to_message_id: Option<i64>,
-    /// Pass `True`, if the message should be sent even if the specified replied-to message is not found
+    /// Pass `true`, if the message should be sent even if the specified replied-to message is not found
     pub allow_sending_without_reply: Option<bool>,
     /// A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). If empty, one 'Pay `total price`' button will be shown. If not empty, the first button must be a Pay button.
     pub reply_markup: Option<InlineKeyboardMarkup>,

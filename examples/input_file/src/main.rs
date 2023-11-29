@@ -109,7 +109,7 @@ async fn input_file_handler(bot: Bot, message: Message) -> telegram::HandlerResu
 
     let result_message = bot
         .send(SendMediaGroup::new(
-            message.chat_id(),
+            message.chat().id(),
             [
                 InputMediaPhoto::new(cat_url_input_file).caption("Cat by URL"),
                 InputMediaPhoto::new(cat_fs_input_file).caption("Cat by file system"),
@@ -123,17 +123,14 @@ async fn input_file_handler(bot: Bot, message: Message) -> telegram::HandlerResu
     // We can get file ID from result message and send it again by ID.
     let cat_id_input_file = InputFile::id(
         result_message[0]
-            .photo
-            .as_ref()
-            .expect("Photo is empty")
-            .last()
+            .largest_photo()
             .expect("Photo is empty")
             .file_id
             .as_ref(),
     );
 
     bot.send(
-        &SendPhoto::new(message.chat_id(), cat_id_input_file).caption("Cat by telegram file ID"),
+        &SendPhoto::new(message.chat().id(), cat_id_input_file).caption("Cat by telegram file ID"),
     )
     .await?;
 

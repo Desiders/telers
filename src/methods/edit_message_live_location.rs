@@ -13,7 +13,7 @@ use serde_with::skip_serializing_none;
 /// <https://core.telegram.org/bots/api#editmessagelivelocation>
 /// # Returns
 /// On success, if the edited message is not an inline message, the edited [`MessageOrTrue`] is returned,
-/// otherwise `True` is returned
+/// otherwise `true` is returned
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct EditMessageLiveLocation {
