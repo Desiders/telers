@@ -1,52 +1,46 @@
-use std::{
-    fmt::{self, Debug, Display},
-    ops::Deref,
-};
+use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 
 /// This enum represents all possible types of the chat action
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sendchataction>
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
 pub enum ChatAction {
+    #[strum(serialize = "typing")]
     Typing,
+    #[strum(serialize = "upload_photo")]
     UploadPhoto,
+    #[strum(serialize = "record_video")]
     RecordVideo,
+    #[strum(serialize = "upload_video")]
     UploadVideo,
-    RecordAudio,
-    UploadAudio,
+    #[strum(serialize = "record_voice")]
+    RecordVoice,
+    #[strum(serialize = "upload_voice")]
+    UploadVoice,
+    #[strum(serialize = "upload_document")]
     UploadDocument,
+    #[strum(serialize = "choose_sticker")]
+    ChooseSticker,
+    #[strum(serialize = "find_location")]
     FindLocation,
+    #[strum(serialize = "record_video_note")]
     RecordVideoNote,
+    #[strum(serialize = "upload_video_note")]
     UploadVideoNote,
 }
 
 impl ChatAction {
     #[must_use]
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            ChatAction::Typing => "typing",
-            ChatAction::UploadPhoto => "upload_photo",
-            ChatAction::RecordVideo => "record_video",
-            ChatAction::UploadVideo => "upload_video",
-            ChatAction::RecordAudio => "record_audio",
-            ChatAction::UploadAudio => "upload_audio",
-            ChatAction::UploadDocument => "upload_document",
-            ChatAction::FindLocation => "find_location",
-            ChatAction::RecordVideoNote => "record_video_note",
-            ChatAction::UploadVideoNote => "upload_video_note",
-        }
-    }
-
-    #[must_use]
-    pub const fn all() -> &'static [ChatAction; 10] {
-        &[
+    pub const fn all() -> [ChatAction; 11] {
+        [
             ChatAction::Typing,
             ChatAction::UploadPhoto,
             ChatAction::RecordVideo,
             ChatAction::UploadVideo,
-            ChatAction::RecordAudio,
-            ChatAction::UploadAudio,
+            ChatAction::RecordVoice,
+            ChatAction::UploadVoice,
             ChatAction::UploadDocument,
+            ChatAction::ChooseSticker,
             ChatAction::FindLocation,
             ChatAction::RecordVideoNote,
             ChatAction::UploadVideoNote,
@@ -54,28 +48,14 @@ impl ChatAction {
     }
 }
 
-impl Deref for ChatAction {
-    type Target = str;
-
-    fn deref(&self) -> &Self::Target {
-        self.as_str()
-    }
-}
-
-impl Display for ChatAction {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
-}
-
-impl From<ChatAction> for String {
-    fn from(action: ChatAction) -> Self {
-        action.as_str().to_owned()
+impl From<ChatAction> for Box<str> {
+    fn from(chat_action: ChatAction) -> Self {
+        Into::<&'static str>::into(chat_action).into()
     }
 }
 
 impl<'a> PartialEq<&'a str> for ChatAction {
     fn eq(&self, other: &&'a str) -> bool {
-        self == other
+        self.as_ref() == *other
     }
 }

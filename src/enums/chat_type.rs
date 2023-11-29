@@ -1,33 +1,26 @@
-use std::{
-    fmt::{self, Debug, Display},
-    ops::Deref,
-};
+use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
+
+use crate::types::Chat;
 
 /// This enum represents all possible types of the chat
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chat>
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
 pub enum ChatType {
+    #[strum(serialize = "private")]
     Private,
+    #[strum(serialize = "group")]
     Group,
+    #[strum(serialize = "supergroup")]
     Supergroup,
+    #[strum(serialize = "channel")]
     Channel,
 }
 
 impl ChatType {
     #[must_use]
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            ChatType::Private => "private",
-            ChatType::Group => "group",
-            ChatType::Supergroup => "supergroup",
-            ChatType::Channel => "channel",
-        }
-    }
-
-    #[must_use]
-    pub const fn all() -> &'static [ChatType; 4] {
-        &[
+    pub const fn all() -> [ChatType; 4] {
+        [
             ChatType::Private,
             ChatType::Group,
             ChatType::Supergroup,
@@ -36,28 +29,25 @@ impl ChatType {
     }
 }
 
-impl Deref for ChatType {
-    type Target = str;
-
-    fn deref(&self) -> &Self::Target {
-        self.as_str()
-    }
-}
-
-impl Display for ChatType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
-}
-
-impl From<ChatType> for String {
+impl From<ChatType> for Box<str> {
     fn from(chat_type: ChatType) -> Self {
-        chat_type.as_str().to_owned()
+        Into::<&'static str>::into(chat_type).into()
     }
 }
 
 impl<'a> PartialEq<&'a str> for ChatType {
     fn eq(&self, other: &&'a str) -> bool {
-        self == other
+        self.as_ref() == *other
+    }
+}
+
+impl<'a> From<&'a Chat> for ChatType {
+    fn from(chat: &'a Chat) -> Self {
+        match chat {
+            Chat::Private(_) => ChatType::Private,
+            Chat::Group(_) => ChatType::Group,
+            Chat::Supergroup(_) => ChatType::Supergroup,
+            Chat::Channel(_) => ChatType::Channel,
+        }
     }
 }

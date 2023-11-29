@@ -1,53 +1,44 @@
-use std::{
-    fmt::{self, Debug, Display},
-    ops::Deref,
-};
+use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 
 /// This enum represents all possible types of the inline query result
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
 pub enum InlineQueryResultType {
+    #[strum(serialize = "article")]
     Article,
+    #[strum(serialize = "audio")]
     Audio,
+    #[strum(serialize = "contact")]
     Contact,
+    #[strum(serialize = "document")]
     Document,
+    #[strum(serialize = "game")]
     Game,
+    #[strum(serialize = "gif")]
     Gif,
+    #[strum(serialize = "location")]
     Location,
+    #[strum(serialize = "mpeg4_gif")]
     Mpeg4Gif,
+    #[strum(serialize = "photo")]
     Photo,
+    #[strum(serialize = "sticker")]
     Sticker,
+    #[strum(serialize = "venue")]
     Venue,
+    #[strum(serialize = "video")]
     Video,
+    #[strum(serialize = "video_note")]
     VideoNote,
+    #[strum(serialize = "voice")]
     Voice,
 }
 
 impl InlineQueryResultType {
     #[must_use]
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            InlineQueryResultType::Article => "article",
-            InlineQueryResultType::Audio => "audio",
-            InlineQueryResultType::Contact => "contact",
-            InlineQueryResultType::Document => "document",
-            InlineQueryResultType::Game => "game",
-            InlineQueryResultType::Gif => "gif",
-            InlineQueryResultType::Location => "location",
-            InlineQueryResultType::Mpeg4Gif => "mpeg4_gif",
-            InlineQueryResultType::Photo => "photo",
-            InlineQueryResultType::Sticker => "sticker",
-            InlineQueryResultType::Venue => "venue",
-            InlineQueryResultType::Video => "video",
-            InlineQueryResultType::VideoNote => "video_note",
-            InlineQueryResultType::Voice => "voice",
-        }
-    }
-
-    #[must_use]
-    pub const fn all() -> &'static [InlineQueryResultType; 14] {
-        &[
+    pub const fn all() -> [InlineQueryResultType; 14] {
+        [
             InlineQueryResultType::Article,
             InlineQueryResultType::Audio,
             InlineQueryResultType::Contact,
@@ -66,34 +57,14 @@ impl InlineQueryResultType {
     }
 }
 
-impl Deref for InlineQueryResultType {
-    type Target = str;
-
-    fn deref(&self) -> &Self::Target {
-        self.as_str()
-    }
-}
-
-impl Display for InlineQueryResultType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
-}
-
 impl From<InlineQueryResultType> for Box<str> {
     fn from(inline_query_result_type: InlineQueryResultType) -> Self {
-        inline_query_result_type.into()
-    }
-}
-
-impl From<InlineQueryResultType> for String {
-    fn from(inline_query_result_type: InlineQueryResultType) -> Self {
-        inline_query_result_type.as_str().to_owned()
+        Into::<&'static str>::into(inline_query_result_type).into()
     }
 }
 
 impl<'a> PartialEq<&'a str> for InlineQueryResultType {
     fn eq(&self, other: &&'a str) -> bool {
-        self == other
+        self.as_ref() == *other
     }
 }

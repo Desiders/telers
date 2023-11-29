@@ -1,52 +1,44 @@
-use crate::{errors::UnknownUpdateTypeError, types::Update};
+use crate::types::{Update, UpdateKind};
 
-use std::{
-    fmt::{self, Debug, Display},
-    ops::Deref,
-};
+use std::borrow::Cow;
+use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 
 /// This enum represents all possible types of the update
 /// # Documentation
 /// <https://core.telegram.org/bots/api#update>
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
 pub enum UpdateType {
+    #[strum(serialize = "message")]
     Message,
+    #[strum(serialize = "inline_query")]
     InlineQuery,
+    #[strum(serialize = "chosen_inline_result")]
     ChosenInlineResult,
+    #[strum(serialize = "callback_query")]
     CallbackQuery,
+    #[strum(serialize = "channel_post")]
     ChannelPost,
+    #[strum(serialize = "edited_message")]
     EditedMessage,
+    #[strum(serialize = "edited_channel_post")]
     EditedChannelPost,
+    #[strum(serialize = "shipping_query")]
     ShippingQuery,
+    #[strum(serialize = "pre_checkout_query")]
     PreCheckoutQuery,
+    #[strum(serialize = "poll")]
     Poll,
+    #[strum(serialize = "poll_answer")]
     PollAnswer,
+    #[strum(serialize = "my_chat_member")]
     MyChatMember,
+    #[strum(serialize = "chat_member")]
     ChatMember,
+    #[strum(serialize = "chat_join_request")]
     ChatJoinRequest,
 }
 
 impl UpdateType {
-    #[must_use]
-    pub const fn as_str(&self) -> &str {
-        match self {
-            UpdateType::Message => "message",
-            UpdateType::InlineQuery => "inline_query",
-            UpdateType::ChosenInlineResult => "chosen_inline_result",
-            UpdateType::CallbackQuery => "callback_query",
-            UpdateType::ChannelPost => "channel_post",
-            UpdateType::EditedMessage => "edited_message",
-            UpdateType::EditedChannelPost => "edited_channel_post",
-            UpdateType::ShippingQuery => "shipping_query",
-            UpdateType::PreCheckoutQuery => "pre_checkout_query",
-            UpdateType::Poll => "poll",
-            UpdateType::PollAnswer => "poll_answer",
-            UpdateType::MyChatMember => "my_chat_member",
-            UpdateType::ChatMember => "chat_member",
-            UpdateType::ChatJoinRequest => "chat_join_request",
-        }
-    }
-
     #[must_use]
     pub const fn all() -> &'static [UpdateType; 14] {
         &[
@@ -68,104 +60,47 @@ impl UpdateType {
     }
 }
 
-impl Deref for UpdateType {
-    type Target = str;
-
-    fn deref(&self) -> &Self::Target {
-        self.as_str()
-    }
-}
-
-impl Display for UpdateType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
-}
-
-impl<'a> From<&'a UpdateType> for String {
-    fn from(update_type: &'a UpdateType) -> Self {
-        update_type.to_string()
-    }
-}
-
-impl From<UpdateType> for String {
+impl From<UpdateType> for Cow<'static, str> {
     fn from(update_type: UpdateType) -> Self {
-        update_type.to_string()
+        Into::<&'static str>::into(update_type).into()
+    }
+}
+
+impl From<&UpdateType> for Cow<'static, str> {
+    fn from(update_type: &UpdateType) -> Self {
+        Into::<&'static str>::into(update_type).into()
     }
 }
 
 impl<'a> PartialEq<&'a str> for UpdateType {
     fn eq(&self, other: &&'a str) -> bool {
-        self == other
+        self.as_ref() == *other
     }
 }
 
-impl<'a> TryFrom<&'a Update> for UpdateType {
-    type Error = UnknownUpdateTypeError;
-
-    fn try_from(update: &Update) -> Result<Self, Self::Error> {
-        if update.message.is_some() {
-            Ok(UpdateType::Message)
-        } else if update.inline_query.is_some() {
-            Ok(UpdateType::InlineQuery)
-        } else if update.chosen_inline_result.is_some() {
-            Ok(UpdateType::ChosenInlineResult)
-        } else if update.callback_query.is_some() {
-            Ok(UpdateType::CallbackQuery)
-        } else if update.channel_post.is_some() {
-            Ok(UpdateType::ChannelPost)
-        } else if update.edited_message.is_some() {
-            Ok(UpdateType::EditedMessage)
-        } else if update.edited_channel_post.is_some() {
-            Ok(UpdateType::EditedChannelPost)
-        } else if update.shipping_query.is_some() {
-            Ok(UpdateType::ShippingQuery)
-        } else if update.pre_checkout_query.is_some() {
-            Ok(UpdateType::PreCheckoutQuery)
-        } else if update.poll.is_some() {
-            Ok(UpdateType::Poll)
-        } else if update.poll_answer.is_some() {
-            Ok(UpdateType::PollAnswer)
-        } else if update.my_chat_member.is_some() {
-            Ok(UpdateType::MyChatMember)
-        } else if update.chat_member.is_some() {
-            Ok(UpdateType::ChatMember)
-        } else if update.chat_join_request.is_some() {
-            Ok(UpdateType::ChatJoinRequest)
-        } else {
-            Err(UnknownUpdateTypeError::new(format!("{update:?}")))
+impl<'a> From<&'a UpdateKind> for UpdateType {
+    fn from(update_kind: &UpdateKind) -> Self {
+        match update_kind {
+            UpdateKind::Message(_) => UpdateType::Message,
+            UpdateKind::EditedMessage(_) => UpdateType::EditedMessage,
+            UpdateKind::ChannelPost(_) => UpdateType::ChannelPost,
+            UpdateKind::EditedChannelPost(_) => UpdateType::EditedChannelPost,
+            UpdateKind::InlineQuery(_) => UpdateType::InlineQuery,
+            UpdateKind::ChosenInlineResult(_) => UpdateType::ChosenInlineResult,
+            UpdateKind::CallbackQuery(_) => UpdateType::CallbackQuery,
+            UpdateKind::ShippingQuery(_) => UpdateType::ShippingQuery,
+            UpdateKind::PreCheckoutQuery(_) => UpdateType::PreCheckoutQuery,
+            UpdateKind::Poll(_) => UpdateType::Poll,
+            UpdateKind::PollAnswer(_) => UpdateType::PollAnswer,
+            UpdateKind::MyChatMember(_) => UpdateType::MyChatMember,
+            UpdateKind::ChatMember(_) => UpdateType::ChatMember,
+            UpdateKind::ChatJoinRequest(_) => UpdateType::ChatJoinRequest,
         }
     }
 }
 
-impl TryFrom<Update> for UpdateType {
-    type Error = UnknownUpdateTypeError;
-
-    fn try_from(update: Update) -> Result<Self, Self::Error> {
-        Self::try_from(&update)
-    }
-}
-
-impl<'a> TryFrom<&'a str> for UpdateType {
-    type Error = UnknownUpdateTypeError;
-
-    fn try_from(value: &'a str) -> Result<Self, Self::Error> {
-        match value {
-            "message" => Ok(UpdateType::Message),
-            "inline_query" => Ok(UpdateType::InlineQuery),
-            "chosen_inline_result" => Ok(UpdateType::ChosenInlineResult),
-            "callback_query" => Ok(UpdateType::CallbackQuery),
-            "channel_post" => Ok(UpdateType::ChannelPost),
-            "edited_message" => Ok(UpdateType::EditedMessage),
-            "edited_channel_post" => Ok(UpdateType::EditedChannelPost),
-            "shipping_query" => Ok(UpdateType::ShippingQuery),
-            "pre_checkout_query" => Ok(UpdateType::PreCheckoutQuery),
-            "poll" => Ok(UpdateType::Poll),
-            "poll_answer" => Ok(UpdateType::PollAnswer),
-            "my_chat_member" => Ok(UpdateType::MyChatMember),
-            "chat_member" => Ok(UpdateType::ChatMember),
-            "chat_join_request" => Ok(UpdateType::ChatJoinRequest),
-            _ => Err(UnknownUpdateTypeError::new(value.to_owned())),
-        }
+impl<'a> From<&'a Update> for UpdateType {
+    fn from(update: &'a Update) -> Self {
+        UpdateType::from(update.kind())
     }
 }

@@ -1,57 +1,48 @@
-use std::{
-    fmt::{self, Debug, Display},
-    ops::Deref,
-};
+use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 
 /// This enum represents all possible types of the message entity
 /// # Documentation
 /// <https://core.telegram.org/bots/api#messageentity>
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
 pub enum MessageEntityType {
+    #[strum(serialize = "mention")]
     Mention,
+    #[strum(serialize = "hashtag")]
     Hashtag,
+    #[strum(serialize = "cashtag")]
     Cashtag,
+    #[strum(serialize = "bot_command")]
     BotCommand,
+    #[strum(serialize = "url")]
     Url,
+    #[strum(serialize = "email")]
     Email,
+    #[strum(serialize = "phone_number")]
     PhoneNumber,
+    #[strum(serialize = "bold")]
     Bold,
+    #[strum(serialize = "italic")]
     Italic,
+    #[strum(serialize = "underline")]
     Underline,
+    #[strum(serialize = "strikethrough")]
     Strikethrough,
+    #[strum(serialize = "code")]
     Code,
+    #[strum(serialize = "pre")]
     Pre,
+    #[strum(serialize = "text_link")]
     TextLink,
+    #[strum(serialize = "text_mention")]
     TextMention,
+    #[strum(serialize = "custom_emoji")]
     CustomEmoji,
 }
 
 impl MessageEntityType {
     #[must_use]
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            MessageEntityType::Mention => "mention",
-            MessageEntityType::Hashtag => "hashtag",
-            MessageEntityType::Cashtag => "cashtag",
-            MessageEntityType::BotCommand => "bot_command",
-            MessageEntityType::Url => "url",
-            MessageEntityType::Email => "email",
-            MessageEntityType::PhoneNumber => "phone_number",
-            MessageEntityType::Bold => "bold",
-            MessageEntityType::Italic => "italic",
-            MessageEntityType::Underline => "underline",
-            MessageEntityType::Strikethrough => "strikethrough",
-            MessageEntityType::Code => "code",
-            MessageEntityType::Pre => "pre",
-            MessageEntityType::TextLink => "text_link",
-            MessageEntityType::TextMention => "text_mention",
-            MessageEntityType::CustomEmoji => "custom_emoji",
-        }
-    }
-
-    #[must_use]
-    pub const fn all() -> &'static [MessageEntityType; 16] {
-        &[
+    pub const fn all() -> [MessageEntityType; 16] {
+        [
             MessageEntityType::Mention,
             MessageEntityType::Hashtag,
             MessageEntityType::Cashtag,
@@ -72,34 +63,14 @@ impl MessageEntityType {
     }
 }
 
-impl Deref for MessageEntityType {
-    type Target = str;
-
-    fn deref(&self) -> &Self::Target {
-        self.as_str()
-    }
-}
-
-impl Display for MessageEntityType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
-}
-
 impl From<MessageEntityType> for Box<str> {
     fn from(entity_type: MessageEntityType) -> Self {
-        entity_type.into()
-    }
-}
-
-impl From<MessageEntityType> for String {
-    fn from(entity_type: MessageEntityType) -> Self {
-        entity_type.as_str().to_owned()
+        Into::<&'static str>::into(entity_type).into()
     }
 }
 
 impl<'a> PartialEq<&'a str> for MessageEntityType {
     fn eq(&self, other: &&'a str) -> bool {
-        self == other
+        self.as_ref() == *other
     }
 }

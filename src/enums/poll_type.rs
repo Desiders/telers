@@ -1,60 +1,31 @@
-use std::{
-    fmt::{self, Debug, Display},
-    ops::Deref,
-};
+use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 
 /// This enum represents all possible types of the poll
 /// # Documentation
 /// <https://core.telegram.org/bots/api#poll>
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
 pub enum PollType {
+    #[strum(serialize = "regular")]
     Regular,
+    #[strum(serialize = "quiz")]
     Quiz,
 }
 
 impl PollType {
     #[must_use]
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            PollType::Regular => "regular",
-            PollType::Quiz => "quiz",
-        }
-    }
-
-    #[must_use]
-    pub const fn all() -> &'static [PollType; 2] {
-        &[PollType::Regular, PollType::Quiz]
-    }
-}
-
-impl Deref for PollType {
-    type Target = str;
-
-    fn deref(&self) -> &Self::Target {
-        self.as_str()
-    }
-}
-
-impl Display for PollType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
+    pub const fn all() -> [PollType; 2] {
+        [PollType::Regular, PollType::Quiz]
     }
 }
 
 impl From<PollType> for Box<str> {
     fn from(action: PollType) -> Self {
-        action.into()
-    }
-}
-
-impl From<PollType> for String {
-    fn from(action: PollType) -> Self {
-        action.as_str().to_owned()
+        Into::<&'static str>::into(action).into()
     }
 }
 
 impl<'a> PartialEq<&'a str> for PollType {
     fn eq(&self, other: &&'a str) -> bool {
-        self == other
+        self.as_ref() == *other
     }
 }
