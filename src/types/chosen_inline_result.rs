@@ -1,6 +1,6 @@
-use super::{Location, Update, User};
+use super::{Location, Update, UpdateKind, User};
 
-use crate::errors::ConvertUpdateToTypeError;
+use crate::errors::ConvertToTypeError;
 
 use serde::Deserialize;
 
@@ -24,13 +24,12 @@ pub struct ChosenInlineResult {
 }
 
 impl TryFrom<Update> for ChosenInlineResult {
-    type Error = ConvertUpdateToTypeError;
+    type Error = ConvertToTypeError;
 
     fn try_from(update: Update) -> Result<Self, Self::Error> {
-        if let Some(chosen_inline_result) = update.chosen_inline_result {
-            Ok(chosen_inline_result)
-        } else {
-            Err(ConvertUpdateToTypeError::new("ChosenInlineResult"))
+        match update.kind {
+            UpdateKind::ChosenInlineResult(val) => Ok(val),
+            _ => Err(ConvertToTypeError::new("Update", "ChosenInlineResult")),
         }
     }
 }

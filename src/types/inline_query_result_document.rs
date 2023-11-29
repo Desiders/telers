@@ -1,7 +1,5 @@
 use super::{InlineKeyboardMarkup, InputMessageContent, MessageEntity};
 
-use crate::enums::InlineQueryResultType;
-
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -13,9 +11,6 @@ use serde_with::skip_serializing_none;
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct InlineQueryResultDocument {
-    /// Type of the result, must be *document*
-    #[serde(rename = "type", default = "document")]
-    pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
     /// A Title for the result
@@ -57,7 +52,15 @@ impl InlineQueryResultDocument {
             title: title.into(),
             document_url: document_url.into(),
             mime_type: mime_type.into(),
-            ..Default::default()
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            description: None,
+            reply_markup: None,
+            input_message_content: None,
+            thumbnail_url: None,
+            thumbnail_width: None,
+            thumbnail_height: None,
         }
     }
 
@@ -186,28 +189,77 @@ impl InlineQueryResultDocument {
     }
 }
 
-impl Default for InlineQueryResultDocument {
+impl InlineQueryResultDocument {
     #[must_use]
-    fn default() -> Self {
+    pub fn caption_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
-            result_type: document(),
-            id: String::default(),
-            title: String::default(),
-            document_url: String::default(),
-            mime_type: String::default(),
-            caption: None,
-            parse_mode: None,
-            caption_entities: None,
-            description: None,
-            reply_markup: None,
-            input_message_content: None,
-            thumbnail_url: None,
-            thumbnail_width: None,
-            thumbnail_height: None,
+            caption: val.map(Into::into),
+            ..self
         }
     }
-}
 
-fn document() -> String {
-    InlineQueryResultType::Document.into()
+    #[must_use]
+    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            parse_mode: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn caption_entities_option(
+        self,
+        val: Option<impl IntoIterator<Item = MessageEntity>>,
+    ) -> Self {
+        Self {
+            caption_entities: val.map(|val| {
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect()
+            }),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn description_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            description: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn thumbnail_url_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            thumbnail_url: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn thumbnail_width_option(self, val: Option<i64>) -> Self {
+        Self {
+            thumbnail_width: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn thumbnail_height_option(self, val: Option<i64>) -> Self {
+        Self {
+            thumbnail_height: val,
+            ..self
+        }
+    }
 }

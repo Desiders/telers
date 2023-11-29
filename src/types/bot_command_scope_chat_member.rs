@@ -1,7 +1,5 @@
 use super::ChatIdKind;
 
-use crate::enums::BotCommandScopeType;
-
 use serde::{Deserialize, Serialize};
 
 /// Represents the [`scope`](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering a specific member of a group or supergroup chat.
@@ -9,9 +7,6 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#botcommandscopechatmember>
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct BotCommandScopeChatMember {
-    /// Scope type, must be *chat_member*
-    #[serde(rename = "type", default = "chat_member")]
-    pub scope_type: Box<str>,
     /// Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
     pub chat_id: ChatIdKind,
     /// Unique identifier of the target user
@@ -22,7 +17,6 @@ impl BotCommandScopeChatMember {
     #[must_use]
     pub fn new(chat_id: impl Into<ChatIdKind>, user_id: i64) -> Self {
         Self {
-            scope_type: chat_member(),
             chat_id: chat_id.into(),
             user_id,
         }
@@ -43,8 +37,4 @@ impl BotCommandScopeChatMember {
             ..self
         }
     }
-}
-
-fn chat_member() -> Box<str> {
-    BotCommandScopeType::ChatMember.into()
 }

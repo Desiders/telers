@@ -1,7 +1,5 @@
 use super::{InputFile, MessageEntity};
 
-use crate::enums::InputMediaType;
-
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 
@@ -11,9 +9,6 @@ use serde_with::skip_serializing_none;
 #[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Serialize)]
 pub struct InputMediaPhoto<'a> {
-    /// Type of the result, must be *photo*
-    #[serde(rename = "type", default = "photo")]
-    pub media_type: String,
     /// File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass 'attach://<file_attach_name>' to upload a new one using `multipart/form-data` under <file_attach_name> name. [`More information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
     pub media: InputFile<'a>,
     /// Caption of the photo to be sent, 0-1024 characters after entities parsing
@@ -22,15 +17,14 @@ pub struct InputMediaPhoto<'a> {
     pub parse_mode: Option<String>,
     /// List of special entities that appear in the caption, which can be specified instead of *parse_mode*
     pub caption_entities: Option<Vec<MessageEntity>>,
-    /// Pass `True` if the photo needs to be covered with a spoiler animation
+    /// Pass `true` if the photo needs to be covered with a spoiler animation
     pub has_spoiler: Option<bool>,
 }
 
 impl<'a> InputMediaPhoto<'a> {
     #[must_use]
-    pub fn new<T: Into<InputFile<'a>>>(media: T) -> Self {
+    pub fn new(media: impl Into<InputFile<'a>>) -> Self {
         Self {
-            media_type: photo(),
             media: media.into(),
             caption: None,
             parse_mode: None,
@@ -100,6 +94,45 @@ impl<'a> InputMediaPhoto<'a> {
     }
 }
 
-fn photo() -> String {
-    InputMediaType::Photo.into()
+impl<'a> InputMediaPhoto<'a> {
+    #[must_use]
+    pub fn caption_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            caption: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            parse_mode: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn caption_entities_option(
+        self,
+        val: Option<impl IntoIterator<Item = MessageEntity>>,
+    ) -> Self {
+        Self {
+            caption_entities: val.map(|val| {
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect()
+            }),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn has_spoiler_option(self, val: Option<bool>) -> Self {
+        Self {
+            has_spoiler: val,
+            ..self
+        }
+    }
 }

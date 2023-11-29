@@ -27,7 +27,7 @@ pub struct InlineKeyboardButton {
     pub switch_inline_query_chosen_chat: Option<SwitchInlineQueryChosenChat>,
     /// Description of the game that will be launched when the user presses the button.
     pub callback_game: Option<CallbackGame>,
-    /// Specify `True`, to send a [`Pay button`](https://core.telegram.org/bots/api#payments).
+    /// Specify `true`, to send a [`Pay button`](https://core.telegram.org/bots/api#payments).
     pub pay: Option<bool>,
 }
 
@@ -124,6 +124,83 @@ impl InlineKeyboardButton {
     pub fn pay(self, val: bool) -> Self {
         Self {
             pay: Some(val),
+            ..self
+        }
+    }
+}
+
+impl InlineKeyboardButton {
+    #[must_use]
+    pub fn url_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            url: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn callback_data_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            callback_data: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn web_app_option(self, val: Option<WebAppInfo>) -> Self {
+        Self {
+            web_app: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn login_url_option(self, val: Option<LoginUrl>) -> Self {
+        Self {
+            login_url: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn switch_inline_query_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            switch_inline_query: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn switch_inline_query_current_chat_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            switch_inline_query_current_chat: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn switch_inline_query_chosen_chat_option(
+        self,
+        val: Option<SwitchInlineQueryChosenChat>,
+    ) -> Self {
+        Self {
+            switch_inline_query_chosen_chat: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn callback_game_option(self, val: Option<CallbackGame>) -> Self {
+        Self {
+            callback_game: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn pay_option(self, val: Option<bool>) -> Self {
+        Self {
+            pay: val,
             ..self
         }
     }

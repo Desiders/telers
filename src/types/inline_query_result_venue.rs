@@ -1,7 +1,5 @@
 use super::{InlineKeyboardMarkup, InputMessageContent};
 
-use crate::enums::InlineQueryResultType;
-
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -13,9 +11,6 @@ use serde_with::skip_serializing_none;
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct InlineQueryResultVenue {
-    /// Type of the result, must be *venue*
-    #[serde(rename = "type", default = "venue")]
-    pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
     /// Latitude of the venue location in degrees
@@ -61,7 +56,15 @@ impl InlineQueryResultVenue {
             longitude,
             title: title.into(),
             address: address.into(),
-            ..Default::default()
+            foursquare_id: None,
+            foursquare_type: None,
+            google_place_id: None,
+            google_place_type: None,
+            reply_markup: None,
+            input_message_content: None,
+            thumbnail_url: None,
+            thumbnail_width: None,
+            thumbnail_height: None,
         }
     }
 
@@ -178,29 +181,76 @@ impl InlineQueryResultVenue {
     }
 }
 
-impl Default for InlineQueryResultVenue {
+impl InlineQueryResultVenue {
     #[must_use]
-    fn default() -> Self {
+    pub fn foursquare_id_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
-            result_type: venue(),
-            id: String::default(),
-            latitude: 0.0,
-            longitude: 0.0,
-            title: String::default(),
-            address: String::default(),
-            foursquare_id: None,
-            foursquare_type: None,
-            google_place_id: None,
-            google_place_type: None,
-            reply_markup: None,
-            input_message_content: None,
-            thumbnail_url: None,
-            thumbnail_width: None,
-            thumbnail_height: None,
+            foursquare_id: val.map(Into::into),
+            ..self
         }
     }
-}
 
-fn venue() -> String {
-    InlineQueryResultType::Venue.into()
+    #[must_use]
+    pub fn foursquare_type_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            foursquare_type: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn google_place_id_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            google_place_id: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn google_place_type_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            google_place_type: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn input_message_content_option(self, val: Option<impl Into<InputMessageContent>>) -> Self {
+        Self {
+            input_message_content: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn thumbnail_url_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            thumbnail_url: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn thumbnail_width_option(self, val: Option<i64>) -> Self {
+        Self {
+            thumbnail_width: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn thumbnail_height_option(self, val: Option<i64>) -> Self {
+        Self {
+            thumbnail_height: val,
+            ..self
+        }
+    }
 }

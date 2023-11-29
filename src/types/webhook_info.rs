@@ -7,7 +7,7 @@ use serde::Deserialize;
 pub struct WebhookInfo {
     /// Webhook URL, may be empty if webhook is not set up
     pub url: Box<str>,
-    /// `True`, if a custom certificate was provided for webhook certificate checks
+    /// `true`, if a custom certificate was provided for webhook certificate checks
     pub has_custom_certificate: bool,
     /// Number of updates awaiting delivery
     pub pending_update_count: i64,

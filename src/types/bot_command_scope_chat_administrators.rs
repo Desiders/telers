@@ -1,7 +1,5 @@
 use super::ChatIdKind;
 
-use crate::enums::BotCommandScopeType;
-
 use serde::{Deserialize, Serialize};
 
 /// Represents the [`scope`](https://core.telegram.org/bots/api#botcommandscope) of bot commands, covering all administrators of a specific group or supergroup chat.
@@ -9,9 +7,6 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#botcommandscopechatadministrators>
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct BotCommandScopeChatAdministrators {
-    /// Scope type, must be *chat_administrators*
-    #[serde(rename = "type", default = "chat_administrators")]
-    pub scope_type: Box<str>,
     /// Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)
     pub chat_id: ChatIdKind,
 }
@@ -20,7 +15,6 @@ impl BotCommandScopeChatAdministrators {
     #[must_use]
     pub fn new(chat_id: impl Into<ChatIdKind>) -> Self {
         Self {
-            scope_type: chat_administrators(),
             chat_id: chat_id.into(),
         }
     }
@@ -29,11 +23,6 @@ impl BotCommandScopeChatAdministrators {
     pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
         Self {
             chat_id: val.into(),
-            ..self
         }
     }
-}
-
-fn chat_administrators() -> Box<str> {
-    BotCommandScopeType::ChatAdministrators.into()
 }

@@ -1,6 +1,6 @@
-use super::{Message, Update, User};
+use super::{Message, Update, UpdateKind, User};
 
-use crate::errors::ConvertUpdateToTypeError;
+use crate::errors::ConvertToTypeError;
 
 use serde::Deserialize;
 
@@ -29,45 +29,46 @@ pub struct CallbackQuery {
 }
 
 impl CallbackQuery {
-    /// Gets the sender user ID from the callback query
-    #[must_use]
-    pub const fn sender_user_id(&self) -> i64 {
-        self.from.id
-    }
-
-    /// Gets the sender user ID from the callback query
-    /// # Notes
-    /// Alias to `sender_user_id` method
-    #[must_use]
-    pub const fn user_id(&self) -> i64 {
-        self.sender_user_id()
-    }
-
-    /// Gets the chat ID from the callback query
     #[must_use]
     pub const fn chat_id(&self) -> Option<i64> {
         if let Some(message) = &self.message {
-            Some(message.chat.id)
+            Some(message.chat().id())
         } else {
             None
         }
     }
 
-    /// Gets the message ID from the message of callback query
     #[must_use]
     pub const fn message_id(&self) -> Option<i64> {
         if let Some(message) = &self.message {
-            Some(message.message_id)
+            Some(message.id())
         } else {
             None
         }
     }
 
-    /// Gets the message text from the message of callback query
     #[must_use]
     pub fn message_text(&self) -> Option<&str> {
         if let Some(message) = &self.message {
-            message.text.as_deref()
+            message.text()
+        } else {
+            None
+        }
+    }
+
+    #[must_use]
+    pub fn message_caption(&self) -> Option<&str> {
+        if let Some(message) = &self.message {
+            message.caption()
+        } else {
+            None
+        }
+    }
+
+    #[must_use]
+    pub fn message_text_or_caption(&self) -> Option<&str> {
+        if let Some(message) = &self.message {
+            message.text_or_caption()
         } else {
             None
         }
@@ -75,13 +76,12 @@ impl CallbackQuery {
 }
 
 impl TryFrom<Update> for CallbackQuery {
-    type Error = ConvertUpdateToTypeError;
+    type Error = ConvertToTypeError;
 
     fn try_from(update: Update) -> Result<Self, Self::Error> {
-        if let Some(callback_query) = update.callback_query {
-            Ok(callback_query)
-        } else {
-            Err(ConvertUpdateToTypeError::new("CallbackQuery"))
+        match update.kind {
+            UpdateKind::CallbackQuery(val) => Ok(val),
+            _ => Err(ConvertToTypeError::new("Update", "CallbackQuery")),
         }
     }
 }

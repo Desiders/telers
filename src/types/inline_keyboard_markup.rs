@@ -29,6 +29,11 @@ impl InlineKeyboardMarkup {
     }
 
     #[must_use]
+    pub fn empty() -> Self {
+        Self::new([[]])
+    }
+
+    #[must_use]
     pub fn inline_keyboard<T, I>(self, val: I) -> Self
     where
         T: IntoIterator<Item = InlineKeyboardButton>,
@@ -40,6 +45,22 @@ impl InlineKeyboardMarkup {
                 .into_iter()
                 .chain(val.into_iter().map(|val| val.into_iter().collect()))
                 .collect(),
+        }
+    }
+}
+
+impl From<Vec<Vec<InlineKeyboardButton>>> for InlineKeyboardMarkup {
+    fn from(val: Vec<Vec<InlineKeyboardButton>>) -> Self {
+        Self {
+            inline_keyboard: val,
+        }
+    }
+}
+
+impl From<Vec<InlineKeyboardButton>> for InlineKeyboardMarkup {
+    fn from(val: Vec<InlineKeyboardButton>) -> Self {
+        Self {
+            inline_keyboard: vec![val],
         }
     }
 }

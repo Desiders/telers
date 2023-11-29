@@ -1,7 +1,5 @@
 use super::{InlineKeyboardMarkup, InputMessageContent, MessageEntity};
 
-use crate::enums::InlineQueryResultType;
-
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -13,9 +11,6 @@ use serde_with::skip_serializing_none;
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct InlineQueryResultAudio {
-    /// Type of the result, must be *audio*
-    #[serde(rename = "type", default = "audio")]
-    pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
     /// A valid URL for the audio file
@@ -49,7 +44,13 @@ impl InlineQueryResultAudio {
             id: id.into(),
             audio_url: audio_url.into(),
             title: title.into(),
-            ..Default::default()
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            performer: None,
+            audio_duration: None,
+            reply_markup: None,
+            input_message_content: None,
         }
     }
 
@@ -154,25 +155,37 @@ impl InlineQueryResultAudio {
     }
 }
 
-impl Default for InlineQueryResultAudio {
+impl InlineQueryResultAudio {
     #[must_use]
-    fn default() -> Self {
+    pub fn caption_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
-            result_type: audio(),
-            id: String::default(),
-            audio_url: String::default(),
-            title: String::default(),
-            caption: None,
-            parse_mode: None,
-            caption_entities: None,
-            performer: None,
-            audio_duration: None,
-            reply_markup: None,
-            input_message_content: None,
+            caption: val.map(Into::into),
+            ..self
         }
     }
-}
 
-fn audio() -> String {
-    InlineQueryResultType::Audio.into()
+    #[must_use]
+    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            parse_mode: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn caption_entities_option(
+        self,
+        val: Option<impl IntoIterator<Item = MessageEntity>>,
+    ) -> Self {
+        Self {
+            caption_entities: val.map(|val| {
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect()
+            }),
+            ..self
+        }
+    }
 }

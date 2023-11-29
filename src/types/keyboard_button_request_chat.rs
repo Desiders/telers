@@ -9,19 +9,19 @@ use serde::{Deserialize, Serialize};
 pub struct KeyboardButtonRequestChat {
     /// Signed 32-bit identifier of the request, which will be received back in the [`UserShared`](crate::types::UserShared) object. Must be unique within the message
     pub request_id: i64,
-    /// Pass `True` to request a channel chat, pass `False` to request a group or a supergroup chat.
+    /// Pass `true` to request a channel chat, pass `False` to request a group or a supergroup chat.
     pub chat_is_channel: bool,
-    /// Pass `True` to request a forum supergroup, pass `False` to request a non-forum chat. If not specified, no additional restrictions are applied.
+    /// Pass `true` to request a forum supergroup, pass `False` to request a non-forum chat. If not specified, no additional restrictions are applied.
     pub chat_is_forum: Option<bool>,
-    /// Pass `True` to request a supergroup or a channel with a username, pass `False` to request a chat without a username. If not specified, no additional restrictions are applied.
+    /// Pass `true` to request a supergroup or a channel with a username, pass `False` to request a chat without a username. If not specified, no additional restrictions are applied.
     pub chat_has_username: Option<bool>,
-    /// Pass `True` to request a chat owned by the user. Otherwise, no additional restrictions are applied.
+    /// Pass `true` to request a chat owned by the user. Otherwise, no additional restrictions are applied.
     pub chat_is_created: Option<bool>,
     /// A JSON-serialized object listing the required administrator rights of the user in the chat. The rights must be a superset of `bot_administrator_rights`. If not specified, no additional restrictions are applied.
     pub user_administrator_rights: Option<ChatAdministratorRights>,
     /// A JSON-serialized object listing the required administrator rights of the bot in the chat. The rights must be a subset of `user_administrator_rights`. If not specified, no additional restrictions are applied.
     pub bot_administrator_rights: Option<ChatAdministratorRights>,
-    /// Pass `True` to request a chat with the bot as a member. Otherwise, no additional restrictions are applied.
+    /// Pass `true` to request a chat with the bot as a member. Otherwise, no additional restrictions are applied.
     pub bot_is_member: Option<bool>,
 }
 
@@ -81,17 +81,17 @@ impl KeyboardButtonRequestChat {
     }
 
     #[must_use]
-    pub fn user_administrator_rights(self, val: ChatAdministratorRights) -> Self {
+    pub fn user_administrator_rights(self, val: impl Into<ChatAdministratorRights>) -> Self {
         Self {
-            user_administrator_rights: Some(val),
+            user_administrator_rights: Some(val.into()),
             ..self
         }
     }
 
     #[must_use]
-    pub fn bot_administrator_rights(self, val: ChatAdministratorRights) -> Self {
+    pub fn bot_administrator_rights(self, val: impl Into<ChatAdministratorRights>) -> Self {
         Self {
-            bot_administrator_rights: Some(val),
+            bot_administrator_rights: Some(val.into()),
             ..self
         }
     }
@@ -100,6 +100,62 @@ impl KeyboardButtonRequestChat {
     pub fn bot_is_member(self, val: bool) -> Self {
         Self {
             bot_is_member: Some(val),
+            ..self
+        }
+    }
+}
+
+impl KeyboardButtonRequestChat {
+    #[must_use]
+    pub fn chat_is_forum_option(self, val: Option<bool>) -> Self {
+        Self {
+            chat_is_forum: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn chat_has_username_option(self, val: Option<bool>) -> Self {
+        Self {
+            chat_has_username: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn chat_is_created_option(self, val: Option<bool>) -> Self {
+        Self {
+            chat_is_created: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn user_administrator_rights_option(
+        self,
+        val: Option<impl Into<ChatAdministratorRights>>,
+    ) -> Self {
+        Self {
+            user_administrator_rights: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn bot_administrator_rights_option(
+        self,
+        val: Option<impl Into<ChatAdministratorRights>>,
+    ) -> Self {
+        Self {
+            bot_administrator_rights: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn bot_is_member_option(self, val: Option<bool>) -> Self {
+        Self {
+            bot_is_member: val,
             ..self
         }
     }

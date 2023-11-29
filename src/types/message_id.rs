@@ -6,11 +6,12 @@ use serde::Deserialize;
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct MessageId {
     /// Unique message identifier
-    pub message_id: i64,
+    #[serde(rename = "message_id")]
+    pub id: i64,
 }
 
 impl From<MessageId> for i64 {
-    fn from(message_id: MessageId) -> Self {
-        message_id.message_id
+    fn from(val: MessageId) -> Self {
+        val.id
     }
 }

@@ -1,33 +1,14 @@
-use crate::enums::MenuButtonType;
-
 use serde::{Deserialize, Serialize};
 
 /// Describes that no specific value for the menu button was set.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#menubuttondefault>
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
-pub struct MenuButtonDefault {
-    /// Type of the button, must be *default*
-    #[serde(rename = "type", default = "default")]
-    pub button_type: Box<str>,
-}
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Deserialize, Serialize)]
+pub struct MenuButtonDefault;
 
 impl MenuButtonDefault {
     #[must_use]
-    pub fn new() -> Self {
-        Self::default()
+    pub const fn new() -> Self {
+        Self
     }
-}
-
-impl Default for MenuButtonDefault {
-    #[must_use]
-    fn default() -> Self {
-        Self {
-            button_type: default(),
-        }
-    }
-}
-
-fn default() -> Box<str> {
-    MenuButtonType::Default.into()
 }

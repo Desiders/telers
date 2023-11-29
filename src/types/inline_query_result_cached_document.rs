@@ -1,7 +1,5 @@
 use super::{InlineKeyboardMarkup, InputMessageContent, MessageEntity};
 
-use crate::enums::InlineQueryResultType;
-
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -13,9 +11,6 @@ use serde_with::skip_serializing_none;
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct InlineQueryResultCachedDocument {
-    /// Type of the result, must be *document*
-    #[serde(rename = "type", default = "document")]
-    pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
     /// A Title for the result
@@ -47,7 +42,12 @@ impl InlineQueryResultCachedDocument {
             id: id.into(),
             title: title.into(),
             document_file_id: document_file_id.into(),
-            ..Default::default()
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            description: None,
+            reply_markup: None,
+            input_message_content: None,
         }
     }
 
@@ -144,24 +144,37 @@ impl InlineQueryResultCachedDocument {
     }
 }
 
-impl Default for InlineQueryResultCachedDocument {
+impl InlineQueryResultCachedDocument {
     #[must_use]
-    fn default() -> Self {
+    pub fn caption_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
-            result_type: document(),
-            id: String::default(),
-            title: String::default(),
-            document_file_id: String::default(),
-            caption: None,
-            parse_mode: None,
-            caption_entities: None,
-            description: None,
-            reply_markup: None,
-            input_message_content: None,
+            caption: val.map(Into::into),
+            ..self
         }
     }
-}
 
-fn document() -> String {
-    InlineQueryResultType::Document.into()
+    #[must_use]
+    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            parse_mode: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn caption_entities_option(
+        self,
+        val: Option<impl IntoIterator<Item = MessageEntity>>,
+    ) -> Self {
+        Self {
+            caption_entities: val.map(|val| {
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect()
+            }),
+            ..self
+        }
+    }
 }

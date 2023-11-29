@@ -82,3 +82,37 @@ impl InputLocationMessageContent {
         }
     }
 }
+
+impl InputLocationMessageContent {
+    #[must_use]
+    pub fn horizontal_accuracy_option(self, val: Option<f64>) -> Self {
+        Self {
+            horizontal_accuracy: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn live_period_option(self, val: Option<i64>) -> Self {
+        Self {
+            live_period: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn heading_option(self, val: Option<i64>) -> Self {
+        Self {
+            heading: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn proximity_alert_radius_option(self, val: Option<i64>) -> Self {
+        Self {
+            proximity_alert_radius: val,
+            ..self
+        }
+    }
+}

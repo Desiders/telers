@@ -1,7 +1,5 @@
 use super::{InlineKeyboardMarkup, InputMessageContent, MessageEntity};
 
-use crate::enums::InlineQueryResultType;
-
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -13,9 +11,6 @@ use serde_with::skip_serializing_none;
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct InlineQueryResultVoice {
-    /// Type of the result, must be *voice*
-    #[serde(rename = "type", default = "voice")]
-    pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
     /// A valid URL for the voice recording
@@ -47,7 +42,12 @@ impl InlineQueryResultVoice {
             id: id.into(),
             voice_url: voice_url.into(),
             title: title.into(),
-            ..Default::default()
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            voice_duration: None,
+            reply_markup: None,
+            input_message_content: None,
         }
     }
 
@@ -144,24 +144,61 @@ impl InlineQueryResultVoice {
     }
 }
 
-impl Default for InlineQueryResultVoice {
+impl InlineQueryResultVoice {
     #[must_use]
-    fn default() -> Self {
+    pub fn caption_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
-            result_type: voice(),
-            id: String::default(),
-            voice_url: String::default(),
-            title: String::default(),
-            caption: None,
-            parse_mode: None,
-            caption_entities: None,
-            voice_duration: None,
-            reply_markup: None,
-            input_message_content: None,
+            caption: val.map(Into::into),
+            ..self
         }
     }
-}
 
-fn voice() -> String {
-    InlineQueryResultType::Voice.into()
+    #[must_use]
+    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            parse_mode: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn caption_entities_option(
+        self,
+        val: Option<impl IntoIterator<Item = MessageEntity>>,
+    ) -> Self {
+        Self {
+            caption_entities: val.map(|val| {
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect()
+            }),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn voice_duration_option(self, val: Option<i64>) -> Self {
+        Self {
+            voice_duration: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn input_message_content_option(self, val: Option<impl Into<InputMessageContent>>) -> Self {
+        Self {
+            input_message_content: val.map(Into::into),
+            ..self
+        }
+    }
 }

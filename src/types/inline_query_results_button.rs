@@ -50,3 +50,21 @@ impl InlineQueryResultsButton {
         }
     }
 }
+
+impl InlineQueryResultsButton {
+    #[must_use]
+    pub fn web_app_option(self, val: Option<WebAppInfo>) -> Self {
+        Self {
+            web_app: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn start_parameter_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            start_parameter: val.map(std::convert::Into::into),
+            ..self
+        }
+    }
+}

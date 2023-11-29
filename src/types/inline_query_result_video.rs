@@ -1,7 +1,5 @@
 use super::{InlineKeyboardMarkup, InputMessageContent, MessageEntity};
 
-use crate::enums::InlineQueryResultType;
-
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -12,9 +10,6 @@ use serde_with::skip_serializing_none;
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct InlineQueryResultVideo {
-    /// Type of the result, must be *video*
-    #[serde(rename = "type", default = "video")]
-    pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
     /// A valid URL for the embedded video player or video file
@@ -60,7 +55,15 @@ impl InlineQueryResultVideo {
             mime_type: mime_type.into(),
             thumbnail_url: thumbnail_url.into(),
             title: title.into(),
-            ..Default::default()
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            video_width: None,
+            video_height: None,
+            video_duration: None,
+            description: None,
+            reply_markup: None,
+            input_message_content: None,
         }
     }
 
@@ -197,29 +200,84 @@ impl InlineQueryResultVideo {
     }
 }
 
-impl Default for InlineQueryResultVideo {
+impl InlineQueryResultVideo {
     #[must_use]
-    fn default() -> Self {
+    pub fn caption_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
-            result_type: video(),
-            id: String::default(),
-            video_url: String::default(),
-            mime_type: String::default(),
-            thumbnail_url: String::default(),
-            title: String::default(),
-            caption: None,
-            parse_mode: None,
-            caption_entities: None,
-            video_width: None,
-            video_height: None,
-            video_duration: None,
-            description: None,
-            reply_markup: None,
-            input_message_content: None,
+            caption: val.map(Into::into),
+            ..self
         }
     }
-}
 
-fn video() -> String {
-    InlineQueryResultType::Video.into()
+    #[must_use]
+    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            parse_mode: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn caption_entity_option(self, val: Option<MessageEntity>) -> Self {
+        Self {
+            caption_entities: val.map(|v| vec![v]),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn caption_entities_option(self, val: Option<Vec<MessageEntity>>) -> Self {
+        Self {
+            caption_entities: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn video_width_option(self, val: Option<i64>) -> Self {
+        Self {
+            video_width: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn video_height_option(self, val: Option<i64>) -> Self {
+        Self {
+            video_height: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn video_duration_option(self, val: Option<i64>) -> Self {
+        Self {
+            video_duration: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn description_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            description: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn input_message_content_option(self, val: Option<impl Into<InputMessageContent>>) -> Self {
+        Self {
+            input_message_content: val.map(Into::into),
+            ..self
+        }
+    }
 }

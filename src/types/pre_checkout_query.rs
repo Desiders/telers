@@ -1,6 +1,6 @@
-use super::{OrderInfo, Update, User};
+use super::{OrderInfo, Update, UpdateKind, User};
 
-use crate::errors::ConvertUpdateToTypeError;
+use crate::errors::ConvertToTypeError;
 
 use serde::Deserialize;
 
@@ -25,30 +25,13 @@ pub struct PreCheckoutQuery {
     pub order_info: Option<OrderInfo>,
 }
 
-impl PreCheckoutQuery {
-    /// Gets the sender user ID from the pre-checkout query
-    #[must_use]
-    pub const fn sender_user_id(&self) -> i64 {
-        self.from.id
-    }
-
-    /// Gets the sender user ID from the pre-checkout query
-    /// # Notes
-    /// Alias to `sender_user_id` method
-    #[must_use]
-    pub const fn user_id(&self) -> i64 {
-        self.sender_user_id()
-    }
-}
-
 impl TryFrom<Update> for PreCheckoutQuery {
-    type Error = ConvertUpdateToTypeError;
+    type Error = ConvertToTypeError;
 
     fn try_from(update: Update) -> Result<Self, Self::Error> {
-        if let Some(pre_checkout_query) = update.pre_checkout_query {
-            Ok(pre_checkout_query)
-        } else {
-            Err(ConvertUpdateToTypeError::new("PreCheckoutQuery"))
+        match update.kind {
+            UpdateKind::PreCheckoutQuery(val) => Ok(val),
+            _ => Err(ConvertToTypeError::new("Update", "PreCheckoutQuery")),
         }
     }
 }

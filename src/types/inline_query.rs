@@ -1,6 +1,6 @@
-use super::{Location, Update, User};
+use super::{Location, Update, UpdateKind, User};
 
-use crate::errors::ConvertUpdateToTypeError;
+use crate::errors::ConvertToTypeError;
 
 use serde::Deserialize;
 
@@ -23,30 +23,13 @@ pub struct InlineQuery {
     pub location: Option<Location>,
 }
 
-impl InlineQuery {
-    /// Gets the sender user ID from the inline query
-    #[must_use]
-    pub const fn sender_user_id(&self) -> i64 {
-        self.from.id
-    }
-
-    /// Gets the sender user ID from the inline query
-    /// # Notes
-    /// Alias to `sender_user_id` method
-    #[must_use]
-    pub const fn user_id(&self) -> i64 {
-        self.sender_user_id()
-    }
-}
-
 impl TryFrom<Update> for InlineQuery {
-    type Error = ConvertUpdateToTypeError;
+    type Error = ConvertToTypeError;
 
     fn try_from(update: Update) -> Result<Self, Self::Error> {
-        if let Some(inline_query) = update.inline_query {
-            Ok(inline_query)
-        } else {
-            Err(ConvertUpdateToTypeError::new("InlineQuery"))
+        match update.kind {
+            UpdateKind::InlineQuery(val) => Ok(val),
+            _ => Err(ConvertToTypeError::new("Update", "InlineQuery")),
         }
     }
 }

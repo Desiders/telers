@@ -38,3 +38,13 @@ impl ReplyKeyboardRemove {
         }
     }
 }
+
+impl ReplyKeyboardRemove {
+    #[must_use]
+    pub fn selective_option(self, val: Option<bool>) -> Self {
+        Self {
+            selective: val,
+            ..self
+        }
+    }
+}

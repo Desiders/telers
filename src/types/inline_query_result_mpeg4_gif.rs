@@ -1,7 +1,5 @@
 use super::{InlineKeyboardMarkup, InputMessageContent, MessageEntity};
 
-use crate::enums::InlineQueryResultType;
-
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -11,9 +9,6 @@ use serde_with::skip_serializing_none;
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct InlineQueryResultMpeg4Gif {
-    /// Type of the result, must be *mpeg4_gif*
-    #[serde(rename = "type", default = "mpeg4_gif")]
-    pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
     /// A valid URL for the MPEG4 file. File size must not exceed 1MB
@@ -53,7 +48,16 @@ impl InlineQueryResultMpeg4Gif {
             id: id.into(),
             mpeg4_url: mpeg4_url.into(),
             thumbnail_url: thumbnail_url.into(),
-            ..Default::default()
+            mpeg4_width: None,
+            mpeg4_height: None,
+            mpeg4_duration: None,
+            thumbnail_mime_type: None,
+            title: None,
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            reply_markup: None,
+            input_message_content: None,
         }
     }
 
@@ -182,28 +186,93 @@ impl InlineQueryResultMpeg4Gif {
     }
 }
 
-impl Default for InlineQueryResultMpeg4Gif {
+impl InlineQueryResultMpeg4Gif {
     #[must_use]
-    fn default() -> Self {
+    pub fn mpeg4_width_option(self, val: Option<i64>) -> Self {
         Self {
-            result_type: mpeg4_gif(),
-            id: String::default(),
-            mpeg4_url: String::default(),
-            thumbnail_url: String::default(),
-            mpeg4_width: None,
-            mpeg4_height: None,
-            mpeg4_duration: None,
-            thumbnail_mime_type: None,
-            title: None,
-            caption: None,
-            parse_mode: None,
-            caption_entities: None,
-            reply_markup: None,
-            input_message_content: None,
+            mpeg4_width: val,
+            ..self
         }
     }
-}
 
-fn mpeg4_gif() -> String {
-    InlineQueryResultType::Mpeg4Gif.into()
+    #[must_use]
+    pub fn mpeg4_height_option(self, val: Option<i64>) -> Self {
+        Self {
+            mpeg4_height: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn mpeg4_duration_option(self, val: Option<i64>) -> Self {
+        Self {
+            mpeg4_duration: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn thumbnail_mime_type_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            thumbnail_mime_type: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn title_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            title: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn caption_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            caption: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            parse_mode: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn caption_entities_option(
+        self,
+        val: Option<impl IntoIterator<Item = MessageEntity>>,
+    ) -> Self {
+        Self {
+            caption_entities: val.map(|val| {
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect()
+            }),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn input_message_content_option(self, val: Option<impl Into<InputMessageContent>>) -> Self {
+        Self {
+            input_message_content: val.map(Into::into),
+            ..self
+        }
+    }
 }

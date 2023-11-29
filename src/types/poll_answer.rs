@@ -1,6 +1,6 @@
-use super::{Chat, Update, User};
+use super::{Chat, Update, UpdateKind, User};
 
-use crate::errors::ConvertUpdateToTypeError;
+use crate::errors::ConvertToTypeError;
 
 use serde::Deserialize;
 
@@ -19,44 +19,13 @@ pub struct PollAnswer {
     pub option_ids: Box<[i64]>,
 }
 
-impl PollAnswer {
-    /// Gets the sender chat ID from the poll answer
-    #[must_use]
-    pub const fn sender_chat_id(&self) -> Option<i64> {
-        if let Some(chat) = &self.voter_chat {
-            Some(chat.id)
-        } else {
-            None
-        }
-    }
-
-    /// Gets the sender user ID from the poll answer
-    #[must_use]
-    pub const fn sender_user_id(&self) -> Option<i64> {
-        if let Some(user) = &self.user {
-            Some(user.id)
-        } else {
-            None
-        }
-    }
-
-    /// Gets the sender user ID from the poll answer
-    /// # Notes
-    /// Alias to `sender_user_id` method
-    #[must_use]
-    pub const fn user_id(&self) -> Option<i64> {
-        self.sender_user_id()
-    }
-}
-
 impl TryFrom<Update> for PollAnswer {
-    type Error = ConvertUpdateToTypeError;
+    type Error = ConvertToTypeError;
 
     fn try_from(update: Update) -> Result<Self, Self::Error> {
-        if let Some(poll_answer) = update.poll_answer {
-            Ok(poll_answer)
-        } else {
-            Err(ConvertUpdateToTypeError::new("PollAnswer"))
+        match update.kind {
+            UpdateKind::PollAnswer(val) => Ok(val),
+            _ => Err(ConvertToTypeError::new("Update", "PollAnswer")),
         }
     }
 }

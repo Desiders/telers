@@ -7,7 +7,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputinvoicemessagecontent>
 #[skip_serializing_none]
-#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct InputInvoiceMessageContent {
     /// Product name, 1-32 characters
     pub title: String,
@@ -35,19 +35,19 @@ pub struct InputInvoiceMessageContent {
     pub photo_width: Option<i64>,
     /// Photo height
     pub photo_height: Option<i64>,
-    /// Pass `True` if you require the user's full name to complete the order
+    /// Pass `true` if you require the user's full name to complete the order
     pub need_name: Option<bool>,
-    /// Pass `True` if you require the user's phone number to complete the order
+    /// Pass `true` if you require the user's phone number to complete the order
     pub need_phone_number: Option<bool>,
-    /// Pass `True` if you require the user's email address to complete the order
+    /// Pass `true` if you require the user's email address to complete the order
     pub need_email: Option<bool>,
-    /// Pass `True` if you require the user's shipping address to complete the order
+    /// Pass `true` if you require the user's shipping address to complete the order
     pub need_shipping_address: Option<bool>,
-    /// Pass `True` if the user's phone number should be sent to provider
+    /// Pass `true` if the user's phone number should be sent to provider
     pub send_phone_number_to_provider: Option<bool>,
-    /// Pass `True` if the user's email address should be sent to provider
+    /// Pass `true` if the user's email address should be sent to provider
     pub send_email_to_provider: Option<bool>,
-    /// Pass `True` if the final price depends on the shipping method
+    /// Pass `true` if the final price depends on the shipping method
     pub is_flexible: Option<bool>,
 }
 
@@ -68,7 +68,20 @@ impl InputInvoiceMessageContent {
             provider_token: provider_token.into(),
             currency: currency.into(),
             prices: prices.into_iter().collect(),
-            ..Default::default()
+            max_tip_amount: None,
+            suggested_tip_amounts: None,
+            provider_data: None,
+            photo_url: None,
+            photo_size: None,
+            photo_width: None,
+            photo_height: None,
+            need_name: None,
+            need_phone_number: None,
+            need_email: None,
+            need_shipping_address: None,
+            send_phone_number_to_provider: None,
+            send_email_to_provider: None,
+            is_flexible: None,
         }
     }
 
@@ -248,6 +261,126 @@ impl InputInvoiceMessageContent {
     pub fn is_flexible(self, val: bool) -> Self {
         Self {
             is_flexible: Some(val),
+            ..self
+        }
+    }
+}
+
+impl InputInvoiceMessageContent {
+    #[must_use]
+    pub fn max_tip_amount_option(self, val: Option<i64>) -> Self {
+        Self {
+            max_tip_amount: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn suggested_tip_amounts_option(self, val: Option<impl IntoIterator<Item = i64>>) -> Self {
+        Self {
+            suggested_tip_amounts: val.map(|val| {
+                self.suggested_tip_amounts
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect()
+            }),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn provider_data_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            provider_data: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn photo_url_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            photo_url: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn photo_size_option(self, val: Option<i64>) -> Self {
+        Self {
+            photo_size: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn photo_width_option(self, val: Option<i64>) -> Self {
+        Self {
+            photo_width: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn photo_height_option(self, val: Option<i64>) -> Self {
+        Self {
+            photo_height: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn need_name_option(self, val: Option<bool>) -> Self {
+        Self {
+            need_name: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn need_phone_number_option(self, val: Option<bool>) -> Self {
+        Self {
+            need_phone_number: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn need_email_option(self, val: Option<bool>) -> Self {
+        Self {
+            need_email: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn need_shipping_address_option(self, val: Option<bool>) -> Self {
+        Self {
+            need_shipping_address: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn send_phone_number_to_provider_option(self, val: Option<bool>) -> Self {
+        Self {
+            send_phone_number_to_provider: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn send_email_to_provider_option(self, val: Option<bool>) -> Self {
+        Self {
+            send_email_to_provider: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn is_flexible_option(self, val: Option<bool>) -> Self {
+        Self {
+            is_flexible: val,
             ..self
         }
     }

@@ -1,7 +1,5 @@
 use super::{InlineKeyboardMarkup, InputMessageContent};
 
-use crate::enums::InlineQueryResultType;
-
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -13,9 +11,6 @@ use serde_with::skip_serializing_none;
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct InlineQueryResultCachedSticker {
-    /// Type of the result, must be *sticker*
-    #[serde(rename = "type", default = "sticker")]
-    pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
     /// A valid file identifier of the sticker
@@ -32,7 +27,8 @@ impl InlineQueryResultCachedSticker {
         Self {
             id: id.into(),
             sticker_file_id: sticker_file_id.into(),
-            ..Default::default()
+            reply_markup: None,
+            input_message_content: None,
         }
     }
 
@@ -69,19 +65,20 @@ impl InlineQueryResultCachedSticker {
     }
 }
 
-impl Default for InlineQueryResultCachedSticker {
+impl InlineQueryResultCachedSticker {
     #[must_use]
-    fn default() -> Self {
+    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
         Self {
-            result_type: sticker(),
-            id: String::default(),
-            sticker_file_id: String::default(),
-            reply_markup: None,
-            input_message_content: None,
+            reply_markup: val.map(Into::into),
+            ..self
         }
     }
-}
 
-fn sticker() -> String {
-    InlineQueryResultType::Sticker.into()
+    #[must_use]
+    pub fn input_message_content_option(self, val: Option<impl Into<InputMessageContent>>) -> Self {
+        Self {
+            input_message_content: val.map(Into::into),
+            ..self
+        }
+    }
 }

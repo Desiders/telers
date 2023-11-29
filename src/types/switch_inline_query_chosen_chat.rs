@@ -7,13 +7,13 @@ use serde::{Deserialize, Serialize};
 pub struct SwitchInlineQueryChosenChat {
     /// The default inline query to be inserted in the input field. If left empty, only the bot's username will be inserted
     pub query: Option<String>,
-    /// `True`, if private chats with users can be chosen
+    /// `true`, if private chats with users can be chosen
     pub allow_user_chats: Option<bool>,
-    /// `True`, if private chats with bots can be chosen
+    /// `true`, if private chats with bots can be chosen
     pub allow_bot_chats: Option<bool>,
-    /// `True`, if group and supergroup chats can be chosen
+    /// `true`, if group and supergroup chats can be chosen
     pub allow_group_chats: Option<bool>,
-    /// `True`, if channel chats can be chosen
+    /// `true`, if channel chats can be chosen
     pub allow_channel_chats: Option<bool>,
 }
 
@@ -59,6 +59,48 @@ impl SwitchInlineQueryChosenChat {
     pub fn allow_channel_chats(self, val: bool) -> Self {
         Self {
             allow_channel_chats: Some(val),
+            ..self
+        }
+    }
+}
+
+impl SwitchInlineQueryChosenChat {
+    #[must_use]
+    pub fn query_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            query: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn allow_user_chats_option(self, val: Option<bool>) -> Self {
+        Self {
+            allow_user_chats: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn allow_bot_chats_option(self, val: Option<bool>) -> Self {
+        Self {
+            allow_bot_chats: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn allow_group_chats_option(self, val: Option<bool>) -> Self {
+        Self {
+            allow_group_chats: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn allow_channel_chats_option(self, val: Option<bool>) -> Self {
+        Self {
+            allow_channel_chats: val,
             ..self
         }
     }

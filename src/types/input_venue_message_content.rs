@@ -109,3 +109,37 @@ impl InputVenueMessageContent {
         }
     }
 }
+
+impl InputVenueMessageContent {
+    #[must_use]
+    pub fn foursquare_id_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            foursquare_id: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn foursquare_type_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            foursquare_type: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn google_place_id_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            google_place_id: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn google_place_type_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            google_place_type: val.map(Into::into),
+            ..self
+        }
+    }
+}

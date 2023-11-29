@@ -1,27 +1,40 @@
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 
 /// This object represents type of a poll, which is allowed to be created and sent when the corresponding button is pressed.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#keyboardbuttonpolltype>
-#[skip_serializing_none]
-#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
-pub struct KeyboardButtonPollType {
-    /// If *quiz* is passed, the user will be allowed to create only polls in the quiz mode. If *regular* is passed, only regular polls will be allowed. Otherwise, the user will be allowed to create a poll of any type.
-    #[serde(rename = "type")]
-    pub keyboard_type: Option<Box<str>>,
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Hash,
+    PartialEq,
+    Eq,
+    Deserialize,
+    Serialize,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum KeyboardButtonPollType {
+    /// If `Quiz` is passed, the user will be allowed to create only polls in
+    /// the quiz mode.
+    #[strum(serialize = "quiz")]
+    Quiz,
+    /// If `Regular` is passed, only regular polls will be allowed.
+    #[strum(serialize = "regular")]
+    Regular,
+    /// If `Any` is passed, the user will be allowed to create a poll of any
+    /// type.
+    #[serde(rename = "")]
+    #[strum(serialize = "any")]
+    Any,
 }
 
-impl KeyboardButtonPollType {
-    #[must_use]
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    #[must_use]
-    pub fn keyboard_type(self, val: impl Into<Box<str>>) -> Self {
-        Self {
-            keyboard_type: Some(val.into()),
-        }
+impl Default for KeyboardButtonPollType {
+    fn default() -> Self {
+        Self::Any
     }
 }

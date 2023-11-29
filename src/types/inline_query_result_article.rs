@@ -1,6 +1,4 @@
-use super::{InlineKeyboardMarkup, InputMessageContent, InputTextMessageContent};
-
-use crate::enums::InlineQueryResultType;
+use super::{InlineKeyboardMarkup, InputMessageContent};
 
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -11,9 +9,6 @@ use serde_with::skip_serializing_none;
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct InlineQueryResultArticle {
-    /// Type of the result, must be *article*
-    #[serde(rename = "type", default = "article")]
-    pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
     /// Title of the result
@@ -24,7 +19,7 @@ pub struct InlineQueryResultArticle {
     pub reply_markup: Option<InlineKeyboardMarkup>,
     /// URL of the result
     pub url: Option<String>,
-    /// Pass `True` if you don't want the URL to be shown in the message
+    /// Pass `true` if you don't want the URL to be shown in the message
     pub hide_url: Option<bool>,
     /// Short description of the result
     pub description: Option<String>,
@@ -47,7 +42,13 @@ impl InlineQueryResultArticle {
             id: id.into(),
             title: title.into(),
             input_message_content: input_message_content.into(),
-            ..Default::default()
+            reply_markup: None,
+            url: None,
+            hide_url: None,
+            description: None,
+            thumbnail_url: None,
+            thumbnail_width: None,
+            thumbnail_height: None,
         }
     }
 
@@ -132,25 +133,60 @@ impl InlineQueryResultArticle {
     }
 }
 
-impl Default for InlineQueryResultArticle {
+impl InlineQueryResultArticle {
     #[must_use]
-    fn default() -> Self {
+    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
         Self {
-            result_type: article(),
-            id: String::default(),
-            title: String::default(),
-            input_message_content: InputMessageContent::Text(InputTextMessageContent::default()),
-            reply_markup: None,
-            url: None,
-            hide_url: None,
-            description: None,
-            thumbnail_url: None,
-            thumbnail_width: None,
-            thumbnail_height: None,
+            reply_markup: val.map(Into::into),
+            ..self
         }
     }
-}
 
-fn article() -> String {
-    InlineQueryResultType::Article.into()
+    #[must_use]
+    pub fn url_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            url: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn hide_url_option(self, val: Option<bool>) -> Self {
+        Self {
+            hide_url: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn description_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            description: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn thumbnail_url_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            thumbnail_url: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn thumbnail_width_option(self, val: Option<i64>) -> Self {
+        Self {
+            thumbnail_width: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn thumbnail_height_option(self, val: Option<i64>) -> Self {
+        Self {
+            thumbnail_height: val,
+            ..self
+        }
+    }
 }

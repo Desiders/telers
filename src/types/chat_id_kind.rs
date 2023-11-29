@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
+use strum_macros::Display;
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Display, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(untagged, rename_all = "snake_case")]
 pub enum ChatIdKind {
     Id(i64),
@@ -20,19 +21,19 @@ impl ChatIdKind {
 }
 
 impl From<i64> for ChatIdKind {
-    fn from(id: i64) -> Self {
-        Self::Id(id)
+    fn from(val: i64) -> Self {
+        Self::id(val)
     }
 }
 
 impl From<Box<str>> for ChatIdKind {
-    fn from(username: Box<str>) -> Self {
-        Self::Username(username)
+    fn from(val: Box<str>) -> Self {
+        Self::username(val)
     }
 }
 
 impl From<&str> for ChatIdKind {
-    fn from(username: &str) -> Self {
-        Self::Username(username.into())
+    fn from(val: &str) -> Self {
+        Self::username(val)
     }
 }

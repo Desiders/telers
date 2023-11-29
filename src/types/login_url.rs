@@ -15,7 +15,7 @@ pub struct LoginUrl {
     pub forward_text: Option<String>,
     /// Username of a bot, which will be used for user authorization. See [`Setting up a bot`](https://core.telegram.org/widgets/login#setting-up-a-bot) for more details. If not specified, the current bot's username will be assumed. The *url*'s domain must be the same as the domain linked with the bot. See [`Linking your domain to the bot`](https://core.telegram.org/widgets/login#linking-your-domain-to-the-bot) for more details.
     pub bot_username: Option<String>,
-    /// Pass `True` to request the permission for your bot to send messages to the user.
+    /// Pass `true` to request the permission for your bot to send messages to the user.
     pub request_write_access: Option<bool>,
 }
 
@@ -58,6 +58,32 @@ impl LoginUrl {
     pub fn request_write_access(self, val: bool) -> Self {
         Self {
             request_write_access: Some(val),
+            ..self
+        }
+    }
+}
+
+impl LoginUrl {
+    #[must_use]
+    pub fn forward_text_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            forward_text: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn bot_username_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            bot_username: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn request_write_access_option(self, val: Option<bool>) -> Self {
+        Self {
+            request_write_access: val,
             ..self
         }
     }

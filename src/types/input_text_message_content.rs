@@ -82,3 +82,35 @@ impl InputTextMessageContent {
         }
     }
 }
+
+impl InputTextMessageContent {
+    #[must_use]
+    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            parse_mode: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn entities_option(self, val: Option<impl IntoIterator<Item = MessageEntity>>) -> Self {
+        Self {
+            entities: val.map(|val| {
+                self.entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect()
+            }),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn disable_web_page_preview_option(self, val: Option<bool>) -> Self {
+        Self {
+            disable_web_page_preview: val,
+            ..self
+        }
+    }
+}

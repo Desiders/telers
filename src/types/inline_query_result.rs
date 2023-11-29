@@ -8,7 +8,7 @@ use crate::types::{
     InlineQueryResultVideo, InlineQueryResultVoice,
 };
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 /// This object represents one result of an inline query. Telegram clients currently support results of the following 20 types:
 /// - [`InlineQueryResultCachedAudio`]
@@ -34,7 +34,7 @@ use serde::{Deserialize, Serialize};
 /// All URLs passed in inline query results will be available to end users and therefore must be assumed to be **public**.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum InlineQueryResult {
     #[serde(rename = "audio")]
@@ -59,11 +59,11 @@ pub enum InlineQueryResult {
     Game(InlineQueryResultGame),
     Document(InlineQueryResultDocument),
     Gif(InlineQueryResultGif),
+    Venue(InlineQueryResultVenue),
     Location(InlineQueryResultLocation),
     #[serde(rename = "mpeg4_gif")]
     Mpeg4Gif(InlineQueryResultMpeg4Gif),
     Photo(InlineQueryResultPhoto),
-    Venue(InlineQueryResultVenue),
     Video(InlineQueryResultVideo),
     Voice(InlineQueryResultVoice),
 }
@@ -185,5 +185,35 @@ impl From<InlineQueryResultVideo> for InlineQueryResult {
 impl From<InlineQueryResultVoice> for InlineQueryResult {
     fn from(result: InlineQueryResultVoice) -> Self {
         InlineQueryResult::Voice(result)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn serialize_inline_query_result_cached_audio() {
+        let data =
+            InlineQueryResult::CachedAudio(InlineQueryResultCachedAudio::new("test", "test"));
+
+        let json = serde_json::to_string(&data).unwrap();
+
+        assert_eq!(
+            json,
+            r#"{"type":"audio","id":"test","audio_file_id":"test"}"#
+        );
+    }
+
+    #[test]
+    fn serialize_inline_query_result_audio() {
+        let data = InlineQueryResult::Audio(InlineQueryResultAudio::new("test", "test", "test"));
+
+        let json = serde_json::to_string(&data).unwrap();
+
+        assert_eq!(
+            json,
+            r#"{"type":"audio","id":"test","audio_url":"test","title":"test"}"#
+        );
     }
 }

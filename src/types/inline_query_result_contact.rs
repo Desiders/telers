@@ -1,7 +1,5 @@
 use super::{InlineKeyboardMarkup, InputMessageContent};
 
-use crate::enums::InlineQueryResultType;
-
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -13,9 +11,6 @@ use serde_with::skip_serializing_none;
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct InlineQueryResultContact {
-    /// Type of the result, must be *contact*
-    #[serde(rename = "type", default = "contact")]
-    pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
     /// Contact's phone number
@@ -49,7 +44,13 @@ impl InlineQueryResultContact {
             id: id.into(),
             phone_number: phone_number.into(),
             first_name: first_name.into(),
-            ..Default::default()
+            last_name: None,
+            vcard: None,
+            reply_markup: None,
+            input_message_content: None,
+            thumbnail_url: None,
+            thumbnail_width: None,
+            thumbnail_height: None,
         }
     }
 
@@ -134,25 +135,60 @@ impl InlineQueryResultContact {
     }
 }
 
-impl Default for InlineQueryResultContact {
+impl InlineQueryResultContact {
     #[must_use]
-    fn default() -> Self {
+    pub fn last_name_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
-            result_type: contact(),
-            id: String::default(),
-            phone_number: String::default(),
-            first_name: String::default(),
-            last_name: None,
-            vcard: None,
-            reply_markup: None,
-            input_message_content: None,
-            thumbnail_url: None,
-            thumbnail_width: None,
-            thumbnail_height: None,
+            last_name: val.map(Into::into),
+            ..self
         }
     }
-}
 
-fn contact() -> String {
-    InlineQueryResultType::Contact.into()
+    #[must_use]
+    pub fn vcard_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            vcard: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn thumbnail_url_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            thumbnail_url: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn thumbnail_width_option(self, val: Option<i64>) -> Self {
+        Self {
+            thumbnail_width: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn thumbnail_height_option(self, val: Option<i64>) -> Self {
+        Self {
+            thumbnail_height: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn input_message_content_option(self, val: Option<impl Into<InputMessageContent>>) -> Self {
+        Self {
+            input_message_content: val.map(Into::into),
+            ..self
+        }
+    }
 }

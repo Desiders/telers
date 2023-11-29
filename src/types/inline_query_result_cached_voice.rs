@@ -1,7 +1,5 @@
 use super::{InlineKeyboardMarkup, InputMessageContent, MessageEntity};
 
-use crate::enums::InlineQueryResultType;
-
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -12,15 +10,12 @@ use serde_with::skip_serializing_none;
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct InlineQueryResultCachedVoice {
-    /// Type of the result, must be *voice*
-    #[serde(rename = "type", default = "voice")]
-    pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
-    /// A valid file identifier for the voice message
-    pub voice_file_id: String,
     /// Recording title
     pub title: String,
+    /// A valid file identifier for the voice message
+    pub voice_file_id: String,
     /// Caption, 0-1024 characters after entities parsing
     pub caption: Option<String>,
     /// Mode for parsing entities in the voice message caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
@@ -37,14 +32,18 @@ impl InlineQueryResultCachedVoice {
     #[must_use]
     pub fn new(
         id: impl Into<String>,
-        voice_file_id: impl Into<String>,
         title: impl Into<String>,
+        voice_file_id: impl Into<String>,
     ) -> Self {
         Self {
             id: id.into(),
-            voice_file_id: voice_file_id.into(),
             title: title.into(),
-            ..Default::default()
+            voice_file_id: voice_file_id.into(),
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            reply_markup: None,
+            input_message_content: None,
         }
     }
 
@@ -133,23 +132,53 @@ impl InlineQueryResultCachedVoice {
     }
 }
 
-impl Default for InlineQueryResultCachedVoice {
+impl InlineQueryResultCachedVoice {
     #[must_use]
-    fn default() -> Self {
+    pub fn caption_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
-            result_type: voice(),
-            id: String::default(),
-            voice_file_id: String::default(),
-            title: String::default(),
-            caption: None,
-            parse_mode: None,
-            caption_entities: None,
-            reply_markup: None,
-            input_message_content: None,
+            caption: val.map(Into::into),
+            ..self
         }
     }
-}
 
-fn voice() -> String {
-    InlineQueryResultType::Voice.into()
+    #[must_use]
+    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            parse_mode: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn caption_entities_option(
+        self,
+        val: Option<impl IntoIterator<Item = MessageEntity>>,
+    ) -> Self {
+        Self {
+            caption_entities: val.map(|val| {
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect()
+            }),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn input_message_content_option(self, val: Option<impl Into<InputMessageContent>>) -> Self {
+        Self {
+            input_message_content: val.map(Into::into),
+            ..self
+        }
+    }
 }

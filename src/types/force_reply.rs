@@ -21,8 +21,12 @@ pub struct ForceReply {
 
 impl ForceReply {
     #[must_use]
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(force_reply: bool) -> Self {
+        Self {
+            force_reply,
+            input_field_placeholder: None,
+            selective: None,
+        }
     }
 
     #[must_use]
@@ -42,13 +46,20 @@ impl ForceReply {
     }
 }
 
-impl Default for ForceReply {
+impl ForceReply {
     #[must_use]
-    fn default() -> Self {
+    pub fn selective_option(self, val: Option<bool>) -> Self {
         Self {
-            force_reply: true,
-            input_field_placeholder: None,
-            selective: None,
+            selective: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn input_field_placeholder_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            input_field_placeholder: val.map(Into::into),
+            ..self
         }
     }
 }

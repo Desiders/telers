@@ -60,3 +60,21 @@ impl InputContactMessageContent {
         }
     }
 }
+
+impl InputContactMessageContent {
+    #[must_use]
+    pub fn last_name_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            last_name: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn vcard_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            vcard: val.map(Into::into),
+            ..self
+        }
+    }
+}

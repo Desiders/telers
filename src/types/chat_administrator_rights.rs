@@ -8,35 +8,35 @@ use serde_with::skip_serializing_none;
 #[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct ChatAdministratorRights {
-    /// `True`, if the user's presence in the chat is hidden
+    /// `true`, if the user's presence in the chat is hidden
     pub is_anonymous: bool,
-    /// `True`, if the administrator can access the chat event log, chat statistics, boost list in channels, message statistics in channels, see channel members, see anonymous administrators in supergroups and ignore slow mode. Implied by any other administrator privilege
+    /// `true`, if the administrator can access the chat event log, chat statistics, boost list in channels, message statistics in channels, see channel members, see anonymous administrators in supergroups and ignore slow mode. Implied by any other administrator privilege
     pub can_manage_chat: bool,
-    /// `True`, if the administrator can delete messages of other users
+    /// `true`, if the administrator can delete messages of other users
     pub can_delete_messages: bool,
-    /// `True`, if the administrator can manage video chats
+    /// `true`, if the administrator can manage video chats
     pub can_manage_video_chats: bool,
-    /// `True`, if the administrator can restrict, ban or unban chat members
+    /// `true`, if the administrator can restrict, ban or unban chat members
     pub can_restrict_members: bool,
-    /// `True`, if the administrator can add new administrators with a subset of their own privileges or demote administrators that he has promoted, directly or indirectly (promoted by administrators that were appointed by the user)
+    /// `true`, if the administrator can add new administrators with a subset of their own privileges or demote administrators that he has promoted, directly or indirectly (promoted by administrators that were appointed by the user)
     pub can_promote_members: bool,
-    /// `True`, if the user is allowed to change the chat title, photo and other settings
+    /// `true`, if the user is allowed to change the chat title, photo and other settings
     pub can_change_info: bool,
-    /// `True`, if the user is allowed to invite new users to the chat
+    /// `true`, if the user is allowed to invite new users to the chat
     pub can_invite_users: bool,
-    /// `True`, if the administrator can post messages in the channel; channels only
+    /// `true`, if the administrator can post messages in the channel; channels only
     pub can_post_messages: Option<bool>,
-    /// `True`, if the administrator can edit messages of other users and can pin messages; channels only
+    /// `true`, if the administrator can edit messages of other users and can pin messages; channels only
     pub can_edit_messages: Option<bool>,
-    /// `True`, if the user is allowed to pin messages; groups and supergroups only
+    /// `true`, if the user is allowed to pin messages; groups and supergroups only
     pub can_pin_messages: Option<bool>,
-    /// `True`, if the administrator can post stories in the channel; channels only
+    /// `true`, if the administrator can post stories in the channel; channels only
     pub can_post_stories: Option<bool>,
-    /// `True`, if the administrator can edit stories posted by other users; channels only
+    /// `true`, if the administrator can edit stories posted by other users; channels only
     pub can_edit_stories: Option<bool>,
-    /// `True`, if the administrator can delete stories posted by other users; channels only
+    /// `true`, if the administrator can delete stories posted by other users; channels only
     pub can_delete_stories: Option<bool>,
-    /// `True`, if the user is allowed to create, rename, close, and reopen forum topics; supergroups only
+    /// `true`, if the user is allowed to create, rename, close, and reopen forum topics; supergroups only
     pub can_manage_topics: Option<bool>,
 }
 
@@ -188,6 +188,65 @@ impl ChatAdministratorRights {
     pub fn can_manage_topics(self, val: bool) -> Self {
         Self {
             can_manage_topics: Some(val),
+            ..self
+        }
+    }
+}
+
+impl ChatAdministratorRights {
+    #[must_use]
+    pub fn can_post_messages_option(self, val: Option<bool>) -> Self {
+        Self {
+            can_post_messages: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn can_edit_messages_option(self, val: Option<bool>) -> Self {
+        Self {
+            can_edit_messages: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+
+    pub fn can_pin_messages_option(self, val: Option<bool>) -> Self {
+        Self {
+            can_pin_messages: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn can_post_stories_option(self, val: Option<bool>) -> Self {
+        Self {
+            can_post_stories: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn can_edit_stories_option(self, val: Option<bool>) -> Self {
+        Self {
+            can_edit_stories: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn can_delete_stories_option(self, val: Option<bool>) -> Self {
+        Self {
+            can_delete_stories: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn can_manage_topics_option(self, val: Option<bool>) -> Self {
+        Self {
+            can_manage_topics: val,
             ..self
         }
     }

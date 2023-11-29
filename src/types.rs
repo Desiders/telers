@@ -201,13 +201,16 @@ pub use bot_name::BotName;
 pub use bot_short_description::BotShortDescription;
 pub use callback_game::CallbackGame;
 pub use callback_query::CallbackQuery;
-pub use chat::Chat;
+pub use chat::{
+    Channel as ChatChannel, Chat, Group as ChatGroup, Private as ChatPrivate,
+    Supergroup as ChatSupergroup,
+};
 pub use chat_administrator_rights::ChatAdministratorRights;
 pub use chat_id_kind::ChatIdKind;
 pub use chat_invite_link::ChatInviteLink;
 pub use chat_join_request::ChatJoinRequest;
 pub use chat_location::ChatLocation;
-pub use chat_member::ChatMember;
+pub use chat_member::{ChatMember, Kind as ChatMemberKind};
 pub use chat_member_administrator::ChatMemberAdministrator;
 pub use chat_member_banned::ChatMemberBanned;
 pub use chat_member_left::ChatMemberLeft;
@@ -223,7 +226,20 @@ pub use contact::Contact;
 pub use dice::Dice;
 pub use document::Document;
 pub use encrypted_credentials::EncryptedCredentials;
-pub use encrypted_passport_element::EncryptedPassportElement;
+pub use encrypted_passport_element::{
+    Address as EncryptedPassportElementAddress,
+    BankStatement as EncryptedPassportElementBankStatement,
+    DriverLicense as EncryptedPassportElementDriverLicense, Email as EncryptedPassportElementEmail,
+    EncryptedPassportElement, IdentityCard as EncryptedPassportElementIdentityCard,
+    InternalPassport as EncryptedPassportElementInternalPassport,
+    Passport as EncryptedPassportElementPassport,
+    PassportRegistration as EncryptedPassportElementPassportRegistration,
+    PersonalDetails as EncryptedPassportElementPersonalDetails,
+    PhoneNumber as EncryptedPassportElementPhoneNumber,
+    RentalAgreement as EncryptedPassportElementRentalAgreement,
+    TemporaryRegistration as EncryptedPassportElementTemporaryRegistration,
+    UtilityBill as EncryptedPassportElementUtilityBill,
+};
 pub use file::File;
 pub use force_reply::ForceReply;
 pub use forum_topic::ForumTopic;
@@ -262,8 +278,8 @@ pub use inline_query_result_voice::InlineQueryResultVoice;
 pub use inline_query_results_button::InlineQueryResultsButton;
 pub use input_contact_message_content::InputContactMessageContent;
 pub use input_file::{
-    BufferedFile as InputBufferedFile, FSFile as InputFSFile, FileId as InputFileId,
-    FileKind as InputFileKind, InputFile, StreamFile as InputStreamFile, UrlFile as InputUrlFile,
+    BufferedFile as InputBufferedFile, FSFile as InputFSFile, FileId as InputFileId, InputFile,
+    StreamFile as InputStreamFile, UrlFile as InputUrlFile,
 };
 pub use input_invoice_message_content::InputInvoiceMessageContent;
 pub use input_location_message_content::InputLocationMessageContent;
@@ -290,26 +306,73 @@ pub use menu_button::MenuButton;
 pub use menu_button_commands::MenuButtonCommands;
 pub use menu_button_default::MenuButtonDefault;
 pub use menu_button_web_app::MenuButtonWebApp;
-pub use message::Message;
+pub use message::{
+    Animation as MessageAnimation, Audio as MessageAudio,
+    ChannelChatCreated as MessageChannelChatCreated, ChatShared as MessageChatShared,
+    ConnectedWebsite as MessageConnectedWebsite, Contact as MessageContact,
+    DeleteChatPhoto as MessageDeleteChatPhoto, Dice as MessageDice, Document as MessageDocument,
+    Empty as MessageEmpty, ForumTopicClosed as MessageForumTopicClosed,
+    ForumTopicCreated as MessageForumTopicCreated, ForumTopicEdited as MessageForumTopicEdited,
+    ForumTopicReopened as MessageForumTopicReopened, Forward as MessageForward,
+    ForwardedFrom as MessageForwardedFrom, Game as MessageGame,
+    GeneralForumTopicHidden as MessageGeneralForumTopicHidden,
+    GeneralForumTopicUnhidden as MessageGeneralForumTopicUnhidden,
+    GroupChatCreated as MessageGroupChatCreated, Invoice as MessageInvoice,
+    LeftChatMember as MessageLeftChatMember, Location as MessageLocation, Message,
+    MessageAutoDeleteTimerChanged as MessageMessageAutoDeleteTimerChanged,
+    MigrateFromChat as MessageMigrateFromChat, MigrateToChat as MessageMigrateToChat,
+    NewChatMembers as MessageNewChatMembers, NewChatPhoto as MessageNewChatPhoto,
+    NewChatTitle as MessageNewChatTitle, PassportData as MessagePassportData,
+    Photo as MessagePhoto, Pinned as MessagePinned, Poll as MessagePoll,
+    ProximityAlertTriggered as MessageProximityAlertTriggered, Sticker as MessageSticker,
+    Story as MessageStory, SuccessfulPayment as MessageSuccessfulPayment,
+    SupergroupChatCreated as MessageSupergroupChatCreated, Text as MessageText,
+    UserShared as MessageUserShared, Venue as MessageVenue, Video as MessageVideo,
+    VideoChatEnded as MessageVideoChatEnded,
+    VideoChatParticipantsInvited as MessageVideoChatParticipantsInvited,
+    VideoChatScheduled as MessageVideoChatScheduled, VideoChatStarted as MessageVideoChatStarted,
+    VideoNote as MessageVideoNote, Voice as MessageVoice, WebAppData as MessageWebAppData,
+    WriteAccessAllowed as MessageWriteAccessAllowed,
+};
 pub use message_auto_delete_timer_changed::MessageAutoDeleteTimerChanged;
-pub use message_entity::MessageEntity;
+pub use message_entity::{
+    CustomEmoji as CustomEmojiMessageEntity, Kind as MessageEntityKind, MessageEntity,
+    Pre as PreMessageEntity, TextLink as TextLinkMessageEntity,
+    TextMention as TextMentionMessageEntity,
+};
 pub use message_id::MessageId;
 pub use message_or_true::MessageOrTrue;
 pub use order_info::OrderInfo;
 pub use passport_data::PassportData;
 pub use passport_element_error::PassportElementError;
-pub use passport_element_error_data_field::PassportElementErrorDataField;
-pub use passport_element_error_file::PassportElementErrorFile;
-pub use passport_element_error_files::PassportElementErrorFiles;
-pub use passport_element_error_front_side::PassportElementErrorFrontSide;
-pub use passport_element_error_reverse_side::PassportElementErrorReverseSide;
-pub use passport_element_error_selfie::PassportElementErrorSelfie;
-pub use passport_element_error_translation_file::PassportElementErrorTranslationFile;
-pub use passport_element_error_translation_files::PassportElementErrorTranslationFiles;
+pub use passport_element_error_data_field::{
+    ElementType as PassportElementErrorDataFieldType, PassportElementErrorDataField,
+};
+pub use passport_element_error_file::{
+    ElementType as PassportElementErrorFileType, PassportElementErrorFile,
+};
+pub use passport_element_error_files::{
+    ElementType as PassportElementErrorFilesType, PassportElementErrorFiles,
+};
+pub use passport_element_error_front_side::{
+    ElementType as PassportElementErrorFrontSideType, PassportElementErrorFrontSide,
+};
+pub use passport_element_error_reverse_side::{
+    ElementType as PassportElementErrorReverseSideType, PassportElementErrorReverseSide,
+};
+pub use passport_element_error_selfie::{
+    ElementType as PassportElementErrorSelfieType, PassportElementErrorSelfie,
+};
+pub use passport_element_error_translation_file::{
+    ElementType as PassportElementErrorTranslationFileType, PassportElementErrorTranslationFile,
+};
+pub use passport_element_error_translation_files::{
+    ElementType as PassportElementErrorTranslationFilesType, PassportElementErrorTranslationFiles,
+};
 pub use passport_element_error_unspecified::PassportElementErrorUnspecified;
 pub use passport_file::PassportFile;
 pub use photo_size::PhotoSize;
-pub use poll::Poll;
+pub use poll::{Poll, Quiz as PollQuiz, Regular as PollRegular};
 pub use poll_answer::PollAnswer;
 pub use poll_option::PollOption;
 pub use pre_checkout_query::PreCheckoutQuery;
@@ -327,7 +390,7 @@ pub use sticker_set::StickerSet;
 pub use story::Story;
 pub use successful_payment::SuccessfulPayment;
 pub use switch_inline_query_chosen_chat::SwitchInlineQueryChosenChat;
-pub use update::Update;
+pub use update::{Kind as UpdateKind, Update};
 pub use user::User;
 pub use user_profile_photos::UserProfilePhotos;
 pub use user_shared::UserShared;

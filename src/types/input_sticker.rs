@@ -116,3 +116,31 @@ impl<'a> InputSticker<'a> {
         }
     }
 }
+
+impl<'a> InputSticker<'a> {
+    #[must_use]
+    pub fn mask_position_option(self, val: Option<MaskPosition>) -> Self {
+        Self {
+            mask_position: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn keywords_option<T, I>(self, val: Option<I>) -> Self
+    where
+        T: Into<String>,
+        I: IntoIterator<Item = T>,
+    {
+        Self {
+            keywords: val.map(|val| {
+                self.keywords
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val.into_iter().map(Into::into))
+                    .collect()
+            }),
+            ..self
+        }
+    }
+}

@@ -5,7 +5,7 @@ use super::{
     PassportElementErrorUnspecified,
 };
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 /// This object represents an error in the Telegram Passport element which was submitted that should be resolved by the user. It should be one of:
 /// - [`PassportElementErrorDataField`]
@@ -19,9 +19,10 @@ use serde::{Deserialize, Serialize};
 /// - [`PassportElementErrorUnspecified`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerror>
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 #[serde(tag = "source", rename_all = "snake_case")]
 pub enum PassportElementError {
+    #[serde(rename = "data")]
     DataField(PassportElementErrorDataField),
     FrontSide(PassportElementErrorFrontSide),
     ReverseSide(PassportElementErrorReverseSide),

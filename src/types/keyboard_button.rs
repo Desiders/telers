@@ -21,9 +21,9 @@ pub struct KeyboardButton {
     pub request_user: Option<KeyboardButtonRequestUser>,
     /// If specified, pressing the button will open a list of suitable chats. Tapping on a chat will send its identifier to the bot in a `chat_shared` service message. Available in private chats only.
     pub request_chat: Option<KeyboardButtonRequestChat>,
-    /// If `True`, the user's phone number will be sent as a contact when the button is pressed. Available in private chats only.
+    /// If `true`, the user's phone number will be sent as a contact when the button is pressed. Available in private chats only.
     pub request_contact: Option<bool>,
-    /// If `True`, the user's current location will be sent when the button is pressed. Available in private chats only.
+    /// If `true`, the user's current location will be sent when the button is pressed. Available in private chats only.
     pub request_location: Option<bool>,
     /// If specified, the user will be asked to create a poll and send it to the bot when the button is pressed. Available in private chats only.
     pub request_poll: Option<KeyboardButtonPollType>,
@@ -97,6 +97,56 @@ impl KeyboardButton {
     pub fn web_app(self, val: WebAppInfo) -> Self {
         Self {
             web_app: Some(val),
+            ..self
+        }
+    }
+}
+
+impl KeyboardButton {
+    #[must_use]
+    pub fn request_user_option(self, val: Option<KeyboardButtonRequestUser>) -> Self {
+        Self {
+            request_user: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn request_chat_option(self, val: Option<KeyboardButtonRequestChat>) -> Self {
+        Self {
+            request_chat: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn request_contact_option(self, val: Option<bool>) -> Self {
+        Self {
+            request_contact: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn request_location_option(self, val: Option<bool>) -> Self {
+        Self {
+            request_location: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn request_poll_option(self, val: Option<KeyboardButtonPollType>) -> Self {
+        Self {
+            request_poll: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn web_app_option(self, val: Option<WebAppInfo>) -> Self {
+        Self {
+            web_app: val,
             ..self
         }
     }

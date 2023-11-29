@@ -1,7 +1,5 @@
 use super::{InlineKeyboardMarkup, InputMessageContent};
 
-use crate::enums::InlineQueryResultType;
-
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -13,9 +11,6 @@ use serde_with::skip_serializing_none;
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct InlineQueryResultLocation {
-    /// Type of the result, must be *location*
-    #[serde(rename = "type", default = "location")]
-    pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
     /// Location latitude in degrees
@@ -57,7 +52,15 @@ impl InlineQueryResultLocation {
             latitude,
             longitude,
             title: title.into(),
-            ..Default::default()
+            horizontal_accuracy: None,
+            live_period: None,
+            heading: None,
+            proximity_alert_radius: None,
+            reply_markup: None,
+            input_message_content: None,
+            thumbnail_url: None,
+            thumbnail_width: None,
+            thumbnail_height: None,
         }
     }
 
@@ -166,28 +169,76 @@ impl InlineQueryResultLocation {
     }
 }
 
-impl Default for InlineQueryResultLocation {
+impl InlineQueryResultLocation {
     #[must_use]
-    fn default() -> Self {
+    pub fn horizontal_accuracy_option(self, val: Option<f64>) -> Self {
         Self {
-            result_type: location(),
-            id: String::default(),
-            latitude: 0.0,
-            longitude: 0.0,
-            title: String::default(),
-            horizontal_accuracy: None,
-            live_period: None,
-            heading: None,
-            proximity_alert_radius: None,
-            reply_markup: None,
-            input_message_content: None,
-            thumbnail_url: None,
-            thumbnail_width: None,
-            thumbnail_height: None,
+            horizontal_accuracy: val,
+            ..self
         }
     }
-}
 
-fn location() -> String {
-    InlineQueryResultType::Location.into()
+    #[must_use]
+    pub fn live_period_option(self, val: Option<i64>) -> Self {
+        Self {
+            live_period: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn heading_option(self, val: Option<i64>) -> Self {
+        Self {
+            heading: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn proximity_alert_radius_option(self, val: Option<i64>) -> Self {
+        Self {
+            proximity_alert_radius: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn input_message_content_option(self, val: Option<impl Into<InputMessageContent>>) -> Self {
+        Self {
+            input_message_content: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn thumbnail_url_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            thumbnail_url: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn thumbnail_width_option(self, val: Option<i64>) -> Self {
+        Self {
+            thumbnail_width: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn thumbnail_height_option(self, val: Option<i64>) -> Self {
+        Self {
+            thumbnail_height: val,
+            ..self
+        }
+    }
 }

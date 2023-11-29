@@ -1,6 +1,6 @@
-use super::{ShippingAddress, Update, User};
+use super::{ShippingAddress, Update, UpdateKind, User};
 
-use crate::errors::ConvertUpdateToTypeError;
+use crate::errors::ConvertToTypeError;
 
 use serde::Deserialize;
 
@@ -19,30 +19,13 @@ pub struct ShippingQuery {
     pub shipping_address: ShippingAddress,
 }
 
-impl ShippingQuery {
-    /// Gets the sender user ID from the shipping query
-    #[must_use]
-    pub const fn sender_user_id(&self) -> i64 {
-        self.from.id
-    }
-
-    /// Gets the sender user ID from the shipping query
-    /// # Notes
-    /// Alias to `sender_user_id` method
-    #[must_use]
-    pub const fn user_id(&self) -> i64 {
-        self.sender_user_id()
-    }
-}
-
 impl TryFrom<Update> for ShippingQuery {
-    type Error = ConvertUpdateToTypeError;
+    type Error = ConvertToTypeError;
 
     fn try_from(update: Update) -> Result<Self, Self::Error> {
-        if let Some(shipping_query) = update.shipping_query {
-            Ok(shipping_query)
-        } else {
-            Err(ConvertUpdateToTypeError::new("ShippingQuery"))
+        match update.kind {
+            UpdateKind::ShippingQuery(val) => Ok(val),
+            _ => Err(ConvertToTypeError::new("Update", "ShippingQuery")),
         }
     }
 }

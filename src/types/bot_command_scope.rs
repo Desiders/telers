@@ -1,10 +1,10 @@
-use serde::{Deserialize, Serialize};
-
 use super::{
     BotCommandScopeAllChatAdministrators, BotCommandScopeAllGroupChats,
     BotCommandScopeAllPrivateChats, BotCommandScopeChat, BotCommandScopeChatAdministrators,
-    BotCommandScopeChatMember, BotCommandScopeDefault,
+    BotCommandScopeChatMember, BotCommandScopeDefault, ChatIdKind,
 };
+
+use serde::{Deserialize, Serialize};
 
 /// This object represents the scope to which bot commands are applied. Currently, the following 7 scopes are supported:
 /// - [`BotCommandScopeDefault`]
@@ -26,6 +26,50 @@ pub enum BotCommandScope {
     Chat(BotCommandScopeChat),
     ChatAdministrators(BotCommandScopeChatAdministrators),
     ChatMember(BotCommandScopeChatMember),
+}
+
+impl BotCommandScope {
+    #[must_use]
+    pub const fn default() -> Self {
+        Self::Default(BotCommandScopeDefault::new())
+    }
+
+    #[must_use]
+    pub const fn all_private_chats() -> Self {
+        Self::AllPrivateChats(BotCommandScopeAllPrivateChats::new())
+    }
+
+    #[must_use]
+    pub const fn all_group_chats() -> Self {
+        Self::AllGroupChats(BotCommandScopeAllGroupChats::new())
+    }
+
+    #[must_use]
+    pub const fn all_chat_administrators() -> Self {
+        Self::AllChatAdministrators(BotCommandScopeAllChatAdministrators::new())
+    }
+
+    #[must_use]
+    pub fn chat(chat_id: impl Into<ChatIdKind>) -> Self {
+        Self::Chat(BotCommandScopeChat::new(chat_id))
+    }
+
+    #[must_use]
+    pub fn chat_administrators(chat_id: impl Into<ChatIdKind>) -> Self {
+        Self::ChatAdministrators(BotCommandScopeChatAdministrators::new(chat_id))
+    }
+
+    #[must_use]
+    pub fn chat_member(chat_id: impl Into<ChatIdKind>, user_id: i64) -> Self {
+        Self::ChatMember(BotCommandScopeChatMember::new(chat_id, user_id))
+    }
+}
+
+impl Default for BotCommandScope {
+    #[must_use]
+    fn default() -> Self {
+        Self::default()
+    }
 }
 
 impl From<BotCommandScopeDefault> for BotCommandScope {

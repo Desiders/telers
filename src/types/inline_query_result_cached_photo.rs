@@ -1,7 +1,5 @@
 use super::{InlineKeyboardMarkup, InputMessageContent, MessageEntity};
 
-use crate::enums::InlineQueryResultType;
-
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -11,9 +9,6 @@ use serde_with::skip_serializing_none;
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct InlineQueryResultCachedPhoto {
-    /// Type of the result, must be *photo*
-    #[serde(rename = "type", default = "photo")]
-    pub result_type: String,
     /// Unique identifier for this result, 1-64 Bytes
     pub id: String,
     /// A valid file identifier of the photo
@@ -40,7 +35,13 @@ impl InlineQueryResultCachedPhoto {
         Self {
             id: id.into(),
             photo_file_id: photo_file_id.into(),
-            ..Default::default()
+            title: None,
+            description: None,
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            reply_markup: None,
+            input_message_content: None,
         }
     }
 
@@ -137,24 +138,69 @@ impl InlineQueryResultCachedPhoto {
     }
 }
 
-impl Default for InlineQueryResultCachedPhoto {
+impl InlineQueryResultCachedPhoto {
     #[must_use]
-    fn default() -> Self {
+    pub fn title_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
-            result_type: photo(),
-            id: String::default(),
-            photo_file_id: String::default(),
-            title: None,
-            description: None,
-            caption: None,
-            parse_mode: None,
-            caption_entities: None,
-            reply_markup: None,
-            input_message_content: None,
+            title: val.map(Into::into),
+            ..self
         }
     }
-}
 
-fn photo() -> String {
-    InlineQueryResultType::Photo.into()
+    #[must_use]
+    pub fn description_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            description: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn caption_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            caption: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            parse_mode: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn caption_entities_option(
+        self,
+        val: Option<impl IntoIterator<Item = MessageEntity>>,
+    ) -> Self {
+        Self {
+            caption_entities: val.map(|val| {
+                self.caption_entities
+                    .unwrap_or_default()
+                    .into_iter()
+                    .chain(val)
+                    .collect()
+            }),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
+        Self {
+            reply_markup: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn input_message_content_option(self, val: Option<impl Into<InputMessageContent>>) -> Self {
+        Self {
+            input_message_content: val.map(Into::into),
+            ..self
+        }
+    }
 }

@@ -98,3 +98,45 @@ impl ReplyKeyboardMarkup {
         }
     }
 }
+
+impl ReplyKeyboardMarkup {
+    #[must_use]
+    pub fn is_persistent_option(self, val: Option<bool>) -> Self {
+        Self {
+            is_persistent: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn resize_keyboard_option(self, val: Option<bool>) -> Self {
+        Self {
+            resize_keyboard: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn one_time_keyboard_option(self, val: Option<bool>) -> Self {
+        Self {
+            one_time_keyboard: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn input_field_placeholder_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            input_field_placeholder: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn selective_option(self, val: Option<bool>) -> Self {
+        Self {
+            selective: val,
+            ..self
+        }
+    }
+}

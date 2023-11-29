@@ -1,17 +1,62 @@
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
+use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 
 /// Represents an issue with the front side of a document. The error is considered resolved when the file with the front side of the document changes.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerrorfrontside>
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct PassportElementErrorFrontSide {
-    /// Error source, must be *front_side*
-    pub source: Box<str>,
-    /// The section of the user's Telegram Passport which has the issue, one of 'passport', 'driver_license', 'identity_card', 'internal_passport'
+    /// The section of the user's Telegram Passport which has the issue
     #[serde(rename = "type")]
-    pub element_type: Box<str>,
+    pub element_type: ElementType,
     /// Base64-encoded hash of the file with the front side of the document
-    pub file_hash: Box<str>,
+    pub file_hash: String,
     /// Error message
-    pub message: Box<str>,
+    pub message: String,
+}
+
+impl PassportElementErrorFrontSide {
+    #[must_use]
+    pub fn new(
+        element_type: ElementType,
+        file_hash: impl Into<String>,
+        message: impl Into<String>,
+    ) -> Self {
+        Self {
+            element_type,
+            file_hash: file_hash.into(),
+            message: message.into(),
+        }
+    }
+
+    #[must_use]
+    pub fn file_hash(self, val: impl Into<String>) -> Self {
+        Self {
+            file_hash: val.into(),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn message(self, val: impl Into<String>) -> Self {
+        Self {
+            message: val.into(),
+            ..self
+        }
+    }
+}
+
+#[derive(
+    Debug, Display, Clone, Copy, PartialEq, Eq, Hash, Serialize, EnumString, AsRefStr, IntoStaticStr,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum ElementType {
+    #[strum(serialize = "passport")]
+    Passport,
+    #[strum(serialize = "driver_license")]
+    DriverLicense,
+    #[strum(serialize = "identity_card")]
+    IdentityCard,
+    #[strum(serialize = "internal_passport")]
+    InternalPassport,
 }

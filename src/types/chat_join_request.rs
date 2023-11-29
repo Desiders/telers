@@ -1,6 +1,6 @@
-use super::{Chat, ChatInviteLink, Update, User};
+use super::{Chat, ChatInviteLink, Update, UpdateKind, User};
 
-use crate::errors::ConvertUpdateToTypeError;
+use crate::errors::ConvertToTypeError;
 
 use serde::Deserialize;
 
@@ -25,36 +25,13 @@ pub struct ChatJoinRequest {
     pub invite_link: Option<ChatInviteLink>,
 }
 
-impl ChatJoinRequest {
-    /// Gets the chat ID from the chat join request
-    #[must_use]
-    pub const fn chat_id(&self) -> i64 {
-        self.chat.id
-    }
-
-    /// Gets the sender user ID from the chat join request
-    #[must_use]
-    pub const fn sender_user_id(&self) -> i64 {
-        self.from.id
-    }
-
-    /// Gets the sender user ID from the chat join request
-    /// # Notes
-    /// Alias to `sender_user_id` method
-    #[must_use]
-    pub const fn user_id(&self) -> i64 {
-        self.sender_user_id()
-    }
-}
-
 impl TryFrom<Update> for ChatJoinRequest {
-    type Error = ConvertUpdateToTypeError;
+    type Error = ConvertToTypeError;
 
     fn try_from(update: Update) -> Result<Self, Self::Error> {
-        if let Some(chat_join_request) = update.chat_join_request {
-            Ok(chat_join_request)
-        } else {
-            Err(ConvertUpdateToTypeError::new("ChatJoinRequest"))
+        match update.kind {
+            UpdateKind::ChatJoinRequest(val) => Ok(val),
+            _ => Err(ConvertToTypeError::new("Update", "ChatJoinRequest")),
         }
     }
 }

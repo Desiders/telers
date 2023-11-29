@@ -37,102 +37,103 @@ pub const DEFAULT_CAPACITY: usize = 64 * 1024; // 64 KiB
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputfile>
 #[derive(Debug, Clone, Hash, PartialEq)]
-pub struct InputFile<'a>(FileKind<'a>);
+pub enum InputFile<'a> {
+    Id(FileId<'a>),
+    Url(UrlFile<'a>),
+    FS(FSFile<'a>),
+    Buffered(BufferedFile<'a>),
+    Stream(StreamFile<'a>),
+}
 
 impl<'a> InputFile<'a> {
-    /// Creates a new [`InputFile`] with [`FileKind::Id`]
+    /// Creates a new [`InputFile`] with [`FileId`]
     #[must_use]
     pub fn id(id: impl Into<Cow<'a, str>>) -> Self {
-        Self(FileKind::Id(FileId::new(id)))
+        Self::Id(FileId::new(id))
     }
 
-    /// Creates a new [`InputFile`] with [`FileKind::Url`]
+    /// Creates a new [`InputFile`] with [`UrlFile`]
     #[must_use]
     pub fn url(url: impl Into<Cow<'a, str>>) -> Self {
-        Self(FileKind::Url(UrlFile::new(url)))
+        Self::Url(UrlFile::new(url))
     }
 
-    /// Creates a new [`InputFile`] with [`FileKind::FS`]
+    /// Creates a new [`InputFile`] with [`FSFile`]
     #[must_use]
     pub fn fs(path: impl AsRef<Path>) -> Self {
-        Self(FileKind::FS(FSFile::new(path)))
+        Self::FS(FSFile::new(path))
     }
 
-    /// Creates a new [`InputFile`] with [`FileKind::FS`] and specified filename
+    /// Creates a new [`InputFile`] with [`FSFile`] and specified filename
     #[must_use]
     pub fn fs_with_name(path: impl AsRef<Path>, name: impl Into<Cow<'a, str>>) -> Self {
-        Self(FileKind::FS(FSFile::new_with_name(path, name)))
+        Self::FS(FSFile::new_with_name(path, name))
     }
 
-    /// Creates a new [`InputFile`] with [`FileKind::Buffered`]
+    /// Creates a new [`InputFile`] with [`BufferedFile`]
     #[must_use]
     pub fn buffered(bytes: impl Into<Bytes>) -> Self {
-        Self(FileKind::Buffered(BufferedFile::new(bytes)))
+        Self::Buffered(BufferedFile::new(bytes))
     }
 
-    /// Creates a new [`InputFile`] with [`FileKind::Buffered`] and specified filename
+    /// Creates a new [`InputFile`] with [`BufferedFile`] and specified filename
     #[must_use]
     pub fn buffered_with_name(bytes: impl Into<Bytes>, name: impl Into<Cow<'a, str>>) -> Self {
-        Self(FileKind::Buffered(BufferedFile::new_with_name(bytes, name)))
+        Self::Buffered(BufferedFile::new_with_name(bytes, name))
     }
 
-    /// Creates a new [`InputFile`] with [`FileKind::Stream`]
+    /// Creates a new [`InputFile`] with [`StreamFile`]
     #[must_use]
     pub fn stream(
         stream: impl Stream<Item = Result<Bytes, io::Error>> + Unpin + Send + Sync + 'static,
     ) -> Self {
-        Self(FileKind::Stream(StreamFile::new(stream)))
+        Self::Stream(StreamFile::new(stream))
     }
 
-    /// Creates a new [`InputFile`] with [`FileKind::Stream`] and specified filename
+    /// Creates a new [`InputFile`] with [`StreamFile`] and specified filename
     #[must_use]
     pub fn stream_with_name(
         stream: impl Stream<Item = Result<Bytes, io::Error>> + Unpin + Send + Sync + 'static,
         name: impl Into<Cow<'a, str>>,
     ) -> Self {
-        Self(FileKind::Stream(StreamFile::new_with_name(stream, name)))
+        Self::Stream(StreamFile::new_with_name(stream, name))
     }
 }
 
 impl<'a> InputFile<'a> {
     /// Some variants can be uploaded in `multipart/form-data` format,
-    /// others can be uploaded as URL or path (depends on [`FileKind`]).
+    /// others can be uploaded as URL or path (depends on [`InputFile`]).
     /// If the file in `multipart/form-data` format,
-    /// then [`InputFile::str_to_file`] will indicate "path" to data in form (because `multipart/form-data` format),
+    /// then `str_to_file` will indicate "path" to data in form (because `multipart/form-data` format),
     /// otherwise it will be just string, which itself indicate "path" to data (because URL and telegram file id).
     /// # Returns
     /// If this file should be uploaded in `multipart/form-data` format, returns `attach://{id}`.
-    /// Otherwise returns string as URL or path (depends on [`FileKind`]).
+    /// Otherwise returns string as URL or path (depends on [`InputFile`]).
     #[must_use]
     pub fn str_to_file(&self) -> &str {
-        match &self.0 {
-            FileKind::Id(file) => file.str_to_file(),
-            FileKind::Url(file) => file.str_to_file(),
-            FileKind::FS(file) => file.str_to_file(),
-            FileKind::Buffered(file) => file.str_to_file(),
-            FileKind::Stream(file) => file.str_to_file(),
+        match self {
+            Self::Id(file) => file.str_to_file(),
+            Self::Url(file) => file.str_to_file(),
+            Self::FS(file) => file.str_to_file(),
+            Self::Buffered(file) => file.str_to_file(),
+            Self::Stream(file) => file.str_to_file(),
         }
     }
 
     /// Some variants can be uploaded in `multipart/form-data` format,
-    /// others can be uploaded as URL or path (depends on [`FileKind`]).
+    /// others can be uploaded as URL or path (depends on [`InputFile`]).
     /// # Returns
     /// If this file should be uploaded in `multipart/form-data` format, returns `true`.
     /// Otherwise returns `false` and file [`InputFile`] may be uploaded in any way (URL and telegram file id).
     #[must_use]
     pub const fn is_require_multipart(&self) -> bool {
-        match &self.0 {
-            FileKind::Id(file) => file.is_require_multipart(),
-            FileKind::Url(file) => file.is_require_multipart(),
-            FileKind::FS(file) => file.is_require_multipart(),
-            FileKind::Buffered(file) => file.is_require_multipart(),
-            FileKind::Stream(file) => file.is_require_multipart(),
+        match self {
+            Self::Id(file) => file.is_require_multipart(),
+            Self::Url(file) => file.is_require_multipart(),
+            Self::FS(file) => file.is_require_multipart(),
+            Self::Buffered(file) => file.is_require_multipart(),
+            Self::Stream(file) => file.is_require_multipart(),
         }
-    }
-
-    #[must_use]
-    pub fn kind(&self) -> &FileKind {
-        &self.0
     }
 }
 
@@ -147,41 +148,32 @@ impl Serialize for InputFile<'_> {
 
 impl<'a> From<FileId<'a>> for InputFile<'a> {
     fn from(file_id: FileId<'a>) -> Self {
-        Self(FileKind::Id(file_id))
+        Self::Id(file_id)
     }
 }
 
 impl<'a> From<UrlFile<'a>> for InputFile<'a> {
     fn from(url_file: UrlFile<'a>) -> Self {
-        Self(FileKind::Url(url_file))
+        Self::Url(url_file)
     }
 }
 
 impl<'a> From<FSFile<'a>> for InputFile<'a> {
     fn from(fs_file: FSFile<'a>) -> Self {
-        Self(FileKind::FS(fs_file))
+        Self::FS(fs_file)
     }
 }
 
 impl<'a> From<BufferedFile<'a>> for InputFile<'a> {
     fn from(buffered_file: BufferedFile<'a>) -> Self {
-        Self(FileKind::Buffered(buffered_file))
+        Self::Buffered(buffered_file)
     }
 }
 
 impl<'a> From<StreamFile<'a>> for InputFile<'a> {
     fn from(stream_file: StreamFile<'a>) -> Self {
-        Self(FileKind::Stream(stream_file))
+        Self::Stream(stream_file)
     }
-}
-
-#[derive(Debug, Clone, Hash, PartialEq)]
-pub enum FileKind<'a> {
-    Id(FileId<'a>),
-    Url(UrlFile<'a>),
-    FS(FSFile<'a>),
-    Buffered(BufferedFile<'a>),
-    Stream(StreamFile<'a>),
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
