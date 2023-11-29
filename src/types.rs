@@ -6,8 +6,10 @@
 //! - is an array, it will be wrapped in [`Vec`] or slice wrapped in [`Box`],
 //! - is a recursive type, it will be wrapped in [`Box`].
 //! - is a tagged union, it will be wrapped in `enum` with variants named as in the documentation,
+//! - is a type with optional fields, it can be represented as an enum with variants for specific cases (check [`Message`] for example).
 //! - is a string, it will be represented as [`String`] or [`str`] wrapped in [`Box`],
-//! - is a number, it will be represented as [`i64`].
+//! - is a number, it will be represented as [`i64`]
+//! - is a float, it will be represented as [`f64`],
 //! - is a boolean, it will be represented as [`bool`],
 //! - is a file, it will be represented as [`InputFile`],
 //! - is a chat id with kind (integer or string), it will be represented as [`ChatIdKind`],
@@ -27,6 +29,14 @@
 //! so you can write `from` and `into` to convert between them instead of boilerplate code.
 //! Many methods in the library accept "union" and tagged types as generic parameters with [`Into`] trait bounds,
 //! so you can pass any of the variants to them.
+//!
+//! The telegram type with optional fields can be represented as an enum with variants for specific cases.
+//! For example, [`Message`] is represented as enum with variants:
+//! - [`MessageText`]
+//! - [`MessageAnimation`]
+//! and so on... (see [`Message`] for full list of variants).
+//! Each variant has an implementation of [`From`] trait to convert from the variant to the [`Message`]
+//! and [`Into`] trait to convert from the [`Message`] to the variant.
 
 pub mod animation;
 pub mod audio;
