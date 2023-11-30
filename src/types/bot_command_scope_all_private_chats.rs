@@ -4,11 +4,11 @@ use serde::{Deserialize, Serialize};
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscopeallprivatechats>
 #[derive(Debug, Default, Clone, Copy, Hash, PartialEq, Eq, Deserialize, Serialize)]
-pub struct BotCommandScopeAllPrivateChats;
+pub struct BotCommandScopeAllPrivateChats {}
 
 impl BotCommandScopeAllPrivateChats {
     #[must_use]
     pub const fn new() -> Self {
-        Self
+        Self {}
     }
 }

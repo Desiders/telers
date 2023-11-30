@@ -4,11 +4,11 @@ use serde::{Deserialize, Serialize};
 /// # Documentation
 /// <https://core.telegram.org/bots/api#menubuttondefault>
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Deserialize, Serialize)]
-pub struct MenuButtonDefault;
+pub struct MenuButtonDefault {}
 
 impl MenuButtonDefault {
     #[must_use]
     pub const fn new() -> Self {
-        Self
+        Self {}
     }
 }

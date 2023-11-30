@@ -4,11 +4,11 @@ use serde::{Deserialize, Serialize};
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscopeallchatadministrators>
 #[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
-pub struct BotCommandScopeAllChatAdministrators;
+pub struct BotCommandScopeAllChatAdministrators {}
 
 impl BotCommandScopeAllChatAdministrators {
     #[must_use]
     pub const fn new() -> Self {
-        Self
+        Self {}
     }
 }

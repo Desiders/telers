@@ -13,8 +13,8 @@ use serde::Serialize;
 pub struct Close {}
 
 impl Close {
-    pub fn new() -> Self {
-        Self::default()
+    pub const fn new() -> Self {
+        Self {}
     }
 }
 

@@ -5,4 +5,4 @@ use serde::Deserialize;
 /// If you've got any questions, please check out our `https://core.telegram.org/bots/faq <https://core.telegram.org/bots/faq>` **Bot FAQ »**
 /// <https://core.telegram.org/bots/api#gamehighscore>
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Deserialize)]
-pub struct GameHighScore;
+pub struct GameHighScore {}

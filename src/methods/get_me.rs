@@ -10,12 +10,12 @@ use serde::Serialize;
 /// # Returns
 /// Returns basic information about the bot in form of a [`User`] object
 #[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
-pub struct GetMe;
+pub struct GetMe {}
 
 impl GetMe {
     #[must_use]
     pub const fn new() -> Self {
-        Self
+        Self {}
     }
 }
 
