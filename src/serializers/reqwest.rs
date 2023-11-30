@@ -12,7 +12,7 @@ use serde::{
 use std::{
     borrow::Cow,
     cell::RefCell,
-    fmt::{Display, Error as FmtError, Write},
+    fmt::{Debug, Display, Error as FmtError, Write},
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -26,8 +26,8 @@ pub(crate) enum Error {
 }
 
 impl Error {
-    fn top_level() -> Self {
-        Self::Custom("Cannot serialize a top-level struct".into())
+    fn top_level(val: impl Debug) -> Self {
+        Self::Custom(format!("Cannot serialize a top-level struct: {val:?}").into())
     }
 }
 
@@ -81,152 +81,169 @@ impl Serializer for MultipartSerializer {
         Ok(self)
     }
 
-    fn serialize_bool(self, _val: bool) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level())
+    fn serialize_bool(self, val: bool) -> Result<Self::Ok, Self::Error> {
+        Err(Error::top_level(val))
     }
 
-    fn serialize_i8(self, _val: i8) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level())
+    fn serialize_i8(self, val: i8) -> Result<Self::Ok, Self::Error> {
+        Err(Error::top_level(val))
     }
 
-    fn serialize_i16(self, _val: i16) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level())
+    fn serialize_i16(self, val: i16) -> Result<Self::Ok, Self::Error> {
+        Err(Error::top_level(val))
     }
 
-    fn serialize_i32(self, _val: i32) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level())
+    fn serialize_i32(self, val: i32) -> Result<Self::Ok, Self::Error> {
+        Err(Error::top_level(val))
     }
 
-    fn serialize_i64(self, _val: i64) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level())
+    fn serialize_i64(self, val: i64) -> Result<Self::Ok, Self::Error> {
+        Err(Error::top_level(val))
     }
 
-    fn serialize_u8(self, _val: u8) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level())
+    fn serialize_u8(self, val: u8) -> Result<Self::Ok, Self::Error> {
+        Err(Error::top_level(val))
     }
 
-    fn serialize_u16(self, _val: u16) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level())
+    fn serialize_u16(self, val: u16) -> Result<Self::Ok, Self::Error> {
+        Err(Error::top_level(val))
     }
 
-    fn serialize_u32(self, _val: u32) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level())
+    fn serialize_u32(self, val: u32) -> Result<Self::Ok, Self::Error> {
+        Err(Error::top_level(val))
     }
 
-    fn serialize_u64(self, _val: u64) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level())
+    fn serialize_u64(self, val: u64) -> Result<Self::Ok, Self::Error> {
+        Err(Error::top_level(val))
     }
 
-    fn serialize_f32(self, _val: f32) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level())
+    fn serialize_f32(self, val: f32) -> Result<Self::Ok, Self::Error> {
+        Err(Error::top_level(val))
     }
 
-    fn serialize_f64(self, _val: f64) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level())
+    fn serialize_f64(self, val: f64) -> Result<Self::Ok, Self::Error> {
+        Err(Error::top_level(val))
     }
 
-    fn serialize_char(self, _val: char) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level())
+    fn serialize_char(self, val: char) -> Result<Self::Ok, Self::Error> {
+        Err(Error::top_level(val))
     }
 
-    fn serialize_str(self, _val: &str) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level())
+    fn serialize_str(self, val: &str) -> Result<Self::Ok, Self::Error> {
+        Err(Error::top_level(val))
     }
 
-    fn serialize_bytes(self, _val: &[u8]) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level())
+    fn serialize_bytes(self, val: &[u8]) -> Result<Self::Ok, Self::Error> {
+        Err(Error::top_level(val))
     }
 
     fn serialize_none(self) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level())
+        Err(Error::top_level("none"))
     }
 
     fn serialize_some<T>(self, _val: &T) -> Result<Self::Ok, Self::Error>
     where
         T: Serialize + ?Sized,
     {
-        Err(Error::top_level())
+        Err(Error::top_level("some: (...)"))
     }
 
     fn serialize_unit(self) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level())
+        Err(Error::top_level("unit"))
     }
 
-    fn serialize_unit_struct(self, _val: &'static str) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level())
+    fn serialize_unit_struct(self, val: &'static str) -> Result<Self::Ok, Self::Error> {
+        Err(Error::top_level(format!("unit_struct: {val}")))
     }
 
     fn serialize_unit_variant(
         self,
-        _name: &'static str,
-        _variant_index: u32,
-        _variant: &'static str,
+        name: &'static str,
+        variant_index: u32,
+        variant: &'static str,
     ) -> Result<Self::Ok, Self::Error> {
-        Err(Error::top_level())
+        Err(Error::top_level(format!(
+            "unit_variant: name: {name}, variant_index: {variant_index}, variant: {variant}",
+            name = name,
+            variant_index = variant_index,
+            variant = variant
+        )))
     }
 
     fn serialize_newtype_struct<T>(
         self,
-        _name: &'static str,
+        name: &'static str,
         _value: &T,
     ) -> Result<Self::Ok, Self::Error>
     where
         T: Serialize + ?Sized,
     {
-        Err(Error::top_level())
+        Err(Error::top_level(format!(
+            "newtype_struct: name: {name}, value: (...)"
+        )))
     }
 
     fn serialize_newtype_variant<T>(
         self,
-        _name: &'static str,
-        _variant_index: u32,
-        _variant: &'static str,
+        name: &'static str,
+        variant_index: u32,
+        variant: &'static str,
         _value: &T,
     ) -> Result<Self::Ok, Self::Error>
     where
         T: Serialize + ?Sized,
     {
-        Err(Error::top_level())
+        Err(Error::top_level(format!(
+            "newtype_variant: name: {name}, variant_index: {variant_index}, variant: {variant}, value: (...)"
+        )))
     }
 
-    fn serialize_seq(self, _val: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
-        Err(Error::top_level())
+    fn serialize_seq(self, val: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
+        Err(Error::top_level(val))
     }
 
-    fn serialize_tuple(self, _val: usize) -> Result<Self::SerializeTuple, Self::Error> {
-        Err(Error::top_level())
+    fn serialize_tuple(self, val: usize) -> Result<Self::SerializeTuple, Self::Error> {
+        Err(Error::top_level(val))
     }
 
     fn serialize_tuple_struct(
         self,
-        _name: &'static str,
-        _len: usize,
+        name: &'static str,
+        len: usize,
     ) -> Result<Self::SerializeTupleStruct, Self::Error> {
-        Err(Error::top_level())
+        Err(Error::top_level(format!(
+            "tuple_struct: name: {name}, len: {len}",
+            name = name,
+            len = len
+        )))
     }
 
     fn serialize_tuple_variant(
         self,
-        _name: &'static str,
-        _variant_index: u32,
-        _variant: &'static str,
-        _len: usize,
+        name: &'static str,
+        variant_index: u32,
+        variant: &'static str,
+        len: usize,
     ) -> Result<Self::SerializeTupleVariant, Self::Error> {
-        Err(Error::top_level())
+        Err(Error::top_level(format!(
+            "tuple_variant: name: {name}, variant_index: {variant_index}, variant: {variant}, len: {len}"
+        )))
     }
 
-    fn serialize_map(self, _val: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
-        Err(Error::top_level())
+    fn serialize_map(self, val: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
+        Err(Error::top_level(val))
     }
 
     fn serialize_struct_variant(
         self,
-        _name: &'static str,
-        _variant_index: u32,
-        _variant: &'static str,
-        _len: usize,
+        name: &'static str,
+        variant_index: u32,
+        variant: &'static str,
+        len: usize,
     ) -> Result<Self::SerializeStructVariant, Self::Error> {
-        Err(Error::top_level())
+        Err(Error::top_level(format!(
+            "struct_variant: name: {name}, variant_index: {variant_index}, variant: {variant}, len: {len}"
+        )))
     }
 }
 
