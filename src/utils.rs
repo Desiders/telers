@@ -1,4 +1,2 @@
-pub mod text_decorations;
+pub mod text;
 pub mod token;
-
-pub use text_decorations::{HtmlDecoration, MarkdownDecoration};

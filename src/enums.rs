@@ -12,7 +12,6 @@
 //! - [`InputMediaType`]: Type of the media to send, which is used in [`InputMedia`].
 //! - [`MaskPositionPoint`]: Part of the face, relative to which the mask should be placed.
 //! - [`MenuButtonType`]: Type of a button in a custom keyboard, which is used in [`MenuButton`].
-//! - [`MessageEntityType`]: Type of a message entity.
 //! - [`ParseMode`]: Mode for parsing entities in the message text.
 //! - [`PollType`]: Type of a poll.
 //! - [`StickerFormat`]: Format of a sticker, represented as a string.
@@ -40,7 +39,6 @@ pub mod inline_query_result_type;
 pub mod input_media_type;
 pub mod mask_position_point;
 pub mod menu_button_type;
-pub mod message_entity_type;
 pub mod observer_name;
 pub mod parse_mode;
 pub mod poll_type;
@@ -59,7 +57,6 @@ pub use inline_query_result_type::InlineQueryResultType;
 pub use input_media_type::InputMediaType;
 pub use mask_position_point::MaskPositionPoint;
 pub use menu_button_type::MenuButtonType;
-pub use message_entity_type::MessageEntityType;
 pub use observer_name::{Simple as SimpleObserverName, Telegram as TelegramObserverName};
 pub use parse_mode::ParseMode;
 pub use poll_type::PollType;

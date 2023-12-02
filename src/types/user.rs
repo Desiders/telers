@@ -13,13 +13,13 @@ pub struct User {
     /// `true`, if this user is a bot
     pub is_bot: bool,
     /// User's or bot's first name
-    pub first_name: Box<str>,
+    pub first_name: String,
     /// User's or bot's last name
-    pub last_name: Option<Box<str>>,
+    pub last_name: Option<String>,
     /// User's or bot's username
-    pub username: Option<Box<str>>,
+    pub username: Option<String>,
     /// [`IETF language tag`](https://en.wikipedia.org/wiki/IETF_language_tag) of the user's language
-    pub language_code: Option<Box<str>>,
+    pub language_code: Option<String>,
     /// `true`, if this user is a Telegram Premium user
     pub is_premium: Option<bool>,
     /// `true`, if this user added the bot to the attachment menu
@@ -35,20 +35,20 @@ pub struct User {
 impl User {
     #[must_use]
     pub fn full_name(&self) -> Cow<'_, str> {
-        match &self.last_name {
-            Some(last_name) => Cow::Owned(format!("{} {last_name}", self.first_name)),
-            None => Cow::Borrowed(&self.first_name),
+        match (&self.first_name, &self.last_name) {
+            (first_name, Some(last_name)) => Cow::Owned(format!("{first_name} {last_name}")),
+            (first_name, None) => Cow::Borrowed(first_name),
         }
     }
 }
 
 impl User {
     #[must_use]
-    pub fn new(id: i64, is_bot: bool, first_name: Box<str>) -> Self {
+    pub fn new(id: i64, is_bot: bool, first_name: impl Into<String>) -> Self {
         Self {
             id,
             is_bot,
-            first_name,
+            first_name: first_name.into(),
             last_name: None,
             username: None,
             language_code: None,
@@ -74,7 +74,7 @@ impl User {
     }
 
     #[must_use]
-    pub fn first_name(self, val: impl Into<Box<str>>) -> Self {
+    pub fn first_name(self, val: impl Into<String>) -> Self {
         Self {
             first_name: val.into(),
             ..self
@@ -82,7 +82,7 @@ impl User {
     }
 
     #[must_use]
-    pub fn last_name(self, val: impl Into<Box<str>>) -> Self {
+    pub fn last_name(self, val: impl Into<String>) -> Self {
         Self {
             last_name: Some(val.into()),
             ..self
@@ -90,7 +90,7 @@ impl User {
     }
 
     #[must_use]
-    pub fn username(self, val: impl Into<Box<str>>) -> Self {
+    pub fn username(self, val: impl Into<String>) -> Self {
         Self {
             username: Some(val.into()),
             ..self
@@ -98,7 +98,7 @@ impl User {
     }
 
     #[must_use]
-    pub fn language_code(self, val: impl Into<Box<str>>) -> Self {
+    pub fn language_code(self, val: impl Into<String>) -> Self {
         Self {
             language_code: Some(val.into()),
             ..self
@@ -148,7 +148,7 @@ impl User {
 
 impl User {
     #[must_use]
-    pub fn last_name_option(self, val: Option<impl Into<Box<str>>>) -> Self {
+    pub fn last_name_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
             last_name: val.map(Into::into),
             ..self
@@ -156,7 +156,7 @@ impl User {
     }
 
     #[must_use]
-    pub fn username_option(self, val: Option<impl Into<Box<str>>>) -> Self {
+    pub fn username_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
             username: val.map(Into::into),
             ..self
@@ -164,7 +164,7 @@ impl User {
     }
 
     #[must_use]
-    pub fn language_code_option(self, val: Option<impl Into<Box<str>>>) -> Self {
+    pub fn language_code_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
             language_code: val.map(Into::into),
             ..self

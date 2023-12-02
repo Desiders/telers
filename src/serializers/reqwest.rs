@@ -164,9 +164,6 @@ impl Serializer for MultipartSerializer {
     ) -> Result<Self::Ok, Self::Error> {
         Err(Error::top_level(format!(
             "unit_variant: name: {name}, variant_index: {variant_index}, variant: {variant}",
-            name = name,
-            variant_index = variant_index,
-            variant = variant
         )))
     }
 
@@ -212,9 +209,7 @@ impl Serializer for MultipartSerializer {
         len: usize,
     ) -> Result<Self::SerializeTupleStruct, Self::Error> {
         Err(Error::top_level(format!(
-            "tuple_struct: name: {name}, len: {len}",
-            name = name,
-            len = len
+            "tuple_struct: name: {name}, len: {len}"
         )))
     }
 
