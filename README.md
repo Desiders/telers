@@ -34,6 +34,7 @@ Make sure you have a basic understanding of the [Telegram Bot API](https://core.
 
 ## Examples
  - [Echo bot](examples/echo_bot). This example shows how to create a echo bot.
+ - [Text formatting](examples/text_formatting). This example shows how to format text.
  - [Text case filters](examples/text_case_filters). This example shows how to create text case filters.
  - [Stats updates middleware](examples/stats_incoming_updates_middleware). This example shows how to create a middleware that counter incoming updates.
  - [Input file](examples/input_file). This example shows how to send files by the bot.
