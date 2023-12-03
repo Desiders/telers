@@ -56,6 +56,7 @@ harness = false
 [workspace]
 members = [
     "./examples/echo_bot",
+    "./examples/text_formatting",
     "./examples/axum_and_echo_bot",
     "./examples/finite_state_machine",
     "./examples/bot_http_client",
