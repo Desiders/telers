@@ -1,6 +1,6 @@
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 
-use crate::types::{ChatMember, ChatMemberKind};
+use crate::types::ChatMember;
 
 /// This enum represents all possible types of the chat member status
 /// # Documentation
@@ -57,13 +57,13 @@ impl<'a> PartialEq<&'a str> for ChatMemberStatus {
 
 impl<'a> From<&'a ChatMember> for ChatMemberStatus {
     fn from(chat_member: &'a ChatMember) -> Self {
-        match chat_member.kind() {
-            ChatMemberKind::Owner(_) => Self::Creator,
-            ChatMemberKind::Administrator(_) => Self::Administrator,
-            ChatMemberKind::Member(_) => Self::Member,
-            ChatMemberKind::Restricted(_) => Self::Restricted,
-            ChatMemberKind::Left(_) => Self::Left,
-            ChatMemberKind::Banned(_) => Self::Kicked,
+        match chat_member {
+            ChatMember::Owner(_) => Self::Creator,
+            ChatMember::Administrator(_) => Self::Administrator,
+            ChatMember::Member(_) => Self::Member,
+            ChatMember::Restricted(_) => Self::Restricted,
+            ChatMember::Left(_) => Self::Left,
+            ChatMember::Banned(_) => Self::Kicked,
         }
     }
 }

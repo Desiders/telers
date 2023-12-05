@@ -1,19 +1,10 @@
 use super::{
     ChatMemberAdministrator, ChatMemberBanned, ChatMemberLeft, ChatMemberMember, ChatMemberOwner,
-    ChatMemberRestricted, User,
+    ChatMemberRestricted,
 };
 
 use serde::Deserialize;
 use strum_macros::Display;
-
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
-pub struct ChatMember {
-    /// Information about the user.
-    pub user: User,
-
-    #[serde(flatten)]
-    pub kind: Kind,
-}
 
 /// This object contains information about one member of a chat. Currently, the following 6 types of chat members are supported:
 /// - [`ChatMemberOwner`]
@@ -26,7 +17,7 @@ pub struct ChatMember {
 /// <https://core.telegram.org/bots/api#chatmember>
 #[derive(Debug, Display, Clone, Hash, PartialEq, Eq, Deserialize)]
 #[serde(tag = "status", rename_all = "snake_case")]
-pub enum Kind {
+pub enum ChatMember {
     #[serde(rename = "creator")]
     Owner(ChatMemberOwner),
     Administrator(ChatMemberAdministrator),
@@ -37,45 +28,38 @@ pub enum Kind {
     Banned(ChatMemberBanned),
 }
 
-impl From<ChatMemberOwner> for Kind {
+impl From<ChatMemberOwner> for ChatMember {
     fn from(chat_member: ChatMemberOwner) -> Self {
         Self::Owner(chat_member)
     }
 }
 
-impl From<ChatMemberAdministrator> for Kind {
+impl From<ChatMemberAdministrator> for ChatMember {
     fn from(chat_member: ChatMemberAdministrator) -> Self {
         Self::Administrator(chat_member)
     }
 }
 
-impl From<ChatMemberMember> for Kind {
+impl From<ChatMemberMember> for ChatMember {
     fn from(chat_member: ChatMemberMember) -> Self {
         Self::Member(chat_member)
     }
 }
 
-impl From<ChatMemberRestricted> for Kind {
+impl From<ChatMemberRestricted> for ChatMember {
     fn from(chat_member: ChatMemberRestricted) -> Self {
         Self::Restricted(chat_member)
     }
 }
 
-impl From<ChatMemberLeft> for Kind {
+impl From<ChatMemberLeft> for ChatMember {
     fn from(chat_member: ChatMemberLeft) -> Self {
         Self::Left(chat_member)
     }
 }
 
-impl From<ChatMemberBanned> for Kind {
+impl From<ChatMemberBanned> for ChatMember {
     fn from(chat_member: ChatMemberBanned) -> Self {
         Self::Banned(chat_member)
-    }
-}
-
-impl ChatMember {
-    #[must_use]
-    pub const fn kind(&self) -> &Kind {
-        &self.kind
     }
 }

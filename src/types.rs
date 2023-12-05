@@ -220,7 +220,7 @@ pub use chat_id_kind::ChatIdKind;
 pub use chat_invite_link::ChatInviteLink;
 pub use chat_join_request::ChatJoinRequest;
 pub use chat_location::ChatLocation;
-pub use chat_member::{ChatMember, Kind as ChatMemberKind};
+pub use chat_member::ChatMember;
 pub use chat_member_administrator::ChatMemberAdministrator;
 pub use chat_member_banned::ChatMemberBanned;
 pub use chat_member_left::ChatMemberLeft;
