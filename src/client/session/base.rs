@@ -189,7 +189,11 @@ pub trait Session: Send + Sync {
                 }
             }
             _ => {
-                event!(Level::ERROR, "Unknown status code",);
+                event!(
+                    Level::ERROR,
+                    %status_code,
+                    "Unknown status code",
+                );
 
                 anyhow::Error::msg(message).into()
             }
