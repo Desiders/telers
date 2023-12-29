@@ -82,6 +82,8 @@ pub struct Supergroup {
     pub photo: Option<ChatPhoto>,
     /// If non-empty, the list of all [active chat usernames](https://telegram.org/blog/topics-in-groups-collectible-usernames/ru?ln=a#collectible-usernames). Returned only in [`GetChat`](crate::methods::GetChat).
     pub active_usernames: Option<Box<[Box<str>]>>,
+    /// List of available reactions allowed in the chat. If omitted, then all [emoji reactions](https://core.telegram.org/bots/api#reactiontypeemoji) are allowed. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub available_reactions: Option<Box<[Box<str>]>>,
     /// `true`, if users need to join the supergroup before they can send messages. Returned only in [`GetChat`](crate::methods::GetChat).
     pub join_to_send_messages: Option<bool>,
     /// `true`, if all users directly joining the supergroup need to be approved by supergroup administrators. Returned only in [`GetChat`](crate::methods::GetChat).
@@ -126,6 +128,8 @@ pub struct Channel {
     pub photo: Option<ChatPhoto>,
     /// If non-empty, the list of all [active chat usernames](https://telegram.org/blog/topics-in-groups-collectible-usernames/ru?ln=a#collectible-usernames). Returned only in [`GetChat`](crate::methods::GetChat).
     pub active_usernames: Option<Box<[Box<str>]>>,
+    /// List of available reactions allowed in the chat. If omitted, then all [emoji reactions](https://core.telegram.org/bots/api#reactiontypeemoji) are allowed. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub available_reactions: Option<Box<[Box<str>]>>,
     /// Description. Returned only in [`GetChat`](crate::methods::GetChat).
     pub description: Option<Box<str>>,
     /// Primary invite link. Returned only in [`GetChat`](crate::methods::GetChat).
@@ -200,6 +204,24 @@ impl Chat {
                 active_usernames, ..
             }) => match active_usernames {
                 Some(active_usernames) => Some(active_usernames),
+                None => None,
+            },
+        }
+    }
+
+    #[must_use]
+    pub const fn available_reactions(&self) -> Option<&[Box<str>]> {
+        match self {
+            Self::Group(_) | Self::Private(_) => None,
+            Self::Supergroup(Supergroup {
+                available_reactions,
+                ..
+            })
+            | Self::Channel(Channel {
+                available_reactions,
+                ..
+            }) => match available_reactions {
+                Some(available_reactions) => Some(available_reactions),
                 None => None,
             },
         }
