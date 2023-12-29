@@ -10,8 +10,6 @@
 ///     type_to_extract |
 ///         type_to_extract<generic1, ...>
 ///     ,
-///     key_in_context (optional) // if not specified, search will be by type (expensive operation)
-///     ,
 /// );
 /// ```
 /// # Notes
@@ -95,51 +93,6 @@ macro_rules! from_context {
                         '`'
                     ))),
                 }
-            }
-        }
-    };
-
-    (
-        [
-            $client_generic_or_type:ident
-            $(,
-                $generic:tt
-                $(:
-                    $generic_bound:tt $(+ $generic_bounds:tt)*
-                )?
-            )* $(,)?
-        ],
-        $type_name:ty $(,)?
-    ) => {
-        impl<
-            $client_generic_or_type,
-            $(
-                $generic $(:
-                    $generic_bound $(+ $generic_bounds)*
-                )?
-            ),*
-        > FromEventAndContext<$client_generic_or_type> for $type_name
-        where
-            $type_name: 'static,
-        {
-            type Error = ExtractionError;
-
-            fn extract(
-                _bot: Arc<Bot<$client_generic_or_type>>,
-                _update: Arc<Update>,
-                context: Arc<Context>,
-            ) -> Result<Self, Self::Error> {
-                for ref_multi in context.iter() {
-                    if let Some(data) = ref_multi.value().downcast_ref::<Self>() {
-                        return Ok(data.clone());
-                    };
-                }
-
-                Err(ExtractionError::new(concat!(
-                    "No found data in context with type `",
-                    stringify!($type_name),
-                    '`'
-                )))
             }
         }
     };
@@ -381,7 +334,6 @@ mod tests {
         from_context!([Client], A, "a");
         from_context!([Client, T], B<T>, "b");
         from_context!([Client, T: Clone, U: Clone], C<T, U>, "c");
-        from_context!([Client], D);
 
         from_context_into!([Client], A => Wrapper<A>, "a");
         from_context_into!([Client, T: Clone, U: Clone], C<T, U> => Wrapper<C<T, U>>, "c");
@@ -414,10 +366,6 @@ mod tests {
             C(1i32, 2i64),
             C::<i32, i64>::extract(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context))
                 .unwrap()
-        );
-        assert_eq!(
-            D(Arc::new(Box::new(A))),
-            D::extract(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context)).unwrap()
         );
         assert_eq!(
             Wrapper(A),
