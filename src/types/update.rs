@@ -1,6 +1,7 @@
 use super::{
     CallbackQuery, Chat, ChatJoinRequest, ChatMemberUpdated, ChosenInlineResult, InlineQuery,
-    Message, MessageReactionUpdated, Poll, PollAnswer, PreCheckoutQuery, ShippingQuery, User,
+    Message, MessageReactionCountUpdated, MessageReactionUpdated, Poll, PollAnswer,
+    PreCheckoutQuery, ShippingQuery, User,
 };
 
 use crate::enums::UpdateType;
@@ -36,6 +37,8 @@ pub enum Kind {
     EditedChannelPost(Message),
     /// A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify `message_reaction` in the list of `allowed_updates`` to receive these updates. The update isn't received for reactions set by bots.
     MessageReaction(MessageReactionUpdated),
+    /// Reactions to a message with anonymous reactions were changed. The bot must be an administrator in the chat and must explicitly specify `message_reaction_count` in the list of `allowed_updates`` to receive these updates.
+    MessageReactionCount(MessageReactionCountUpdated),
     /// New incoming inline query
     InlineQuery(InlineQuery),
     /// The result of an inline query that was chosen by a user and sent to their chat partner. Please see our documentation on the [`feedback collecting`](https://core.telegram.org/bots/inline#collecting-feedback) for details on how to enable these updates for your bot.
@@ -83,7 +86,8 @@ impl Kind {
             | Kind::ChatMember(_)
             | Kind::ChatJoinRequest(_)
             | Kind::Poll(_)
-            | Kind::MessageReaction(_) => None,
+            | Kind::MessageReaction(_)
+            | Kind::MessageReactionCount(_) => None,
         }
     }
 
@@ -110,7 +114,8 @@ impl Kind {
             | Kind::ChatMember(_)
             | Kind::ChatJoinRequest(_)
             | Kind::Poll(_)
-            | Kind::MessageReaction(_) => None,
+            | Kind::MessageReaction(_)
+            | Kind::MessageReactionCount(_) => None,
         }
     }
 
@@ -139,7 +144,7 @@ impl Kind {
             | Kind::ChatJoinRequest(ChatJoinRequest { from, .. }) => Some(from),
             Kind::PollAnswer(PollAnswer { user, .. })
             | Kind::MessageReaction(MessageReactionUpdated { user, .. }) => user.as_ref(),
-            Kind::Poll(_) => None,
+            Kind::Poll(_) | Kind::MessageReactionCount(_) => None,
         }
     }
 
@@ -167,7 +172,8 @@ impl Kind {
             }
             Kind::MyChatMember(ChatMemberUpdated { chat, .. })
             | Kind::ChatMember(ChatMemberUpdated { chat, .. })
-            | Kind::ChatJoinRequest(ChatJoinRequest { chat, .. }) => Some(chat),
+            | Kind::ChatJoinRequest(ChatJoinRequest { chat, .. })
+            | Kind::MessageReactionCount(MessageReactionCountUpdated { chat, .. }) => Some(chat),
             Kind::MessageReaction(MessageReactionUpdated { actor_chat, .. }) => actor_chat.as_ref(),
             Kind::InlineQuery(_)
             | Kind::ChosenInlineResult(_)
@@ -210,7 +216,8 @@ impl Kind {
             | Kind::ChatMember(_)
             | Kind::ChatJoinRequest(_)
             | Kind::Poll(_)
-            | Kind::MessageReaction(_) => None,
+            | Kind::MessageReaction(_)
+            | Kind::MessageReactionCount(_) => None,
         }
     }
 
@@ -246,7 +253,8 @@ impl Kind {
             | Kind::ChatMember(_)
             | Kind::ChatJoinRequest(_)
             | Kind::Poll(_)
-            | Kind::MessageReaction(_) => None,
+            | Kind::MessageReaction(_)
+            | Kind::MessageReactionCount(_) => None,
         }
     }
 }
@@ -341,6 +349,9 @@ impl<'de> Deserialize<'de> for Kind {
                     UpdateType::MessageReaction => map
                         .next_value::<MessageReactionUpdated>()
                         .map(Kind::MessageReaction),
+                    UpdateType::MessageReactionCount => map
+                        .next_value::<MessageReactionCountUpdated>()
+                        .map(Kind::MessageReactionCount),
                 };
 
                 match update_kind {

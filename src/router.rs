@@ -372,6 +372,7 @@ pub struct Router<Client> {
     pub channel_post: TelegramObserver<Client>,
     pub edited_channel_post: TelegramObserver<Client>,
     pub message_reaction: TelegramObserver<Client>,
+    pub message_reaction_count: TelegramObserver<Client>,
     pub inline_query: TelegramObserver<Client>,
     pub chosen_inline_result: TelegramObserver<Client>,
     pub callback_query: TelegramObserver<Client>,
@@ -410,6 +411,7 @@ where
             channel_post: TelegramObserver::new(TelegramObserverName::ChannelPost.as_ref()),
             edited_channel_post: TelegramObserver::new(TelegramObserverName::EditedChannelPost.as_ref()),
             message_reaction: TelegramObserver::new(TelegramObserverName::MessageReaction.as_ref()),
+            message_reaction_count: TelegramObserver::new(TelegramObserverName::MessageReactionCount.as_ref()),
             inline_query: TelegramObserver::new(TelegramObserverName::InlineQuery.as_ref()),
             chosen_inline_result: TelegramObserver::new(TelegramObserverName::ChosenInlineResult.as_ref()),
             callback_query: TelegramObserver::new(TelegramObserverName::CallbackQuery.as_ref()),
@@ -451,13 +453,14 @@ where
 impl<Client> Router<Client> {
     /// Get all telegram event observers
     #[must_use]
-    pub const fn telegram_observers(&self) -> [&TelegramObserver<Client>; 16] {
+    pub const fn telegram_observers(&self) -> [&TelegramObserver<Client>; 17] {
         [
             &self.message,
             &self.edited_message,
             &self.channel_post,
             &self.edited_channel_post,
             &self.message_reaction,
+            &self.message_reaction_count,
             &self.inline_query,
             &self.chosen_inline_result,
             &self.callback_query,
@@ -477,7 +480,7 @@ impl<Client> Router<Client> {
     /// This method is useful for registering middlewares to the many observers without code duplication and macros
     #[must_use]
     pub fn telegram_observers_mut(&mut self) -> Vec<&mut TelegramObserver<Client>> {
-        let mut observers = Vec::with_capacity(16);
+        let mut observers = Vec::with_capacity(17);
 
         observers.extend([
             &mut self.message,
@@ -485,6 +488,7 @@ impl<Client> Router<Client> {
             &mut self.channel_post,
             &mut self.edited_channel_post,
             &mut self.message_reaction,
+            &mut self.message_reaction_count,
             &mut self.inline_query,
             &mut self.chosen_inline_result,
             &mut self.callback_query,
@@ -618,6 +622,8 @@ where
             edited_message,
             channel_post,
             edited_channel_post,
+            message_reaction,
+            message_reaction_count,
             inline_query,
             chosen_inline_result,
             callback_query,
@@ -657,6 +663,7 @@ where
             channel_post,
             edited_channel_post,
             message_reaction,
+            message_reaction_count,
             inline_query,
             chosen_inline_result,
             callback_query,
@@ -685,6 +692,7 @@ where
             channel_post: self.channel_post.to_service_provider_default()?,
             edited_channel_post: self.edited_channel_post.to_service_provider_default()?,
             message_reaction: self.message_reaction.to_service_provider_default()?,
+            message_reaction_count: self.message_reaction_count.to_service_provider_default()?,
             inline_query: self.inline_query.to_service_provider_default()?,
             chosen_inline_result: self.chosen_inline_result.to_service_provider_default()?,
             callback_query: self.callback_query.to_service_provider_default()?,
@@ -711,6 +719,7 @@ pub struct Service<Client> {
     channel_post: TelegramObserverService<Client>,
     edited_channel_post: TelegramObserverService<Client>,
     message_reaction: TelegramObserverService<Client>,
+    message_reaction_count: TelegramObserverService<Client>,
     inline_query: TelegramObserverService<Client>,
     chosen_inline_result: TelegramObserverService<Client>,
     callback_query: TelegramObserverService<Client>,
@@ -933,13 +942,14 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
 
 impl<Client> Service<Client> {
     #[must_use]
-    pub const fn telegram_observers(&self) -> [&TelegramObserverService<Client>; 16] {
+    pub const fn telegram_observers(&self) -> [&TelegramObserverService<Client>; 17] {
         [
             &self.message,
             &self.edited_message,
             &self.channel_post,
             &self.edited_channel_post,
             &self.message_reaction,
+            &self.message_reaction_count,
             &self.inline_query,
             &self.chosen_inline_result,
             &self.callback_query,
@@ -970,6 +980,7 @@ impl<Client> Service<Client> {
             UpdateType::ChannelPost => &self.channel_post,
             UpdateType::EditedChannelPost => &self.edited_channel_post,
             UpdateType::MessageReaction => &self.message_reaction,
+            UpdateType::MessageReactionCount => &self.message_reaction_count,
             UpdateType::InlineQuery => &self.inline_query,
             UpdateType::ChosenInlineResult => &self.chosen_inline_result,
             UpdateType::CallbackQuery => &self.callback_query,
@@ -1039,6 +1050,7 @@ pub struct OuterMiddlewaresConfig<Client> {
     pub channel_post: Box<[Arc<dyn OuterMiddleware<Client>>]>,
     pub edited_channel_post: Box<[Arc<dyn OuterMiddleware<Client>>]>,
     pub message_reaction: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+    pub message_reaction_count: Box<[Arc<dyn OuterMiddleware<Client>>]>,
     pub inline_query: Box<[Arc<dyn OuterMiddleware<Client>>]>,
     pub chosen_inline_result: Box<[Arc<dyn OuterMiddleware<Client>>]>,
     pub callback_query: Box<[Arc<dyn OuterMiddleware<Client>>]>,
@@ -1082,6 +1094,7 @@ impl<Client> Clone for OuterMiddlewaresConfig<Client> {
             channel_post: self.channel_post.clone(),
             edited_channel_post: self.edited_channel_post.clone(),
             message_reaction: self.message_reaction.clone(),
+            message_reaction_count: self.message_reaction_count.clone(),
             inline_query: self.inline_query.clone(),
             chosen_inline_result: self.chosen_inline_result.clone(),
             callback_query: self.callback_query.clone(),
@@ -1103,6 +1116,7 @@ pub struct OuterMiddlewaresConfigBuilder<Client> {
     pub channel_post: Vec<Arc<dyn OuterMiddleware<Client>>>,
     pub edited_channel_post: Vec<Arc<dyn OuterMiddleware<Client>>>,
     pub message_reaction: Vec<Arc<dyn OuterMiddleware<Client>>>,
+    pub message_reaction_count: Vec<Arc<dyn OuterMiddleware<Client>>>,
     pub inline_query: Vec<Arc<dyn OuterMiddleware<Client>>>,
     pub chosen_inline_result: Vec<Arc<dyn OuterMiddleware<Client>>>,
     pub callback_query: Vec<Arc<dyn OuterMiddleware<Client>>>,
@@ -1144,6 +1158,12 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
     #[must_use]
     pub fn message_reaction(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
         self.message_reaction.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn message_reaction_count(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.message_reaction_count.push(Arc::new(val));
         self
     }
 
@@ -1221,6 +1241,7 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
             channel_post: self.channel_post.into(),
             edited_channel_post: self.edited_channel_post.into(),
             message_reaction: self.message_reaction.into(),
+            message_reaction_count: self.message_reaction_count.into(),
             inline_query: self.inline_query.into(),
             chosen_inline_result: self.chosen_inline_result.into(),
             callback_query: self.callback_query.into(),
@@ -1245,6 +1266,7 @@ impl<Client> Default for OuterMiddlewaresConfigBuilder<Client> {
             channel_post: vec![],
             edited_channel_post: vec![],
             message_reaction: vec![],
+            message_reaction_count: vec![],
             inline_query: vec![],
             chosen_inline_result: vec![],
             callback_query: vec![],
@@ -1266,6 +1288,7 @@ pub struct InnerMiddlewaresConfig<Client> {
     pub channel_post: Box<[Arc<dyn InnerMiddleware<Client>>]>,
     pub edited_channel_post: Box<[Arc<dyn InnerMiddleware<Client>>]>,
     pub message_reaction: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    pub message_reaction_count: Box<[Arc<dyn InnerMiddleware<Client>>]>,
     pub inline_query: Box<[Arc<dyn InnerMiddleware<Client>>]>,
     pub chosen_inline_result: Box<[Arc<dyn InnerMiddleware<Client>>]>,
     pub callback_query: Box<[Arc<dyn InnerMiddleware<Client>>]>,
@@ -1305,6 +1328,7 @@ where
             .channel_post(logging_middleware.clone())
             .edited_channel_post(logging_middleware.clone())
             .message_reaction(logging_middleware.clone())
+            .message_reaction_count(logging_middleware.clone())
             .inline_query(logging_middleware.clone())
             .chosen_inline_result(logging_middleware.clone())
             .callback_query(logging_middleware.clone())
@@ -1328,6 +1352,7 @@ impl<Client> Clone for InnerMiddlewaresConfig<Client> {
             channel_post: self.channel_post.clone(),
             edited_channel_post: self.edited_channel_post.clone(),
             message_reaction: self.message_reaction.clone(),
+            message_reaction_count: self.message_reaction_count.clone(),
             inline_query: self.inline_query.clone(),
             chosen_inline_result: self.chosen_inline_result.clone(),
             callback_query: self.callback_query.clone(),
@@ -1349,6 +1374,7 @@ pub struct InnerMiddlewaresConfigBuilder<Client> {
     pub channel_post: Vec<Arc<dyn InnerMiddleware<Client>>>,
     pub edited_channel_post: Vec<Arc<dyn InnerMiddleware<Client>>>,
     pub message_reaction: Vec<Arc<dyn InnerMiddleware<Client>>>,
+    pub message_reaction_count: Vec<Arc<dyn InnerMiddleware<Client>>>,
     pub inline_query: Vec<Arc<dyn InnerMiddleware<Client>>>,
     pub chosen_inline_result: Vec<Arc<dyn InnerMiddleware<Client>>>,
     pub callback_query: Vec<Arc<dyn InnerMiddleware<Client>>>,
@@ -1390,6 +1416,12 @@ impl<Client> InnerMiddlewaresConfigBuilder<Client> {
     #[must_use]
     pub fn message_reaction(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
         self.message_reaction.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn message_reaction_count(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.message_reaction_count.push(Arc::new(val));
         self
     }
 
@@ -1467,6 +1499,7 @@ impl<Client> InnerMiddlewaresConfigBuilder<Client> {
             channel_post: self.channel_post.into(),
             edited_channel_post: self.edited_channel_post.into(),
             message_reaction: self.message_reaction.into(),
+            message_reaction_count: self.message_reaction_count.into(),
             inline_query: self.inline_query.into(),
             chosen_inline_result: self.chosen_inline_result.into(),
             callback_query: self.callback_query.into(),
@@ -1491,6 +1524,7 @@ impl<Client> Default for InnerMiddlewaresConfigBuilder<Client> {
             channel_post: vec![],
             edited_channel_post: vec![],
             message_reaction: vec![],
+            message_reaction_count: vec![],
             inline_query: vec![],
             chosen_inline_result: vec![],
             callback_query: vec![],
@@ -1621,6 +1655,7 @@ mod tests {
         router.channel_post.register(telegram_handler);
         router.edited_channel_post.register(telegram_handler);
         router.message_reaction.register(telegram_handler);
+        router.message_reaction_count.register(telegram_handler);
         router.inline_query.register(telegram_handler);
         router.chosen_inline_result.register(telegram_handler);
         router.callback_query.register(telegram_handler);

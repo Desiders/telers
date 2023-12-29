@@ -24,6 +24,8 @@ pub enum UpdateType {
     EditedChannelPost,
     #[strum(serialize = "message_reaction")]
     MessageReaction,
+    #[strum(serialize = "message_reaction_count")]
+    MessageReactionCount,
     #[strum(serialize = "shipping_query")]
     ShippingQuery,
     #[strum(serialize = "pre_checkout_query")]
@@ -89,6 +91,7 @@ impl<'a> From<&'a UpdateKind> for UpdateType {
             UpdateKind::ChannelPost(_) => UpdateType::ChannelPost,
             UpdateKind::EditedChannelPost(_) => UpdateType::EditedChannelPost,
             UpdateKind::MessageReaction(_) => UpdateType::MessageReaction,
+            UpdateKind::MessageReactionCount(_) => UpdateType::MessageReactionCount,
             UpdateKind::InlineQuery(_) => UpdateType::InlineQuery,
             UpdateKind::ChosenInlineResult(_) => UpdateType::ChosenInlineResult,
             UpdateKind::CallbackQuery(_) => UpdateType::CallbackQuery,
