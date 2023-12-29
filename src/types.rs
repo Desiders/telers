@@ -145,6 +145,7 @@ pub mod message_auto_delete_timer_changed;
 pub mod message_entity;
 pub mod message_id;
 pub mod message_or_true;
+pub mod message_reaction_updated;
 pub mod order_info;
 pub mod passport_data;
 pub mod passport_element_error;
@@ -355,6 +356,7 @@ pub use message_entity::{
 };
 pub use message_id::MessageId;
 pub use message_or_true::MessageOrTrue;
+pub use message_reaction_updated::MessageReactionUpdated;
 pub use order_info::OrderInfo;
 pub use passport_data::PassportData;
 pub use passport_element_error::PassportElementError;

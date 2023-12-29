@@ -22,6 +22,8 @@ pub enum UpdateType {
     EditedMessage,
     #[strum(serialize = "edited_channel_post")]
     EditedChannelPost,
+    #[strum(serialize = "message_reaction")]
+    MessageReaction,
     #[strum(serialize = "shipping_query")]
     ShippingQuery,
     #[strum(serialize = "pre_checkout_query")]
@@ -40,7 +42,7 @@ pub enum UpdateType {
 
 impl UpdateType {
     #[must_use]
-    pub const fn all() -> &'static [UpdateType; 14] {
+    pub const fn all() -> &'static [UpdateType; 15] {
         &[
             UpdateType::Message,
             UpdateType::InlineQuery,
@@ -49,6 +51,7 @@ impl UpdateType {
             UpdateType::ChannelPost,
             UpdateType::EditedMessage,
             UpdateType::EditedChannelPost,
+            UpdateType::MessageReaction,
             UpdateType::ShippingQuery,
             UpdateType::PreCheckoutQuery,
             UpdateType::Poll,
@@ -85,6 +88,7 @@ impl<'a> From<&'a UpdateKind> for UpdateType {
             UpdateKind::EditedMessage(_) => UpdateType::EditedMessage,
             UpdateKind::ChannelPost(_) => UpdateType::ChannelPost,
             UpdateKind::EditedChannelPost(_) => UpdateType::EditedChannelPost,
+            UpdateKind::MessageReaction(_) => UpdateType::MessageReaction,
             UpdateKind::InlineQuery(_) => UpdateType::InlineQuery,
             UpdateKind::ChosenInlineResult(_) => UpdateType::ChosenInlineResult,
             UpdateKind::CallbackQuery(_) => UpdateType::CallbackQuery,

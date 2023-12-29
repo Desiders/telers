@@ -17,6 +17,8 @@ pub enum Telegram {
     EditedMessage,
     #[strum(serialize = "edited_channel_post")]
     EditedChannelPost,
+    #[strum(serialize = "message_reaction")]
+    MessageReaction,
     #[strum(serialize = "shipping_query")]
     ShippingQuery,
     #[strum(serialize = "pre_checkout_query")]
@@ -37,7 +39,7 @@ pub enum Telegram {
 
 impl Telegram {
     #[must_use]
-    pub const fn all() -> [Telegram; 15] {
+    pub const fn all() -> [Telegram; 16] {
         [
             Telegram::Message,
             Telegram::InlineQuery,
@@ -46,6 +48,7 @@ impl Telegram {
             Telegram::ChannelPost,
             Telegram::EditedMessage,
             Telegram::EditedChannelPost,
+            Telegram::MessageReaction,
             Telegram::ShippingQuery,
             Telegram::PreCheckoutQuery,
             Telegram::Poll,
