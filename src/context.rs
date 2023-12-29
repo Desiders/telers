@@ -35,10 +35,10 @@
 //! [`filter module`]: crate::filters
 //! [`extractors module`]: crate::extractors
 
-use dashmap::DashMap;
+use chashmap::CHashMap;
 use std::any::Any;
 
-pub type Context = DashMap<&'static str, Box<dyn Any + Send + Sync>>;
+pub type Context = CHashMap<&'static str, Box<dyn Any + Send + Sync>>;
 
 #[cfg(test)]
 mod tests {
