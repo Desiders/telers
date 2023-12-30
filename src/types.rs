@@ -145,6 +145,11 @@ pub mod message_auto_delete_timer_changed;
 pub mod message_entity;
 pub mod message_id;
 pub mod message_or_true;
+pub mod message_origin;
+pub mod message_origin_channel;
+pub mod message_origin_chat;
+pub mod message_origin_hidden_user;
+pub mod message_origin_user;
 pub mod message_reaction_count_updated;
 pub mod message_reaction_updated;
 pub mod order_info;
@@ -256,6 +261,7 @@ pub use encrypted_passport_element::{
     TemporaryRegistration as EncryptedPassportElementTemporaryRegistration,
     UtilityBill as EncryptedPassportElementUtilityBill,
 };
+pub use external_reply_info::ExternalReplyInfo;
 pub use file::File;
 pub use force_reply::ForceReply;
 pub use forum_topic::ForumTopic;
@@ -358,6 +364,11 @@ pub use message_entity::{
 };
 pub use message_id::MessageId;
 pub use message_or_true::MessageOrTrue;
+pub use message_origin::MessageOrigin;
+pub use message_origin_channel::MessageOriginChannel;
+pub use message_origin_chat::MessageOriginChat;
+pub use message_origin_hidden_user::MessageOriginHiddenUser;
+pub use message_origin_user::MessageOriginUser;
 pub use message_reaction_count_updated::MessageReactionCountUpdated;
 pub use message_reaction_updated::MessageReactionUpdated;
 pub use order_info::OrderInfo;
