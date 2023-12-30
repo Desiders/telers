@@ -1,4 +1,6 @@
-use super::{Chat, InlineKeyboardMarkup, MessageEntity, PhotoSize, Update, UpdateKind, User};
+use super::{
+    Chat, InlineKeyboardMarkup, MessageEntity, PhotoSize, TextQuote, Update, UpdateKind, User,
+};
 
 use crate::{errors::ConvertToTypeError, types};
 
@@ -87,6 +89,8 @@ pub struct Animation {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// For replies that quote part of the original message, the quoted part of the message
+    pub quote: Option<TextQuote>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Date the message was last edited in Unix time
@@ -132,6 +136,8 @@ pub struct Audio {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// For replies that quote part of the original message, the quoted part of the message
+    pub quote: Option<TextQuote>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Date the message was last edited in Unix time
@@ -247,6 +253,8 @@ pub struct Document {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// For replies that quote part of the original message, the quoted part of the message
+    pub quote: Option<TextQuote>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Date the message was last edited in Unix time
@@ -440,6 +448,8 @@ pub struct Photo {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// For replies that quote part of the original message, the quoted part of the message
+    pub quote: Option<TextQuote>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Date the message was last edited in Unix time
@@ -575,6 +585,8 @@ pub struct Text {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// For replies that quote part of the original message, the quoted part of the message
+    pub quote: Option<TextQuote>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Date the message was last edited in Unix time
@@ -615,6 +627,8 @@ pub struct Video {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// For replies that quote part of the original message, the quoted part of the message
+    pub quote: Option<TextQuote>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Date the message was last edited in Unix time
@@ -696,6 +710,8 @@ pub struct Voice {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// For replies that quote part of the original message, the quoted part of the message
+    pub quote: Option<TextQuote>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// `true`, if the message can't be forwarded
@@ -2137,6 +2153,23 @@ impl Message {
                 reply_to_message, ..
             }) => match reply_to_message {
                 Some(reply_to_message) => Some(reply_to_message),
+                None => None,
+            },
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn quote(&self) -> Option<&TextQuote> {
+        match self {
+            Message::Text(Text { quote, .. })
+            | Message::Animation(Animation { quote, .. })
+            | Message::Audio(Audio { quote, .. })
+            | Message::Document(Document { quote, .. })
+            | Message::Video(Video { quote, .. })
+            | Message::Voice(Voice { quote, .. })
+            | Message::Photo(Photo { quote, .. }) => match quote {
+                Some(quote) => Some(quote),
                 None => None,
             },
             _ => None,

@@ -188,6 +188,7 @@ pub mod sticker_set;
 pub mod story;
 pub mod successful_payment;
 pub mod switch_inline_query_chosen_chat;
+pub mod text_quote;
 pub mod update;
 pub mod user;
 pub mod user_profile_photos;
@@ -261,7 +262,6 @@ pub use encrypted_passport_element::{
     TemporaryRegistration as EncryptedPassportElementTemporaryRegistration,
     UtilityBill as EncryptedPassportElementUtilityBill,
 };
-pub use external_reply_info::ExternalReplyInfo;
 pub use file::File;
 pub use force_reply::ForceReply;
 pub use forum_topic::ForumTopic;
@@ -423,6 +423,7 @@ pub use sticker_set::StickerSet;
 pub use story::Story;
 pub use successful_payment::SuccessfulPayment;
 pub use switch_inline_query_chosen_chat::SwitchInlineQueryChosenChat;
+pub use text_quote::TextQuote;
 pub use update::{Kind as UpdateKind, Update};
 pub use user::User;
 pub use user_profile_photos::UserProfilePhotos;
