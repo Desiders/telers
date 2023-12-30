@@ -2,7 +2,7 @@ use super::base::{Request, TelegramMethod};
 
 use crate::{
     client::Bot,
-    types::{ChatIdKind, InlineKeyboardMarkup, LabeledPrice, Message},
+    types::{ChatIdKind, InlineKeyboardMarkup, LabeledPrice, Message, ReplyParameters},
 };
 
 use serde::Serialize;
@@ -66,10 +66,8 @@ pub struct SendInvoice {
     pub disable_notification: Option<bool>,
     /// Protects the contents of the sent message from forwarding and saving
     pub protect_content: Option<bool>,
-    /// If the message is a reply, ID of the original message
-    pub reply_to_message_id: Option<i64>,
-    /// Pass `true`, if the message should be sent even if the specified replied-to message is not found
-    pub allow_sending_without_reply: Option<bool>,
+    /// Description of the message to reply to
+    pub reply_parameters: Option<ReplyParameters>,
     /// A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). If empty, one 'Pay `total price`' button will be shown. If not empty, the first button must be a Pay button.
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
@@ -111,8 +109,7 @@ impl SendInvoice {
             is_flexible: None,
             disable_notification: None,
             protect_content: None,
-            reply_to_message_id: None,
-            allow_sending_without_reply: None,
+            reply_parameters: None,
             reply_markup: None,
         }
     }
@@ -338,17 +335,9 @@ impl SendInvoice {
     }
 
     #[must_use]
-    pub fn reply_to_message_id(self, val: i64) -> Self {
+    pub fn reply_parameters(self, val: ReplyParameters) -> Self {
         Self {
-            reply_to_message_id: Some(val),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn allow_sending_without_reply(self, val: bool) -> Self {
-        Self {
-            allow_sending_without_reply: Some(val),
+            reply_parameters: Some(val),
             ..self
         }
     }
@@ -500,17 +489,9 @@ impl SendInvoice {
     }
 
     #[must_use]
-    pub fn reply_to_message_id_option(self, val: Option<i64>) -> Self {
+    pub fn reply_parameters_option(self, val: Option<ReplyParameters>) -> Self {
         Self {
-            reply_to_message_id: val,
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn allow_sending_without_reply_option(self, val: Option<bool>) -> Self {
-        Self {
-            allow_sending_without_reply: val,
+            reply_parameters: val,
             ..self
         }
     }
