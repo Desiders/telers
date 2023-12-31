@@ -121,6 +121,13 @@ impl TextFormatter for Formatter {
         )
     }
 
+    fn blockquote<T>(&self, text: T) -> String
+    where
+        T: AsRef<str>,
+    {
+        format!("<blockquote>{text}</blockquote>", text = text.as_ref())
+    }
+
     fn text_link<T, U>(&self, text: T, url: U) -> String
     where
         T: AsRef<str>,
@@ -227,6 +234,7 @@ impl TextFormatter for Formatter {
             MessageEntityKind::Underline => self.underline(editable_text),
             MessageEntityKind::Strikethrough => self.strikethrough(editable_text),
             MessageEntityKind::Spoiler => self.spoiler(editable_text),
+            MessageEntityKind::Blockquote => self.blockquote(editable_text),
             MessageEntityKind::Code => self.code(editable_text),
             MessageEntityKind::Pre(PreMessageEntity { language }) => match language {
                 Some(language) => self.pre_language(editable_text, language),
@@ -267,6 +275,10 @@ pub fn strikethrough(text: impl AsRef<str>) -> String {
 
 pub fn spoiler(text: impl AsRef<str>) -> String {
     FORMATTER.spoiler(text)
+}
+
+pub fn blockquote(text: impl AsRef<str>) -> String {
+    FORMATTER.blockquote(text)
 }
 
 pub fn text_link(text: impl AsRef<str>, url: impl AsRef<str>) -> String {
@@ -329,6 +341,15 @@ mod tests {
     fn test_spoiler() {
         let formatter = Formatter::default();
         assert_eq!(formatter.spoiler("text"), "<tg-spoiler>text</tg-spoiler>");
+    }
+
+    #[test]
+    fn test_blockquote() {
+        let formatter = Formatter::default();
+        assert_eq!(
+            formatter.blockquote("text"),
+            "<blockquote>text</blockquote>"
+        );
     }
 
     #[test]
