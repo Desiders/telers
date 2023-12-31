@@ -6,14 +6,12 @@ use crate::{
 };
 
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// Use this method to get information about a member of a chat. The method is only guaranteed to work for other users if the bot is an administrator in the chat
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getchatmember>
 /// # Returns
 /// Returns a [`ChatMember`] object on success
-#[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct GetChatMember {
     /// Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`)

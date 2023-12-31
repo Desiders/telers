@@ -3,14 +3,12 @@ use super::base::{Request, TelegramMethod};
 use crate::{client::Bot, types::Sticker};
 
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// Use this method to get custom emoji stickers, which can be used as a forum topic icon by any user. Requires no parameters.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getforumtopiciconstickers>
 /// # Returns
 /// Returns an Array of [`Sticker`] objects
-#[skip_serializing_none]
 #[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct GetForumTopicIconStickers {}
 

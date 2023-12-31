@@ -33,6 +33,7 @@ pub enum Kind {
     Underline,
     Strikethrough,
     Spoiler,
+    Blockquote,
     Code,
     Pre(Pre),
     TextLink(TextLink),
@@ -166,6 +167,11 @@ impl MessageEntity {
     #[must_use]
     pub fn new_spoiler(offset: u16, length: u16) -> Self {
         Self::new(offset, length, Kind::Spoiler)
+    }
+
+    #[must_use]
+    pub fn new_blockquote(offset: u16, length: u16) -> Self {
+        Self::new(offset, length, Kind::Blockquote)
     }
 
     #[must_use]

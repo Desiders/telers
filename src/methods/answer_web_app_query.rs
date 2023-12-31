@@ -6,14 +6,12 @@ use crate::{
 };
 
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// Use this method to set the result of an interaction with a [`Web App`](https://core.telegram.org/bots/webapps) and send a corresponding message on behalf of the user to the chat from which the query originated.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#answerwebappquery>
 /// # Returns
 /// On success, a [`SentWebAppMessage`] object is returned
-#[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct AnswerWebAppQuery {
     /// Unique identifier for the query to be answered

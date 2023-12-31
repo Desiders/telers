@@ -3,14 +3,12 @@ use super::base::{Request, TelegramMethod};
 use crate::{client::Bot, types::ChatIdKind};
 
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// Use this method to decline a chat join request. The bot must be an administrator in the chat for this to work and must have the `can_invite_users` administrator right.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#declinechatjoinrequest>
 /// # Returns
 /// Returns `true` on success
-#[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct DeclineChatJoinRequest {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)

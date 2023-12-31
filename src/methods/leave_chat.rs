@@ -3,14 +3,12 @@ use super::base::{Request, TelegramMethod};
 use crate::{client::Bot, types::ChatIdKind};
 
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// Use this method for your bot to leave a group, supergroup or channel.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#leavechat>
 /// # Returns
 /// Returns `true` on success
-#[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct LeaveChat {
     /// Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`)

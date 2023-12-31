@@ -3,7 +3,6 @@ use super::base::{Request, TelegramMethod};
 use crate::{client::Bot, types::ChatIdKind};
 
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// Use this method to delete a message, including service messages, with the following limitations:
 /// Use this method to delete a message, including service messages, with the following limitations:
@@ -19,7 +18,6 @@ use serde_with::skip_serializing_none;
 /// <https://core.telegram.org/bots/api#deletemessage>
 /// # Returns
 /// Returns `true` on success
-#[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct DeleteMessage {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)

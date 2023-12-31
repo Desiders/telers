@@ -3,14 +3,12 @@ use super::base::{Request, TelegramMethod};
 use crate::{client::Bot, types::StickerSet};
 
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// Use this method to get a sticker set.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getstickerset>
 /// # Returns
 /// On success, a [`StickerSet`] object is returned
-#[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct GetStickerSet {
     /// Name of the sticker set

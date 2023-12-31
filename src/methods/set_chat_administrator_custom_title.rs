@@ -3,14 +3,12 @@ use super::base::{Request, TelegramMethod};
 use crate::{client::Bot, types::ChatIdKind};
 
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// Use this method to set a custom title for an administrator in a supergroup promoted by the bot.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setchatadministratorcustomtitle>
 /// # Returns
 /// Returns `true` on success
-#[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct SetChatAdministratorCustomTitle {
     /// Unique identifier for the target group or username of the target supergroup (in the format `@channelusername`)

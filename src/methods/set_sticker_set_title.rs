@@ -3,14 +3,12 @@ use super::base::{Request, TelegramMethod};
 use crate::client::Bot;
 
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// Use this method to set the title of a created sticker set.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setstickersettitle>
 /// # Returns
 /// Returns `true` on success
-#[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct SetStickerSetTitle {
     /// Sticker set name
