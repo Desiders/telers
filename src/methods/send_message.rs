@@ -2,7 +2,7 @@ use super::base::{Request, TelegramMethod};
 
 use crate::{
     client::Bot,
-    types::{ChatIdKind, Message, MessageEntity, ReplyMarkup, ReplyParameters},
+    types::{ChatIdKind, LinkPreviewOptions, Message, MessageEntity, ReplyMarkup, ReplyParameters},
 };
 
 use serde::Serialize;
@@ -26,8 +26,8 @@ pub struct SendMessage {
     pub parse_mode: Option<String>,
     /// A JSON-serialized list of special entities that appear in message text, which can be specified instead of `parse_mode`
     pub entities: Option<Vec<MessageEntity>>,
-    /// Disables link previews for links in this message
-    pub disable_web_page_preview: Option<bool>,
+    /// Link preview generation options for the message
+    pub link_preview_options: Option<LinkPreviewOptions>,
     /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound.
     pub disable_notification: Option<bool>,
     /// Protects the contents of the sent message from forwarding and saving
@@ -47,7 +47,7 @@ impl SendMessage {
             text: text.into(),
             parse_mode: None,
             entities: None,
-            disable_web_page_preview: None,
+            link_preview_options: None,
             disable_notification: None,
             protect_content: None,
             reply_parameters: None,
@@ -116,9 +116,9 @@ impl SendMessage {
     }
 
     #[must_use]
-    pub fn disable_web_page_preview(self, val: bool) -> Self {
+    pub fn link_preview_options(self, val: LinkPreviewOptions) -> Self {
         Self {
-            disable_web_page_preview: Some(val),
+            link_preview_options: Some(val),
             ..self
         }
     }
@@ -182,9 +182,9 @@ impl SendMessage {
     }
 
     #[must_use]
-    pub fn disable_web_page_preview_option(self, val: Option<bool>) -> Self {
+    pub fn link_preview_options_option(self, val: Option<LinkPreviewOptions>) -> Self {
         Self {
-            disable_web_page_preview: val,
+            link_preview_options: val,
             ..self
         }
     }

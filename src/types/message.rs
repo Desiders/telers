@@ -1,5 +1,6 @@
 use super::{
-    Chat, InlineKeyboardMarkup, MessageEntity, PhotoSize, TextQuote, Update, UpdateKind, User,
+    Chat, InlineKeyboardMarkup, LinkPreviewOptions, MessageEntity, PhotoSize, TextQuote, Update,
+    UpdateKind, User,
 };
 
 use crate::{errors::ConvertToTypeError, types};
@@ -599,6 +600,8 @@ pub struct Text {
     pub text: Box<str>,
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the text
     pub entities: Option<Box<[MessageEntity]>>,
+    /// Options used for link preview generation for the message, if it is a text message an
+    pub link_preview_options: Option<LinkPreviewOptions>,
     /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary `url` buttons.
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }

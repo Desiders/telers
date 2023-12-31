@@ -8,7 +8,7 @@
 //! - is a tagged union, it will be wrapped in `enum` with variants named as in the documentation,
 //! - is a type with optional fields, it can be represented as an enum with variants for specific cases (check [`Message`] for example).
 //! - is a string, it will be represented as [`String`] or [`str`] wrapped in [`Box`],
-//! - is a number, it will be represented as [`i64`]
+//! - is a number, it will be represented as [`i64`] or [`u16`] if it's UTF-16 code unit,
 //! - is a float, it will be represented as [`f64`],
 //! - is a boolean, it will be represented as [`bool`],
 //! - is a file, it will be represented as [`InputFile`],
@@ -35,8 +35,7 @@
 //! - [`MessageText`]
 //! - [`MessageAnimation`]
 //! and so on... (see [`Message`] for full list of variants).
-//! Each variant has an implementation of [`From`] trait to convert from the variant to the [`Message`]
-//! and [`Into`] trait to convert from the [`Message`] to the variant.
+//! Each variant has an implementation of [`Into`] trait to convert from the variant to the [`Message`].
 
 pub mod animation;
 pub mod audio;
@@ -77,6 +76,7 @@ pub mod dice;
 pub mod document;
 pub mod encrypted_credentials;
 pub mod encrypted_passport_element;
+pub mod external_reply_info;
 pub mod file;
 pub mod force_reply;
 pub mod forum_topic;
@@ -133,6 +133,7 @@ pub mod keyboard_button_poll_type;
 pub mod keyboard_button_request_chat;
 pub mod keyboard_button_request_user;
 pub mod labeled_price;
+pub mod link_preview_options;
 pub mod location;
 pub mod login_url;
 pub mod mask_position;
@@ -263,6 +264,7 @@ pub use encrypted_passport_element::{
     TemporaryRegistration as EncryptedPassportElementTemporaryRegistration,
     UtilityBill as EncryptedPassportElementUtilityBill,
 };
+pub use external_reply_info::ExternalReplyInfo;
 pub use file::File;
 pub use force_reply::ForceReply;
 pub use forum_topic::ForumTopic;
@@ -322,6 +324,7 @@ pub use keyboard_button_poll_type::KeyboardButtonPollType;
 pub use keyboard_button_request_chat::KeyboardButtonRequestChat;
 pub use keyboard_button_request_user::KeyboardButtonRequestUser;
 pub use labeled_price::LabeledPrice;
+pub use link_preview_options::LinkPreviewOptions;
 pub use location::Location;
 pub use login_url::LoginUrl;
 pub use mask_position::MaskPosition;

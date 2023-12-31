@@ -2,7 +2,7 @@ use super::base::{Request, TelegramMethod};
 
 use crate::{
     client::Bot,
-    types::{ChatIdKind, InlineKeyboardMarkup, MessageEntity, MessageOrTrue},
+    types::{ChatIdKind, InlineKeyboardMarkup, LinkPreviewOptions, MessageEntity, MessageOrTrue},
 };
 
 use serde::Serialize;
@@ -28,8 +28,8 @@ pub struct EditMessageText {
     pub parse_mode: Option<String>,
     /// A JSON-serialized list of special entities that appear in message text, which can be specified instead of `parse_mode`
     pub entities: Option<Vec<MessageEntity>>,
-    /// Disables link previews for links in this message
-    pub disable_web_page_preview: Option<bool>,
+    /// Link preview generation options for the message
+    pub link_preview_options: Option<LinkPreviewOptions>,
     /// A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards).
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
@@ -44,7 +44,7 @@ impl EditMessageText {
             text: text.into(),
             parse_mode: None,
             entities: None,
-            disable_web_page_preview: None,
+            link_preview_options: None,
             reply_markup: None,
         }
     }
@@ -104,9 +104,9 @@ impl EditMessageText {
     }
 
     #[must_use]
-    pub fn disable_web_page_preview(self, val: bool) -> Self {
+    pub fn link_preview_options(self, val: LinkPreviewOptions) -> Self {
         Self {
-            disable_web_page_preview: Some(val),
+            link_preview_options: Some(val),
             ..self
         }
     }
@@ -168,9 +168,9 @@ impl EditMessageText {
     }
 
     #[must_use]
-    pub fn disable_web_page_preview_option(self, val: Option<bool>) -> Self {
+    pub fn link_preview_options_option(self, val: Option<LinkPreviewOptions>) -> Self {
         Self {
-            disable_web_page_preview: val,
+            link_preview_options: val,
             ..self
         }
     }
