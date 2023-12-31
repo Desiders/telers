@@ -9,11 +9,11 @@ use serde::{Deserialize, Serialize};
 pub struct KeyboardButtonRequestChat {
     /// Signed 32-bit identifier of the request, which will be received back in the [`UserShared`](crate::types::UserShared) object. Must be unique within the message
     pub request_id: i64,
-    /// Pass `true` to request a channel chat, pass `False` to request a group or a supergroup chat.
+    /// Pass `true` to request a channel chat, pass `false` to request a group or a supergroup chat.
     pub chat_is_channel: bool,
-    /// Pass `true` to request a forum supergroup, pass `False` to request a non-forum chat. If not specified, no additional restrictions are applied.
+    /// Pass `true` to request a forum supergroup, pass `false` to request a non-forum chat. If not specified, no additional restrictions are applied.
     pub chat_is_forum: Option<bool>,
-    /// Pass `true` to request a supergroup or a channel with a username, pass `False` to request a chat without a username. If not specified, no additional restrictions are applied.
+    /// Pass `true` to request a supergroup or a channel with a username, pass `false` to request a chat without a username. If not specified, no additional restrictions are applied.
     pub chat_has_username: Option<bool>,
     /// Pass `true` to request a chat owned by the user. Otherwise, no additional restrictions are applied.
     pub chat_is_created: Option<bool>,

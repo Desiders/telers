@@ -7,9 +7,9 @@ use serde::{Deserialize, Serialize};
 pub struct KeyboardButtonRequestUser {
     /// Signed 32-bit identifier of the request, which will be received back in the [`UserShared`](crate::types::UserShared) object. Must be unique within the message
     pub request_id: i64,
-    /// Pass `true` to request a bot, pass `False` to request a regular user. If not specified, no additional restrictions are applied.
+    /// Pass `true` to request a bot, pass `false` to request a regular user. If not specified, no additional restrictions are applied.
     pub user_is_bot: Option<bool>,
-    /// Pass `true` to request a premium user, pass `False` to request a non-premium user. If not specified, no additional restrictions are applied.
+    /// Pass `true` to request a premium user, pass `false` to request a non-premium user. If not specified, no additional restrictions are applied.
     pub user_is_premium: Option<bool>,
 }
 

@@ -29,7 +29,7 @@ pub struct SendPoll {
     /// Poll type, `quiz` or `regular`, defaults to `regular`
     #[serde(rename = "type")]
     pub poll_type: Option<String>,
-    /// `true`, if the poll allows multiple answers, ignored for polls in `quiz` mode, defaults to `False`
+    /// `true`, if the poll allows multiple answers, ignored for polls in `quiz` mode, defaults to `false`
     pub allows_multiple_answers: Option<bool>,
     /// 0-based identifier of the correct answer option, required for polls in `quiz` mode
     pub correct_option_id: Option<i64>,
