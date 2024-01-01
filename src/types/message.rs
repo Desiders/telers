@@ -57,6 +57,10 @@ pub enum Message {
     ForumTopicReopened(ForumTopicReopened),
     GeneralForumTopicHidden(GeneralForumTopicHidden),
     GeneralForumTopicUnhidden(GeneralForumTopicUnhidden),
+    GiveawayCreated(GiveawayCreated),
+    Giveaway(Giveaway),
+    GiveawayWinners(GiveawayWinners),
+    GiveawayCompleted(GiveawayCompleted),
     VideoChatScheduled(VideoChatScheduled),
     VideoChatStarted(VideoChatStarted),
     VideoChatEnded(VideoChatEnded),
@@ -1458,6 +1462,89 @@ pub struct GeneralForumTopicUnhidden {
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct GiveawayCreated {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: a scheduled giveaway was created
+    #[serde(rename = "giveaway_created")]
+    pub created: types::GiveawayCreated,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct Giveaway {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// The message is a scheduled giveaway message
+    pub giveaway: types::Giveaway,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct GiveawayWinners {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// A giveaway with public winners was completed
+    #[serde(rename = "giveaway_winners")]
+    pub winners: types::GiveawayWinners,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct GiveawayCompleted {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: a giveaway without public winners was completed
+    #[serde(rename = "giveaway_completed")]
+    pub completed: types::GiveawayCompleted,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct VideoChatScheduled {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1621,7 +1708,11 @@ impl Message {
             | Message::VideoChatEnded(VideoChatEnded { id, .. })
             | Message::VideoChatParticipantsInvited(VideoChatParticipantsInvited { id, .. })
             | Message::WebAppData(WebAppData { id, .. })
-            | Message::Empty(Empty { id, .. }) => *id,
+            | Message::Empty(Empty { id, .. })
+            | Message::GiveawayCreated(GiveawayCreated { id, .. })
+            | Message::Giveaway(Giveaway { id, .. })
+            | Message::GiveawayWinners(GiveawayWinners { id, .. })
+            | Message::GiveawayCompleted(GiveawayCompleted { id, .. }) => *id,
         }
     }
 
@@ -1681,7 +1772,11 @@ impl Message {
                 ..
             })
             | Message::WebAppData(WebAppData { thread_id, .. })
-            | Message::Empty(Empty { thread_id, .. }) => *thread_id,
+            | Message::Empty(Empty { thread_id, .. })
+            | Message::GiveawayCreated(GiveawayCreated { thread_id, .. })
+            | Message::Giveaway(Giveaway { thread_id, .. })
+            | Message::GiveawayWinners(GiveawayWinners { thread_id, .. })
+            | Message::GiveawayCompleted(GiveawayCompleted { thread_id, .. }) => *thread_id,
         }
     }
 
@@ -1739,7 +1834,11 @@ impl Message {
                 date, ..
             })
             | Message::WebAppData(WebAppData { date, .. })
-            | Message::Empty(Empty { date, .. }) => *date,
+            | Message::Empty(Empty { date, .. })
+            | Message::GiveawayCreated(GiveawayCreated { date, .. })
+            | Message::Giveaway(Giveaway { date, .. })
+            | Message::GiveawayWinners(GiveawayWinners { date, .. })
+            | Message::GiveawayCompleted(GiveawayCompleted { date, .. }) => *date,
         }
     }
 
@@ -1797,7 +1896,11 @@ impl Message {
                 chat, ..
             })
             | Message::WebAppData(WebAppData { chat, .. })
-            | Message::Empty(Empty { chat, .. }) => chat,
+            | Message::Empty(Empty { chat, .. })
+            | Message::GiveawayCreated(GiveawayCreated { chat, .. })
+            | Message::Giveaway(Giveaway { chat, .. })
+            | Message::GiveawayWinners(GiveawayWinners { chat, .. })
+            | Message::GiveawayCompleted(GiveawayCompleted { chat, .. }) => chat,
         }
     }
 
@@ -1925,7 +2028,11 @@ impl Message {
                 from, ..
             })
             | Message::WebAppData(WebAppData { from, .. })
-            | Message::Empty(Empty { from, .. }) => from,
+            | Message::Empty(Empty { from, .. })
+            | Message::GiveawayCreated(GiveawayCreated { from, .. })
+            | Message::Giveaway(Giveaway { from, .. })
+            | Message::GiveawayWinners(GiveawayWinners { from, .. })
+            | Message::GiveawayCompleted(GiveawayCompleted { from, .. }) => from,
         }
         .as_ref()
     }
@@ -1996,7 +2103,11 @@ impl Message {
                 ..
             })
             | Message::WebAppData(WebAppData { sender_chat, .. })
-            | Message::Empty(Empty { sender_chat, .. }) => sender_chat,
+            | Message::Empty(Empty { sender_chat, .. })
+            | Message::GiveawayCreated(GiveawayCreated { sender_chat, .. })
+            | Message::Giveaway(Giveaway { sender_chat, .. })
+            | Message::GiveawayWinners(GiveawayWinners { sender_chat, .. })
+            | Message::GiveawayCompleted(GiveawayCompleted { sender_chat, .. }) => sender_chat,
         }
         .as_ref()
     }
@@ -2593,6 +2704,38 @@ impl Message {
     }
 
     #[must_use]
+    pub const fn giveaway_created(&self) -> Option<&types::GiveawayCreated> {
+        match self {
+            Message::GiveawayCreated(GiveawayCreated { created, .. }) => Some(created),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn giveaway(&self) -> Option<&types::Giveaway> {
+        match self {
+            Message::Giveaway(Giveaway { giveaway, .. }) => Some(giveaway),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn giveaway_winners(&self) -> Option<&types::GiveawayWinners> {
+        match self {
+            Message::GiveawayWinners(GiveawayWinners { winners, .. }) => Some(winners),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn giveaway_completed(&self) -> Option<&types::GiveawayCompleted> {
+        match self {
+            Message::GiveawayCompleted(GiveawayCompleted { completed, .. }) => Some(completed),
+            _ => None,
+        }
+    }
+
+    #[must_use]
     pub const fn video_chat_scheduled(&self) -> Option<&types::VideoChatScheduled> {
         match self {
             Message::VideoChatScheduled(VideoChatScheduled { scheduled, .. }) => Some(scheduled),
@@ -2828,6 +2971,10 @@ impl_try_from_message!(ForumTopicClosed, ForumTopicClosed);
 impl_try_from_message!(ForumTopicReopened, ForumTopicReopened);
 impl_try_from_message!(GeneralForumTopicHidden, GeneralForumTopicHidden);
 impl_try_from_message!(GeneralForumTopicUnhidden, GeneralForumTopicUnhidden);
+impl_try_from_message!(GiveawayCreated, GiveawayCreated);
+impl_try_from_message!(Giveaway, Giveaway);
+impl_try_from_message!(GiveawayWinners, GiveawayWinners);
+impl_try_from_message!(GiveawayCompleted, GiveawayCompleted);
 impl_try_from_message!(VideoChatScheduled, VideoChatScheduled);
 impl_try_from_message!(VideoChatStarted, VideoChatStarted);
 impl_try_from_message!(VideoChatEnded, VideoChatEnded);
@@ -2903,6 +3050,10 @@ impl_try_from_update!(ForumTopicClosed);
 impl_try_from_update!(ForumTopicReopened);
 impl_try_from_update!(GeneralForumTopicHidden);
 impl_try_from_update!(GeneralForumTopicUnhidden);
+impl_try_from_update!(GiveawayCreated);
+impl_try_from_update!(Giveaway);
+impl_try_from_update!(GiveawayWinners);
+impl_try_from_update!(GiveawayCompleted);
 impl_try_from_update!(VideoChatScheduled);
 impl_try_from_update!(VideoChatStarted);
 impl_try_from_update!(VideoChatEnded);
@@ -4256,6 +4407,135 @@ mod tests {
             match message {
                 Message::GeneralForumTopicUnhidden(message) => {
                     assert_eq!(message, message_general_forum_topic_unhidden);
+                }
+                _ => panic!("Unexpected message type"),
+            }
+        }
+    }
+
+    #[test]
+    fn parse_giveaway_created() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "giveaway_created": {},
+        })];
+
+        for json in jsons {
+            let message_giveaway_created: GiveawayCreated =
+                serde_json::from_value(json.clone()).unwrap();
+            let message: Message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::GiveawayCreated(message) => {
+                    assert_eq!(message, message_giveaway_created);
+                }
+                _ => panic!("Unexpected message type"),
+            }
+        }
+    }
+
+    #[test]
+    fn parse_giveaway() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "giveaway": {
+                "chats": [{
+                    "id": -1,
+                    "title": "test",
+                    "type": "channel",
+                }],
+                "winners_selection_date": 0,
+                "winner_count": 1,
+            },
+        })];
+
+        for json in jsons {
+            let message_giveaway: Giveaway = serde_json::from_value(json.clone()).unwrap();
+            let message: Message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::Giveaway(message) => assert_eq!(message, message_giveaway),
+                _ => panic!("Unexpected message type"),
+            }
+        }
+    }
+
+    #[test]
+    fn parse_giveaway_winners() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "giveaway_winners": {
+                "chat": {
+                    "id": -1,
+                    "title": "test",
+                    "type": "channel",
+                },
+                "giveaway_message_id": 1,
+                "winners_selection_date": 0,
+                "winner_count": 1,
+                "winners": [{
+                    "id": 1,
+                    "is_bot": false,
+                    "first_name": "test",
+                }],
+            },
+        })];
+
+        for json in jsons {
+            let message_giveaway_winners: GiveawayWinners =
+                serde_json::from_value(json.clone()).unwrap();
+            let message: Message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::GiveawayWinners(message) => {
+                    assert_eq!(message, message_giveaway_winners);
+                }
+                _ => panic!("Unexpected message type"),
+            }
+        }
+    }
+
+    #[test]
+    fn parse_giveaway_completed() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "giveaway_completed": {
+                "winner_count": 1,
+            },
+        })];
+
+        for json in jsons {
+            let message_giveaway_completed: GiveawayCompleted =
+                serde_json::from_value(json.clone()).unwrap();
+            let message: Message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::GiveawayCompleted(message) => {
+                    assert_eq!(message, message_giveaway_completed);
                 }
                 _ => panic!("Unexpected message type"),
             }

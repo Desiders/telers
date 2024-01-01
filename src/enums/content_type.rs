@@ -93,6 +93,14 @@ pub enum ContentType {
     GeneralForumTopicHidden,
     #[strum(serialize = "general_forum_topic_unhidden")]
     GeneralForumTopicUnhidden,
+    #[strum(serialize = "giveaway_created")]
+    GiveawayCreated,
+    #[strum(serialize = "giveaway")]
+    Giveaway,
+    #[strum(serialize = "giveaway_winners")]
+    GiveawayWinners,
+    #[strum(serialize = "giveaway_completed")]
+    GiveawayCompleted,
     #[strum(serialize = "video_chat_scheduled")]
     VideoChatScheduled,
     #[strum(serialize = "video_chat_started")]
@@ -109,7 +117,7 @@ pub enum ContentType {
 
 impl ContentType {
     #[must_use]
-    pub const fn all() -> [ContentType; 49] {
+    pub const fn all() -> [ContentType; 53] {
         [
             ContentType::Text,
             ContentType::Animation,
@@ -154,6 +162,10 @@ impl ContentType {
             ContentType::ForumTopicReopened,
             ContentType::GeneralForumTopicHidden,
             ContentType::GeneralForumTopicUnhidden,
+            ContentType::GiveawayCreated,
+            ContentType::Giveaway,
+            ContentType::GiveawayWinners,
+            ContentType::GiveawayCompleted,
             ContentType::VideoChatScheduled,
             ContentType::VideoChatStarted,
             ContentType::VideoChatEnded,
@@ -227,6 +239,10 @@ impl From<&Message> for ContentType {
             Message::ForumTopicReopened(_) => ContentType::ForumTopicReopened,
             Message::GeneralForumTopicHidden(_) => ContentType::GeneralForumTopicHidden,
             Message::GeneralForumTopicUnhidden(_) => ContentType::GeneralForumTopicUnhidden,
+            Message::GiveawayCreated(_) => ContentType::GiveawayCreated,
+            Message::Giveaway(_) => ContentType::Giveaway,
+            Message::GiveawayWinners(_) => ContentType::GiveawayWinners,
+            Message::GiveawayCompleted(_) => ContentType::GiveawayCompleted,
             Message::VideoChatScheduled(_) => ContentType::VideoChatScheduled,
             Message::VideoChatStarted(_) => ContentType::VideoChatStarted,
             Message::VideoChatEnded(_) => ContentType::VideoChatEnded,
