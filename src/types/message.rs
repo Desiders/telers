@@ -45,7 +45,7 @@ pub enum Message {
     Pinned(Pinned),
     Invoice(Invoice),
     SuccessfulPayment(SuccessfulPayment),
-    UserShared(UserShared),
+    UsersShared(UsersShared),
     ChatShared(ChatShared),
     ConnectedWebsite(ConnectedWebsite),
     WriteAccessAllowed(WriteAccessAllowed),
@@ -1148,7 +1148,7 @@ pub struct SuccessfulPayment {
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
-pub struct UserShared {
+pub struct UsersShared {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
@@ -1165,9 +1165,9 @@ pub struct UserShared {
     pub chat: Chat,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
-    /// Service message: a user was shared with the bot
-    #[serde(rename = "user_shared")]
-    pub shared: types::UserShared,
+    /// Service message: users were shared with the bot
+    #[serde(rename = "users_shared")]
+    pub shared: types::UsersShared,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -1604,7 +1604,7 @@ impl Message {
             | Message::Pinned(Pinned { id, .. })
             | Message::Invoice(Invoice { id, .. })
             | Message::SuccessfulPayment(SuccessfulPayment { id, .. })
-            | Message::UserShared(UserShared { id, .. })
+            | Message::UsersShared(UsersShared { id, .. })
             | Message::ChatShared(ChatShared { id, .. })
             | Message::ConnectedWebsite(ConnectedWebsite { id, .. })
             | Message::WriteAccessAllowed(WriteAccessAllowed { id, .. })
@@ -1661,7 +1661,7 @@ impl Message {
             | Message::Pinned(Pinned { thread_id, .. })
             | Message::Invoice(Invoice { thread_id, .. })
             | Message::SuccessfulPayment(SuccessfulPayment { thread_id, .. })
-            | Message::UserShared(UserShared { thread_id, .. })
+            | Message::UsersShared(UsersShared { thread_id, .. })
             | Message::ChatShared(ChatShared { thread_id, .. })
             | Message::ConnectedWebsite(ConnectedWebsite { thread_id, .. })
             | Message::WriteAccessAllowed(WriteAccessAllowed { thread_id, .. })
@@ -1720,7 +1720,7 @@ impl Message {
             | Message::Pinned(Pinned { date, .. })
             | Message::Invoice(Invoice { date, .. })
             | Message::SuccessfulPayment(SuccessfulPayment { date, .. })
-            | Message::UserShared(UserShared { date, .. })
+            | Message::UsersShared(UsersShared { date, .. })
             | Message::ChatShared(ChatShared { date, .. })
             | Message::ConnectedWebsite(ConnectedWebsite { date, .. })
             | Message::WriteAccessAllowed(WriteAccessAllowed { date, .. })
@@ -1778,7 +1778,7 @@ impl Message {
             | Message::Pinned(Pinned { chat, .. })
             | Message::Invoice(Invoice { chat, .. })
             | Message::SuccessfulPayment(SuccessfulPayment { chat, .. })
-            | Message::UserShared(UserShared { chat, .. })
+            | Message::UsersShared(UsersShared { chat, .. })
             | Message::ChatShared(ChatShared { chat, .. })
             | Message::ConnectedWebsite(ConnectedWebsite { chat, .. })
             | Message::WriteAccessAllowed(WriteAccessAllowed { chat, .. })
@@ -1906,7 +1906,7 @@ impl Message {
             | Message::Pinned(Pinned { from, .. })
             | Message::Invoice(Invoice { from, .. })
             | Message::SuccessfulPayment(SuccessfulPayment { from, .. })
-            | Message::UserShared(UserShared { from, .. })
+            | Message::UsersShared(UsersShared { from, .. })
             | Message::ChatShared(ChatShared { from, .. })
             | Message::ConnectedWebsite(ConnectedWebsite { from, .. })
             | Message::WriteAccessAllowed(WriteAccessAllowed { from, .. })
@@ -1974,7 +1974,7 @@ impl Message {
             | Message::Pinned(Pinned { sender_chat, .. })
             | Message::Invoice(Invoice { sender_chat, .. })
             | Message::SuccessfulPayment(SuccessfulPayment { sender_chat, .. })
-            | Message::UserShared(UserShared { sender_chat, .. })
+            | Message::UsersShared(UsersShared { sender_chat, .. })
             | Message::ChatShared(ChatShared { sender_chat, .. })
             | Message::ConnectedWebsite(ConnectedWebsite { sender_chat, .. })
             | Message::WriteAccessAllowed(WriteAccessAllowed { sender_chat, .. })
@@ -2491,9 +2491,9 @@ impl Message {
     }
 
     #[must_use]
-    pub const fn user_shared(&self) -> Option<&types::UserShared> {
+    pub const fn users_shared(&self) -> Option<&types::UsersShared> {
         match self {
-            Message::UserShared(UserShared { shared, .. }) => Some(shared),
+            Message::UsersShared(UsersShared { shared, .. }) => Some(shared),
             _ => None,
         }
     }
@@ -2843,7 +2843,7 @@ impl_try_from_message!(Video, Video);
 impl_try_from_message!(VideoNote, VideoNote);
 impl_try_from_message!(Voice, Voice);
 impl_try_from_message!(WriteAccessAllowed, WriteAccessAllowed);
-impl_try_from_message!(UserShared, UserShared);
+impl_try_from_message!(UsersShared, UsersShared);
 impl_try_from_message!(ChatShared, ChatShared);
 impl_try_from_message!(MessageAutoDeleteTimerChanged, MessageAutoDeleteTimerChanged);
 
@@ -2918,7 +2918,7 @@ impl_try_from_update!(Video);
 impl_try_from_update!(VideoNote);
 impl_try_from_update!(Voice);
 impl_try_from_update!(WriteAccessAllowed);
-impl_try_from_update!(UserShared);
+impl_try_from_update!(UsersShared);
 impl_try_from_update!(ChatShared);
 impl_try_from_update!(MessageAutoDeleteTimerChanged);
 impl_try_from_update!(Forward);
@@ -3912,7 +3912,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_user_shared() {
+    fn parse_users_shared() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3921,18 +3921,18 @@ mod tests {
                 "title": "test",
                 "type": "channel",
             },
-            "user_shared": {
+            "users_shared": {
                 "request_id": 1,
-                "user_id": 1,
+                "user_ids": [1, 2, 3],
             },
         })];
 
         for json in jsons {
-            let message_user_shared: UserShared = serde_json::from_value(json.clone()).unwrap();
+            let message_users_shared: UsersShared = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::UserShared(message) => assert_eq!(message, message_user_shared),
+                Message::UsersShared(message) => assert_eq!(message, message_users_shared),
                 _ => panic!("Unexpected message type"),
             }
         }

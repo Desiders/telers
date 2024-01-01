@@ -76,7 +76,6 @@ pub mod dice;
 pub mod document;
 pub mod encrypted_credentials;
 pub mod encrypted_passport_element;
-pub mod external_reply_info;
 pub mod file;
 pub mod force_reply;
 pub mod forum_topic;
@@ -195,6 +194,7 @@ pub mod update;
 pub mod user;
 pub mod user_profile_photos;
 pub mod user_shared;
+pub mod users_shared;
 pub mod venue;
 pub mod video;
 pub mod video_chat_ended;
@@ -264,7 +264,6 @@ pub use encrypted_passport_element::{
     TemporaryRegistration as EncryptedPassportElementTemporaryRegistration,
     UtilityBill as EncryptedPassportElementUtilityBill,
 };
-pub use external_reply_info::ExternalReplyInfo;
 pub use file::File;
 pub use force_reply::ForceReply;
 pub use forum_topic::ForumTopic;
@@ -353,7 +352,7 @@ pub use message::{
     ProximityAlertTriggered as MessageProximityAlertTriggered, Sticker as MessageSticker,
     Story as MessageStory, SuccessfulPayment as MessageSuccessfulPayment,
     SupergroupChatCreated as MessageSupergroupChatCreated, Text as MessageText,
-    UserShared as MessageUserShared, Venue as MessageVenue, Video as MessageVideo,
+    UsersShared as MessageUserShared, Venue as MessageVenue, Video as MessageVideo,
     VideoChatEnded as MessageVideoChatEnded,
     VideoChatParticipantsInvited as MessageVideoChatParticipantsInvited,
     VideoChatScheduled as MessageVideoChatScheduled, VideoChatStarted as MessageVideoChatStarted,
@@ -433,6 +432,7 @@ pub use update::{Kind as UpdateKind, Update};
 pub use user::User;
 pub use user_profile_photos::UserProfilePhotos;
 pub use user_shared::UserShared;
+pub use users_shared::UsersShared;
 pub use venue::Venue;
 pub use video::Video;
 pub use video_chat_ended::VideoChatEnded;
