@@ -40,11 +40,15 @@ pub enum UpdateType {
     ChatMember,
     #[strum(serialize = "chat_join_request")]
     ChatJoinRequest,
+    #[strum(serialize = "chat_boost")]
+    ChatBoost,
+    #[strum(serialize = "removed_chat_boost")]
+    RemovedChatBoost,
 }
 
 impl UpdateType {
     #[must_use]
-    pub const fn all() -> &'static [UpdateType; 15] {
+    pub const fn all() -> &'static [UpdateType; 17] {
         &[
             UpdateType::Message,
             UpdateType::InlineQuery,
@@ -61,6 +65,8 @@ impl UpdateType {
             UpdateType::MyChatMember,
             UpdateType::ChatMember,
             UpdateType::ChatJoinRequest,
+            UpdateType::ChatBoost,
+            UpdateType::RemovedChatBoost,
         ]
     }
 }
@@ -102,6 +108,8 @@ impl<'a> From<&'a UpdateKind> for UpdateType {
             UpdateKind::MyChatMember(_) => UpdateType::MyChatMember,
             UpdateKind::ChatMember(_) => UpdateType::ChatMember,
             UpdateKind::ChatJoinRequest(_) => UpdateType::ChatJoinRequest,
+            UpdateKind::ChatBoost(_) => UpdateType::ChatBoost,
+            UpdateKind::RemovedChatBoost(_) => UpdateType::RemovedChatBoost,
         }
     }
 }

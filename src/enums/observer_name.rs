@@ -35,13 +35,17 @@ pub enum Telegram {
     ChatMember,
     #[strum(serialize = "chat_join_request")]
     ChatJoinRequest,
+    #[strum(serialize = "chat_boost")]
+    ChatBoost,
+    #[strum(serialize = "removed_chat_boost")]
+    RemovedChatBoost,
     #[strum(serialize = "update")]
     Update,
 }
 
 impl Telegram {
     #[must_use]
-    pub const fn all() -> [Telegram; 17] {
+    pub const fn all() -> [Telegram; 19] {
         [
             Telegram::Message,
             Telegram::InlineQuery,
@@ -59,6 +63,8 @@ impl Telegram {
             Telegram::MyChatMember,
             Telegram::ChatMember,
             Telegram::ChatJoinRequest,
+            Telegram::ChatBoost,
+            Telegram::RemovedChatBoost,
             Telegram::Update,
         ]
     }

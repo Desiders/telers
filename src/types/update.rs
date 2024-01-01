@@ -1,7 +1,8 @@
 use super::{
-    CallbackQuery, Chat, ChatJoinRequest, ChatMemberUpdated, ChosenInlineResult, InlineQuery,
-    Message, MessageReactionCountUpdated, MessageReactionUpdated, Poll, PollAnswer,
-    PreCheckoutQuery, ShippingQuery, User,
+    CallbackQuery, Chat, ChatBoostRemoved, ChatBoostSource, ChatBoostSourcePremium,
+    ChatBoostUpdated, ChatJoinRequest, ChatMemberUpdated, ChosenInlineResult, InlineQuery, Message,
+    MessageReactionCountUpdated, MessageReactionUpdated, Poll, PollAnswer, PreCheckoutQuery,
+    ShippingQuery, User,
 };
 
 use crate::enums::UpdateType;
@@ -59,6 +60,10 @@ pub enum Kind {
     ChatMember(ChatMemberUpdated),
     /// A request to join the chat has been sent. The bot must have the *can_invite_users* administrator right in the chat to receive these updates.
     ChatJoinRequest(ChatJoinRequest),
+    /// A chat boost was added or changed. The bot must be an administrator in the chat to receive these updates.
+    ChatBoost(ChatBoostUpdated),
+    /// A boost was removed from a chat. The bot must be an administrator in the chat to receive these updates.
+    RemovedChatBoost(ChatBoostRemoved),
 }
 
 impl Kind {
@@ -87,7 +92,9 @@ impl Kind {
             | Kind::ChatJoinRequest(_)
             | Kind::Poll(_)
             | Kind::MessageReaction(_)
-            | Kind::MessageReactionCount(_) => None,
+            | Kind::MessageReactionCount(_)
+            | Kind::ChatBoost(_)
+            | Kind::RemovedChatBoost(_) => None,
         }
     }
 
@@ -115,7 +122,9 @@ impl Kind {
             | Kind::ChatJoinRequest(_)
             | Kind::Poll(_)
             | Kind::MessageReaction(_)
-            | Kind::MessageReactionCount(_) => None,
+            | Kind::MessageReactionCount(_)
+            | Kind::ChatBoost(_)
+            | Kind::RemovedChatBoost(_) => None,
         }
     }
 
@@ -144,7 +153,11 @@ impl Kind {
             | Kind::ChatJoinRequest(ChatJoinRequest { from, .. }) => Some(from),
             Kind::PollAnswer(PollAnswer { user, .. })
             | Kind::MessageReaction(MessageReactionUpdated { user, .. }) => user.as_ref(),
-            Kind::Poll(_) | Kind::MessageReactionCount(_) => None,
+            Kind::ChatBoost(ChatBoostUpdated { boost, .. }) => match boost {
+                ChatBoostSource::Premium(ChatBoostSourcePremium { user }) => Some(user),
+                ChatBoostSource::GiftCode(_) | ChatBoostSource::Giveaway(_) => None,
+            },
+            Kind::Poll(_) | Kind::MessageReactionCount(_) | Kind::RemovedChatBoost(_) => None,
         }
     }
 
@@ -173,7 +186,9 @@ impl Kind {
             Kind::MyChatMember(ChatMemberUpdated { chat, .. })
             | Kind::ChatMember(ChatMemberUpdated { chat, .. })
             | Kind::ChatJoinRequest(ChatJoinRequest { chat, .. })
-            | Kind::MessageReactionCount(MessageReactionCountUpdated { chat, .. }) => Some(chat),
+            | Kind::MessageReactionCount(MessageReactionCountUpdated { chat, .. })
+            | Kind::ChatBoost(ChatBoostUpdated { chat, .. })
+            | Kind::RemovedChatBoost(ChatBoostRemoved { chat, .. }) => Some(chat),
             Kind::MessageReaction(MessageReactionUpdated { actor_chat, .. }) => actor_chat.as_ref(),
             Kind::InlineQuery(_)
             | Kind::ChosenInlineResult(_)
@@ -217,7 +232,9 @@ impl Kind {
             | Kind::ChatJoinRequest(_)
             | Kind::Poll(_)
             | Kind::MessageReaction(_)
-            | Kind::MessageReactionCount(_) => None,
+            | Kind::MessageReactionCount(_)
+            | Kind::ChatBoost(_)
+            | Kind::RemovedChatBoost(_) => None,
         }
     }
 
@@ -254,7 +271,9 @@ impl Kind {
             | Kind::ChatJoinRequest(_)
             | Kind::Poll(_)
             | Kind::MessageReaction(_)
-            | Kind::MessageReactionCount(_) => None,
+            | Kind::MessageReactionCount(_)
+            | Kind::ChatBoost(_)
+            | Kind::RemovedChatBoost(_) => None,
         }
     }
 }
@@ -352,6 +371,12 @@ impl<'de> Deserialize<'de> for Kind {
                     UpdateType::MessageReactionCount => map
                         .next_value::<MessageReactionCountUpdated>()
                         .map(Kind::MessageReactionCount),
+                    UpdateType::ChatBoost => {
+                        map.next_value::<ChatBoostUpdated>().map(Kind::ChatBoost)
+                    }
+                    UpdateType::RemovedChatBoost => map
+                        .next_value::<ChatBoostRemoved>()
+                        .map(Kind::RemovedChatBoost),
                 };
 
                 match update_kind {
@@ -369,17 +394,17 @@ impl<'de> Deserialize<'de> for Kind {
 
 impl Update {
     #[must_use]
-    pub fn text(&self) -> Option<&str> {
+    pub const fn text(&self) -> Option<&str> {
         self.kind().text()
     }
 
     #[must_use]
-    pub fn caption(&self) -> Option<&str> {
+    pub const fn caption(&self) -> Option<&str> {
         self.kind().caption()
     }
 
     #[must_use]
-    pub fn text_or_caption(&self) -> Option<&str> {
+    pub const fn text_or_caption(&self) -> Option<&str> {
         self.kind().text_or_caption()
     }
 

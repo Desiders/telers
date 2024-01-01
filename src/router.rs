@@ -383,7 +383,8 @@ pub struct Router<Client> {
     pub my_chat_member: TelegramObserver<Client>,
     pub chat_member: TelegramObserver<Client>,
     pub chat_join_request: TelegramObserver<Client>,
-
+    pub chat_boost: TelegramObserver<Client>,
+    pub removed_chat_boost: TelegramObserver<Client>,
     /// This special event observer is used to handle all telegram events.
     /// It's called for router and its sub routers and before other telegram observers.
     /// This observer is useful for register important middlewares (often libraries) like `FSMContext` and `UserContext`,
@@ -422,6 +423,8 @@ where
             my_chat_member: TelegramObserver::new(TelegramObserverName::MyChatMember.as_ref()),
             chat_member: TelegramObserver::new(TelegramObserverName::ChatMember.as_ref()),
             chat_join_request: TelegramObserver::new(TelegramObserverName::ChatJoinRequest.as_ref()),
+            chat_boost: TelegramObserver::new(TelegramObserverName::ChatBoost.as_ref()),
+            removed_chat_boost: TelegramObserver::new(TelegramObserverName::RemovedChatBoost.as_ref()),
             update: TelegramObserver::new(TelegramObserverName::Update.as_ref()),
             startup: SimpleObserver::new(SimpleObserverName::Startup.as_ref()),
             shutdown: SimpleObserver::new(SimpleObserverName::Shutdown.as_ref()),
@@ -453,7 +456,7 @@ where
 impl<Client> Router<Client> {
     /// Get all telegram event observers
     #[must_use]
-    pub const fn telegram_observers(&self) -> [&TelegramObserver<Client>; 17] {
+    pub const fn telegram_observers(&self) -> [&TelegramObserver<Client>; 19] {
         [
             &self.message,
             &self.edited_message,
@@ -471,6 +474,8 @@ impl<Client> Router<Client> {
             &self.my_chat_member,
             &self.chat_member,
             &self.chat_join_request,
+            &self.chat_boost,
+            &self.removed_chat_boost,
             &self.update,
         ]
     }
@@ -480,7 +485,7 @@ impl<Client> Router<Client> {
     /// This method is useful for registering middlewares to the many observers without code duplication and macros
     #[must_use]
     pub fn telegram_observers_mut(&mut self) -> Vec<&mut TelegramObserver<Client>> {
-        let mut observers = Vec::with_capacity(17);
+        let mut observers = Vec::with_capacity(19);
 
         observers.extend([
             &mut self.message,
@@ -499,6 +504,8 @@ impl<Client> Router<Client> {
             &mut self.my_chat_member,
             &mut self.chat_member,
             &mut self.chat_join_request,
+            &mut self.chat_boost,
+            &mut self.removed_chat_boost,
             &mut self.update,
         ]);
 
@@ -599,6 +606,7 @@ where
     type ServiceProvider = Service<Client>;
     type InitError = ();
 
+    #[allow(clippy::too_many_lines)]
     fn to_service_provider(
         mut self,
         mut config: Self::Config,
@@ -634,6 +642,8 @@ where
             my_chat_member,
             chat_member,
             chat_join_request,
+            chat_boost,
+            removed_chat_boost,
             update
         );
 
@@ -674,6 +684,8 @@ where
             my_chat_member,
             chat_member,
             chat_join_request,
+            chat_boost,
+            removed_chat_boost,
             update
         );
 
@@ -703,6 +715,8 @@ where
             my_chat_member: self.my_chat_member.to_service_provider_default()?,
             chat_member: self.chat_member.to_service_provider_default()?,
             chat_join_request: self.chat_join_request.to_service_provider_default()?,
+            chat_boost: self.chat_boost.to_service_provider_default()?,
+            removed_chat_boost: self.removed_chat_boost.to_service_provider_default()?,
             update: self.update.to_service_provider_default()?,
             startup: self.startup.to_service_provider_default()?,
             shutdown: self.shutdown.to_service_provider_default()?,
@@ -730,6 +744,9 @@ pub struct Service<Client> {
     my_chat_member: TelegramObserverService<Client>,
     chat_member: TelegramObserverService<Client>,
     chat_join_request: TelegramObserverService<Client>,
+    chat_boost: TelegramObserverService<Client>,
+    removed_chat_boost: TelegramObserverService<Client>,
+
     update: TelegramObserverService<Client>,
 
     startup: SimpleObserverService,
@@ -942,7 +959,7 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
 
 impl<Client> Service<Client> {
     #[must_use]
-    pub const fn telegram_observers(&self) -> [&TelegramObserverService<Client>; 17] {
+    pub const fn telegram_observers(&self) -> [&TelegramObserverService<Client>; 19] {
         [
             &self.message,
             &self.edited_message,
@@ -960,6 +977,8 @@ impl<Client> Service<Client> {
             &self.my_chat_member,
             &self.chat_member,
             &self.chat_join_request,
+            &self.chat_boost,
+            &self.removed_chat_boost,
             &self.update,
         ]
     }
@@ -991,6 +1010,8 @@ impl<Client> Service<Client> {
             UpdateType::MyChatMember => &self.my_chat_member,
             UpdateType::ChatMember => &self.chat_member,
             UpdateType::ChatJoinRequest => &self.chat_join_request,
+            UpdateType::ChatBoost => &self.chat_boost,
+            UpdateType::RemovedChatBoost => &self.removed_chat_boost,
         }
     }
 }
@@ -1061,6 +1082,8 @@ pub struct OuterMiddlewaresConfig<Client> {
     pub my_chat_member: Box<[Arc<dyn OuterMiddleware<Client>>]>,
     pub chat_member: Box<[Arc<dyn OuterMiddleware<Client>>]>,
     pub chat_join_request: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+    pub chat_boost: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+    pub removed_chat_boost: Box<[Arc<dyn OuterMiddleware<Client>>]>,
     pub update: Box<[Arc<dyn OuterMiddleware<Client>>]>,
 }
 
@@ -1105,6 +1128,8 @@ impl<Client> Clone for OuterMiddlewaresConfig<Client> {
             my_chat_member: self.my_chat_member.clone(),
             chat_member: self.chat_member.clone(),
             chat_join_request: self.chat_join_request.clone(),
+            chat_boost: self.chat_boost.clone(),
+            removed_chat_boost: self.removed_chat_boost.clone(),
             update: self.update.clone(),
         }
     }
@@ -1127,6 +1152,8 @@ pub struct OuterMiddlewaresConfigBuilder<Client> {
     pub my_chat_member: Vec<Arc<dyn OuterMiddleware<Client>>>,
     pub chat_member: Vec<Arc<dyn OuterMiddleware<Client>>>,
     pub chat_join_request: Vec<Arc<dyn OuterMiddleware<Client>>>,
+    pub chat_boost: Vec<Arc<dyn OuterMiddleware<Client>>>,
+    pub removed_chat_boost: Vec<Arc<dyn OuterMiddleware<Client>>>,
     pub update: Vec<Arc<dyn OuterMiddleware<Client>>>,
 }
 
@@ -1228,6 +1255,18 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
     }
 
     #[must_use]
+    pub fn chat_boost(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.chat_boost.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn removed_chat_boost(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.removed_chat_boost.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
     pub fn update(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
         self.update.push(Arc::new(val));
         self
@@ -1252,6 +1291,8 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
             my_chat_member: self.my_chat_member.into(),
             chat_member: self.chat_member.into(),
             chat_join_request: self.chat_join_request.into(),
+            chat_boost: self.chat_boost.into(),
+            removed_chat_boost: self.removed_chat_boost.into(),
             update: self.update.into(),
         }
     }
@@ -1277,6 +1318,8 @@ impl<Client> Default for OuterMiddlewaresConfigBuilder<Client> {
             my_chat_member: vec![],
             chat_member: vec![],
             chat_join_request: vec![],
+            chat_boost: vec![],
+            removed_chat_boost: vec![],
             update: vec![],
         }
     }
@@ -1299,6 +1342,8 @@ pub struct InnerMiddlewaresConfig<Client> {
     pub my_chat_member: Box<[Arc<dyn InnerMiddleware<Client>>]>,
     pub chat_member: Box<[Arc<dyn InnerMiddleware<Client>>]>,
     pub chat_join_request: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    pub chat_boost: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    pub removed_chat_boost: Box<[Arc<dyn InnerMiddleware<Client>>]>,
     pub update: Box<[Arc<dyn InnerMiddleware<Client>>]>,
 }
 
@@ -1339,6 +1384,8 @@ where
             .my_chat_member(logging_middleware.clone())
             .chat_member(logging_middleware.clone())
             .chat_join_request(logging_middleware.clone())
+            .chat_boost(logging_middleware.clone())
+            .removed_chat_boost(logging_middleware.clone())
             .update(logging_middleware)
             .build()
     }
@@ -1363,6 +1410,8 @@ impl<Client> Clone for InnerMiddlewaresConfig<Client> {
             my_chat_member: self.my_chat_member.clone(),
             chat_member: self.chat_member.clone(),
             chat_join_request: self.chat_join_request.clone(),
+            chat_boost: self.chat_boost.clone(),
+            removed_chat_boost: self.removed_chat_boost.clone(),
             update: self.update.clone(),
         }
     }
@@ -1385,6 +1434,8 @@ pub struct InnerMiddlewaresConfigBuilder<Client> {
     pub my_chat_member: Vec<Arc<dyn InnerMiddleware<Client>>>,
     pub chat_member: Vec<Arc<dyn InnerMiddleware<Client>>>,
     pub chat_join_request: Vec<Arc<dyn InnerMiddleware<Client>>>,
+    pub chat_boost: Vec<Arc<dyn InnerMiddleware<Client>>>,
+    pub removed_chat_boost: Vec<Arc<dyn InnerMiddleware<Client>>>,
     pub update: Vec<Arc<dyn InnerMiddleware<Client>>>,
 }
 
@@ -1486,6 +1537,18 @@ impl<Client> InnerMiddlewaresConfigBuilder<Client> {
     }
 
     #[must_use]
+    pub fn chat_boost(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.chat_boost.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
+    pub fn removed_chat_boost(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.removed_chat_boost.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
     pub fn update(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
         self.update.push(Arc::new(val));
         self
@@ -1510,6 +1573,8 @@ impl<Client> InnerMiddlewaresConfigBuilder<Client> {
             my_chat_member: self.my_chat_member.into(),
             chat_member: self.chat_member.into(),
             chat_join_request: self.chat_join_request.into(),
+            chat_boost: self.chat_boost.into(),
+            removed_chat_boost: self.removed_chat_boost.into(),
             update: self.update.into(),
         }
     }
@@ -1535,6 +1600,8 @@ impl<Client> Default for InnerMiddlewaresConfigBuilder<Client> {
             my_chat_member: vec![],
             chat_member: vec![],
             chat_join_request: vec![],
+            chat_boost: vec![],
+            removed_chat_boost: vec![],
             update: vec![],
         }
     }
@@ -1666,6 +1733,8 @@ mod tests {
         router.my_chat_member.register(telegram_handler);
         router.chat_member.register(telegram_handler);
         router.chat_join_request.register(telegram_handler);
+        router.chat_boost.register(telegram_handler);
+        router.removed_chat_boost.register(telegram_handler);
         router.update.register(telegram_handler);
         // Event observers
         router.startup.register(simple_handler, ());

@@ -55,6 +55,13 @@ pub mod callback_game;
 pub mod callback_query;
 pub mod chat;
 pub mod chat_administrator_rights;
+pub mod chat_boost;
+pub mod chat_boost_removed;
+pub mod chat_boost_source;
+pub mod chat_boost_source_gift_code;
+pub mod chat_boost_source_giveaway;
+pub mod chat_boost_source_premium;
+pub mod chat_boost_updated;
 pub mod chat_id_kind;
 pub mod chat_invite_link;
 pub mod chat_join_request;
@@ -230,6 +237,13 @@ pub use chat::{
     Supergroup as ChatSupergroup,
 };
 pub use chat_administrator_rights::ChatAdministratorRights;
+pub use chat_boost::ChatBoost;
+pub use chat_boost_removed::ChatBoostRemoved;
+pub use chat_boost_source::ChatBoostSource;
+pub use chat_boost_source_gift_code::ChatBoostSourceGiftCode;
+pub use chat_boost_source_giveaway::ChatBoostSourceGiveaway;
+pub use chat_boost_source_premium::ChatBoostSourcePremium;
+pub use chat_boost_updated::ChatBoostUpdated;
 pub use chat_id_kind::ChatIdKind;
 pub use chat_invite_link::ChatInviteLink;
 pub use chat_join_request::ChatJoinRequest;
