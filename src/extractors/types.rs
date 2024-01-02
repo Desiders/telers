@@ -5,18 +5,20 @@ use crate::{
     context::Context,
     errors::ConvertToTypeError,
     types::{
-        CallbackQuery, ChatJoinRequest, ChatMemberUpdated, ChosenInlineResult, InlineQuery,
-        Message, MessageAnimation, MessageAudio, MessageChannelChatCreated, MessageChatShared,
-        MessageConnectedWebsite, MessageContact, MessageDeleteChatPhoto, MessageDice,
-        MessageDocument, MessageEmpty, MessageForumTopicClosed, MessageForumTopicCreated,
-        MessageForumTopicEdited, MessageForumTopicReopened, MessageForward, MessageForwardedFrom,
-        MessageGame, MessageGeneralForumTopicHidden, MessageGeneralForumTopicUnhidden,
-        MessageGroupChatCreated, MessageInvoice, MessageLeftChatMember, MessageLocation,
-        MessageMessageAutoDeleteTimerChanged, MessageMigrateFromChat, MessageMigrateToChat,
-        MessageNewChatMembers, MessageNewChatPhoto, MessageNewChatTitle, MessagePassportData,
-        MessagePhoto, MessagePinned, MessagePoll, MessageProximityAlertTriggered, MessageSticker,
-        MessageStory, MessageSuccessfulPayment, MessageSupergroupChatCreated, MessageText,
-        MessageUserShared, MessageVenue, MessageVideo, MessageVideoChatEnded,
+        CallbackQuery, ChatBoostRemoved, ChatBoostUpdated, ChatJoinRequest, ChatMemberUpdated,
+        ChosenInlineResult, InlineQuery, Message, MessageAnimation, MessageAudio,
+        MessageChannelChatCreated, MessageChatShared, MessageConnectedWebsite, MessageContact,
+        MessageDeleteChatPhoto, MessageDice, MessageDocument, MessageEmpty,
+        MessageForumTopicClosed, MessageForumTopicCreated, MessageForumTopicEdited,
+        MessageForumTopicReopened, MessageGame, MessageGeneralForumTopicHidden,
+        MessageGeneralForumTopicUnhidden, MessageGiveaway, MessageGiveawayCompleted,
+        MessageGiveawayCreated, MessageGiveawayWinners, MessageGroupChatCreated, MessageInvoice,
+        MessageLeftChatMember, MessageLocation, MessageMessageAutoDeleteTimerChanged,
+        MessageMigrateFromChat, MessageMigrateToChat, MessageNewChatMembers, MessageNewChatPhoto,
+        MessageNewChatTitle, MessagePassportData, MessagePhoto, MessagePinned, MessagePoll,
+        MessageProximityAlertTriggered, MessageReactionCountUpdated, MessageReactionUpdated,
+        MessageSticker, MessageStory, MessageSuccessfulPayment, MessageSupergroupChatCreated,
+        MessageText, MessageUsersShared, MessageVenue, MessageVideo, MessageVideoChatEnded,
         MessageVideoChatParticipantsInvited, MessageVideoChatScheduled, MessageVideoChatStarted,
         MessageVideoNote, MessageVoice, MessageWebAppData, MessageWriteAccessAllowed, Poll,
         PollAnswer, PollQuiz, PollRegular, PreCheckoutQuery, ShippingQuery, Update, UpdateKind,
@@ -107,7 +109,7 @@ try_from_update!([Client], MessageText);
 try_from_update!([Client], MessageAnimation);
 try_from_update!([Client], MessageAudio);
 try_from_update!([Client], MessageChannelChatCreated);
-try_from_update!([Client], MessageUserShared);
+try_from_update!([Client], MessageUsersShared);
 try_from_update!([Client], MessageChatShared);
 try_from_update!([Client], MessageConnectedWebsite);
 try_from_update!([Client], MessageContact);
@@ -118,8 +120,6 @@ try_from_update!([Client], MessageForumTopicClosed);
 try_from_update!([Client], MessageForumTopicCreated);
 try_from_update!([Client], MessageForumTopicEdited);
 try_from_update!([Client], MessageForumTopicReopened);
-try_from_update!([Client], MessageForward);
-try_from_update!([Client], MessageForwardedFrom);
 try_from_update!([Client], MessageGame);
 try_from_update!([Client], MessageGeneralForumTopicHidden);
 try_from_update!([Client], MessageGeneralForumTopicUnhidden);
@@ -152,6 +152,12 @@ try_from_update!([Client], MessageVideoNote);
 try_from_update!([Client], MessageVoice);
 try_from_update!([Client], MessageWebAppData);
 try_from_update!([Client], MessageWriteAccessAllowed);
+try_from_update!([Client], MessageGiveawayCreated);
+try_from_update!([Client], MessageGiveaway);
+try_from_update!([Client], MessageGiveawayCompleted);
+try_from_update!([Client], MessageGiveawayWinners);
+try_from_update!([Client], MessageReactionUpdated);
+try_from_update!([Client], MessageReactionCountUpdated);
 try_from_update!([Client], MessageEmpty);
 
 // To be able to use [`Poll`] and all [`PollKind`] variants in handler arguments
@@ -183,6 +189,12 @@ try_from_update!([Client], ChatJoinRequest);
 // To be able to use [`InlineQuery`] in handler arguments
 try_from_update!([Client], InlineQuery);
 
+// To be able to use [`ChatBoostUpdated`] in handler arguments
+try_from_update!([Client], ChatBoostUpdated);
+
+// To be able to use [`ChatBoostRemoved`] in handler arguments
+try_from_update!([Client], ChatBoostRemoved);
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -212,7 +224,7 @@ mod tests {
         assert_impl_handler(|_: MessageAnimation| async { unreachable!() });
         assert_impl_handler(|_: MessageAudio| async { unreachable!() });
         assert_impl_handler(|_: MessageChannelChatCreated| async { unreachable!() });
-        assert_impl_handler(|_: MessageUserShared| async { unreachable!() });
+        assert_impl_handler(|_: MessageUsersShared| async { unreachable!() });
         assert_impl_handler(|_: MessageChatShared| async { unreachable!() });
         assert_impl_handler(|_: MessageConnectedWebsite| async { unreachable!() });
         assert_impl_handler(|_: MessageContact| async { unreachable!() });
@@ -223,8 +235,6 @@ mod tests {
         assert_impl_handler(|_: MessageForumTopicCreated| async { unreachable!() });
         assert_impl_handler(|_: MessageForumTopicEdited| async { unreachable!() });
         assert_impl_handler(|_: MessageForumTopicReopened| async { unreachable!() });
-        assert_impl_handler(|_: MessageForward| async { unreachable!() });
-        assert_impl_handler(|_: MessageForwardedFrom| async { unreachable!() });
         assert_impl_handler(|_: MessageGame| async { unreachable!() });
         assert_impl_handler(|_: MessageGeneralForumTopicHidden| async { unreachable!() });
         assert_impl_handler(|_: MessageGeneralForumTopicUnhidden| async { unreachable!() });
@@ -257,6 +267,13 @@ mod tests {
         assert_impl_handler(|_: MessageVoice| async { unreachable!() });
         assert_impl_handler(|_: MessageWebAppData| async { unreachable!() });
         assert_impl_handler(|_: MessageWriteAccessAllowed| async { unreachable!() });
+        assert_impl_handler(|_: MessageGiveawayCreated| async { unreachable!() });
+        assert_impl_handler(|_: MessageGiveaway| async { unreachable!() });
+        assert_impl_handler(|_: MessageGiveawayCompleted| async { unreachable!() });
+        assert_impl_handler(|_: MessageGiveawayWinners| async { unreachable!() });
+        assert_impl_handler(|_: MessageUsersShared| async { unreachable!() });
+        assert_impl_handler(|_: MessageReactionUpdated| async { unreachable!() });
+        assert_impl_handler(|_: MessageReactionCountUpdated| async { unreachable!() });
         assert_impl_handler(|_: MessageEmpty| async { unreachable!() });
         assert_impl_handler(|_: Poll| async { unreachable!() });
         assert_impl_handler(|_: PollRegular| async { unreachable!() });
@@ -269,6 +286,8 @@ mod tests {
         assert_impl_handler(|_: ChatMemberUpdated| async { unreachable!() });
         assert_impl_handler(|_: ChatJoinRequest| async { unreachable!() });
         assert_impl_handler(|_: InlineQuery| async { unreachable!() });
+        assert_impl_handler(|_: ChatBoostUpdated| async { unreachable!() });
+        assert_impl_handler(|_: ChatBoostRemoved| async { unreachable!() });
     }
 
     #[allow(clippy::too_many_lines)]
