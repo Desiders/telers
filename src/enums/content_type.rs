@@ -27,8 +27,6 @@ pub enum ContentType {
     VideoNote,
     #[strum(serialize = "voice")]
     Voice,
-    #[strum(serialize = "has_media_spoiler")]
-    HasMediaSpoiler,
     #[strum(serialize = "contact")]
     Contact,
     #[strum(serialize = "dice")]
@@ -117,7 +115,7 @@ pub enum ContentType {
 
 impl ContentType {
     #[must_use]
-    pub const fn all() -> [ContentType; 53] {
+    pub const fn all() -> [ContentType; 52] {
         [
             ContentType::Text,
             ContentType::Animation,
@@ -129,7 +127,6 @@ impl ContentType {
             ContentType::Video,
             ContentType::VideoNote,
             ContentType::Voice,
-            ContentType::HasMediaSpoiler,
             ContentType::Contact,
             ContentType::Dice,
             ContentType::Game,
