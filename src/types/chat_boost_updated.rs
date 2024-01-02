@@ -1,4 +1,6 @@
-use super::{Chat, ChatBoostSource};
+use super::{Chat, ChatBoostSource, Update, UpdateKind};
+
+use crate::errors::ConvertToTypeError;
 
 use serde::Deserialize;
 
@@ -11,4 +13,15 @@ pub struct ChatBoostUpdated {
     pub chat: Chat,
     /// Infomation about the chat boost
     pub boost: ChatBoostSource,
+}
+
+impl TryFrom<Update> for ChatBoostUpdated {
+    type Error = ConvertToTypeError;
+
+    fn try_from(update: Update) -> Result<Self, Self::Error> {
+        match update.kind {
+            UpdateKind::ChatBoost(val) => Ok(val),
+            _ => Err(ConvertToTypeError::new("Update", "ChatBoostUpdated")),
+        }
+    }
 }
