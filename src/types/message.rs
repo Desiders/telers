@@ -1,6 +1,6 @@
 use super::{
-    Chat, InlineKeyboardMarkup, LinkPreviewOptions, MessageEntity, PhotoSize, TextQuote, Update,
-    UpdateKind, User,
+    Chat, InlineKeyboardMarkup, LinkPreviewOptions, MessageEntity, MessageOrigin, PhotoSize,
+    TextQuote, Update, UpdateKind, User,
 };
 
 use crate::{errors::ConvertToTypeError, types};
@@ -86,8 +86,8 @@ pub struct Animation {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
@@ -133,8 +133,8 @@ pub struct Audio {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
@@ -180,8 +180,8 @@ pub struct Contact {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
@@ -216,8 +216,8 @@ pub struct Dice {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
@@ -250,8 +250,8 @@ pub struct Document {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
@@ -297,8 +297,8 @@ pub struct Game {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
@@ -333,8 +333,8 @@ pub struct Poll {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
@@ -369,8 +369,8 @@ pub struct Venue {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
@@ -407,8 +407,8 @@ pub struct Location {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
@@ -445,8 +445,8 @@ pub struct Photo {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
@@ -520,8 +520,8 @@ pub struct Story {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
@@ -548,8 +548,8 @@ pub struct Sticker {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
@@ -582,8 +582,8 @@ pub struct Text {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
@@ -626,8 +626,8 @@ pub struct Video {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
@@ -675,8 +675,8 @@ pub struct VideoNote {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
@@ -709,8 +709,8 @@ pub struct Voice {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
@@ -752,8 +752,8 @@ pub struct MigrateToChat {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// The group has been migrated to a supergroup with the specified identifier. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
@@ -777,8 +777,8 @@ pub struct MigrateFromChat {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// The supergroup has been migrated from a group with the specified identifier. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
@@ -802,8 +802,8 @@ pub struct Empty {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
@@ -814,41 +814,6 @@ pub struct Empty {
     pub via_bot: Option<User>,
     /// Date the message was last edited in Unix time
     pub edit_date: Option<i64>,
-}
-
-#[derive(Debug, Clone, PartialEq, Deserialize)]
-pub struct Forward {
-    /// For forwarded messages, date the original message was sent in Unix time
-    #[serde(rename = "forward_date")]
-    pub date: i64,
-    #[serde(flatten)]
-    pub from: ForwardedFrom,
-    /// For messages forwarded from channels, identifier of the original message in the channel
-    #[serde(rename = "forward_from_message_id")]
-    pub from_message_id: Option<i64>,
-    /// For forwarded messages that were originally sent in channels or by an anonymous chat administrator, signature of the message sender if present
-    #[serde(rename = "forward_signature")]
-    pub signature: Option<Box<str>>,
-}
-
-#[derive(Debug, Clone, PartialEq, Deserialize)]
-#[serde(untagged)]
-pub enum ForwardedFrom {
-    /// For forwarded messages, sender of the original message
-    #[serde(rename = "forward_from")]
-    User(User),
-    /// For messages forwarded from channels or from anonymous administrators, information about the original sender chat
-    #[serde(rename = "forward_from_chat")]
-    Chat(Chat),
-    /// Sender's name for messages forwarded from users who disallow adding a link to their account in forwarded messages
-    #[serde(rename = "forward_sender_name")]
-    SenderName(Box<str>),
-}
-
-impl From<Forward> for ForwardedFrom {
-    fn from(forward: Forward) -> Self {
-        forward.from
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -1104,8 +1069,8 @@ pub struct Invoice {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
@@ -1138,8 +1103,8 @@ pub struct SuccessfulPayment {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
@@ -1213,8 +1178,8 @@ pub struct ConnectedWebsite {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// Bot through which the message was sent
@@ -1265,8 +1230,8 @@ pub struct PassportData {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
@@ -2402,28 +2367,28 @@ impl Message {
     }
 
     #[must_use]
-    pub const fn forward(&self) -> Option<&Forward> {
+    pub const fn forward_origin(&self) -> Option<&MessageOrigin> {
         match self {
-            Message::Text(Text { forward, .. })
-            | Message::Animation(Animation { forward, .. })
-            | Message::Audio(Audio { forward, .. })
-            | Message::Document(Document { forward, .. })
-            | Message::Photo(Photo { forward, .. })
-            | Message::Sticker(Sticker { forward, .. })
-            | Message::Story(Story { forward, .. })
-            | Message::Video(Video { forward, .. })
-            | Message::VideoNote(VideoNote { forward, .. })
-            | Message::Voice(Voice { forward, .. })
-            | Message::Contact(Contact { forward, .. })
-            | Message::Dice(Dice { forward, .. })
-            | Message::Game(Game { forward, .. })
-            | Message::Poll(Poll { forward, .. })
-            | Message::Venue(Venue { forward, .. })
-            | Message::Location(Location { forward, .. })
-            | Message::Invoice(Invoice { forward, .. })
-            | Message::SuccessfulPayment(SuccessfulPayment { forward, .. })
-            | Message::ConnectedWebsite(ConnectedWebsite { forward, .. })
-            | Message::Empty(Empty { forward, .. }) => forward,
+            Message::Text(Text { forward_origin, .. })
+            | Message::Animation(Animation { forward_origin, .. })
+            | Message::Audio(Audio { forward_origin, .. })
+            | Message::Document(Document { forward_origin, .. })
+            | Message::Photo(Photo { forward_origin, .. })
+            | Message::Sticker(Sticker { forward_origin, .. })
+            | Message::Story(Story { forward_origin, .. })
+            | Message::Video(Video { forward_origin, .. })
+            | Message::VideoNote(VideoNote { forward_origin, .. })
+            | Message::Voice(Voice { forward_origin, .. })
+            | Message::Contact(Contact { forward_origin, .. })
+            | Message::Dice(Dice { forward_origin, .. })
+            | Message::Game(Game { forward_origin, .. })
+            | Message::Poll(Poll { forward_origin, .. })
+            | Message::Venue(Venue { forward_origin, .. })
+            | Message::Location(Location { forward_origin, .. })
+            | Message::Invoice(Invoice { forward_origin, .. })
+            | Message::SuccessfulPayment(SuccessfulPayment { forward_origin, .. })
+            | Message::ConnectedWebsite(ConnectedWebsite { forward_origin, .. })
+            | Message::Empty(Empty { forward_origin, .. }) => forward_origin,
             _ => &None,
         }
         .as_ref()
@@ -2901,30 +2866,6 @@ impl Default for Message {
     }
 }
 
-impl TryFrom<Message> for Forward {
-    type Error = ConvertToTypeError;
-
-    fn try_from(value: Message) -> Result<Self, Self::Error> {
-        if let Some(forward) = value.forward() {
-            Ok(forward.clone())
-        } else {
-            Err(Self::Error::new("Message", "Forward"))
-        }
-    }
-}
-
-impl TryFrom<Message> for ForwardedFrom {
-    type Error = ConvertToTypeError;
-
-    fn try_from(value: Message) -> Result<Self, Self::Error> {
-        if let Some(forward) = value.forward() {
-            Ok(forward.clone().into())
-        } else {
-            Err(Self::Error::new("Message", "ForwardedFrom"))
-        }
-    }
-}
-
 macro_rules! impl_try_from_message {
     ($variant:ident, $ty:ty) => {
         impl TryFrom<Message> for $ty {
@@ -3072,8 +3013,6 @@ impl_try_from_update!(WriteAccessAllowed);
 impl_try_from_update!(UsersShared);
 impl_try_from_update!(ChatShared);
 impl_try_from_update!(MessageAutoDeleteTimerChanged);
-impl_try_from_update!(Forward);
-impl_try_from_update!(ForwardedFrom);
 
 #[cfg(test)]
 mod tests {
