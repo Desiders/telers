@@ -7,8 +7,6 @@ use serde::Deserialize;
 /// This object represents changes in the status of a chat member.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmemberupdated>
-/// # Warnings
-/// This structure has so big size, so it's recommended to use it inside [`std::sync::Arc`], [`Box`] and other smart pointers
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct ChatMemberUpdated {
     /// Chat the user belongs to

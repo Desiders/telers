@@ -98,6 +98,7 @@ pub mod giveaway;
 pub mod giveaway_completed;
 pub mod giveaway_created;
 pub mod giveaway_winners;
+pub mod inaccessible_message;
 pub mod inline_keyboard_button;
 pub mod inline_keyboard_markup;
 pub mod inline_query;
@@ -147,6 +148,7 @@ pub mod link_preview_options;
 pub mod location;
 pub mod login_url;
 pub mod mask_position;
+pub mod maybe_inaccessible_message;
 pub mod menu_button;
 pub mod menu_button_commands;
 pub mod menu_button_default;
@@ -298,6 +300,7 @@ pub use giveaway::Giveaway;
 pub use giveaway_completed::GiveawayCompleted;
 pub use giveaway_created::GiveawayCreated;
 pub use giveaway_winners::GiveawayWinners;
+pub use inaccessible_message::InaccessibleMessage;
 pub use inline_keyboard_button::InlineKeyboardButton;
 pub use inline_keyboard_markup::InlineKeyboardMarkup;
 pub use inline_query::InlineQuery;
@@ -350,6 +353,7 @@ pub use link_preview_options::LinkPreviewOptions;
 pub use location::Location;
 pub use login_url::LoginUrl;
 pub use mask_position::MaskPosition;
+pub use maybe_inaccessible_message::MaybeInaccessibleMessage;
 pub use menu_button::MenuButton;
 pub use menu_button_commands::MenuButtonCommands;
 pub use menu_button_default::MenuButtonDefault;
@@ -359,10 +363,9 @@ pub use message::{
     ChannelChatCreated as MessageChannelChatCreated, ChatShared as MessageChatShared,
     ConnectedWebsite as MessageConnectedWebsite, Contact as MessageContact,
     DeleteChatPhoto as MessageDeleteChatPhoto, Dice as MessageDice, Document as MessageDocument,
-    Empty as MessageEmpty, ForumTopicClosed as MessageForumTopicClosed,
-    ForumTopicCreated as MessageForumTopicCreated, ForumTopicEdited as MessageForumTopicEdited,
-    ForumTopicReopened as MessageForumTopicReopened, Game as MessageGame,
-    GeneralForumTopicHidden as MessageGeneralForumTopicHidden,
+    ForumTopicClosed as MessageForumTopicClosed, ForumTopicCreated as MessageForumTopicCreated,
+    ForumTopicEdited as MessageForumTopicEdited, ForumTopicReopened as MessageForumTopicReopened,
+    Game as MessageGame, GeneralForumTopicHidden as MessageGeneralForumTopicHidden,
     GeneralForumTopicUnhidden as MessageGeneralForumTopicUnhidden, Giveaway as MessageGiveaway,
     GiveawayCompleted as MessageGiveawayCompleted, GiveawayCreated as MessageGiveawayCreated,
     GiveawayWinners as MessageGiveawayWinners, GroupChatCreated as MessageGroupChatCreated,

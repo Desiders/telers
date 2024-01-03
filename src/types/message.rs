@@ -1,6 +1,6 @@
 use super::{
-    Chat, InlineKeyboardMarkup, LinkPreviewOptions, MessageEntity, MessageOrigin, PhotoSize,
-    TextQuote, Update, UpdateKind, User,
+    Chat, InlineKeyboardMarkup, LinkPreviewOptions, MaybeInaccessibleMessage, MessageEntity,
+    MessageOrigin, PhotoSize, TextQuote, Update, UpdateKind, User,
 };
 
 use crate::{errors::ConvertToTypeError, types};
@@ -10,8 +10,6 @@ use serde::Deserialize;
 /// This object represents a message.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#message>
-/// # Notes
-/// Note that message date will not be available if the message is too old in [callback queries](https://core.telegram.org/bots/api#callbackquery).
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(untagged)]
 pub enum Message {
@@ -66,8 +64,6 @@ pub enum Message {
     VideoChatEnded(VideoChatEnded),
     VideoChatParticipantsInvited(VideoChatParticipantsInvited),
     WebAppData(WebAppData),
-    /// Note that message content and message date will not be available if the message is too old in [callback queries](https://core.telegram.org/bots/api#callbackquery).
-    Empty(Empty),
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -786,36 +782,6 @@ pub struct MigrateFromChat {
     pub from_chat_id: i64,
 }
 
-#[derive(Debug, Default, Clone, PartialEq, Deserialize)]
-pub struct Empty {
-    /// Unique message identifier inside this chat
-    #[serde(rename = "message_id")]
-    pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
-    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
-    pub from: Option<User>,
-    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
-    pub sender_chat: Option<Chat>,
-    /// Date the message was sent in Unix time
-    pub date: i64,
-    /// Conversation the message belongs to
-    pub chat: Chat,
-    /// Information about the original message for forwarded messages
-    pub forward_origin: Option<MessageOrigin>,
-    /// `true`, if the message is sent to a forum topic
-    pub is_topic_message: Option<bool>,
-    /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    pub is_automatic_forward: Option<bool>,
-    /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
-    /// Bot through which the message was sent
-    pub via_bot: Option<User>,
-    /// Date the message was last edited in Unix time
-    pub edit_date: Option<i64>,
-}
-
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct NewChatMembers {
     /// Unique message identifier inside this chat
@@ -1050,7 +1016,7 @@ pub struct Pinned {
     pub via_bot: Option<User>,
     /// Specified message was pinned. Note that the Message object in this field will not contain further *reply_to_message* fields even if it is itself a reply.
     #[serde(rename = "pinned_message")]
-    pub message: Box<Message>,
+    pub message: Box<MaybeInaccessibleMessage>,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -1673,7 +1639,6 @@ impl Message {
             | Message::VideoChatEnded(VideoChatEnded { id, .. })
             | Message::VideoChatParticipantsInvited(VideoChatParticipantsInvited { id, .. })
             | Message::WebAppData(WebAppData { id, .. })
-            | Message::Empty(Empty { id, .. })
             | Message::GiveawayCreated(GiveawayCreated { id, .. })
             | Message::Giveaway(Giveaway { id, .. })
             | Message::GiveawayWinners(GiveawayWinners { id, .. })
@@ -1737,7 +1702,6 @@ impl Message {
                 ..
             })
             | Message::WebAppData(WebAppData { thread_id, .. })
-            | Message::Empty(Empty { thread_id, .. })
             | Message::GiveawayCreated(GiveawayCreated { thread_id, .. })
             | Message::Giveaway(Giveaway { thread_id, .. })
             | Message::GiveawayWinners(GiveawayWinners { thread_id, .. })
@@ -1799,7 +1763,6 @@ impl Message {
                 date, ..
             })
             | Message::WebAppData(WebAppData { date, .. })
-            | Message::Empty(Empty { date, .. })
             | Message::GiveawayCreated(GiveawayCreated { date, .. })
             | Message::Giveaway(Giveaway { date, .. })
             | Message::GiveawayWinners(GiveawayWinners { date, .. })
@@ -1861,7 +1824,6 @@ impl Message {
                 chat, ..
             })
             | Message::WebAppData(WebAppData { chat, .. })
-            | Message::Empty(Empty { chat, .. })
             | Message::GiveawayCreated(GiveawayCreated { chat, .. })
             | Message::Giveaway(Giveaway { chat, .. })
             | Message::GiveawayWinners(GiveawayWinners { chat, .. })
@@ -1899,8 +1861,7 @@ impl Message {
             | Message::ForumTopicReopened(ForumTopicReopened { via_bot, .. })
             | Message::GeneralForumTopicHidden(GeneralForumTopicHidden { via_bot, .. })
             | Message::GeneralForumTopicUnhidden(GeneralForumTopicUnhidden { via_bot, .. })
-            | Message::WebAppData(WebAppData { via_bot, .. })
-            | Message::Empty(Empty { via_bot, .. }) => via_bot,
+            | Message::WebAppData(WebAppData { via_bot, .. }) => via_bot,
             _ => &None,
         }
         .as_ref()
@@ -1993,7 +1954,6 @@ impl Message {
                 from, ..
             })
             | Message::WebAppData(WebAppData { from, .. })
-            | Message::Empty(Empty { from, .. })
             | Message::GiveawayCreated(GiveawayCreated { from, .. })
             | Message::Giveaway(Giveaway { from, .. })
             | Message::GiveawayWinners(GiveawayWinners { from, .. })
@@ -2068,7 +2028,6 @@ impl Message {
                 ..
             })
             | Message::WebAppData(WebAppData { sender_chat, .. })
-            | Message::Empty(Empty { sender_chat, .. })
             | Message::GiveawayCreated(GiveawayCreated { sender_chat, .. })
             | Message::Giveaway(Giveaway { sender_chat, .. })
             | Message::GiveawayWinners(GiveawayWinners { sender_chat, .. })
@@ -2227,9 +2186,6 @@ impl Message {
             | Message::GeneralForumTopicUnhidden(GeneralForumTopicUnhidden {
                 reply_to_message,
                 ..
-            })
-            | Message::Empty(Empty {
-                reply_to_message, ..
             }) => match reply_to_message {
                 Some(reply_to_message) => Some(reply_to_message),
                 None => None,
@@ -2267,8 +2223,7 @@ impl Message {
             | Message::Game(Game { edit_date, .. })
             | Message::Poll(Poll { edit_date, .. })
             | Message::Venue(Venue { edit_date, .. })
-            | Message::Location(Location { edit_date, .. })
-            | Message::Empty(Empty { edit_date, .. }) => edit_date,
+            | Message::Location(Location { edit_date, .. }) => edit_date,
             _ => &None,
         }
     }
@@ -2387,8 +2342,7 @@ impl Message {
             | Message::Location(Location { forward_origin, .. })
             | Message::Invoice(Invoice { forward_origin, .. })
             | Message::SuccessfulPayment(SuccessfulPayment { forward_origin, .. })
-            | Message::ConnectedWebsite(ConnectedWebsite { forward_origin, .. })
-            | Message::Empty(Empty { forward_origin, .. }) => forward_origin,
+            | Message::ConnectedWebsite(ConnectedWebsite { forward_origin, .. }) => forward_origin,
             _ => &None,
         }
         .as_ref()
@@ -2543,7 +2497,7 @@ impl Message {
     }
 
     #[must_use]
-    pub const fn pinned(&self) -> Option<&Message> {
+    pub const fn pinned(&self) -> Option<&MaybeInaccessibleMessage> {
         match self {
             Message::Pinned(Pinned { message, .. }) => Some(message),
             _ => None,
@@ -2849,20 +2803,12 @@ impl Message {
             _ => None,
         }
     }
-
-    #[must_use]
-    pub const fn empty(&self) -> Option<&Empty> {
-        match self {
-            Message::Empty(empty) => Some(empty),
-            _ => None,
-        }
-    }
 }
 
 impl Default for Message {
     #[must_use]
     fn default() -> Self {
-        Message::Empty(Empty::default())
+        Message::Text(Text::default())
     }
 }
 
@@ -2921,7 +2867,6 @@ impl_try_from_message!(VideoChatStarted, VideoChatStarted);
 impl_try_from_message!(VideoChatEnded, VideoChatEnded);
 impl_try_from_message!(VideoChatParticipantsInvited, VideoChatParticipantsInvited);
 impl_try_from_message!(WebAppData, WebAppData);
-impl_try_from_message!(Empty, Empty);
 impl_try_from_message!(Poll, Poll);
 impl_try_from_message!(Venue, Venue);
 impl_try_from_message!(Photo, Photo);
@@ -3000,7 +2945,6 @@ impl_try_from_update!(VideoChatStarted);
 impl_try_from_update!(VideoChatEnded);
 impl_try_from_update!(VideoChatParticipantsInvited);
 impl_try_from_update!(WebAppData);
-impl_try_from_update!(Empty);
 impl_try_from_update!(Poll);
 impl_try_from_update!(Venue);
 impl_try_from_update!(Photo);
@@ -4628,29 +4572,6 @@ mod tests {
 
             match message {
                 Message::WebAppData(message) => assert_eq!(message, message_web_app_data),
-                _ => panic!("Unexpected message type"),
-            }
-        }
-    }
-
-    #[test]
-    fn parse_empty() {
-        let jsons = [serde_json::json!({
-            "message_id": 1,
-            "date": 0,
-            "chat": {
-                "id": -1,
-                "title": "test",
-                "type": "channel",
-            },
-        })];
-
-        for json in jsons {
-            let message_empty: Empty = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
-
-            match message {
-                Message::Empty(message) => assert_eq!(message, message_empty),
                 _ => panic!("Unexpected message type"),
             }
         }

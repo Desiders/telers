@@ -109,13 +109,11 @@ pub enum ContentType {
     VideoChatParticipantsInvited,
     #[strum(serialize = "web_app_data")]
     WebAppData,
-    #[strum(serialize = "empty")]
-    Empty,
 }
 
 impl ContentType {
     #[must_use]
-    pub const fn all() -> [ContentType; 52] {
+    pub const fn all() -> [ContentType; 51] {
         [
             ContentType::Text,
             ContentType::Animation,
@@ -168,7 +166,6 @@ impl ContentType {
             ContentType::VideoChatEnded,
             ContentType::VideoChatParticipantsInvited,
             ContentType::WebAppData,
-            ContentType::Empty,
         ]
     }
 }
@@ -245,7 +242,6 @@ impl From<&Message> for ContentType {
             Message::VideoChatEnded(_) => ContentType::VideoChatEnded,
             Message::VideoChatParticipantsInvited(_) => ContentType::VideoChatParticipantsInvited,
             Message::WebAppData(_) => ContentType::WebAppData,
-            Message::Empty(_) => ContentType::Empty,
         }
     }
 }

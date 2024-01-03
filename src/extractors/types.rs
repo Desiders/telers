@@ -8,20 +8,20 @@ use crate::{
         CallbackQuery, ChatBoostRemoved, ChatBoostUpdated, ChatJoinRequest, ChatMemberUpdated,
         ChosenInlineResult, InlineQuery, Message, MessageAnimation, MessageAudio,
         MessageChannelChatCreated, MessageChatShared, MessageConnectedWebsite, MessageContact,
-        MessageDeleteChatPhoto, MessageDice, MessageDocument, MessageEmpty,
-        MessageForumTopicClosed, MessageForumTopicCreated, MessageForumTopicEdited,
-        MessageForumTopicReopened, MessageGame, MessageGeneralForumTopicHidden,
-        MessageGeneralForumTopicUnhidden, MessageGiveaway, MessageGiveawayCompleted,
-        MessageGiveawayCreated, MessageGiveawayWinners, MessageGroupChatCreated, MessageInvoice,
-        MessageLeftChatMember, MessageLocation, MessageMessageAutoDeleteTimerChanged,
-        MessageMigrateFromChat, MessageMigrateToChat, MessageNewChatMembers, MessageNewChatPhoto,
-        MessageNewChatTitle, MessagePassportData, MessagePhoto, MessagePinned, MessagePoll,
-        MessageProximityAlertTriggered, MessageReactionCountUpdated, MessageReactionUpdated,
-        MessageSticker, MessageStory, MessageSuccessfulPayment, MessageSupergroupChatCreated,
-        MessageText, MessageUsersShared, MessageVenue, MessageVideo, MessageVideoChatEnded,
-        MessageVideoChatParticipantsInvited, MessageVideoChatScheduled, MessageVideoChatStarted,
-        MessageVideoNote, MessageVoice, MessageWebAppData, MessageWriteAccessAllowed, Poll,
-        PollAnswer, PollQuiz, PollRegular, PreCheckoutQuery, ShippingQuery, Update, UpdateKind,
+        MessageDeleteChatPhoto, MessageDice, MessageDocument, MessageForumTopicClosed,
+        MessageForumTopicCreated, MessageForumTopicEdited, MessageForumTopicReopened, MessageGame,
+        MessageGeneralForumTopicHidden, MessageGeneralForumTopicUnhidden, MessageGiveaway,
+        MessageGiveawayCompleted, MessageGiveawayCreated, MessageGiveawayWinners,
+        MessageGroupChatCreated, MessageInvoice, MessageLeftChatMember, MessageLocation,
+        MessageMessageAutoDeleteTimerChanged, MessageMigrateFromChat, MessageMigrateToChat,
+        MessageNewChatMembers, MessageNewChatPhoto, MessageNewChatTitle, MessagePassportData,
+        MessagePhoto, MessagePinned, MessagePoll, MessageProximityAlertTriggered,
+        MessageReactionCountUpdated, MessageReactionUpdated, MessageSticker, MessageStory,
+        MessageSuccessfulPayment, MessageSupergroupChatCreated, MessageText, MessageUsersShared,
+        MessageVenue, MessageVideo, MessageVideoChatEnded, MessageVideoChatParticipantsInvited,
+        MessageVideoChatScheduled, MessageVideoChatStarted, MessageVideoNote, MessageVoice,
+        MessageWebAppData, MessageWriteAccessAllowed, Poll, PollAnswer, PollQuiz, PollRegular,
+        PreCheckoutQuery, ShippingQuery, Update, UpdateKind,
     },
 };
 
@@ -158,7 +158,6 @@ try_from_update!([Client], MessageGiveawayCompleted);
 try_from_update!([Client], MessageGiveawayWinners);
 try_from_update!([Client], MessageReactionUpdated);
 try_from_update!([Client], MessageReactionCountUpdated);
-try_from_update!([Client], MessageEmpty);
 
 // To be able to use [`Poll`] and all [`PollKind`] variants in handler arguments
 try_from_update!([Client], Poll);
@@ -274,7 +273,6 @@ mod tests {
         assert_impl_handler(|_: MessageUsersShared| async { unreachable!() });
         assert_impl_handler(|_: MessageReactionUpdated| async { unreachable!() });
         assert_impl_handler(|_: MessageReactionCountUpdated| async { unreachable!() });
-        assert_impl_handler(|_: MessageEmpty| async { unreachable!() });
         assert_impl_handler(|_: Poll| async { unreachable!() });
         assert_impl_handler(|_: PollRegular| async { unreachable!() });
         assert_impl_handler(|_: PollQuiz| async { unreachable!() });

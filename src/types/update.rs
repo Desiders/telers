@@ -1,8 +1,8 @@
 use super::{
     CallbackQuery, Chat, ChatBoostRemoved, ChatBoostSource, ChatBoostSourcePremium,
-    ChatBoostUpdated, ChatJoinRequest, ChatMemberUpdated, ChosenInlineResult, InlineQuery, Message,
-    MessageReactionCountUpdated, MessageReactionUpdated, Poll, PollAnswer, PreCheckoutQuery,
-    ShippingQuery, User,
+    ChatBoostUpdated, ChatJoinRequest, ChatMemberUpdated, ChosenInlineResult, InaccessibleMessage,
+    InlineQuery, MaybeInaccessibleMessage, Message, MessageReactionCountUpdated,
+    MessageReactionUpdated, Poll, PollAnswer, PreCheckoutQuery, ShippingQuery, User,
 };
 
 use crate::enums::UpdateType;
@@ -110,7 +110,10 @@ impl Kind {
                     return None;
                 };
 
-                message.caption()
+                match message {
+                    MaybeInaccessibleMessage::Message(message) => message.caption(),
+                    MaybeInaccessibleMessage::InaccessibleMessage(_) => None,
+                }
             }
             Kind::InlineQuery(_)
             | Kind::ChosenInlineResult(_)
@@ -181,7 +184,13 @@ impl Kind {
                     return None;
                 };
 
-                Some(message.chat())
+                match message {
+                    MaybeInaccessibleMessage::Message(message) => Some(message.chat()),
+                    MaybeInaccessibleMessage::InaccessibleMessage(InaccessibleMessage {
+                        chat,
+                        ..
+                    }) => Some(chat),
+                }
             }
             Kind::MyChatMember(ChatMemberUpdated { chat, .. })
             | Kind::ChatMember(ChatMemberUpdated { chat, .. })
@@ -220,7 +229,10 @@ impl Kind {
                     return None;
                 };
 
-                message.sender_chat()
+                match message {
+                    MaybeInaccessibleMessage::Message(message) => message.sender_chat(),
+                    MaybeInaccessibleMessage::InaccessibleMessage(_) => None,
+                }
             }
             Kind::InlineQuery(_)
             | Kind::ChosenInlineResult(_)
@@ -259,7 +271,10 @@ impl Kind {
                     return None;
                 };
 
-                message.thread_id()
+                match message {
+                    MaybeInaccessibleMessage::Message(message) => message.thread_id(),
+                    MaybeInaccessibleMessage::InaccessibleMessage(_) => None,
+                }
             }
             Kind::InlineQuery(_)
             | Kind::ChosenInlineResult(_)
