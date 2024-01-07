@@ -1,4 +1,4 @@
-//! This example shows how to create a middleware that counter incoming updates and processed handlers.
+//! This example shows how to create a middleware that count incoming updates and processed handlers.
 //! [`IncomingUpdates`] middleware counter increments when an update arrives.
 //! [`ProcessedHandlers`] middleware counter increments when a handler successfully processed.
 //! Every counterer is passes to the handler in the context.

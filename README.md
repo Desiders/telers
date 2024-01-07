@@ -22,26 +22,25 @@ An asynchronous framework for Telegram Bot API written in Rust
 
 <b>Telers make it easy to create Telegram bots</b> in Rust.
 
-Make sure you have a basic understanding of the [Telegram Bot API](https://core.telegram.org/bots/api) before you start, because **all types and methods in telers have the same fields and types as in Telegram Bot API**.
+Before you start, make sure that you have a basic understanding of the [Telegram Bot API](https://core.telegram.org/bots/api), because types and methods in the library have the same fields and types as in the documentation.
 
 ## Highlights
- - **Asynchronous**. Telers is built on top of [Tokio](https://tokio.rs), a powerful asynchronous runtime for Rust.
- - **Easy to use**. Telers provides a simple and intuitive API to create Telegram bots.
- - **Based on** [aiogram](https://github.com/aiogram/aiogram). Telers is inspired by [aiogram](https://github.com/aiogram/aiogram), a Python framework for Telegram Bot API. Telers tries to provide the same API as aiogram, so if you know aiogram, you can easily start using this framework.
- - **Middlewares**, **Filters** and **Handlers**. Telers provides a powerful system of middlewares, filters and handlers. You can use middlewares to modify incoming/outgoing updates (logging, database connections, etc.), filters to filter incoming updates and handlers to handle incoming updates.
- - **Powerful extractors**. Telers provides a simple system of extractors. You can use extractors to extract data from incoming updates and context (middlewares, filters, etc.), and pass it to your handlers directly.
- - **Multiple bots**. Telers allows you to create multiple bots in one application without any problems.
+ - **Asynchronous**. Built on top of [Tokio](https://tokio.rs/), a powerful asynchronous runtime.
+ - **Easy to use**. Provides a simple and intuitive API for creating bots.
+ - **Based on** [aiogram](https://github.com/aiogram/aiogram/). Inspired by the framework written in Python and tries to provide a similar functionality.
+ - **Routes**, **Middlewares**, **Filters** and **Handlers**. Provides a powerful system of routes, middlewares, filters and handlers to make your code more readable and maintainable, and simplify the creation of bots.
+ - **Extractors**. Have similar system of extractors as in [axum](https://docs.rs/axum/latest/axum/extract/) and [actix](https://actix.rs/docs/extractors/).
 
 ## Examples
- - [Echo bot](examples/echo_bot). This example shows how to create a echo bot.
+ - [Echo bot](examples/echo_bot). This example shows how to create an echo bot.
  - [Text formatting](examples/text_formatting). This example shows how to format text.
  - [Text case filters](examples/text_case_filters). This example shows how to create text case filters.
- - [Stats updates middleware](examples/stats_incoming_updates_middleware). This example shows how to create a middleware that counter incoming updates.
+ - [Stats updates middleware](examples/stats_incoming_updates_middleware). This example shows how to create a middleware that count incoming updates.
  - [Input file](examples/input_file). This example shows how to send files by the bot.
  - [Finite state machine](examples/finite_state_machine). This example shows how to use a finite state machine (conversation).
- - [Router tree](examples/router_tree). This example shows how to send files by the bot.
+ - [Router tree](examples/router_tree). This example shows how to create a router tree.
  - [Bot http client](examples/bot_http_client). This example shows how to set a custom bot HTTP client.
- - [Axum and echo bot](examples/axum_and_echo_bot). This example shows how to create a echo bot and how to run it parallel with polling axum server.
+ - [Axum and echo bot](examples/axum_and_echo_bot). This example shows how to create an echo bot and run it concurrently with polling `axum` server.
 
 You may consider checking out [this directory](examples) for more examples.
 
