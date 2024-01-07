@@ -2,7 +2,7 @@ use super::base::{Request, TelegramMethod};
 
 use crate::{
     client::Bot,
-    types::{ChatIdKind, Message, MessageEntity, ReplyMarkup},
+    types::{ChatIdKind, Message, MessageEntity, ReplyMarkup, ReplyParameters},
 };
 
 use serde::Serialize;
@@ -29,7 +29,7 @@ pub struct SendPoll {
     /// Poll type, `quiz` or `regular`, defaults to `regular`
     #[serde(rename = "type")]
     pub poll_type: Option<String>,
-    /// `true`, if the poll allows multiple answers, ignored for polls in `quiz` mode, defaults to `False`
+    /// `true`, if the poll allows multiple answers, ignored for polls in `quiz` mode, defaults to `false`
     pub allows_multiple_answers: Option<bool>,
     /// 0-based identifier of the correct answer option, required for polls in `quiz` mode
     pub correct_option_id: Option<i64>,
@@ -49,10 +49,8 @@ pub struct SendPoll {
     pub disable_notification: Option<bool>,
     /// Protects the contents of the sent message from forwarding and saving
     pub protect_content: Option<bool>,
-    /// If the message is a reply, ID of the original message
-    pub reply_to_message_id: Option<i64>,
-    /// Pass `true`, if the message should be sent even if the specified replied-to message is not found
-    pub allow_sending_without_reply: Option<bool>,
+    /// Description of the message to reply to
+    pub reply_parameters: Option<ReplyParameters>,
     /// Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove reply keyboard or to force a reply from the user.
     pub reply_markup: Option<ReplyMarkup>,
 }
@@ -81,8 +79,7 @@ impl SendPoll {
             is_closed: None,
             disable_notification: None,
             protect_content: None,
-            reply_to_message_id: None,
-            allow_sending_without_reply: None,
+            reply_parameters: None,
             reply_markup: None,
         }
     }
@@ -252,17 +249,9 @@ impl SendPoll {
     }
 
     #[must_use]
-    pub fn reply_to_message_id(self, val: i64) -> Self {
+    pub fn reply_parameters(self, val: ReplyParameters) -> Self {
         Self {
-            reply_to_message_id: Some(val),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn allow_sending_without_reply(self, val: bool) -> Self {
-        Self {
-            allow_sending_without_reply: Some(val),
+            reply_parameters: Some(val),
             ..self
         }
     }
@@ -385,17 +374,9 @@ impl SendPoll {
     }
 
     #[must_use]
-    pub fn reply_to_message_id_option(self, val: Option<i64>) -> Self {
+    pub fn reply_parameters_option(self, val: Option<ReplyParameters>) -> Self {
         Self {
-            reply_to_message_id: val,
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn allow_sending_without_reply_option(self, val: Option<bool>) -> Self {
-        Self {
-            allow_sending_without_reply: val,
+            reply_parameters: val,
             ..self
         }
     }

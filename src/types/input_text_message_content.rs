@@ -1,4 +1,4 @@
-use super::MessageEntity;
+use super::{LinkPreviewOptions, MessageEntity};
 
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -15,8 +15,8 @@ pub struct InputTextMessageContent {
     pub parse_mode: Option<String>,
     /// List of special entities that appear in message text, which can be specified instead of *parse_mode*
     pub entities: Option<Vec<MessageEntity>>,
-    /// Disables link previews for links in the sent message
-    pub disable_web_page_preview: Option<bool>,
+    /// Link preview generation options for the message
+    pub link_preview_options: Option<LinkPreviewOptions>,
 }
 
 impl InputTextMessageContent {
@@ -26,7 +26,7 @@ impl InputTextMessageContent {
             message_text: message_text.into(),
             parse_mode: None,
             entities: None,
-            disable_web_page_preview: None,
+            link_preview_options: None,
         }
     }
 
@@ -75,9 +75,9 @@ impl InputTextMessageContent {
     }
 
     #[must_use]
-    pub fn disable_web_page_preview(self, val: bool) -> Self {
+    pub fn link_preview_options(self, val: LinkPreviewOptions) -> Self {
         Self {
-            disable_web_page_preview: Some(val),
+            link_preview_options: Some(val),
             ..self
         }
     }
@@ -107,9 +107,9 @@ impl InputTextMessageContent {
     }
 
     #[must_use]
-    pub fn disable_web_page_preview_option(self, val: Option<bool>) -> Self {
+    pub fn link_preview_options_option(self, val: Option<LinkPreviewOptions>) -> Self {
         Self {
-            disable_web_page_preview: val,
+            link_preview_options: val,
             ..self
         }
     }

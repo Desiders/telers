@@ -1,4 +1,7 @@
-use super::{Chat, InlineKeyboardMarkup, MessageEntity, PhotoSize, Update, UpdateKind, User};
+use super::{
+    Chat, ExternalReplyInfo, InlineKeyboardMarkup, LinkPreviewOptions, MaybeInaccessibleMessage,
+    MessageEntity, MessageOrigin, PhotoSize, TextQuote, Update, UpdateKind, User,
+};
 
 use crate::{errors::ConvertToTypeError, types};
 
@@ -7,8 +10,6 @@ use serde::Deserialize;
 /// This object represents a message.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#message>
-/// # Notes
-/// Note that message date will not be available if the message is too old in [callback queries](https://core.telegram.org/bots/api#callbackquery).
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(untagged)]
 pub enum Message {
@@ -42,7 +43,7 @@ pub enum Message {
     Pinned(Pinned),
     Invoice(Invoice),
     SuccessfulPayment(SuccessfulPayment),
-    UserShared(UserShared),
+    UsersShared(UsersShared),
     ChatShared(ChatShared),
     ConnectedWebsite(ConnectedWebsite),
     WriteAccessAllowed(WriteAccessAllowed),
@@ -54,13 +55,15 @@ pub enum Message {
     ForumTopicReopened(ForumTopicReopened),
     GeneralForumTopicHidden(GeneralForumTopicHidden),
     GeneralForumTopicUnhidden(GeneralForumTopicUnhidden),
+    GiveawayCreated(GiveawayCreated),
+    Giveaway(Giveaway),
+    GiveawayWinners(GiveawayWinners),
+    GiveawayCompleted(GiveawayCompleted),
     VideoChatScheduled(VideoChatScheduled),
     VideoChatStarted(VideoChatStarted),
     VideoChatEnded(VideoChatEnded),
     VideoChatParticipantsInvited(VideoChatParticipantsInvited),
     WebAppData(WebAppData),
-    /// Note that message content and message date will not be available if the message is too old in [callback queries](https://core.telegram.org/bots/api#callbackquery).
-    Empty(Empty),
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -79,14 +82,18 @@ pub struct Animation {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
+    /// For replies that quote part of the original message, the quoted part of the message
+    pub quote: Option<TextQuote>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Date the message was last edited in Unix time
@@ -124,14 +131,18 @@ pub struct Audio {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
+    /// For replies that quote part of the original message, the quoted part of the message
+    pub quote: Option<TextQuote>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Date the message was last edited in Unix time
@@ -169,14 +180,16 @@ pub struct Contact {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// `true`, if the message can't be forwarded
@@ -205,14 +218,16 @@ pub struct Dice {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
     /// `true`, if the message can't be forwarded
     pub has_protected_content: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
@@ -239,14 +254,18 @@ pub struct Document {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
+    /// For replies that quote part of the original message, the quoted part of the message
+    pub quote: Option<TextQuote>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Date the message was last edited in Unix time
@@ -284,12 +303,14 @@ pub struct Game {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Date the message was last edited in Unix time
@@ -320,14 +341,16 @@ pub struct Poll {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
     /// Date the message was last edited in Unix time
     pub edit_date: Option<i64>,
     /// `true`, if the message can't be forwarded
@@ -356,14 +379,16 @@ pub struct Venue {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Date the message was last edited in Unix time
@@ -394,14 +419,16 @@ pub struct Location {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Date the message was last edited in Unix time
@@ -432,14 +459,18 @@ pub struct Photo {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
+    /// For replies that quote part of the original message, the quoted part of the message
+    pub quote: Option<TextQuote>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Date the message was last edited in Unix time
@@ -505,12 +536,14 @@ pub struct Story {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// Forwarded story
@@ -533,14 +566,16 @@ pub struct Sticker {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// `true`, if the message can't be forwarded
@@ -567,14 +602,18 @@ pub struct Text {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
+    /// For replies that quote part of the original message, the quoted part of the message
+    pub quote: Option<TextQuote>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Date the message was last edited in Unix time
@@ -587,6 +626,8 @@ pub struct Text {
     pub text: Box<str>,
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the text
     pub entities: Option<Box<[MessageEntity]>>,
+    /// Options used for link preview generation for the message, if it is a text message an
+    pub link_preview_options: Option<LinkPreviewOptions>,
     /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary `url` buttons.
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
@@ -607,14 +648,18 @@ pub struct Video {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
+    /// For replies that quote part of the original message, the quoted part of the message
+    pub quote: Option<TextQuote>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Date the message was last edited in Unix time
@@ -654,14 +699,16 @@ pub struct VideoNote {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
     /// `true`, if the message can't be forwarded
     pub has_protected_content: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
@@ -688,14 +735,18 @@ pub struct Voice {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
+    /// For replies that quote part of the original message, the quoted part of the message
+    pub quote: Option<TextQuote>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// `true`, if the message can't be forwarded
@@ -729,8 +780,8 @@ pub struct MigrateToChat {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// The group has been migrated to a supergroup with the specified identifier. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
@@ -754,78 +805,13 @@ pub struct MigrateFromChat {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// The supergroup has been migrated from a group with the specified identifier. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     #[serde(rename = "migrate_from_chat_id")]
     pub from_chat_id: i64,
-}
-
-#[derive(Debug, Default, Clone, PartialEq, Deserialize)]
-pub struct Empty {
-    /// Unique message identifier inside this chat
-    #[serde(rename = "message_id")]
-    pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
-    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
-    pub from: Option<User>,
-    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
-    pub sender_chat: Option<Chat>,
-    /// Date the message was sent in Unix time
-    pub date: i64,
-    /// Conversation the message belongs to
-    pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
-    /// `true`, if the message is sent to a forum topic
-    pub is_topic_message: Option<bool>,
-    /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    pub is_automatic_forward: Option<bool>,
-    /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
-    /// Bot through which the message was sent
-    pub via_bot: Option<User>,
-    /// Date the message was last edited in Unix time
-    pub edit_date: Option<i64>,
-}
-
-#[derive(Debug, Clone, PartialEq, Deserialize)]
-pub struct Forward {
-    /// For forwarded messages, date the original message was sent in Unix time
-    #[serde(rename = "forward_date")]
-    pub date: i64,
-    #[serde(flatten)]
-    pub from: ForwardedFrom,
-    /// For messages forwarded from channels, identifier of the original message in the channel
-    #[serde(rename = "forward_from_message_id")]
-    pub from_message_id: Option<i64>,
-    /// For forwarded messages that were originally sent in channels or by an anonymous chat administrator, signature of the message sender if present
-    #[serde(rename = "forward_signature")]
-    pub signature: Option<Box<str>>,
-}
-
-#[derive(Debug, Clone, PartialEq, Deserialize)]
-#[serde(untagged)]
-pub enum ForwardedFrom {
-    /// For forwarded messages, sender of the original message
-    #[serde(rename = "forward_from")]
-    User(User),
-    /// For messages forwarded from channels or from anonymous administrators, information about the original sender chat
-    #[serde(rename = "forward_from_chat")]
-    Chat(Chat),
-    /// Sender's name for messages forwarded from users who disallow adding a link to their account in forwarded messages
-    #[serde(rename = "forward_sender_name")]
-    SenderName(Box<str>),
-}
-
-impl From<Forward> for ForwardedFrom {
-    fn from(forward: Forward) -> Self {
-        forward.from
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -1062,7 +1048,7 @@ pub struct Pinned {
     pub via_bot: Option<User>,
     /// Specified message was pinned. Note that the Message object in this field will not contain further *reply_to_message* fields even if it is itself a reply.
     #[serde(rename = "pinned_message")]
-    pub message: Box<Message>,
+    pub message: Box<MaybeInaccessibleMessage>,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -1081,12 +1067,14 @@ pub struct Invoice {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// `true`, if the message can't be forwarded
@@ -1115,8 +1103,8 @@ pub struct SuccessfulPayment {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
@@ -1129,7 +1117,7 @@ pub struct SuccessfulPayment {
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
-pub struct UserShared {
+pub struct UsersShared {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
@@ -1146,9 +1134,9 @@ pub struct UserShared {
     pub chat: Chat,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
-    /// Service message: a user was shared with the bot
-    #[serde(rename = "user_shared")]
-    pub shared: types::UserShared,
+    /// Service message: users were shared with the bot
+    #[serde(rename = "users_shared")]
+    pub shared: types::UsersShared,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -1190,8 +1178,8 @@ pub struct ConnectedWebsite {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// Bot through which the message was sent
@@ -1242,8 +1230,8 @@ pub struct PassportData {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    #[serde(flatten)]
-    pub forward: Option<Forward>,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
@@ -1439,6 +1427,93 @@ pub struct GeneralForumTopicUnhidden {
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct GiveawayCreated {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: a scheduled giveaway was created
+    #[serde(rename = "giveaway_created")]
+    pub created: types::GiveawayCreated,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct Giveaway {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
+    /// The message is a scheduled giveaway message
+    pub giveaway: types::Giveaway,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct GiveawayWinners {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
+    /// A giveaway with public winners was completed
+    #[serde(rename = "giveaway_winners")]
+    pub winners: types::GiveawayWinners,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct GiveawayCompleted {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: a giveaway without public winners was completed
+    #[serde(rename = "giveaway_completed")]
+    pub completed: types::GiveawayCompleted,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct VideoChatScheduled {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1585,7 +1660,7 @@ impl Message {
             | Message::Pinned(Pinned { id, .. })
             | Message::Invoice(Invoice { id, .. })
             | Message::SuccessfulPayment(SuccessfulPayment { id, .. })
-            | Message::UserShared(UserShared { id, .. })
+            | Message::UsersShared(UsersShared { id, .. })
             | Message::ChatShared(ChatShared { id, .. })
             | Message::ConnectedWebsite(ConnectedWebsite { id, .. })
             | Message::WriteAccessAllowed(WriteAccessAllowed { id, .. })
@@ -1602,7 +1677,10 @@ impl Message {
             | Message::VideoChatEnded(VideoChatEnded { id, .. })
             | Message::VideoChatParticipantsInvited(VideoChatParticipantsInvited { id, .. })
             | Message::WebAppData(WebAppData { id, .. })
-            | Message::Empty(Empty { id, .. }) => *id,
+            | Message::GiveawayCreated(GiveawayCreated { id, .. })
+            | Message::Giveaway(Giveaway { id, .. })
+            | Message::GiveawayWinners(GiveawayWinners { id, .. })
+            | Message::GiveawayCompleted(GiveawayCompleted { id, .. }) => *id,
         }
     }
 
@@ -1642,7 +1720,7 @@ impl Message {
             | Message::Pinned(Pinned { thread_id, .. })
             | Message::Invoice(Invoice { thread_id, .. })
             | Message::SuccessfulPayment(SuccessfulPayment { thread_id, .. })
-            | Message::UserShared(UserShared { thread_id, .. })
+            | Message::UsersShared(UsersShared { thread_id, .. })
             | Message::ChatShared(ChatShared { thread_id, .. })
             | Message::ConnectedWebsite(ConnectedWebsite { thread_id, .. })
             | Message::WriteAccessAllowed(WriteAccessAllowed { thread_id, .. })
@@ -1662,7 +1740,10 @@ impl Message {
                 ..
             })
             | Message::WebAppData(WebAppData { thread_id, .. })
-            | Message::Empty(Empty { thread_id, .. }) => *thread_id,
+            | Message::GiveawayCreated(GiveawayCreated { thread_id, .. })
+            | Message::Giveaway(Giveaway { thread_id, .. })
+            | Message::GiveawayWinners(GiveawayWinners { thread_id, .. })
+            | Message::GiveawayCompleted(GiveawayCompleted { thread_id, .. }) => *thread_id,
         }
     }
 
@@ -1701,7 +1782,7 @@ impl Message {
             | Message::Pinned(Pinned { date, .. })
             | Message::Invoice(Invoice { date, .. })
             | Message::SuccessfulPayment(SuccessfulPayment { date, .. })
-            | Message::UserShared(UserShared { date, .. })
+            | Message::UsersShared(UsersShared { date, .. })
             | Message::ChatShared(ChatShared { date, .. })
             | Message::ConnectedWebsite(ConnectedWebsite { date, .. })
             | Message::WriteAccessAllowed(WriteAccessAllowed { date, .. })
@@ -1720,7 +1801,10 @@ impl Message {
                 date, ..
             })
             | Message::WebAppData(WebAppData { date, .. })
-            | Message::Empty(Empty { date, .. }) => *date,
+            | Message::GiveawayCreated(GiveawayCreated { date, .. })
+            | Message::Giveaway(Giveaway { date, .. })
+            | Message::GiveawayWinners(GiveawayWinners { date, .. })
+            | Message::GiveawayCompleted(GiveawayCompleted { date, .. }) => *date,
         }
     }
 
@@ -1759,7 +1843,7 @@ impl Message {
             | Message::Pinned(Pinned { chat, .. })
             | Message::Invoice(Invoice { chat, .. })
             | Message::SuccessfulPayment(SuccessfulPayment { chat, .. })
-            | Message::UserShared(UserShared { chat, .. })
+            | Message::UsersShared(UsersShared { chat, .. })
             | Message::ChatShared(ChatShared { chat, .. })
             | Message::ConnectedWebsite(ConnectedWebsite { chat, .. })
             | Message::WriteAccessAllowed(WriteAccessAllowed { chat, .. })
@@ -1778,7 +1862,10 @@ impl Message {
                 chat, ..
             })
             | Message::WebAppData(WebAppData { chat, .. })
-            | Message::Empty(Empty { chat, .. }) => chat,
+            | Message::GiveawayCreated(GiveawayCreated { chat, .. })
+            | Message::Giveaway(Giveaway { chat, .. })
+            | Message::GiveawayWinners(GiveawayWinners { chat, .. })
+            | Message::GiveawayCompleted(GiveawayCompleted { chat, .. }) => chat,
         }
     }
 
@@ -1812,8 +1899,7 @@ impl Message {
             | Message::ForumTopicReopened(ForumTopicReopened { via_bot, .. })
             | Message::GeneralForumTopicHidden(GeneralForumTopicHidden { via_bot, .. })
             | Message::GeneralForumTopicUnhidden(GeneralForumTopicUnhidden { via_bot, .. })
-            | Message::WebAppData(WebAppData { via_bot, .. })
-            | Message::Empty(Empty { via_bot, .. }) => via_bot,
+            | Message::WebAppData(WebAppData { via_bot, .. }) => via_bot,
             _ => &None,
         }
         .as_ref()
@@ -1887,7 +1973,7 @@ impl Message {
             | Message::Pinned(Pinned { from, .. })
             | Message::Invoice(Invoice { from, .. })
             | Message::SuccessfulPayment(SuccessfulPayment { from, .. })
-            | Message::UserShared(UserShared { from, .. })
+            | Message::UsersShared(UsersShared { from, .. })
             | Message::ChatShared(ChatShared { from, .. })
             | Message::ConnectedWebsite(ConnectedWebsite { from, .. })
             | Message::WriteAccessAllowed(WriteAccessAllowed { from, .. })
@@ -1906,7 +1992,10 @@ impl Message {
                 from, ..
             })
             | Message::WebAppData(WebAppData { from, .. })
-            | Message::Empty(Empty { from, .. }) => from,
+            | Message::GiveawayCreated(GiveawayCreated { from, .. })
+            | Message::Giveaway(Giveaway { from, .. })
+            | Message::GiveawayWinners(GiveawayWinners { from, .. })
+            | Message::GiveawayCompleted(GiveawayCompleted { from, .. }) => from,
         }
         .as_ref()
     }
@@ -1955,7 +2044,7 @@ impl Message {
             | Message::Pinned(Pinned { sender_chat, .. })
             | Message::Invoice(Invoice { sender_chat, .. })
             | Message::SuccessfulPayment(SuccessfulPayment { sender_chat, .. })
-            | Message::UserShared(UserShared { sender_chat, .. })
+            | Message::UsersShared(UsersShared { sender_chat, .. })
             | Message::ChatShared(ChatShared { sender_chat, .. })
             | Message::ConnectedWebsite(ConnectedWebsite { sender_chat, .. })
             | Message::WriteAccessAllowed(WriteAccessAllowed { sender_chat, .. })
@@ -1977,7 +2066,10 @@ impl Message {
                 ..
             })
             | Message::WebAppData(WebAppData { sender_chat, .. })
-            | Message::Empty(Empty { sender_chat, .. }) => sender_chat,
+            | Message::GiveawayCreated(GiveawayCreated { sender_chat, .. })
+            | Message::Giveaway(Giveaway { sender_chat, .. })
+            | Message::GiveawayWinners(GiveawayWinners { sender_chat, .. })
+            | Message::GiveawayCompleted(GiveawayCompleted { sender_chat, .. }) => sender_chat,
         }
         .as_ref()
     }
@@ -2132,11 +2224,54 @@ impl Message {
             | Message::GeneralForumTopicUnhidden(GeneralForumTopicUnhidden {
                 reply_to_message,
                 ..
-            })
-            | Message::Empty(Empty {
-                reply_to_message, ..
             }) => match reply_to_message {
                 Some(reply_to_message) => Some(reply_to_message),
+                None => None,
+            },
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn external_reply(&self) -> Option<&ExternalReplyInfo> {
+        match self {
+            Message::Text(Text { external_reply, .. })
+            | Message::Animation(Animation { external_reply, .. })
+            | Message::Audio(Audio { external_reply, .. })
+            | Message::Document(Document { external_reply, .. })
+            | Message::Photo(Photo { external_reply, .. })
+            | Message::Sticker(Sticker { external_reply, .. })
+            | Message::Story(Story { external_reply, .. })
+            | Message::Video(Video { external_reply, .. })
+            | Message::VideoNote(VideoNote { external_reply, .. })
+            | Message::Voice(Voice { external_reply, .. })
+            | Message::Contact(Contact { external_reply, .. })
+            | Message::Dice(Dice { external_reply, .. })
+            | Message::Game(Game { external_reply, .. })
+            | Message::Giveaway(Giveaway { external_reply, .. })
+            | Message::GiveawayWinners(GiveawayWinners { external_reply, .. })
+            | Message::Poll(Poll { external_reply, .. })
+            | Message::Venue(Venue { external_reply, .. })
+            | Message::Location(Location { external_reply, .. })
+            | Message::Invoice(Invoice { external_reply, .. }) => match external_reply {
+                Some(external_reply) => Some(external_reply),
+                None => None,
+            },
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn quote(&self) -> Option<&TextQuote> {
+        match self {
+            Message::Text(Text { quote, .. })
+            | Message::Animation(Animation { quote, .. })
+            | Message::Audio(Audio { quote, .. })
+            | Message::Document(Document { quote, .. })
+            | Message::Video(Video { quote, .. })
+            | Message::Voice(Voice { quote, .. })
+            | Message::Photo(Photo { quote, .. }) => match quote {
+                Some(quote) => Some(quote),
                 None => None,
             },
             _ => None,
@@ -2155,8 +2290,7 @@ impl Message {
             | Message::Game(Game { edit_date, .. })
             | Message::Poll(Poll { edit_date, .. })
             | Message::Venue(Venue { edit_date, .. })
-            | Message::Location(Location { edit_date, .. })
-            | Message::Empty(Empty { edit_date, .. }) => edit_date,
+            | Message::Location(Location { edit_date, .. }) => edit_date,
             _ => &None,
         }
     }
@@ -2255,28 +2389,27 @@ impl Message {
     }
 
     #[must_use]
-    pub const fn forward(&self) -> Option<&Forward> {
+    pub const fn forward_origin(&self) -> Option<&MessageOrigin> {
         match self {
-            Message::Text(Text { forward, .. })
-            | Message::Animation(Animation { forward, .. })
-            | Message::Audio(Audio { forward, .. })
-            | Message::Document(Document { forward, .. })
-            | Message::Photo(Photo { forward, .. })
-            | Message::Sticker(Sticker { forward, .. })
-            | Message::Story(Story { forward, .. })
-            | Message::Video(Video { forward, .. })
-            | Message::VideoNote(VideoNote { forward, .. })
-            | Message::Voice(Voice { forward, .. })
-            | Message::Contact(Contact { forward, .. })
-            | Message::Dice(Dice { forward, .. })
-            | Message::Game(Game { forward, .. })
-            | Message::Poll(Poll { forward, .. })
-            | Message::Venue(Venue { forward, .. })
-            | Message::Location(Location { forward, .. })
-            | Message::Invoice(Invoice { forward, .. })
-            | Message::SuccessfulPayment(SuccessfulPayment { forward, .. })
-            | Message::ConnectedWebsite(ConnectedWebsite { forward, .. })
-            | Message::Empty(Empty { forward, .. }) => forward,
+            Message::Text(Text { forward_origin, .. })
+            | Message::Animation(Animation { forward_origin, .. })
+            | Message::Audio(Audio { forward_origin, .. })
+            | Message::Document(Document { forward_origin, .. })
+            | Message::Photo(Photo { forward_origin, .. })
+            | Message::Sticker(Sticker { forward_origin, .. })
+            | Message::Story(Story { forward_origin, .. })
+            | Message::Video(Video { forward_origin, .. })
+            | Message::VideoNote(VideoNote { forward_origin, .. })
+            | Message::Voice(Voice { forward_origin, .. })
+            | Message::Contact(Contact { forward_origin, .. })
+            | Message::Dice(Dice { forward_origin, .. })
+            | Message::Game(Game { forward_origin, .. })
+            | Message::Poll(Poll { forward_origin, .. })
+            | Message::Venue(Venue { forward_origin, .. })
+            | Message::Location(Location { forward_origin, .. })
+            | Message::Invoice(Invoice { forward_origin, .. })
+            | Message::SuccessfulPayment(SuccessfulPayment { forward_origin, .. })
+            | Message::ConnectedWebsite(ConnectedWebsite { forward_origin, .. }) => forward_origin,
             _ => &None,
         }
         .as_ref()
@@ -2431,7 +2564,7 @@ impl Message {
     }
 
     #[must_use]
-    pub const fn pinned(&self) -> Option<&Message> {
+    pub const fn pinned(&self) -> Option<&MaybeInaccessibleMessage> {
         match self {
             Message::Pinned(Pinned { message, .. }) => Some(message),
             _ => None,
@@ -2455,9 +2588,9 @@ impl Message {
     }
 
     #[must_use]
-    pub const fn user_shared(&self) -> Option<&types::UserShared> {
+    pub const fn users_shared(&self) -> Option<&types::UsersShared> {
         match self {
-            Message::UserShared(UserShared { shared, .. }) => Some(shared),
+            Message::UsersShared(UsersShared { shared, .. }) => Some(shared),
             _ => None,
         }
     }
@@ -2552,6 +2685,38 @@ impl Message {
             Message::GeneralForumTopicUnhidden(GeneralForumTopicUnhidden { unhidden, .. }) => {
                 Some(unhidden)
             }
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn giveaway_created(&self) -> Option<&types::GiveawayCreated> {
+        match self {
+            Message::GiveawayCreated(GiveawayCreated { created, .. }) => Some(created),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn giveaway(&self) -> Option<&types::Giveaway> {
+        match self {
+            Message::Giveaway(Giveaway { giveaway, .. }) => Some(giveaway),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn giveaway_winners(&self) -> Option<&types::GiveawayWinners> {
+        match self {
+            Message::GiveawayWinners(GiveawayWinners { winners, .. }) => Some(winners),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn giveaway_completed(&self) -> Option<&types::GiveawayCompleted> {
+        match self {
+            Message::GiveawayCompleted(GiveawayCompleted { completed, .. }) => Some(completed),
             _ => None,
         }
     }
@@ -2705,44 +2870,12 @@ impl Message {
             _ => None,
         }
     }
-
-    #[must_use]
-    pub const fn empty(&self) -> Option<&Empty> {
-        match self {
-            Message::Empty(empty) => Some(empty),
-            _ => None,
-        }
-    }
 }
 
 impl Default for Message {
     #[must_use]
     fn default() -> Self {
-        Message::Empty(Empty::default())
-    }
-}
-
-impl TryFrom<Message> for Forward {
-    type Error = ConvertToTypeError;
-
-    fn try_from(value: Message) -> Result<Self, Self::Error> {
-        if let Some(forward) = value.forward() {
-            Ok(forward.clone())
-        } else {
-            Err(Self::Error::new("Message", "Forward"))
-        }
-    }
-}
-
-impl TryFrom<Message> for ForwardedFrom {
-    type Error = ConvertToTypeError;
-
-    fn try_from(value: Message) -> Result<Self, Self::Error> {
-        if let Some(forward) = value.forward() {
-            Ok(forward.clone().into())
-        } else {
-            Err(Self::Error::new("Message", "ForwardedFrom"))
-        }
+        Message::Text(Text::default())
     }
 }
 
@@ -2792,12 +2925,15 @@ impl_try_from_message!(ForumTopicClosed, ForumTopicClosed);
 impl_try_from_message!(ForumTopicReopened, ForumTopicReopened);
 impl_try_from_message!(GeneralForumTopicHidden, GeneralForumTopicHidden);
 impl_try_from_message!(GeneralForumTopicUnhidden, GeneralForumTopicUnhidden);
+impl_try_from_message!(GiveawayCreated, GiveawayCreated);
+impl_try_from_message!(Giveaway, Giveaway);
+impl_try_from_message!(GiveawayWinners, GiveawayWinners);
+impl_try_from_message!(GiveawayCompleted, GiveawayCompleted);
 impl_try_from_message!(VideoChatScheduled, VideoChatScheduled);
 impl_try_from_message!(VideoChatStarted, VideoChatStarted);
 impl_try_from_message!(VideoChatEnded, VideoChatEnded);
 impl_try_from_message!(VideoChatParticipantsInvited, VideoChatParticipantsInvited);
 impl_try_from_message!(WebAppData, WebAppData);
-impl_try_from_message!(Empty, Empty);
 impl_try_from_message!(Poll, Poll);
 impl_try_from_message!(Venue, Venue);
 impl_try_from_message!(Photo, Photo);
@@ -2807,7 +2943,7 @@ impl_try_from_message!(Video, Video);
 impl_try_from_message!(VideoNote, VideoNote);
 impl_try_from_message!(Voice, Voice);
 impl_try_from_message!(WriteAccessAllowed, WriteAccessAllowed);
-impl_try_from_message!(UserShared, UserShared);
+impl_try_from_message!(UsersShared, UsersShared);
 impl_try_from_message!(ChatShared, ChatShared);
 impl_try_from_message!(MessageAutoDeleteTimerChanged, MessageAutoDeleteTimerChanged);
 
@@ -2867,12 +3003,15 @@ impl_try_from_update!(ForumTopicClosed);
 impl_try_from_update!(ForumTopicReopened);
 impl_try_from_update!(GeneralForumTopicHidden);
 impl_try_from_update!(GeneralForumTopicUnhidden);
+impl_try_from_update!(GiveawayCreated);
+impl_try_from_update!(Giveaway);
+impl_try_from_update!(GiveawayWinners);
+impl_try_from_update!(GiveawayCompleted);
 impl_try_from_update!(VideoChatScheduled);
 impl_try_from_update!(VideoChatStarted);
 impl_try_from_update!(VideoChatEnded);
 impl_try_from_update!(VideoChatParticipantsInvited);
 impl_try_from_update!(WebAppData);
-impl_try_from_update!(Empty);
 impl_try_from_update!(Poll);
 impl_try_from_update!(Venue);
 impl_try_from_update!(Photo);
@@ -2882,18 +3021,16 @@ impl_try_from_update!(Video);
 impl_try_from_update!(VideoNote);
 impl_try_from_update!(Voice);
 impl_try_from_update!(WriteAccessAllowed);
-impl_try_from_update!(UserShared);
+impl_try_from_update!(UsersShared);
 impl_try_from_update!(ChatShared);
 impl_try_from_update!(MessageAutoDeleteTimerChanged);
-impl_try_from_update!(Forward);
-impl_try_from_update!(ForwardedFrom);
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn parse_text() {
+    fn deserialize_text() {
         let jsons = [
             serde_json::json!({
                 "message_id": 1,
@@ -2942,13 +3079,13 @@ mod tests {
 
             match message {
                 Message::Text(message) => assert_eq!(message, message_text),
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_text_with_forward() {
+    fn deserialize_text_with_forward() {
         let jsons = [
             serde_json::json!({
                 "message_id": 1,
@@ -3015,48 +3152,70 @@ mod tests {
         ];
 
         for json in jsons {
-            let message_text: Text = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Text(message) => assert_eq!(message, message_text),
-                _ => panic!("Unexpected message type"),
+                Message::Text(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_animation() {
-        let jsons = [serde_json::json!({
-            "message_id": 1,
-            "date": 0,
-            "chat": {
-                "id": -1,
-                "title": "test",
-                "type": "channel",
-            },
-            "animation": {
-                "file_id": "test",
-                "file_unique_id": "test",
-                "width": 1,
-                "height": 1,
-                "duration": 1,
-            },
-        })];
+    fn deserialize_animation() {
+        let jsons = [
+            serde_json::json!({
+                "message_id": 1,
+                "date": 0,
+                "chat": {
+                    "id": -1,
+                    "title": "test",
+                    "type": "channel",
+                },
+                "animation": {
+                    "file_id": "test",
+                    "file_unique_id": "test",
+                    "width": 1,
+                    "height": 1,
+                    "duration": 1,
+                },
+            }),
+            serde_json::json!({
+                "message_id": 1,
+                "date": 0,
+                "chat": {
+                    "id": -1,
+                    "title": "test",
+                    "type": "channel",
+                },
+                "animation": {
+                    "file_id": "test",
+                    "file_unique_id": "test",
+                    "width": 1,
+                    "height": 1,
+                    "duration": 1,
+                },
+                "document": {
+                    "file_id": "test",
+                    "file_unique_id": "test",
+                },
+            }),
+        ];
 
         for json in jsons {
-            let message_animation: Animation = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Animation(message) => assert_eq!(message, message_animation),
-                _ => panic!("Unexpected message type"),
+                Message::Animation(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_audio() {
+    fn deserialize_audio() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3073,18 +3232,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_audio: Audio = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Audio(message) => assert_eq!(message, message_audio),
-                _ => panic!("Unexpected message type"),
+                Message::Audio(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_document() {
+    fn deserialize_document() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3100,18 +3259,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_document: Document = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Document(message) => assert_eq!(message, message_document),
-                _ => panic!("Unexpected message type"),
+                Message::Document(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_photo() {
+    fn deserialize_photo() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3129,18 +3288,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_photo: Photo = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Photo(message) => assert_eq!(message, message_photo),
-                _ => panic!("Unexpected message type"),
+                Message::Photo(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_sticker() {
+    fn deserialize_sticker() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3161,18 +3320,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_sticker: Sticker = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Sticker(message) => assert_eq!(message, message_sticker),
-                _ => panic!("Unexpected message type"),
+                Message::Sticker(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_story() {
+    fn deserialize_story() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3186,18 +3345,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_story: Story = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Story(message) => assert_eq!(message, message_story),
-                _ => panic!("Unexpected message type"),
+                Message::Story(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_video() {
+    fn deserialize_video() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3217,18 +3376,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_video: Video = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Video(message) => assert_eq!(message, message_video),
-                _ => panic!("Unexpected message type"),
+                Message::Video(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_video_note() {
+    fn deserialize_video_note() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3247,18 +3406,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_video_note: VideoNote = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::VideoNote(message) => assert_eq!(message, message_video_note),
-                _ => panic!("Unexpected message type"),
+                Message::VideoNote(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_voice() {
+    fn deserialize_voice() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3276,18 +3435,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_voice: Voice = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Voice(message) => assert_eq!(message, message_voice),
-                _ => panic!("Unexpected message type"),
+                Message::Voice(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_contact() {
+    fn deserialize_contact() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3304,18 +3463,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_contact: Contact = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Contact(message) => assert_eq!(message, message_contact),
-                _ => panic!("Unexpected message type"),
+                Message::Contact(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_dice() {
+    fn deserialize_dice() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3332,18 +3491,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_dice: Dice = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Dice(message) => assert_eq!(message, message_dice),
-                _ => panic!("Unexpected message type"),
+                Message::Dice(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_game() {
+    fn deserialize_game() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3366,18 +3525,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_game: Game = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Game(message) => assert_eq!(message, message_game),
-                _ => panic!("Unexpected message type"),
+                Message::Game(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_poll() {
+    fn deserialize_poll() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3409,76 +3568,99 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_poll: Poll = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Poll(message) => assert_eq!(message, message_poll),
-                _ => panic!("Unexpected message type"),
+                Message::Poll(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_venue() {
-        let jsons = [serde_json::json!({
-            "message_id": 1,
-            "date": 0,
-            "chat": {
-                "id": -1,
-                "title": "test",
-                "type": "channel",
-            },
-            "venue": {
+    fn deserialize_venue() {
+        let jsons = [
+            serde_json::json!({
+                "message_id": 1,
+                "date": 0,
+                "chat": {
+                    "id": -1,
+                    "title": "test",
+                    "type": "channel",
+                },
+                "venue": {
+                    "location": {
+                        "latitude": 1.0,
+                        "longitude": 1.0,
+                    },
+                    "title": "test",
+                    "address": "test",
+                },
+            }),
+            serde_json::json!({
+                "message_id": 1,
+                "date": 0,
+                "chat": {
+                    "id": -1,
+                    "title": "test",
+                    "type": "channel",
+                },
+                "venue": {
+                    "location": {
+                        "latitude": 1.0,
+                        "longitude": 1.0,
+                    },
+                    "title": "test",
+                    "address": "test",
+                },
                 "location": {
                     "latitude": 1.0,
                     "longitude": 1.0,
                 },
-                "title": "test",
-                "address": "test",
-            },
-        })];
+            }),
+        ];
 
         for json in jsons {
-            let message_venue: Venue = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Venue(message) => assert_eq!(message, message_venue),
-                _ => panic!("Unexpected message type"),
+                Message::Venue(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_location() {
+    fn deserialize_location() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
-            "location": {
-                "latitude": 1.0,
-                "longitude": 1.0,
-            },
             "chat": {
                 "id": -1,
                 "title": "test",
                 "type": "channel",
             },
+            "location": {
+                "latitude": 1.0,
+                "longitude": 1.0,
+            },
         })];
 
         for json in jsons {
-            let message_location: Location = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Location(message) => assert_eq!(message, message_location),
-                _ => panic!("Unexpected message type"),
+                Message::Location(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_new_chat_members() {
+    fn deserialize_new_chat_members() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3495,19 +3677,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_new_chat_members: NewChatMembers =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::NewChatMembers(message) => assert_eq!(message, message_new_chat_members),
-                _ => panic!("Unexpected message type"),
+                Message::NewChatMembers(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_left_chat_member() {
+    fn deserialize_left_chat_member() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3524,19 +3705,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_left_chat_member: LeftChatMember =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::LeftChatMember(message) => assert_eq!(message, message_left_chat_member),
-                _ => panic!("Unexpected message type"),
+                Message::LeftChatMember(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_new_chat_title() {
+    fn deserialize_new_chat_title() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3549,19 +3729,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_new_chat_title: NewChatTitle =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::NewChatTitle(message) => assert_eq!(message, message_new_chat_title),
-                _ => panic!("Unexpected message type"),
+                Message::NewChatTitle(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_new_chat_photo() {
+    fn deserialize_new_chat_photo() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3579,19 +3758,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_new_chat_photo: NewChatPhoto =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::NewChatPhoto(message) => assert_eq!(message, message_new_chat_photo),
-                _ => panic!("Unexpected message type"),
+                Message::NewChatPhoto(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_delete_chat_photo() {
+    fn deserialize_delete_chat_photo() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3604,19 +3782,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_delete_chat_photo: DeleteChatPhoto =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::DeleteChatPhoto(message) => assert_eq!(message, message_delete_chat_photo),
-                _ => panic!("Unexpected message type"),
+                Message::DeleteChatPhoto(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_group_chat_created() {
+    fn deserialize_group_chat_created() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3629,21 +3806,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_group_chat_created: GroupChatCreated =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::GroupChatCreated(message) => {
-                    assert_eq!(message, message_group_chat_created);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_supergroup_chat_created() {
+    fn deserialize_supergroup_chat_created() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3656,21 +3832,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_supergroup_chat_created: SupergroupChatCreated =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::SupergroupChatCreated(message) => {
-                    assert_eq!(message, message_supergroup_chat_created);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_channel_chat_created() {
+    fn deserialize_channel_chat_created() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3683,21 +3858,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_channel_chat_created: ChannelChatCreated =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::ChannelChatCreated(message) => {
-                    assert_eq!(message, message_channel_chat_created);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_auto_delete_timer_changed() {
+    fn deserialize_auto_delete_timer_changed() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3712,21 +3886,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_auto_delete_timer_changed: MessageAutoDeleteTimerChanged =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::MessageAutoDeleteTimerChanged(message) => {
-                    assert_eq!(message, message_auto_delete_timer_changed);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_migrate_to_chat_id() {
+    fn deserialize_migrate_to_chat_id() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3739,21 +3912,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_migrate_to_chat_id: MigrateToChat =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::MigrateToChat(message) => {
-                    assert_eq!(message, message_migrate_to_chat_id);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_migrate_from_chat_id() {
+    fn deserialize_migrate_from_chat_id() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3766,21 +3938,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_migrate_from_chat_id: MigrateFromChat =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::MigrateFromChat(message) => {
-                    assert_eq!(message, message_migrate_from_chat_id);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_pinned_message() {
+    fn deserialize_pinned_message() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3802,18 +3973,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_pinned_message: Pinned = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Pinned(message) => assert_eq!(message, message_pinned_message),
-                _ => panic!("Unexpected message type"),
+                Message::Pinned(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_invoice() {
+    fn deserialize_invoice() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3832,18 +4003,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_invoice: Invoice = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Invoice(message) => assert_eq!(message, message_invoice),
-                _ => panic!("Unexpected message type"),
+                Message::Invoice(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_successful_payment() {
+    fn deserialize_successful_payment() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3862,21 +4033,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_successful_payment: SuccessfulPayment =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::SuccessfulPayment(message) => {
-                    assert_eq!(message, message_successful_payment);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_user_shared() {
+    fn deserialize_users_shared() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3885,25 +4055,25 @@ mod tests {
                 "title": "test",
                 "type": "channel",
             },
-            "user_shared": {
+            "users_shared": {
                 "request_id": 1,
-                "user_id": 1,
+                "user_ids": [1, 2, 3],
             },
         })];
 
         for json in jsons {
-            let message_user_shared: UserShared = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::UserShared(message) => assert_eq!(message, message_user_shared),
-                _ => panic!("Unexpected message type"),
+                Message::UsersShared(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_chat_shared() {
+    fn deserialize_chat_shared() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3919,18 +4089,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_chat_shared: ChatShared = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::ChatShared(message) => assert_eq!(message, message_chat_shared),
-                _ => panic!("Unexpected message type"),
+                Message::ChatShared(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_connected_website() {
+    fn deserialize_connected_website() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3943,21 +4113,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_connected_website: ConnectedWebsite =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::ConnectedWebsite(message) => {
-                    assert_eq!(message, message_connected_website);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_write_access_allowed() {
+    fn deserialize_write_access_allowed() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -3970,21 +4139,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_write_access_allowed: WriteAccessAllowed =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::WriteAccessAllowed(message) => {
-                    assert_eq!(message, message_write_access_allowed);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_passport_data() {
+    fn deserialize_passport_data() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -4008,18 +4176,18 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_passport_data: PassportData = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::PassportData(message) => assert_eq!(message, message_passport_data),
-                _ => panic!("Unexpected message type"),
+                Message::PassportData(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_proximity_alert_triggered() {
+    fn deserialize_proximity_alert_triggered() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -4044,21 +4212,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_proximity_alert_triggered: ProximityAlertTriggered =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::ProximityAlertTriggered(message) => {
-                    assert_eq!(message, message_proximity_alert_triggered);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_forum_topic_created() {
+    fn deserialize_forum_topic_created() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -4075,21 +4242,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_forum_topic_created: ForumTopicCreated =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::ForumTopicCreated(message) => {
-                    assert_eq!(message, message_forum_topic_created);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_forum_topic_edited() {
+    fn deserialize_forum_topic_edited() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -4105,21 +4271,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_forum_topic_edited: ForumTopicEdited =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::ForumTopicEdited(message) => {
-                    assert_eq!(message, message_forum_topic_edited);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_forum_topic_closed() {
+    fn deserialize_forum_topic_closed() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -4132,21 +4297,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_forum_topic_closed: ForumTopicClosed =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::ForumTopicClosed(message) => {
-                    assert_eq!(message, message_forum_topic_closed);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_forum_topic_reopened() {
+    fn deserialize_forum_topic_reopened() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -4159,21 +4323,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_forum_topic_reopened: ForumTopicReopened =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::ForumTopicReopened(message) => {
-                    assert_eq!(message, message_forum_topic_reopened);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_general_forum_topic_hidden() {
+    fn deserialize_general_forum_topic_hidden() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -4186,21 +4349,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_general_forum_topic_hidden: GeneralForumTopicHidden =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::GeneralForumTopicHidden(message) => {
-                    assert_eq!(message, message_general_forum_topic_hidden);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_general_forum_topic_unhidden() {
+    fn deserialize_general_forum_topic_unhidden() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -4213,21 +4375,146 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_general_forum_topic_unhidden: GeneralForumTopicUnhidden =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::GeneralForumTopicUnhidden(message) => {
-                    assert_eq!(message, message_general_forum_topic_unhidden);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_video_chat_scheduled() {
+    fn deserialize_giveaway_created() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "giveaway_created": {},
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message: Message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::GiveawayCreated(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_giveaway() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "giveaway": {
+                "chats": [{
+                    "id": -1,
+                    "title": "test",
+                    "type": "channel",
+                }],
+                "winners_selection_date": 0,
+                "winner_count": 1,
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message: Message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::Giveaway(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_giveaway_winners() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "giveaway_winners": {
+                "chat": {
+                    "id": -1,
+                    "title": "test",
+                    "type": "channel",
+                },
+                "giveaway_message_id": 1,
+                "winners_selection_date": 0,
+                "winner_count": 1,
+                "winners": [{
+                    "id": 1,
+                    "is_bot": false,
+                    "first_name": "test",
+                }],
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message: Message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::GiveawayWinners(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_giveaway_completed() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "giveaway_completed": {
+                "winner_count": 1,
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message: Message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::GiveawayCompleted(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_video_chat_scheduled() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -4242,21 +4529,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_video_chat_scheduled: VideoChatScheduled =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::VideoChatScheduled(message) => {
-                    assert_eq!(message, message_video_chat_scheduled);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_video_chat_started() {
+    fn deserialize_video_chat_started() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -4269,21 +4555,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_video_chat_started: VideoChatStarted =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::VideoChatStarted(message) => {
-                    assert_eq!(message, message_video_chat_started);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_video_chat_ended() {
+    fn deserialize_video_chat_ended() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -4298,21 +4583,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_video_chat_ended: VideoChatEnded =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::VideoChatEnded(message) => {
-                    assert_eq!(message, message_video_chat_ended);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_video_chat_participants_invited() {
+    fn deserialize_video_chat_participants_invited() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -4338,21 +4622,20 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_video_chat_participants_invited: VideoChatParticipantsInvited =
-                serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::VideoChatParticipantsInvited(message) => {
-                    assert_eq!(message, message_video_chat_participants_invited);
+                    assert_eq!(message, message_kind);
                 }
-                _ => panic!("Unexpected message type"),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }
 
     #[test]
-    fn parse_web_app_data() {
+    fn deserialize_web_app_data() {
         let jsons = [serde_json::json!({
             "message_id": 1,
             "date": 0,
@@ -4368,35 +4651,12 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_web_app_data: WebAppData = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::WebAppData(message) => assert_eq!(message, message_web_app_data),
-                _ => panic!("Unexpected message type"),
-            }
-        }
-    }
-
-    #[test]
-    fn parse_empty() {
-        let jsons = [serde_json::json!({
-            "message_id": 1,
-            "date": 0,
-            "chat": {
-                "id": -1,
-                "title": "test",
-                "type": "channel",
-            },
-        })];
-
-        for json in jsons {
-            let message_empty: Empty = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
-
-            match message {
-                Message::Empty(message) => assert_eq!(message, message_empty),
-                _ => panic!("Unexpected message type"),
+                Message::WebAppData(message) => assert_eq!(message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
             }
         }
     }

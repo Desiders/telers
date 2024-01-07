@@ -28,6 +28,14 @@ pub struct Private {
     pub photo: Option<ChatPhoto>,
     /// If non-empty, the list of all [active chat usernames](https://telegram.org/blog/topics-in-groups-collectible-usernames/ru?ln=a#collectible-usernames). Returned only in [`GetChat`](crate::methods::GetChat).
     pub active_usernames: Option<Box<[Box<str>]>>,
+    /// Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See [accent colors](https://core.telegram.org/bots/api#accent-colors) for more details. Returned only in [`GetChat`](crate::methods::GetChat). Always returned in [`GetChat`](crate::methods::GetChat).
+    pub accent_color_id: Option<i64>,
+    /// Custom emoji identifier of emoji chosen by the chat for the reply header and link preview background. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub background_custom_emoji_id: Option<Box<str>>,
+    /// Identifier of the accent color for the chat's profile background. See [profile accent colors](https://core.telegram.org/bots/api#profile-accent-colors) for more details. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub profile_accent_color_id: Option<i64>,
+    /// Custom emoji identifier of the emoji chosen by the chat for its profile background. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub profile_background_custom_emoji_id: Option<Box<str>>,
     /// Custom emoji identifier of emoji status of the other party. Returned only in [`GetChat`](crate::methods::GetChat).
     pub emoji_status_custom_emoji_id: Option<Box<str>>,
     /// Expiration date of the emoji status of the other party in Unix time, if any. Returned only in [`GetChat`](crate::methods::GetChat).
@@ -66,6 +74,8 @@ pub struct Group {
     pub has_hidden_members: Option<bool>,
     /// `true`, if messages from the chat can't be forwarded to other chats. Returned only in [`GetChat`](crate::methods::GetChat).
     pub has_protected_content: Option<bool>,
+    /// `true`, if new chat members will have access to old messages; available only to chat administrators. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub has_visible_history: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -82,6 +92,20 @@ pub struct Supergroup {
     pub photo: Option<ChatPhoto>,
     /// If non-empty, the list of all [active chat usernames](https://telegram.org/blog/topics-in-groups-collectible-usernames/ru?ln=a#collectible-usernames). Returned only in [`GetChat`](crate::methods::GetChat).
     pub active_usernames: Option<Box<[Box<str>]>>,
+    /// List of available reactions allowed in the chat. If omitted, then all [emoji reactions](https://core.telegram.org/bots/api#reactiontypeemoji) are allowed. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub available_reactions: Option<Box<[Box<str>]>>,
+    /// Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See [accent colors](https://core.telegram.org/bots/api#accent-colors) for more details. Returned only in [`GetChat`](crate::methods::GetChat). Always returned in [`GetChat`](crate::methods::GetChat).
+    pub accent_color_id: Option<i64>,
+    /// Custom emoji identifier of emoji chosen by the chat for the reply header and link preview background. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub background_custom_emoji_id: Option<Box<str>>,
+    /// Identifier of the accent color for the chat's profile background. See [profile accent colors](https://core.telegram.org/bots/api#profile-accent-colors) for more details. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub profile_accent_color_id: Option<i64>,
+    /// Custom emoji identifier of the emoji chosen by the chat for its profile background. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub profile_background_custom_emoji_id: Option<Box<str>>,
+    /// Custom emoji identifier of the emoji status. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub emoji_status_custom_emoji_id: Option<Box<str>>,
+    /// Expiration date of the emoji status in Unix time, if any. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub emoji_status_expiration_date: Option<i64>,
     /// `true`, if users need to join the supergroup before they can send messages. Returned only in [`GetChat`](crate::methods::GetChat).
     pub join_to_send_messages: Option<bool>,
     /// `true`, if all users directly joining the supergroup need to be approved by supergroup administrators. Returned only in [`GetChat`](crate::methods::GetChat).
@@ -104,6 +128,8 @@ pub struct Supergroup {
     pub has_hidden_members: Option<bool>,
     /// `true`, if messages from the chat can't be forwarded to other chats. Returned only in [`GetChat`](crate::methods::GetChat).
     pub has_protected_content: Option<bool>,
+    /// `true`, if new chat members will have access to old messages; available only to chat administrators. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub has_visible_history: Option<bool>,
     /// Name of group sticker set. Returned only in [`GetChat`](crate::methods::GetChat).
     pub sticker_set_name: Option<Box<str>>,
     /// `true`, if the bot can change the group sticker set. Returned only in [`GetChat`](crate::methods::GetChat).
@@ -126,6 +152,20 @@ pub struct Channel {
     pub photo: Option<ChatPhoto>,
     /// If non-empty, the list of all [active chat usernames](https://telegram.org/blog/topics-in-groups-collectible-usernames/ru?ln=a#collectible-usernames). Returned only in [`GetChat`](crate::methods::GetChat).
     pub active_usernames: Option<Box<[Box<str>]>>,
+    /// List of available reactions allowed in the chat. If omitted, then all [emoji reactions](https://core.telegram.org/bots/api#reactiontypeemoji) are allowed. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub available_reactions: Option<Box<[Box<str>]>>,
+    /// Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See [accent colors](https://core.telegram.org/bots/api#accent-colors) for more details. Returned only in [`GetChat`](crate::methods::GetChat). Always returned in [`GetChat`](crate::methods::GetChat).
+    pub accent_color_id: Option<i64>,
+    /// Custom emoji identifier of emoji chosen by the chat for the reply header and link preview background. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub background_custom_emoji_id: Option<Box<str>>,
+    /// Identifier of the accent color for the chat's profile background. See [profile accent colors](https://core.telegram.org/bots/api#profile-accent-colors) for more details. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub profile_accent_color_id: Option<i64>,
+    /// Custom emoji identifier of the emoji chosen by the chat for its profile background. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub profile_background_custom_emoji_id: Option<Box<str>>,
+    /// Custom emoji identifier of the emoji status. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub emoji_status_custom_emoji_id: Option<Box<str>>,
+    /// Expiration date of the emoji status in Unix time, if any. Returned only in [`GetChat`](crate::methods::GetChat).
+    pub emoji_status_expiration_date: Option<i64>,
     /// Description. Returned only in [`GetChat`](crate::methods::GetChat).
     pub description: Option<Box<str>>,
     /// Primary invite link. Returned only in [`GetChat`](crate::methods::GetChat).
@@ -202,6 +242,105 @@ impl Chat {
                 Some(active_usernames) => Some(active_usernames),
                 None => None,
             },
+        }
+    }
+
+    #[must_use]
+    pub const fn available_reactions(&self) -> Option<&[Box<str>]> {
+        match self {
+            Self::Group(_) | Self::Private(_) => None,
+            Self::Supergroup(Supergroup {
+                available_reactions,
+                ..
+            })
+            | Self::Channel(Channel {
+                available_reactions,
+                ..
+            }) => match available_reactions {
+                Some(available_reactions) => Some(available_reactions),
+                None => None,
+            },
+        }
+    }
+
+    #[must_use]
+    pub const fn accent_color_id(&self) -> Option<i64> {
+        match self {
+            Self::Group(_) | Self::Private(_) => None,
+            Self::Supergroup(Supergroup {
+                accent_color_id, ..
+            })
+            | Self::Channel(Channel {
+                accent_color_id, ..
+            }) => *accent_color_id,
+        }
+    }
+
+    #[must_use]
+    pub const fn background_custom_emoji_id(&self) -> Option<&str> {
+        match self {
+            Self::Group(_) | Self::Private(_) => None,
+            Self::Supergroup(Supergroup {
+                background_custom_emoji_id,
+                ..
+            })
+            | Self::Channel(Channel {
+                background_custom_emoji_id,
+                ..
+            }) => match background_custom_emoji_id {
+                Some(background_custom_emoji_id) => Some(background_custom_emoji_id),
+                None => None,
+            },
+        }
+    }
+
+    #[must_use]
+    pub const fn profile_accent_color_id(&self) -> Option<i64> {
+        match self {
+            Self::Group(_) | Self::Private(_) => None,
+            Self::Supergroup(Supergroup {
+                profile_accent_color_id,
+                ..
+            })
+            | Self::Channel(Channel {
+                profile_accent_color_id,
+                ..
+            }) => *profile_accent_color_id,
+        }
+    }
+
+    #[must_use]
+    pub const fn profile_background_custom_emoji_id(&self) -> Option<&str> {
+        match self {
+            Self::Group(_) | Self::Private(_) => None,
+            Self::Supergroup(Supergroup {
+                profile_background_custom_emoji_id,
+                ..
+            })
+            | Self::Channel(Channel {
+                profile_background_custom_emoji_id,
+                ..
+            }) => match profile_background_custom_emoji_id {
+                Some(profile_background_custom_emoji_id) => {
+                    Some(profile_background_custom_emoji_id)
+                }
+                None => None,
+            },
+        }
+    }
+
+    #[must_use]
+    pub const fn has_visible_history(&self) -> Option<bool> {
+        match self {
+            Self::Private(_) | Self::Channel(_) => None,
+            Self::Group(Group {
+                has_visible_history,
+                ..
+            })
+            | Self::Supergroup(Supergroup {
+                has_visible_history,
+                ..
+            }) => *has_visible_history,
         }
     }
 

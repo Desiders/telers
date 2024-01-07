@@ -52,6 +52,11 @@ pub trait Formatter {
         T: AsRef<str>;
 
     #[must_use]
+    fn blockquote<T>(&self, text: T) -> String
+    where
+        T: AsRef<str>;
+
+    #[must_use]
     fn text_link<T, U>(&self, text: T, url: U) -> String
     where
         T: AsRef<str>,
@@ -205,6 +210,13 @@ mod tests {
         }
 
         fn spoiler<T>(&self, _text: T) -> String
+        where
+            T: AsRef<str>,
+        {
+            todo!()
+        }
+
+        fn blockquote<T>(&self, _text: T) -> String
         where
             T: AsRef<str>,
         {

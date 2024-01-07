@@ -3,14 +3,12 @@ use super::base::{Request, TelegramMethod};
 use crate::client::Bot;
 
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// Use this method to delete a sticker set that was created by the bot.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#deletestickerset>
 /// # Returns
 /// Returns `true` on success
-#[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct DeleteStickerSet {
     /// Sticker set name

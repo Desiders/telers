@@ -1,6 +1,8 @@
 use super::{
-    CallbackQuery, Chat, ChatJoinRequest, ChatMemberUpdated, ChosenInlineResult, InlineQuery,
-    Message, Poll, PollAnswer, PreCheckoutQuery, ShippingQuery, User,
+    CallbackQuery, Chat, ChatBoostRemoved, ChatBoostSource, ChatBoostSourcePremium,
+    ChatBoostUpdated, ChatJoinRequest, ChatMemberUpdated, ChosenInlineResult, InaccessibleMessage,
+    InlineQuery, MaybeInaccessibleMessage, Message, MessageReactionCountUpdated,
+    MessageReactionUpdated, Poll, PollAnswer, PreCheckoutQuery, ShippingQuery, User,
 };
 
 use crate::enums::UpdateType;
@@ -34,6 +36,10 @@ pub enum Kind {
     ChannelPost(Message),
     /// New version of a channel post that is known to the bot and was edited
     EditedChannelPost(Message),
+    /// A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify `message_reaction` in the list of `allowed_updates`` to receive these updates. The update isn't received for reactions set by bots.
+    MessageReaction(MessageReactionUpdated),
+    /// Reactions to a message with anonymous reactions were changed. The bot must be an administrator in the chat and must explicitly specify `message_reaction_count` in the list of `allowed_updates`` to receive these updates.
+    MessageReactionCount(MessageReactionCountUpdated),
     /// New incoming inline query
     InlineQuery(InlineQuery),
     /// The result of an inline query that was chosen by a user and sent to their chat partner. Please see our documentation on the [`feedback collecting`](https://core.telegram.org/bots/inline#collecting-feedback) for details on how to enable these updates for your bot.
@@ -54,6 +60,10 @@ pub enum Kind {
     ChatMember(ChatMemberUpdated),
     /// A request to join the chat has been sent. The bot must have the *can_invite_users* administrator right in the chat to receive these updates.
     ChatJoinRequest(ChatJoinRequest),
+    /// A chat boost was added or changed. The bot must be an administrator in the chat to receive these updates.
+    ChatBoost(ChatBoostUpdated),
+    /// A boost was removed from a chat. The bot must be an administrator in the chat to receive these updates.
+    RemovedChatBoost(ChatBoostRemoved),
 }
 
 impl Kind {
@@ -80,7 +90,11 @@ impl Kind {
             | Kind::MyChatMember(_)
             | Kind::ChatMember(_)
             | Kind::ChatJoinRequest(_)
-            | Kind::Poll(_) => None,
+            | Kind::Poll(_)
+            | Kind::MessageReaction(_)
+            | Kind::MessageReactionCount(_)
+            | Kind::ChatBoost(_)
+            | Kind::RemovedChatBoost(_) => None,
         }
     }
 
@@ -96,7 +110,10 @@ impl Kind {
                     return None;
                 };
 
-                message.caption()
+                match message {
+                    MaybeInaccessibleMessage::Message(message) => message.caption(),
+                    MaybeInaccessibleMessage::InaccessibleMessage(_) => None,
+                }
             }
             Kind::InlineQuery(_)
             | Kind::ChosenInlineResult(_)
@@ -106,7 +123,11 @@ impl Kind {
             | Kind::MyChatMember(_)
             | Kind::ChatMember(_)
             | Kind::ChatJoinRequest(_)
-            | Kind::Poll(_) => None,
+            | Kind::Poll(_)
+            | Kind::MessageReaction(_)
+            | Kind::MessageReactionCount(_)
+            | Kind::ChatBoost(_)
+            | Kind::RemovedChatBoost(_) => None,
         }
     }
 
@@ -133,8 +154,13 @@ impl Kind {
             | Kind::MyChatMember(ChatMemberUpdated { from, .. })
             | Kind::ChatMember(ChatMemberUpdated { from, .. })
             | Kind::ChatJoinRequest(ChatJoinRequest { from, .. }) => Some(from),
-            Kind::PollAnswer(PollAnswer { user, .. }) => user.as_ref(),
-            Kind::Poll(_) => None,
+            Kind::PollAnswer(PollAnswer { user, .. })
+            | Kind::MessageReaction(MessageReactionUpdated { user, .. }) => user.as_ref(),
+            Kind::ChatBoost(ChatBoostUpdated { boost, .. }) => match boost {
+                ChatBoostSource::Premium(ChatBoostSourcePremium { user }) => Some(user),
+                ChatBoostSource::GiftCode(_) | ChatBoostSource::Giveaway(_) => None,
+            },
+            Kind::Poll(_) | Kind::MessageReactionCount(_) | Kind::RemovedChatBoost(_) => None,
         }
     }
 
@@ -158,11 +184,21 @@ impl Kind {
                     return None;
                 };
 
-                Some(message.chat())
+                match message {
+                    MaybeInaccessibleMessage::Message(message) => Some(message.chat()),
+                    MaybeInaccessibleMessage::InaccessibleMessage(InaccessibleMessage {
+                        chat,
+                        ..
+                    }) => Some(chat),
+                }
             }
             Kind::MyChatMember(ChatMemberUpdated { chat, .. })
             | Kind::ChatMember(ChatMemberUpdated { chat, .. })
-            | Kind::ChatJoinRequest(ChatJoinRequest { chat, .. }) => Some(chat),
+            | Kind::ChatJoinRequest(ChatJoinRequest { chat, .. })
+            | Kind::MessageReactionCount(MessageReactionCountUpdated { chat, .. })
+            | Kind::ChatBoost(ChatBoostUpdated { chat, .. })
+            | Kind::RemovedChatBoost(ChatBoostRemoved { chat, .. }) => Some(chat),
+            Kind::MessageReaction(MessageReactionUpdated { actor_chat, .. }) => actor_chat.as_ref(),
             Kind::InlineQuery(_)
             | Kind::ChosenInlineResult(_)
             | Kind::ShippingQuery(_)
@@ -193,7 +229,10 @@ impl Kind {
                     return None;
                 };
 
-                message.sender_chat()
+                match message {
+                    MaybeInaccessibleMessage::Message(message) => message.sender_chat(),
+                    MaybeInaccessibleMessage::InaccessibleMessage(_) => None,
+                }
             }
             Kind::InlineQuery(_)
             | Kind::ChosenInlineResult(_)
@@ -203,7 +242,11 @@ impl Kind {
             | Kind::MyChatMember(_)
             | Kind::ChatMember(_)
             | Kind::ChatJoinRequest(_)
-            | Kind::Poll(_) => None,
+            | Kind::Poll(_)
+            | Kind::MessageReaction(_)
+            | Kind::MessageReactionCount(_)
+            | Kind::ChatBoost(_)
+            | Kind::RemovedChatBoost(_) => None,
         }
     }
 
@@ -228,7 +271,10 @@ impl Kind {
                     return None;
                 };
 
-                message.thread_id()
+                match message {
+                    MaybeInaccessibleMessage::Message(message) => message.thread_id(),
+                    MaybeInaccessibleMessage::InaccessibleMessage(_) => None,
+                }
             }
             Kind::InlineQuery(_)
             | Kind::ChosenInlineResult(_)
@@ -238,7 +284,11 @@ impl Kind {
             | Kind::MyChatMember(_)
             | Kind::ChatMember(_)
             | Kind::ChatJoinRequest(_)
-            | Kind::Poll(_) => None,
+            | Kind::Poll(_)
+            | Kind::MessageReaction(_)
+            | Kind::MessageReactionCount(_)
+            | Kind::ChatBoost(_)
+            | Kind::RemovedChatBoost(_) => None,
         }
     }
 }
@@ -330,6 +380,18 @@ impl<'de> Deserialize<'de> for Kind {
                     UpdateType::ChatJoinRequest => map
                         .next_value::<ChatJoinRequest>()
                         .map(Kind::ChatJoinRequest),
+                    UpdateType::MessageReaction => map
+                        .next_value::<MessageReactionUpdated>()
+                        .map(Kind::MessageReaction),
+                    UpdateType::MessageReactionCount => map
+                        .next_value::<MessageReactionCountUpdated>()
+                        .map(Kind::MessageReactionCount),
+                    UpdateType::ChatBoost => {
+                        map.next_value::<ChatBoostUpdated>().map(Kind::ChatBoost)
+                    }
+                    UpdateType::RemovedChatBoost => map
+                        .next_value::<ChatBoostRemoved>()
+                        .map(Kind::RemovedChatBoost),
                 };
 
                 match update_kind {
@@ -347,17 +409,17 @@ impl<'de> Deserialize<'de> for Kind {
 
 impl Update {
     #[must_use]
-    pub fn text(&self) -> Option<&str> {
+    pub const fn text(&self) -> Option<&str> {
         self.kind().text()
     }
 
     #[must_use]
-    pub fn caption(&self) -> Option<&str> {
+    pub const fn caption(&self) -> Option<&str> {
         self.kind().caption()
     }
 
     #[must_use]
-    pub fn text_or_caption(&self) -> Option<&str> {
+    pub const fn text_or_caption(&self) -> Option<&str> {
         self.kind().text_or_caption()
     }
 

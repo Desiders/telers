@@ -27,8 +27,6 @@ pub enum ContentType {
     VideoNote,
     #[strum(serialize = "voice")]
     Voice,
-    #[strum(serialize = "has_media_spoiler")]
-    HasMediaSpoiler,
     #[strum(serialize = "contact")]
     Contact,
     #[strum(serialize = "dice")]
@@ -93,6 +91,14 @@ pub enum ContentType {
     GeneralForumTopicHidden,
     #[strum(serialize = "general_forum_topic_unhidden")]
     GeneralForumTopicUnhidden,
+    #[strum(serialize = "giveaway_created")]
+    GiveawayCreated,
+    #[strum(serialize = "giveaway")]
+    Giveaway,
+    #[strum(serialize = "giveaway_winners")]
+    GiveawayWinners,
+    #[strum(serialize = "giveaway_completed")]
+    GiveawayCompleted,
     #[strum(serialize = "video_chat_scheduled")]
     VideoChatScheduled,
     #[strum(serialize = "video_chat_started")]
@@ -103,13 +109,11 @@ pub enum ContentType {
     VideoChatParticipantsInvited,
     #[strum(serialize = "web_app_data")]
     WebAppData,
-    #[strum(serialize = "empty")]
-    Empty,
 }
 
 impl ContentType {
     #[must_use]
-    pub const fn all() -> [ContentType; 49] {
+    pub const fn all() -> [ContentType; 51] {
         [
             ContentType::Text,
             ContentType::Animation,
@@ -121,7 +125,6 @@ impl ContentType {
             ContentType::Video,
             ContentType::VideoNote,
             ContentType::Voice,
-            ContentType::HasMediaSpoiler,
             ContentType::Contact,
             ContentType::Dice,
             ContentType::Game,
@@ -154,12 +157,15 @@ impl ContentType {
             ContentType::ForumTopicReopened,
             ContentType::GeneralForumTopicHidden,
             ContentType::GeneralForumTopicUnhidden,
+            ContentType::GiveawayCreated,
+            ContentType::Giveaway,
+            ContentType::GiveawayWinners,
+            ContentType::GiveawayCompleted,
             ContentType::VideoChatScheduled,
             ContentType::VideoChatStarted,
             ContentType::VideoChatEnded,
             ContentType::VideoChatParticipantsInvited,
             ContentType::WebAppData,
-            ContentType::Empty,
         ]
     }
 }
@@ -215,7 +221,7 @@ impl From<&Message> for ContentType {
             Message::Pinned(_) => ContentType::PinnedMessage,
             Message::Invoice(_) => ContentType::Invoice,
             Message::SuccessfulPayment(_) => ContentType::SuccessfulPayment,
-            Message::UserShared(_) => ContentType::UserShared,
+            Message::UsersShared(_) => ContentType::UserShared,
             Message::ChatShared(_) => ContentType::ChatShared,
             Message::ConnectedWebsite(_) => ContentType::ConnectedWebsite,
             Message::WriteAccessAllowed(_) => ContentType::WriteAccessAllowed,
@@ -227,12 +233,15 @@ impl From<&Message> for ContentType {
             Message::ForumTopicReopened(_) => ContentType::ForumTopicReopened,
             Message::GeneralForumTopicHidden(_) => ContentType::GeneralForumTopicHidden,
             Message::GeneralForumTopicUnhidden(_) => ContentType::GeneralForumTopicUnhidden,
+            Message::GiveawayCreated(_) => ContentType::GiveawayCreated,
+            Message::Giveaway(_) => ContentType::Giveaway,
+            Message::GiveawayWinners(_) => ContentType::GiveawayWinners,
+            Message::GiveawayCompleted(_) => ContentType::GiveawayCompleted,
             Message::VideoChatScheduled(_) => ContentType::VideoChatScheduled,
             Message::VideoChatStarted(_) => ContentType::VideoChatStarted,
             Message::VideoChatEnded(_) => ContentType::VideoChatEnded,
             Message::VideoChatParticipantsInvited(_) => ContentType::VideoChatParticipantsInvited,
             Message::WebAppData(_) => ContentType::WebAppData,
-            Message::Empty(_) => ContentType::Empty,
         }
     }
 }

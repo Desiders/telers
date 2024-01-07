@@ -3,14 +3,12 @@ use super::base::{Request, TelegramMethod};
 use crate::client::Bot;
 
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// Use this method to change the list of emoji assigned to a regular or custom emoji sticker. The sticker must belong to a sticker set created by the bot.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setstickeremojilist>
 /// # Returns
 /// Returns `true` on success
-#[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct SetStickerEmojiList {
     /// File identifier of the sticker

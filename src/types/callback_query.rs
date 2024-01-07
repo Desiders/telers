@@ -1,4 +1,4 @@
-use super::{Message, Update, UpdateKind, User};
+use super::{InaccessibleMessage, MaybeInaccessibleMessage, Update, UpdateKind, User};
 
 use crate::errors::ConvertToTypeError;
 
@@ -8,8 +8,6 @@ use serde::Deserialize;
 /// **NOTE:** After the user presses a callback button, Telegram clients will display a progress bar until you call [`AnswerCallbackQuery`](crate::methods::AnswerCallbackQuery). It is, therefore, necessary to react by calling [`AnswerCallbackQuery`](crate::methods::AnswerCallbackQuery) even if no notification to the user is needed (e.g., without specifying any of the optional parameters).
 /// # Documentation
 /// <https://core.telegram.org/bots/api#callbackquery>
-/// # Warnings
-/// This structure has so big size, so it's recommended to use it inside [`std::sync::Arc`], [`Box`] and other smart pointers
 #[derive(Debug, Default, Clone, PartialEq, Deserialize)]
 pub struct CallbackQuery {
     /// Unique identifier for this query
@@ -18,8 +16,8 @@ pub struct CallbackQuery {
     pub from: User,
     /// Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent. Useful for high scores in [`games`](https://core.telegram.org/bots/api#games).
     pub chat_instance: Box<str>,
-    /// Message with the callback button that originated the query. Note that message content and message date will not be available if the message is too old
-    pub message: Option<Message>,
+    /// Message sent by the bot with the callback button that originated the query
+    pub message: Option<MaybeInaccessibleMessage>,
     /// Identifier of the message sent via the bot in inline mode, that originated the query.
     pub inline_message_id: Option<Box<str>>,
     /// Data associated with the callback button. Be aware that the message originated the query can contain no callback buttons with this data.
@@ -32,7 +30,12 @@ impl CallbackQuery {
     #[must_use]
     pub const fn chat_id(&self) -> Option<i64> {
         if let Some(message) = &self.message {
-            Some(message.chat().id())
+            match message {
+                MaybeInaccessibleMessage::Message(message) => Some(message.chat().id()),
+                MaybeInaccessibleMessage::InaccessibleMessage(InaccessibleMessage {
+                    chat, ..
+                }) => Some(chat.id()),
+            }
         } else {
             None
         }
@@ -41,7 +44,12 @@ impl CallbackQuery {
     #[must_use]
     pub const fn message_id(&self) -> Option<i64> {
         if let Some(message) = &self.message {
-            Some(message.id())
+            match message {
+                MaybeInaccessibleMessage::Message(message) => Some(message.id()),
+                MaybeInaccessibleMessage::InaccessibleMessage(InaccessibleMessage {
+                    id, ..
+                }) => Some(*id),
+            }
         } else {
             None
         }
@@ -50,7 +58,10 @@ impl CallbackQuery {
     #[must_use]
     pub fn message_text(&self) -> Option<&str> {
         if let Some(message) = &self.message {
-            message.text()
+            match message {
+                MaybeInaccessibleMessage::Message(message) => message.text(),
+                MaybeInaccessibleMessage::InaccessibleMessage(_) => None,
+            }
         } else {
             None
         }
@@ -59,7 +70,10 @@ impl CallbackQuery {
     #[must_use]
     pub fn message_caption(&self) -> Option<&str> {
         if let Some(message) = &self.message {
-            message.caption()
+            match message {
+                MaybeInaccessibleMessage::Message(message) => message.caption(),
+                MaybeInaccessibleMessage::InaccessibleMessage(_) => None,
+            }
         } else {
             None
         }
@@ -68,7 +82,10 @@ impl CallbackQuery {
     #[must_use]
     pub fn message_text_or_caption(&self) -> Option<&str> {
         if let Some(message) = &self.message {
-            message.text_or_caption()
+            match message {
+                MaybeInaccessibleMessage::Message(message) => message.text_or_caption(),
+                MaybeInaccessibleMessage::InaccessibleMessage(_) => None,
+            }
         } else {
             None
         }

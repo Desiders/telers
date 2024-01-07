@@ -3,7 +3,6 @@ use super::base::{prepare_input_sticker, Request, TelegramMethod};
 use crate::{client::Bot, types::InputSticker};
 
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// Use this method to add a new sticker to a set created by the bot.
 /// The format of the added sticker must match the format of the other stickers in the set.
@@ -14,7 +13,6 @@ use serde_with::skip_serializing_none;
 /// <https://core.telegram.org/bots/api#addstickertoset>
 /// # Returns
 /// `true` on success
-#[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct AddStickerToSet<'a> {
     /// User identifier of sticker set owner

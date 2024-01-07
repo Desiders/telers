@@ -3,7 +3,6 @@ use serde::Deserialize;
 /// This object represents a point on the map.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#location>
-
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct Location {
     /// Longitude as defined by sender

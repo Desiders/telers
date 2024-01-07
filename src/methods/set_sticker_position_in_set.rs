@@ -3,14 +3,12 @@ use super::base::{Request, TelegramMethod};
 use crate::client::Bot;
 
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// Use this method to move a sticker in a set created by the bot to a specific position
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setstickerpositioninset>
 /// # Returns
 /// Returns `true` on success
-#[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct SetStickerPositionInSet {
     /// File identifier of the sticker

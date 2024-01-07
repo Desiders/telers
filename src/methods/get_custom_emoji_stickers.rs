@@ -3,14 +3,12 @@ use super::base::{Request, TelegramMethod};
 use crate::{client::Bot, types::Sticker};
 
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// Use this method to get information about custom emoji stickers by their identifiers.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getcustomemojistickers>
 /// # Returns
 /// Returns an Array of [`Sticker`] objects
-#[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct GetCustomEmojiStickers {
     /// List of custom emoji identifiers. At most 200 custom emoji identifiers can be specified.

@@ -19,7 +19,7 @@ pub struct BanChatMember {
     pub user_id: i64,
     /// Date when the user will be unbanned; Unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever. Applied for supergroups and channels only.
     pub until_date: Option<i64>,
-    /// Pass `true` to delete all messages from the chat for the user that is being removed. If `False`, the user will be able to see messages in the group that were sent before the user was removed. Always `true` for supergroups and channels.
+    /// Pass `true` to delete all messages from the chat for the user that is being removed. If `false`, the user will be able to see messages in the group that were sent before the user was removed. Always `true` for supergroups and channels.
     pub revoke_messages: Option<bool>,
 }
 

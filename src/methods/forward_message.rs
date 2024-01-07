@@ -24,7 +24,7 @@ pub struct ForwardMessage {
     pub from_chat_id: ChatIdKind,
     /// Message identifier in the chat specified in `from_chat_id`
     pub message_id: i64,
-    /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound
+    /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound.
     pub disable_notification: Option<bool>,
     /// Protects the contents of the sent message from forwarding and saving
     pub protect_content: Option<bool>,

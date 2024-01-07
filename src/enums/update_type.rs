@@ -22,6 +22,10 @@ pub enum UpdateType {
     EditedMessage,
     #[strum(serialize = "edited_channel_post")]
     EditedChannelPost,
+    #[strum(serialize = "message_reaction")]
+    MessageReaction,
+    #[strum(serialize = "message_reaction_count")]
+    MessageReactionCount,
     #[strum(serialize = "shipping_query")]
     ShippingQuery,
     #[strum(serialize = "pre_checkout_query")]
@@ -36,11 +40,15 @@ pub enum UpdateType {
     ChatMember,
     #[strum(serialize = "chat_join_request")]
     ChatJoinRequest,
+    #[strum(serialize = "chat_boost")]
+    ChatBoost,
+    #[strum(serialize = "removed_chat_boost")]
+    RemovedChatBoost,
 }
 
 impl UpdateType {
     #[must_use]
-    pub const fn all() -> &'static [UpdateType; 14] {
+    pub const fn all() -> &'static [UpdateType; 17] {
         &[
             UpdateType::Message,
             UpdateType::InlineQuery,
@@ -49,6 +57,7 @@ impl UpdateType {
             UpdateType::ChannelPost,
             UpdateType::EditedMessage,
             UpdateType::EditedChannelPost,
+            UpdateType::MessageReaction,
             UpdateType::ShippingQuery,
             UpdateType::PreCheckoutQuery,
             UpdateType::Poll,
@@ -56,6 +65,8 @@ impl UpdateType {
             UpdateType::MyChatMember,
             UpdateType::ChatMember,
             UpdateType::ChatJoinRequest,
+            UpdateType::ChatBoost,
+            UpdateType::RemovedChatBoost,
         ]
     }
 }
@@ -85,6 +96,8 @@ impl<'a> From<&'a UpdateKind> for UpdateType {
             UpdateKind::EditedMessage(_) => UpdateType::EditedMessage,
             UpdateKind::ChannelPost(_) => UpdateType::ChannelPost,
             UpdateKind::EditedChannelPost(_) => UpdateType::EditedChannelPost,
+            UpdateKind::MessageReaction(_) => UpdateType::MessageReaction,
+            UpdateKind::MessageReactionCount(_) => UpdateType::MessageReactionCount,
             UpdateKind::InlineQuery(_) => UpdateType::InlineQuery,
             UpdateKind::ChosenInlineResult(_) => UpdateType::ChosenInlineResult,
             UpdateKind::CallbackQuery(_) => UpdateType::CallbackQuery,
@@ -95,6 +108,8 @@ impl<'a> From<&'a UpdateKind> for UpdateType {
             UpdateKind::MyChatMember(_) => UpdateType::MyChatMember,
             UpdateKind::ChatMember(_) => UpdateType::ChatMember,
             UpdateKind::ChatJoinRequest(_) => UpdateType::ChatJoinRequest,
+            UpdateKind::ChatBoost(_) => UpdateType::ChatBoost,
+            UpdateKind::RemovedChatBoost(_) => UpdateType::RemovedChatBoost,
         }
     }
 }

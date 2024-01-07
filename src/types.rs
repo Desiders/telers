@@ -8,7 +8,7 @@
 //! - is a tagged union, it will be wrapped in `enum` with variants named as in the documentation,
 //! - is a type with optional fields, it can be represented as an enum with variants for specific cases (check [`Message`] for example).
 //! - is a string, it will be represented as [`String`] or [`str`] wrapped in [`Box`],
-//! - is a number, it will be represented as [`i64`]
+//! - is a number, it will be represented as [`i64`] or [`u16`] if it's UTF-16 code unit,
 //! - is a float, it will be represented as [`f64`],
 //! - is a boolean, it will be represented as [`bool`],
 //! - is a file, it will be represented as [`InputFile`],
@@ -35,8 +35,7 @@
 //! - [`MessageText`]
 //! - [`MessageAnimation`]
 //! and so on... (see [`Message`] for full list of variants).
-//! Each variant has an implementation of [`From`] trait to convert from the variant to the [`Message`]
-//! and [`Into`] trait to convert from the [`Message`] to the variant.
+//! Each variant has an implementation of [`Into`] trait to convert from the variant to the [`Message`].
 
 pub mod animation;
 pub mod audio;
@@ -56,6 +55,13 @@ pub mod callback_game;
 pub mod callback_query;
 pub mod chat;
 pub mod chat_administrator_rights;
+pub mod chat_boost;
+pub mod chat_boost_removed;
+pub mod chat_boost_source;
+pub mod chat_boost_source_gift_code;
+pub mod chat_boost_source_giveaway;
+pub mod chat_boost_source_premium;
+pub mod chat_boost_updated;
 pub mod chat_id_kind;
 pub mod chat_invite_link;
 pub mod chat_join_request;
@@ -77,6 +83,7 @@ pub mod dice;
 pub mod document;
 pub mod encrypted_credentials;
 pub mod encrypted_passport_element;
+pub mod external_reply_info;
 pub mod file;
 pub mod force_reply;
 pub mod forum_topic;
@@ -88,6 +95,11 @@ pub mod game;
 pub mod game_high_score;
 pub mod general_forum_topic_hidden;
 pub mod general_forum_topic_unhidden;
+pub mod giveaway;
+pub mod giveaway_completed;
+pub mod giveaway_created;
+pub mod giveaway_winners;
+pub mod inaccessible_message;
 pub mod inline_keyboard_button;
 pub mod inline_keyboard_markup;
 pub mod inline_query;
@@ -131,11 +143,13 @@ pub mod invoice;
 pub mod keyboard_button;
 pub mod keyboard_button_poll_type;
 pub mod keyboard_button_request_chat;
-pub mod keyboard_button_request_user;
+pub mod keyboard_button_request_users;
 pub mod labeled_price;
+pub mod link_preview_options;
 pub mod location;
 pub mod login_url;
 pub mod mask_position;
+pub mod maybe_inaccessible_message;
 pub mod menu_button;
 pub mod menu_button_commands;
 pub mod menu_button_default;
@@ -145,6 +159,13 @@ pub mod message_auto_delete_timer_changed;
 pub mod message_entity;
 pub mod message_id;
 pub mod message_or_true;
+pub mod message_origin;
+pub mod message_origin_channel;
+pub mod message_origin_chat;
+pub mod message_origin_hidden_user;
+pub mod message_origin_user;
+pub mod message_reaction_count_updated;
+pub mod message_reaction_updated;
 pub mod order_info;
 pub mod passport_data;
 pub mod passport_element_error;
@@ -164,9 +185,14 @@ pub mod poll_answer;
 pub mod poll_option;
 pub mod pre_checkout_query;
 pub mod proximity_alert_triggered;
+pub mod reaction_count;
+pub mod reaction_type;
+pub mod reaction_type_custom_emoji;
+pub mod reaction_type_emoji;
 pub mod reply_keyboard_markup;
 pub mod reply_keyboard_remove;
 pub mod reply_markup;
+pub mod reply_parameters;
 pub mod response_parameters;
 pub mod sent_web_app_message;
 pub mod shipping_address;
@@ -177,10 +203,13 @@ pub mod sticker_set;
 pub mod story;
 pub mod successful_payment;
 pub mod switch_inline_query_chosen_chat;
+pub mod text_quote;
 pub mod update;
 pub mod user;
+pub mod user_chat_boosts;
 pub mod user_profile_photos;
 pub mod user_shared;
+pub mod users_shared;
 pub mod venue;
 pub mod video;
 pub mod video_chat_ended;
@@ -216,6 +245,13 @@ pub use chat::{
     Supergroup as ChatSupergroup,
 };
 pub use chat_administrator_rights::ChatAdministratorRights;
+pub use chat_boost::ChatBoost;
+pub use chat_boost_removed::ChatBoostRemoved;
+pub use chat_boost_source::ChatBoostSource;
+pub use chat_boost_source_gift_code::ChatBoostSourceGiftCode;
+pub use chat_boost_source_giveaway::ChatBoostSourceGiveaway;
+pub use chat_boost_source_premium::ChatBoostSourcePremium;
+pub use chat_boost_updated::ChatBoostUpdated;
 pub use chat_id_kind::ChatIdKind;
 pub use chat_invite_link::ChatInviteLink;
 pub use chat_join_request::ChatJoinRequest;
@@ -250,6 +286,17 @@ pub use encrypted_passport_element::{
     TemporaryRegistration as EncryptedPassportElementTemporaryRegistration,
     UtilityBill as EncryptedPassportElementUtilityBill,
 };
+pub use external_reply_info::{
+    Animation as ExternalReplyInfoAnimation, Audio as ExternalReplyInfoAudio,
+    Contact as ExternalReplyInfoContact, Dice as ExternalReplyInfoDice,
+    Document as ExternalReplyInfoDocument, ExternalReplyInfo, Game as ExternalReplyInfoGame,
+    Giveaway as ExternalReplyInfoGiveaway, GiveawayWinners as ExternalReplyInfoGiveawayWinners,
+    Invoice as ExternalReplyInfoInvoice, Location as ExternalReplyInfoLocation,
+    Photo as ExternalReplyInfoPhoto, Poll as ExternalReplyInfoPoll,
+    Sticker as ExternalReplyInfoSticker, Story as ExternalReplyInfoStory,
+    Venue as ExternalReplyInfoVenue, Video as ExternalReplyInfoVideo,
+    VideoNote as ExternalReplyInfoVideoNote, Voice as ExternalReplyInfoVoice,
+};
 pub use file::File;
 pub use force_reply::ForceReply;
 pub use forum_topic::ForumTopic;
@@ -261,6 +308,11 @@ pub use game::Game;
 pub use game_high_score::GameHighScore;
 pub use general_forum_topic_hidden::GeneralForumTopicHidden;
 pub use general_forum_topic_unhidden::GeneralForumTopicUnhidden;
+pub use giveaway::Giveaway;
+pub use giveaway_completed::GiveawayCompleted;
+pub use giveaway_created::GiveawayCreated;
+pub use giveaway_winners::GiveawayWinners;
+pub use inaccessible_message::InaccessibleMessage;
 pub use inline_keyboard_button::InlineKeyboardButton;
 pub use inline_keyboard_markup::InlineKeyboardMarkup;
 pub use inline_query::InlineQuery;
@@ -307,11 +359,13 @@ pub use invoice::Invoice;
 pub use keyboard_button::KeyboardButton;
 pub use keyboard_button_poll_type::KeyboardButtonPollType;
 pub use keyboard_button_request_chat::KeyboardButtonRequestChat;
-pub use keyboard_button_request_user::KeyboardButtonRequestUser;
+pub use keyboard_button_request_users::KeyboardButtonRequestUsers;
 pub use labeled_price::LabeledPrice;
+pub use link_preview_options::LinkPreviewOptions;
 pub use location::Location;
 pub use login_url::LoginUrl;
 pub use mask_position::MaskPosition;
+pub use maybe_inaccessible_message::MaybeInaccessibleMessage;
 pub use menu_button::MenuButton;
 pub use menu_button_commands::MenuButtonCommands;
 pub use menu_button_default::MenuButtonDefault;
@@ -321,14 +375,14 @@ pub use message::{
     ChannelChatCreated as MessageChannelChatCreated, ChatShared as MessageChatShared,
     ConnectedWebsite as MessageConnectedWebsite, Contact as MessageContact,
     DeleteChatPhoto as MessageDeleteChatPhoto, Dice as MessageDice, Document as MessageDocument,
-    Empty as MessageEmpty, ForumTopicClosed as MessageForumTopicClosed,
-    ForumTopicCreated as MessageForumTopicCreated, ForumTopicEdited as MessageForumTopicEdited,
-    ForumTopicReopened as MessageForumTopicReopened, Forward as MessageForward,
-    ForwardedFrom as MessageForwardedFrom, Game as MessageGame,
-    GeneralForumTopicHidden as MessageGeneralForumTopicHidden,
-    GeneralForumTopicUnhidden as MessageGeneralForumTopicUnhidden,
-    GroupChatCreated as MessageGroupChatCreated, Invoice as MessageInvoice,
-    LeftChatMember as MessageLeftChatMember, Location as MessageLocation, Message,
+    ForumTopicClosed as MessageForumTopicClosed, ForumTopicCreated as MessageForumTopicCreated,
+    ForumTopicEdited as MessageForumTopicEdited, ForumTopicReopened as MessageForumTopicReopened,
+    Game as MessageGame, GeneralForumTopicHidden as MessageGeneralForumTopicHidden,
+    GeneralForumTopicUnhidden as MessageGeneralForumTopicUnhidden, Giveaway as MessageGiveaway,
+    GiveawayCompleted as MessageGiveawayCompleted, GiveawayCreated as MessageGiveawayCreated,
+    GiveawayWinners as MessageGiveawayWinners, GroupChatCreated as MessageGroupChatCreated,
+    Invoice as MessageInvoice, LeftChatMember as MessageLeftChatMember,
+    Location as MessageLocation, Message,
     MessageAutoDeleteTimerChanged as MessageMessageAutoDeleteTimerChanged,
     MigrateFromChat as MessageMigrateFromChat, MigrateToChat as MessageMigrateToChat,
     NewChatMembers as MessageNewChatMembers, NewChatPhoto as MessageNewChatPhoto,
@@ -337,7 +391,7 @@ pub use message::{
     ProximityAlertTriggered as MessageProximityAlertTriggered, Sticker as MessageSticker,
     Story as MessageStory, SuccessfulPayment as MessageSuccessfulPayment,
     SupergroupChatCreated as MessageSupergroupChatCreated, Text as MessageText,
-    UserShared as MessageUserShared, Venue as MessageVenue, Video as MessageVideo,
+    UsersShared as MessageUsersShared, Venue as MessageVenue, Video as MessageVideo,
     VideoChatEnded as MessageVideoChatEnded,
     VideoChatParticipantsInvited as MessageVideoChatParticipantsInvited,
     VideoChatScheduled as MessageVideoChatScheduled, VideoChatStarted as MessageVideoChatStarted,
@@ -352,6 +406,13 @@ pub use message_entity::{
 };
 pub use message_id::MessageId;
 pub use message_or_true::MessageOrTrue;
+pub use message_origin::MessageOrigin;
+pub use message_origin_channel::MessageOriginChannel;
+pub use message_origin_chat::MessageOriginChat;
+pub use message_origin_hidden_user::MessageOriginHiddenUser;
+pub use message_origin_user::MessageOriginUser;
+pub use message_reaction_count_updated::MessageReactionCountUpdated;
+pub use message_reaction_updated::MessageReactionUpdated;
 pub use order_info::OrderInfo;
 pub use passport_data::PassportData;
 pub use passport_element_error::PassportElementError;
@@ -387,9 +448,14 @@ pub use poll_answer::PollAnswer;
 pub use poll_option::PollOption;
 pub use pre_checkout_query::PreCheckoutQuery;
 pub use proximity_alert_triggered::ProximityAlertTriggered;
+pub use reaction_count::ReactionCount;
+pub use reaction_type::ReactionType;
+pub use reaction_type_custom_emoji::ReactionTypeCustomEmoji;
+pub use reaction_type_emoji::ReactionTypeEmoji;
 pub use reply_keyboard_markup::ReplyKeyboardMarkup;
 pub use reply_keyboard_remove::ReplyKeyboardRemove;
 pub use reply_markup::ReplyMarkup;
+pub use reply_parameters::ReplyParameters;
 pub use response_parameters::ResponseParameters;
 pub use sent_web_app_message::SentWebAppMessage;
 pub use shipping_address::ShippingAddress;
@@ -400,10 +466,13 @@ pub use sticker_set::StickerSet;
 pub use story::Story;
 pub use successful_payment::SuccessfulPayment;
 pub use switch_inline_query_chosen_chat::SwitchInlineQueryChosenChat;
+pub use text_quote::TextQuote;
 pub use update::{Kind as UpdateKind, Update};
 pub use user::User;
+pub use user_chat_boosts::UserChatBoosts;
 pub use user_profile_photos::UserProfilePhotos;
 pub use user_shared::UserShared;
+pub use users_shared::UsersShared;
 pub use venue::Venue;
 pub use video::Video;
 pub use video_chat_ended::VideoChatEnded;

@@ -3,14 +3,12 @@ use super::base::{Request, TelegramMethod};
 use crate::{client::Bot, types::ChatIdKind};
 
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// Use this method to get the number of members in a chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getchatmembercount>
 /// # Returns
 /// Returns `i64` on success
-#[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct GetChatMemberCount {
     /// Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`)

@@ -6,14 +6,12 @@ use crate::{
 };
 
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// Use this method to get a list of administrators in a chat, which aren't bots.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getchatadministrators>
 /// # Returns
 /// Returns an Array of [`ChatMember`] objects
-#[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct GetChatAdministrators {
     /// Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`)
