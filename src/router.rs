@@ -121,30 +121,26 @@
 //! [`Router::include_router`]: Router#method.include_router
 
 use crate::{
-    client::Bot,
-    context::Context,
-    enums::{
-        observer_name::{Simple as SimpleObserverName, Telegram as TelegramObserverName},
-        update_type::UpdateType,
-    },
+    enums::{SimpleObserverName, TelegramObserverName, UpdateType},
     errors::EventErrorKind,
     event::{
         bases::{EventReturn, PropagateEventResult},
         service::{ServiceProvider, ToServiceProvider},
         simple::{
-            handler::Result as SimpleHandlerResult,
-            observer::{Observer as SimpleObserver, Service as SimpleObserverService},
+            observer::Service as SimpleObserverService, HandlerResult as SimpleHandlerResult,
+            Observer as SimpleObserver,
         },
-        telegram::observer::{
-            Observer as TelegramObserver, Request as TelegramObserverRequest,
-            Service as TelegramObserverService,
+        telegram::{
+            observer::{Request as TelegramObserverRequest, Service as TelegramObserverService},
+            Observer as TelegramObserver,
         },
     },
     middlewares::{
-        inner::{Logging as LoggingMiddleware, Middleware as InnerMiddleware},
-        outer::{Middleware as OuterMiddleware, UserContext as UserContextMiddleware},
+        inner::Logging as LoggingMiddleware, outer::UserContext as UserContextMiddleware,
+        InnerMiddleware, OuterMiddleware,
     },
     types::Update,
+    Bot, Context,
 };
 
 use async_trait::async_trait;
@@ -407,27 +403,27 @@ where
         Self {
             router_name,
             sub_routers: vec![],
-            message: TelegramObserver::new(TelegramObserverName::Message.as_ref()),
-            edited_message: TelegramObserver::new(TelegramObserverName::EditedMessage.as_ref()),
-            channel_post: TelegramObserver::new(TelegramObserverName::ChannelPost.as_ref()),
-            edited_channel_post: TelegramObserver::new(TelegramObserverName::EditedChannelPost.as_ref()),
-            message_reaction: TelegramObserver::new(TelegramObserverName::MessageReaction.as_ref()),
-            message_reaction_count: TelegramObserver::new(TelegramObserverName::MessageReactionCount.as_ref()),
-            inline_query: TelegramObserver::new(TelegramObserverName::InlineQuery.as_ref()),
-            chosen_inline_result: TelegramObserver::new(TelegramObserverName::ChosenInlineResult.as_ref()),
-            callback_query: TelegramObserver::new(TelegramObserverName::CallbackQuery.as_ref()),
-            shipping_query: TelegramObserver::new(TelegramObserverName::ShippingQuery.as_ref()),
-            pre_checkout_query: TelegramObserver::new(TelegramObserverName::PreCheckoutQuery.as_ref()),
-            poll: TelegramObserver::new(TelegramObserverName::Poll.as_ref()),
-            poll_answer: TelegramObserver::new(TelegramObserverName::PollAnswer.as_ref()),
-            my_chat_member: TelegramObserver::new(TelegramObserverName::MyChatMember.as_ref()),
-            chat_member: TelegramObserver::new(TelegramObserverName::ChatMember.as_ref()),
-            chat_join_request: TelegramObserver::new(TelegramObserverName::ChatJoinRequest.as_ref()),
-            chat_boost: TelegramObserver::new(TelegramObserverName::ChatBoost.as_ref()),
-            removed_chat_boost: TelegramObserver::new(TelegramObserverName::RemovedChatBoost.as_ref()),
-            update: TelegramObserver::new(TelegramObserverName::Update.as_ref()),
-            startup: SimpleObserver::new(SimpleObserverName::Startup.as_ref()),
-            shutdown: SimpleObserver::new(SimpleObserverName::Shutdown.as_ref()),
+            message: TelegramObserver::new(TelegramObserverName::Message),
+            edited_message: TelegramObserver::new(TelegramObserverName::EditedMessage),
+            channel_post: TelegramObserver::new(TelegramObserverName::ChannelPost),
+            edited_channel_post: TelegramObserver::new(TelegramObserverName::EditedChannelPost),
+            message_reaction: TelegramObserver::new(TelegramObserverName::MessageReaction),
+            message_reaction_count: TelegramObserver::new(TelegramObserverName::MessageReactionCount),
+            inline_query: TelegramObserver::new(TelegramObserverName::InlineQuery),
+            chosen_inline_result: TelegramObserver::new(TelegramObserverName::ChosenInlineResult),
+            callback_query: TelegramObserver::new(TelegramObserverName::CallbackQuery),
+            shipping_query: TelegramObserver::new(TelegramObserverName::ShippingQuery),
+            pre_checkout_query: TelegramObserver::new(TelegramObserverName::PreCheckoutQuery),
+            poll: TelegramObserver::new(TelegramObserverName::Poll),
+            poll_answer: TelegramObserver::new(TelegramObserverName::PollAnswer),
+            my_chat_member: TelegramObserver::new(TelegramObserverName::MyChatMember),
+            chat_member: TelegramObserver::new(TelegramObserverName::ChatMember),
+            chat_join_request: TelegramObserver::new(TelegramObserverName::ChatJoinRequest),
+            chat_boost: TelegramObserver::new(TelegramObserverName::ChatBoost),
+            removed_chat_boost: TelegramObserver::new(TelegramObserverName::RemovedChatBoost),
+            update: TelegramObserver::new(TelegramObserverName::Update),
+            startup: SimpleObserver::new(SimpleObserverName::Startup),
+            shutdown: SimpleObserver::new(SimpleObserverName::Shutdown),
         }
     }
 
@@ -537,14 +533,10 @@ impl<Client> Router<Client> {
                 continue;
             }
 
-            #[allow(clippy::expect_fun_call)]
-            let update_type = <&str as TryInto<UpdateType>>::try_into(observer.event_name).expect(
-                format!(
-                    "Can't convert event name to UpdateType. This is a bug. Please, report it. Event name: {}",
-                    observer.event_name
-                )
-                .as_str(),
-            );
+            let Some(update_type) = observer.event_name.into() else {
+                // If can't convert observer event name to `UpdateType`, then skip it, because it's `TelegramObserverName::Update`
+                continue;
+            };
 
             if skip_update_types.contains(&update_type) {
                 continue;
@@ -1673,7 +1665,7 @@ mod tests {
                     .telegram_observers()
                     .into_iter()
                     .for_each(|observer| {
-                        if message_observer_name.eq(&observer.event_name) {
+                        if observer.event_name == message_observer_name {
                             assert_eq!(observer.inner_middlewares().len(), 1);
                         } else {
                             assert_eq!(observer.inner_middlewares().len(), 0);
@@ -1692,7 +1684,7 @@ mod tests {
                             .telegram_observers()
                             .into_iter()
                             .for_each(|observer| {
-                                if message_observer_name.eq(&observer.event_name) {
+                                if observer.event_name == message_observer_name {
                                     assert_eq!(observer.inner_middlewares().len(), 1);
                                 } else {
                                     assert_eq!(observer.inner_middlewares().len(), 0);

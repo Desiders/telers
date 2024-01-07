@@ -1,6 +1,7 @@
 use crate::{
     client::Bot,
     context::Context,
+    enums::TelegramObserverName,
     errors::EventErrorKind,
     event::{
         bases::{EventReturn, PropagateEventResult},
@@ -95,7 +96,7 @@ impl<Client> Debug for Response<Client> {
 
 /// Event observer for telegram events
 pub struct Observer<Client> {
-    pub event_name: &'static str,
+    pub event_name: TelegramObserverName,
 
     handlers: Vec<HandlerObject<Client>>,
     common: Box<HandlerObject<Client>>,
@@ -107,7 +108,7 @@ pub struct Observer<Client> {
 impl<Client> Observer<Client> {
     #[allow(unreachable_code)]
     #[must_use]
-    pub fn new(event_name: &'static str) -> Self
+    pub fn new(event_name: TelegramObserverName) -> Self
     where
         Client: Send + Sync + 'static,
     {
@@ -192,7 +193,7 @@ where
 {
     #[must_use]
     fn default() -> Self {
-        Self::new("default")
+        Self::new(TelegramObserverName::Message)
     }
 }
 
@@ -227,7 +228,7 @@ impl<Client> ToServiceProvider for Observer<Client> {
 }
 
 pub struct Service<Client> {
-    pub(crate) event_name: &'static str,
+    pub(crate) event_name: TelegramObserverName,
 
     handlers: Box<[HandlerObjectService<Client>]>,
     common: HandlerObjectService<Client>,
@@ -368,10 +369,7 @@ mod tests {
     #[allow(unreachable_code)]
     #[tokio::test]
     async fn test_observer_trigger() {
-        let bot = Bot::<Reqwest>::default();
-        let context = Context::default();
-
-        let mut observer = Observer::new("test");
+        let mut observer = Observer::default();
         // Register common filter, which handlers can't pass
         observer.filter(Command::one("start"));
         observer.register(|| async { Ok(EventReturn::Finish) });
@@ -383,12 +381,9 @@ mod tests {
 
         let observer_service = observer.to_service_provider_default().unwrap();
         let request = Request::new(
-            Arc::new(bot),
-            Arc::new(Update {
-                id: 0,
-                kind: UpdateKind::Message(Message::default()),
-            }),
-            Arc::new(context),
+            Arc::new(Bot::<Reqwest>::default()),
+            Arc::new(Update::default()),
+            Arc::new(Context::default()),
         );
         let response = observer_service.trigger(request.clone()).await.unwrap();
 
@@ -421,7 +416,7 @@ mod tests {
     #[allow(unreachable_code)]
     #[tokio::test]
     async fn test_observer_trigger_error() {
-        let mut observer = Observer::<Reqwest>::new("test");
+        let mut observer = Observer::<Reqwest>::default();
         observer.register(|| async { Err(HandlerError::new(anyhow!("test"))) });
         observer.register(|| async {
             unreachable!("It's shouldn't trigger because the first handler handles the event");
@@ -432,10 +427,7 @@ mod tests {
         let observer_service = observer.to_service_provider_default().unwrap();
         let request = Request::new(
             Arc::new(Bot::default()),
-            Arc::new(Update {
-                id: 0,
-                kind: UpdateKind::Message(Message::default()),
-            }),
+            Arc::new(Update::default()),
             Arc::new(Context::default()),
         );
         let response = observer_service.trigger(request).await.unwrap();
@@ -452,17 +444,17 @@ mod tests {
 
     #[tokio::test]
     async fn test_observer_event_return() {
-        let bot = Bot::<Reqwest>::default();
-        let context = Context::default();
-        let update = Update::default();
-
-        let mut observer = Observer::new("test");
+        let mut observer = Observer::default();
         observer.register(|| async { Ok(EventReturn::Skip) });
         observer.register(|| async { Ok(EventReturn::Finish) });
 
         let observer_service = observer.to_service_provider_default().unwrap();
 
-        let request = Request::new(Arc::new(bot), Arc::new(update), Arc::new(context));
+        let request = Request::new(
+            Arc::new(Bot::<Reqwest>::default()),
+            Arc::new(Update::default()),
+            Arc::new(Context::default()),
+        );
         let response = observer_service.trigger(request.clone()).await.unwrap();
 
         // First handler returns `EventReturn::Skip`, so second handler should be called
@@ -474,7 +466,7 @@ mod tests {
             _ => panic!("Unexpected result"),
         }
 
-        let mut observer = Observer::new("test2");
+        let mut observer = Observer::default();
         observer.register(|| async { Ok(EventReturn::Skip) });
         observer.register(|| async { Ok(EventReturn::Cancel) });
 

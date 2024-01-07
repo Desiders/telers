@@ -1,6 +1,9 @@
-use crate::event::{
-    service::{Service as _, ServiceFactory as _, ServiceProvider, ToServiceProvider},
-    simple::handler::{Handler, HandlerObject, HandlerObjectService, Result as HandlerResult},
+use crate::{
+    enums::SimpleObserverName,
+    event::{
+        service::{Service as _, ServiceFactory as _, ServiceProvider, ToServiceProvider},
+        simple::handler::{Handler, HandlerObject, HandlerObjectService, Result as HandlerResult},
+    },
 };
 
 use std::fmt::{self, Debug, Formatter};
@@ -9,14 +12,14 @@ use tracing::instrument;
 /// Simple events observer
 /// Is used for managing events isn't related with Telegram (For example startup/shutdown events)
 pub struct Observer {
-    pub event_name: &'static str,
+    pub event_name: SimpleObserverName,
 
     handlers: Vec<HandlerObject>,
 }
 
 impl Observer {
     #[must_use]
-    pub fn new(event_name: &'static str) -> Self {
+    pub fn new(event_name: SimpleObserverName) -> Self {
         Self {
             event_name,
             handlers: vec![],
@@ -59,13 +62,6 @@ impl Debug for Observer {
     }
 }
 
-impl Default for Observer {
-    #[must_use]
-    fn default() -> Self {
-        Self::new("default")
-    }
-}
-
 impl AsRef<Observer> for Observer {
     fn as_ref(&self) -> &Self {
         self
@@ -81,22 +77,19 @@ impl ToServiceProvider for Observer {
         self,
         config: Self::Config,
     ) -> Result<Self::ServiceProvider, Self::InitError> {
-        let event_name = self.event_name;
-        let handlers = self
-            .handlers
-            .iter()
-            .map(|handler| handler.new_service(config))
-            .collect::<Result<_, _>>()?;
-
         Ok(Service {
-            event_name,
-            handlers,
+            event_name: self.event_name,
+            handlers: self
+                .handlers
+                .iter()
+                .map(|handler| handler.new_service(config))
+                .collect::<Result<_, _>>()?,
         })
     }
 }
 
 pub struct Service {
-    event_name: &'static str,
+    event_name: SimpleObserverName,
     handlers: Box<[HandlerObjectService]>,
 }
 
@@ -149,13 +142,17 @@ mod tests {
             Ok(())
         }
 
-        let mut observer = Observer::new("test");
-        observer.register(on_startup, ("Hello, world!",));
-        observer.register(on_shutdown, ("Goodbye, world!",));
+        let mut startup_observer = Observer::new(SimpleObserverName::Startup);
+        startup_observer.register(on_startup, ("Hello, world!",));
 
-        let observer_service = observer.to_service_provider_default().unwrap();
+        let mut shutdown_observer = Observer::new(SimpleObserverName::Shutdown);
+        shutdown_observer.register(on_shutdown, ("Goodbye, world!",));
 
-        observer_service.trigger(()).await.unwrap();
+        let startup_observer = startup_observer.to_service_provider_default().unwrap();
+        let shutdown_observer = shutdown_observer.to_service_provider_default().unwrap();
+
+        startup_observer.trigger(()).await.unwrap();
+        shutdown_observer.trigger(()).await.unwrap();
     }
 
     #[tokio::test]
@@ -163,7 +160,7 @@ mod tests {
         async fn on_startup(message: &str) -> HandlerResult {
             assert_eq!(message, "Hello, world!");
 
-            Ok(())
+            Err(HandlerError::new(anyhow!("test")))
         }
 
         async fn on_shutdown(message: &str) -> HandlerResult {
@@ -172,12 +169,18 @@ mod tests {
             Err(HandlerError::new(anyhow!("test")))
         }
 
-        let mut observer = Observer::new("test");
-        observer.register(on_startup, ("Hello, world!",));
-        observer.register(on_shutdown, ("Goodbye, world!",));
+        let mut startup_observer = Observer::new(SimpleObserverName::Startup);
+        startup_observer.register(on_startup, ("Hello, world!",));
 
-        let observer_service = observer.to_service_provider_default().unwrap();
+        let mut shutdown_observer = Observer::new(SimpleObserverName::Shutdown);
+        shutdown_observer.register(on_shutdown, ("Goodbye, world!",));
 
-        observer_service.trigger(()).await.unwrap_err();
+        let startup_observer = startup_observer.to_service_provider_default().unwrap();
+        let shutdown_observer = shutdown_observer.to_service_provider_default().unwrap();
+
+        assert!(
+            startup_observer.trigger(()).await.is_err()
+                && shutdown_observer.trigger(()).await.is_err()
+        );
     }
 }

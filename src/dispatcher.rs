@@ -68,7 +68,7 @@ use crate::{
 };
 
 use backoff::{backoff::Backoff, exponential::ExponentialBackoff, SystemClock};
-use std::{borrow::Cow, sync::Arc};
+use std::sync::Arc;
 use thiserror;
 use tokio::sync::mpsc::{channel as mspc_channel, error::SendError, Sender};
 use tracing::{event, field, instrument, Level, Span};
@@ -96,7 +96,7 @@ pub struct Dispatcher<Client, Propagator, BackoffType = ExponentialBackoff<Syste
     bots: Box<[Bot<Client>]>,
     polling_timeout: Option<i64>,
     backoff: BackoffType,
-    allowed_updates: Box<[Cow<'static, str>]>,
+    allowed_updates: Box<[UpdateType]>,
 }
 
 impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType> {
@@ -115,22 +115,18 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
     /// and set timeout between requests to telegram server
     /// * `allowed_updates` -
     /// List the types of updates you want your bot to receive.
-    /// For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types.
-    /// See [`crate::enums::UpdateType`] for a complete list of available update types.
-    /// By default, all update types except [`crate::enums::UpdateType::ChatMember`] are enabled.
+    /// For example, specify [`UpdateType::message`], [`UpdateType::edited_channel_post`], [`UpdateType::callback_query`]
+    /// to only receive updates of these types.
     #[must_use]
-    pub fn new<Bots, AllowedUpdate, AllowedUpdates, Cfg, PropagatorService, InitError>(
+    pub fn new<Cfg, PropagatorService, InitError>(
         main_router: Propagator,
-        bots: Bots,
+        bots: impl IntoIterator<Item = Bot<Client>>,
         polling_timeout: Option<i64>,
         backoff: BackoffType,
-        allowed_updates: AllowedUpdates,
+        allowed_updates: impl IntoIterator<Item = UpdateType>,
     ) -> Self
     where
-        Bots: IntoIterator<Item = Bot<Client>>,
         BackoffType: Backoff,
-        AllowedUpdate: Into<Cow<'static, str>>,
-        AllowedUpdates: IntoIterator<Item = AllowedUpdate>,
         Propagator: ToServiceProvider<
             Config = Cfg,
             ServiceProvider = PropagatorService,
@@ -143,7 +139,7 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
             bots: bots.into_iter().collect(),
             polling_timeout,
             backoff,
-            allowed_updates: allowed_updates.into_iter().map(Into::into).collect(),
+            allowed_updates: allowed_updates.into_iter().collect(),
         }
     }
 }
@@ -152,7 +148,6 @@ impl<Client, Propagator> Dispatcher<Client, Propagator>
 where
     Propagator: Default,
 {
-    /// Creates a new dispatcher with default values
     #[must_use]
     pub fn builder() -> Builder<Client, Propagator> {
         Builder::default()
@@ -163,8 +158,6 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
 where
     Propagator: Default,
 {
-    /// Creates a new dispatcher with default values and custom backoff.
-    /// By default, the backoff is [`ExponentialBackoff`].
     #[must_use]
     pub fn builder_with_backoff(val: BackoffType) -> Builder<Client, Propagator, BackoffType> {
         Builder::default_with_backoff(val)
@@ -176,7 +169,7 @@ pub struct Builder<Client, Propagator, BackoffType = ExponentialBackoff<SystemCl
     bots: Vec<Bot<Client>>,
     polling_timeout: Option<i64>,
     backoff: BackoffType,
-    allowed_updates: Vec<Cow<'static, str>>,
+    allowed_updates: Vec<UpdateType>,
 }
 
 impl<Client, Propagator> Default for Builder<Client, Propagator>
@@ -200,8 +193,6 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType>
 where
     Propagator: Default,
 {
-    /// Creates a new dispatcher builder with default values and custom backoff.
-    /// By default, the backoff is [`ExponentialBackoff`].
     #[must_use]
     pub fn default_with_backoff(backoff: BackoffType) -> Self {
         Self {
@@ -296,52 +287,30 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     }
 
     /// Update type you want your bot to receive.
-    /// For example, specify `message` to only receive this update type.
-    /// See [`crate::enums::UpdateType`] for a complete list of available update types.
-    /// # Default
-    /// All update types except [`crate::enums::UpdateType::ChatMember`] are enabled.
+    /// For example, specify [`UpdateType::message`] to only receive this update type.
     /// # Notes
-    /// You can use [`crate::enums::UpdateType`] and pass it to this method, because it implements [`Into<String>`]
-    ///
     /// You can add multiple update types using [`Builder::allowed_updates`] method
     #[must_use]
-    pub fn allowed_update(self, val: impl Into<Cow<'static, str>>) -> Self {
+    pub fn allowed_update(self, val: UpdateType) -> Self {
         Self {
-            allowed_updates: self
-                .allowed_updates
-                .into_iter()
-                .chain(Some(val.into()))
-                .collect(),
+            allowed_updates: self.allowed_updates.into_iter().chain(Some(val)).collect(),
             ..self
         }
     }
 
     /// List the types of updates you want your bot to receive.
-    /// For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types.
-    /// See [`crate::enums::UpdateType`] for a complete list of available update types.
-    /// # Default
-    /// All update types except [`crate::enums::UpdateType::ChatMember`] are enabled.
+    /// For example, specify [`UpdateType::message`], [`UpdateType::edited_channel_post`], [`UpdateType::callback_query`]
+    /// to only receive updates of these types.
     /// # Notes
-    /// You can use [`crate::enums::UpdateType`] and pass it to this method, because it implements [`Into<String>`]
-    ///
     /// You can add single update type using [`Builder::allowed_update`] method
     #[must_use]
-    pub fn allowed_updates<T, I>(self, val: I) -> Self
-    where
-        T: Into<Cow<'static, str>>,
-        I: IntoIterator<Item = T>,
-    {
+    pub fn allowed_updates(self, val: impl IntoIterator<Item = UpdateType>) -> Self {
         Self {
-            allowed_updates: self
-                .allowed_updates
-                .into_iter()
-                .chain(val.into_iter().map(Into::into))
-                .collect(),
+            allowed_updates: self.allowed_updates.into_iter().chain(val).collect(),
             ..self
         }
     }
 
-    /// Build [`Dispatcher`] with provided configuration
     #[must_use]
     pub fn build(self) -> Dispatcher<Client, Propagator, BackoffType> {
         Dispatcher {
@@ -371,10 +340,8 @@ where
         self,
         config: Self::Config,
     ) -> Result<Self::ServiceProvider, Self::InitError> {
-        let main_router = self.main_router.to_service_provider(config)?;
-
         Ok(Arc::new(Service {
-            main_router,
+            main_router: self.main_router.to_service_provider(config)?,
             bots: self.bots,
             polling_timeout: self.polling_timeout,
             backoff: self.backoff,
@@ -388,7 +355,7 @@ pub struct Service<Client, PropagatorService, BackoffType> {
     bots: Box<[Bot<Client>]>,
     polling_timeout: Option<i64>,
     backoff: BackoffType,
-    allowed_updates: Box<[Cow<'static, str>]>,
+    allowed_updates: Box<[UpdateType]>,
 }
 
 impl<Client, PropagatorService, BackoffType> ServiceProvider
@@ -429,10 +396,7 @@ impl<Client, PropagatorService, BackoffType> Service<Client, PropagatorService, 
         Client: Send + Sync + 'static,
         PropagatorService: PropagateEvent<Client>,
     {
-        let update: Arc<Update> = update;
         let update_type = UpdateType::from(update.as_ref());
-
-        let bot: Arc<Bot<Client>> = bot;
 
         Span::current()
             .record("bot_id", bot.bot_id)
@@ -452,7 +416,7 @@ impl<Client, PropagatorService, BackoffType> Service<Client, PropagatorService, 
     async fn listen_updates(
         bot: Arc<Bot<Client>>,
         polling_timeout: Option<i64>,
-        allowed_updates: Box<[Cow<'static, str>]>,
+        allowed_updates: Box<[UpdateType]>,
         update_sender: Sender<Update>,
         mut backoff: BackoffType,
     ) -> Result<(), ListenerError<Update>>
@@ -468,8 +432,8 @@ impl<Client, PropagatorService, BackoffType> Service<Client, PropagatorService, 
             .allowed_updates(allowed_updates.iter().map(AsRef::as_ref));
 
         // Flag for handling connection errors.
-        // If it's true, we will use backoff algorithm to next backoff.
-        // If it's false, we will use default backoff algorithm.
+        // If it's `true`, we will use backoff algorithm to next backoff.
+        // If it's `false`, we will use default backoff algorithm.
         let mut failed = false;
 
         loop {
@@ -498,7 +462,7 @@ impl<Client, PropagatorService, BackoffType> Service<Client, PropagatorService, 
                     // To confirm an update, use the offset parameter when calling `getUpdates`.
                     // All updates with `update_id` less than or equal to `offset` will be marked.
                     // as confirmed on the server and will no longer be returned.
-                    // So we need to set offset to the last update id + 1
+                    // So we need to set offset to the last update `id` + 1
                     // `unwrap` is safe here, because we checked that updates isn't empty
                     method.offset = Some(id + 1);
 

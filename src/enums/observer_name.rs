@@ -1,3 +1,5 @@
+use crate::enums::UpdateType;
+
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 
 /// Enums, which are used to identify default [telegram observers](`crate::event::telegram::Observer`)
@@ -70,21 +72,55 @@ impl Telegram {
     }
 }
 
-impl From<Telegram> for Box<str> {
-    fn from(scope: Telegram) -> Self {
-        scope.into()
+impl From<Telegram> for Option<UpdateType> {
+    fn from(val: Telegram) -> Self {
+        match val {
+            Telegram::Message => Some(UpdateType::Message),
+            Telegram::InlineQuery => Some(UpdateType::InlineQuery),
+            Telegram::ChosenInlineResult => Some(UpdateType::ChosenInlineResult),
+            Telegram::CallbackQuery => Some(UpdateType::CallbackQuery),
+            Telegram::ChannelPost => Some(UpdateType::ChannelPost),
+            Telegram::EditedMessage => Some(UpdateType::EditedMessage),
+            Telegram::EditedChannelPost => Some(UpdateType::EditedChannelPost),
+            Telegram::MessageReaction => Some(UpdateType::MessageReaction),
+            Telegram::MessageReactionCount => Some(UpdateType::MessageReactionCount),
+            Telegram::ShippingQuery => Some(UpdateType::ShippingQuery),
+            Telegram::PreCheckoutQuery => Some(UpdateType::PreCheckoutQuery),
+            Telegram::Poll => Some(UpdateType::Poll),
+            Telegram::PollAnswer => Some(UpdateType::PollAnswer),
+            Telegram::MyChatMember => Some(UpdateType::MyChatMember),
+            Telegram::ChatMember => Some(UpdateType::ChatMember),
+            Telegram::ChatJoinRequest => Some(UpdateType::ChatJoinRequest),
+            Telegram::ChatBoost => Some(UpdateType::ChatBoost),
+            Telegram::RemovedChatBoost => Some(UpdateType::RemovedChatBoost),
+            Telegram::Update => None,
+        }
     }
 }
 
-impl From<Telegram> for String {
-    fn from(scope: Telegram) -> Self {
-        scope.as_ref().to_owned()
-    }
-}
-
-impl<'a> PartialEq<&'a str> for Telegram {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_ref() == *other
+impl PartialEq<UpdateType> for Telegram {
+    fn eq(&self, other: &UpdateType) -> bool {
+        match self {
+            Telegram::Message => *other == UpdateType::Message,
+            Telegram::InlineQuery => *other == UpdateType::InlineQuery,
+            Telegram::ChosenInlineResult => *other == UpdateType::ChosenInlineResult,
+            Telegram::CallbackQuery => *other == UpdateType::CallbackQuery,
+            Telegram::ChannelPost => *other == UpdateType::ChannelPost,
+            Telegram::EditedMessage => *other == UpdateType::EditedMessage,
+            Telegram::EditedChannelPost => *other == UpdateType::EditedChannelPost,
+            Telegram::MessageReaction => *other == UpdateType::MessageReaction,
+            Telegram::MessageReactionCount => *other == UpdateType::MessageReactionCount,
+            Telegram::ShippingQuery => *other == UpdateType::ShippingQuery,
+            Telegram::PreCheckoutQuery => *other == UpdateType::PreCheckoutQuery,
+            Telegram::Poll => *other == UpdateType::Poll,
+            Telegram::PollAnswer => *other == UpdateType::PollAnswer,
+            Telegram::MyChatMember => *other == UpdateType::MyChatMember,
+            Telegram::ChatMember => *other == UpdateType::ChatMember,
+            Telegram::ChatJoinRequest => *other == UpdateType::ChatJoinRequest,
+            Telegram::ChatBoost => *other == UpdateType::ChatBoost,
+            Telegram::RemovedChatBoost => *other == UpdateType::RemovedChatBoost,
+            Telegram::Update => false,
+        }
     }
 }
 
@@ -101,17 +137,5 @@ impl Simple {
     #[must_use]
     pub const fn all() -> [Simple; 2] {
         [Simple::Startup, Simple::Shutdown]
-    }
-}
-
-impl From<Simple> for Box<str> {
-    fn from(scope: Simple) -> Self {
-        Into::<&'static str>::into(scope).into()
-    }
-}
-
-impl<'a> PartialEq<&'a str> for Simple {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_ref() == *other
     }
 }

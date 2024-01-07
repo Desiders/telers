@@ -1,6 +1,5 @@
 use crate::types::{Update, UpdateKind};
 
-use std::borrow::Cow;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 
 /// This enum represents all possible types of the update
@@ -48,8 +47,8 @@ pub enum UpdateType {
 
 impl UpdateType {
     #[must_use]
-    pub const fn all() -> &'static [UpdateType; 17] {
-        &[
+    pub const fn all() -> [Self; 18] {
+        [
             UpdateType::Message,
             UpdateType::InlineQuery,
             UpdateType::ChosenInlineResult,
@@ -58,6 +57,7 @@ impl UpdateType {
             UpdateType::EditedMessage,
             UpdateType::EditedChannelPost,
             UpdateType::MessageReaction,
+            UpdateType::MessageReactionCount,
             UpdateType::ShippingQuery,
             UpdateType::PreCheckoutQuery,
             UpdateType::Poll,
@@ -68,24 +68,6 @@ impl UpdateType {
             UpdateType::ChatBoost,
             UpdateType::RemovedChatBoost,
         ]
-    }
-}
-
-impl From<UpdateType> for Cow<'static, str> {
-    fn from(update_type: UpdateType) -> Self {
-        Into::<&'static str>::into(update_type).into()
-    }
-}
-
-impl From<&UpdateType> for Cow<'static, str> {
-    fn from(update_type: &UpdateType) -> Self {
-        Into::<&'static str>::into(update_type).into()
-    }
-}
-
-impl<'a> PartialEq<&'a str> for UpdateType {
-    fn eq(&self, other: &&'a str) -> bool {
-        self.as_ref() == *other
     }
 }
 
