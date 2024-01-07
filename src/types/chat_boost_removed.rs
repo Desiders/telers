@@ -15,7 +15,7 @@ pub struct ChatBoostRemoved {
     #[serde(rename = "boost_id")]
     pub id: i64,
     /// Point in time (Unix timestamp) when the boost was removed
-    pub remove_date: i32,
+    pub remove_date: i64,
     /// Source of the removed boost
     pub source: ChatBoostSource,
 }
