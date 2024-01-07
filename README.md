@@ -28,7 +28,7 @@ Before you start, make sure that you have a basic understanding of the [Telegram
  - **Asynchronous**. Built on top of [Tokio](https://tokio.rs/), a powerful asynchronous runtime.
  - **Easy to use**. Provides a simple and intuitive API for creating bots.
  - **Based on** [aiogram](https://github.com/aiogram/aiogram/). Inspired by the framework written in Python and tries to provide a similar functionality.
- - **Routes**, **Middlewares**, **Filters** and **Handlers**. Provides a powerful system of routes, middlewares, filters and handlers to make your code more readable and maintainable, and simplify the creation of bots.
+ - **Routers**, **Middlewares**, **Filters** and **Handlers**. Provides a powerful system of routers, middlewares, filters and handlers to make your code more readable and maintainable, and simplify the creation of bots.
  - **Extractors**. Have similar system of extractors as in [axum](https://docs.rs/axum/latest/axum/extract/) and [actix](https://actix.rs/docs/extractors/).
 
 ## Examples
