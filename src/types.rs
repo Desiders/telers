@@ -83,6 +83,7 @@ pub mod dice;
 pub mod document;
 pub mod encrypted_credentials;
 pub mod encrypted_passport_element;
+pub mod external_reply_info;
 pub mod file;
 pub mod force_reply;
 pub mod forum_topic;
@@ -284,6 +285,17 @@ pub use encrypted_passport_element::{
     RentalAgreement as EncryptedPassportElementRentalAgreement,
     TemporaryRegistration as EncryptedPassportElementTemporaryRegistration,
     UtilityBill as EncryptedPassportElementUtilityBill,
+};
+pub use external_reply_info::{
+    Animation as ExternalReplyInfoAnimation, Audio as ExternalReplyInfoAudio,
+    Contact as ExternalReplyInfoContact, Dice as ExternalReplyInfoDice,
+    Document as ExternalReplyInfoDocument, ExternalReplyInfo, Game as ExternalReplyInfoGame,
+    Giveaway as ExternalReplyInfoGiveaway, GiveawayWinners as ExternalReplyInfoGiveawayWinners,
+    Invoice as ExternalReplyInfoInvoice, Location as ExternalReplyInfoLocation,
+    Photo as ExternalReplyInfoPhoto, Poll as ExternalReplyInfoPoll,
+    Sticker as ExternalReplyInfoSticker, Story as ExternalReplyInfoStory,
+    Venue as ExternalReplyInfoVenue, Video as ExternalReplyInfoVideo,
+    VideoNote as ExternalReplyInfoVideoNote, Voice as ExternalReplyInfoVoice,
 };
 pub use file::File;
 pub use force_reply::ForceReply;
