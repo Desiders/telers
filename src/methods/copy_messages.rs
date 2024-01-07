@@ -151,7 +151,7 @@ impl CopyMessages {
 
 impl TelegramMethod for CopyMessages {
     type Method = Self;
-    type Return = Box<[MessageId]>;
+    type Return = Vec<MessageId>;
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
         Request::new("copyMessages", self, None)

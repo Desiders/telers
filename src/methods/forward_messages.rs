@@ -132,7 +132,7 @@ impl ForwardMessages {
 
 impl TelegramMethod for ForwardMessages {
     type Method = Self;
-    type Return = Box<[MessageId]>;
+    type Return = Vec<MessageId>;
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
         Request::new("forwardMessages", self, None)
