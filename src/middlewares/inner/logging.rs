@@ -82,7 +82,6 @@ where
                         Level::ERROR,
                         error = %err,
                         "Handler returns error. Execution time: {elapsed:.2?}",
-
                     );
                 }
                 EventErrorKind::Middleware(err) => {

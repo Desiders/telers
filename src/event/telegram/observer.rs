@@ -312,8 +312,8 @@ impl<Client> Service<Client> {
                     })
                 }
                 // If the handler or middleware returns an error,
-                // then we should stop propagation and return a response because the error is the correct result
-                // from the point of view of observer
+                // then we should stop propagation and return a response
+                // because the error is the correct result from the point of view of observer
                 Err(_) => {
                     event!(Level::TRACE, "Handler returns error");
 
