@@ -83,6 +83,12 @@ impl<'a> InputFile<'a> {
     }
 
     /// Creates a new [`InputFile`] with [`StreamFile`]
+    /// # Warning
+    /// If stream is taken, default client implementation raises an error,
+    /// so you need to use [`StreamFile::set_stream`] to set stream again.
+    /// This need because the stream can't be restored after it was taken.
+    ///
+    /// Check [`StreamFile::take_stream`] and [`StreamFile::set_stream`] for more information.
     #[must_use]
     pub fn stream(
         stream: impl Stream<Item = Result<Bytes, io::Error>> + Unpin + Send + Sync + 'static,
@@ -416,7 +422,11 @@ type SharedStream =
     Arc<TakeOwnCell<Box<dyn Stream<Item = Result<Bytes, io::Error>> + Send + Sync + Unpin>>>;
 
 /// # Warning
-/// We use [`TriompheArc`] because to share [`Stream`] between threads without copying it
+/// If stream is taken, default client implementation raises an error,
+/// so you need to use [`StreamFile::set_stream`] to set stream again.
+/// This need because the stream can't be restored after it was taken.
+///
+/// Check [`StreamFile::take_stream`] and [`StreamFile::set_stream`] for more information.
 pub struct StreamFile<'a> {
     id: Uuid,
     file_name: Option<Cow<'a, str>>,
@@ -477,9 +487,9 @@ impl<'a> StreamFile<'a> {
     /// Takes stream.
     /// # Warning
     /// If stream is taken, default client implementation raises an error,
-    /// so you need to use [`StreamFile::heal_stream`] to heal stream manually.
+    /// so you need to use [`StreamFile::set_stream`] to set stream again.
     /// # Returns
-    /// After this function once returns `Some(_)` all consequtive calls before [`StreamFile::heal_stream`]
+    /// After this function once returns `Some(_)` all consequtive calls before [`StreamFile::set_stream`]
     /// will return `None` as the value is already taken
     #[must_use]
     pub fn take_stream(
