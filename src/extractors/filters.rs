@@ -1,9 +1,5 @@
-use super::{from_context, FromEventAndContext};
+use super::from_context;
 
-use crate::{
-    client::Bot, context::Context, errors::ExtractionError, filters::CommandObject, types::Update,
-};
-
-use std::sync::Arc;
+use crate::filters::CommandObject;
 
 from_context!([Client], CommandObject, "command");

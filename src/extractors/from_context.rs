@@ -65,17 +65,19 @@ macro_rules! from_context {
                     $generic_bound $(+ $generic_bounds)*
                 )?
             ),*
-        > FromEventAndContext<$client_generic_or_type> for $type_name
+        > $crate::extractors::FromEventAndContext<$client_generic_or_type> for $type_name
         where
             $type_name: 'static,
         {
-            type Error = ExtractionError;
+            type Error = $crate::errors::ExtractionError;
 
             fn extract(
-                _bot: Arc<Bot<$client_generic_or_type>>,
-                _update: Arc<Update>,
-                context: Arc<Context>,
+                _bot: std::sync::Arc<$crate::client::Bot<$client_generic_or_type>>,
+                _update: std::sync::Arc<$crate::types::Update>,
+                context: std::sync::Arc<$crate::context::Context>,
             ) -> Result<Self, Self::Error> {
+                use $crate::errors::ExtractionError;
+
                 match context.get($key) {
                     Some(data) => match data.downcast_ref::<Self>() {
                         Some(data) => Ok(data.clone()),
@@ -187,18 +189,20 @@ macro_rules! from_context_into {
                     $generic_bound $(+ $generic_bounds)*
                 )?
             ),*
-        > FromEventAndContext<$client_generic_or_type> for $wrapper_type
+        > $crate::extractors::FromEventAndContext<$client_generic_or_type> for $wrapper_type
         where
             $type_name: 'static,
             $wrapper_type: From<$type_name>,
         {
-            type Error = ExtractionError;
+            type Error = $crate::errors::ExtractionError;
 
             fn extract(
-                _bot: Arc<Bot<$client_generic_or_type>>,
-                _update: Arc<Update>,
-                context: Arc<Context>,
+                _bot: std::sync::Arc<$crate::client::Bot<$client_generic_or_type>>,
+                _update: std::sync::Arc<$crate::types::Update>,
+                context: std::sync::Arc<$crate::Context>,
             ) -> Result<Self, Self::Error> {
+                use $crate::errors::ExtractionError;
+
                 match context.get($key) {
                     Some(data) => match data.downcast_ref::<$type_name>() {
                         Some(data) => Ok(data.clone().into()),
@@ -219,51 +223,6 @@ macro_rules! from_context_into {
             }
         }
     };
-
-    (
-        [
-            $client_generic_or_type:ident
-            $(,
-                $generic:tt
-                $(:
-                    $generic_bound:tt $(+ $generic_bounds:tt)*
-                )?
-            )* $(,)?
-        ],
-        $type_name:ty => $wrapper_type:ty $(,)?
-    ) => {
-        impl<
-            $client_generic_or_type,
-            $(
-                $generic $(:
-                    $generic_bound $(+ $generic_bounds)*
-                )?
-            ),*
-        > FromEventAndContext<$client_generic_or_type> for $type_name
-        where
-            $type_name: 'static,
-        {
-            type Error = ExtractionError;
-
-            fn extract(
-                _bot: Arc<Bot<$client_generic_or_type>>,
-                _update: Arc<Update>,
-                context: Arc<Context>,
-            ) -> Result<Self, Self::Error> {
-                for ref_multi in context.iter() {
-                    if let Some(data) = ref_multi.value().downcast_ref::<Self>() {
-                        return Ok(data.clone().into());
-                    };
-                }
-
-                Err(ExtractionError::new(concat!(
-                    "No found data in context with type `",
-                    stringify!($type_name),
-                    '`'
-                )))
-            }
-        }
-    };
 }
 
 #[cfg(test)]
@@ -271,8 +230,7 @@ mod tests {
     use crate::{
         client::{Bot, Reqwest},
         context::Context,
-        errors::ExtractionError,
-        extractors::FromEventAndContext,
+        extractors::FromEventAndContext as _,
         types::Update,
     };
 
