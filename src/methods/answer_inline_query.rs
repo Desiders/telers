@@ -21,7 +21,7 @@ pub struct AnswerInlineQuery {
     /// A JSON-serialized array of results for the inline query
     pub results: Vec<InlineQueryResult>,
     /// The maximum amount of time in seconds that the result of the inline query may be cached on the server. Defaults to 300.
-    pub cache_time: Option<i32>,
+    pub cache_time: Option<i64>,
     /// Pass `true` if results may be cached on the server side only for the user that sent the query. By default, results may be returned to any user who sends the same query
     pub is_personal: Option<bool>,
     /// Pass the offset that a client should send in the next query with the same text to receive more results. Pass an empty string if there are no more results or if you don‘t support pagination. Offset length can’t exceed 64 bytes.
@@ -73,7 +73,7 @@ impl AnswerInlineQuery {
     }
 
     #[must_use]
-    pub fn cache_time(self, val: i32) -> Self {
+    pub fn cache_time(self, val: i64) -> Self {
         Self {
             cache_time: Some(val),
             ..self
@@ -107,7 +107,7 @@ impl AnswerInlineQuery {
 
 impl AnswerInlineQuery {
     #[must_use]
-    pub fn cache_time_option(self, val: Option<i32>) -> Self {
+    pub fn cache_time_option(self, val: Option<i64>) -> Self {
         Self {
             cache_time: val,
             ..self

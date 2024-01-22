@@ -25,7 +25,7 @@ pub struct AnswerCallbackQuery {
     /// Otherwise, you may use links like `t.me/your_bot?start=XXXX` that open your bot with a parameter.
     pub url: Option<String>,
     /// The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to `0`.
-    pub cache_time: Option<i32>,
+    pub cache_time: Option<i64>,
 }
 
 impl AnswerCallbackQuery {
@@ -73,7 +73,7 @@ impl AnswerCallbackQuery {
     }
 
     #[must_use]
-    pub fn cache_time(self, val: i32) -> Self {
+    pub fn cache_time(self, val: i64) -> Self {
         Self {
             cache_time: Some(val),
             ..self
@@ -107,7 +107,7 @@ impl AnswerCallbackQuery {
     }
 
     #[must_use]
-    pub fn cache_time_option(self, val: Option<i32>) -> Self {
+    pub fn cache_time_option(self, val: Option<i64>) -> Self {
         Self {
             cache_time: val,
             ..self
