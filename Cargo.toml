@@ -1,5 +1,5 @@
 [workspace]
-members = ["telers", "examples/*"]
-default-members = ["telers"]
+members = ["telers", "telers-*", "examples/*"]
+default-members = ["telers", "telers-*"]
 exclude = []
 resolver = "2"
