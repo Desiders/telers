@@ -20,6 +20,7 @@ redis-storage = ["redis"]
 memory-storage = ["bincode"]
 
 [dependencies]
+telers-macros = { path = "../telers-macros", features = ["default"] } 
 tokio = { version = "1.33", features = ["sync", "macros", "signal", "fs"] }
 tokio-util = { version = "0.7", features = ["codec"] }
 reqwest = { version = "0.11", features = ["multipart", "stream"] }
