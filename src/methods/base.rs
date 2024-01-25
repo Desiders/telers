@@ -4,7 +4,6 @@ use crate::{
 };
 
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use serde_json;
 
 /// This object represents a request to Telegram API
 pub struct Request<'a, T>
@@ -69,7 +68,10 @@ pub trait TelegramMethod {
     /// # Errors
     /// - If the response cannot be parsed
     fn build_response(&self, content: &str) -> Result<Response<Self::Return>, serde_json::Error> {
-        serde_json::from_str(content)
+        let mut deserializer = serde_json::Deserializer::from_str(content);
+        let deserializer = serde_stacker::Deserializer::new(&mut deserializer);
+
+        Response::deserialize(deserializer)
     }
 }
 
