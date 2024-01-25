@@ -1,9 +1,14 @@
-use crate::{client::Bot, context::Context, errors::ExtractionError, types::Update};
+use crate::{
+    client::{Bot, Reqwest},
+    context::Context,
+    errors::ExtractionError,
+    types::Update,
+};
 
 use std::{convert::Infallible, pin::Pin, sync::Arc};
 
 /// Trait for extracting data from [`Update`] and [`Context`] to handlers arguments
-pub trait FromEventAndContext<Client>: Sized {
+pub trait FromEventAndContext<Client = Reqwest>: Sized {
     type Error: Into<ExtractionError>;
 
     /// Extracts data from [`Update`], [`Context`] and [`Bot`] to handler argument
