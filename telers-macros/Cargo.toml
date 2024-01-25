@@ -20,6 +20,7 @@ quote = "1.0"
 syn = { version = "2.0", features = ["full", "parsing"] }
 
 [dev-dependencies]
+telers = { path = "../telers", features = ["default"] }
 
 [package.metadata.cargo-public-api-crates]
 allowed = []
