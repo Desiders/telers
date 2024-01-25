@@ -239,6 +239,13 @@ pub trait Session: Send + Sync {
                 err
             })?;
 
+        event!(
+            Level::TRACE,
+            content = response.content,
+            status_code = response.status_code.as_u16(),
+            "Got response. Parsing it...",
+        );
+
         let telegram_response =
             method
                 .build_response(response.content.as_ref())
@@ -252,6 +259,8 @@ pub trait Session: Send + Sync {
 
                     err
                 })?;
+
+        event!(Level::TRACE, "Response parsed successfully",);
 
         self.check_response(&telegram_response, &response.status_code)
             .map_err(|err| {
