@@ -4,6 +4,7 @@ use crate::{
     client::{Bot, Session},
     context::Context,
     errors::SessionErrorKind,
+    extractors::FromContext,
     methods::GetMe,
     types::{BotCommand, Update, UpdateKind},
 };
@@ -354,7 +355,8 @@ impl Command<'_> {
 
 /// Represents parsed command from text
 #[allow(clippy::module_name_repetitions)]
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, FromContext)]
+#[context(key = "command")]
 pub struct CommandObject {
     /// Command without prefix and mention
     pub command: Box<str>,

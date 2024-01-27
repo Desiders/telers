@@ -1,105 +1,3 @@
-/// Implements [`super::FromEventAndContext`] for types that can be extracts from the context by key
-/// # Syntax
-/// ```ignore
-/// from_context!(
-///     [client_generic_or_type] |
-///         [client_generic_or_type, generic1, ...] |.
-///         [client_generic_or_type, generic1: generic1_bound + ..., ...] |
-///         [client_generic_or_type, generic1: generic1_bound + ... + 'static, ...] // `'static` lifetime is implicitly added to generics
-///     ,
-///     type_to_extract |
-///         type_to_extract<generic1, ...>
-///     ,
-/// );
-/// ```
-/// # Notes
-/// - If you want to search data in the context by key, you must specify it in the third argument or search will be by type (expensive operation)
-/// - This macro throws a runtime extraction error if the data in the context by key has wrong type or no found
-/// - Lifetimes except `'static` aren't supported. `'static` lifetime is implicitly adding to generics and types that are passes to extract
-/// - Data to extract must be cloneable, it's cloned from reference to context
-/// - First generic or type must be a client
-/// - Trailing comma is optional
-/// # Examples
-/// ```ignore
-/// use std::sync::Arc;
-/// use telers::{
-///     errors::ExtractionError,
-///     event::{telegram::HandlerResult, EventReturn},
-///     extractors::{from_context, FromEventAndContext},
-///     types::Update,
-///     Bot, Context,
-/// };
-///
-/// #[derive(Clone)]
-/// struct A;
-///
-/// #[derive(Debug, Clone)]
-/// struct B<T, U>(T, U);
-///
-/// from_context!([Client], A, "a");
-/// from_context!([Client, T: Clone, U: Clone], B<T, U>, "b");
-///
-/// async fn handler<T: Clone, U: Clone>(_a: A, _b: B<T, U>) -> HandlerResult {
-///    todo!()
-/// }
-/// ```
-#[macro_export]
-macro_rules! from_context {
-    (
-        [
-            $client_generic_or_type:ident
-            $(,
-                $generic:tt
-                $(:
-                    $generic_bound:tt $(+ $generic_bounds:tt)*
-                )?
-            )* $(,)?
-        ],
-        $type_name:ty,
-        $key:literal $(,)?
-    ) => {
-        impl<
-            $client_generic_or_type,
-            $(
-                $generic $(:
-                    $generic_bound $(+ $generic_bounds)*
-                )?
-            ),*
-        > $crate::extractors::FromEventAndContext<$client_generic_or_type> for $type_name
-        where
-            $type_name: 'static,
-        {
-            type Error = $crate::errors::ExtractionError;
-
-            fn extract(
-                _bot: std::sync::Arc<$crate::client::Bot<$client_generic_or_type>>,
-                _update: std::sync::Arc<$crate::types::Update>,
-                context: std::sync::Arc<$crate::context::Context>,
-            ) -> Result<Self, Self::Error> {
-                use $crate::errors::ExtractionError;
-
-                match context.get($key) {
-                    Some(data) => match data.downcast_ref::<Self>() {
-                        Some(data) => Ok(data.clone()),
-                        None => Err(ExtractionError::new(concat!(
-                            "Data in context by key `",
-                            $key,
-                            "` has wrong type expected `",
-                            stringify!($type_name),
-                            "`",
-                        ))),
-                    },
-                    None => Err(ExtractionError::new(concat!(
-                        "No found data in context by key `",
-                        $key,
-                        '`'
-                    ))),
-                }
-            }
-        }
-    };
-}
-
 /// Implements [`super::FromEventAndContext`] for types that can be extracts from the context by key and converted to another type.
 /// This macro is similar to [`from_context!`] but it converts extracted data to another type.
 /// It's useful when you want to implement [`super::FromEventAndContext`] for foreign types and orphans rules don't allow you to do it,
@@ -230,7 +128,7 @@ mod tests {
     use crate::{
         client::{Bot, Reqwest},
         context::Context,
-        extractors::FromEventAndContext as _,
+        extractors::{FromContext, FromEventAndContext as _},
         types::Update,
     };
 
@@ -242,10 +140,12 @@ mod tests {
 
     #[tokio::test]
     async fn test_extract() {
-        #[derive(Debug, Clone, PartialEq)]
+        #[derive(Debug, Clone, PartialEq, FromContext)]
+        #[context(key = "a")]
         struct A;
 
-        #[derive(Debug, PartialEq)]
+        #[derive(Debug, PartialEq, FromContext)]
+        #[context(key = "b")]
         struct B<T> {
             _phantom: PhantomData<T>,
         }
@@ -258,7 +158,8 @@ mod tests {
             }
         }
 
-        #[derive(Debug, Clone, PartialEq)]
+        #[derive(Debug, Clone, PartialEq, FromContext)]
+        #[context(key = "c")]
         struct C<T, U>(T, U);
 
         trait Trait: Send + Sync {}
@@ -288,10 +189,6 @@ mod tests {
                 Self(data)
             }
         }
-
-        from_context!([Client], A, "a");
-        from_context!([Client, T], B<T>, "b");
-        from_context!([Client, T: Clone, U: Clone], C<T, U>, "c");
 
         from_context_into!([Client], A => Wrapper<A>, "a");
         from_context_into!([Client, T: Clone, U: Clone], C<T, U> => Wrapper<C<T, U>>, "c");

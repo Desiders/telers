@@ -1,9 +1,13 @@
 use super::{Storage, StorageKey};
 
+use crate::extractors::FromContext;
+
 use serde::{de::DeserializeOwned, Serialize};
 use std::{borrow::Cow, collections::HashMap};
 
 /// Context is used to manage state and data of the user in specified storage
+#[derive(FromContext)]
+#[context(key = "fsm_context")]
 pub struct Context<S> {
     storage: S,
     key: StorageKey,

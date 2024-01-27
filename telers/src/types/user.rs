@@ -1,3 +1,5 @@
+use crate::extractors::FromContext;
+
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::borrow::Cow;
@@ -6,7 +8,8 @@ use std::borrow::Cow;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#user>
 #[skip_serializing_none]
-#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize, Serialize, FromContext)]
+#[context(key = "event_user")]
 pub struct User {
     /// Unique identifier for this user or bot. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
     pub id: i64,

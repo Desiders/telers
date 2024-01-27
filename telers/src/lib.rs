@@ -1,3 +1,5 @@
+extern crate self as telers;
+
 mod serializers;
 
 pub mod client;
@@ -14,6 +16,8 @@ pub mod middlewares;
 pub mod router;
 pub mod types;
 pub mod utils;
+
+pub use telers_macros::FromContext;
 
 pub use client::Bot;
 pub use context::Context;

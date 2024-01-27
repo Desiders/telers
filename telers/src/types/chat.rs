@@ -1,11 +1,14 @@
 use super::{ChatLocation, ChatPermissions, ChatPhoto, Message};
 
+use crate::extractors::FromContext;
+
 use serde::Deserialize;
 
 /// This object represents a chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chat>
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromContext)]
+#[context(key = "event_chat")]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum Chat {
     Private(Private),
