@@ -303,7 +303,7 @@ fn expand_struct(
         ident,
         &ident_impl_generics,
         &ident_ty_generics,
-        ident_where_clause.as_deref(),
+        ident_where_clause,
         &client,
         &context_attrs,
     ))
@@ -349,7 +349,7 @@ fn expand_enum(
         ident,
         &ident_impl_generics,
         &ident_ty_generics,
-        ident_where_clause.as_deref(),
+        ident_where_clause,
         &client,
         &context_attrs,
     ))
