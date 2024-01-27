@@ -10,60 +10,67 @@ use serde::Deserialize;
 /// This object represents a message.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#message>
+/// # Notes
+/// We use `Box` to avoid stack overflow in some cases but minus in usability in `match`-case.
+/// To compensation this, you can use methods that simplify get some data.
+/// For example, instead of get [`Text`] from [`Message`] to get [`Text::text`], you can just call [`Message::text`],
+/// or if you want to get caption from all types where it has,
+/// instead of using [`Animation::caption`], [`Audio::caption`], ..., you can use [`Message::caption`].
+/// Similar methods are implemented for all major message types.
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(untagged)]
 pub enum Message {
-    Text(Text),
-    Animation(Animation),
-    Audio(Audio),
-    Document(Document),
-    Photo(Photo),
-    Sticker(Sticker),
-    Story(Story),
-    Video(Video),
-    VideoNote(VideoNote),
-    Voice(Voice),
-    Contact(Contact),
-    Dice(Dice),
-    Game(Game),
-    Poll(Poll),
-    Venue(Venue),
-    Location(Location),
-    NewChatMembers(NewChatMembers),
-    LeftChatMember(LeftChatMember),
-    NewChatTitle(NewChatTitle),
-    NewChatPhoto(NewChatPhoto),
-    DeleteChatPhoto(DeleteChatPhoto),
-    GroupChatCreated(GroupChatCreated),
-    SupergroupChatCreated(SupergroupChatCreated),
-    ChannelChatCreated(ChannelChatCreated),
-    MessageAutoDeleteTimerChanged(MessageAutoDeleteTimerChanged),
-    MigrateToChat(MigrateToChat),
-    MigrateFromChat(MigrateFromChat),
-    Pinned(Pinned),
-    Invoice(Invoice),
-    SuccessfulPayment(SuccessfulPayment),
-    UsersShared(UsersShared),
-    ChatShared(ChatShared),
-    ConnectedWebsite(ConnectedWebsite),
-    WriteAccessAllowed(WriteAccessAllowed),
-    PassportData(PassportData),
-    ProximityAlertTriggered(ProximityAlertTriggered),
-    ForumTopicCreated(ForumTopicCreated),
-    ForumTopicEdited(ForumTopicEdited),
-    ForumTopicClosed(ForumTopicClosed),
-    ForumTopicReopened(ForumTopicReopened),
-    GeneralForumTopicHidden(GeneralForumTopicHidden),
-    GeneralForumTopicUnhidden(GeneralForumTopicUnhidden),
-    GiveawayCreated(GiveawayCreated),
-    Giveaway(Giveaway),
-    GiveawayWinners(GiveawayWinners),
-    GiveawayCompleted(GiveawayCompleted),
-    VideoChatScheduled(VideoChatScheduled),
-    VideoChatStarted(VideoChatStarted),
-    VideoChatEnded(VideoChatEnded),
-    VideoChatParticipantsInvited(VideoChatParticipantsInvited),
-    WebAppData(WebAppData),
+    Text(Box<Text>),
+    Animation(Box<Animation>),
+    Audio(Box<Audio>),
+    Document(Box<Document>),
+    Photo(Box<Photo>),
+    Sticker(Box<Sticker>),
+    Story(Box<Story>),
+    Video(Box<Video>),
+    VideoNote(Box<VideoNote>),
+    Voice(Box<Voice>),
+    Contact(Box<Contact>),
+    Dice(Box<Dice>),
+    Game(Box<Game>),
+    Poll(Box<Poll>),
+    Venue(Box<Venue>),
+    Location(Box<Location>),
+    NewChatMembers(Box<NewChatMembers>),
+    LeftChatMember(Box<LeftChatMember>),
+    NewChatTitle(Box<NewChatTitle>),
+    NewChatPhoto(Box<NewChatPhoto>),
+    DeleteChatPhoto(Box<DeleteChatPhoto>),
+    GroupChatCreated(Box<GroupChatCreated>),
+    SupergroupChatCreated(Box<SupergroupChatCreated>),
+    ChannelChatCreated(Box<ChannelChatCreated>),
+    MessageAutoDeleteTimerChanged(Box<MessageAutoDeleteTimerChanged>),
+    MigrateToChat(Box<MigrateToChat>),
+    MigrateFromChat(Box<MigrateFromChat>),
+    Pinned(Box<Pinned>),
+    Invoice(Box<Invoice>),
+    SuccessfulPayment(Box<SuccessfulPayment>),
+    UsersShared(Box<UsersShared>),
+    ChatShared(Box<ChatShared>),
+    ConnectedWebsite(Box<ConnectedWebsite>),
+    WriteAccessAllowed(Box<WriteAccessAllowed>),
+    PassportData(Box<PassportData>),
+    ProximityAlertTriggered(Box<ProximityAlertTriggered>),
+    ForumTopicCreated(Box<ForumTopicCreated>),
+    ForumTopicEdited(Box<ForumTopicEdited>),
+    ForumTopicClosed(Box<ForumTopicClosed>),
+    ForumTopicReopened(Box<ForumTopicReopened>),
+    GeneralForumTopicHidden(Box<GeneralForumTopicHidden>),
+    GeneralForumTopicUnhidden(Box<GeneralForumTopicUnhidden>),
+    GiveawayCreated(Box<GiveawayCreated>),
+    Giveaway(Box<Giveaway>),
+    GiveawayWinners(Box<GiveawayWinners>),
+    GiveawayCompleted(Box<GiveawayCompleted>),
+    VideoChatScheduled(Box<VideoChatScheduled>),
+    VideoChatStarted(Box<VideoChatStarted>),
+    VideoChatEnded(Box<VideoChatEnded>),
+    VideoChatParticipantsInvited(Box<VideoChatParticipantsInvited>),
+    WebAppData(Box<WebAppData>),
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -1628,287 +1635,270 @@ impl Message {
     #[must_use]
     pub const fn id(&self) -> i64 {
         match self {
-            Message::Text(Text { id, .. })
-            | Message::Animation(Animation { id, .. })
-            | Message::Audio(Audio { id, .. })
-            | Message::Document(Document { id, .. })
-            | Message::Photo(Photo { id, .. })
-            | Message::Sticker(Sticker { id, .. })
-            | Message::Story(Story { id, .. })
-            | Message::Video(Video { id, .. })
-            | Message::VideoNote(VideoNote { id, .. })
-            | Message::Voice(Voice { id, .. })
-            | Message::Contact(Contact { id, .. })
-            | Message::Dice(Dice { id, .. })
-            | Message::Game(Game { id, .. })
-            | Message::Poll(Poll { id, .. })
-            | Message::Venue(Venue { id, .. })
-            | Message::Location(Location { id, .. })
-            | Message::NewChatMembers(NewChatMembers { id, .. })
-            | Message::LeftChatMember(LeftChatMember { id, .. })
-            | Message::NewChatTitle(NewChatTitle { id, .. })
-            | Message::NewChatPhoto(NewChatPhoto { id, .. })
-            | Message::DeleteChatPhoto(DeleteChatPhoto { id, .. })
-            | Message::GroupChatCreated(GroupChatCreated { id, .. })
-            | Message::SupergroupChatCreated(SupergroupChatCreated { id, .. })
-            | Message::ChannelChatCreated(ChannelChatCreated { id, .. })
-            | Message::MessageAutoDeleteTimerChanged(MessageAutoDeleteTimerChanged {
-                id, ..
-            })
-            | Message::MigrateToChat(MigrateToChat { id, .. })
-            | Message::MigrateFromChat(MigrateFromChat { id, .. })
-            | Message::Pinned(Pinned { id, .. })
-            | Message::Invoice(Invoice { id, .. })
-            | Message::SuccessfulPayment(SuccessfulPayment { id, .. })
-            | Message::UsersShared(UsersShared { id, .. })
-            | Message::ChatShared(ChatShared { id, .. })
-            | Message::ConnectedWebsite(ConnectedWebsite { id, .. })
-            | Message::WriteAccessAllowed(WriteAccessAllowed { id, .. })
-            | Message::PassportData(PassportData { id, .. })
-            | Message::ProximityAlertTriggered(ProximityAlertTriggered { id, .. })
-            | Message::ForumTopicCreated(ForumTopicCreated { id, .. })
-            | Message::ForumTopicEdited(ForumTopicEdited { id, .. })
-            | Message::ForumTopicClosed(ForumTopicClosed { id, .. })
-            | Message::ForumTopicReopened(ForumTopicReopened { id, .. })
-            | Message::GeneralForumTopicHidden(GeneralForumTopicHidden { id, .. })
-            | Message::GeneralForumTopicUnhidden(GeneralForumTopicUnhidden { id, .. })
-            | Message::VideoChatScheduled(VideoChatScheduled { id, .. })
-            | Message::VideoChatStarted(VideoChatStarted { id, .. })
-            | Message::VideoChatEnded(VideoChatEnded { id, .. })
-            | Message::VideoChatParticipantsInvited(VideoChatParticipantsInvited { id, .. })
-            | Message::WebAppData(WebAppData { id, .. })
-            | Message::GiveawayCreated(GiveawayCreated { id, .. })
-            | Message::Giveaway(Giveaway { id, .. })
-            | Message::GiveawayWinners(GiveawayWinners { id, .. })
-            | Message::GiveawayCompleted(GiveawayCompleted { id, .. }) => *id,
+            Message::Text(message) => message.id,
+            Message::Animation(message) => message.id,
+            Message::Audio(message) => message.id,
+            Message::Document(message) => message.id,
+            Message::Photo(message) => message.id,
+            Message::Sticker(message) => message.id,
+            Message::Story(message) => message.id,
+            Message::Video(message) => message.id,
+            Message::VideoNote(message) => message.id,
+            Message::Voice(message) => message.id,
+            Message::Contact(message) => message.id,
+            Message::Dice(message) => message.id,
+            Message::Game(message) => message.id,
+            Message::Poll(message) => message.id,
+            Message::Venue(message) => message.id,
+            Message::Location(message) => message.id,
+            Message::NewChatMembers(message) => message.id,
+            Message::LeftChatMember(message) => message.id,
+            Message::NewChatTitle(message) => message.id,
+            Message::NewChatPhoto(message) => message.id,
+            Message::DeleteChatPhoto(message) => message.id,
+            Message::GroupChatCreated(message) => message.id,
+            Message::SupergroupChatCreated(message) => message.id,
+            Message::ChannelChatCreated(message) => message.id,
+            Message::MessageAutoDeleteTimerChanged(message) => message.id,
+            Message::MigrateToChat(message) => message.id,
+            Message::MigrateFromChat(message) => message.id,
+            Message::Pinned(message) => message.id,
+            Message::Invoice(message) => message.id,
+            Message::SuccessfulPayment(message) => message.id,
+            Message::UsersShared(message) => message.id,
+            Message::ChatShared(message) => message.id,
+            Message::ConnectedWebsite(message) => message.id,
+            Message::WriteAccessAllowed(message) => message.id,
+            Message::PassportData(message) => message.id,
+            Message::ProximityAlertTriggered(message) => message.id,
+            Message::ForumTopicCreated(message) => message.id,
+            Message::ForumTopicEdited(message) => message.id,
+            Message::ForumTopicClosed(message) => message.id,
+            Message::ForumTopicReopened(message) => message.id,
+            Message::GeneralForumTopicHidden(message) => message.id,
+            Message::GeneralForumTopicUnhidden(message) => message.id,
+            Message::VideoChatScheduled(message) => message.id,
+            Message::VideoChatStarted(message) => message.id,
+            Message::VideoChatEnded(message) => message.id,
+            Message::VideoChatParticipantsInvited(message) => message.id,
+            Message::WebAppData(message) => message.id,
+            Message::GiveawayCreated(message) => message.id,
+            Message::Giveaway(message) => message.id,
+            Message::GiveawayWinners(message) => message.id,
+            Message::GiveawayCompleted(message) => message.id,
         }
     }
 
     #[must_use]
     pub const fn thread_id(&self) -> Option<i64> {
         match self {
-            Message::Text(Text { thread_id, .. })
-            | Message::Animation(Animation { thread_id, .. })
-            | Message::Audio(Audio { thread_id, .. })
-            | Message::Document(Document { thread_id, .. })
-            | Message::Photo(Photo { thread_id, .. })
-            | Message::Sticker(Sticker { thread_id, .. })
-            | Message::Story(Story { thread_id, .. })
-            | Message::Video(Video { thread_id, .. })
-            | Message::VideoNote(VideoNote { thread_id, .. })
-            | Message::Voice(Voice { thread_id, .. })
-            | Message::Contact(Contact { thread_id, .. })
-            | Message::Dice(Dice { thread_id, .. })
-            | Message::Game(Game { thread_id, .. })
-            | Message::Poll(Poll { thread_id, .. })
-            | Message::Venue(Venue { thread_id, .. })
-            | Message::Location(Location { thread_id, .. })
-            | Message::NewChatMembers(NewChatMembers { thread_id, .. })
-            | Message::LeftChatMember(LeftChatMember { thread_id, .. })
-            | Message::NewChatTitle(NewChatTitle { thread_id, .. })
-            | Message::NewChatPhoto(NewChatPhoto { thread_id, .. })
-            | Message::DeleteChatPhoto(DeleteChatPhoto { thread_id, .. })
-            | Message::GroupChatCreated(GroupChatCreated { thread_id, .. })
-            | Message::SupergroupChatCreated(SupergroupChatCreated { thread_id, .. })
-            | Message::ChannelChatCreated(ChannelChatCreated { thread_id, .. })
-            | Message::MessageAutoDeleteTimerChanged(MessageAutoDeleteTimerChanged {
-                thread_id,
-                ..
-            })
-            | Message::MigrateToChat(MigrateToChat { thread_id, .. })
-            | Message::MigrateFromChat(MigrateFromChat { thread_id, .. })
-            | Message::Pinned(Pinned { thread_id, .. })
-            | Message::Invoice(Invoice { thread_id, .. })
-            | Message::SuccessfulPayment(SuccessfulPayment { thread_id, .. })
-            | Message::UsersShared(UsersShared { thread_id, .. })
-            | Message::ChatShared(ChatShared { thread_id, .. })
-            | Message::ConnectedWebsite(ConnectedWebsite { thread_id, .. })
-            | Message::WriteAccessAllowed(WriteAccessAllowed { thread_id, .. })
-            | Message::PassportData(PassportData { thread_id, .. })
-            | Message::ProximityAlertTriggered(ProximityAlertTriggered { thread_id, .. })
-            | Message::ForumTopicCreated(ForumTopicCreated { thread_id, .. })
-            | Message::ForumTopicEdited(ForumTopicEdited { thread_id, .. })
-            | Message::ForumTopicClosed(ForumTopicClosed { thread_id, .. })
-            | Message::ForumTopicReopened(ForumTopicReopened { thread_id, .. })
-            | Message::GeneralForumTopicHidden(GeneralForumTopicHidden { thread_id, .. })
-            | Message::GeneralForumTopicUnhidden(GeneralForumTopicUnhidden { thread_id, .. })
-            | Message::VideoChatScheduled(VideoChatScheduled { thread_id, .. })
-            | Message::VideoChatStarted(VideoChatStarted { thread_id, .. })
-            | Message::VideoChatEnded(VideoChatEnded { thread_id, .. })
-            | Message::VideoChatParticipantsInvited(VideoChatParticipantsInvited {
-                thread_id,
-                ..
-            })
-            | Message::WebAppData(WebAppData { thread_id, .. })
-            | Message::GiveawayCreated(GiveawayCreated { thread_id, .. })
-            | Message::Giveaway(Giveaway { thread_id, .. })
-            | Message::GiveawayWinners(GiveawayWinners { thread_id, .. })
-            | Message::GiveawayCompleted(GiveawayCompleted { thread_id, .. }) => *thread_id,
+            Message::Text(message) => message.thread_id,
+            Message::Animation(message) => message.thread_id,
+            Message::Audio(message) => message.thread_id,
+            Message::Document(message) => message.thread_id,
+            Message::Photo(message) => message.thread_id,
+            Message::Sticker(message) => message.thread_id,
+            Message::Story(message) => message.thread_id,
+            Message::Video(message) => message.thread_id,
+            Message::VideoNote(message) => message.thread_id,
+            Message::Voice(message) => message.thread_id,
+            Message::Contact(message) => message.thread_id,
+            Message::Dice(message) => message.thread_id,
+            Message::Game(message) => message.thread_id,
+            Message::Poll(message) => message.thread_id,
+            Message::Venue(message) => message.thread_id,
+            Message::Location(message) => message.thread_id,
+            Message::NewChatMembers(message) => message.thread_id,
+            Message::LeftChatMember(message) => message.thread_id,
+            Message::NewChatTitle(message) => message.thread_id,
+            Message::NewChatPhoto(message) => message.thread_id,
+            Message::DeleteChatPhoto(message) => message.thread_id,
+            Message::GroupChatCreated(message) => message.thread_id,
+            Message::SupergroupChatCreated(message) => message.thread_id,
+            Message::ChannelChatCreated(message) => message.thread_id,
+            Message::MessageAutoDeleteTimerChanged(message) => message.thread_id,
+            Message::MigrateToChat(message) => message.thread_id,
+            Message::MigrateFromChat(message) => message.thread_id,
+            Message::Pinned(message) => message.thread_id,
+            Message::Invoice(message) => message.thread_id,
+            Message::SuccessfulPayment(message) => message.thread_id,
+            Message::UsersShared(message) => message.thread_id,
+            Message::ChatShared(message) => message.thread_id,
+            Message::ConnectedWebsite(message) => message.thread_id,
+            Message::WriteAccessAllowed(message) => message.thread_id,
+            Message::PassportData(message) => message.thread_id,
+            Message::ProximityAlertTriggered(message) => message.thread_id,
+            Message::ForumTopicCreated(message) => message.thread_id,
+            Message::ForumTopicEdited(message) => message.thread_id,
+            Message::ForumTopicClosed(message) => message.thread_id,
+            Message::ForumTopicReopened(message) => message.thread_id,
+            Message::GeneralForumTopicHidden(message) => message.thread_id,
+            Message::GeneralForumTopicUnhidden(message) => message.thread_id,
+            Message::VideoChatScheduled(message) => message.thread_id,
+            Message::VideoChatStarted(message) => message.thread_id,
+            Message::VideoChatEnded(message) => message.thread_id,
+            Message::VideoChatParticipantsInvited(message) => message.thread_id,
+            Message::WebAppData(message) => message.thread_id,
+            Message::GiveawayCreated(message) => message.thread_id,
+            Message::Giveaway(message) => message.thread_id,
+            Message::GiveawayWinners(message) => message.thread_id,
+            Message::GiveawayCompleted(message) => message.thread_id,
         }
     }
 
     #[must_use]
     pub const fn date(&self) -> i64 {
         match self {
-            Message::Text(Text { date, .. })
-            | Message::Animation(Animation { date, .. })
-            | Message::Audio(Audio { date, .. })
-            | Message::Document(Document { date, .. })
-            | Message::Photo(Photo { date, .. })
-            | Message::Sticker(Sticker { date, .. })
-            | Message::Story(Story { date, .. })
-            | Message::Video(Video { date, .. })
-            | Message::VideoNote(VideoNote { date, .. })
-            | Message::Voice(Voice { date, .. })
-            | Message::Contact(Contact { date, .. })
-            | Message::Dice(Dice { date, .. })
-            | Message::Game(Game { date, .. })
-            | Message::Poll(Poll { date, .. })
-            | Message::Venue(Venue { date, .. })
-            | Message::Location(Location { date, .. })
-            | Message::NewChatMembers(NewChatMembers { date, .. })
-            | Message::LeftChatMember(LeftChatMember { date, .. })
-            | Message::NewChatTitle(NewChatTitle { date, .. })
-            | Message::NewChatPhoto(NewChatPhoto { date, .. })
-            | Message::DeleteChatPhoto(DeleteChatPhoto { date, .. })
-            | Message::GroupChatCreated(GroupChatCreated { date, .. })
-            | Message::SupergroupChatCreated(SupergroupChatCreated { date, .. })
-            | Message::ChannelChatCreated(ChannelChatCreated { date, .. })
-            | Message::MessageAutoDeleteTimerChanged(MessageAutoDeleteTimerChanged {
-                date, ..
-            })
-            | Message::MigrateToChat(MigrateToChat { date, .. })
-            | Message::MigrateFromChat(MigrateFromChat { date, .. })
-            | Message::Pinned(Pinned { date, .. })
-            | Message::Invoice(Invoice { date, .. })
-            | Message::SuccessfulPayment(SuccessfulPayment { date, .. })
-            | Message::UsersShared(UsersShared { date, .. })
-            | Message::ChatShared(ChatShared { date, .. })
-            | Message::ConnectedWebsite(ConnectedWebsite { date, .. })
-            | Message::WriteAccessAllowed(WriteAccessAllowed { date, .. })
-            | Message::PassportData(PassportData { date, .. })
-            | Message::ProximityAlertTriggered(ProximityAlertTriggered { date, .. })
-            | Message::ForumTopicCreated(ForumTopicCreated { date, .. })
-            | Message::ForumTopicEdited(ForumTopicEdited { date, .. })
-            | Message::ForumTopicClosed(ForumTopicClosed { date, .. })
-            | Message::ForumTopicReopened(ForumTopicReopened { date, .. })
-            | Message::GeneralForumTopicHidden(GeneralForumTopicHidden { date, .. })
-            | Message::GeneralForumTopicUnhidden(GeneralForumTopicUnhidden { date, .. })
-            | Message::VideoChatScheduled(VideoChatScheduled { date, .. })
-            | Message::VideoChatStarted(VideoChatStarted { date, .. })
-            | Message::VideoChatEnded(VideoChatEnded { date, .. })
-            | Message::VideoChatParticipantsInvited(VideoChatParticipantsInvited {
-                date, ..
-            })
-            | Message::WebAppData(WebAppData { date, .. })
-            | Message::GiveawayCreated(GiveawayCreated { date, .. })
-            | Message::Giveaway(Giveaway { date, .. })
-            | Message::GiveawayWinners(GiveawayWinners { date, .. })
-            | Message::GiveawayCompleted(GiveawayCompleted { date, .. }) => *date,
+            Message::Text(message) => message.date,
+            Message::Animation(message) => message.date,
+            Message::Audio(message) => message.date,
+            Message::Document(message) => message.date,
+            Message::Photo(message) => message.date,
+            Message::Sticker(message) => message.date,
+            Message::Story(message) => message.date,
+            Message::Video(message) => message.date,
+            Message::VideoNote(message) => message.date,
+            Message::Voice(message) => message.date,
+            Message::Contact(message) => message.date,
+            Message::Dice(message) => message.date,
+            Message::Game(message) => message.date,
+            Message::Poll(message) => message.date,
+            Message::Venue(message) => message.date,
+            Message::Location(message) => message.date,
+            Message::NewChatMembers(message) => message.date,
+            Message::LeftChatMember(message) => message.date,
+            Message::NewChatTitle(message) => message.date,
+            Message::NewChatPhoto(message) => message.date,
+            Message::DeleteChatPhoto(message) => message.date,
+            Message::GroupChatCreated(message) => message.date,
+            Message::SupergroupChatCreated(message) => message.date,
+            Message::ChannelChatCreated(message) => message.date,
+            Message::MessageAutoDeleteTimerChanged(message) => message.date,
+            Message::MigrateToChat(message) => message.date,
+            Message::MigrateFromChat(message) => message.date,
+            Message::Pinned(message) => message.date,
+            Message::Invoice(message) => message.date,
+            Message::SuccessfulPayment(message) => message.date,
+            Message::UsersShared(message) => message.date,
+            Message::ChatShared(message) => message.date,
+            Message::ConnectedWebsite(message) => message.date,
+            Message::WriteAccessAllowed(message) => message.date,
+            Message::PassportData(message) => message.date,
+            Message::ProximityAlertTriggered(message) => message.date,
+            Message::ForumTopicCreated(message) => message.date,
+            Message::ForumTopicEdited(message) => message.date,
+            Message::ForumTopicClosed(message) => message.date,
+            Message::ForumTopicReopened(message) => message.date,
+            Message::GeneralForumTopicHidden(message) => message.date,
+            Message::GeneralForumTopicUnhidden(message) => message.date,
+            Message::VideoChatScheduled(message) => message.date,
+            Message::VideoChatStarted(message) => message.date,
+            Message::VideoChatEnded(message) => message.date,
+            Message::VideoChatParticipantsInvited(message) => message.date,
+            Message::WebAppData(message) => message.date,
+            Message::GiveawayCreated(message) => message.date,
+            Message::Giveaway(message) => message.date,
+            Message::GiveawayWinners(message) => message.date,
+            Message::GiveawayCompleted(message) => message.date,
         }
     }
 
     #[must_use]
     pub const fn chat(&self) -> &Chat {
         match self {
-            Message::Text(Text { chat, .. })
-            | Message::Animation(Animation { chat, .. })
-            | Message::Audio(Audio { chat, .. })
-            | Message::Document(Document { chat, .. })
-            | Message::Photo(Photo { chat, .. })
-            | Message::Sticker(Sticker { chat, .. })
-            | Message::Story(Story { chat, .. })
-            | Message::Video(Video { chat, .. })
-            | Message::VideoNote(VideoNote { chat, .. })
-            | Message::Voice(Voice { chat, .. })
-            | Message::Contact(Contact { chat, .. })
-            | Message::Dice(Dice { chat, .. })
-            | Message::Game(Game { chat, .. })
-            | Message::Poll(Poll { chat, .. })
-            | Message::Venue(Venue { chat, .. })
-            | Message::Location(Location { chat, .. })
-            | Message::NewChatMembers(NewChatMembers { chat, .. })
-            | Message::LeftChatMember(LeftChatMember { chat, .. })
-            | Message::NewChatTitle(NewChatTitle { chat, .. })
-            | Message::NewChatPhoto(NewChatPhoto { chat, .. })
-            | Message::DeleteChatPhoto(DeleteChatPhoto { chat, .. })
-            | Message::GroupChatCreated(GroupChatCreated { chat, .. })
-            | Message::SupergroupChatCreated(SupergroupChatCreated { chat, .. })
-            | Message::ChannelChatCreated(ChannelChatCreated { chat, .. })
-            | Message::MessageAutoDeleteTimerChanged(MessageAutoDeleteTimerChanged {
-                chat, ..
-            })
-            | Message::MigrateToChat(MigrateToChat { chat, .. })
-            | Message::MigrateFromChat(MigrateFromChat { chat, .. })
-            | Message::Pinned(Pinned { chat, .. })
-            | Message::Invoice(Invoice { chat, .. })
-            | Message::SuccessfulPayment(SuccessfulPayment { chat, .. })
-            | Message::UsersShared(UsersShared { chat, .. })
-            | Message::ChatShared(ChatShared { chat, .. })
-            | Message::ConnectedWebsite(ConnectedWebsite { chat, .. })
-            | Message::WriteAccessAllowed(WriteAccessAllowed { chat, .. })
-            | Message::PassportData(PassportData { chat, .. })
-            | Message::ProximityAlertTriggered(ProximityAlertTriggered { chat, .. })
-            | Message::ForumTopicCreated(ForumTopicCreated { chat, .. })
-            | Message::ForumTopicEdited(ForumTopicEdited { chat, .. })
-            | Message::ForumTopicClosed(ForumTopicClosed { chat, .. })
-            | Message::ForumTopicReopened(ForumTopicReopened { chat, .. })
-            | Message::GeneralForumTopicHidden(GeneralForumTopicHidden { chat, .. })
-            | Message::GeneralForumTopicUnhidden(GeneralForumTopicUnhidden { chat, .. })
-            | Message::VideoChatScheduled(VideoChatScheduled { chat, .. })
-            | Message::VideoChatStarted(VideoChatStarted { chat, .. })
-            | Message::VideoChatEnded(VideoChatEnded { chat, .. })
-            | Message::VideoChatParticipantsInvited(VideoChatParticipantsInvited {
-                chat, ..
-            })
-            | Message::WebAppData(WebAppData { chat, .. })
-            | Message::GiveawayCreated(GiveawayCreated { chat, .. })
-            | Message::Giveaway(Giveaway { chat, .. })
-            | Message::GiveawayWinners(GiveawayWinners { chat, .. })
-            | Message::GiveawayCompleted(GiveawayCompleted { chat, .. }) => chat,
+            Message::Text(message) => &message.chat,
+            Message::Animation(message) => &message.chat,
+            Message::Audio(message) => &message.chat,
+            Message::Document(message) => &message.chat,
+            Message::Photo(message) => &message.chat,
+            Message::Sticker(message) => &message.chat,
+            Message::Story(message) => &message.chat,
+            Message::Video(message) => &message.chat,
+            Message::VideoNote(message) => &message.chat,
+            Message::Voice(message) => &message.chat,
+            Message::Contact(message) => &message.chat,
+            Message::Dice(message) => &message.chat,
+            Message::Game(message) => &message.chat,
+            Message::Poll(message) => &message.chat,
+            Message::Venue(message) => &message.chat,
+            Message::Location(message) => &message.chat,
+            Message::NewChatMembers(message) => &message.chat,
+            Message::LeftChatMember(message) => &message.chat,
+            Message::NewChatTitle(message) => &message.chat,
+            Message::NewChatPhoto(message) => &message.chat,
+            Message::DeleteChatPhoto(message) => &message.chat,
+            Message::GroupChatCreated(message) => &message.chat,
+            Message::SupergroupChatCreated(message) => &message.chat,
+            Message::ChannelChatCreated(message) => &message.chat,
+            Message::MessageAutoDeleteTimerChanged(message) => &message.chat,
+            Message::MigrateToChat(message) => &message.chat,
+            Message::MigrateFromChat(message) => &message.chat,
+            Message::Pinned(message) => &message.chat,
+            Message::Invoice(message) => &message.chat,
+            Message::SuccessfulPayment(message) => &message.chat,
+            Message::UsersShared(message) => &message.chat,
+            Message::ChatShared(message) => &message.chat,
+            Message::ConnectedWebsite(message) => &message.chat,
+            Message::WriteAccessAllowed(message) => &message.chat,
+            Message::PassportData(message) => &message.chat,
+            Message::ProximityAlertTriggered(message) => &message.chat,
+            Message::ForumTopicCreated(message) => &message.chat,
+            Message::ForumTopicEdited(message) => &message.chat,
+            Message::ForumTopicClosed(message) => &message.chat,
+            Message::ForumTopicReopened(message) => &message.chat,
+            Message::GeneralForumTopicHidden(message) => &message.chat,
+            Message::GeneralForumTopicUnhidden(message) => &message.chat,
+            Message::VideoChatScheduled(message) => &message.chat,
+            Message::VideoChatStarted(message) => &message.chat,
+            Message::VideoChatEnded(message) => &message.chat,
+            Message::VideoChatParticipantsInvited(message) => &message.chat,
+            Message::WebAppData(message) => &message.chat,
+            Message::GiveawayCreated(message) => &message.chat,
+            Message::Giveaway(message) => &message.chat,
+            Message::GiveawayWinners(message) => &message.chat,
+            Message::GiveawayCompleted(message) => &message.chat,
         }
     }
 
     #[must_use]
     pub const fn via_bot(&self) -> Option<&User> {
         match self {
-            Message::Text(Text { via_bot, .. })
-            | Message::Animation(Animation { via_bot, .. })
-            | Message::Audio(Audio { via_bot, .. })
-            | Message::Document(Document { via_bot, .. })
-            | Message::Photo(Photo { via_bot, .. })
-            | Message::Sticker(Sticker { via_bot, .. })
-            | Message::Video(Video { via_bot, .. })
-            | Message::Voice(Voice { via_bot, .. })
-            | Message::Contact(Contact { via_bot, .. })
-            | Message::Game(Game { via_bot, .. })
-            | Message::Venue(Venue { via_bot, .. })
-            | Message::Location(Location { via_bot, .. })
-            | Message::LeftChatMember(LeftChatMember { via_bot, .. })
-            | Message::NewChatTitle(NewChatTitle { via_bot, .. })
-            | Message::NewChatPhoto(NewChatPhoto { via_bot, .. })
-            | Message::DeleteChatPhoto(DeleteChatPhoto { via_bot, .. })
-            | Message::Pinned(Pinned { via_bot, .. })
-            | Message::Invoice(Invoice { via_bot, .. })
-            | Message::SuccessfulPayment(SuccessfulPayment { via_bot, .. })
-            | Message::ConnectedWebsite(ConnectedWebsite { via_bot, .. })
-            | Message::WriteAccessAllowed(WriteAccessAllowed { via_bot, .. })
-            | Message::ForumTopicCreated(ForumTopicCreated { via_bot, .. })
-            | Message::ForumTopicEdited(ForumTopicEdited { via_bot, .. })
-            | Message::ForumTopicClosed(ForumTopicClosed { via_bot, .. })
-            | Message::ForumTopicReopened(ForumTopicReopened { via_bot, .. })
-            | Message::GeneralForumTopicHidden(GeneralForumTopicHidden { via_bot, .. })
-            | Message::GeneralForumTopicUnhidden(GeneralForumTopicUnhidden { via_bot, .. })
-            | Message::WebAppData(WebAppData { via_bot, .. }) => via_bot,
-            _ => &None,
+            Message::Text(message) => message.via_bot.as_ref(),
+            Message::Animation(message) => message.via_bot.as_ref(),
+            Message::Audio(message) => message.via_bot.as_ref(),
+            Message::Document(message) => message.via_bot.as_ref(),
+            Message::Photo(message) => message.via_bot.as_ref(),
+            Message::Sticker(message) => message.via_bot.as_ref(),
+            Message::Video(message) => message.via_bot.as_ref(),
+            Message::Voice(message) => message.via_bot.as_ref(),
+            Message::Contact(message) => message.via_bot.as_ref(),
+            Message::Game(message) => message.via_bot.as_ref(),
+            Message::Venue(message) => message.via_bot.as_ref(),
+            Message::Location(message) => message.via_bot.as_ref(),
+            Message::LeftChatMember(message) => message.via_bot.as_ref(),
+            Message::NewChatTitle(message) => message.via_bot.as_ref(),
+            Message::NewChatPhoto(message) => message.via_bot.as_ref(),
+            Message::DeleteChatPhoto(message) => message.via_bot.as_ref(),
+            Message::Pinned(message) => message.via_bot.as_ref(),
+            Message::Invoice(message) => message.via_bot.as_ref(),
+            Message::SuccessfulPayment(message) => message.via_bot.as_ref(),
+            Message::ConnectedWebsite(message) => message.via_bot.as_ref(),
+            Message::WriteAccessAllowed(message) => message.via_bot.as_ref(),
+            Message::ForumTopicCreated(message) => message.via_bot.as_ref(),
+            Message::ForumTopicEdited(message) => message.via_bot.as_ref(),
+            Message::ForumTopicClosed(message) => message.via_bot.as_ref(),
+            Message::ForumTopicReopened(message) => message.via_bot.as_ref(),
+            Message::GeneralForumTopicHidden(message) => message.via_bot.as_ref(),
+            Message::GeneralForumTopicUnhidden(message) => message.via_bot.as_ref(),
+            Message::WebAppData(message) => message.via_bot.as_ref(),
+            _ => None,
         }
-        .as_ref()
     }
 
     #[must_use]
     pub const fn text(&self) -> Option<&str> {
         match self {
-            Message::Text(Text { text, .. }) => Some(text),
+            Message::Text(message) => Some(&message.text),
             _ => None,
         }
     }
@@ -1916,13 +1906,28 @@ impl Message {
     #[must_use]
     pub const fn caption(&self) -> Option<&str> {
         match self {
-            Message::Animation(Animation { caption, .. })
-            | Message::Audio(Audio { caption, .. })
-            | Message::Document(Document { caption, .. })
-            | Message::Video(Video { caption, .. })
-            | Message::Voice(Voice { caption, .. })
-            | Message::Photo(Photo { caption, .. }) => match caption {
-                Some(caption) => Some(caption),
+            Message::Animation(message) => match message.caption {
+                Some(ref caption) => Some(&caption),
+                None => None,
+            },
+            Message::Audio(message) => match message.caption {
+                Some(ref caption) => Some(&caption),
+                None => None,
+            },
+            Message::Document(message) => match message.caption {
+                Some(ref caption) => Some(&caption),
+                None => None,
+            },
+            Message::Video(message) => match message.caption {
+                Some(ref caption) => Some(&caption),
+                None => None,
+            },
+            Message::Voice(message) => match message.caption {
+                Some(ref caption) => Some(&caption),
+                None => None,
+            },
+            Message::Photo(message) => match message.caption {
+                Some(ref caption) => Some(&caption),
                 None => None,
             },
             _ => None,
@@ -1941,63 +1946,58 @@ impl Message {
     #[must_use]
     pub const fn from(&self) -> Option<&User> {
         match self {
-            Message::Text(Text { from, .. })
-            | Message::Animation(Animation { from, .. })
-            | Message::Audio(Audio { from, .. })
-            | Message::Document(Document { from, .. })
-            | Message::Photo(Photo { from, .. })
-            | Message::Sticker(Sticker { from, .. })
-            | Message::Story(Story { from, .. })
-            | Message::Video(Video { from, .. })
-            | Message::VideoNote(VideoNote { from, .. })
-            | Message::Voice(Voice { from, .. })
-            | Message::Contact(Contact { from, .. })
-            | Message::Dice(Dice { from, .. })
-            | Message::Game(Game { from, .. })
-            | Message::Poll(Poll { from, .. })
-            | Message::Venue(Venue { from, .. })
-            | Message::Location(Location { from, .. })
-            | Message::NewChatMembers(NewChatMembers { from, .. })
-            | Message::LeftChatMember(LeftChatMember { from, .. })
-            | Message::NewChatTitle(NewChatTitle { from, .. })
-            | Message::NewChatPhoto(NewChatPhoto { from, .. })
-            | Message::DeleteChatPhoto(DeleteChatPhoto { from, .. })
-            | Message::GroupChatCreated(GroupChatCreated { from, .. })
-            | Message::SupergroupChatCreated(SupergroupChatCreated { from, .. })
-            | Message::ChannelChatCreated(ChannelChatCreated { from, .. })
-            | Message::MessageAutoDeleteTimerChanged(MessageAutoDeleteTimerChanged {
-                from, ..
-            })
-            | Message::MigrateToChat(MigrateToChat { from, .. })
-            | Message::MigrateFromChat(MigrateFromChat { from, .. })
-            | Message::Pinned(Pinned { from, .. })
-            | Message::Invoice(Invoice { from, .. })
-            | Message::SuccessfulPayment(SuccessfulPayment { from, .. })
-            | Message::UsersShared(UsersShared { from, .. })
-            | Message::ChatShared(ChatShared { from, .. })
-            | Message::ConnectedWebsite(ConnectedWebsite { from, .. })
-            | Message::WriteAccessAllowed(WriteAccessAllowed { from, .. })
-            | Message::PassportData(PassportData { from, .. })
-            | Message::ProximityAlertTriggered(ProximityAlertTriggered { from, .. })
-            | Message::ForumTopicCreated(ForumTopicCreated { from, .. })
-            | Message::ForumTopicEdited(ForumTopicEdited { from, .. })
-            | Message::ForumTopicClosed(ForumTopicClosed { from, .. })
-            | Message::ForumTopicReopened(ForumTopicReopened { from, .. })
-            | Message::GeneralForumTopicHidden(GeneralForumTopicHidden { from, .. })
-            | Message::GeneralForumTopicUnhidden(GeneralForumTopicUnhidden { from, .. })
-            | Message::VideoChatScheduled(VideoChatScheduled { from, .. })
-            | Message::VideoChatStarted(VideoChatStarted { from, .. })
-            | Message::VideoChatEnded(VideoChatEnded { from, .. })
-            | Message::VideoChatParticipantsInvited(VideoChatParticipantsInvited {
-                from, ..
-            })
-            | Message::WebAppData(WebAppData { from, .. })
-            | Message::GiveawayCreated(GiveawayCreated { from, .. })
-            | Message::Giveaway(Giveaway { from, .. })
-            | Message::GiveawayWinners(GiveawayWinners { from, .. })
-            | Message::GiveawayCompleted(GiveawayCompleted { from, .. }) => from,
+            Message::Text(message) => message.from.as_ref(),
+            Message::Animation(message) => message.from.as_ref(),
+            Message::Audio(message) => message.from.as_ref(),
+            Message::Document(message) => message.from.as_ref(),
+            Message::Photo(message) => message.from.as_ref(),
+            Message::Sticker(message) => message.from.as_ref(),
+            Message::Story(message) => message.from.as_ref(),
+            Message::Video(message) => message.from.as_ref(),
+            Message::VideoNote(message) => message.from.as_ref(),
+            Message::Voice(message) => message.from.as_ref(),
+            Message::Contact(message) => message.from.as_ref(),
+            Message::Dice(message) => message.from.as_ref(),
+            Message::Game(message) => message.from.as_ref(),
+            Message::Poll(message) => message.from.as_ref(),
+            Message::Venue(message) => message.from.as_ref(),
+            Message::Location(message) => message.from.as_ref(),
+            Message::NewChatMembers(message) => message.from.as_ref(),
+            Message::LeftChatMember(message) => message.from.as_ref(),
+            Message::NewChatTitle(message) => message.from.as_ref(),
+            Message::NewChatPhoto(message) => message.from.as_ref(),
+            Message::DeleteChatPhoto(message) => message.from.as_ref(),
+            Message::GroupChatCreated(message) => message.from.as_ref(),
+            Message::SupergroupChatCreated(message) => message.from.as_ref(),
+            Message::ChannelChatCreated(message) => message.from.as_ref(),
+            Message::MessageAutoDeleteTimerChanged(message) => message.from.as_ref(),
+            Message::MigrateToChat(message) => message.from.as_ref(),
+            Message::MigrateFromChat(message) => message.from.as_ref(),
+            Message::Pinned(message) => message.from.as_ref(),
+            Message::Invoice(message) => message.from.as_ref(),
+            Message::SuccessfulPayment(message) => message.from.as_ref(),
+            Message::UsersShared(message) => message.from.as_ref(),
+            Message::ChatShared(message) => message.from.as_ref(),
+            Message::ConnectedWebsite(message) => message.from.as_ref(),
+            Message::WriteAccessAllowed(message) => message.from.as_ref(),
+            Message::PassportData(message) => message.from.as_ref(),
+            Message::ProximityAlertTriggered(message) => message.from.as_ref(),
+            Message::ForumTopicCreated(message) => message.from.as_ref(),
+            Message::ForumTopicEdited(message) => message.from.as_ref(),
+            Message::ForumTopicClosed(message) => message.from.as_ref(),
+            Message::ForumTopicReopened(message) => message.from.as_ref(),
+            Message::GeneralForumTopicHidden(message) => message.from.as_ref(),
+            Message::GeneralForumTopicUnhidden(message) => message.from.as_ref(),
+            Message::VideoChatScheduled(message) => message.from.as_ref(),
+            Message::VideoChatStarted(message) => message.from.as_ref(),
+            Message::VideoChatEnded(message) => message.from.as_ref(),
+            Message::VideoChatParticipantsInvited(message) => message.from.as_ref(),
+            Message::WebAppData(message) => message.from.as_ref(),
+            Message::GiveawayCreated(message) => message.from.as_ref(),
+            Message::Giveaway(message) => message.from.as_ref(),
+            Message::GiveawayWinners(message) => message.from.as_ref(),
+            Message::GiveawayCompleted(message) => message.from.as_ref(),
         }
-        .as_ref()
     }
 
     #[must_use]
@@ -2011,67 +2011,58 @@ impl Message {
     #[must_use]
     pub const fn sender_chat(&self) -> Option<&Chat> {
         match self {
-            Message::Text(Text { sender_chat, .. })
-            | Message::Animation(Animation { sender_chat, .. })
-            | Message::Audio(Audio { sender_chat, .. })
-            | Message::Document(Document { sender_chat, .. })
-            | Message::Photo(Photo { sender_chat, .. })
-            | Message::Sticker(Sticker { sender_chat, .. })
-            | Message::Story(Story { sender_chat, .. })
-            | Message::Video(Video { sender_chat, .. })
-            | Message::VideoNote(VideoNote { sender_chat, .. })
-            | Message::Voice(Voice { sender_chat, .. })
-            | Message::Contact(Contact { sender_chat, .. })
-            | Message::Dice(Dice { sender_chat, .. })
-            | Message::Game(Game { sender_chat, .. })
-            | Message::Poll(Poll { sender_chat, .. })
-            | Message::Venue(Venue { sender_chat, .. })
-            | Message::Location(Location { sender_chat, .. })
-            | Message::NewChatMembers(NewChatMembers { sender_chat, .. })
-            | Message::LeftChatMember(LeftChatMember { sender_chat, .. })
-            | Message::NewChatTitle(NewChatTitle { sender_chat, .. })
-            | Message::NewChatPhoto(NewChatPhoto { sender_chat, .. })
-            | Message::DeleteChatPhoto(DeleteChatPhoto { sender_chat, .. })
-            | Message::GroupChatCreated(GroupChatCreated { sender_chat, .. })
-            | Message::SupergroupChatCreated(SupergroupChatCreated { sender_chat, .. })
-            | Message::ChannelChatCreated(ChannelChatCreated { sender_chat, .. })
-            | Message::MessageAutoDeleteTimerChanged(MessageAutoDeleteTimerChanged {
-                sender_chat,
-                ..
-            })
-            | Message::MigrateToChat(MigrateToChat { sender_chat, .. })
-            | Message::MigrateFromChat(MigrateFromChat { sender_chat, .. })
-            | Message::Pinned(Pinned { sender_chat, .. })
-            | Message::Invoice(Invoice { sender_chat, .. })
-            | Message::SuccessfulPayment(SuccessfulPayment { sender_chat, .. })
-            | Message::UsersShared(UsersShared { sender_chat, .. })
-            | Message::ChatShared(ChatShared { sender_chat, .. })
-            | Message::ConnectedWebsite(ConnectedWebsite { sender_chat, .. })
-            | Message::WriteAccessAllowed(WriteAccessAllowed { sender_chat, .. })
-            | Message::PassportData(PassportData { sender_chat, .. })
-            | Message::ProximityAlertTriggered(ProximityAlertTriggered { sender_chat, .. })
-            | Message::ForumTopicCreated(ForumTopicCreated { sender_chat, .. })
-            | Message::ForumTopicEdited(ForumTopicEdited { sender_chat, .. })
-            | Message::ForumTopicClosed(ForumTopicClosed { sender_chat, .. })
-            | Message::ForumTopicReopened(ForumTopicReopened { sender_chat, .. })
-            | Message::GeneralForumTopicHidden(GeneralForumTopicHidden { sender_chat, .. })
-            | Message::GeneralForumTopicUnhidden(GeneralForumTopicUnhidden {
-                sender_chat, ..
-            })
-            | Message::VideoChatScheduled(VideoChatScheduled { sender_chat, .. })
-            | Message::VideoChatStarted(VideoChatStarted { sender_chat, .. })
-            | Message::VideoChatEnded(VideoChatEnded { sender_chat, .. })
-            | Message::VideoChatParticipantsInvited(VideoChatParticipantsInvited {
-                sender_chat,
-                ..
-            })
-            | Message::WebAppData(WebAppData { sender_chat, .. })
-            | Message::GiveawayCreated(GiveawayCreated { sender_chat, .. })
-            | Message::Giveaway(Giveaway { sender_chat, .. })
-            | Message::GiveawayWinners(GiveawayWinners { sender_chat, .. })
-            | Message::GiveawayCompleted(GiveawayCompleted { sender_chat, .. }) => sender_chat,
+            Message::Text(message) => message.sender_chat.as_ref(),
+            Message::Animation(message) => message.sender_chat.as_ref(),
+            Message::Audio(message) => message.sender_chat.as_ref(),
+            Message::Document(message) => message.sender_chat.as_ref(),
+            Message::Photo(message) => message.sender_chat.as_ref(),
+            Message::Sticker(message) => message.sender_chat.as_ref(),
+            Message::Story(message) => message.sender_chat.as_ref(),
+            Message::Video(message) => message.sender_chat.as_ref(),
+            Message::VideoNote(message) => message.sender_chat.as_ref(),
+            Message::Voice(message) => message.sender_chat.as_ref(),
+            Message::Contact(message) => message.sender_chat.as_ref(),
+            Message::Dice(message) => message.sender_chat.as_ref(),
+            Message::Game(message) => message.sender_chat.as_ref(),
+            Message::Poll(message) => message.sender_chat.as_ref(),
+            Message::Venue(message) => message.sender_chat.as_ref(),
+            Message::Location(message) => message.sender_chat.as_ref(),
+            Message::NewChatMembers(message) => message.sender_chat.as_ref(),
+            Message::LeftChatMember(message) => message.sender_chat.as_ref(),
+            Message::NewChatTitle(message) => message.sender_chat.as_ref(),
+            Message::NewChatPhoto(message) => message.sender_chat.as_ref(),
+            Message::DeleteChatPhoto(message) => message.sender_chat.as_ref(),
+            Message::GroupChatCreated(message) => message.sender_chat.as_ref(),
+            Message::SupergroupChatCreated(message) => message.sender_chat.as_ref(),
+            Message::ChannelChatCreated(message) => message.sender_chat.as_ref(),
+            Message::MessageAutoDeleteTimerChanged(message) => message.sender_chat.as_ref(),
+            Message::MigrateToChat(message) => message.sender_chat.as_ref(),
+            Message::MigrateFromChat(message) => message.sender_chat.as_ref(),
+            Message::Pinned(message) => message.sender_chat.as_ref(),
+            Message::Invoice(message) => message.sender_chat.as_ref(),
+            Message::SuccessfulPayment(message) => message.sender_chat.as_ref(),
+            Message::UsersShared(message) => message.sender_chat.as_ref(),
+            Message::ChatShared(message) => message.sender_chat.as_ref(),
+            Message::ConnectedWebsite(message) => message.sender_chat.as_ref(),
+            Message::WriteAccessAllowed(message) => message.sender_chat.as_ref(),
+            Message::PassportData(message) => message.sender_chat.as_ref(),
+            Message::ProximityAlertTriggered(message) => message.sender_chat.as_ref(),
+            Message::ForumTopicCreated(message) => message.sender_chat.as_ref(),
+            Message::ForumTopicEdited(message) => message.sender_chat.as_ref(),
+            Message::ForumTopicClosed(message) => message.sender_chat.as_ref(),
+            Message::ForumTopicReopened(message) => message.sender_chat.as_ref(),
+            Message::GeneralForumTopicHidden(message) => message.sender_chat.as_ref(),
+            Message::GeneralForumTopicUnhidden(message) => message.sender_chat.as_ref(),
+            Message::VideoChatScheduled(message) => message.sender_chat.as_ref(),
+            Message::VideoChatStarted(message) => message.sender_chat.as_ref(),
+            Message::VideoChatEnded(message) => message.sender_chat.as_ref(),
+            Message::VideoChatParticipantsInvited(message) => message.sender_chat.as_ref(),
+            Message::WebAppData(message) => message.sender_chat.as_ref(),
+            Message::GiveawayCreated(message) => message.sender_chat.as_ref(),
+            Message::Giveaway(message) => message.sender_chat.as_ref(),
+            Message::GiveawayWinners(message) => message.sender_chat.as_ref(),
+            Message::GiveawayCompleted(message) => message.sender_chat.as_ref(),
         }
-        .as_ref()
     }
 
     #[must_use]
@@ -2085,64 +2076,80 @@ impl Message {
     #[must_use]
     pub const fn author_signature(&self) -> Option<&str> {
         match self {
-            Message::Text(Text {
-                author_signature, ..
-            })
-            | Message::Animation(Animation {
-                author_signature, ..
-            })
-            | Message::Audio(Audio {
-                author_signature, ..
-            })
-            | Message::Document(Document {
-                author_signature, ..
-            })
-            | Message::Photo(Photo {
-                author_signature, ..
-            })
-            | Message::Sticker(Sticker {
-                author_signature, ..
-            })
-            | Message::Story(Story {
-                author_signature, ..
-            })
-            | Message::Video(Video {
-                author_signature, ..
-            })
-            | Message::VideoNote(VideoNote {
-                author_signature, ..
-            })
-            | Message::Voice(Voice {
-                author_signature, ..
-            })
-            | Message::Contact(Contact {
-                author_signature, ..
-            })
-            | Message::Dice(Dice {
-                author_signature, ..
-            })
-            | Message::Game(Game {
-                author_signature, ..
-            })
-            | Message::Poll(Poll {
-                author_signature, ..
-            })
-            | Message::Venue(Venue {
-                author_signature, ..
-            })
-            | Message::Location(Location {
-                author_signature, ..
-            })
-            | Message::PassportData(PassportData {
-                author_signature, ..
-            })
-            | Message::WebAppData(WebAppData {
-                author_signature, ..
-            })
-            | Message::Invoice(Invoice {
-                author_signature, ..
-            }) => match author_signature {
-                Some(author_signature) => Some(author_signature),
+            Message::Text(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
+                None => None,
+            },
+            Message::Animation(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
+                None => None,
+            },
+            Message::Audio(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
+                None => None,
+            },
+            Message::Document(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
+                None => None,
+            },
+            Message::Photo(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
+                None => None,
+            },
+            Message::Sticker(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
+                None => None,
+            },
+            Message::Story(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
+                None => None,
+            },
+            Message::Video(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
+                None => None,
+            },
+            Message::VideoNote(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
+                None => None,
+            },
+            Message::Voice(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
+                None => None,
+            },
+            Message::Contact(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
+                None => None,
+            },
+            Message::Dice(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
+                None => None,
+            },
+            Message::Game(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
+                None => None,
+            },
+            Message::Poll(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
+                None => None,
+            },
+            Message::Venue(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
+                None => None,
+            },
+            Message::Location(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
+                None => None,
+            },
+            Message::PassportData(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
+                None => None,
+            },
+            Message::WebAppData(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
+                None => None,
+            },
+            Message::Invoice(message) => match message.author_signature {
+                Some(ref author_signature) => Some(&author_signature),
                 None => None,
             },
             _ => None,
@@ -2152,80 +2159,100 @@ impl Message {
     #[must_use]
     pub const fn reply_to_message(&self) -> Option<&Message> {
         match self {
-            Message::Text(Text {
-                reply_to_message, ..
-            })
-            | Message::Animation(Animation {
-                reply_to_message, ..
-            })
-            | Message::Audio(Audio {
-                reply_to_message, ..
-            })
-            | Message::Document(Document {
-                reply_to_message, ..
-            })
-            | Message::Photo(Photo {
-                reply_to_message, ..
-            })
-            | Message::Sticker(Sticker {
-                reply_to_message, ..
-            })
-            | Message::Video(Video {
-                reply_to_message, ..
-            })
-            | Message::VideoNote(VideoNote {
-                reply_to_message, ..
-            })
-            | Message::Voice(Voice {
-                reply_to_message, ..
-            })
-            | Message::Contact(Contact {
-                reply_to_message, ..
-            })
-            | Message::Dice(Dice {
-                reply_to_message, ..
-            })
-            | Message::Game(Game {
-                reply_to_message, ..
-            })
-            | Message::Poll(Poll {
-                reply_to_message, ..
-            })
-            | Message::Venue(Venue {
-                reply_to_message, ..
-            })
-            | Message::Location(Location {
-                reply_to_message, ..
-            })
-            | Message::Pinned(Pinned {
-                reply_to_message, ..
-            })
-            | Message::Invoice(Invoice {
-                reply_to_message, ..
-            })
-            | Message::SuccessfulPayment(SuccessfulPayment {
-                reply_to_message, ..
-            })
-            | Message::ForumTopicCreated(ForumTopicCreated {
-                reply_to_message, ..
-            })
-            | Message::ForumTopicEdited(ForumTopicEdited {
-                reply_to_message, ..
-            })
-            | Message::ForumTopicClosed(ForumTopicClosed {
-                reply_to_message, ..
-            })
-            | Message::ForumTopicReopened(ForumTopicReopened {
-                reply_to_message, ..
-            })
-            | Message::GeneralForumTopicHidden(GeneralForumTopicHidden {
-                reply_to_message, ..
-            })
-            | Message::GeneralForumTopicUnhidden(GeneralForumTopicUnhidden {
-                reply_to_message,
-                ..
-            }) => match reply_to_message {
-                Some(reply_to_message) => Some(reply_to_message),
+            Message::Text(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::Animation(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::Audio(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::Document(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::Photo(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::Sticker(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::Video(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::VideoNote(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::Voice(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::Contact(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::Dice(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::Game(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::Poll(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::Venue(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::Location(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::Pinned(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::Invoice(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::SuccessfulPayment(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::ForumTopicCreated(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::ForumTopicEdited(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::ForumTopicClosed(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::ForumTopicReopened(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::GeneralForumTopicHidden(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
+                None => None,
+            },
+            Message::GeneralForumTopicUnhidden(message) => match message.reply_to_message {
+                Some(ref reply_to_message) => Some(&reply_to_message),
                 None => None,
             },
             _ => None,
@@ -2235,28 +2262,25 @@ impl Message {
     #[must_use]
     pub const fn external_reply(&self) -> Option<&ExternalReplyInfo> {
         match self {
-            Message::Text(Text { external_reply, .. })
-            | Message::Animation(Animation { external_reply, .. })
-            | Message::Audio(Audio { external_reply, .. })
-            | Message::Document(Document { external_reply, .. })
-            | Message::Photo(Photo { external_reply, .. })
-            | Message::Sticker(Sticker { external_reply, .. })
-            | Message::Story(Story { external_reply, .. })
-            | Message::Video(Video { external_reply, .. })
-            | Message::VideoNote(VideoNote { external_reply, .. })
-            | Message::Voice(Voice { external_reply, .. })
-            | Message::Contact(Contact { external_reply, .. })
-            | Message::Dice(Dice { external_reply, .. })
-            | Message::Game(Game { external_reply, .. })
-            | Message::Giveaway(Giveaway { external_reply, .. })
-            | Message::GiveawayWinners(GiveawayWinners { external_reply, .. })
-            | Message::Poll(Poll { external_reply, .. })
-            | Message::Venue(Venue { external_reply, .. })
-            | Message::Location(Location { external_reply, .. })
-            | Message::Invoice(Invoice { external_reply, .. }) => match external_reply {
-                Some(external_reply) => Some(external_reply),
-                None => None,
-            },
+            Message::Text(message) => message.external_reply.as_ref(),
+            Message::Animation(message) => message.external_reply.as_ref(),
+            Message::Audio(message) => message.external_reply.as_ref(),
+            Message::Document(message) => message.external_reply.as_ref(),
+            Message::Photo(message) => message.external_reply.as_ref(),
+            Message::Sticker(message) => message.external_reply.as_ref(),
+            Message::Story(message) => message.external_reply.as_ref(),
+            Message::Video(message) => message.external_reply.as_ref(),
+            Message::VideoNote(message) => message.external_reply.as_ref(),
+            Message::Voice(message) => message.external_reply.as_ref(),
+            Message::Contact(message) => message.external_reply.as_ref(),
+            Message::Dice(message) => message.external_reply.as_ref(),
+            Message::Game(message) => message.external_reply.as_ref(),
+            Message::Giveaway(message) => message.external_reply.as_ref(),
+            Message::GiveawayWinners(message) => message.external_reply.as_ref(),
+            Message::Poll(message) => message.external_reply.as_ref(),
+            Message::Venue(message) => message.external_reply.as_ref(),
+            Message::Location(message) => message.external_reply.as_ref(),
+            Message::Invoice(message) => message.external_reply.as_ref(),
             _ => None,
         }
     }
@@ -2264,91 +2288,66 @@ impl Message {
     #[must_use]
     pub const fn quote(&self) -> Option<&TextQuote> {
         match self {
-            Message::Text(Text { quote, .. })
-            | Message::Animation(Animation { quote, .. })
-            | Message::Audio(Audio { quote, .. })
-            | Message::Document(Document { quote, .. })
-            | Message::Video(Video { quote, .. })
-            | Message::Voice(Voice { quote, .. })
-            | Message::Photo(Photo { quote, .. }) => match quote {
-                Some(quote) => Some(quote),
-                None => None,
-            },
+            Message::Text(message) => message.quote.as_ref(),
+            Message::Animation(message) => message.quote.as_ref(),
+            Message::Audio(message) => message.quote.as_ref(),
+            Message::Document(message) => message.quote.as_ref(),
+            Message::Video(message) => message.quote.as_ref(),
+            Message::Voice(message) => message.quote.as_ref(),
+            Message::Photo(message) => message.quote.as_ref(),
             _ => None,
         }
     }
 
     #[must_use]
     pub const fn edit_date(&self) -> Option<i64> {
-        *match self {
-            Message::Text(Text { edit_date, .. })
-            | Message::Animation(Animation { edit_date, .. })
-            | Message::Audio(Audio { edit_date, .. })
-            | Message::Document(Document { edit_date, .. })
-            | Message::Photo(Photo { edit_date, .. })
-            | Message::Video(Video { edit_date, .. })
-            | Message::Game(Game { edit_date, .. })
-            | Message::Poll(Poll { edit_date, .. })
-            | Message::Venue(Venue { edit_date, .. })
-            | Message::Location(Location { edit_date, .. }) => edit_date,
-            _ => &None,
+        match self {
+            Message::Text(message) => message.edit_date,
+            Message::Animation(message) => message.edit_date,
+            Message::Audio(message) => message.edit_date,
+            Message::Document(message) => message.edit_date,
+            Message::Photo(message) => message.edit_date,
+            Message::Video(message) => message.edit_date,
+            Message::Game(message) => message.edit_date,
+            Message::Poll(message) => message.edit_date,
+            Message::Venue(message) => message.edit_date,
+            Message::Location(message) => message.edit_date,
+            _ => None,
         }
     }
 
     #[must_use]
     pub const fn reply_markup(&self) -> Option<&InlineKeyboardMarkup> {
         match self {
-            Message::Text(Text { reply_markup, .. })
-            | Message::Animation(Animation { reply_markup, .. })
-            | Message::Audio(Audio { reply_markup, .. })
-            | Message::Document(Document { reply_markup, .. })
-            | Message::Photo(Photo { reply_markup, .. })
-            | Message::Video(Video { reply_markup, .. })
-            | Message::VideoNote(VideoNote { reply_markup, .. })
-            | Message::Voice(Voice { reply_markup, .. })
-            | Message::Contact(Contact { reply_markup, .. })
-            | Message::Dice(Dice { reply_markup, .. })
-            | Message::Game(Game { reply_markup, .. })
-            | Message::Poll(Poll { reply_markup, .. })
-            | Message::Venue(Venue { reply_markup, .. })
-            | Message::Location(Location { reply_markup, .. })
-            | Message::Invoice(Invoice { reply_markup, .. }) => reply_markup,
-            _ => &None,
+            Message::Text(message) => message.reply_markup.as_ref(),
+            Message::Animation(message) => message.reply_markup.as_ref(),
+            Message::Audio(message) => message.reply_markup.as_ref(),
+            Message::Document(message) => message.reply_markup.as_ref(),
+            Message::Photo(message) => message.reply_markup.as_ref(),
+            Message::Video(message) => message.reply_markup.as_ref(),
+            Message::VideoNote(message) => message.reply_markup.as_ref(),
+            Message::Voice(message) => message.reply_markup.as_ref(),
+            Message::Contact(message) => message.reply_markup.as_ref(),
+            Message::Dice(message) => message.reply_markup.as_ref(),
+            Message::Game(message) => message.reply_markup.as_ref(),
+            Message::Poll(message) => message.reply_markup.as_ref(),
+            Message::Venue(message) => message.reply_markup.as_ref(),
+            Message::Location(message) => message.reply_markup.as_ref(),
+            Message::Invoice(message) => message.reply_markup.as_ref(),
+            _ => None,
         }
-        .as_ref()
     }
 
     #[must_use]
     pub const fn is_automatic_forward(&self) -> Option<bool> {
         match self {
-            Message::Text(Text {
-                is_automatic_forward,
-                ..
-            })
-            | Message::Animation(Animation {
-                is_automatic_forward,
-                ..
-            })
-            | Message::Audio(Audio {
-                is_automatic_forward,
-                ..
-            })
-            | Message::Document(Document {
-                is_automatic_forward,
-                ..
-            })
-            | Message::Video(Video {
-                is_automatic_forward,
-                ..
-            })
-            | Message::Voice(Voice {
-                is_automatic_forward,
-                ..
-            })
-            | Message::Photo(Photo {
-                is_automatic_forward,
-                ..
-            }) => *is_automatic_forward,
+            Message::Text(message) => message.is_automatic_forward,
+            Message::Animation(message) => message.is_automatic_forward,
+            Message::Audio(message) => message.is_automatic_forward,
+            Message::Document(message) => message.is_automatic_forward,
+            Message::Video(message) => message.is_automatic_forward,
+            Message::Voice(message) => message.is_automatic_forward,
+            Message::Photo(message) => message.is_automatic_forward,
             _ => None,
         }
     }
@@ -2356,34 +2355,13 @@ impl Message {
     #[must_use]
     pub const fn has_protected_content(&self) -> Option<bool> {
         match self {
-            Message::Text(Text {
-                has_protected_content,
-                ..
-            })
-            | Message::Animation(Animation {
-                has_protected_content,
-                ..
-            })
-            | Message::Audio(Audio {
-                has_protected_content,
-                ..
-            })
-            | Message::Document(Document {
-                has_protected_content,
-                ..
-            })
-            | Message::Video(Video {
-                has_protected_content,
-                ..
-            })
-            | Message::Voice(Voice {
-                has_protected_content,
-                ..
-            })
-            | Message::Photo(Photo {
-                has_protected_content,
-                ..
-            }) => *has_protected_content,
+            Message::Text(message) => message.has_protected_content,
+            Message::Animation(message) => message.has_protected_content,
+            Message::Audio(message) => message.has_protected_content,
+            Message::Document(message) => message.has_protected_content,
+            Message::Video(message) => message.has_protected_content,
+            Message::Voice(message) => message.has_protected_content,
+            Message::Photo(message) => message.has_protected_content,
             _ => None,
         }
     }
@@ -2391,34 +2369,33 @@ impl Message {
     #[must_use]
     pub const fn forward_origin(&self) -> Option<&MessageOrigin> {
         match self {
-            Message::Text(Text { forward_origin, .. })
-            | Message::Animation(Animation { forward_origin, .. })
-            | Message::Audio(Audio { forward_origin, .. })
-            | Message::Document(Document { forward_origin, .. })
-            | Message::Photo(Photo { forward_origin, .. })
-            | Message::Sticker(Sticker { forward_origin, .. })
-            | Message::Story(Story { forward_origin, .. })
-            | Message::Video(Video { forward_origin, .. })
-            | Message::VideoNote(VideoNote { forward_origin, .. })
-            | Message::Voice(Voice { forward_origin, .. })
-            | Message::Contact(Contact { forward_origin, .. })
-            | Message::Dice(Dice { forward_origin, .. })
-            | Message::Game(Game { forward_origin, .. })
-            | Message::Poll(Poll { forward_origin, .. })
-            | Message::Venue(Venue { forward_origin, .. })
-            | Message::Location(Location { forward_origin, .. })
-            | Message::Invoice(Invoice { forward_origin, .. })
-            | Message::SuccessfulPayment(SuccessfulPayment { forward_origin, .. })
-            | Message::ConnectedWebsite(ConnectedWebsite { forward_origin, .. }) => forward_origin,
-            _ => &None,
+            Message::Text(message) => message.forward_origin.as_ref(),
+            Message::Animation(message) => message.forward_origin.as_ref(),
+            Message::Audio(message) => message.forward_origin.as_ref(),
+            Message::Document(message) => message.forward_origin.as_ref(),
+            Message::Photo(message) => message.forward_origin.as_ref(),
+            Message::Sticker(message) => message.forward_origin.as_ref(),
+            Message::Story(message) => message.forward_origin.as_ref(),
+            Message::Video(message) => message.forward_origin.as_ref(),
+            Message::VideoNote(message) => message.forward_origin.as_ref(),
+            Message::Voice(message) => message.forward_origin.as_ref(),
+            Message::Contact(message) => message.forward_origin.as_ref(),
+            Message::Dice(message) => message.forward_origin.as_ref(),
+            Message::Game(message) => message.forward_origin.as_ref(),
+            Message::Poll(message) => message.forward_origin.as_ref(),
+            Message::Venue(message) => message.forward_origin.as_ref(),
+            Message::Location(message) => message.forward_origin.as_ref(),
+            Message::Invoice(message) => message.forward_origin.as_ref(),
+            Message::SuccessfulPayment(message) => message.forward_origin.as_ref(),
+            Message::ConnectedWebsite(message) => message.forward_origin.as_ref(),
+            _ => None,
         }
-        .as_ref()
     }
 
     #[must_use]
     pub const fn animation(&self) -> Option<&types::Animation> {
         match self {
-            Message::Animation(Animation { animation, .. }) => Some(animation),
+            Message::Animation(message) => Some(&message.animation),
             _ => None,
         }
     }
@@ -2426,7 +2403,7 @@ impl Message {
     #[must_use]
     pub const fn audio(&self) -> Option<&types::Audio> {
         match self {
-            Message::Audio(Audio { audio, .. }) => Some(audio),
+            Message::Audio(message) => Some(&message.audio),
             _ => None,
         }
     }
@@ -2434,7 +2411,7 @@ impl Message {
     #[must_use]
     pub const fn contact(&self) -> Option<&types::Contact> {
         match self {
-            Message::Contact(Contact { contact, .. }) => Some(contact),
+            Message::Contact(message) => Some(&message.contact),
             _ => None,
         }
     }
@@ -2442,7 +2419,7 @@ impl Message {
     #[must_use]
     pub const fn dice(&self) -> Option<&types::Dice> {
         match self {
-            Message::Dice(Dice { dice, .. }) => Some(dice),
+            Message::Dice(message) => Some(&message.dice),
             _ => None,
         }
     }
@@ -2450,7 +2427,7 @@ impl Message {
     #[must_use]
     pub const fn document(&self) -> Option<&types::Document> {
         match self {
-            Message::Document(Document { document, .. }) => Some(document),
+            Message::Document(message) => Some(&message.document),
             _ => None,
         }
     }
@@ -2458,7 +2435,7 @@ impl Message {
     #[must_use]
     pub const fn game(&self) -> Option<&types::Game> {
         match self {
-            Message::Game(Game { game, .. }) => Some(game),
+            Message::Game(message) => Some(&message.game),
             _ => None,
         }
     }
@@ -2466,7 +2443,7 @@ impl Message {
     #[must_use]
     pub const fn poll(&self) -> Option<&types::Poll> {
         match self {
-            Message::Poll(Poll { poll, .. }) => Some(poll),
+            Message::Poll(message) => Some(&message.poll),
             _ => None,
         }
     }
@@ -2474,7 +2451,7 @@ impl Message {
     #[must_use]
     pub const fn venue(&self) -> Option<&types::Venue> {
         match self {
-            Message::Venue(Venue { venue, .. }) => Some(venue),
+            Message::Venue(message) => Some(&message.venue),
             _ => None,
         }
     }
@@ -2482,7 +2459,7 @@ impl Message {
     #[must_use]
     pub const fn location(&self) -> Option<&types::Location> {
         match self {
-            Message::Location(Location { location, .. }) => Some(location),
+            Message::Location(message) => Some(&message.location),
             _ => None,
         }
     }
@@ -2490,7 +2467,7 @@ impl Message {
     #[must_use]
     pub const fn new_chat_members(&self) -> Option<&[User]> {
         match self {
-            Message::NewChatMembers(NewChatMembers { members, .. }) => Some(members),
+            Message::NewChatMembers(message) => Some(&message.members),
             _ => None,
         }
     }
@@ -2498,7 +2475,7 @@ impl Message {
     #[must_use]
     pub const fn left_chat_member(&self) -> Option<&User> {
         match self {
-            Message::LeftChatMember(LeftChatMember { member, .. }) => Some(member),
+            Message::LeftChatMember(message) => Some(&message.member),
             _ => None,
         }
     }
@@ -2506,7 +2483,7 @@ impl Message {
     #[must_use]
     pub const fn new_chat_title(&self) -> Option<&str> {
         match self {
-            Message::NewChatTitle(NewChatTitle { title, .. }) => Some(title),
+            Message::NewChatTitle(message) => Some(&message.title),
             _ => None,
         }
     }
@@ -2514,7 +2491,7 @@ impl Message {
     #[must_use]
     pub const fn new_chat_photo(&self) -> Option<&[PhotoSize]> {
         match self {
-            Message::NewChatPhoto(NewChatPhoto { photo, .. }) => Some(photo),
+            Message::NewChatPhoto(message) => Some(&message.photo),
             _ => None,
         }
     }
@@ -2522,7 +2499,7 @@ impl Message {
     #[must_use]
     pub const fn delete_chat_photo(&self) -> Option<bool> {
         match self {
-            Message::DeleteChatPhoto(DeleteChatPhoto { photo, .. }) => Some(*photo),
+            Message::DeleteChatPhoto(message) => Some(message.photo),
             _ => None,
         }
     }
@@ -2530,7 +2507,7 @@ impl Message {
     #[must_use]
     pub const fn group_chat_created(&self) -> Option<bool> {
         match self {
-            Message::GroupChatCreated(GroupChatCreated { created, .. }) => Some(*created),
+            Message::GroupChatCreated(message) => Some(message.created),
             _ => None,
         }
     }
@@ -2538,7 +2515,7 @@ impl Message {
     #[must_use]
     pub const fn supergroup_chat_created(&self) -> Option<bool> {
         match self {
-            Message::SupergroupChatCreated(SupergroupChatCreated { created, .. }) => Some(*created),
+            Message::SupergroupChatCreated(message) => Some(message.created),
             _ => None,
         }
     }
@@ -2546,7 +2523,7 @@ impl Message {
     #[must_use]
     pub const fn channel_chat_created(&self) -> Option<bool> {
         match self {
-            Message::ChannelChatCreated(ChannelChatCreated { created, .. }) => Some(*created),
+            Message::ChannelChatCreated(message) => Some(message.created),
             _ => None,
         }
     }
@@ -2556,9 +2533,7 @@ impl Message {
         &self,
     ) -> Option<&types::MessageAutoDeleteTimerChanged> {
         match self {
-            Message::MessageAutoDeleteTimerChanged(MessageAutoDeleteTimerChanged {
-                timer, ..
-            }) => Some(timer),
+            Message::MessageAutoDeleteTimerChanged(message) => Some(&message.timer),
             _ => None,
         }
     }
@@ -2566,7 +2541,7 @@ impl Message {
     #[must_use]
     pub const fn pinned(&self) -> Option<&MaybeInaccessibleMessage> {
         match self {
-            Message::Pinned(Pinned { message, .. }) => Some(message),
+            Message::Pinned(message) => Some(&message.message),
             _ => None,
         }
     }
@@ -2574,7 +2549,7 @@ impl Message {
     #[must_use]
     pub const fn invoice(&self) -> Option<&types::Invoice> {
         match self {
-            Message::Invoice(Invoice { invoice, .. }) => Some(invoice),
+            Message::Invoice(message) => Some(&message.invoice),
             _ => None,
         }
     }
@@ -2582,7 +2557,7 @@ impl Message {
     #[must_use]
     pub const fn successful_payment(&self) -> Option<&types::SuccessfulPayment> {
         match self {
-            Message::SuccessfulPayment(SuccessfulPayment { payment, .. }) => Some(payment),
+            Message::SuccessfulPayment(message) => Some(&message.payment),
             _ => None,
         }
     }
@@ -2590,7 +2565,7 @@ impl Message {
     #[must_use]
     pub const fn users_shared(&self) -> Option<&types::UsersShared> {
         match self {
-            Message::UsersShared(UsersShared { shared, .. }) => Some(shared),
+            Message::UsersShared(message) => Some(&message.shared),
             _ => None,
         }
     }
@@ -2598,7 +2573,7 @@ impl Message {
     #[must_use]
     pub const fn chat_shared(&self) -> Option<&types::ChatShared> {
         match self {
-            Message::ChatShared(ChatShared { shared, .. }) => Some(shared),
+            Message::ChatShared(message) => Some(&message.shared),
             _ => None,
         }
     }
@@ -2606,7 +2581,7 @@ impl Message {
     #[must_use]
     pub const fn connected_website(&self) -> Option<&str> {
         match self {
-            Message::ConnectedWebsite(ConnectedWebsite { website, .. }) => Some(website),
+            Message::ConnectedWebsite(message) => Some(&message.website),
             _ => None,
         }
     }
@@ -2614,7 +2589,7 @@ impl Message {
     #[must_use]
     pub const fn write_access_allowed(&self) -> Option<&types::WriteAccessAllowed> {
         match self {
-            Message::WriteAccessAllowed(WriteAccessAllowed { allowed, .. }) => Some(allowed),
+            Message::WriteAccessAllowed(message) => Some(&message.allowed),
             _ => None,
         }
     }
@@ -2622,7 +2597,7 @@ impl Message {
     #[must_use]
     pub const fn passport_data(&self) -> Option<&types::PassportData> {
         match self {
-            Message::PassportData(PassportData { data, .. }) => Some(data),
+            Message::PassportData(message) => Some(&message.data),
             _ => None,
         }
     }
@@ -2630,9 +2605,7 @@ impl Message {
     #[must_use]
     pub const fn proximity_alert_triggered(&self) -> Option<&types::ProximityAlertTriggered> {
         match self {
-            Message::ProximityAlertTriggered(ProximityAlertTriggered { triggered, .. }) => {
-                Some(triggered)
-            }
+            Message::ProximityAlertTriggered(message) => Some(&message.triggered),
             _ => None,
         }
     }
@@ -2640,7 +2613,7 @@ impl Message {
     #[must_use]
     pub const fn forum_topic_created(&self) -> Option<&types::ForumTopicCreated> {
         match self {
-            Message::ForumTopicCreated(ForumTopicCreated { created, .. }) => Some(created),
+            Message::ForumTopicCreated(message) => Some(&message.created),
             _ => None,
         }
     }
@@ -2648,7 +2621,7 @@ impl Message {
     #[must_use]
     pub const fn forum_topic_edited(&self) -> Option<&types::ForumTopicEdited> {
         match self {
-            Message::ForumTopicEdited(ForumTopicEdited { edited, .. }) => Some(edited),
+            Message::ForumTopicEdited(message) => Some(&message.edited),
             _ => None,
         }
     }
@@ -2656,7 +2629,7 @@ impl Message {
     #[must_use]
     pub const fn forum_topic_closed(&self) -> Option<&types::ForumTopicClosed> {
         match self {
-            Message::ForumTopicClosed(ForumTopicClosed { closed, .. }) => Some(closed),
+            Message::ForumTopicClosed(message) => Some(&message.closed),
             _ => None,
         }
     }
@@ -2664,7 +2637,7 @@ impl Message {
     #[must_use]
     pub const fn forum_topic_reopened(&self) -> Option<&types::ForumTopicReopened> {
         match self {
-            Message::ForumTopicReopened(ForumTopicReopened { reopened, .. }) => Some(reopened),
+            Message::ForumTopicReopened(message) => Some(&message.reopened),
             _ => None,
         }
     }
@@ -2672,9 +2645,7 @@ impl Message {
     #[must_use]
     pub const fn general_forum_topic_hidden(&self) -> Option<&types::GeneralForumTopicHidden> {
         match self {
-            Message::GeneralForumTopicHidden(GeneralForumTopicHidden { hidden, .. }) => {
-                Some(hidden)
-            }
+            Message::GeneralForumTopicHidden(message) => Some(&message.hidden),
             _ => None,
         }
     }
@@ -2682,9 +2653,7 @@ impl Message {
     #[must_use]
     pub const fn general_forum_topic_unhidden(&self) -> Option<&types::GeneralForumTopicUnhidden> {
         match self {
-            Message::GeneralForumTopicUnhidden(GeneralForumTopicUnhidden { unhidden, .. }) => {
-                Some(unhidden)
-            }
+            Message::GeneralForumTopicUnhidden(message) => Some(&message.unhidden),
             _ => None,
         }
     }
@@ -2692,7 +2661,7 @@ impl Message {
     #[must_use]
     pub const fn giveaway_created(&self) -> Option<&types::GiveawayCreated> {
         match self {
-            Message::GiveawayCreated(GiveawayCreated { created, .. }) => Some(created),
+            Message::GiveawayCreated(message) => Some(&message.created),
             _ => None,
         }
     }
@@ -2700,7 +2669,7 @@ impl Message {
     #[must_use]
     pub const fn giveaway(&self) -> Option<&types::Giveaway> {
         match self {
-            Message::Giveaway(Giveaway { giveaway, .. }) => Some(giveaway),
+            Message::Giveaway(message) => Some(&message.giveaway),
             _ => None,
         }
     }
@@ -2708,7 +2677,7 @@ impl Message {
     #[must_use]
     pub const fn giveaway_winners(&self) -> Option<&types::GiveawayWinners> {
         match self {
-            Message::GiveawayWinners(GiveawayWinners { winners, .. }) => Some(winners),
+            Message::GiveawayWinners(message) => Some(&message.winners),
             _ => None,
         }
     }
@@ -2716,7 +2685,7 @@ impl Message {
     #[must_use]
     pub const fn giveaway_completed(&self) -> Option<&types::GiveawayCompleted> {
         match self {
-            Message::GiveawayCompleted(GiveawayCompleted { completed, .. }) => Some(completed),
+            Message::GiveawayCompleted(message) => Some(&message.completed),
             _ => None,
         }
     }
@@ -2724,7 +2693,7 @@ impl Message {
     #[must_use]
     pub const fn video_chat_scheduled(&self) -> Option<&types::VideoChatScheduled> {
         match self {
-            Message::VideoChatScheduled(VideoChatScheduled { scheduled, .. }) => Some(scheduled),
+            Message::VideoChatScheduled(message) => Some(&message.scheduled),
             _ => None,
         }
     }
@@ -2732,7 +2701,7 @@ impl Message {
     #[must_use]
     pub const fn video_chat_started(&self) -> Option<&types::VideoChatStarted> {
         match self {
-            Message::VideoChatStarted(VideoChatStarted { started, .. }) => Some(started),
+            Message::VideoChatStarted(message) => Some(&message.started),
             _ => None,
         }
     }
@@ -2740,7 +2709,7 @@ impl Message {
     #[must_use]
     pub const fn video_chat_ended(&self) -> Option<&types::VideoChatEnded> {
         match self {
-            Message::VideoChatEnded(VideoChatEnded { ended, .. }) => Some(ended),
+            Message::VideoChatEnded(message) => Some(&message.ended),
             _ => None,
         }
     }
@@ -2750,9 +2719,7 @@ impl Message {
         &self,
     ) -> Option<&types::VideoChatParticipantsInvited> {
         match self {
-            Message::VideoChatParticipantsInvited(VideoChatParticipantsInvited {
-                invited, ..
-            }) => Some(invited),
+            Message::VideoChatParticipantsInvited(message) => Some(&message.invited),
             _ => None,
         }
     }
@@ -2760,7 +2727,7 @@ impl Message {
     #[must_use]
     pub const fn web_app_data(&self) -> Option<&types::WebAppData> {
         match self {
-            Message::WebAppData(WebAppData { data, .. }) => Some(data),
+            Message::WebAppData(message) => Some(&message.data),
             _ => None,
         }
     }
@@ -2768,7 +2735,7 @@ impl Message {
     #[must_use]
     pub const fn photo(&self) -> Option<&[PhotoSize]> {
         match self {
-            Message::Photo(Photo { photo, .. }) => Some(photo),
+            Message::Photo(message) => Some(&message.photo),
             _ => None,
         }
     }
@@ -2812,7 +2779,7 @@ impl Message {
     #[must_use]
     pub const fn story(&self) -> Option<&types::Story> {
         match self {
-            Message::Story(Story { story, .. }) => Some(story),
+            Message::Story(message) => Some(&message.story),
             _ => None,
         }
     }
@@ -2820,7 +2787,7 @@ impl Message {
     #[must_use]
     pub const fn sticker(&self) -> Option<&types::Sticker> {
         match self {
-            Message::Sticker(Sticker { sticker, .. }) => Some(sticker),
+            Message::Sticker(message) => Some(&message.sticker),
             _ => None,
         }
     }
@@ -2828,7 +2795,7 @@ impl Message {
     #[must_use]
     pub const fn video(&self) -> Option<&types::Video> {
         match self {
-            Message::Video(Video { video, .. }) => Some(video),
+            Message::Video(message) => Some(&message.video),
             _ => None,
         }
     }
@@ -2836,7 +2803,7 @@ impl Message {
     #[must_use]
     pub const fn video_note(&self) -> Option<&types::VideoNote> {
         match self {
-            Message::VideoNote(VideoNote { video_note, .. }) => Some(video_note),
+            Message::VideoNote(message) => Some(&message.video_note),
             _ => None,
         }
     }
@@ -2844,7 +2811,7 @@ impl Message {
     #[must_use]
     pub const fn voice(&self) -> Option<&types::Voice> {
         match self {
-            Message::Voice(Voice { voice, .. }) => Some(voice),
+            Message::Voice(message) => Some(&message.voice),
             _ => None,
         }
     }
@@ -2852,10 +2819,7 @@ impl Message {
     #[must_use]
     pub const fn migrate_to_chat_id(&self) -> Option<i64> {
         match self {
-            Message::MigrateToChat(MigrateToChat {
-                to_chat_id: chat_id,
-                ..
-            }) => Some(*chat_id),
+            Message::MigrateToChat(message) => Some(message.to_chat_id),
             _ => None,
         }
     }
@@ -2863,10 +2827,7 @@ impl Message {
     #[must_use]
     pub const fn migrate_from_chat_id(&self) -> Option<i64> {
         match self {
-            Message::MigrateFromChat(MigrateFromChat {
-                from_chat_id: chat_id,
-                ..
-            }) => Some(*chat_id),
+            Message::MigrateFromChat(message) => Some(message.from_chat_id),
             _ => None,
         }
     }
@@ -2875,7 +2836,7 @@ impl Message {
 impl Default for Message {
     #[must_use]
     fn default() -> Self {
-        Message::Text(Text::default())
+        Message::Text(Box::new(Text::default()))
     }
 }
 
@@ -2886,7 +2847,7 @@ macro_rules! impl_try_from_message {
 
             fn try_from(value: Message) -> Result<Self, Self::Error> {
                 if let Message::$variant(val) = value {
-                    Ok(val)
+                    Ok(*val)
                 } else {
                     Err(Self::Error::new("Message", stringify!($ty)))
                 }
@@ -3078,7 +3039,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Text(message) => assert_eq!(message, message_text),
+                Message::Text(message) => assert_eq!(*message, message_text),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3156,7 +3117,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Text(message) => assert_eq!(message, message_kind),
+                Message::Text(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3208,7 +3169,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Animation(message) => assert_eq!(message, message_kind),
+                Message::Animation(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3236,7 +3197,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Audio(message) => assert_eq!(message, message_kind),
+                Message::Audio(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3263,7 +3224,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Document(message) => assert_eq!(message, message_kind),
+                Message::Document(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3292,7 +3253,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Photo(message) => assert_eq!(message, message_kind),
+                Message::Photo(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3324,7 +3285,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Sticker(message) => assert_eq!(message, message_kind),
+                Message::Sticker(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3349,7 +3310,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Story(message) => assert_eq!(message, message_kind),
+                Message::Story(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3380,7 +3341,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Video(message) => assert_eq!(message, message_kind),
+                Message::Video(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3410,7 +3371,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::VideoNote(message) => assert_eq!(message, message_kind),
+                Message::VideoNote(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3439,7 +3400,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Voice(message) => assert_eq!(message, message_kind),
+                Message::Voice(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3467,7 +3428,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Contact(message) => assert_eq!(message, message_kind),
+                Message::Contact(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3495,7 +3456,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Dice(message) => assert_eq!(message, message_kind),
+                Message::Dice(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3529,7 +3490,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Game(message) => assert_eq!(message, message_kind),
+                Message::Game(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3572,7 +3533,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Poll(message) => assert_eq!(message, message_kind),
+                Message::Poll(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3626,7 +3587,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Venue(message) => assert_eq!(message, message_kind),
+                Message::Venue(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3653,7 +3614,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Location(message) => assert_eq!(message, message_kind),
+                Message::Location(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3681,7 +3642,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::NewChatMembers(message) => assert_eq!(message, message_kind),
+                Message::NewChatMembers(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3709,7 +3670,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::LeftChatMember(message) => assert_eq!(message, message_kind),
+                Message::LeftChatMember(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3733,7 +3694,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::NewChatTitle(message) => assert_eq!(message, message_kind),
+                Message::NewChatTitle(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3762,7 +3723,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::NewChatPhoto(message) => assert_eq!(message, message_kind),
+                Message::NewChatPhoto(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3786,7 +3747,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::DeleteChatPhoto(message) => assert_eq!(message, message_kind),
+                Message::DeleteChatPhoto(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -3977,7 +3938,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Pinned(message) => assert_eq!(message, message_kind),
+                Message::Pinned(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -4007,7 +3968,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Invoice(message) => assert_eq!(message, message_kind),
+                Message::Invoice(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -4066,7 +4027,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::UsersShared(message) => assert_eq!(message, message_kind),
+                Message::UsersShared(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -4093,7 +4054,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::ChatShared(message) => assert_eq!(message, message_kind),
+                Message::ChatShared(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -4180,7 +4141,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::PassportData(message) => assert_eq!(message, message_kind),
+                Message::PassportData(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -4439,7 +4400,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::Giveaway(message) => assert_eq!(message, message_kind),
+                Message::Giveaway(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -4655,7 +4616,7 @@ mod tests {
             let message: Message = serde_json::from_value(json).unwrap();
 
             match message {
-                Message::WebAppData(message) => assert_eq!(message, message_kind),
+                Message::WebAppData(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }

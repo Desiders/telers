@@ -396,10 +396,10 @@ mod tests {
         let request = Request::new(
             request.bot,
             Arc::new(Update {
-                kind: UpdateKind::Message(Message::Text(MessageText {
+                kind: UpdateKind::Message(Message::Text(Box::new(MessageText {
                     text: "/start".to_owned().into(),
                     ..Default::default()
-                })),
+                }))),
                 ..Default::default()
             }),
             request.context,
