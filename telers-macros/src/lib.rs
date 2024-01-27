@@ -1,3 +1,12 @@
+/// This crate contains macros used by `telers` crate
+///
+/// # Macros
+///
+/// ## `FromContext`
+///
+/// Derive an implementation of `FromEventAndContext` for the given type.
+/// This macro will generate an implementation of `FromEventAndContext` for the whole given type.
+/// It will use the key attribute by which this type will be extracted from context.
 pub(crate) mod attrs_parsing;
 pub(crate) mod stream;
 

@@ -11,19 +11,47 @@ use syn::{
 
 mod keywords {
     syn::custom_keyword!(key);
+    syn::custom_keyword!(into);
 }
 
+/// All context attributes
+/// # Fields
+/// * `key` - key of context (required)
+/// * `into` - type into which we need to convert context value (optional)
+/// # Examples
+/// ```not_rust
+/// #[context(key = "a", into = Wrapper)]
+/// ```
+/// # Notes
+/// `key` field is required, because we need to know how to find data in context
+/// `into` field is optional, because we can use `From` trait to convert context value to our type
+///
+/// If any unknown attribute is found, then we return error
 #[derive(Debug)]
 struct FromContextAttrs {
     key: LitStr,
+    into: Option<Type>,
 }
 
+/// Parse `#[context(...)]` attributes
+/// # Examples
+/// ```not_rust
+/// #[context(key = "a", into = Wrapper)]
+/// ```
 impl Parse for FromContextAttrs {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
         let mut key = None;
+        let mut into = None;
 
         while !input.is_empty() {
             let lookahead = input.lookahead1();
+
+            // If we found `,` token, then we need to skip it and continue parsing
+            if lookahead.peek(Token![,]) {
+                input.parse::<Token![,]>()?;
+
+                continue;
+            }
 
             if lookahead.peek(keywords::key) {
                 let input_key: keywords::key = input.parse()?;
@@ -39,14 +67,40 @@ impl Parse for FromContextAttrs {
                 }
 
                 key = Some(value);
-            } else {
-                return Err(lookahead.error());
+
+                // If we found `keys` attribute, then we need to skip it and continue parsing
+                continue;
             }
+
+            if lookahead.peek(keywords::into) {
+                let input_into: keywords::into = input.parse()?;
+                input.parse::<Token![=]>()?;
+
+                let value: Type = input.parse()?;
+
+                if into.is_some() {
+                    return Err(syn::Error::new_spanned(
+                        input_into,
+                        "duplicate `into` attribute",
+                    ));
+                }
+
+                into = Some(value);
+
+                // If we found `into` attribute, then we need to skip it and continue parsing
+                continue;
+            }
+
+            // If we found unknown attribute, then we need to return error
+            return Err(syn::Error::new(
+                input.span(),
+                "expected `key` or `into` attribute",
+            ));
         }
 
         let key = key.ok_or_else(|| syn::Error::new(input.span(), "missing `key` attribute"))?;
 
-        Ok(Self { key })
+        Ok(Self { key, into })
     }
 }
 
@@ -101,7 +155,7 @@ fn impl_from_event_and_context(
     ident: &Ident,
     ident_generics: &Generics,
     client: &Client,
-    context_key: &LitStr,
+    context_attrs: &FromContextAttrs,
 ) -> TokenStream {
     let mut impl_generics_punctuated = Punctuated::<Type, Token![,]>::new();
     let mut ty_generics_punctuated = Punctuated::<Type, Token![,]>::new();
@@ -130,7 +184,7 @@ fn impl_from_event_and_context(
     let client_trait_generic = client.trait_generic().clone();
 
     // Be aware that `context_key` is `LitStr`, so we need to use `value` method to get `String` instead of using `to_string` method
-    let key = context_key.value();
+    let key = context_attrs.key.value();
     let key_str = key.as_str();
 
     quote_spanned! { ident.span() =>
@@ -182,7 +236,7 @@ fn expand_struct(
         }
     };
 
-    let FromContextAttrs { key } = match parse_attr("context", attrs) {
+    let context_attrs = match parse_attr("context", attrs) {
         Ok(Some(attrs)) => attrs,
         Ok(None) => {
             return Err(syn::Error::new_spanned(
@@ -198,7 +252,12 @@ fn expand_struct(
         }
     };
 
-    Ok(impl_from_event_and_context(ident, generics, &client, &key))
+    Ok(impl_from_event_and_context(
+        ident,
+        generics,
+        &client,
+        &context_attrs,
+    ))
 }
 
 fn expand_enum(
@@ -219,7 +278,7 @@ fn expand_enum(
         }
     };
 
-    let FromContextAttrs { key } = match parse_attr("context", attrs) {
+    let context_attrs = match parse_attr("context", attrs) {
         Ok(Some(attrs)) => attrs,
         Ok(None) => {
             return Err(syn::Error::new_spanned(
@@ -235,7 +294,12 @@ fn expand_enum(
         }
     };
 
-    Ok(impl_from_event_and_context(ident, generics, &client, &key))
+    Ok(impl_from_event_and_context(
+        ident,
+        generics,
+        &client,
+        &context_attrs,
+    ))
 }
 
 pub(crate) fn expand(item: Item) -> Result<TokenStream, syn::Error> {
