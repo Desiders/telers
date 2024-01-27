@@ -58,6 +58,9 @@ enum Client {
 }
 
 impl Client {
+    // # Notes
+    // Currently, we support only default client type, but in future we will support custom client types
+    #[allow(clippy::unnecessary_wraps, clippy::needless_pass_by_value)]
     fn parse(_attrs: &[syn::Attribute]) -> Result<Self, syn::Error> {
         // We use `__` prefix here to avoid name conflicts
         let path = parse_quote! { __C };
@@ -95,11 +98,11 @@ impl ToTokens for Client {
 }
 
 fn impl_from_event_and_context(
-    ident: Ident,
-    ident_generics: Generics,
-    client: Client,
-    context_key: LitStr,
-) -> Result<TokenStream, syn::Error> {
+    ident: &Ident,
+    ident_generics: &Generics,
+    client: &Client,
+    context_key: &LitStr,
+) -> TokenStream {
     let mut impl_generics_punctuated = Punctuated::<Type, Token![,]>::new();
     let mut ty_generics_punctuated = Punctuated::<Type, Token![,]>::new();
     let mut where_clause_punctuated = Punctuated::<Type, Token![,]>::new();
@@ -129,7 +132,7 @@ fn impl_from_event_and_context(
     let key = context_key.token().to_string();
     let key_str = key.as_str();
 
-    Ok(quote_spanned! { ident.span() =>
+    quote_spanned! { ident.span() =>
         #[automatically_derived]
         impl <#impl_generics_punctuated> ::telers::extractors::FromEventAndContext<#client_trait_generic> for #ident #ty_generics_punctuated
         where
@@ -158,18 +161,18 @@ fn impl_from_event_and_context(
                 }
             }
         }
-    })
+    }
 }
 
-fn expand_struct(item: ItemStruct) -> Result<TokenStream, syn::Error> {
-    let ItemStruct {
+fn expand_struct(
+    ItemStruct {
         attrs,
         ident,
         generics,
         ..
-    } = item;
-
-    let client = match Client::parse(&attrs) {
+    }: &ItemStruct,
+) -> Result<TokenStream, syn::Error> {
+    let client = match Client::parse(attrs) {
         Ok(client) => client,
         Err(err) => {
             return Err(syn::Error::new_spanned(
@@ -179,7 +182,7 @@ fn expand_struct(item: ItemStruct) -> Result<TokenStream, syn::Error> {
         }
     };
 
-    let FromContextAttrs { key } = match parse_attr("context", &attrs) {
+    let FromContextAttrs { key } = match parse_attr("context", attrs) {
         Ok(Some(attrs)) => attrs,
         Ok(None) => {
             return Err(syn::Error::new_spanned(
@@ -195,19 +198,52 @@ fn expand_struct(item: ItemStruct) -> Result<TokenStream, syn::Error> {
         }
     };
 
-    impl_from_event_and_context(ident, generics, client, key)
+    Ok(impl_from_event_and_context(ident, generics, &client, &key))
 }
 
-fn expand_enum(_item: ItemEnum) -> Result<TokenStream, syn::Error> {
-    unimplemented!();
+fn expand_enum(
+    ItemEnum {
+        attrs,
+        ident,
+        generics,
+        ..
+    }: &ItemEnum,
+) -> Result<TokenStream, syn::Error> {
+    let client = match Client::parse(attrs) {
+        Ok(client) => client,
+        Err(err) => {
+            return Err(syn::Error::new_spanned(
+                ident,
+                format!("failed to parse attributes: {err}"),
+            ))
+        }
+    };
+
+    let FromContextAttrs { key } = match parse_attr("context", attrs) {
+        Ok(Some(attrs)) => attrs,
+        Ok(None) => {
+            return Err(syn::Error::new_spanned(
+                ident,
+                "missing `#[context(...)]` attribute",
+            ))
+        }
+        Err(err) => {
+            return Err(syn::Error::new_spanned(
+                ident,
+                format!("failed to parse `#[context(...)]` attributes: {err}"),
+            ))
+        }
+    };
+
+    Ok(impl_from_event_and_context(ident, generics, &client, &key))
 }
 
 pub(crate) fn expand(item: Item) -> Result<TokenStream, syn::Error> {
-    use Item::*;
+    use Item::{Enum, Struct};
 
     match item {
-        Struct(item) => expand_struct(item),
-        Enum(item) => expand_enum(item),
+        Struct(item) => expand_struct(&item),
+        Enum(item) => expand_enum(&item),
         _ => Err(syn::Error::new_spanned(item, "expected `struct` or `enum`")),
     }
 }
