@@ -141,7 +141,7 @@ mod tests {
     #[tokio::test]
     async fn test_extract() {
         #[derive(Debug, Clone, PartialEq, FromContext)]
-        #[context(key = "a", into = G)]
+        #[context(key = "a")]
         struct A;
 
         #[derive(Debug, PartialEq, FromContext)]

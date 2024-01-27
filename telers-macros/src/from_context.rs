@@ -6,7 +6,8 @@ use syn::{
     parse::{Parse, ParseStream},
     parse_quote,
     punctuated::Punctuated,
-    Generics, Ident, Item, ItemEnum, ItemStruct, LitStr, Token, Type,
+    Attribute, Ident, ImplGenerics, Item, ItemEnum, ItemStruct, LitStr, Token, Type, TypeGenerics,
+    WhereClause,
 };
 
 mod keywords {
@@ -115,7 +116,7 @@ impl Client {
     // # Notes
     // Currently, we support only default client type, but in future we will support custom client types
     #[allow(clippy::unnecessary_wraps, clippy::needless_pass_by_value)]
-    fn parse(_attrs: &[syn::Attribute]) -> Result<Self, syn::Error> {
+    fn parse(_attrs: &[Attribute]) -> Result<Self, syn::Error> {
         // We use `__` prefix here to avoid name conflicts
         let path = parse_quote! { __C };
 
@@ -151,18 +152,28 @@ impl ToTokens for Client {
     }
 }
 
+/// Implement `FromEventAndContext` trait for `ident` or `into` type.
+/// # Arguments
+/// * `ident` - type for which we need to implement `FromEventAndContext` trait if `into` field is empty
+/// * `ident_impl_generics` - impl generics of `ident` type
+/// * `ident_ty_generics` - type generics of `ident` type
+/// * `ident_where_clause` - where clause of `ident` type
+/// * `client` - client type
+/// * `context_attrs` - context attributes. If `into` field is not empty,
+/// then we need to implement the trait for `into` typeand require `Into<Self>` trait for `ident` type.
+/// # Notes
+/// Currently we can implement `FromEventAndContext` trait for `into` type only if its type generics are the same as `ident` type generics.
 fn impl_from_event_and_context(
     ident: &Ident,
-    ident_generics: &Generics,
+    ident_impl_generics: &ImplGenerics<'_>,
+    ident_ty_generics: &TypeGenerics<'_>,
+    ident_where_clause: Option<&WhereClause>,
     client: &Client,
     context_attrs: &FromContextAttrs,
 ) -> TokenStream {
     let mut impl_generics_punctuated = Punctuated::<Type, Token![,]>::new();
     let mut ty_generics_punctuated = Punctuated::<Type, Token![,]>::new();
     let mut where_clause_punctuated = Punctuated::<Type, Token![,]>::new();
-
-    let (ident_impl_generics, ident_ty_generics, ident_where_clause) =
-        ident_generics.split_for_impl();
 
     // If impl generics is not empty, then we need to remove first token (usually it is `<`)
     // and last token (usually it is `>`), because we need to add our generic type to it.
@@ -186,6 +197,40 @@ fn impl_from_event_and_context(
     // Be aware that `context_key` is `LitStr`, so we need to use `value` method to get `String` instead of using `to_string` method
     let key = context_attrs.key.value();
     let key_str = key.as_str();
+
+    // If `into` field is not empty, then we need to implement the trait for `into` type and require `Into<Self>` trait for `ident` type
+    if let Some(ref into) = context_attrs.into {
+        return quote_spanned! { ident.span() =>
+            #[automatically_derived]
+            impl <#impl_generics_punctuated> ::telers::extractors::FromEventAndContext<#client_trait_generic> for #into #ty_generics_punctuated
+            where
+                #where_clause_punctuated
+                // `Into<#ident #ty_generics_punctuated>` is required to be able to convert context value to `into` type
+                #ident #ty_generics_punctuated: ::std::clone::Clone + ::std::convert::Into<Self> + 'static
+            {
+                type Error = ::telers::errors::ExtractionError;
+
+                fn extract(
+                    bot: ::std::sync::Arc<::telers::client::Bot<#client_trait_generic>>,
+                    update: ::std::sync::Arc<::telers::types::Update>,
+                    context: ::std::sync::Arc<::telers::context::Context>,
+                ) -> Result<Self, Self::Error> {
+                    use ::telers::errors::ExtractionError as Error;
+
+                    let Some(value) = context.get(#key_str) else {
+                        return Err(Error::new(concat!("No found data in context by key `", #key_str, '`')));
+                    };
+
+                    match value.downcast_ref::<#ident #ty_generics_punctuated>() {
+                        Some(value_ref) => Ok((*value_ref).clone().into()),
+                        None => Err(Error::new(concat!(
+                            "Data in context by key `", #key_str, "` has wrong type expected `", stringify!(#ident), '`',
+                        ))),
+                    }
+                }
+            }
+        };
+    };
 
     quote_spanned! { ident.span() =>
         #[automatically_derived]
@@ -252,9 +297,13 @@ fn expand_struct(
         }
     };
 
+    let (ident_impl_generics, ident_ty_generics, ident_where_clause) = generics.split_for_impl();
+
     Ok(impl_from_event_and_context(
         ident,
-        generics,
+        &ident_impl_generics,
+        &ident_ty_generics,
+        ident_where_clause.as_deref(),
         &client,
         &context_attrs,
     ))
@@ -294,9 +343,13 @@ fn expand_enum(
         }
     };
 
+    let (ident_impl_generics, ident_ty_generics, ident_where_clause) = generics.split_for_impl();
+
     Ok(impl_from_event_and_context(
         ident,
-        generics,
+        &ident_impl_generics,
+        &ident_ty_generics,
+        ident_where_clause.as_deref(),
         &client,
         &context_attrs,
     ))
