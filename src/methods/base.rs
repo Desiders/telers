@@ -68,10 +68,7 @@ pub trait TelegramMethod {
     /// # Errors
     /// - If the response cannot be parsed
     fn build_response(&self, content: &str) -> Result<Response<Self::Return>, serde_json::Error> {
-        let mut deserializer = serde_json::Deserializer::from_str(content);
-        let deserializer = serde_stacker::Deserializer::new(&mut deserializer);
-
-        Response::deserialize(deserializer)
+        serde_json::from_str(content)
     }
 }
 
