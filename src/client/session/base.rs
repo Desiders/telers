@@ -239,6 +239,13 @@ pub trait Session: Send + Sync {
                 err
             })?;
 
+        event!(
+            Level::TRACE,
+            content = response.content,
+            status_code = response.status_code.as_u16(),
+            "Got response. Parsing it...",
+        );
+
         let telegram_response =
             method
                 .build_response(response.content.as_ref())
@@ -252,6 +259,8 @@ pub trait Session: Send + Sync {
 
                     err
                 })?;
+
+        event!(Level::TRACE, "Response parsed successfully",);
 
         self.check_response(&telegram_response, &response.status_code)
             .map_err(|err| {
@@ -297,5 +306,75 @@ pub trait Session: Send + Sync {
     /// Close client session. Default implementation does nothing.
     async fn close(&self) -> Result<(), anyhow::Error> {
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::methods::SendMessage;
+
+    use serde_json::json;
+
+    #[test]
+    fn build_response() {
+        let method = SendMessage::new(810646651, "Hello, abc!");
+
+        let content = json!(
+        {
+            "ok": true,
+            "result": {
+                "message_id": 423,
+                "from": {
+                    "id": 1 as i64,
+                    "is_bot": true,
+                    "first_name": "test",
+                    "username": "test"
+                },
+                "chat": {
+                    "id": 1,
+                    "first_name": "test",
+                    "username": "test",
+                    "type": "private",
+                },
+                "date": 1706267365,
+                "reply_to_message": {
+                    "message_id": 422,
+                    "from": {
+                        "id": 1,
+                        "is_bot": false,
+                        "first_name": "test",
+                        "username": "test",
+                        "language_code": "ru",
+                        "is_premium": true,
+                    },
+                    "chat":{
+                        "id": 1,
+                        "first_name": "test",
+                        "username": "test",
+                        "type": "private",
+                    },
+                    "date": 1,
+                    "text": "/start",
+                    "entities":[
+                        {
+                            "offset": 0,
+                            "length": 6,
+                            "type": "bot_command",
+                        },
+                    ],
+                },
+                "text": "test",
+            },
+            "statud_code": 200,
+        });
+
+        let result = method
+            .build_response(&content.to_string())
+            .unwrap()
+            .result
+            .unwrap();
+
+        assert_eq!(result.id(), 423);
     }
 }

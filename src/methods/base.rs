@@ -4,7 +4,6 @@ use crate::{
 };
 
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use serde_json;
 
 /// This object represents a request to Telegram API
 pub struct Request<'a, T>

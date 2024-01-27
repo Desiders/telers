@@ -47,7 +47,7 @@ pub struct Private {
     /// `true`, if the privacy settings of the other party restrict sending voice and video note messages. Returned only in [`GetChat`](crate::methods::GetChat).
     pub has_restricted_voice_and_video_messages: Option<bool>,
     /// The most recent pinned message (by sending date). Returned only in [`GetChat`](crate::methods::GetChat).
-    pub pinned_message: Option<Box<Message>>,
+    pub pinned_message: Option<Message>,
     /// The time after which all messages sent to the chat will be automatically deleted; in seconds. Returned only in [`GetChat`](crate::methods::GetChat).
     pub message_auto_delete_time: Option<i64>,
 }
@@ -65,7 +65,7 @@ pub struct Group {
     /// Primary invite link. Returned only in [`GetChat`](crate::methods::GetChat).
     pub invite_link: Option<Box<str>>,
     /// The most recent pinned message (by sending date). Returned only in [`GetChat`](crate::methods::GetChat).
-    pub pinned_message: Option<Box<Message>>,
+    pub pinned_message: Option<Message>,
     /// Default chat member permissions. Returned only in [`GetChat`](crate::methods::GetChat).
     pub permissions: Option<ChatPermissions>,
     /// The time after which all messages sent to the chat will be automatically deleted; in seconds. Returned only in [`GetChat`](crate::methods::GetChat).
@@ -115,7 +115,7 @@ pub struct Supergroup {
     /// Primary invite link. Returned only in [`GetChat`](crate::methods::GetChat).
     pub invite_link: Option<Box<str>>,
     /// The most recent pinned message (by sending date). Returned only in [`GetChat`](crate::methods::GetChat).
-    pub pinned_message: Option<Box<Message>>,
+    pub pinned_message: Option<Message>,
     /// Default chat member permissions. Returned only in [`GetChat`](crate::methods::GetChat).
     pub permissions: Option<ChatPermissions>,
     /// The minimum allowed delay between consecutive messages sent by each unpriviledged user; in seconds. Returned only in [`GetChat`](crate::methods::GetChat).
@@ -171,7 +171,7 @@ pub struct Channel {
     /// Primary invite link. Returned only in [`GetChat`](crate::methods::GetChat).
     pub invite_link: Option<Box<str>>,
     /// The most recent pinned message (by sending date). Returned only in [`GetChat`](crate::methods::GetChat).
-    pub pinned_message: Option<Box<Message>>,
+    pub pinned_message: Option<Message>,
     /// The time after which all messages sent to the chat will be automatically deleted; in seconds. Returned only in [`GetChat`](crate::methods::GetChat).
     pub message_auto_delete_time: Option<i64>,
     /// `true`, if non-administrators can only get the list of bots and administrators in the chat. Returned only in [`GetChat`](crate::methods::GetChat).

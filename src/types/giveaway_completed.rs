@@ -12,5 +12,5 @@ pub struct GiveawayCompleted {
     /// Number of undistributed prizes
     pub unclaimed_prize_count: Option<i64>,
     /// Message with the giveaway that was completed, if it wasn't deleted
-    pub giveaway_message: Option<Box<Message>>,
+    pub giveaway_message: Option<Message>,
 }

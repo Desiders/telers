@@ -65,11 +65,11 @@ mod tests {
         let bot = Bot::<Reqwest>::default();
         let context = Context::new();
         let update = Update {
-            kind: UpdateKind::Message(Message::Text(MessageText {
+            kind: UpdateKind::Message(Message::Text(Box::new(MessageText {
                 from: Some(User::default()),
                 thread_id: Some(1),
                 ..Default::default()
-            })),
+            }))),
             ..Default::default()
         };
 
