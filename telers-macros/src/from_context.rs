@@ -129,7 +129,8 @@ fn impl_from_event_and_context(
 
     let client_trait_generic = client.trait_generic().clone();
 
-    let key = context_key.token().to_string();
+    // Be aware that `context_key` is `LitStr`, so we need to use `value` method to get `String` instead of using `to_string` method
+    let key = context_key.value();
     let key_str = key.as_str();
 
     quote_spanned! { ident.span() =>
@@ -146,17 +147,16 @@ fn impl_from_event_and_context(
                 update: ::std::sync::Arc<::telers::types::Update>,
                 context: ::std::sync::Arc<::telers::context::Context>,
             ) -> Result<Self, Self::Error> {
+                use ::telers::errors::ExtractionError as Error;
+
                 let Some(value) = context.get(#key_str) else {
-                    return Err(::telers::errors::ExtractionError::new(concat!("No found data in context by key ", #key_str)));
+                    return Err(Error::new(concat!("No found data in context by key `", #key_str, '`')));
                 };
 
                 match value.downcast_ref::<Self>() {
                     Some(value_ref) => Ok((*value_ref).clone()),
-                    None => Err(::telers::errors::ExtractionError::new(concat!(
-                        "Data in context by key ",
-                        #key_str,
-                        " has wrong type expected ",
-                        stringify!(#ident),
+                    None => Err(Error::new(concat!(
+                        "Data in context by key `", #key_str, "` has wrong type expected `", stringify!(#ident), '`',
                     ))),
                 }
             }
