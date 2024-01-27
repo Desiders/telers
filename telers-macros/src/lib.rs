@@ -18,15 +18,13 @@ use syn::parse::Parse;
 
 /// Derive an implementation of `FromEventAndContext` for the given type.
 ///
-/// # Notes
-/// Type must be cloneable because we can't move it out of context, we need to clone it.
+/// This macro supports the following attributes:
+/// * `#[context(key = "...")]` - the key by which the type will be extracted from context.
+/// * `#[context(into = "...")]` - the type into which the type will be converted.
 ///
-/// Supported implementations:
-/// 1. Implementation of `FromEventAndContext` for the given struct and key attribute by which this type will be extracted from context.
-/// 2. Implementation of `FromEventAndContext` for the given enum and key attribute by which this type will be extracted from context.
+/// Check the examples below to see how to use this macro and what types of deriving are supported.
 ///
-/// # Implementation details
-/// This macro will generate an implementation of `FromEventAndContext` for the whole given type.
+/// ## Whole struct by key in context
 ///
 /// ```rust
 /// use telers_macros::FromContext;
@@ -37,6 +35,16 @@ use syn::parse::Parse;
 ///   field: i32,
 /// }
 ///
+/// async fn handler(my_struct: MyStruct) {
+///  // ...
+/// }
+/// ```
+///
+/// ## Whole enum by key in context
+///
+/// ```rust
+/// use telers_macros::FromContext;
+///
 /// #[derive(Clone, FromContext)]
 /// #[context(key = "my_enum")]
 /// enum MyEnum {
@@ -44,8 +52,57 @@ use syn::parse::Parse;
 ///  Variant2,
 /// }
 ///
-/// async fn handler(my_struct: MyStruct, my_enum: MyEnum) {
+/// async fn handler(my_enum: MyEnum) {
 ///  // ...
+/// }
+/// ```
+///
+/// ## Whole struct that can be converted from another one type that is in context by key
+///
+/// You need to implement `From` trait for your `into`/`wrapper` type by yourself from the type that is in context.
+/// This can be useful when you want to wrap your type to another one or if the type in context is a foreign type,
+/// and you want to convert it to your own type to use it in handler (because you can't implement a foreign trait for a foreign type).
+///
+/// ```rust
+/// use telers_macros::FromContext;
+///
+/// #[derive(Clone, FromContext)]
+/// #[context(key = "my_struct", into = MyStructWrapper)]
+/// struct MyStruct {
+///  field: i32,
+/// }
+///
+/// struct MyStructWrapper(MyStruct);
+///
+/// impl From<MyStruct> for MyStructWrapper {
+///  fn from(my_struct: MyStruct) -> Self {
+///   Self(my_struct)
+///  }
+/// }
+/// ```
+///
+/// ## Whole enum that can be converted from another one type that is in context by key
+///
+/// You need to implement `From` trait for your `into`/`wrapper` type by yourself from the type that is in context.
+/// This can be useful when you want to wrap your type to another one or if the type in context is a foreign type,
+/// and you want to convert it to your own type to use it in handler (because you can't implement a foreign trait for a foreign type).
+///
+/// ```rust
+/// use telers_macros::FromContext;
+///
+/// #[derive(Clone, FromContext)]
+/// #[context(key = "my_enum", into = MyEnumWrapper)]
+/// enum MyEnum {
+///  Variant1,
+///  Variant2,
+/// }
+///
+/// struct MyEnumWrapper(MyEnum);
+///
+/// impl From<MyEnum> for MyEnumWrapper {
+///  fn from(my_enum: MyEnum) -> Self {
+///   Self(my_enum)
+///  }
 /// }
 /// ```
 #[proc_macro_derive(FromContext, attributes(context))]
