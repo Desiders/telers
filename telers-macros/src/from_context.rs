@@ -13,25 +13,29 @@ use syn::{
 mod keywords {
     syn::custom_keyword!(key);
     syn::custom_keyword!(into);
+    syn::custom_keyword!(from);
 }
 
 /// All context attributes
 /// # Fields
 /// * `key` - key of context (required)
 /// * `into` - type into which we need to convert context value (optional)
+/// * `from` - type from which we need to convert context value (optional)
 /// # Examples
-/// ```not_rust
-/// #[context(key = "a", into = Wrapper)]
+/// ```rust,no_run
+/// #[context(key = "type", into = TypeWrapper)]
+/// struct Type;
+///
+/// #[context(key = "type", from = Type)] // you no need to specify `into` field if you specify `from` field and vice versa. Just example
+/// struct TypeWrapper(Type);
 /// ```
 /// # Notes
-/// `key` field is required, because we need to know how to find data in context
-/// `into` field is optional, because we can use `From` trait to convert context value to our type
-///
 /// If any unknown attribute is found, then we return error
 #[derive(Debug)]
 struct FromContextAttrs {
     key: LitStr,
     into: Option<Type>,
+    from: Option<Type>,
 }
 
 /// Parse `#[context(...)]` attributes
@@ -43,6 +47,7 @@ impl Parse for FromContextAttrs {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
         let mut key = None;
         let mut into = None;
+        let mut from = None;
 
         while !input.is_empty() {
             let lookahead = input.lookahead1();
@@ -92,6 +97,25 @@ impl Parse for FromContextAttrs {
                 continue;
             }
 
+            if lookahead.peek(keywords::from) {
+                let input_from: keywords::from = input.parse()?;
+                input.parse::<Token![=]>()?;
+
+                let value: Type = input.parse()?;
+
+                if from.is_some() {
+                    return Err(syn::Error::new_spanned(
+                        input_from,
+                        "duplicate `from` attribute",
+                    ));
+                }
+
+                from = Some(value);
+
+                // If we found `from` attribute, then we need to skip it and continue parsing
+                continue;
+            }
+
             // If we found unknown attribute, then we need to return error
             return Err(syn::Error::new(
                 input.span(),
@@ -101,7 +125,7 @@ impl Parse for FromContextAttrs {
 
         let key = key.ok_or_else(|| syn::Error::new(input.span(), "missing `key` attribute"))?;
 
-        Ok(Self { key, into })
+        Ok(Self { key, into, from })
     }
 }
 
@@ -159,10 +183,11 @@ impl ToTokens for Client {
 /// * `ident_ty_generics` - type generics of `ident` type
 /// * `ident_where_clause` - where clause of `ident` type
 /// * `client` - client type
-/// * `context_attrs` - context attributes. If `into` field is not empty,
-/// then we need to implement the trait for `into` typeand require `Into<Self>` trait for `ident` type.
+/// * `context_attrs` - context attributes. \
+/// If `into` field is not empty, then we need to implement the trait for `into` type and require `Into<Self>` trait for `ident` type. \
+/// If `from` field is not empty, then we need to implement the trait for `ident` type and require `From<Self>` trait for `into` type.
 /// # Notes
-/// Currently we can implement `FromEventAndContext` trait for `into` type only if its type generics are the same as `ident` type generics.
+/// * Currently we can implement `FromEventAndContext` trait for types that implement `Into<Self>` or `From<Self>` traits only with the same generics.
 fn impl_from_event_and_context(
     ident: &Ident,
     ident_impl_generics: &ImplGenerics<'_>,
@@ -225,6 +250,40 @@ fn impl_from_event_and_context(
                         Some(value_ref) => Ok((*value_ref).clone().into()),
                         None => Err(Error::new(concat!(
                             "Data in context by key `", #key_str, "` has wrong type expected `", stringify!(#ident), '`',
+                        ))),
+                    }
+                }
+            }
+        };
+    };
+
+    // If `from` field is not empty, then we need to implement the trait for `ident` type and require `From<Self>` trait for `into` type
+    if let Some(ref from) = context_attrs.from {
+        return quote_spanned! { ident.span() =>
+            #[automatically_derived]
+            impl <#impl_generics_punctuated> ::telers::extractors::FromEventAndContext<#client_trait_generic> for #ident #ty_generics_punctuated
+            where
+                #where_clause_punctuated
+                // `Into<#from #ty_generics_punctuated>` is required to be able to convert context value to `ident` type
+                #from #ty_generics_punctuated: ::std::clone::Clone + ::std::convert::Into<Self> + 'static
+            {
+                type Error = ::telers::errors::ExtractionError;
+
+                fn extract(
+                    bot: ::std::sync::Arc<::telers::client::Bot<#client_trait_generic>>,
+                    update: ::std::sync::Arc<::telers::types::Update>,
+                    context: ::std::sync::Arc<::telers::context::Context>,
+                ) -> Result<Self, Self::Error> {
+                    use ::telers::errors::ExtractionError as Error;
+
+                    let Some(value) = context.get(#key_str) else {
+                        return Err(Error::new(concat!("No found data in context by key `", #key_str, '`')));
+                    };
+
+                    match value.downcast_ref::<#from #ty_generics_punctuated>() {
+                        Some(value_ref) => Ok((*value_ref).clone().into()),
+                        None => Err(Error::new(concat!(
+                            "Data in context by key `", #key_str, "` has wrong type expected `", stringify!(#from), '`',
                         ))),
                     }
                 }
