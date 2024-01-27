@@ -7,16 +7,17 @@ use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
 use syn::parse::Parse;
 
-/// Derive an implementation of [`FromEventAndContext`] for the given type.
+/// Derive an implementation of `FromEventAndContext` for the given type.
 ///
 /// # Notes
 /// Type must be cloneable because we can't move it out of context, we need to clone it.
 ///
 /// Supported implementations:
-/// 1. Implementation of [`FromEventAndContext`] for the given type and key attribute by which this type will be extracted from context.
+/// 1. Implementation of `FromEventAndContext` for the given struct and key attribute by which this type will be extracted from context.
+/// 2. Implementation of `FromEventAndContext` for the given enum and key attribute by which this type will be extracted from context.
 ///
 /// # Implementation details
-/// This macro will generate an implementation of [`FromEventAndContext`] for the whole given type.
+/// This macro will generate an implementation of `FromEventAndContext` for the whole given type.
 ///
 /// ```rust
 /// use telers_macros::FromContext;
@@ -27,7 +28,14 @@ use syn::parse::Parse;
 ///   field: i32,
 /// }
 ///
-/// async fn handler(my_struct: MyStruct) {
+/// #[derive(Clone, FromContext)]
+/// #[context(key = "my_enum")]
+/// enum MyEnum {
+///  Variant1,
+///  Variant2,
+/// }
+///
+/// async fn handler(my_struct: MyStruct, my_enum: MyEnum) {
 ///  // ...
 /// }
 /// ```
