@@ -96,7 +96,7 @@ pub struct Animation {
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -145,7 +145,7 @@ pub struct Audio {
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -194,7 +194,7 @@ pub struct Contact {
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -232,7 +232,7 @@ pub struct Dice {
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// `true`, if the message can't be forwarded
@@ -268,7 +268,7 @@ pub struct Document {
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -315,7 +315,7 @@ pub struct Game {
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -355,7 +355,7 @@ pub struct Poll {
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Date the message was last edited in Unix time
@@ -393,7 +393,7 @@ pub struct Venue {
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -433,7 +433,7 @@ pub struct Location {
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -473,7 +473,7 @@ pub struct Photo {
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -580,7 +580,7 @@ pub struct Sticker {
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -616,7 +616,7 @@ pub struct Text {
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -662,7 +662,7 @@ pub struct Video {
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -713,7 +713,7 @@ pub struct VideoNote {
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// `true`, if the message can't be forwarded
@@ -749,7 +749,7 @@ pub struct Voice {
     /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -1050,7 +1050,7 @@ pub struct Pinned {
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Specified message was pinned. Note that the Message object in this field will not contain further *reply_to_message* fields even if it is itself a reply.
@@ -1079,7 +1079,7 @@ pub struct Invoice {
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -1115,7 +1115,7 @@ pub struct SuccessfulPayment {
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Message is a service message about a successful payment, information about the payment. [`More about payments`](https://core.telegram.org/bots/api#payments)
@@ -1290,7 +1290,7 @@ pub struct ForumTopicCreated {
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Service message: forum topic created
@@ -1317,7 +1317,7 @@ pub struct ForumTopicEdited {
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Service message: forum topic edited
@@ -1344,7 +1344,7 @@ pub struct ForumTopicClosed {
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Service message: forum topic closed
@@ -1371,7 +1371,7 @@ pub struct ForumTopicReopened {
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Service message: forum topic reopened
@@ -1398,7 +1398,7 @@ pub struct GeneralForumTopicHidden {
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Service message: the `General` forum topic hidden
@@ -1425,7 +1425,7 @@ pub struct GeneralForumTopicUnhidden {
     /// `true`, if the message is sent to a forum topic
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Box<Message>>,
+    pub reply_to_message: Option<Message>,
     /// Bot through which the message was sent
     pub via_bot: Option<User>,
     /// Service message: the `General` forum topic unhidden
@@ -1904,30 +1904,31 @@ impl Message {
     }
 
     #[must_use]
+    #[allow(clippy::match_as_ref)]
     pub const fn caption(&self) -> Option<&str> {
         match self {
             Message::Animation(message) => match message.caption {
-                Some(ref caption) => Some(&caption),
+                Some(ref caption) => Some(caption),
                 None => None,
             },
             Message::Audio(message) => match message.caption {
-                Some(ref caption) => Some(&caption),
+                Some(ref caption) => Some(caption),
                 None => None,
             },
             Message::Document(message) => match message.caption {
-                Some(ref caption) => Some(&caption),
+                Some(ref caption) => Some(caption),
                 None => None,
             },
             Message::Video(message) => match message.caption {
-                Some(ref caption) => Some(&caption),
+                Some(ref caption) => Some(caption),
                 None => None,
             },
             Message::Voice(message) => match message.caption {
-                Some(ref caption) => Some(&caption),
+                Some(ref caption) => Some(caption),
                 None => None,
             },
             Message::Photo(message) => match message.caption {
-                Some(ref caption) => Some(&caption),
+                Some(ref caption) => Some(caption),
                 None => None,
             },
             _ => None,
@@ -2074,82 +2075,83 @@ impl Message {
     }
 
     #[must_use]
+    #[allow(clippy::match_as_ref)]
     pub const fn author_signature(&self) -> Option<&str> {
         match self {
             Message::Text(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             Message::Animation(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             Message::Audio(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             Message::Document(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             Message::Photo(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             Message::Sticker(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             Message::Story(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             Message::Video(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             Message::VideoNote(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             Message::Voice(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             Message::Contact(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             Message::Dice(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             Message::Game(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             Message::Poll(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             Message::Venue(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             Message::Location(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             Message::PassportData(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             Message::WebAppData(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             Message::Invoice(message) => match message.author_signature {
-                Some(ref author_signature) => Some(&author_signature),
+                Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
             _ => None,
@@ -2159,102 +2161,30 @@ impl Message {
     #[must_use]
     pub const fn reply_to_message(&self) -> Option<&Message> {
         match self {
-            Message::Text(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::Animation(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::Audio(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::Document(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::Photo(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::Sticker(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::Video(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::VideoNote(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::Voice(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::Contact(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::Dice(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::Game(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::Poll(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::Venue(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::Location(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::Pinned(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::Invoice(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::SuccessfulPayment(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::ForumTopicCreated(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::ForumTopicEdited(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::ForumTopicClosed(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::ForumTopicReopened(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::GeneralForumTopicHidden(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
-            Message::GeneralForumTopicUnhidden(message) => match message.reply_to_message {
-                Some(ref reply_to_message) => Some(&reply_to_message),
-                None => None,
-            },
+            Message::Text(message) => message.reply_to_message.as_ref(),
+            Message::Animation(message) => message.reply_to_message.as_ref(),
+            Message::Audio(message) => message.reply_to_message.as_ref(),
+            Message::Document(message) => message.reply_to_message.as_ref(),
+            Message::Photo(message) => message.reply_to_message.as_ref(),
+            Message::Sticker(message) => message.reply_to_message.as_ref(),
+            Message::Video(message) => message.reply_to_message.as_ref(),
+            Message::VideoNote(message) => message.reply_to_message.as_ref(),
+            Message::Voice(message) => message.reply_to_message.as_ref(),
+            Message::Contact(message) => message.reply_to_message.as_ref(),
+            Message::Dice(message) => message.reply_to_message.as_ref(),
+            Message::Game(message) => message.reply_to_message.as_ref(),
+            Message::Poll(message) => message.reply_to_message.as_ref(),
+            Message::Venue(message) => message.reply_to_message.as_ref(),
+            Message::Location(message) => message.reply_to_message.as_ref(),
+            Message::Pinned(message) => message.reply_to_message.as_ref(),
+            Message::Invoice(message) => message.reply_to_message.as_ref(),
+            Message::SuccessfulPayment(message) => message.reply_to_message.as_ref(),
+            Message::ForumTopicCreated(message) => message.reply_to_message.as_ref(),
+            Message::ForumTopicEdited(message) => message.reply_to_message.as_ref(),
+            Message::ForumTopicClosed(message) => message.reply_to_message.as_ref(),
+            Message::ForumTopicReopened(message) => message.reply_to_message.as_ref(),
+            Message::GeneralForumTopicHidden(message) => message.reply_to_message.as_ref(),
+            Message::GeneralForumTopicUnhidden(message) => message.reply_to_message.as_ref(),
             _ => None,
         }
     }
@@ -2836,7 +2766,7 @@ impl Message {
 impl Default for Message {
     #[must_use]
     fn default() -> Self {
-        Message::Text(Box::new(Text::default()))
+        Message::Text(Box::default())
     }
 }
 
