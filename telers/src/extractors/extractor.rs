@@ -5,7 +5,7 @@ use crate::{
     types::Update,
 };
 
-use std::{convert::Infallible, pin::Pin, sync::Arc};
+use std::{convert::Infallible, sync::Arc};
 
 /// Trait for extracting data from [`Update`] and [`Context`] to handlers arguments
 pub trait FromEventAndContext<Client = Reqwest>: Sized {
