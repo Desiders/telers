@@ -65,42 +65,6 @@ where
     }
 }
 
-/// To be able to use [`Box`] as handler argument
-/// This implementation will return [`Box(value)`] if extraction was successful, and [`Err(error)`] otherwise
-/// Useful for arguments with dynamic size
-impl<Client, T: ?Sized> FromEventAndContext<Client> for Box<T>
-where
-    T: FromEventAndContext<Client>,
-{
-    type Error = T::Error;
-
-    fn extract(
-        bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        context: Arc<Context>,
-    ) -> Result<Self, Self::Error> {
-        T::extract(bot, update, context).map(Box::new)
-    }
-}
-
-/// To be able to use [`Pin<Box>`] as handler argument
-/// This implementation will return [`Pin(value)`] if extraction was successful, and [`Err(error)`] otherwise
-/// Useful for arguments with dynamic size, which should be pinned
-impl<Client, T: ?Sized> FromEventAndContext<Client> for Pin<Box<T>>
-where
-    T: FromEventAndContext<Client>,
-{
-    type Error = T::Error;
-
-    fn extract(
-        bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        context: Arc<Context>,
-    ) -> Result<Self, Self::Error> {
-        T::extract(bot, update, context).map(Box::pin)
-    }
-}
-
 /// To be able to use handler without arguments
 /// Handler without arguments will be called with [`()`] argument (unit type)
 impl<Client> FromEventAndContext<Client> for () {
