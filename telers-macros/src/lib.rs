@@ -11,6 +11,7 @@ pub(crate) mod attrs_parsing;
 pub(crate) mod stream;
 
 mod from_context;
+mod from_event;
 
 use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
@@ -154,6 +155,63 @@ use syn::parse::Parse;
 #[proc_macro_derive(FromContext, attributes(context))]
 pub fn derive_from_context(item: TokenStream) -> TokenStream {
     expand_with(item, from_context::expand)
+}
+
+/// Derive an implementation of `FromEventAndContext` for the given type.
+///
+/// This macro supports the following attributes:
+/// * `#[event(from = "...")]` - the from which the type will be converted.
+/// * `#[event(try_from = "...")]` - the from which the type will be converted.
+/// * `#[event(description = "...")]` - the description of the type. \
+/// This attribute is used only for documentation purposes.
+///
+/// "..." it can be either a type, or a type path to one of them:
+/// * `Update` - the main type of the crate, which contains all the information about the event.
+///
+/// Check examples below to see how to use this macro and what types of deriving are supported.
+///
+/// ## Whole struct that can be converted from `Update`
+///
+/// You need to implement `From`/`TryFrom` trait for your type by yourself.
+/// This can be useful when you want to use some type from the `Update` in your handler in a more convenient way.
+///
+/// ```rust
+/// use telers_macros::FromEvent;
+///
+/// #[derive(Clone, FromEvent)]
+/// #[event(from = Update)]
+/// struct UpdateId(i32);
+///
+/// impl From<Update> for UpdateId {
+///  fn from(update: Update) -> Self {
+///   Self(update.id)
+///  }
+/// }
+/// ```
+///
+/// You can also use `#[event(try_from = "...")]` attribute to specify the type from which the type will be converted.
+///
+/// ```rust
+/// use telers_macros::FromEvent;
+///
+/// #[derive(Clone, FromEvent)]
+/// #[event(try_from = Update)]
+/// struct UpdateId(i32);
+///
+/// impl TryFrom<Update> for UpdateId { // we use `TryFrom` here just for example, you need to use `From` if error is impossible
+///  type Error = Infallible;
+///
+///  fn try_from(update: Update) -> Result<Self, Self::Error> {
+///   Ok(Self(update.id))
+///  }
+/// }
+/// ```
+/// # Notes
+/// This macros is used in the library to implement `FromEventAndContext` for types that impl `From` for `Update`,
+/// but you can use it for your own types.
+#[proc_macro_derive(FromEvent, attributes(event))]
+pub fn derive_from_event(item: TokenStream) -> TokenStream {
+    expand_with(item, from_event::expand)
 }
 
 fn expand_with<F, I, K>(input: TokenStream, f: F) -> TokenStream
