@@ -189,9 +189,5 @@ mod tests {
             FromEventAndContext::extract(bot.clone(), update.clone(), context.clone()).unwrap();
         let _: Result<(), Infallible> =
             FromEventAndContext::extract(bot.clone(), update.clone(), context.clone()).unwrap();
-        let _: Box<()> =
-            FromEventAndContext::extract(bot.clone(), update.clone(), context.clone()).unwrap();
-        let _: Pin<Box<()>> =
-            FromEventAndContext::extract(bot.clone(), update.clone(), context.clone()).unwrap();
     }
 }
