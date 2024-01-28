@@ -8,7 +8,11 @@ use serde::Deserialize;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chat>
 #[derive(Debug, Clone, PartialEq, Deserialize, FromContext)]
-#[context(key = "event_chat")]
+#[context(
+    key = "event_chat",
+    description = "This object represents a chat. \
+    This context is available only if `UserContext` middleware is used (default middleware) and chat in `Update` is not empty."
+)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum Chat {
     Private(Private),

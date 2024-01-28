@@ -22,6 +22,8 @@ use syn::parse::Parse;
 /// * `#[context(key = "...")]` - the key by which the type will be extracted from context.
 /// * `#[context(into = "...")]` - the type into which the type will be converted.
 /// * `#[context(from = "...")]` - the type from which the type will be converted.
+/// * `#[context(description = "...")]` - the description of the type in context. \
+/// This attribute is used only for documentation purposes and perhaps for debugging.
 ///
 /// Check the examples below to see how to use this macro and what types of deriving are supported.
 ///

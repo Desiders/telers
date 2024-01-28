@@ -356,7 +356,10 @@ impl Command<'_> {
 /// Represents parsed command from text
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, FromContext)]
-#[context(key = "command")]
+#[context(
+    key = "command",
+    description = "Parsed command object. This type is available only if the command filter is used and filer is passed."
+)]
 pub struct CommandObject {
     /// Command without prefix and mention
     pub command: Box<str>,

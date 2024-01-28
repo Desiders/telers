@@ -14,6 +14,7 @@ mod keywords {
     syn::custom_keyword!(key);
     syn::custom_keyword!(into);
     syn::custom_keyword!(from);
+    syn::custom_keyword!(description);
 }
 
 /// All context attributes
@@ -21,8 +22,9 @@ mod keywords {
 /// * `key` - key of context (required)
 /// * `into` - type into which we need to convert context value (optional)
 /// * `from` - type from which we need to convert context value (optional)
+/// * `description` - description of type in context (optional)
 /// # Examples
-/// ```rust,no_run
+/// ```not_rust
 /// #[context(key = "type", into = TypeWrapper)]
 /// struct Type;
 ///
@@ -36,6 +38,7 @@ struct FromContextAttrs {
     key: LitStr,
     into: Option<Type>,
     from: Option<Type>,
+    description: Option<LitStr>,
 }
 
 /// Parse `#[context(...)]` attributes
@@ -48,6 +51,7 @@ impl Parse for FromContextAttrs {
         let mut key = None;
         let mut into = None;
         let mut from = None;
+        let mut description = None;
 
         while !input.is_empty() {
             let lookahead = input.lookahead1();
@@ -116,6 +120,25 @@ impl Parse for FromContextAttrs {
                 continue;
             }
 
+            if lookahead.peek(keywords::description) {
+                let input_description: keywords::description = input.parse()?;
+                input.parse::<Token![=]>()?;
+
+                let value: LitStr = input.parse()?;
+
+                if description.is_some() {
+                    return Err(syn::Error::new_spanned(
+                        input_description,
+                        "duplicate `description` attribute",
+                    ));
+                }
+
+                description = Some(value);
+
+                // If we found `description` attribute, then we need to skip it and continue parsing
+                continue;
+            }
+
             // If we found unknown attribute, then we need to return error
             return Err(syn::Error::new(
                 input.span(),
@@ -125,7 +148,12 @@ impl Parse for FromContextAttrs {
 
         let key = key.ok_or_else(|| syn::Error::new(input.span(), "missing `key` attribute"))?;
 
-        Ok(Self { key, into, from })
+        Ok(Self {
+            key,
+            into,
+            from,
+            description,
+        })
     }
 }
 
@@ -188,6 +216,7 @@ impl ToTokens for Client {
 /// If `from` field is not empty, then we need to implement the trait for `ident` type and require `From<Self>` trait for `into` type.
 /// # Notes
 /// * Currently we can implement `FromEventAndContext` trait for types that implement `Into<Self>` or `From<Self>` traits only with the same generics.
+#[allow(clippy::too_many_lines)]
 fn impl_from_event_and_context(
     ident: &Ident,
     ident_impl_generics: &ImplGenerics<'_>,
@@ -223,6 +252,9 @@ fn impl_from_event_and_context(
     let key = context_attrs.key.value();
     let key_str = key.as_str();
 
+    let description = context_attrs.description.as_ref().map(LitStr::value);
+    let description_str = description.as_deref().unwrap_or("no description");
+
     // If `into` field is not empty, then we need to implement the trait for `into` type and require `Into<Self>` trait for `ident` type
     if let Some(ref into) = context_attrs.into {
         return quote_spanned! { ident.span() =>
@@ -243,13 +275,19 @@ fn impl_from_event_and_context(
                     use ::telers::errors::ExtractionError as Error;
 
                     let Some(value) = context.get(#key_str) else {
-                        return Err(Error::new(concat!("No found data in context by key `", #key_str, '`')));
+                        return Err(Error::new(concat!(
+                            "No found data in context by key `", #key_str, "`. ",
+                            "You didn't forget to add type to context? ",
+                            "Type description: ", #description_str,
+                        )));
                     };
 
                     match value.downcast_ref::<#ident #ty_generics_punctuated>() {
                         Some(value_ref) => Ok((*value_ref).clone().into()),
                         None => Err(Error::new(concat!(
-                            "Data in context by key `", #key_str, "` has wrong type expected `", stringify!(#ident), '`',
+                            "Data in context by key `", #key_str, "` has wrong type expected `", stringify!(#ident), "`. ",
+                            "You didn't forget to add type to context? ",
+                            "Type description: ", #description_str,
                         ))),
                     }
                 }
@@ -277,13 +315,19 @@ fn impl_from_event_and_context(
                     use ::telers::errors::ExtractionError as Error;
 
                     let Some(value) = context.get(#key_str) else {
-                        return Err(Error::new(concat!("No found data in context by key `", #key_str, '`')));
+                        return Err(Error::new(concat!(
+                            "No found data in context by key `", #key_str, "`. ",
+                            "You didn't forget to add type to context? ",
+                            "Type description: ", #description_str,
+                        )));
                     };
 
                     match value.downcast_ref::<#from #ty_generics_punctuated>() {
                         Some(value_ref) => Ok((*value_ref).clone().into()),
                         None => Err(Error::new(concat!(
-                            "Data in context by key `", #key_str, "` has wrong type expected `", stringify!(#from), '`',
+                            "Data in context by key `", #key_str, "` has wrong type expected `", stringify!(#from), "`. ",
+                            "You didn't forget to add type to context? ",
+                            "Type description: ", #description_str,
                         ))),
                     }
                 }
@@ -308,13 +352,19 @@ fn impl_from_event_and_context(
                 use ::telers::errors::ExtractionError as Error;
 
                 let Some(value) = context.get(#key_str) else {
-                    return Err(Error::new(concat!("No found data in context by key `", #key_str, '`')));
+                    return Err(Error::new(concat!(
+                        "No found data in context by key `", #key_str, "`. ",
+                        "You didn't forget to add type to context? ",
+                        "Type description: ", #description_str,
+                    )));
                 };
 
                 match value.downcast_ref::<Self>() {
                     Some(value_ref) => Ok((*value_ref).clone()),
                     None => Err(Error::new(concat!(
-                        "Data in context by key `", #key_str, "` has wrong type expected `", stringify!(#ident), '`',
+                        "Data in context by key `", #key_str, "` has wrong type expected `", stringify!(#ident), "`. ",
+                        "You didn't forget to add type to context? ",
+                        "Type description: ", #description_str,
                     ))),
                 }
             }

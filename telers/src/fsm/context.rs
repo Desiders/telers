@@ -7,7 +7,11 @@ use std::{borrow::Cow, collections::HashMap};
 
 /// Context is used to manage state and data of the user in specified storage
 #[derive(FromContext)]
-#[context(key = "fsm_context")]
+#[context(
+    key = "fsm_context",
+    description = "Context is used to manage state and data of the user in specified storage. \
+    This context is available only if `FSMContext` middleware is used and `user_id` in context is not empty."
+)]
 pub struct Context<S> {
     storage: S,
     key: StorageKey,

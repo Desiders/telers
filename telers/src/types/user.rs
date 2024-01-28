@@ -9,7 +9,11 @@ use std::borrow::Cow;
 /// <https://core.telegram.org/bots/api#user>
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize, Serialize, FromContext)]
-#[context(key = "event_user")]
+#[context(
+    key = "event_user",
+    description = "This object represents a Telegram user or bot. \
+    This context is available only if `UserContext` middleware is used (default middleware) and user in `Update` is not empty."
+)]
 pub struct User {
     /// Unique identifier for this user or bot. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
     pub id: i64,
