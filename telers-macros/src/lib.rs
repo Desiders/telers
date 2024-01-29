@@ -162,7 +162,11 @@ pub fn derive_from_context(item: TokenStream) -> TokenStream {
 /// This macro supports the following attributes:
 /// * `#[event(from = "...")]` - the from which the type will be converted.
 /// * `#[event(try_from = "...")]` - the from which the type will be converted.
-/// * `#[event(description = "...")]` - the description of the type. \
+/// * `#[event(error = "...")]` - the error type that will be returned if conversion fails. \
+/// Used only if `try_from` is specified. \
+/// If it's empty, then we use `ConvertToTypeError` type as error type. \
+/// If it's not empty, then we use this type as error type.
+/// * `#[event(description = "...")]` - the description of the type. \s
 /// This attribute is used only for documentation purposes.
 ///
 /// "..." it can be either a type, or a type path to one of them:
@@ -177,10 +181,11 @@ pub fn derive_from_context(item: TokenStream) -> TokenStream {
 ///
 /// ```rust
 /// use telers_macros::FromEvent;
+/// use telers::types::Update;
 ///
 /// #[derive(Clone, FromEvent)]
 /// #[event(from = Update)]
-/// struct UpdateId(i32);
+/// struct UpdateId(i64);
 ///
 /// impl From<Update> for UpdateId {
 ///  fn from(update: Update) -> Self {
@@ -193,16 +198,41 @@ pub fn derive_from_context(item: TokenStream) -> TokenStream {
 ///
 /// ```rust
 /// use telers_macros::FromEvent;
+/// use telers::types::Update;
+/// use std::convert::Infallible;
 ///
 /// #[derive(Clone, FromEvent)]
-/// #[event(try_from = Update)]
-/// struct UpdateId(i32);
+/// #[event(try_from = Update, error = Infallible)] // we can don't specify error type, but it will be `ConvertToTypeError` by default
+/// struct UpdateId(i64);
 ///
 /// impl TryFrom<Update> for UpdateId { // we use `TryFrom` here just for example, you need to use `From` if error is impossible
 ///  type Error = Infallible;
 ///
 ///  fn try_from(update: Update) -> Result<Self, Self::Error> {
 ///   Ok(Self(update.id))
+///  }
+/// }
+/// ```
+///
+/// Another example, but with default error type:
+///
+/// ```rust
+/// use telers_macros::FromEvent;
+/// use telers::{types::Update, errors::ConvertToTypeError};
+/// use std::convert::Infallible;
+///
+/// #[derive(Clone, FromEvent)]
+/// #[event(try_from = Update)] // you can specify `ConvertToTypeError` as error type, but it's not necessary, because it's default
+/// struct UpdateFromId(i64);
+///
+/// impl TryFrom<Update> for UpdateFromId {
+///  type Error = ConvertToTypeError;
+///
+///  fn try_from(update: Update) -> Result<Self, Self::Error> {
+///   match update.from_id() {
+///    Some(id) => Ok(Self(id)),
+///    None => Err(ConvertToTypeError::new("Update", "UpdateFromId")),
+///   }
 ///  }
 /// }
 /// ```
