@@ -1,6 +1,6 @@
 use super::{InaccessibleMessage, MaybeInaccessibleMessage, Update, UpdateKind, User};
 
-use crate::errors::ConvertToTypeError;
+use crate::{errors::ConvertToTypeError, FromEvent};
 
 use serde::Deserialize;
 
@@ -8,7 +8,8 @@ use serde::Deserialize;
 /// **NOTE:** After the user presses a callback button, Telegram clients will display a progress bar until you call [`AnswerCallbackQuery`](crate::methods::AnswerCallbackQuery). It is, therefore, necessary to react by calling [`AnswerCallbackQuery`](crate::methods::AnswerCallbackQuery) even if no notification to the user is needed (e.g., without specifying any of the optional parameters).
 /// # Documentation
 /// <https://core.telegram.org/bots/api#callbackquery>
-#[derive(Debug, Default, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct CallbackQuery {
     /// Unique identifier for this query
     pub id: Box<str>,

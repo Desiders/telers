@@ -17,7 +17,7 @@ pub mod router;
 pub mod types;
 pub mod utils;
 
-pub use telers_macros::FromContext;
+pub use telers_macros::{FromContext, FromEvent};
 
 pub use client::Bot;
 pub use context::Context;

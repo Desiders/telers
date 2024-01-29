@@ -5,7 +5,7 @@ use super::{
     MessageReactionUpdated, Poll, PollAnswer, PreCheckoutQuery, ShippingQuery, User,
 };
 
-use crate::enums::UpdateType;
+use crate::{enums::UpdateType, extractors::FromEvent};
 
 use serde::{de::MapAccess, Deserialize, Deserializer};
 use std::{
@@ -26,7 +26,8 @@ pub struct Update {
     pub kind: Kind,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, FromEvent)]
+#[event(from = Update)]
 pub enum Kind {
     /// New incoming message of any kind — text, photo, sticker, etc.
     Message(Message),
@@ -300,6 +301,13 @@ impl Default for Kind {
     }
 }
 
+impl From<Update> for Kind {
+    #[must_use]
+    fn from(update: Update) -> Self {
+        update.kind
+    }
+}
+
 impl<'de> Deserialize<'de> for Kind {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -461,12 +469,5 @@ impl Update {
     #[must_use]
     pub const fn message_thread_id(&self) -> Option<i64> {
         self.kind().message_thread_id()
-    }
-}
-
-impl From<Update> for Kind {
-    #[must_use]
-    fn from(update: Update) -> Self {
-        update.kind
     }
 }

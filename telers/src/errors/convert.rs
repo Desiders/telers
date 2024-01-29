@@ -14,7 +14,8 @@ pub struct ConvertToType {
 }
 
 impl ConvertToType {
-    #[must_use] pub fn new(from_raw_type: &'static str, to_raw_type: &'static str) -> Self {
+    #[must_use]
+    pub const fn new(from_raw_type: &'static str, to_raw_type: &'static str) -> Self {
         Self {
             from_raw_type,
             to_raw_type,

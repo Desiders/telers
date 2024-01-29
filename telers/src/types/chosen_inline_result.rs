@@ -1,6 +1,6 @@
 use super::{Location, Update, UpdateKind, User};
 
-use crate::errors::ConvertToTypeError;
+use crate::{errors::ConvertToTypeError, FromEvent};
 
 use serde::Deserialize;
 
@@ -9,7 +9,8 @@ use serde::Deserialize;
 /// It is necessary to enable [`inline feedback`](https://core.telegram.org/bots/inline#collecting-feedback) via [`@BotFather`](https://t.me/botfather) in order to receive these objects in updates.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#choseninlineresult>
-#[derive(Debug, Default, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct ChosenInlineResult {
     /// The unique identifier for the result that was chosen
     pub result_id: Box<str>,

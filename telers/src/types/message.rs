@@ -3,14 +3,15 @@ use super::{
     MessageEntity, MessageOrigin, PhotoSize, TextQuote, Update, UpdateKind, User,
 };
 
-use crate::{errors::ConvertToTypeError, types};
+use crate::{errors::ConvertToTypeError, extractors::FromEvent, types};
 
 use serde::Deserialize;
 
 /// This object represents a message.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#message>
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 #[serde(untagged)]
 pub enum Message {
     Text(Text),
@@ -66,7 +67,8 @@ pub enum Message {
     WebAppData(WebAppData),
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct Animation {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -115,7 +117,8 @@ pub struct Animation {
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct Audio {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -164,7 +167,8 @@ pub struct Audio {
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct Contact {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -202,7 +206,8 @@ pub struct Contact {
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct Dice {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -238,7 +243,8 @@ pub struct Dice {
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct Document {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -287,7 +293,8 @@ pub struct Document {
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct Game {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -325,7 +332,8 @@ pub struct Game {
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct Poll {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -363,7 +371,8 @@ pub struct Poll {
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct Venue {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -403,7 +412,8 @@ pub struct Venue {
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct Location {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -443,7 +453,8 @@ pub struct Location {
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct Photo {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -520,7 +531,8 @@ impl Photo {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct Story {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -550,7 +562,8 @@ pub struct Story {
     pub story: types::Story,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct Sticker {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -586,7 +599,8 @@ pub struct Sticker {
     pub sticker: types::Sticker,
 }
 
-#[derive(Debug, Default, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct Text {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -632,7 +646,8 @@ pub struct Text {
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct Video {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -683,7 +698,8 @@ pub struct Video {
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct VideoNote {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -719,7 +735,8 @@ pub struct VideoNote {
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct Voice {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -764,7 +781,8 @@ pub struct Voice {
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct MigrateToChat {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -789,7 +807,8 @@ pub struct MigrateToChat {
     pub to_chat_id: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct MigrateFromChat {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -814,7 +833,8 @@ pub struct MigrateFromChat {
     pub from_chat_id: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct NewChatMembers {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -837,7 +857,8 @@ pub struct NewChatMembers {
     pub members: Box<[User]>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct LeftChatMember {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -862,7 +883,8 @@ pub struct LeftChatMember {
     pub member: User,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct NewChatTitle {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -887,7 +909,8 @@ pub struct NewChatTitle {
     pub title: Box<str>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct NewChatPhoto {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -912,7 +935,8 @@ pub struct NewChatPhoto {
     pub photo: Box<[PhotoSize]>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct DeleteChatPhoto {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -937,7 +961,8 @@ pub struct DeleteChatPhoto {
     pub photo: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct GroupChatCreated {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -958,7 +983,8 @@ pub struct GroupChatCreated {
     pub created: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct SupergroupChatCreated {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -979,7 +1005,8 @@ pub struct SupergroupChatCreated {
     pub created: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct ChannelChatCreated {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1001,7 +1028,8 @@ pub struct ChannelChatCreated {
 }
 
 #[allow(clippy::module_name_repetitions)]
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct MessageAutoDeleteTimerChanged {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1024,7 +1052,8 @@ pub struct MessageAutoDeleteTimerChanged {
     pub timer: types::MessageAutoDeleteTimerChanged,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct Pinned {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1051,7 +1080,8 @@ pub struct Pinned {
     pub message: Box<MaybeInaccessibleMessage>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct Invoice {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1087,7 +1117,8 @@ pub struct Invoice {
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct SuccessfulPayment {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1116,7 +1147,8 @@ pub struct SuccessfulPayment {
     pub payment: types::SuccessfulPayment,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct UsersShared {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1139,7 +1171,8 @@ pub struct UsersShared {
     pub shared: types::UsersShared,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct ChatShared {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1162,7 +1195,8 @@ pub struct ChatShared {
     pub shared: types::ChatShared,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct ConnectedWebsite {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1189,7 +1223,8 @@ pub struct ConnectedWebsite {
     pub website: Box<str>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct WriteAccessAllowed {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1214,7 +1249,8 @@ pub struct WriteAccessAllowed {
     pub allowed: types::WriteAccessAllowed,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct PassportData {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1241,7 +1277,8 @@ pub struct PassportData {
     pub data: types::PassportData,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct ProximityAlertTriggered {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1264,7 +1301,8 @@ pub struct ProximityAlertTriggered {
     pub triggered: types::ProximityAlertTriggered,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct ForumTopicCreated {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1291,7 +1329,8 @@ pub struct ForumTopicCreated {
     pub created: types::ForumTopicCreated,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct ForumTopicEdited {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1318,7 +1357,8 @@ pub struct ForumTopicEdited {
     pub edited: types::ForumTopicEdited,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct ForumTopicClosed {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1345,7 +1385,8 @@ pub struct ForumTopicClosed {
     pub closed: types::ForumTopicClosed,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct ForumTopicReopened {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1372,7 +1413,8 @@ pub struct ForumTopicReopened {
     pub reopened: types::ForumTopicReopened,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct GeneralForumTopicHidden {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1399,7 +1441,8 @@ pub struct GeneralForumTopicHidden {
     pub hidden: types::GeneralForumTopicHidden,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct GeneralForumTopicUnhidden {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1426,7 +1469,8 @@ pub struct GeneralForumTopicUnhidden {
     pub unhidden: types::GeneralForumTopicUnhidden,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct GiveawayCreated {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1447,7 +1491,8 @@ pub struct GiveawayCreated {
     pub created: types::GiveawayCreated,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct Giveaway {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1469,7 +1514,8 @@ pub struct Giveaway {
     pub giveaway: types::Giveaway,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct GiveawayWinners {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1492,7 +1538,8 @@ pub struct GiveawayWinners {
     pub winners: types::GiveawayWinners,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct GiveawayCompleted {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1513,7 +1560,8 @@ pub struct GiveawayCompleted {
     pub completed: types::GiveawayCompleted,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct VideoChatScheduled {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1534,7 +1582,8 @@ pub struct VideoChatScheduled {
     pub scheduled: types::VideoChatScheduled,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct VideoChatStarted {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1555,7 +1604,8 @@ pub struct VideoChatStarted {
     pub started: types::VideoChatStarted,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct VideoChatEnded {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1576,7 +1626,8 @@ pub struct VideoChatEnded {
     pub ended: types::VideoChatEnded,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct VideoChatParticipantsInvited {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1597,7 +1648,8 @@ pub struct VideoChatParticipantsInvited {
     pub invited: types::VideoChatParticipantsInvited,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct WebAppData {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]

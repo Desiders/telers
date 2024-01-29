@@ -1,13 +1,14 @@
 use super::{Chat, Update, UpdateKind, User};
 
-use crate::errors::ConvertToTypeError;
+use crate::{errors::ConvertToTypeError, FromEvent};
 
 use serde::Deserialize;
 
 /// This object represents an answer of a user in a non-anonymous poll.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#pollanswer>
-#[derive(Debug, Default, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct PollAnswer {
     /// Unique poll identifier
     pub poll_id: Box<str>,

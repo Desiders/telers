@@ -1,13 +1,14 @@
 use super::{Chat, ChatBoostSource, Update, UpdateKind};
 
-use crate::errors::ConvertToTypeError;
+use crate::{errors::ConvertToTypeError, FromEvent};
 
 use serde::Deserialize;
 
 /// This object represents a boost added to a chat or changed.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatboostupdated>
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct ChatBoostUpdated {
     /// Chat which was boosted
     pub chat: Chat,

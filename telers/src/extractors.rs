@@ -13,9 +13,7 @@
 //! [`Pin<Box<T>>`]: std::pin::Pin
 
 mod extractor;
-mod from_event;
 mod types;
 
-pub use crate::FromContext;
-pub use crate::{from_update, try_from_update};
+pub use crate::{FromContext, FromEvent};
 pub use extractor::FromEventAndContext;

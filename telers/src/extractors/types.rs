@@ -1,34 +1,9 @@
-use super::{from_update, try_from_update, FromEventAndContext};
+use super::FromEventAndContext;
 
-use crate::{
-    client::Bot,
-    context::Context,
-    errors::ConvertToTypeError,
-    types::{
-        CallbackQuery, ChatBoostRemoved, ChatBoostUpdated, ChatJoinRequest, ChatMemberUpdated,
-        ChosenInlineResult, InlineQuery, Message, MessageAnimation, MessageAudio,
-        MessageChannelChatCreated, MessageChatShared, MessageConnectedWebsite, MessageContact,
-        MessageDeleteChatPhoto, MessageDice, MessageDocument, MessageForumTopicClosed,
-        MessageForumTopicCreated, MessageForumTopicEdited, MessageForumTopicReopened, MessageGame,
-        MessageGeneralForumTopicHidden, MessageGeneralForumTopicUnhidden, MessageGiveaway,
-        MessageGiveawayCompleted, MessageGiveawayCreated, MessageGiveawayWinners,
-        MessageGroupChatCreated, MessageInvoice, MessageLeftChatMember, MessageLocation,
-        MessageMessageAutoDeleteTimerChanged, MessageMigrateFromChat, MessageMigrateToChat,
-        MessageNewChatMembers, MessageNewChatPhoto, MessageNewChatTitle, MessagePassportData,
-        MessagePhoto, MessagePinned, MessagePoll, MessageProximityAlertTriggered,
-        MessageReactionCountUpdated, MessageReactionUpdated, MessageSticker, MessageStory,
-        MessageSuccessfulPayment, MessageSupergroupChatCreated, MessageText, MessageUsersShared,
-        MessageVenue, MessageVideo, MessageVideoChatEnded, MessageVideoChatParticipantsInvited,
-        MessageVideoChatScheduled, MessageVideoChatStarted, MessageVideoNote, MessageVoice,
-        MessageWebAppData, MessageWriteAccessAllowed, Poll, PollAnswer, PollQuiz, PollRegular,
-        PreCheckoutQuery, ShippingQuery, Update, UpdateKind,
-    },
-};
+use crate::{client::Bot, context::Context, types::Update};
 
 use std::{convert::Infallible, sync::Arc};
 
-/// To be able to use [`Bot`] in handler arguments,
-/// this implementation will clone [`Bot`] and return it
 impl<Client: Clone> FromEventAndContext<Client> for Bot<Client> {
     type Error = Infallible;
 
@@ -41,8 +16,6 @@ impl<Client: Clone> FromEventAndContext<Client> for Bot<Client> {
     }
 }
 
-/// To be able to use [`Arc<Bot>`] in handler arguments,
-/// this implementation will return [`Arc<Bot>`] without cloning [`Bot`] itself
 impl<Client> FromEventAndContext<Client> for Arc<Bot<Client>> {
     type Error = Infallible;
 
@@ -55,8 +28,6 @@ impl<Client> FromEventAndContext<Client> for Arc<Bot<Client>> {
     }
 }
 
-/// To be able to use [`Update`] in handler arguments,
-/// this implementation will clone [`Update`] and return it
 impl<Client> FromEventAndContext<Client> for Update {
     type Error = Infallible;
 
@@ -69,8 +40,6 @@ impl<Client> FromEventAndContext<Client> for Update {
     }
 }
 
-/// To be able to use [`Arc<Update>`] in handler arguments,
-/// this implementation will return [`Arc<Update>`] without cloning [`Update`] itself
 impl<Client> FromEventAndContext<Client> for Arc<Update> {
     type Error = Infallible;
 
@@ -83,11 +52,6 @@ impl<Client> FromEventAndContext<Client> for Arc<Update> {
     }
 }
 
-/// To be able to use [`Arc<Context>`] in handler arguments,
-/// this implementation will return [`Arc<Context>`] without cloning [`Context`] itself
-/// # Note
-/// Currently implementation of [`FromEventAndContext`] for [`Arc<Context>`] is required,
-/// because [`Context`] can't be cloned directly, so [`Arc<Context>`] is used instead
 impl<Client> FromEventAndContext<Client> for Arc<Context> {
     type Error = Infallible;
 
@@ -100,393 +64,288 @@ impl<Client> FromEventAndContext<Client> for Arc<Context> {
     }
 }
 
-// To be able to use [`UpdateKind`] in handler arguments
-from_update!([Client], UpdateKind);
-
-// To be able to use [`Message`] and all variants in handler arguments
-try_from_update!([Client], Message);
-try_from_update!([Client], MessageText);
-try_from_update!([Client], MessageAnimation);
-try_from_update!([Client], MessageAudio);
-try_from_update!([Client], MessageChannelChatCreated);
-try_from_update!([Client], MessageUsersShared);
-try_from_update!([Client], MessageChatShared);
-try_from_update!([Client], MessageConnectedWebsite);
-try_from_update!([Client], MessageContact);
-try_from_update!([Client], MessageDeleteChatPhoto);
-try_from_update!([Client], MessageDice);
-try_from_update!([Client], MessageDocument);
-try_from_update!([Client], MessageForumTopicClosed);
-try_from_update!([Client], MessageForumTopicCreated);
-try_from_update!([Client], MessageForumTopicEdited);
-try_from_update!([Client], MessageForumTopicReopened);
-try_from_update!([Client], MessageGame);
-try_from_update!([Client], MessageGeneralForumTopicHidden);
-try_from_update!([Client], MessageGeneralForumTopicUnhidden);
-try_from_update!([Client], MessageGroupChatCreated);
-try_from_update!([Client], MessageInvoice);
-try_from_update!([Client], MessageLeftChatMember);
-try_from_update!([Client], MessageLocation);
-try_from_update!([Client], MessageMessageAutoDeleteTimerChanged);
-try_from_update!([Client], MessageMigrateFromChat);
-try_from_update!([Client], MessageMigrateToChat);
-try_from_update!([Client], MessageNewChatMembers);
-try_from_update!([Client], MessageNewChatPhoto);
-try_from_update!([Client], MessageNewChatTitle);
-try_from_update!([Client], MessagePassportData);
-try_from_update!([Client], MessagePhoto);
-try_from_update!([Client], MessagePinned);
-try_from_update!([Client], MessagePoll);
-try_from_update!([Client], MessageProximityAlertTriggered);
-try_from_update!([Client], MessageSticker);
-try_from_update!([Client], MessageStory);
-try_from_update!([Client], MessageSuccessfulPayment);
-try_from_update!([Client], MessageSupergroupChatCreated);
-try_from_update!([Client], MessageVenue);
-try_from_update!([Client], MessageVideo);
-try_from_update!([Client], MessageVideoChatEnded);
-try_from_update!([Client], MessageVideoChatParticipantsInvited);
-try_from_update!([Client], MessageVideoChatScheduled);
-try_from_update!([Client], MessageVideoChatStarted);
-try_from_update!([Client], MessageVideoNote);
-try_from_update!([Client], MessageVoice);
-try_from_update!([Client], MessageWebAppData);
-try_from_update!([Client], MessageWriteAccessAllowed);
-try_from_update!([Client], MessageGiveawayCreated);
-try_from_update!([Client], MessageGiveaway);
-try_from_update!([Client], MessageGiveawayCompleted);
-try_from_update!([Client], MessageGiveawayWinners);
-try_from_update!([Client], MessageReactionUpdated);
-try_from_update!([Client], MessageReactionCountUpdated);
-
-// To be able to use [`Poll`] and all [`PollKind`] variants in handler arguments
-try_from_update!([Client], Poll);
-try_from_update!([Client], PollRegular);
-try_from_update!([Client], PollQuiz);
-
-// To be able to use [`CallbackQuery`] in handler arguments
-try_from_update!([Client], CallbackQuery);
-
-// To be able to use [`ChosenInlineResult`] in handler arguments
-try_from_update!([Client], ChosenInlineResult);
-
-// To be able to use [`ShippingQuery`] in handler arguments
-try_from_update!([Client], ShippingQuery);
-
-// To be able to use [`PreCheckoutQuery`] in handler arguments
-try_from_update!([Client], PreCheckoutQuery);
-
-// To be able to use [`PollAnswer`] in handler arguments
-try_from_update!([Client], PollAnswer);
-
-// To be able to use [`ChatMemberUpdated`] in handler arguments
-try_from_update!([Client], ChatMemberUpdated);
-
-// To be able to use [`ChatJoinRequest`] in handler arguments
-try_from_update!([Client], ChatJoinRequest);
-
-// To be able to use [`InlineQuery`] in handler arguments
-try_from_update!([Client], InlineQuery);
-
-// To be able to use [`ChatBoostUpdated`] in handler arguments
-try_from_update!([Client], ChatBoostUpdated);
-
-// To be able to use [`ChatBoostRemoved`] in handler arguments
-try_from_update!([Client], ChatBoostRemoved);
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{client::Reqwest, errors::ConvertToTypeError, event::telegram::handler::Handler};
+    use crate::{
+        errors::{ConvertToTypeError, ExtractionError},
+        types::{
+            CallbackQuery, ChatBoostRemoved, ChatBoostUpdated, ChatJoinRequest, ChatMemberUpdated,
+            ChosenInlineResult, InlineQuery, Message, MessageAnimation, MessageAudio,
+            MessageChannelChatCreated, MessageChatShared, MessageConnectedWebsite, MessageContact,
+            MessageDeleteChatPhoto, MessageDice, MessageDocument, MessageForumTopicClosed,
+            MessageForumTopicCreated, MessageForumTopicEdited, MessageForumTopicReopened,
+            MessageGame, MessageGeneralForumTopicHidden, MessageGeneralForumTopicUnhidden,
+            MessageGiveaway, MessageGiveawayCompleted, MessageGiveawayCreated,
+            MessageGiveawayWinners, MessageGroupChatCreated, MessageInvoice, MessageLeftChatMember,
+            MessageLocation, MessageMessageAutoDeleteTimerChanged, MessageMigrateFromChat,
+            MessageMigrateToChat, MessageNewChatMembers, MessageNewChatPhoto, MessageNewChatTitle,
+            MessagePassportData, MessagePhoto, MessagePinned, MessagePoll,
+            MessageProximityAlertTriggered, MessageReactionCountUpdated, MessageReactionUpdated,
+            MessageSticker, MessageStory, MessageSuccessfulPayment, MessageSupergroupChatCreated,
+            MessageText, MessageUsersShared, MessageVenue, MessageVideo, MessageVideoChatEnded,
+            MessageVideoChatParticipantsInvited, MessageVideoChatScheduled,
+            MessageVideoChatStarted, MessageVideoNote, MessageVoice, MessageWebAppData,
+            MessageWriteAccessAllowed, Poll, PollAnswer, PollQuiz, PollRegular, PreCheckoutQuery,
+            ShippingQuery, UpdateKind,
+        },
+    };
 
-    #[allow(clippy::needless_pass_by_value)]
-    fn inner_extract<T: FromEventAndContext<Reqwest>>(
-        bot: Arc<Bot<Reqwest>>,
-        update: Arc<Update>,
-        context: Arc<Context>,
-    ) -> Result<T, T::Error> {
-        T::extract(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context))
+    #[allow(unreachable_code)]
+    fn _check_bounds<Client, T: FromEventAndContext<Client>>() {
+        unimplemented!("This function is only used for checking bounds");
+
+        _check_bounds::<_, Bot>();
+        _check_bounds::<_, Arc<Bot>>();
+        _check_bounds::<Client, Update>();
+        _check_bounds::<Client, Arc<Update>>();
+        _check_bounds::<Client, Arc<Context>>();
+        _check_bounds::<Client, UpdateKind>();
+
+        // Message-related bounds
+        _check_bounds::<Client, Message>();
+        _check_bounds::<Client, MessageText>();
+        _check_bounds::<Client, MessageAnimation>();
+        _check_bounds::<Client, MessageAudio>();
+        _check_bounds::<Client, MessageChannelChatCreated>();
+        _check_bounds::<Client, MessageUsersShared>();
+        _check_bounds::<Client, MessageChatShared>();
+        _check_bounds::<Client, MessageConnectedWebsite>();
+        _check_bounds::<Client, MessageContact>();
+        _check_bounds::<Client, MessageDeleteChatPhoto>();
+        _check_bounds::<Client, MessageDice>();
+        _check_bounds::<Client, MessageDocument>();
+        _check_bounds::<Client, MessageForumTopicClosed>();
+        _check_bounds::<Client, MessageForumTopicCreated>();
+        _check_bounds::<Client, MessageForumTopicEdited>();
+        _check_bounds::<Client, MessageForumTopicReopened>();
+        _check_bounds::<Client, MessageGame>();
+        _check_bounds::<Client, MessageGeneralForumTopicHidden>();
+        _check_bounds::<Client, MessageGeneralForumTopicUnhidden>();
+        _check_bounds::<Client, MessageGroupChatCreated>();
+        _check_bounds::<Client, MessageInvoice>();
+        _check_bounds::<Client, MessageLeftChatMember>();
+        _check_bounds::<Client, MessageLocation>();
+        _check_bounds::<Client, MessageMessageAutoDeleteTimerChanged>();
+        _check_bounds::<Client, MessageMigrateFromChat>();
+        _check_bounds::<Client, MessageMigrateToChat>();
+        _check_bounds::<Client, MessageNewChatMembers>();
+        _check_bounds::<Client, MessageNewChatPhoto>();
+        _check_bounds::<Client, MessageNewChatTitle>();
+        _check_bounds::<Client, MessagePassportData>();
+        _check_bounds::<Client, MessagePhoto>();
+        _check_bounds::<Client, MessagePinned>();
+        _check_bounds::<Client, MessagePoll>();
+        _check_bounds::<Client, MessageProximityAlertTriggered>();
+        _check_bounds::<Client, MessageSticker>();
+        _check_bounds::<Client, MessageStory>();
+        _check_bounds::<Client, MessageSuccessfulPayment>();
+        _check_bounds::<Client, MessageSupergroupChatCreated>();
+        _check_bounds::<Client, MessageVenue>();
+        _check_bounds::<Client, MessageVideo>();
+        _check_bounds::<Client, MessageVideoChatEnded>();
+        _check_bounds::<Client, MessageVideoChatParticipantsInvited>();
+        _check_bounds::<Client, MessageVideoChatScheduled>();
+        _check_bounds::<Client, MessageVideoChatStarted>();
+        _check_bounds::<Client, MessageVideoNote>();
+        _check_bounds::<Client, MessageVoice>();
+        _check_bounds::<Client, MessageWebAppData>();
+        _check_bounds::<Client, MessageWriteAccessAllowed>();
+        _check_bounds::<Client, MessageGiveawayCreated>();
+        _check_bounds::<Client, MessageGiveaway>();
+        _check_bounds::<Client, MessageGiveawayCompleted>();
+        _check_bounds::<Client, MessageGiveawayWinners>();
+        _check_bounds::<Client, MessageUsersShared>();
+
+        _check_bounds::<Client, MessageReactionUpdated>();
+        _check_bounds::<Client, MessageReactionCountUpdated>();
+        _check_bounds::<Client, CallbackQuery>();
+        _check_bounds::<Client, ChosenInlineResult>();
+        _check_bounds::<Client, ShippingQuery>();
+        _check_bounds::<Client, PreCheckoutQuery>();
+        _check_bounds::<Client, PollAnswer>();
+        _check_bounds::<Client, ChatMemberUpdated>();
+        _check_bounds::<Client, ChatJoinRequest>();
+        _check_bounds::<Client, InlineQuery>();
+
+        // Poll-related bounds
+        _check_bounds::<Client, Poll>();
+        _check_bounds::<Client, PollRegular>();
+        _check_bounds::<Client, PollQuiz>();
+
+        _check_bounds::<Client, ChatBoostUpdated>();
+        _check_bounds::<Client, ChatBoostRemoved>();
     }
 
-    #[test]
-    fn test_impl_extract_types() {
-        fn assert_impl_handler<T: FromEventAndContext<Reqwest>>(_: impl Handler<T>) {}
+    #[allow(unreachable_code)]
+    fn _check_bounds_option<Client, T: FromEventAndContext<Client>>() {
+        unimplemented!("This function is only used for checking bounds");
 
-        assert_impl_handler(|_: Bot<Reqwest>| async { unreachable!() });
-        assert_impl_handler(|_: Arc<Bot<Reqwest>>| async { unreachable!() });
-        assert_impl_handler(|_: Update| async { unreachable!() });
-        assert_impl_handler(|_: UpdateKind| async { unreachable!() });
-        assert_impl_handler(|_: Arc<Update>| async { unreachable!() });
-        assert_impl_handler(|_: Arc<Context>| async { unreachable!() });
-        assert_impl_handler(|_: Message| async { unreachable!() });
-        assert_impl_handler(|_: MessageText| async { unreachable!() });
-        assert_impl_handler(|_: MessageAnimation| async { unreachable!() });
-        assert_impl_handler(|_: MessageAudio| async { unreachable!() });
-        assert_impl_handler(|_: MessageChannelChatCreated| async { unreachable!() });
-        assert_impl_handler(|_: MessageUsersShared| async { unreachable!() });
-        assert_impl_handler(|_: MessageChatShared| async { unreachable!() });
-        assert_impl_handler(|_: MessageConnectedWebsite| async { unreachable!() });
-        assert_impl_handler(|_: MessageContact| async { unreachable!() });
-        assert_impl_handler(|_: MessageDeleteChatPhoto| async { unreachable!() });
-        assert_impl_handler(|_: MessageDice| async { unreachable!() });
-        assert_impl_handler(|_: MessageDocument| async { unreachable!() });
-        assert_impl_handler(|_: MessageForumTopicClosed| async { unreachable!() });
-        assert_impl_handler(|_: MessageForumTopicCreated| async { unreachable!() });
-        assert_impl_handler(|_: MessageForumTopicEdited| async { unreachable!() });
-        assert_impl_handler(|_: MessageForumTopicReopened| async { unreachable!() });
-        assert_impl_handler(|_: MessageGame| async { unreachable!() });
-        assert_impl_handler(|_: MessageGeneralForumTopicHidden| async { unreachable!() });
-        assert_impl_handler(|_: MessageGeneralForumTopicUnhidden| async { unreachable!() });
-        assert_impl_handler(|_: MessageGroupChatCreated| async { unreachable!() });
-        assert_impl_handler(|_: MessageInvoice| async { unreachable!() });
-        assert_impl_handler(|_: MessageLeftChatMember| async { unreachable!() });
-        assert_impl_handler(|_: MessageLocation| async { unreachable!() });
-        assert_impl_handler(|_: MessageMessageAutoDeleteTimerChanged| async { unreachable!() });
-        assert_impl_handler(|_: MessageMigrateFromChat| async { unreachable!() });
-        assert_impl_handler(|_: MessageMigrateToChat| async { unreachable!() });
-        assert_impl_handler(|_: MessageNewChatMembers| async { unreachable!() });
-        assert_impl_handler(|_: MessageNewChatPhoto| async { unreachable!() });
-        assert_impl_handler(|_: MessageNewChatTitle| async { unreachable!() });
-        assert_impl_handler(|_: MessagePassportData| async { unreachable!() });
-        assert_impl_handler(|_: MessagePhoto| async { unreachable!() });
-        assert_impl_handler(|_: MessagePinned| async { unreachable!() });
-        assert_impl_handler(|_: MessagePoll| async { unreachable!() });
-        assert_impl_handler(|_: MessageProximityAlertTriggered| async { unreachable!() });
-        assert_impl_handler(|_: MessageSticker| async { unreachable!() });
-        assert_impl_handler(|_: MessageStory| async { unreachable!() });
-        assert_impl_handler(|_: MessageSuccessfulPayment| async { unreachable!() });
-        assert_impl_handler(|_: MessageSupergroupChatCreated| async { unreachable!() });
-        assert_impl_handler(|_: MessageVenue| async { unreachable!() });
-        assert_impl_handler(|_: MessageVideo| async { unreachable!() });
-        assert_impl_handler(|_: MessageVideoChatEnded| async { unreachable!() });
-        assert_impl_handler(|_: MessageVideoChatParticipantsInvited| async { unreachable!() });
-        assert_impl_handler(|_: MessageVideoChatScheduled| async { unreachable!() });
-        assert_impl_handler(|_: MessageVideoChatStarted| async { unreachable!() });
-        assert_impl_handler(|_: MessageVideoNote| async { unreachable!() });
-        assert_impl_handler(|_: MessageVoice| async { unreachable!() });
-        assert_impl_handler(|_: MessageWebAppData| async { unreachable!() });
-        assert_impl_handler(|_: MessageWriteAccessAllowed| async { unreachable!() });
-        assert_impl_handler(|_: MessageGiveawayCreated| async { unreachable!() });
-        assert_impl_handler(|_: MessageGiveaway| async { unreachable!() });
-        assert_impl_handler(|_: MessageGiveawayCompleted| async { unreachable!() });
-        assert_impl_handler(|_: MessageGiveawayWinners| async { unreachable!() });
-        assert_impl_handler(|_: MessageUsersShared| async { unreachable!() });
-        assert_impl_handler(|_: MessageReactionUpdated| async { unreachable!() });
-        assert_impl_handler(|_: MessageReactionCountUpdated| async { unreachable!() });
-        assert_impl_handler(|_: Poll| async { unreachable!() });
-        assert_impl_handler(|_: PollRegular| async { unreachable!() });
-        assert_impl_handler(|_: PollQuiz| async { unreachable!() });
-        assert_impl_handler(|_: CallbackQuery| async { unreachable!() });
-        assert_impl_handler(|_: ChosenInlineResult| async { unreachable!() });
-        assert_impl_handler(|_: ShippingQuery| async { unreachable!() });
-        assert_impl_handler(|_: PreCheckoutQuery| async { unreachable!() });
-        assert_impl_handler(|_: PollAnswer| async { unreachable!() });
-        assert_impl_handler(|_: ChatMemberUpdated| async { unreachable!() });
-        assert_impl_handler(|_: ChatJoinRequest| async { unreachable!() });
-        assert_impl_handler(|_: InlineQuery| async { unreachable!() });
-        assert_impl_handler(|_: ChatBoostUpdated| async { unreachable!() });
-        assert_impl_handler(|_: ChatBoostRemoved| async { unreachable!() });
+        _check_bounds::<_, Option<Bot>>();
+        _check_bounds::<_, Option<Arc<Bot>>>();
+        _check_bounds::<Client, Option<Update>>();
+        _check_bounds::<Client, Option<Arc<Update>>>();
+        _check_bounds::<Client, Option<Arc<Context>>>();
+        _check_bounds::<Client, Option<UpdateKind>>();
+
+        // Message-related bounds
+        _check_bounds::<Client, Option<Message>>();
+        _check_bounds::<Client, Option<MessageText>>();
+        _check_bounds::<Client, Option<MessageAnimation>>();
+        _check_bounds::<Client, Option<MessageAudio>>();
+        _check_bounds::<Client, Option<MessageChannelChatCreated>>();
+        _check_bounds::<Client, Option<MessageUsersShared>>();
+        _check_bounds::<Client, Option<MessageChatShared>>();
+        _check_bounds::<Client, Option<MessageConnectedWebsite>>();
+        _check_bounds::<Client, Option<MessageContact>>();
+        _check_bounds::<Client, Option<MessageDeleteChatPhoto>>();
+        _check_bounds::<Client, Option<MessageDice>>();
+        _check_bounds::<Client, Option<MessageDocument>>();
+        _check_bounds::<Client, Option<MessageForumTopicClosed>>();
+        _check_bounds::<Client, Option<MessageForumTopicCreated>>();
+        _check_bounds::<Client, Option<MessageForumTopicEdited>>();
+        _check_bounds::<Client, Option<MessageForumTopicReopened>>();
+        _check_bounds::<Client, Option<MessageGame>>();
+        _check_bounds::<Client, Option<MessageGeneralForumTopicHidden>>();
+        _check_bounds::<Client, Option<MessageGeneralForumTopicUnhidden>>();
+        _check_bounds::<Client, Option<MessageGroupChatCreated>>();
+        _check_bounds::<Client, Option<MessageInvoice>>();
+        _check_bounds::<Client, Option<MessageLeftChatMember>>();
+        _check_bounds::<Client, Option<MessageLocation>>();
+        _check_bounds::<Client, Option<MessageMessageAutoDeleteTimerChanged>>();
+        _check_bounds::<Client, Option<MessageMigrateFromChat>>();
+        _check_bounds::<Client, Option<MessageMigrateToChat>>();
+        _check_bounds::<Client, Option<MessageNewChatMembers>>();
+        _check_bounds::<Client, Option<MessageNewChatPhoto>>();
+        _check_bounds::<Client, Option<MessageNewChatTitle>>();
+        _check_bounds::<Client, Option<MessagePassportData>>();
+        _check_bounds::<Client, Option<MessagePhoto>>();
+        _check_bounds::<Client, Option<MessagePinned>>();
+        _check_bounds::<Client, Option<MessagePoll>>();
+        _check_bounds::<Client, Option<MessageProximityAlertTriggered>>();
+        _check_bounds::<Client, Option<MessageSticker>>();
+        _check_bounds::<Client, Option<MessageStory>>();
+        _check_bounds::<Client, Option<MessageSuccessfulPayment>>();
+        _check_bounds::<Client, Option<MessageSupergroupChatCreated>>();
+        _check_bounds::<Client, Option<MessageVenue>>();
+        _check_bounds::<Client, Option<MessageVideo>>();
+        _check_bounds::<Client, Option<MessageVideoChatEnded>>();
+        _check_bounds::<Client, Option<MessageVideoChatParticipantsInvited>>();
+        _check_bounds::<Client, Option<MessageVideoChatScheduled>>();
+        _check_bounds::<Client, Option<MessageVideoChatStarted>>();
+        _check_bounds::<Client, Option<MessageVideoNote>>();
+        _check_bounds::<Client, Option<MessageVoice>>();
+        _check_bounds::<Client, Option<MessageWebAppData>>();
+        _check_bounds::<Client, Option<MessageWriteAccessAllowed>>();
+        _check_bounds::<Client, Option<MessageGiveawayCreated>>();
+        _check_bounds::<Client, Option<MessageGiveaway>>();
+        _check_bounds::<Client, Option<MessageGiveawayCompleted>>();
+        _check_bounds::<Client, Option<MessageGiveawayWinners>>();
+        _check_bounds::<Client, Option<MessageUsersShared>>();
+
+        _check_bounds::<Client, Option<MessageReactionUpdated>>();
+        _check_bounds::<Client, Option<MessageReactionCountUpdated>>();
+
+        _check_bounds::<Client, Option<CallbackQuery>>();
+        _check_bounds::<Client, Option<ChosenInlineResult>>();
+        _check_bounds::<Client, Option<ShippingQuery>>();
+        _check_bounds::<Client, Option<PreCheckoutQuery>>();
+        _check_bounds::<Client, Option<PollAnswer>>();
+        _check_bounds::<Client, Option<ChatMemberUpdated>>();
+        _check_bounds::<Client, Option<ChatJoinRequest>>();
+        _check_bounds::<Client, Option<InlineQuery>>();
+
+        // Poll-related bounds
+        _check_bounds::<Client, Option<Poll>>();
+        _check_bounds::<Client, Option<PollRegular>>();
+        _check_bounds::<Client, Option<PollQuiz>>();
+
+        _check_bounds::<Client, Option<ChatBoostUpdated>>();
+        _check_bounds::<Client, Option<ChatBoostRemoved>>();
     }
 
-    #[allow(clippy::too_many_lines)]
-    #[test]
-    fn test_extract() {
-        let bot = Arc::new(Bot::default());
-        let update = Arc::new(Update::default());
-        let context = Arc::new(Context::default());
+    #[allow(unreachable_code)]
+    fn _check_bounds_result<Client, T: FromEventAndContext<Client>, Err: Into<ExtractionError>>() {
+        unimplemented!("This function is only used for checking bounds");
 
-        inner_extract::<Bot<Reqwest>>(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context))
-            .unwrap();
-        inner_extract::<Arc<Bot<Reqwest>>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap();
-        inner_extract::<Update>(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context))
-            .unwrap();
-        inner_extract::<Arc<Update>>(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context))
-            .unwrap();
-        inner_extract::<Arc<Context>>(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context))
-            .unwrap();
+        _check_bounds::<_, Result<Bot, Infallible>>();
+        _check_bounds::<_, Result<Arc<Bot>, Infallible>>();
+        _check_bounds::<Client, Result<Update, Infallible>>();
+        _check_bounds::<Client, Result<Arc<Update>, Infallible>>();
+        _check_bounds::<Client, Result<Arc<Context>, Infallible>>();
 
-        inner_extract::<Message>(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context))
-            .unwrap();
-        inner_extract::<CallbackQuery>(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context))
-            .unwrap_err();
-        inner_extract::<ChosenInlineResult>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap_err();
-        inner_extract::<ShippingQuery>(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context))
-            .unwrap_err();
-        inner_extract::<PreCheckoutQuery>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap_err();
-        inner_extract::<PollAnswer>(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context))
-            .unwrap_err();
-        inner_extract::<ChatMemberUpdated>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap_err();
-        inner_extract::<ChatJoinRequest>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap_err();
-        inner_extract::<InlineQuery>(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context))
-            .unwrap_err();
-        inner_extract::<Poll>(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context))
-            .unwrap_err();
+        // Message-related bounds
+        _check_bounds::<Client, Result<Message, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageText, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageAnimation, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageAudio, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageChannelChatCreated, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageUsersShared, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageChatShared, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageConnectedWebsite, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageContact, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageDeleteChatPhoto, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageDice, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageDocument, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageForumTopicClosed, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageForumTopicCreated, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageForumTopicEdited, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageForumTopicReopened, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageGame, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageGeneralForumTopicHidden, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageGeneralForumTopicUnhidden, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageGroupChatCreated, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageInvoice, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageLeftChatMember, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageLocation, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageMessageAutoDeleteTimerChanged, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageMigrateFromChat, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageMigrateToChat, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageNewChatMembers, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageNewChatPhoto, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageNewChatTitle, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessagePassportData, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessagePhoto, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessagePinned, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessagePoll, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageProximityAlertTriggered, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageSticker, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageStory, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageSuccessfulPayment, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageSupergroupChatCreated, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageVenue, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageVideo, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageVideoChatEnded, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageVideoChatParticipantsInvited, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageVideoChatScheduled, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageVideoChatStarted, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageVideoNote, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageVoice, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageWebAppData, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageWriteAccessAllowed, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageGiveawayCreated, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageGiveaway, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageGiveawayCompleted, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageGiveawayWinners, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageUsersShared, ConvertToTypeError>>();
 
-        assert!(inner_extract::<Option<Message>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .is_some());
-        assert!(inner_extract::<Option<CallbackQuery>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .is_none());
-        assert!(inner_extract::<Option<ChosenInlineResult>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .is_none());
-        assert!(inner_extract::<Option<ShippingQuery>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .is_none());
-        assert!(inner_extract::<Option<PreCheckoutQuery>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .is_none());
-        assert!(inner_extract::<Option<PollAnswer>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .is_none());
-        assert!(inner_extract::<Option<ChatMemberUpdated>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .is_none());
-        assert!(inner_extract::<Option<ChatJoinRequest>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .is_none());
-        assert!(inner_extract::<Option<InlineQuery>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .is_none());
-        assert!(inner_extract::<Option<Poll>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context)
-        )
-        .unwrap()
-        .is_none());
+        _check_bounds::<Client, Result<MessageReactionUpdated, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<MessageReactionCountUpdated, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<CallbackQuery, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<ChosenInlineResult, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<ShippingQuery, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<PreCheckoutQuery, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<PollAnswer, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<ChatMemberUpdated, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<ChatJoinRequest, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<InlineQuery, ConvertToTypeError>>();
 
-        inner_extract::<Result<Message, ConvertToTypeError>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .unwrap();
-        inner_extract::<Result<CallbackQuery, ConvertToTypeError>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .unwrap_err();
-        inner_extract::<Result<ChosenInlineResult, ConvertToTypeError>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .unwrap_err();
-        inner_extract::<Result<ShippingQuery, ConvertToTypeError>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .unwrap_err();
-        inner_extract::<Result<PreCheckoutQuery, ConvertToTypeError>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .unwrap_err();
-        inner_extract::<Result<PollAnswer, ConvertToTypeError>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .unwrap_err();
-        inner_extract::<Result<ChatMemberUpdated, ConvertToTypeError>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .unwrap_err();
-        inner_extract::<Result<ChatJoinRequest, ConvertToTypeError>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .unwrap_err();
-        inner_extract::<Result<InlineQuery, ConvertToTypeError>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .unwrap_err();
-        inner_extract::<Result<Poll, ConvertToTypeError>>(
-            Arc::clone(&bot),
-            Arc::clone(&update),
-            Arc::clone(&context),
-        )
-        .unwrap()
-        .unwrap_err();
+        // Poll-related bounds
+        _check_bounds::<Client, Result<Poll, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<PollRegular, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<PollQuiz, ConvertToTypeError>>();
+
+        _check_bounds::<Client, Result<ChatBoostUpdated, ConvertToTypeError>>();
+        _check_bounds::<Client, Result<ChatBoostRemoved, ConvertToTypeError>>();
     }
 }
