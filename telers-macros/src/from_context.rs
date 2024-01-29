@@ -179,7 +179,8 @@ impl Client {
     /// impl<T> A for B {}
     ///      ^ this type
     /// ```
-    fn impl_generic(&self) -> &Type {
+    #[inline]
+    const fn impl_generic(&self) -> &Type {
         match self {
             Self::Default(inner) => inner,
         }
@@ -189,7 +190,8 @@ impl Client {
     /// impl<T> A<T> for B {}
     ///           ^ this type
     /// ```
-    fn ty_generic(&self) -> &Type {
+    #[inline]
+    const fn ty_generic(&self) -> &Type {
         match self {
             Self::Default(inner) => inner,
         }
@@ -267,6 +269,7 @@ fn impl_from_event_and_context(
             {
                 type Error = ::telers::errors::ExtractionError;
 
+                #[inline]
                 fn extract(
                     bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
                     update: ::std::sync::Arc<::telers::types::Update>,
@@ -307,6 +310,7 @@ fn impl_from_event_and_context(
             {
                 type Error = ::telers::errors::ExtractionError;
 
+                #[inline]
                 fn extract(
                     bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
                     update: ::std::sync::Arc<::telers::types::Update>,
@@ -344,6 +348,7 @@ fn impl_from_event_and_context(
         {
             type Error = ::telers::errors::ExtractionError;
 
+            #[inline]
             fn extract(
                 bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
                 update: ::std::sync::Arc<::telers::types::Update>,

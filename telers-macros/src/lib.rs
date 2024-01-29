@@ -95,7 +95,7 @@ use syn::parse::Parse;
 ///  field: i32,
 /// }
 ///
-/// #[derive(Clone, FromContext)]
+/// #[derive(FromContext)]
 /// #[context(key = "my_struct", from = MyStruct)]
 /// struct MyStructWrapper(MyStruct);
 ///
@@ -142,7 +142,7 @@ use syn::parse::Parse;
 ///  Variant2,
 /// }
 ///
-/// #[derive(Clone, FromContext)]
+/// #[derive(FromContext)]
 /// #[context(key = "my_enum", from = MyEnum)]
 /// struct MyEnumWrapper(MyEnum);
 ///
@@ -183,7 +183,7 @@ pub fn derive_from_context(item: TokenStream) -> TokenStream {
 /// use telers_macros::FromEvent;
 /// use telers::types::Update;
 ///
-/// #[derive(Clone, FromEvent)]
+/// #[derive(FromEvent)]
 /// #[event(from = Update)]
 /// struct UpdateId(i64);
 ///
@@ -201,7 +201,7 @@ pub fn derive_from_context(item: TokenStream) -> TokenStream {
 /// use telers::types::Update;
 /// use std::convert::Infallible;
 ///
-/// #[derive(Clone, FromEvent)]
+/// #[derive(FromEvent)]
 /// #[event(try_from = Update, error = Infallible)] // we can don't specify error type, but it will be `ConvertToTypeError` by default
 /// struct UpdateId(i64);
 ///
@@ -221,7 +221,7 @@ pub fn derive_from_context(item: TokenStream) -> TokenStream {
 /// use telers::{types::Update, errors::ConvertToTypeError};
 /// use std::convert::Infallible;
 ///
-/// #[derive(Clone, FromEvent)]
+/// #[derive(FromEvent)]
 /// #[event(try_from = Update)] // you can specify `ConvertToTypeError` as error type, but it's not necessary, because it's default
 /// struct UpdateFromId(i64);
 ///
