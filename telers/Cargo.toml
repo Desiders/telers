@@ -3,6 +3,7 @@ name = "telers"
 version = "1.0.0-alpha.13"
 edition = "2021"
 description = "An asynchronous framework for Telegram Bot API written in Rust"
+rust-version = "1.65"
 repository = "https://github.com/Desiders/telers"
 license = "MIT OR Apache-2.0"
 keywords = ["bot", "telegram", "telegram-bot", "telegram-bot-api", "telers"]
@@ -54,8 +55,4 @@ criterion = { version = "0.5", features = ["async_tokio"] }
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
-[package.metadata.cargo-public-api-crates]
-allowed = [
-    "telers",
-]
 

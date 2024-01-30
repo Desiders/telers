@@ -107,7 +107,10 @@ where
             middleware
                 .call(
                     request,
-                    wrap_handler_and_middlewares_to_next(handler, middlewares.into()),
+                    wrap_handler_and_middlewares_to_next(
+                        handler,
+                        middlewares.to_vec().into_boxed_slice(),
+                    ),
                 )
                 .await
         })

@@ -276,7 +276,7 @@ impl<Client> Service<Client> {
                 Some((middleware, middlewares)) => {
                     let next = Box::new(wrap_handler_and_middlewares_to_next(
                         Arc::clone(&handler.service),
-                        middlewares.into(),
+                        middlewares.to_vec().into_boxed_slice(), // we use it instead of `into` because some versions of rustc can't infer type
                     ));
                     middleware.call(handler_request.clone(), next).await
                 }
