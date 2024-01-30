@@ -141,7 +141,7 @@
 //! }
 //! ```
 //!
-//! By default, the error type is [`ConvertToTypeError`],
+//! By default, the error type is [`ConvertToTypeError`](telers::errors::ConvertToTypeError),
 //! but you can specify your own error type with `#[event(error = "...")]` attribute:
 //!
 //! ```rust
@@ -162,7 +162,85 @@
 //! ```
 //!
 //! ## Implementing with [`FromContext`] macro
-//! todo: add example
+//!
+//! Simple example with extracting struct by key from [`Context`]:
+//!
+//! ```rust
+//! use telers_macros::FromContext;
+//!
+//! #[derive(Clone, FromContext)]
+//! #[context(key = "my_struct")]
+//! struct MyStruct {
+//!  field: i32,
+//! }
+//! ```
+//!
+//! Now we can use `MyStruct` as handler argument if we put it in the context with key `my_struct`.
+//! There is a serious problem here: we don't know where struct by key `my_struct` is set to the context
+//! and if context doesn't contain type by key `my_struct` we need to know where the source of the problem is.
+//! We can use `#[content(description = "...")]` to describe where the structure is installed, or cases where it is not installed, for example:
+//!
+//! ```rust
+//! use telers_macros::FromContext;
+//!
+//! #[derive(Clone, FromContext)]
+//! #[context(
+//!  key = "my_struct",
+//!  description = "This struct is set in the `MyMiddleware` middleware. If it is not set, then the `MyMiddleware` middleware is not used.",
+//! )]
+//! struct MyStruct {
+//!  field: i32,
+//! }
+//! ```
+//!
+//! In some cases, you may want to use a one type in context, but extract it as another type.
+//! For this case, you can use `#[context(into = "...")]` attribute:
+//!
+//! ```rust
+//! use telers_macros::FromContext;
+//!
+//! #[derive(Clone, FromContext)]
+//! #[context(key = "my_struct", into = MyStructWrapper)]
+//! struct MyStruct {
+//!  field: i32,
+//! }
+//!
+//! struct MyStructWrapper(MyStruct);
+//!
+//! impl From<MyStruct> for MyStructWrapper {
+//!  fn from(my_struct: MyStruct) -> Self {
+//!   Self(my_struct)
+//!  }
+//! }
+//! ```
+//!
+//! This code will extract `MyStruct` from context and convert it to `MyStructWrapper`,
+//! but we need to implement `From<MyStruct>` for `MyStructWrapper` by ourselves (this is required by `FromContext` macro).
+//! In this case, the trait is implements for `MyStructWrapper`, not for `MyStruct`,
+//! so we can't use `MyStruct` as handler argument without implementing `FromEventAndContext` for it.
+//!
+//! We also can use `#[context(from = "...")]` attribute to specify the type from which the type will be converted:
+//!
+//! ```rust
+//! use telers_macros::FromContext;
+//!
+//! #[derive(Clone)]
+//! struct MyStruct {
+//!  field: i32,
+//! }
+//!
+//! #[derive(FromContext)]
+//! #[context(key = "my_struct", from = MyStruct)]
+//! struct MyStructWrapper(MyStruct);
+//!
+//! impl From<MyStruct> for MyStructWrapper {
+//!  fn from(my_struct: MyStruct) -> Self {
+//!   Self(my_struct)
+//!  }
+//! }
+//! ```
+//!
+//! This code similar to the previous one, but more useful in cases when `from` type is a foreign type.
 
 pub use crate::{FromContext, FromEvent};
 

@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#keyboardbuttonrequestusers>
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct KeyboardButtonRequestUsers {
-    /// Signed 32-bit identifier of the request that will be received back in the [`UserShared`](crate::types::UserShared) object. Must be unique within the message
-    pub request_id: i64,
+    /// Signed 32-bit identifier of the request that will be received back in the [`UsersShared`](crate::types::UsersShared) object. Must be unique within the message
+    pub request_id: i32,
     /// Pass `true` to request bots, pass `false` to request regular users. If not specified, no additional restrictions are applied.
     pub user_is_bot: Option<bool>,
     /// Pass `true` to request premium users, pass `false` to request non-premium users. If not specified, no additional restrictions are applied.
@@ -17,7 +17,7 @@ pub struct KeyboardButtonRequestUsers {
 
 impl KeyboardButtonRequestUsers {
     #[must_use]
-    pub const fn new(request_id: i64) -> Self {
+    pub const fn new(request_id: i32) -> Self {
         Self {
             request_id,
             user_is_bot: None,
@@ -27,7 +27,7 @@ impl KeyboardButtonRequestUsers {
     }
 
     #[must_use]
-    pub fn request_id(self, val: i64) -> Self {
+    pub fn request_id(self, val: i32) -> Self {
         Self {
             request_id: val,
             ..self

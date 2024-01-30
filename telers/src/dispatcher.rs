@@ -115,7 +115,7 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
     /// and set timeout between requests to telegram server
     /// * `allowed_updates` -
     /// List the types of updates you want your bot to receive.
-    /// For example, specify [`UpdateType::message`], [`UpdateType::edited_channel_post`], [`UpdateType::callback_query`]
+    /// For example, specify [`UpdateType::Message`], [`UpdateType::EditedChannelPost`], [`UpdateType::CallbackQuery`]
     /// to only receive updates of these types.
     #[must_use]
     pub fn new<Cfg, PropagatorService, InitError>(
@@ -287,7 +287,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     }
 
     /// Update type you want your bot to receive.
-    /// For example, specify [`UpdateType::message`] to only receive this update type.
+    /// For example, specify [`UpdateType::Message`] to only receive this update type.
     /// # Notes
     /// You can add multiple update types using [`Builder::allowed_updates`] method
     #[must_use]
@@ -299,7 +299,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     }
 
     /// List the types of updates you want your bot to receive.
-    /// For example, specify [`UpdateType::message`], [`UpdateType::edited_channel_post`], [`UpdateType::callback_query`]
+    /// For example, specify [`UpdateType::Message`], [`UpdateType::EditedChannelPost`], [`UpdateType::CallbackQuery`]
     /// to only receive updates of these types.
     /// # Notes
     /// You can add single update type using [`Builder::allowed_update`] method

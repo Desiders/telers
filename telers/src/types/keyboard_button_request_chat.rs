@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#keyboardbuttonrequestchat>
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct KeyboardButtonRequestChat {
-    /// Signed 32-bit identifier of the request, which will be received back in the [`UserShared`](crate::types::UserShared) object. Must be unique within the message
-    pub request_id: i64,
+    /// Signed 32-bit identifier of the request, which will be received back in the [`ChatShared`](crate::types::ChatShared) object. Must be unique within the message
+    pub request_id: i32,
     /// Pass `true` to request a channel chat, pass `false` to request a group or a supergroup chat.
     pub chat_is_channel: bool,
     /// Pass `true` to request a forum supergroup, pass `false` to request a non-forum chat. If not specified, no additional restrictions are applied.
@@ -27,7 +27,7 @@ pub struct KeyboardButtonRequestChat {
 
 impl KeyboardButtonRequestChat {
     #[must_use]
-    pub fn new(request_id: i64, chat_is_channel: bool) -> Self {
+    pub fn new(request_id: i32, chat_is_channel: bool) -> Self {
         Self {
             request_id,
             chat_is_channel,
@@ -41,7 +41,7 @@ impl KeyboardButtonRequestChat {
     }
 
     #[must_use]
-    pub fn request_id(self, val: i64) -> Self {
+    pub fn request_id(self, val: i32) -> Self {
         Self {
             request_id: val,
             ..self
