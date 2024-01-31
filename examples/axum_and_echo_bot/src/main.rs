@@ -5,7 +5,7 @@
 //! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package axum_and_echo_bot
 //! ```
 
-use axum::{routing::get, Router as AxumRouter, Server};
+use axum::{routing, Router as AxumRouter};
 use telers::{
     enums::UpdateType,
     event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
@@ -13,6 +13,7 @@ use telers::{
     types::Message,
     Bot, Dispatcher, Router as TelersRouter,
 };
+use tokio::net::TcpListener;
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
@@ -57,11 +58,11 @@ async fn main() {
         .unwrap();
 
     let app = AxumRouter::new()
-        .route("/", get(hello_world_handler))
+        .route("/", routing::get(hello_world_handler))
         .into_make_service();
 
-    let server = Server::bind(&"0.0.0.0:3000".parse().unwrap());
-
+    // `tokio::spawn` is used to run polling and server in different threads.
+    // You can also don't use `tokio::spawn` and run them in the same thread.
     tokio::join!(
         async {
             match tokio::spawn(dispatcher.run_polling()).await {
@@ -78,7 +79,13 @@ async fn main() {
             // Check graceful shutdown example of axum server:
             // https://github.com/tokio-rs/axum/tree/main/examples/graceful-shutdown
             // Telers provides graceful shutdown out of the box, so you don't need to do anything special.
-            match tokio::spawn(server.serve(app)).await {
+            match tokio::spawn(async {
+                let listener = TcpListener::bind("0.0.0.0:3000").await?;
+
+                axum::serve(listener, app).await
+            })
+            .await
+            {
                 Ok(Ok(())) => {}
                 Ok(Err(err)) => {
                     event!(Level::ERROR, "Error in server: {:?}", err);

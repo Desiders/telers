@@ -1,5 +1,4 @@
 [workspace]
 members = ["telers", "telers-*", "examples/*"]
 default-members = ["telers", "telers-*"]
-exclude = []
 resolver = "2"
