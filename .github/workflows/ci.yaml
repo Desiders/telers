@@ -2,7 +2,6 @@ name: CI
 
 env:
   CARGO_TERM_COLOR: always
-  MSRV: '1.66'
 
 on:
   push:
