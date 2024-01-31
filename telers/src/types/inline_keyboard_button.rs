@@ -199,9 +199,6 @@ impl InlineKeyboardButton {
 
     #[must_use]
     pub fn pay_option(self, val: Option<bool>) -> Self {
-        Self {
-            pay: val,
-            ..self
-        }
+        Self { pay: val, ..self }
     }
 }
