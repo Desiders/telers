@@ -1,0 +1,30 @@
+[package]
+name = "telers-macros"
+version = "0.1.0-alpha.1"
+edition = "2021"
+description = "Macros for telers"
+repository = "https://github.com/Desiders/telers"
+license = "MIT OR Apache-2.0"
+keywords = ["bot", "telegram", "telegram-bot", "telegram-bot-api", "telers"]
+categories = ["web-programming", "api-bindings", "asynchronous"]
+
+[features]
+default = []
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1.0"
+quote = "1.0"
+syn = "2.0"
+
+[dev-dependencies]
+telers = { path = "../telers", features = ["default"] }
+
+[package.metadata.cargo-public-api-crates]
+allowed = []
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
