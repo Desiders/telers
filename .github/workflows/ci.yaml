@@ -25,16 +25,12 @@ jobs:
       - run: cargo test --lib --tests --all --all-features
   
   build-and-test-linux:
-    name: Build Rust ${{matrix.rust}}
+    name: Build and test Linux
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        rust:
-          - stable
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@${{matrix.rust}}
+      - uses: dtolnay/rust-toolchain@stable
       - name: Build
         run: cargo build --all --all-features
       - name: Test
