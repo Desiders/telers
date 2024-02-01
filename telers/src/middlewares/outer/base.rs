@@ -1,4 +1,4 @@
-use crate::{errors::EventErrorKind, event::EventReturn, router::Request};
+use crate::{client::Reqwest, errors::EventErrorKind, event::EventReturn, router::Request};
 
 use async_trait::async_trait;
 use std::{future::Future, sync::Arc};
@@ -6,7 +6,7 @@ use std::{future::Future, sync::Arc};
 /// Response from middleware.
 /// First element is/isn't updated [`Request`] and second is [`EventReturn`] for the manipulate processing event,
 /// see [`EventReturn`] for more info.
-pub type MiddlewareResponse<Client> = (Request<Client>, EventReturn);
+pub type MiddlewareResponse<Client = Reqwest> = (Request<Client>, EventReturn);
 
 /// Outer middlewares called before filters, inner middlewares and handlers
 ///
@@ -17,7 +17,7 @@ pub type MiddlewareResponse<Client> = (Request<Client>, EventReturn);
 ///
 /// Implement this trait for your own middlewares
 #[async_trait]
-pub trait Middleware<Client>: Send + Sync {
+pub trait Middleware<Client = Reqwest>: Send + Sync {
     /// Execute middleware
     /// # Arguments
     /// * `request` - Data for observers, filters, handler and middlewares

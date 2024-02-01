@@ -1,4 +1,5 @@
 use crate::{
+    client::Reqwest,
     errors::EventErrorKind,
     event::{
         service::Service,
@@ -10,7 +11,7 @@ use async_trait::async_trait;
 use std::{future::Future, pin::Pin, sync::Arc};
 
 /// The middleware chain and the handler at the end
-pub type Next<Client> = Box<
+pub type Next<Client = Reqwest> = Box<
     dyn Fn(
             HandlerRequest<Client>,
         )
@@ -30,7 +31,7 @@ pub type Next<Client> = Box<
 ///
 /// Implement this trait for your own middlewares
 #[async_trait]
-pub trait Middleware<Client>: Send + Sync {
+pub trait Middleware<Client = Reqwest>: Send + Sync {
     /// Execute middleware
     /// # Arguments
     /// * `request` - Data for handler and middlewares

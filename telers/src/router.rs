@@ -121,6 +121,7 @@
 //! [`Router::include_router`]: Router#method.include_router
 
 use crate::{
+    client::Reqwest,
     enums::{SimpleObserverName, TelegramObserverName, UpdateType},
     errors::EventErrorKind,
     event::{
@@ -152,7 +153,7 @@ use std::{
 };
 use tracing::{event, instrument, Level};
 
-pub struct Request<Client> {
+pub struct Request<Client = Reqwest> {
     pub bot: Arc<Bot<Client>>,
     pub update: Arc<Update>,
     pub context: Arc<Context>,

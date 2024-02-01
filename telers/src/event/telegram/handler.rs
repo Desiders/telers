@@ -1,8 +1,11 @@
-use crate::event::{
-    service::{
-        factory, fn_service, BoxFuture, BoxService, BoxServiceFactory, Service, ServiceFactory,
+use crate::{
+    client::Reqwest,
+    event::{
+        service::{
+            factory, fn_service, BoxFuture, BoxService, BoxServiceFactory, Service, ServiceFactory,
+        },
+        EventReturn,
     },
-    EventReturn,
 };
 
 use crate::{
@@ -27,7 +30,7 @@ pub type BoxedHandlerService<Client> =
 pub type BoxedHandlerServiceFactory<Client> =
     BoxServiceFactory<(), Request<Client>, Response<Client>, ExtractionError, ()>;
 
-pub struct Request<Client> {
+pub struct Request<Client = Reqwest> {
     pub bot: Arc<Bot<Client>>,
     pub update: Arc<Update>,
     pub context: Arc<Context>,
