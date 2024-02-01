@@ -54,5 +54,3 @@ criterion = { version = "0.5", features = ["async_tokio"] }
 [package.metadata.docs.rs]
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
-
-

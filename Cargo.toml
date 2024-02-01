@@ -1,4 +1,22 @@
 [workspace]
 members = ["telers", "telers-*", "examples/*"]
-default-members = ["telers", "telers-*"]
+default-members = ["telers", "telers-*", "examples/*"]
 resolver = "2"
+
+[workspace.package]
+edition = "2021"
+rust-version = "1.65"
+license = "MIT OR Apache-2.0"
+
+[profile.dev]
+# Disabling debug info speeds up builds a bunch and we don't rely on it for debugging that much.
+debug = 0
+
+[profile.release]
+lto = true
+opt-level = 3
+codegen-units = 1
+
+[patch.crates-io]
+telers = { path = "telers" }
+telers-macros = { path = "telers-macros" }
