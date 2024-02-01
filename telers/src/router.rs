@@ -759,7 +759,33 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
     where
         Client: Send + Sync + 'static,
     {
-        self.propagate_update_event(request.clone()).await?;
+        match self.propagate_update_event(request.clone()).await? {
+            // If update event handled by router, then return a response
+            Response {
+                request,
+                propagate_result: PropagateEventResult::Handled(response),
+            } => {
+                return Ok(Response {
+                    request,
+                    propagate_result: PropagateEventResult::Handled(response),
+                });
+            }
+            // If update event rejected by router, then return a response
+            Response {
+                request,
+                propagate_result: PropagateEventResult::Rejected,
+            } => {
+                return Ok(Response {
+                    request,
+                    propagate_result: PropagateEventResult::Rejected,
+                });
+            }
+            // If update event unhandled by router, then continue propagation
+            Response {
+                request: _,
+                propagate_result: PropagateEventResult::Unhandled,
+            } => {}
+        };
 
         event!(Level::TRACE, "Propagate event to router");
 
@@ -770,21 +796,21 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
             let (updated_request, event_return) = middleware.call(request.clone()).await?;
 
             match event_return {
-                // If middleware returns finish, then update request because the middleware could have changed it
+                // If middleware returns finish then update request because the middleware could have changed it
                 EventReturn::Finish => {
-                    event!(Level::TRACE, "Middleware returns finish");
+                    event!(Level::TRACE, "Outer middleware returns finish");
 
                     request = updated_request;
                 }
                 // If middleware returns skip, then we should skip this middleware and its changes
                 EventReturn::Skip => {
-                    event!(Level::TRACE, "Middleware returns skip");
+                    event!(Level::TRACE, "Outer middleware returns skip");
 
                     continue;
                 }
-                // If middleware returns cancel, then we should cancel propagation
+                // If middleware returns cancel, then we should reject propagation
                 EventReturn::Cancel => {
-                    event!(Level::TRACE, "Middleware returns cancel");
+                    event!(Level::TRACE, "Outer middleware returns cancel");
 
                     return Ok(Response {
                         request,
@@ -798,11 +824,11 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
         let observer_response = observer.trigger(observer_request).await?;
 
         match observer_response.propagate_result {
-            // If observer returns unhandled, then propagate event to sub routers' observers
+            // If observer unhandled, then propagate event to next observer
             PropagateEventResult::Unhandled => {
                 event!(Level::TRACE, "Event unhandled by router");
             }
-            // If observer returns handled, then return a response
+            // If observer handled, then return a response
             PropagateEventResult::Handled(response) => {
                 event!(Level::TRACE, "Event handled by router");
 
@@ -811,7 +837,7 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
                     propagate_result: PropagateEventResult::Handled(response),
                 });
             }
-            // If observer returns rejected, then return a response.
+            // If observer rejected, then return a response.
             // Router don't know about rejected event by observer, so it returns unhandled response.
             PropagateEventResult::Rejected => {
                 event!(Level::TRACE, "Event rejected by router");
@@ -823,13 +849,13 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
             }
         };
 
-        // Propagate event to sub routers' observers
+        // Propagate event to sub routers
         for router in &*self.sub_routers {
             let router_response = router.propagate_event(update_type, request.clone()).await?;
             match router_response.propagate_result {
-                // If the event unhandled by the sub router's observer, then propagate event to next sub router's observer
+                // If the event unhandled by the sub router's observer, then continue propagation
                 PropagateEventResult::Unhandled => {
-                    event!(Level::TRACE, "Event unhandled by syb router");
+                    event!(Level::TRACE, "Event unhandled by sub router");
 
                     continue;
                 }
@@ -839,7 +865,7 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
 
                     return Ok(router_response);
                 }
-                // If the event rejected by the sub router's observer, then return a response.
+                // If the event rejected by the sub router's observer, then return a response
                 PropagateEventResult::Rejected => {
                     event!(Level::TRACE, "Event rejected by sub router");
 
@@ -848,7 +874,7 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
             };
         }
 
-        // Return a response if the event unhandled by observer
+        // If the event unhandled by all observers, then return an unhandled response
         Ok(Response {
             request,
             propagate_result: PropagateEventResult::Unhandled,
@@ -872,19 +898,19 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
             match event_return {
                 // If middleware returns finish, then update request because the middleware could have changed it
                 EventReturn::Finish => {
-                    event!(Level::TRACE, "Middleware returns finish");
+                    event!(Level::TRACE, "Update outer middleware returns finish");
 
                     request = updated_request;
                 }
                 // If middleware returns skip, then we should skip this middleware and its changes
                 EventReturn::Skip => {
-                    event!(Level::TRACE, "Middleware returns skip");
+                    event!(Level::TRACE, "Update outer middleware returns skip");
 
                     continue;
                 }
                 // If middleware returns cancel, then we should cancel propagation
                 EventReturn::Cancel => {
-                    event!(Level::TRACE, "Middleware returns cancel");
+                    event!(Level::TRACE, "Update outer middleware returns cancel");
 
                     return Ok(Response {
                         request,
@@ -898,7 +924,7 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
         let observer_response = self.update.trigger(observer_request).await?;
 
         match observer_response.propagate_result {
-            // If observer returns unhandled, then return an unhandled response
+            // If observer returns unhandled, then propagate event to next observer
             PropagateEventResult::Unhandled => {
                 event!(Level::TRACE, "Update event unhandled by router");
 
@@ -907,7 +933,7 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
                     propagate_result: PropagateEventResult::Unhandled,
                 })
             }
-            // If observer returns handled, then return a handled response
+            // If observer returns handled, then return a response
             PropagateEventResult::Handled(response) => {
                 event!(Level::TRACE, "Update event handled by router");
 
@@ -916,7 +942,7 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
                     propagate_result: PropagateEventResult::Handled(response),
                 })
             }
-            // If observer returns rejected, then return an unhandled response.
+            // If observer returns rejected, then return a response.ё
             // Router don't know about rejected event by observer, so it returns unhandled response.
             PropagateEventResult::Rejected => {
                 event!(Level::TRACE, "Update event rejected by router");
