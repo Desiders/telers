@@ -146,9 +146,11 @@ async fn main() {
 
     let mut router = Router::new("main");
 
-    // Register middleware that adds data to context
+    // Register middleware that adds data to context.
+    // Be aware, we register middleware for message observer, so it will be called only for messages.
+    // If you want to register middleware for any update, you should register it for update observer.
     router
-        .update
+        .message
         .outer_middlewares
         .register(ToContextMiddleware {
             key: "data",
@@ -159,9 +161,10 @@ async fn main() {
         .message
         .register(send_data_handler)
         .filter(Command::one("data"));
-
-    // We register handler for all events just for example, it doesn't make sense
-    router.update.register(update_id_handler);
+    router
+        .message
+        .register(update_id_handler)
+        .filter(Command::one("update_id"));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router)
