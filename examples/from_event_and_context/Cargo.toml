@@ -1,0 +1,12 @@
+[package]
+name = "from_event_and_context"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+telers = { path = "../../telers", features = ["default"] }
+tokio = { version = "1.28", features = ["macros"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] } 
+async-trait = "0.1"
