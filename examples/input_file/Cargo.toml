@@ -6,7 +6,7 @@ publish = false
 
 [dependencies]
 telers = { path = "../../telers", features = ["default"] }
-tokio = { version = "1.28", features = ["macros"] }
+tokio = { version = "1.36", features = ["macros"] }
 tokio-util = { version = "0.7.9", features = ["codec"] }
 reqwest = "0.11"
 futures = "0.3"
