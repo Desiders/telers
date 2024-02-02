@@ -23,8 +23,8 @@ use async_trait::async_trait;
 struct UppercaseFilter;
 
 #[async_trait]
-impl<Client> Filter<Client> for UppercaseFilter {
-    async fn check(&self, _bot: &Bot<Client>, update: &Update, _context: &Context) -> bool {
+impl Filter for UppercaseFilter {
+    async fn check(&self, _bot: &Bot, update: &Update, _context: &Context) -> bool {
         update
             .text()
             .map_or(false, |text| text.to_uppercase() == text)

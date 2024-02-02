@@ -77,7 +77,7 @@ impl<Client> Clone for Request<Client> {
 
 pub type Result = StdResult<EventReturn, HandlerError>;
 
-pub struct Response<Client> {
+pub struct Response<Client = Reqwest> {
     pub request: Request<Client>,
     pub handler_result: Result,
 }

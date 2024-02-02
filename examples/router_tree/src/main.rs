@@ -35,14 +35,8 @@ struct IncomingEchoRouterUpdates {
 }
 
 #[async_trait]
-impl<Client> OuterMiddleware<Client> for IncomingEchoRouterUpdates
-where
-    Client: Send + Sync + 'static,
-{
-    async fn call(
-        &self,
-        request: RouterRequest<Client>,
-    ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
+impl OuterMiddleware for IncomingEchoRouterUpdates {
+    async fn call(&self, request: RouterRequest) -> Result<MiddlewareResponse, EventErrorKind> {
         event!(Level::INFO, "Incoming echo router update");
 
         self.counter.fetch_add(1, Ordering::SeqCst);

@@ -35,14 +35,8 @@ struct IncomingUpdates {
 }
 
 #[async_trait]
-impl<Client> OuterMiddleware<Client> for IncomingUpdates
-where
-    Client: Send + Sync + 'static,
-{
-    async fn call(
-        &self,
-        request: RouterRequest<Client>,
-    ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
+impl OuterMiddleware for IncomingUpdates {
+    async fn call(&self, request: RouterRequest) -> Result<MiddlewareResponse, EventErrorKind> {
         self.counter.fetch_add(1, Ordering::SeqCst);
 
         request.context.insert(
@@ -62,15 +56,12 @@ struct ProcessedHandlers {
 }
 
 #[async_trait]
-impl<Client> InnerMiddleware<Client> for ProcessedHandlers
-where
-    Client: Send + Sync + 'static,
-{
+impl InnerMiddleware for ProcessedHandlers {
     async fn call(
         &self,
-        request: HandlerRequest<Client>,
-        next: Next<Client>,
-    ) -> Result<HandlerResponse<Client>, EventErrorKind> {
+        request: HandlerRequest,
+        next: Next,
+    ) -> Result<HandlerResponse, EventErrorKind> {
         request.context.insert(
             "processed_handlers_counter",
             Box::new(self.counter.load(Ordering::SeqCst)),

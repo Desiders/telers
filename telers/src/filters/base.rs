@@ -1,12 +1,16 @@
 use super::{And, Invert, Or};
 
-use crate::{client::Bot, context::Context, types::Update};
+use crate::{
+    client::{Bot, Reqwest},
+    context::Context,
+    types::Update,
+};
 
 use async_trait::async_trait;
 use std::{future::Future, sync::Arc};
 
 #[async_trait]
-pub trait Filter<Client>: Send + Sync {
+pub trait Filter<Client = Reqwest>: Send + Sync {
     /// Check if the filter passes
     /// # Returns
     /// `true` if the filter passes, otherwise `false`
