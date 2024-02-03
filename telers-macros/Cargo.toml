@@ -1,6 +1,6 @@
 [package]
 name = "telers-macros"
-version = "0.1.0-alpha.1"
+version = "1.0.0-alpha.1"
 edition = "2021"
 description = "Macros for telers"
 repository = "https://github.com/Desiders/telers"
@@ -20,7 +20,7 @@ quote = "1.0"
 syn = "2.0"
 
 [dev-dependencies]
-telers = { path = "../telers", features = ["default"] }
+telers = { path = "../telers", version = "1.0.0-alpha.14", features = ["default"] }
 
 [package.metadata.cargo-public-api-crates]
 allowed = []
