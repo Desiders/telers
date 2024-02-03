@@ -21,10 +21,8 @@ quote = "1.0"
 syn = { version = "2.0", features = ["full"] }
  
 [dev-dependencies]
+# This dependency is not necessarily the latest version
 telers = { path = "../telers", version = "1.0.0-alpha.14", features = ["default"] }
-
-[package.metadata.cargo-public-api-crates]
-allowed = []
 
 [package.metadata.docs.rs]
 all-features = true
