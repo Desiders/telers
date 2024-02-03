@@ -94,7 +94,6 @@ enum ConvertKind {
 /// If any unknown attribute is found, then we return error
 ///
 /// If `try_from` is empty and `error` is not empty, then we return error
-#[derive(Debug)]
 struct FromEventAttrs {
     convert_kind: ConvertKind,
     error: Option<ExtractionError>,
@@ -253,7 +252,6 @@ impl Parse for FromEventAttrs {
 
 /// # Notes
 /// Currently, we support only default client type, but in future we will support custom client types
-#[derive(Debug)]
 enum Client {
     Default(Type),
 }
@@ -300,7 +298,6 @@ impl ToTokens for Client {
     }
 }
 
-#[derive(Debug)]
 enum ExtractionError {
     Default(Type),
     Custom(Type),

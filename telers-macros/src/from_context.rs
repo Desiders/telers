@@ -33,7 +33,6 @@ mod keywords {
 /// ```
 /// # Notes
 /// If any unknown attribute is found, then we return error
-#[derive(Debug)]
 struct FromContextAttrs {
     key: LitStr,
     into: Option<Type>,
@@ -159,7 +158,6 @@ impl Parse for FromContextAttrs {
 
 /// # Notes
 /// Currently, we support only default client type, but in future we will support custom client types
-#[derive(Debug)]
 enum Client {
     Default(Type),
 }
