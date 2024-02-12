@@ -1,6 +1,15 @@
-//! Reqwest session implementation
+//! This module contains [`Reqwest`] struct that uses reqwest client to send requests to the Telegram Bot API.
 //!
-//! This module contains [`Reqwest`] struct, which is default implementation of [`Session`].
+//! # Notes
+//!
+//! [`Reqwest`] is default implementation of [`Session`] trait in this library,
+//! so it's used by default in [`Bot`] struct and trait methods that has bot as a parameter.
+//!
+//! This structure is cheap to clone,
+//! because it contains only [`reqwest::Client`] field which is wrapped in [`Arc`] and [`APIServer`] wrapped in [`Cow`].
+//!
+//! [`Arc`]: std::sync::Arc
+//! [`APIServer`]: crate::client::telegram::APIServer
 
 use super::base::{ClientResponse, Session, DEFAULT_TIMEOUT};
 
@@ -43,6 +52,14 @@ impl Reqwest {
         }
     }
 
+    /// Builds a form data from the given data and files.
+    /// # Notes
+    /// This method uses [`MultipartSerializer`] to serialize the data in custom format that Telegram Bot API accepts.
+    /// # Warnings
+    /// Be aware that build [`InputFile::Stream`] will be taken and cannot be used again without set stream again.
+    /// Check its documentation for more information.
+    /// # Errors
+    /// Returns a [`SerializerError`] if the form cannot be built.
     #[instrument(skip(self, data))]
     async fn build_form_data<'a, Data: ?Sized>(
         &self,
@@ -136,6 +153,17 @@ impl Session for Reqwest {
         &self.api
     }
 
+    /// Sends a request to the Telegram Bot API and returns a response.
+    /// # Arguments
+    /// * `bot` - The bot instance
+    /// * `method` - The method instance
+    /// * `timeout` - The request timeout
+    /// # Warning
+    /// If the timeout is not set, the default timeout will not be used.
+    ///
+    /// Uses always `POST` method to send a request and `multipart/form-data` content type even if files are not provided.
+    /// # Errors
+    /// Returns an error if the request cannot be sent or the response cannot be received.
     #[instrument(skip(self, bot, method, timeout), fields(files, method_name, timeout))]
     async fn send_request<Client, T>(
         &self,

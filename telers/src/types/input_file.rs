@@ -21,11 +21,12 @@ pub const DEFAULT_CAPACITY: usize = 64 * 1024; // 64 KiB
 /// This object represents the contents of a file to be uploaded.
 /// # Notes
 /// You can use instead of [`InputFile`] any type that implements [`Into<InputFile>`]:
-/// - [`FileId`] (for example [`FileId::new(file_id)`])
-/// - [`UrlFile`] (for example [`UrlFile::new(url)`])
-/// - [`FSFile`] (for example [`FSFile::new(path)`])
-/// - [`BufferedFile`] (for example [`BufferedFile::new(bytes)`])
-/// - [`StreamFile`] (for example [`StreamFile::new(stream)`])
+/// - [`FileId`] (for example `FileId::new(file_id)`)
+/// - [`UrlFile`] (for example `UrlFile::new(url)`)
+/// - [`FSFile`] (for example `FSFile::new(path)`)
+/// - [`BufferedFile`] (for example `BufferedFile::new(bytes)`)
+/// - [`StreamFile`] (for example `StreamFile::new(stream)`)
+///
 /// This struct is useful for fast and easy creation of any of these types,
 /// but if you want to use methods of specific type (for example [`FSFile::stream`] or [`StreamFile::set_stream`]),
 /// you need to use specific type.
@@ -233,7 +234,7 @@ pub struct FSFile<'a> {
     id: Uuid,
     file_name: Option<Cow<'a, str>>,
     path: PathBuf,
-    str_to_file: Box<str>,
+    str_to_file: String,
 }
 
 impl<'a> FSFile<'a> {
@@ -337,7 +338,7 @@ pub struct BufferedFile<'a> {
     id: Uuid,
     bytes: Bytes,
     file_name: Option<Cow<'a, str>>,
-    str_to_file: Box<str>,
+    str_to_file: String,
 }
 
 impl<'a> BufferedFile<'a> {
@@ -431,7 +432,7 @@ pub struct StreamFile<'a> {
     id: Uuid,
     file_name: Option<Cow<'a, str>>,
     stream: SharedStream,
-    str_to_file: Box<str>,
+    str_to_file: String,
 }
 
 impl<'a> StreamFile<'a> {

@@ -1,3 +1,10 @@
+//! This module contains [`Session`] trait that needs to be implemented for sending requests to Telegram Bot API.
+//!
+//! Supported implementations:
+//! - [`Reqwest`] - uses reqwest client. Check [module docs](crate::client::session::reqwest) for more information.
+//!
+//! [`Reqwest`]: crate::client::session::reqwest::Reqwest
+
 use crate::{
     client::{telegram::APIServer, Bot},
     errors::{SessionErrorKind, TelegramErrorKind},
