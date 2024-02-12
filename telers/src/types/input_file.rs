@@ -248,7 +248,7 @@ impl<'a> FSFile<'a> {
             id,
             file_name: None,
             path: path.as_ref().to_owned(),
-            str_to_file: str_to_file.into(),
+            str_to_file,
         }
     }
 
@@ -262,7 +262,7 @@ impl<'a> FSFile<'a> {
             id,
             file_name: Some(name.into()),
             path: path.as_ref().to_owned(),
-            str_to_file: str_to_file.into(),
+            str_to_file,
         }
     }
 
@@ -353,7 +353,7 @@ impl<'a> BufferedFile<'a> {
             id,
             bytes,
             file_name: None,
-            str_to_file: str_to_file.into(),
+            str_to_file,
         }
     }
 
@@ -369,7 +369,7 @@ impl<'a> BufferedFile<'a> {
             id,
             bytes,
             file_name: Some(name.into()),
-            str_to_file: str_to_file.into(),
+            str_to_file,
         }
     }
 
@@ -448,7 +448,7 @@ impl<'a> StreamFile<'a> {
             id,
             file_name: None,
             stream: Arc::new(TakeOwnCell::new(Box::new(stream))),
-            str_to_file: str_to_file.into(),
+            str_to_file,
         }
     }
 
@@ -465,7 +465,7 @@ impl<'a> StreamFile<'a> {
             id,
             file_name: Some(name.into()),
             stream: Arc::new(TakeOwnCell::new(Box::new(stream))),
-            str_to_file: str_to_file.into(),
+            str_to_file,
         }
     }
 
@@ -562,7 +562,7 @@ impl Clone for StreamFile<'_> {
             id,
             file_name: self.file_name.clone(),
             stream: self.stream.clone(),
-            str_to_file: format!("{ATTACH_PREFIX}{id}").into(),
+            str_to_file: format!("{ATTACH_PREFIX}{id}"),
         }
     }
 }

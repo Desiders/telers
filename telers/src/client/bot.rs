@@ -1,6 +1,10 @@
 //! This module contains the [`Bot`] structure that represents a bot with its token and ID,
 //! it also contains client for sending requests to Telegram API.
 //!
+//! You can use [`Bot::send`] method, which accepts any type that implements [`TelegramMethod`].
+//! Methods from [`methods`] module are implemented with builders, so you don't need to pass all parameters to it,
+//! only required and optional by using builder methods. Builders yet can have some useful shortcuts.
+//!
 //! # Notes
 //!
 //! This structure is cheap to clone, because it contains only [`String`], [`i64`] fields and a client.
@@ -33,6 +37,11 @@
 //!     let _ = bot.send_with_timeout(SendMessage::new(chat_id, text), timeout).await;
 //! }
 //! ```
+//!
+//! More production examples can be found in [`examples`] directory.
+//!
+//! [`examples`]: https://github.com/Desiders/telers/tree/dev-1.x/examples
+//! [`methods`]: crate::methods
 
 use super::{session::base::Session, Reqwest};
 

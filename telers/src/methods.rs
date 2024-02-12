@@ -5,31 +5,24 @@
 //! Each method has `new` function that creates a new instance of the method and accepts required parameters,
 //! for optional parameters there are builder-like methods that return a new instance of the method with the specified parameter.
 //!
+//! # Examples
 //! Some parameters that wrapped in an [`Option`] from the telegram types,
 //! can be passed using `{parameter}_option` method, which accepts an [`Option`] and returns a new instance of the method.
 //! These methods are useful when you have some optional parameters that you want to pass to the method from the types without boilerplate code.
-//! For example:
-//! ```ignore
-//! async fn handler(bot: Bot, message: Message) -> HandlerResult {
-//!     // Equivalent to:
-//!     // let method = if let Some(message_thread_id) = message.message_thread_id {
-//!     //     SendMessage::new(message.chat.id(), "Hello world!").message_thread_id(message_thread_id);
-//!     // } else {
-//!     //     SendMessage::new(message.chat.id(), "Hello world!");
-//!     // };
 //!
-//!     bot.send(
-//!         &SendMessage::new(message.chat.id(), "Hello world!")
-//!             .message_thread_id_option(message.message_thread_id),
-//!         None,
-//!     )
-//!     .await?;
+//! ```rust
+//! use telers::{Bot, methods::SendMessage, types::Message, event::{telegram::HandlerResult, EventReturn}};
+//!
+//! async fn handler(bot: Bot, message: Message) -> HandlerResult {
+//!     bot.send(SendMessage::new(message.chat().id(), "Hello world!").message_thread_id_option(message.thread_id())).await?;
 //!
 //!     Ok(EventReturn::Finish)
 //! }
 //! ```
 //!
-//! You can check example of usage methods in the `examples` directory.
+//! You can check more examples of usage methods in the [`examples`] directory.
+//!
+//! [`examples`]: https://github.com/Desiders/telers/tree/dev-1.x/examples
 
 pub mod add_sticker_to_set;
 pub mod answer_callback_query;

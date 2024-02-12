@@ -1,18 +1,10 @@
-//! Client session for sending requests to Telegram Bot API.
+//! This module contains submodules with components for sending requests to the Telegram Bot API.
 //!
-//! This module contains [`Session`] trait, which is used to send requests to Telegram Bot API.
-//! [`Session`] trait is implemented for [`Reqwest`] struct, which is default implementation of [`Session`].
+//! Components are:
+//! - [`base`] module with basic types and traits for sending requests
+//! - [`reqwest`] module with reqwest client implementation
 //!
-//! [`Session::send_request`] method is used to send requests and returns [`ClientResponse`] instance,
-//! which is used to get response from Telegram Bot API.
-//! It accepts [`Bot`] instance, which is used for building request (for example, to get token),
-//! and [`TelegramMethod`] instance, which is used for building request and [`ClientResponse`] instance,
-//! because [`TelegramMethod`] contains information about response type and request data.
-//! Check [`methods module`] documentation for more information about methods.
-//!
-//! [`Bot`]: crate::client::Bot
-//! [`TelegramMethod`]: crate::methods::TelegramMethod
-//! [`methods module`]: crate::methods
+//! Check each submodule for more information.
 
 pub mod base;
 pub mod reqwest;

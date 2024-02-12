@@ -1,13 +1,13 @@
-//! Telegram Bot API server configuration.
+//! This module contains the [`APIServer`] struct, which represents the configuration of the Telegram Bot API server
+//! and the [`FilesPathWrapper`] trait, which is used for resolving paths.
 //!
-//! This module contains [`APIServer`] struct, which represents configuration of Telegram Bot API server.
-//! By default [`Session`] implementations use [`PRODUCTION`] configuration, but you can use [`TEST`] configuration
-//! for testing your bot.
+//! You can use global variables [`PRODUCTION`] and [`TEST`] for using default configurations of Telegram Bot API server
+//! for production and testing. By default, [`PRODUCTION`] should be used in [`Session`] implementations.
 //!
-//! You can create [`APIServer`] directly for using local Telegram Bot API server,
-//! see example of using local Telegram Bot API server in `examples/local_server`.
-//!
-//! [`Session`]: crate::client::Session
+//! [`FilesPathWrapper`] is used for resolving paths for files.
+//! By default, [`BareFilesPathWrapper`] should be used, which just returns the same path, which you passed to it without any changes.
+//! You can use [`FilesDiffPathWrapper`] for resolving paths with different server and local paths.
+//! This can be useful for local Telegram Bot API server.
 
 use once_cell::sync::Lazy;
 use pathdiff::diff_paths;
