@@ -2,19 +2,16 @@ use super::{session::base::Session, Reqwest};
 
 use crate::{errors::SessionErrorKind, methods::TelegramMethod, utils::token};
 
-use std::{
-    borrow::Cow,
-    fmt::{self, Debug, Display, Formatter},
-};
+use std::fmt::{self, Debug, Display, Formatter};
 use tracing::instrument;
 
 /// Represents a bot with a token for getting updates and sending requests to Telegram API
 #[derive(Clone, Default)]
 pub struct Bot<Client: ?Sized = Reqwest> {
     /// Bot token, which is used to receive updates and send requests to the Telegram API
-    pub token: Cow<'static, str>,
+    pub token: String,
     /// Bot token, which is used in `Debug` implementation for privacy
-    pub hidden_token: Box<str>,
+    pub hidden_token: String,
     /// Bot id, extracted from the token
     pub bot_id: i64,
     /// Client for sending requests to Telegram API
@@ -25,7 +22,7 @@ impl Bot<Reqwest> {
     /// # Panics
     /// Panics if the token is invalid
     #[must_use]
-    pub fn new(token: impl Into<Cow<'static, str>>) -> Self {
+    pub fn new(token: impl Into<String>) -> Self {
         Self::with_client(token, Reqwest::default())
     }
 }
@@ -34,7 +31,7 @@ impl<Client> Bot<Client> {
     /// # Panics
     /// Panics if the token is invalid
     #[must_use]
-    pub fn with_client(token: impl Into<Cow<'static, str>>, client: Client) -> Self {
+    pub fn with_client(token: impl Into<String>, client: Client) -> Self {
         let token = token.into();
         let bot_id = token::extract_bot_id(&token).expect(
             "This bot token is invalid, please check it. \
