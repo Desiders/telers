@@ -1,13 +1,21 @@
+//! This module contains the [`ErrorKind`] enum that reprensents Telegram Bot API errors.
+//!
+//! All possible errors aren't documented in the official Telegram API documentation and usually
+//! defined by messages in the responses, but these messages can be changed in the future (frequent situation).
+//! So, many errors are represents as [`ErrorKind::BadRequest`], and we are not trying to distinguish them
+//! for stability. Thanks Telegram Bot API for this ^_^.
+
 use anyhow;
 use thiserror;
 
-/// Errors that can be returned by the Telegram Bot API.
+/// Represents Telegram Bot API errors.
 /// # Notes
-/// This enum isn't complete. If you find a new error, please open an issue or pull request.
 /// All possible errors aren't documented in the official Telegram API documentation and usually
 /// defined by messages in the responses, but these messages can be changed in the future (frequent situation).
 /// So, many errors are represents as [`ErrorKind::BadRequest`], and we are not trying to distinguish them
 /// for stability. Thanks Telegram Bot API for this ^_^.
+///
+/// This enum isn't complete. If you find a new error, please open an issue or pull request.
 #[derive(Debug, thiserror::Error)]
 pub enum ErrorKind {
     #[error("TelegramNetworkError: {message:?}")]

@@ -1,5 +1,5 @@
-//! This module contains enums used in the library for simple way to use it instead of using strings (constants),
-//! which not so comfortable and not so safe, because you can make a typo in string and it will compile without errors.
+//! This module contains enums used in the library for simple way to use it instead of strings (constants),
+//! which not so comfortable and safe, because you can make a typo in string and it will compile without errors.
 //!
 //! This module contains enums for:
 //! - [`BotCommandScopeType`]: Scope of bot commands, which is used in [`BotCommandScope`].
