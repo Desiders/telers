@@ -20,3 +20,4 @@ codegen-units = 1
 [patch.crates-io]
 telers = { path = "telers" }
 telers-macros = { path = "telers-macros" }
+telers-codegen = { path = "telers-codegen" }
