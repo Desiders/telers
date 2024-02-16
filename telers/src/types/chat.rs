@@ -181,8 +181,6 @@ pub struct Channel {
     pub pinned_message: Option<Message>,
     /// The time after which all messages sent to the chat will be automatically deleted; in seconds. Returned only in [`GetChat`](crate::methods::GetChat).
     pub message_auto_delete_time: Option<i64>,
-    /// `true`, if non-administrators can only get the list of bots and administrators in the chat. Returned only in [`GetChat`](crate::methods::GetChat).
-    pub has_hidden_members: Option<bool>,
     /// `true`, if messages from the chat can't be forwarded to other chats. Returned only in [`GetChat`](crate::methods::GetChat).
     pub has_protected_content: Option<bool>,
     /// Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa. This identifier may be greater than 32 bits and some programming languages may have difficulty/silent defects in interpreting it. But it is smaller than 52 bits, so a signed 64 bit integer or double-precision float type are safe for storing this identifier. Returned only in [`GetChat`](crate::methods::GetChat).
