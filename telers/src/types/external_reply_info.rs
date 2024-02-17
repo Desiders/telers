@@ -1,4 +1,4 @@
-use super::{Chat, LinkPreviewOptions, MessageEntity, MessageOrigin};
+use super::{Chat, LinkPreviewOptions, MessageOrigin};
 
 use crate::types;
 
@@ -53,11 +53,6 @@ pub struct Animation {
     pub message_id: Option<i64>,
     /// Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set
     pub animation: types::Animation,
-    /// Caption
-    pub caption: Option<Box<str>>,
-    /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    #[serde(rename = "caption_entities")]
-    pub entities: Option<Box<[MessageEntity]>>,
     /// `true`, if the message media is covered by a spoiler animation
     pub has_media_spoiler: Option<bool>,
 }
@@ -70,11 +65,6 @@ pub struct Audio {
     pub chat: Option<Chat>,
     /// Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
     pub message_id: Option<i64>,
-    /// Caption
-    pub caption: Option<Box<str>>,
-    /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    #[serde(rename = "caption_entities")]
-    pub entities: Option<Box<[MessageEntity]>>,
     /// Message is an audio file, information about the file
     pub audio: types::Audio,
 }
@@ -87,11 +77,6 @@ pub struct Document {
     pub chat: Option<Chat>,
     /// Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
     pub message_id: Option<i64>,
-    /// Caption
-    pub caption: Option<Box<str>>,
-    /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    #[serde(rename = "caption_entities")]
-    pub entities: Option<Box<[MessageEntity]>>,
     /// Message is a general file, information about the file
     pub document: types::Document,
 }
@@ -106,11 +91,6 @@ pub struct Photo {
     pub message_id: Option<i64>,
     /// Message is a photo, available sizes of the photo
     pub photo: Vec<types::PhotoSize>,
-    /// Caption
-    pub caption: Option<Box<str>>,
-    /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    #[serde(rename = "caption_entities")]
-    pub entities: Option<Box<[MessageEntity]>>,
     /// `true`, if the message media is covered by a spoiler animation
     pub has_media_spoiler: Option<bool>,
 }
@@ -149,11 +129,6 @@ pub struct Video {
     pub chat: Option<Chat>,
     /// Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
     pub message_id: Option<i64>,
-    /// Caption
-    pub caption: Option<Box<str>>,
-    /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    #[serde(rename = "caption_entities")]
-    pub entities: Option<Box<[MessageEntity]>>,
     /// Message is a video, information about the video
     pub video: types::Video,
 }
@@ -178,11 +153,6 @@ pub struct Voice {
     pub chat: Option<Chat>,
     /// Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
     pub message_id: Option<i64>,
-    /// Caption
-    pub caption: Option<Box<str>>,
-    /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    #[serde(rename = "caption_entities")]
-    pub entities: Option<Box<[MessageEntity]>>,
     /// Message is a voice message, information about the file
     pub voice: types::Voice,
 }
