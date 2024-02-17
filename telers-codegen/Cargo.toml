@@ -28,7 +28,3 @@ telers = { path = "../telers", version = "1.0.0-alpha.14", features = ["default"
 [package.metadata.docs.rs]
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
-
-[[test]]
-name = "raw"
-path = "tests/raw.rs"
