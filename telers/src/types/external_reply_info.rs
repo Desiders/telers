@@ -504,7 +504,14 @@ mod tests {
                     "first_name": "test",
                 },
             },
-            "story": {},
+            "story": {
+                "chat": {
+                    "id": -1,
+                    "title": "test",
+                    "type": "channel",
+                },
+                "id": 1,
+            },
         })];
 
         for json in jsons {
