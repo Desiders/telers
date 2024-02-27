@@ -127,7 +127,7 @@ pub struct Supergroup {
     pub permissions: Option<ChatPermissions>,
     /// The minimum allowed delay between consecutive messages sent by each unpriviledged user; in seconds. Returned only in [`GetChat`](crate::methods::GetChat).
     pub slow_mode_delay: Option<i64>,
-    /// For supergroups, the minimum number of boosts that a non-administrator user needs to add in order to ignore slow mode and chat permissions. Returned only in [`GetChat`](crate::methods::GetChat).
+    /// The minimum number of boosts that a non-administrator user needs to add in order to ignore slow mode and chat permissions. Returned only in [`GetChat`](crate::methods::GetChat).
     pub unrestrict_boost_count: Option<i64>,
     /// The time after which all messages sent to the chat will be automatically deleted; in seconds. Returned only in [`GetChat`](crate::methods::GetChat).
     pub message_auto_delete_time: Option<i64>,
