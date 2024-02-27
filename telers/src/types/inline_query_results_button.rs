@@ -1,10 +1,12 @@
 use super::WebAppInfo;
 
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// This object represents a button to be shown above inline query results. You **must** use exactly one of the optional fields.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultsbutton>
+#[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct InlineQueryResultsButton {
     /// Label text on the button
