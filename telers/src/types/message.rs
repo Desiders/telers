@@ -57,6 +57,7 @@ pub enum Message {
     WriteAccessAllowed(Box<WriteAccessAllowed>),
     PassportData(Box<PassportData>),
     ProximityAlertTriggered(Box<ProximityAlertTriggered>),
+    ChatBoostAdded(Box<ChatBoostAdded>),
     ForumTopicCreated(Box<ForumTopicCreated>),
     ForumTopicEdited(Box<ForumTopicEdited>),
     ForumTopicClosed(Box<ForumTopicClosed>),
@@ -1219,6 +1220,21 @@ pub struct ProximityAlertTriggered {
 
 #[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
 #[event(try_from = Update)]
+pub struct ChatBoostAdded {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: user boosted the chat
+    #[serde(rename = "boost_added")]
+    pub added: types::ChatBoostAdded,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct ForumTopicCreated {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1595,6 +1611,7 @@ impl Message {
             Message::WriteAccessAllowed(message) => message.id,
             Message::PassportData(message) => message.id,
             Message::ProximityAlertTriggered(message) => message.id,
+            Message::ChatBoostAdded(message) => message.id,
             Message::ForumTopicCreated(message) => message.id,
             Message::ForumTopicEdited(message) => message.id,
             Message::ForumTopicClosed(message) => message.id,
@@ -1688,6 +1705,7 @@ impl Message {
             Message::WriteAccessAllowed(message) => message.date,
             Message::PassportData(message) => message.date,
             Message::ProximityAlertTriggered(message) => message.date,
+            Message::ChatBoostAdded(message) => message.date,
             Message::ForumTopicCreated(message) => message.date,
             Message::ForumTopicEdited(message) => message.date,
             Message::ForumTopicClosed(message) => message.date,
@@ -1745,6 +1763,7 @@ impl Message {
             Message::WriteAccessAllowed(message) => &message.chat,
             Message::PassportData(message) => &message.chat,
             Message::ProximityAlertTriggered(message) => &message.chat,
+            Message::ChatBoostAdded(message) => &message.chat,
             Message::ForumTopicCreated(message) => &message.chat,
             Message::ForumTopicEdited(message) => &message.chat,
             Message::ForumTopicClosed(message) => &message.chat,
@@ -2436,6 +2455,14 @@ impl Message {
     }
 
     #[must_use]
+    pub const fn chat_boost_added(&self) -> Option<&types::ChatBoostAdded> {
+        match self {
+            Message::ChatBoostAdded(message) => Some(&message.added),
+            _ => None,
+        }
+    }
+
+    #[must_use]
     pub const fn forum_topic_created(&self) -> Option<&types::ForumTopicCreated> {
         match self {
             Message::ForumTopicCreated(message) => Some(&message.created),
@@ -2705,6 +2732,7 @@ impl_try_from_message!(SuccessfulPayment, SuccessfulPayment);
 impl_try_from_message!(ConnectedWebsite, ConnectedWebsite);
 impl_try_from_message!(PassportData, PassportData);
 impl_try_from_message!(ProximityAlertTriggered, ProximityAlertTriggered);
+impl_try_from_message!(ChatBoostAdded, ChatBoostAdded);
 impl_try_from_message!(ForumTopicCreated, ForumTopicCreated);
 impl_try_from_message!(ForumTopicEdited, ForumTopicEdited);
 impl_try_from_message!(ForumTopicClosed, ForumTopicClosed);
@@ -2783,6 +2811,7 @@ impl_try_from_update!(SuccessfulPayment);
 impl_try_from_update!(ConnectedWebsite);
 impl_try_from_update!(PassportData);
 impl_try_from_update!(ProximityAlertTriggered);
+impl_try_from_update!(ChatBoostAdded);
 impl_try_from_update!(ForumTopicCreated);
 impl_try_from_update!(ForumTopicEdited);
 impl_try_from_update!(ForumTopicClosed);
@@ -4010,6 +4039,34 @@ mod tests {
 
             match message {
                 Message::ProximityAlertTriggered(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_chat_boost_added() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "boost_added": {
+                "boost_count": 1,
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message: Message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::ChatBoostAdded(message) => {
                     assert_eq!(message, message_kind);
                 }
                 _ => panic!("Unexpected message type: {message:?}"),

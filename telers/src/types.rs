@@ -56,6 +56,7 @@ pub mod callback_query;
 pub mod chat;
 pub mod chat_administrator_rights;
 pub mod chat_boost;
+pub mod chat_boost_added;
 pub mod chat_boost_removed;
 pub mod chat_boost_source;
 pub mod chat_boost_source_gift_code;
@@ -245,6 +246,7 @@ pub use chat::{
 };
 pub use chat_administrator_rights::ChatAdministratorRights;
 pub use chat_boost::ChatBoost;
+pub use chat_boost_added::ChatBoostAdded;
 pub use chat_boost_removed::ChatBoostRemoved;
 pub use chat_boost_source::ChatBoostSource;
 pub use chat_boost_source_gift_code::ChatBoostSourceGiftCode;
