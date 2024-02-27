@@ -50,7 +50,7 @@ impl KeyboardButton {
     }
 
     #[must_use]
-    pub fn request_user(self, val: KeyboardButtonRequestUsers) -> Self {
+    pub fn request_users(self, val: KeyboardButtonRequestUsers) -> Self {
         Self {
             request_users: Some(val),
             ..self
@@ -100,7 +100,7 @@ impl KeyboardButton {
 
 impl KeyboardButton {
     #[must_use]
-    pub fn request_user_option(self, val: Option<KeyboardButtonRequestUsers>) -> Self {
+    pub fn request_users_option(self, val: Option<KeyboardButtonRequestUsers>) -> Self {
         Self {
             request_users: val,
             ..self
