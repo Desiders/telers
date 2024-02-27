@@ -12,7 +12,7 @@ use serde::Deserialize;
 pub struct ChatBoostUpdated {
     /// Chat which was boosted
     pub chat: Chat,
-    /// Infomation about the chat boost
+    /// Information about the chat boost
     pub boost: ChatBoostSource,
 }
 

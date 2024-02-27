@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
 /// This object represents a phone contact.
+/// # Documentation
 /// <https://core.telegram.org/bots/api#contact>
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct Contact {

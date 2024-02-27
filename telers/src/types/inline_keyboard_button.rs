@@ -11,7 +11,7 @@ use serde_with::skip_serializing_none;
 pub struct InlineKeyboardButton {
     /// Label text on the button
     pub text: String,
-    /// HTTP or tg:// URL to be opened when the button is pressed. Links `tg://user?id=<user_id>` can be used to mention a user by their ID without using a username, if this is allowed by their privacy settings.
+    /// HTTP or tg:// URL to be opened when the button is pressed. Links `tg://user?id=<user_id>` can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings.
     pub url: Option<String>,
     /// Data to be sent in a [`callback query`](https://core.telegram.org/bots/api#callbackquery) to the bot when button is pressed, 1-64 bytes
     pub callback_data: Option<String>,
