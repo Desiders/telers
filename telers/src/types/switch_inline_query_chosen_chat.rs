@@ -1,8 +1,10 @@
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// This object represents an inline button that switches the current user to inline mode in a chosen chat, with an optional default inline query.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#switchinlinequerychosenchat>
+#[skip_serializing_none]
 #[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct SwitchInlineQueryChosenChat {
     /// The default inline query to be inserted in the input field. If left empty, only the bot's username will be inserted

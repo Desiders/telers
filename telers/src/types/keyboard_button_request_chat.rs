@@ -1,10 +1,12 @@
 use super::ChatAdministratorRights;
 
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// This object defines the criteria used to request a suitable chat. The identifier of the selected chat will be shared with the bot when the corresponding button is pressed. [`More about requesting chats`](https://core.telegram.org/bots/features#chat-and-user-selection)
 /// # Documentation
 /// <https://core.telegram.org/bots/api#keyboardbuttonrequestchat>
+#[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct KeyboardButtonRequestChat {
     /// Signed 32-bit identifier of the request, which will be received back in the [`ChatShared`](crate::types::ChatShared) object. Must be unique within the message

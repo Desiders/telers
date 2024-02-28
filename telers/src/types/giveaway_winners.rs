@@ -9,7 +9,7 @@ use super::{Chat, User};
 pub struct GiveawayWinners {
     /// The chat that created the giveaway
     pub chat: Chat,
-    /// Identifier of the messsage with the giveaway in the chat
+    /// Identifier of the message with the giveaway in the chat
     pub giveaway_message_id: i64,
     /// Point in time (Unix timestamp) when winners of the giveaway were selected
     pub winners_selection_date: i64,

@@ -1,7 +1,6 @@
 use serde::Deserialize;
 
 /// This object contains the data of the Mini App user.
-/// # Documentation
 /// <https://core.telegram.org/bots/webapps#webappuser>
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize)]
 pub struct WebAppUser {

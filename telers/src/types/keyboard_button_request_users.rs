@@ -1,8 +1,10 @@
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// This object defines the criteria used to request suitable users. The identifiers of the selected users will be shared with the bot when the corresponding button is pressed. [`More about requesting users`](https://core.telegram.org/bots/features#chat-and-user-selection)
 /// # Documentation
 /// <https://core.telegram.org/bots/api#keyboardbuttonrequestusers>
+#[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub struct KeyboardButtonRequestUsers {
     /// Signed 32-bit identifier of the request that will be received back in the [`UsersShared`](crate::types::UsersShared) object. Must be unique within the message

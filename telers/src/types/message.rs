@@ -57,6 +57,7 @@ pub enum Message {
     WriteAccessAllowed(Box<WriteAccessAllowed>),
     PassportData(Box<PassportData>),
     ProximityAlertTriggered(Box<ProximityAlertTriggered>),
+    ChatBoostAdded(Box<ChatBoostAdded>),
     ForumTopicCreated(Box<ForumTopicCreated>),
     ForumTopicEdited(Box<ForumTopicEdited>),
     ForumTopicClosed(Box<ForumTopicClosed>),
@@ -87,6 +88,8 @@ pub struct Animation {
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
+    pub sender_boost_count: Option<i64>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
@@ -137,6 +140,8 @@ pub struct Audio {
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
+    pub sender_boost_count: Option<i64>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
@@ -187,6 +192,8 @@ pub struct Contact {
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
+    pub sender_boost_count: Option<i64>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
@@ -226,6 +233,8 @@ pub struct Dice {
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
+    pub sender_boost_count: Option<i64>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
@@ -263,6 +272,8 @@ pub struct Document {
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
+    pub sender_boost_count: Option<i64>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
@@ -313,6 +324,8 @@ pub struct Game {
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
+    pub sender_boost_count: Option<i64>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
@@ -352,6 +365,8 @@ pub struct Poll {
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
+    pub sender_boost_count: Option<i64>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
@@ -391,6 +406,8 @@ pub struct Venue {
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
+    pub sender_boost_count: Option<i64>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
@@ -432,6 +449,8 @@ pub struct Location {
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
+    pub sender_boost_count: Option<i64>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
@@ -473,6 +492,8 @@ pub struct Photo {
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
+    pub sender_boost_count: Option<i64>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
@@ -551,6 +572,8 @@ pub struct Story {
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
+    pub sender_boost_count: Option<i64>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
@@ -582,6 +605,8 @@ pub struct Sticker {
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
+    pub sender_boost_count: Option<i64>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
@@ -619,6 +644,8 @@ pub struct Text {
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
+    pub sender_boost_count: Option<i64>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
@@ -666,6 +693,8 @@ pub struct Video {
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
+    pub sender_boost_count: Option<i64>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
@@ -718,6 +747,8 @@ pub struct VideoNote {
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
+    pub sender_boost_count: Option<i64>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
@@ -755,6 +786,8 @@ pub struct Voice {
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
+    pub sender_boost_count: Option<i64>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
@@ -794,21 +827,12 @@ pub struct MigrateToChat {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
-    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
-    pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    /// Information about the original message for forwarded messages
-    pub forward_origin: Option<MessageOrigin>,
-    /// `true`, if the message is sent to a forum topic
-    pub is_topic_message: Option<bool>,
     /// The group has been migrated to a supergroup with the specified identifier. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     #[serde(rename = "migrate_to_chat_id")]
     pub to_chat_id: i64,
@@ -820,21 +844,12 @@ pub struct MigrateFromChat {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
-    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
-    pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    /// Information about the original message for forwarded messages
-    pub forward_origin: Option<MessageOrigin>,
-    /// `true`, if the message is sent to a forum topic
-    pub is_topic_message: Option<bool>,
     /// The supergroup has been migrated from a group with the specified identifier. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     #[serde(rename = "migrate_from_chat_id")]
     pub from_chat_id: i64,
@@ -846,9 +861,6 @@ pub struct NewChatMembers {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -857,8 +869,6 @@ pub struct NewChatMembers {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    /// `true`, if the message is sent to a forum topic
-    pub is_topic_message: Option<bool>,
     /// New members that were added to the group or supergroup and information about them (the bot itself may be one of these members)
     #[serde(rename = "new_chat_members")]
     pub members: Box<[User]>,
@@ -870,9 +880,6 @@ pub struct LeftChatMember {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -881,10 +888,6 @@ pub struct LeftChatMember {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    /// `true`, if the message is sent to a forum topic
-    pub is_topic_message: Option<bool>,
-    /// Bot through which the message was sent
-    pub via_bot: Option<User>,
     /// A member was removed from the group, information about them (this member may be the bot itself).
     #[serde(rename = "left_chat_member")]
     pub member: User,
@@ -896,9 +899,6 @@ pub struct NewChatTitle {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -907,10 +907,6 @@ pub struct NewChatTitle {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    /// `true`, if the message is sent to a forum topic
-    pub is_topic_message: Option<bool>,
-    /// Bot through which the message was sent
-    pub via_bot: Option<User>,
     /// A chat title was changed to this value
     #[serde(rename = "new_chat_title")]
     pub title: Box<str>,
@@ -922,9 +918,6 @@ pub struct NewChatPhoto {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -933,10 +926,6 @@ pub struct NewChatPhoto {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    /// `true`, if the message is sent to a forum topic
-    pub is_topic_message: Option<bool>,
-    /// Bot through which the message was sent
-    pub via_bot: Option<User>,
     /// A chat photo was change to this value
     #[serde(rename = "new_chat_photo")]
     pub photo: Box<[PhotoSize]>,
@@ -948,9 +937,6 @@ pub struct DeleteChatPhoto {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -959,10 +945,6 @@ pub struct DeleteChatPhoto {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    /// `true`, if the message is sent to a forum topic
-    pub is_topic_message: Option<bool>,
-    /// Bot through which the message was sent
-    pub via_bot: Option<User>,
     /// Service message: the chat photo was deleted
     #[serde(rename = "delete_chat_photo")]
     pub photo: bool,
@@ -974,9 +956,6 @@ pub struct GroupChatCreated {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -996,9 +975,6 @@ pub struct SupergroupChatCreated {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1018,9 +994,6 @@ pub struct ChannelChatCreated {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1041,9 +1014,6 @@ pub struct MessageAutoDeleteTimerChanged {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1052,8 +1022,6 @@ pub struct MessageAutoDeleteTimerChanged {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    /// `true`, if the message is sent to a forum topic
-    pub is_topic_message: Option<bool>,
     /// Service message: auto-delete timer settings changed in the chat
     #[serde(rename = "message_auto_delete_timer_changed")]
     pub timer: types::MessageAutoDeleteTimerChanged,
@@ -1080,8 +1048,6 @@ pub struct Pinned {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// Bot through which the message was sent
-    pub via_bot: Option<User>,
     /// Specified message was pinned. Note that the Message object in this field will not contain further *reply_to_message* fields even if it is itself a reply.
     #[serde(rename = "pinned_message")]
     pub message: Box<MaybeInaccessibleMessage>,
@@ -1100,6 +1066,8 @@ pub struct Invoice {
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub sender_chat: Option<Chat>,
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
+    pub sender_boost_count: Option<i64>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
@@ -1130,9 +1098,6 @@ pub struct SuccessfulPayment {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1141,14 +1106,6 @@ pub struct SuccessfulPayment {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    /// Information about the original message for forwarded messages
-    pub forward_origin: Option<MessageOrigin>,
-    /// `true`, if the message is sent to a forum topic
-    pub is_topic_message: Option<bool>,
-    /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
-    pub reply_to_message: Option<Message>,
-    /// Bot through which the message was sent
-    pub via_bot: Option<User>,
     /// Message is a service message about a successful payment, information about the payment. [`More about payments`](https://core.telegram.org/bots/api#payments)
     #[serde(rename = "successful_payment")]
     pub payment: types::SuccessfulPayment,
@@ -1160,19 +1117,12 @@ pub struct UsersShared {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
-    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
-    pub sender_chat: Option<Chat>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    /// `true`, if the message is sent to a forum topic
-    pub is_topic_message: Option<bool>,
     /// Service message: users were shared with the bot
     #[serde(rename = "users_shared")]
     pub shared: types::UsersShared,
@@ -1184,19 +1134,12 @@ pub struct ChatShared {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
-    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
-    pub sender_chat: Option<Chat>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    /// `true`, if the message is sent to a forum topic
-    pub is_topic_message: Option<bool>,
     /// Service message: a chat was shared with the bot
     #[serde(rename = "chat_shared")]
     pub shared: types::ChatShared,
@@ -1208,23 +1151,10 @@ pub struct ConnectedWebsite {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
-    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
-    pub from: Option<User>,
-    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
-    pub sender_chat: Option<Chat>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    /// Information about the original message for forwarded messages
-    pub forward_origin: Option<MessageOrigin>,
-    /// `true`, if the message is sent to a forum topic
-    pub is_topic_message: Option<bool>,
-    /// Bot through which the message was sent
-    pub via_bot: Option<User>,
     /// The domain name of the website on which the user has logged in. [`More about Telegram Login`](https://core.telegram.org/widgets/login)
     #[serde(rename = "connected_website")]
     pub website: Box<str>,
@@ -1236,21 +1166,10 @@ pub struct WriteAccessAllowed {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
-    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
-    pub from: Option<User>,
-    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
-    pub sender_chat: Option<Chat>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    /// `true`, if the message is sent to a forum topic
-    pub is_topic_message: Option<bool>,
-    /// Bot through which the message was sent
-    pub via_bot: Option<User>,
     /// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess
     #[serde(rename = "write_access_allowed")]
     pub allowed: types::WriteAccessAllowed,
@@ -1290,22 +1209,28 @@ pub struct ProximityAlertTriggered {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
-    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
-    pub from: Option<User>,
-    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
-    pub sender_chat: Option<Chat>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    /// `true`, if the message is sent to a forum topic
-    pub is_topic_message: Option<bool>,
     /// Service message. A user in the chat triggered another user's proximity alert while sharing Live Location.
     #[serde(rename = "proximity_alert_triggered")]
     pub triggered: types::ProximityAlertTriggered,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
+#[event(try_from = Update)]
+pub struct ChatBoostAdded {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: user boosted the chat
+    #[serde(rename = "boost_added")]
+    pub added: types::ChatBoostAdded,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, FromEvent)]
@@ -1329,8 +1254,6 @@ pub struct ForumTopicCreated {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// Bot through which the message was sent
-    pub via_bot: Option<User>,
     /// Service message: forum topic created
     #[serde(rename = "forum_topic_created")]
     pub created: types::ForumTopicCreated,
@@ -1357,8 +1280,6 @@ pub struct ForumTopicEdited {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// Bot through which the message was sent
-    pub via_bot: Option<User>,
     /// Service message: forum topic edited
     #[serde(rename = "forum_topic_edited")]
     pub edited: types::ForumTopicEdited,
@@ -1385,8 +1306,6 @@ pub struct ForumTopicClosed {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// Bot through which the message was sent
-    pub via_bot: Option<User>,
     /// Service message: forum topic closed
     #[serde(rename = "forum_topic_closed")]
     pub closed: types::ForumTopicClosed,
@@ -1413,8 +1332,6 @@ pub struct ForumTopicReopened {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// Bot through which the message was sent
-    pub via_bot: Option<User>,
     /// Service message: forum topic reopened
     #[serde(rename = "forum_topic_reopened")]
     pub reopened: types::ForumTopicReopened,
@@ -1441,8 +1358,6 @@ pub struct GeneralForumTopicHidden {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// Bot through which the message was sent
-    pub via_bot: Option<User>,
     /// Service message: the `General` forum topic hidden
     #[serde(rename = "general_forum_topic_hidden")]
     pub hidden: types::GeneralForumTopicHidden,
@@ -1469,8 +1384,6 @@ pub struct GeneralForumTopicUnhidden {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// Bot through which the message was sent
-    pub via_bot: Option<User>,
     /// Service message: the `General` forum topic unhidden
     #[serde(rename = "general_forum_topic_unhidden")]
     pub unhidden: types::GeneralForumTopicUnhidden,
@@ -1573,9 +1486,6 @@ pub struct VideoChatScheduled {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1595,9 +1505,6 @@ pub struct VideoChatStarted {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1617,9 +1524,6 @@ pub struct VideoChatEnded {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1639,9 +1543,6 @@ pub struct VideoChatParticipantsInvited {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1661,23 +1562,10 @@ pub struct WebAppData {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
-    #[serde(rename = "message_thread_id")]
-    pub thread_id: Option<i64>,
-    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
-    pub from: Option<User>,
-    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
-    pub sender_chat: Option<Chat>,
     /// Date the message was sent in Unix time
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    /// `true`, if the message is sent to a forum topic
-    pub is_topic_message: Option<bool>,
-    /// Bot through which the message was sent
-    pub via_bot: Option<User>,
-    /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    pub author_signature: Option<Box<str>>,
     /// Service message: data sent by a Web App
     #[serde(rename = "web_app_data")]
     pub data: types::WebAppData,
@@ -1723,6 +1611,7 @@ impl Message {
             Message::WriteAccessAllowed(message) => message.id,
             Message::PassportData(message) => message.id,
             Message::ProximityAlertTriggered(message) => message.id,
+            Message::ChatBoostAdded(message) => message.id,
             Message::ForumTopicCreated(message) => message.id,
             Message::ForumTopicEdited(message) => message.id,
             Message::ForumTopicClosed(message) => message.id,
@@ -1760,41 +1649,20 @@ impl Message {
             Message::Poll(message) => message.thread_id,
             Message::Venue(message) => message.thread_id,
             Message::Location(message) => message.thread_id,
-            Message::NewChatMembers(message) => message.thread_id,
-            Message::LeftChatMember(message) => message.thread_id,
-            Message::NewChatTitle(message) => message.thread_id,
-            Message::NewChatPhoto(message) => message.thread_id,
-            Message::DeleteChatPhoto(message) => message.thread_id,
-            Message::GroupChatCreated(message) => message.thread_id,
-            Message::SupergroupChatCreated(message) => message.thread_id,
-            Message::ChannelChatCreated(message) => message.thread_id,
-            Message::MessageAutoDeleteTimerChanged(message) => message.thread_id,
-            Message::MigrateToChat(message) => message.thread_id,
-            Message::MigrateFromChat(message) => message.thread_id,
             Message::Pinned(message) => message.thread_id,
             Message::Invoice(message) => message.thread_id,
-            Message::SuccessfulPayment(message) => message.thread_id,
-            Message::UsersShared(message) => message.thread_id,
-            Message::ChatShared(message) => message.thread_id,
-            Message::ConnectedWebsite(message) => message.thread_id,
-            Message::WriteAccessAllowed(message) => message.thread_id,
             Message::PassportData(message) => message.thread_id,
-            Message::ProximityAlertTriggered(message) => message.thread_id,
             Message::ForumTopicCreated(message) => message.thread_id,
             Message::ForumTopicEdited(message) => message.thread_id,
             Message::ForumTopicClosed(message) => message.thread_id,
             Message::ForumTopicReopened(message) => message.thread_id,
             Message::GeneralForumTopicHidden(message) => message.thread_id,
             Message::GeneralForumTopicUnhidden(message) => message.thread_id,
-            Message::VideoChatScheduled(message) => message.thread_id,
-            Message::VideoChatStarted(message) => message.thread_id,
-            Message::VideoChatEnded(message) => message.thread_id,
-            Message::VideoChatParticipantsInvited(message) => message.thread_id,
-            Message::WebAppData(message) => message.thread_id,
             Message::GiveawayCreated(message) => message.thread_id,
             Message::Giveaway(message) => message.thread_id,
             Message::GiveawayWinners(message) => message.thread_id,
             Message::GiveawayCompleted(message) => message.thread_id,
+            _ => None,
         }
     }
 
@@ -1837,6 +1705,7 @@ impl Message {
             Message::WriteAccessAllowed(message) => message.date,
             Message::PassportData(message) => message.date,
             Message::ProximityAlertTriggered(message) => message.date,
+            Message::ChatBoostAdded(message) => message.date,
             Message::ForumTopicCreated(message) => message.date,
             Message::ForumTopicEdited(message) => message.date,
             Message::ForumTopicClosed(message) => message.date,
@@ -1894,6 +1763,7 @@ impl Message {
             Message::WriteAccessAllowed(message) => &message.chat,
             Message::PassportData(message) => &message.chat,
             Message::ProximityAlertTriggered(message) => &message.chat,
+            Message::ChatBoostAdded(message) => &message.chat,
             Message::ForumTopicCreated(message) => &message.chat,
             Message::ForumTopicEdited(message) => &message.chat,
             Message::ForumTopicClosed(message) => &message.chat,
@@ -1927,22 +1797,7 @@ impl Message {
             Message::Game(message) => message.via_bot.as_ref(),
             Message::Venue(message) => message.via_bot.as_ref(),
             Message::Location(message) => message.via_bot.as_ref(),
-            Message::LeftChatMember(message) => message.via_bot.as_ref(),
-            Message::NewChatTitle(message) => message.via_bot.as_ref(),
-            Message::NewChatPhoto(message) => message.via_bot.as_ref(),
-            Message::DeleteChatPhoto(message) => message.via_bot.as_ref(),
-            Message::Pinned(message) => message.via_bot.as_ref(),
             Message::Invoice(message) => message.via_bot.as_ref(),
-            Message::SuccessfulPayment(message) => message.via_bot.as_ref(),
-            Message::ConnectedWebsite(message) => message.via_bot.as_ref(),
-            Message::WriteAccessAllowed(message) => message.via_bot.as_ref(),
-            Message::ForumTopicCreated(message) => message.via_bot.as_ref(),
-            Message::ForumTopicEdited(message) => message.via_bot.as_ref(),
-            Message::ForumTopicClosed(message) => message.via_bot.as_ref(),
-            Message::ForumTopicReopened(message) => message.via_bot.as_ref(),
-            Message::GeneralForumTopicHidden(message) => message.via_bot.as_ref(),
-            Message::GeneralForumTopicUnhidden(message) => message.via_bot.as_ref(),
-            Message::WebAppData(message) => message.via_bot.as_ref(),
             _ => None,
         }
     }
@@ -2024,17 +1879,12 @@ impl Message {
             Message::SupergroupChatCreated(message) => message.from.as_ref(),
             Message::ChannelChatCreated(message) => message.from.as_ref(),
             Message::MessageAutoDeleteTimerChanged(message) => message.from.as_ref(),
-            Message::MigrateToChat(message) => message.from.as_ref(),
-            Message::MigrateFromChat(message) => message.from.as_ref(),
             Message::Pinned(message) => message.from.as_ref(),
             Message::Invoice(message) => message.from.as_ref(),
             Message::SuccessfulPayment(message) => message.from.as_ref(),
             Message::UsersShared(message) => message.from.as_ref(),
             Message::ChatShared(message) => message.from.as_ref(),
-            Message::ConnectedWebsite(message) => message.from.as_ref(),
-            Message::WriteAccessAllowed(message) => message.from.as_ref(),
             Message::PassportData(message) => message.from.as_ref(),
-            Message::ProximityAlertTriggered(message) => message.from.as_ref(),
             Message::ForumTopicCreated(message) => message.from.as_ref(),
             Message::ForumTopicEdited(message) => message.from.as_ref(),
             Message::ForumTopicClosed(message) => message.from.as_ref(),
@@ -2045,11 +1895,11 @@ impl Message {
             Message::VideoChatStarted(message) => message.from.as_ref(),
             Message::VideoChatEnded(message) => message.from.as_ref(),
             Message::VideoChatParticipantsInvited(message) => message.from.as_ref(),
-            Message::WebAppData(message) => message.from.as_ref(),
             Message::GiveawayCreated(message) => message.from.as_ref(),
             Message::Giveaway(message) => message.from.as_ref(),
             Message::GiveawayWinners(message) => message.from.as_ref(),
             Message::GiveawayCompleted(message) => message.from.as_ref(),
+            _ => None,
         }
     }
 
@@ -2058,6 +1908,30 @@ impl Message {
         match self.from() {
             Some(user) => Some(user.id),
             None => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn sender_boost_count(&self) -> Option<i64> {
+        match self {
+            Message::Text(message) => message.sender_boost_count,
+            Message::Animation(message) => message.sender_boost_count,
+            Message::Audio(message) => message.sender_boost_count,
+            Message::Document(message) => message.sender_boost_count,
+            Message::Photo(message) => message.sender_boost_count,
+            Message::Sticker(message) => message.sender_boost_count,
+            Message::Story(message) => message.sender_boost_count,
+            Message::Video(message) => message.sender_boost_count,
+            Message::VideoNote(message) => message.sender_boost_count,
+            Message::Voice(message) => message.sender_boost_count,
+            Message::Contact(message) => message.sender_boost_count,
+            Message::Dice(message) => message.sender_boost_count,
+            Message::Game(message) => message.sender_boost_count,
+            Message::Poll(message) => message.sender_boost_count,
+            Message::Venue(message) => message.sender_boost_count,
+            Message::Location(message) => message.sender_boost_count,
+            Message::Invoice(message) => message.sender_boost_count,
+            _ => None,
         }
     }
 
@@ -2094,12 +1968,7 @@ impl Message {
             Message::Pinned(message) => message.sender_chat.as_ref(),
             Message::Invoice(message) => message.sender_chat.as_ref(),
             Message::SuccessfulPayment(message) => message.sender_chat.as_ref(),
-            Message::UsersShared(message) => message.sender_chat.as_ref(),
-            Message::ChatShared(message) => message.sender_chat.as_ref(),
-            Message::ConnectedWebsite(message) => message.sender_chat.as_ref(),
-            Message::WriteAccessAllowed(message) => message.sender_chat.as_ref(),
             Message::PassportData(message) => message.sender_chat.as_ref(),
-            Message::ProximityAlertTriggered(message) => message.sender_chat.as_ref(),
             Message::ForumTopicCreated(message) => message.sender_chat.as_ref(),
             Message::ForumTopicEdited(message) => message.sender_chat.as_ref(),
             Message::ForumTopicClosed(message) => message.sender_chat.as_ref(),
@@ -2110,11 +1979,11 @@ impl Message {
             Message::VideoChatStarted(message) => message.sender_chat.as_ref(),
             Message::VideoChatEnded(message) => message.sender_chat.as_ref(),
             Message::VideoChatParticipantsInvited(message) => message.sender_chat.as_ref(),
-            Message::WebAppData(message) => message.sender_chat.as_ref(),
             Message::GiveawayCreated(message) => message.sender_chat.as_ref(),
             Message::Giveaway(message) => message.sender_chat.as_ref(),
             Message::GiveawayWinners(message) => message.sender_chat.as_ref(),
             Message::GiveawayCompleted(message) => message.sender_chat.as_ref(),
+            _ => None,
         }
     }
 
@@ -2198,10 +2067,6 @@ impl Message {
                 Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
-            Message::WebAppData(message) => match message.author_signature {
-                Some(ref author_signature) => Some(author_signature),
-                None => None,
-            },
             Message::Invoice(message) => match message.author_signature {
                 Some(ref author_signature) => Some(author_signature),
                 None => None,
@@ -2230,7 +2095,6 @@ impl Message {
             Message::Location(message) => message.reply_to_message.as_ref(),
             Message::Pinned(message) => message.reply_to_message.as_ref(),
             Message::Invoice(message) => message.reply_to_message.as_ref(),
-            Message::SuccessfulPayment(message) => message.reply_to_message.as_ref(),
             Message::ForumTopicCreated(message) => message.reply_to_message.as_ref(),
             Message::ForumTopicEdited(message) => message.reply_to_message.as_ref(),
             Message::ForumTopicClosed(message) => message.reply_to_message.as_ref(),
@@ -2368,8 +2232,6 @@ impl Message {
             Message::Venue(message) => message.forward_origin.as_ref(),
             Message::Location(message) => message.forward_origin.as_ref(),
             Message::Invoice(message) => message.forward_origin.as_ref(),
-            Message::SuccessfulPayment(message) => message.forward_origin.as_ref(),
-            Message::ConnectedWebsite(message) => message.forward_origin.as_ref(),
             _ => None,
         }
     }
@@ -2588,6 +2450,14 @@ impl Message {
     pub const fn proximity_alert_triggered(&self) -> Option<&types::ProximityAlertTriggered> {
         match self {
             Message::ProximityAlertTriggered(message) => Some(&message.triggered),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn chat_boost_added(&self) -> Option<&types::ChatBoostAdded> {
+        match self {
+            Message::ChatBoostAdded(message) => Some(&message.added),
             _ => None,
         }
     }
@@ -2862,6 +2732,7 @@ impl_try_from_message!(SuccessfulPayment, SuccessfulPayment);
 impl_try_from_message!(ConnectedWebsite, ConnectedWebsite);
 impl_try_from_message!(PassportData, PassportData);
 impl_try_from_message!(ProximityAlertTriggered, ProximityAlertTriggered);
+impl_try_from_message!(ChatBoostAdded, ChatBoostAdded);
 impl_try_from_message!(ForumTopicCreated, ForumTopicCreated);
 impl_try_from_message!(ForumTopicEdited, ForumTopicEdited);
 impl_try_from_message!(ForumTopicClosed, ForumTopicClosed);
@@ -2940,6 +2811,7 @@ impl_try_from_update!(SuccessfulPayment);
 impl_try_from_update!(ConnectedWebsite);
 impl_try_from_update!(PassportData);
 impl_try_from_update!(ProximityAlertTriggered);
+impl_try_from_update!(ChatBoostAdded);
 impl_try_from_update!(ForumTopicCreated);
 impl_try_from_update!(ForumTopicEdited);
 impl_try_from_update!(ForumTopicClosed);
@@ -3284,7 +3156,14 @@ mod tests {
                 "title": "test",
                 "type": "channel",
             },
-            "story": {},
+            "story": {
+                "chat": {
+                    "id": -1,
+                    "title": "test",
+                    "type": "channel",
+                },
+                "id": 1,
+            },
         })];
 
         for json in jsons {
@@ -4160,6 +4039,34 @@ mod tests {
 
             match message {
                 Message::ProximityAlertTriggered(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_chat_boost_added() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "boost_added": {
+                "boost_count": 1,
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message: Message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::ChatBoostAdded(message) => {
                     assert_eq!(message, message_kind);
                 }
                 _ => panic!("Unexpected message type: {message:?}"),
