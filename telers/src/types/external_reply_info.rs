@@ -137,8 +137,6 @@ pub struct Story {
     pub message_id: Option<i64>,
     /// Message is a forwarded story
     pub story: types::Story,
-    /// `true`, if the message media is covered by a spoiler animation
-    pub has_media_spoiler: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -156,6 +154,8 @@ pub struct Video {
     pub entities: Option<Box<[MessageEntity]>>,
     /// Message is a video, information about the video
     pub video: types::Video,
+    /// `true`, if the message media is covered by a spoiler animation
+    pub has_media_spoiler: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
