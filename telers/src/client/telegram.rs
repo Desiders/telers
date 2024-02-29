@@ -2,7 +2,7 @@
 //! and the [`FilesPathWrapper`] trait, which is used for resolving paths.
 //!
 //! You can use global variables [`PRODUCTION`] and [`TEST`] for using default configurations of Telegram Bot API server
-//! for production and testing. By default, [`PRODUCTION`] should be used in [`Session`] implementations.
+//! for production and testing.
 //!
 //! [`FilesPathWrapper`] is used for resolving paths for files.
 //! By default, [`BareFilesPathWrapper`] should be used, which just returns the same path, which you passed to it without any changes.
