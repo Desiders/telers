@@ -102,6 +102,8 @@ pub struct Animation {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -154,6 +156,8 @@ pub struct Audio {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -206,6 +210,8 @@ pub struct Contact {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -247,6 +253,8 @@ pub struct Dice {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// `true`, if the message can't be forwarded
@@ -286,6 +294,8 @@ pub struct Document {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -336,6 +346,8 @@ pub struct Game {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -379,6 +391,8 @@ pub struct Poll {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Date the message was last edited in Unix time
@@ -420,6 +434,8 @@ pub struct Venue {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -463,6 +479,8 @@ pub struct Location {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -506,6 +524,8 @@ pub struct Photo {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -619,6 +639,8 @@ pub struct Sticker {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -658,6 +680,8 @@ pub struct Text {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -707,6 +731,8 @@ pub struct Video {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -761,6 +787,8 @@ pub struct VideoNote {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// `true`, if the message can't be forwarded
@@ -800,6 +828,8 @@ pub struct Voice {
     pub is_automatic_forward: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -1048,6 +1078,8 @@ pub struct Pinned {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Specified message was pinned. Note that the Message object in this field will not contain further *reply_to_message* fields even if it is itself a reply.
     #[serde(rename = "pinned_message")]
     pub message: Box<MaybeInaccessibleMessage>,
@@ -1078,6 +1110,8 @@ pub struct Invoice {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -1254,6 +1288,8 @@ pub struct ForumTopicCreated {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Service message: forum topic created
     #[serde(rename = "forum_topic_created")]
     pub created: types::ForumTopicCreated,
@@ -1280,6 +1316,8 @@ pub struct ForumTopicEdited {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Service message: forum topic edited
     #[serde(rename = "forum_topic_edited")]
     pub edited: types::ForumTopicEdited,
@@ -1306,6 +1344,8 @@ pub struct ForumTopicClosed {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Service message: forum topic closed
     #[serde(rename = "forum_topic_closed")]
     pub closed: types::ForumTopicClosed,
@@ -1332,6 +1372,8 @@ pub struct ForumTopicReopened {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Service message: forum topic reopened
     #[serde(rename = "forum_topic_reopened")]
     pub reopened: types::ForumTopicReopened,
@@ -1358,6 +1400,8 @@ pub struct GeneralForumTopicHidden {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Service message: the `General` forum topic hidden
     #[serde(rename = "general_forum_topic_hidden")]
     pub hidden: types::GeneralForumTopicHidden,
@@ -1384,6 +1428,8 @@ pub struct GeneralForumTopicUnhidden {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *reply_to_message* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<Story>,
     /// Service message: the `General` forum topic unhidden
     #[serde(rename = "general_forum_topic_unhidden")]
     pub unhidden: types::GeneralForumTopicUnhidden,
@@ -2101,6 +2147,39 @@ impl Message {
             Message::ForumTopicReopened(message) => message.reply_to_message.as_ref(),
             Message::GeneralForumTopicHidden(message) => message.reply_to_message.as_ref(),
             Message::GeneralForumTopicUnhidden(message) => message.reply_to_message.as_ref(),
+            _ => None,
+        }
+    }
+
+    /// # Notes
+    /// I don't know when `reply_to_story` is used, but it's in the API so I'm including it in same places as `reply_to_message`.
+    /// If you know when it's used, please let me know.
+    #[must_use]
+    pub const fn reply_to_story(&self) -> Option<&Story> {
+        match self {
+            Message::Text(message) => message.reply_to_story.as_ref(),
+            Message::Animation(message) => message.reply_to_story.as_ref(),
+            Message::Audio(message) => message.reply_to_story.as_ref(),
+            Message::Document(message) => message.reply_to_story.as_ref(),
+            Message::Photo(message) => message.reply_to_story.as_ref(),
+            Message::Sticker(message) => message.reply_to_story.as_ref(),
+            Message::Video(message) => message.reply_to_story.as_ref(),
+            Message::VideoNote(message) => message.reply_to_story.as_ref(),
+            Message::Voice(message) => message.reply_to_story.as_ref(),
+            Message::Contact(message) => message.reply_to_story.as_ref(),
+            Message::Dice(message) => message.reply_to_story.as_ref(),
+            Message::Game(message) => message.reply_to_story.as_ref(),
+            Message::Poll(message) => message.reply_to_story.as_ref(),
+            Message::Venue(message) => message.reply_to_story.as_ref(),
+            Message::Location(message) => message.reply_to_story.as_ref(),
+            Message::Pinned(message) => message.reply_to_story.as_ref(),
+            Message::Invoice(message) => message.reply_to_story.as_ref(),
+            Message::ForumTopicCreated(message) => message.reply_to_story.as_ref(),
+            Message::ForumTopicEdited(message) => message.reply_to_story.as_ref(),
+            Message::ForumTopicClosed(message) => message.reply_to_story.as_ref(),
+            Message::ForumTopicReopened(message) => message.reply_to_story.as_ref(),
+            Message::GeneralForumTopicHidden(message) => message.reply_to_story.as_ref(),
+            Message::GeneralForumTopicUnhidden(message) => message.reply_to_story.as_ref(),
             _ => None,
         }
     }
