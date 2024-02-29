@@ -9,6 +9,12 @@ use crate::{
 use async_trait::async_trait;
 use std::{future::Future, sync::Arc};
 
+/// Filters are used to filter updates before processing handlers and inner middlewares.
+/// You can use filters to check if the update meets the necessary conditions,
+/// and if it does, the update will be processed by the handler(s) and/or inner middleware(s).
+/// # Notes
+/// Check out the examples to see how to create your own filters and check ready-made implementations of filters
+/// to avoid writing your own filters which are already implemented.
 #[async_trait]
 pub trait Filter<Client = Reqwest>: Send + Sync {
     /// Check if the filter passes

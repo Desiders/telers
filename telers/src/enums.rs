@@ -3,10 +3,10 @@
 //!
 //! This module contains enums for:
 //! - [`BotCommandScopeType`]: Scope of bot commands, which is used in [`BotCommandScope`].
-//! - [`ChatAction`]: Type of action to broadcast.
+//! - [`ChatAction`]: Type of action.
 //! - [`ChatMemberStatus`]: Status of a chat member.
 //! - [`ChatType`]: Type of a chat.
-//! - [`ContentType`]: Type of a content.
+//! - [`ContentType`]: Type of the message content.
 //! - [`DiceEmoji`]: Emoji on which the dice throw animation is based.
 //! - [`InlineQueryResultType`]: Type of the result, which is used in [`InlineQueryResult`].
 //! - [`InputMediaType`]: Type of the media to send, which is used in [`InputMedia`].

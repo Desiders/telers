@@ -21,7 +21,7 @@
 //! You can create a filter with `new` method with transferring all necessary data at once, or use [`CommandBuilder`] to create a filter step by step.
 //! Instead of [`CommandBuilder`] you can use [`Command`] `one`, `one_with_prefix`, `many`, `many_with_prefix` methods.
 //! * [`ContentType`]:
-//! Filter for checking the type of content.
+//! Filter for checking the type of the message content.
 //! Usually used with [`ContentTypeEnum`] (or its string representation) to check the type of content.
 //! Creates with `one` or `many` methods.
 //! * [`State`]:
