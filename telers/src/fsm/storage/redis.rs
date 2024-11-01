@@ -313,7 +313,7 @@ impl<K: KeyBuilder + Clone> Storage for Redis<K> {
         redis::cmd("LINDEX")
             .arg(key_ref)
             .arg(-1)
-            .query_async::<_, Option<String>>(&mut connection)
+            .query_async::<Option<String>>(&mut connection)
             .await
             .map(|state| state.map(Into::into))
             .map_err(|err| {
@@ -352,7 +352,7 @@ impl<K: KeyBuilder + Clone> Storage for Redis<K> {
             .arg(key_ref)
             .arg(0)
             .arg(-1)
-            .query_async::<_, Vec<String>>(&mut connection)
+            .query_async::<Vec<String>>(&mut connection)
             .await
             .map(|states| states.into_iter().map(Into::into).collect())
             .map_err(|err| {
