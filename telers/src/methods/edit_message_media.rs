@@ -8,9 +8,11 @@ use crate::{
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 
-/// Use this method to edit animation, audio, document, photo, or video messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its `file_id` or specify a URL.
+/// Use this method to edit animation, audio, document, photo, or video messages, or to add media to text messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL
 /// # Documentation
 /// <https://core.telegram.org/bots/api#editmessagemedia>
+/// # Notes
+/// Business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent.
 /// # Returns
 /// On success, if the edited message is not an inline message, the edited [`crate::types::Message`] is returned, otherwise `true` is returned
 #[skip_serializing_none]
