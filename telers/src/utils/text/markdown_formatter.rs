@@ -109,9 +109,12 @@ impl TextFormatter for Formatter {
         T: AsRef<str>,
         E: AsRef<str>,
     {
-        self.text_link(
-            emoji,
-            format!("tg://emoji?id={emoji_id}", emoji_id = emoji_id.as_ref()),
+        format!(
+            "!{}",
+            self.text_link(
+                emoji,
+                format!("tg://emoji?id={emoji_id}", emoji_id = emoji_id.as_ref()),
+            )
         )
     }
 
@@ -345,6 +348,15 @@ mod tests {
     fn test_text_mention() {
         let formatter = Formatter::default();
         assert_eq!(formatter.text_mention("text", 1), "[text](tg://user?id=1)");
+    }
+
+    #[test]
+    fn test_custom_emoji() {
+        let formatter = Formatter::default();
+        assert_eq!(
+            formatter.custom_emoji("text", "1"),
+            "![text](tg://emoji?id=1)"
+        );
     }
 
     #[test]
