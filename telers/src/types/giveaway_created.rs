@@ -1,7 +1,12 @@
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// This object represents a service message about the creation of a scheduled giveaway. Currently holds no information.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#giveawaycreated>
+#[skip_serializing_none]
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Deserialize, Serialize)]
-pub struct GiveawayCreated {}
+pub struct GiveawayCreated {
+    /// The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
+    pub prize_star_count: Option<i64>,
+}

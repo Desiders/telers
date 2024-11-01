@@ -15,4 +15,6 @@ pub struct GiveawayCompleted {
     pub unclaimed_prize_count: Option<i64>,
     /// Message with the giveaway that was completed, if it wasn't deleted
     pub giveaway_message: Option<Message>,
+    /// `true`, if the giveaway is a Telegram Star giveaway. Otherwise, currently, the giveaway is a Telegram Premium giveaway.
+    pub is_star_giveaway: Option<bool>,
 }

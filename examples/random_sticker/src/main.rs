@@ -34,20 +34,16 @@ async fn start_handler(bot: Bot, message: MessageText) -> HandlerResult {
 /// from this sticker set.
 async fn sticker_handler(bot: Bot, message: MessageSticker) -> HandlerResult {
     // get the the sticker set name of the sent sticker
-    let sticker_set_name = match message.sticker.set_name {
-        Some(sticker_set_name) => sticker_set_name,
-
+    let Some(sticker_set_name) = message.sticker.set_name else {
         // if the sticker does not have the name of the sticker set to which it belongs,
         // then the sticker does not have a sticker set and exit from handler
-        None => {
-            bot.send(SendMessage::new(
-                message.chat.id(),
-                "Sorry, but this sticker without sticker set. Try send another sticker.",
-            ))
-            .await?;
+        bot.send(SendMessage::new(
+            message.chat.id(),
+            "Sorry, but this sticker without sticker set. Try send another sticker.",
+        ))
+        .await?;
 
-            return Ok(EventReturn::Finish);
-        }
+        return Ok(EventReturn::Finish);
     };
 
     // get sticker set using sent sticker set name

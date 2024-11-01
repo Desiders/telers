@@ -21,6 +21,8 @@ pub struct GiveawayWinners {
     pub winners: Box<[User]>,
     /// The number of other chats the user had to join in order to be eligible for the giveaway
     pub additional_chat_count: Option<i64>,
+    /// The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
+    pub prize_star_count: Option<i64>,
     /// The number of months the Telegram Premium subscription won from the giveaway will be active for
     pub premium_subscription_month_count: Option<i64>,
     /// Number of undistributed prizes

@@ -2,8 +2,8 @@ use super::{
     BusinessConnection, BusinessMessagesDeleted, CallbackQuery, Chat, ChatBoostRemoved,
     ChatBoostSource, ChatBoostSourcePremium, ChatBoostUpdated, ChatJoinRequest, ChatMemberUpdated,
     ChosenInlineResult, InaccessibleMessage, InlineQuery, MaybeInaccessibleMessage, Message,
-    MessageReactionCountUpdated, MessageReactionUpdated, Poll, PollAnswer, PreCheckoutQuery,
-    ShippingQuery, User,
+    MessageReactionCountUpdated, MessageReactionUpdated, PaidMediaPurchased, Poll, PollAnswer,
+    PreCheckoutQuery, ShippingQuery, User,
 };
 
 use crate::{enums::UpdateType, extractors::FromEvent};
@@ -60,6 +60,8 @@ pub enum Kind {
     ShippingQuery(ShippingQuery),
     /// New incoming pre-checkout query. Contains full information about checkout
     PreCheckoutQuery(PreCheckoutQuery),
+    /// A user purchased paid media with a non-empty payload sent by the bot in a non-channel chat
+    PurchasedPaidMedia(PaidMediaPurchased),
     /// New poll state. Bots receive only updates about stopped polls and polls, which are sent by the bot
     Poll(Poll),
     /// A user changed their answer in a non-anonymous poll. Bots receive new votes only in polls that were sent by the bot itself.
@@ -132,6 +134,7 @@ impl Kind {
             | Kind::CallbackQuery(CallbackQuery { from, .. })
             | Kind::ShippingQuery(ShippingQuery { from, .. })
             | Kind::PreCheckoutQuery(PreCheckoutQuery { from, .. })
+            | Kind::PurchasedPaidMedia(PaidMediaPurchased { from, .. })
             | Kind::MyChatMember(ChatMemberUpdated { from, .. })
             | Kind::ChatMember(ChatMemberUpdated { from, .. })
             | Kind::ChatJoinRequest(ChatJoinRequest { from, .. }) => Some(from),
@@ -371,6 +374,9 @@ impl<'de> Deserialize<'de> for Kind {
                     UpdateType::PreCheckoutQuery => map
                         .next_value::<PreCheckoutQuery>()
                         .map(Kind::PreCheckoutQuery),
+                    UpdateType::PurchasedPaidMedia => map
+                        .next_value::<PaidMediaPurchased>()
+                        .map(Kind::PurchasedPaidMedia),
                     UpdateType::Poll => map.next_value::<Poll>().map(Kind::Poll),
                     UpdateType::PollAnswer => map.next_value::<PollAnswer>().map(Kind::PollAnswer),
                     UpdateType::MyChatMember => map
@@ -460,24 +466,27 @@ impl Serialize for Kind {
             Kind::PreCheckoutQuery(value) => {
                 serializer.serialize_newtype_variant(name, 14, "pre_checkout_query", value)
             }
-            Kind::Poll(value) => serializer.serialize_newtype_variant(name, 15, "poll", value),
+            Kind::PurchasedPaidMedia(value) => {
+                serializer.serialize_newtype_variant(name, 15, "purchased_paid_media", value)
+            }
+            Kind::Poll(value) => serializer.serialize_newtype_variant(name, 16, "poll", value),
             Kind::PollAnswer(value) => {
-                serializer.serialize_newtype_variant(name, 16, "poll_answer", value)
+                serializer.serialize_newtype_variant(name, 17, "poll_answer", value)
             }
             Kind::MyChatMember(value) => {
-                serializer.serialize_newtype_variant(name, 17, "my_chat_member", value)
+                serializer.serialize_newtype_variant(name, 18, "my_chat_member", value)
             }
             Kind::ChatMember(value) => {
-                serializer.serialize_newtype_variant(name, 18, "chat_member", value)
+                serializer.serialize_newtype_variant(name, 19, "chat_member", value)
             }
             Kind::ChatJoinRequest(value) => {
-                serializer.serialize_newtype_variant(name, 19, "chat_join_request", value)
+                serializer.serialize_newtype_variant(name, 20, "chat_join_request", value)
             }
             Kind::ChatBoost(value) => {
-                serializer.serialize_newtype_variant(name, 20, "chat_boost", value)
+                serializer.serialize_newtype_variant(name, 21, "chat_boost", value)
             }
             Kind::RemovedChatBoost(value) => {
-                serializer.serialize_newtype_variant(name, 21, "removed_chat_boost", value)
+                serializer.serialize_newtype_variant(name, 22, "removed_chat_boost", value)
             }
         }
     }

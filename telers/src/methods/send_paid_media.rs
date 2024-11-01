@@ -24,6 +24,8 @@ pub struct SendPaidMedia<'a> {
     pub star_count: i64,
     /// A JSON-serialized array describing the media to be sent; up to 10 items
     pub media: Vec<InputPaidMedia<'a>>,
+    /// Bot-defined paid media payload, 0-128 bytes. This will not be displayed to the user, use it for your internal processes.
+    pub payload: Option<String>,
     /// Media caption, 0-1024 characters after entities parsing
     pub caption: Option<String>,
     /// Mode for parsing entities in the media caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
@@ -54,6 +56,7 @@ impl<'a> SendPaidMedia<'a> {
             chat_id: chat_id.into(),
             star_count,
             media: media.into_iter().map(Into::into).collect(),
+            payload: None,
             caption: None,
             parse_mode: None,
             caption_entities: None,
@@ -109,6 +112,14 @@ impl<'a> SendPaidMedia<'a> {
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn payload(self, val: impl Into<String>) -> Self {
+        Self {
+            payload: Some(val.into()),
             ..self
         }
     }
@@ -203,6 +214,14 @@ impl<'a> SendPaidMedia<'a> {
     pub fn business_connection_id_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
             business_connection_id: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn payload_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            payload: val.map(Into::into),
             ..self
         }
     }

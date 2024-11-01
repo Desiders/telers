@@ -352,6 +352,7 @@ pub struct Router<Client> {
     pub callback_query: TelegramObserver<Client>,
     pub shipping_query: TelegramObserver<Client>,
     pub pre_checkout_query: TelegramObserver<Client>,
+    pub purchased_paid_media: TelegramObserver<Client>,
     pub poll: TelegramObserver<Client>,
     pub poll_answer: TelegramObserver<Client>,
     pub my_chat_member: TelegramObserver<Client>,
@@ -396,6 +397,7 @@ where
             callback_query: TelegramObserver::new(TelegramObserverName::CallbackQuery),
             shipping_query: TelegramObserver::new(TelegramObserverName::ShippingQuery),
             pre_checkout_query: TelegramObserver::new(TelegramObserverName::PreCheckoutQuery),
+            purchased_paid_media: TelegramObserver::new(TelegramObserverName::PurchasedPaidMedia),
             poll: TelegramObserver::new(TelegramObserverName::Poll),
             poll_answer: TelegramObserver::new(TelegramObserverName::PollAnswer),
             my_chat_member: TelegramObserver::new(TelegramObserverName::MyChatMember),
@@ -434,7 +436,7 @@ where
 impl<Client> Router<Client> {
     /// Get all telegram event observers
     #[must_use]
-    pub const fn telegram_observers(&self) -> [&TelegramObserver<Client>; 23] {
+    pub const fn telegram_observers(&self) -> [&TelegramObserver<Client>; 24] {
         [
             &self.message,
             &self.edited_message,
@@ -451,6 +453,7 @@ impl<Client> Router<Client> {
             &self.callback_query,
             &self.shipping_query,
             &self.pre_checkout_query,
+            &self.purchased_paid_media,
             &self.poll,
             &self.poll_answer,
             &self.my_chat_member,
@@ -467,7 +470,7 @@ impl<Client> Router<Client> {
     /// This method is useful for registering middlewares to the many observers without code duplication and macros
     #[must_use]
     pub fn telegram_observers_mut(&mut self) -> Vec<&mut TelegramObserver<Client>> {
-        let mut observers = Vec::with_capacity(23);
+        let mut observers = Vec::with_capacity(24);
 
         observers.extend([
             &mut self.message,
@@ -485,6 +488,7 @@ impl<Client> Router<Client> {
             &mut self.callback_query,
             &mut self.shipping_query,
             &mut self.pre_checkout_query,
+            &mut self.purchased_paid_media,
             &mut self.poll,
             &mut self.poll_answer,
             &mut self.my_chat_member,
@@ -623,6 +627,7 @@ where
             callback_query,
             shipping_query,
             pre_checkout_query,
+            purchased_paid_media,
             poll,
             poll_answer,
             my_chat_member,
@@ -669,6 +674,7 @@ where
             callback_query,
             shipping_query,
             pre_checkout_query,
+            purchased_paid_media,
             poll,
             poll_answer,
             my_chat_member,
@@ -706,6 +712,7 @@ where
             callback_query: self.callback_query.to_service_provider_default()?,
             shipping_query: self.shipping_query.to_service_provider_default()?,
             pre_checkout_query: self.pre_checkout_query.to_service_provider_default()?,
+            purchased_paid_media: self.purchased_paid_media.to_service_provider_default()?,
             poll: self.poll.to_service_provider_default()?,
             poll_answer: self.poll_answer.to_service_provider_default()?,
             my_chat_member: self.my_chat_member.to_service_provider_default()?,
@@ -739,6 +746,7 @@ pub struct Service<Client> {
     callback_query: TelegramObserverService<Client>,
     shipping_query: TelegramObserverService<Client>,
     pre_checkout_query: TelegramObserverService<Client>,
+    purchased_paid_media: TelegramObserverService<Client>,
     poll: TelegramObserverService<Client>,
     poll_answer: TelegramObserverService<Client>,
     my_chat_member: TelegramObserverService<Client>,
@@ -985,7 +993,7 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
 
 impl<Client> Service<Client> {
     #[must_use]
-    pub const fn telegram_observers(&self) -> [&TelegramObserverService<Client>; 23] {
+    pub const fn telegram_observers(&self) -> [&TelegramObserverService<Client>; 24] {
         [
             &self.message,
             &self.edited_message,
@@ -1002,6 +1010,7 @@ impl<Client> Service<Client> {
             &self.callback_query,
             &self.shipping_query,
             &self.pre_checkout_query,
+            &self.purchased_paid_media,
             &self.poll,
             &self.poll_answer,
             &self.my_chat_member,
@@ -1039,6 +1048,7 @@ impl<Client> Service<Client> {
             UpdateType::CallbackQuery => &self.callback_query,
             UpdateType::ShippingQuery => &self.shipping_query,
             UpdateType::PreCheckoutQuery => &self.pre_checkout_query,
+            UpdateType::PurchasedPaidMedia => &self.purchased_paid_media,
             UpdateType::Poll => &self.poll,
             UpdateType::PollAnswer => &self.poll_answer,
             UpdateType::MyChatMember => &self.my_chat_member,
@@ -1115,6 +1125,7 @@ pub struct OuterMiddlewaresConfig<Client> {
     pub callback_query: Box<[Arc<dyn OuterMiddleware<Client>>]>,
     pub shipping_query: Box<[Arc<dyn OuterMiddleware<Client>>]>,
     pub pre_checkout_query: Box<[Arc<dyn OuterMiddleware<Client>>]>,
+    pub purchased_paid_media: Box<[Arc<dyn OuterMiddleware<Client>>]>,
     pub poll: Box<[Arc<dyn OuterMiddleware<Client>>]>,
     pub poll_answer: Box<[Arc<dyn OuterMiddleware<Client>>]>,
     pub my_chat_member: Box<[Arc<dyn OuterMiddleware<Client>>]>,
@@ -1165,6 +1176,7 @@ impl<Client> Clone for OuterMiddlewaresConfig<Client> {
             callback_query: self.callback_query.clone(),
             shipping_query: self.shipping_query.clone(),
             pre_checkout_query: self.pre_checkout_query.clone(),
+            purchased_paid_media: self.purchased_paid_media.clone(),
             poll: self.poll.clone(),
             poll_answer: self.poll_answer.clone(),
             my_chat_member: self.my_chat_member.clone(),
@@ -1193,6 +1205,7 @@ pub struct OuterMiddlewaresConfigBuilder<Client> {
     pub callback_query: Vec<Arc<dyn OuterMiddleware<Client>>>,
     pub shipping_query: Vec<Arc<dyn OuterMiddleware<Client>>>,
     pub pre_checkout_query: Vec<Arc<dyn OuterMiddleware<Client>>>,
+    pub purchased_paid_media: Vec<Arc<dyn OuterMiddleware<Client>>>,
     pub poll: Vec<Arc<dyn OuterMiddleware<Client>>>,
     pub poll_answer: Vec<Arc<dyn OuterMiddleware<Client>>>,
     pub my_chat_member: Vec<Arc<dyn OuterMiddleware<Client>>>,
@@ -1298,6 +1311,12 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
     }
 
     #[must_use]
+    pub fn purchased_paid_media(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
+        self.purchased_paid_media.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
     pub fn poll(mut self, val: impl OuterMiddleware<Client> + 'static) -> Self {
         self.poll.push(Arc::new(val));
         self
@@ -1363,6 +1382,7 @@ impl<Client> OuterMiddlewaresConfigBuilder<Client> {
             callback_query: self.callback_query.into(),
             shipping_query: self.shipping_query.into(),
             pre_checkout_query: self.pre_checkout_query.into(),
+            purchased_paid_media: self.purchased_paid_media.into(),
             poll: self.poll.into(),
             poll_answer: self.poll_answer.into(),
             my_chat_member: self.my_chat_member.into(),
@@ -1394,6 +1414,7 @@ impl<Client> Default for OuterMiddlewaresConfigBuilder<Client> {
             callback_query: vec![],
             shipping_query: vec![],
             pre_checkout_query: vec![],
+            purchased_paid_media: vec![],
             poll: vec![],
             poll_answer: vec![],
             my_chat_member: vec![],
@@ -1422,6 +1443,7 @@ pub struct InnerMiddlewaresConfig<Client> {
     pub callback_query: Box<[Arc<dyn InnerMiddleware<Client>>]>,
     pub shipping_query: Box<[Arc<dyn InnerMiddleware<Client>>]>,
     pub pre_checkout_query: Box<[Arc<dyn InnerMiddleware<Client>>]>,
+    pub purchased_paid_media: Box<[Arc<dyn InnerMiddleware<Client>>]>,
     pub poll: Box<[Arc<dyn InnerMiddleware<Client>>]>,
     pub poll_answer: Box<[Arc<dyn InnerMiddleware<Client>>]>,
     pub my_chat_member: Box<[Arc<dyn InnerMiddleware<Client>>]>,
@@ -1468,6 +1490,7 @@ where
             .callback_query(logging_middleware.clone())
             .shipping_query(logging_middleware.clone())
             .pre_checkout_query(logging_middleware.clone())
+            .purchased_paid_media(logging_middleware.clone())
             .poll(logging_middleware.clone())
             .poll_answer(logging_middleware.clone())
             .my_chat_member(logging_middleware.clone())
@@ -1498,6 +1521,7 @@ impl<Client> Clone for InnerMiddlewaresConfig<Client> {
             callback_query: self.callback_query.clone(),
             shipping_query: self.shipping_query.clone(),
             pre_checkout_query: self.pre_checkout_query.clone(),
+            purchased_paid_media: self.purchased_paid_media.clone(),
             poll: self.poll.clone(),
             poll_answer: self.poll_answer.clone(),
             my_chat_member: self.my_chat_member.clone(),
@@ -1526,6 +1550,7 @@ pub struct InnerMiddlewaresConfigBuilder<Client> {
     pub callback_query: Vec<Arc<dyn InnerMiddleware<Client>>>,
     pub shipping_query: Vec<Arc<dyn InnerMiddleware<Client>>>,
     pub pre_checkout_query: Vec<Arc<dyn InnerMiddleware<Client>>>,
+    pub purchased_paid_media: Vec<Arc<dyn InnerMiddleware<Client>>>,
     pub poll: Vec<Arc<dyn InnerMiddleware<Client>>>,
     pub poll_answer: Vec<Arc<dyn InnerMiddleware<Client>>>,
     pub my_chat_member: Vec<Arc<dyn InnerMiddleware<Client>>>,
@@ -1631,6 +1656,12 @@ impl<Client> InnerMiddlewaresConfigBuilder<Client> {
     }
 
     #[must_use]
+    pub fn purchased_paid_media(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
+        self.purchased_paid_media.push(Arc::new(val));
+        self
+    }
+
+    #[must_use]
     pub fn poll(mut self, val: impl InnerMiddleware<Client> + 'static) -> Self {
         self.poll.push(Arc::new(val));
         self
@@ -1696,6 +1727,7 @@ impl<Client> InnerMiddlewaresConfigBuilder<Client> {
             callback_query: self.callback_query.into(),
             shipping_query: self.shipping_query.into(),
             pre_checkout_query: self.pre_checkout_query.into(),
+            purchased_paid_media: self.purchased_paid_media.into(),
             poll: self.poll.into(),
             poll_answer: self.poll_answer.into(),
             my_chat_member: self.my_chat_member.into(),
@@ -1727,6 +1759,7 @@ impl<Client> Default for InnerMiddlewaresConfigBuilder<Client> {
             callback_query: vec![],
             shipping_query: vec![],
             pre_checkout_query: vec![],
+            purchased_paid_media: vec![],
             poll: vec![],
             poll_answer: vec![],
             my_chat_member: vec![],
@@ -1864,6 +1897,7 @@ mod tests {
         router.callback_query.register(telegram_handler);
         router.shipping_query.register(telegram_handler);
         router.pre_checkout_query.register(telegram_handler);
+        router.purchased_paid_media.register(telegram_handler);
         router.poll.register(telegram_handler);
         router.poll_answer.register(telegram_handler);
         router.my_chat_member.register(telegram_handler);
