@@ -28,6 +28,8 @@ pub struct ForwardMessage {
     pub disable_notification: Option<bool>,
     /// Protects the contents of the sent message from forwarding and saving
     pub protect_content: Option<bool>,
+    /// Pass `true` to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+    pub allow_paid_broadcast: Option<bool>,
 }
 
 impl ForwardMessage {
@@ -44,6 +46,7 @@ impl ForwardMessage {
             message_id,
             disable_notification: None,
             protect_content: None,
+            allow_paid_broadcast: None,
         }
     }
 
@@ -94,6 +97,14 @@ impl ForwardMessage {
             ..self
         }
     }
+
+    #[must_use]
+    pub fn allow_paid_broadcast(self, val: bool) -> Self {
+        Self {
+            allow_paid_broadcast: Some(val),
+            ..self
+        }
+    }
 }
 
 impl ForwardMessage {
@@ -117,6 +128,14 @@ impl ForwardMessage {
     pub fn protect_content_option(self, val: Option<bool>) -> Self {
         Self {
             protect_content: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn allow_paid_broadcast_option(self, val: Option<bool>) -> Self {
+        Self {
+            allow_paid_broadcast: val,
             ..self
         }
     }
