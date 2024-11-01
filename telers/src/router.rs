@@ -1048,7 +1048,7 @@ impl<Client> Service<Client> {
             UpdateType::CallbackQuery => &self.callback_query,
             UpdateType::ShippingQuery => &self.shipping_query,
             UpdateType::PreCheckoutQuery => &self.pre_checkout_query,
-            UpdateType::PurchasedPaidMedia => &self.pre_checkout_query,
+            UpdateType::PurchasedPaidMedia => &self.purchased_paid_media,
             UpdateType::Poll => &self.poll,
             UpdateType::PollAnswer => &self.poll_answer,
             UpdateType::MyChatMember => &self.my_chat_member,
