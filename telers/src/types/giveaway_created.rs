@@ -6,5 +6,5 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct GiveawayCreated {
     /// The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
-    pub prize_star_count: i64,
+    pub prize_star_count: Option<i64>,
 }

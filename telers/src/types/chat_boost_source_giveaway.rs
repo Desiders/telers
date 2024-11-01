@@ -14,7 +14,7 @@ pub struct ChatBoostSourceGiveaway {
     /// User that won the prize in the giveaway if any
     pub user: Option<User>,
     /// The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
-    pub prize_star_count: i64,
+    pub prize_star_count: Option<i64>,
     /// `true`, if the giveaway was completed, but there was no user to win the prize
     pub is_unclaimed: Option<bool>,
 }
