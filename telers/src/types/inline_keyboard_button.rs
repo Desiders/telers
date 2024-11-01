@@ -1,9 +1,9 @@
-use super::{CallbackGame, LoginUrl, SwitchInlineQueryChosenChat, WebAppInfo};
+use super::{CallbackGame, CopyTextButton, LoginUrl, SwitchInlineQueryChosenChat, WebAppInfo};
 
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-/// This object represents one button of an inline keyboard. You **must** use exactly one of the optional fields.
+/// This object represents one button of an inline keyboard. Exactly one of the optional fields must be used to specify type of the button.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinekeyboardbutton>
 #[skip_serializing_none]
@@ -21,13 +21,16 @@ pub struct InlineKeyboardButton {
     pub login_url: Option<LoginUrl>,
     /// If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent on behalf of a Telegram Business account.
     pub switch_inline_query: Option<String>,
-    /// If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted. This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent on behalf of a Telegram Business account.
+    /// If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted.
+    /// This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent on behalf of a Telegram Business account.
     pub switch_inline_query_current_chat: Option<String>,
     /// If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent on behalf of a Telegram Business account.
     pub switch_inline_query_chosen_chat: Option<SwitchInlineQueryChosenChat>,
+    /// Description of the button that copies the specified text to the clipboard.
+    pub copy_text: Option<CopyTextButton>,
     /// Description of the game that will be launched when the user presses the button. This type of button **must** always be the first button in the first row.
     pub callback_game: Option<CallbackGame>,
-    /// Specify `true`, to send a [`Pay button`](https://core.telegram.org/bots/api#payments).
+    /// Specify `true`, to send a [`Pay button`](https://core.telegram.org/bots/api#payments). Substrings “⭐” and “XTR” in the buttons's text will be replaced with a Telegram Star icon. This type of button **must** always be the first button in the first row and can only be used in invoice messages.
     pub pay: Option<bool>,
 }
 
@@ -43,6 +46,7 @@ impl InlineKeyboardButton {
             switch_inline_query: None,
             switch_inline_query_current_chat: None,
             switch_inline_query_chosen_chat: None,
+            copy_text: None,
             callback_game: None,
             pay: None,
         }
@@ -108,6 +112,14 @@ impl InlineKeyboardButton {
     pub fn switch_inline_query_chosen_chat(self, val: SwitchInlineQueryChosenChat) -> Self {
         Self {
             switch_inline_query_chosen_chat: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn copy_text(self, val: CopyTextButton) -> Self {
+        Self {
+            copy_text: Some(val),
             ..self
         }
     }
@@ -185,6 +197,14 @@ impl InlineKeyboardButton {
     ) -> Self {
         Self {
             switch_inline_query_chosen_chat: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn copy_text_option(self, val: Option<CopyTextButton>) -> Self {
+        Self {
+            copy_text: val,
             ..self
         }
     }

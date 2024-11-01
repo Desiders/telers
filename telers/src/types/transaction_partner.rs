@@ -1,6 +1,6 @@
 use super::{
     TransactionPartnerFragment, TransactionPartnerOther, TransactionPartnerTelegramAds,
-    TransactionPartnerUser,
+    TransactionPartnerTelegramApi, TransactionPartnerUser,
 };
 
 use serde::{Deserialize, Serialize};
@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 /// - [`TransactionPartnerUser`]
 /// - [`TransactionPartnerFragment`]
 /// - [`TransactionPartnerTelegramAds`]
+/// - [`TransactionPartnerTelegramApi`]
 /// - [`TransactionPartnerOther`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transactionpartner>
@@ -18,6 +19,7 @@ pub enum TransactionPartner {
     User(TransactionPartnerUser),
     Fragment(TransactionPartnerFragment),
     TelegramAds(TransactionPartnerTelegramAds),
+    TelegramApi(TransactionPartnerTelegramApi),
     Other(TransactionPartnerOther),
 }
 
@@ -36,6 +38,12 @@ impl From<TransactionPartnerFragment> for TransactionPartner {
 impl From<TransactionPartnerTelegramAds> for TransactionPartner {
     fn from(partner: TransactionPartnerTelegramAds) -> Self {
         Self::TelegramAds(partner)
+    }
+}
+
+impl From<TransactionPartnerTelegramApi> for TransactionPartner {
+    fn from(partner: TransactionPartnerTelegramApi) -> Self {
+        Self::TelegramApi(partner)
     }
 }
 

@@ -36,6 +36,8 @@ pub struct CopyMessage {
     pub disable_notification: Option<bool>,
     /// Protects the contents of the sent message from forwarding and saving
     pub protect_content: Option<bool>,
+    /// Pass `true` to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+    pub allow_paid_broadcast: Option<bool>,
     /// Description of the message to reply to
     pub reply_parameters: Option<ReplyParameters>,
     /// Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove reply keyboard or to force a reply from the user.
@@ -60,6 +62,7 @@ impl CopyMessage {
             show_caption_above_media: None,
             disable_notification: None,
             protect_content: None,
+            allow_paid_broadcast: None,
             reply_parameters: None,
             reply_markup: None,
         }
@@ -166,6 +169,14 @@ impl CopyMessage {
     }
 
     #[must_use]
+    pub fn allow_paid_broadcast(self, val: bool) -> Self {
+        Self {
+            allow_paid_broadcast: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
     pub fn reply_parameters(self, val: ReplyParameters) -> Self {
         Self {
             reply_parameters: Some(val),
@@ -244,6 +255,14 @@ impl CopyMessage {
     pub fn protect_content_option(self, val: Option<bool>) -> Self {
         Self {
             protect_content: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn allow_paid_broadcast_option(self, val: Option<bool>) -> Self {
+        Self {
+            allow_paid_broadcast: val,
             ..self
         }
     }
