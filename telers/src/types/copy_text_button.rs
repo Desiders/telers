@@ -17,9 +17,6 @@ impl CopyTextButton {
 
     #[must_use]
     pub fn text(self, val: impl Into<String>) -> Self {
-        Self {
-            text: val.into(),
-            ..self
-        }
+        Self { text: val.into() }
     }
 }
