@@ -37,6 +37,8 @@ pub enum UpdateType {
     ShippingQuery,
     #[strum(serialize = "pre_checkout_query")]
     PreCheckoutQuery,
+    #[strum(serialize = "purchased_paid_media")]
+    PurchasedPaidMedia,
     #[strum(serialize = "poll")]
     Poll,
     #[strum(serialize = "poll_answer")]
@@ -101,6 +103,7 @@ impl<'a> From<&'a UpdateKind> for UpdateType {
             UpdateKind::CallbackQuery(_) => UpdateType::CallbackQuery,
             UpdateKind::ShippingQuery(_) => UpdateType::ShippingQuery,
             UpdateKind::PreCheckoutQuery(_) => UpdateType::PreCheckoutQuery,
+            UpdateKind::PurchasedPaidMedia(_) => UpdateType::PurchasedPaidMedia,
             UpdateKind::Poll(_) => UpdateType::Poll,
             UpdateKind::PollAnswer(_) => UpdateType::PollAnswer,
             UpdateKind::MyChatMember(_) => UpdateType::MyChatMember,

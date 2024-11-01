@@ -35,6 +35,8 @@ pub enum Telegram {
     ShippingQuery,
     #[strum(serialize = "pre_checkout_query")]
     PreCheckoutQuery,
+    #[strum(serialize = "purchased_paid_media")]
+    PurchasedPaidMedia,
     #[strum(serialize = "poll")]
     Poll,
     #[strum(serialize = "poll_answer")]
@@ -55,7 +57,7 @@ pub enum Telegram {
 
 impl Telegram {
     #[must_use]
-    pub const fn all() -> [Telegram; 23] {
+    pub const fn all() -> [Telegram; 24] {
         [
             Telegram::Message,
             Telegram::InlineQuery,
@@ -72,6 +74,7 @@ impl Telegram {
             Telegram::MessageReactionCount,
             Telegram::ShippingQuery,
             Telegram::PreCheckoutQuery,
+            Telegram::PurchasedPaidMedia,
             Telegram::Poll,
             Telegram::PollAnswer,
             Telegram::MyChatMember,
@@ -102,6 +105,7 @@ impl From<Telegram> for Option<UpdateType> {
             Telegram::MessageReactionCount => Some(UpdateType::MessageReactionCount),
             Telegram::ShippingQuery => Some(UpdateType::ShippingQuery),
             Telegram::PreCheckoutQuery => Some(UpdateType::PreCheckoutQuery),
+            Telegram::PurchasedPaidMedia => Some(UpdateType::PurchasedPaidMedia),
             Telegram::Poll => Some(UpdateType::Poll),
             Telegram::PollAnswer => Some(UpdateType::PollAnswer),
             Telegram::MyChatMember => Some(UpdateType::MyChatMember),
@@ -132,6 +136,7 @@ impl PartialEq<UpdateType> for Telegram {
             Telegram::MessageReactionCount => *other == UpdateType::MessageReactionCount,
             Telegram::ShippingQuery => *other == UpdateType::ShippingQuery,
             Telegram::PreCheckoutQuery => *other == UpdateType::PreCheckoutQuery,
+            Telegram::PurchasedPaidMedia => *other == UpdateType::PurchasedPaidMedia,
             Telegram::Poll => *other == UpdateType::Poll,
             Telegram::PollAnswer => *other == UpdateType::PollAnswer,
             Telegram::MyChatMember => *other == UpdateType::MyChatMember,
