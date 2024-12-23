@@ -7,6 +7,11 @@
 //! [`HandlerError`]: crate::errors::HandlerError
 
 use anyhow;
+use std::{
+    convert::Infallible,
+    fmt, io,
+    num::{ParseFloatError, ParseIntError},
+};
 use thiserror;
 
 /// A wrapper for any error that can occur when processing a middleware.
@@ -34,7 +39,7 @@ impl Error {
     /// # Notes
     /// This method is useful when you want to pass just a message.
     /// If you want to pass an error, you can use [`Error::new`] method.
-    pub fn from_display(info: impl std::fmt::Display) -> Self {
+    pub fn from_display(info: impl fmt::Display) -> Self {
         Self::new(anyhow::anyhow!("{info}"))
     }
 
@@ -43,7 +48,7 @@ impl Error {
     /// # Notes
     /// This method is useful when you want to pass just a message.
     /// If you want to pass an error, you can use [`Error::new`] method.
-    pub fn from_debug(info: impl std::fmt::Debug) -> Self {
+    pub fn from_debug(info: impl fmt::Debug) -> Self {
         Self::new(anyhow::anyhow!("{info:?}"))
     }
 }
@@ -62,37 +67,37 @@ impl From<super::SessionErrorKind> for Error {
     }
 }
 
-/// To possible to wrap [`std::convert::Infallible`] error in [`Error`] struct without boilerplate code
-impl From<std::convert::Infallible> for Error {
-    fn from(_: std::convert::Infallible) -> Self {
+/// To possible to wrap [`Infallible`] error in [`Error`] struct without boilerplate code
+impl From<Infallible> for Error {
+    fn from(_: Infallible) -> Self {
         unreachable!("Infallible error type should never be constructed")
     }
 }
 
-/// To possible to wrap [`std::io::Error`] error in [`Error`] struct without boilerplate code
-impl From<std::io::Error> for Error {
-    fn from(err: std::io::Error) -> Self {
+/// To possible to wrap [`io::Error`] error in [`Error`] struct without boilerplate code
+impl From<io::Error> for Error {
+    fn from(err: io::Error) -> Self {
         Self::new(err)
     }
 }
 
-/// To possible to wrap [`std::fmt::Error`] error in [`Error`] struct without boilerplate code
-impl From<std::fmt::Error> for Error {
-    fn from(err: std::fmt::Error) -> Self {
+/// To possible to wrap [`fmt::Error`] error in [`Error`] struct without boilerplate code
+impl From<fmt::Error> for Error {
+    fn from(err: fmt::Error) -> Self {
         Self::new(err)
     }
 }
 
-/// To possible to wrap [`std::num::ParseIntError`] error in [`Error`] struct without boilerplate code
-impl From<std::num::ParseIntError> for Error {
-    fn from(err: std::num::ParseIntError) -> Self {
+/// To possible to wrap [`ParseIntError`] error in [`Error`] struct without boilerplate code
+impl From<ParseIntError> for Error {
+    fn from(err: ParseIntError) -> Self {
         Self::new(err)
     }
 }
 
-/// To possible to wrap [`std::num::ParseFloatError`] error in [`Error`] struct without boilerplate code
-impl From<std::num::ParseFloatError> for Error {
-    fn from(err: std::num::ParseFloatError) -> Self {
+/// To possible to wrap [`ParseFloatError`] error in [`Error`] struct without boilerplate code
+impl From<ParseFloatError> for Error {
+    fn from(err: ParseFloatError) -> Self {
         Self::new(err)
     }
 }
