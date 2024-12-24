@@ -159,15 +159,11 @@ where
     Args::Error: Send,
 {
     factory(fn_service(move |request: Request<Client>| {
-        let bot = Arc::clone(&request.bot);
-        let update = Arc::clone(&request.update);
-        let context = Arc::clone(&request.context);
-        let extensions = request.extensions.clone();
-
+        let request = request.clone();
         let handler = handler.clone();
 
         async move {
-            match Args::extract(bot, update, context, extensions) {
+            match Args::extract(request.clone()) {
                 Ok(extracted_args) => Ok(Response {
                     request,
                     handler_result: handler.call(extracted_args).await.into(),
@@ -178,10 +174,7 @@ where
                     event!(
                         Level::ERROR,
                         error = %extraction_err,
-                        bot = ?request.bot,
-                        update = ?request.update,
-                        context = ?request.context,
-                        extensions = ?request.extensions,
+                        ?request,
                         "Failed to extract arguments",
                     );
 

@@ -268,15 +268,10 @@ fn impl_from_event_and_context(
                 type Error = ::telers::errors::ExtractionError;
 
                 #[inline]
-                fn extract(
-                    _bot: ::std::sync::Arc<::telers::Bot<#client_ty_generic>>,
-                    _update: ::std::sync::Arc<::telers::types::Update>,
-                    context: ::std::sync::Arc<::telers::Context>,
-                    _extensions: ::telers::extensions::Extensions,
-                ) -> Result<Self, Self::Error> {
+                fn extract(request: ::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
                     use ::telers::errors::ExtractionError as Error;
 
-                    let Some(value) = context.get(#key_str) else {
+                    let Some(value) = request.context.get(#key_str) else {
                         return Err(Error::new(concat!(
                             "No found data in context by key `", #key_str, "`. ",
                             "You didn't forget to add type to context? ",
@@ -310,15 +305,10 @@ fn impl_from_event_and_context(
                 type Error = ::telers::errors::ExtractionError;
 
                 #[inline]
-                fn extract(
-                    _bot: ::std::sync::Arc<::telers::Bot<#client_ty_generic>>,
-                    _update: ::std::sync::Arc<::telers::types::Update>,
-                    context: ::std::sync::Arc<::telers::Context>,
-                    _extensions: ::telers::extensions::Extensions,
-                ) -> Result<Self, Self::Error> {
+                fn extract(request: ::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
                     use ::telers::errors::ExtractionError as Error;
 
-                    let Some(value) = context.get(#key_str) else {
+                    let Some(value) = request.context.get(#key_str) else {
                         return Err(Error::new(concat!(
                             "No found data in context by key `", #key_str, "`. ",
                             "You didn't forget to add type to context? ",
@@ -349,15 +339,10 @@ fn impl_from_event_and_context(
             type Error = ::telers::errors::ExtractionError;
 
             #[inline]
-            fn extract(
-                _bot: ::std::sync::Arc<::telers::Bot<#client_ty_generic>>,
-                _update: ::std::sync::Arc<::telers::types::Update>,
-                context: ::std::sync::Arc<::telers::Context>,
-                _extensions: ::telers::extensions::Extensions,
-            ) -> Result<Self, Self::Error> {
+            fn extract(request: ::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
                 use ::telers::errors::ExtractionError as Error;
 
-                let Some(value) = context.get(#key_str) else {
+                let Some(value) = request.context.get(#key_str) else {
                     return Err(Error::new(concat!(
                         "No found data in context by key `", #key_str, "`. ",
                         "You didn't forget to add type to context? ",

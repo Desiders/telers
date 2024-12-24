@@ -400,13 +400,8 @@ fn impl_from_event_and_context(
                     type Error = ::std::convert::Infallible;
 
                     #[inline]
-                    fn extract(
-                        _bot: ::std::sync::Arc<::telers::Bot<#client_ty_generic>>,
-                        update: ::std::sync::Arc<::telers::types::Update>,
-                        _context: ::std::sync::Arc<::telers::Context>,
-                        _extensions: ::telers::extensions::Extensions,
-                    ) -> Result<Self, Self::Error> {
-                        Ok((*update).clone().into())
+                    fn extract(request: ::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
+                        Ok((*request.update).clone().into())
                     }
                 }
             }
@@ -428,13 +423,8 @@ fn impl_from_event_and_context(
                     type Error = #error_ty;
 
                     #[inline]
-                    fn extract(
-                        _bot: ::std::sync::Arc<::telers::Bot<#client_ty_generic>>,
-                        update: ::std::sync::Arc<::telers::types::Update>,
-                        _context: ::std::sync::Arc<::telers::Context>,
-                        _extensions: ::telers::extensions::Extensions,
-                    ) -> Result<Self, Self::Error> {
-                        ::std::convert::TryFrom::try_from((*update).clone())
+                    fn extract(request: ::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
+                        ::std::convert::TryFrom::try_from((*request.update).clone())
                     }
                 }
             }

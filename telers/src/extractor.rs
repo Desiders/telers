@@ -246,8 +246,9 @@ use crate::{
     client::{Bot, Reqwest},
     context::Context,
     errors::ExtractionError,
-    extensions::{Extension, Extensions},
+    extensions::Extension,
     types::Update,
+    Request,
 };
 
 use std::{convert::Infallible, sync::Arc};
@@ -256,7 +257,7 @@ use std::{convert::Infallible, sync::Arc};
 pub trait Extractor<Client = Reqwest>: Sized {
     type Error: Into<ExtractionError>;
 
-    /// Extracts data from [`Update`], [`Context`] and [`Bot`] to handler argument
+    /// Extracts data to handler argument
     /// # Errors
     /// If extraction was unsuccessful
     ///
@@ -264,12 +265,7 @@ pub trait Extractor<Client = Reqwest>: Sized {
     /// * No found data in context by key
     /// * Data in context by key has wrong type. For example, you try to extract `i32` from `String`.
     /// * Custom user error
-    fn extract(
-        bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        context: Arc<Context>,
-        extensions: Extensions,
-    ) -> Result<Self, Self::Error>;
+    fn extract(request: Request<Client>) -> Result<Self, Self::Error>;
 }
 
 /// To be able to use [`Option`] as handler argument
@@ -278,13 +274,8 @@ impl<Client, T: Extractor<Client>> Extractor<Client> for Option<T> {
     type Error = Infallible;
 
     #[inline]
-    fn extract(
-        bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        context: Arc<Context>,
-        extensions: Extensions,
-    ) -> Result<Self, Self::Error> {
-        match T::extract(bot, update, context, extensions) {
+    fn extract(request: Request<Client>) -> Result<Self, Self::Error> {
+        match T::extract(request) {
             Ok(value) => Ok(Some(value)),
             Err(_) => Ok(None),
         }
@@ -302,13 +293,8 @@ where
     type Error = Infallible;
 
     #[inline]
-    fn extract(
-        bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        context: Arc<Context>,
-        extensions: Extensions,
-    ) -> Result<Self, Self::Error> {
-        Ok(T::extract(bot, update, context, extensions).map_err(Into::into))
+    fn extract(request: Request<Client>) -> Result<Self, Self::Error> {
+        Ok(T::extract(request).map_err(Into::into))
     }
 }
 
@@ -318,12 +304,7 @@ impl<Client> Extractor<Client> for () {
     type Error = Infallible;
 
     #[inline]
-    fn extract(
-        _bot: Arc<Bot<Client>>,
-        _update: Arc<Update>,
-        _context: Arc<Context>,
-        _extensions: Extensions,
-    ) -> Result<Self, Self::Error> {
+    fn extract(_request: Request<Client>) -> Result<Self, Self::Error> {
         Ok(())
     }
 }
@@ -332,13 +313,8 @@ impl<Client: Clone> Extractor<Client> for Bot<Client> {
     type Error = Infallible;
 
     #[inline]
-    fn extract(
-        bot: Arc<Bot<Client>>,
-        _update: Arc<Update>,
-        _context: Arc<Context>,
-        _extensions: Extensions,
-    ) -> Result<Self, Self::Error> {
-        Ok((*bot).clone())
+    fn extract(request: Request<Client>) -> Result<Self, Self::Error> {
+        Ok((*request.bot).clone())
     }
 }
 
@@ -346,13 +322,8 @@ impl<Client> Extractor<Client> for Arc<Bot<Client>> {
     type Error = Infallible;
 
     #[inline]
-    fn extract(
-        bot: Arc<Bot<Client>>,
-        _update: Arc<Update>,
-        _context: Arc<Context>,
-        _extensions: Extensions,
-    ) -> Result<Self, Self::Error> {
-        Ok(bot)
+    fn extract(request: Request<Client>) -> Result<Self, Self::Error> {
+        Ok(request.bot)
     }
 }
 
@@ -360,13 +331,8 @@ impl<Client> Extractor<Client> for Update {
     type Error = Infallible;
 
     #[inline]
-    fn extract(
-        _bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        _context: Arc<Context>,
-        _extensions: Extensions,
-    ) -> Result<Self, Self::Error> {
-        Ok((*update).clone())
+    fn extract(request: Request<Client>) -> Result<Self, Self::Error> {
+        Ok((*request.update).clone())
     }
 }
 
@@ -374,13 +340,8 @@ impl<Client> Extractor<Client> for Arc<Update> {
     type Error = Infallible;
 
     #[inline]
-    fn extract(
-        _bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        _context: Arc<Context>,
-        _extensions: Extensions,
-    ) -> Result<Self, Self::Error> {
-        Ok(update)
+    fn extract(request: Request<Client>) -> Result<Self, Self::Error> {
+        Ok(request.update)
     }
 }
 
@@ -388,13 +349,8 @@ impl<Client> Extractor<Client> for Arc<Context> {
     type Error = Infallible;
 
     #[inline]
-    fn extract(
-        _bot: Arc<Bot<Client>>,
-        _update: Arc<Update>,
-        context: Arc<Context>,
-        _extensions: Extensions,
-    ) -> Result<Self, Self::Error> {
-        Ok(context)
+    fn extract(request: Request<Client>) -> Result<Self, Self::Error> {
+        Ok(request.context)
     }
 }
 
@@ -405,13 +361,8 @@ where
     type Error = ExtractionError;
 
     #[inline]
-    fn extract(
-        _bot: Arc<Bot<Client>>,
-        _update: Arc<Update>,
-        _context: Arc<Context>,
-        extensions: Extensions,
-    ) -> Result<Self, Self::Error> {
-        match extensions.get::<Value>() {
+    fn extract(request: Request<Client>) -> Result<Self, Self::Error> {
+        match request.extensions.get::<Value>() {
             Some(value) => Ok(Self(value.clone())),
             None => Err(ExtractionError::new("")),
         }
@@ -423,15 +374,15 @@ mod factory_extractor {
     //! This module is used to implement [`Extractor`] for tuple arguments, each of which implements it
     //! If one of the arguments fails to extract, the whole extraction fails, and the error is returned
 
-    use super::{Arc, Bot, Context, Extensions, ExtractionError, Extractor, Update};
+    use super::{ExtractionError, Extractor, Request};
 
     macro_rules! factory ({ $($param:ident)* } => {
         impl<Client, $($param: Extractor<Client>,)*> Extractor<Client> for ($($param,)*) {
             type Error = ExtractionError;
 
             #[inline]
-            fn extract(bot: Arc<Bot<Client>>, update: Arc<Update>, context: Arc<Context>, extensions: Extensions) -> Result<Self, Self::Error> {
-                Ok(($($param::extract(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context), extensions.clone()).map_err(Into::into)?,)*))
+            fn extract(request: Request<Client>) -> Result<Self, Self::Error> {
+                Ok(($($param::extract(request.clone()).map_err(Into::into)?,)*))
             }
         }
     });
@@ -536,32 +487,11 @@ mod tests {
 
     #[test]
     fn test_unit_extract() {
-        let bot = Arc::new(Bot::<Reqwest>::default());
-        let update = Arc::new(Update::default());
-        let context = Arc::new(Context::default());
-        let extensions = Extensions::default();
+        let request = Request::<Reqwest>::default();
 
-        let (): () = Extractor::extract(
-            bot.clone(),
-            update.clone(),
-            context.clone(),
-            extensions.clone(),
-        )
-        .unwrap();
-        let _: Option<()> = Extractor::extract(
-            bot.clone(),
-            update.clone(),
-            context.clone(),
-            extensions.clone(),
-        )
-        .unwrap();
-        let _: Result<(), Infallible> = Extractor::extract(
-            bot.clone(),
-            update.clone(),
-            context.clone(),
-            extensions.clone(),
-        )
-        .unwrap();
+        let (): () = Extractor::extract(request.clone()).unwrap();
+        let _: Option<()> = Extractor::extract(request.clone()).unwrap();
+        let _: Result<(), Infallible> = Extractor::extract(request.clone()).unwrap();
     }
 
     #[allow(unreachable_code)]
