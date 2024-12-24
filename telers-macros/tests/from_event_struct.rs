@@ -1,5 +1,5 @@
 use std::convert::Infallible;
-use telers::{errors::ConvertToTypeError, extractors::Extractor, types::Update};
+use telers::{errors::ConvertToTypeError, extractor::Extractor, types::Update};
 use telers_macros::FromEvent;
 
 #[derive(FromEvent)]

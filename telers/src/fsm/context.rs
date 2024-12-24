@@ -1,6 +1,6 @@
 use super::{Storage, StorageKey};
 
-use crate::extractors::FromContext;
+use crate::FromContext;
 
 use serde::{de::DeserializeOwned, Serialize};
 use std::{borrow::Cow, collections::HashMap};

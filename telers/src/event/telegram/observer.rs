@@ -8,7 +8,7 @@ use crate::{
             Handler, HandlerObject, HandlerObjectService, Result as HandlerResult,
         },
     },
-    extractors::Extractor,
+    extractor::Extractor,
     filters::Filter,
     middlewares::{
         inner::{

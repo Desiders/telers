@@ -3,7 +3,7 @@ use super::{
     MessageEntity, MessageOrigin, PhotoSize, TextQuote, Update, UpdateKind, User,
 };
 
-use crate::{errors::ConvertToTypeError, extractors::FromEvent, types};
+use crate::{errors::ConvertToTypeError, FromEvent, types};
 
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;

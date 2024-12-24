@@ -16,12 +16,11 @@ use telers::{
     enums::UpdateType,
     errors::{ConvertToTypeError, EventErrorKind},
     event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
-    extractors::FromEvent,
     filters::Command,
     methods::SendMessage,
     middlewares::{outer::MiddlewareResponse, OuterMiddleware},
     types::{Message, Update},
-    Bot, Dispatcher, Extension, FromContext, Request, Router,
+    Bot, Dispatcher, Extension, FromContext, FromEvent, Request, Router,
 };
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};

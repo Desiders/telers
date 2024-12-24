@@ -259,7 +259,7 @@ fn impl_from_event_and_context(
     if let Some(ref into) = context_attrs.into {
         return quote_spanned! { ident.span() =>
             #[automatically_derived]
-            impl <#impl_generics_punctuated> ::telers::extractors::Extractor<#client_ty_generic> for #into #ty_generics_punctuated
+            impl <#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #into #ty_generics_punctuated
             where
                 #where_clause_punctuated
                 // `Into<#ident #ty_generics_punctuated>` is required to be able to convert context value to `into` type
@@ -269,9 +269,9 @@ fn impl_from_event_and_context(
 
                 #[inline]
                 fn extract(
-                    _bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
+                    _bot: ::std::sync::Arc<::telers::Bot<#client_ty_generic>>,
                     _update: ::std::sync::Arc<::telers::types::Update>,
-                    context: ::std::sync::Arc<::telers::context::Context>,
+                    context: ::std::sync::Arc<::telers::Context>,
                     _extensions: ::telers::extensions::Extensions,
                 ) -> Result<Self, Self::Error> {
                     use ::telers::errors::ExtractionError as Error;
@@ -301,7 +301,7 @@ fn impl_from_event_and_context(
     if let Some(ref from) = context_attrs.from {
         return quote_spanned! { ident.span() =>
             #[automatically_derived]
-            impl <#impl_generics_punctuated> ::telers::extractors::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
+            impl <#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
             where
                 #where_clause_punctuated
                 // `Into<#from #ty_generics_punctuated>` is required to be able to convert context value to `ident` type
@@ -311,9 +311,9 @@ fn impl_from_event_and_context(
 
                 #[inline]
                 fn extract(
-                    _bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
+                    _bot: ::std::sync::Arc<::telers::Bot<#client_ty_generic>>,
                     _update: ::std::sync::Arc<::telers::types::Update>,
-                    context: ::std::sync::Arc<::telers::context::Context>,
+                    context: ::std::sync::Arc<::telers::Context>,
                     _extensions: ::telers::extensions::Extensions,
                 ) -> Result<Self, Self::Error> {
                     use ::telers::errors::ExtractionError as Error;
@@ -341,7 +341,7 @@ fn impl_from_event_and_context(
 
     quote_spanned! { ident.span() =>
         #[automatically_derived]
-        impl <#impl_generics_punctuated> ::telers::extractors::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
+        impl <#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
         where
             #where_clause_punctuated
             #ident #ty_generics_punctuated: ::std::clone::Clone + 'static
@@ -350,9 +350,9 @@ fn impl_from_event_and_context(
 
             #[inline]
             fn extract(
-                _bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
+                _bot: ::std::sync::Arc<::telers::Bot<#client_ty_generic>>,
                 _update: ::std::sync::Arc<::telers::types::Update>,
-                context: ::std::sync::Arc<::telers::context::Context>,
+                context: ::std::sync::Arc<::telers::Context>,
                 _extensions: ::telers::extensions::Extensions,
             ) -> Result<Self, Self::Error> {
                 use ::telers::errors::ExtractionError as Error;

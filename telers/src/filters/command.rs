@@ -1,12 +1,11 @@
 use super::base::Filter;
-
 use crate::{
     client::{Bot, Session},
     context::Context,
     errors::SessionErrorKind,
-    extractors::FromContext,
     methods::GetMe,
     types::{BotCommand, Update},
+    FromContext,
 };
 
 use async_trait::async_trait;

@@ -392,7 +392,7 @@ fn impl_from_event_and_context(
         ConvertKind::From(TypeKind::Update) => {
             quote_spanned! { ident.span() =>
                 #[automatically_derived]
-                impl <#impl_generics_punctuated> ::telers::extractors::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
+                impl <#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
                 where
                     #where_clause_punctuated
                     ::telers::types::Update: ::std::convert::Into<Self>
@@ -401,9 +401,9 @@ fn impl_from_event_and_context(
 
                     #[inline]
                     fn extract(
-                        _bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
+                        _bot: ::std::sync::Arc<::telers::Bot<#client_ty_generic>>,
                         update: ::std::sync::Arc<::telers::types::Update>,
-                        _context: ::std::sync::Arc<::telers::context::Context>,
+                        _context: ::std::sync::Arc<::telers::Context>,
                         _extensions: ::telers::extensions::Extensions,
                     ) -> Result<Self, Self::Error> {
                         Ok((*update).clone().into())
@@ -420,7 +420,7 @@ fn impl_from_event_and_context(
 
             quote_spanned! { ident.span() =>
                 #[automatically_derived]
-                impl <#impl_generics_punctuated> ::telers::extractors::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
+                impl <#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
                 where
                     #where_clause_punctuated
                     ::telers::types::Update: ::std::convert::TryInto<Self>
@@ -429,9 +429,9 @@ fn impl_from_event_and_context(
 
                     #[inline]
                     fn extract(
-                        _bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
+                        _bot: ::std::sync::Arc<::telers::Bot<#client_ty_generic>>,
                         update: ::std::sync::Arc<::telers::types::Update>,
-                        _context: ::std::sync::Arc<::telers::context::Context>,
+                        _context: ::std::sync::Arc<::telers::Context>,
                         _extensions: ::telers::extensions::Extensions,
                     ) -> Result<Self, Self::Error> {
                         ::std::convert::TryFrom::try_from((*update).clone())

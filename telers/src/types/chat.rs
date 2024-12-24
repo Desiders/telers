@@ -1,4 +1,4 @@
-use crate::extractors::FromContext;
+use crate::FromContext;
 
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;

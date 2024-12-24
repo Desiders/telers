@@ -1,4 +1,4 @@
-use telers::extractors::Extractor;
+use telers::extractor::Extractor;
 use telers_macros::FromContext;
 
 #[derive(FromContext, Clone)]

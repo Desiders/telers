@@ -7,7 +7,7 @@ use crate::{
         },
         EventReturn,
     },
-    extractors::Extractor,
+    extractor::Extractor,
     filters::Filter,
     Request,
 };

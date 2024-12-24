@@ -6,7 +6,7 @@ use super::{
     PreCheckoutQuery, ShippingQuery, User,
 };
 
-use crate::{enums::UpdateType, extractors::FromEvent};
+use crate::{enums::UpdateType, FromEvent};
 
 use serde::{de::MapAccess, Deserialize, Deserializer, Serialize, Serializer};
 use std::{

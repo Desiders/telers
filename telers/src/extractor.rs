@@ -242,8 +242,6 @@
 //!
 //! This code similar to the previous one, but more useful in cases when `from` type is a foreign type.
 
-pub use crate::{FromContext, FromEvent};
-
 use crate::{
     client::{Bot, Reqwest},
     context::Context,

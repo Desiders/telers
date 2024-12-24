@@ -1,6 +1,6 @@
 use super::{Chat, ReactionCount, Update, UpdateKind};
 
-use crate::{errors::ConvertToTypeError, extractors::FromEvent};
+use crate::{errors::ConvertToTypeError, FromEvent};
 
 use serde::{Deserialize, Serialize};
 
