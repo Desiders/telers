@@ -3,10 +3,10 @@
 //!
 //! This error type used usually in [`Extractor`] trait implementations when the type conversion fails.
 //!
-//! [`Update`]: crate::types::Update
-//! [`Message`]: crate::types::Message
-//! [`CallbackQuery`]: crate::types::CallbackQuery
-//! [`Extractor`]: crate::extractors::Extractor
+//! [`Update`]: telers::types::Update
+//! [`Message`]: telers::types::Message
+//! [`CallbackQuery`]: telers::types::CallbackQuery
+//! [`Extractor`]: telers::Extractor
 
 use super::ExtractionError;
 

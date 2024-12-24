@@ -37,11 +37,11 @@
 //!
 //! Check out the examples directory for usage examples.
 //!
-//! [`Router`]: crate::router::Router
-//! [`UpdateType`]: crate::enums::UpdateType
-//! [`ChatMember`]: crate::enums::UpdateType::ChatMember
-//! [`router module`]: crate::router
-//! [`context module`]: crate::context
+//! [`Router`]: telers::router::Router
+//! [`UpdateType`]: telers::enums::UpdateType
+//! [`ChatMember`]: telers::enums::UpdateType::ChatMember
+//! [`router module`]: telers::router
+//! [`context module`]: telers::context
 //! [`Dispatcher::new`]: Dispatcher#method.new
 //! [`Builder::polling_timeout`]: Builder#method.polling_timeout
 //! [`Builder::backoff`]: Builder#method.backoff

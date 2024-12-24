@@ -1,15 +1,15 @@
 //! This example shows how to use [`Extractor`] to extract data and use it in handlers.
-//! Check out the documentation of the [`ex```tractors`] module for more information, as this example is a small part of its documentation.
+//! Check out the documentation of the [`extractor`] module for more information, as this example is a small part of its documentation.
 //!
 //! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash
 //! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package extractor
 //! ```
 //!
-//! [`Extractor`]: telers::extractors::Extractor
-//! [`FromEvent`]: telers::extractors::FromEvent
-//! [`FromContext`]: telers::extractors::FromContext
-//! [`extractors`]: telers::extractors
+//! [`Extractor`]: telers::Extractor
+//! [`FromEvent`]: telers::FromEvent
+//! [`FromContext`]: telers::FromContext
+//! [`extractor`]: telers::extractor
 
 use async_trait::async_trait;
 use telers::{
@@ -25,7 +25,7 @@ use telers::{
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
-/// Implementing [`telers::extractors::Extractor`] by [`FromEvent`] macros to use struct in handlers.
+/// Implementing [`telers::extractor::Extractor`] by [`FromEvent`] macros to use struct in handlers.
 /// # Notes
 /// You can implement it manually, but it's more convenient to use macros to avoid boilerplate code.
 #[derive(FromEvent)]
@@ -38,11 +38,11 @@ impl From<Update> for UpdateId {
     }
 }
 
-/// Implementing [`telers::extractors::Extractor`] by [`FromEvent`] macros to use struct in handlers.
+/// Implementing [`telers::extractor::Extractor`] by [`FromEvent`] macros to use struct in handlers.
 /// # Notes
 /// You can implement it manually, but it's more convenient to use macros to avoid boilerplate code.
 ///
-/// You can specify custom error type by `[event(error = ...)]`, default it's `telers::errors::ConvertToTypeError`.
+/// You can specify custom error type by `[event(error = ...)]`, default it's [`telers::errors::ConvertToTypeError`].
 /// The error type in macros should be the same as in the implementation of [`TryFrom`].
 ///
 /// The trait also is implemented for `Option<T>`, `Result<T, E>` where `T: Extractor`,

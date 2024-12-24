@@ -3,7 +3,7 @@
 //! Supported implementations:
 //! - [`Reqwest`] - uses reqwest client. Check [module docs](crate::client::session::reqwest) for more information.
 //!
-//! [`Reqwest`]: crate::client::session::reqwest::Reqwest
+//! [`Reqwest`]: telers::client::session::reqwest::Reqwest
 
 use crate::{
     client::{telegram::APIServer, Bot},

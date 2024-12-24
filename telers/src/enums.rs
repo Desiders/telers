@@ -23,10 +23,10 @@
 //!
 //! Every enum has a `all` method that returns a list of all possible variants of the enum.
 //!
-//! [`BotCommandScope`]: crate::types::BotCommandScope
-//! [`InlineQueryResult`]: crate::types::InlineQueryResult
-//! [`InputMedia`]: crate::types::InputMedia
-//! [`MenuButton`]: crate::types::MenuButton
+//! [`BotCommandScope`]: telers::types::BotCommandScope
+//! [`InlineQueryResult`]: telers::types::InlineQueryResult
+//! [`InputMedia`]: telers::types::InputMedia
+//! [`MenuButton`]: telers::types::MenuButton
 //! [`Into`]: std::convert::Into
 
 pub mod bot_command_scope_type;

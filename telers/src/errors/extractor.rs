@@ -3,9 +3,9 @@
 //!
 //! This error type used usually in [`Extractor`] trait implementations when the extraction fails.
 //!
-//! [`Extractor`]: crate::extractors::Extractor
-//! [`User`]: crate::types::User
-//! [`Context`]: crate::Context
+//! [`Extractor`]: telers::Extractor
+//! [`User`]: telers::types::User
+//! [`Context`]: telers::Context
 
 use std::{borrow::Cow, convert::Infallible};
 use thiserror;

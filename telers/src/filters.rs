@@ -49,15 +49,15 @@
 //!
 //! [`Cow`]: std::borrow::Cow
 //! [`Regex`]: regex::Regex
-//! [`ChatTypeEnum`]: crate::enums::ChatType
-//! [`ContentTypeEnum`]: crate::enums::ContentType
-//! [`BotCommand`]: crate::types::BotCommand
+//! [`ChatTypeEnum`]: telers::enums::ChatType
+//! [`ContentTypeEnum`]: telers::enums::ContentType
+//! [`BotCommand`]: telers::types::BotCommand
 //! [`Regex`]: regex::Regex
-//! [`context`]: crate::context::Context
+//! [`context`]: telers::context::Context
 //! [`command pattern type`]: command::PatternType
 //! [`text pattern type`]: text::PatternType
-//! [`bot`]: crate::client::Bot
-//! [`update`]: crate::types::Update
+//! [`bot`]: telers::client::Bot
+//! [`update`]: telers::types::Update
 
 pub mod base;
 pub mod chat_type;

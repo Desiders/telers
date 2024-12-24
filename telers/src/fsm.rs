@@ -32,7 +32,7 @@
 //! [`GlobalUser`]: Strategy::GlobalUser
 //! [`UserInThread`]: Strategy::UserInThread
 //! [`storage module`]: storage
-//! [`FSMContext middleware`]: crate::middlewares::outer::fsm_context::FSMContext
+//! [`FSMContext middleware`]: telers::middlewares::outer::fsm_context::FSMContext
 
 pub mod context;
 pub mod storage;

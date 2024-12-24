@@ -9,7 +9,7 @@
 //! because it contains only [`reqwest::Client`] field which is wrapped in [`Arc`] and [`APIServer`] wrapped in [`Cow`].
 //!
 //! [`Arc`]: std::sync::Arc
-//! [`APIServer`]: crate::client::telegram::APIServer
+//! [`APIServer`]: telers::client::telegram::APIServer
 
 use super::base::{ClientResponse, Session, DEFAULT_TIMEOUT};
 

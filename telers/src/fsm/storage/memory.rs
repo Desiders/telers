@@ -19,7 +19,7 @@ struct Record {
 /// This is a simple thread-safe in-memory storage implementation used for testing purposes usually
 /// # Warning
 /// This storage isn't recommended for production use, because it doesn't persist data between restarts. \
-/// It's recommended to use a database instead and other storage implementations, like [`super::Redis`]
+/// It's recommended to use a database instead and other storage implementations, like Redis
 #[derive(Debug, Default, Clone)]
 pub struct Memory {
     storage: Arc<Mutex<HashMap<StorageKey, Record>>>,

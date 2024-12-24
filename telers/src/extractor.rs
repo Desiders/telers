@@ -1,10 +1,46 @@
-//! This module contains functionality for extracting data from the event and context to the handler arguments.
+//! This module contains functionality for extracting data to the handler arguments.
 //!
 //! [`Extractor`] is the main trait which need to be implemented for extracting data.
 //! If you want to use your own types as handler arguments, you need to implement this trait for them.
 //! By default, this trait is implemented for the most common middlewares, types and filters, so you can use them without any additional actions.
 //! The trait also is implemented for `Option<T>`, `Result<T, E>` where `T: Extractor`,
 //! so you can don't implement it for your types if you want to use them as optional or result arguments.
+//!
+//! # Using extensions
+//!
+//! You can use [`Extension`] to extract data from [`Extensions`] that can be easily filled in,
+//! for example in middlewares:
+//! ```rust
+//! use telers::{
+//!     errors::EventErrorKind,
+//!     event::{telegram::HandlerResult, EventReturn},
+//!     middlewares::{outer::{MiddlewareResponse, Middleware}},
+//!     Request,
+//! };
+//! use async_trait::async_trait;
+//!
+//! struct ToExtensionsMiddleware<T> {
+//!     data: T,
+//! }
+//!
+//! #[async_trait]
+//! impl<T> Middleware for ToExtensionsMiddleware<T>
+//! where
+//!     T: Send + Sync + Clone + 'static,
+//! {
+//!     async fn call(&self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
+//!         request.extensions.insert(self.data.clone());
+//!
+//!         Ok((request, EventReturn::default()))
+//!     }
+//! }
+//!
+//! async fn send_data_handler(Extension(data2): Extension<Data>) -> HandlerResult {
+//!     todo!();
+//! }
+//! ```
+//!
+//! You can check examples of usage extensions in the [`examples`] directory.
 //!
 //! # Implementing trait
 //!
@@ -215,7 +251,7 @@
 //! ```
 //!
 //! This code will extract `MyStruct` from context and convert it to `MyStructWrapper`,
-//! but we need to implement `From<MyStruct>` for `MyStructWrapper` by ourselves (this is required by `FromContext` macro).
+//! but we need to implement `From<MyStruct>` for `MyStructWrapper` by ourselves (this is required by [`FromContext`] macro).
 //! In this case, the trait is implements for `MyStructWrapper`, not for `MyStruct`,
 //! so we can't use `MyStruct` as handler argument without implementing `Extractor` for it.
 //!
@@ -241,6 +277,11 @@
 //! ```
 //!
 //! This code similar to the previous one, but more useful in cases when `from` type is a foreign type.
+//!
+//! [`FromEvent`]: telers::FromEvent
+//! [`FromContext`]: telers::FromContext
+//! [`Extensions`]: telers::extensions::Extensions
+//! [`examples`]: https://github.com/Desiders/telers/tree/dev-1.x/examples
 
 use crate::{
     client::{Bot, Reqwest},

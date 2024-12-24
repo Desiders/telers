@@ -88,9 +88,9 @@
 //!
 //! [`Simple observer`]: SimpleObserver
 //! [`Telegram observer`]: TelegramObserver
-//! [`Dispatcher`]: crate::dispatcher::Dispatcher
-//! [`Extractor`]: crate::extractors::Extractor
-//! [`extractors module`]: crate::extractors
+//! [`Dispatcher`]: telers::dispatcher::Dispatcher
+//! [`Extractor`]: telers::Extractor
+//! [`extractors module`]: telers::extractor
 //! [`Router::include_router`]: Router#method.include_router
 
 use crate::{
@@ -252,8 +252,8 @@ where
 /// - Telegram observer - [`TelegramObserver`]
 ///
 /// Telegram observer is used to handle telegram events like messages, callback queries, polls and all other event types. \
-/// You can register a handler with any arguments that implement [`crate::extractors::Extractor`] trait,
-/// see [`crate::extractors`] for more details. \
+/// You can register a handler with any arguments that implement [`crate::Extractor`] trait,
+/// see [`crate::extractor`] for more details. \
 /// Return type of handler is `Result<EventReturn, HandlerError>`,
 /// where [`EventReturn`] is a special enum that can be used to control the propagation of the event,
 /// see [`EventReturn`] for more details. \

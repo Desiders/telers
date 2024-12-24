@@ -2,16 +2,13 @@
 //! Context creates at the start of the event propagation by [`Dispatcher`] and pass to every processing-unit.
 //! Processing-units can add their own data to context and use data from context that was added by others.
 //!
-//! In [`OuterMiddleware`] context is passed as [`RouterRequest`] field `context`.
 //! Modify context in outer middlewares if you need to pass some data to next outer/inner middlewares or to filters.
 //! Usually data for handlers is passed by inner middlewares, but you can use outer middlewares for this too.
 //! Check [`outer middleware module`] documentation for more information (**recommended**).
 //!
-//! In [`InnerMiddleware`] context is passed as [`HandlerRequest`] field `context`.
 //! Modify context in inner middlewares if you need to pass some data to next inner middlewares or to handler.
 //! Check [`inner middleware module`] documentation for more information (**recommended**).
 //!
-//! In [`Filter`] context is passed as parameter `context` in [`Filter::check`] method.
 //! Usually you don't need to change the context in filters, and it's better to use middleware for that, but you can do it.
 //! Check [`filter module`] documentation for more information.
 //!
@@ -21,19 +18,16 @@
 //! so you don't need to pass context as parameter of handler and extract data from context manually.
 //! Check [`extractors module`] documentation for more information (**recommended**).
 //!
-//! [`Dispatcher`]: crate::Dispatcher
-//! [`OuterMiddleware`]: crate::middlewares::OuterMiddleware
-//! [`InnerMiddleware`]: crate::middlewares::InnerMiddleware
-//! [`RouterRequest`]: crate::router::Request
-//! [`HandlerRequest`]: crate::event::telegram::handler::Request
-//! [`Filter`]: crate::filters::Filter
-//! [`Filter::check`]: crate::filters::Filter#method.check
-//! [`Handler`]: crate::event::telegram::Handler
-//! [`Extractor`]: crate::extractors::Extractor
-//! [`outer middleware module`]: crate::middlewares::outer
-//! [`inner middleware module`]: crate::middlewares::inner
-//! [`filter module`]: crate::filters
-//! [`extractors module`]: crate::extractors
+//! [`Dispatcher`]: telers::Dispatcher
+//! [`OuterMiddleware`]: telers::middlewares::OuterMiddleware
+//! [`InnerMiddleware`]: telers::middlewares::InnerMiddleware
+//! [`Filter::check`]: telers::filters::Filter#method.check
+//! [`Handler`]: telers::event::telegram::Handler
+//! [`Extractor`]: telers::Extractor
+//! [`outer middleware module`]: telers::middlewares::outer
+//! [`inner middleware module`]: telers::middlewares::inner
+//! [`filter module`]: telers::filters
+//! [`extractors module`]: telers::extractor
 
 use dashmap::DashMap;
 use std::any::Any;

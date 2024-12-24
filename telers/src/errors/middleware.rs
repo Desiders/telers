@@ -4,7 +4,7 @@
 //!
 //! Usually it is a wrapper for [`HandlerError`] errors, but it can also be a wrapper for any another error.
 //!
-//! [`HandlerError`]: crate::errors::HandlerError
+//! [`HandlerError`]: telers::errors::HandlerError
 
 use anyhow;
 use std::{
