@@ -94,7 +94,6 @@
 //! [`Router::include_router`]: Router#method.include_router
 
 use crate::{
-    client::Reqwest,
     enums::{SimpleObserverName, TelegramObserverName, UpdateType},
     errors::EventErrorKind,
     event::{
@@ -104,17 +103,13 @@ use crate::{
             observer::Service as SimpleObserverService, HandlerResult as SimpleHandlerResult,
             Observer as SimpleObserver,
         },
-        telegram::{
-            observer::{Request as TelegramObserverRequest, Service as TelegramObserverService},
-            Observer as TelegramObserver,
-        },
+        telegram::{observer::Service as TelegramObserverService, Observer as TelegramObserver},
     },
     middlewares::{
         inner::Logging as LoggingMiddleware, outer::UserContext as UserContextMiddleware,
         InnerMiddleware, OuterMiddleware,
     },
-    types::Update,
-    Bot, Context, Extensions,
+    Request,
 };
 
 use async_trait::async_trait;
@@ -125,66 +120,6 @@ use std::{
     sync::Arc,
 };
 use tracing::{event, instrument, Level};
-
-pub struct Request<Client = Reqwest> {
-    pub bot: Arc<Bot<Client>>,
-    pub update: Arc<Update>,
-    pub context: Arc<Context>,
-    pub extensions: Extensions,
-}
-
-impl<Client> Request<Client> {
-    #[must_use]
-    pub fn new(
-        bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        context: Arc<Context>,
-        extensions: Extensions,
-    ) -> Self {
-        Self {
-            bot,
-            update,
-            context,
-            extensions,
-        }
-    }
-}
-
-impl<Client> Clone for Request<Client> {
-    fn clone(&self) -> Self {
-        Self {
-            bot: Arc::clone(&self.bot),
-            update: Arc::clone(&self.update),
-            context: Arc::clone(&self.context),
-            extensions: self.extensions.clone(),
-        }
-    }
-}
-
-impl<Client> Debug for Request<Client> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Request")
-            .field("bot", &self.bot)
-            .field("update", &self.update)
-            .field("context", &self.context)
-            .field("extensions", &self.extensions)
-            .finish()
-    }
-}
-
-impl<Client> PartialEq for Request<Client> {
-    fn eq(&self, other: &Self) -> bool {
-        Arc::ptr_eq(&self.bot, &other.bot)
-            && Arc::ptr_eq(&self.update, &other.update)
-            && Arc::ptr_eq(&self.context, &other.context)
-    }
-}
-
-impl<Client> From<Request<Client>> for TelegramObserverRequest<Client> {
-    fn from(req: Request<Client>) -> Self {
-        Self::new(req.bot, req.update, req.context, req.extensions)
-    }
-}
 
 pub struct Response<Client> {
     pub request: Request<Client>,
@@ -201,8 +136,8 @@ impl<Client> Response<Client> {
     }
 }
 
-impl<Client> Debug for Response<Client> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+impl<Client> fmt::Debug for Response<Client> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Response")
             .field("request", &self.request)
             .field("propagate_result", &self.propagate_result)
@@ -844,8 +779,8 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
             }
         }
 
-        let observer_request = request.clone().into();
-        let observer_response = observer.trigger(observer_request).await?;
+        let observer_response = observer.trigger(request).await?;
+        let request = observer_response.request;
 
         match observer_response.propagate_result {
             // If observer unhandled, then propagate event to next observer
@@ -944,8 +879,8 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
             }
         }
 
-        let observer_request = request.clone().into();
-        let observer_response = self.update.trigger(observer_request).await?;
+        let observer_response = self.update.trigger(request).await?;
+        let request = observer_response.request;
 
         match observer_response.propagate_result {
             // If observer returns unhandled, then propagate event to next observer
@@ -1788,6 +1723,8 @@ mod tests {
         client::Reqwest,
         event::{telegram::HandlerResult as TelegramHandlerResult, EventReturn},
         middlewares::inner::Next,
+        types::Update,
+        Bot, Context,
     };
 
     use tokio;
@@ -1948,17 +1885,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_propagate_event() {
-        let bot = Bot::<Reqwest>::default();
-        let context = Context::new();
-        let extensions = Extensions::new();
-        let update = Update::default();
-
-        let request = Request::new(
-            Arc::new(bot),
-            Arc::new(update),
-            Arc::new(context),
-            extensions,
-        );
+        let request = Request::<Reqwest>::default();
 
         let mut router = Router::new("test_handler");
         router
@@ -2073,17 +2000,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_propagate_event_with_filter() {
-        let bot = Bot::<Reqwest>::default();
-        let context = Context::new();
-        let extensions = Extensions::new();
-        let update = Update::default();
-
-        let request = Request::new(
-            Arc::new(bot),
-            Arc::new(update),
-            Arc::new(context),
-            extensions,
-        );
+        let request = Request::<Reqwest>::default();
 
         let mut router = Router::new("test_handler_with_filter");
         router

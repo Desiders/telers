@@ -1,5 +1,5 @@
 //! This example shows how to use [`Extractor`] to extract data and use it in handlers.
-//! Check out the documentation of the [`extractors`] module for more information, as this example is a small part of its documentation.
+//! Check out the documentation of the [`ex```tractors`] module for more information, as this example is a small part of its documentation.
 //!
 //! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash
@@ -20,9 +20,8 @@ use telers::{
     filters::Command,
     methods::SendMessage,
     middlewares::{outer::MiddlewareResponse, OuterMiddleware},
-    router::Request as RouterRequest,
     types::{Message, Update},
-    Bot, Dispatcher, Extension, FromContext, Router,
+    Bot, Dispatcher, Extension, FromContext, Request, Router,
 };
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
@@ -107,7 +106,7 @@ impl<T> OuterMiddleware for ToContextMiddleware<T>
 where
     T: Send + Sync + Clone + 'static,
 {
-    async fn call(&self, request: RouterRequest) -> Result<MiddlewareResponse, EventErrorKind> {
+    async fn call(&self, request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
         request
             .context
             .insert(self.key, Box::new(self.data.clone()));
@@ -128,7 +127,7 @@ impl<T> OuterMiddleware for ToExtensionsMiddleware<T>
 where
     T: Send + Sync + Clone + 'static,
 {
-    async fn call(&self, mut request: RouterRequest) -> Result<MiddlewareResponse, EventErrorKind> {
+    async fn call(&self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
         request.extensions.insert(self.data.clone());
 
         Ok((request, EventReturn::default()))

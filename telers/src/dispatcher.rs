@@ -52,8 +52,7 @@
 //! [`Dispatcher::feed_update`]: Service#method.feed_update
 //! [`Dispatcher::feed_update_with_context`]: Service#method.feed_update_with_context
 
-use super::router::{PropagateEvent, Request, Response};
-
+use super::router::{PropagateEvent, Response};
 use crate::{
     client::{Bot, Session},
     context::Context,
@@ -65,7 +64,7 @@ use crate::{
     },
     methods::GetUpdates,
     types::Update,
-    Extensions,
+    Extensions, Request,
 };
 
 use backoff::{backoff::Backoff, exponential::ExponentialBackoff, SystemClock};
@@ -411,7 +410,15 @@ impl<Client, PropagatorService, BackoffType> Service<Client, PropagatorService, 
             .record("update_type", field::debug(&update_type));
 
         self.main_router
-            .propagate_event(update_type, Request::new(bot, update, context, extensions))
+            .propagate_event(
+                update_type,
+                Request {
+                    bot,
+                    update,
+                    context,
+                    extensions,
+                },
+            )
             .await
     }
 

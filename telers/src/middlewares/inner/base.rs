@@ -3,8 +3,9 @@ use crate::{
     errors::EventErrorKind,
     event::{
         service::Service,
-        telegram::{BoxedHandlerService, HandlerRequest, HandlerResponse},
+        telegram::{BoxedHandlerService, HandlerResponse},
     },
+    Request,
 };
 
 use async_trait::async_trait;
@@ -13,7 +14,7 @@ use std::{future::Future, pin::Pin, sync::Arc};
 /// The middleware chain and the handler at the end
 pub type Next<Client = Reqwest> = Box<
     dyn Fn(
-            HandlerRequest<Client>,
+            Request<Client>,
         )
             -> Pin<Box<dyn Future<Output = Result<HandlerResponse<Client>, EventErrorKind>> + Send>>
         + Send
@@ -26,7 +27,7 @@ pub type Next<Client = Reqwest> = Box<
 /// Prefer to use inner middlewares over outer middlewares in some cases:
 /// - If you need to call middlewares after filters and before handlers
 /// - If you need to manipulate with call of next middleware or handler
-/// - If you need to manipulate with [`HandlerRequest`] or [`HandlerResponse`]
+/// - If you need to manipulate with [`Request`] or [`HandlerResponse`]
 /// Usually inner middlewares are more relevant than outer middlewares.
 ///
 /// Implement this trait for your own middlewares
@@ -44,7 +45,7 @@ pub trait Middleware<Client = Reqwest>: Send + Sync {
     #[must_use]
     async fn call(
         &self,
-        request: HandlerRequest<Client>,
+        request: Request<Client>,
         next: Next<Client>,
     ) -> Result<HandlerResponse<Client>, EventErrorKind>;
 }
@@ -57,7 +58,7 @@ where
 {
     async fn call(
         &self,
-        request: HandlerRequest<Client>,
+        request: Request<Client>,
         next: Next<Client>,
     ) -> Result<HandlerResponse<Client>, EventErrorKind> {
         T::call(self, request, next).await
@@ -69,10 +70,10 @@ where
 impl<Client, Func, Fut> Middleware<Client> for Func
 where
     Client: Send + Sync + 'static,
-    Func: Fn(HandlerRequest<Client>, Next<Client>) -> Fut + Send + Sync,
+    Func: Fn(Request<Client>, Next<Client>) -> Fut + Send + Sync,
     Fut: Future<Output = Result<HandlerResponse<Client>, EventErrorKind>> + Send,
 {
-    async fn call(&self, request: HandlerRequest<Client>, next: Next<Client>) -> Fut::Output {
+    async fn call(&self, request: Request<Client>, next: Next<Client>) -> Fut::Output {
         self(request, next).await
     }
 }
@@ -88,7 +89,7 @@ pub fn wrap_handler_and_middlewares_to_next<Client>(
 where
     Client: Send + Sync + 'static,
 {
-    Box::new(move |request: HandlerRequest<Client>| {
+    Box::new(move |request: Request<Client>| {
         let middlewares = middlewares.clone();
         let handler = handler.clone();
 
@@ -122,15 +123,13 @@ where
 mod tests {
     use super::*;
     use crate::{
-        client::{Bot, Reqwest},
-        context::Context,
+        client::Reqwest,
         event::{service::ServiceFactory as _, telegram::handler_service, EventReturn},
         types::{Message, Update, UpdateKind},
-        Extensions,
     };
 
     async fn test_middleware<Client>(
-        request: HandlerRequest<Client>,
+        request: Request<Client>,
         next: Next<Client>,
     ) -> Result<HandlerResponse<Client>, EventErrorKind> {
         next(request).await
@@ -142,15 +141,11 @@ mod tests {
             handler_service(|| async { Ok(EventReturn::Finish) }).new_service(());
         let handler_service = Arc::new(handler_service_factory.unwrap());
 
-        let request = HandlerRequest::new(
-            Arc::new(Bot::<Reqwest>::default()),
-            Arc::new(Update {
-                id: 0,
-                kind: UpdateKind::Message(Message::default()),
-            }),
-            Arc::new(Context::default()),
-            Extensions::default(),
-        );
+        let mut request = Request::<Reqwest>::default();
+        request.update = Arc::new(Update {
+            id: 0,
+            kind: UpdateKind::Message(Message::default()),
+        });
         let response = Middleware::call(
             &test_middleware,
             request,

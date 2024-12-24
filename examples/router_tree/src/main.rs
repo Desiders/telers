@@ -21,9 +21,8 @@ use telers::{
     filters::{ChatType, Command},
     methods::{CopyMessage, SendMessage},
     middlewares::{outer::MiddlewareResponse, OuterMiddleware},
-    router::{Request as RouterRequest, Router},
     types::Message,
-    Bot, Context, Dispatcher,
+    Bot, Context, Dispatcher, Request, Router,
 };
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
@@ -36,7 +35,7 @@ struct IncomingEchoRouterUpdates {
 
 #[async_trait]
 impl OuterMiddleware for IncomingEchoRouterUpdates {
-    async fn call(&self, request: RouterRequest) -> Result<MiddlewareResponse, EventErrorKind> {
+    async fn call(&self, request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
         event!(Level::INFO, "Incoming echo router update");
 
         self.counter.fetch_add(1, Ordering::SeqCst);

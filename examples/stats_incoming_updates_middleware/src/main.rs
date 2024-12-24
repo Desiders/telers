@@ -17,14 +17,13 @@ use telers::{
     enums::UpdateType,
     errors::EventErrorKind,
     event::{
-        telegram::{HandlerRequest, HandlerResponse, HandlerResult},
+        telegram::{HandlerResponse, HandlerResult},
         EventReturn, ToServiceProvider as _,
     },
     methods::SendMessage,
     middlewares::{outer::MiddlewareResponse, InnerMiddleware, Next, OuterMiddleware},
-    router::{Request as RouterRequest, Router},
     types::Update,
-    Bot, Context, Dispatcher,
+    Bot, Context, Dispatcher, Request, Router,
 };
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
@@ -36,7 +35,7 @@ struct IncomingUpdates {
 
 #[async_trait]
 impl OuterMiddleware for IncomingUpdates {
-    async fn call(&self, request: RouterRequest) -> Result<MiddlewareResponse, EventErrorKind> {
+    async fn call(&self, request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
         self.counter.fetch_add(1, Ordering::SeqCst);
 
         request.context.insert(
@@ -57,11 +56,7 @@ struct ProcessedHandlers {
 
 #[async_trait]
 impl InnerMiddleware for ProcessedHandlers {
-    async fn call(
-        &self,
-        request: HandlerRequest,
-        next: Next,
-    ) -> Result<HandlerResponse, EventErrorKind> {
+    async fn call(&self, request: Request, next: Next) -> Result<HandlerResponse, EventErrorKind> {
         request.context.insert(
             "processed_handlers_counter",
             Box::new(self.counter.load(Ordering::SeqCst)),

@@ -1,14 +1,11 @@
 use crate::{
-    client::Bot,
-    context::Context,
     enums::TelegramObserverName,
     errors::EventErrorKind,
     event::{
         bases::{EventReturn, PropagateEventResult},
         service::{Service as _, ServiceFactory as _, ServiceProvider, ToServiceProvider},
         telegram::handler::{
-            Handler, HandlerObject, HandlerObjectService, Request as HandlerRequest,
-            Result as HandlerResult,
+            Handler, HandlerObject, HandlerObjectService, Result as HandlerResult,
         },
     },
     extractors::Extractor,
@@ -20,8 +17,7 @@ use crate::{
         },
         outer::{Manager as OuterMiddlewareManager, Middleware as OuterMiddleware},
     },
-    types::Update,
-    Extensions,
+    Request,
 };
 
 use std::{
@@ -29,66 +25,6 @@ use std::{
     sync::Arc,
 };
 use tracing::{event, instrument, Level};
-
-pub struct Request<Client> {
-    pub bot: Arc<Bot<Client>>,
-    pub update: Arc<Update>,
-    pub context: Arc<Context>,
-    pub extensions: Extensions,
-}
-
-impl<Client> Request<Client> {
-    #[must_use]
-    pub fn new(
-        bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        context: Arc<Context>,
-        extensions: Extensions,
-    ) -> Self {
-        Self {
-            bot,
-            update,
-            context,
-            extensions,
-        }
-    }
-}
-
-impl<Client> Clone for Request<Client> {
-    fn clone(&self) -> Self {
-        Self {
-            bot: Arc::clone(&self.bot),
-            update: Arc::clone(&self.update),
-            context: Arc::clone(&self.context),
-            extensions: self.extensions.clone(),
-        }
-    }
-}
-
-impl<Client> Debug for Request<Client> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Request")
-            .field("bot", &self.bot)
-            .field("update", &self.update)
-            .field("context", &self.context)
-            .field("extensions", &self.extensions)
-            .finish()
-    }
-}
-
-impl<Client> PartialEq for Request<Client> {
-    fn eq(&self, other: &Self) -> bool {
-        Arc::ptr_eq(&self.bot, &other.bot)
-            && Arc::ptr_eq(&self.update, &other.update)
-            && Arc::ptr_eq(&self.context, &other.context)
-    }
-}
-
-impl<Client> From<Request<Client>> for HandlerRequest<Client> {
-    fn from(req: Request<Client>) -> Self {
-        Self::new(req.bot, req.update, req.context, req.extensions)
-    }
-}
 
 pub struct Response<Client> {
     pub request: Request<Client>,
@@ -262,10 +198,8 @@ impl<Client> Service<Client> {
     where
         Client: Send + Sync + 'static,
     {
-        let handler_request: HandlerRequest<Client> = request.clone().into();
-
         // Check observer filters
-        if !self.common.check(&handler_request).await {
+        if !self.common.check(&request).await {
             event!(Level::TRACE, "Request are not pass observer filters");
 
             return Ok(Response {
@@ -276,7 +210,7 @@ impl<Client> Service<Client> {
 
         // Check handlers filters
         for handler in &*self.handlers {
-            if !handler.check(&handler_request).await {
+            if !handler.check(&request).await {
                 continue;
             }
 
@@ -288,10 +222,10 @@ impl<Client> Service<Client> {
                         Arc::clone(&handler.service),
                         middlewares.to_vec().into_boxed_slice(), // we use it instead of `into` because some versions of rustc can't infer type
                     ));
-                    middleware.call(handler_request.clone(), next).await
+                    middleware.call(request.clone(), next).await
                 }
                 None => handler
-                    .call(handler_request.clone())
+                    .call(request.clone())
                     .await
                     .map_err(EventErrorKind::Extraction),
             }?;
@@ -370,7 +304,7 @@ mod tests {
         client::Reqwest,
         errors::HandlerError,
         filters::Command,
-        types::{Message, MessageText, UpdateKind},
+        types::{Message, MessageText, Update, UpdateKind},
     };
 
     use anyhow::anyhow;
@@ -390,12 +324,7 @@ mod tests {
         });
 
         let observer_service = observer.to_service_provider_default().unwrap();
-        let request = Request::new(
-            Arc::new(Bot::<Reqwest>::default()),
-            Arc::new(Update::default()),
-            Arc::new(Context::default()),
-            Extensions::default(),
-        );
+        let mut request = Request::<Reqwest>::default();
         let response = observer_service.trigger(request.clone()).await.unwrap();
 
         // Filter not pass, so handler should be rejected
@@ -404,18 +333,14 @@ mod tests {
             _ => panic!("Unexpected result"),
         }
 
-        let request = Request::new(
-            request.bot,
-            Arc::new(Update {
-                kind: UpdateKind::Message(Message::Text(Box::new(MessageText {
-                    text: "/start".to_owned().into(),
-                    ..Default::default()
-                }))),
+        request.update = Arc::new(Update {
+            kind: UpdateKind::Message(Message::Text(Box::new(MessageText {
+                text: "/start".to_owned().into(),
                 ..Default::default()
-            }),
-            request.context,
-            request.extensions,
-        );
+            }))),
+            ..Default::default()
+        });
+
         let response = observer_service.trigger(request).await.unwrap();
 
         // Filter pass, so handler should be handled
@@ -437,12 +362,7 @@ mod tests {
         });
 
         let observer_service = observer.to_service_provider_default().unwrap();
-        let request = Request::new(
-            Arc::new(Bot::default()),
-            Arc::new(Update::default()),
-            Arc::new(Context::default()),
-            Extensions::default(),
-        );
+        let request = Request::<Reqwest>::default();
         let response = observer_service.trigger(request).await.unwrap();
 
         // First handler returns error, second handler shouldn't be called
@@ -463,12 +383,7 @@ mod tests {
 
         let observer_service = observer.to_service_provider_default().unwrap();
 
-        let request = Request::new(
-            Arc::new(Bot::<Reqwest>::default()),
-            Arc::new(Update::default()),
-            Arc::new(Context::default()),
-            Extensions::default(),
-        );
+        let request = Request::<Reqwest>::default();
         let response = observer_service.trigger(request.clone()).await.unwrap();
 
         // First handler returns `EventReturn::Skip`, so second handler should be called

@@ -1,5 +1,4 @@
 use super::{Middleware, MiddlewareResponse};
-
 use crate::{
     context::Context as RequestContext,
     errors::{EventErrorKind, MiddlewareError},
@@ -9,8 +8,8 @@ use crate::{
         strategy::Strategy,
         Context, Storage,
     },
-    router::Request,
     types::{Chat, User},
+    Request,
 };
 
 use async_trait::async_trait;

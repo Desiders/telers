@@ -1,6 +1,5 @@
 use super::{Middleware, MiddlewareResponse};
-
-use crate::{errors::EventErrorKind, event::EventReturn, router::Request};
+use crate::{errors::EventErrorKind, event::EventReturn, Request};
 
 use async_trait::async_trait;
 use tracing::instrument;
@@ -55,33 +54,20 @@ where
 
 #[cfg(test)]
 mod tests {
-    use std::sync::Arc;
-
     use super::*;
     use crate::{
-        client::{Bot, Reqwest},
+        client::Reqwest,
         context::Context,
         enums::UpdateType,
         event::ToServiceProvider as _,
         router::{PropagateEvent as _, Router},
         types::{Chat, Message, MessageText, Update, UpdateKind, User},
-        Extensions,
     };
+
+    use std::sync::Arc;
 
     #[tokio::test]
     async fn test_user_context() {
-        let bot = Bot::<Reqwest>::default();
-        let context = Context::new();
-        let extensions = Extensions::new();
-        let update = Update {
-            kind: UpdateKind::Message(Message::Text(Box::new(MessageText {
-                from: Some(User::default()),
-                thread_id: Some(1),
-                ..Default::default()
-            }))),
-            ..Default::default()
-        };
-
         let mut router = Router::new("main");
         router.update.outer_middlewares.register(UserContext);
         router.message.register(|context: Arc<Context>| async move {
@@ -106,12 +92,16 @@ mod tests {
 
         let router_service = router.to_service_provider_default().unwrap();
 
-        let request = Request::new(
-            Arc::new(bot),
-            Arc::new(update),
-            Arc::new(context),
-            extensions,
-        );
+        let mut request = Request::<Reqwest>::default();
+        request.update = Arc::new(Update {
+            kind: UpdateKind::Message(Message::Text(Box::new(MessageText {
+                from: Some(User::default()),
+                thread_id: Some(1),
+                ..Default::default()
+            }))),
+            ..Default::default()
+        });
+
         router_service
             .propagate_event(UpdateType::Message, request)
             .await
@@ -121,11 +111,6 @@ mod tests {
     #[tokio::test]
     #[should_panic]
     async fn test_user_context_panic() {
-        let bot = Bot::<Reqwest>::default();
-        let context = Context::new();
-        let extensions = Extensions::new();
-        let update = Update::default();
-
         let mut router = Router::new("main");
         router.update.outer_middlewares.register(UserContext);
         router.message.register(|context: Arc<Context>| async move {
@@ -153,12 +138,7 @@ mod tests {
 
         let router_service = router.to_service_provider_default().unwrap();
 
-        let request = Request::new(
-            Arc::new(bot),
-            Arc::new(update),
-            Arc::new(context),
-            extensions,
-        );
+        let request = Request::<Reqwest>::default();
         router_service
             .propagate_event(UpdateType::Message, request)
             .await

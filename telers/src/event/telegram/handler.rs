@@ -1,21 +1,15 @@
 use crate::{
     client::Reqwest,
+    errors::{ExtractionError, HandlerError},
     event::{
         service::{
             factory, fn_service, BoxFuture, BoxService, BoxServiceFactory, Service, ServiceFactory,
         },
         EventReturn,
     },
-    Extensions,
-};
-
-use crate::{
-    client::Bot,
-    context::Context,
-    errors::{ExtractionError, HandlerError},
     extractors::Extractor,
     filters::Filter,
-    types::Update,
+    Request,
 };
 
 use std::{
@@ -30,60 +24,6 @@ pub type BoxedHandlerService<Client> =
     BoxService<Request<Client>, Response<Client>, ExtractionError>;
 pub type BoxedHandlerServiceFactory<Client> =
     BoxServiceFactory<(), Request<Client>, Response<Client>, ExtractionError, ()>;
-
-pub struct Request<Client = Reqwest> {
-    pub bot: Arc<Bot<Client>>,
-    pub update: Arc<Update>,
-    pub context: Arc<Context>,
-    pub extensions: Extensions,
-}
-
-impl<Client> Request<Client> {
-    #[must_use]
-    pub fn new(
-        bot: Arc<Bot<Client>>,
-        update: Arc<Update>,
-        context: Arc<Context>,
-        extensions: Extensions,
-    ) -> Self {
-        Self {
-            bot,
-            update,
-            context,
-            extensions,
-        }
-    }
-}
-
-impl<Client> Debug for Request<Client> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Request")
-            .field("bot", &self.bot)
-            .field("update", &self.update)
-            .field("context", &self.context)
-            .field("extensions", &self.extensions)
-            .finish()
-    }
-}
-
-impl<Client> PartialEq for Request<Client> {
-    fn eq(&self, other: &Self) -> bool {
-        Arc::ptr_eq(&self.bot, &other.bot)
-            && Arc::ptr_eq(&self.update, &other.update)
-            && Arc::ptr_eq(&self.context, &other.context)
-    }
-}
-
-impl<Client> Clone for Request<Client> {
-    fn clone(&self) -> Self {
-        Self {
-            bot: Arc::clone(&self.bot),
-            update: Arc::clone(&self.update),
-            context: Arc::clone(&self.context),
-            extensions: self.extensions.clone(),
-        }
-    }
-}
 
 pub type Result = StdResult<EventReturn, HandlerError>;
 
@@ -326,7 +266,8 @@ mod tests {
         client::Reqwest,
         event::EventReturn,
         filters::Command,
-        types::{Message, UpdateKind},
+        types::{Message, Update, UpdateKind},
+        Bot, Context, Extensions,
     };
 
     use tokio;
@@ -382,15 +323,15 @@ mod tests {
         let handler_object = HandlerObject::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
         let handler_object_service = handler_object.new_service(()).unwrap();
 
-        let request = Request::new(
-            Arc::new(Bot::<Reqwest>::default()),
-            Arc::new(Update {
+        let request = Request {
+            bot: Arc::new(Bot::<Reqwest>::default()),
+            update: Arc::new(Update {
                 id: 0,
                 kind: UpdateKind::Message(Message::default()),
             }),
-            Arc::new(Context::default()),
-            Extensions::default(),
-        );
+            context: Arc::new(Context::default()),
+            extensions: Extensions::default(),
+        };
         let response = handler_object_service.call(request).await.unwrap();
 
         match response.handler_result {
