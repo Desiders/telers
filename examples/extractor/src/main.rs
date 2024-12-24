@@ -1,9 +1,9 @@
-//! This example shows how to use [`Extractor`] to extract data from event and context and use it in handlers.
+//! This example shows how to use [`Extractor`] to extract data and use it in handlers.
 //! Check out the documentation of the [`extractors`] module for more information, as this example is a small part of its documentation.
 //!
 //! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package from_event_and_context
+//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package extractor
 //! ```
 //!
 //! [`Extractor`]: telers::extractors::Extractor
@@ -22,7 +22,7 @@ use telers::{
     middlewares::{outer::MiddlewareResponse, OuterMiddleware},
     router::Request as RouterRequest,
     types::{Message, Update},
-    Bot, Dispatcher, FromContext, Router,
+    Bot, Dispatcher, Extension, FromContext, Router,
 };
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
@@ -89,7 +89,7 @@ async fn update_id_handler(
 
 /// # Warning
 /// Be aware that you should use [`Clone`] trait for data that you want to add to context.
-#[derive(Debug, Clone, FromContext)]
+#[derive(Debug, Clone, PartialEq, Eq, FromContext)]
 #[context(key = "data")]
 struct Data(i64);
 
@@ -116,15 +116,41 @@ where
     }
 }
 
+/// Middleware that adds data to extensions.
+/// # Arguments
+/// * `data` - Data that we want to add to extensions
+struct ToExtensionsMiddleware<T> {
+    data: T,
+}
+
+#[async_trait]
+impl<T> OuterMiddleware for ToExtensionsMiddleware<T>
+where
+    T: Send + Sync + Clone + 'static,
+{
+    async fn call(&self, mut request: RouterRequest) -> Result<MiddlewareResponse, EventErrorKind> {
+        request.extensions.insert(self.data.clone());
+
+        Ok((request, EventReturn::default()))
+    }
+}
+
 /// Handler that sends data from context to chat.
 /// # Arguments
 /// * `bot` - Bot instance
 /// * `message` - Message instance
 /// * `data` - Data that we get from context by middleware
-async fn send_data_handler(bot: Bot, message: Message, Data(data): Data) -> HandlerResult {
+async fn send_data_handler(
+    bot: Bot,
+    message: Message,
+    data1: Data,
+    Extension(data2): Extension<Data>,
+) -> HandlerResult {
+    assert_eq!(data1, data2);
+
     bot.send(SendMessage::new(
         message.chat().id(),
-        format!("Data: {data:?}"),
+        format!("Data1: {data1:?}. Data2: {data2:?}"),
     ))
     .await?;
 
@@ -142,6 +168,8 @@ async fn main() {
 
     let mut router = Router::new("main");
 
+    let data = Data(1);
+
     // Register middleware that adds data to context.
     // Be aware, we register middleware for message observer, so it will be called only for messages.
     // If you want to register middleware for any update, you should register it for update observer.
@@ -150,8 +178,13 @@ async fn main() {
         .outer_middlewares
         .register(ToContextMiddleware {
             key: "data",
-            data: Data(1),
+            data: data.clone(),
         });
+    // Register middleware that adds data to extensions, analogously
+    router
+        .message
+        .outer_middlewares
+        .register(ToExtensionsMiddleware { data: data.clone() });
     // Register handler that sends data from context to chat
     router
         .message
