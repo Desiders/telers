@@ -6,6 +6,7 @@ use crate::{
         },
         EventReturn,
     },
+    Extensions,
 };
 
 use crate::{
@@ -34,15 +35,22 @@ pub struct Request<Client = Reqwest> {
     pub bot: Arc<Bot<Client>>,
     pub update: Arc<Update>,
     pub context: Arc<Context>,
+    pub extensions: Arc<Extensions>,
 }
 
 impl<Client> Request<Client> {
     #[must_use]
-    pub fn new(bot: Arc<Bot<Client>>, update: Arc<Update>, context: Arc<Context>) -> Self {
+    pub fn new(
+        bot: Arc<Bot<Client>>,
+        update: Arc<Update>,
+        context: Arc<Context>,
+        extensions: Arc<Extensions>,
+    ) -> Self {
         Self {
             bot,
             update,
             context,
+            extensions,
         }
     }
 }
@@ -53,6 +61,7 @@ impl<Client> Debug for Request<Client> {
             .field("bot", &self.bot)
             .field("update", &self.update)
             .field("context", &self.context)
+            .field("extensions", &self.extensions)
             .finish()
     }
 }
@@ -62,6 +71,7 @@ impl<Client> PartialEq for Request<Client> {
         Arc::ptr_eq(&self.bot, &other.bot)
             && Arc::ptr_eq(&self.update, &other.update)
             && Arc::ptr_eq(&self.context, &other.context)
+            && Arc::ptr_eq(&self.extensions, &other.extensions)
     }
 }
 
@@ -71,6 +81,7 @@ impl<Client> Clone for Request<Client> {
             bot: Arc::clone(&self.bot),
             update: Arc::clone(&self.update),
             context: Arc::clone(&self.context),
+            extensions: Arc::clone(&self.extensions),
         }
     }
 }
@@ -212,11 +223,12 @@ where
         let bot = Arc::clone(&request.bot);
         let update = Arc::clone(&request.update);
         let context = Arc::clone(&request.context);
+        let extensions = Arc::clone(&request.extensions);
 
         let handler = handler.clone();
 
         async move {
-            match Args::extract(bot, update, context) {
+            match Args::extract(bot, update, context, extensions) {
                 Ok(extracted_args) => Ok(Response {
                     request,
                     handler_result: handler.call(extracted_args).await.into(),
@@ -230,6 +242,7 @@ where
                         bot = ?request.bot,
                         update = ?request.update,
                         context = ?request.context,
+                        extensions = ?request.extensions,
                         "Failed to extract arguments",
                     );
 
@@ -377,6 +390,7 @@ mod tests {
                 kind: UpdateKind::Message(Message::default()),
             }),
             Arc::new(Context::default()),
+            Arc::new(Extensions::default()),
         );
         let response = handler_object_service.call(request).await.unwrap();
 

@@ -21,6 +21,7 @@ use crate::{
         outer::{Manager as OuterMiddlewareManager, Middleware as OuterMiddleware},
     },
     types::Update,
+    Extensions,
 };
 
 use std::{
@@ -33,15 +34,22 @@ pub struct Request<Client> {
     pub bot: Arc<Bot<Client>>,
     pub update: Arc<Update>,
     pub context: Arc<Context>,
+    pub extensions: Arc<Extensions>,
 }
 
 impl<Client> Request<Client> {
     #[must_use]
-    pub fn new(bot: Arc<Bot<Client>>, update: Arc<Update>, context: Arc<Context>) -> Self {
+    pub fn new(
+        bot: Arc<Bot<Client>>,
+        update: Arc<Update>,
+        context: Arc<Context>,
+        extensions: Arc<Extensions>,
+    ) -> Self {
         Self {
             bot,
             update,
             context,
+            extensions,
         }
     }
 }
@@ -52,6 +60,7 @@ impl<Client> Clone for Request<Client> {
             bot: Arc::clone(&self.bot),
             update: Arc::clone(&self.update),
             context: Arc::clone(&self.context),
+            extensions: Arc::clone(&self.extensions),
         }
     }
 }
@@ -62,6 +71,7 @@ impl<Client> Debug for Request<Client> {
             .field("bot", &self.bot)
             .field("update", &self.update)
             .field("context", &self.context)
+            .field("extensions", &self.extensions)
             .finish()
     }
 }
@@ -71,12 +81,13 @@ impl<Client> PartialEq for Request<Client> {
         Arc::ptr_eq(&self.bot, &other.bot)
             && Arc::ptr_eq(&self.update, &other.update)
             && Arc::ptr_eq(&self.context, &other.context)
+            && Arc::ptr_eq(&self.extensions, &other.extensions)
     }
 }
 
 impl<Client> From<Request<Client>> for HandlerRequest<Client> {
     fn from(req: Request<Client>) -> Self {
-        Self::new(req.bot, req.update, req.context)
+        Self::new(req.bot, req.update, req.context, req.extensions)
     }
 }
 
@@ -384,6 +395,7 @@ mod tests {
             Arc::new(Bot::<Reqwest>::default()),
             Arc::new(Update::default()),
             Arc::new(Context::default()),
+            Arc::new(Extensions::default()),
         );
         let response = observer_service.trigger(request.clone()).await.unwrap();
 
@@ -403,6 +415,7 @@ mod tests {
                 ..Default::default()
             }),
             request.context,
+            request.extensions,
         );
         let response = observer_service.trigger(request).await.unwrap();
 
@@ -429,6 +442,7 @@ mod tests {
             Arc::new(Bot::default()),
             Arc::new(Update::default()),
             Arc::new(Context::default()),
+            Arc::new(Extensions::default()),
         );
         let response = observer_service.trigger(request).await.unwrap();
 
@@ -454,6 +468,7 @@ mod tests {
             Arc::new(Bot::<Reqwest>::default()),
             Arc::new(Update::default()),
             Arc::new(Context::default()),
+            Arc::new(Extensions::default()),
         );
         let response = observer_service.trigger(request.clone()).await.unwrap();
 

@@ -4,11 +4,11 @@
 //! There are two types of event observers:
 //!
 //! * Simple observer:
-//! [`Simple observer`] is used to handle simple events like startup and shutdown.
-//! When you register a handler in this observer,
-//! you specify the arguments that pass to handler when the event is trigger.
-//! Return type of handler is [`Result<(), HandlerError>`].
-//! When observer is trigger, it calls all handlers in order of registration and stops if one of them returns an error.
+//!     [`Simple observer`] is used to handle simple events like startup and shutdown.
+//!     When you register a handler in this observer,
+//!     you specify the arguments that pass to handler when the event is trigger.
+//!     Return type of handler is [`Result<(), HandlerError>`].
+//!     When observer is trigger, it calls all handlers in order of registration and stops if one of them returns an error.
 //!
 //! Registration of handlers looks like this:
 //! ```ignore
@@ -26,16 +26,16 @@
 //! ```
 //!
 //! * Telegram observer:
-//! [`Telegram observer`] is used to handle telegram events like messages, callback queries, polls and all other event types.
-//! You can register a handler with any arguments that implement [`FromEventAndContext`] trait, see [`extractors module`] for more details.
-//! Return type of handler is [`Result<EventReturn, HandlerError>`],
-//! where [`EventReturn`] is a special enum that can be used to control the propagation of the event,
-//! see [`EventReturn`] for more details.
-//! When observer is trigger, it calls outer middlewares and checks all handlers in order of registration.
-//! It calls all filters for each handler and skips handler if one of them returns `false`.
-//! If handler is pass the filters, observer calls inner middlewares and handler itself (in the middleware).
-//! By default, the first handler that pass the filters stop the propagation of the event, so other handlers aren't calls.
-//! (You can change this behaviour by specify another variant of [`EventReturn`]).
+//!     [`Telegram observer`] is used to handle telegram events like messages, callback queries, polls and all other event types.
+//!     You can register a handler with any arguments that implement [`FromEventAndContext`] trait, see [`extractors module`] for more details.
+//!     Return type of handler is [`Result<EventReturn, HandlerError>`],
+//!     where [`EventReturn`] is a special enum that can be used to control the propagation of the event,
+//!     see [`EventReturn`] for more details.
+//!     When observer is trigger, it calls outer middlewares and checks all handlers in order of registration.
+//!     It calls all filters for each handler and skips handler if one of them returns `false`.
+//!     If handler is pass the filters, observer calls inner middlewares and handler itself (in the middleware).
+//!     By default, the first handler that pass the filters stop the propagation of the event, so other handlers aren't calls,
+//!     but you can change this behaviour by specify another variant of [`EventReturn`]).
 //!
 //! Registration of handlers looks like this:
 //! ```ignore
@@ -69,22 +69,22 @@
 //!
 //! How does routing work? At the moment, there is such a sequence of actions:
 //! > We have a sequence of routers that we call in the order they are registered.
-//! For each router, we first call the router's outer middleware,
-//! after which we check the handlers of the current router depending on the type of event (`Message`, `CallbackQuery`, etc.), and its filters.
-//! We call all filters of each handler until all filters of any handler return `true`.
-//! When a handler is selected, we call a sequence of the router's inner middlewares, with the handler at the end of the chain.
-//! At the moment when the handler is completed, we finish processing the event.
-//! If there are no handlers to execute (both due to their absence and due to a filter failure), we repeat the sequence of actions with the next router in the chain.
+//! > For each router, we first call the router's outer middleware,
+//! > after which we check the handlers of the current router depending on the type of event (`Message`, `CallbackQuery`, etc.), and its filters.
+//! > We call all filters of each handler until all filters of any handler return `true`.
+//! > When a handler is selected, we call a sequence of the router's inner middlewares, with the handler at the end of the chain.
+//! > At the moment when the handler is completed, we finish processing the event.
+//! > If there are no handlers to execute (both due to their absence and due to a filter failure), we repeat the sequence of actions with the next router in the chain.
 //! > In addition, we can influence the processing of events during code execution by [`EventReturn`].
-//! In outer middlewares, we can stop event propagation by returns [`EventReturn::Cancel`],
-//! save current [`Request`] changes made in the middleware by [`EventReturn::Finish`] or skip them by [`EventReturn::Skip`].
-//! In inner middlewares and handlers, we can stop event propagation for the current router and go to next router by returns [`EventReturn::Cancel`],
-//! finish event propagation by [`EventReturn::Finish`] or skip current handler and go to next handler (and its filters) by [`EventReturn::Skip`].
+//! > In outer middlewares, we can stop event propagation by returns [`EventReturn::Cancel`],
+//! > save current [`Request`] changes made in the middleware by [`EventReturn::Finish`] or skip them by [`EventReturn::Skip`].
+//! > In inner middlewares and handlers, we can stop event propagation for the current router and go to next router by returns [`EventReturn::Cancel`],
+//! > finish event propagation by [`EventReturn::Finish`] or skip current handler and go to next handler (and its filters) by [`EventReturn::Skip`].
 //! * The above also applies to the special update observer with some differences:
 //! 1. Middlewares and handlers are called before other middlewares and handlers for the current event observer,
-//! so processing units in update observer have priority in processing.
+//!     so processing units in update observer have priority in processing.
 //! 2. [`EventReturn::Cancel`] for update observer's innter middlrewares and handler don't stop event propagation for the current router,
-//! it doesn't affect the processing of the event in any way.
+//!     it doesn't affect the processing of the event in any way.
 //!
 //! [`Simple observer`]: SimpleObserver
 //! [`Telegram observer`]: TelegramObserver
@@ -114,7 +114,7 @@ use crate::{
         InnerMiddleware, OuterMiddleware,
     },
     types::Update,
-    Bot, Context,
+    Bot, Context, Extensions,
 };
 
 use async_trait::async_trait;
@@ -130,15 +130,22 @@ pub struct Request<Client = Reqwest> {
     pub bot: Arc<Bot<Client>>,
     pub update: Arc<Update>,
     pub context: Arc<Context>,
+    pub extensions: Arc<Extensions>,
 }
 
 impl<Client> Request<Client> {
     #[must_use]
-    pub fn new(bot: Arc<Bot<Client>>, update: Arc<Update>, context: Arc<Context>) -> Self {
+    pub fn new(
+        bot: Arc<Bot<Client>>,
+        update: Arc<Update>,
+        context: Arc<Context>,
+        extensions: Arc<Extensions>,
+    ) -> Self {
         Self {
             bot,
             update,
             context,
+            extensions,
         }
     }
 }
@@ -149,6 +156,7 @@ impl<Client> Clone for Request<Client> {
             bot: Arc::clone(&self.bot),
             update: Arc::clone(&self.update),
             context: Arc::clone(&self.context),
+            extensions: Arc::clone(&self.extensions),
         }
     }
 }
@@ -159,6 +167,7 @@ impl<Client> Debug for Request<Client> {
             .field("bot", &self.bot)
             .field("update", &self.update)
             .field("context", &self.context)
+            .field("extensions", &self.extensions)
             .finish()
     }
 }
@@ -168,12 +177,13 @@ impl<Client> PartialEq for Request<Client> {
         Arc::ptr_eq(&self.bot, &other.bot)
             && Arc::ptr_eq(&self.update, &other.update)
             && Arc::ptr_eq(&self.context, &other.context)
+            && Arc::ptr_eq(&self.extensions, &other.extensions)
     }
 }
 
 impl<Client> From<Request<Client>> for TelegramObserverRequest<Client> {
     fn from(req: Request<Client>) -> Self {
-        Self::new(req.bot, req.update, req.context)
+        Self::new(req.bot, req.update, req.context, req.extensions)
     }
 }
 
@@ -1941,9 +1951,15 @@ mod tests {
     async fn test_propagate_event() {
         let bot = Bot::<Reqwest>::default();
         let context = Context::new();
+        let extensions = Extensions::new();
         let update = Update::default();
 
-        let request = Request::new(Arc::new(bot), Arc::new(update), Arc::new(context));
+        let request = Request::new(
+            Arc::new(bot),
+            Arc::new(update),
+            Arc::new(context),
+            Arc::new(extensions),
+        );
 
         let mut router = Router::new("test_handler");
         router
@@ -2060,9 +2076,15 @@ mod tests {
     async fn test_propagate_event_with_filter() {
         let bot = Bot::<Reqwest>::default();
         let context = Context::new();
+        let extensions = Extensions::new();
         let update = Update::default();
 
-        let request = Request::new(Arc::new(bot), Arc::new(update), Arc::new(context));
+        let request = Request::new(
+            Arc::new(bot),
+            Arc::new(update),
+            Arc::new(context),
+            Arc::new(extensions),
+        );
 
         let mut router = Router::new("test_handler_with_filter");
         router

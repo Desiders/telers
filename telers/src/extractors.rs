@@ -248,6 +248,7 @@ use crate::{
     client::{Bot, Reqwest},
     context::Context,
     errors::ExtractionError,
+    extensions::{Extension, Extensions},
     types::Update,
 };
 
@@ -269,6 +270,7 @@ pub trait FromEventAndContext<Client = Reqwest>: Sized {
         bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         context: Arc<Context>,
+        extensions: Arc<Extensions>,
     ) -> Result<Self, Self::Error>;
 }
 
@@ -282,8 +284,9 @@ impl<Client, T: FromEventAndContext<Client>> FromEventAndContext<Client> for Opt
         bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         context: Arc<Context>,
+        extensions: Arc<Extensions>,
     ) -> Result<Self, Self::Error> {
-        match T::extract(bot, update, context) {
+        match T::extract(bot, update, context, extensions) {
             Ok(value) => Ok(Some(value)),
             Err(_) => Ok(None),
         }
@@ -305,8 +308,9 @@ where
         bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         context: Arc<Context>,
+        extensions: Arc<Extensions>,
     ) -> Result<Self, Self::Error> {
-        Ok(T::extract(bot, update, context).map_err(Into::into))
+        Ok(T::extract(bot, update, context, extensions).map_err(Into::into))
     }
 }
 
@@ -320,6 +324,7 @@ impl<Client> FromEventAndContext<Client> for () {
         _bot: Arc<Bot<Client>>,
         _update: Arc<Update>,
         _context: Arc<Context>,
+        _extensions: Arc<Extensions>,
     ) -> Result<Self, Self::Error> {
         Ok(())
     }
@@ -333,6 +338,7 @@ impl<Client: Clone> FromEventAndContext<Client> for Bot<Client> {
         bot: Arc<Bot<Client>>,
         _update: Arc<Update>,
         _context: Arc<Context>,
+        _extensions: Arc<Extensions>,
     ) -> Result<Self, Self::Error> {
         Ok((*bot).clone())
     }
@@ -346,6 +352,7 @@ impl<Client> FromEventAndContext<Client> for Arc<Bot<Client>> {
         bot: Arc<Bot<Client>>,
         _update: Arc<Update>,
         _context: Arc<Context>,
+        _extensions: Arc<Extensions>,
     ) -> Result<Self, Self::Error> {
         Ok(bot)
     }
@@ -359,6 +366,7 @@ impl<Client> FromEventAndContext<Client> for Update {
         _bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         _context: Arc<Context>,
+        _extensions: Arc<Extensions>,
     ) -> Result<Self, Self::Error> {
         Ok((*update).clone())
     }
@@ -372,6 +380,7 @@ impl<Client> FromEventAndContext<Client> for Arc<Update> {
         _bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         _context: Arc<Context>,
+        _extensions: Arc<Extensions>,
     ) -> Result<Self, Self::Error> {
         Ok(update)
     }
@@ -385,8 +394,29 @@ impl<Client> FromEventAndContext<Client> for Arc<Context> {
         _bot: Arc<Bot<Client>>,
         _update: Arc<Update>,
         context: Arc<Context>,
+        _extensions: Arc<Extensions>,
     ) -> Result<Self, Self::Error> {
         Ok(context)
+    }
+}
+
+impl<Client, Value> FromEventAndContext<Client> for Extension<Value>
+where
+    Value: Clone + Send + Sync + 'static,
+{
+    type Error = ExtractionError;
+
+    #[inline]
+    fn extract(
+        _bot: Arc<Bot<Client>>,
+        _update: Arc<Update>,
+        _context: Arc<Context>,
+        extensions: Arc<Extensions>,
+    ) -> Result<Self, Self::Error> {
+        match extensions.get::<Value>() {
+            Some(value) => Ok(Self(value.clone())),
+            None => Err(ExtractionError::new("")),
+        }
     }
 }
 
@@ -395,15 +425,15 @@ mod factory_from_event_and_context {
     //! This module is used to implement [`FromEventAndContext`] for tuple arguments, each of which implements it
     //! If one of the arguments fails to extract, the whole extraction fails, and the error is returned
 
-    use super::{Arc, Bot, Context, ExtractionError, FromEventAndContext, Update};
+    use super::{Arc, Bot, Context, Extensions, ExtractionError, FromEventAndContext, Update};
 
     macro_rules! factory ({ $($param:ident)* } => {
         impl<Client, $($param: FromEventAndContext<Client>,)*> FromEventAndContext<Client> for ($($param,)*) {
             type Error = ExtractionError;
 
             #[inline]
-            fn extract(bot: Arc<Bot<Client>>, update: Arc<Update>, context: Arc<Context>) -> Result<Self, Self::Error> {
-                Ok(($($param::extract(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context)).map_err(Into::into)?,)*))
+            fn extract(bot: Arc<Bot<Client>>, update: Arc<Update>, context: Arc<Context>, extensions: Arc<Extensions>) -> Result<Self, Self::Error> {
+                Ok(($($param::extract(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context), Arc::clone(&extensions)).map_err(Into::into)?,)*))
             }
         }
     });
@@ -511,13 +541,29 @@ mod tests {
         let bot = Arc::new(Bot::<Reqwest>::default());
         let update = Arc::new(Update::default());
         let context = Arc::new(Context::default());
+        let extensions = Arc::new(Extensions::default());
 
-        let (): () =
-            FromEventAndContext::extract(bot.clone(), update.clone(), context.clone()).unwrap();
-        let _: Option<()> =
-            FromEventAndContext::extract(bot.clone(), update.clone(), context.clone()).unwrap();
-        let _: Result<(), Infallible> =
-            FromEventAndContext::extract(bot.clone(), update.clone(), context.clone()).unwrap();
+        let (): () = FromEventAndContext::extract(
+            bot.clone(),
+            update.clone(),
+            context.clone(),
+            extensions.clone(),
+        )
+        .unwrap();
+        let _: Option<()> = FromEventAndContext::extract(
+            bot.clone(),
+            update.clone(),
+            context.clone(),
+            extensions.clone(),
+        )
+        .unwrap();
+        let _: Result<(), Infallible> = FromEventAndContext::extract(
+            bot.clone(),
+            update.clone(),
+            context.clone(),
+            extensions.clone(),
+        )
+        .unwrap();
     }
 
     #[allow(unreachable_code)]

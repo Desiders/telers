@@ -79,8 +79,8 @@ enum ConvertKind {
 /// * `from` - type from which we need to convert event value (optional; required if `try_from` field is empty)
 /// * `try_from` - type from which we need to convert event value (optional; required if `from` field is empty)
 /// * `error` - type of error (optional) for `try_from`. \
-/// If it's empty, then we use `ConvertToTypeError` type as error type. \
-/// If it's not empty, then we use this type as error type.
+///     If it's empty, then we use `ConvertToTypeError` type as error type. \
+///     If it's not empty, then we use this type as error type.
 /// * `description` - description of type (optional)
 /// # Examples
 /// ```not_rust
@@ -401,9 +401,10 @@ fn impl_from_event_and_context(
 
                     #[inline]
                     fn extract(
-                        bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
+                        _bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
                         update: ::std::sync::Arc<::telers::types::Update>,
-                        context: ::std::sync::Arc<::telers::context::Context>,
+                        _context: ::std::sync::Arc<::telers::context::Context>,
+                        _extensions: ::std::sync::Arc<::telers::extensions::Extensions>,
                     ) -> Result<Self, Self::Error> {
                         Ok((*update).clone().into())
                     }
@@ -428,9 +429,10 @@ fn impl_from_event_and_context(
 
                     #[inline]
                     fn extract(
-                        bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
+                        _bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
                         update: ::std::sync::Arc<::telers::types::Update>,
-                        context: ::std::sync::Arc<::telers::context::Context>,
+                        _context: ::std::sync::Arc<::telers::context::Context>,
+                        _extensions: ::std::sync::Arc<::telers::extensions::Extensions>,
                     ) -> Result<Self, Self::Error> {
                         ::std::convert::TryFrom::try_from((*update).clone())
                     }

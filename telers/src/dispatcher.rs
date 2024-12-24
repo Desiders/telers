@@ -3,26 +3,26 @@
 //!
 //! Components of the dispatcher:
 //! * [`Bot`]:
-//! Bot is used for sending requests to the Telegram API and receiving updates from the Telegram API.
-//! Usually you need only one bot and one dispatcher, but you can pass multiple bots to the dispatcher and it will work with all of them
-//! with own polling processes.
+//!     Bot is used for sending requests to the Telegram API and receiving updates from the Telegram API.
+//!     Usually you need only one bot and one dispatcher, but you can pass multiple bots to the dispatcher and it will work with all of them
+//!     with own polling processes.
 //! * `Propagator`:
-//! Propagator is abstract component, which is used for propagating events, usually it's [`Router`].
-//! Router combines services and observers and propagates events to them and allows creating complex event handling logic.
-//! See [`router module`] for more information (**recommended**).
+//!     Propagator is abstract component, which is used for propagating events, usually it's [`Router`].
+//!     Router combines services and observers and propagates events to them and allows creating complex event handling logic.
+//!     See [`router module`] for more information (**recommended**).
 //! * `Polling timeout`:
-//! Timeout in seconds for long polling.
-//! By default, it's 30 seconds, but you can change it with [`Builder::polling_timeout`] method.
-//! Polling sends [`GetUpdates`] request to the Telegram API and will wait for `polling_timeout` seconds.
-//! If there are no updates, it will send the same request again, so often as you set it in [`Builder::backoff`] method.
+//!     Timeout in seconds for long polling.
+//!     By default, it's 30 seconds, but you can change it with [`Builder::polling_timeout`] method.
+//!     Polling sends [`GetUpdates`] request to the Telegram API and will wait for `polling_timeout` seconds.
+//!     If there are no updates, it will send the same request again, so often as you set it in [`Builder::backoff`] method.
 //! * [`ExponentialBackoff`]:
-//! Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
-//! and set timeout between requests to telegram server.
+//!     Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
+//!     and set timeout between requests to telegram server.
 //! * `Allowed updates`:
-//! List the types of updates you want your bot to receive.
-//! For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types.
-//! See [`UpdateType`] for a complete list of available update types.
-//! By default, all update types except [`ChatMember`] are enabled.
+//!     List the types of updates you want your bot to receive.
+//!     For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types.
+//!     See [`UpdateType`] for a complete list of available update types.
+//!     By default, all update types except [`ChatMember`] are enabled.
 //!
 //! Dispatcher supports startup and shutdown events.
 //! You can register handlers for these observers (startup and shutdown) in the main router and handle them (see [`router module`]).
@@ -65,6 +65,7 @@ use crate::{
     },
     methods::GetUpdates,
     types::Update,
+    Extensions,
 };
 
 use backoff::{backoff::Backoff, exponential::ExponentialBackoff, SystemClock};
@@ -103,20 +104,20 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
     /// Creates new dispatcher
     /// # Arguments
     /// * `main_router` -
-    /// Main router, whose service will propagate updates to the other routers and its observers
+    ///     Main router, whose service will propagate updates to the other routers and its observers
     /// * `bots` -
-    /// Bots that will be used for getting updates and sending requests.
-    /// All bots use the same dispatcher, but each bot has the own polling process.
-    /// Polling process gets updates and propagates them to the main propagator.
+    ///     Bots that will be used for getting updates and sending requests.
+    ///     All bots use the same dispatcher, but each bot has the own polling process.
+    ///     Polling process gets updates and propagates them to the main propagator.
     /// * `polling_timeout` -
-    /// Timeout in seconds for long polling
+    ///     Timeout in seconds for long polling
     /// * `backoff` -
-    /// Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
-    /// and set timeout between requests to telegram server
+    ///     Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
+    ///     and set timeout between requests to telegram server
     /// * `allowed_updates` -
-    /// List the types of updates you want your bot to receive.
-    /// For example, specify [`UpdateType::Message`], [`UpdateType::EditedChannelPost`], [`UpdateType::CallbackQuery`]
-    /// to only receive updates of these types.
+    ///     List the types of updates you want your bot to receive.
+    ///     For example, specify [`UpdateType::Message`], [`UpdateType::EditedChannelPost`], [`UpdateType::CallbackQuery`]
+    ///     to only receive updates of these types.
     #[must_use]
     pub fn new<Cfg, PropagatorService, InitError>(
         main_router: Propagator,
@@ -376,8 +377,13 @@ impl<Client, PropagatorService, BackoffType> Service<Client, PropagatorService, 
         Client: Send + Sync + 'static,
         PropagatorService: PropagateEvent<Client>,
     {
-        self.feed_update_with_context(bot, update, Arc::new(Context::default()))
-            .await
+        self.feed_update_with_context(
+            bot,
+            update,
+            Arc::new(Context::default()),
+            Arc::new(Extensions::default()),
+        )
+        .await
     }
 
     /// Main entry point for incoming updates with user context.
@@ -391,6 +397,7 @@ impl<Client, PropagatorService, BackoffType> Service<Client, PropagatorService, 
         bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         context: Arc<Context>,
+        extensions: Arc<Extensions>,
     ) -> Result<Response<Client>, EventErrorKind>
     where
         Client: Send + Sync + 'static,
@@ -404,7 +411,7 @@ impl<Client, PropagatorService, BackoffType> Service<Client, PropagatorService, 
             .record("update_type", field::debug(&update_type));
 
         self.main_router
-            .propagate_event(update_type, Request::new(bot, update, context))
+            .propagate_event(update_type, Request::new(bot, update, context, extensions))
             .await
     }
 

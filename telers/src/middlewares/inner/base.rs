@@ -126,6 +126,7 @@ mod tests {
         context::Context,
         event::{service::ServiceFactory as _, telegram::handler_service, EventReturn},
         types::{Message, Update, UpdateKind},
+        Extensions,
     };
 
     async fn test_middleware<Client>(
@@ -148,6 +149,7 @@ mod tests {
                 kind: UpdateKind::Message(Message::default()),
             }),
             Arc::new(Context::default()),
+            Arc::new(Extensions::default()),
         );
         let response = Middleware::call(
             &test_middleware,

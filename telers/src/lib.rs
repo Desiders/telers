@@ -23,7 +23,7 @@ pub use telers_macros::{FromContext, FromEvent};
 pub use client::Bot;
 pub use context::Context;
 pub use dispatcher::{Builder as DispatcherBuilder, Dispatcher};
-pub use extensions::Extensions;
+pub use extensions::{Extension, Extensions};
 pub use filters::Filter;
 pub use fsm::Context as FSMContext;
 pub use router::Router;
