@@ -400,7 +400,7 @@ fn impl_from_event_and_context(
                     type Error = ::std::convert::Infallible;
 
                     #[inline]
-                    fn extract(request: ::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
+                    fn extract(request: &::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
                         Ok((*request.update).clone().into())
                     }
                 }
@@ -423,7 +423,7 @@ fn impl_from_event_and_context(
                     type Error = #error_ty;
 
                     #[inline]
-                    fn extract(request: ::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
+                    fn extract(request: &::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
                         ::std::convert::TryFrom::try_from((*request.update).clone())
                     }
                 }

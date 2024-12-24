@@ -159,11 +159,10 @@ where
     Args::Error: Send,
 {
     factory(fn_service(move |request: Request<Client>| {
-        let request = request.clone();
         let handler = handler.clone();
 
         async move {
-            match Args::extract(request.clone()) {
+            match Args::extract(&request) {
                 Ok(extracted_args) => Ok(Response {
                     request,
                     handler_result: handler.call(extracted_args).await.into(),

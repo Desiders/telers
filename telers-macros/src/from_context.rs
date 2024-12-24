@@ -268,7 +268,7 @@ fn impl_from_event_and_context(
                 type Error = ::telers::errors::ExtractionError;
 
                 #[inline]
-                fn extract(request: ::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
+                fn extract(request: &::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
                     use ::telers::errors::ExtractionError as Error;
 
                     let Some(value) = request.context.get(#key_str) else {
@@ -305,7 +305,7 @@ fn impl_from_event_and_context(
                 type Error = ::telers::errors::ExtractionError;
 
                 #[inline]
-                fn extract(request: ::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
+                fn extract(request: &::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
                     use ::telers::errors::ExtractionError as Error;
 
                     let Some(value) = request.context.get(#key_str) else {
@@ -339,7 +339,7 @@ fn impl_from_event_and_context(
             type Error = ::telers::errors::ExtractionError;
 
             #[inline]
-            fn extract(request: ::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
+            fn extract(request: &::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
                 use ::telers::errors::ExtractionError as Error;
 
                 let Some(value) = request.context.get(#key_str) else {

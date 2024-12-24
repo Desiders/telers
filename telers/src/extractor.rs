@@ -265,7 +265,7 @@ pub trait Extractor<Client = Reqwest>: Sized {
     /// * No found data in context by key
     /// * Data in context by key has wrong type. For example, you try to extract `i32` from `String`.
     /// * Custom user error
-    fn extract(request: Request<Client>) -> Result<Self, Self::Error>;
+    fn extract(request: &Request<Client>) -> Result<Self, Self::Error>;
 }
 
 /// To be able to use [`Option`] as handler argument
@@ -274,7 +274,7 @@ impl<Client, T: Extractor<Client>> Extractor<Client> for Option<T> {
     type Error = Infallible;
 
     #[inline]
-    fn extract(request: Request<Client>) -> Result<Self, Self::Error> {
+    fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
         match T::extract(request) {
             Ok(value) => Ok(Some(value)),
             Err(_) => Ok(None),
@@ -293,7 +293,7 @@ where
     type Error = Infallible;
 
     #[inline]
-    fn extract(request: Request<Client>) -> Result<Self, Self::Error> {
+    fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
         Ok(T::extract(request).map_err(Into::into))
     }
 }
@@ -304,7 +304,7 @@ impl<Client> Extractor<Client> for () {
     type Error = Infallible;
 
     #[inline]
-    fn extract(_request: Request<Client>) -> Result<Self, Self::Error> {
+    fn extract(_request: &Request<Client>) -> Result<Self, Self::Error> {
         Ok(())
     }
 }
@@ -313,7 +313,7 @@ impl<Client: Clone> Extractor<Client> for Bot<Client> {
     type Error = Infallible;
 
     #[inline]
-    fn extract(request: Request<Client>) -> Result<Self, Self::Error> {
+    fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
         Ok((*request.bot).clone())
     }
 }
@@ -322,8 +322,8 @@ impl<Client> Extractor<Client> for Arc<Bot<Client>> {
     type Error = Infallible;
 
     #[inline]
-    fn extract(request: Request<Client>) -> Result<Self, Self::Error> {
-        Ok(request.bot)
+    fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
+        Ok(request.bot.clone())
     }
 }
 
@@ -331,7 +331,7 @@ impl<Client> Extractor<Client> for Update {
     type Error = Infallible;
 
     #[inline]
-    fn extract(request: Request<Client>) -> Result<Self, Self::Error> {
+    fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
         Ok((*request.update).clone())
     }
 }
@@ -340,8 +340,8 @@ impl<Client> Extractor<Client> for Arc<Update> {
     type Error = Infallible;
 
     #[inline]
-    fn extract(request: Request<Client>) -> Result<Self, Self::Error> {
-        Ok(request.update)
+    fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
+        Ok(request.update.clone())
     }
 }
 
@@ -349,8 +349,8 @@ impl<Client> Extractor<Client> for Arc<Context> {
     type Error = Infallible;
 
     #[inline]
-    fn extract(request: Request<Client>) -> Result<Self, Self::Error> {
-        Ok(request.context)
+    fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
+        Ok(request.context.clone())
     }
 }
 
@@ -361,7 +361,7 @@ where
     type Error = ExtractionError;
 
     #[inline]
-    fn extract(request: Request<Client>) -> Result<Self, Self::Error> {
+    fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
         match request.extensions.get::<Value>() {
             Some(value) => Ok(Self(value.clone())),
             None => Err(ExtractionError::new("")),
@@ -381,8 +381,8 @@ mod factory_extractor {
             type Error = ExtractionError;
 
             #[inline]
-            fn extract(request: Request<Client>) -> Result<Self, Self::Error> {
-                Ok(($($param::extract(request.clone()).map_err(Into::into)?,)*))
+            fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
+                Ok(($($param::extract(request).map_err(Into::into)?,)*))
             }
         }
     });
@@ -489,9 +489,9 @@ mod tests {
     fn test_unit_extract() {
         let request = Request::<Reqwest>::default();
 
-        let (): () = Extractor::extract(request.clone()).unwrap();
-        let _: Option<()> = Extractor::extract(request.clone()).unwrap();
-        let _: Result<(), Infallible> = Extractor::extract(request.clone()).unwrap();
+        let (): () = Extractor::extract(&request).unwrap();
+        let _: Option<()> = Extractor::extract(&request).unwrap();
+        let _: Result<(), Infallible> = Extractor::extract(&request).unwrap();
     }
 
     #[allow(unreachable_code)]
