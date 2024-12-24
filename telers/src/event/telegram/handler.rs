@@ -13,7 +13,7 @@ use crate::{
     client::Bot,
     context::Context,
     errors::{ExtractionError, HandlerError},
-    extractors::FromEventAndContext,
+    extractors::Extractor,
     filters::Filter,
     types::Update,
 };
@@ -125,7 +125,7 @@ where
         H: Handler<Args> + Clone + Send + Sync + 'static,
         H::Future: Send,
         H::Output: Into<Result>,
-        Args: FromEventAndContext<Client> + Send,
+        Args: Extractor<Client> + Send,
         Args::Error: Send,
     {
         Self {
@@ -216,7 +216,7 @@ where
     H: Handler<Args> + Clone + Send + Sync + 'static,
     H::Future: Send,
     H::Output: Into<Result>,
-    Args: FromEventAndContext<Client> + Send,
+    Args: Extractor<Client> + Send,
     Args::Error: Send,
 {
     factory(fn_service(move |request: Request<Client>| {
@@ -334,7 +334,7 @@ mod tests {
 
     #[test]
     fn test_arg_number() {
-        fn assert_impl_handler<Client, T: FromEventAndContext<Client>>(_: impl Handler<T>) {}
+        fn assert_impl_handler<Client, T: Extractor<Client>>(_: impl Handler<T>) {}
 
         assert_impl_handler::<Reqwest, _>(|| async { unreachable!() });
         assert_impl_handler::<Reqwest, _>(

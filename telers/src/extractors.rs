@@ -1,14 +1,14 @@
 //! This module contains functionality for extracting data from the event and context to the handler arguments.
 //!
-//! [`FromEventAndContext`] is the main trait which need to be implemented for extracting data.
+//! [`Extractor`] is the main trait which need to be implemented for extracting data.
 //! If you want to use your own types as handler arguments, you need to implement this trait for them.
 //! By default, this trait is implemented for the most common middlewares, types and filters, so you can use them without any additional actions.
-//! The trait also is implemented for `Option<T>`, `Result<T, E>` where `T: FromEventAndContext`,
+//! The trait also is implemented for `Option<T>`, `Result<T, E>` where `T: Extractor`,
 //! so you can don't implement it for your types if you want to use them as optional or result arguments.
 //!
 //! # Implementing trait
 //!
-//! Ways to implement [`FromEventAndContext`] for your own types:
+//! Ways to implement [`Extractor`] for your own types:
 //! * Implement it directly (much boilerplate code, but it's needed for complex types)
 //! * Use the [`FromContext`] macro (simple way to implement this for types in a [`Context`] by its key)
 //! * Use the [`FromEvent`] macro (simple way to implement this for types in an event, for example, [`Update`])
@@ -18,12 +18,12 @@
 //! Simple example with extracting id from [`Update`]:
 //!
 //! ```rust
-//! use telers::{types::Update, extractors::FromEventAndContext, context::Context, client::Bot};
+//! use telers::{types::Update, extractors::Extractor, context::Context, client::Bot};
 //! use std::{sync::Arc, convert::Infallible};
 //!
 //! struct UpdateId(i64);
 //!
-//! impl FromEventAndContext for UpdateId {
+//! impl Extractor for UpdateId {
 //!     type Error = Infallible;
 //!
 //!     fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<Context>) -> Result<Self, Self::Error> {
@@ -44,12 +44,12 @@
 //! Another example with extracting id of the user who sent the message from [`Update`]:
 //!
 //! ```rust
-//! use telers::{types::Update, extractors::FromEventAndContext, context::Context, client::Bot, errors::ConvertToTypeError};
+//! use telers::{types::Update, extractors::Extractor, context::Context, client::Bot, errors::ConvertToTypeError};
 //! use std::sync::Arc;
 //!
 //! struct UpdateFromId(i64);
 //!
-//! impl FromEventAndContext for UpdateFromId {
+//! impl Extractor for UpdateFromId {
 //!     type Error = ConvertToTypeError; // you can use your own error type, this is just an example
 //!
 //!     fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<Context>) -> Result<Self, Self::Error> {
@@ -62,16 +62,16 @@
 //! ```
 //!
 //! In some cases we sure that some data is not none, so in one handler we can use `Option` and in another handler we can use the type directly.
-//! After we implemented [`FromEventAndContext`] for our type, we can use it in both cases,
-//! because the trait is implemented for `Option<T>` and `Result<T, E>` where `T: FromEventAndContext`:
+//! After we implemented [`Extractor`] for our type, we can use it in both cases,
+//! because the trait is implemented for `Option<T>` and `Result<T, E>` where `T: Extractor`:
 //!
 //! ```rust
-//! use telers::{types::Update, extractors::FromEventAndContext, context::Context, client::Bot, errors::ConvertToTypeError};
+//! use telers::{types::Update, extractors::Extractor, context::Context, client::Bot, errors::ConvertToTypeError};
 //! use std::sync::Arc;
 //!
 //! struct UpdateFromId(i64);
 //!
-//! impl FromEventAndContext for UpdateFromId {
+//! impl Extractor for UpdateFromId {
 //!     type Error = ConvertToTypeError; // you can use your own error type, this is just an example
 //!
 //!     fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<Context>) -> Result<Self, Self::Error> {
@@ -217,7 +217,7 @@
 //! This code will extract `MyStruct` from context and convert it to `MyStructWrapper`,
 //! but we need to implement `From<MyStruct>` for `MyStructWrapper` by ourselves (this is required by `FromContext` macro).
 //! In this case, the trait is implements for `MyStructWrapper`, not for `MyStruct`,
-//! so we can't use `MyStruct` as handler argument without implementing `FromEventAndContext` for it.
+//! so we can't use `MyStruct` as handler argument without implementing `Extractor` for it.
 //!
 //! We also can use `#[context(from = "...")]` attribute to specify the type from which the type will be converted:
 //!
@@ -255,7 +255,7 @@ use crate::{
 use std::{convert::Infallible, sync::Arc};
 
 /// Trait for extracting data from [`Update`] and [`Context`] to handlers arguments
-pub trait FromEventAndContext<Client = Reqwest>: Sized {
+pub trait Extractor<Client = Reqwest>: Sized {
     type Error: Into<ExtractionError>;
 
     /// Extracts data from [`Update`], [`Context`] and [`Bot`] to handler argument
@@ -276,7 +276,7 @@ pub trait FromEventAndContext<Client = Reqwest>: Sized {
 
 /// To be able to use [`Option`] as handler argument
 /// This implementation will return `None` if extraction was unsuccessful, and [`Some(value)`] otherwise
-impl<Client, T: FromEventAndContext<Client>> FromEventAndContext<Client> for Option<T> {
+impl<Client, T: Extractor<Client>> Extractor<Client> for Option<T> {
     type Error = Infallible;
 
     #[inline]
@@ -296,9 +296,9 @@ impl<Client, T: FromEventAndContext<Client>> FromEventAndContext<Client> for Opt
 /// To be able to use [`Result`] as handler argument
 /// This implementation will return [`Ok(value)`] if extraction was successful, and [`Err(error)`] otherwise,
 /// where `error` is `T::Error` converted to `E`
-impl<Client, T, E> FromEventAndContext<Client> for Result<T, E>
+impl<Client, T, E> Extractor<Client> for Result<T, E>
 where
-    T: FromEventAndContext<Client>,
+    T: Extractor<Client>,
     T::Error: Into<E>,
 {
     type Error = Infallible;
@@ -316,7 +316,7 @@ where
 
 /// To be able to use handler without arguments
 /// Handler without arguments will be called with [`()`] argument (unit type)
-impl<Client> FromEventAndContext<Client> for () {
+impl<Client> Extractor<Client> for () {
     type Error = Infallible;
 
     #[inline]
@@ -330,7 +330,7 @@ impl<Client> FromEventAndContext<Client> for () {
     }
 }
 
-impl<Client: Clone> FromEventAndContext<Client> for Bot<Client> {
+impl<Client: Clone> Extractor<Client> for Bot<Client> {
     type Error = Infallible;
 
     #[inline]
@@ -344,7 +344,7 @@ impl<Client: Clone> FromEventAndContext<Client> for Bot<Client> {
     }
 }
 
-impl<Client> FromEventAndContext<Client> for Arc<Bot<Client>> {
+impl<Client> Extractor<Client> for Arc<Bot<Client>> {
     type Error = Infallible;
 
     #[inline]
@@ -358,7 +358,7 @@ impl<Client> FromEventAndContext<Client> for Arc<Bot<Client>> {
     }
 }
 
-impl<Client> FromEventAndContext<Client> for Update {
+impl<Client> Extractor<Client> for Update {
     type Error = Infallible;
 
     #[inline]
@@ -372,7 +372,7 @@ impl<Client> FromEventAndContext<Client> for Update {
     }
 }
 
-impl<Client> FromEventAndContext<Client> for Arc<Update> {
+impl<Client> Extractor<Client> for Arc<Update> {
     type Error = Infallible;
 
     #[inline]
@@ -386,7 +386,7 @@ impl<Client> FromEventAndContext<Client> for Arc<Update> {
     }
 }
 
-impl<Client> FromEventAndContext<Client> for Arc<Context> {
+impl<Client> Extractor<Client> for Arc<Context> {
     type Error = Infallible;
 
     #[inline]
@@ -400,7 +400,7 @@ impl<Client> FromEventAndContext<Client> for Arc<Context> {
     }
 }
 
-impl<Client, Value> FromEventAndContext<Client> for Extension<Value>
+impl<Client, Value> Extractor<Client> for Extension<Value>
 where
     Value: Clone + Send + Sync + 'static,
 {
@@ -421,14 +421,14 @@ where
 }
 
 #[allow(non_snake_case)]
-mod factory_from_event_and_context {
-    //! This module is used to implement [`FromEventAndContext`] for tuple arguments, each of which implements it
+mod factory_extractor {
+    //! This module is used to implement [`Extractor`] for tuple arguments, each of which implements it
     //! If one of the arguments fails to extract, the whole extraction fails, and the error is returned
 
-    use super::{Arc, Bot, Context, Extensions, ExtractionError, FromEventAndContext, Update};
+    use super::{Arc, Bot, Context, Extensions, ExtractionError, Extractor, Update};
 
     macro_rules! factory ({ $($param:ident)* } => {
-        impl<Client, $($param: FromEventAndContext<Client>,)*> FromEventAndContext<Client> for ($($param,)*) {
+        impl<Client, $($param: Extractor<Client>,)*> Extractor<Client> for ($($param,)*) {
             type Error = ExtractionError;
 
             #[inline]
@@ -509,7 +509,7 @@ mod tests {
 
     #[test]
     fn test_arg_number() {
-        fn assert_impl_handler<Client, T: FromEventAndContext<Client>>(_: T) {}
+        fn assert_impl_handler<Client, T: Extractor<Client>>(_: T) {}
 
         assert_impl_handler::<Reqwest, _>(());
         assert_impl_handler::<Reqwest, _>((
@@ -543,21 +543,21 @@ mod tests {
         let context = Arc::new(Context::default());
         let extensions = Arc::new(Extensions::default());
 
-        let (): () = FromEventAndContext::extract(
+        let (): () = Extractor::extract(
             bot.clone(),
             update.clone(),
             context.clone(),
             extensions.clone(),
         )
         .unwrap();
-        let _: Option<()> = FromEventAndContext::extract(
+        let _: Option<()> = Extractor::extract(
             bot.clone(),
             update.clone(),
             context.clone(),
             extensions.clone(),
         )
         .unwrap();
-        let _: Result<(), Infallible> = FromEventAndContext::extract(
+        let _: Result<(), Infallible> = Extractor::extract(
             bot.clone(),
             update.clone(),
             context.clone(),
@@ -567,7 +567,7 @@ mod tests {
     }
 
     #[allow(unreachable_code)]
-    fn _check_bounds<Client, T: FromEventAndContext<Client>>() {
+    fn _check_bounds<Client, T: Extractor<Client>>() {
         unimplemented!("This function is only used for checking bounds");
 
         _check_bounds::<Client, ()>();
@@ -655,7 +655,7 @@ mod tests {
     }
 
     #[allow(unreachable_code)]
-    fn _check_bounds_option<Client, T: FromEventAndContext<Client>>() {
+    fn _check_bounds_option<Client, T: Extractor<Client>>() {
         unimplemented!("This function is only used for checking bounds");
 
         _check_bounds::<Client, Option<()>>();
@@ -744,7 +744,7 @@ mod tests {
     }
 
     #[allow(unreachable_code)]
-    fn _check_bounds_result<Client, T: FromEventAndContext<Client>, Err: Into<ExtractionError>>() {
+    fn _check_bounds_result<Client, T: Extractor<Client>, Err: Into<ExtractionError>>() {
         unimplemented!("This function is only used for checking bounds");
 
         _check_bounds::<Client, Result<(), Infallible>>();

@@ -1,12 +1,12 @@
 //! This module contains the error [`ConvertToType`] that can occur when type be converted to the desired type.
 //! For example, if you try to convert an [`Update`] to a [`Message`] type, but the update represents a [`CallbackQuery`], you got this error.
 //!
-//! This error type used usually in [`FromEventAndContext`] trait implementations when the type conversion fails.
+//! This error type used usually in [`Extractor`] trait implementations when the type conversion fails.
 //!
 //! [`Update`]: crate::types::Update
 //! [`Message`]: crate::types::Message
 //! [`CallbackQuery`]: crate::types::CallbackQuery
-//! [`FromEventAndContext`]: crate::extractors::FromEventAndContext
+//! [`Extractor`]: crate::extractors::Extractor
 
 use super::ExtractionError;
 

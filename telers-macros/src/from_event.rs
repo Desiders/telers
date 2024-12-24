@@ -348,9 +348,9 @@ impl ToTokens for ExtractionError {
     }
 }
 
-/// Implement `FromEventAndContext` trait for `ident` type.
+/// Implement `Extractor` trait for `ident` type.
 /// # Arguments
-/// * `ident` - type for which we need to implement `FromEventAndContext` trait
+/// * `ident` - type for which we need to implement `Extractor` trait
 /// * `ident_impl_generics` - impl generics of `ident` type
 /// * `ident_ty_generics` - type generics of `ident` type
 /// * `ident_where_clause` - where clause of `ident` type
@@ -392,7 +392,7 @@ fn impl_from_event_and_context(
         ConvertKind::From(TypeKind::Update) => {
             quote_spanned! { ident.span() =>
                 #[automatically_derived]
-                impl <#impl_generics_punctuated> ::telers::extractors::FromEventAndContext<#client_ty_generic> for #ident #ty_generics_punctuated
+                impl <#impl_generics_punctuated> ::telers::extractors::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
                 where
                     #where_clause_punctuated
                     ::telers::types::Update: ::std::convert::Into<Self>
@@ -420,7 +420,7 @@ fn impl_from_event_and_context(
 
             quote_spanned! { ident.span() =>
                 #[automatically_derived]
-                impl <#impl_generics_punctuated> ::telers::extractors::FromEventAndContext<#client_ty_generic> for #ident #ty_generics_punctuated
+                impl <#impl_generics_punctuated> ::telers::extractors::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
                 where
                     #where_clause_punctuated
                     ::telers::types::Update: ::std::convert::TryInto<Self>

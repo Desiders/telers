@@ -11,7 +11,7 @@ use crate::{
             Result as HandlerResult,
         },
     },
-    extractors::FromEventAndContext,
+    extractors::Extractor,
     filters::Filter,
     middlewares::{
         inner::{
@@ -149,7 +149,7 @@ impl<Client> Observer<Client> {
         H: Handler<Args> + Clone + Send + Sync + 'static,
         H::Future: Send,
         H::Output: Into<HandlerResult>,
-        Args: FromEventAndContext<Client> + Send,
+        Args: Extractor<Client> + Send,
         Args::Error: Send,
     {
         self.handlers.push(HandlerObject::new(handler));
@@ -164,7 +164,7 @@ impl<Client> Observer<Client> {
         H: Handler<Args> + Clone + Send + Sync + 'static,
         H::Future: Send,
         H::Output: Into<HandlerResult>,
-        Args: FromEventAndContext<Client> + Send,
+        Args: Extractor<Client> + Send,
         Args::Error: Send,
     {
         self.register(handler)

@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use telers::extractors::FromEventAndContext;
+use telers::extractors::Extractor;
 use telers_macros::FromContext;
 
 #[derive(FromContext, Clone)]
@@ -175,7 +175,7 @@ impl<'a, 'b, T: AsRef<str> + Clone, E: AsRef<str> + Clone>
 }
 
 #[allow(unreachable_code)]
-fn _check_bounds<Client, T: FromEventAndContext<Client>>() {
+fn _check_bounds<Client, T: Extractor<Client>>() {
     unimplemented!("This function is only used for checking bounds");
 
     _check_bounds::<(), NoGenericWrapper>();

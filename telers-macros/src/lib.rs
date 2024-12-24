@@ -4,8 +4,8 @@
 ///
 /// ## `FromContext`
 ///
-/// Derive an implementation of `FromEventAndContext` for the given type.
-/// This macro will generate an implementation of `FromEventAndContext` for the whole given type.
+/// Derive an implementation of `Extractor` for the given type.
+/// This macro will generate an implementation of `Extractor` for the whole given type.
 /// It will use the key attribute by which this type will be extracted from context.
 pub(crate) mod attrs_parsing;
 pub(crate) mod stream;
@@ -17,7 +17,7 @@ use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
 use syn::parse::Parse;
 
-/// Derive an implementation of `FromEventAndContext` for the given type.
+/// Derive an implementation of `Extractor` for the given type.
 ///
 /// This macro supports the following attributes:
 /// * `#[context(key = "...")]` - the key by which the type will be extracted from context.
@@ -157,7 +157,7 @@ pub fn derive_from_context(item: TokenStream) -> TokenStream {
     expand_with(item, from_context::expand)
 }
 
-/// Derive an implementation of `FromEventAndContext` for the given type.
+/// Derive an implementation of `Extractor` for the given type.
 ///
 /// This macro supports the following attributes:
 /// * `#[event(from = "...")]` - the from which the type will be converted.
@@ -237,7 +237,7 @@ pub fn derive_from_context(item: TokenStream) -> TokenStream {
 /// }
 /// ```
 /// # Notes
-/// This macros is used in the library to implement `FromEventAndContext` for types that impl `From` for `Update`,
+/// This macros is used in the library to implement `Extractor` for types that impl `From` for `Update`,
 /// but you can use it for your own types.
 #[proc_macro_derive(FromEvent, attributes(event))]
 pub fn derive_from_event(item: TokenStream) -> TokenStream {

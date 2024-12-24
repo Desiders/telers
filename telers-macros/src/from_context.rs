@@ -204,9 +204,9 @@ impl ToTokens for Client {
     }
 }
 
-/// Implement `FromEventAndContext` trait for `ident` or `into` type.
+/// Implement `Extractor` trait for `ident` or `into` type.
 /// # Arguments
-/// * `ident` - type for which we need to implement `FromEventAndContext` trait if `into` field is empty
+/// * `ident` - type for which we need to implement `Extractor` trait if `into` field is empty
 /// * `ident_impl_generics` - impl generics of `ident` type
 /// * `ident_ty_generics` - type generics of `ident` type
 /// * `ident_where_clause` - where clause of `ident` type
@@ -215,7 +215,7 @@ impl ToTokens for Client {
 ///     If `into` field is not empty, then we need to implement the trait for `into` type and require `Into<Self>` trait for `ident` type. \
 ///     If `from` field is not empty, then we need to implement the trait for `ident` type and require `From<Self>` trait for `into` type.
 /// # Notes
-/// * Currently we can implement `FromEventAndContext` trait for types that implement `Into<Self>` or `From<Self>` traits only with the same generics.
+/// * Currently we can implement `Extractor` trait for types that implement `Into<Self>` or `From<Self>` traits only with the same generics.
 #[allow(clippy::too_many_lines)]
 fn impl_from_event_and_context(
     ident: &Ident,
@@ -259,7 +259,7 @@ fn impl_from_event_and_context(
     if let Some(ref into) = context_attrs.into {
         return quote_spanned! { ident.span() =>
             #[automatically_derived]
-            impl <#impl_generics_punctuated> ::telers::extractors::FromEventAndContext<#client_ty_generic> for #into #ty_generics_punctuated
+            impl <#impl_generics_punctuated> ::telers::extractors::Extractor<#client_ty_generic> for #into #ty_generics_punctuated
             where
                 #where_clause_punctuated
                 // `Into<#ident #ty_generics_punctuated>` is required to be able to convert context value to `into` type
@@ -301,7 +301,7 @@ fn impl_from_event_and_context(
     if let Some(ref from) = context_attrs.from {
         return quote_spanned! { ident.span() =>
             #[automatically_derived]
-            impl <#impl_generics_punctuated> ::telers::extractors::FromEventAndContext<#client_ty_generic> for #ident #ty_generics_punctuated
+            impl <#impl_generics_punctuated> ::telers::extractors::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
             where
                 #where_clause_punctuated
                 // `Into<#from #ty_generics_punctuated>` is required to be able to convert context value to `ident` type
@@ -341,7 +341,7 @@ fn impl_from_event_and_context(
 
     quote_spanned! { ident.span() =>
         #[automatically_derived]
-        impl <#impl_generics_punctuated> ::telers::extractors::FromEventAndContext<#client_ty_generic> for #ident #ty_generics_punctuated
+        impl <#impl_generics_punctuated> ::telers::extractors::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
         where
             #where_clause_punctuated
             #ident #ty_generics_punctuated: ::std::clone::Clone + 'static

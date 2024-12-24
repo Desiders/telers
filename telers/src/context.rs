@@ -17,7 +17,7 @@
 //!
 //! In [`Handler`] context is can be passed as parameter of handler function.
 //! You can use context in handlers to get data that was added by middlewares and filters.
-//! For convenience, you can implement [`FromEventAndContext`] for your own types and use them as handler arguments,
+//! For convenience, you can implement [`Extractor`] for your own types and use them as handler arguments,
 //! so you don't need to pass context as parameter of handler and extract data from context manually.
 //! Check [`extractors module`] documentation for more information (**recommended**).
 //!
@@ -29,7 +29,7 @@
 //! [`Filter`]: crate::filters::Filter
 //! [`Filter::check`]: crate::filters::Filter#method.check
 //! [`Handler`]: crate::event::telegram::Handler
-//! [`FromEventAndContext`]: crate::extractors::FromEventAndContext
+//! [`Extractor`]: crate::extractors::Extractor
 //! [`outer middleware module`]: crate::middlewares::outer
 //! [`inner middleware module`]: crate::middlewares::inner
 //! [`filter module`]: crate::filters
