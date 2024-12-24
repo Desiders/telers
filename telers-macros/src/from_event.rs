@@ -404,7 +404,7 @@ fn impl_from_event_and_context(
                         _bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
                         update: ::std::sync::Arc<::telers::types::Update>,
                         _context: ::std::sync::Arc<::telers::context::Context>,
-                        _extensions: ::std::sync::Arc<::telers::extensions::Extensions>,
+                        _extensions: ::telers::extensions::Extensions,
                     ) -> Result<Self, Self::Error> {
                         Ok((*update).clone().into())
                     }
@@ -432,7 +432,7 @@ fn impl_from_event_and_context(
                         _bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
                         update: ::std::sync::Arc<::telers::types::Update>,
                         _context: ::std::sync::Arc<::telers::context::Context>,
-                        _extensions: ::std::sync::Arc<::telers::extensions::Extensions>,
+                        _extensions: ::telers::extensions::Extensions,
                     ) -> Result<Self, Self::Error> {
                         ::std::convert::TryFrom::try_from((*update).clone())
                     }

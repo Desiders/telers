@@ -381,7 +381,7 @@ impl<Client, PropagatorService, BackoffType> Service<Client, PropagatorService, 
             bot,
             update,
             Arc::new(Context::default()),
-            Arc::new(Extensions::default()),
+            Extensions::default(),
         )
         .await
     }
@@ -397,7 +397,7 @@ impl<Client, PropagatorService, BackoffType> Service<Client, PropagatorService, 
         bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         context: Arc<Context>,
-        extensions: Arc<Extensions>,
+        extensions: Extensions,
     ) -> Result<Response<Client>, EventErrorKind>
     where
         Client: Send + Sync + 'static,

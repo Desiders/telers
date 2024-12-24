@@ -272,7 +272,7 @@ fn impl_from_event_and_context(
                     _bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
                     _update: ::std::sync::Arc<::telers::types::Update>,
                     context: ::std::sync::Arc<::telers::context::Context>,
-                    _extensions: ::std::sync::Arc<::telers::extensions::Extensions>,
+                    _extensions: ::telers::extensions::Extensions,
                 ) -> Result<Self, Self::Error> {
                     use ::telers::errors::ExtractionError as Error;
 
@@ -314,7 +314,7 @@ fn impl_from_event_and_context(
                     _bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
                     _update: ::std::sync::Arc<::telers::types::Update>,
                     context: ::std::sync::Arc<::telers::context::Context>,
-                    _extensions: ::std::sync::Arc<::telers::extensions::Extensions>,
+                    _extensions: ::telers::extensions::Extensions,
                 ) -> Result<Self, Self::Error> {
                     use ::telers::errors::ExtractionError as Error;
 
@@ -353,7 +353,7 @@ fn impl_from_event_and_context(
                 _bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
                 _update: ::std::sync::Arc<::telers::types::Update>,
                 context: ::std::sync::Arc<::telers::context::Context>,
-                _extensions: ::std::sync::Arc<::telers::extensions::Extensions>,
+                _extensions: ::telers::extensions::Extensions,
             ) -> Result<Self, Self::Error> {
                 use ::telers::errors::ExtractionError as Error;
 

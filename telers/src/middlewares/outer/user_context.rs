@@ -110,7 +110,7 @@ mod tests {
             Arc::new(bot),
             Arc::new(update),
             Arc::new(context),
-            Arc::new(extensions),
+            extensions,
         );
         router_service
             .propagate_event(UpdateType::Message, request)
@@ -157,7 +157,7 @@ mod tests {
             Arc::new(bot),
             Arc::new(update),
             Arc::new(context),
-            Arc::new(extensions),
+            extensions,
         );
         router_service
             .propagate_event(UpdateType::Message, request)

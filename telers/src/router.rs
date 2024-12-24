@@ -130,7 +130,7 @@ pub struct Request<Client = Reqwest> {
     pub bot: Arc<Bot<Client>>,
     pub update: Arc<Update>,
     pub context: Arc<Context>,
-    pub extensions: Arc<Extensions>,
+    pub extensions: Extensions,
 }
 
 impl<Client> Request<Client> {
@@ -139,7 +139,7 @@ impl<Client> Request<Client> {
         bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         context: Arc<Context>,
-        extensions: Arc<Extensions>,
+        extensions: Extensions,
     ) -> Self {
         Self {
             bot,
@@ -156,7 +156,7 @@ impl<Client> Clone for Request<Client> {
             bot: Arc::clone(&self.bot),
             update: Arc::clone(&self.update),
             context: Arc::clone(&self.context),
-            extensions: Arc::clone(&self.extensions),
+            extensions: self.extensions.clone(),
         }
     }
 }
@@ -177,7 +177,6 @@ impl<Client> PartialEq for Request<Client> {
         Arc::ptr_eq(&self.bot, &other.bot)
             && Arc::ptr_eq(&self.update, &other.update)
             && Arc::ptr_eq(&self.context, &other.context)
-            && Arc::ptr_eq(&self.extensions, &other.extensions)
     }
 }
 
@@ -1958,7 +1957,7 @@ mod tests {
             Arc::new(bot),
             Arc::new(update),
             Arc::new(context),
-            Arc::new(extensions),
+            extensions,
         );
 
         let mut router = Router::new("test_handler");
@@ -2083,7 +2082,7 @@ mod tests {
             Arc::new(bot),
             Arc::new(update),
             Arc::new(context),
-            Arc::new(extensions),
+            extensions,
         );
 
         let mut router = Router::new("test_handler_with_filter");

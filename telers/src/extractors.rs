@@ -270,7 +270,7 @@ pub trait Extractor<Client = Reqwest>: Sized {
         bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         context: Arc<Context>,
-        extensions: Arc<Extensions>,
+        extensions: Extensions,
     ) -> Result<Self, Self::Error>;
 }
 
@@ -284,7 +284,7 @@ impl<Client, T: Extractor<Client>> Extractor<Client> for Option<T> {
         bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         context: Arc<Context>,
-        extensions: Arc<Extensions>,
+        extensions: Extensions,
     ) -> Result<Self, Self::Error> {
         match T::extract(bot, update, context, extensions) {
             Ok(value) => Ok(Some(value)),
@@ -308,7 +308,7 @@ where
         bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         context: Arc<Context>,
-        extensions: Arc<Extensions>,
+        extensions: Extensions,
     ) -> Result<Self, Self::Error> {
         Ok(T::extract(bot, update, context, extensions).map_err(Into::into))
     }
@@ -324,7 +324,7 @@ impl<Client> Extractor<Client> for () {
         _bot: Arc<Bot<Client>>,
         _update: Arc<Update>,
         _context: Arc<Context>,
-        _extensions: Arc<Extensions>,
+        _extensions: Extensions,
     ) -> Result<Self, Self::Error> {
         Ok(())
     }
@@ -338,7 +338,7 @@ impl<Client: Clone> Extractor<Client> for Bot<Client> {
         bot: Arc<Bot<Client>>,
         _update: Arc<Update>,
         _context: Arc<Context>,
-        _extensions: Arc<Extensions>,
+        _extensions: Extensions,
     ) -> Result<Self, Self::Error> {
         Ok((*bot).clone())
     }
@@ -352,7 +352,7 @@ impl<Client> Extractor<Client> for Arc<Bot<Client>> {
         bot: Arc<Bot<Client>>,
         _update: Arc<Update>,
         _context: Arc<Context>,
-        _extensions: Arc<Extensions>,
+        _extensions: Extensions,
     ) -> Result<Self, Self::Error> {
         Ok(bot)
     }
@@ -366,7 +366,7 @@ impl<Client> Extractor<Client> for Update {
         _bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         _context: Arc<Context>,
-        _extensions: Arc<Extensions>,
+        _extensions: Extensions,
     ) -> Result<Self, Self::Error> {
         Ok((*update).clone())
     }
@@ -380,7 +380,7 @@ impl<Client> Extractor<Client> for Arc<Update> {
         _bot: Arc<Bot<Client>>,
         update: Arc<Update>,
         _context: Arc<Context>,
-        _extensions: Arc<Extensions>,
+        _extensions: Extensions,
     ) -> Result<Self, Self::Error> {
         Ok(update)
     }
@@ -394,7 +394,7 @@ impl<Client> Extractor<Client> for Arc<Context> {
         _bot: Arc<Bot<Client>>,
         _update: Arc<Update>,
         context: Arc<Context>,
-        _extensions: Arc<Extensions>,
+        _extensions: Extensions,
     ) -> Result<Self, Self::Error> {
         Ok(context)
     }
@@ -411,7 +411,7 @@ where
         _bot: Arc<Bot<Client>>,
         _update: Arc<Update>,
         _context: Arc<Context>,
-        extensions: Arc<Extensions>,
+        extensions: Extensions,
     ) -> Result<Self, Self::Error> {
         match extensions.get::<Value>() {
             Some(value) => Ok(Self(value.clone())),
@@ -432,8 +432,8 @@ mod factory_extractor {
             type Error = ExtractionError;
 
             #[inline]
-            fn extract(bot: Arc<Bot<Client>>, update: Arc<Update>, context: Arc<Context>, extensions: Arc<Extensions>) -> Result<Self, Self::Error> {
-                Ok(($($param::extract(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context), Arc::clone(&extensions)).map_err(Into::into)?,)*))
+            fn extract(bot: Arc<Bot<Client>>, update: Arc<Update>, context: Arc<Context>, extensions: Extensions) -> Result<Self, Self::Error> {
+                Ok(($($param::extract(Arc::clone(&bot), Arc::clone(&update), Arc::clone(&context), extensions.clone()).map_err(Into::into)?,)*))
             }
         }
     });
@@ -541,7 +541,7 @@ mod tests {
         let bot = Arc::new(Bot::<Reqwest>::default());
         let update = Arc::new(Update::default());
         let context = Arc::new(Context::default());
-        let extensions = Arc::new(Extensions::default());
+        let extensions = Extensions::default();
 
         let (): () = Extractor::extract(
             bot.clone(),
