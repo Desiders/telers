@@ -107,6 +107,7 @@ mod tests {
         event::{service::ServiceFactory as _, telegram::handler_service},
         middlewares::inner::wrap_handler_and_middlewares_to_next,
         types::{Message, Update, UpdateKind},
+        Extensions,
     };
 
     use std::sync::Arc;
@@ -124,6 +125,7 @@ mod tests {
                 kind: UpdateKind::Message(Message::default()),
             }),
             Arc::new(Context::default()),
+            Arc::new(Extensions::default()),
         );
         let response = Logging
             .call(

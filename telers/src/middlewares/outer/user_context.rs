@@ -65,12 +65,14 @@ mod tests {
         event::ToServiceProvider as _,
         router::{PropagateEvent as _, Router},
         types::{Chat, Message, MessageText, Update, UpdateKind, User},
+        Extensions,
     };
 
     #[tokio::test]
     async fn test_user_context() {
         let bot = Bot::<Reqwest>::default();
         let context = Context::new();
+        let extensions = Extensions::new();
         let update = Update {
             kind: UpdateKind::Message(Message::Text(Box::new(MessageText {
                 from: Some(User::default()),
@@ -104,7 +106,12 @@ mod tests {
 
         let router_service = router.to_service_provider_default().unwrap();
 
-        let request = Request::new(Arc::new(bot), Arc::new(update), Arc::new(context));
+        let request = Request::new(
+            Arc::new(bot),
+            Arc::new(update),
+            Arc::new(context),
+            Arc::new(extensions),
+        );
         router_service
             .propagate_event(UpdateType::Message, request)
             .await
@@ -116,6 +123,7 @@ mod tests {
     async fn test_user_context_panic() {
         let bot = Bot::<Reqwest>::default();
         let context = Context::new();
+        let extensions = Extensions::new();
         let update = Update::default();
 
         let mut router = Router::new("main");
@@ -145,7 +153,12 @@ mod tests {
 
         let router_service = router.to_service_provider_default().unwrap();
 
-        let request = Request::new(Arc::new(bot), Arc::new(update), Arc::new(context));
+        let request = Request::new(
+            Arc::new(bot),
+            Arc::new(update),
+            Arc::new(context),
+            Arc::new(extensions),
+        );
         router_service
             .propagate_event(UpdateType::Message, request)
             .await

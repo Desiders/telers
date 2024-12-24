@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use telers::extractors::FromEventAndContext;
 use telers_macros::FromContext;
 

@@ -7,20 +7,17 @@ use std::{
 
 type AnyMap = HashMap<TypeId, Box<dyn AnyClone + Send + Sync>, BuildHasherDefault<IdHasher>>;
 
-/// A type map of protocol extensions.
-///
-/// [`Extensions`] can be used by `Request` and `Response` to store
-/// extra data derived from the underlying protocol.
+#[derive(Debug, Clone, Copy, Default)]
+#[must_use]
+pub struct Extension<T>(pub T);
+
 #[derive(Clone, Default)]
 pub struct Extensions {
-    // If extensions are never used, no need to carry around an empty HashMap.
-    // That's 3 words. Instead, this is only 1 word.
     map: Option<Box<AnyMap>>,
 }
 
 impl Extensions {
-    /// Create an empty [`Extensions`].
-    #[inline]
+    #[must_use]
     pub const fn new() -> Extensions {
         Extensions { map: None }
     }
@@ -50,6 +47,7 @@ impl Extensions {
     ///
     /// assert_eq!(ext.get::<i32>(), Some(&5i32));
     /// ```
+    #[must_use]
     pub fn get<T: Send + Sync + 'static>(&self) -> Option<&T> {
         self.map
             .as_ref()
@@ -93,6 +91,7 @@ impl Extensions {
     ///
     /// assert_eq!(*ext.get::<i32>().unwrap(), 3);
     /// ```
+    #[allow(clippy::missing_panics_doc)]
     pub fn get_or_insert_with<T: Clone + Send + Sync + 'static, F: FnOnce() -> T>(
         &mut self,
         f: F,
@@ -158,6 +157,7 @@ impl Extensions {
     /// assert!(!ext.is_empty());
     /// ```
     #[inline]
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.map.as_ref().map_or(true, |map| map.is_empty())
     }
@@ -171,6 +171,7 @@ impl Extensions {
     /// assert_eq!(ext.len(), 1);
     /// ```
     #[inline]
+    #[must_use]
     pub fn len(&self) -> usize {
         self.map.as_ref().map_or(0, |map| map.len())
     }
@@ -210,7 +211,7 @@ impl fmt::Debug for Extensions {
     }
 }
 
-/// With TypeIds as keys, there's no need to hash them. They are already hashes
+/// With [`TypeId`]s as keys, there's no need to hash them. They are already hashes
 /// themselves, coming from the compiler. The [`IdHasher`] just holds the u64 of
 /// the [`TypeId`], and then returns it, instead of doing any bit fiddling.
 #[derive(Default)]

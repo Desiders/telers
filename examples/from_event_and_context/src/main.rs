@@ -121,7 +121,7 @@ where
 /// * `bot` - Bot instance
 /// * `message` - Message instance
 /// * `data` - Data that we get from context by middleware
-async fn send_data_handler(bot: Bot, message: Message, data: Data) -> HandlerResult {
+async fn send_data_handler(bot: Bot, message: Message, Data(data): Data) -> HandlerResult {
     bot.send(SendMessage::new(
         message.chat().id(),
         format!("Data: {data:?}"),

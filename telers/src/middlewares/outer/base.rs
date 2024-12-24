@@ -66,6 +66,7 @@ mod tests {
         client::{Bot, Reqwest},
         context::Context,
         types::{Message, Update, UpdateKind},
+        Extensions,
     };
 
     use tokio;
@@ -82,6 +83,7 @@ mod tests {
                 kind: UpdateKind::Message(Message::default()),
             }),
             Arc::new(Context::default()),
+            Arc::new(Extensions::default()),
         );
 
         let (updated_request, _) = Middleware::call(&middleware, request.clone())

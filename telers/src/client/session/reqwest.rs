@@ -61,14 +61,11 @@ impl Reqwest {
     /// # Errors
     /// Returns a [`SerializerError`] if the form cannot be built.
     #[instrument(skip(self, data))]
-    async fn build_form_data<'a, Data: ?Sized>(
+    async fn build_form_data<'a, Data: Serialize + ?Sized>(
         &self,
         data: &Data,
         files: Option<&[&InputFile<'a>]>,
-    ) -> Result<Form, SerializerError>
-    where
-        Data: Serialize,
-    {
+    ) -> Result<Form, SerializerError> {
         let mut form = data.serialize(MultipartSerializer::new())?;
 
         let Some(files) = files else {

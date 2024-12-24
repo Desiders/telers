@@ -6,6 +6,7 @@
 //! - [`SessionErrorKind`]
 //! - [`TelegramErrorKind`]
 //! - [`ConvertToTypeError`]
+//!
 //! Check the documentation for each error to see what it means.
 
 #![allow(clippy::module_name_repetitions)]

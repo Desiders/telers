@@ -46,9 +46,9 @@ pub enum Kind {
     EditedBusinessMessage(Message),
     /// Messages were deleted from a connected business account
     DeletedBusinessMessages(BusinessMessagesDeleted),
-    /// A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify `message_reaction` in the list of `allowed_updates`` to receive these updates. The update isn't received for reactions set by bots.
+    /// A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify `message_reaction` in the list of `allowed_updates` to receive these updates. The update isn't received for reactions set by bots.
     MessageReaction(MessageReactionUpdated),
-    /// Reactions to a message with anonymous reactions were changed. The bot must be an administrator in the chat and must explicitly specify `message_reaction_count` in the list of `allowed_updates`` to receive these updates.
+    /// Reactions to a message with anonymous reactions were changed. The bot must be an administrator in the chat and must explicitly specify `message_reaction_count` in the list of `allowed_updates` to receive these updates.
     MessageReactionCount(MessageReactionCountUpdated),
     /// New incoming inline query
     InlineQuery(InlineQuery),
@@ -66,11 +66,11 @@ pub enum Kind {
     Poll(Poll),
     /// A user changed their answer in a non-anonymous poll. Bots receive new votes only in polls that were sent by the bot itself.
     PollAnswer(PollAnswer),
-    /// New incoming my_chat_member update.
+    /// New incoming my chat member update.
     MyChatMember(ChatMemberUpdated),
-    /// New incoming chat_member update.
+    /// New incoming chat member update.
     ChatMember(ChatMemberUpdated),
-    /// A request to join the chat has been sent. The bot must have the *can_invite_users* administrator right in the chat to receive these updates.
+    /// A request to join the chat has been sent. The bot must have the `can_invite_users` administrator right in the chat to receive these updates.
     ChatJoinRequest(ChatJoinRequest),
     /// A chat boost was added or changed. The bot must be an administrator in the chat to receive these updates.
     ChatBoost(ChatBoostUpdated),
