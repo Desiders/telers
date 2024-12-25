@@ -1,7 +1,7 @@
-//! Filters are main part of the library used to filter incoming updates and allow call handlers by their data (text, chat, user, command, etc.),
-//! [`context`] (state, db, etc.) and other conditions.
+//! Filters are main part of the library used to filter incoming updates and allow call handlers by their data
+//! (text, chat, user, command, state, db, etc.) and other conditions.
 //!
-//! [`Filter`] is a trait that accepts [`bot`], [`update`] and [`context`] and returns `true` if the filter passes, otherwise `false`.
+//! [`Filter`] is a trait that accepts [`Request`] and returns `true` if the filter passes, otherwise `false`.
 //! You can use [`Filter`] trait to create your own filters or use one of the ready-made implementations.
 //! Most likely you will have to write your filters, so we recommend you to check out the `examples/text_case_filter` to see how to create your own filters
 //! and check ready-made implementations.
@@ -53,11 +53,10 @@
 //! [`ContentTypeEnum`]: telers::enums::ContentType
 //! [`BotCommand`]: telers::types::BotCommand
 //! [`Regex`]: regex::Regex
+//! [`Request`]: telers::Request
 //! [`context`]: telers::context::Context
 //! [`command pattern type`]: command::PatternType
 //! [`text pattern type`]: text::PatternType
-//! [`bot`]: telers::client::Bot
-//! [`update`]: telers::types::Update
 
 pub mod base;
 pub mod chat_type;
