@@ -460,14 +460,6 @@ mod factory_extractor {
     factory! { A B C D E F G H I J K L M N O}
     // To be able to extract tuple with 16 arguments
     factory! { A B C D E F G H I J K L M N O P }
-    // To be able to extract tuple with 17 arguments
-    factory! { A B C D E F G H I J K L M N O P Q}
-    // To be able to extract tuple with 18 arguments
-    factory! { A B C D E F G H I J K L M N O P Q R }
-    // To be able to extract tuple with 19 arguments
-    factory! { A B C D E F G H I J K L M N O P Q R S }
-    // To be able to extract tuple with 20 arguments
-    factory! { A B C D E F G H I J K L M N O P Q R S T }
 }
 
 #[cfg(test)]
@@ -519,10 +511,6 @@ mod tests {
             (), // 14
             (), // 15
             (), // 16
-            (), // 17
-            (), // 18
-            (), // 19
-            (), // 20
         ));
     }
 

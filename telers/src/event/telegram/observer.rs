@@ -5,7 +5,7 @@ use crate::{
         bases::{EventReturn, PropagateEventResult},
         service::{Service as _, ServiceFactory as _, ServiceProvider, ToServiceProvider},
         telegram::handler::{
-            Handler, HandlerObject, HandlerObjectService, Result as HandlerResult,
+            Handler, HandlerComposite, HandlerObjectService, Result as HandlerResult,
         },
     },
     extractor::Extractor,
@@ -44,8 +44,8 @@ impl<Client> Debug for Response<Client> {
 pub struct Observer<Client> {
     pub event_name: TelegramObserverName,
 
-    handlers: Vec<HandlerObject<Client>>,
-    common: Box<HandlerObject<Client>>,
+    handlers: Vec<HandlerComposite<Client>>,
+    common: Box<HandlerComposite<Client>>,
 
     pub inner_middlewares: InnerMiddlewareManager<Client>,
     pub outer_middlewares: OuterMiddlewareManager<Client>,
@@ -61,7 +61,7 @@ impl<Client> Observer<Client> {
         Self {
             event_name,
             handlers: vec![],
-            common: Box::new(HandlerObject::<Client>::new(|| async move {
+            common: Box::new(HandlerComposite::<Client>::new(|| async move {
                 // This handler never will be called, so we can use `unreachable!` macro
                 ({
                     unreachable!("This handler never will be used");
@@ -73,12 +73,12 @@ impl<Client> Observer<Client> {
     }
 
     #[must_use]
-    pub fn handlers(&self) -> &[HandlerObject<Client>] {
+    pub fn handlers(&self) -> &[HandlerComposite<Client>] {
         &self.handlers
     }
 
     #[allow(clippy::missing_panics_doc)]
-    pub fn register<H, Args>(&mut self, handler: H) -> &mut HandlerObject<Client>
+    pub fn register<H, Args>(&mut self, handler: H) -> &mut HandlerComposite<Client>
     where
         Client: Send + Sync + 'static,
         H: Handler<Args> + Clone + Send + Sync + 'static,
@@ -87,13 +87,13 @@ impl<Client> Observer<Client> {
         Args: Extractor<Client> + Send,
         Args::Error: Send,
     {
-        self.handlers.push(HandlerObject::new(handler));
+        self.handlers.push(HandlerComposite::new(handler));
         // `unwrap` is safe, because we just added element to the vector
         self.handlers.last_mut().unwrap()
     }
 
     /// Alias to [`Observer::register`] method
-    pub fn on<H, Args>(&mut self, handler: H) -> &mut HandlerObject<Client>
+    pub fn on<H, Args>(&mut self, handler: H) -> &mut HandlerComposite<Client>
     where
         Client: Send + Sync + 'static,
         H: Handler<Args> + Clone + Send + Sync + 'static,

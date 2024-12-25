@@ -49,13 +49,13 @@ pub trait Handler<Args> {
 }
 
 #[allow(clippy::module_name_repetitions)]
-pub struct HandlerObject<Client> {
+pub struct HandlerComposite<Client> {
     service: BoxedHandlerServiceFactory<Client>,
 
     pub filters: Vec<Arc<dyn Filter<Client>>>,
 }
 
-impl<Client> HandlerObject<Client>
+impl<Client> HandlerComposite<Client>
 where
     Client: Send + Sync + 'static,
 {
@@ -74,7 +74,7 @@ where
     }
 }
 
-impl<Client> HandlerObject<Client> {
+impl<Client> HandlerComposite<Client> {
     pub fn filter<T>(&mut self, val: T) -> &mut Self
     where
         T: Filter<Client> + 'static,
@@ -94,7 +94,7 @@ impl<Client> HandlerObject<Client> {
     }
 }
 
-impl<Client> ServiceFactory<Request<Client>> for HandlerObject<Client> {
+impl<Client> ServiceFactory<Request<Client>> for HandlerComposite<Client> {
     type Response = Response<Client>;
     type Error = ExtractionError;
     type Config = ();
@@ -238,14 +238,6 @@ mod factory_handlers {
     factory! { A B C D E F G H I J K L M N O}
     // To be able to extract tuple with 16 arguments
     factory! { A B C D E F G H I J K L M N O P }
-    // To be able to extract tuple with 17 arguments
-    factory! { A B C D E F G H I J K L M N O P Q }
-    // To be able to extract tuple with 18 arguments
-    factory! { A B C D E F G H I J K L M N O P Q R }
-    // To be able to extract tuple with 19 arguments
-    factory! { A B C D E F G H I J K L M N O P Q R S }
-    // To be able to extract tuple with 20 arguments
-    factory! { A B C D E F G H I J K L M N O P Q R S T }
 }
 
 #[cfg(test)]
@@ -256,7 +248,6 @@ mod tests {
         event::EventReturn,
         filters::Command,
         types::{Message, Update, UpdateKind},
-        Bot, Context, Extensions,
     };
 
     use tokio;
@@ -282,46 +273,40 @@ mod tests {
              _13: (),
              _14: (),
              _15: (),
-             _16: (),
-             _17: (),
-             _18: (),
-             _19: (),
-             _20: ()| async { unreachable!() },
+             _16: ()| async { unreachable!() },
         );
     }
 
     #[test]
-    fn test_handler_object_filter() {
+    fn test_handler_composite_filter() {
         let filter = Command::default();
 
-        let mut handler_object =
-            HandlerObject::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
-        assert!(handler_object.filters.is_empty());
+        let mut handler_composite =
+            HandlerComposite::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
+        assert!(handler_composite.filters.is_empty());
 
-        handler_object.filter(filter.clone());
-        assert_eq!(handler_object.filters.len(), 1);
+        handler_composite.filter(filter.clone());
+        assert_eq!(handler_composite.filters.len(), 1);
 
-        let mut handler_object =
-            HandlerObject::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
-        handler_object.filter(filter);
-        assert_eq!(handler_object.filters.len(), 1);
+        let mut handler_composite =
+            HandlerComposite::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
+        handler_composite.filter(filter);
+        assert_eq!(handler_composite.filters.len(), 1);
     }
 
     #[tokio::test]
-    async fn test_handler_object_service() {
-        let handler_object = HandlerObject::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
-        let handler_object_service = handler_object.new_service(()).unwrap();
+    async fn test_handler_composite_service() {
+        let handler_composite =
+            HandlerComposite::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
+        let handler_composite_service = handler_composite.new_service(()).unwrap();
 
-        let request = Request {
-            bot: Arc::new(Bot::<Reqwest>::default()),
-            update: Arc::new(Update {
-                id: 0,
-                kind: UpdateKind::Message(Message::default()),
-            }),
-            context: Context::default(),
-            extensions: Extensions::default(),
-        };
-        let response = handler_object_service.call(request).await.unwrap();
+        let mut request = Request::<Reqwest>::default();
+        request.update = Arc::new(Update {
+            id: 0,
+            kind: UpdateKind::Message(Message::default()),
+        });
+
+        let response = handler_composite_service.call(request).await.unwrap();
 
         match response.handler_result {
             Ok(EventReturn::Finish) => {}
