@@ -75,6 +75,7 @@ where
 }
 
 impl<Client> HandlerComposite<Client> {
+    /// Register filter for current handler
     pub fn filter<T>(&mut self, val: T) -> &mut Self
     where
         T: Filter<Client> + 'static,
@@ -83,6 +84,7 @@ impl<Client> HandlerComposite<Client> {
         self
     }
 
+    /// Register filters for current handler
     pub fn filters<T, I>(&mut self, val: I) -> &mut Self
     where
         T: Filter<Client> + 'static,
