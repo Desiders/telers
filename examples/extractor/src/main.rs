@@ -62,11 +62,6 @@ impl TryFrom<Update> for UpdateChatId {
     }
 }
 
-/// Handler that sends update id to chat from which we get the update.
-/// # Arguments
-/// * `bot` - Bot instance
-/// * `update_id` - Update id that we get from [`Update`] by extractor
-/// * `update_chat_id` - Update chat id that we get from [`Update`] by extractor
 async fn update_id_handler(
     bot: Bot,
     UpdateId(update_id): UpdateId,
@@ -85,18 +80,11 @@ async fn update_id_handler(
     Ok(EventReturn::Finish)
 }
 
-/// # Warning
-/// Be aware that you should use [`Clone`] trait for data that you want to add to context.
 #[derive(Debug, Clone, PartialEq, Eq, FromContext)]
 #[context(key = "data")]
 struct Data(i64);
 
-/// Middleware that adds data to context.
-/// # Arguments
-/// * `key` - Key for data in context
-/// * `data` - Data that we want to add to context
 struct ToContextMiddleware<T> {
-    key: &'static str,
     data: T,
 }
 
@@ -106,9 +94,7 @@ where
     T: Send + Sync + Clone + 'static,
 {
     async fn call(&self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
-        request
-            .context
-            .insert(self.key, Box::new(self.data.clone()));
+        request.context.insert("data", self.data.clone());
 
         Ok((request, EventReturn::default()))
     }
@@ -174,10 +160,7 @@ async fn main() {
     router
         .message
         .outer_middlewares
-        .register(ToContextMiddleware {
-            key: "data",
-            data: data.clone(),
-        });
+        .register(ToContextMiddleware { data: data.clone() });
     // Register middleware that adds data to extensions, analogously
     router
         .message

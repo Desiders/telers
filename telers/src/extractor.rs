@@ -54,16 +54,16 @@
 //! Simple example with extracting id from [`Update`]:
 //!
 //! ```rust
-//! use telers::{types::Update, extractors::Extractor, context::Context, client::Bot};
-//! use std::{sync::Arc, convert::Infallible};
+//! use telers::{Extractor, Request};
+//! use std::convert::Infallible;
 //!
 //! struct UpdateId(i64);
 //!
 //! impl Extractor for UpdateId {
 //!     type Error = Infallible;
 //!
-//!     fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Context) -> Result<Self, Self::Error> {
-//!         Ok(UpdateId(update.id))
+//!     fn extract(request: &Request) -> Result<Self, Self::Error> {
+//!         Ok(UpdateId(request.update.id))
 //!     }
 //! }
 //! ```
@@ -80,16 +80,15 @@
 //! Another example with extracting id of the user who sent the message from [`Update`]:
 //!
 //! ```rust
-//! use telers::{types::Update, extractors::Extractor, context::Context, client::Bot, errors::ConvertToTypeError};
-//! use std::sync::Arc;
+//! use telers::{Extractor, errors::ConvertToTypeError, Request};
 //!
 //! struct UpdateFromId(i64);
 //!
 //! impl Extractor for UpdateFromId {
 //!     type Error = ConvertToTypeError; // you can use your own error type, this is just an example
 //!
-//!     fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Context) -> Result<Self, Self::Error> {
-//!         match update.from_id() {
+//!     fn extract(request: &Request) -> Result<Self, Self::Error> {
+//!         match request.update.from_id() {
 //!             Some(from_id) => Ok(UpdateFromId(from_id)),
 //!             None => Err(ConvertToTypeError::new("Update", "UpdateFromId")),
 //!         }
@@ -102,16 +101,15 @@
 //! because the trait is implemented for `Option<T>` and `Result<T, E>` where `T: Extractor`:
 //!
 //! ```rust
-//! use telers::{types::Update, extractors::Extractor, context::Context, client::Bot, errors::ConvertToTypeError};
-//! use std::sync::Arc;
+//! use telers::{Extractor, errors::ConvertToTypeError, Request};
 //!
 //! struct UpdateFromId(i64);
 //!
 //! impl Extractor for UpdateFromId {
 //!     type Error = ConvertToTypeError; // you can use your own error type, this is just an example
 //!
-//!     fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Context) -> Result<Self, Self::Error> {
-//!         match update.from_id() {
+//!     fn extract(request: &Request) -> Result<Self, Self::Error> {
+//!         match request.update.from_id() {
 //!             Some(from_id) => Ok(UpdateFromId(from_id)),
 //!             None => Err(ConvertToTypeError::new("Update", "UpdateFromId")),
 //!         }
@@ -140,7 +138,7 @@
 //! Simple example with extracting id from [`Update`]:
 //!
 //! ```rust
-//! use telers::{types::Update, extractors::FromEvent};
+//! use telers::{types::Update, FromEvent};
 //!
 //! #[derive(FromEvent)]
 //! #[event(from = Update)]
@@ -159,7 +157,7 @@
 //! We also can use `#[event(try_from = "...")]`, but in this case we need to implement [`TryFrom`] for our type instead of [`From`]:
 //!
 //! ```rust
-//! use telers::{types::Update, extractors::FromEvent, errors::ConvertToTypeError};
+//! use telers::{types::Update, FromEvent, errors::ConvertToTypeError};
 //!
 //! #[derive(FromEvent)]
 //! #[event(try_from = Update)] // you can specify [`ConvertToTypeError`] as error type, but it's not necessary, because it's default
@@ -181,7 +179,7 @@
 //! but you can specify your own error type with `#[event(error = "...")]` attribute:
 //!
 //! ```rust
-//! use telers::{types::Update, extractors::FromEvent};
+//! use telers::{types::Update, FromEvent};
 //! use std::convert::Infallible;
 //!
 //! #[derive(FromEvent)]
