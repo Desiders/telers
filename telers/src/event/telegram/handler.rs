@@ -121,7 +121,7 @@ pub struct HandlerObjectService<Client> {
 
 impl<Client> HandlerObjectService<Client>
 where
-    Client: Sync,
+    Client: Send + Sync,
 {
     /// Check if the handler pass the filters.
     /// If the handler pass all them, it will be called.

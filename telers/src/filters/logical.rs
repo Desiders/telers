@@ -81,7 +81,7 @@ where
 
 impl<Client> Or<Client>
 where
-    Client: Sync,
+    Client: Send + Sync,
 {
     pub async fn validate(&self, request: &mut Request<Client>) -> bool {
         for filter in &self.filters {
@@ -96,7 +96,7 @@ where
 
 impl<Client> Invert<Client>
 where
-    Client: Sync,
+    Client: Send + Sync,
 {
     pub async fn validate(&self, request: &mut Request<Client>) -> bool {
         !self.filter.check(request).await
