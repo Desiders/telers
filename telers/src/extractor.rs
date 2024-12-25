@@ -289,7 +289,7 @@ use crate::{
     errors::ExtractionError,
     extensions::Extension,
     types::Update,
-    Request,
+    Extensions, Request,
 };
 
 use std::{convert::Infallible, sync::Arc};
@@ -392,6 +392,15 @@ impl<Client> Extractor<Client> for Context {
     #[inline]
     fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
         Ok(request.context.clone())
+    }
+}
+
+impl<Client> Extractor<Client> for Extensions {
+    type Error = Infallible;
+
+    #[inline]
+    fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
+        Ok(request.extensions.clone())
     }
 }
 
@@ -534,6 +543,7 @@ mod tests {
         _check_bounds::<Client, Update>();
         _check_bounds::<Client, Arc<Update>>();
         _check_bounds::<Client, Context>();
+        _check_bounds::<Client, Extensions>();
         _check_bounds::<Client, UpdateKind>();
 
         // Message-related bounds
@@ -622,6 +632,7 @@ mod tests {
         _check_bounds::<Client, Option<Update>>();
         _check_bounds::<Client, Option<Arc<Update>>>();
         _check_bounds::<Client, Option<Context>>();
+        _check_bounds::<Client, Option<Extensions>>();
         _check_bounds::<Client, Option<UpdateKind>>();
 
         // Message-related bounds
@@ -711,6 +722,7 @@ mod tests {
         _check_bounds::<Client, Result<Update, Infallible>>();
         _check_bounds::<Client, Result<Arc<Update>, Infallible>>();
         _check_bounds::<Client, Result<Context, Infallible>>();
+        _check_bounds::<Client, Result<Extensions, Infallible>>();
 
         // Message-related bounds
         _check_bounds::<Client, Result<Message, ConvertToTypeError>>();
