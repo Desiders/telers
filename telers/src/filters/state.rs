@@ -1,6 +1,5 @@
 use super::base::Filter;
-
-use crate::{client::Bot, context::Context, types::Update};
+use crate::Request;
 
 use async_trait::async_trait;
 use std::borrow::Cow;
@@ -166,20 +165,12 @@ where
 #[async_trait]
 impl<Client, B> Filter<Client> for State<'_, B>
 where
+    Client: Send + Sync,
     for<'a> B: ToOwned + PartialEq<&'a str> + Sync,
     B::Owned: Send + Sync,
 {
-    async fn check(&self, _bot: &Bot<Client>, _update: &Update, context: &Context) -> bool {
-        match context.get("fsm_state") {
-            Some(state) => {
-                let state = state
-                    .downcast_ref::<Box<str>>()
-                    .expect("State isn't `String`");
-
-                self.check(Some(state.as_ref()))
-            }
-            None => self.check(None),
-        }
+    async fn check(&self, request: &mut Request<Client>) -> bool {
+        self.check(request.context.get::<Box<str>>("fsm_state").map(|v| &**v))
     }
 }
 

@@ -82,7 +82,7 @@ mod tests {
                 id: 0,
                 kind: UpdateKind::Message(Message::default()),
             }),
-            context: Arc::new(Context::default()),
+            context: Context::default(),
             extensions: Extensions::default(),
         };
         let (updated_request, _) = Middleware::call(&middleware, request.clone())

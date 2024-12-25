@@ -105,7 +105,7 @@ impl<T> OuterMiddleware for ToContextMiddleware<T>
 where
     T: Send + Sync + Clone + 'static,
 {
-    async fn call(&self, request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
+    async fn call(&self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
         request
             .context
             .insert(self.key, Box::new(self.data.clone()));

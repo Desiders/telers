@@ -62,7 +62,7 @@
 //! impl Extractor for UpdateId {
 //!     type Error = Infallible;
 //!
-//!     fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<Context>) -> Result<Self, Self::Error> {
+//!     fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Context) -> Result<Self, Self::Error> {
 //!         Ok(UpdateId(update.id))
 //!     }
 //! }
@@ -88,7 +88,7 @@
 //! impl Extractor for UpdateFromId {
 //!     type Error = ConvertToTypeError; // you can use your own error type, this is just an example
 //!
-//!     fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<Context>) -> Result<Self, Self::Error> {
+//!     fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Context) -> Result<Self, Self::Error> {
 //!         match update.from_id() {
 //!             Some(from_id) => Ok(UpdateFromId(from_id)),
 //!             None => Err(ConvertToTypeError::new("Update", "UpdateFromId")),
@@ -110,7 +110,7 @@
 //! impl Extractor for UpdateFromId {
 //!     type Error = ConvertToTypeError; // you can use your own error type, this is just an example
 //!
-//!     fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Arc<Context>) -> Result<Self, Self::Error> {
+//!     fn extract(bot: Arc<Bot>, update: Arc<Update>, context: Context) -> Result<Self, Self::Error> {
 //!         match update.from_id() {
 //!             Some(from_id) => Ok(UpdateFromId(from_id)),
 //!             None => Err(ConvertToTypeError::new("Update", "UpdateFromId")),
@@ -386,7 +386,7 @@ impl<Client> Extractor<Client> for Arc<Update> {
     }
 }
 
-impl<Client> Extractor<Client> for Arc<Context> {
+impl<Client> Extractor<Client> for Context {
     type Error = Infallible;
 
     #[inline]
@@ -545,7 +545,7 @@ mod tests {
         _check_bounds::<_, Arc<Bot>>();
         _check_bounds::<Client, Update>();
         _check_bounds::<Client, Arc<Update>>();
-        _check_bounds::<Client, Arc<Context>>();
+        _check_bounds::<Client, Context>();
         _check_bounds::<Client, UpdateKind>();
 
         // Message-related bounds
@@ -633,7 +633,7 @@ mod tests {
         _check_bounds::<_, Option<Arc<Bot>>>();
         _check_bounds::<Client, Option<Update>>();
         _check_bounds::<Client, Option<Arc<Update>>>();
-        _check_bounds::<Client, Option<Arc<Context>>>();
+        _check_bounds::<Client, Option<Context>>();
         _check_bounds::<Client, Option<UpdateKind>>();
 
         // Message-related bounds
@@ -722,7 +722,7 @@ mod tests {
         _check_bounds::<_, Result<Arc<Bot>, Infallible>>();
         _check_bounds::<Client, Result<Update, Infallible>>();
         _check_bounds::<Client, Result<Arc<Update>, Infallible>>();
-        _check_bounds::<Client, Result<Arc<Context>, Infallible>>();
+        _check_bounds::<Client, Result<Context, Infallible>>();
 
         // Message-related bounds
         _check_bounds::<Client, Result<Message, ConvertToTypeError>>();

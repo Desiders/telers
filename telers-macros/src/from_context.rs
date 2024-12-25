@@ -271,22 +271,15 @@ fn impl_from_event_and_context(
                 fn extract(request: &::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
                     use ::telers::errors::ExtractionError as Error;
 
-                    let Some(value) = request.context.get(#key_str) else {
+                    let Some(value) = request.context.get::<#ident #ty_generics_punctuated>(#key_str) else {
                         return Err(Error::new(concat!(
-                            "No found data in context by key `", #key_str, "`. ",
+                            "No found data in context by key `", #key_str, "` or value has wrong type expected `", stringify!(#ident), "`. ",
                             "You didn't forget to add type to context? ",
                             "Type description: ", #description_str,
                         )));
                     };
 
-                    match value.downcast_ref::<#ident #ty_generics_punctuated>() {
-                        Some(value_ref) => Ok((*value_ref).clone().into()),
-                        None => Err(Error::new(concat!(
-                            "Data in context by key `", #key_str, "` has wrong type expected `", stringify!(#ident), "`. ",
-                            "You didn't forget to add type to context? ",
-                            "Type description: ", #description_str,
-                        ))),
-                    }
+                    Ok((*value).clone().into())
                 }
             }
         };
@@ -308,22 +301,15 @@ fn impl_from_event_and_context(
                 fn extract(request: &::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
                     use ::telers::errors::ExtractionError as Error;
 
-                    let Some(value) = request.context.get(#key_str) else {
+                    let Some(value) = request.context.get::<#from #ty_generics_punctuated>(#key_str) else {
                         return Err(Error::new(concat!(
-                            "No found data in context by key `", #key_str, "`. ",
+                            "No found data in context by key `", #key_str, "` or value has wrong type expected `", stringify!(#from), "`. ",
                             "You didn't forget to add type to context? ",
                             "Type description: ", #description_str,
                         )));
                     };
 
-                    match value.downcast_ref::<#from #ty_generics_punctuated>() {
-                        Some(value_ref) => Ok((*value_ref).clone().into()),
-                        None => Err(Error::new(concat!(
-                            "Data in context by key `", #key_str, "` has wrong type expected `", stringify!(#from), "`. ",
-                            "You didn't forget to add type to context? ",
-                            "Type description: ", #description_str,
-                        ))),
-                    }
+                    Ok((*value).clone().into())
                 }
             }
         };
@@ -342,22 +328,15 @@ fn impl_from_event_and_context(
             fn extract(request: &::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
                 use ::telers::errors::ExtractionError as Error;
 
-                let Some(value) = request.context.get(#key_str) else {
+                let Some(value) = request.context.get::<#ident #ty_generics_punctuated>(#key_str) else {
                     return Err(Error::new(concat!(
-                        "No found data in context by key `", #key_str, "`. ",
+                        "No found data in context by key `", #key_str, "` or value has wrong type expected `", stringify!(#ident), "`. ",
                         "You didn't forget to add type to context? ",
                         "Type description: ", #description_str,
                     )));
                 };
 
-                match value.downcast_ref::<Self>() {
-                    Some(value_ref) => Ok((*value_ref).clone()),
-                    None => Err(Error::new(concat!(
-                        "Data in context by key `", #key_str, "` has wrong type expected `", stringify!(#ident), "`. ",
-                        "You didn't forget to add type to context? ",
-                        "Type description: ", #description_str,
-                    ))),
-                }
+                Ok((*value).clone())
             }
         }
     }

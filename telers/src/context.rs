@@ -29,87 +29,117 @@
 //! [`filter module`]: telers::filters
 //! [`extractors module`]: telers::extractor
 
-use dashmap::DashMap;
-use std::any::Any;
+use crate::any::AnyClone;
 
-pub type Context = DashMap<&'static str, Box<dyn Any + Send + Sync>>;
+use std::{collections::HashMap, fmt};
 
-#[cfg(test)]
-mod tests {
-    use super::Context;
-    use crate::filters::command::CommandObject;
+type AnyMap = HashMap<&'static str, Box<dyn AnyClone + Send + Sync>>;
 
-    #[test]
-    fn test_context() {
-        let context = Context::new();
+#[derive(Clone, Default)]
+pub struct Context {
+    map: Option<Box<AnyMap>>,
+}
 
-        context.insert("test", Box::new(1));
-        assert_eq!(
-            *context.get("test").unwrap().downcast_ref::<i32>().unwrap(),
-            1
-        );
+impl Context {
+    #[must_use]
+    pub const fn new() -> Self {
+        Self { map: None }
+    }
 
-        context.insert("test_box", Box::new(Box::new("test")));
-        assert_eq!(
-            *context
-                .get("test_box")
-                .unwrap()
-                .downcast_ref::<Box<&str>>()
-                .unwrap(),
-            Box::new("test"),
-        );
+    pub fn insert<T: Clone + Send + Sync + 'static>(
+        &mut self,
+        key: &'static str,
+        val: T,
+    ) -> Option<T> {
+        self.map
+            .get_or_insert_with(Box::default)
+            .insert(key, Box::new(val))
+            .and_then(|boxed| boxed.into_any().downcast().ok().map(|boxed| *boxed))
+    }
 
-        context.insert("test_str", Box::new("test"));
-        assert_eq!(
-            *context
-                .get("test_str")
-                .unwrap()
-                .downcast_ref::<&str>()
-                .unwrap(),
-            "test"
-        );
+    #[must_use]
+    pub fn get<T: 'static>(&self, key: &'static str) -> Option<&T> {
+        self.map
+            .as_ref()
+            .and_then(|map| map.get(key))
+            .and_then(|boxed| (**boxed).as_any().downcast_ref())
+    }
 
-        context.insert("test_str_box", Box::new(Box::new("test")));
-        assert_eq!(
-            *context
-                .get("test_str_box")
-                .unwrap()
-                .downcast_ref::<Box<&str>>()
-                .unwrap(),
-            Box::new("test")
-        );
+    pub fn get_mut<T: 'static>(&mut self, key: &'static str) -> Option<&mut T> {
+        self.map
+            .as_mut()
+            .and_then(|map| map.get_mut(key))
+            .and_then(|boxed| (**boxed).as_any_mut().downcast_mut())
+    }
 
-        context.insert("test_string", Box::new("test".to_string()));
-        assert_eq!(
-            *context
-                .get("test_string")
-                .unwrap()
-                .downcast_ref::<String>()
-                .unwrap(),
-            "test".to_string()
-        );
+    #[allow(clippy::missing_panics_doc)]
+    pub fn get_or_insert_with<T: Clone + Send + Sync + 'static, F: FnOnce() -> T>(
+        &mut self,
+        key: &'static str,
+        f: F,
+    ) -> &mut T {
+        let out = self
+            .map
+            .get_or_insert_with(Box::default)
+            .entry(key)
+            .or_insert_with(|| Box::new(f()));
+        (**out).as_any_mut().downcast_mut().unwrap()
+    }
 
-        context.insert(
-            "command_object",
-            Box::new(CommandObject {
-                command: "test".into(),
-                prefix: '/',
-                mention: None,
-                args: [].into(),
-            }),
-        );
-        assert_eq!(
-            *context
-                .get("command_object")
-                .unwrap()
-                .downcast_ref::<CommandObject>()
-                .unwrap(),
-            CommandObject {
-                command: "test".into(),
-                prefix: '/',
-                mention: None,
-                args: [].into(),
+    pub fn get_or_insert<T: Clone + Send + Sync + 'static>(
+        &mut self,
+        key: &'static str,
+        value: T,
+    ) -> &mut T {
+        self.get_or_insert_with(key, || value)
+    }
+
+    pub fn get_or_insert_default<T: Default + Clone + Send + Sync + 'static>(
+        &mut self,
+        key: &'static str,
+    ) -> &mut T {
+        self.get_or_insert_with(key, T::default)
+    }
+
+    pub fn remove<T: 'static>(&mut self, key: &'static str) -> Option<T> {
+        self.map
+            .as_mut()
+            .and_then(|map| map.remove(key))
+            .and_then(|boxed| boxed.into_any().downcast().ok().map(|boxed| *boxed))
+    }
+
+    #[inline]
+    pub fn clear(&mut self) {
+        if let Some(ref mut map) = self.map {
+            map.clear();
+        }
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.map.as_ref().map_or(true, |map| map.is_empty())
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn len(&self) -> usize {
+        self.map.as_ref().map_or(0, |map| map.len())
+    }
+
+    pub fn extend(&mut self, other: Self) {
+        if let Some(other) = other.map {
+            if let Some(map) = &mut self.map {
+                map.extend(*other);
+            } else {
+                self.map = Some(other);
             }
-        );
+        }
+    }
+}
+
+impl fmt::Debug for Context {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Context").finish()
     }
 }

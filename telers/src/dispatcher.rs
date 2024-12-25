@@ -376,13 +376,8 @@ impl<Client, PropagatorService, BackoffType> Service<Client, PropagatorService, 
         Client: Send + Sync + 'static,
         PropagatorService: PropagateEvent<Client>,
     {
-        self.feed_update_with_context(
-            bot,
-            update,
-            Arc::new(Context::default()),
-            Extensions::default(),
-        )
-        .await
+        self.feed_update_with_context(bot, update, Context::default(), Extensions::default())
+            .await
     }
 
     /// Main entry point for incoming updates with user context.
@@ -395,7 +390,7 @@ impl<Client, PropagatorService, BackoffType> Service<Client, PropagatorService, 
         self: Arc<Self>,
         bot: Arc<Bot<Client>>,
         update: Arc<Update>,
-        context: Arc<Context>,
+        context: Context,
         extensions: Extensions,
     ) -> Result<Response<Client>, EventErrorKind>
     where

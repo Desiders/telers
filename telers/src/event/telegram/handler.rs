@@ -124,12 +124,9 @@ where
     /// Check if the handler pass the filters.
     /// If the handler pass all them, it will be called.
     #[instrument(skip(self, request))]
-    pub async fn check(&self, request: &Request<Client>) -> bool {
+    pub async fn check(&self, request: &mut Request<Client>) -> bool {
         for filter in &*self.filters {
-            if !filter
-                .check(&request.bot, &request.update, &request.context)
-                .await
-            {
+            if !filter.check(request).await {
                 return false;
             }
         }
@@ -321,7 +318,7 @@ mod tests {
                 id: 0,
                 kind: UpdateKind::Message(Message::default()),
             }),
-            context: Arc::new(Context::default()),
+            context: Context::default(),
             extensions: Extensions::default(),
         };
         let response = handler_object_service.call(request).await.unwrap();

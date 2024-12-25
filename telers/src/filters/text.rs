@@ -1,6 +1,5 @@
 use super::base::Filter;
-
-use crate::{client::Bot, context::Context, types::Update};
+use crate::Request;
 
 use async_trait::async_trait;
 use regex::Regex;
@@ -383,9 +382,10 @@ impl<'a> Text<'a> {
 }
 
 #[async_trait]
-impl<Client> Filter<Client> for Text<'_> {
-    async fn check(&self, _bot: &Bot<Client>, update: &Update, _context: &Context) -> bool {
-        update
+impl<Client: Send + Sync> Filter<Client> for Text<'_> {
+    async fn check(&self, request: &mut Request<Client>) -> bool {
+        request
+            .update
             .text_or_caption()
             .map_or(false, |text| self.validate_text(text))
     }

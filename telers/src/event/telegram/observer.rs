@@ -193,13 +193,13 @@ impl<Client> Service<Client> {
     #[instrument(skip(self, request))]
     pub async fn trigger(
         &self,
-        request: Request<Client>,
+        mut request: Request<Client>,
     ) -> Result<Response<Client>, EventErrorKind>
     where
         Client: Send + Sync + 'static,
     {
         // Check observer filters
-        if !self.common.check(&request).await {
+        if !self.common.check(&mut request).await {
             event!(Level::TRACE, "Request are not pass observer filters");
 
             return Ok(Response {
@@ -210,7 +210,7 @@ impl<Client> Service<Client> {
 
         // Check handlers filters
         for handler in &*self.handlers {
-            if !handler.check(&request).await {
+            if !handler.check(&mut request).await {
                 continue;
             }
 

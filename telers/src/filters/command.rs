@@ -1,11 +1,10 @@
 use super::base::Filter;
 use crate::{
     client::{Bot, Session},
-    context::Context,
     errors::SessionErrorKind,
     methods::GetMe,
-    types::{BotCommand, Update},
-    FromContext,
+    types::BotCommand,
+    FromContext, Request,
 };
 
 use async_trait::async_trait;
@@ -424,8 +423,8 @@ where
     Client: Session,
 {
     #[instrument]
-    async fn check(&self, bot: &Bot<Client>, update: &Update, context: &Context) -> bool {
-        let Some(message) = update.message() else {
+    async fn check(&self, request: &mut Request<Client>) -> bool {
+        let Some(message) = request.update.message() else {
             return false;
         };
         let Some(text) = message.text_or_caption() else {
@@ -435,10 +434,10 @@ where
             return false;
         };
 
-        match self.validate_command_object(&command, bot).await {
+        match self.validate_command_object(&command, &request.bot).await {
             Ok(result) => {
                 if result {
-                    context.insert("command", Box::new(command));
+                    request.context.insert("command", Box::new(command));
 
                     true
                 } else {

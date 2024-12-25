@@ -6,7 +6,7 @@ use std::{fmt, sync::Arc};
 pub struct Request<Client = Reqwest> {
     pub bot: Arc<Bot<Client>>,
     pub update: Arc<Update>,
-    pub context: Arc<Context>,
+    pub context: Context,
     pub extensions: Extensions,
 }
 
@@ -15,7 +15,7 @@ impl<Client> Clone for Request<Client> {
         Self {
             bot: Arc::clone(&self.bot),
             update: Arc::clone(&self.update),
-            context: Arc::clone(&self.context),
+            context: self.context.clone(),
             extensions: self.extensions.clone(),
         }
     }

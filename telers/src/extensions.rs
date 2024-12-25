@@ -24,8 +24,10 @@
 //! [`filter module`]: telers::filters
 //! [`extractors module`]: telers::extractor
 
+use crate::any::AnyClone;
+
 use std::{
-    any::{Any, TypeId},
+    any::TypeId,
     collections::HashMap,
     fmt,
     hash::{BuildHasherDefault, Hasher},
@@ -44,11 +46,12 @@ pub struct Extensions {
 
 impl Extensions {
     #[must_use]
-    pub const fn new() -> Extensions {
-        Extensions { map: None }
+    pub const fn new() -> Self {
+        Self { map: None }
     }
 
     /// Insert a type into this [`Extensions`].
+    /// If the map did not have this key present, [`None`] is returned.
     /// If a extension of this type already existed, it will be returned and replaced with the new one.
     /// # Examples
     /// ```
@@ -74,7 +77,7 @@ impl Extensions {
     /// assert_eq!(ext.get::<i32>(), Some(&5i32));
     /// ```
     #[must_use]
-    pub fn get<T: Send + Sync + 'static>(&self) -> Option<&T> {
+    pub fn get<T: 'static>(&self) -> Option<&T> {
         self.map
             .as_ref()
             .and_then(|map| map.get(&TypeId::of::<T>()))
@@ -90,23 +93,11 @@ impl Extensions {
     ///
     /// assert_eq!(ext.get::<String>().unwrap(), "Hello World");
     /// ```
-    pub fn get_mut<T: Send + Sync + 'static>(&mut self) -> Option<&mut T> {
+    pub fn get_mut<T: 'static>(&mut self) -> Option<&mut T> {
         self.map
             .as_mut()
             .and_then(|map| map.get_mut(&TypeId::of::<T>()))
             .and_then(|boxed| (**boxed).as_any_mut().downcast_mut())
-    }
-
-    /// Get a mutable reference to a type, inserting `value` if not already present on this [`Extensions`]
-    /// # Examples
-    /// ```
-    /// let mut ext = Extensions::new();
-    /// *ext.get_or_insert(1i32) += 2;
-    ///
-    /// assert_eq!(*ext.get::<i32>().unwrap(), 3);
-    /// ```
-    pub fn get_or_insert<T: Clone + Send + Sync + 'static>(&mut self, value: T) -> &mut T {
-        self.get_or_insert_with(|| value)
     }
 
     /// Get a mutable reference to a type, inserting the value created by `f` if not already present on this [`Extensions`]
@@ -130,6 +121,18 @@ impl Extensions {
         (**out).as_any_mut().downcast_mut().unwrap()
     }
 
+    /// Get a mutable reference to a type, inserting `value` if not already present on this [`Extensions`]
+    /// # Examples
+    /// ```
+    /// let mut ext = Extensions::new();
+    /// *ext.get_or_insert(1i32) += 2;
+    ///
+    /// assert_eq!(*ext.get::<i32>().unwrap(), 3);
+    /// ```
+    pub fn get_or_insert<T: Clone + Send + Sync + 'static>(&mut self, value: T) -> &mut T {
+        self.get_or_insert_with(|| value)
+    }
+
     /// Get a mutable reference to a type, inserting the type's default value if not already present on this [`Extensions`]
     /// # Examples
     /// ```
@@ -151,7 +154,7 @@ impl Extensions {
     /// assert_eq!(ext.remove::<i32>(), Some(5i32));
     /// assert!(ext.get::<i32>().is_none());
     /// ```
-    pub fn remove<T: Send + Sync + 'static>(&mut self) -> Option<T> {
+    pub fn remove<T: 'static>(&mut self) -> Option<T> {
         self.map
             .as_mut()
             .and_then(|map| map.remove(&TypeId::of::<T>()))
@@ -256,37 +259,6 @@ impl Hasher for IdHasher {
     #[inline]
     fn finish(&self) -> u64 {
         self.0
-    }
-}
-
-trait AnyClone: Any {
-    fn clone_box(&self) -> Box<dyn AnyClone + Send + Sync>;
-    fn as_any(&self) -> &dyn Any;
-    fn as_any_mut(&mut self) -> &mut dyn Any;
-    fn into_any(self: Box<Self>) -> Box<dyn Any>;
-}
-
-impl<T: Clone + Send + Sync + 'static> AnyClone for T {
-    fn clone_box(&self) -> Box<dyn AnyClone + Send + Sync> {
-        Box::new(self.clone())
-    }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_any_mut(&mut self) -> &mut dyn Any {
-        self
-    }
-
-    fn into_any(self: Box<Self>) -> Box<dyn Any> {
-        self
-    }
-}
-
-impl Clone for Box<dyn AnyClone + Send + Sync> {
-    fn clone(&self) -> Self {
-        (**self).clone_box()
     }
 }
 

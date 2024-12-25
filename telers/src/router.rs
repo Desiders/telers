@@ -713,12 +713,12 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
     async fn propagate_event(
         &self,
         update_type: UpdateType,
-        request: Request<Client>,
+        mut request: Request<Client>,
     ) -> Result<Response<Client>, EventErrorKind>
     where
         Client: Send + Sync + 'static,
     {
-        match self.propagate_update_event(request.clone()).await? {
+        match self.propagate_update_event(request).await? {
             // If update event handled by router, then return a response
             Response {
                 request,
@@ -741,16 +741,17 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
             }
             // If update event unhandled by router, then continue propagation
             Response {
-                request: _,
+                request: updated_request,
                 propagate_result: PropagateEventResult::Unhandled,
-            } => {}
+            } => {
+                request = updated_request;
+            }
         };
 
         event!(Level::TRACE, "Propagate event to router");
 
         let observer = self.telegram_observer_by_update_type(update_type);
 
-        let mut request = request;
         for middleware in observer.outer_middlewares() {
             let (updated_request, event_return) = middleware.call(request.clone()).await?;
 
@@ -843,14 +844,13 @@ impl<Client> PropagateEvent<Client> for Service<Client> {
     #[instrument(skip(self, request), fields(router_name = self.router_name))]
     async fn propagate_update_event(
         &self,
-        request: Request<Client>,
+        mut request: Request<Client>,
     ) -> Result<Response<Client>, EventErrorKind>
     where
         Client: Send + Sync + 'static,
     {
         event!(Level::TRACE, "Propagate update event to router");
 
-        let mut request = request;
         for middleware in self.update.outer_middlewares() {
             let (updated_request, event_return) = middleware.call(request.clone()).await?;
 
@@ -1722,9 +1722,8 @@ mod tests {
     use crate::{
         client::Reqwest,
         event::{telegram::HandlerResult as TelegramHandlerResult, EventReturn},
-        middlewares::inner::Next,
-        types::Update,
-        Bot, Context,
+        middlewares::Next,
+        Context,
     };
 
     use tokio;
@@ -1922,17 +1921,16 @@ mod tests {
         router
             .update
             .outer_middlewares
-            .register(|request: Request<Reqwest>| async move {
-                request.context.insert("test", Box::new("test"));
+            .register(|mut request: Request<Reqwest>| async move {
+                request.context.insert("test", "test");
 
                 Ok((request, EventReturn::Finish))
             });
-        router.message.register(|context: Arc<Context>| async move {
+        router.message.register(|context: Context| async move {
+            println!("{}", context.len());
+
             // Check that middleware was called and context was modified
-            assert_eq!(
-                context.get("test").unwrap().downcast_ref::<&str>().unwrap(),
-                &"test"
-            );
+            assert_eq!(context.get::<&str>("test").unwrap(), &"test");
 
             Ok(EventReturn::Finish)
         });
@@ -2006,7 +2004,7 @@ mod tests {
         router
             .message
             .register(|| async move { Ok(EventReturn::Finish) })
-            .filter(|_: &Bot<_>, _: &Update, _: &Context| async move { true });
+            .filter(|_: &mut Request| async move { true });
 
         let router_service = router.to_service_provider_default().unwrap();
         let response = router_service
@@ -2027,7 +2025,7 @@ mod tests {
         router
             .message
             .register(|| async move { Ok(EventReturn::Finish) })
-            .filter(|_: &Bot<_>, _: &Update, _: &Context| async move { false });
+            .filter(|_: &mut Request| async move { false });
 
         let router_service = router.to_service_provider_default().unwrap();
         let response = router_service
@@ -2045,9 +2043,9 @@ mod tests {
         router
             .message
             .register(|| async move { Ok(EventReturn::Finish) })
-            .filter(|_: &Bot<_>, _: &Update, _: &Context| async move { true })
-            .filter(|_: &Bot<_>, _: &Update, _: &Context| async move { true })
-            .filter(|_: &Bot<_>, _: &Update, _: &Context| async move { false });
+            .filter(|_: &mut Request| async move { true })
+            .filter(|_: &mut Request| async move { true })
+            .filter(|_: &mut Request| async move { false });
 
         let router_service = router.to_service_provider_default().unwrap();
         let response = router_service

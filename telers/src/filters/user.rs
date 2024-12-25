@@ -1,10 +1,5 @@
 use super::base::Filter;
-
-use crate::{
-    client::Bot,
-    context::Context,
-    types::{Update, User as UserType},
-};
+use crate::{types::User as UserType, Request};
 
 use async_trait::async_trait;
 use std::borrow::Cow;
@@ -373,9 +368,9 @@ impl<'a> User<'a> {
 }
 
 #[async_trait]
-impl<Client> Filter<Client> for User<'_> {
-    async fn check(&self, _bot: &Bot<Client>, update: &Update, _context: &Context) -> bool {
-        match update.from() {
+impl<Client: Send + Sync> Filter<Client> for User<'_> {
+    async fn check(&self, request: &mut Request<Client>) -> bool {
+        match request.update.from() {
             Some(user) => self.validate(user),
             None => false,
         }

@@ -9,10 +9,7 @@
 //! ```
 
 use async_trait::async_trait;
-use std::sync::{
-    atomic::{AtomicUsize, Ordering},
-    Arc,
-};
+use std::sync::atomic::{AtomicUsize, Ordering};
 use telers::{
     enums::UpdateType,
     errors::EventErrorKind,
@@ -35,7 +32,7 @@ struct IncomingUpdates {
 
 #[async_trait]
 impl OuterMiddleware for IncomingUpdates {
-    async fn call(&self, request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
+    async fn call(&self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
         self.counter.fetch_add(1, Ordering::SeqCst);
 
         request.context.insert(
@@ -56,7 +53,11 @@ struct ProcessedHandlers {
 
 #[async_trait]
 impl InnerMiddleware for ProcessedHandlers {
-    async fn call(&self, request: Request, next: Next) -> Result<HandlerResponse, EventErrorKind> {
+    async fn call(
+        &self,
+        mut request: Request,
+        next: Next,
+    ) -> Result<HandlerResponse, EventErrorKind> {
         request.context.insert(
             "processed_handlers_counter",
             Box::new(self.counter.load(Ordering::SeqCst)),
@@ -70,19 +71,11 @@ impl InnerMiddleware for ProcessedHandlers {
     }
 }
 
-async fn handler(bot: Bot, update: Update, context: Arc<Context>) -> HandlerResult {
+async fn handler(bot: Bot, update: Update, context: Context) -> HandlerResult {
     let text = format!(
         "Hello! Users sent me {} updates and I processed {} handlers successfully for them.",
-        context
-            .get("incoming_updates_counter")
-            .unwrap()
-            .downcast_ref::<usize>()
-            .unwrap(),
-        context
-            .get("processed_handlers_counter")
-            .unwrap()
-            .downcast_ref::<usize>()
-            .unwrap()
+        context.get::<usize>("incoming_updates_counter").unwrap(),
+        context.get::<usize>("processed_handlers_counter").unwrap()
     );
 
     if let Some(chat) = update.chat() {
