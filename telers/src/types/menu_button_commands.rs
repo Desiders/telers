@@ -6,6 +6,12 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct MenuButtonCommands {}
 
+impl Default for MenuButtonCommands {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MenuButtonCommands {
     #[must_use]
     pub const fn new() -> Self {

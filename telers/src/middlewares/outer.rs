@@ -10,10 +10,10 @@
 //!
 //! You can check example of using outer middlewares in `examples/stats_incoming_updates_middleware`.
 //!
-//! [`request`]: crate::event::telegram::HandlerRequest
-//! [`response`]: crate::event::telegram::HandlerResponse
-//! [`context`]: crate::context::Context
-//! [`inner middlewares`]: crate::middlewares::inner
+//! [`request`]: telers::Request
+//! [`response`]: telers::event::telegram::HandlerResponse
+//! [`context`]: telers::context::Context
+//! [`inner middlewares`]: telers::middlewares::inner
 
 pub mod base;
 pub mod fsm_context;

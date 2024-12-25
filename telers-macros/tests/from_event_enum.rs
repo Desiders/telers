@@ -1,5 +1,5 @@
 use std::convert::Infallible;
-use telers::{errors::ConvertToTypeError, extractors::FromEventAndContext, types::Update};
+use telers::{errors::ConvertToTypeError, extractor::Extractor, types::Update};
 use telers_macros::FromEvent;
 
 #[derive(FromEvent)]
@@ -161,7 +161,7 @@ impl<'a, 'b, T: AsRef<str> + Clone, E: AsRef<str> + Clone> From<Update>
 }
 
 #[allow(unreachable_code)]
-fn _check_bounds<Client, T: FromEventAndContext<Client>>() {
+fn _check_bounds<Client, T: Extractor<Client>>() {
     unimplemented!("This function is only used for checking bounds");
 
     _check_bounds::<(), NoGeneric>();
@@ -265,7 +265,7 @@ impl<T, E> TryFrom<Update> for MultiGenericTryWithInfallible<T, E> {
 }
 
 #[allow(unreachable_code)]
-fn _check_bounds_try<Client, T: FromEventAndContext<Client>>() {
+fn _check_bounds_try<Client, T: Extractor<Client>>() {
     unimplemented!("This function is only used for checking bounds");
 
     _check_bounds_try::<(), NoGenericTry>();

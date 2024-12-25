@@ -1,11 +1,8 @@
 use super::base::{Middleware, Next};
-
 use crate::{
     errors::EventErrorKind,
-    event::{
-        telegram::{HandlerRequest, HandlerResponse},
-        EventReturn,
-    },
+    event::{telegram::HandlerResponse, EventReturn},
+    Request,
 };
 
 use async_trait::async_trait;
@@ -39,7 +36,7 @@ where
     #[instrument(skip(self, request, next))]
     async fn call(
         &self,
-        request: HandlerRequest<Client>,
+        request: Request<Client>,
         next: Next<Client>,
     ) -> Result<HandlerResponse<Client>, EventErrorKind> {
         let now = Instant::now();
@@ -102,8 +99,7 @@ where
 mod tests {
     use super::*;
     use crate::{
-        client::{Bot, Reqwest},
-        context::Context,
+        client::Reqwest,
         event::{service::ServiceFactory as _, telegram::handler_service},
         middlewares::inner::wrap_handler_and_middlewares_to_next,
         types::{Message, Update, UpdateKind},
@@ -117,14 +113,12 @@ mod tests {
             handler_service(|| async { Ok(EventReturn::Finish) }).new_service(());
         let handler_service = Arc::new(handler_service_factory.unwrap());
 
-        let request = HandlerRequest::new(
-            Arc::new(Bot::<Reqwest>::default()),
-            Arc::new(Update {
-                id: 0,
-                kind: UpdateKind::Message(Message::default()),
-            }),
-            Arc::new(Context::default()),
-        );
+        let mut request = Request::<Reqwest>::default();
+        request.update = Arc::new(Update {
+            id: 0,
+            kind: UpdateKind::Message(Message::default()),
+        });
+
         let response = Logging
             .call(
                 request,

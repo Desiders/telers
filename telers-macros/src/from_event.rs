@@ -79,8 +79,8 @@ enum ConvertKind {
 /// * `from` - type from which we need to convert event value (optional; required if `try_from` field is empty)
 /// * `try_from` - type from which we need to convert event value (optional; required if `from` field is empty)
 /// * `error` - type of error (optional) for `try_from`. \
-/// If it's empty, then we use `ConvertToTypeError` type as error type. \
-/// If it's not empty, then we use this type as error type.
+///     If it's empty, then we use `ConvertToTypeError` type as error type. \
+///     If it's not empty, then we use this type as error type.
 /// * `description` - description of type (optional)
 /// # Examples
 /// ```not_rust
@@ -348,9 +348,9 @@ impl ToTokens for ExtractionError {
     }
 }
 
-/// Implement `FromEventAndContext` trait for `ident` type.
+/// Implement `Extractor` trait for `ident` type.
 /// # Arguments
-/// * `ident` - type for which we need to implement `FromEventAndContext` trait
+/// * `ident` - type for which we need to implement `Extractor` trait
 /// * `ident_impl_generics` - impl generics of `ident` type
 /// * `ident_ty_generics` - type generics of `ident` type
 /// * `ident_where_clause` - where clause of `ident` type
@@ -392,7 +392,7 @@ fn impl_from_event_and_context(
         ConvertKind::From(TypeKind::Update) => {
             quote_spanned! { ident.span() =>
                 #[automatically_derived]
-                impl <#impl_generics_punctuated> ::telers::extractors::FromEventAndContext<#client_ty_generic> for #ident #ty_generics_punctuated
+                impl <#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
                 where
                     #where_clause_punctuated
                     ::telers::types::Update: ::std::convert::Into<Self>
@@ -400,12 +400,8 @@ fn impl_from_event_and_context(
                     type Error = ::std::convert::Infallible;
 
                     #[inline]
-                    fn extract(
-                        bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
-                        update: ::std::sync::Arc<::telers::types::Update>,
-                        context: ::std::sync::Arc<::telers::context::Context>,
-                    ) -> Result<Self, Self::Error> {
-                        Ok((*update).clone().into())
+                    fn extract(request: &::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
+                        Ok((*request.update).clone().into())
                     }
                 }
             }
@@ -419,7 +415,7 @@ fn impl_from_event_and_context(
 
             quote_spanned! { ident.span() =>
                 #[automatically_derived]
-                impl <#impl_generics_punctuated> ::telers::extractors::FromEventAndContext<#client_ty_generic> for #ident #ty_generics_punctuated
+                impl <#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
                 where
                     #where_clause_punctuated
                     ::telers::types::Update: ::std::convert::TryInto<Self>
@@ -427,12 +423,8 @@ fn impl_from_event_and_context(
                     type Error = #error_ty;
 
                     #[inline]
-                    fn extract(
-                        bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
-                        update: ::std::sync::Arc<::telers::types::Update>,
-                        context: ::std::sync::Arc<::telers::context::Context>,
-                    ) -> Result<Self, Self::Error> {
-                        ::std::convert::TryFrom::try_from((*update).clone())
+                    fn extract(request: &::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
+                        ::std::convert::TryFrom::try_from((*request.update).clone())
                     }
                 }
             }

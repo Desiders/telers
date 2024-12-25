@@ -4,8 +4,8 @@
 ///
 /// ## `FromContext`
 ///
-/// Derive an implementation of `FromEventAndContext` for the given type.
-/// This macro will generate an implementation of `FromEventAndContext` for the whole given type.
+/// Derive an implementation of `Extractor` for the given type.
+/// This macro will generate an implementation of `Extractor` for the whole given type.
 /// It will use the key attribute by which this type will be extracted from context.
 pub(crate) mod attrs_parsing;
 pub(crate) mod stream;
@@ -17,14 +17,14 @@ use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
 use syn::parse::Parse;
 
-/// Derive an implementation of `FromEventAndContext` for the given type.
+/// Derive an implementation of `Extractor` for the given type.
 ///
 /// This macro supports the following attributes:
 /// * `#[context(key = "...")]` - the key by which the type will be extracted from context.
 /// * `#[context(into = "...")]` - the type into which the type will be converted.
 /// * `#[context(from = "...")]` - the type from which the type will be converted.
 /// * `#[context(description = "...")]` - the description of the type in context. \
-/// This attribute is used only for documentation purposes and perhaps for debugging.
+///     This attribute is used only for documentation purposes and perhaps for debugging.
 ///
 /// Check the examples below to see how to use this macro and what types of deriving are supported.
 ///
@@ -157,17 +157,17 @@ pub fn derive_from_context(item: TokenStream) -> TokenStream {
     expand_with(item, from_context::expand)
 }
 
-/// Derive an implementation of `FromEventAndContext` for the given type.
+/// Derive an implementation of `Extractor` for the given type.
 ///
 /// This macro supports the following attributes:
 /// * `#[event(from = "...")]` - the from which the type will be converted.
 /// * `#[event(try_from = "...")]` - the from which the type will be converted.
 /// * `#[event(error = "...")]` - the error type that will be returned if conversion fails. \
-/// Used only if `try_from` is specified. \
-/// If it's empty, then we use `ConvertToTypeError` type as error type. \
-/// If it's not empty, then we use this type as error type.
-/// * `#[event(description = "...")]` - the description of the type. \s
-/// This attribute is used only for documentation purposes.
+///     Used only if `try_from` is specified. \
+///     If it's empty, then we use `ConvertToTypeError` type as error type. \
+///     If it's not empty, then we use this type as error type.
+/// * `#[event(description = "...")]` - the description of the type. \
+///     This attribute is used only for documentation purposes.
 ///
 /// "..." it can be either a type, or a type path to one of them:
 /// * `Update` - the main type of the crate, which contains all the information about the event.
@@ -237,7 +237,7 @@ pub fn derive_from_context(item: TokenStream) -> TokenStream {
 /// }
 /// ```
 /// # Notes
-/// This macros is used in the library to implement `FromEventAndContext` for types that impl `From` for `Update`,
+/// This macros is used in the library to implement `Extractor` for types that impl `From` for `Update`,
 /// but you can use it for your own types.
 #[proc_macro_derive(FromEvent, attributes(event))]
 pub fn derive_from_event(item: TokenStream) -> TokenStream {

@@ -10,8 +10,7 @@
 //! see [`Filter::and`], [`Filter::or`] and [`Filter::invert`] methods.
 
 use super::base::Filter;
-
-use crate::{client::Bot, context::Context, types::Update};
+use crate::Request;
 
 use async_trait::async_trait;
 use std::sync::Arc;
@@ -67,11 +66,11 @@ impl<Client> Invert<Client> {
 
 impl<Client> And<Client>
 where
-    Client: Sync,
+    Client: Send + Sync,
 {
-    pub async fn validate(&self, bot: &Bot<Client>, update: &Update, context: &Context) -> bool {
+    pub async fn validate(&self, request: &mut Request<Client>) -> bool {
         for filter in &self.filters {
-            if !filter.check(bot, update, context).await {
+            if !filter.check(request).await {
                 return false;
             }
         }
@@ -82,11 +81,11 @@ where
 
 impl<Client> Or<Client>
 where
-    Client: Sync,
+    Client: Send + Sync,
 {
-    pub async fn validate(&self, bot: &Bot<Client>, update: &Update, context: &Context) -> bool {
+    pub async fn validate(&self, request: &mut Request<Client>) -> bool {
         for filter in &self.filters {
-            if filter.check(bot, update, context).await {
+            if filter.check(request).await {
                 return true;
             }
         }
@@ -97,10 +96,10 @@ where
 
 impl<Client> Invert<Client>
 where
-    Client: Sync,
+    Client: Send + Sync,
 {
-    pub async fn validate(&self, bot: &Bot<Client>, update: &Update, context: &Context) -> bool {
-        !self.filter.check(bot, update, context).await
+    pub async fn validate(&self, request: &mut Request<Client>) -> bool {
+        !self.filter.check(request).await
     }
 }
 
@@ -110,10 +109,10 @@ macro_rules! impl_filter {
         #[async_trait]
         impl<Client> Filter<Client> for $name<Client>
         where
-            Client: Sync,
+            Client: Send + Sync,
         {
-            async fn check(&self, bot: &Bot<Client>, update: &Update, context: &Context) -> bool {
-                self.validate(bot, update, context).await
+            async fn check(&self, request: &mut Request<Client>) -> bool {
+                self.validate(request).await
             }
         }
     };
@@ -126,99 +125,88 @@ impl_filter!(Invert);
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    use crate::{
-        client::{Bot, Reqwest},
-        context::Context,
-        types::Update,
-    };
+    use crate::client::Reqwest;
 
     #[tokio::test]
     async fn test_and() {
-        let bot = Bot::<Reqwest>::default();
-        let context = Context::new();
-        let update = Update::default();
+        let mut request = Request::<Reqwest>::default();
 
         assert!(
-            And::new(|_: &Bot, _: &Update, _: &Context| async { true })
-                .validate(&bot, &update, &context)
+            And::new(|_: &mut Request| async { true })
+                .validate(&mut request)
                 .await
         );
         assert!(
-            !And::new(|_: &Bot, _: &Update, _: &Context| async { false })
-                .validate(&bot, &update, &context)
+            !And::new(|_: &mut Request| async { false })
+                .validate(&mut request)
                 .await
         );
         assert!(
-            And::new(|_: &Bot, _: &Update, _: &Context| async { true })
-                .and(|_: &Bot, _: &Update, _: &Context| async { true })
-                .validate(&bot, &update, &context)
+            And::new(|_: &mut Request| async { true })
+                .and(|_: &mut Request| async { true })
+                .validate(&mut request)
                 .await
         );
         assert!(
-            !And::new(|_: &Bot, _: &Update, _: &Context| async { false })
-                .and(|_: &Bot, _: &Update, _: &Context| async { true })
-                .validate(&bot, &update, &context)
+            !And::new(|_: &mut Request| async { false })
+                .and(|_: &mut Request| async { true })
+                .validate(&mut request)
                 .await
         );
         assert!(
-            !And::new(|_: &Bot, _: &Update, _: &Context| async { true })
-                .and(|_: &Bot, _: &Update, _: &Context| async { false })
-                .validate(&bot, &update, &context)
+            !And::new(|_: &mut Request| async { true })
+                .and(|_: &mut Request| async { false })
+                .validate(&mut request)
                 .await
         );
     }
 
     #[tokio::test]
     async fn test_or() {
-        let bot = Bot::<Reqwest>::default();
-        let context = Context::new();
-        let update = Update::default();
+        let mut request = Request::<Reqwest>::default();
 
         assert!(
-            Or::new(|_: &Bot, _: &Update, _: &Context| async { true })
-                .validate(&bot, &update, &context)
+            Or::new(|_: &mut Request| async { true })
+                .validate(&mut request)
                 .await
         );
         assert!(
-            !Or::new(|_: &Bot, _: &Update, _: &Context| async { false })
-                .validate(&bot, &update, &context)
+            !Or::new(|_: &mut Request| async { false })
+                .validate(&mut request)
                 .await
         );
         assert!(
-            Or::new(|_: &Bot, _: &Update, _: &Context| async { true })
-                .or(|_: &Bot, _: &Update, _: &Context| async { true })
-                .validate(&bot, &update, &context)
+            Or::new(|_: &mut Request| async { true })
+                .or(|_: &mut Request| async { true })
+                .validate(&mut request)
                 .await
         );
         assert!(
-            Or::new(|_: &Bot, _: &Update, _: &Context| async { false })
-                .or(|_: &Bot, _: &Update, _: &Context| async { true })
-                .validate(&bot, &update, &context)
+            Or::new(|_: &mut Request| async { false })
+                .or(|_: &mut Request| async { true })
+                .validate(&mut request)
                 .await
         );
         assert!(
-            Or::new(|_: &Bot, _: &Update, _: &Context| async { true })
-                .or(|_: &Bot, _: &Update, _: &Context| async { false })
-                .validate(&bot, &update, &context)
+            Or::new(|_: &mut Request| async { true })
+                .or(|_: &mut Request| async { false })
+                .validate(&mut request)
                 .await
         );
     }
 
     #[tokio::test]
     async fn test_invert() {
-        let bot = Bot::<Reqwest>::default();
-        let context = Context::new();
-        let update = Update::default();
+        let mut request = Request::<Reqwest>::default();
 
         assert!(
-            Invert::new(|_: &Bot, _: &Update, _: &Context| async { false })
-                .validate(&bot, &update, &context)
+            Invert::new(|_: &mut Request| async { false })
+                .validate(&mut request)
                 .await
         );
         assert!(
-            !Invert::new(|_: &Bot, _: &Update, _: &Context| async { true })
-                .validate(&bot, &update, &context)
+            !Invert::new(|_: &mut Request| async { true })
+                .validate(&mut request)
                 .await
         );
     }

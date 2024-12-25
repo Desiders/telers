@@ -26,8 +26,10 @@
 //! - [`BotCommandScopeChat`]
 //! - [`BotCommandScopeChatAdministrators`]
 //! - [`BotCommandScopeChatMember`]
+//!
 //! Each variant has an implementation of [`From`] trait to convert from the variant to the [`BotCommandScope`],
 //! so you can write `from` and `into` to convert between them instead of boilerplate code.
+//!
 //! Many methods in the library accept "union" and tagged types as generic parameters with [`Into`] trait bounds,
 //! so you can pass any of the variants to them.
 //!
@@ -35,7 +37,8 @@
 //! For example, [`Message`] is represented as enum with variants:
 //! - [`MessageText`]
 //! - [`MessageAnimation`]
-//! and so on... (see [`Message`] for full list of variants).
+//! - and so on... (see [`Message`] for full list of variants).
+//!
 //! Each variant has an implementation of [`Into`] trait to convert from the variant to the [`Message`].
 
 pub mod animation;

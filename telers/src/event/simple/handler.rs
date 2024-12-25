@@ -132,6 +132,14 @@ mod factory_handlers {
     factory! { A B C D E F G H I J K }
     // To be able to use function with 12 arguments
     factory! { A B C D E F G H I J K L }
+    // To be able to use function with 13 arguments
+    factory! { A B C D E F G H I J K L M}
+    // To be able to use function with 14 arguments
+    factory! { A B C D E F G H I J K L M N }
+    // To be able to use function with 15 arguments
+    factory! { A B C D E F G H I J K L M N O}
+    // To be able to use function with 16 arguments
+    factory! { A B C D E F G H I J K L M N O P }
 }
 
 #[cfg(test)]
@@ -158,7 +166,11 @@ mod tests {
              _09: (),
              _10: (),
              _11: (),
-             _12: ()| async { unreachable!() },
+             _12: (),
+             _13: (),
+             _14: (),
+             _15: (),
+             _16: ()| async { unreachable!() },
         );
     }
 

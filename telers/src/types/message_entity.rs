@@ -46,7 +46,7 @@ pub enum Kind {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct Pre {
     pub language: Option<String>,
 }

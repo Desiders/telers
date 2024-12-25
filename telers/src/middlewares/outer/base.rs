@@ -1,4 +1,4 @@
-use crate::{client::Reqwest, errors::EventErrorKind, event::EventReturn, router::Request};
+use crate::{client::Reqwest, errors::EventErrorKind, event::EventReturn, Request};
 
 use async_trait::async_trait;
 use std::{future::Future, sync::Arc};
@@ -66,6 +66,7 @@ mod tests {
         client::{Bot, Reqwest},
         context::Context,
         types::{Message, Update, UpdateKind},
+        Extensions,
     };
 
     use tokio;
@@ -75,15 +76,15 @@ mod tests {
         let middleware =
             |request: Request<Reqwest>| async move { Ok((request, EventReturn::default())) };
 
-        let request = Request::new(
-            Arc::new(Bot::<Reqwest>::default()),
-            Arc::new(Update {
+        let request = Request {
+            bot: Arc::new(Bot::<Reqwest>::default()),
+            update: Arc::new(Update {
                 id: 0,
                 kind: UpdateKind::Message(Message::default()),
             }),
-            Arc::new(Context::default()),
-        );
-
+            context: Context::default(),
+            extensions: Extensions::default(),
+        };
         let (updated_request, _) = Middleware::call(&middleware, request.clone())
             .await
             .unwrap();

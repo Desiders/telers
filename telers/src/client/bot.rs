@@ -41,7 +41,7 @@
 //! More production examples can be found in [`examples`] directory.
 //!
 //! [`examples`]: https://github.com/Desiders/telers/tree/dev-1.x/examples
-//! [`methods`]: crate::methods
+//! [`methods`]: telers::methods
 
 use super::{session::base::Session, Reqwest};
 

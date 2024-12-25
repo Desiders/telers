@@ -1,20 +1,15 @@
 use crate::{
     client::Reqwest,
+    errors::{ExtractionError, HandlerError},
     event::{
         service::{
             factory, fn_service, BoxFuture, BoxService, BoxServiceFactory, Service, ServiceFactory,
         },
         EventReturn,
     },
-};
-
-use crate::{
-    client::Bot,
-    context::Context,
-    errors::{ExtractionError, HandlerError},
-    extractors::FromEventAndContext,
+    extractor::Extractor,
     filters::Filter,
-    types::Update,
+    Request,
 };
 
 use std::{
@@ -29,51 +24,6 @@ pub type BoxedHandlerService<Client> =
     BoxService<Request<Client>, Response<Client>, ExtractionError>;
 pub type BoxedHandlerServiceFactory<Client> =
     BoxServiceFactory<(), Request<Client>, Response<Client>, ExtractionError, ()>;
-
-pub struct Request<Client = Reqwest> {
-    pub bot: Arc<Bot<Client>>,
-    pub update: Arc<Update>,
-    pub context: Arc<Context>,
-}
-
-impl<Client> Request<Client> {
-    #[must_use]
-    pub fn new(bot: Arc<Bot<Client>>, update: Arc<Update>, context: Arc<Context>) -> Self {
-        Self {
-            bot,
-            update,
-            context,
-        }
-    }
-}
-
-impl<Client> Debug for Request<Client> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Request")
-            .field("bot", &self.bot)
-            .field("update", &self.update)
-            .field("context", &self.context)
-            .finish()
-    }
-}
-
-impl<Client> PartialEq for Request<Client> {
-    fn eq(&self, other: &Self) -> bool {
-        Arc::ptr_eq(&self.bot, &other.bot)
-            && Arc::ptr_eq(&self.update, &other.update)
-            && Arc::ptr_eq(&self.context, &other.context)
-    }
-}
-
-impl<Client> Clone for Request<Client> {
-    fn clone(&self) -> Self {
-        Self {
-            bot: Arc::clone(&self.bot),
-            update: Arc::clone(&self.update),
-            context: Arc::clone(&self.context),
-        }
-    }
-}
 
 pub type Result = StdResult<EventReturn, HandlerError>;
 
@@ -99,13 +49,13 @@ pub trait Handler<Args> {
 }
 
 #[allow(clippy::module_name_repetitions)]
-pub struct HandlerObject<Client> {
+pub struct HandlerComposite<Client> {
     service: BoxedHandlerServiceFactory<Client>,
 
     pub filters: Vec<Arc<dyn Filter<Client>>>,
 }
 
-impl<Client> HandlerObject<Client>
+impl<Client> HandlerComposite<Client>
 where
     Client: Send + Sync + 'static,
 {
@@ -114,7 +64,7 @@ where
         H: Handler<Args> + Clone + Send + Sync + 'static,
         H::Future: Send,
         H::Output: Into<Result>,
-        Args: FromEventAndContext<Client> + Send,
+        Args: Extractor<Client> + Send,
         Args::Error: Send,
     {
         Self {
@@ -124,7 +74,8 @@ where
     }
 }
 
-impl<Client> HandlerObject<Client> {
+impl<Client> HandlerComposite<Client> {
+    /// Register filter for current handler
     pub fn filter<T>(&mut self, val: T) -> &mut Self
     where
         T: Filter<Client> + 'static,
@@ -133,6 +84,7 @@ impl<Client> HandlerObject<Client> {
         self
     }
 
+    /// Register filters for current handler
     pub fn filters<T, I>(&mut self, val: I) -> &mut Self
     where
         T: Filter<Client> + 'static,
@@ -144,7 +96,7 @@ impl<Client> HandlerObject<Client> {
     }
 }
 
-impl<Client> ServiceFactory<Request<Client>> for HandlerObject<Client> {
+impl<Client> ServiceFactory<Request<Client>> for HandlerComposite<Client> {
     type Response = Response<Client>;
     type Error = ExtractionError;
     type Config = ();
@@ -169,17 +121,14 @@ pub struct HandlerObjectService<Client> {
 
 impl<Client> HandlerObjectService<Client>
 where
-    Client: Sync,
+    Client: Send + Sync,
 {
     /// Check if the handler pass the filters.
     /// If the handler pass all them, it will be called.
     #[instrument(skip(self, request))]
-    pub async fn check(&self, request: &Request<Client>) -> bool {
+    pub async fn check(&self, request: &mut Request<Client>) -> bool {
         for filter in &*self.filters {
-            if !filter
-                .check(&request.bot, &request.update, &request.context)
-                .await
-            {
+            if !filter.check(request).await {
                 return false;
             }
         }
@@ -205,18 +154,14 @@ where
     H: Handler<Args> + Clone + Send + Sync + 'static,
     H::Future: Send,
     H::Output: Into<Result>,
-    Args: FromEventAndContext<Client> + Send,
+    Args: Extractor<Client> + Send,
     Args::Error: Send,
 {
     factory(fn_service(move |request: Request<Client>| {
-        let bot = Arc::clone(&request.bot);
-        let update = Arc::clone(&request.update);
-        let context = Arc::clone(&request.context);
-
         let handler = handler.clone();
 
         async move {
-            match Args::extract(bot, update, context) {
+            match Args::extract(&request) {
                 Ok(extracted_args) => Ok(Response {
                     request,
                     handler_result: handler.call(extracted_args).await.into(),
@@ -227,9 +172,7 @@ where
                     event!(
                         Level::ERROR,
                         error = %extraction_err,
-                        bot = ?request.bot,
-                        update = ?request.update,
-                        context = ?request.context,
+                        ?request,
                         "Failed to extract arguments",
                     );
 
@@ -297,14 +240,6 @@ mod factory_handlers {
     factory! { A B C D E F G H I J K L M N O}
     // To be able to extract tuple with 16 arguments
     factory! { A B C D E F G H I J K L M N O P }
-    // To be able to extract tuple with 17 arguments
-    factory! { A B C D E F G H I J K L M N O P Q }
-    // To be able to extract tuple with 18 arguments
-    factory! { A B C D E F G H I J K L M N O P Q R }
-    // To be able to extract tuple with 19 arguments
-    factory! { A B C D E F G H I J K L M N O P Q R S }
-    // To be able to extract tuple with 20 arguments
-    factory! { A B C D E F G H I J K L M N O P Q R S T }
 }
 
 #[cfg(test)]
@@ -314,14 +249,14 @@ mod tests {
         client::Reqwest,
         event::EventReturn,
         filters::Command,
-        types::{Message, UpdateKind},
+        types::{Message, Update, UpdateKind},
     };
 
     use tokio;
 
     #[test]
     fn test_arg_number() {
-        fn assert_impl_handler<Client, T: FromEventAndContext<Client>>(_: impl Handler<T>) {}
+        fn assert_impl_handler<Client, T: Extractor<Client>>(_: impl Handler<T>) {}
 
         assert_impl_handler::<Reqwest, _>(|| async { unreachable!() });
         assert_impl_handler::<Reqwest, _>(
@@ -340,45 +275,40 @@ mod tests {
              _13: (),
              _14: (),
              _15: (),
-             _16: (),
-             _17: (),
-             _18: (),
-             _19: (),
-             _20: ()| async { unreachable!() },
+             _16: ()| async { unreachable!() },
         );
     }
 
     #[test]
-    fn test_handler_object_filter() {
+    fn test_handler_composite_filter() {
         let filter = Command::default();
 
-        let mut handler_object =
-            HandlerObject::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
-        assert!(handler_object.filters.is_empty());
+        let mut handler_composite =
+            HandlerComposite::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
+        assert!(handler_composite.filters.is_empty());
 
-        handler_object.filter(filter.clone());
-        assert_eq!(handler_object.filters.len(), 1);
+        handler_composite.filter(filter.clone());
+        assert_eq!(handler_composite.filters.len(), 1);
 
-        let mut handler_object =
-            HandlerObject::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
-        handler_object.filter(filter);
-        assert_eq!(handler_object.filters.len(), 1);
+        let mut handler_composite =
+            HandlerComposite::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
+        handler_composite.filter(filter);
+        assert_eq!(handler_composite.filters.len(), 1);
     }
 
     #[tokio::test]
-    async fn test_handler_object_service() {
-        let handler_object = HandlerObject::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
-        let handler_object_service = handler_object.new_service(()).unwrap();
+    async fn test_handler_composite_service() {
+        let handler_composite =
+            HandlerComposite::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
+        let handler_composite_service = handler_composite.new_service(()).unwrap();
 
-        let request = Request::new(
-            Arc::new(Bot::<Reqwest>::default()),
-            Arc::new(Update {
-                id: 0,
-                kind: UpdateKind::Message(Message::default()),
-            }),
-            Arc::new(Context::default()),
-        );
-        let response = handler_object_service.call(request).await.unwrap();
+        let mut request = Request::<Reqwest>::default();
+        request.update = Arc::new(Update {
+            id: 0,
+            kind: UpdateKind::Message(Message::default()),
+        });
+
+        let response = handler_composite_service.call(request).await.unwrap();
 
         match response.handler_result {
             Ok(EventReturn::Finish) => {}

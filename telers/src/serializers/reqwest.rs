@@ -2,7 +2,7 @@
 //!
 //! Check [`serializers module`] documentation for more information about serializers.
 //!
-//! [`serializers module`]: crate::serializers
+//! [`serializers module`]: telers::serializers
 
 use reqwest::multipart::{Form, Part};
 use serde::{

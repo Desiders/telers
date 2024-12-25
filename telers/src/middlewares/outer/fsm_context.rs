@@ -1,5 +1,4 @@
 use super::{Middleware, MiddlewareResponse};
-
 use crate::{
     context::Context as RequestContext,
     errors::{EventErrorKind, MiddlewareError},
@@ -9,8 +8,8 @@ use crate::{
         strategy::Strategy,
         Context, Storage,
     },
-    router::Request,
     types::{Chat, User},
+    Request,
 };
 
 use async_trait::async_trait;
@@ -80,17 +79,10 @@ where
 {
     #[must_use]
     fn resolve_event_context(&self, bot_id: i64, context: &RequestContext) -> Option<Context<S>> {
-        let user = context.get("event_user");
-        let chat = context.get("event_chat");
-        let message_thread_id = context.get("event_message_thread_id");
-        let business_connection_id = context.get("event_business_connection_id");
-
-        let user_id = user.and_then(|user| user.downcast_ref().map(|user: &User| user.id));
-        let chat_id = chat.and_then(|chat| chat.downcast_ref().map(|chat: &Chat| chat.id()));
-        let message_thread_id = message_thread_id
-            .and_then(|message_thread_id| message_thread_id.downcast_ref().copied());
-        let business_connection_id = business_connection_id
-            .and_then(|business_connection_id| business_connection_id.downcast_ref().cloned());
+        let user_id = context.get::<User>("event_user").map(|user| user.id);
+        let chat_id = context.get::<Chat>("event_chat").map(Chat::id);
+        let message_thread_id = context.get("event_message_thread_id").copied();
+        let business_connection_id = context.get("event_business_connection_id").cloned();
 
         self.resolve_context(
             bot_id,
@@ -160,9 +152,9 @@ where
     #[instrument(skip(self, request))]
     async fn call(
         &self,
-        request: Request<Client>,
+        mut request: Request<Client>,
     ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
-        let context = request.context.as_ref();
+        let context = &mut request.context;
 
         if let Some(fsm_context) = self.resolve_event_context(request.bot.bot_id, context) {
             if let Some(state) = fsm_context

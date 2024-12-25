@@ -1,6 +1,5 @@
 use super::base::Filter;
-
-use crate::{client::Bot, context::Context, enums::ContentType as ContentTypeEnum, types::Update};
+use crate::{enums::ContentType as ContentTypeEnum, Request};
 
 use async_trait::async_trait;
 
@@ -46,9 +45,9 @@ impl ContentType {
 }
 
 #[async_trait]
-impl<Client> Filter<Client> for ContentType {
-    async fn check(&self, _bot: &Bot<Client>, update: &Update, _context: &Context) -> bool {
-        let Some(message) = update.message() else {
+impl<Client: Send + Sync> Filter<Client> for ContentType {
+    async fn check(&self, request: &mut Request<Client>) -> bool {
+        let Some(message) = request.update.message() else {
             return false;
         };
 

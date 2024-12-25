@@ -11,9 +11,9 @@
 //!
 //! You can check example of using inner middlewares in `examples/stats_incoming_updates_middleware`.
 //!
-//! [`request`]: crate::event::telegram::HandlerRequest
-//! [`response`]: crate::event::telegram::HandlerResponse
-//! [`context`]: crate::context::Context
+//! [`request`]: telers::Request
+//! [`response`]: telers::event::telegram::HandlerResponse
+//! [`context`]: telers::context::Context
 
 pub mod base;
 pub mod logging;

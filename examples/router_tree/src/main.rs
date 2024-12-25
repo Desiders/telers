@@ -10,10 +10,7 @@
 //! ```
 
 use async_trait::async_trait;
-use std::sync::{
-    atomic::{AtomicUsize, Ordering},
-    Arc,
-};
+use std::sync::atomic::{AtomicUsize, Ordering};
 use telers::{
     enums::ChatType as ChatTypeEnum,
     errors::EventErrorKind,
@@ -21,9 +18,8 @@ use telers::{
     filters::{ChatType, Command},
     methods::{CopyMessage, SendMessage},
     middlewares::{outer::MiddlewareResponse, OuterMiddleware},
-    router::{Request as RouterRequest, Router},
     types::Message,
-    Bot, Context, Dispatcher,
+    Bot, Context, Dispatcher, Request, Router,
 };
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
@@ -36,7 +32,7 @@ struct IncomingEchoRouterUpdates {
 
 #[async_trait]
 impl OuterMiddleware for IncomingEchoRouterUpdates {
-    async fn call(&self, request: RouterRequest) -> Result<MiddlewareResponse, EventErrorKind> {
+    async fn call(&self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
         event!(Level::INFO, "Incoming echo router update");
 
         self.counter.fetch_add(1, Ordering::SeqCst);
@@ -71,13 +67,11 @@ async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
     Ok(EventReturn::Finish)
 }
 
-async fn stats_echo_router(bot: Bot, message: Message, context: Arc<Context>) -> HandlerResult {
+async fn stats_echo_router(bot: Bot, message: Message, context: Context) -> HandlerResult {
     let text = format!(
         "Echo router updates stats\n\nIncoming updates: {}",
         context
-            .get("incoming_echo_router_updates_counter")
-            .unwrap()
-            .downcast_ref::<usize>()
+            .get::<usize>("incoming_echo_router_updates_counter")
             .unwrap()
     );
 

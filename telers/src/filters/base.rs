@@ -1,10 +1,5 @@
 use super::{And, Invert, Or};
-
-use crate::{
-    client::{Bot, Reqwest},
-    context::Context,
-    types::Update,
-};
+use crate::{client::Reqwest, Request};
 
 use async_trait::async_trait;
 use std::{future::Future, sync::Arc};
@@ -20,7 +15,7 @@ pub trait Filter<Client = Reqwest>: Send + Sync {
     /// Check if the filter passes
     /// # Returns
     /// `true` if the filter passes, otherwise `false`
-    async fn check(&self, bot: &Bot<Client>, update: &Update, context: &Context) -> bool;
+    async fn check(&self, request: &mut Request<Client>) -> bool;
 
     /// Invert result of the filter
     /// # Notes
@@ -57,10 +52,10 @@ pub trait Filter<Client = Reqwest>: Send + Sync {
 impl<T: ?Sized, Client> Filter<Client> for Arc<T>
 where
     T: Filter<Client>,
-    Client: Sync,
+    Client: Send + Sync,
 {
-    async fn check(&self, bot: &Bot<Client>, update: &Update, context: &Context) -> bool {
-        T::check(self, bot, update, context).await
+    async fn check(&self, request: &mut Request<Client>) -> bool {
+        T::check(self, request).await
     }
 }
 
@@ -68,11 +63,11 @@ where
 #[async_trait]
 impl<Client, Func, Fut> Filter<Client> for Func
 where
-    Client: Sync,
-    Func: Fn(&Bot<Client>, &Update, &Context) -> Fut + Send + Sync,
+    Client: Send + Sync,
+    Func: Fn(&mut Request<Client>) -> Fut + Send + Sync,
     Fut: Future<Output = bool> + Send,
 {
-    async fn check(&self, bot: &Bot<Client>, update: &Update, context: &Context) -> bool {
-        self(bot, update, context).await
+    async fn check(&self, request: &mut Request<Client>) -> bool {
+        self(request).await
     }
 }

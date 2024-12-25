@@ -9,22 +9,18 @@
 //! ```
 
 use async_trait::async_trait;
-use std::sync::{
-    atomic::{AtomicUsize, Ordering},
-    Arc,
-};
+use std::sync::atomic::{AtomicUsize, Ordering};
 use telers::{
     enums::UpdateType,
     errors::EventErrorKind,
     event::{
-        telegram::{HandlerRequest, HandlerResponse, HandlerResult},
+        telegram::{HandlerResponse, HandlerResult},
         EventReturn, ToServiceProvider as _,
     },
     methods::SendMessage,
     middlewares::{outer::MiddlewareResponse, InnerMiddleware, Next, OuterMiddleware},
-    router::{Request as RouterRequest, Router},
     types::Update,
-    Bot, Context, Dispatcher,
+    Bot, Context, Dispatcher, Request, Router,
 };
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
@@ -36,7 +32,7 @@ struct IncomingUpdates {
 
 #[async_trait]
 impl OuterMiddleware for IncomingUpdates {
-    async fn call(&self, request: RouterRequest) -> Result<MiddlewareResponse, EventErrorKind> {
+    async fn call(&self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
         self.counter.fetch_add(1, Ordering::SeqCst);
 
         request.context.insert(
@@ -59,7 +55,7 @@ struct ProcessedHandlers {
 impl InnerMiddleware for ProcessedHandlers {
     async fn call(
         &self,
-        request: HandlerRequest,
+        mut request: Request,
         next: Next,
     ) -> Result<HandlerResponse, EventErrorKind> {
         request.context.insert(
@@ -75,19 +71,11 @@ impl InnerMiddleware for ProcessedHandlers {
     }
 }
 
-async fn handler(bot: Bot, update: Update, context: Arc<Context>) -> HandlerResult {
+async fn handler(bot: Bot, update: Update, context: Context) -> HandlerResult {
     let text = format!(
         "Hello! Users sent me {} updates and I processed {} handlers successfully for them.",
-        context
-            .get("incoming_updates_counter")
-            .unwrap()
-            .downcast_ref::<usize>()
-            .unwrap(),
-        context
-            .get("processed_handlers_counter")
-            .unwrap()
-            .downcast_ref::<usize>()
-            .unwrap()
+        context.get::<usize>("incoming_updates_counter").unwrap(),
+        context.get::<usize>("processed_handlers_counter").unwrap()
     );
 
     if let Some(chat) = update.chat() {

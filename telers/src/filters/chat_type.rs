@@ -1,6 +1,5 @@
 use super::base::Filter;
-
-use crate::{client::Bot, context::Context, enums::ChatType as ChatTypeEnum, types::Update};
+use crate::{enums::ChatType as ChatTypeEnum, Request};
 
 use async_trait::async_trait;
 
@@ -44,9 +43,9 @@ impl ChatType {
 }
 
 #[async_trait]
-impl<Client> Filter<Client> for ChatType {
-    async fn check(&self, _bot: &Bot<Client>, update: &Update, _context: &Context) -> bool {
-        match update.chat() {
+impl<Client: Send + Sync> Filter<Client> for ChatType {
+    async fn check(&self, request: &mut Request<Client>) -> bool {
+        match request.update.chat() {
             Some(chat) => self.validate_chat_type(ChatTypeEnum::from(chat)),
             None => false,
         }

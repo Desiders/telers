@@ -4,6 +4,6 @@
 //! do it for custom client and implement [`Session`] trait for it.
 //! You can check example of using custom client in bot in `examples/bot_http_client`.
 //!
-//! [`Session`]: crate::client::Session
+//! [`Session`]: telers::client::Session
 
 pub(crate) mod reqwest;

@@ -12,8 +12,8 @@ use telers::{
     enums::UpdateType,
     event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
     methods::SendMessage,
-    types::{Message, Update},
-    Bot, Context, Dispatcher, Filter, Router,
+    types::Message,
+    Bot, Dispatcher, Filter, Request, Router,
 };
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
@@ -24,8 +24,9 @@ struct UppercaseFilter;
 
 #[async_trait]
 impl Filter for UppercaseFilter {
-    async fn check(&self, _bot: &Bot, update: &Update, _context: &Context) -> bool {
-        update
+    async fn check(&self, request: &mut Request) -> bool {
+        request
+            .update
             .text()
             .map_or(false, |text| text.to_uppercase() == text)
     }
@@ -33,9 +34,9 @@ impl Filter for UppercaseFilter {
 
 /// # Notes
 /// We use here `async move` block to get result without capturing variables
-fn lowercase_filter(_bot: &Bot, update: &Update, _context: &Context) -> impl Future<Output = bool>
-where {
-    let result = update
+fn lowercase_filter(request: &mut Request) -> impl Future<Output = bool> {
+    let result = request
+        .update
         .text()
         .map_or(false, |text| text.to_lowercase() == text);
 

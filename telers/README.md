@@ -38,7 +38,7 @@ More information about this crate can be found in the [crate documentation][docs
  - [Text formatting][examples/text_formatting]. This example shows how to format text.
  - [Text case filters][examples/text_case_filters]. This example shows how to create text case filters.
  - [Stats updates middleware][examples/stats_incoming_updates_middleware]. This example shows how to create a middleware that count incoming updates.
- - [Context][examples/from_event_and_context]. This example shows how to extract data from event and context and use it in handlers.
+ - [Extractor][examples/extractor]. This example shows how to use extractor to extract data and use it in handlers.
  - [Input file][examples/input_file]. This example shows how to send files by the bot.
  - [Finite state machine][examples/fsm]. This example shows how to use a finite state machine (conversation).
  - [Router tree][examples/router_tree]. This example shows how to create a router tree.
@@ -63,7 +63,7 @@ This project is licensed under either of the following licenses, at your option:
 [examples/router_tree]: https://github.com/Desiders/telers/tree/dev-1.x/examples/router_tree
 [examples/fsm]: https://github.com/Desiders/telers/tree/dev-1.x/examples/fsm
 [examples/input_file]: https://github.com/Desiders/telers/tree/dev-1.x/examples/input_file
-[examples/from_event_and_context]: https://github.com/Desiders/telers/tree/dev-1.x/examples/from_event_and_context
+[examples/extractor]: https://github.com/Desiders/telers/tree/dev-1.x/examples/extractor
 [examples/stats_incoming_updates_middleware]: https://github.com/Desiders/telers/tree/dev-1.x/examples/stats_incoming_updates_middleware
 [examples/text_case_filters]: https://github.com/Desiders/telers/tree/dev-1.x/examples/text_case_filters
 [examples/text_formatting]: https://github.com/Desiders/telers/tree/dev-1.x/examples/text_formatting

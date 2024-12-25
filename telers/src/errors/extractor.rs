@@ -1,11 +1,11 @@
 //! This module contains the error type that can occur when extracting arguments from an event and a context to pass to a handler.
 //! For example, if you try to extract [`User`] from the [`Context`] and the context does not contain the user, you can use this error type.
 //!
-//! This error type used usually in [`FromEventAndContext`] trait implementations when the extraction fails.
+//! This error type used usually in [`Extractor`] trait implementations when the extraction fails.
 //!
-//! [`FromEventAndContext`]: crate::extractors::FromEventAndContext
-//! [`User`]: crate::types::User
-//! [`Context`]: crate::Context
+//! [`Extractor`]: telers::Extractor
+//! [`User`]: telers::types::User
+//! [`Context`]: telers::Context
 
 use std::{borrow::Cow, convert::Infallible};
 use thiserror;

@@ -1,6 +1,6 @@
 use super::{MessageEntity, PollOption, Update, UpdateKind};
 
-use crate::{errors::ConvertToTypeError, extractors::FromEvent};
+use crate::{errors::ConvertToTypeError, FromEvent};
 
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;

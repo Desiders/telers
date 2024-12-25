@@ -204,18 +204,18 @@ impl ToTokens for Client {
     }
 }
 
-/// Implement `FromEventAndContext` trait for `ident` or `into` type.
+/// Implement `Extractor` trait for `ident` or `into` type.
 /// # Arguments
-/// * `ident` - type for which we need to implement `FromEventAndContext` trait if `into` field is empty
+/// * `ident` - type for which we need to implement `Extractor` trait if `into` field is empty
 /// * `ident_impl_generics` - impl generics of `ident` type
 /// * `ident_ty_generics` - type generics of `ident` type
 /// * `ident_where_clause` - where clause of `ident` type
 /// * `client` - client type
 /// * `context_attrs` - context attributes. \
-/// If `into` field is not empty, then we need to implement the trait for `into` type and require `Into<Self>` trait for `ident` type. \
-/// If `from` field is not empty, then we need to implement the trait for `ident` type and require `From<Self>` trait for `into` type.
+///     If `into` field is not empty, then we need to implement the trait for `into` type and require `Into<Self>` trait for `ident` type. \
+///     If `from` field is not empty, then we need to implement the trait for `ident` type and require `From<Self>` trait for `into` type.
 /// # Notes
-/// * Currently we can implement `FromEventAndContext` trait for types that implement `Into<Self>` or `From<Self>` traits only with the same generics.
+/// * Currently we can implement `Extractor` trait for types that implement `Into<Self>` or `From<Self>` traits only with the same generics.
 #[allow(clippy::too_many_lines)]
 fn impl_from_event_and_context(
     ident: &Ident,
@@ -259,7 +259,7 @@ fn impl_from_event_and_context(
     if let Some(ref into) = context_attrs.into {
         return quote_spanned! { ident.span() =>
             #[automatically_derived]
-            impl <#impl_generics_punctuated> ::telers::extractors::FromEventAndContext<#client_ty_generic> for #into #ty_generics_punctuated
+            impl <#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #into #ty_generics_punctuated
             where
                 #where_clause_punctuated
                 // `Into<#ident #ty_generics_punctuated>` is required to be able to convert context value to `into` type
@@ -268,29 +268,18 @@ fn impl_from_event_and_context(
                 type Error = ::telers::errors::ExtractionError;
 
                 #[inline]
-                fn extract(
-                    bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
-                    update: ::std::sync::Arc<::telers::types::Update>,
-                    context: ::std::sync::Arc<::telers::context::Context>,
-                ) -> Result<Self, Self::Error> {
+                fn extract(request: &::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
                     use ::telers::errors::ExtractionError as Error;
 
-                    let Some(value) = context.get(#key_str) else {
+                    let Some(value) = request.context.get::<#ident #ty_generics_punctuated>(#key_str) else {
                         return Err(Error::new(concat!(
-                            "No found data in context by key `", #key_str, "`. ",
+                            "No found data in context by key `", #key_str, "` or value has wrong type expected `", stringify!(#ident), "`. ",
                             "You didn't forget to add type to context? ",
                             "Type description: ", #description_str,
                         )));
                     };
 
-                    match value.downcast_ref::<#ident #ty_generics_punctuated>() {
-                        Some(value_ref) => Ok((*value_ref).clone().into()),
-                        None => Err(Error::new(concat!(
-                            "Data in context by key `", #key_str, "` has wrong type expected `", stringify!(#ident), "`. ",
-                            "You didn't forget to add type to context? ",
-                            "Type description: ", #description_str,
-                        ))),
-                    }
+                    Ok((*value).clone().into())
                 }
             }
         };
@@ -300,7 +289,7 @@ fn impl_from_event_and_context(
     if let Some(ref from) = context_attrs.from {
         return quote_spanned! { ident.span() =>
             #[automatically_derived]
-            impl <#impl_generics_punctuated> ::telers::extractors::FromEventAndContext<#client_ty_generic> for #ident #ty_generics_punctuated
+            impl <#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
             where
                 #where_clause_punctuated
                 // `Into<#from #ty_generics_punctuated>` is required to be able to convert context value to `ident` type
@@ -309,29 +298,18 @@ fn impl_from_event_and_context(
                 type Error = ::telers::errors::ExtractionError;
 
                 #[inline]
-                fn extract(
-                    bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
-                    update: ::std::sync::Arc<::telers::types::Update>,
-                    context: ::std::sync::Arc<::telers::context::Context>,
-                ) -> Result<Self, Self::Error> {
+                fn extract(request: &::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
                     use ::telers::errors::ExtractionError as Error;
 
-                    let Some(value) = context.get(#key_str) else {
+                    let Some(value) = request.context.get::<#from #ty_generics_punctuated>(#key_str) else {
                         return Err(Error::new(concat!(
-                            "No found data in context by key `", #key_str, "`. ",
+                            "No found data in context by key `", #key_str, "` or value has wrong type expected `", stringify!(#from), "`. ",
                             "You didn't forget to add type to context? ",
                             "Type description: ", #description_str,
                         )));
                     };
 
-                    match value.downcast_ref::<#from #ty_generics_punctuated>() {
-                        Some(value_ref) => Ok((*value_ref).clone().into()),
-                        None => Err(Error::new(concat!(
-                            "Data in context by key `", #key_str, "` has wrong type expected `", stringify!(#from), "`. ",
-                            "You didn't forget to add type to context? ",
-                            "Type description: ", #description_str,
-                        ))),
-                    }
+                    Ok((*value).clone().into())
                 }
             }
         };
@@ -339,7 +317,7 @@ fn impl_from_event_and_context(
 
     quote_spanned! { ident.span() =>
         #[automatically_derived]
-        impl <#impl_generics_punctuated> ::telers::extractors::FromEventAndContext<#client_ty_generic> for #ident #ty_generics_punctuated
+        impl <#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
         where
             #where_clause_punctuated
             #ident #ty_generics_punctuated: ::std::clone::Clone + 'static
@@ -347,29 +325,18 @@ fn impl_from_event_and_context(
             type Error = ::telers::errors::ExtractionError;
 
             #[inline]
-            fn extract(
-                bot: ::std::sync::Arc<::telers::client::Bot<#client_ty_generic>>,
-                update: ::std::sync::Arc<::telers::types::Update>,
-                context: ::std::sync::Arc<::telers::context::Context>,
-            ) -> Result<Self, Self::Error> {
+            fn extract(request: &::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
                 use ::telers::errors::ExtractionError as Error;
 
-                let Some(value) = context.get(#key_str) else {
+                let Some(value) = request.context.get::<#ident #ty_generics_punctuated>(#key_str) else {
                     return Err(Error::new(concat!(
-                        "No found data in context by key `", #key_str, "`. ",
+                        "No found data in context by key `", #key_str, "` or value has wrong type expected `", stringify!(#ident), "`. ",
                         "You didn't forget to add type to context? ",
                         "Type description: ", #description_str,
                     )));
                 };
 
-                match value.downcast_ref::<Self>() {
-                    Some(value_ref) => Ok((*value_ref).clone()),
-                    None => Err(Error::new(concat!(
-                        "Data in context by key `", #key_str, "` has wrong type expected `", stringify!(#ident), "`. ",
-                        "You didn't forget to add type to context? ",
-                        "Type description: ", #description_str,
-                    ))),
-                }
+                Ok((*value).clone())
             }
         }
     }
