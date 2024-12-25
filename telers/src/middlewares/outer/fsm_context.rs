@@ -162,13 +162,13 @@ where
                 .await
                 .map_err(|err| MiddlewareError::new(err.into()))?
             {
-                context.insert("fsm_state", Box::new(state));
+                context.insert("fsm_state", state);
             }
 
-            context.insert("fsm_context", Box::new(fsm_context));
+            context.insert("fsm_context", fsm_context);
         }
 
-        context.insert("fsm_storage", Box::new(self.storage.clone()));
+        context.insert("fsm_storage", self.storage.clone());
 
         Ok((request, EventReturn::default()))
     }

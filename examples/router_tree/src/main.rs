@@ -39,7 +39,7 @@ impl OuterMiddleware for IncomingEchoRouterUpdates {
 
         request.context.insert(
             "incoming_echo_router_updates_counter",
-            Box::new(self.counter.load(Ordering::SeqCst)),
+            self.counter.load(Ordering::SeqCst),
         );
 
         Ok((request, EventReturn::Finish))

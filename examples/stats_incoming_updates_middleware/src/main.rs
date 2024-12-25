@@ -37,7 +37,7 @@ impl OuterMiddleware for IncomingUpdates {
 
         request.context.insert(
             "incoming_updates_counter",
-            Box::new(self.counter.load(Ordering::SeqCst)),
+            self.counter.load(Ordering::SeqCst),
         );
 
         Ok((request, EventReturn::Finish))
@@ -60,7 +60,7 @@ impl InnerMiddleware for ProcessedHandlers {
     ) -> Result<HandlerResponse, EventErrorKind> {
         request.context.insert(
             "processed_handlers_counter",
-            Box::new(self.counter.load(Ordering::SeqCst)),
+            self.counter.load(Ordering::SeqCst),
         );
 
         let response = next(request).await?;

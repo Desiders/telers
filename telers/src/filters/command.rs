@@ -437,7 +437,7 @@ where
         match self.validate_command_object(&command, &request.bot).await {
             Ok(result) => {
                 if result {
-                    request.context.insert("command", Box::new(command));
+                    request.context.insert("command", command);
 
                     true
                 } else {
