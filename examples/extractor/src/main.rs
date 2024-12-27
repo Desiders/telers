@@ -1,5 +1,5 @@
 //! This example shows how to use [`Extractor`] to extract data and use it in handlers.
-//! Check out the documentation of the [`extractor module`]` for more information
+//! Check out the documentation of the [`extractor module`] for more information
 //!
 //! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash
