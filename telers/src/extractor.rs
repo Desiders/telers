@@ -290,7 +290,7 @@ use crate::{
     Extensions, Request,
 };
 
-use std::{convert::Infallible, sync::Arc};
+use std::{any::type_name, convert::Infallible, sync::Arc};
 
 /// Trait for extracting data from [`Update`] and [`Context`] to handlers arguments
 pub trait Extractor<Client = Reqwest>: Sized {
@@ -412,7 +412,14 @@ where
     fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
         match request.extensions.get::<Value>() {
             Some(value) => Ok(Self(value.clone())),
-            None => Err(ExtractionError::new("")),
+            None => Err(ExtractionError::new(if request.extensions.is_empty() {
+                format!("Failed to extract data with type {}. Extensions are empty, it looks like you forgot to add a value.", type_name::<Value>())
+            } else {
+                format!(
+                    "Failed to extract data with type {}. It looks like you forgot to add a value of this type.",
+                    type_name::<Value>()
+                )
+            })),
         }
     }
 }

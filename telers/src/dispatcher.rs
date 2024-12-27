@@ -376,7 +376,7 @@ impl<Client, PropagatorService, BackoffType> Service<Client, PropagatorService, 
         Client: Send + Sync + 'static,
         PropagatorService: PropagateEvent<Client>,
     {
-        self.feed_update_with_context(bot, update, Context::default(), Extensions::default())
+        self.feed_update_with_context(bot, update, Context::new(), Extensions::new())
             .await
     }
 
@@ -472,7 +472,6 @@ impl<Client, PropagatorService, BackoffType> Service<Client, PropagatorService, 
                     // All updates with `update_id` less than or equal to `offset` will be marked.
                     // as confirmed on the server and will no longer be returned.
                     // So we need to set offset to the last update `id` + 1
-                    // `unwrap` is safe here, because we checked that updates isn't empty
                     method.offset = Some(id + 1);
 
                     updates
@@ -498,7 +497,6 @@ impl<Client, PropagatorService, BackoffType> Service<Client, PropagatorService, 
             for update in updates {
                 event!(Level::TRACE, "Send update to the listener",);
 
-                // `Box` is used to avoid stack overflow, because `Update` is a big struct
                 update_sender.send(update).await?;
             }
 

@@ -28,19 +28,19 @@ impl Display for EventReturn {
 
 /// Shortcut for [`Ok(EventReturn::Skip)`]
 #[allow(clippy::missing_errors_doc)]
-pub fn skip_event() -> Result<EventReturn, HandlerError> {
+pub const fn skip_event() -> Result<EventReturn, HandlerError> {
     Ok(EventReturn::Skip)
 }
 
 /// Shortcut for [`Ok(EventReturn::Cancel)`]
 #[allow(clippy::missing_errors_doc)]
-pub fn cancel_event() -> Result<EventReturn, HandlerError> {
+pub const fn cancel_event() -> Result<EventReturn, HandlerError> {
     Ok(EventReturn::Cancel)
 }
 
 /// Shortcut for [`Ok(EventReturn::Finish)`]
 #[allow(clippy::missing_errors_doc)]
-pub fn finish_event() -> Result<EventReturn, HandlerError> {
+pub const fn finish_event() -> Result<EventReturn, HandlerError> {
     Ok(EventReturn::Finish)
 }
 
