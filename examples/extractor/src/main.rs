@@ -1,5 +1,5 @@
 //! This example shows how to use [`Extractor`] to extract data and use it in handlers.
-//! Check out the documentation of the [`extractor`] module for more information, as this example is a small part of its documentation.
+//! Check out the documentation of the [`extractor module`]` for more information
 //!
 //! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash
@@ -9,23 +9,23 @@
 //! [`Extractor`]: telers::Extractor
 //! [`FromEvent`]: telers::FromEvent
 //! [`FromContext`]: telers::FromContext
-//! [`extractor`]: telers::extractor
+//! [`extractor module`]: telers::extractor
 
-use async_trait::async_trait;
+use std::convert::Infallible;
 use telers::{
     enums::UpdateType,
-    errors::{ConvertToTypeError, EventErrorKind},
+    errors::{ConvertToTypeError, EventErrorKind, ExtractionError},
     event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
     filters::Command,
     methods::SendMessage,
-    middlewares::{outer::MiddlewareResponse, OuterMiddleware},
+    middlewares::outer::MiddlewareResponse,
     types::{Message, Update},
-    Bot, Dispatcher, Extension, FromContext, FromEvent, Request, Router,
+    Bot, Dispatcher, Extension, Extractor, FromContext, FromEvent, Request, Router,
 };
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
-/// Implementing [`telers::extractor::Extractor`] by [`FromEvent`] macros to use struct in handlers.
+/// Implementing [`Extractor`] by [`FromEvent`] macros to use struct in handlers.
 /// # Notes
 /// You can implement it manually, but it's more convenient to use macros to avoid boilerplate code.
 #[derive(FromEvent)]
@@ -38,7 +38,7 @@ impl From<Update> for UpdateId {
     }
 }
 
-/// Implementing [`telers::extractor::Extractor`] by [`FromEvent`] macros to use struct in handlers.
+/// Implementing [`Extractor`] by [`FromEvent`] macros to use struct in handlers.
 /// # Notes
 /// You can implement it manually, but it's more convenient to use macros to avoid boilerplate code.
 ///
@@ -81,60 +81,71 @@ async fn update_id_handler(
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, FromContext)]
-#[context(key = "data")]
-struct Data(i64);
+#[context(key = "num_data")]
+struct NumData(i64);
 
-struct ToContextMiddleware<T> {
-    data: T,
-}
+#[derive(Debug, Clone, PartialEq, Eq, FromContext)]
+#[context(key = "str_data")]
+struct StrData(&'static str);
 
-#[async_trait]
-impl<T> OuterMiddleware for ToContextMiddleware<T>
-where
-    T: Send + Sync + Clone + 'static,
-{
-    async fn call(&self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
-        request.context.insert("data", self.data.clone());
+#[derive(Clone)]
+struct BoolData(bool);
 
-        Ok((request, EventReturn::default()))
+#[derive(Clone)]
+struct DataCombined(NumData, StrData);
+
+/// Implement [`Extractor`] yourself and just use what is implemented automatically for [`NumData`] and [`StrData`].
+impl Extractor for DataCombined {
+    type Error = ExtractionError;
+
+    fn extract(request: &Request) -> Result<Self, Self::Error> {
+        Ok(Self(NumData::extract(request)?, StrData::extract(request)?))
     }
 }
 
-/// Middleware that adds data to extensions.
-/// # Arguments
-/// * `data` - Data that we want to add to extensions
-struct ToExtensionsMiddleware<T> {
-    data: T,
-}
+struct BotId(i64);
 
-#[async_trait]
-impl<T> OuterMiddleware for ToExtensionsMiddleware<T>
-where
-    T: Send + Sync + Clone + 'static,
-{
-    async fn call(&self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
-        request.extensions.insert(self.data.clone());
+/// Implement [`Extractor`] yourself to get bot ID
+impl Extractor for BotId {
+    type Error = Infallible;
 
-        Ok((request, EventReturn::default()))
+    fn extract(request: &Request) -> Result<Self, Self::Error> {
+        Ok(Self(request.bot.bot_id))
     }
 }
 
-/// Handler that sends data from context to chat.
-/// # Arguments
-/// * `bot` - Bot instance
-/// * `message` - Message instance
-/// * `data` - Data that we get from context by middleware
+async fn to_context_and_extensions(
+    mut request: Request,
+) -> Result<MiddlewareResponse, EventErrorKind> {
+    request.context.insert("num_data", NumData(1));
+    request.context.insert("str_data", StrData("1"));
+
+    request.extensions.insert(BoolData(true));
+
+    Ok((request, EventReturn::default()))
+}
+
 async fn send_data_handler(
     bot: Bot,
     message: Message,
-    data1: Data,
-    Extension(data2): Extension<Data>,
+    num_data1: NumData,
+    str_data1: StrData,
+    // This structure is created by extractor that we implemented
+    DataCombined(num_data2, str_data2): DataCombined,
+    // This structure is created by middleware, we haven't implemented any trait for it,
+    // but we can still use it because extractor is implemented for all extensions
+    Extension(BoolData(bool_data)): Extension<BoolData>,
+    BotId(bot_id): BotId,
 ) -> HandlerResult {
-    assert_eq!(data1, data2);
+    assert_eq!(num_data1, num_data2);
+    assert_eq!(str_data1, str_data2);
 
     bot.send(SendMessage::new(
         message.chat().id(),
-        format!("Data1: {data1:?}. Data2: {data2:?}"),
+        format!(
+            "NumData: {:?}. StrData: {:?}. BoolData: {bool_data}. BotId: {bot_id}",
+            num_data1.0, str_data1.0
+        ),
     ))
     .await?;
 
@@ -152,21 +163,14 @@ async fn main() {
 
     let mut router = Router::new("main");
 
-    let data = Data(1);
-
-    // Register middleware that adds data to context.
+    // Register middleware that adds data to context and extensions.
     // Be aware, we register middleware for message observer, so it will be called only for messages.
     // If you want to register middleware for any update, you should register it for update observer.
     router
         .message
         .outer_middlewares
-        .register(ToContextMiddleware { data: data.clone() });
-    // Register middleware that adds data to extensions, analogously
-    router
-        .message
-        .outer_middlewares
-        .register(ToExtensionsMiddleware { data: data.clone() });
-    // Register handler that sends data from context to chat
+        .register(to_context_and_extensions);
+    // Register handler that sends extracted data to chat
     router
         .message
         .register(send_data_handler)

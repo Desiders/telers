@@ -35,10 +35,12 @@ More information about this crate can be found in the [crate documentation][docs
 
 ## Examples
  - [Echo bot][examples/echo_bot]. This example shows how to create an echo bot.
+ - [Context][examples/context]. This example shows how to use context to save data.
+ - [Extensions][examples/extensions]. This example shows how to use extensions to save data.
+ - [Extractor][examples/extractor]. This example shows how to use extractor to extract data.
  - [Text formatting][examples/text_formatting]. This example shows how to format text.
  - [Text case filters][examples/text_case_filters]. This example shows how to create text case filters.
  - [Stats updates middleware][examples/stats_incoming_updates_middleware]. This example shows how to create a middleware that count incoming updates.
- - [Extractor][examples/extractor]. This example shows how to use extractor to extract data and use it in handlers.
  - [Input file][examples/input_file]. This example shows how to send files by the bot.
  - [Finite state machine][examples/fsm]. This example shows how to use a finite state machine (conversation).
  - [Router tree][examples/router_tree]. This example shows how to create a router tree.
@@ -63,11 +65,13 @@ This project is licensed under either of the following licenses, at your option:
 [examples/router_tree]: https://github.com/Desiders/telers/tree/dev-1.x/examples/router_tree
 [examples/fsm]: https://github.com/Desiders/telers/tree/dev-1.x/examples/fsm
 [examples/input_file]: https://github.com/Desiders/telers/tree/dev-1.x/examples/input_file
-[examples/extractor]: https://github.com/Desiders/telers/tree/dev-1.x/examples/extractor
 [examples/stats_incoming_updates_middleware]: https://github.com/Desiders/telers/tree/dev-1.x/examples/stats_incoming_updates_middleware
 [examples/text_case_filters]: https://github.com/Desiders/telers/tree/dev-1.x/examples/text_case_filters
 [examples/text_formatting]: https://github.com/Desiders/telers/tree/dev-1.x/examples/text_formatting
 [examples/echo_bot]: https://github.com/Desiders/telers/tree/dev-1.x/examples/echo_bot
+[examples/extractor]: https://github.com/Desiders/telers/tree/dev-1.x/examples/extractor
+[examples/context]: https://github.com/Desiders/telers/tree/dev-1.x/examples/context
+[examples/extensions]: https://github.com/Desiders/telers/tree/dev-1.x/examples/extensions
 [licence_apache]: https://github.com/Desiders/telers/blob/dev-1.x/telers/LICENSE-APACHE
 [licence_mit]: https://github.com/Desiders/telers/blob/dev-1.x/telers/LICENSE-MIT
 [docs]: https://docs.rs/telers
