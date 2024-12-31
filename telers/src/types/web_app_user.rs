@@ -24,6 +24,6 @@ pub struct WebAppUser {
     pub added_to_attachment_menu: Option<bool>,
     /// `true`, if this user allowed the bot to message them.
     pub allows_write_to_pm: Option<bool>,
-    /// URL of the user’s profile photo. The photo can be in .jpeg or .svg formats. Only returned for Mini Apps launched from the attachment menu.
+    /// URL of the user’s profile photo. The photo can be in .jpeg or .svg formats.
     pub photo_url: Option<Box<str>>,
 }
