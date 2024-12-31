@@ -1,4 +1,4 @@
-use super::{PaidMedia, User};
+use super::{Gift, PaidMedia, User};
 
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -7,7 +7,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transactionpartneruser>
 #[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct TransactionPartnerUser {
     /// Information about the user
     pub user: User,
@@ -19,4 +19,6 @@ pub struct TransactionPartnerUser {
     pub paid_media: Option<Box<[PaidMedia]>>,
     /// Bot-specified paid media payload
     pub paid_media_payload: Option<Box<str>>,
+    /// The gift sent to the user by the bot
+    pub gift: Option<Gift>,
 }
