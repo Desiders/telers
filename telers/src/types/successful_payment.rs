@@ -15,6 +15,12 @@ pub struct SuccessfulPayment {
     pub total_amount: i64,
     /// Bot specified invoice payload
     pub invoice_payload: Box<str>,
+    /// Expiration date of the subscription, in Unix time; for recurring payments only
+    pub subscription_expiration_date: Option<i64>,
+    /// `true`, if the payment is a recurring payment for a subscription
+    pub is_recurring: Option<bool>,
+    /// `true`, if the payment is the first payment for a subscription
+    pub is_first_recurring: Option<bool>,
     /// Identifier of the shipping option chosen by the user
     pub shipping_option_id: Option<Box<str>>,
     /// Order info provided by the user
