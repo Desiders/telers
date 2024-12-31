@@ -41,6 +41,7 @@
 //!
 //! Each variant has an implementation of [`Into`] trait to convert from the variant to the [`Message`].
 
+pub mod affiliate_info;
 pub mod animation;
 pub mod audio;
 pub mod background_fill;
@@ -251,6 +252,7 @@ pub mod successful_payment;
 pub mod switch_inline_query_chosen_chat;
 pub mod text_quote;
 pub mod transaction_partner;
+pub mod transaction_partner_affiliate_program;
 pub mod transaction_partner_fragment;
 pub mod transaction_partner_other;
 pub mod transaction_partner_telegram_ads;
@@ -275,6 +277,7 @@ pub mod web_app_user;
 pub mod webhook_info;
 pub mod write_access_allowed;
 
+pub use affiliate_info::AffiliateInfo;
 pub use animation::Animation;
 pub use audio::Audio;
 pub use background_fill::BackgroundFill;
@@ -564,6 +567,7 @@ pub use successful_payment::SuccessfulPayment;
 pub use switch_inline_query_chosen_chat::SwitchInlineQueryChosenChat;
 pub use text_quote::TextQuote;
 pub use transaction_partner::TransactionPartner;
+pub use transaction_partner_affiliate_program::TransactionPartnerAffiliateProgram;
 pub use transaction_partner_fragment::TransactionPartnerFragment;
 pub use transaction_partner_other::TransactionPartnerOther;
 pub use transaction_partner_telegram_ads::TransactionPartnerTelegramAds;

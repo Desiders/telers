@@ -18,6 +18,8 @@ pub struct Source {
     pub id: Box<str>,
     /// Number of Telegram Stars transferred by the transaction
     pub amount: i64,
+    /// The number of 1/1000000000 shares of Telegram Stars transferred by the transaction; from 0 to 999999999
+    pub nanostar_amount: Option<i64>,
     /// Date the transaction was created in Unix time
     pub date: i64,
     /// Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal)
@@ -30,6 +32,8 @@ pub struct Receiver {
     pub id: Box<str>,
     /// Number of Telegram Stars transferred by the transaction
     pub amount: i64,
+    /// The number of 1/1000000000 shares of Telegram Stars transferred by the transaction; from 0 to 999999999
+    pub nanostar_amount: Option<i64>,
     /// Date the transaction was created in Unix time
     pub date: i64,
     /// Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal)
@@ -50,6 +54,18 @@ impl StarTransaction {
         match self {
             StarTransaction::Source(Source { amount, .. })
             | StarTransaction::Receiver(Receiver { amount, .. }) => *amount,
+        }
+    }
+
+    #[must_use]
+    pub const fn nanostar_amount(&self) -> Option<i64> {
+        match self {
+            StarTransaction::Source(Source {
+                nanostar_amount, ..
+            })
+            | StarTransaction::Receiver(Receiver {
+                nanostar_amount, ..
+            }) => *nanostar_amount,
         }
     }
 

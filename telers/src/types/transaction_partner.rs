@@ -1,12 +1,13 @@
 use super::{
-    TransactionPartnerFragment, TransactionPartnerOther, TransactionPartnerTelegramAds,
-    TransactionPartnerTelegramApi, TransactionPartnerUser,
+    TransactionPartnerAffiliateProgram, TransactionPartnerFragment, TransactionPartnerOther,
+    TransactionPartnerTelegramAds, TransactionPartnerTelegramApi, TransactionPartnerUser,
 };
 
 use serde::{Deserialize, Serialize};
 
 /// This object describes the source of a transaction, or its recipient for outgoing transactions. Currently, it can be one of
 /// - [`TransactionPartnerUser`]
+/// - [`TransactionPartnerAffiliateProgram`]
 /// - [`TransactionPartnerFragment`]
 /// - [`TransactionPartnerTelegramAds`]
 /// - [`TransactionPartnerTelegramApi`]
@@ -17,6 +18,7 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum TransactionPartner {
     User(TransactionPartnerUser),
+    AffiliateProgram(TransactionPartnerAffiliateProgram),
     Fragment(TransactionPartnerFragment),
     TelegramAds(TransactionPartnerTelegramAds),
     TelegramApi(TransactionPartnerTelegramApi),
@@ -26,6 +28,12 @@ pub enum TransactionPartner {
 impl From<TransactionPartnerUser> for TransactionPartner {
     fn from(partner: TransactionPartnerUser) -> Self {
         Self::User(partner)
+    }
+}
+
+impl From<TransactionPartnerAffiliateProgram> for TransactionPartner {
+    fn from(partner: TransactionPartnerAffiliateProgram) -> Self {
+        Self::AffiliateProgram(partner)
     }
 }
 
