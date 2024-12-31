@@ -13,6 +13,8 @@ use serde_with::skip_serializing_none;
 #[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct CreateInvoiceLink {
+    /// Unique identifier of the business connection on behalf of which the link will be created. For payments in [Telegram Stars](https://t.me/BotNews/90) only.
+    pub business_connection_id: Option<String>,
     /// Product name, 1-32 characters
     pub title: String,
     /// Product description, 1-255 characters
@@ -25,6 +27,8 @@ pub struct CreateInvoiceLink {
     pub currency: String,
     /// Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.)
     pub prices: Vec<LabeledPrice>,
+    /// The number of seconds the subscription will be active for before the next payment. The currency must be set to “XTR” (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user. Subscription price must no exceed 2500 Telegram Stars.
+    pub subscription_period: Option<i64>,
     /// The maximum accepted amount for tips in the *smallest units* of the currency (integer, **not** float/double). For example, for a maximum tip of `US$ 1.45` pass `max_tip_amount = 145`. See the *exp* parameter in [`currencies.json`](https://core.telegram.org/bots/payments/currencies.json), it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0
     pub max_tip_amount: Option<i64>,
     /// A JSON-serialized array of suggested amounts of tip in the *smallest units* of the currency (integer, **not** float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
@@ -68,12 +72,14 @@ impl CreateInvoiceLink {
         prices: impl IntoIterator<Item = LabeledPrice>,
     ) -> Self {
         Self {
+            business_connection_id: None,
             title: title.into(),
             description: description.into(),
             payload: payload.into(),
             provider_token: provider_token.into(),
             currency: currency.into(),
             prices: prices.into_iter().collect(),
+            subscription_period: None,
             max_tip_amount: None,
             suggested_tip_amounts: None,
             start_parameter: None,
@@ -89,6 +95,14 @@ impl CreateInvoiceLink {
             send_phone_number_to_provider: None,
             send_email_to_provider: None,
             is_flexible: None,
+        }
+    }
+
+    #[must_use]
+    pub fn business_connection_id(self, val: impl Into<String>) -> Self {
+        Self {
+            business_connection_id: Some(val.into()),
+            ..self
         }
     }
 
@@ -144,6 +158,14 @@ impl CreateInvoiceLink {
     pub fn prices(self, val: impl IntoIterator<Item = LabeledPrice>) -> Self {
         Self {
             prices: self.prices.into_iter().chain(val).collect(),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn subscription_period(self, val: i64) -> Self {
+        Self {
+            subscription_period: Some(val),
             ..self
         }
     }
@@ -290,6 +312,22 @@ impl CreateInvoiceLink {
 }
 
 impl CreateInvoiceLink {
+    #[must_use]
+    pub fn business_connection_id_option(self, val: Option<impl Into<String>>) -> Self {
+        Self {
+            business_connection_id: val.map(Into::into),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn subscription_period_option(self, val: Option<i64>) -> Self {
+        Self {
+            subscription_period: val,
+            ..self
+        }
+    }
+
     #[must_use]
     pub fn max_tip_amount_option(self, val: Option<i64>) -> Self {
         Self {
