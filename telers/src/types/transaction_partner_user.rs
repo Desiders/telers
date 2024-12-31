@@ -1,4 +1,4 @@
-use super::{Gift, PaidMedia, User};
+use super::{AffiliateInfo, Gift, PaidMedia, User};
 
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -11,6 +11,8 @@ use serde_with::skip_serializing_none;
 pub struct TransactionPartnerUser {
     /// Information about the user
     pub user: User,
+    /// Information about the affiliate that received a commission via this transaction
+    pub affiliate: Option<AffiliateInfo>,
     /// Bot-specified invoice payload
     pub invoice_payload: Option<Box<str>>,
     /// The duration of the paid subscription
