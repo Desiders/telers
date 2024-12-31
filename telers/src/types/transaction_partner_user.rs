@@ -13,6 +13,8 @@ pub struct TransactionPartnerUser {
     pub user: User,
     /// Bot-specified invoice payload
     pub invoice_payload: Option<Box<str>>,
+    /// The duration of the paid subscription
+    pub subscription_period: Option<i64>,
     /// Information about the paid media bought by the user
     pub paid_media: Option<Box<[PaidMedia]>>,
     /// Bot-specified paid media payload
