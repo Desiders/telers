@@ -44,7 +44,7 @@ impl SavePreparedInlineMessage {
     #[must_use]
     pub fn user_id(self, val: i64) -> Self {
         Self {
-            user_id: val.into(),
+            user_id: val,
             ..self
         }
     }

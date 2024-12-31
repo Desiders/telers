@@ -17,7 +17,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum TransactionPartner {
-    User(TransactionPartnerUser),
+    User(Box<TransactionPartnerUser>),
     AffiliateProgram(TransactionPartnerAffiliateProgram),
     Fragment(TransactionPartnerFragment),
     TelegramAds(TransactionPartnerTelegramAds),
@@ -27,13 +27,7 @@ pub enum TransactionPartner {
 
 impl From<TransactionPartnerUser> for TransactionPartner {
     fn from(partner: TransactionPartnerUser) -> Self {
-        Self::User(partner)
-    }
-}
-
-impl From<TransactionPartnerAffiliateProgram> for TransactionPartner {
-    fn from(partner: TransactionPartnerAffiliateProgram) -> Self {
-        Self::AffiliateProgram(partner)
+        Self::User(Box::new(partner))
     }
 }
 
