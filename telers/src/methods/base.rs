@@ -1,9 +1,11 @@
 use crate::{
     client::Bot,
     types::{InputFile, InputMedia, InputPaidMedia, InputSticker, ResponseParameters},
+    utils::format_error_report,
 };
 
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use tracing::{event, instrument, Level};
 
 /// This object represents a request to Telegram API
 pub struct Request<'a, T>
@@ -67,8 +69,20 @@ pub trait TelegramMethod {
     /// It's need for parsing a response from Telegram API.
     /// # Errors
     /// - If the response cannot be parsed
+    #[instrument(skip_all)]
     fn build_response(&self, content: &str) -> Result<Response<Self::Return>, serde_json::Error> {
-        serde_json::from_str(content)
+        event!(Level::TRACE, content, "Parsing response");
+        let res = serde_json::from_str(content).map_err(|err| {
+            event!(
+                Level::ERROR,
+                error = format_error_report(&err),
+                content,
+                "Cannot parse response content",
+            );
+            err
+        });
+        event!(Level::TRACE, "Response parsed");
+        res
     }
 }
 

@@ -116,11 +116,11 @@ pub trait Session: Send + Sync {
     /// # Errors
     /// If the response represents an telegram api error
     #[allow(clippy::redundant_else)]
-    #[instrument(skip(self, response, status_code), fields(ok, error_message))]
+    #[instrument(skip_all, fields(ok, error_message))]
     fn check_response(
         &self,
         response: &Response<impl DeserializeOwned>,
-        status_code: &StatusCode,
+        status_code: StatusCode,
     ) -> Result<(), TelegramErrorKind> {
         if status_code.is_success() && response.ok {
             Span::current().record("ok", true);
@@ -131,11 +131,10 @@ pub trait Session: Send + Sync {
                     "Contract violation: result is empty in success response"
                 );
 
-                let err: TelegramErrorKind =
-                    anyhow::Error::msg("Contract violation: result is empty in success response")
-                        .into();
-
-                return Err(err);
+                return Err(anyhow::Error::msg(
+                    "Contract violation: result is empty in success response",
+                )
+                .into());
             }
 
             return Ok(());
@@ -152,29 +151,36 @@ pub trait Session: Send + Sync {
                 "Contract violation: description is empty in error response",
             );
 
-            let err: TelegramErrorKind =
-                anyhow::Error::msg("Contract violation: description is empty in error response")
-                    .into();
-
-            return Err(err);
+            return Err(anyhow::Error::msg(
+                "Contract violation: description is empty in error response",
+            )
+            .into());
         };
 
         Span::current().record("error_message", message.as_ref());
 
         if let Some(ref parameters) = response.parameters {
             if let Some(retry_after) = parameters.retry_after {
-                return Err(TelegramErrorKind::RetryAfter {
+                let err = TelegramErrorKind::RetryAfter {
                     url: "https://core.telegram.org/bots/faq#my-bot-is-hitting-limits-how-do-i-avoid-this",
                     message,
                     retry_after,
-                });
+                };
+
+                event!(Level::ERROR, error = %err);
+
+                return Err(err);
             }
             if let Some(migrate_to_chat_id) = parameters.migrate_to_chat_id {
-                return Err(TelegramErrorKind::MigrateToChat {
+                let err = TelegramErrorKind::MigrateToChat {
                     url: "https://core.telegram.org/bots/api#responseparameters",
                     message,
                     migrate_to_chat_id,
-                });
+                };
+
+                event!(Level::ERROR, error = %err);
+
+                return Err(err);
             }
         }
 
@@ -199,12 +205,15 @@ pub trait Session: Send + Sync {
                 event!(
                     Level::ERROR,
                     %status_code,
-                    "Unknown status code",
+                    message,
+                    "Error with unknown status code",
                 );
 
-                anyhow::Error::msg(message).into()
+                return Err(anyhow::Error::msg(message).into());
             }
         };
+
+        event!(Level::ERROR, error = %err);
 
         Err(err)
     }
@@ -214,12 +223,12 @@ pub trait Session: Send + Sync {
     /// * `bot` - Bot instance for building and sending request, it is mainly used for getting bot token
     /// * `method` - Telegram method for building and sending request
     /// * `timeout` - Request timeout.
-    /// If `None`, then client timeout will be used, which is [`DEFAULT_TIMEOUT`] by default.
+    /// If [`None`], then client timeout will be used, which is [`DEFAULT_TIMEOUT`] by default.
     /// # Errors
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
-    /// - If the response represents an telegram api error
-    #[instrument(skip(self, bot, method, timeout), fields(bot_id))]
+    /// - If the response represents an Telegram API error
+    #[instrument(skip_all, fields(bot_id = bot.bot_id, status_code))]
     async fn make_request<Client, T>(
         &self,
         bot: &Bot<Client>,
@@ -231,56 +240,14 @@ pub trait Session: Send + Sync {
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync,
     {
-        Span::current().record("bot_id", bot.bot_id);
+        let response = self.send_request(bot, method, timeout).await?;
 
-        let response = self
-            .send_request(bot, method, timeout)
-            .await
-            .map_err(|err| {
-                event!(
-                    Level::ERROR,
-                    error = %err,
-                    "Cannot send request to Telegram API",
-                );
+        Span::current().record("status_code", response.status_code.as_u16());
 
-                err
-            })?;
+        let resp = method.build_response(&response.content)?;
+        self.check_response(&resp, response.status_code)?;
 
-        event!(
-            Level::TRACE,
-            content = response.content,
-            status_code = response.status_code.as_u16(),
-            "Got response. Parsing it...",
-        );
-
-        let telegram_response =
-            method
-                .build_response(response.content.as_ref())
-                .map_err(|err| {
-                    event!(
-                        Level::ERROR,
-                        error = %err,
-                        response_content = ?response.content,
-                        "Cannot parse response content",
-                    );
-
-                    err
-                })?;
-
-        event!(Level::TRACE, "Response parsed successfully",);
-
-        self.check_response(&telegram_response, &response.status_code)
-            .map_err(|err| {
-                event!(
-                    Level::ERROR,
-                    error = %err,
-                    "Response represents an telegram api error",
-                );
-
-                err
-            })?;
-
-        Ok(telegram_response)
+        Ok(resp)
     }
 
     /// Makes a request to Telegram API and get result from it
@@ -304,10 +271,10 @@ pub trait Session: Send + Sync {
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync,
     {
-        let response = self.make_request(bot, method, timeout).await?;
+        let resp = self.make_request(bot, method, timeout).await?;
 
         // Unwrap safe because we checked it in `check_response`
-        Ok(response.result.unwrap())
+        Ok(resp.result.unwrap())
     }
 
     /// Close client session. Default implementation does nothing.

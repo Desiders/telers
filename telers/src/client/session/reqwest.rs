@@ -18,6 +18,7 @@ use crate::{
     methods::TelegramMethod,
     serializers::reqwest::{Error as SerializerError, MultipartSerializer},
     types::InputFile,
+    utils::format_error_report,
 };
 
 use async_trait::async_trait;
@@ -59,14 +60,22 @@ impl Reqwest {
     /// Be aware that build [`InputFile::Stream`] will be taken and cannot be used again without set stream again.
     /// Check its documentation for more information.
     /// # Errors
-    /// Returns a [`SerializerError`] if the form cannot be built.
+    /// - If the form cannot be built
+    /// - If file stream already taken
     #[instrument(skip(self, data))]
     async fn build_form_data<'a, Data: Serialize + ?Sized>(
         &self,
         data: &Data,
         files: Option<&[&InputFile<'a>]>,
     ) -> Result<Form, SerializerError> {
-        let mut form = data.serialize(MultipartSerializer::new())?;
+        let mut form = data.serialize(MultipartSerializer::new()).map_err(|err| {
+            event!(
+                Level::ERROR,
+                error = format_error_report(&err),
+                "Cannot build a form"
+            );
+            err
+        })?;
 
         let Some(files) = files else {
             return Ok(form);
@@ -103,6 +112,15 @@ impl Reqwest {
                 }
                 InputFile::Stream(file) => {
                     let Some(stream) = file.take_stream() else {
+                        event!(
+                            Level::ERROR,
+                            "{}",
+                            format!(
+                                "File stream with index `{index}` already taken. \
+                                Read `StreamFile::take_stream` documentation for more information."
+                            )
+                        );
+
                         return Err(SerializerError::Custom(Cow::Owned(format!(
                             "File stream with index `{index}` already taken. \
                             Read `StreamFile::take_stream` documentation for more information."
@@ -161,7 +179,7 @@ impl Session for Reqwest {
     /// Uses always `POST` method to send a request and `multipart/form-data` content type even if files are not provided.
     /// # Errors
     /// Returns an error if the request cannot be sent or the response cannot be received.
-    #[instrument(skip(self, bot, method, timeout), fields(files, method_name, timeout))]
+    #[instrument(skip_all, fields(files, method_name, timeout))]
     async fn send_request<Client, T>(
         &self,
         bot: &Bot<Client>,
@@ -173,26 +191,15 @@ impl Session for Reqwest {
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync,
     {
-        let request = method.build_request(bot);
+        let req = method.build_request(bot);
 
         Span::current()
-            .record("files", field::debug(&request.files))
-            .record("method_name", request.method_name);
+            .record("files", field::debug(&req.files))
+            .record("method_name", req.method_name);
 
-        let form = self
-            .build_form_data(request.data, request.files.as_deref())
-            .await
-            .map_err(|err| {
-                event!(
-                    Level::ERROR,
-                    error = %err,
-                    "Cannot build a form",
-                );
+        let form = self.build_form_data(req.data, req.files.as_deref()).await?;
 
-                err
-            })?;
-
-        let url = self.api.api_url(&bot.token, request.method_name);
+        let url = self.api.api_url(&bot.token, req.method_name);
 
         let response = if let Some(timeout) = timeout {
             Span::current().record("timeout", timeout);
@@ -207,12 +214,15 @@ impl Session for Reqwest {
         .send()
         .await
         .map_err(|err| {
-            event!(
-                Level::ERROR,
-                error = %err,
-                "Cannot send a request",
-            );
-
+            if err.is_timeout() {
+                event!(Level::WARN, error = %err, "Request timed out",);
+            } else {
+                event!(
+                    Level::ERROR,
+                    error = format_error_report(&err),
+                    "Cannot send a request",
+                );
+            }
             err
         })?;
 
@@ -221,11 +231,10 @@ impl Session for Reqwest {
         let content = response.text().await.map_err(|err| {
             event!(
                 Level::ERROR,
-                error = %err,
+                error = format_error_report(&err),
                 status_code,
                 "Cannot get a response content",
             );
-
             err
         })?;
 

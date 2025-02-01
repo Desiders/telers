@@ -26,7 +26,7 @@ pub enum ErrorKind {
     RetryAfter {
         url: &'static str, // https://core.telegram.org/bots/faq#my-bot-is-hitting-limits-how-do-i-avoid-this
         message: Box<str>,
-        retry_after: i64,
+        retry_after: f32,
     },
     #[error("TelegramMigrateToChat: {message:?} (migrate to chat id: {migrate_to_chat_id:?}, see {url:?} for more info)")]
     MigrateToChat {
