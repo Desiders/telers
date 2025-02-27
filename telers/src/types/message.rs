@@ -420,7 +420,7 @@ pub struct PaidMedia {
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// Message contains paid media; information about the paid media
-    pub paid_media: types::PaidMedia,
+    pub paid_media: types::PaidMediaInfo,
     /// Caption
     pub caption: Option<Box<str>>,
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
@@ -2917,7 +2917,7 @@ impl Message {
     }
 
     #[must_use]
-    pub const fn paid_media(&self) -> Option<&types::PaidMedia> {
+    pub const fn paid_media(&self) -> Option<&types::PaidMediaInfo> {
         match self {
             Message::PaidMedia(message) => Some(&message.paid_media),
             _ => None,
@@ -3562,7 +3562,7 @@ mod tests {
 
         for json in jsons {
             let message_text: Text = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Text(message) => assert_eq!(*message, message_text),
@@ -3640,7 +3640,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Text(message) => assert_eq!(*message, message_kind),
@@ -3692,7 +3692,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Animation(message) => assert_eq!(*message, message_kind),
@@ -3720,7 +3720,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Audio(message) => assert_eq!(*message, message_kind),
@@ -3747,7 +3747,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Document(message) => assert_eq!(*message, message_kind),
@@ -3767,13 +3767,20 @@ mod tests {
                 "type": "channel",
             },
             "paid_media": {
-                "type": "preview",
-            },
+                "star_count": 1,
+                "paid_media": [
+                    {
+                    "type": "preview",
+                    "width": 1,
+                    "height": 1
+                    }
+                ]
+            }
         })];
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::PaidMedia(message) => assert_eq!(*message, message_kind),
@@ -3802,7 +3809,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Photo(message) => assert_eq!(*message, message_kind),
@@ -3834,7 +3841,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Sticker(message) => assert_eq!(*message, message_kind),
@@ -3866,7 +3873,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Story(message) => assert_eq!(*message, message_kind),
@@ -3897,7 +3904,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Video(message) => assert_eq!(*message, message_kind),
@@ -3927,7 +3934,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::VideoNote(message) => assert_eq!(*message, message_kind),
@@ -3956,7 +3963,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Voice(message) => assert_eq!(*message, message_kind),
@@ -3984,7 +3991,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Contact(message) => assert_eq!(*message, message_kind),
@@ -4012,7 +4019,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Dice(message) => assert_eq!(*message, message_kind),
@@ -4046,7 +4053,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Game(message) => assert_eq!(*message, message_kind),
@@ -4089,7 +4096,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Poll(message) => assert_eq!(*message, message_kind),
@@ -4143,7 +4150,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Venue(message) => assert_eq!(*message, message_kind),
@@ -4170,7 +4177,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Location(message) => assert_eq!(*message, message_kind),
@@ -4198,7 +4205,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::NewChatMembers(message) => assert_eq!(*message, message_kind),
@@ -4226,7 +4233,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::LeftChatMember(message) => assert_eq!(*message, message_kind),
@@ -4250,7 +4257,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::NewChatTitle(message) => assert_eq!(*message, message_kind),
@@ -4279,7 +4286,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::NewChatPhoto(message) => assert_eq!(*message, message_kind),
@@ -4303,7 +4310,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::DeleteChatPhoto(message) => assert_eq!(*message, message_kind),
@@ -4327,7 +4334,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::GroupChatCreated(message) => {
@@ -4353,7 +4360,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::SupergroupChatCreated(message) => {
@@ -4379,7 +4386,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::ChannelChatCreated(message) => {
@@ -4407,7 +4414,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::MessageAutoDeleteTimerChanged(message) => {
@@ -4433,7 +4440,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::MigrateToChat(message) => {
@@ -4459,7 +4466,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::MigrateFromChat(message) => {
@@ -4494,7 +4501,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Pinned(message) => assert_eq!(*message, message_kind),
@@ -4524,7 +4531,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Invoice(message) => assert_eq!(*message, message_kind),
@@ -4554,7 +4561,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::SuccessfulPayment(message) => {
@@ -4586,7 +4593,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::RefundedPayment(message) => {
@@ -4617,7 +4624,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::UsersShared(message) => assert_eq!(*message, message_kind),
@@ -4644,7 +4651,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::ChatShared(message) => assert_eq!(*message, message_kind),
@@ -4668,7 +4675,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::ConnectedWebsite(message) => {
@@ -4694,7 +4701,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::WriteAccessAllowed(message) => {
@@ -4731,7 +4738,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::PassportData(message) => assert_eq!(*message, message_kind),
@@ -4767,7 +4774,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::ProximityAlertTriggered(message) => {
@@ -4795,7 +4802,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::ChatBoostAdded(message) => {
@@ -4893,7 +4900,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::ChatBackgroundSet(message) => {
@@ -4923,7 +4930,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::ForumTopicCreated(message) => {
@@ -4952,7 +4959,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::ForumTopicEdited(message) => {
@@ -4978,7 +4985,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::ForumTopicClosed(message) => {
@@ -5004,7 +5011,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::ForumTopicReopened(message) => {
@@ -5030,7 +5037,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::GeneralForumTopicHidden(message) => {
@@ -5056,7 +5063,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::GeneralForumTopicUnhidden(message) => {
@@ -5082,7 +5089,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::GiveawayCreated(message) => {
@@ -5116,7 +5123,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Giveaway(message) => assert_eq!(*message, message_kind),
@@ -5154,7 +5161,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::GiveawayWinners(message) => {
@@ -5182,7 +5189,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::GiveawayCompleted(message) => {
@@ -5210,7 +5217,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::VideoChatScheduled(message) => {
@@ -5236,7 +5243,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::VideoChatStarted(message) => {
@@ -5264,7 +5271,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::VideoChatEnded(message) => {
@@ -5303,7 +5310,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::VideoChatParticipantsInvited(message) => {
@@ -5332,7 +5339,7 @@ mod tests {
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::WebAppData(message) => assert_eq!(*message, message_kind),
@@ -5432,7 +5439,7 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_kind: Message = serde_json::from_value(json.clone()).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
 
             match message_kind {
                 Message::Text(message) => {
@@ -5466,12 +5473,12 @@ mod tests {
         })];
 
         for json in jsons {
-            let message_text: Text = serde_json::from_value(json.clone()).unwrap();
-            let message: Message = serde_json::from_value(json).unwrap();
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
 
             match message {
                 Message::Text(message) => {
-                    assert_eq!(*message, message_text);
+                    assert_eq!(*message, message_kind);
                     println!("{:?}", message);
                 }
                 _ => panic!("Unexpected message type: {message:?}"),
