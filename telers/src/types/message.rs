@@ -5355,71 +5355,37 @@ mod tests {
         let jsons = [serde_json::json!({
             "message_id": 240645,
             "from": {
-                "id": 739639707,
+                "id": 777_000,
                 "is_bot": false,
-                "first_name": "Редуме?",
-                "username": "redddume",
-                "is_premium": true
+                "first_name": "test",
             },
             "chat": {
-                "id": -1001356775536i64,
-                "title": "Netschool Offtop",
-                "username": "netschoolapi2",
-                "type": "supergroup"
+                "id": -1,
+                "title": "test",
+                "type": "channel",
             },
             "date": 1716805239,
             "external_reply": {
                 "origin": {
                     "type": "channel",
                     "chat": {
-                        "id": -1001043793945i64,
-                        "title": "Код Дурова",
-                        "username": "d_code",
-                        "type": "channel"
+                        "id": -1,
+                        "title": "test",
+                        "type": "channel",
                     },
                     "message_id": 19247,
                     "date": 1716798198
                 },
                 "chat": {
-                    "id": -1001043793945i64,
-                    "title": "Код Дурова",
-                    "username": "d_code",
-                    "type": "channel"
+                    "id": -1,
+                    "title": "test",
+                    "type": "channel",
                 },
                 "message_id": 19247,
-                "photo": [
-                    {
-                        "file_id": "AgACAgIAAx0CUN7AcAABA6wFZlRedxWklcRGCTJ4AAHmt-f5V82-AALh5DEbJ9uoSienBwABgN_ptwEAAwIAA3MAAzUE",
-                        "file_unique_id": "AQAD4eQxGyfbqEp4",
-                        "file_size": 1204,
-                        "width": 90,
-                        "height": 62
-                    },
-                    {
-                        "file_id": "AgACAgIAAx0CUN7AcAABA6wFZlRedxWklcRGCTJ4AAHmt-f5V82-AALh5DEbJ9uoSienBwABgN_ptwEAAwIAA20AAzUE",
-                        "file_unique_id": "AQAD4eQxGyfbqEpy",
-                        "file_size": 18290,
-                        "width": 320,
-                        "height": 219
-                    },
-                    {
-                        "file_id": "AgACAgIAAx0CUN7AcAABA6wFZlRedxWklcRGCTJ4AAHmt-f5V82-AALh5DEbJ9uoSienBwABgN_ptwEAAwIAA3gAAzUE",
-                        "file_unique_id": "AQAD4eQxGyfbqEp9",
-                        "file_size": 85039,
-                        "width": 800,
-                        "height": 547
-                    },
-                    {
-                        "file_id": "AgACAgIAAx0CUN7AcAABA6wFZlRedxWklcRGCTJ4AAHmt-f5V82-AALh5DEbJ9uoSienBwABgN_ptwEAAwIAA3kAAzUE",
-                        "file_unique_id": "AQAD4eQxGyfbqEp-",
-                        "file_size": 153204,
-                        "width": 1280,
-                        "height": 876
-                    }
-                ],
+                "photo": [],
             },
             "quote": {
-                "text": "⚡️ Telegram против фейков //В исходом коде бета-версии Telegram для Android обнаружена функция Fact Check, которая предназначена для проверки фактов. — В коде обнаружено, что в рамках Fact Check Telegram будет сотрудничать с агентствами, которые занимаются проверкой информации.— Fact Check будет добавлять поясняющую информацию к сообщениям. — Правительства стран смогут назначать агентства, котор%ые будут работать с Telegram. — Работа Fact Check будет прозрачной, можно будет увидеть, какое агентство занималось проверкой информации. — Обычные пользователи не смогут влиять на контент, предоставляемый Fact Check.@d_code",
+                "text": "test",
                 "entities": [
                 {
                     "offset": 0,
@@ -5435,7 +5401,7 @@ mod tests {
                 ],
                 "position": 0
             },
-            "text": "Муть какая та"
+            "text": "test"
         })];
 
         for json in jsons {
@@ -5443,7 +5409,7 @@ mod tests {
 
             match message_kind {
                 Message::Text(message) => {
-                    assert_eq!(message.text.as_ref(), "Муть какая та");
+                    assert_eq!(message.text.as_ref(), "test");
                 }
                 _ => panic!("Unexpected message type: {message_kind:?}"),
             }
