@@ -1,5 +1,5 @@
 use bytes::{Bytes, BytesMut};
-use futures::{Stream, TryFutureExt as _, TryStreamExt as _};
+use futures_util::{Stream, TryFutureExt as _, TryStreamExt as _};
 use serde::{Serialize, Serializer};
 use std::{
     borrow::Cow,

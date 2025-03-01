@@ -6,4 +6,3 @@ pub mod simple;
 pub mod telegram;
 
 pub use bases::{cancel_event, finish_event, skip_event, EventReturn};
-pub use service::ToServiceProvider;
