@@ -1,7 +1,7 @@
 use crate::{
     enums::SimpleObserverName,
     event::{
-        service::Service as _,
+        service::Service,
         simple::handler::{Handler, HandlerComposite, HandlerResult},
     },
 };
@@ -18,14 +18,16 @@ pub struct Observer {
 }
 
 impl Observer {
+    #[inline]
     #[must_use]
-    pub fn new(event_name: SimpleObserverName) -> Self {
+    pub const fn new(event_name: SimpleObserverName) -> Self {
         Self {
             event_name,
             handlers: vec![],
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn handlers(&self) -> &[HandlerComposite] {
         &self.handlers
@@ -34,23 +36,44 @@ impl Observer {
     /// Register event handler
     pub fn register<H, Args>(&mut self, handler: H, args: Args)
     where
-        H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send,
-        H::Output: Into<HandlerResult>,
+        H: Handler<Args>,
         Args: Clone + Send + Sync + 'static,
     {
         self.handlers.push(HandlerComposite::new(handler, args));
     }
 
+    /// Register service as event handler
+    pub fn register_service<S, Args>(&mut self, service: S, args: Args)
+    where
+        S: Service<Args, Response = ()> + Clone + Send + Sync + 'static,
+        S::Error: Into<anyhow::Error> + Send + Sync + 'static,
+        S::Future: Send,
+        Args: Clone + Send + Sync + 'static,
+    {
+        self.handlers
+            .push(HandlerComposite::new_service(service, args));
+    }
+
     /// Alias to [`Observer::register`] method
+    #[inline]
     pub fn on<H, Args>(&mut self, handler: H, args: Args)
     where
-        H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send,
-        H::Output: Into<HandlerResult>,
+        H: Handler<Args>,
         Args: Clone + Send + Sync + 'static,
     {
         self.register(handler, args);
+    }
+
+    /// Alias to [`Observer::register_service`] method
+    #[inline]
+    pub fn on_service<S, Args>(&mut self, service: S, args: Args)
+    where
+        S: Service<Args, Response = ()> + Clone + Send + Sync + 'static,
+        S::Error: Into<anyhow::Error> + Send + Sync + 'static,
+        S::Future: Send,
+        Args: Clone + Send + Sync + 'static,
+    {
+        self.register_service(service, args);
     }
 }
 

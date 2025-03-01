@@ -3,7 +3,7 @@ use crate::{
     errors::EventErrorKind,
     event::{
         bases::{EventReturn, PropagateEventResult},
-        service::Service as _,
+        service::Service,
         telegram::handler::{Handler, HandlerComposite},
     },
     extractor::Extractor,
@@ -21,7 +21,10 @@ use crate::{
     Request,
 };
 
-use std::fmt::{self, Debug, Formatter};
+use std::{
+    convert::Infallible,
+    fmt::{self, Debug, Formatter},
+};
 use tracing::{event, instrument, Level};
 
 pub struct Response<Client> {
@@ -63,13 +66,14 @@ where
                 // This handler never will be called, so we can use `unreachable!` macro
                 ({
                     unreachable!("This handler never will be used");
-                }) as Result<_, _>
+                }) as Result<(), Infallible>
             })),
             inner_middlewares: InnerMiddlewareManager::<Client>::default(),
             outer_middlewares: OuterMiddlewareManager::<Client>::default(),
         }
     }
 
+    /// Register event handler
     #[allow(clippy::missing_panics_doc)]
     pub fn register<H, Args>(&mut self, handler: H) -> &mut HandlerComposite<Client>
     where
@@ -82,7 +86,24 @@ where
         self.handlers.last_mut().unwrap()
     }
 
+    /// Register service as event handler
+    #[allow(clippy::missing_panics_doc)]
+    pub fn register_service<S, Args>(&mut self, service: S) -> &mut HandlerComposite<Client>
+    where
+        S: Service<Args> + Clone + Send + Sync + 'static,
+        S::Response: Into<EventReturn>,
+        S::Error: Into<anyhow::Error> + Send + Sync + 'static,
+        S::Future: Send,
+        Args: Extractor<Client> + Send,
+        Args::Error: Send,
+    {
+        self.handlers.push(HandlerComposite::new_service(service));
+        // `unwrap` is safe, because we just added element to the vector
+        self.handlers.last_mut().unwrap()
+    }
+
     /// Alias to [`Observer::register`] method
+    #[inline]
     pub fn on<H, Args>(&mut self, handler: H) -> &mut HandlerComposite<Client>
     where
         H: Handler<Args>,
@@ -92,7 +113,22 @@ where
         self.register(handler)
     }
 
+    /// Alias to [`Observer::register`] method
+    #[inline]
+    pub fn on_service<S, Args>(&mut self, service: S) -> &mut HandlerComposite<Client>
+    where
+        S: Service<Args> + Clone + Send + Sync + 'static,
+        S::Response: Into<EventReturn>,
+        S::Error: Into<anyhow::Error> + Send + Sync + 'static,
+        S::Future: Send,
+        Args: Extractor<Client> + Send,
+        Args::Error: Send,
+    {
+        self.register_service(service)
+    }
+
     /// Register filter for all handlers in the observer
+    #[inline]
     pub fn filter<T>(&mut self, val: T) -> &mut Self
     where
         T: Filter<Client>,
@@ -102,6 +138,7 @@ where
     }
 
     /// Register filters for all handlers in the observer
+    #[inline]
     pub fn filters<T, I>(&mut self, val: I) -> &mut Self
     where
         T: Filter<Client>,
@@ -113,26 +150,31 @@ where
 }
 
 impl<Client> Observer<Client> {
+    #[inline]
     #[must_use]
     pub fn handlers(&self) -> &[HandlerComposite<Client>] {
         &self.handlers
     }
 
+    #[inline]
     #[must_use]
     pub fn inner_middlewares(&self) -> &[BoxedCloneInnerMiddlewareService<Client>] {
         &self.inner_middlewares.middlewares
     }
 
+    #[inline]
     #[must_use]
     pub fn inner_middlewares_mut(&mut self) -> &mut [BoxedCloneInnerMiddlewareService<Client>] {
         &mut self.inner_middlewares.middlewares
     }
 
+    #[inline]
     #[must_use]
     pub fn outer_middlewares(&self) -> &[BoxedCloneOuterMiddlewareService<Client>] {
         &self.outer_middlewares.middlewares
     }
 
+    #[inline]
     #[must_use]
     pub fn outer_middlewares_mut(&mut self) -> &mut [BoxedCloneOuterMiddlewareService<Client>] {
         &mut self.outer_middlewares.middlewares
@@ -294,11 +336,11 @@ mod tests {
         let mut observer = Observer::default();
         // Register common filter, which handlers can't pass
         observer.filter(Command::one("start"));
-        observer.register(|| async { Ok(EventReturn::Finish) });
+        observer.register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
         observer.register(|| async {
             unreachable!("It's shouldn't trigger because the first handler handles the event");
 
-            Ok(EventReturn::Finish)
+            Ok::<_, Infallible>(EventReturn::Finish)
         });
 
         let mut request = Request::<Reqwest>::default();
@@ -331,11 +373,11 @@ mod tests {
     #[tokio::test]
     async fn test_observer_trigger_error() {
         let mut observer = Observer::<Reqwest>::default();
-        observer.register(|| async { Err(HandlerError::new(anyhow!("test"))) });
+        observer.register(|| async { Err::<(), _>(HandlerError::new(anyhow!("test"))) });
         observer.register(|| async {
             unreachable!("It's shouldn't trigger because the first handler handles the event");
 
-            Ok(EventReturn::Finish)
+            Ok::<_, Infallible>(EventReturn::Finish)
         });
 
         let request = Request::<Reqwest>::default();
@@ -354,8 +396,8 @@ mod tests {
     #[tokio::test]
     async fn test_observer_event_return() {
         let mut observer = Observer::default();
-        observer.register(|| async { Ok(EventReturn::Skip) });
-        observer.register(|| async { Ok(EventReturn::Finish) });
+        observer.register(|| async { Ok::<_, Infallible>(EventReturn::Skip) });
+        observer.register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
 
         let request = Request::<Reqwest>::default();
         let response = observer.trigger(request.clone()).await.unwrap();
@@ -370,8 +412,8 @@ mod tests {
         }
 
         let mut observer = Observer::default();
-        observer.register(|| async { Ok(EventReturn::Skip) });
-        observer.register(|| async { Ok(EventReturn::Cancel) });
+        observer.register(|| async { Ok::<_, Infallible>(EventReturn::Skip) });
+        observer.register(|| async { Ok::<_, Infallible>(EventReturn::Cancel) });
 
         let response = observer.trigger(request).await.unwrap();
 

@@ -44,6 +44,12 @@ pub const fn finish_event() -> Result<EventReturn, HandlerError> {
     Ok(EventReturn::Finish)
 }
 
+impl From<()> for EventReturn {
+    fn from(_value: ()) -> Self {
+        Default::default()
+    }
+}
+
 /// Response, which can be returned from routers and observers by program.
 /// This indicates [`crate::dispatcher::Dispatcher`] how propagate the event was processed.
 pub enum PropagateEventResult<Client> {

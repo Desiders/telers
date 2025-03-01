@@ -123,7 +123,7 @@ mod tests {
         types::{Message, Update, UpdateKind},
     };
 
-    use std::sync::Arc;
+    use std::{convert::Infallible, sync::Arc};
 
     async fn test_middleware<Client>(
         request: Request<Client>,
@@ -134,7 +134,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_call() {
-        let handler_service = boxed_handler_factory(|| async { Ok(EventReturn::Finish) });
+        let handler_service =
+            boxed_handler_factory(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
 
         let mut request = Request::<Reqwest>::default();
         request.update = Arc::new(Update {

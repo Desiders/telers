@@ -105,11 +105,12 @@ mod tests {
         types::{Message, Update, UpdateKind},
     };
 
-    use std::sync::Arc;
+    use std::{convert::Infallible, sync::Arc};
 
     #[tokio::test]
     async fn test_logging() {
-        let handler_service = boxed_handler_factory(|| async { Ok(EventReturn::Finish) });
+        let handler_service =
+            boxed_handler_factory(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
 
         let mut request = Request::<Reqwest>::default();
         request.update = Arc::new(Update {

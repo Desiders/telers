@@ -59,7 +59,7 @@ mod tests {
         types::{Chat, Message, MessageText, Update, UpdateKind, User},
     };
 
-    use std::sync::Arc;
+    use std::{convert::Infallible, sync::Arc};
 
     #[tokio::test]
     async fn test_user_context() {
@@ -70,7 +70,7 @@ mod tests {
             context.get::<Chat>("event_chat").unwrap();
             context.get::<i64>("event_message_thread_id").unwrap();
 
-            Ok(EventReturn::default())
+            Ok::<_, Infallible>(EventReturn::default())
         });
 
         let mut router_configured = router.configure_default();
@@ -104,7 +104,7 @@ mod tests {
             // This should panic, because update doesn't contain message thread id
             context.get::<i64>("event_message_thread_id").unwrap();
 
-            Ok(EventReturn::default())
+            Ok::<_, Infallible>(EventReturn::default())
         });
 
         let mut router_configured = router.configure_default();

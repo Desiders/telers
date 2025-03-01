@@ -13,7 +13,7 @@ use crate::{
     Request,
 };
 
-use futures_util::future::BoxFuture;
+use futures_util::future::{poll_fn, BoxFuture};
 use std::{
     fmt::{self, Debug, Formatter},
     future::Future,
@@ -41,8 +41,9 @@ impl<Client> Debug for Response<Client> {
 }
 
 pub trait Handler<Args>: Clone + Send + Sync + 'static {
-    type Output: Into<HandlerResult>;
-    type Future: Future<Output = Self::Output> + Send;
+    type Response: Into<EventReturn>;
+    type Error: Into<anyhow::Error>;
+    type Future: Future<Output = Result<Self::Response, Self::Error>> + Send;
 
     fn call(&mut self, args: Args) -> Self::Future;
 }
@@ -64,6 +65,21 @@ where
     {
         Self {
             service: boxed_handler_factory(handler),
+            filters: vec![],
+        }
+    }
+
+    pub fn new_service<S, Args>(service: S) -> Self
+    where
+        S: Service<Args> + Clone + Send + Sync + 'static,
+        S::Response: Into<EventReturn>,
+        S::Error: Into<anyhow::Error> + Send + Sync + 'static,
+        S::Future: Send,
+        Args: Extractor<Client> + Send,
+        Args::Error: Send,
+    {
+        Self {
+            service: boxed_service_factory(service),
             filters: vec![],
         }
     }
@@ -143,39 +159,88 @@ where
 
         async move {
             match Args::extract(&request) {
-                Ok(extracted_args) => Ok(Response {
+                Ok(args) => Ok(Response {
                     request,
-                    handler_result: handler.call(extracted_args).await.into(),
+                    handler_result: match handler.call(args).await {
+                        Ok(response) => Ok(response.into()),
+                        Err(err) => Err(HandlerError::new(err)),
+                    },
                 }),
-                Err(extraction_err) => {
-                    let extraction_err = extraction_err.into();
+                Err(err) => {
+                    let err = err.into();
 
                     event!(
                         Level::ERROR,
-                        error = %extraction_err,
+                        error = %err,
                         ?request,
                         "Failed to extract arguments",
                     );
 
-                    Err(extraction_err)
+                    Err(err)
                 }
             }
         }
     }))
 }
 
-// `Handler` implementation for function-like
+pub(crate) fn boxed_service_factory<Client, S, Args>(service: S) -> BoxedCloneHandlerService<Client>
+where
+    Client: Send + Sync + 'static,
+    S: Service<Args> + Clone + Send + Sync + 'static,
+    S::Response: Into<EventReturn>,
+    S::Error: Into<anyhow::Error> + Send + Sync + 'static,
+    S::Future: Send,
+    Args: Extractor<Client> + Send,
+    Args::Error: Send,
+{
+    BoxCloneService::new(service_fn(move |request: Request<Client>| {
+        let mut service = service.clone();
+
+        async move {
+            match Args::extract(&request) {
+                Ok(args) => Ok(Response {
+                    request,
+                    handler_result: {
+                        if let Err(err) = poll_fn(|cx| service.poll_ready(cx)).await {
+                            Err(HandlerError::new(err))
+                        } else {
+                            match service.call(args).await {
+                                Ok(response) => Ok(response.into()),
+                                Err(err) => Err(HandlerError::new(err)),
+                            }
+                        }
+                    },
+                }),
+                Err(err) => {
+                    let err = err.into();
+
+                    event!(
+                        Level::ERROR,
+                        error = %err,
+                        ?request,
+                        "Failed to extract arguments",
+                    );
+
+                    Err(err)
+                }
+            }
+        }
+    }))
+}
+
 macro_rules! impl_handlers {
     (
         [$($ty:ident),*]
     ) => {
-        impl<F, Fut, Response, $($ty,)*> Handler<($($ty,)*)> for F
+        impl<F, Fut, Response, Err, $($ty,)*> Handler<($($ty,)*)> for F
         where
             F: FnMut($($ty),*) -> Fut + Clone + Send + Sync + 'static,
-            Fut: Future<Output = Response> + Send,
-            Response: Into<HandlerResult>,
+            Response: Into<EventReturn>,
+            Err: Into<anyhow::Error>,
+            Fut: Future<Output = Result<Response, Err>> + Send,
         {
-            type Output = Response;
+            type Response = Response;
+            type Error = Err;
             type Future = Fut;
 
             #[inline]
@@ -199,27 +264,50 @@ mod tests {
         types::{Message, Update, UpdateKind},
     };
 
-    use std::sync::Arc;
+    use std::{convert::Infallible, sync::Arc};
     use tokio;
 
     #[test]
     fn test_handler_composite_filter() {
         let filter = Command::default();
 
-        let mut handler = HandlerComposite::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
+        let mut handler =
+            HandlerComposite::<Reqwest>::new(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
         assert!(handler.filters.is_empty());
 
         handler.filter(filter.clone());
         assert_eq!(handler.filters.len(), 1);
 
-        let mut handler = HandlerComposite::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
+        let mut handler =
+            HandlerComposite::<Reqwest>::new(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
         handler.filter(filter);
         assert_eq!(handler.filters.len(), 1);
     }
 
     #[tokio::test]
-    async fn test_handler_service() {
-        let mut handler = HandlerComposite::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
+    async fn test_handler() {
+        let mut handler =
+            HandlerComposite::new(|(), ()| async { Ok::<_, Infallible>(EventReturn::Finish) });
+
+        let mut request = Request::<Reqwest>::default();
+        request.update = Arc::new(Update {
+            id: 0,
+            kind: UpdateKind::Message(Message::default()),
+        });
+
+        let response = handler.call(request).await.unwrap();
+
+        match response.handler_result {
+            Ok(EventReturn::Finish) => {}
+            _ => panic!("Unexpected result"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_service() {
+        let mut handler = HandlerComposite::new_service(service_fn(|((), ())| async {
+            Ok::<_, Infallible>(EventReturn::Finish)
+        }));
 
         let mut request = Request::<Reqwest>::default();
         request.update = Arc::new(Update {

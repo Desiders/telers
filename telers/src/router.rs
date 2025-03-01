@@ -1311,6 +1311,7 @@ mod tests {
         Context,
     };
 
+    use std::convert::Infallible;
     use tokio;
 
     #[test]
@@ -1472,7 +1473,7 @@ mod tests {
         let mut router = Router::new("test_handler");
         router
             .message
-            .register(|| async move { Ok(EventReturn::Finish) });
+            .register(|| async move { Ok::<_, Infallible>(EventReturn::Finish) });
 
         let mut router_configured = router.configure_default();
         let response = router_configured
@@ -1515,7 +1516,7 @@ mod tests {
             // Check that middleware was called and context was modified
             assert_eq!(context.get::<&str>("test").unwrap(), &"test");
 
-            Ok(EventReturn::Finish)
+            Ok::<_, Infallible>(EventReturn::Finish)
         });
 
         let mut router_configured = router.configure_default();
@@ -1537,10 +1538,10 @@ mod tests {
         let mut router = Router::new("test_skip_handler");
         router
             .message
-            .register(|| async move { Ok(EventReturn::Skip) });
+            .register(|| async move { Ok::<_, Infallible>(EventReturn::Skip) });
         router
             .message
-            .register(|| async move { Ok(EventReturn::Finish) });
+            .register(|| async move { Ok::<_, Infallible>(EventReturn::Finish) });
 
         let mut router_configured = router.configure_default();
 
@@ -1562,7 +1563,7 @@ mod tests {
         let mut router = Router::new("test_skip_handler_without_next");
         router
             .message
-            .register(|| async move { Ok(EventReturn::Skip) });
+            .register(|| async move { Ok::<_, Infallible>(EventReturn::Skip) });
 
         let mut router_configured = router.configure_default();
 
@@ -1586,7 +1587,7 @@ mod tests {
         let mut router = Router::new("test_handler_with_filter");
         router
             .message
-            .register(|| async move { Ok(EventReturn::Finish) })
+            .register(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
             .filter(|req| async move { (true, req) });
 
         let mut router_configured = router.configure_default();
@@ -1607,7 +1608,7 @@ mod tests {
         let mut router = Router::new("test_handler_with_fail_filter");
         router
             .message
-            .register(|| async move { Ok(EventReturn::Finish) })
+            .register(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
             .filter(|req| async move { (false, req) });
 
         let mut router_configured = router.configure_default();
@@ -1625,7 +1626,7 @@ mod tests {
         let mut router = Router::new("test_handler_with_filters_and_one_fail");
         router
             .message
-            .register(|| async move { Ok(EventReturn::Finish) })
+            .register(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
             .filter(|req| async move { (true, req) })
             .filter(|req| async move { (true, req) })
             .filter(|req| async move { (false, req) });
@@ -1649,10 +1650,10 @@ mod tests {
 
         router
             .message
-            .register(|| async { Ok(EventReturn::Finish) });
+            .register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
         router
             .edited_message
-            .register(|| async { Ok(EventReturn::Finish) });
+            .register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
 
         let update_types = router.resolve_used_update_types();
 
@@ -1664,10 +1665,10 @@ mod tests {
 
         router2
             .message
-            .register(|| async { Ok(EventReturn::Finish) });
+            .register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
         router2
             .channel_post
-            .register(|| async { Ok(EventReturn::Finish) });
+            .register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
 
         assert_eq!(router2.resolve_used_update_types().len(), 2);
 

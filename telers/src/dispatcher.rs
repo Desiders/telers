@@ -668,6 +668,7 @@ mod tests {
         router::Router,
     };
 
+    use std::convert::Infallible;
     use tokio;
 
     #[tokio::test]
@@ -694,7 +695,7 @@ mod tests {
         let mut router = Router::new("main");
         router
             .message
-            .register(|| async { Ok(EventReturn::Finish) });
+            .register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
 
         let mut dispatcher = Dispatcher::builder()
             .main_router(router.configure_default())
