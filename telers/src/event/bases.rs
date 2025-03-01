@@ -46,7 +46,7 @@ pub const fn finish_event() -> Result<EventReturn, HandlerError> {
 
 impl From<()> for EventReturn {
     fn from(_value: ()) -> Self {
-        Default::default()
+        EventReturn::default()
     }
 }
 
