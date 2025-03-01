@@ -2,34 +2,33 @@ use crate::{
     client::Reqwest,
     errors::{ExtractionError, HandlerError},
     event::{
-        service::{
-            factory, fn_service, BoxFuture, BoxService, BoxServiceFactory, Service, ServiceFactory,
-        },
+        service::{service_fn, BoxCloneService, Service},
         EventReturn,
     },
     extractor::Extractor,
-    filters::Filter,
+    filters::{
+        base::{boxed_filter_factory, BoxedCloneFilterService},
+        Filter,
+    },
     Request,
 };
 
+use futures_util::future::BoxFuture;
 use std::{
     fmt::{self, Debug, Formatter},
     future::Future,
-    result::Result as StdResult,
-    sync::Arc,
+    task::{Context, Poll},
 };
 use tracing::{event, instrument, Level};
 
-pub type BoxedHandlerService<Client> =
-    BoxService<Request<Client>, Response<Client>, ExtractionError>;
-pub type BoxedHandlerServiceFactory<Client> =
-    BoxServiceFactory<(), Request<Client>, Response<Client>, ExtractionError, ()>;
+pub(crate) type BoxedCloneHandlerService<Client> =
+    BoxCloneService<Request<Client>, Response<Client>, ExtractionError>;
 
-pub type Result = StdResult<EventReturn, HandlerError>;
+pub type HandlerResult = Result<EventReturn, HandlerError>;
 
 pub struct Response<Client = Reqwest> {
     pub request: Request<Client>,
-    pub handler_result: Result,
+    pub handler_result: HandlerResult,
 }
 
 impl<Client> Debug for Response<Client> {
@@ -41,18 +40,16 @@ impl<Client> Debug for Response<Client> {
     }
 }
 
-pub trait Handler<Args> {
-    type Output;
-    type Future: Future<Output = Self::Output>;
+pub trait Handler<Args>: Clone + Send + Sync + 'static {
+    type Output: Into<HandlerResult>;
+    type Future: Future<Output = Self::Output> + Send;
 
-    fn call(&self, args: Args) -> Self::Future;
+    fn call(&mut self, args: Args) -> Self::Future;
 }
 
-#[allow(clippy::module_name_repetitions)]
 pub struct HandlerComposite<Client> {
-    service: BoxedHandlerServiceFactory<Client>,
-
-    pub filters: Vec<Arc<dyn Filter<Client>>>,
+    pub(crate) service: BoxedCloneHandlerService<Client>,
+    pub(crate) filters: Vec<BoxedCloneFilterService<Client>>,
 }
 
 impl<Client> HandlerComposite<Client>
@@ -61,104 +58,88 @@ where
 {
     pub fn new<H, Args>(handler: H) -> Self
     where
-        H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send,
-        H::Output: Into<Result>,
+        H: Handler<Args>,
         Args: Extractor<Client> + Send,
         Args::Error: Send,
     {
         Self {
-            service: handler_service(handler),
+            service: boxed_handler_factory(handler),
             filters: vec![],
         }
     }
-}
 
-impl<Client> HandlerComposite<Client> {
     /// Register filter for current handler
-    pub fn filter<T>(&mut self, val: T) -> &mut Self
+    pub fn filter<F>(&mut self, val: F) -> &mut Self
     where
-        T: Filter<Client> + 'static,
+        F: Filter<Client>,
     {
-        self.filters.push(Arc::new(val));
+        self.filters.push(boxed_filter_factory(val));
         self
     }
 
     /// Register filters for current handler
-    pub fn filters<T, I>(&mut self, val: I) -> &mut Self
+    pub fn filters<F, I>(&mut self, val: I) -> &mut Self
     where
-        T: Filter<Client> + 'static,
-        I: IntoIterator<Item = T>,
+        F: Filter<Client>,
+        I: IntoIterator<Item = F>,
     {
         self.filters
-            .extend(val.into_iter().map(|val| Arc::new(val) as _));
+            .extend(val.into_iter().map(boxed_filter_factory));
         self
     }
 }
 
-impl<Client> ServiceFactory<Request<Client>> for HandlerComposite<Client> {
-    type Response = Response<Client>;
-    type Error = ExtractionError;
-    type Config = ();
-    type Service = HandlerObjectService<Client>;
-    type InitError = ();
-
-    fn new_service(&self, config: Self::Config) -> StdResult<Self::Service, Self::InitError> {
-        let service = self.service.new_service(config)?;
-
-        Ok(HandlerObjectService {
-            service: Arc::new(service),
-            filters: self.filters.clone().into(),
-        })
-    }
-}
-
-#[allow(clippy::module_name_repetitions)]
-pub struct HandlerObjectService<Client> {
-    pub(crate) service: Arc<BoxedHandlerService<Client>>,
-    filters: Box<[Arc<dyn Filter<Client>>]>,
-}
-
-impl<Client> HandlerObjectService<Client>
+impl<Client> HandlerComposite<Client>
 where
     Client: Send + Sync,
 {
     /// Check if the handler pass the filters.
     /// If the handler pass all them, it will be called.
     #[instrument(skip(self, request))]
-    pub async fn check(&self, request: &mut Request<Client>) -> bool {
-        for filter in &*self.filters {
-            if !filter.check(request).await {
-                return false;
+    pub async fn check(&mut self, mut request: Request<Client>) -> (bool, Request<Client>) {
+        for filter in &mut self.filters {
+            let (result, new_request) = filter.call(request).await.unwrap();
+            if !result {
+                return (false, new_request);
             }
+            request = new_request;
         }
-        true
+        (true, request)
     }
 }
 
-impl<Client> Service<Request<Client>> for HandlerObjectService<Client> {
+impl<Client> Clone for HandlerComposite<Client> {
+    fn clone(&self) -> Self {
+        Self {
+            service: self.service.clone(),
+            filters: self.filters.clone(),
+        }
+    }
+}
+
+impl<Client> Service<Request<Client>> for HandlerComposite<Client> {
     type Response = Response<Client>;
     type Error = ExtractionError;
-    type Future = BoxFuture<StdResult<Self::Response, Self::Error>>;
+    type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
 
-    fn call(&self, req: Request<Client>) -> Self::Future {
+    fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+        Poll::Ready(Ok(()))
+    }
+
+    fn call(&mut self, req: Request<Client>) -> Self::Future {
         self.service.call(req)
     }
 }
 
-#[allow(clippy::module_name_repetitions)]
-#[instrument(skip(handler))]
-pub fn handler_service<Client, H, Args>(handler: H) -> BoxedHandlerServiceFactory<Client>
+pub(crate) fn boxed_handler_factory<Client, H, Args>(handler: H) -> BoxedCloneHandlerService<Client>
 where
     Client: Send + Sync + 'static,
-    H: Handler<Args> + Clone + Send + Sync + 'static,
-    H::Future: Send,
-    H::Output: Into<Result>,
+    H: Handler<Args>,
     Args: Extractor<Client> + Send,
     Args::Error: Send,
 {
-    factory(fn_service(move |request: Request<Client>| {
-        let handler = handler.clone();
+    BoxCloneService::new(service_fn(move |request: Request<Client>| {
+        let mut handler = handler.clone();
 
         async move {
             match Args::extract(&request) {
@@ -183,64 +164,30 @@ where
     }))
 }
 
-#[allow(non_snake_case)]
-mod factory_handlers {
-    //! This module is used to implement [`Handler`] for function-like with 0-20 arguments
-
-    use super::{Future, Handler};
-
-    macro_rules! factory ({ $($param:ident)* } => {
-        impl<Func, Fut, $($param,)*> Handler<($($param,)*)> for Func
+// `Handler` implementation for function-like
+macro_rules! impl_handlers {
+    (
+        [$($ty:ident),*]
+    ) => {
+        impl<F, Fut, Response, $($ty,)*> Handler<($($ty,)*)> for F
         where
-            Func: Fn($($param,)*) -> Fut,
-            Fut: Future,
+            F: FnMut($($ty),*) -> Fut + Clone + Send + Sync + 'static,
+            Fut: Future<Output = Response> + Send,
+            Response: Into<HandlerResult>,
         {
-            type Output = Fut::Output;
+            type Output = Response;
             type Future = Fut;
 
             #[inline]
             #[allow(non_snake_case)]
-            fn call(&self, ($($param,)*): ($($param,)*)) -> Self::Future {
-                (self)($($param,)*)
+            fn call(&mut self, ($($ty,)*): ($($ty,)*)) -> Self::Future {
+                (self)($($ty,)*)
             }
         }
-    });
-
-    // To be able to use function without arguments
-    factory! {}
-    // To be able to use function with 1 arguments
-    factory! { A }
-    // To be able to use function with 2 arguments
-    factory! { A B }
-    // To be able to use function with 3 arguments
-    factory! { A B C }
-    // To be able to use function with 4 arguments
-    factory! { A B C D }
-    // To be able to use function with 5 arguments
-    factory! { A B C D E }
-    // To be able to use function with 6 arguments
-    factory! { A B C D E F }
-    // To be able to use function with 7 arguments
-    factory! { A B C D E F G }
-    // To be able to use function with 8 arguments
-    factory! { A B C D E F G H }
-    // To be able to use function with 9 arguments
-    factory! { A B C D E F G H I }
-    // To be able to use function with 10 arguments
-    factory! { A B C D E F G H I J }
-    // To be able to use function with 11 arguments
-    factory! { A B C D E F G H I J K }
-    // To be able to use function with 12 arguments
-    factory! { A B C D E F G H I J K L }
-    // To be able to extract tuple with 13 arguments
-    factory! { A B C D E F G H I J K L M}
-    // To be able to extract tuple with 14 arguments
-    factory! { A B C D E F G H I J K L M N }
-    // To be able to extract tuple with 15 arguments
-    factory! { A B C D E F G H I J K L M N O}
-    // To be able to extract tuple with 16 arguments
-    factory! { A B C D E F G H I J K L M N O P }
+    }
 }
+
+all_the_tuples!(impl_handlers);
 
 #[cfg(test)]
 mod tests {
@@ -252,55 +199,27 @@ mod tests {
         types::{Message, Update, UpdateKind},
     };
 
+    use std::sync::Arc;
     use tokio;
-
-    #[test]
-    fn test_arg_number() {
-        fn assert_impl_handler<Client, T: Extractor<Client>>(_: impl Handler<T>) {}
-
-        assert_impl_handler::<Reqwest, _>(|| async { unreachable!() });
-        assert_impl_handler::<Reqwest, _>(
-            |_01: (),
-             _02: (),
-             _03: (),
-             _04: (),
-             _05: (),
-             _06: (),
-             _07: (),
-             _08: (),
-             _09: (),
-             _10: (),
-             _11: (),
-             _12: (),
-             _13: (),
-             _14: (),
-             _15: (),
-             _16: ()| async { unreachable!() },
-        );
-    }
 
     #[test]
     fn test_handler_composite_filter() {
         let filter = Command::default();
 
-        let mut handler_composite =
-            HandlerComposite::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
-        assert!(handler_composite.filters.is_empty());
+        let mut handler = HandlerComposite::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
+        assert!(handler.filters.is_empty());
 
-        handler_composite.filter(filter.clone());
-        assert_eq!(handler_composite.filters.len(), 1);
+        handler.filter(filter.clone());
+        assert_eq!(handler.filters.len(), 1);
 
-        let mut handler_composite =
-            HandlerComposite::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
-        handler_composite.filter(filter);
-        assert_eq!(handler_composite.filters.len(), 1);
+        let mut handler = HandlerComposite::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
+        handler.filter(filter);
+        assert_eq!(handler.filters.len(), 1);
     }
 
     #[tokio::test]
-    async fn test_handler_composite_service() {
-        let handler_composite =
-            HandlerComposite::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
-        let handler_composite_service = handler_composite.new_service(()).unwrap();
+    async fn test_handler_service() {
+        let mut handler = HandlerComposite::<Reqwest>::new(|| async { Ok(EventReturn::Finish) });
 
         let mut request = Request::<Reqwest>::default();
         request.update = Arc::new(Update {
@@ -308,7 +227,7 @@ mod tests {
             kind: UpdateKind::Message(Message::default()),
         });
 
-        let response = handler_composite_service.call(request).await.unwrap();
+        let response = handler.call(request).await.unwrap();
 
         match response.handler_result {
             Ok(EventReturn::Finish) => {}

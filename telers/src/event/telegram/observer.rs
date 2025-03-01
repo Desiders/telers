@@ -3,27 +3,25 @@ use crate::{
     errors::EventErrorKind,
     event::{
         bases::{EventReturn, PropagateEventResult},
-        service::{Service as _, ServiceFactory as _, ServiceProvider, ToServiceProvider},
-        telegram::handler::{
-            Handler, HandlerComposite, HandlerObjectService, Result as HandlerResult,
-        },
+        service::Service as _,
+        telegram::handler::{Handler, HandlerComposite},
     },
     extractor::Extractor,
     filters::Filter,
     middlewares::{
         inner::{
-            wrap_handler_and_middlewares_to_next, Manager as InnerMiddlewareManager,
-            Middleware as InnerMiddleware,
+            wrap_to_next, BoxedCloneMiddlewareService as BoxedCloneInnerMiddlewareService,
+            Manager as InnerMiddlewareManager,
         },
-        outer::{Manager as OuterMiddlewareManager, Middleware as OuterMiddleware},
+        outer::{
+            BoxedCloneMiddlewareService as BoxedCloneOuterMiddlewareService,
+            Manager as OuterMiddlewareManager,
+        },
     },
     Request,
 };
 
-use std::{
-    fmt::{self, Debug, Formatter},
-    sync::Arc,
-};
+use std::fmt::{self, Debug, Formatter};
 use tracing::{event, instrument, Level};
 
 pub struct Response<Client> {
@@ -51,13 +49,13 @@ pub struct Observer<Client> {
     pub outer_middlewares: OuterMiddlewareManager<Client>,
 }
 
-impl<Client> Observer<Client> {
+impl<Client> Observer<Client>
+where
+    Client: Send + Sync + 'static,
+{
     #[allow(unreachable_code)]
     #[must_use]
-    pub fn new(event_name: TelegramObserverName) -> Self
-    where
-        Client: Send + Sync + 'static,
-    {
+    pub fn new(event_name: TelegramObserverName) -> Self {
         Self {
             event_name,
             handlers: vec![],
@@ -72,18 +70,10 @@ impl<Client> Observer<Client> {
         }
     }
 
-    #[must_use]
-    pub fn handlers(&self) -> &[HandlerComposite<Client>] {
-        &self.handlers
-    }
-
     #[allow(clippy::missing_panics_doc)]
     pub fn register<H, Args>(&mut self, handler: H) -> &mut HandlerComposite<Client>
     where
-        Client: Send + Sync + 'static,
-        H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send,
-        H::Output: Into<HandlerResult>,
+        H: Handler<Args>,
         Args: Extractor<Client> + Send,
         Args::Error: Send,
     {
@@ -95,10 +85,7 @@ impl<Client> Observer<Client> {
     /// Alias to [`Observer::register`] method
     pub fn on<H, Args>(&mut self, handler: H) -> &mut HandlerComposite<Client>
     where
-        Client: Send + Sync + 'static,
-        H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send,
-        H::Output: Into<HandlerResult>,
+        H: Handler<Args>,
         Args: Extractor<Client> + Send,
         Args::Error: Send,
     {
@@ -108,7 +95,7 @@ impl<Client> Observer<Client> {
     /// Register filter for all handlers in the observer
     pub fn filter<T>(&mut self, val: T) -> &mut Self
     where
-        T: Filter<Client> + 'static,
+        T: Filter<Client>,
     {
         self.common.filter(val);
         self
@@ -117,7 +104,7 @@ impl<Client> Observer<Client> {
     /// Register filters for all handlers in the observer
     pub fn filters<T, I>(&mut self, val: I) -> &mut Self
     where
-        T: Filter<Client> + 'static,
+        T: Filter<Client>,
         I: IntoIterator<Item = T>,
     {
         self.common.filters(val);
@@ -125,81 +112,50 @@ impl<Client> Observer<Client> {
     }
 }
 
-impl<Client> Debug for Observer<Client> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Observer")
-            .field("event_name", &self.event_name)
-            .finish_non_exhaustive()
-    }
-}
-
-impl<Client> Default for Observer<Client>
-where
-    Client: Send + Sync + 'static,
-{
+impl<Client> Observer<Client> {
     #[must_use]
-    fn default() -> Self {
-        Self::new(TelegramObserverName::Message)
+    pub fn handlers(&self) -> &[HandlerComposite<Client>] {
+        &self.handlers
     }
-}
 
-impl<Client> AsRef<Observer<Client>> for Observer<Client> {
     #[must_use]
-    fn as_ref(&self) -> &Self {
-        self
+    pub fn inner_middlewares(&self) -> &[BoxedCloneInnerMiddlewareService<Client>] {
+        &self.inner_middlewares.middlewares
+    }
+
+    #[must_use]
+    pub fn inner_middlewares_mut(&mut self) -> &mut [BoxedCloneInnerMiddlewareService<Client>] {
+        &mut self.inner_middlewares.middlewares
+    }
+
+    #[must_use]
+    pub fn outer_middlewares(&self) -> &[BoxedCloneOuterMiddlewareService<Client>] {
+        &self.outer_middlewares.middlewares
+    }
+
+    #[must_use]
+    pub fn outer_middlewares_mut(&mut self) -> &mut [BoxedCloneOuterMiddlewareService<Client>] {
+        &mut self.outer_middlewares.middlewares
     }
 }
 
-impl<Client> ToServiceProvider for Observer<Client> {
-    type Config = ();
-    type ServiceProvider = Service<Client>;
-    type InitError = ();
-
-    fn to_service_provider(
-        self,
-        config: Self::Config,
-    ) -> Result<Self::ServiceProvider, Self::InitError> {
-        Ok(Service {
-            event_name: self.event_name,
-            handlers: self
-                .handlers
-                .iter()
-                .map(|handler| handler.new_service(config))
-                .collect::<Result<_, _>>()?,
-            common: self.common.new_service(config)?,
-            inner_middlewares: self.inner_middlewares.middlewares.into(),
-            outer_middlewares: self.outer_middlewares.middlewares.into(),
-        })
-    }
-}
-
-pub struct Service<Client> {
-    pub(crate) event_name: TelegramObserverName,
-
-    handlers: Box<[HandlerObjectService<Client>]>,
-    common: HandlerObjectService<Client>,
-
-    inner_middlewares: Box<[Arc<dyn InnerMiddleware<Client>>]>,
-    outer_middlewares: Box<[Arc<dyn OuterMiddleware<Client>>]>,
-}
-
-impl<Client> ServiceProvider for Service<Client> {}
-
-impl<Client> Service<Client> {
+impl<Client> Observer<Client> {
     /// Propagate event to handlers and stops propagation on first match.
     /// Handler will be called when all its filters is pass.
     /// # Errors
     /// - If any handler returns error. Probably it's error to extract args to the handler.
     #[instrument(skip(self, request))]
     pub async fn trigger(
-        &self,
-        mut request: Request<Client>,
+        &mut self,
+        request: Request<Client>,
     ) -> Result<Response<Client>, EventErrorKind>
     where
         Client: Send + Sync + 'static,
     {
+        let (result, mut request) = self.common.check(request).await;
+
         // Check observer filters
-        if !self.common.check(&mut request).await {
+        if !result {
             event!(Level::TRACE, "Request are not pass observer filters");
 
             return Ok(Response {
@@ -209,20 +165,22 @@ impl<Client> Service<Client> {
         }
 
         // Check handlers filters
-        for handler in &*self.handlers {
-            if !handler.check(&mut request).await {
+        for handler in &mut self.handlers {
+            let (result, new_request) = handler.check(request).await;
+            request = new_request;
+            if !result {
                 continue;
             }
 
             event!(Level::TRACE, "Request are pass handler filters");
 
-            let response = match self.inner_middlewares.split_first() {
+            let response = match self.inner_middlewares.middlewares.split_first_mut() {
                 Some((middleware, middlewares)) => {
-                    let next = Box::new(wrap_handler_and_middlewares_to_next(
-                        Arc::clone(&handler.service),
+                    let next = wrap_to_next(
+                        handler.service.clone(),
                         middlewares.to_vec().into_boxed_slice(), // we use it instead of `into` because some versions of rustc can't infer type
-                    ));
-                    middleware.call(request.clone(), next).await
+                    );
+                    middleware.call((request.clone(), next)).await
                 }
                 None => handler
                     .call(request.clone())
@@ -277,23 +235,42 @@ impl<Client> Service<Client> {
             propagate_result: PropagateEventResult::Unhandled,
         })
     }
+}
 
-    #[must_use]
-    pub fn inner_middlewares(&self) -> &[Arc<dyn InnerMiddleware<Client>>] {
-        &self.inner_middlewares
-    }
-
-    #[must_use]
-    pub fn outer_middlewares(&self) -> &[Arc<dyn OuterMiddleware<Client>>] {
-        &self.outer_middlewares
+impl<Client> Debug for Observer<Client> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Observer")
+            .field("event_name", &self.event_name)
+            .finish_non_exhaustive()
     }
 }
 
-impl<Client> Debug for Service<Client> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Service")
-            .field("event_name", &self.event_name)
-            .finish_non_exhaustive()
+impl<Client> Default for Observer<Client>
+where
+    Client: Send + Sync + 'static,
+{
+    #[must_use]
+    fn default() -> Self {
+        Self::new(TelegramObserverName::Message)
+    }
+}
+
+impl<Client> AsRef<Observer<Client>> for Observer<Client> {
+    #[must_use]
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}
+
+impl<Client> Clone for Observer<Client> {
+    fn clone(&self) -> Self {
+        Self {
+            event_name: self.event_name,
+            handlers: self.handlers.clone(),
+            common: self.common.clone(),
+            inner_middlewares: self.inner_middlewares.clone(),
+            outer_middlewares: self.outer_middlewares.clone(),
+        }
     }
 }
 
@@ -308,6 +285,7 @@ mod tests {
     };
 
     use anyhow::anyhow;
+    use std::sync::Arc;
     use tokio;
 
     #[allow(unreachable_code)]
@@ -323,9 +301,8 @@ mod tests {
             Ok(EventReturn::Finish)
         });
 
-        let observer_service = observer.to_service_provider_default().unwrap();
         let mut request = Request::<Reqwest>::default();
-        let response = observer_service.trigger(request.clone()).await.unwrap();
+        let response = observer.trigger(request.clone()).await.unwrap();
 
         // Filter not pass, so handler should be rejected
         match response.propagate_result {
@@ -341,7 +318,7 @@ mod tests {
             ..Default::default()
         });
 
-        let response = observer_service.trigger(request).await.unwrap();
+        let response = observer.trigger(request).await.unwrap();
 
         // Filter pass, so handler should be handled
         match response.propagate_result {
@@ -361,9 +338,8 @@ mod tests {
             Ok(EventReturn::Finish)
         });
 
-        let observer_service = observer.to_service_provider_default().unwrap();
         let request = Request::<Reqwest>::default();
-        let response = observer_service.trigger(request).await.unwrap();
+        let response = observer.trigger(request).await.unwrap();
 
         // First handler returns error, second handler shouldn't be called
         match response.propagate_result {
@@ -381,10 +357,8 @@ mod tests {
         observer.register(|| async { Ok(EventReturn::Skip) });
         observer.register(|| async { Ok(EventReturn::Finish) });
 
-        let observer_service = observer.to_service_provider_default().unwrap();
-
         let request = Request::<Reqwest>::default();
-        let response = observer_service.trigger(request.clone()).await.unwrap();
+        let response = observer.trigger(request.clone()).await.unwrap();
 
         // First handler returns `EventReturn::Skip`, so second handler should be called
         match response.propagate_result {
@@ -399,9 +373,7 @@ mod tests {
         observer.register(|| async { Ok(EventReturn::Skip) });
         observer.register(|| async { Ok(EventReturn::Cancel) });
 
-        let observer_service = observer.to_service_provider_default().unwrap();
-
-        let response = observer_service.trigger(request).await.unwrap();
+        let response = observer.trigger(request).await.unwrap();
 
         // First handler returns `EventReturn::Skip`, so second handler should be called and it returns `EventReturn::Cancel`,
         // so response should be `PropagateEventResult::Rejected`
