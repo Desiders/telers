@@ -17,6 +17,7 @@ use std::fmt::{self, Debug, Formatter};
 use tracing::instrument;
 
 /// Middleware for creating FSM [`Context`]
+#[derive(Clone)]
 pub struct FSMContext<S> {
     storage: S,
     strategy: Strategy,
@@ -151,7 +152,7 @@ where
 {
     #[instrument(skip(self, request))]
     async fn call(
-        &self,
+        &mut self,
         mut request: Request<Client>,
     ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
         let context = &mut request.context;

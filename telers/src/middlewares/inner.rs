@@ -19,6 +19,8 @@ pub mod base;
 pub mod logging;
 pub mod manager;
 
-pub use base::{wrap_handler_and_middlewares_to_next, Middleware, Next};
+pub(crate) use base::{boxed_middleware_factory, BoxedCloneMiddlewareService};
+
+pub use base::{wrap_to_next, Middleware, Next};
 pub use logging::Logging;
 pub use manager::Manager;

@@ -20,6 +20,8 @@ pub mod fsm_context;
 pub mod manager;
 pub mod user_context;
 
+pub(crate) use base::{boxed_middleware_factory, BoxedCloneMiddlewareService};
+
 pub use base::{Middleware, MiddlewareResponse};
 pub use fsm_context::FSMContext;
 pub use manager::Manager;
