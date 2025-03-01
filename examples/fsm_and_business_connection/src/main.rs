@@ -21,7 +21,7 @@ use std::borrow::Cow;
 use telers::{
     enums::ContentType as ContentTypeEnum,
     enums::UpdateType,
-    event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
+    event::{telegram::HandlerResult, EventReturn},
     filters::{Command, ContentType, State as StateFilter},
     fsm::{Context as FSMContext, MemoryStorage, Storage, Strategy},
     methods::SendMessage,
@@ -205,18 +205,13 @@ async fn main() {
         .filter(ContentType::one(ContentTypeEnum::Text))
         .filter(StateFilter::one(State::Language));
 
-    let dispatcher = Dispatcher::builder()
-        .main_router(router)
+    let mut dispatcher = Dispatcher::builder()
+        .main_router(router.configure_default())
         .bot(bot)
         .allowed_update(UpdateType::BusinessMessage)
         .build();
 
-    match dispatcher
-        .to_service_provider_default()
-        .unwrap()
-        .run_polling()
-        .await
-    {
+    match dispatcher.run_polling().await {
         Ok(()) => event!(Level::INFO, "Bot stopped"),
         Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
     }

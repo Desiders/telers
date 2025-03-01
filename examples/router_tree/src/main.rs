@@ -10,11 +10,14 @@
 //! ```
 
 use async_trait::async_trait;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::{
+    atomic::{AtomicUsize, Ordering},
+    Arc,
+};
 use telers::{
     enums::ChatType as ChatTypeEnum,
     errors::EventErrorKind,
-    event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
+    event::{telegram::HandlerResult, EventReturn},
     filters::{ChatType, Command},
     methods::{CopyMessage, SendMessage},
     middlewares::{outer::MiddlewareResponse, OuterMiddleware},
@@ -25,14 +28,14 @@ use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 /// This middleware will count all incoming updates, which are handled by echo router.
-#[derive(Default)]
+#[derive(Default, Clone)]
 struct IncomingEchoRouterUpdates {
-    counter: AtomicUsize,
+    counter: Arc<AtomicUsize>,
 }
 
 #[async_trait]
 impl OuterMiddleware for IncomingEchoRouterUpdates {
-    async fn call(&self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
+    async fn call(&mut self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
         event!(Level::INFO, "Incoming echo router update");
 
         self.counter.fetch_add(1, Ordering::SeqCst);
@@ -124,18 +127,13 @@ async fn main() {
     // Include echo router into main router, so all updates, which are not handled by main router or private router will be passed to echo router
     main_router.include(echo_router);
 
-    let dispatcher = Dispatcher::builder()
+    let mut dispatcher = Dispatcher::builder()
         .allowed_updates(main_router.resolve_used_update_types())
-        .router(main_router)
+        .router(main_router.configure_default())
         .bot(bot)
         .build();
 
-    match dispatcher
-        .to_service_provider_default()
-        .unwrap()
-        .run_polling()
-        .await
-    {
+    match dispatcher.run_polling().await {
         Ok(()) => event!(Level::INFO, "Bot stopped"),
         Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
     }

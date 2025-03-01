@@ -10,7 +10,7 @@ use futures::{TryFutureExt as _, TryStreamExt as _};
 use telers::{
     enums::UpdateType,
     errors::HandlerError,
-    event::{simple, telegram, EventReturn, ToServiceProvider as _},
+    event::{simple, telegram, EventReturn},
     methods::{SendMediaGroup, SendPhoto},
     router::Router,
     types::{InputFile, InputMediaPhoto, Message},
@@ -152,18 +152,13 @@ async fn main() {
     router.startup.register(on_startup, ());
     router.shutdown.register(on_shutdown, ());
 
-    let dispatcher = Dispatcher::builder()
-        .main_router(router)
+    let mut dispatcher = Dispatcher::builder()
+        .main_router(router.configure_default())
         .bot(bot)
         .allowed_update(UpdateType::Message)
         .build();
 
-    match dispatcher
-        .to_service_provider_default()
-        .unwrap()
-        .run_polling()
-        .await
-    {
+    match dispatcher.run_polling().await {
         Ok(()) => event!(Level::INFO, "Bot stopped"),
         Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
     }

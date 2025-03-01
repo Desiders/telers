@@ -6,7 +6,7 @@
 //! ```
 
 use telers::{
-    event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
+    event::{telegram::HandlerResult, EventReturn},
     methods::SendMessage,
     types::{BusinessConnection, BusinessMessagesDeleted, Message},
     Bot, Dispatcher, Router,
@@ -63,18 +63,13 @@ async fn main() {
     router.edited_business_message.register(message_edited);
     router.deleted_business_messages.register(messages_deleted);
 
-    let dispatcher = Dispatcher::builder()
+    let mut dispatcher = Dispatcher::builder()
         .allowed_updates(router.resolve_used_update_types())
-        .main_router(router)
+        .main_router(router.configure_default())
         .bot(bot)
         .build();
 
-    match dispatcher
-        .to_service_provider_default()
-        .unwrap()
-        .run_polling()
-        .await
-    {
+    match dispatcher.run_polling().await {
         Ok(()) => event!(Level::INFO, "Bot stopped"),
         Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
     }

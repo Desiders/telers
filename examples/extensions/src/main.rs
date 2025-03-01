@@ -10,11 +10,10 @@
 //! [`Extensions`]: telers::Extensions
 //! [`extensions module`]: telers::extensions
 
-use std::future::Future;
 use telers::{
     enums::UpdateType,
     errors::EventErrorKind,
-    event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
+    event::{telegram::HandlerResult, EventReturn},
     filters::Command,
     methods::SendMessage,
     middlewares::outer::MiddlewareResponse,
@@ -38,10 +37,10 @@ async fn to_extensions_middleware(
     Ok((request, EventReturn::default()))
 }
 
-fn to_extensions_filter(request: &mut Request) -> impl Future<Output = bool> {
+async fn to_extensions_filter(mut request: Request) -> (bool, Request) {
     request.extensions.insert(StrData("1"));
 
-    async move { true }
+    (true, request)
 }
 
 async fn send_data_handler(
@@ -90,18 +89,13 @@ async fn main() {
         .register(send_data_handler)
         .filter(Command::one("data"));
 
-    let dispatcher = Dispatcher::builder()
-        .main_router(router)
+    let mut dispatcher = Dispatcher::builder()
+        .main_router(router.configure_default())
         .bot(bot)
         .allowed_update(UpdateType::Message)
         .build();
 
-    match dispatcher
-        .to_service_provider_default()
-        .unwrap()
-        .run_polling()
-        .await
-    {
+    match dispatcher.run_polling().await {
         Ok(()) => event!(Level::INFO, "Bot stopped"),
         Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
     }

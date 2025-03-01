@@ -8,7 +8,7 @@
 use axum::{routing, Router as AxumRouter};
 use telers::{
     enums::UpdateType,
-    event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
+    event::{telegram::HandlerResult, EventReturn},
     methods::CopyMessage,
     types::Message,
     Bot, Dispatcher, Router as TelersRouter,
@@ -45,13 +45,11 @@ async fn main() {
     let mut router = TelersRouter::new("main");
     router.message.register(echo_handler);
 
-    let dispatcher = Dispatcher::builder()
-        .main_router(router)
+    let mut dispatcher = Dispatcher::builder()
+        .main_router(router.configure_default())
         .bot(bot)
         .allowed_update(UpdateType::Message)
-        .build()
-        .to_service_provider_default()
-        .unwrap();
+        .build();
 
     let app = AxumRouter::new()
         .route("/", routing::get(hello_world_handler))
@@ -61,7 +59,7 @@ async fn main() {
     // You can also don't use `tokio::spawn` and run them in the same thread.
     tokio::join!(
         async {
-            match tokio::spawn(dispatcher.run_polling()).await {
+            match tokio::spawn(async move { dispatcher.run_polling().await }).await {
                 Ok(Ok(())) => {}
                 Ok(Err(err)) => {
                     event!(Level::ERROR, "Error in dispatcher: {:?}", err);

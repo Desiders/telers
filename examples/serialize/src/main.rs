@@ -8,7 +8,7 @@
 use telers::{
     enums::{ParseMode, UpdateType},
     errors::HandlerError,
-    event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
+    event::{telegram::HandlerResult, EventReturn},
     methods::SendMessage,
     types::Update,
     utils::text::{html_pre_language, html_quote},
@@ -55,18 +55,13 @@ async fn main() {
     let mut router = Router::new("main");
     router.update.register(serialize_handler);
 
-    let dispatcher = Dispatcher::builder()
-        .main_router(router)
+    let mut dispatcher = Dispatcher::builder()
+        .main_router(router.configure_default())
         .bot(bot)
         .allowed_updates(UpdateType::all())
         .build();
 
-    match dispatcher
-        .to_service_provider_default()
-        .unwrap()
-        .run_polling()
-        .await
-    {
+    match dispatcher.run_polling().await {
         Ok(()) => event!(Level::INFO, "Bot stopped"),
         Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
     }
