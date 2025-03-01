@@ -9,43 +9,69 @@
 //! [`Filter`] trait has methods that allow you to combine filters in a more convenient way,
 //! see [`Filter::and`], [`Filter::or`] and [`Filter::invert`] methods.
 
-use super::base::Filter;
-use crate::Request;
+use super::base::{boxed_filter_factory, BoxedCloneFilterService, Filter};
+use crate::{event::service::Service as _, Request};
 
 use async_trait::async_trait;
-use std::sync::Arc;
 
 pub struct And<Client> {
-    filters: Vec<Arc<dyn Filter<Client>>>,
+    filters: Vec<BoxedCloneFilterService<Client>>,
+}
+
+impl<Client> Clone for And<Client> {
+    fn clone(&self) -> Self {
+        Self {
+            filters: self.filters.clone(),
+        }
+    }
 }
 
 pub struct Or<Client> {
-    filters: Vec<Arc<dyn Filter<Client>>>,
+    filters: Vec<BoxedCloneFilterService<Client>>,
+}
+
+impl<Client> Clone for Or<Client> {
+    fn clone(&self) -> Self {
+        Self {
+            filters: self.filters.clone(),
+        }
+    }
 }
 
 pub struct Invert<Client> {
-    filter: Arc<dyn Filter<Client>>,
+    filter: BoxedCloneFilterService<Client>,
+}
+
+impl<Client> Clone for Invert<Client> {
+    fn clone(&self) -> Self {
+        Self {
+            filter: self.filter.clone(),
+        }
+    }
 }
 
 /// A macro to implement methods for [`And`] and [`Or`] filters, because they have the same methods
 macro_rules! impl_methods {
     ($struct_name:ident, $method_name:ident) => {
-        impl<Client> $struct_name<Client> {
+        impl<Client> $struct_name<Client>
+        where
+            Client: Send + Sync + 'static,
+        {
             #[must_use]
-            pub fn new(filter: impl Filter<Client> + 'static) -> Self {
+            pub fn new(filter: impl Filter<Client>) -> Self {
                 Self {
-                    filters: vec![Arc::new(filter)],
+                    filters: vec![boxed_filter_factory(filter)],
                 }
             }
 
             /// Add a filter to the filters chain
             #[must_use]
-            pub fn $method_name(self, filter: impl Filter<Client> + 'static) -> Self {
+            pub fn $method_name(self, filter: impl Filter<Client>) -> Self {
                 Self {
                     filters: self
                         .filters
                         .into_iter()
-                        .chain(Some(Arc::new(filter) as _))
+                        .chain(Some(boxed_filter_factory(filter)))
                         .collect(),
                 }
             }
@@ -56,50 +82,50 @@ macro_rules! impl_methods {
 impl_methods!(Or, or);
 impl_methods!(And, and);
 
-impl<Client> Invert<Client> {
-    pub fn new(filter: impl Filter<Client> + 'static) -> Self {
-        Self {
-            filter: Arc::new(filter),
-        }
-    }
-}
-
-impl<Client> And<Client>
-where
-    Client: Send + Sync,
-{
-    pub async fn validate(&self, request: &mut Request<Client>) -> bool {
-        for filter in &self.filters {
-            if !filter.check(request).await {
-                return false;
-            }
-        }
-
-        true
-    }
-}
-
-impl<Client> Or<Client>
-where
-    Client: Send + Sync,
-{
-    pub async fn validate(&self, request: &mut Request<Client>) -> bool {
-        for filter in &self.filters {
-            if filter.check(request).await {
-                return true;
-            }
-        }
-
-        false
-    }
-}
-
 impl<Client> Invert<Client>
 where
-    Client: Send + Sync,
+    Client: Send + Sync + 'static,
 {
-    pub async fn validate(&self, request: &mut Request<Client>) -> bool {
-        !self.filter.check(request).await
+    pub fn new(filter: impl Filter<Client>) -> Self {
+        Self {
+            filter: boxed_filter_factory(filter),
+        }
+    }
+}
+
+impl<Client> And<Client> {
+    #[allow(clippy::missing_panics_doc)]
+    pub async fn validate(&mut self, mut request: Request<Client>) -> (bool, Request<Client>) {
+        for filter in &mut self.filters {
+            let (result, new_request) = filter.call(request).await.unwrap();
+            if !result {
+                return (false, new_request);
+            }
+            request = new_request;
+        }
+        (true, request)
+    }
+}
+
+impl<Client> Or<Client> {
+    #[allow(clippy::missing_panics_doc)]
+    pub async fn validate(&mut self, mut request: Request<Client>) -> (bool, Request<Client>) {
+        for filter in &mut self.filters {
+            let (result, new_request) = filter.call(request).await.unwrap();
+            if result {
+                return (true, new_request);
+            }
+            request = new_request;
+        }
+        (false, request)
+    }
+}
+
+impl<Client> Invert<Client> {
+    #[allow(clippy::missing_panics_doc)]
+    pub async fn validate(&mut self, request: Request<Client>) -> (bool, Request<Client>) {
+        let (result, request) = self.filter.call(request).await.unwrap();
+        (!result, request)
     }
 }
 
@@ -109,9 +135,9 @@ macro_rules! impl_filter {
         #[async_trait]
         impl<Client> Filter<Client> for $name<Client>
         where
-            Client: Send + Sync,
+            Client: Send + Sync + 'static,
         {
-            async fn check(&self, request: &mut Request<Client>) -> bool {
+            async fn check(&mut self, request: Request<Client>) -> (bool, Request<Client>) {
                 self.validate(request).await
             }
         }
@@ -129,85 +155,97 @@ mod tests {
 
     #[tokio::test]
     async fn test_and() {
-        let mut request = Request::<Reqwest>::default();
+        let request = Request::<Reqwest>::default();
 
         assert!(
-            And::new(|_: &mut Request| async { true })
-                .validate(&mut request)
+            And::new(|req| async { (true, req) })
+                .validate(request.clone())
                 .await
+                .0
         );
         assert!(
-            !And::new(|_: &mut Request| async { false })
-                .validate(&mut request)
+            !And::new(|req| async { (false, req) })
+                .validate(request.clone())
                 .await
+                .0
         );
         assert!(
-            And::new(|_: &mut Request| async { true })
-                .and(|_: &mut Request| async { true })
-                .validate(&mut request)
+            And::new(|req| async { (true, req) })
+                .and(|req| async { (true, req) })
+                .validate(request.clone())
                 .await
+                .0
         );
         assert!(
-            !And::new(|_: &mut Request| async { false })
-                .and(|_: &mut Request| async { true })
-                .validate(&mut request)
+            !And::new(|req| async { (false, req) })
+                .and(|req| async { (true, req) })
+                .validate(request.clone())
                 .await
+                .0
         );
         assert!(
-            !And::new(|_: &mut Request| async { true })
-                .and(|_: &mut Request| async { false })
-                .validate(&mut request)
+            !And::new(|req| async { (true, req) })
+                .and(|req| async { (false, req) })
+                .validate(request)
                 .await
+                .0
         );
     }
 
     #[tokio::test]
     async fn test_or() {
-        let mut request = Request::<Reqwest>::default();
+        let request = Request::<Reqwest>::default();
 
         assert!(
-            Or::new(|_: &mut Request| async { true })
-                .validate(&mut request)
+            Or::new(|req| async { (true, req) })
+                .validate(request.clone())
                 .await
+                .0
         );
         assert!(
-            !Or::new(|_: &mut Request| async { false })
-                .validate(&mut request)
+            !Or::new(|req| async { (false, req) })
+                .validate(request.clone())
                 .await
+                .0
         );
         assert!(
-            Or::new(|_: &mut Request| async { true })
-                .or(|_: &mut Request| async { true })
-                .validate(&mut request)
+            Or::new(|req| async { (true, req) })
+                .or(|req| async { (true, req) })
+                .validate(request.clone())
                 .await
+                .0
         );
         assert!(
-            Or::new(|_: &mut Request| async { false })
-                .or(|_: &mut Request| async { true })
-                .validate(&mut request)
+            Or::new(|req| async { (false, req) })
+                .or(|req| async { (true, req) })
+                .validate(request.clone())
                 .await
+                .0
         );
         assert!(
-            Or::new(|_: &mut Request| async { true })
-                .or(|_: &mut Request| async { false })
-                .validate(&mut request)
+            Or::new(|req| async { (true, req) })
+                .or(|req| async { (false, req) })
+                .validate(request)
                 .await
+                .0
         );
     }
 
     #[tokio::test]
     async fn test_invert() {
-        let mut request = Request::<Reqwest>::default();
+        let request = Request::<Reqwest>::default();
 
         assert!(
-            Invert::new(|_: &mut Request| async { false })
-                .validate(&mut request)
+            Invert::new(|req| async { (false, req) })
+                .validate(request.clone())
                 .await
+                .0
         );
         assert!(
-            !Invert::new(|_: &mut Request| async { true })
-                .validate(&mut request)
+            !Invert::new(|req| async { (true, req) })
+                .validate(request)
                 .await
+                .0
         );
     }
 }

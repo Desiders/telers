@@ -22,31 +22,31 @@ use tracing::{event, instrument, Level};
 ///     A command pattern with regex, compiled with [`Regex`] struct. \
 ///     If filter used with `ignore_case` flag, then the regex will be compiled with `(?i)` flag (ignore case sensitive flag).
 #[derive(Debug, Clone)]
-pub enum PatternType<'a> {
-    Text(Cow<'a, str>),
+pub enum PatternType {
+    Text(Cow<'static, str>),
     Object(BotCommand),
     Regex(Regex),
 }
 
-impl<'a> From<Cow<'a, str>> for PatternType<'a> {
-    fn from(text: Cow<'a, str>) -> Self {
+impl From<Cow<'static, str>> for PatternType {
+    fn from(text: Cow<'static, str>) -> Self {
         Self::Text(text)
     }
 }
 
-impl<'a> From<&'a str> for PatternType<'a> {
-    fn from(text: &'a str) -> Self {
+impl From<&'static str> for PatternType {
+    fn from(text: &'static str) -> Self {
         Self::Text(Cow::Borrowed(text))
     }
 }
 
-impl From<BotCommand> for PatternType<'_> {
+impl From<BotCommand> for PatternType {
     fn from(command: BotCommand) -> Self {
         Self::Object(command)
     }
 }
 
-impl From<Regex> for PatternType<'_> {
+impl From<Regex> for PatternType {
     fn from(regex: Regex) -> Self {
         Self::Regex(regex)
     }
@@ -61,9 +61,9 @@ impl From<Regex> for PatternType<'_> {
 /// You can use parsed command using [`CommandObject`] struct in handler arguments,
 /// or get it from [`Context`] by `command` key.
 #[derive(Debug, Clone)]
-pub struct Command<'a> {
+pub struct Command {
     /// List of commands ([`Cow`], [`BotCommand`] or compiled [`Regex`] patterns)
-    commands: Box<[PatternType<'a>]>,
+    commands: Vec<PatternType>,
     /// Command prefix
     prefix: char,
     /// Ignore case sensitive
@@ -72,7 +72,7 @@ pub struct Command<'a> {
     ignore_mention: bool,
 }
 
-impl<'a> Command<'a> {
+impl Command {
     /// Creates a new [`Command`] filter
     /// # Arguments
     /// * `commands` - List of commands (texts, [`BotCommand`] or compiled [`Regex`] patterns)
@@ -88,7 +88,7 @@ impl<'a> Command<'a> {
         ignore_mention: bool,
     ) -> Self
     where
-        CommandType: Into<PatternType<'a>>,
+        CommandType: Into<PatternType>,
         Commands: IntoIterator<Item = CommandType>,
     {
         let commands = if ignore_case {
@@ -140,7 +140,7 @@ impl<'a> Command<'a> {
     /// - This method is just a shortcut to create a filter using the builder
     /// - By default, the prefix is `/`. If you want to change it, use [`Command::one_with_prefix`] instead.
     #[must_use]
-    pub fn one(command: impl Into<PatternType<'a>>) -> Self {
+    pub fn one(command: impl Into<PatternType>) -> Self {
         Self::builder().command(command).build()
     }
 
@@ -149,7 +149,7 @@ impl<'a> Command<'a> {
     /// - This method is just a shortcut to create a filter using the builder.
     /// - By default, the prefix is `/`, so you can use [`Command::one`] instead. Use this method if you want to change the it.
     #[must_use]
-    pub fn one_with_prefix(command: impl Into<PatternType<'a>>, prefix: char) -> Self {
+    pub fn one_with_prefix(command: impl Into<PatternType>, prefix: char) -> Self {
         Self::builder().command(command).prefix(prefix).build()
     }
 
@@ -160,7 +160,7 @@ impl<'a> Command<'a> {
     #[must_use]
     pub fn many<T, I>(commands: I) -> Self
     where
-        T: Into<PatternType<'a>>,
+        T: Into<PatternType>,
         I: IntoIterator<Item = T>,
     {
         Self::builder().commands(commands).build()
@@ -173,23 +173,23 @@ impl<'a> Command<'a> {
     #[must_use]
     pub fn many_with_prefix<T, I>(commands: I, prefix: char) -> Self
     where
-        T: Into<PatternType<'a>>,
+        T: Into<PatternType>,
         I: IntoIterator<Item = T>,
     {
         Self::builder().commands(commands).prefix(prefix).build()
     }
 
     #[must_use]
-    pub fn builder() -> Builder<'a> {
+    pub fn builder() -> Builder {
         Builder::new()
     }
 }
 
-impl Default for Command<'_> {
+impl Default for Command {
     #[must_use]
     fn default() -> Self {
         Self {
-            commands: Box::new([]),
+            commands: vec![],
             prefix: '/',
             ignore_case: false,
             ignore_mention: false,
@@ -198,21 +198,21 @@ impl Default for Command<'_> {
 }
 
 #[derive(Debug, Clone)]
-pub struct Builder<'a> {
-    commands: Vec<PatternType<'a>>,
+pub struct Builder {
+    commands: Vec<PatternType>,
     prefix: char,
     ignore_case: bool,
     ignore_mention: bool,
 }
 
-impl<'a> Builder<'a> {
+impl Builder {
     #[must_use]
-    pub fn new() -> Builder<'a> {
+    pub fn new() -> Builder {
         Self::default()
     }
 
     #[must_use]
-    pub fn command(self, val: impl Into<PatternType<'a>>) -> Self {
+    pub fn command(self, val: impl Into<PatternType>) -> Self {
         Self {
             commands: self.commands.into_iter().chain(once(val.into())).collect(),
             ..self
@@ -222,7 +222,7 @@ impl<'a> Builder<'a> {
     #[must_use]
     pub fn commands<T, I>(self, val: I) -> Self
     where
-        T: Into<PatternType<'a>>,
+        T: Into<PatternType>,
         I: IntoIterator<Item = T>,
     {
         Self {
@@ -260,7 +260,7 @@ impl<'a> Builder<'a> {
     }
 
     #[must_use]
-    pub fn build(self) -> Command<'a> {
+    pub fn build(self) -> Command {
         Command::new(
             self.commands,
             self.prefix,
@@ -270,7 +270,7 @@ impl<'a> Builder<'a> {
     }
 }
 
-impl Default for Builder<'_> {
+impl Default for Builder {
     #[must_use]
     fn default() -> Self {
         Self {
@@ -282,7 +282,7 @@ impl Default for Builder<'_> {
     }
 }
 
-impl Command<'_> {
+impl Command {
     #[must_use]
     pub fn validate_prefix(&self, command: &CommandObject) -> bool {
         command.prefix == self.prefix
@@ -418,20 +418,20 @@ impl CommandObject {
 }
 
 #[async_trait]
-impl<Client> Filter<Client> for Command<'_>
+impl<Client> Filter<Client> for Command
 where
-    Client: Session,
+    Client: Session + 'static,
 {
     #[instrument]
-    async fn check(&self, request: &mut Request<Client>) -> bool {
+    async fn check(&mut self, mut request: Request<Client>) -> (bool, Request<Client>) {
         let Some(message) = request.update.message() else {
-            return false;
+            return (false, request);
         };
         let Some(text) = message.text_or_caption() else {
-            return false;
+            return (false, request);
         };
         let Some(command) = CommandObject::extract(text) else {
-            return false;
+            return (false, request);
         };
 
         match self.validate_command_object(&command, &request.bot).await {
@@ -439,15 +439,15 @@ where
                 if result {
                     request.context.insert("command", command);
 
-                    true
+                    (true, request)
                 } else {
-                    false
+                    (false, request)
                 }
             }
             Err(err) => {
                 event!(Level::ERROR, error = %err, "Failed to validate command object");
 
-                false
+                (false, request)
             }
         }
     }
