@@ -4,6 +4,9 @@ mod serializers;
 
 pub(crate) mod any;
 
+#[macro_use]
+pub(crate) mod macros;
+
 pub mod client;
 pub mod context;
 pub mod dispatcher;
