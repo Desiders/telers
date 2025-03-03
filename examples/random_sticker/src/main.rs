@@ -50,7 +50,7 @@ async fn sticker_handler(bot: Bot, message: MessageSticker) -> HandlerResult {
     let sticker_set = bot.send(GetStickerSet::new(sticker_set_name)).await?;
 
     // generate a random number no longer than the number of stickers in the sticker set
-    let rand_index_of_sticker_set = rand::thread_rng().gen_range(0..sticker_set.stickers.len());
+    let rand_index_of_sticker_set = rand::rng().random_range(0..sticker_set.stickers.len());
 
     // get a sticker by random index in a sticker pack
     let sticker_to_send = &sticker_set.stickers[rand_index_of_sticker_set];
