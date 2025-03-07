@@ -163,7 +163,7 @@ pub trait PropagateEvent<Client>: Clone + Send + Sync + 'static {
         request: Request<Client>,
     ) -> Result<Response<Client>, EventErrorKind>
     where
-        Client: Send + Sync + 'static;
+        Client: Send + Sync + Clone;
 
     /// Propagate update event
     /// # Notes
@@ -178,7 +178,7 @@ pub trait PropagateEvent<Client>: Clone + Send + Sync + 'static {
         request: Request<Client>,
     ) -> Result<Response<Client>, EventErrorKind>
     where
-        Client: Send + Sync + 'static;
+        Client: Send + Sync + Clone;
 
     /// Emit startup events
     /// # Errors
@@ -248,7 +248,7 @@ pub trait PropagateEvent<Client>: Clone + Send + Sync + 'static {
 /// router.callback_query.register(on_callback_query);
 /// ```
 pub struct Router<Client> {
-    router_name: &'static str,
+    name: &'static str,
     sub_routers: Vec<Router<Client>>,
 
     pub message: TelegramObserver<Client>,
@@ -294,7 +294,7 @@ where
     #[rustfmt::skip]
     pub fn new(router_name: &'static str) -> Self {
         Self {
-            router_name,
+            name: router_name,
             sub_routers: vec![],
             message: TelegramObserver::new(TelegramObserverName::Message),
             edited_message: TelegramObserver::new(TelegramObserverName::EditedMessage),
@@ -507,7 +507,7 @@ impl<Client> Router<Client> {
     /// A fully configured router instance ([`RouterConfigured`]) with all middleware registrations applied.
     #[must_use]
     #[allow(clippy::too_many_lines)]
-    pub fn configure(mut self, mut config: Config<Client>) -> RouterConfigured<Client> {
+    pub fn configure(mut self, mut config: Config<Client>) -> Configured<Client> {
         macro_rules! register_inner_middlewares_to_sub_routers {
             ($($observer:ident),+ $(,)?) => {
                 $(
@@ -591,8 +591,8 @@ impl<Client> Router<Client> {
         // We don't need to register config outer middlewares to sub routers
         config.outer_middlewares = OuterMiddlewaresConfig::new();
 
-        RouterConfigured {
-            router_name: self.router_name,
+        Configured {
+            name: self.name,
             sub_routers: self
                 .sub_routers
                 .into_iter()
@@ -631,7 +631,7 @@ impl<Client> Router<Client> {
     /// # Docs
     /// More info about configuration process read in [`Self::configure`] method
     #[must_use]
-    pub fn configure_default(self) -> RouterConfigured<Client>
+    pub fn configure_default(self) -> Configured<Client>
     where
         Client: Send + Sync + 'static,
     {
@@ -642,7 +642,7 @@ impl<Client> Router<Client> {
 impl<Client> Debug for Router<Client> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Router")
-            .field("router_name", &self.router_name)
+            .field("router_name", &self.name)
             .field("sub_routers", &self.sub_routers)
             .finish_non_exhaustive()
     }
@@ -658,17 +658,10 @@ where
     }
 }
 
-impl<Client> AsRef<Router<Client>> for Router<Client> {
-    #[must_use]
-    fn as_ref(&self) -> &Self {
-        self
-    }
-}
-
 impl<Client> Clone for Router<Client> {
     fn clone(&self) -> Self {
         Self {
-            router_name: self.router_name,
+            name: self.name,
             sub_routers: self.sub_routers.clone(),
             message: self.message.clone(),
             edited_message: self.edited_message.clone(),
@@ -700,10 +693,9 @@ impl<Client> Clone for Router<Client> {
     }
 }
 
-#[allow(clippy::module_name_repetitions)]
-pub struct RouterConfigured<Client> {
-    router_name: &'static str,
-    sub_routers: Vec<RouterConfigured<Client>>,
+pub struct Configured<Client> {
+    name: &'static str,
+    sub_routers: Vec<Configured<Client>>,
 
     message: TelegramObserver<Client>,
     edited_message: TelegramObserver<Client>,
@@ -736,16 +728,19 @@ pub struct RouterConfigured<Client> {
 }
 
 #[async_trait]
-impl<Client> PropagateEvent<Client> for RouterConfigured<Client>
+impl<Client> PropagateEvent<Client> for Configured<Client>
 where
-    Client: Send + Sync + 'static,
+    Client: 'static,
 {
-    #[instrument(skip(self, update_type, request), fields(router_name = self.router_name))]
+    #[instrument(skip_all, fields(router = self.name))]
     async fn propagate_event(
         &mut self,
         update_type: UpdateType,
         mut request: Request<Client>,
-    ) -> Result<Response<Client>, EventErrorKind> {
+    ) -> Result<Response<Client>, EventErrorKind>
+    where
+        Client: Send + Sync + Clone,
+    {
         match self.propagate_update_event(request).await? {
             // If update event handled by router, then return a response
             Response {
@@ -869,13 +864,13 @@ where
         })
     }
 
-    #[instrument(skip(self, request), fields(router_name = self.router_name))]
+    #[instrument(skip_all, fields(router = self.name))]
     async fn propagate_update_event(
         &mut self,
         mut request: Request<Client>,
     ) -> Result<Response<Client>, EventErrorKind>
     where
-        Client: Send + Sync + 'static,
+        Client: Send + Sync + Clone,
     {
         event!(Level::TRACE, "Propagate update event to router");
 
@@ -942,7 +937,7 @@ where
         }
     }
 
-    #[instrument(skip(self), fields(router_name = self.router_name))]
+    #[instrument(skip_all, fields(router = self.name))]
     async fn emit_startup(&mut self) -> SimpleHandlerResult {
         for startup in once(&mut self.startup).chain(
             self.sub_routers
@@ -954,7 +949,7 @@ where
         Ok(())
     }
 
-    #[instrument(skip(self), fields(router_name = self.router_name))]
+    #[instrument(skip_all, fields(router = self.name))]
     async fn emit_shutdown(&mut self) -> SimpleHandlerResult {
         for shutdown in once(&mut self.shutdown).chain(
             self.sub_routers
@@ -967,7 +962,7 @@ where
     }
 }
 
-impl<Client> RouterConfigured<Client> {
+impl<Client> Configured<Client> {
     #[must_use]
     pub const fn telegram_observers(&self) -> [&TelegramObserver<Client>; 24] {
         [
@@ -1036,19 +1031,19 @@ impl<Client> RouterConfigured<Client> {
     }
 }
 
-impl<Client> Debug for RouterConfigured<Client> {
+impl<Client> Debug for Configured<Client> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Router")
-            .field("router_name", &self.router_name)
+            .field("router_name", &self.name)
             .field("sub_routers", &self.sub_routers)
             .finish_non_exhaustive()
     }
 }
 
-impl<Client> Clone for RouterConfigured<Client> {
+impl<Client> Clone for Configured<Client> {
     fn clone(&self) -> Self {
         Self {
-            router_name: self.router_name,
+            name: self.name,
             sub_routers: self.sub_routers.clone(),
             message: self.message.clone(),
             edited_message: self.edited_message.clone(),
@@ -1080,7 +1075,7 @@ impl<Client> Clone for RouterConfigured<Client> {
     }
 }
 
-impl<Client> Default for RouterConfigured<Client>
+impl<Client> Default for Configured<Client>
 where
     Client: Send + Sync + 'static,
 {
@@ -1353,7 +1348,7 @@ mod tests {
         ));
 
         assert_eq!(router_configured.sub_routers.len(), 3);
-        assert_eq!(router_configured.router_name, "main");
+        assert_eq!(router_configured.name, "main");
 
         let message_observer_name = UpdateType::Message;
 

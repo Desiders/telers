@@ -8,7 +8,7 @@ use std::fmt::{self, Debug, Display, Formatter};
 /// This indicates how [`crate::dispatcher::Dispatcher`] should process response.
 /// # Notes
 /// In some cases, some values may represent the same result
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub enum EventReturn {
     Skip,
     Cancel,

@@ -2,29 +2,12 @@ use crate::{client::Reqwest, types::Update, Bot, Context, Extensions};
 
 use std::{fmt, sync::Arc};
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct Request<Client = Reqwest> {
-    pub bot: Arc<Bot<Client>>,
+    pub bot: Bot<Client>,
     pub update: Arc<Update>,
     pub context: Context,
     pub extensions: Extensions,
-}
-
-impl<Client> Clone for Request<Client> {
-    fn clone(&self) -> Self {
-        Self {
-            bot: Arc::clone(&self.bot),
-            update: Arc::clone(&self.update),
-            context: self.context.clone(),
-            extensions: self.extensions.clone(),
-        }
-    }
-}
-
-impl<Client> PartialEq for Request<Client> {
-    fn eq(&self, other: &Self) -> bool {
-        Arc::ptr_eq(&self.bot, &other.bot) && Arc::ptr_eq(&self.update, &other.update)
-    }
 }
 
 impl<Client> fmt::Debug for Request<Client> {

@@ -179,7 +179,7 @@ impl Session for Reqwest {
     /// Uses always `POST` method to send a request and `multipart/form-data` content type even if files are not provided.
     /// # Errors
     /// Returns an error if the request cannot be sent or the response cannot be received.
-    #[instrument(skip_all, fields(files, method_name, timeout))]
+    #[instrument(name = "send", skip_all, fields(files, method_name, timeout))]
     async fn send_request<Client, T>(
         &self,
         bot: &Bot<Client>,

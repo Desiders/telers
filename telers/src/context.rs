@@ -41,6 +41,7 @@ pub struct Context {
 }
 
 impl Context {
+    #[inline]
     #[must_use]
     pub const fn new() -> Self {
         Self { map: None }

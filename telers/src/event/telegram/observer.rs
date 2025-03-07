@@ -192,7 +192,7 @@ impl<Client> Observer<Client> {
         request: Request<Client>,
     ) -> Result<Response<Client>, EventErrorKind>
     where
-        Client: Send + Sync + 'static,
+        Client: Send + Sync + Clone + 'static,
     {
         let (result, mut request) = self.common.check(request).await;
 

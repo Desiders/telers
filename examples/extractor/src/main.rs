@@ -110,7 +110,7 @@ impl Extractor for BotId {
     type Error = Infallible;
 
     fn extract(request: &Request) -> Result<Self, Self::Error> {
-        Ok(Self(request.bot.bot_id))
+        Ok(Self(request.bot.id))
     }
 }
 

@@ -353,15 +353,6 @@ impl<Client: Clone> Extractor<Client> for Bot<Client> {
 
     #[inline]
     fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
-        Ok((*request.bot).clone())
-    }
-}
-
-impl<Client> Extractor<Client> for Arc<Bot<Client>> {
-    type Error = Infallible;
-
-    #[inline]
-    fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
         Ok(request.bot.clone())
     }
 }
@@ -544,7 +535,6 @@ mod tests {
         _check_bounds::<Client, ()>();
 
         _check_bounds::<_, Bot>();
-        _check_bounds::<_, Arc<Bot>>();
         _check_bounds::<Client, Update>();
         _check_bounds::<Client, Arc<Update>>();
         _check_bounds::<Client, Context>();
@@ -633,7 +623,6 @@ mod tests {
         _check_bounds::<Client, Option<()>>();
 
         _check_bounds::<_, Option<Bot>>();
-        _check_bounds::<_, Option<Arc<Bot>>>();
         _check_bounds::<Client, Option<Update>>();
         _check_bounds::<Client, Option<Arc<Update>>>();
         _check_bounds::<Client, Option<Context>>();
@@ -723,7 +712,6 @@ mod tests {
         _check_bounds::<Client, Result<(), Infallible>>();
 
         _check_bounds::<_, Result<Bot, Infallible>>();
-        _check_bounds::<_, Result<Arc<Bot>, Infallible>>();
         _check_bounds::<Client, Result<Update, Infallible>>();
         _check_bounds::<Client, Result<Arc<Update>, Infallible>>();
         _check_bounds::<Client, Result<Context, Infallible>>();

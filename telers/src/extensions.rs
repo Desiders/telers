@@ -45,6 +45,7 @@ pub struct Extensions {
 }
 
 impl Extensions {
+    #[inline]
     #[must_use]
     pub const fn new() -> Self {
         Self { map: None }

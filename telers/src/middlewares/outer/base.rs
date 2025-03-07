@@ -86,7 +86,7 @@ mod tests {
             |request: Request<Reqwest>| async move { Ok((request, EventReturn::default())) };
 
         let request = Request {
-            bot: Arc::new(Bot::<Reqwest>::default()),
+            bot: Bot::<Reqwest>::default(),
             update: Arc::new(Update {
                 id: 0,
                 kind: UpdateKind::Message(Message::default()),
@@ -94,9 +94,9 @@ mod tests {
             context: Context::default(),
             extensions: Extensions::default(),
         };
-        let (updated_request, _) = Middleware::call(&mut middleware, request.clone())
+        let (_, event_return) = Middleware::call(&mut middleware, request.clone())
             .await
             .unwrap();
-        assert!(request == updated_request);
+        assert_eq!(event_return, EventReturn::default());
     }
 }

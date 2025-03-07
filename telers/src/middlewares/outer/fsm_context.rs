@@ -157,7 +157,7 @@ where
     ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
         let context = &mut request.context;
 
-        if let Some(fsm_context) = self.resolve_event_context(request.bot.bot_id, context) {
+        if let Some(fsm_context) = self.resolve_event_context(request.bot.id, context) {
             if let Some(state) = fsm_context
                 .get_state()
                 .await
