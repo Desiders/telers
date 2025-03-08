@@ -391,7 +391,7 @@ where
             request
                 .update
                 .text_or_caption()
-                .map_or(false, |text| self.validate_text(text)),
+                .is_some_and(|text| self.validate_text(text)),
             request,
         )
     }

@@ -309,6 +309,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
 impl<Client, PropagatorService, BackoffType> Dispatcher<Client, PropagatorService, BackoffType> {
     /// Main entry point for incoming updates.
     /// This method will propagate update to the main router.
+    #[allow(clippy::missing_errors_doc)]
     pub async fn feed_update(
         &mut self,
         bot: Bot<Client>,

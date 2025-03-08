@@ -105,7 +105,7 @@ impl<'a> InputMediaPhoto<'a> {
     }
 }
 
-impl<'a> InputMediaPhoto<'a> {
+impl InputMediaPhoto<'_> {
     #[must_use]
     pub fn caption_option(self, val: Option<impl Into<String>>) -> Self {
         Self {

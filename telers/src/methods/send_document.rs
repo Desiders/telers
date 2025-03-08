@@ -211,7 +211,7 @@ impl<'a> SendDocument<'a> {
     }
 }
 
-impl<'a> SendDocument<'a> {
+impl SendDocument<'_> {
     #[must_use]
     pub fn business_connection_id_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
@@ -318,7 +318,7 @@ impl<'a> SendDocument<'a> {
     }
 }
 
-impl<'a> TelegramMethod for SendDocument<'a> {
+impl TelegramMethod for SendDocument<'_> {
     type Method = Self;
     type Return = Message;
 

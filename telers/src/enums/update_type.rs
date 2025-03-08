@@ -85,7 +85,7 @@ impl UpdateType {
     }
 }
 
-impl<'a> From<&'a UpdateKind> for UpdateType {
+impl From<&UpdateKind> for UpdateType {
     fn from(update_kind: &UpdateKind) -> Self {
         match update_kind {
             UpdateKind::Message(_) => UpdateType::Message,

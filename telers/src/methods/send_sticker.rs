@@ -147,7 +147,7 @@ impl<'a> SendSticker<'a> {
     }
 }
 
-impl<'a> SendSticker<'a> {
+impl SendSticker<'_> {
     #[must_use]
     pub fn business_connection_id_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
@@ -221,7 +221,7 @@ impl<'a> SendSticker<'a> {
     }
 }
 
-impl<'a> TelegramMethod for SendSticker<'a> {
+impl TelegramMethod for SendSticker<'_> {
     type Method = Self;
     type Return = Message;
 

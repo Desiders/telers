@@ -53,7 +53,7 @@ where
     }
 }
 
-impl<'a> Clone for StateType<'a, Dummy> {
+impl Clone for StateType<'_, Dummy> {
     fn clone(&self) -> Self {
         match self {
             Self::Equal(_) => unreachable!(),
@@ -194,7 +194,7 @@ where
     }
 }
 
-impl<'a> Clone for State<'a, Dummy> {
+impl Clone for State<'_, Dummy> {
     fn clone(&self) -> Self {
         Self {
             allowed_states: self.allowed_states.clone(),

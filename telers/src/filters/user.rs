@@ -292,11 +292,7 @@ impl Builder {
     #[must_use]
     pub fn ids(self, val: impl IntoIterator<Item = i64>) -> Self {
         Self {
-            ids: self
-                .ids
-                .into_iter()
-                .chain(val.into_iter().map(Into::into))
-                .collect(),
+            ids: self.ids.into_iter().chain(val).collect(),
             ..self
         }
     }
@@ -351,19 +347,17 @@ impl User {
     pub fn validate(&self, user: &UserType) -> bool {
         user.username
             .as_deref()
-            .map_or(false, |username| self.validate_username(username))
+            .is_some_and(|username| self.validate_username(username))
             || self.validate_id(user.id)
             || self.validate_first_name(&user.first_name)
             || user
                 .last_name
                 .as_deref()
-                .map_or(false, |last_name| self.validate_last_name(last_name))
+                .is_some_and(|last_name| self.validate_last_name(last_name))
             || user
                 .language_code
                 .as_deref()
-                .map_or(false, |language_code| {
-                    self.validate_language_code(language_code)
-                })
+                .is_some_and(|language_code| self.validate_language_code(language_code))
     }
 }
 

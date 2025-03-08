@@ -200,7 +200,7 @@ impl<'a> SendVoice<'a> {
     }
 }
 
-impl<'a> SendVoice<'a> {
+impl SendVoice<'_> {
     #[must_use]
     pub fn business_connection_id_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
@@ -307,7 +307,7 @@ impl<'a> SendVoice<'a> {
     }
 }
 
-impl<'a> TelegramMethod for SendVoice<'a> {
+impl TelegramMethod for SendVoice<'_> {
     type Method = Self;
     type Return = Message;
 

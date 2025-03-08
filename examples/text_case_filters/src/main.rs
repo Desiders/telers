@@ -28,7 +28,7 @@ impl Filter for UppercaseFilter {
             request
                 .update
                 .text()
-                .map_or(false, |text| text.to_uppercase() == text),
+                .is_some_and(|text| text.to_uppercase() == text),
             request,
         )
     }
@@ -39,7 +39,7 @@ async fn lowercase_filter(request: Request) -> (bool, Request) {
         request
             .update
             .text()
-            .map_or(false, |text| text.to_lowercase() == text),
+            .is_some_and(|text| text.to_lowercase() == text),
         request,
     )
 }

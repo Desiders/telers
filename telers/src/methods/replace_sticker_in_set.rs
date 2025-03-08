@@ -70,7 +70,7 @@ impl<'a> ReplaceStickerInSet<'a> {
     }
 }
 
-impl<'a> TelegramMethod for ReplaceStickerInSet<'a> {
+impl TelegramMethod for ReplaceStickerInSet<'_> {
     type Method = Self;
     type Return = bool;
 

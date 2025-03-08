@@ -364,7 +364,7 @@ impl<'a> SendAudio<'a> {
     }
 }
 
-impl<'a> TelegramMethod for SendAudio<'a> {
+impl TelegramMethod for SendAudio<'_> {
     type Method = Self;
     type Return = Message;
 

@@ -22,7 +22,7 @@ pub fn validate(token: &str) -> bool {
         }
     }
 
-    token.split_once(':').map_or(false, |(left, right)| {
+    token.split_once(':').is_some_and(|(left, right)| {
         if left.is_empty() || right.is_empty() {
             return false;
         }

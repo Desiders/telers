@@ -211,7 +211,6 @@ impl ChatAdministratorRights {
     }
 
     #[must_use]
-
     pub fn can_pin_messages_option(self, val: Option<bool>) -> Self {
         Self {
             can_pin_messages: val,
