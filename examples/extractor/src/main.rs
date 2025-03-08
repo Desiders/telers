@@ -14,13 +14,12 @@
 use std::convert::Infallible;
 use telers::{
     enums::UpdateType,
-    errors::{ConvertToTypeError, EventErrorKind, ExtractionError},
+    errors::{ConvertToTypeError, ExtractionError},
     event::{telegram::HandlerResult, EventReturn},
     filters::Command,
     methods::SendMessage,
-    middlewares::outer::MiddlewareResponse,
     types::{Message, Update},
-    Bot, Dispatcher, Extension, Extractor, FromContext, FromEvent, Request, Router,
+    Bot, Context, Dispatcher, Extension, Extractor, FromContext, FromEvent, Request, Router,
 };
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
@@ -114,17 +113,6 @@ impl Extractor for BotId {
     }
 }
 
-async fn to_context_and_extensions(
-    mut request: Request,
-) -> Result<MiddlewareResponse, EventErrorKind> {
-    request.context.insert("num_data", NumData(1));
-    request.context.insert("str_data", StrData("1"));
-
-    request.extensions.insert(BoolData(true));
-
-    Ok((request, EventReturn::default()))
-}
-
 async fn send_data_handler(
     bot: Bot,
     message: Message,
@@ -163,13 +151,6 @@ async fn main() {
 
     let mut router = Router::new("main");
 
-    // Register middleware that adds data to context and extensions.
-    // Be aware, we register middleware for message observer, so it will be called only for messages.
-    // If you want to register middleware for any update, you should register it for update observer.
-    router
-        .message
-        .outer_middlewares
-        .register(to_context_and_extensions);
     // Register handler that sends extracted data to chat
     router
         .message
@@ -183,6 +164,13 @@ async fn main() {
     let mut dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
         .bot(bot)
+        .context_extend({
+            let mut context = Context::new();
+            context.insert("num_data", NumData(1));
+            context.insert("str_data", StrData("1"));
+            context
+        })
+        .extension(BoolData(true))
         .allowed_update(UpdateType::Message)
         .build();
 

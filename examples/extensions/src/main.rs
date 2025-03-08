@@ -29,6 +29,9 @@ struct NumData(i64);
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct StrData(&'static str);
 
+#[derive(Clone)]
+struct EmptyData;
+
 async fn to_extensions_middleware(
     mut request: Request,
 ) -> Result<MiddlewareResponse, EventErrorKind> {
@@ -49,6 +52,7 @@ async fn send_data_handler(
     // Data has been extracted automatically
     Extension(num_data): Extension<NumData>,
     Extension(str_data): Extension<StrData>,
+    Extension(_): Extension<EmptyData>,
     // You can use extensions by yourself to extract data
     extensions: Extensions,
 ) -> HandlerResult {
@@ -92,6 +96,8 @@ async fn main() {
     let mut dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
         .bot(bot)
+        // You also can register an extension using builder methods
+        .extension(EmptyData)
         .allowed_update(UpdateType::Message)
         .build();
 

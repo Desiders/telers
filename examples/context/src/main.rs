@@ -25,11 +25,15 @@ use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt
 // We use `FromContext` here to implement `Extractor` for `Data` which extract it to handler arguments automatically.
 // Check `extractor` module for more information.
 #[derive(Debug, Clone, PartialEq, Eq, FromContext)]
-#[context(key = "data")]
-struct Data(i64);
+#[context(key = "data1")]
+struct Data1(i64);
+
+#[derive(Debug, Clone, PartialEq, Eq, FromContext)]
+#[context(key = "data2")]
+struct Data2(i64);
 
 async fn to_context_middleware(mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
-    request.context.insert("data", Data(1));
+    request.context.insert("data1", Data1(1));
 
     Ok((request, EventReturn::default()))
 }
@@ -38,15 +42,17 @@ async fn send_data_handler(
     bot: Bot,
     message: Message,
     // Data has been extracted automatically
-    data: Data,
+    data1: Data1,
+    data2: Data2,
     // You can use context by yourself to extract data
     context: Context,
 ) -> HandlerResult {
-    assert_eq!(data, context.get::<Data>("data").unwrap().clone(),);
+    assert_eq!(data1, context.get::<Data1>("data1").unwrap().clone());
+    assert_eq!(data2, context.get::<Data2>("data2").unwrap().clone());
 
     bot.send(SendMessage::new(
         message.chat().id(),
-        format!("Data: {}", data.0),
+        format!("Data1: {}. Data2: {}", data1.0, data2.0),
     ))
     .await?;
 
@@ -80,6 +86,8 @@ async fn main() {
     let mut dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
         .bot(bot)
+        // You also can insert data in context using builder methods
+        .context("data2", Data2(2))
         .allowed_update(UpdateType::Message)
         .build();
 
