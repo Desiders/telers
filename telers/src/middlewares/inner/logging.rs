@@ -35,7 +35,7 @@ where
 {
     #[instrument(skip(self, request, next))]
     async fn call(
-        &self,
+        &mut self,
         request: Request<Client>,
         next: Next<Client>,
     ) -> Result<HandlerResponse<Client>, EventErrorKind> {
@@ -100,18 +100,17 @@ mod tests {
     use super::*;
     use crate::{
         client::Reqwest,
-        event::{service::ServiceFactory as _, telegram::handler_service},
-        middlewares::inner::wrap_handler_and_middlewares_to_next,
+        event::telegram::handler::boxed_handler_factory,
+        middlewares::inner::wrap_to_next,
         types::{Message, Update, UpdateKind},
     };
 
-    use std::sync::Arc;
+    use std::{convert::Infallible, sync::Arc};
 
     #[tokio::test]
     async fn test_logging() {
-        let handler_service_factory =
-            handler_service(|| async { Ok(EventReturn::Finish) }).new_service(());
-        let handler_service = Arc::new(handler_service_factory.unwrap());
+        let handler_service =
+            boxed_handler_factory(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
 
         let mut request = Request::<Reqwest>::default();
         request.update = Arc::new(Update {
@@ -120,10 +119,7 @@ mod tests {
         });
 
         let response = Logging
-            .call(
-                request,
-                wrap_handler_and_middlewares_to_next(handler_service, [].into()),
-            )
+            .call(request, wrap_to_next(handler_service, [].into()))
             .await;
 
         assert!(response.is_ok());

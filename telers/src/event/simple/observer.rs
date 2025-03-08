@@ -1,8 +1,8 @@
 use crate::{
     enums::SimpleObserverName,
     event::{
-        service::{Service as _, ServiceFactory as _, ServiceProvider, ToServiceProvider},
-        simple::handler::{Handler, HandlerObject, HandlerObjectService, Result as HandlerResult},
+        service::Service,
+        simple::handler::{Handler, HandlerComposite, HandlerResult},
     },
 };
 
@@ -11,46 +11,81 @@ use tracing::instrument;
 
 /// Simple events observer
 /// Is used for managing events isn't related with Telegram (For example startup/shutdown events)
+#[derive(Clone)]
 pub struct Observer {
     pub event_name: SimpleObserverName,
-
-    handlers: Vec<HandlerObject>,
+    handlers: Vec<HandlerComposite>,
 }
 
 impl Observer {
+    #[inline]
     #[must_use]
-    pub fn new(event_name: SimpleObserverName) -> Self {
+    pub const fn new(event_name: SimpleObserverName) -> Self {
         Self {
             event_name,
             handlers: vec![],
         }
     }
 
+    #[inline]
     #[must_use]
-    pub fn handlers(&self) -> &[HandlerObject] {
+    pub fn handlers(&self) -> &[HandlerComposite] {
         &self.handlers
     }
 
     /// Register event handler
     pub fn register<H, Args>(&mut self, handler: H, args: Args)
     where
-        H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send,
-        H::Output: Into<HandlerResult>,
+        H: Handler<Args>,
         Args: Clone + Send + Sync + 'static,
     {
-        self.handlers.push(HandlerObject::new(handler, args));
+        self.handlers.push(HandlerComposite::new(handler, args));
+    }
+
+    /// Register service as event handler
+    pub fn register_service<S, Args>(&mut self, service: S, args: Args)
+    where
+        S: Service<Args, Response = ()> + Clone + Send + Sync + 'static,
+        S::Error: Into<anyhow::Error> + Send + Sync + 'static,
+        S::Future: Send,
+        Args: Clone + Send + Sync + 'static,
+    {
+        self.handlers
+            .push(HandlerComposite::new_service(service, args));
     }
 
     /// Alias to [`Observer::register`] method
+    #[inline]
     pub fn on<H, Args>(&mut self, handler: H, args: Args)
     where
-        H: Handler<Args> + Clone + Send + Sync + 'static,
-        H::Future: Send,
-        H::Output: Into<HandlerResult>,
+        H: Handler<Args>,
         Args: Clone + Send + Sync + 'static,
     {
         self.register(handler, args);
+    }
+
+    /// Alias to [`Observer::register_service`] method
+    #[inline]
+    pub fn on_service<S, Args>(&mut self, service: S, args: Args)
+    where
+        S: Service<Args, Response = ()> + Clone + Send + Sync + 'static,
+        S::Error: Into<anyhow::Error> + Send + Sync + 'static,
+        S::Future: Send,
+        Args: Clone + Send + Sync + 'static,
+    {
+        self.register_service(service, args);
+    }
+}
+
+impl Observer {
+    #[allow(clippy::let_unit_value)]
+    #[instrument(skip(self, request))]
+    pub async fn trigger(&mut self, request: ()) -> HandlerResult {
+        for handler in &mut self.handlers {
+            handler.call(request).await?;
+        }
+
+        Ok(())
     }
 }
 
@@ -65,58 +100,6 @@ impl Debug for Observer {
 impl AsRef<Observer> for Observer {
     fn as_ref(&self) -> &Self {
         self
-    }
-}
-
-impl ToServiceProvider for Observer {
-    type Config = ();
-    type ServiceProvider = Service;
-    type InitError = ();
-
-    fn to_service_provider(
-        self,
-        config: Self::Config,
-    ) -> Result<Self::ServiceProvider, Self::InitError> {
-        Ok(Service {
-            event_name: self.event_name,
-            handlers: self
-                .handlers
-                .iter()
-                .map(|handler| handler.new_service(config))
-                .collect::<Result<_, _>>()?,
-        })
-    }
-}
-
-pub struct Service {
-    event_name: SimpleObserverName,
-    handlers: Box<[HandlerObjectService]>,
-}
-
-impl Debug for Service {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Service")
-            .field("event_name", &self.event_name)
-            .finish_non_exhaustive()
-    }
-}
-
-impl ServiceProvider for Service {}
-
-impl Service {
-    /// Propagate event to handlers
-    ///
-    /// If any handler returns error, then propagation will be stopped and error will be returned.
-    /// # Errors
-    /// If any handler returns error
-    #[allow(clippy::let_unit_value)]
-    #[instrument(skip(self, request))]
-    pub async fn trigger(&self, request: ()) -> HandlerResult {
-        for handler in &*self.handlers {
-            handler.call(request).await?;
-        }
-
-        Ok(())
     }
 }
 
@@ -148,9 +131,6 @@ mod tests {
         let mut shutdown_observer = Observer::new(SimpleObserverName::Shutdown);
         shutdown_observer.register(on_shutdown, ("Goodbye, world!",));
 
-        let startup_observer = startup_observer.to_service_provider_default().unwrap();
-        let shutdown_observer = shutdown_observer.to_service_provider_default().unwrap();
-
         startup_observer.trigger(()).await.unwrap();
         shutdown_observer.trigger(()).await.unwrap();
     }
@@ -174,9 +154,6 @@ mod tests {
 
         let mut shutdown_observer = Observer::new(SimpleObserverName::Shutdown);
         shutdown_observer.register(on_shutdown, ("Goodbye, world!",));
-
-        let startup_observer = startup_observer.to_service_provider_default().unwrap();
-        let shutdown_observer = shutdown_observer.to_service_provider_default().unwrap();
 
         assert!(
             startup_observer.trigger(()).await.is_err()

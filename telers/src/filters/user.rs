@@ -10,20 +10,20 @@ use std::borrow::Cow;
 /// This filter checks user data step by step using the logical operator `or`,
 /// so if at least one check is successful, the filter will return the value `true`.
 #[derive(Debug, Clone)]
-pub struct User<'a> {
+pub struct User {
     /// List of usernames of the users
-    usernames: Box<[Cow<'a, str>]>,
+    usernames: Vec<Cow<'static, str>>,
     /// List of first names of the users
-    first_names: Box<[Cow<'a, str>]>,
+    first_names: Vec<Cow<'static, str>>,
     /// List of last names of the users
-    last_names: Box<[Cow<'a, str>]>,
+    last_names: Vec<Cow<'static, str>>,
     /// List of language codes of the users
-    language_codes: Box<[Cow<'a, str>]>,
+    language_codes: Vec<Cow<'static, str>>,
     /// List of user IDs of the users
-    ids: Box<[i64]>,
+    ids: Vec<i64>,
 }
 
-impl<'a> User<'a> {
+impl User {
     /// Creates a new [`User`] filter
     /// # Arguments
     /// * `usernames` - List of usernames of the users
@@ -42,13 +42,13 @@ impl<'a> User<'a> {
         ids: I5,
     ) -> Self
     where
-        T: Into<Cow<'a, str>>,
+        T: Into<Cow<'static, str>>,
         I1: IntoIterator<Item = T>,
-        C: Into<Cow<'a, str>>,
+        C: Into<Cow<'static, str>>,
         I2: IntoIterator<Item = C>,
-        S: Into<Cow<'a, str>>,
+        S: Into<Cow<'static, str>>,
         I3: IntoIterator<Item = S>,
-        E: Into<Cow<'a, str>>,
+        E: Into<Cow<'static, str>>,
         I4: IntoIterator<Item = E>,
         I5: IntoIterator<Item = i64>,
     {
@@ -65,7 +65,7 @@ impl<'a> User<'a> {
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
-    pub fn username(val: impl Into<Cow<'a, str>>) -> Self {
+    pub fn username(val: impl Into<Cow<'static, str>>) -> Self {
         Self::builder().username(val).build()
     }
 
@@ -75,7 +75,7 @@ impl<'a> User<'a> {
     #[must_use]
     pub fn usernames<T, I>(val: I) -> Self
     where
-        T: Into<Cow<'a, str>>,
+        T: Into<Cow<'static, str>>,
         I: IntoIterator<Item = T>,
     {
         Self::builder().usernames(val).build()
@@ -85,7 +85,7 @@ impl<'a> User<'a> {
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
-    pub fn first_name(val: impl Into<Cow<'a, str>>) -> Self {
+    pub fn first_name(val: impl Into<Cow<'static, str>>) -> Self {
         Self::builder().first_name(val).build()
     }
 
@@ -95,7 +95,7 @@ impl<'a> User<'a> {
     #[must_use]
     pub fn first_names<T, I>(val: I) -> Self
     where
-        T: Into<Cow<'a, str>>,
+        T: Into<Cow<'static, str>>,
         I: IntoIterator<Item = T>,
     {
         Self::builder().first_names(val).build()
@@ -105,7 +105,7 @@ impl<'a> User<'a> {
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
-    pub fn last_name(val: impl Into<Cow<'a, str>>) -> Self {
+    pub fn last_name(val: impl Into<Cow<'static, str>>) -> Self {
         Self::builder().last_name(val).build()
     }
 
@@ -115,7 +115,7 @@ impl<'a> User<'a> {
     #[must_use]
     pub fn last_names<T, I>(val: I) -> Self
     where
-        T: Into<Cow<'a, str>>,
+        T: Into<Cow<'static, str>>,
         I: IntoIterator<Item = T>,
     {
         Self::builder().last_names(val).build()
@@ -125,7 +125,7 @@ impl<'a> User<'a> {
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
-    pub fn language_code(val: impl Into<Cow<'a, str>>) -> Self {
+    pub fn language_code(val: impl Into<Cow<'static, str>>) -> Self {
         Self::builder().language_code(val).build()
     }
 
@@ -135,7 +135,7 @@ impl<'a> User<'a> {
     #[must_use]
     pub fn language_codes<T, I>(val: I) -> Self
     where
-        T: Into<Cow<'a, str>>,
+        T: Into<Cow<'static, str>>,
         I: IntoIterator<Item = T>,
     {
         Self::builder().language_codes(val).build()
@@ -158,23 +158,23 @@ impl<'a> User<'a> {
     }
 
     #[must_use]
-    pub fn builder() -> Builder<'a> {
+    pub fn builder() -> Builder {
         Builder::default()
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct Builder<'a> {
-    usernames: Vec<Cow<'a, str>>,
-    first_names: Vec<Cow<'a, str>>,
-    last_names: Vec<Cow<'a, str>>,
-    language_codes: Vec<Cow<'a, str>>,
+pub struct Builder {
+    usernames: Vec<Cow<'static, str>>,
+    first_names: Vec<Cow<'static, str>>,
+    last_names: Vec<Cow<'static, str>>,
+    language_codes: Vec<Cow<'static, str>>,
     ids: Vec<i64>,
 }
 
-impl<'a> Builder<'a> {
+impl Builder {
     #[must_use]
-    pub fn username(self, val: impl Into<Cow<'a, str>>) -> Self {
+    pub fn username(self, val: impl Into<Cow<'static, str>>) -> Self {
         Self {
             usernames: self.usernames.into_iter().chain(Some(val.into())).collect(),
             ..self
@@ -184,7 +184,7 @@ impl<'a> Builder<'a> {
     #[must_use]
     pub fn usernames<T, I>(self, val: I) -> Self
     where
-        T: Into<Cow<'a, str>>,
+        T: Into<Cow<'static, str>>,
         I: IntoIterator<Item = T>,
     {
         Self {
@@ -198,7 +198,7 @@ impl<'a> Builder<'a> {
     }
 
     #[must_use]
-    pub fn first_name(self, val: impl Into<Cow<'a, str>>) -> Self {
+    pub fn first_name(self, val: impl Into<Cow<'static, str>>) -> Self {
         Self {
             first_names: self
                 .first_names
@@ -212,7 +212,7 @@ impl<'a> Builder<'a> {
     #[must_use]
     pub fn first_names<T, I>(self, val: I) -> Self
     where
-        T: Into<Cow<'a, str>>,
+        T: Into<Cow<'static, str>>,
         I: IntoIterator<Item = T>,
     {
         Self {
@@ -226,7 +226,7 @@ impl<'a> Builder<'a> {
     }
 
     #[must_use]
-    pub fn last_name(self, val: impl Into<Cow<'a, str>>) -> Self {
+    pub fn last_name(self, val: impl Into<Cow<'static, str>>) -> Self {
         Self {
             last_names: self
                 .last_names
@@ -240,7 +240,7 @@ impl<'a> Builder<'a> {
     #[must_use]
     pub fn last_names<T, I>(self, val: I) -> Self
     where
-        T: Into<Cow<'a, str>>,
+        T: Into<Cow<'static, str>>,
         I: IntoIterator<Item = T>,
     {
         Self {
@@ -254,7 +254,7 @@ impl<'a> Builder<'a> {
     }
 
     #[must_use]
-    pub fn language_code(self, val: impl Into<Cow<'a, str>>) -> Self {
+    pub fn language_code(self, val: impl Into<Cow<'static, str>>) -> Self {
         Self {
             language_codes: self
                 .language_codes
@@ -268,7 +268,7 @@ impl<'a> Builder<'a> {
     #[must_use]
     pub fn language_codes<T, I>(self, val: I) -> Self
     where
-        T: Into<Cow<'a, str>>,
+        T: Into<Cow<'static, str>>,
         I: IntoIterator<Item = T>,
     {
         Self {
@@ -292,17 +292,13 @@ impl<'a> Builder<'a> {
     #[must_use]
     pub fn ids(self, val: impl IntoIterator<Item = i64>) -> Self {
         Self {
-            ids: self
-                .ids
-                .into_iter()
-                .chain(val.into_iter().map(Into::into))
-                .collect(),
+            ids: self.ids.into_iter().chain(val).collect(),
             ..self
         }
     }
 
     #[must_use]
-    pub fn build(self) -> User<'a> {
+    pub fn build(self) -> User {
         User::new(
             self.usernames,
             self.first_names,
@@ -313,7 +309,7 @@ impl<'a> Builder<'a> {
     }
 }
 
-impl<'a> User<'a> {
+impl User {
     #[must_use]
     pub fn validate_username(&self, username: &str) -> bool {
         self.usernames
@@ -351,29 +347,33 @@ impl<'a> User<'a> {
     pub fn validate(&self, user: &UserType) -> bool {
         user.username
             .as_deref()
-            .map_or(false, |username| self.validate_username(username))
+            .is_some_and(|username| self.validate_username(username))
             || self.validate_id(user.id)
             || self.validate_first_name(&user.first_name)
             || user
                 .last_name
                 .as_deref()
-                .map_or(false, |last_name| self.validate_last_name(last_name))
+                .is_some_and(|last_name| self.validate_last_name(last_name))
             || user
                 .language_code
                 .as_deref()
-                .map_or(false, |language_code| {
-                    self.validate_language_code(language_code)
-                })
+                .is_some_and(|language_code| self.validate_language_code(language_code))
     }
 }
 
 #[async_trait]
-impl<Client: Send + Sync> Filter<Client> for User<'_> {
-    async fn check(&self, request: &mut Request<Client>) -> bool {
-        match request.update.from() {
-            Some(user) => self.validate(user),
-            None => false,
-        }
+impl<Client> Filter<Client> for User
+where
+    Client: Send + Sync + 'static,
+{
+    async fn check(&mut self, request: Request<Client>) -> (bool, Request<Client>) {
+        (
+            match request.update.from() {
+                Some(user) => self.validate(user),
+                None => false,
+            },
+            request,
+        )
     }
 }
 

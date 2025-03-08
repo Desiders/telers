@@ -6,7 +6,7 @@ use async_trait::async_trait;
 /// Filter for checking the type of chat
 #[derive(Debug, Clone)]
 pub struct ChatType {
-    chat_types: Box<[ChatTypeEnum]>,
+    chat_types: Vec<ChatTypeEnum>,
 }
 
 impl ChatType {
@@ -15,7 +15,7 @@ impl ChatType {
     /// You can use [`ChatTypeEnum`] or its string representation.
     pub fn one(chat_type: impl Into<ChatTypeEnum>) -> Self {
         Self {
-            chat_types: [chat_type.into()].into(),
+            chat_types: vec![chat_type.into()],
         }
     }
 
@@ -43,12 +43,18 @@ impl ChatType {
 }
 
 #[async_trait]
-impl<Client: Send + Sync> Filter<Client> for ChatType {
-    async fn check(&self, request: &mut Request<Client>) -> bool {
-        match request.update.chat() {
-            Some(chat) => self.validate_chat_type(ChatTypeEnum::from(chat)),
-            None => false,
-        }
+impl<Client> Filter<Client> for ChatType
+where
+    Client: Send + Sync + 'static,
+{
+    async fn check(&mut self, request: Request<Client>) -> (bool, Request<Client>) {
+        (
+            match request.update.chat() {
+                Some(chat) => self.validate_chat_type(ChatTypeEnum::from(chat)),
+                None => false,
+            },
+            request,
+        )
     }
 }
 

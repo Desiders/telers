@@ -81,7 +81,7 @@ impl UploadStickerFile<'_> {
     }
 }
 
-impl<'a> TelegramMethod for UploadStickerFile<'a> {
+impl TelegramMethod for UploadStickerFile<'_> {
     type Method = Self;
     type Return = File;
 

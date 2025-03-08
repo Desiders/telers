@@ -62,7 +62,7 @@ impl<'a> AddStickerToSet<'a> {
     }
 }
 
-impl<'a> TelegramMethod for AddStickerToSet<'a> {
+impl TelegramMethod for AddStickerToSet<'_> {
     type Method = Self;
     type Return = bool;
 

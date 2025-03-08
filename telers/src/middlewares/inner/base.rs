@@ -2,23 +2,23 @@ use crate::{
     client::Reqwest,
     errors::EventErrorKind,
     event::{
-        service::Service,
-        telegram::{BoxedHandlerService, HandlerResponse},
+        service::{service_fn, BoxCloneService, Service},
+        telegram::{handler::BoxedCloneHandlerService, HandlerResponse},
     },
     Request,
 };
 
 use async_trait::async_trait;
-use std::{future::Future, pin::Pin, sync::Arc};
+use futures_util::future::BoxFuture;
+use std::future::Future;
+
+pub(crate) type BoxedCloneMiddlewareService<Client> =
+    BoxCloneService<(Request<Client>, Next<Client>), HandlerResponse<Client>, EventErrorKind>;
 
 /// The middleware chain and the handler at the end
 pub type Next<Client = Reqwest> = Box<
-    dyn Fn(
-            Request<Client>,
-        )
-            -> Pin<Box<dyn Future<Output = Result<HandlerResponse<Client>, EventErrorKind>> + Send>>
-        + Send
-        + Sync,
+    dyn Fn(Request<Client>) -> BoxFuture<'static, Result<HandlerResponse<Client>, EventErrorKind>>
+        + Send,
 >;
 
 /// Inner middlewares called after outer middlewares, after filters, but before handlers.
@@ -32,7 +32,7 @@ pub type Next<Client = Reqwest> = Box<
 ///
 /// Implement this trait for your own middlewares
 #[async_trait]
-pub trait Middleware<Client = Reqwest>: Send + Sync {
+pub trait Middleware<Client = Reqwest>: Clone + Send + Sync + 'static {
     /// Execute middleware
     /// # Arguments
     /// * `request` - Data for handler and middlewares
@@ -42,38 +42,22 @@ pub trait Middleware<Client = Reqwest>: Send + Sync {
     /// # Errors
     /// If any inner middleware returns an error
     /// If handler returns an error. Probably it's the error to extract args to the handler
-    #[must_use]
     async fn call(
-        &self,
+        &mut self,
         request: Request<Client>,
         next: Next<Client>,
     ) -> Result<HandlerResponse<Client>, EventErrorKind>;
 }
 
-#[async_trait]
-impl<T: ?Sized, Client> Middleware<Client> for Arc<T>
-where
-    T: Middleware<Client>,
-    Client: Send + Sync + 'static,
-{
-    async fn call(
-        &self,
-        request: Request<Client>,
-        next: Next<Client>,
-    ) -> Result<HandlerResponse<Client>, EventErrorKind> {
-        T::call(self, request, next).await
-    }
-}
-
 /// To possible use function-like as middlewares
 #[async_trait]
-impl<Client, Func, Fut> Middleware<Client> for Func
+impl<Client, F, Fut> Middleware<Client> for F
 where
     Client: Send + Sync + 'static,
-    Func: Fn(Request<Client>, Next<Client>) -> Fut + Send + Sync,
+    F: FnMut(Request<Client>, Next<Client>) -> Fut + Clone + Send + Sync + 'static,
     Fut: Future<Output = Result<HandlerResponse<Client>, EventErrorKind>> + Send,
 {
-    async fn call(&self, request: Request<Client>, next: Next<Client>) -> Fut::Output {
+    async fn call(&mut self, request: Request<Client>, next: Next<Client>) -> Fut::Output {
         self(request, next).await
     }
 }
@@ -82,19 +66,19 @@ where
 /// # Notes
 /// This function is wrap [`crate::errors::HandlerError`] to [`EventErrorKind::Handler`]
 #[must_use]
-pub fn wrap_handler_and_middlewares_to_next<Client>(
-    handler: Arc<BoxedHandlerService<Client>>,
-    middlewares: Box<[Arc<dyn Middleware<Client>>]>,
+pub fn wrap_to_next<Client>(
+    handler: BoxedCloneHandlerService<Client>,
+    middlewares: Box<[BoxedCloneMiddlewareService<Client>]>,
 ) -> Next<Client>
 where
     Client: Send + Sync + 'static,
 {
     Box::new(move |request: Request<Client>| {
-        let middlewares = middlewares.clone();
-        let handler = handler.clone();
+        let mut handler = handler.clone();
+        let mut middlewares = middlewares.clone();
 
         Box::pin(async move {
-            let Some((middleware, middlewares)) = middlewares.split_first() else {
+            let Some((middleware, middlewares)) = middlewares.split_first_mut() else {
                 return match handler.call(request).await {
                     Ok(response) => match response.handler_result {
                         Ok(_) => Ok(response),
@@ -107,16 +91,27 @@ where
             };
 
             middleware
-                .call(
+                .call((
                     request,
-                    wrap_handler_and_middlewares_to_next(
-                        handler,
-                        middlewares.to_vec().into_boxed_slice(),
-                    ),
-                )
+                    wrap_to_next(handler, middlewares.to_vec().into_boxed_slice()),
+                ))
                 .await
         })
     })
+}
+
+pub(crate) fn boxed_middleware_factory<Client, M>(
+    middleware: M,
+) -> BoxedCloneMiddlewareService<Client>
+where
+    Client: Send + Sync + 'static,
+    M: Middleware<Client>,
+{
+    BoxCloneService::new(service_fn(move |(request, next)| {
+        let mut middleware = middleware.clone();
+
+        async move { middleware.call(request, next).await }
+    }))
 }
 
 #[cfg(test)]
@@ -124,9 +119,11 @@ mod tests {
     use super::*;
     use crate::{
         client::Reqwest,
-        event::{service::ServiceFactory as _, telegram::handler_service, EventReturn},
+        event::{telegram::handler::boxed_handler_factory, EventReturn},
         types::{Message, Update, UpdateKind},
     };
+
+    use std::{convert::Infallible, sync::Arc};
 
     async fn test_middleware<Client>(
         request: Request<Client>,
@@ -137,9 +134,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_call() {
-        let handler_service_factory =
-            handler_service(|| async { Ok(EventReturn::Finish) }).new_service(());
-        let handler_service = Arc::new(handler_service_factory.unwrap());
+        let handler_service =
+            boxed_handler_factory(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
 
         let mut request = Request::<Reqwest>::default();
         request.update = Arc::new(Update {
@@ -147,9 +143,9 @@ mod tests {
             kind: UpdateKind::Message(Message::default()),
         });
         let response = Middleware::call(
-            &test_middleware,
+            &mut test_middleware,
             request,
-            wrap_handler_and_middlewares_to_next(handler_service, [].into()),
+            wrap_to_next(handler_service, [].into()),
         )
         .await
         .unwrap();

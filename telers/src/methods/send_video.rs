@@ -418,7 +418,7 @@ impl<'a> SendVideo<'a> {
     }
 }
 
-impl<'a> TelegramMethod for SendVideo<'a> {
+impl TelegramMethod for SendVideo<'_> {
     type Method = Self;
     type Return = Message;
 

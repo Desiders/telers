@@ -6,7 +6,7 @@ use async_trait::async_trait;
 /// Filter for checking the type of content
 #[derive(Debug, Clone)]
 pub struct ContentType {
-    content_types: Box<[ContentTypeEnum]>,
+    content_types: Vec<ContentTypeEnum>,
 }
 
 impl ContentType {
@@ -16,7 +16,7 @@ impl ContentType {
     #[must_use]
     pub fn one(content_type: impl Into<ContentTypeEnum>) -> Self {
         Self {
-            content_types: [content_type.into()].into(),
+            content_types: vec![content_type.into()],
         }
     }
 
@@ -45,13 +45,18 @@ impl ContentType {
 }
 
 #[async_trait]
-impl<Client: Send + Sync> Filter<Client> for ContentType {
-    async fn check(&self, request: &mut Request<Client>) -> bool {
+impl<Client> Filter<Client> for ContentType
+where
+    Client: Send + Sync + 'static,
+{
+    async fn check(&mut self, request: Request<Client>) -> (bool, Request<Client>) {
         let Some(message) = request.update.message() else {
-            return false;
+            return (false, request);
         };
-
-        self.validate_content_type(ContentTypeEnum::from(message))
+        (
+            self.validate_content_type(ContentTypeEnum::from(message)),
+            request,
+        )
     }
 }
 

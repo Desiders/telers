@@ -6,11 +6,9 @@
 //! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package text_case_filters
 //! ```
 
-use std::future::Future;
-
 use telers::{
     enums::UpdateType,
-    event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
+    event::{telegram::HandlerResult, EventReturn},
     methods::SendMessage,
     types::Message,
     Bot, Dispatcher, Filter, Request, Router,
@@ -20,27 +18,30 @@ use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt
 
 use async_trait::async_trait;
 
+#[derive(Clone)]
 struct UppercaseFilter;
 
 #[async_trait]
 impl Filter for UppercaseFilter {
-    async fn check(&self, request: &mut Request) -> bool {
-        request
-            .update
-            .text()
-            .map_or(false, |text| text.to_uppercase() == text)
+    async fn check(&mut self, request: Request) -> (bool, Request) {
+        (
+            request
+                .update
+                .text()
+                .is_some_and(|text| text.to_uppercase() == text),
+            request,
+        )
     }
 }
 
-/// # Notes
-/// We use here `async move` block to get result without capturing variables
-fn lowercase_filter(request: &mut Request) -> impl Future<Output = bool> {
-    let result = request
-        .update
-        .text()
-        .map_or(false, |text| text.to_lowercase() == text);
-
-    async move { result }
+async fn lowercase_filter(request: Request) -> (bool, Request) {
+    (
+        request
+            .update
+            .text()
+            .is_some_and(|text| text.to_lowercase() == text),
+        request,
+    )
 }
 
 async fn uppercase_handler(bot: Bot, message: Message) -> HandlerResult {
@@ -84,18 +85,13 @@ async fn main() {
         .filter(lowercase_filter);
     router.message.register(any_case_handler);
 
-    let dispatcher = Dispatcher::builder()
-        .main_router(router)
+    let mut dispatcher = Dispatcher::builder()
+        .main_router(router.configure_default())
         .bot(bot)
         .allowed_update(UpdateType::Message)
         .build();
 
-    match dispatcher
-        .to_service_provider_default()
-        .unwrap()
-        .run_polling()
-        .await
-    {
+    match dispatcher.run_polling().await {
         Ok(()) => event!(Level::INFO, "Bot stopped"),
         Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
     }

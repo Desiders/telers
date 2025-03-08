@@ -51,7 +51,6 @@ use std::{
     env,
     fmt::{self, Debug, Display, Formatter},
 };
-use tracing::instrument;
 
 /// Represents a bot with its token and ID, also contains client for sending requests to Telegram API.
 /// # Notes
@@ -69,7 +68,7 @@ pub struct Bot<Client: ?Sized = Reqwest> {
     /// Bot token, which is used in `Debug` implementation for privacy
     pub hidden_token: String,
     /// Bot id, extracted from the token
-    pub bot_id: i64,
+    pub id: i64,
     /// Client for sending requests to Telegram API
     client: Client,
 }
@@ -80,7 +79,7 @@ impl<Client> Bot<Client> {
     #[must_use]
     pub fn with_client(token: impl Into<String>, client: Client) -> Self {
         let token = token.into();
-        let bot_id = token::extract_bot_id(&token).expect(
+        let id = token::extract_bot_id(&token).expect(
             "This bot token is invalid, please check it. \
                 If you test your bot, and you don't have a token, use `Bot::default` method instead of `Bot::new`.",
         );
@@ -89,7 +88,7 @@ impl<Client> Bot<Client> {
         Self {
             token,
             hidden_token,
-            bot_id,
+            id,
             client,
         }
     }
@@ -130,7 +129,7 @@ impl<Client> Debug for Bot<Client> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Bot")
             .field("token", &self.hidden_token)
-            .field("bot_id", &self.bot_id)
+            .field("bot_id", &self.id)
             .finish_non_exhaustive()
     }
 }
@@ -141,7 +140,7 @@ impl<Client> Display for Bot<Client> {
         write!(
             f,
             "Bot {{ bot_id: {}, token: {} }}",
-            self.bot_id, self.hidden_token,
+            self.id, self.hidden_token,
         )
     }
 }
@@ -157,7 +156,6 @@ impl<Client: Session> Bot<Client> {
     /// # Notes
     /// This method uses default timeout for requests, which is 30 seconds.
     /// If you want to use custom timeout, use [`Bot::send_with_timeout`] method.
-    #[instrument(skip(self, method))]
     pub async fn send<T, TRef>(&self, method: TRef) -> Result<T::Return, SessionErrorKind>
     where
         T: TelegramMethod + Send + Sync,

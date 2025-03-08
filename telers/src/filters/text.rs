@@ -13,24 +13,24 @@ use std::borrow::Cow;
 ///     A command pattern with regex, compiled with [`Regex`] struct. \
 ///     If filter used with `ignore_case` flag, then the regex will be compiled with `(?i)` flag (ignore case sensitive flag).
 #[derive(Debug, Clone)]
-pub enum PatternType<'a> {
-    Text(Cow<'a, str>),
+pub enum PatternType {
+    Text(Cow<'static, str>),
     Regex(Regex),
 }
 
-impl<'a> From<Cow<'a, str>> for PatternType<'a> {
-    fn from(text: Cow<'a, str>) -> Self {
+impl From<Cow<'static, str>> for PatternType {
+    fn from(text: Cow<'static, str>) -> Self {
         Self::Text(text)
     }
 }
 
-impl<'a> From<&'a str> for PatternType<'a> {
-    fn from(text: &'a str) -> Self {
+impl From<&'static str> for PatternType {
+    fn from(text: &'static str) -> Self {
         Self::Text(Cow::Borrowed(text))
     }
 }
 
-impl From<Regex> for PatternType<'_> {
+impl From<Regex> for PatternType {
     fn from(regex: Regex) -> Self {
         Self::Regex(regex)
     }
@@ -40,20 +40,20 @@ impl From<Regex> for PatternType<'_> {
 /// # Notes
 /// Gets the text from the update, that is, the text of the message, the text of the inline query, the data of the callback query, etc.
 #[derive(Debug, Default, Clone)]
-pub struct Text<'a> {
+pub struct Text {
     /// List of texts or compiled [`Regex`] patterns that must be equal to the text
-    texts: Box<[PatternType<'a>]>,
+    texts: Vec<PatternType>,
     /// List of texts that must be contained in the text
-    contains: Box<[Cow<'a, str>]>,
+    contains: Vec<Cow<'static, str>>,
     /// List of texts that must be at the beginning of the text
-    starts_with: Box<[Cow<'a, str>]>,
+    starts_with: Vec<Cow<'static, str>>,
     /// List of texts that must be at the end of the text
-    ends_with: Box<[Cow<'a, str>]>,
+    ends_with: Vec<Cow<'static, str>>,
     /// Ignore case sensitive
     ignore_case: bool,
 }
 
-impl<'a> Text<'a> {
+impl Text {
     /// Creates a new [`Text`] filter
     /// # Arguments
     /// * `texts` -
@@ -74,13 +74,13 @@ impl<'a> Text<'a> {
         ignore_case: bool,
     ) -> Self
     where
-        T: Into<PatternType<'a>>,
+        T: Into<PatternType>,
         I1: IntoIterator<Item = T>,
-        C: Into<Cow<'a, str>>,
+        C: Into<Cow<'static, str>>,
         I2: IntoIterator<Item = C>,
-        S: Into<Cow<'a, str>>,
+        S: Into<Cow<'static, str>>,
         I3: IntoIterator<Item = S>,
-        E: Into<Cow<'a, str>>,
+        E: Into<Cow<'static, str>>,
         I4: IntoIterator<Item = E>,
     {
         if ignore_case {
@@ -124,7 +124,7 @@ impl<'a> Text<'a> {
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
-    pub fn one(text: impl Into<PatternType<'a>>) -> Self {
+    pub fn one(text: impl Into<PatternType>) -> Self {
         Self::builder().text(text).build()
     }
 
@@ -132,7 +132,7 @@ impl<'a> Text<'a> {
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
-    pub fn many(texts: impl IntoIterator<Item = impl Into<PatternType<'a>>>) -> Self {
+    pub fn many(texts: impl IntoIterator<Item = impl Into<PatternType>>) -> Self {
         Self::builder().texts(texts).build()
     }
 
@@ -140,7 +140,7 @@ impl<'a> Text<'a> {
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
-    pub fn contains_single(val: impl Into<Cow<'a, str>>) -> Self {
+    pub fn contains_single(val: impl Into<Cow<'static, str>>) -> Self {
         Self::builder().contains_single(val).build()
     }
 
@@ -148,7 +148,7 @@ impl<'a> Text<'a> {
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
-    pub fn contains(val: impl IntoIterator<Item = impl Into<Cow<'a, str>>>) -> Self {
+    pub fn contains(val: impl IntoIterator<Item = impl Into<Cow<'static, str>>>) -> Self {
         Self::builder().contains(val).build()
     }
 
@@ -156,7 +156,7 @@ impl<'a> Text<'a> {
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
-    pub fn starts_with_single(val: impl Into<Cow<'a, str>>) -> Self {
+    pub fn starts_with_single(val: impl Into<Cow<'static, str>>) -> Self {
         Self::builder().starts_with_single(val).build()
     }
 
@@ -164,7 +164,7 @@ impl<'a> Text<'a> {
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
-    pub fn starts_with(val: impl IntoIterator<Item = impl Into<Cow<'a, str>>>) -> Self {
+    pub fn starts_with(val: impl IntoIterator<Item = impl Into<Cow<'static, str>>>) -> Self {
         Self::builder().starts_with(val).build()
     }
 
@@ -172,7 +172,7 @@ impl<'a> Text<'a> {
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
-    pub fn ends_with_single(val: impl Into<Cow<'a, str>>) -> Self {
+    pub fn ends_with_single(val: impl Into<Cow<'static, str>>) -> Self {
         Self::builder().ends_with_single(val).build()
     }
 
@@ -180,7 +180,7 @@ impl<'a> Text<'a> {
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
-    pub fn ends_with(val: impl IntoIterator<Item = impl Into<Cow<'a, str>>>) -> Self {
+    pub fn ends_with(val: impl IntoIterator<Item = impl Into<Cow<'static, str>>>) -> Self {
         Self::builder().ends_with(val).build()
     }
 
@@ -188,23 +188,23 @@ impl<'a> Text<'a> {
     /// If `ignore_case` is `true` and [`Regex`],
     /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
     #[must_use]
-    pub fn builder() -> Builder<'a> {
+    pub fn builder() -> Builder {
         Builder::default()
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct Builder<'a> {
-    texts: Vec<PatternType<'a>>,
-    contains: Vec<Cow<'a, str>>,
-    starts_with: Vec<Cow<'a, str>>,
-    ends_with: Vec<Cow<'a, str>>,
+pub struct Builder {
+    texts: Vec<PatternType>,
+    contains: Vec<Cow<'static, str>>,
+    starts_with: Vec<Cow<'static, str>>,
+    ends_with: Vec<Cow<'static, str>>,
     ignore_case: bool,
 }
 
-impl<'a> Builder<'a> {
+impl Builder {
     #[must_use]
-    pub fn text(self, val: impl Into<PatternType<'a>>) -> Self {
+    pub fn text(self, val: impl Into<PatternType>) -> Self {
         Self {
             texts: self.texts.into_iter().chain(Some(val.into())).collect(),
             ..self
@@ -214,7 +214,7 @@ impl<'a> Builder<'a> {
     #[must_use]
     pub fn texts<T, I>(self, val: I) -> Self
     where
-        T: Into<PatternType<'a>>,
+        T: Into<PatternType>,
         I: IntoIterator<Item = T>,
     {
         Self {
@@ -228,7 +228,7 @@ impl<'a> Builder<'a> {
     }
 
     #[must_use]
-    pub fn contains_single(self, val: impl Into<Cow<'a, str>>) -> Self {
+    pub fn contains_single(self, val: impl Into<Cow<'static, str>>) -> Self {
         Self {
             contains: self.contains.into_iter().chain(Some(val.into())).collect(),
             ..self
@@ -238,7 +238,7 @@ impl<'a> Builder<'a> {
     #[must_use]
     pub fn contains<T, I>(self, val: I) -> Self
     where
-        T: Into<Cow<'a, str>>,
+        T: Into<Cow<'static, str>>,
         I: IntoIterator<Item = T>,
     {
         Self {
@@ -252,7 +252,7 @@ impl<'a> Builder<'a> {
     }
 
     #[must_use]
-    pub fn starts_with_single(self, val: impl Into<Cow<'a, str>>) -> Self {
+    pub fn starts_with_single(self, val: impl Into<Cow<'static, str>>) -> Self {
         Self {
             starts_with: self
                 .starts_with
@@ -266,7 +266,7 @@ impl<'a> Builder<'a> {
     #[must_use]
     pub fn starts_with<T, I>(self, starts_with: I) -> Self
     where
-        T: Into<Cow<'a, str>>,
+        T: Into<Cow<'static, str>>,
         I: IntoIterator<Item = T>,
     {
         Self {
@@ -280,7 +280,7 @@ impl<'a> Builder<'a> {
     }
 
     #[must_use]
-    pub fn ends_with_single(self, val: impl Into<Cow<'a, str>>) -> Self {
+    pub fn ends_with_single(self, val: impl Into<Cow<'static, str>>) -> Self {
         Self {
             ends_with: self.ends_with.into_iter().chain(Some(val.into())).collect(),
             ..self
@@ -290,7 +290,7 @@ impl<'a> Builder<'a> {
     #[must_use]
     pub fn ends_with<T, I>(self, ends_with: I) -> Self
     where
-        T: Into<Cow<'a, str>>,
+        T: Into<Cow<'static, str>>,
         I: IntoIterator<Item = T>,
     {
         Self {
@@ -312,7 +312,7 @@ impl<'a> Builder<'a> {
     }
 
     #[must_use]
-    pub fn build(self) -> Text<'a> {
+    pub fn build(self) -> Text {
         Text::new(
             self.texts,
             self.contains,
@@ -323,7 +323,7 @@ impl<'a> Builder<'a> {
     }
 }
 
-impl<'a> Text<'a> {
+impl Text {
     #[must_use]
     fn prepare_text(&self, text: &str) -> Box<str> {
         if self.ignore_case {
@@ -382,12 +382,18 @@ impl<'a> Text<'a> {
 }
 
 #[async_trait]
-impl<Client: Send + Sync> Filter<Client> for Text<'_> {
-    async fn check(&self, request: &mut Request<Client>) -> bool {
-        request
-            .update
-            .text_or_caption()
-            .map_or(false, |text| self.validate_text(text))
+impl<Client> Filter<Client> for Text
+where
+    Client: Send + Sync + 'static,
+{
+    async fn check(&mut self, request: Request<Client>) -> (bool, Request<Client>) {
+        (
+            request
+                .update
+                .text_or_caption()
+                .is_some_and(|text| self.validate_text(text)),
+            request,
+        )
     }
 }
 

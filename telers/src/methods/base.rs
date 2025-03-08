@@ -69,19 +69,19 @@ pub trait TelegramMethod {
     /// It's need for parsing a response from Telegram API.
     /// # Errors
     /// - If the response cannot be parsed
-    #[instrument(skip_all)]
+    #[instrument(name = "build", skip_all)]
     fn build_response(&self, content: &str) -> Result<Response<Self::Return>, serde_json::Error> {
-        event!(Level::TRACE, content, "Parsing response");
+        event!(Level::TRACE, content, "Parsing");
         let res = serde_json::from_str(content).map_err(|err| {
             event!(
                 Level::ERROR,
                 error = format_error_report(&err),
                 content,
-                "Cannot parse response content",
+                "Cannot parse content",
             );
             err
         });
-        event!(Level::TRACE, "Response parsed");
+        event!(Level::TRACE, "Parsed");
         res
     }
 }

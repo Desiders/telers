@@ -259,7 +259,7 @@ impl<'a> SendVideoNote<'a> {
     }
 }
 
-impl<'a> TelegramMethod for SendVideoNote<'a> {
+impl TelegramMethod for SendVideoNote<'_> {
     type Method = Self;
     type Return = Message;
 

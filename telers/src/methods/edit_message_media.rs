@@ -94,7 +94,7 @@ impl<'a> EditMessageMedia<'a> {
     }
 }
 
-impl<'a> EditMessageMedia<'a> {
+impl EditMessageMedia<'_> {
     #[must_use]
     pub fn business_connection_id_option(self, val: Option<impl Into<String>>) -> Self {
         Self {

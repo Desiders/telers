@@ -4,22 +4,25 @@ use crate::Request;
 use async_trait::async_trait;
 use std::borrow::Cow;
 
-#[derive(Default, Clone, PartialEq, Eq)]
+/// Represents the allowed state in a filter.
+///
+/// - `Equal`: The state must be equal to the provided value.
+/// - `Any`: Any state is allowed.
+/// - `None`: Only the absence of state is allowed.
 #[allow(clippy::module_name_repetitions)]
-pub enum StateType<'a, B: 'a>
+pub enum StateType<'a, B>
 where
     B: ToOwned + PartialEq<&'a str>,
 {
-    /// State is equal to specified
+    /// State is equal to the specified value.
     Equal(Cow<'a, B>),
-    /// Allow any state
+    /// Allow any state.
     Any,
-    /// Allow only no state
-    #[default]
+    /// Allow only no state.
     None,
 }
 
-impl<'a, B: 'a> From<B> for StateType<'a, B>
+impl<'a, B> From<B> for StateType<'a, B>
 where
     B: ToOwned<Owned = B> + PartialEq<&'a str>,
 {
@@ -28,21 +31,40 @@ where
     }
 }
 
-impl<'a: 'b, 'b, B: 'a> From<&'a B> for StateType<'b, B>
+impl<'a, B> From<&'a B> for StateType<'a, B>
 where
-    B: ToOwned<Owned = B> + PartialEq<&'b str>,
+    B: ToOwned<Owned = B> + PartialEq<&'a str>,
 {
     fn from(value: &'a B) -> Self {
         Self::Equal(Cow::Borrowed(value))
     }
 }
 
-/// Dummy type, which can be used as [`StateType`]'s `B` generic type
-///
-/// This type is used to allow set type for [`StateType::Any`] and [`StateType::None`],
-/// because they don't need any type and don't use equality comparisons
-///
-/// It also doesn't allow you to combine [`StateType::Any`] and [`StateType::None`] with other types
+impl<'a, B> Clone for StateType<'a, B>
+where
+    B: ToOwned + PartialEq<&'a str> + Clone,
+{
+    fn clone(&self) -> Self {
+        match self {
+            Self::Equal(state) => Self::Equal(state.clone()),
+            Self::Any => Self::Any,
+            Self::None => Self::None,
+        }
+    }
+}
+
+impl Clone for StateType<'_, Dummy> {
+    fn clone(&self) -> Self {
+        match self {
+            Self::Equal(_) => unreachable!(),
+            Self::Any => Self::Any,
+            Self::None => Self::None,
+        }
+    }
+}
+
+/// A dummy type used as the default for [`StateType`] when no state value is required.
+/// This type should not be used for equality comparisons.
 pub enum Dummy {}
 
 impl ToOwned for Dummy {
@@ -59,44 +81,50 @@ impl PartialEq<&str> for Dummy {
     }
 }
 
-pub struct State<'a, B: 'a = Dummy>
+/// A filter state holding allowed states for filtering requests.
+///
+/// The generic type parameter `B` represents the type of the state value.
+pub struct State<'a, B = Dummy>
 where
     B: ToOwned + PartialEq<&'a str>,
 {
-    allowed_states: Box<[StateType<'a, B>]>,
+    allowed_states: Vec<StateType<'a, B>>,
 }
 
 impl State<'static> {
-    /// Create new state filter, which allow any state
+    /// Creates a state filter that allows any state.
     #[must_use]
     pub fn any() -> Self {
         Self {
-            allowed_states: [StateType::Any].into(),
+            allowed_states: vec![StateType::Any],
         }
     }
 
-    /// Create new state filter, which allow only no state
+    /// Creates a state filter that allows only the absence of state.
     #[must_use]
     pub fn none() -> Self {
         Self {
-            allowed_states: [StateType::None].into(),
+            allowed_states: vec![StateType::None],
         }
     }
 }
 
-impl<'a, B: 'a> State<'a, B>
+impl<'a, B> State<'a, B>
 where
     B: ToOwned + PartialEq<&'a str>,
 {
-    /// Create new state filter
+    /// Creates a state filter with a single allowed state.
     #[must_use]
     pub fn one(state: impl Into<StateType<'a, B>>) -> Self {
         Self {
-            allowed_states: [state.into()].into(),
+            allowed_states: vec![state.into()],
         }
     }
 
-    /// Create new state filter with many states
+    /// Creates a state filter with multiple allowed states.
+    ///
+    /// If any state in the iterator is `Any` or `None`, then all previous states are discarded
+    /// and only the exclusive state is kept.
     #[must_use]
     pub fn many<T, S>(states: T) -> Self
     where
@@ -104,43 +132,37 @@ where
         S: Into<StateType<'a, B>>,
     {
         let mut allowed_states = vec![];
-
         for state in states {
             let state = state.into();
-
-            // If state is `Any` or `None`, then clear all previous states and add only this one,
-            // because `Any` and `None` are exclusive and can't be combined with other states
             if matches!(state, StateType::Any | StateType::None) {
-                allowed_states = vec![];
+                allowed_states.clear();
                 allowed_states.push(state);
                 break;
             }
-
             allowed_states.push(state);
         }
-
-        Self {
-            allowed_states: allowed_states.into(),
-        }
+        Self { allowed_states }
     }
-}
 
-impl<'a, B: 'a> State<'a, B>
-where
-    B: ToOwned + PartialEq<&'a str>,
-{
+    /// Checks whether the filter is configured to allow any state.
     #[must_use]
     fn is_allow_any(&self) -> bool {
-        matches!(self.allowed_states[0], StateType::Any)
+        matches!(self.allowed_states.first(), Some(StateType::Any))
     }
 
+    /// Checks whether the filter is configured to allow only the absence of state.
     #[must_use]
     fn is_allow_only_none(&self) -> bool {
-        matches!(self.allowed_states[0], StateType::None)
+        matches!(self.allowed_states.first(), Some(StateType::None))
     }
 
+    /// Validates the given state (provided as an `Option<&str>`) against the allowed states.
+    ///
+    /// If the state is `None`, validation passes only if the filter allows no state.
+    /// If the filter is set to allow any state, validation always passes.
+    /// Otherwise, the state must equal one of the allowed states.
     #[must_use]
-    pub fn check(&self, state: Option<&'a str>) -> bool {
+    pub fn validate(&self, state: Option<&'a str>) -> bool {
         let Some(state) = state else {
             return self.is_allow_only_none();
         };
@@ -148,7 +170,6 @@ where
         if self.is_allow_only_none() {
             return false;
         }
-
         if self.is_allow_any() {
             return true;
         }
@@ -157,20 +178,55 @@ where
             .iter()
             .any(|allowed_state| match allowed_state {
                 StateType::Equal(allowed_state) => *allowed_state.as_ref() == state,
-                _ => unimplemented!("`StateType::Equal(_)` is only allowed here"),
+                _ => false, // Only Equal variant is used for comparison.
             })
     }
 }
 
-#[async_trait]
-impl<Client, B> Filter<Client> for State<'_, B>
+impl<'a, B> Clone for State<'a, B>
 where
-    Client: Send + Sync,
-    for<'a> B: ToOwned + PartialEq<&'a str> + Sync,
+    B: ToOwned + PartialEq<&'a str> + Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            allowed_states: self.allowed_states.clone(),
+        }
+    }
+}
+
+impl Clone for State<'_, Dummy> {
+    fn clone(&self) -> Self {
+        Self {
+            allowed_states: self.allowed_states.clone(),
+        }
+    }
+}
+
+#[async_trait]
+impl<Client> Filter<Client> for State<'static, Dummy>
+where
+    Client: Send + Sync + 'static,
+{
+    async fn check(&mut self, request: Request<Client>) -> (bool, Request<Client>) {
+        (
+            self.validate(request.context.get::<Box<str>>("fsm_state").map(|v| &**v)),
+            request,
+        )
+    }
+}
+
+#[async_trait]
+impl<Client, B> Filter<Client> for State<'static, B>
+where
+    Client: Send + Sync + 'static,
+    for<'a> B: ToOwned + PartialEq<&'a str> + Clone + Sync,
     B::Owned: Send + Sync,
 {
-    async fn check(&self, request: &mut Request<Client>) -> bool {
-        self.check(request.context.get::<Box<str>>("fsm_state").map(|v| &**v))
+    async fn check(&mut self, request: Request<Client>) -> (bool, Request<Client>) {
+        (
+            self.validate(request.context.get::<Box<str>>("fsm_state").map(|v| &**v)),
+            request,
+        )
     }
 }
 
@@ -179,26 +235,26 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_check() {
+    fn test_validate() {
         let filter = State::one("state");
-        assert!(filter.check(Some("state")));
-        assert!(!filter.check(Some("wrong_state")));
-        assert!(!filter.check(None));
+        assert!(filter.validate(Some("state")));
+        assert!(!filter.validate(Some("wrong_state")));
+        assert!(!filter.validate(None));
 
         let filter = State::many(["state", "another_state"]);
-        assert!(filter.check(Some("state")));
-        assert!(filter.check(Some("another_state")));
-        assert!(!filter.check(Some("wrong_state")));
-        assert!(!filter.check(None));
+        assert!(filter.validate(Some("state")));
+        assert!(filter.validate(Some("another_state")));
+        assert!(!filter.validate(Some("wrong_state")));
+        assert!(!filter.validate(None));
 
         let filter = State::any();
-        assert!(filter.check(Some("state")));
-        assert!(filter.check(Some("another_state")));
-        assert!(!filter.check(None));
+        assert!(filter.validate(Some("state")));
+        assert!(filter.validate(Some("another_state")));
+        assert!(!filter.validate(None));
 
         let filter = State::none();
-        assert!(!filter.check(Some("state")));
-        assert!(!filter.check(Some("another_state")));
-        assert!(filter.check(None));
+        assert!(!filter.validate(Some("state")));
+        assert!(!filter.validate(Some("another_state")));
+        assert!(filter.validate(None));
     }
 }

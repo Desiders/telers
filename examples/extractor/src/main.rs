@@ -15,7 +15,7 @@ use std::convert::Infallible;
 use telers::{
     enums::UpdateType,
     errors::{ConvertToTypeError, EventErrorKind, ExtractionError},
-    event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
+    event::{telegram::HandlerResult, EventReturn},
     filters::Command,
     methods::SendMessage,
     middlewares::outer::MiddlewareResponse,
@@ -110,7 +110,7 @@ impl Extractor for BotId {
     type Error = Infallible;
 
     fn extract(request: &Request) -> Result<Self, Self::Error> {
-        Ok(Self(request.bot.bot_id))
+        Ok(Self(request.bot.id))
     }
 }
 
@@ -180,18 +180,13 @@ async fn main() {
         .register(update_id_handler)
         .filter(Command::one("update_id"));
 
-    let dispatcher = Dispatcher::builder()
-        .main_router(router)
+    let mut dispatcher = Dispatcher::builder()
+        .main_router(router.configure_default())
         .bot(bot)
         .allowed_update(UpdateType::Message)
         .build();
 
-    match dispatcher
-        .to_service_provider_default()
-        .unwrap()
-        .run_polling()
-        .await
-    {
+    match dispatcher.run_polling().await {
         Ok(()) => event!(Level::INFO, "Bot stopped"),
         Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
     }

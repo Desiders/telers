@@ -17,7 +17,7 @@ use std::{
     fmt::{self, Display, Formatter},
     ops::RangeInclusive,
 };
-use tracing::{event, instrument, Level, Span};
+use tracing::{debug_span, event, instrument, Level, Span};
 
 pub const DEFAULT_TIMEOUT: f32 = 60.0;
 
@@ -116,7 +116,7 @@ pub trait Session: Send + Sync {
     /// # Errors
     /// If the response represents an telegram api error
     #[allow(clippy::redundant_else)]
-    #[instrument(skip_all, fields(ok, error_message))]
+    #[instrument(name = "check", skip_all, fields(ok, error_message))]
     fn check_response(
         &self,
         response: &Response<impl DeserializeOwned>,
@@ -228,7 +228,6 @@ pub trait Session: Send + Sync {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an Telegram API error
-    #[instrument(skip_all, fields(bot_id = bot.bot_id, status_code))]
     async fn make_request<Client, T>(
         &self,
         bot: &Bot<Client>,
@@ -242,12 +241,12 @@ pub trait Session: Send + Sync {
     {
         let response = self.send_request(bot, method, timeout).await?;
 
-        Span::current().record("status_code", response.status_code.as_u16());
+        debug_span!("response", status_code = response.status_code.as_u16()).in_scope(|| {
+            let resp = method.build_response(&response.content)?;
+            self.check_response(&resp, response.status_code)?;
 
-        let resp = method.build_response(&response.content)?;
-        self.check_response(&resp, response.status_code)?;
-
-        Ok(resp)
+            Ok(resp)
+        })
     }
 
     /// Makes a request to Telegram API and get result from it

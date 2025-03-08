@@ -10,7 +10,10 @@ keywords = ["bot", "telegram", "telegram-bot", "telegram-bot-api", "telers"]
 categories = ["web-programming", "api-bindings", "asynchronous"]
 
 [features]
-default = []
+default = ["default-tls"]
+default-tls = ["reqwest/default-tls"]
+rustls-tls = ["reqwest/rustls-tls"]
+
 # Include all possible features
 full = ["storages"]
 # Include all possible storages
@@ -21,30 +24,31 @@ redis-storage = ["redis", "deadpool-redis"]
 memory-storage = []
 
 [dependencies]
-telers-macros = { path = "../telers-macros", version = "1.0.0-alpha.3", features = ["default"] } 
-tokio = { version = "1.36", features = ["sync", "macros", "signal", "fs"] }
-tokio-util = { version = "0.7", features = ["codec"] }
-reqwest = { version = "0.12", features = ["multipart", "stream"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-serde_with = "3.6"
-strum = "0.26"
-strum_macros = "0.26"
-futures = "0.3"
-async-trait = "0.1"
-once_cell = "1.19"
-thiserror = "2.0"
-anyhow = "1.0"
-tracing = "0.1"
-regex = "1.10"
-backoff = "0.4"
-bytes = "1.5"
-takecell = "0.1"
-pathdiff = "0.2"
-uuid = { version = "1.7", features = ["v4"] }
+telers-macros = { path = "../telers-macros", version = "1.0.0-alpha.3", features = ["default"] }
+tower = { version = "0.5", default-features = false, features = ["util"] }
+tokio = { version = "1.36", default-features = false, features = ["sync", "macros", "signal", "fs"] }
+tokio-util = { version = "0.7", default-features = false, features = ["codec"] }
+reqwest = { version = "0.12", default-features = false, features = ["multipart", "stream"] }
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+serde_json = { version = "1.0", default-features = false, features = ["std"] }
+serde_with = { version = "3.6", default-features = false, features = ["macros"] }
+strum = { version = "0.27", default-features = false, features = ["std"] }
+strum_macros = { version = "0.27", default-features = false }
+futures-util = { version = "0.3", default-features = false }
+async-trait = { version = "0.1", default-features = false }
+once_cell = { version = "1.19", default-features = false }
+thiserror = { version = "2.0", default-features = false }
+anyhow = { version = "1.0", default-features = false }
+tracing = { version = "0.1", default-features = false, features = ["attributes"] }
+regex = { version = "1.10", default-features = false }
+backoff = { version = "0.4", default-features = false }
+bytes = { version = "1.5", default-features = false }
+takecell = { version = "0.1", default-features = false }
+pathdiff = { version = "0.2", default-features = false }
+uuid = { version = "1.7", default-features = false, features = ["v4"] }
 
-redis = { version = "0.27", features = ["tokio-comp"], optional = true }
-deadpool-redis = { version = "0.18", optional = true }
+redis = { version = "0.29", default-features = false, features = ["tokio-comp"], optional = true }
+deadpool-redis = { version = "0.20", default-features = false, features = ["rt_tokio_1"], optional = true }
 
 [dev-dependencies]
 tokio-test = "0.4"

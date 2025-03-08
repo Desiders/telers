@@ -220,7 +220,7 @@ impl<'a> SendPaidMedia<'a> {
     }
 }
 
-impl<'a> SendPaidMedia<'a> {
+impl SendPaidMedia<'_> {
     #[must_use]
     pub fn business_connection_id_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
@@ -319,7 +319,7 @@ impl<'a> SendPaidMedia<'a> {
     }
 }
 
-impl<'a> TelegramMethod for SendPaidMedia<'a> {
+impl TelegramMethod for SendPaidMedia<'_> {
     type Method = Self;
     type Return = Message;
 

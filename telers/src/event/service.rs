@@ -1,8 +1,7 @@
-#[allow(clippy::module_name_repetitions)]
 mod base;
-mod boxed;
-mod fn_service;
+mod boxed_clone;
+mod service_fn;
 
-pub use base::{Service, ServiceFactory, ServiceProvider, ToServiceProvider};
-pub use boxed::{factory, service, BoxFuture, BoxService, BoxServiceFactory};
-pub use fn_service::{fn_service, FnService, FnServiceFactory};
+pub(crate) use base::Service;
+pub(crate) use boxed_clone::BoxCloneService;
+pub(crate) use service_fn::service_fn;

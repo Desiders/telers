@@ -10,7 +10,7 @@ use rand::Rng;
 
 use telers::{
     enums::{ContentType as ContentTypeEnum, UpdateType},
-    event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
+    event::{telegram::HandlerResult, EventReturn},
     filters::{Command, ContentType},
     methods::{GetStickerSet, SendMessage, SendSticker},
     types::{InputFile, Message, MessageSticker, MessageText},
@@ -50,7 +50,7 @@ async fn sticker_handler(bot: Bot, message: MessageSticker) -> HandlerResult {
     let sticker_set = bot.send(GetStickerSet::new(sticker_set_name)).await?;
 
     // generate a random number no longer than the number of stickers in the sticker set
-    let rand_index_of_sticker_set = rand::thread_rng().gen_range(0..sticker_set.stickers.len());
+    let rand_index_of_sticker_set = rand::rng().random_range(0..sticker_set.stickers.len());
 
     // get a sticker by random index in a sticker pack
     let sticker_to_send = &sticker_set.stickers[rand_index_of_sticker_set];
@@ -106,18 +106,13 @@ async fn main() {
         .register(wrong_message_handler)
         .filter(ContentType::one(ContentTypeEnum::Sticker).invert());
 
-    let dispatcher = Dispatcher::builder()
-        .main_router(router)
+    let mut dispatcher = Dispatcher::builder()
+        .main_router(router.configure_default())
         .bot(bot)
         .allowed_update(UpdateType::Message)
         .build();
 
-    match dispatcher
-        .to_service_provider_default()
-        .unwrap()
-        .run_polling()
-        .await
-    {
+    match dispatcher.run_polling().await {
         Ok(()) => event!(Level::INFO, "Bot stopped"),
         Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
     }

@@ -145,7 +145,7 @@ impl<'a> SendMediaGroup<'a> {
     }
 }
 
-impl<'a> SendMediaGroup<'a> {
+impl SendMediaGroup<'_> {
     #[must_use]
     pub fn business_connection_id_option(self, val: Option<String>) -> Self {
         Self {
@@ -203,7 +203,7 @@ impl<'a> SendMediaGroup<'a> {
     }
 }
 
-impl<'a> TelegramMethod for SendMediaGroup<'a> {
+impl TelegramMethod for SendMediaGroup<'_> {
     type Method = Self;
     type Return = Vec<Message>;
 

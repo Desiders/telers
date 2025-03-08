@@ -1,8 +1,15 @@
 use super::{And, Invert, Or};
-use crate::{client::Reqwest, Request};
+use crate::{
+    client::Reqwest,
+    event::service::{service_fn, BoxCloneService},
+    Request,
+};
 
 use async_trait::async_trait;
-use std::{future::Future, sync::Arc};
+use std::{convert::Infallible, future::Future};
+
+pub type BoxedCloneFilterService<Client> =
+    BoxCloneService<Request<Client>, (bool, Request<Client>), Infallible>;
 
 /// Filters are used to filter updates before processing handlers and inner middlewares.
 /// You can use filters to check if the update meets the necessary conditions,
@@ -11,18 +18,19 @@ use std::{future::Future, sync::Arc};
 /// Check out the examples to see how to create your own filters and check ready-made implementations of filters
 /// to avoid writing your own filters which are already implemented.
 #[async_trait]
-pub trait Filter<Client = Reqwest>: Send + Sync {
+pub trait Filter<Client = Reqwest>: Clone + Send + Sync + 'static {
     /// Check if the filter passes
     /// # Returns
     /// `true` if the filter passes, otherwise `false`
-    async fn check(&self, request: &mut Request<Client>) -> bool;
+    async fn check(&mut self, request: Request<Client>) -> (bool, Request<Client>);
 
     /// Invert result of the filter
     /// # Notes
     /// This method is used to create [`Invert`] filter
     fn invert(self) -> Invert<Client>
     where
-        Self: Sized + 'static,
+        Self: Sized,
+        Client: Send + Sync + 'static,
     {
         Invert::new(self)
     }
@@ -30,9 +38,10 @@ pub trait Filter<Client = Reqwest>: Send + Sync {
     /// Combine two filters with logical `and`
     /// # Notes
     /// This method is used to create [`And`] filter
-    fn and(self, filter: impl Filter<Client> + 'static) -> And<Client>
+    fn and(self, filter: impl Filter<Client>) -> And<Client>
     where
-        Self: Sized + 'static,
+        Self: Sized,
+        Client: Send + Sync + 'static,
     {
         And::new(self).and(filter)
     }
@@ -40,34 +49,35 @@ pub trait Filter<Client = Reqwest>: Send + Sync {
     /// Combine two filters with logical `or`
     /// # Notes
     /// This method is used to create [`Or`] filter
-    fn or(self, filter: impl Filter<Client> + 'static) -> Or<Client>
+    fn or(self, filter: impl Filter<Client>) -> Or<Client>
     where
-        Self: Sized + 'static,
+        Self: Sized,
+        Client: Send + Sync + 'static,
     {
         Or::new(self).or(filter)
     }
 }
 
 #[async_trait]
-impl<T: ?Sized, Client> Filter<Client> for Arc<T>
+impl<Client, F, Fut> Filter<Client> for F
 where
-    T: Filter<Client>,
-    Client: Send + Sync,
+    Client: Send + Sync + 'static,
+    F: FnMut(Request<Client>) -> Fut + Clone + Send + Sync + 'static,
+    Fut: Future<Output = (bool, Request<Client>)> + Send,
 {
-    async fn check(&self, request: &mut Request<Client>) -> bool {
-        T::check(self, request).await
+    async fn check(&mut self, request: Request<Client>) -> (bool, Request<Client>) {
+        self(request).await
     }
 }
 
-/// To possible use function-like as filters
-#[async_trait]
-impl<Client, Func, Fut> Filter<Client> for Func
+pub fn boxed_filter_factory<Client, F>(filter: F) -> BoxedCloneFilterService<Client>
 where
-    Client: Send + Sync,
-    Func: Fn(&mut Request<Client>) -> Fut + Send + Sync,
-    Fut: Future<Output = bool> + Send,
+    Client: Send + Sync + 'static,
+    F: Filter<Client>,
 {
-    async fn check(&self, request: &mut Request<Client>) -> bool {
-        self(request).await
-    }
+    BoxCloneService::new(service_fn(move |request| {
+        let mut filter = filter.clone();
+
+        async move { Ok(filter.check(request).await) }
+    }))
 }

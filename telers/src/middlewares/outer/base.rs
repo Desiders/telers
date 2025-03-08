@@ -1,7 +1,18 @@
-use crate::{client::Reqwest, errors::EventErrorKind, event::EventReturn, Request};
+use crate::{
+    client::Reqwest,
+    errors::EventErrorKind,
+    event::{
+        service::{service_fn, BoxCloneService},
+        EventReturn,
+    },
+    Request,
+};
 
 use async_trait::async_trait;
-use std::{future::Future, sync::Arc};
+use std::future::Future;
+
+pub(crate) type BoxedCloneMiddlewareService<Client> =
+    BoxCloneService<Request<Client>, MiddlewareResponse<Client>, EventErrorKind>;
 
 /// Response from middleware.
 /// First element is/isn't updated [`Request`] and second is [`EventReturn`] for the manipulate processing event,
@@ -17,46 +28,43 @@ pub type MiddlewareResponse<Client = Reqwest> = (Request<Client>, EventReturn);
 ///
 /// Implement this trait for your own middlewares
 #[async_trait]
-pub trait Middleware<Client = Reqwest>: Send + Sync {
+pub trait Middleware<Client = Reqwest>: Clone + Send + Sync + 'static {
     /// Execute middleware
     /// # Arguments
     /// * `request` - Data for observers, filters, handler and middlewares
     /// # Errors
     /// If outer middleware returns error
     async fn call(
-        &self,
+        &mut self,
         request: Request<Client>,
     ) -> Result<MiddlewareResponse<Client>, EventErrorKind>;
 }
 
+/// To possible use function-like as middlewares
 #[async_trait]
-impl<T: ?Sized, Client> Middleware<Client> for Arc<T>
+impl<Client, F, Fut> Middleware<Client> for F
 where
-    T: Middleware<Client>,
     Client: Send + Sync + 'static,
+    F: FnMut(Request<Client>) -> Fut + Clone + Send + Sync + 'static,
+    Fut: Future<Output = Result<MiddlewareResponse<Client>, EventErrorKind>> + Send,
 {
-    async fn call(
-        &self,
-        request: Request<Client>,
-    ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
-        T::call(self, request).await
+    async fn call(&mut self, request: Request<Client>) -> Fut::Output {
+        self(request).await
     }
 }
 
-/// To possible use function-like as middlewares
-#[async_trait]
-impl<Client, Func, Fut> Middleware<Client> for Func
+pub(crate) fn boxed_middleware_factory<Client, M>(
+    middleware: M,
+) -> BoxedCloneMiddlewareService<Client>
 where
     Client: Send + Sync + 'static,
-    Func: Fn(Request<Client>) -> Fut + Send + Sync,
-    Fut: Future<Output = Result<MiddlewareResponse<Client>, EventErrorKind>> + Send,
+    M: Middleware<Client>,
 {
-    async fn call(
-        &self,
-        request: Request<Client>,
-    ) -> Result<MiddlewareResponse<Client>, EventErrorKind> {
-        self(request).await
-    }
+    BoxCloneService::new(service_fn(move |request| {
+        let mut middleware = middleware.clone();
+
+        async move { middleware.call(request).await }
+    }))
 }
 
 #[cfg(test)]
@@ -69,15 +77,16 @@ mod tests {
         Extensions,
     };
 
+    use std::sync::Arc;
     use tokio;
 
     #[tokio::test]
     async fn test_call() {
-        let middleware =
+        let mut middleware =
             |request: Request<Reqwest>| async move { Ok((request, EventReturn::default())) };
 
         let request = Request {
-            bot: Arc::new(Bot::<Reqwest>::default()),
+            bot: Bot::<Reqwest>::default(),
             update: Arc::new(Update {
                 id: 0,
                 kind: UpdateKind::Message(Message::default()),
@@ -85,9 +94,9 @@ mod tests {
             context: Context::default(),
             extensions: Extensions::default(),
         };
-        let (updated_request, _) = Middleware::call(&middleware, request.clone())
+        let (_, event_return) = Middleware::call(&mut middleware, request.clone())
             .await
             .unwrap();
-        assert!(request == updated_request);
+        assert_eq!(event_return, EventReturn::default());
     }
 }

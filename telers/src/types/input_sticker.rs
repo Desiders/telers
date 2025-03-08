@@ -128,7 +128,7 @@ impl<'a> InputSticker<'a> {
     }
 }
 
-impl<'a> InputSticker<'a> {
+impl InputSticker<'_> {
     #[must_use]
     pub fn mask_position_option(self, val: Option<MaskPosition>) -> Self {
         Self {

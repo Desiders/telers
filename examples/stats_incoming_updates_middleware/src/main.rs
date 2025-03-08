@@ -9,13 +9,16 @@
 //! ```
 
 use async_trait::async_trait;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::{
+    atomic::{AtomicUsize, Ordering},
+    Arc,
+};
 use telers::{
     enums::UpdateType,
     errors::EventErrorKind,
     event::{
         telegram::{HandlerResponse, HandlerResult},
-        EventReturn, ToServiceProvider as _,
+        EventReturn,
     },
     methods::SendMessage,
     middlewares::{outer::MiddlewareResponse, InnerMiddleware, Next, OuterMiddleware},
@@ -25,14 +28,14 @@ use telers::{
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 struct IncomingUpdates {
-    counter: AtomicUsize,
+    counter: Arc<AtomicUsize>,
 }
 
 #[async_trait]
 impl OuterMiddleware for IncomingUpdates {
-    async fn call(&self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
+    async fn call(&mut self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
         self.counter.fetch_add(1, Ordering::SeqCst);
 
         request.context.insert(
@@ -46,15 +49,15 @@ impl OuterMiddleware for IncomingUpdates {
 
 /// # Warning
 /// If the handler returns an error, the counter not increments
-#[derive(Default)]
+#[derive(Default, Clone)]
 struct ProcessedHandlers {
-    counter: AtomicUsize,
+    counter: Arc<AtomicUsize>,
 }
 
 #[async_trait]
 impl InnerMiddleware for ProcessedHandlers {
     async fn call(
-        &self,
+        &mut self,
         mut request: Request,
         next: Next,
     ) -> Result<HandlerResponse, EventErrorKind> {
@@ -111,18 +114,13 @@ async fn main() {
         });
     router.message.register(handler);
 
-    let dispatcher = Dispatcher::builder()
-        .main_router(router)
+    let mut dispatcher = Dispatcher::builder()
+        .main_router(router.configure_default())
         .bot(bot)
         .allowed_updates(UpdateType::all())
         .build();
 
-    match dispatcher
-        .to_service_provider_default()
-        .unwrap()
-        .run_polling()
-        .await
-    {
+    match dispatcher.run_polling().await {
         Ok(()) => event!(Level::INFO, "Bot stopped"),
         Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
     }

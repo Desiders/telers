@@ -108,9 +108,9 @@ impl FilesPathWrapper for FilesDiffPathWrapper {
 #[derive(Debug, Clone)]
 pub struct APIServer {
     /// Base URL for API
-    base_url: Box<str>,
+    base_url: String,
     /// Files URL
-    files_url: Box<str>,
+    files_url: String,
     /// Mark this server is in [`local mode`](https://core.telegram.org/bots/api#using-a-local-bot-api-server)
     is_local: bool,
     /// Path wrapper for files in local mode
@@ -232,8 +232,7 @@ mod tests {
         );
         assert_eq!(
             server
-                .api_url("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11", "getUpdates")
-                .as_ref(),
+                .api_url("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11", "getUpdates").as_ref(),
             "https://api.telegram.org/bot1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/test/getUpdates"
         );
     }
@@ -248,8 +247,7 @@ mod tests {
         );
         assert_eq!(
             server
-                .file_url("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11", "test_path")
-                .as_ref(),
+                .file_url("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11", "test_path").as_ref(),
             "https://api.telegram.org/file/bot1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/test_path"
         );
 
@@ -261,8 +259,7 @@ mod tests {
         );
         assert_eq!(
             server
-                .file_url("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11", "test_path")
-                .as_ref(),
+                .file_url("1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11", "test_path").as_ref(),
             "https://api.telegram.org/file/bot1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/test/test_path"
         );
     }

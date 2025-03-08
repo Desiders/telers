@@ -8,7 +8,7 @@ use std::fmt::{self, Debug, Display, Formatter};
 /// This indicates how [`crate::dispatcher::Dispatcher`] should process response.
 /// # Notes
 /// In some cases, some values may represent the same result
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub enum EventReturn {
     Skip,
     Cancel,
@@ -42,6 +42,12 @@ pub const fn cancel_event() -> Result<EventReturn, HandlerError> {
 #[allow(clippy::missing_errors_doc)]
 pub const fn finish_event() -> Result<EventReturn, HandlerError> {
     Ok(EventReturn::Finish)
+}
+
+impl From<()> for EventReturn {
+    fn from(_value: ()) -> Self {
+        EventReturn::default()
+    }
 }
 
 /// Response, which can be returned from routers and observers by program.

@@ -12,7 +12,7 @@
 use telers::{
     enums::UpdateType,
     errors::EventErrorKind,
-    event::{telegram::HandlerResult, EventReturn, ToServiceProvider as _},
+    event::{telegram::HandlerResult, EventReturn},
     filters::Command,
     methods::SendMessage,
     middlewares::outer::MiddlewareResponse,
@@ -77,18 +77,13 @@ async fn main() {
         .register(send_data_handler)
         .filter(Command::one("data"));
 
-    let dispatcher = Dispatcher::builder()
-        .main_router(router)
+    let mut dispatcher = Dispatcher::builder()
+        .main_router(router.configure_default())
         .bot(bot)
         .allowed_update(UpdateType::Message)
         .build();
 
-    match dispatcher
-        .to_service_provider_default()
-        .unwrap()
-        .run_polling()
-        .await
-    {
+    match dispatcher.run_polling().await {
         Ok(()) => event!(Level::INFO, "Bot stopped"),
         Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
     }

@@ -1,5 +1,5 @@
 use bytes::{Bytes, BytesMut};
-use futures::{Stream, TryFutureExt as _, TryStreamExt as _};
+use futures_util::{Stream, TryFutureExt as _, TryStreamExt as _};
 use serde::{Serialize, Serializer};
 use std::{
     borrow::Cow,
@@ -107,7 +107,7 @@ impl<'a> InputFile<'a> {
     }
 }
 
-impl<'a> InputFile<'a> {
+impl InputFile<'_> {
     /// Some variants can be uploaded in `multipart/form-data` format,
     /// others can be uploaded as URL or path (depends on [`InputFile`]).
     /// If the file in `multipart/form-data` format,
@@ -299,7 +299,7 @@ impl<'a> FSFile<'a> {
     }
 }
 
-impl<'a> FSFile<'a> {
+impl FSFile<'_> {
     /// Opens a file and returns a stream of its bytes with a specified capacity for the underlying buffer
     /// # Errors
     /// Returns an error if the file cannot be opened or read

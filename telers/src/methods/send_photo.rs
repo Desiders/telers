@@ -211,7 +211,7 @@ impl<'a> SendPhoto<'a> {
     }
 }
 
-impl<'a> SendPhoto<'a> {
+impl SendPhoto<'_> {
     #[must_use]
     pub fn business_connection_id_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
@@ -326,7 +326,7 @@ impl<'a> SendPhoto<'a> {
     }
 }
 
-impl<'a> TelegramMethod for SendPhoto<'a> {
+impl TelegramMethod for SendPhoto<'_> {
     type Method = Self;
     type Return = Message;
 

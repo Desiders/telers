@@ -102,7 +102,7 @@ impl<'a> CreateNewStickerSet<'a> {
     }
 }
 
-impl<'a> CreateNewStickerSet<'a> {
+impl CreateNewStickerSet<'_> {
     #[must_use]
     pub fn sticker_type_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
@@ -120,7 +120,7 @@ impl<'a> CreateNewStickerSet<'a> {
     }
 }
 
-impl<'a> TelegramMethod for CreateNewStickerSet<'a> {
+impl TelegramMethod for CreateNewStickerSet<'_> {
     type Method = Self;
     type Return = bool;
 
