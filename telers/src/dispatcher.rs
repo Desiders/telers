@@ -196,7 +196,8 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
         }
     }
 
-    /// Insert a type into this [`Extensions`].
+    /// Insert a type into this [`Extensions`]
+    #[must_use]
     pub fn context<T>(mut self, key: &'static str, val: T) -> Self
     where
         T: Clone + Send + Sync + 'static,
@@ -206,12 +207,14 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     }
 
     /// Extend context of dispatcher
+    #[must_use]
     pub fn context_extend(mut self, val: Context) -> Self {
         self.context.extend(val);
         self
     }
 
-    /// Insert a type into this [`Extensions`].
+    /// Insert a type into this [`Extensions`]
+    #[must_use]
     pub fn extension<T>(mut self, val: T) -> Self
     where
         T: Clone + Send + Sync + 'static,
@@ -221,6 +224,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     }
 
     /// Extend extensions of dispatcher
+    #[must_use]
     pub fn extensions_extend(mut self, val: Extensions) -> Self {
         self.extensions.extend(val);
         self
