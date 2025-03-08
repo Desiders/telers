@@ -1,5 +1,5 @@
 //! [`Dispatcher`] is the main part of the library, which contains functionality for handling updates and dispatching them to the router.
-//! You can create [`Dispatcher`] with [`Dispatcher::new`] method or using [`Builder`] (**recommended**).
+//! You can create [`Dispatcher`] using [`Builder`].
 //!
 //! Components of the dispatcher:
 //! * [`Bot`]:
@@ -92,49 +92,11 @@ enum PollingError {
 pub struct Dispatcher<Client, Propagator, BackoffType = ExponentialBackoff<SystemClock>> {
     main_router: Propagator,
     bots: Vec<Bot<Client>>,
+    extensions: Extensions,
+    context: Context,
     polling_timeout: Option<i64>,
     backoff: BackoffType,
     allowed_updates: Vec<UpdateType>,
-}
-
-impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType> {
-    /// Creates new dispatcher
-    /// # Arguments
-    /// * `main_router` -
-    ///     Main router, whose service will propagate updates to the other routers and its observers
-    /// * `bots` -
-    ///     Bots that will be used for getting updates and sending requests.
-    ///     All bots use the same dispatcher, but each bot has the own polling process.
-    ///     Polling process gets updates and propagates them to the main propagator.
-    /// * `polling_timeout` -
-    ///     Timeout in seconds for long polling
-    /// * `backoff` -
-    ///     Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
-    ///     and set timeout between requests to telegram server
-    /// * `allowed_updates` -
-    ///     List the types of updates you want your bot to receive.
-    ///     For example, specify [`UpdateType::Message`], [`UpdateType::EditedChannelPost`], [`UpdateType::CallbackQuery`]
-    ///     to only receive updates of these types.
-    #[must_use]
-    pub fn new(
-        main_router: Propagator,
-        bots: impl IntoIterator<Item = Bot<Client>>,
-        polling_timeout: Option<i64>,
-        backoff: BackoffType,
-        allowed_updates: impl IntoIterator<Item = UpdateType>,
-    ) -> Self
-    where
-        BackoffType: Backoff,
-        Propagator: PropagateEvent<Client>,
-    {
-        Self {
-            main_router,
-            bots: bots.into_iter().collect(),
-            polling_timeout,
-            backoff,
-            allowed_updates: allowed_updates.into_iter().collect(),
-        }
-    }
 }
 
 impl<Client, Propagator> Dispatcher<Client, Propagator>
@@ -147,19 +109,11 @@ where
     }
 }
 
-impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType>
-where
-    Propagator: Default,
-{
-    #[must_use]
-    pub fn builder_with_backoff(val: BackoffType) -> Builder<Client, Propagator, BackoffType> {
-        Builder::default_with_backoff(val)
-    }
-}
-
 pub struct Builder<Client, Propagator, BackoffType = ExponentialBackoff<SystemClock>> {
     main_router: Propagator,
     bots: Vec<Bot<Client>>,
+    context: Context,
+    extensions: Extensions,
     polling_timeout: Option<i64>,
     backoff: BackoffType,
     allowed_updates: Vec<UpdateType>,
@@ -175,6 +129,8 @@ where
         Self {
             main_router: Propagator::default(),
             bots: vec![],
+            context: Context::new(),
+            extensions: Extensions::new(),
             polling_timeout: Some(DEFAULT_POLLING_TIMEOUT),
             backoff: ExponentialBackoff::default(),
             allowed_updates: vec![],
@@ -182,19 +138,11 @@ where
     }
 }
 
-impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType>
-where
-    Propagator: Default,
-{
+impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     #[must_use]
-    pub fn default_with_backoff(backoff: BackoffType) -> Self {
-        Self {
-            main_router: Propagator::default(),
-            bots: vec![],
-            polling_timeout: Some(DEFAULT_POLLING_TIMEOUT),
-            backoff,
-            allowed_updates: vec![],
-        }
+    pub fn with_backoff(mut self, backoff: BackoffType) -> Self {
+        self.backoff = backoff;
+        self
     }
 }
 
@@ -248,6 +196,36 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
         }
     }
 
+    /// Insert a type into this [`Extensions`].
+    pub fn context<T>(mut self, key: &'static str, val: T) -> Self
+    where
+        T: Clone + Send + Sync + 'static,
+    {
+        self.context.insert(key, val);
+        self
+    }
+
+    /// Extend context of dispatcher
+    pub fn context_extend(mut self, val: Context) -> Self {
+        self.context.extend(val);
+        self
+    }
+
+    /// Insert a type into this [`Extensions`].
+    pub fn extension<T>(mut self, val: T) -> Self
+    where
+        T: Clone + Send + Sync + 'static,
+    {
+        self.extensions.insert(val);
+        self
+    }
+
+    /// Extend extensions of dispatcher
+    pub fn extensions_extend(mut self, val: Extensions) -> Self {
+        self.extensions.extend(val);
+        self
+    }
+
     /// Timeout in seconds for long polling
     /// # Default
     /// [`DEFAULT_POLLING_TIMEOUT`]
@@ -299,6 +277,8 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
         Dispatcher {
             main_router: self.main_router,
             bots: self.bots,
+            extensions: self.extensions,
+            context: self.context,
             polling_timeout: self.polling_timeout,
             backoff: self.backoff,
             allowed_updates: self.allowed_updates,
@@ -309,29 +289,11 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
 impl<Client, PropagatorService, BackoffType> Dispatcher<Client, PropagatorService, BackoffType> {
     /// Main entry point for incoming updates.
     /// This method will propagate update to the main router.
-    #[allow(clippy::missing_errors_doc)]
+    #[instrument(skip_all, fields(update_id = update.id, update_type))]
     pub async fn feed_update(
         &mut self,
         bot: Bot<Client>,
         update: Arc<Update>,
-    ) -> Result<Response<Client>, EventErrorKind>
-    where
-        Client: Send + Sync + Clone + 'static,
-        PropagatorService: PropagateEvent<Client>,
-    {
-        self.feed_update_with_context(bot, update, Context::new(), Extensions::new())
-            .await
-    }
-
-    /// Main entry point for incoming updates with user context.
-    /// This method will propagate update to the main router.
-    #[instrument(name = "feed_update", skip_all, fields(update_id = update.id, update_type))]
-    pub async fn feed_update_with_context(
-        &mut self,
-        bot: Bot<Client>,
-        update: Arc<Update>,
-        context: Context,
-        extensions: Extensions,
     ) -> Result<Response<Client>, EventErrorKind>
     where
         Client: Send + Sync + Clone + 'static,
@@ -347,8 +309,8 @@ impl<Client, PropagatorService, BackoffType> Dispatcher<Client, PropagatorServic
                 Request {
                     bot,
                     update,
-                    context,
-                    extensions,
+                    context: self.context.clone(),
+                    extensions: self.extensions.clone(),
                 },
             )
             .await
@@ -692,6 +654,15 @@ mod tests {
         }
     }
 
+    #[derive(Clone)]
+    struct Test1;
+
+    #[derive(Clone)]
+    struct Test2;
+
+    #[derive(Clone)]
+    struct Test3;
+
     #[test]
     fn test_builder() {
         let bot = Bot::<Reqwest>::default();
@@ -700,12 +671,28 @@ mod tests {
             .main_router(Router::new("main").configure_default())
             .bot(bot.clone())
             .bots([bot])
+            .extension(Test1)
+            .extension(Test2)
+            .extensions_extend({
+                let mut extensions = Extensions::new();
+                extensions.insert(Test3);
+                extensions
+            })
+            .context("1", Test1)
+            .context("2", Test2)
+            .context_extend({
+                let mut context = Context::new();
+                context.insert("3", Test3);
+                context
+            })
             .polling_timeout(123)
             .allowed_update(UpdateType::Message)
             .allowed_updates([UpdateType::InlineQuery, UpdateType::ChosenInlineResult])
             .build();
 
         assert_eq!(dispatcher.bots.len(), 2);
+        assert_eq!(dispatcher.extensions.len(), 3);
+        assert_eq!(dispatcher.context.len(), 3);
         assert_eq!(dispatcher.polling_timeout, Some(123));
         assert_eq!(dispatcher.allowed_updates.len(), 3);
     }
