@@ -441,7 +441,7 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
 
             async move {
                 select! {
-                    _ = signal_tx.closed() => event!(Level::TRACE, "Select signal branch"),
+                    () = signal_tx.closed() => event!(Level::TRACE, "Select signal branch"),
                     _ = fut => event!(Level::TRACE, "Select future branch"),
                 };
                 event!(Level::WARN, "Graceful shutdown signal received");
@@ -486,7 +486,7 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
         BackoffType: Backoff + Send + Sync + Clone + 'static,
     {
         assert!(
-            self.bots.len() > 0,
+            !self.bots.is_empty(),
             "You must add at least one bot to the dispatcher",
         );
 

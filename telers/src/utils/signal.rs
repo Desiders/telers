@@ -1,5 +1,7 @@
 use tokio::signal;
 
+/// # Panics
+/// Failed to install signal handler
 pub async fn shutdown_signal() {
     let ctrl_c = async {
         signal::ctrl_c()
@@ -19,7 +21,7 @@ pub async fn shutdown_signal() {
     let terminate = std::future::pending::<()>();
 
     tokio::select! {
-        _ = ctrl_c => {},
-        _ = terminate => {},
+        () = ctrl_c => {},
+        () = terminate => {},
     }
 }

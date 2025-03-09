@@ -15,7 +15,7 @@ default-tls = ["reqwest/default-tls"]
 rustls-tls = ["reqwest/rustls-tls"]
 
 # Include all possible features
-full = ["storages"]
+full = ["storages", "default_signal"]
 # Include all possible storages
 storages = ["redis-storage", "memory-storage"]
 # For possible use redis FSM storage

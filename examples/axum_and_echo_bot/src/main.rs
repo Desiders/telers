@@ -86,6 +86,6 @@ async fn run_dispatcher(dispatcher: Dispatcher, mut shutdown_rx: Receiver<()>) {
 }
 
 async fn handle_shutdown(shutdown_tx: Sender<()>) {
-    let _ = shutdown_signal().await;
+    let () = shutdown_signal().await;
     let _ = shutdown_tx.send(());
 }

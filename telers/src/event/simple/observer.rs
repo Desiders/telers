@@ -77,6 +77,7 @@ impl Observer {
 }
 
 impl Observer {
+    #[allow(clippy::missing_errors_doc)]
     pub async fn trigger(&mut self, request: ()) -> HandlerResult {
         for handler in &mut self.handlers {
             handler.call(request).await?;
