@@ -152,7 +152,7 @@ async fn main() {
     router.startup.register(on_startup, ());
     router.shutdown.register(on_shutdown, ());
 
-    let mut dispatcher = Dispatcher::builder()
+    let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
         .bot(bot)
         .allowed_update(UpdateType::Message)

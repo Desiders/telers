@@ -63,7 +63,7 @@ async fn main() {
     router.edited_business_message.register(message_edited);
     router.deleted_business_messages.register(messages_deleted);
 
-    let mut dispatcher = Dispatcher::builder()
+    let dispatcher = Dispatcher::builder()
         .allowed_updates(router.resolve_used_update_types())
         .main_router(router.configure_default())
         .bot(bot)

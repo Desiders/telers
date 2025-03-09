@@ -93,7 +93,7 @@ async fn main() {
         .register(send_data_handler)
         .filter(Command::one("data"));
 
-    let mut dispatcher = Dispatcher::builder()
+    let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
         .bot(bot)
         // You also can register an extension using builder methods
