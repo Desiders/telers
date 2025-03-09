@@ -23,10 +23,17 @@ redis-storage = ["redis", "deadpool-redis"]
 # For possible use memory FSM storage.
 memory-storage = []
 
+# Include realization of shutdown signal handler.
+# Still should be registered manually, it just adds handler.
+# If you want to register it automatically, use `default_signal` feature.
+signal = ["tokio/signal"]
+# Register signal realization automatically in serve
+default_signal = ["signal"]
+
 [dependencies]
 telers-macros = { path = "../telers-macros", version = "1.0.0-alpha.3", features = ["default"] }
 tower = { version = "0.5", default-features = false, features = ["util"] }
-tokio = { version = "1.36", default-features = false, features = ["sync", "macros", "signal", "fs"] }
+tokio = { version = "1.36", default-features = false, features = ["sync", "macros", "fs"] }
 tokio-util = { version = "0.7", default-features = false, features = ["codec"] }
 reqwest = { version = "0.12", default-features = false, features = ["multipart", "stream"] }
 serde = { version = "1.0", default-features = false, features = ["derive"] }
