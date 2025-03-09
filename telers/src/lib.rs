@@ -34,4 +34,4 @@ pub use extractor::Extractor;
 pub use filters::Filter;
 pub use fsm::Context as FSMContext;
 pub use request::Request;
-pub use router::Router;
+pub use router::{Configured as RouterConfigured, Router};

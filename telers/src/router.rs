@@ -94,6 +94,7 @@
 //! [`Router::include_router`]: Router#method.include_router
 
 use crate::{
+    client::Reqwest,
     enums::{SimpleObserverName, TelegramObserverName, UpdateType},
     errors::EventErrorKind,
     event::{
@@ -251,7 +252,7 @@ pub trait PropagateEvent<Client>: Clone + Send + Sync + 'static {
 /// router.message.register(on_message);
 /// router.callback_query.register(on_callback_query);
 /// ```
-pub struct Router<Client> {
+pub struct Router<Client = Reqwest> {
     name: &'static str,
     sub_routers: Vec<Router<Client>>,
 
@@ -697,7 +698,7 @@ impl<Client> Clone for Router<Client> {
     }
 }
 
-pub struct Configured<Client> {
+pub struct Configured<Client = Reqwest> {
     name: &'static str,
     sub_routers: Vec<Configured<Client>>,
 

@@ -54,13 +54,13 @@
 
 use super::router::{PropagateEvent, Response};
 use crate::{
-    client::{Bot, Session},
+    client::{Bot, Reqwest, Session},
     context::Context,
     enums::UpdateType,
     errors::{EventErrorKind, HandlerError},
     methods::GetUpdates,
     types::Update,
-    Extensions, Request,
+    Extensions, Request, RouterConfigured,
 };
 
 use backoff::{backoff::Backoff, exponential::ExponentialBackoff, SystemClock};
@@ -82,7 +82,11 @@ pub const DEFAULT_POLLING_TIMEOUT: i64 = 30;
 
 /// Dispatcher using to dispatch incoming updates to the main router
 #[derive(Clone)]
-pub struct Dispatcher<Client, Propagator, BackoffType = ExponentialBackoff<SystemClock>> {
+pub struct Dispatcher<
+    Client = Reqwest,
+    Propagator = RouterConfigured,
+    BackoffType = ExponentialBackoff<SystemClock>,
+> {
     propagator: Propagator,
     bots: Vec<Bot<Client>>,
     extensions: Extensions,
