@@ -186,7 +186,7 @@ impl<Client> Observer<Client> {
     /// Handler will be called when all its filters is pass.
     /// # Errors
     /// - If any handler returns error. Probably it's error to extract args to the handler.
-    #[instrument(skip(self, request))]
+    #[instrument(skip_all)]
     pub async fn trigger(
         &mut self,
         request: Request<Client>,

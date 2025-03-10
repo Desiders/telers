@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-telers = { path = "../../telers", features = ["default"] }
+telers = { path = "../../telers", features = ["default_signal"] }
 tokio = { version = "1.36", features = ["macros"] }
 rand = "0.9"
 tracing = "0.1"

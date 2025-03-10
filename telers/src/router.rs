@@ -94,6 +94,7 @@
 //! [`Router::include_router`]: Router#method.include_router
 
 use crate::{
+    client::Reqwest,
     enums::{SimpleObserverName, TelegramObserverName, UpdateType},
     errors::EventErrorKind,
     event::{
@@ -185,10 +186,14 @@ pub trait PropagateEvent<Client>: Clone + Send + Sync + 'static {
     /// If any startup observer returns error
     async fn emit_startup(&mut self) -> SimpleHandlerResult;
 
+    fn starup_handlers_len(&self) -> usize;
+
     /// Emit shutdown events
     /// # Errors
     /// If any shutdown observer returns error
     async fn emit_shutdown(&mut self) -> SimpleHandlerResult;
+
+    fn shutdown_handlers_len(&self) -> usize;
 }
 
 /// Router combines all event observers.
@@ -247,7 +252,7 @@ pub trait PropagateEvent<Client>: Clone + Send + Sync + 'static {
 /// router.message.register(on_message);
 /// router.callback_query.register(on_callback_query);
 /// ```
-pub struct Router<Client> {
+pub struct Router<Client = Reqwest> {
     name: &'static str,
     sub_routers: Vec<Router<Client>>,
 
@@ -693,7 +698,7 @@ impl<Client> Clone for Router<Client> {
     }
 }
 
-pub struct Configured<Client> {
+pub struct Configured<Client = Reqwest> {
     name: &'static str,
     sub_routers: Vec<Configured<Client>>,
 
@@ -939,26 +944,52 @@ where
 
     #[instrument(skip_all, fields(router = self.name))]
     async fn emit_startup(&mut self) -> SimpleHandlerResult {
+        if self.starup_handlers_len() == 0 {
+            event!(Level::TRACE, "Observers empty");
+            return Ok(());
+        }
+
+        event!(Level::DEBUG, "Start observers");
         for startup in once(&mut self.startup).chain(
             self.sub_routers
                 .iter_mut()
                 .map(|router| &mut router.startup),
         ) {
-            startup.trigger(()).await?;
+            if let Err(err) = startup.trigger(()).await {
+                event!(Level::ERROR, error = %err, "Error while emit observers");
+                return Err(err);
+            }
         }
         Ok(())
     }
 
+    fn starup_handlers_len(&self) -> usize {
+        self.startup.handlers().len()
+    }
+
     #[instrument(skip_all, fields(router = self.name))]
     async fn emit_shutdown(&mut self) -> SimpleHandlerResult {
+        if self.shutdown_handlers_len() == 0 {
+            event!(Level::TRACE, "Observers empty");
+            return Ok(());
+        }
+
+        event!(Level::DEBUG, "Start observers");
         for shutdown in once(&mut self.shutdown).chain(
             self.sub_routers
                 .iter_mut()
                 .map(|router| &mut router.shutdown),
         ) {
-            shutdown.trigger(()).await?;
+            if let Err(err) = shutdown.trigger(()).await {
+                event!(Level::ERROR, error = %err, "Error while emit observers");
+                return Err(err);
+            }
         }
         Ok(())
+    }
+
+    fn shutdown_handlers_len(&self) -> usize {
+        self.shutdown.handlers().len()
     }
 }
 

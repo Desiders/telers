@@ -161,7 +161,7 @@ async fn main() {
         .register(update_id_handler)
         .filter(Command::one("update_id"));
 
-    let mut dispatcher = Dispatcher::builder()
+    let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
         .bot(bot)
         .context_extend({

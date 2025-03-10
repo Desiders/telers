@@ -106,7 +106,7 @@ async fn main() {
         .register(wrong_message_handler)
         .filter(ContentType::one(ContentTypeEnum::Sticker).invert());
 
-    let mut dispatcher = Dispatcher::builder()
+    let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
         .bot(bot)
         .allowed_update(UpdateType::Message)

@@ -62,7 +62,7 @@ use std::{
 ///
 /// Check [module docs](crate::client::bot) for examples.
 #[derive(Clone, Default)]
-pub struct Bot<Client: ?Sized = Reqwest> {
+pub struct Bot<Client = Reqwest> {
     /// Bot token, which is used to receive updates and send requests to the Telegram API
     pub token: String,
     /// Bot token, which is used in `Debug` implementation for privacy

@@ -54,20 +54,25 @@
 
 use super::router::{PropagateEvent, Response};
 use crate::{
-    client::{Bot, Session},
+    client::{Bot, Reqwest, Session},
     context::Context,
     enums::UpdateType,
-    errors::EventErrorKind,
-    event::simple::HandlerResult as SimpleHandlerResult,
+    errors::{EventErrorKind, HandlerError},
     methods::GetUpdates,
     types::Update,
-    Extensions, Request,
+    Extensions, Request, RouterConfigured,
 };
 
 use backoff::{backoff::Backoff, exponential::ExponentialBackoff, SystemClock};
-use std::sync::Arc;
-use thiserror;
-use tokio::sync::mpsc::{channel as mspc_channel, error::SendError, Sender};
+use futures_util::future::BoxFuture;
+use std::{
+    future::{Future, IntoFuture},
+    sync::Arc,
+};
+use tokio::{
+    select,
+    sync::{mpsc, watch},
+};
 use tracing::{event, field, instrument, Level, Span};
 
 const GET_UPDATES_SIZE: i64 = 100;
@@ -75,22 +80,14 @@ const CHANNEL_UPDATES_SIZE: usize = 100;
 
 pub const DEFAULT_POLLING_TIMEOUT: i64 = 30;
 
-#[derive(Debug, thiserror::Error)]
-enum ListenerError<T> {
-    #[error(transparent)]
-    SendError(#[from] SendError<T>),
-}
-
-#[derive(Debug, thiserror::Error)]
-enum PollingError {
-    #[error("Polling was aborted by signal")]
-    Aborted,
-}
-
 /// Dispatcher using to dispatch incoming updates to the main router
 #[derive(Clone)]
-pub struct Dispatcher<Client, Propagator, BackoffType = ExponentialBackoff<SystemClock>> {
-    main_router: Propagator,
+pub struct Dispatcher<
+    Client = Reqwest,
+    Propagator = RouterConfigured,
+    BackoffType = ExponentialBackoff<SystemClock>,
+> {
+    propagator: Propagator,
     bots: Vec<Bot<Client>>,
     extensions: Extensions,
     context: Context,
@@ -110,7 +107,7 @@ where
 }
 
 pub struct Builder<Client, Propagator, BackoffType = ExponentialBackoff<SystemClock>> {
-    main_router: Propagator,
+    propagator: Propagator,
     bots: Vec<Bot<Client>>,
     context: Context,
     extensions: Extensions,
@@ -127,7 +124,7 @@ where
     #[must_use]
     fn default() -> Self {
         Self {
-            main_router: Propagator::default(),
+            propagator: Propagator::default(),
             bots: vec![],
             context: Context::new(),
             extensions: Extensions::new(),
@@ -154,7 +151,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
         Propagator: PropagateEvent<Client>,
     {
         Self {
-            main_router: val,
+            propagator: val,
             ..self
         }
     }
@@ -279,7 +276,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     #[must_use]
     pub fn build(self) -> Dispatcher<Client, Propagator, BackoffType> {
         Dispatcher {
-            main_router: self.main_router,
+            propagator: self.propagator,
             bots: self.bots,
             extensions: self.extensions,
             context: self.context,
@@ -290,7 +287,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     }
 }
 
-impl<Client, PropagatorService, BackoffType> Dispatcher<Client, PropagatorService, BackoffType> {
+impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType> {
     /// Main entry point for incoming updates.
     /// This method will propagate update to the main router.
     #[instrument(skip_all, fields(update_id = update.id, update_type))]
@@ -301,13 +298,13 @@ impl<Client, PropagatorService, BackoffType> Dispatcher<Client, PropagatorServic
     ) -> Result<Response<Client>, EventErrorKind>
     where
         Client: Send + Sync + Clone + 'static,
-        PropagatorService: PropagateEvent<Client>,
+        Propagator: PropagateEvent<Client>,
     {
         let update_type = UpdateType::from(update.as_ref());
 
         Span::current().record("update_type", field::display(&update_type));
 
-        self.main_router
+        self.propagator
             .propagate_event(
                 update_type,
                 Request {
@@ -329,9 +326,9 @@ impl<Client, PropagatorService, BackoffType> Dispatcher<Client, PropagatorServic
         bot: Bot<Client>,
         polling_timeout: Option<i64>,
         allowed_updates: Vec<UpdateType>,
-        update_sender: Sender<Update>,
+        update_tx: mpsc::Sender<Update>,
         mut backoff: BackoffType,
-    ) -> Result<(), ListenerError<Update>>
+    ) -> mpsc::error::SendError<Update>
     where
         Client: Session,
         BackoffType: Backoff,
@@ -400,7 +397,9 @@ impl<Client, PropagatorService, BackoffType> Dispatcher<Client, PropagatorServic
             for update in updates {
                 event!(Level::TRACE, "Send update to the listener",);
 
-                update_sender.send(update).await?;
+                if let Err(err) = update_tx.send(update).await {
+                    return err;
+                }
             }
 
             // If we successfully connected to the server, we will reset backoff config
@@ -417,102 +416,60 @@ impl<Client, PropagatorService, BackoffType> Dispatcher<Client, PropagatorServic
 
     /// Internal polling process.
     /// Start listening updates for the bot and propagate them to the main router.
-    /// Wait exit signal to stop polling.
-    /// # Panics
-    /// If failed to register exit signal handlers
+    /// # Returns
+    /// Guard just should be dropped to stop polling
     #[instrument(skip_all, fields(bot_id = bot.id))]
-    async fn polling(&self, bot: Bot<Client>) -> PollingError
+    fn polling(&self, bot: Bot<Client>) -> impl Drop
     where
         Client: Session + Clone + 'static,
-        PropagatorService: PropagateEvent<Client> + Clone,
+        Propagator: PropagateEvent<Client> + Clone,
         BackoffType: Backoff + Send + Sync + Clone + 'static,
     {
-        let (sender_update, mut receiver_update) = mspc_channel(CHANNEL_UPDATES_SIZE);
+        let (signal_tx, signal_rx) = watch::channel(());
+        let (update_tx, mut update_rx) = mpsc::channel(CHANNEL_UPDATES_SIZE);
 
-        let listen_updates_handle = tokio::spawn(Self::listen_updates(
-            bot.clone(),
-            self.polling_timeout,
-            self.allowed_updates.clone(),
-            sender_update,
-            self.backoff.clone(),
-        ));
+        let hidden_token = bot.hidden_token.clone();
 
-        let receiver_updates_handle = tokio::spawn({
+        tokio::spawn({
+            let fut = Self::listen_updates(
+                bot.clone(),
+                self.polling_timeout,
+                self.allowed_updates.clone(),
+                update_tx,
+                self.backoff.clone(),
+            );
+
+            async move {
+                select! {
+                    () = signal_tx.closed() => event!(Level::TRACE, "Select signal branch"),
+                    _ = fut => event!(Level::TRACE, "Select future branch"),
+                };
+                event!(Level::WARN, "Graceful shutdown signal received");
+            }
+        });
+        tokio::spawn({
             let dispatcher = self.clone();
 
             async move {
-                while let Some(update) = receiver_update.recv().await {
+                while let Some(update) = update_rx.recv().await {
                     event!(
                         Level::TRACE,
                         update_id = update.id,
                         "Received update from the listener"
                     );
 
+                    let update = Arc::new(update);
                     let bot = bot.clone();
                     let mut dispatcher = dispatcher.clone();
 
-                    tokio::spawn(
-                        async move { dispatcher.feed_update(bot, Arc::new(update)).await },
-                    );
+                    tokio::spawn(async move { dispatcher.feed_update(bot, update).await });
                 }
             }
         });
 
-        #[cfg(unix)]
-        {
-            use tokio::signal::unix::{signal, SignalKind};
+        event!(Level::INFO, token = hidden_token, "Started");
 
-            let mut sigint =
-                signal(SignalKind::interrupt()).expect("Failed to register SIGINT handler");
-            let mut sigterm =
-                signal(SignalKind::terminate()).expect("Failed to register SIGTERM handler");
-
-            tokio::select! {
-                _ = sigint.recv() => {
-                    event!(Level::WARN, "SIGINT signal received");
-                },
-                _ = sigterm.recv() => {
-                    event!(Level::WARN, "SIGTERM signal received");
-                },
-            }
-        }
-        #[cfg(windows)]
-        {
-            use tokio::signal::windows::{ctrl_break, ctrl_c};
-
-            let mut ctrl_c = ctrl_c().expect("Failed to register CTRL+C handler");
-            let mut ctrl_break = ctrl_break().expect("Failed to register CTRL+BREAK handler");
-
-            tokio::select! {
-                _ = ctrl_c.recv() => {
-                    event!(Level::WARN, "CTRL+C signal received");
-                },
-                _ = ctrl_break.recv() => {
-                    event!(Level::WARN,  "CTRL+BREAK signal received");
-                },
-            }
-        }
-
-        #[cfg(any(unix, windows))]
-        {
-            listen_updates_handle.abort();
-            receiver_updates_handle.abort();
-
-            PollingError::Aborted
-        }
-        #[cfg(not(any(unix, windows)))]
-        {
-            event!(
-                Level::WARN,
-                "Exit signals of this platform are not supported, \
-                so polling process will never stop by signal and shutdown events will never be emitted.",
-            );
-
-            listen_updates_handle.await;
-            receiver_updates_handle.await;
-
-            unimplemented!("Exit signals of this platform are not supported");
-        }
+        signal_rx
     }
 
     /// External polling process runner for multiple bots and emit startup and shutdown observers
@@ -522,88 +479,117 @@ impl<Client, PropagatorService, BackoffType> Dispatcher<Client, PropagatorServic
     /// # Panics
     /// - If failed to register exit signal handlers
     /// - If bots is empty
-    pub async fn run_polling(&mut self) -> Result<(), EventErrorKind>
+    pub fn run_polling(self) -> Serve<Client, Propagator, BackoffType>
     where
         Client: Session + Clone + 'static,
-        PropagatorService: PropagateEvent<Client> + 'static,
+        Propagator: PropagateEvent<Client> + 'static,
         BackoffType: Backoff + Send + Sync + Clone + 'static,
     {
-        event!(Level::TRACE, "Start emit startup observers");
-
-        if let Err(err) = self.main_router.emit_startup().await {
-            event!(Level::ERROR, error = %err, "Error while emit startup");
-            return Err(err.into());
-        }
-
-        self.run_polling_without_startup_and_shutdown().await;
-
-        event!(Level::TRACE, "Start emit shutdown observers");
-
-        self.emit_shutdown().await.map_err(|err| {
-            event!(Level::ERROR, error = %err, "Error while emit shutdown");
-            err.into()
-        })
-    }
-
-    /// External polling process runner for multiple bots
-    /// # Panics
-    /// If bots is empty
-    pub async fn run_polling_without_startup_and_shutdown(&mut self)
-    where
-        Client: Session + Clone + 'static,
-        PropagatorService: PropagateEvent<Client> + 'static,
-        BackoffType: Backoff + Send + Sync + Clone + 'static,
-    {
-        let bots_len = self.bots.len();
-
         assert!(
-            bots_len > 0,
+            !self.bots.is_empty(),
             "You must add at least one bot to the dispatcher",
         );
 
-        let mut handles = Vec::with_capacity(bots_len);
-        for bot in self.bots.clone() {
-            event!(Level::INFO, bot = %bot, "Polling started");
+        Serve::new(self)
+    }
+}
 
-            let dispatcher = self.clone();
-            handles.push(tokio::spawn(async move { dispatcher.polling(bot).await }));
+pub struct Serve<Client, Propagator, BackoffType> {
+    dispatcher: Dispatcher<Client, Propagator, BackoffType>,
+}
+
+impl<Client, Propagator, BackoffType> Serve<Client, Propagator, BackoffType> {
+    pub const fn new(dispatcher: Dispatcher<Client, Propagator, BackoffType>) -> Self {
+        Self { dispatcher }
+    }
+
+    pub fn with_graceful_shutdown<Signal>(
+        self,
+        signal: Signal,
+    ) -> ServeWithGracefulShutdown<Client, Propagator, BackoffType, Signal>
+    where
+        Signal: Future + Send + 'static,
+        Signal::Output: Send,
+    {
+        ServeWithGracefulShutdown::new(self.dispatcher, signal)
+    }
+}
+
+impl<Client, Propagator, BackoffType> IntoFuture for Serve<Client, Propagator, BackoffType>
+where
+    Client: Session + Clone + 'static,
+    Propagator: PropagateEvent<Client>,
+    BackoffType: Backoff + Send + Sync + Clone + 'static,
+{
+    type Output = Result<(), HandlerError>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+
+    #[cfg(feature = "default_signal")]
+    fn into_future(self) -> Self::IntoFuture {
+        use crate::utils::shutdown_signal;
+
+        self.with_graceful_shutdown(shutdown_signal()).into_future()
+    }
+
+    #[cfg(not(feature = "default_signal"))]
+    fn into_future(self) -> Self::IntoFuture {
+        if self.dispatcher.propagator.shutdown_handlers_len() != 0 {
+            event!(
+                // I'm use target instead of name here because: https://github.com/tokio-rs/tracing/discussions/1587#discussioncomment-1370883
+                target: "telers:dispatcher:into_future",
+                Level::WARN,
+                "Shutdown observer can't be called without graceful shutdow. \
+                You can off this log by `telers:dispatcher:into_future=off`.",
+            );
         }
 
-        for handle in handles {
-            if let Err(err) = handle.await {
-                event!(Level::ERROR, error = %err);
+        self.with_graceful_shutdown(std::future::pending::<Self::Output>())
+            .into_future()
+    }
+}
+
+pub struct ServeWithGracefulShutdown<Client, Propagator, BackoffType, Signal> {
+    dispatcher: Dispatcher<Client, Propagator, BackoffType>,
+    signal: Signal,
+}
+
+impl<Client, Propagator, BackoffType, Signal>
+    ServeWithGracefulShutdown<Client, Propagator, BackoffType, Signal>
+{
+    pub const fn new(
+        dispatcher: Dispatcher<Client, Propagator, BackoffType>,
+        signal: Signal,
+    ) -> Self {
+        Self { dispatcher, signal }
+    }
+}
+
+impl<Client, Propagator, BackoffType, Signal> IntoFuture
+    for ServeWithGracefulShutdown<Client, Propagator, BackoffType, Signal>
+where
+    Client: Session + Clone + 'static,
+    Signal: Future + Send + 'static,
+    Signal::Output: Send,
+    Propagator: PropagateEvent<Client>,
+    BackoffType: Backoff + Send + Sync + Clone + 'static,
+{
+    type Output = Result<(), HandlerError>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+
+    fn into_future(mut self) -> Self::IntoFuture {
+        Box::pin(async move {
+            self.dispatcher.propagator.emit_startup().await?;
+
+            let mut pollings = Vec::with_capacity(self.dispatcher.bots.len());
+            for bot in self.dispatcher.bots.clone() {
+                pollings.push(self.dispatcher.polling(bot));
             }
-        }
 
-        event!(Level::WARN, "Polling finished");
-    }
+            self.signal.await;
 
-    /// Emit startup events.
-    /// Use this method if you want to emit startup events manually
-    /// # Notes
-    /// This method is called automatically in `run_polling` method,
-    /// but not in `run_polling_without_startup_and_shutdown` method
-    /// # Errors
-    /// If any startup observer returns error
-    pub async fn emit_startup(&mut self) -> SimpleHandlerResult
-    where
-        PropagatorService: PropagateEvent<Client>,
-    {
-        self.main_router.emit_startup().await
-    }
-
-    /// Emit shutdown events.
-    /// Use this method if you want to emit shutdown events manually
-    /// # Notes
-    /// This method is called automatically in `run_polling` method,
-    /// but not in `run_polling_without_startup_and_shutdown` method
-    /// # Errors
-    /// If any shutdown observer returns error
-    pub async fn emit_shutdown(&mut self) -> SimpleHandlerResult
-    where
-        PropagatorService: PropagateEvent<Client>,
-    {
-        self.main_router.emit_shutdown().await
+            self.dispatcher.propagator.emit_shutdown().await?;
+            Ok(())
+        })
     }
 }
 
@@ -630,7 +616,7 @@ mod tests {
             .build();
 
         let response = dispatcher
-            .feed_update(bot.clone(), Arc::clone(&update))
+            .feed_update(bot.clone(), update.clone())
             .await
             .unwrap();
 

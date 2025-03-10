@@ -7,7 +7,6 @@ use crate::{
 };
 
 use std::fmt::{self, Debug, Formatter};
-use tracing::instrument;
 
 /// Simple events observer
 /// Is used for managing events isn't related with Telegram (For example startup/shutdown events)
@@ -78,13 +77,11 @@ impl Observer {
 }
 
 impl Observer {
-    #[allow(clippy::let_unit_value)]
-    #[instrument(skip(self, request))]
+    #[allow(clippy::missing_errors_doc)]
     pub async fn trigger(&mut self, request: ()) -> HandlerResult {
         for handler in &mut self.handlers {
             handler.call(request).await?;
         }
-
         Ok(())
     }
 }

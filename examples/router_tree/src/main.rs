@@ -127,7 +127,7 @@ async fn main() {
     // Include echo router into main router, so all updates, which are not handled by main router or private router will be passed to echo router
     main_router.include(echo_router);
 
-    let mut dispatcher = Dispatcher::builder()
+    let dispatcher = Dispatcher::builder()
         .allowed_updates(main_router.resolve_used_update_types())
         .router(main_router.configure_default())
         .bot(bot)

@@ -11,10 +11,13 @@ use telers::{
     event::{telegram::HandlerResult, EventReturn},
     methods::CopyMessage,
     types::Message,
+    utils::shutdown_signal,
     Bot, Dispatcher, Router as TelersRouter,
 };
-use tokio::net::TcpListener;
-use tracing::{event, Level};
+use tokio::{
+    net::TcpListener,
+    sync::broadcast::{channel, Receiver, Sender},
+};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
@@ -45,49 +48,44 @@ async fn main() {
     let mut router = TelersRouter::new("main");
     router.message.register(echo_handler);
 
-    let mut dispatcher = Dispatcher::builder()
+    let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
         .bot(bot)
         .allowed_update(UpdateType::Message)
         .build();
 
-    let app = AxumRouter::new()
-        .route("/", routing::get(hello_world_handler))
-        .into_make_service();
+    let app = AxumRouter::new().route("/", routing::get(hello_world_handler));
 
-    // `tokio::spawn` is used to run polling and server in different threads.
-    // You can also don't use `tokio::spawn` and run them in the same thread.
-    tokio::join!(
-        async {
-            match tokio::spawn(async move { dispatcher.run_polling().await }).await {
-                Ok(Ok(())) => {}
-                Ok(Err(err)) => {
-                    event!(Level::ERROR, "Error in dispatcher: {:?}", err);
-                }
-                Err(err) => {
-                    event!(Level::ERROR, "Dispatcher panicked: {:?}", err);
-                }
-            }
-        },
-        async {
-            // Check graceful shutdown example of axum server:
-            // https://github.com/tokio-rs/axum/tree/main/examples/graceful-shutdown
-            // Telers provides graceful shutdown out of the box, so you don't need to do anything special.
-            match tokio::spawn(async {
-                let listener = TcpListener::bind("0.0.0.0:3000").await?;
+    let (shutdown_tx, _) = channel(1);
 
-                axum::serve(listener, app).await
-            })
-            .await
-            {
-                Ok(Ok(())) => {}
-                Ok(Err(err)) => {
-                    event!(Level::ERROR, "Error in server: {:?}", err);
-                }
-                Err(err) => {
-                    event!(Level::ERROR, "Server panicked: {:?}", err);
-                }
-            }
-        }
+    let _ = tokio::join!(
+        tokio::spawn(run_server(app, shutdown_tx.subscribe())),
+        tokio::spawn(run_dispatcher(dispatcher, shutdown_tx.subscribe())),
+        tokio::spawn(handle_shutdown(shutdown_tx))
     );
+}
+
+async fn run_server(app: axum::Router, mut shutdown_rx: Receiver<()>) {
+    let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    axum::serve(listener, app)
+        .with_graceful_shutdown(async move {
+            let _ = shutdown_rx.recv().await;
+        })
+        .await
+        .unwrap();
+}
+
+async fn run_dispatcher(dispatcher: Dispatcher, mut shutdown_rx: Receiver<()>) {
+    dispatcher
+        .run_polling()
+        .with_graceful_shutdown(async move {
+            let _ = shutdown_rx.recv().await;
+        })
+        .await
+        .unwrap();
+}
+
+async fn handle_shutdown(shutdown_tx: Sender<()>) {
+    let () = shutdown_signal().await;
+    let _ = shutdown_tx.send(());
 }

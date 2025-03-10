@@ -6,7 +6,7 @@ rust-version = "1.66"
 publish = false
 
 [dependencies]
-telers = { path = "../../telers", features = ["default"] }
+telers = { path = "../../telers", features = ["signal"] }
 tokio = { version = "1.28", features = ["macros", "rt-multi-thread"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] } 

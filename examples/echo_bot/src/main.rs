@@ -38,7 +38,7 @@ async fn main() {
     let mut router = Router::new("main");
     router.message.register(echo_handler);
 
-    let mut dispatcher = Dispatcher::builder()
+    let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
         .bot(bot)
         .allowed_update(UpdateType::Message)
