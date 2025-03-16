@@ -10,5 +10,5 @@ pub struct ForumTopicCreated {
     /// Color of the topic icon in RGB format
     pub icon_color: i64,
     /// Unique identifier of the custom emoji shown as the topic icon
-    pub icon_custom_emoji_id: Box<str>,
+    pub icon_custom_emoji_id: Option<Box<str>>,
 }

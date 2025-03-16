@@ -4913,20 +4913,35 @@ mod tests {
 
     #[test]
     fn deserialize_forum_topic_created() {
-        let jsons = [serde_json::json!({
-            "message_id": 1,
-            "date": 0,
-            "chat": {
-                "id": -1,
-                "title": "test",
-                "type": "channel",
-            },
-            "forum_topic_created": {
-                "name": "test",
-                "icon_color": 1,
-                "icon_custom_emoji_id": "test",
-            },
-        })];
+        let jsons = [
+            serde_json::json!({
+                "message_id": 1,
+                "date": 0,
+                "chat": {
+                    "id": -1,
+                    "title": "test",
+                    "type": "channel",
+                },
+                "forum_topic_created": {
+                    "name": "test",
+                    "icon_color": 1,
+                    "icon_custom_emoji_id": "test",
+                },
+            }),
+            serde_json::json!({
+                "message_id": 1,
+                "date": 0,
+                "chat": {
+                    "id": -1,
+                    "title": "test",
+                    "type": "channel",
+                },
+                "forum_topic_created": {
+                    "name": "test",
+                    "icon_color": 1,
+                },
+            }),
+        ];
 
         for json in jsons {
             let message_kind = serde_json::from_value(json.clone()).unwrap();
