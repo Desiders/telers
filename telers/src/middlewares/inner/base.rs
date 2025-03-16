@@ -18,7 +18,8 @@ pub(crate) type BoxedCloneMiddlewareService<Client> =
 /// The middleware chain and the handler at the end
 pub type Next<Client = Reqwest> = Box<
     dyn Fn(Request<Client>) -> BoxFuture<'static, Result<HandlerResponse<Client>, EventErrorKind>>
-        + Send,
+        + Send
+        + Sync,
 >;
 
 /// Inner middlewares called after outer middlewares, after filters, but before handlers.
