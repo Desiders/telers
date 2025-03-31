@@ -10,6 +10,7 @@
 //! [`Extensions`]: telers::Extensions
 //! [`extensions module`]: telers::extensions
 
+use std::future::Future;
 use telers::{
     enums::UpdateType,
     errors::EventErrorKind,
@@ -40,10 +41,9 @@ async fn to_extensions_middleware(
     Ok((request, EventReturn::default()))
 }
 
-async fn to_extensions_filter(mut request: Request) -> (bool, Request) {
+fn to_extensions_filter(request: &mut Request) -> impl Future<Output = bool> {
     request.extensions.insert(StrData("1"));
-
-    (true, request)
+    async move { true }
 }
 
 async fn send_data_handler(
