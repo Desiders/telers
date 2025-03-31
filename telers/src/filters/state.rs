@@ -207,11 +207,8 @@ impl<Client> Filter<Client> for State<'static, Dummy>
 where
     Client: Send + Sync + 'static,
 {
-    async fn check(&mut self, request: Request<Client>) -> (bool, Request<Client>) {
-        (
-            self.validate(request.context.get::<Box<str>>("fsm_state").map(|v| &**v)),
-            request,
-        )
+    async fn check(&mut self, request: &mut Request<Client>) -> bool {
+        self.validate(request.context.get::<Box<str>>("fsm_state").map(|v| &**v))
     }
 }
 
@@ -222,11 +219,8 @@ where
     for<'a> B: ToOwned + PartialEq<&'a str> + Clone + Sync,
     B::Owned: Send + Sync,
 {
-    async fn check(&mut self, request: Request<Client>) -> (bool, Request<Client>) {
-        (
-            self.validate(request.context.get::<Box<str>>("fsm_state").map(|v| &**v)),
-            request,
-        )
+    async fn check(&mut self, request: &mut Request<Client>) -> bool {
+        self.validate(request.context.get::<Box<str>>("fsm_state").map(|v| &**v))
     }
 }
 

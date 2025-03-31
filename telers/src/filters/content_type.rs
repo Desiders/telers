@@ -49,14 +49,11 @@ impl<Client> Filter<Client> for ContentType
 where
     Client: Send + Sync + 'static,
 {
-    async fn check(&mut self, request: Request<Client>) -> (bool, Request<Client>) {
+    async fn check(&mut self, request: &mut Request<Client>) -> bool {
         let Some(message) = request.update.message() else {
-            return (false, request);
+            return false;
         };
-        (
-            self.validate_content_type(ContentTypeEnum::from(message)),
-            request,
-        )
+        self.validate_content_type(ContentTypeEnum::from(message))
     }
 }
 

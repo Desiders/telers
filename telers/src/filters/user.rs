@@ -366,14 +366,11 @@ impl<Client> Filter<Client> for User
 where
     Client: Send + Sync + 'static,
 {
-    async fn check(&mut self, request: Request<Client>) -> (bool, Request<Client>) {
-        (
-            match request.update.from() {
-                Some(user) => self.validate(user),
-                None => false,
-            },
-            request,
-        )
+    async fn check(&mut self, request: &mut Request<Client>) -> bool {
+        match request.update.from() {
+            Some(user) => self.validate(user),
+            None => false,
+        }
     }
 }
 

@@ -47,14 +47,11 @@ impl<Client> Filter<Client> for ChatType
 where
     Client: Send + Sync + 'static,
 {
-    async fn check(&mut self, request: Request<Client>) -> (bool, Request<Client>) {
-        (
-            match request.update.chat() {
-                Some(chat) => self.validate_chat_type(ChatTypeEnum::from(chat)),
-                None => false,
-            },
-            request,
-        )
+    async fn check(&mut self, request: &mut Request<Client>) -> bool {
+        match request.update.chat() {
+            Some(chat) => self.validate_chat_type(ChatTypeEnum::from(chat)),
+            None => false,
+        }
     }
 }
 
