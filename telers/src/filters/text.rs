@@ -386,14 +386,11 @@ impl<Client> Filter<Client> for Text
 where
     Client: Send + Sync + 'static,
 {
-    async fn check(&mut self, request: Request<Client>) -> (bool, Request<Client>) {
-        (
-            request
-                .update
-                .text_or_caption()
-                .is_some_and(|text| self.validate_text(text)),
-            request,
-        )
+    async fn check(&mut self, request: &mut Request<Client>) -> bool {
+        request
+            .update
+            .text_or_caption()
+            .is_some_and(|text| self.validate_text(text))
     }
 }
 

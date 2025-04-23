@@ -1614,7 +1614,7 @@ mod tests {
         router
             .message
             .register(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
-            .filter(|req| async move { (true, req) });
+            .filter(|_req: &mut Request| async move { true });
 
         let mut router_configured = router.configure_default();
         let response = router_configured
@@ -1635,7 +1635,7 @@ mod tests {
         router
             .message
             .register(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
-            .filter(|req| async move { (false, req) });
+            .filter(|_req: &mut Request| async move { false });
 
         let mut router_configured = router.configure_default();
         let response = router_configured
@@ -1653,9 +1653,9 @@ mod tests {
         router
             .message
             .register(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
-            .filter(|req| async move { (true, req) })
-            .filter(|req| async move { (true, req) })
-            .filter(|req| async move { (false, req) });
+            .filter(|_req: &mut Request| async move { true })
+            .filter(|_req: &mut Request| async move { true })
+            .filter(|_req: &mut Request| async move { false });
 
         let mut router_configured = router.configure_default();
         let response = router_configured

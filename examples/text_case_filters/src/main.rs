@@ -6,6 +6,8 @@
 //! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package text_case_filters
 //! ```
 
+use async_trait::async_trait;
+use std::future::Future;
 use telers::{
     enums::UpdateType,
     event::{telegram::HandlerResult, EventReturn},
@@ -16,32 +18,26 @@ use telers::{
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
-use async_trait::async_trait;
-
 #[derive(Clone)]
 struct UppercaseFilter;
 
 #[async_trait]
 impl Filter for UppercaseFilter {
-    async fn check(&mut self, request: Request) -> (bool, Request) {
-        (
-            request
-                .update
-                .text()
-                .is_some_and(|text| text.to_uppercase() == text),
-            request,
-        )
-    }
-}
-
-async fn lowercase_filter(request: Request) -> (bool, Request) {
-    (
+    async fn check(&mut self, request: &mut Request) -> bool {
         request
             .update
             .text()
-            .is_some_and(|text| text.to_lowercase() == text),
-        request,
-    )
+            .is_some_and(|text| text.to_uppercase() == text)
+    }
+}
+
+fn lowercase_filter(request: &mut Request) -> impl Future<Output = bool> {
+    let result = request
+        .update
+        .text()
+        .is_some_and(|text| text.to_lowercase() == text);
+
+    async move { result }
 }
 
 async fn uppercase_handler(bot: Bot, message: Message) -> HandlerResult {

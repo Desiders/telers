@@ -21,7 +21,7 @@ impl<Client> Middleware<Client> for UserContext
 where
     Client: Send + Sync + 'static,
 {
-    #[instrument(skip(self, request))]
+    #[instrument(skip_all)]
     async fn call(
         &mut self,
         mut request: Request<Client>,

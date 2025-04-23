@@ -423,31 +423,29 @@ where
     Client: Session + 'static,
 {
     #[instrument]
-    async fn check(&mut self, mut request: Request<Client>) -> (bool, Request<Client>) {
+    async fn check(&mut self, request: &mut Request<Client>) -> bool {
         let Some(message) = request.update.message() else {
-            return (false, request);
+            return false;
         };
         let Some(text) = message.text_or_caption() else {
-            return (false, request);
+            return false;
         };
         let Some(command) = CommandObject::extract(text) else {
-            return (false, request);
+            return false;
         };
 
         match self.validate_command_object(&command, &request.bot).await {
             Ok(result) => {
                 if result {
                     request.context.insert("command", command);
-
-                    (true, request)
+                    true
                 } else {
-                    (false, request)
+                    false
                 }
             }
             Err(err) => {
                 event!(Level::ERROR, error = %err, "Failed to validate command object");
-
-                (false, request)
+                false
             }
         }
     }
