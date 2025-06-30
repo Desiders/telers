@@ -17,6 +17,8 @@ pub struct SendGift {
     pub user_id: i64,
     /// Identifier of the gift
     pub gift_id: String,
+    /// Pass `true` to pay for the gift upgrade from the bot's balance, thereby making the upgrade free for the receiver
+    pub pay_for_upgrade: Option<bool>,
     /// Text that will be shown along with the gift; 0-255 characters
     pub text: Option<String>,
     /// Mode for parsing entities in the text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, and `custom_emoji` are ignored.
@@ -31,6 +33,7 @@ impl SendGift {
         Self {
             user_id,
             gift_id: gift_id.into(),
+            pay_for_upgrade: None,
             text: None,
             text_parse_mode: None,
             text_entities: None,
@@ -49,6 +52,14 @@ impl SendGift {
     pub fn gift_id(self, val: impl Into<String>) -> Self {
         Self {
             gift_id: val.into(),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn pay_for_upgrade(self, val: bool) -> Self {
+        Self {
+            pay_for_upgrade: Some(val),
             ..self
         }
     }
@@ -85,6 +96,14 @@ impl SendGift {
 }
 
 impl SendGift {
+    #[must_use]
+    pub fn pay_for_upgrade_option(self, val: Option<bool>) -> Self {
+        Self {
+            pay_for_upgrade: val,
+            ..self
+        }
+    }
+
     #[must_use]
     pub fn text_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
