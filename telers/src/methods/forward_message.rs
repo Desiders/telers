@@ -22,14 +22,14 @@ pub struct ForwardMessage {
     pub message_thread_id: Option<i64>,
     /// Unique identifier for the chat where the original message was sent (or channel username in the format `@channelusername`)
     pub from_chat_id: ChatIdKind,
-    /// Message identifier in the chat specified in `from_chat_id`
-    pub message_id: i64,
+    /// New start timestamp for the forwarded video in the message
+    pub video_start_timestamp: Option<i64>,
     /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound.
     pub disable_notification: Option<bool>,
     /// Protects the contents of the sent message from forwarding and saving
     pub protect_content: Option<bool>,
-    /// Pass `true` to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
-    pub allow_paid_broadcast: Option<bool>,
+    /// Message identifier in the chat specified in `from_chat_id`
+    pub message_id: i64,
 }
 
 impl ForwardMessage {
@@ -43,10 +43,10 @@ impl ForwardMessage {
             chat_id: chat_id.into(),
             message_thread_id: None,
             from_chat_id: from_chat_id.into(),
+            video_start_timestamp: None,
             message_id,
             disable_notification: None,
             protect_content: None,
-            allow_paid_broadcast: None,
         }
     }
 
@@ -75,9 +75,9 @@ impl ForwardMessage {
     }
 
     #[must_use]
-    pub fn message_id(self, val: i64) -> Self {
+    pub fn video_start_timestamp(self, val: i64) -> Self {
         Self {
-            message_id: val,
+            video_start_timestamp: Some(val),
             ..self
         }
     }
@@ -99,9 +99,9 @@ impl ForwardMessage {
     }
 
     #[must_use]
-    pub fn allow_paid_broadcast(self, val: bool) -> Self {
+    pub fn message_id(self, val: i64) -> Self {
         Self {
-            allow_paid_broadcast: Some(val),
+            message_id: val,
             ..self
         }
     }
@@ -112,6 +112,14 @@ impl ForwardMessage {
     pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
         Self {
             message_thread_id: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn video_start_timestamp_option(self, val: Option<i64>) -> Self {
+        Self {
+            video_start_timestamp: val,
             ..self
         }
     }
@@ -128,14 +136,6 @@ impl ForwardMessage {
     pub fn protect_content_option(self, val: Option<bool>) -> Self {
         Self {
             protect_content: val,
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn allow_paid_broadcast_option(self, val: Option<bool>) -> Self {
-        Self {
-            allow_paid_broadcast: val,
             ..self
         }
     }

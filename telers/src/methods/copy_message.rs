@@ -24,6 +24,8 @@ pub struct CopyMessage {
     pub from_chat_id: ChatIdKind,
     /// Message identifier in the chat specified in `from_chat_id`
     pub message_id: i64,
+    /// New start timestamp for the copied video in the message
+    pub video_start_timestamp: Option<i64>,
     /// New caption for media, 0-1024 characters after entities parsing. If not specified, the original caption is kept
     pub caption: Option<String>,
     /// Mode for parsing entities in the new caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.
@@ -56,6 +58,7 @@ impl CopyMessage {
             message_thread_id: None,
             from_chat_id: from_chat_id.into(),
             message_id,
+            video_start_timestamp: None,
             caption: None,
             parse_mode: None,
             caption_entities: None,
@@ -96,6 +99,14 @@ impl CopyMessage {
     pub fn message_id(self, val: i64) -> Self {
         Self {
             message_id: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn video_start_timestamp(self, val: i64) -> Self {
+        Self {
+            video_start_timestamp: Some(val),
             ..self
         }
     }
@@ -198,6 +209,14 @@ impl CopyMessage {
     pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
         Self {
             message_thread_id: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn video_start_timestamp_option(self, val: Option<i64>) -> Self {
+        Self {
+            video_start_timestamp: val,
             ..self
         }
     }
