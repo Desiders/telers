@@ -2,11 +2,13 @@ use super::{
     TransactionPartnerAffiliateProgram, TransactionPartnerFragment, TransactionPartnerOther,
     TransactionPartnerTelegramAds, TransactionPartnerTelegramApi, TransactionPartnerUser,
 };
+use crate::types::TransactionPartnerChat;
 
 use serde::{Deserialize, Serialize};
 
 /// This object describes the source of a transaction, or its recipient for outgoing transactions. Currently, it can be one of
 /// - [`TransactionPartnerUser`]
+/// - [`TransactionPartnerChat`]
 /// - [`TransactionPartnerAffiliateProgram`]
 /// - [`TransactionPartnerFragment`]
 /// - [`TransactionPartnerTelegramAds`]
@@ -18,6 +20,7 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum TransactionPartner {
     User(Box<TransactionPartnerUser>),
+    Chat(Box<TransactionPartnerChat>),
     AffiliateProgram(TransactionPartnerAffiliateProgram),
     Fragment(TransactionPartnerFragment),
     TelegramAds(TransactionPartnerTelegramAds),
@@ -28,6 +31,12 @@ pub enum TransactionPartner {
 impl From<TransactionPartnerUser> for TransactionPartner {
     fn from(partner: TransactionPartnerUser) -> Self {
         Self::User(Box::new(partner))
+    }
+}
+
+impl From<TransactionPartnerChat> for TransactionPartner {
+    fn from(partner: TransactionPartnerChat) -> Self {
+        Self::Chat(Box::new(partner))
     }
 }
 

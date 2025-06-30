@@ -21,6 +21,10 @@ pub struct Video {
     pub duration: i64,
     /// Video thumbnail
     pub thumbnail: Option<PhotoSize>,
+    /// Available sizes of the cover of the video in the message
+    pub cover: Option<Box<[PhotoSize]>>,
+    /// Timestamp in seconds from which the video will play in the message
+    pub start_timestamp: Option<i64>,
     /// Original filename as defined by sender
     pub file_name: Option<Box<str>>,
     /// MIME type of the file as defined by sender

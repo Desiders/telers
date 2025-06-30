@@ -1,6 +1,9 @@
 use super::base::{Request, TelegramMethod};
 
-use crate::{client::Bot, types::MessageEntity};
+use crate::{
+    client::Bot,
+    types::{ChatIdKind, MessageEntity},
+};
 
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -13,8 +16,10 @@ use serde_with::skip_serializing_none;
 #[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct SendGift {
-    /// Unique identifier of the target user that will receive the gift
-    pub user_id: i64,
+    /// Required if `chat_id` is not specified. Unique identifier of the target user who will receive the gift.
+    pub user_id: Option<i64>,
+    /// Required if `user_id` is not specified. Unique identifier for the chat or username of the channel (in the format `@channelusername`)
+    pub chat_id: Option<ChatIdKind>,
     /// Identifier of the gift
     pub gift_id: String,
     /// Pass `true` to pay for the gift upgrade from the bot's balance, thereby making the upgrade free for the receiver
@@ -29,9 +34,10 @@ pub struct SendGift {
 
 impl SendGift {
     #[must_use]
-    pub fn new(user_id: i64, gift_id: impl Into<String>) -> Self {
+    pub fn new(gift_id: impl Into<String>) -> Self {
         Self {
-            user_id,
+            user_id: None,
+            chat_id: None,
             gift_id: gift_id.into(),
             pay_for_upgrade: None,
             text: None,
@@ -43,7 +49,15 @@ impl SendGift {
     #[must_use]
     pub fn user_id(self, val: i64) -> Self {
         Self {
-            user_id: val,
+            user_id: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
+        Self {
+            chat_id: Some(val.into()),
             ..self
         }
     }
@@ -96,6 +110,22 @@ impl SendGift {
 }
 
 impl SendGift {
+    #[must_use]
+    pub fn user_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            user_id: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn chat_id_option(self, val: Option<impl Into<ChatIdKind>>) -> Self {
+        Self {
+            chat_id: val.map(Into::into),
+            ..self
+        }
+    }
+
     #[must_use]
     pub fn pay_for_upgrade_option(self, val: Option<bool>) -> Self {
         Self {
