@@ -5,7 +5,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#businessbotrights>
 #[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct BusinessBotRights {
     /// `true`, if the bot can send and edit messages in the private chats that had incoming messages in the last 24 hours
     pub can_reply: Option<bool>,
