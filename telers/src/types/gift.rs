@@ -15,6 +15,8 @@ pub struct Gift {
     pub sticker: Sticker,
     /// The number of Telegram Stars that must be paid to send the sticker
     pub star_count: i64,
+    /// The number of Telegram Stars that must be paid to upgrade the gift to a unique one
+    pub upgrade_star_count: Option<i64>,
     /// The total number of the gifts of this type that can be sent; for limited gifts only
     pub total_count: Option<i64>,
     /// The number of remaining gifts of this type that can be sent; for limited gifts only
