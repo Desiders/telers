@@ -3,6 +3,8 @@ use super::{
     ChatPermissions, ChatPhoto, Message, ReactionType,
 };
 
+use crate::types::AcceptedGiftTypes;
+
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -63,6 +65,8 @@ pub struct PrivateFullInfo {
     pub has_restricted_voice_and_video_messages: Option<bool>,
     /// The most recent pinned message (by sending date).
     pub pinned_message: Option<Message>,
+    /// Information about types of gifts that are accepted
+    pub accepted_gift_types: AcceptedGiftTypes,
     /// The time after which all messages sent to the chat will be automatically deleted; in seconds.
     pub message_auto_delete_time: Option<i64>,
     /// `true`, if messages from the chat can't be forwarded to other chats
@@ -86,6 +90,8 @@ pub struct GroupFullInfo {
     pub pinned_message: Option<Message>,
     /// Default chat member permissions.
     pub permissions: Option<ChatPermissions>,
+    /// Information about types of gifts that are accepted
+    pub accepted_gift_types: AcceptedGiftTypes,
     /// The time after which all messages sent to the chat will be automatically deleted; in seconds.
     pub message_auto_delete_time: Option<i64>,
     /// `true`, if non-administrators can only get the list of bots and administrators in the chat.
@@ -139,6 +145,8 @@ pub struct SupergroupFullInfo {
     pub pinned_message: Option<Message>,
     /// Default chat member permissions.
     pub permissions: Option<ChatPermissions>,
+    /// Information about types of gifts that are accepted
+    pub accepted_gift_types: AcceptedGiftTypes,
     /// For supergroups, the minimum allowed delay between consecutive messages sent by each unprivileged user; in seconds.
     pub slow_mode_delay: Option<i64>,
     /// The minimum number of boosts that a non-administrator user needs to add in order to ignore slow mode and chat permissions.
@@ -200,6 +208,8 @@ pub struct ChannelFullInfo {
     pub invite_link: Option<Box<str>>,
     /// The most recent pinned message (by sending date).
     pub pinned_message: Option<Message>,
+    /// Information about types of gifts that are accepted
+    pub accepted_gift_types: AcceptedGiftTypes,
     /// `true`, if paid media messages can be sent or forwarded to the channel chat
     pub can_send_paid_media: Option<bool>,
     /// The time after which all messages sent to the chat will be automatically deleted; in seconds.
@@ -644,6 +654,16 @@ impl ChatFullInfo {
             Self::Private(_) | Self::Channel(_) => None,
             Self::Group(chat) => chat.permissions.as_ref(),
             Self::Supergroup(chat) => chat.permissions.as_ref(),
+        }
+    }
+
+    #[must_use]
+    pub const fn accepted_gift_types(&self) -> &AcceptedGiftTypes {
+        match self {
+            Self::Private(chat) => &chat.accepted_gift_types,
+            Self::Group(chat) => &chat.accepted_gift_types,
+            Self::Supergroup(chat) => &chat.accepted_gift_types,
+            Self::Channel(chat) => &chat.accepted_gift_types,
         }
     }
 
