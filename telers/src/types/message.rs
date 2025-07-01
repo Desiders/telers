@@ -56,6 +56,7 @@ pub enum Message {
     RefundedPayment(Box<RefundedPayment>),
     UsersShared(Box<UsersShared>),
     ChatShared(Box<ChatShared>),
+    Gift(Box<Gift>),
     ConnectedWebsite(Box<ConnectedWebsite>),
     WriteAccessAllowed(Box<WriteAccessAllowed>),
     PassportData(Box<PassportData>),
@@ -1432,6 +1433,23 @@ pub struct ChatShared {
     pub shared: types::ChatShared,
 }
 
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
+pub struct Gift {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: a chat was shared with the bot
+    pub gift: types::GiftInfo,
+}
+
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
 #[event(try_from = Update)]
 pub struct ConnectedWebsite {
@@ -1947,6 +1965,7 @@ impl Message {
             Message::RefundedPayment(message) => message.id,
             Message::UsersShared(message) => message.id,
             Message::ChatShared(message) => message.id,
+            Message::Gift(message) => message.id,
             Message::ConnectedWebsite(message) => message.id,
             Message::WriteAccessAllowed(message) => message.id,
             Message::PassportData(message) => message.id,
@@ -2044,6 +2063,7 @@ impl Message {
             Message::RefundedPayment(message) => message.date,
             Message::UsersShared(message) => message.date,
             Message::ChatShared(message) => message.date,
+            Message::Gift(message) => message.date,
             Message::ConnectedWebsite(message) => message.date,
             Message::WriteAccessAllowed(message) => message.date,
             Message::PassportData(message) => message.date,
@@ -2213,6 +2233,7 @@ impl Message {
             Message::RefundedPayment(message) => &message.chat,
             Message::UsersShared(message) => &message.chat,
             Message::ChatShared(message) => &message.chat,
+            Message::Gift(message) => &message.chat,
             Message::ConnectedWebsite(message) => &message.chat,
             Message::WriteAccessAllowed(message) => &message.chat,
             Message::PassportData(message) => &message.chat,
@@ -2347,6 +2368,10 @@ impl Message {
                 Some(ref entities) => Some(entities),
                 None => None,
             },
+            Message::Gift(message) => match message.gift.entities {
+                Some(ref entities) => Some(entities),
+                None => None,
+            },
             _ => None,
         }
     }
@@ -2473,6 +2498,7 @@ impl Message {
             Message::RefundedPayment(message) => message.from.as_ref(),
             Message::UsersShared(message) => message.from.as_ref(),
             Message::ChatShared(message) => message.from.as_ref(),
+            Message::Gift(message) => message.from.as_ref(),
             Message::PassportData(message) => message.from.as_ref(),
             Message::ChatBackgroundSet(message) => message.from.as_ref(),
             Message::ForumTopicCreated(message) => message.from.as_ref(),
@@ -3079,6 +3105,14 @@ impl Message {
     }
 
     #[must_use]
+    pub const fn gift_info(&self) -> Option<&types::GiftInfo> {
+        match self {
+            Message::Gift(message) => Some(&message.gift),
+            _ => None,
+        }
+    }
+
+    #[must_use]
     pub const fn connected_website(&self) -> Option<&str> {
         match self {
             Message::ConnectedWebsite(message) => Some(&message.website),
@@ -3425,6 +3459,7 @@ impl_try_from_message!(Voice, Voice);
 impl_try_from_message!(WriteAccessAllowed, WriteAccessAllowed);
 impl_try_from_message!(UsersShared, UsersShared);
 impl_try_from_message!(ChatShared, ChatShared);
+impl_try_from_message!(Gift, Gift);
 impl_try_from_message!(MessageAutoDeleteTimerChanged, MessageAutoDeleteTimerChanged);
 
 impl TryFrom<Update> for Message {
@@ -3509,6 +3544,7 @@ impl_try_from_update!(Voice);
 impl_try_from_update!(WriteAccessAllowed);
 impl_try_from_update!(UsersShared);
 impl_try_from_update!(ChatShared);
+impl_try_from_update!(Gift);
 impl_try_from_update!(MessageAutoDeleteTimerChanged);
 
 #[cfg(test)]
@@ -4654,6 +4690,44 @@ mod tests {
 
             match message {
                 Message::ChatShared(message) => assert_eq!(*message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_gift() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "gift": {
+                "gift": {
+                    "id": "1",
+                    "sticker": {
+                        "file_id": "test",
+                        "file_unique_id": "test",
+                        "type": "regular",
+                        "width": 1,
+                        "height": 1,
+                        "is_animated": false,
+                        "is_video": false,
+                    },
+                    "star_count": 1,
+                },
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::Gift(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
