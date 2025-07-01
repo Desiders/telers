@@ -92,6 +92,7 @@ pub mod leave_chat;
 pub mod log_out;
 pub mod pin_chat_message;
 pub mod promote_chat_member;
+pub mod read_business_message;
 pub mod refund_star_payment;
 pub mod remove_chat_verification;
 pub mod remove_user_verification;
