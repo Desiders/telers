@@ -41,6 +41,7 @@
 //!
 //! Each variant has an implementation of [`Into`] trait to convert from the variant to the [`Message`].
 
+pub mod accepted_gift_types;
 pub mod affiliate_info;
 pub mod animation;
 pub mod audio;
@@ -287,6 +288,7 @@ pub mod web_app_user;
 pub mod webhook_info;
 pub mod write_access_allowed;
 
+pub use accepted_gift_types::AcceptedGiftTypes;
 pub use affiliate_info::AffiliateInfo;
 pub use animation::Animation;
 pub use audio::Audio;
