@@ -593,3 +593,5 @@ pub use web_app_info::WebAppInfo;
 pub use web_app_user::WebAppUser;
 pub use webhook_info::WebhookInfo;
 pub use write_access_allowed::WriteAccessAllowed;
+
+pub(crate) use update::UpdateUnparsed;
