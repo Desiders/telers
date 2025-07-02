@@ -1,6 +1,10 @@
 use super::{Request, TelegramMethod};
 
-use crate::{client::Bot, types::Update};
+use crate::{
+    client::Bot,
+    either::Either,
+    types::{Update, UpdateUnparsed},
+};
 
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -114,7 +118,7 @@ impl GetUpdates {
 
 impl TelegramMethod for GetUpdates {
     type Method = Self;
-    type Return = Vec<Update>;
+    type Return = Vec<Either<Update, UpdateUnparsed>>;
 
     fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
         Request::new("getUpdates", self, None)

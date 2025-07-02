@@ -9,6 +9,7 @@ use super::{
 use crate::{enums::UpdateType, FromEvent};
 
 use serde::{de::MapAccess, Deserialize, Deserializer, Serialize, Serializer};
+use serde_json::Value;
 use std::{
     fmt::{self, Formatter},
     str::FromStr as _,
@@ -22,9 +23,16 @@ use std::{
 pub struct Update {
     #[serde(rename = "update_id")]
     pub id: i64,
-
     #[serde(flatten)]
     pub kind: Kind,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct UpdateUnparsed {
+    #[serde(rename = "update_id")]
+    pub id: i64,
+    #[serde(flatten)]
+    pub value: Value,
 }
 
 #[derive(Debug, Clone, PartialEq, FromEvent)]

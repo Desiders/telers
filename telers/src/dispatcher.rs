@@ -56,10 +56,11 @@ use super::router::{PropagateEvent, Response};
 use crate::{
     client::{Bot, Reqwest, Session},
     context::Context,
+    either::Either,
     enums::UpdateType,
     errors::{EventErrorKind, HandlerError},
     methods::GetUpdates,
-    types::Update,
+    types::{Update, UpdateUnparsed},
     Extensions, Request, RouterConfigured,
 };
 
@@ -354,10 +355,13 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
             let updates = match bot.send(&method).await {
                 Ok(updates) => {
                     // Get last update id to set offset or skip updates if it's empty
-                    let Some(Update { id, .. }) = updates.last() else {
-                        event!(Level::TRACE, "No updates received");
-
-                        continue;
+                    let id = match updates.last() {
+                        Some(Either::Left(Update { id, .. })) => id,
+                        Some(Either::Right(UpdateUnparsed { id, .. })) => id,
+                        None => {
+                            event!(Level::TRACE, "No updates received");
+                            continue;
+                        }
                     };
 
                     event!(
@@ -395,8 +399,20 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
             };
 
             for update in updates {
-                event!(Level::TRACE, "Send update to the listener",);
+                let update = match update {
+                    Either::Left(update) => update,
+                    Either::Right(UpdateUnparsed { id, value }) => {
+                        event!(
+                            Level::ERROR,
+                            ?value,
+                            "Failed to parse update kind with ID {id}. \
+                            Please, open issue to fix that.",
+                        );
+                        continue;
+                    }
+                };
 
+                event!(Level::TRACE, "Send update to the listener",);
                 if let Err(err) = update_tx.send(update).await {
                     return err;
                 }

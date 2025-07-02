@@ -3,6 +3,7 @@ extern crate self as telers;
 mod serializers;
 
 pub(crate) mod any;
+pub(crate) mod either;
 
 #[macro_use]
 pub(crate) mod macros;
