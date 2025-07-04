@@ -62,7 +62,7 @@ where
             texts
                 .into_iter()
                 .map(|text| self.formatter.quote(text))
-                .collect::<Vec<_>>()
+                .collect::<Box<[_]>>()
                 .iter()
                 .map(String::as_str),
         );
