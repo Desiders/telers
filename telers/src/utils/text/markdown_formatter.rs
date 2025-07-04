@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use super::{Formatter as TextFormatter, FormatterErrorKind};
 
 use crate::types::{
@@ -26,7 +28,6 @@ impl Formatter {
 }
 
 impl Default for Formatter {
-    #[must_use]
     fn default() -> Self {
         Self::new()
     }
@@ -35,44 +36,44 @@ impl Default for Formatter {
 impl TextFormatter for Formatter {
     fn bold<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        format!("*{text}*", text = text.as_ref())
+        format!("*{text}*")
     }
 
     fn italic<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        format!("_\r{text}_\r", text = text.as_ref())
+        format!("_\r{text}_\r")
     }
 
     fn underline<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        format!("__\r{text}__\r", text = text.as_ref())
+        format!("__\r{text}__\r")
     }
 
     fn strikethrough<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        format!("~{text}~", text = text.as_ref())
+        format!("~{text}~")
     }
 
     fn spoiler<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        format!("|{text}|", text = text.as_ref())
+        format!("|{text}|")
     }
 
     fn blockquote<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        text.as_ref()
+        text.to_string()
             .lines()
             .map(|line| format!(">{line}"))
             .collect::<Vec<_>>()
@@ -81,7 +82,7 @@ impl TextFormatter for Formatter {
 
     fn expandable_blockquote<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
         let mut text = self.blockquote(text);
         text.push_str("||");
@@ -91,64 +92,57 @@ impl TextFormatter for Formatter {
 
     fn text_link<T, U>(&self, text: T, url: U) -> String
     where
-        T: AsRef<str>,
-        U: AsRef<str>,
+        T: Display,
+        U: Display,
     {
-        format!("[{text}]({url})", text = text.as_ref(), url = url.as_ref())
+        format!("[{text}]({url})")
     }
 
     fn text_mention<T>(&self, text: T, user_id: i64) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
         self.text_link(text, format!("tg://user?id={user_id}"))
     }
 
     fn custom_emoji<T, E>(&self, emoji: T, emoji_id: E) -> String
     where
-        T: AsRef<str>,
-        E: AsRef<str>,
+        T: Display,
+        E: Display,
     {
         format!(
             "!{}",
-            self.text_link(
-                emoji,
-                format!("tg://emoji?id={emoji_id}", emoji_id = emoji_id.as_ref()),
-            )
+            self.text_link(emoji, format!("tg://emoji?id={emoji_id}"),)
         )
     }
 
     fn code<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        format!("`{text}`", text = text.as_ref())
+        format!("`{text}`")
     }
 
     fn pre<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        format!("```\n{text}\n```", text = text.as_ref())
+        format!("```\n{text}\n```")
     }
 
     fn pre_language<T, L>(&self, text: T, language: L) -> String
     where
-        T: AsRef<str>,
-        L: AsRef<str>,
+        T: Display,
+        L: Display,
     {
-        format!(
-            "```{language}\n{text}\n```",
-            language = language.as_ref(),
-            text = text.as_ref()
-        )
+        format!("```{language}\n{text}\n```")
     }
 
     fn quote<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        let text = text.as_ref();
+        let text = text.to_string();
 
         text.chars()
             .fold(String::with_capacity(text.len()), |mut string, ch| {
@@ -162,9 +156,9 @@ impl TextFormatter for Formatter {
 
     fn apply_entity<T>(&self, text: T, entity: &MessageEntity) -> Result<String, FormatterErrorKind>
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        let text = text.as_ref();
+        let text = text.to_string();
         let text_len = text.len();
 
         if text_len == 0 {
@@ -228,59 +222,59 @@ impl TextFormatter for Formatter {
 
 pub const FORMATTER: Formatter = Formatter::new();
 
-pub fn bold(text: impl AsRef<str>) -> String {
+pub fn bold(text: impl Display) -> String {
     FORMATTER.bold(text)
 }
 
-pub fn italic(text: impl AsRef<str>) -> String {
+pub fn italic(text: impl Display) -> String {
     FORMATTER.italic(text)
 }
 
-pub fn underline(text: impl AsRef<str>) -> String {
+pub fn underline(text: impl Display) -> String {
     FORMATTER.underline(text)
 }
 
-pub fn strikethrough(text: impl AsRef<str>) -> String {
+pub fn strikethrough(text: impl Display) -> String {
     FORMATTER.strikethrough(text)
 }
 
-pub fn spoiler(text: impl AsRef<str>) -> String {
+pub fn spoiler(text: impl Display) -> String {
     FORMATTER.spoiler(text)
 }
 
-pub fn blockquote(text: impl AsRef<str>) -> String {
+pub fn blockquote(text: impl Display) -> String {
     FORMATTER.blockquote(text)
 }
 
-pub fn expandable_blockquote(text: impl AsRef<str>) -> String {
+pub fn expandable_blockquote(text: impl Display) -> String {
     FORMATTER.expandable_blockquote(text)
 }
 
-pub fn text_link(text: impl AsRef<str>, url: &str) -> String {
+pub fn text_link(text: impl Display, url: &str) -> String {
     FORMATTER.text_link(text, url)
 }
 
-pub fn text_mention(text: impl AsRef<str>, user_id: i64) -> String {
+pub fn text_mention(text: impl Display, user_id: i64) -> String {
     FORMATTER.text_mention(text, user_id)
 }
 
-pub fn custom_emoji(text: impl AsRef<str>, emoji_id: &str) -> String {
+pub fn custom_emoji(text: impl Display, emoji_id: &str) -> String {
     FORMATTER.custom_emoji(text, emoji_id)
 }
 
-pub fn code(text: impl AsRef<str>) -> String {
+pub fn code(text: impl Display) -> String {
     FORMATTER.code(text)
 }
 
-pub fn pre(text: impl AsRef<str>) -> String {
+pub fn pre(text: impl Display) -> String {
     FORMATTER.pre(text)
 }
 
-pub fn pre_language(text: impl AsRef<str>, language: &str) -> String {
+pub fn pre_language(text: impl Display, language: &str) -> String {
     FORMATTER.pre_language(text, language)
 }
 
-pub fn quote(text: impl AsRef<str>) -> String {
+pub fn quote(text: impl Display) -> String {
     FORMATTER.quote(text)
 }
 

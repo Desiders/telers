@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use super::{Formatter as TextFormatter, FormatterErrorKind};
 
 use crate::types::{
@@ -65,7 +67,6 @@ impl Formatter {
 }
 
 impl Default for Formatter {
-    #[must_use]
     fn default() -> Self {
         Self::new()
     }
@@ -74,142 +75,106 @@ impl Default for Formatter {
 impl TextFormatter for Formatter {
     fn bold<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        format!(
-            "<{tag}>{text}</{tag}>",
-            text = text.as_ref(),
-            tag = self.bold_tag
-        )
+        format!("<{tag}>{text}</{tag}>", tag = self.bold_tag)
     }
 
     fn italic<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        format!(
-            "<{tag}>{text}</{tag}>",
-            text = text.as_ref(),
-            tag = self.italic_tag
-        )
+        format!("<{tag}>{text}</{tag}>", tag = self.italic_tag)
     }
 
     fn underline<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        format!(
-            "<{tag}>{text}</{tag}>",
-            text = text.as_ref(),
-            tag = self.underline_tag
-        )
+        format!("<{tag}>{text}</{tag}>", tag = self.underline_tag)
     }
 
     fn strikethrough<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        format!(
-            "<{tag}>{text}</{tag}>",
-            text = text.as_ref(),
-            tag = self.strikethrough_tag
-        )
+        format!("<{tag}>{text}</{tag}>", tag = self.strikethrough_tag)
     }
 
     fn spoiler<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        format!(
-            "<{tag}>{text}</{tag}>",
-            text = text.as_ref(),
-            tag = self.spoiler_tag
-        )
+        format!("<{tag}>{text}</{tag}>", tag = self.spoiler_tag)
     }
 
     fn blockquote<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        format!("<blockquote>{text}</blockquote>", text = text.as_ref())
+        format!("<blockquote>{text}</blockquote>")
     }
 
     fn expandable_blockquote<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        format!(
-            "<blockquote expandable>{text}</blockquote>",
-            text = text.as_ref()
-        )
+        format!("<blockquote expandable>{text}</blockquote>")
     }
 
     fn text_link<T, U>(&self, text: T, url: U) -> String
     where
-        T: AsRef<str>,
-        U: AsRef<str>,
+        T: Display,
+        U: Display,
     {
-        format!(
-            "<a href=\"{url}\">{text}</a>",
-            url = url.as_ref(),
-            text = text.as_ref()
-        )
+        format!("<a href=\"{url}\">{text}</a>")
     }
 
     fn text_mention<T>(&self, text: T, user_id: i64) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        format!(
-            "<a href=\"tg://user?id={user_id}\">{text}</a>",
-            text = text.as_ref()
-        )
+        format!("<a href=\"tg://user?id={user_id}\">{text}</a>")
     }
 
     fn custom_emoji<T, E>(&self, text: T, emoji_id: E) -> String
     where
-        T: AsRef<str>,
-        E: AsRef<str>,
+        T: Display,
+        E: Display,
     {
         format!(
             "<{tag} data-emoji-id=\"{emoji_id}\">{text}</{tag}>",
-            text = text.as_ref(),
-            emoji_id = emoji_id.as_ref(),
             tag = self.emoji_tag,
         )
     }
 
     fn code<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        format!("<code>{text}</code>", text = text.as_ref())
+        format!("<code>{text}</code>")
     }
 
     fn pre<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        format!("<pre>{text}</pre>", text = text.as_ref())
+        format!("<pre>{text}</pre>")
     }
 
     fn pre_language<T, L>(&self, text: T, language: L) -> String
     where
-        T: AsRef<str>,
-        L: AsRef<str>,
+        T: Display,
+        L: Display,
     {
-        format!(
-            "<pre><code class=\"language-{language}\">{text}</code></pre>",
-            text = text.as_ref(),
-            language = language.as_ref()
-        )
+        format!("<pre><code class=\"language-{language}\">{text}</code></pre>")
     }
 
     fn quote<T>(&self, text: T) -> String
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        let text = text.as_ref();
+        let text = text.to_string();
 
         text.chars()
             .fold(String::with_capacity(text.len()), |mut string, ch| {
@@ -225,9 +190,9 @@ impl TextFormatter for Formatter {
 
     fn apply_entity<T>(&self, text: T, entity: &MessageEntity) -> Result<String, FormatterErrorKind>
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        let text = text.as_ref();
+        let text = text.to_string();
         let text_len = text.len();
 
         if text_len == 0 {
@@ -291,59 +256,59 @@ impl TextFormatter for Formatter {
 
 pub const FORMATTER: Formatter = Formatter::new();
 
-pub fn bold(text: impl AsRef<str>) -> String {
+pub fn bold(text: impl Display) -> String {
     FORMATTER.bold(text)
 }
 
-pub fn italic(text: impl AsRef<str>) -> String {
+pub fn italic(text: impl Display) -> String {
     FORMATTER.italic(text)
 }
 
-pub fn underline(text: impl AsRef<str>) -> String {
+pub fn underline(text: impl Display) -> String {
     FORMATTER.underline(text)
 }
 
-pub fn strikethrough(text: impl AsRef<str>) -> String {
+pub fn strikethrough(text: impl Display) -> String {
     FORMATTER.strikethrough(text)
 }
 
-pub fn spoiler(text: impl AsRef<str>) -> String {
+pub fn spoiler(text: impl Display) -> String {
     FORMATTER.spoiler(text)
 }
 
-pub fn blockquote(text: impl AsRef<str>) -> String {
+pub fn blockquote(text: impl Display) -> String {
     FORMATTER.blockquote(text)
 }
 
-pub fn expandable_blockquote(text: impl AsRef<str>) -> String {
+pub fn expandable_blockquote(text: impl Display) -> String {
     FORMATTER.expandable_blockquote(text)
 }
 
-pub fn text_link(text: impl AsRef<str>, url: impl AsRef<str>) -> String {
+pub fn text_link(text: impl Display, url: impl Display) -> String {
     FORMATTER.text_link(text, url)
 }
 
-pub fn text_mention(text: impl AsRef<str>, user_id: i64) -> String {
+pub fn text_mention(text: impl Display, user_id: i64) -> String {
     FORMATTER.text_mention(text, user_id)
 }
 
-pub fn custom_emoji(text: impl AsRef<str>, emoji_id: impl AsRef<str>) -> String {
+pub fn custom_emoji(text: impl Display, emoji_id: impl Display) -> String {
     FORMATTER.custom_emoji(text, emoji_id)
 }
 
-pub fn code(text: impl AsRef<str>) -> String {
+pub fn code(text: impl Display) -> String {
     FORMATTER.code(text)
 }
 
-pub fn pre(text: impl AsRef<str>) -> String {
+pub fn pre(text: impl Display) -> String {
     FORMATTER.pre(text)
 }
 
-pub fn pre_language(text: impl AsRef<str>, language: impl AsRef<str>) -> String {
+pub fn pre_language(text: impl Display, language: impl Display) -> String {
     FORMATTER.pre_language(text, language)
 }
 
-pub fn quote(text: impl AsRef<str>) -> String {
+pub fn quote(text: impl Display) -> String {
     FORMATTER.quote(text)
 }
 
