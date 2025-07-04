@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use super::{Formatter, FormatterErrorKind};
 
 use crate::types::{MessageEntity, User};
@@ -25,8 +27,8 @@ where
 
     /// Add text without formatting.
     #[must_use]
-    pub fn text(mut self, text: impl AsRef<str>) -> Self {
-        self.text.push_str(text.as_ref());
+    pub fn text(mut self, text: impl Display) -> Self {
+        self.text.push_str(text.to_string().as_ref());
         self
     }
 
@@ -34,16 +36,17 @@ where
     #[must_use]
     pub fn texts<T, I>(mut self, texts: I) -> Self
     where
-        I: AsRef<[T]>,
-        T: AsRef<str>,
+        String: Extend<T>,
+        I: IntoIterator<Item = T>,
+        T: Display,
     {
-        self.text.extend(texts.as_ref().iter().map(AsRef::as_ref));
+        self.text.extend(texts);
         self
     }
 
     /// Add quote text without formatting.
     #[must_use]
-    pub fn quote(mut self, text: impl AsRef<str>) -> Self {
+    pub fn quote(mut self, text: impl Display) -> Self {
         self.text.push_str(self.formatter.quote(text).as_str());
         self
     }
@@ -53,13 +56,13 @@ where
     pub fn quotes<T, I>(mut self, texts: I) -> Self
     where
         I: IntoIterator<Item = T>,
-        T: AsRef<str>,
+        T: Display,
     {
         self.text.extend(
             texts
                 .into_iter()
                 .map(|text| self.formatter.quote(text))
-                .collect::<Vec<_>>()
+                .collect::<Box<[_]>>()
                 .iter()
                 .map(String::as_str),
         );

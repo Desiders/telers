@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::types::{MessageEntity, MessageEntityKind};
 
 #[derive(Debug, thiserror::Error)]
@@ -24,75 +26,75 @@ pub trait Formatter {
     #[must_use]
     fn bold<T>(&self, text: T) -> String
     where
-        T: AsRef<str>;
+        T: Display;
 
     #[must_use]
     fn italic<T>(&self, text: T) -> String
     where
-        T: AsRef<str>;
+        T: Display;
 
     #[must_use]
     fn code<C>(&self, code: C) -> String
     where
-        C: AsRef<str>;
+        C: Display;
 
     #[must_use]
     fn underline<T>(&self, text: T) -> String
     where
-        T: AsRef<str>;
+        T: Display;
 
     #[must_use]
     fn strikethrough<T>(&self, text: T) -> String
     where
-        T: AsRef<str>;
+        T: Display;
 
     #[must_use]
     fn spoiler<T>(&self, text: T) -> String
     where
-        T: AsRef<str>;
+        T: Display;
 
     #[must_use]
     fn blockquote<T>(&self, text: T) -> String
     where
-        T: AsRef<str>;
+        T: Display;
 
     #[must_use]
     fn expandable_blockquote<T>(&self, text: T) -> String
     where
-        T: AsRef<str>;
+        T: Display;
 
     #[must_use]
     fn text_link<T, U>(&self, text: T, url: U) -> String
     where
-        T: AsRef<str>,
-        U: AsRef<str>;
+        T: Display,
+        U: Display;
 
     #[must_use]
     fn text_mention<T>(&self, text: T, user_id: i64) -> String
     where
-        T: AsRef<str>;
+        T: Display;
 
     #[must_use]
     fn custom_emoji<T, E>(&self, emoji: T, emoji_id: E) -> String
     where
-        T: AsRef<str>,
-        E: AsRef<str>;
+        T: Display,
+        E: Display;
 
     #[must_use]
     fn pre<C>(&self, code: C) -> String
     where
-        C: AsRef<str>;
+        C: Display;
 
     #[must_use]
     fn pre_language<C, L>(&self, code: C, language: L) -> String
     where
-        C: AsRef<str>,
-        L: AsRef<str>;
+        C: Display,
+        L: Display;
 
     #[must_use]
     fn quote<T>(&self, text: T) -> String
     where
-        T: AsRef<str>;
+        T: Display;
 
     /// Apply the [`MessageEntity`] to the given text with offset and length.
     /// # Notes
@@ -104,7 +106,7 @@ pub trait Formatter {
     /// - If the given entity offset+length is out of bounds, then the [`ErrorKind::IndexOutOfBounds`] will be returned.
     fn apply_entity<T>(&self, text: T, entity: &MessageEntity) -> Result<String, ErrorKind>
     where
-        T: AsRef<str>;
+        T: Display;
 
     /// Apply the [`MessageEntityKind`] to the whole given text.
     /// # Notes
@@ -123,9 +125,9 @@ pub trait Formatter {
         entity_kind: MessageEntityKind,
     ) -> Result<String, ErrorKind>
     where
-        T: AsRef<str>,
+        T: Display,
     {
-        let text = text.as_ref();
+        let text = text.to_string();
         let text_len = text.len();
 
         if text_len == 0 {
@@ -148,18 +150,16 @@ mod tests {
     impl Formatter for TestFormatter {
         fn bold<T>(&self, text: T) -> String
         where
-            T: AsRef<str>,
+            T: Display,
         {
-            let text = text.as_ref();
-
             format!("**{text}**")
         }
 
         fn apply_entity<T>(&self, text: T, entity: &MessageEntity) -> Result<String, ErrorKind>
         where
-            T: AsRef<str>,
+            T: Display,
         {
-            let text = text.as_ref();
+            let text = text.to_string();
             let text_len = text.len();
 
             if text_len == 0 {
@@ -188,94 +188,94 @@ mod tests {
 
         fn italic<T>(&self, _text: T) -> String
         where
-            T: AsRef<str>,
+            T: Display,
         {
             todo!()
         }
 
         fn code<C>(&self, _code: C) -> String
         where
-            C: AsRef<str>,
+            C: Display,
         {
             todo!()
         }
 
         fn underline<T>(&self, _text: T) -> String
         where
-            T: AsRef<str>,
+            T: Display,
         {
             todo!()
         }
 
         fn strikethrough<T>(&self, _text: T) -> String
         where
-            T: AsRef<str>,
+            T: Display,
         {
             todo!()
         }
 
         fn spoiler<T>(&self, _text: T) -> String
         where
-            T: AsRef<str>,
+            T: Display,
         {
             todo!()
         }
 
         fn blockquote<T>(&self, _text: T) -> String
         where
-            T: AsRef<str>,
+            T: Display,
         {
             todo!()
         }
 
         fn expandable_blockquote<T>(&self, _text: T) -> String
         where
-            T: AsRef<str>,
+            T: Display,
         {
             todo!()
         }
 
         fn text_link<T, U>(&self, _text: T, _url: U) -> String
         where
-            T: AsRef<str>,
-            U: AsRef<str>,
+            T: Display,
+            U: Display,
         {
             todo!()
         }
 
         fn text_mention<T>(&self, _text: T, _user_id: i64) -> String
         where
-            T: AsRef<str>,
+            T: Display,
         {
             todo!()
         }
 
         fn custom_emoji<T, E>(&self, _emoji: T, _emoji_id: E) -> String
         where
-            T: AsRef<str>,
-            E: AsRef<str>,
+            T: Display,
+            E: Display,
         {
             todo!()
         }
 
         fn pre<C>(&self, _code: C) -> String
         where
-            C: AsRef<str>,
+            C: Display,
         {
             todo!()
         }
 
         fn pre_language<C, L>(&self, _code: C, _language: L) -> String
         where
-            C: AsRef<str>,
-            L: AsRef<str>,
+            C: Display,
+            L: Display,
         {
             todo!()
         }
 
         fn quote<T>(&self, _text: T) -> String
         where
-            T: AsRef<str>,
+            T: Display,
         {
             todo!()
         }
