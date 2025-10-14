@@ -1,9 +1,7 @@
 use super::{Error, Storage, StorageKey};
 
-use async_trait::async_trait;
 use serde::{de::DeserializeOwned, Serialize};
 use std::{
-    borrow::Cow,
     collections::{hash_map::Entry, HashMap},
     sync::Arc,
 };
@@ -12,8 +10,8 @@ use tracing::{event, instrument, Level, Span};
 
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 struct Record {
-    states: Vec<Cow<'static, str>>,
-    data: HashMap<Cow<'static, str>, Box<str>>,
+    states: Vec<Box<str>>,
+    data: HashMap<Box<str>, Box<str>>,
 }
 
 /// This is a simple thread-safe in-memory storage implementation used for testing purposes usually
@@ -38,7 +36,6 @@ impl Memory {
     }
 }
 
-#[async_trait]
 impl Storage for Memory {
     type Error = Error;
 
@@ -46,17 +43,20 @@ impl Storage for Memory {
     /// # Arguments
     /// * `key` - Specified key to set state
     /// * `state` - State for specified key
-    async fn set_state<State>(&self, key: &StorageKey, state: State) -> Result<(), Self::Error>
+    async fn set_state<S>(&self, key: &StorageKey, state: S) -> Result<(), Self::Error>
     where
-        State: Into<Cow<'static, str>> + Send,
+        S: AsRef<str> + Send,
     {
         match self.storage.lock().await.entry(key.clone()) {
             Entry::Occupied(mut entry) => {
-                entry.get_mut().states.push(state.into());
+                entry
+                    .get_mut()
+                    .states
+                    .push(state.as_ref().to_owned().into_boxed_str());
             }
             Entry::Vacant(entry) => {
                 entry.insert(Record {
-                    states: vec![state.into()],
+                    states: vec![state.as_ref().to_owned().into_boxed_str()],
                     data: HashMap::default(),
                 });
             }
@@ -150,7 +150,7 @@ impl Storage for Memory {
     ) -> Result<(), Self::Error>
     where
         Value: Serialize + Send,
-        Key: Serialize + Into<Cow<'static, str>> + Send,
+        Key: AsRef<str> + Send,
     {
         let data_len = data.len();
 
@@ -166,7 +166,7 @@ impl Storage for Memory {
 
                 for (value_key, value) in data {
                     new_data.insert(
-                        value_key.into(),
+                        value_key.as_ref().to_owned().into_boxed_str(),
                         serde_json::to_string(&value)
                             .map_err(|err| {
                                 event!(Level::ERROR, "Failed to serialize value");
@@ -195,7 +195,7 @@ impl Storage for Memory {
 
                 for (value_key, value) in data {
                     new_data.insert(
-                        value_key.into(),
+                        value_key.as_ref().to_owned().into_boxed_str(),
                         serde_json::to_string(&value)
                             .map_err(|err| {
                                 event!(Level::ERROR, "Failed to serialize value");
@@ -232,16 +232,14 @@ impl Storage for Memory {
     ) -> Result<(), Self::Error>
     where
         Value: Serialize + Send,
-        Key: Serialize + Into<Cow<'static, str>> + Send,
+        Key: AsRef<str> + Send,
     {
-        let value_key = value_key.into();
-
         Span::current().record("value_key", value_key.as_ref());
 
         match self.storage.lock().await.entry(key.clone()) {
             Entry::Occupied(mut entry) => {
                 entry.get_mut().data.insert(
-                    value_key,
+                    value_key.as_ref().to_owned().into_boxed_str(),
                     serde_json::to_string(&value)
                         .map_err(|err| {
                             event!(Level::ERROR, "Failed to serialize value");
@@ -257,25 +255,19 @@ impl Storage for Memory {
             Entry::Vacant(entry) => {
                 entry.insert(Record {
                     states: vec![],
-                    data: {
-                        let mut new_data = HashMap::with_capacity(1);
-                        new_data.insert(
-                            value_key,
-                            serde_json::to_string(&value)
-                                .map_err(|err| {
-                                    event!(Level::ERROR, "Failed to serialize value");
+                    data: HashMap::from_iter(Some((
+                        value_key.as_ref().to_owned().into_boxed_str(),
+                        serde_json::to_string(&value)
+                            .map_err(|err| {
+                                event!(Level::ERROR, "Failed to serialize value");
 
-                                    Error::new(
-                                        format!(
-                                            "Failed to serialize value. Storage key: `{key:?}`"
-                                        ),
-                                        err,
-                                    )
-                                })?
-                                .into(),
-                        );
-                        new_data
-                    },
+                                Error::new(
+                                    format!("Failed to serialize value. Storage key: `{key:?}`"),
+                                    err,
+                                )
+                            })?
+                            .into(),
+                    ))),
                 });
             }
         }
@@ -334,23 +326,27 @@ impl Storage for Memory {
     ) -> Result<Option<Value>, Self::Error>
     where
         Value: DeserializeOwned,
-        Key: Into<Cow<'static, str>> + Send,
+        Key: AsRef<str> + Send,
     {
-        let value_key = value_key.into();
-
         Span::current().record("value_key", value_key.as_ref());
 
         match self.storage.lock().await.entry(key.clone()) {
-            Entry::Occupied(entry) => entry.get().data.get(&value_key).map_or(Ok(None), |value| {
-                Ok(Some(serde_json::from_str(value).map_err(|err| {
-                    event!(Level::ERROR, "Failed to deserialize value");
+            Entry::Occupied(entry) => {
+                entry
+                    .get()
+                    .data
+                    .get(value_key.as_ref())
+                    .map_or(Ok(None), |value| {
+                        Ok(Some(serde_json::from_str(value).map_err(|err| {
+                            event!(Level::ERROR, "Failed to deserialize value");
 
-                    Error::new(
-                        format!("Failed to deserialize value. Storage key: `{key:?}`"),
-                        err,
-                    )
-                })?))
-            }),
+                            Error::new(
+                                format!("Failed to deserialize value. Storage key: `{key:?}`"),
+                                err,
+                            )
+                        })?))
+                    })
+            }
             Entry::Vacant(_) => Ok(None),
         }
     }

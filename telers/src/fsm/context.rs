@@ -3,7 +3,7 @@ use super::{Storage, StorageKey};
 use crate::FromContext;
 
 use serde::{de::DeserializeOwned, Serialize};
-use std::{borrow::Cow, collections::HashMap};
+use std::collections::HashMap;
 
 /// Context is used to manage state and data of the user in specified storage
 #[derive(FromContext)]
@@ -46,7 +46,7 @@ where
     /// If storage error occurs, when set state
     pub async fn set_state<State>(&self, state: State) -> Result<(), S::Error>
     where
-        State: Into<Cow<'static, str>> + Send,
+        State: AsRef<str> + Send,
     {
         self.storage.set_state(&self.key, state).await
     }
@@ -103,7 +103,7 @@ where
     pub async fn set_data<Key, Data>(&self, data: HashMap<Key, Data>) -> Result<(), S::Error>
     where
         Data: Serialize + Send,
-        Key: Serialize + Into<Cow<'static, str>> + Send,
+        Key: AsRef<str> + Send,
     {
         self.storage.set_data(&self.key, data).await
     }
@@ -117,7 +117,7 @@ where
     pub async fn set_value<Key, Value>(&self, value_key: Key, value: Value) -> Result<(), S::Error>
     where
         Value: Serialize + Send,
-        Key: Serialize + Into<Cow<'static, str>> + Send,
+        Key: AsRef<str> + Send,
     {
         self.storage.set_value(&self.key, value_key, value).await
     }
@@ -144,7 +144,7 @@ where
     pub async fn get_value<Key, Value>(&self, value_key: Key) -> Result<Option<Value>, S::Error>
     where
         Value: DeserializeOwned,
-        Key: Into<Cow<'static, str>> + Send,
+        Key: AsRef<str> + Send,
     {
         self.storage.get_value(&self.key, value_key).await
     }
