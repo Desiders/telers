@@ -158,7 +158,7 @@ where
         let mut handler = handler.clone();
 
         async move {
-            match Args::extract(&request) {
+            match Args::extract(&request).await {
                 Ok(args) => Ok(Response {
                     request,
                     handler_result: match handler.call(args).await {
@@ -197,7 +197,7 @@ where
         let mut service = service.clone();
 
         async move {
-            match Args::extract(&request) {
+            match Args::extract(&request).await {
                 Ok(args) => Ok(Response {
                     request,
                     handler_result: {

@@ -97,8 +97,11 @@ struct DataCombined(NumData, StrData);
 impl Extractor for DataCombined {
     type Error = ExtractionError;
 
-    fn extract(request: &Request) -> Result<Self, Self::Error> {
-        Ok(Self(NumData::extract(request)?, StrData::extract(request)?))
+    async fn extract(request: &Request) -> Result<Self, Self::Error> {
+        Ok(Self(
+            NumData::extract(request).await?,
+            StrData::extract(request).await?,
+        ))
     }
 }
 
@@ -108,7 +111,7 @@ struct BotId(i64);
 impl Extractor for BotId {
     type Error = Infallible;
 
-    fn extract(request: &Request) -> Result<Self, Self::Error> {
+    async fn extract(request: &Request) -> Result<Self, Self::Error> {
         Ok(Self(request.bot.id))
     }
 }
