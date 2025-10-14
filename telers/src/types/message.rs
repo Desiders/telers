@@ -3350,7 +3350,6 @@ impl Message {
 }
 
 impl Default for Message {
-    #[must_use]
     fn default() -> Self {
         Message::Text(Box::default())
     }

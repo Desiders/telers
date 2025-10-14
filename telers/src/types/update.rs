@@ -287,14 +287,12 @@ impl Kind {
 }
 
 impl Default for Kind {
-    #[must_use]
     fn default() -> Self {
         Self::Message(Message::default())
     }
 }
 
 impl From<Update> for Kind {
-    #[must_use]
     fn from(update: Update) -> Self {
         update.kind
     }

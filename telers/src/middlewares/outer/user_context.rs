@@ -1,7 +1,6 @@
 use super::{Middleware, MiddlewareResponse};
 use crate::{errors::EventErrorKind, event::EventReturn, Request};
 
-use async_trait::async_trait;
 use tracing::instrument;
 
 /// Middleware for adding [`crate::types::User`] and [`crate::types::Chat`] to context,
@@ -16,7 +15,6 @@ impl UserContext {
     }
 }
 
-#[async_trait]
 impl<Client> Middleware<Client> for UserContext
 where
     Client: Send + Sync + 'static,

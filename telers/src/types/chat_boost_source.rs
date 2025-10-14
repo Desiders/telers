@@ -17,21 +17,18 @@ pub enum ChatBoostSource {
 }
 
 impl From<ChatBoostSourcePremium> for ChatBoostSource {
-    #[must_use]
     fn from(source: ChatBoostSourcePremium) -> Self {
         Self::Premium(source)
     }
 }
 
 impl From<ChatBoostSourceGiftCode> for ChatBoostSource {
-    #[must_use]
     fn from(source: ChatBoostSourceGiftCode) -> Self {
         Self::GiftCode(source)
     }
 }
 
 impl From<ChatBoostSourceGiveaway> for ChatBoostSource {
-    #[must_use]
     fn from(source: ChatBoostSourceGiveaway) -> Self {
         Self::Giveaway(source)
     }

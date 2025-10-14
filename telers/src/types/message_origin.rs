@@ -23,7 +23,6 @@ pub enum MessageOrigin {
 }
 
 impl Default for MessageOrigin {
-    #[must_use]
     fn default() -> Self {
         Self::User(MessageOriginUser::default())
     }

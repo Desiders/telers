@@ -140,7 +140,6 @@ impl Chat {
 }
 
 impl Default for Chat {
-    #[must_use]
     fn default() -> Self {
         Self::Private(Box::default())
     }

@@ -181,7 +181,6 @@ impl APIServer {
 }
 
 impl Default for APIServer {
-    #[must_use]
     fn default() -> Self {
         Self::new(
             "https://api.telegram.org/bot{token}/{method_name}",

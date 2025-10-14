@@ -122,7 +122,6 @@ where
     Propagator: Default,
 {
     /// Creates a new dispatcher builder with default values
-    #[must_use]
     fn default() -> Self {
         Self {
             propagator: Propagator::default(),
