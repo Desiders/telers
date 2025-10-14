@@ -1,6 +1,6 @@
 [package]
 name = "telers-macros"
-version = "1.0.0-alpha.3"
+version = "1.0.0-alpha.4"
 edition = "2021"
 description = "Macros for telers"
 rust-version = "1.61.0"
