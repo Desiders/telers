@@ -4,32 +4,32 @@ use std::fmt::{self, Display};
 ///
 /// # Variants
 /// * [`Strategy::UserInChat`] - `user_id` + `chat_id`.\
-///     If you use `UserInChat` strategy, you have possible to store different state for user+chat pairs,
-///     so each user in each chat will have its own state.
+///   If you use `UserInChat` strategy, you have possible to store different state for user+chat pairs,
+///   so each user in each chat will have its own state.
 /// * [`Strategy::Chat`] - `chat_id` + `chat_id`.\
-///     If you use `Chat` strategy, then all users in the chat will have the same state.
+///   If you use `Chat` strategy, then all users in the chat will have the same state.
 /// * [`Strategy::GlobalUser`] - `user_id` + `user_id`.\
-///     If you use `GlobalUser` strategy, then the user will have the same state in all chats,
-///     so each user will have its own state in all chats.
+///   If you use `GlobalUser` strategy, then the user will have the same state in all chats,
+///   so each user will have its own state in all chats.
 /// * [`Strategy::UserInThread`] - `user_id` + `chat_id` + `message_thread_id`.\
-///     If you use `UserInThread` strategy, you have possible to store different state for user+chat+thread pairs,
-///     so each user in each thread in each chat will have its own state.
+///   If you use `UserInThread` strategy, you have possible to store different state for user+chat+thread pairs,
+///   so each user in each thread in each chat will have its own state.
 /// * [`Strategy::ChatThread`] - `chat_id` + `chat_id` + `message_thread_id`.\
-///     If you use `ChatThread` strategy, you have possible to store different state for chat+thread pairs,
-///     so each thread in each chat will have its own state.
+///   If you use `ChatThread` strategy, you have possible to store different state for chat+thread pairs,
+///   so each thread in each chat will have its own state.
 ///
 /// If you need to have different states for business connections, you can use strategies with `business_connection_id` field.\
 /// Strategies with `business_connection_id` field:
 /// * [`Strategy::UserInChatAndConnection`] - `user_id` + `chat_id` + `business_connection_id`.\
-///     Identical to `UserInChat`, but with an additional `business_connection_id` field.
+///   Identical to `UserInChat`, but with an additional `business_connection_id` field.
 /// * [`Strategy::ChatAndConnection`] - `chat_id` + `chat_id` + `business_connection_id`.\
-///     Identical to `Chat`, but with an additional `business_connection_id` field.
+///   Identical to `Chat`, but with an additional `business_connection_id` field.
 /// * [`Strategy::GlobalUserAndConnection`] - `user_id` + `user_id` + `business_connection_id`.\
-///     Identical to `GlobalUser`, but with an additional `business_connection_id` field.
+///   Identical to `GlobalUser`, but with an additional `business_connection_id` field.
 /// * [`Strategy::UserInThreadAndConnection`] - `user_id` + `chat_id` + `message_thread_id` + `business_connection_id`.\
-///     Identical to `UserInThread`, but with an additional `business_connection_id` field.
+///   Identical to `UserInThread`, but with an additional `business_connection_id` field.
 /// * [`Strategy::ChatThreadAndConnection`] - `chat_id` + `chat_id` + `message_thread_id` + `business_connection_id`.\
-///     Identical to `ChatThread`, but with an additional `business_connection_id` field.
+///   Identical to `ChatThread`, but with an additional `business_connection_id` field.
 ///
 /// # Notes
 /// In case of direct messages, `chat_id` and `user_id` will be equal, so all strategies will work the same way.
@@ -65,7 +65,6 @@ impl Display for Strategy {
 }
 
 impl Default for Strategy {
-    #[must_use]
     fn default() -> Self {
         Self::UserInChat
     }

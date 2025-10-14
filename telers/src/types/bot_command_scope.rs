@@ -66,7 +66,6 @@ impl BotCommandScope {
 }
 
 impl Default for BotCommandScope {
-    #[must_use]
     fn default() -> Self {
         Self::default()
     }

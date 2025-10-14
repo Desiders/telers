@@ -7,7 +7,6 @@ use crate::{
     FromContext, Request,
 };
 
-use async_trait::async_trait;
 use regex::Regex;
 use std::{borrow::Cow, iter::once};
 use tracing::{event, instrument, Level};
@@ -16,11 +15,11 @@ use tracing::{event, instrument, Level};
 /// # Variants
 /// * [`PatternType::Text(Cow<str>)`] - A command pattern with text
 /// * [`PatternType::Object(BotCommand)`] -
-///     A command pattern with [`BotCommand`] object. \
-///     Just a shortcut for [`PatternType::Text(command.command)`].
+///   A command pattern with [`BotCommand`] object. \
+///   Just a shortcut for [`PatternType::Text(command.command)`].
 /// * [`PatternType::Regex(Regex)`] -
-///     A command pattern with regex, compiled with [`Regex`] struct. \
-///     If filter used with `ignore_case` flag, then the regex will be compiled with `(?i)` flag (ignore case sensitive flag).
+///   A command pattern with regex, compiled with [`Regex`] struct. \
+///   If filter used with `ignore_case` flag, then the regex will be compiled with `(?i)` flag (ignore case sensitive flag).
 #[derive(Debug, Clone)]
 pub enum PatternType {
     Text(Cow<'static, str>),
@@ -186,7 +185,6 @@ impl Command {
 }
 
 impl Default for Command {
-    #[must_use]
     fn default() -> Self {
         Self {
             commands: vec![],
@@ -271,7 +269,6 @@ impl Builder {
 }
 
 impl Default for Builder {
-    #[must_use]
     fn default() -> Self {
         Self {
             commands: vec![],
@@ -417,7 +414,6 @@ impl CommandObject {
     }
 }
 
-#[async_trait]
 impl<Client> Filter<Client> for Command
 where
     Client: Session + 'static,

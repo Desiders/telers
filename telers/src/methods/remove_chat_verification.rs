@@ -29,7 +29,6 @@ impl RemoveChatVerification {
     pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
         Self {
             chat_id: val.into(),
-            ..self
         }
     }
 }

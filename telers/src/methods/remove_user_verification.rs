@@ -25,10 +25,7 @@ impl RemoveUserVerification {
 
     #[must_use]
     pub fn user_id(self, val: i64) -> Self {
-        Self {
-            user_id: val,
-            ..self
-        }
+        Self { user_id: val }
     }
 }
 

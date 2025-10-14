@@ -1,17 +1,16 @@
 use super::base::Filter;
 use crate::Request;
 
-use async_trait::async_trait;
 use regex::Regex;
 use std::borrow::Cow;
 
 /// Represents a command pattern type for verification
 /// # Variants
 /// * [`PatternType::Text(Cow<str>)`]:
-///     A command pattern with text
+///   A command pattern with text
 /// * [`PatternType::Regex(Regex)`]:
-///     A command pattern with regex, compiled with [`Regex`] struct. \
-///     If filter used with `ignore_case` flag, then the regex will be compiled with `(?i)` flag (ignore case sensitive flag).
+///   A command pattern with regex, compiled with [`Regex`] struct. \
+///   If filter used with `ignore_case` flag, then the regex will be compiled with `(?i)` flag (ignore case sensitive flag).
 #[derive(Debug, Clone)]
 pub enum PatternType {
     Text(Cow<'static, str>),
@@ -57,13 +56,13 @@ impl Text {
     /// Creates a new [`Text`] filter
     /// # Arguments
     /// * `texts` -
-    ///     List of texts or compiled [`Regex`] patterns that must be equal to the text
+    ///   List of texts or compiled [`Regex`] patterns that must be equal to the text
     /// * `contains` -
-    ///     List of texts that must be contained in the text
+    ///   List of texts that must be contained in the text
     /// * `starts_with` -
-    ///     List of texts that must be at the beginning of the text
+    ///   List of texts that must be at the beginning of the text
     /// * `ends_with` -
-    ///     List of texts that must be at the end of the text
+    ///   List of texts that must be at the end of the text
     /// # Panics
     /// If `ignore_case` is `true` and [`Regex`] can't be compiled with `(?i)` flag (ignore case sensitive flag)
     pub fn new<T, I1, C, I2, S, I3, E, I4>(
@@ -381,7 +380,6 @@ impl Text {
     }
 }
 
-#[async_trait]
 impl<Client> Filter<Client> for Text
 where
     Client: Send + Sync + 'static,

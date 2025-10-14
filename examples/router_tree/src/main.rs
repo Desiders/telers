@@ -9,13 +9,12 @@
 //! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package router_tree
 //! ```
 
-use async_trait::async_trait;
 use std::sync::{
     atomic::{AtomicUsize, Ordering},
     Arc,
 };
 use telers::{
-    enums::ChatType as ChatTypeEnum,
+    enums::ChatType::Private,
     errors::EventErrorKind,
     event::{telegram::HandlerResult, EventReturn},
     filters::{ChatType, Command},
@@ -33,7 +32,6 @@ struct IncomingEchoRouterUpdates {
     counter: Arc<AtomicUsize>,
 }
 
-#[async_trait]
 impl OuterMiddleware for IncomingEchoRouterUpdates {
     async fn call(&mut self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
         event!(Level::INFO, "Incoming echo router update");
@@ -98,9 +96,7 @@ async fn main() {
     // This router will handle all private messages
     let mut private_router = Router::new("private");
     // Register filter for all private messages
-    private_router
-        .message
-        .filter(ChatType::one(ChatTypeEnum::Private));
+    private_router.message.filter(ChatType::one(Private));
     // Register handler for private messages, which will send a greeting message
     private_router
         .message

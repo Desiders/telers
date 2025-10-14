@@ -212,8 +212,8 @@ impl ToTokens for Client {
 /// * `ident_where_clause` - where clause of `ident` type
 /// * `client` - client type
 /// * `context_attrs` - context attributes. \
-///     If `into` field is not empty, then we need to implement the trait for `into` type and require `Into<Self>` trait for `ident` type. \
-///     If `from` field is not empty, then we need to implement the trait for `ident` type and require `From<Self>` trait for `into` type.
+///   If `into` field is not empty, then we need to implement the trait for `into` type and require `Into<Self>` trait for `ident` type. \
+///   If `from` field is not empty, then we need to implement the trait for `ident` type and require `From<Self>` trait for `into` type.
 /// # Notes
 /// * Currently we can implement `Extractor` trait for types that implement `Into<Self>` or `From<Self>` traits only with the same generics.
 #[allow(clippy::too_many_lines)]
@@ -263,27 +263,27 @@ fn impl_from_event_and_context(
             where
                 #where_clause_punctuated
                 // `Into<#ident #ty_generics_punctuated>` is required to be able to convert context value to `into` type
-                #ident #ty_generics_punctuated: ::std::clone::Clone + ::std::convert::Into<Self> + 'static
+                #ident #ty_generics_punctuated: ::std::clone::Clone + ::std::convert::Into<Self> + Send + 'static
             {
                 type Error = ::telers::errors::ExtractionError;
 
                 #[inline]
-                fn extract(request: &::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
+                fn extract(request: &::telers::Request<#client_ty_generic>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
                     use ::telers::errors::ExtractionError as Error;
 
-                    let Some(value) = request.context.get::<#ident #ty_generics_punctuated>(#key_str) else {
-                        return Err(Error::new(concat!(
+                    let res = match request.context.get::<#ident #ty_generics_punctuated>(#key_str) {
+                        Some(value) => Ok((*value).clone().into()),
+                        None => Err(Error::new(concat!(
                             "No found data in context by key `", #key_str, "` or value has wrong type expected `", stringify!(#ident), "`. ",
                             "You didn't forget to add type to context? ",
                             "Type description: ", #description_str,
-                        )));
+                        ))),
                     };
-
-                    Ok((*value).clone().into())
+                    async move { res }
                 }
             }
         };
-    };
+    }
 
     // If `from` field is not empty, then we need to implement the trait for `ident` type and require `From<Self>` trait for `into` type
     if let Some(ref from) = context_attrs.from {
@@ -293,50 +293,50 @@ fn impl_from_event_and_context(
             where
                 #where_clause_punctuated
                 // `Into<#from #ty_generics_punctuated>` is required to be able to convert context value to `ident` type
-                #from #ty_generics_punctuated: ::std::clone::Clone + ::std::convert::Into<Self> + 'static
+                #from #ty_generics_punctuated: ::std::clone::Clone + ::std::convert::Into<Self> + Send + 'static
             {
                 type Error = ::telers::errors::ExtractionError;
 
                 #[inline]
-                fn extract(request: &::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
+                fn extract(request: &::telers::Request<#client_ty_generic>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
                     use ::telers::errors::ExtractionError as Error;
 
-                    let Some(value) = request.context.get::<#from #ty_generics_punctuated>(#key_str) else {
-                        return Err(Error::new(concat!(
+                    let res = match request.context.get::<#from #ty_generics_punctuated>(#key_str) {
+                        Some(value) => Ok((*value).clone().into()),
+                        None => Err(Error::new(concat!(
                             "No found data in context by key `", #key_str, "` or value has wrong type expected `", stringify!(#from), "`. ",
                             "You didn't forget to add type to context? ",
                             "Type description: ", #description_str,
-                        )));
+                        ))),
                     };
-
-                    Ok((*value).clone().into())
+                    async move { res }
                 }
             }
         };
-    };
+    }
 
     quote_spanned! { ident.span() =>
         #[automatically_derived]
         impl <#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
         where
             #where_clause_punctuated
-            #ident #ty_generics_punctuated: ::std::clone::Clone + 'static
+            #ident #ty_generics_punctuated: ::std::clone::Clone + Send + 'static
         {
             type Error = ::telers::errors::ExtractionError;
 
             #[inline]
-            fn extract(request: &::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
+            fn extract(request: &::telers::Request<#client_ty_generic>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
                 use ::telers::errors::ExtractionError as Error;
 
-                let Some(value) = request.context.get::<#ident #ty_generics_punctuated>(#key_str) else {
-                    return Err(Error::new(concat!(
+                let res = match request.context.get::<#ident #ty_generics_punctuated>(#key_str) {
+                    Some(value) => Ok((*value).clone()),
+                    None => Err(Error::new(concat!(
                         "No found data in context by key `", #key_str, "` or value has wrong type expected `", stringify!(#ident), "`. ",
                         "You didn't forget to add type to context? ",
                         "Type description: ", #description_str,
-                    )));
+                    ))),
                 };
-
-                Ok((*value).clone())
+                async move { res }
             }
         }
     }

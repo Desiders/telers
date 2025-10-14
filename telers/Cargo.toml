@@ -8,9 +8,8 @@ license = "MIT OR Apache-2.0"
 keywords = ["bot", "telegram", "telegram-bot", "telegram-bot-api", "telers"]
 categories = ["web-programming", "api-bindings", "asynchronous"]
 
-# - `1.75.0` with `redis` feature
 # - `1.81.0` without `std` feature
-rust-version = "1.71.1"
+rust-version = "1.77.2"
 
 [features]
 default = ["default-tls", "std"]
@@ -23,7 +22,7 @@ rustls-tls = ["reqwest/rustls-tls"]
 std = ["thiserror/std", "anyhow/std", "strum/std", "serde/std", "serde_json/std"]
 
 # Include all possible features
-full = ["storages", "default_signal"]
+full = ["storages", "default-signal"]
 # Include all possible storages
 storages = ["redis-storage", "memory-storage"]
 # For possible use redis FSM storage
@@ -33,10 +32,13 @@ memory-storage = []
 
 # Include realization of shutdown signal handler.
 # Still should be registered manually, it just adds handler.
-# If you want to register it automatically, use `default_signal` feature.
+# If you want to register it automatically, use `default-signal` feature.
 signal = ["tokio/signal"]
 # Register signal realization automatically in serve
-default_signal = ["signal"]
+default-signal = ["signal"]
+
+# Legacy feature `default-signal` with underscore naming
+default_signal = ["default-signal"]
 
 [dependencies]
 telers-macros = { path = "../telers-macros", version = "1.0.0-alpha.3", features = ["default"] }
@@ -50,7 +52,6 @@ serde_with = { version = "3.6", default-features = false, features = ["macros"] 
 strum = { version = "0.27", default-features = false, features = ["std"] }
 strum_macros = { version = "0.27", default-features = false }
 futures-util = { version = "0.3", default-features = false }
-async-trait = { version = "0.1", default-features = false }
 once_cell = { version = "1.19", default-features = false }
 thiserror = { version = "2.0", default-features = false }
 anyhow = { version = "1.0", default-features = false }
@@ -60,7 +61,6 @@ backoff = { version = "0.4", default-features = false }
 bytes = { version = "1.5", default-features = false }
 takecell = { version = "0.1", default-features = false }
 pathdiff = { version = "0.2", default-features = false }
-dyn-clone = { version = "1.0", default-features = false }
 uuid = { version = "1.7", default-features = false, features = ["v4"] }
 
 redis = { version = "0.29", default-features = false, features = ["tokio-comp"], optional = true }

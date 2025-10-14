@@ -3,26 +3,26 @@
 //!
 //! Components of the dispatcher:
 //! * [`Bot`]:
-//!     Bot is used for sending requests to the Telegram API and receiving updates from the Telegram API.
-//!     Usually you need only one bot and one dispatcher, but you can pass multiple bots to the dispatcher and it will work with all of them
-//!     with own polling processes.
+//!   Bot is used for sending requests to the Telegram API and receiving updates from the Telegram API.
+//!   Usually you need only one bot and one dispatcher, but you can pass multiple bots to the dispatcher and it will work with all of them
+//!   with own polling processes.
 //! * `Propagator`:
-//!     Propagator is abstract component, which is used for propagating events, usually it's [`Router`].
-//!     Router combines services and observers and propagates events to them and allows creating complex event handling logic.
-//!     See [`router module`] for more information (**recommended**).
+//!   Propagator is abstract component, which is used for propagating events, usually it's [`Router`].
+//!   Router combines services and observers and propagates events to them and allows creating complex event handling logic.
+//!   See [`router module`] for more information (**recommended**).
 //! * `Polling timeout`:
-//!     Timeout in seconds for long polling.
-//!     By default, it's 30 seconds, but you can change it with [`Builder::polling_timeout`] method.
-//!     Polling sends [`GetUpdates`] request to the Telegram API and will wait for `polling_timeout` seconds.
-//!     If there are no updates, it will send the same request again, so often as you set it in [`Builder::backoff`] method.
+//!   Timeout in seconds for long polling.
+//!   By default, it's 30 seconds, but you can change it with [`Builder::polling_timeout`] method.
+//!   Polling sends [`GetUpdates`] request to the Telegram API and will wait for `polling_timeout` seconds.
+//!   If there are no updates, it will send the same request again, so often as you set it in [`Builder::backoff`] method.
 //! * [`ExponentialBackoff`]:
-//!     Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
-//!     and set timeout between requests to telegram server.
+//!   Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
+//!   and set timeout between requests to telegram server.
 //! * `Allowed updates`:
-//!     List the types of updates you want your bot to receive.
-//!     For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types.
-//!     See [`UpdateType`] for a complete list of available update types.
-//!     By default, all update types except [`ChatMember`] are enabled.
+//!   List the types of updates you want your bot to receive.
+//!   For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types.
+//!   See [`UpdateType`] for a complete list of available update types.
+//!   By default, all update types except [`ChatMember`] are enabled.
 //!
 //! Dispatcher supports startup and shutdown events.
 //! You can register handlers for these observers (startup and shutdown) in the main router and handle them (see [`router module`]).
@@ -122,7 +122,6 @@ where
     Propagator: Default,
 {
     /// Creates a new dispatcher builder with default values
-    #[must_use]
     fn default() -> Self {
         Self {
             propagator: Propagator::default(),
@@ -355,13 +354,12 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
             let updates = match bot.send(&method).await {
                 Ok(updates) => {
                     // Get last update id to set offset or skip updates if it's empty
-                    let id = match updates.last() {
-                        Some(Either::Left(Update { id, .. })) => id,
-                        Some(Either::Right(UpdateUnparsed { id, .. })) => id,
-                        None => {
-                            event!(Level::TRACE, "No updates received");
-                            continue;
-                        }
+                    let Some(
+                        Either::Left(Update { id, .. }) | Either::Right(UpdateUnparsed { id, .. }),
+                    ) = updates.last()
+                    else {
+                        event!(Level::TRACE, "No updates received");
+                        continue;
                     };
 
                     event!(

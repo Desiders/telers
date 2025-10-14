@@ -1,3 +1,5 @@
+#![allow(clippy::extra_unused_type_parameters, clippy::extra_unused_lifetimes)]
+
 use telers::extractor::Extractor;
 use telers_macros::FromContext;
 

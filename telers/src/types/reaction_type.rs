@@ -34,21 +34,18 @@ impl ReactionType {
 }
 
 impl From<ReactionTypeEmoji> for ReactionType {
-    #[must_use]
     fn from(emoji: ReactionTypeEmoji) -> Self {
         Self::Emoji(emoji)
     }
 }
 
 impl From<ReactionTypeCustomEmoji> for ReactionType {
-    #[must_use]
     fn from(custom_emoji: ReactionTypeCustomEmoji) -> Self {
         Self::CustomEmoji(custom_emoji)
     }
 }
 
 impl From<ReactionTypePaid> for ReactionType {
-    #[must_use]
     fn from(paid: ReactionTypePaid) -> Self {
         Self::Paid(paid)
     }

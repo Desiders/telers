@@ -291,14 +291,12 @@ impl<Client> Default for Observer<Client>
 where
     Client: Send + Sync + 'static,
 {
-    #[must_use]
     fn default() -> Self {
         Self::new(TelegramObserverName::Message)
     }
 }
 
 impl<Client> AsRef<Observer<Client>> for Observer<Client> {
-    #[must_use]
     fn as_ref(&self) -> &Self {
         self
     }

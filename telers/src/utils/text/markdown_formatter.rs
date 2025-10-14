@@ -284,44 +284,44 @@ mod tests {
 
     #[test]
     fn test_bold() {
-        let formatter = Formatter::default();
+        let formatter = Formatter;
         assert_eq!(formatter.bold("text"), "*text*");
     }
 
     #[test]
     fn test_italic() {
-        let formatter = Formatter::default();
+        let formatter = Formatter;
         assert_eq!(formatter.italic("text"), "_\rtext_\r");
     }
 
     #[test]
     fn test_underline() {
-        let formatter = Formatter::default();
+        let formatter = Formatter;
         assert_eq!(formatter.underline("text"), "__\rtext__\r");
     }
 
     #[test]
     fn test_strikethrough() {
-        let formatter = Formatter::default();
+        let formatter = Formatter;
         assert_eq!(formatter.strikethrough("text"), "~text~");
     }
 
     #[test]
     fn test_spoiler() {
-        let formatter = Formatter::default();
+        let formatter = Formatter;
         assert_eq!(formatter.spoiler("text"), "|text|");
     }
 
     #[test]
     fn test_blockquote() {
-        let formatter = Formatter::default();
+        let formatter = Formatter;
         assert_eq!(formatter.blockquote("text"), ">text");
         assert_eq!(formatter.blockquote("text\ntext"), ">text\n>text");
     }
 
     #[test]
     fn expandable_blockquote() {
-        let formatter = Formatter::default();
+        let formatter = Formatter;
         assert_eq!(formatter.expandable_blockquote("text"), ">text||");
         assert_eq!(
             formatter.expandable_blockquote("text\ntext"),
@@ -331,7 +331,7 @@ mod tests {
 
     #[test]
     fn test_text_link() {
-        let formatter = Formatter::default();
+        let formatter = Formatter;
         assert_eq!(
             formatter.text_link("text", "http://example.com"),
             "[text](http://example.com)"
@@ -340,13 +340,13 @@ mod tests {
 
     #[test]
     fn test_text_mention() {
-        let formatter = Formatter::default();
+        let formatter = Formatter;
         assert_eq!(formatter.text_mention("text", 1), "[text](tg://user?id=1)");
     }
 
     #[test]
     fn test_custom_emoji() {
-        let formatter = Formatter::default();
+        let formatter = Formatter;
         assert_eq!(
             formatter.custom_emoji("text", "1"),
             "![text](tg://emoji?id=1)"
@@ -355,19 +355,19 @@ mod tests {
 
     #[test]
     fn test_code() {
-        let formatter = Formatter::default();
+        let formatter = Formatter;
         assert_eq!(formatter.code("text"), "`text`");
     }
 
     #[test]
     fn test_pre() {
-        let formatter = Formatter::default();
+        let formatter = Formatter;
         assert_eq!(formatter.pre("text"), "```\ntext\n```");
     }
 
     #[test]
     fn test_pre_language() {
-        let formatter = Formatter::default();
+        let formatter = Formatter;
         assert_eq!(
             formatter.pre_language("text", "python"),
             "```python\ntext\n```"
@@ -376,7 +376,7 @@ mod tests {
 
     #[test]
     fn test_quote() {
-        let formatter = Formatter::default();
+        let formatter = Formatter;
         assert_eq!(formatter.quote("test"), "test");
         assert_eq!(formatter.quote("[test]"), r"\[test\]");
         assert_eq!(formatter.quote("test ` test"), r"test \` test");

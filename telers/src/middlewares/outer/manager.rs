@@ -48,7 +48,6 @@ impl<Client> Manager<Client> {
 }
 
 impl<Client> Default for Manager<Client> {
-    #[must_use]
     fn default() -> Self {
         Self {
             middlewares: vec![],

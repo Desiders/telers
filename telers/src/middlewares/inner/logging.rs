@@ -5,7 +5,6 @@ use crate::{
     Request,
 };
 
-use async_trait::async_trait;
 use std::{
     fmt::{self, Display, Formatter},
     time::Instant,
@@ -28,7 +27,6 @@ impl Display for Logging {
     }
 }
 
-#[async_trait]
 impl<Client> Middleware<Client> for Logging
 where
     Client: Send + Sync + 'static,
@@ -112,11 +110,13 @@ mod tests {
         let handler_service =
             boxed_handler_factory(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
 
-        let mut request = Request::<Reqwest>::default();
-        request.update = Arc::new(Update {
-            id: 0,
-            kind: UpdateKind::Message(Message::default()),
-        });
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update {
+                id: 0,
+                kind: UpdateKind::Message(Message::default()),
+            }),
+            ..Default::default()
+        };
 
         let response = Logging
             .call(request, wrap_to_next(handler_service, [].into()))

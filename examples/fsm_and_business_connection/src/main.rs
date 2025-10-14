@@ -17,13 +17,12 @@
 //! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package fsm_and_business_connection
 //! ```
 
-use std::borrow::Cow;
 use telers::{
-    enums::ContentType as ContentTypeEnum,
+    enums::ContentType::Text,
     enums::UpdateType,
     event::{telegram::HandlerResult, EventReturn},
     filters::{Command, ContentType, State as StateFilter},
-    fsm::{Context as FSMContext, MemoryStorage, Storage, Strategy},
+    fsm::{Context as FSMContext, MemoryStorage, Storage, Strategy::UserInChatAndConnection},
     methods::SendMessage,
     middlewares::outer::FSMContext as FSMContextMiddleware,
     types::{Message, MessageText},
@@ -45,8 +44,8 @@ enum State {
     Language,
 }
 
-impl State {
-    const fn as_str(&self) -> &'static str {
+impl AsRef<str> for State {
+    fn as_ref(&self) -> &str {
         match self {
             State::Name => "name",
             State::Language => "language",
@@ -59,13 +58,7 @@ impl State {
 // because we can use `State::Name` directly.
 impl PartialEq<&str> for State {
     fn eq(&self, other: &&str) -> bool {
-        self.as_str() == *other
-    }
-}
-
-impl From<State> for Cow<'static, str> {
-    fn from(state: State) -> Self {
-        Cow::Borrowed(state.as_str())
+        self.as_ref() == *other
     }
 }
 
@@ -163,7 +156,7 @@ async fn language_handler<S: Storage>(
             // We don't need this, because `State::Language` is already set and doesn't change automatically
             // fsm.set_state(State::Language).await.map_err(Into::into)?;
         }
-    };
+    }
 
     Ok(EventReturn::Finish)
 }
@@ -187,7 +180,7 @@ async fn main() {
         .update
         .outer_middlewares
         // We use here `Strategy::UserInChatAndConnection` to have different states for business connections and other chats
-        .register(FSMContextMiddleware::new(storage).strategy(Strategy::UserInChatAndConnection));
+        .register(FSMContextMiddleware::new(storage).strategy(UserInChatAndConnection));
 
     router
         .business_message
@@ -197,12 +190,12 @@ async fn main() {
     router
         .business_message
         .register(name_handler::<MemoryStorage>)
-        .filter(ContentType::one(ContentTypeEnum::Text))
+        .filter(ContentType::one(Text))
         .filter(StateFilter::one(State::Name));
     router
         .business_message
         .register(language_handler::<MemoryStorage>)
-        .filter(ContentType::one(ContentTypeEnum::Text))
+        .filter(ContentType::one(Text))
         .filter(StateFilter::one(State::Language));
 
     let dispatcher = Dispatcher::builder()

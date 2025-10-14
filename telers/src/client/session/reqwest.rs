@@ -21,7 +21,6 @@ use crate::{
     utils::format_error_report,
 };
 
-use async_trait::async_trait;
 use reqwest::{
     multipart::{Form, Part},
     Body, Client, ClientBuilder,
@@ -63,10 +62,10 @@ impl Reqwest {
     /// - If the form cannot be built
     /// - If file stream already taken
     #[instrument(skip(self, data))]
-    async fn build_form_data<'a, Data: Serialize + ?Sized>(
+    async fn build_form_data<Data: Serialize + ?Sized>(
         &self,
         data: &Data,
-        files: Option<&[&InputFile<'a>]>,
+        files: Option<&[&InputFile<'_>]>,
     ) -> Result<Form, SerializerError> {
         let mut form = data.serialize(MultipartSerializer::new()).map_err(|err| {
             event!(
@@ -138,8 +137,8 @@ impl Reqwest {
 
                     form = form.part(id, part);
                 }
-                InputFile::Id(_) | InputFile::Url(_) => continue,
-            };
+                InputFile::Id(_) | InputFile::Url(_) => {}
+            }
         }
 
         Ok(form)
@@ -149,7 +148,6 @@ impl Reqwest {
 impl Default for Reqwest {
     /// # Panics
     /// This method panics if the client cannot be created
-    #[must_use]
     fn default() -> Self {
         Self {
             client: ClientBuilder::new()
@@ -161,9 +159,7 @@ impl Default for Reqwest {
     }
 }
 
-#[async_trait]
 impl Session for Reqwest {
-    #[must_use]
     fn api(&self) -> &telegram::APIServer {
         &self.api
     }

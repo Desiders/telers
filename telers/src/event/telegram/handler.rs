@@ -158,7 +158,7 @@ where
         let mut handler = handler.clone();
 
         async move {
-            match Args::extract(&request) {
+            match Args::extract(&request).await {
                 Ok(args) => Ok(Response {
                     request,
                     handler_result: match handler.call(args).await {
@@ -197,7 +197,7 @@ where
         let mut service = service.clone();
 
         async move {
-            match Args::extract(&request) {
+            match Args::extract(&request).await {
                 Ok(args) => Ok(Response {
                     request,
                     handler_result: {
@@ -289,11 +289,13 @@ mod tests {
         let mut handler =
             HandlerComposite::new(|(), ()| async { Ok::<_, Infallible>(EventReturn::Finish) });
 
-        let mut request = Request::<Reqwest>::default();
-        request.update = Arc::new(Update {
-            id: 0,
-            kind: UpdateKind::Message(Message::default()),
-        });
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update {
+                id: 0,
+                kind: UpdateKind::Message(Message::default()),
+            }),
+            ..Default::default()
+        };
 
         let response = handler.call(request).await.unwrap();
 
@@ -309,11 +311,13 @@ mod tests {
             Ok::<_, Infallible>(EventReturn::Finish)
         }));
 
-        let mut request = Request::<Reqwest>::default();
-        request.update = Arc::new(Update {
-            id: 0,
-            kind: UpdateKind::Message(Message::default()),
-        });
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update {
+                id: 0,
+                kind: UpdateKind::Message(Message::default()),
+            }),
+            ..Default::default()
+        };
 
         let response = handler.call(request).await.unwrap();
 

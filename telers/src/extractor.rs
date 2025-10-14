@@ -17,13 +17,11 @@
 //!     middlewares::{outer::{MiddlewareResponse, Middleware}},
 //!     Request,
 //! };
-//! use async_trait::async_trait;
 //!
 //! struct ToExtensionsMiddleware<T> {
 //!     data: T,
 //! }
 //!
-//! #[async_trait]
 //! impl<T> Middleware for ToExtensionsMiddleware<T>
 //! where
 //!     T: Send + Sync + Clone + 'static,
@@ -62,7 +60,7 @@
 //! impl Extractor for UpdateId {
 //!     type Error = Infallible;
 //!
-//!     fn extract(request: &Request) -> Result<Self, Self::Error> {
+//!     async fn extract(request: &Request) -> Result<Self, Self::Error> {
 //!         Ok(UpdateId(request.update.id))
 //!     }
 //! }
@@ -87,7 +85,7 @@
 //! impl Extractor for UpdateFromId {
 //!     type Error = ConvertToTypeError; // you can use your own error type, this is just an example
 //!
-//!     fn extract(request: &Request) -> Result<Self, Self::Error> {
+//!     async fn extract(request: &Request) -> Result<Self, Self::Error> {
 //!         match request.update.from_id() {
 //!             Some(from_id) => Ok(UpdateFromId(from_id)),
 //!             None => Err(ConvertToTypeError::new("Update", "UpdateFromId")),
@@ -108,7 +106,7 @@
 //! impl Extractor for UpdateFromId {
 //!     type Error = ConvertToTypeError; // you can use your own error type, this is just an example
 //!
-//!     fn extract(request: &Request) -> Result<Self, Self::Error> {
+//!     async fn extract(request: &Request) -> Result<Self, Self::Error> {
 //!         match request.update.from_id() {
 //!             Some(from_id) => Ok(UpdateFromId(from_id)),
 //!             None => Err(ConvertToTypeError::new("Update", "UpdateFromId")),
@@ -290,7 +288,7 @@ use crate::{
     Extensions, Request,
 };
 
-use std::{any::type_name, convert::Infallible, sync::Arc};
+use std::{any::type_name, convert::Infallible, future::Future, sync::Arc};
 
 /// Trait for extracting data from [`Update`] and [`Context`] to handlers arguments
 pub trait Extractor<Client = Reqwest>: Sized {
@@ -304,17 +302,21 @@ pub trait Extractor<Client = Reqwest>: Sized {
     /// * No found data in context by key
     /// * Data in context by key has wrong type. For example, you try to extract `i32` from `String`.
     /// * Custom user error
-    fn extract(request: &Request<Client>) -> Result<Self, Self::Error>;
+    fn extract(request: &Request<Client>)
+        -> impl Future<Output = Result<Self, Self::Error>> + Send;
 }
 
 /// To be able to use [`Option`] as handler argument
 /// This implementation will return `None` if extraction was unsuccessful, and [`Some(value)`] otherwise
-impl<Client, T: Extractor<Client>> Extractor<Client> for Option<T> {
+impl<Client, T: Extractor<Client>> Extractor<Client> for Option<T>
+where
+    Client: Sync,
+{
     type Error = Infallible;
 
     #[inline]
-    fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
-        match T::extract(request) {
+    async fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
+        match T::extract(request).await {
             Ok(value) => Ok(Some(value)),
             Err(_) => Ok(None),
         }
@@ -328,12 +330,13 @@ impl<Client, T, E> Extractor<Client> for Result<T, E>
 where
     T: Extractor<Client>,
     T::Error: Into<E>,
+    Client: Sync,
 {
     type Error = Infallible;
 
     #[inline]
-    fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
-        Ok(T::extract(request).map_err(Into::into))
+    async fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
+        Ok(T::extract(request).await.map_err(Into::into))
     }
 }
 
@@ -342,18 +345,27 @@ where
 impl<Client> Extractor<Client> for () {
     type Error = Infallible;
 
+    #[allow(clippy::manual_async_fn)]
     #[inline]
-    fn extract(_request: &Request<Client>) -> Result<Self, Self::Error> {
-        Ok(())
+    fn extract(
+        _request: &Request<Client>,
+    ) -> impl Future<Output = Result<Self, Self::Error>> + Send {
+        async move { Ok(()) }
     }
 }
 
-impl<Client: Clone> Extractor<Client> for Bot<Client> {
+impl<Client> Extractor<Client> for Bot<Client>
+where
+    Client: Clone + Send,
+{
     type Error = Infallible;
 
     #[inline]
-    fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
-        Ok(request.bot.clone())
+    fn extract(
+        request: &Request<Client>,
+    ) -> impl Future<Output = Result<Self, Self::Error>> + Send {
+        let bot = request.bot.clone();
+        async move { Ok(bot) }
     }
 }
 
@@ -361,8 +373,11 @@ impl<Client> Extractor<Client> for Update {
     type Error = Infallible;
 
     #[inline]
-    fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
-        Ok((*request.update).clone())
+    fn extract(
+        request: &Request<Client>,
+    ) -> impl Future<Output = Result<Self, Self::Error>> + Send {
+        let update = (*request.update).clone();
+        async move { Ok(update) }
     }
 }
 
@@ -370,8 +385,11 @@ impl<Client> Extractor<Client> for Arc<Update> {
     type Error = Infallible;
 
     #[inline]
-    fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
-        Ok(request.update.clone())
+    fn extract(
+        request: &Request<Client>,
+    ) -> impl Future<Output = Result<Self, Self::Error>> + Send {
+        let update = request.update.clone();
+        async move { Ok(update) }
     }
 }
 
@@ -379,8 +397,11 @@ impl<Client> Extractor<Client> for Context {
     type Error = Infallible;
 
     #[inline]
-    fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
-        Ok(request.context.clone())
+    fn extract(
+        request: &Request<Client>,
+    ) -> impl Future<Output = Result<Self, Self::Error>> + Send {
+        let context = request.context.clone();
+        async move { Ok(context) }
     }
 }
 
@@ -388,8 +409,11 @@ impl<Client> Extractor<Client> for Extensions {
     type Error = Infallible;
 
     #[inline]
-    fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
-        Ok(request.extensions.clone())
+    fn extract(
+        request: &Request<Client>,
+    ) -> impl Future<Output = Result<Self, Self::Error>> + Send {
+        let extensions = request.extensions.clone();
+        async move { Ok(extensions) }
     }
 }
 
@@ -400,8 +424,10 @@ where
     type Error = ExtractionError;
 
     #[inline]
-    fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
-        match request.extensions.get::<Value>() {
+    fn extract(
+        request: &Request<Client>,
+    ) -> impl Future<Output = Result<Self, Self::Error>> + Send {
+        let res = match request.extensions.get::<Value>() {
             Some(value) => Ok(Self(value.clone())),
             None => Err(ExtractionError::new(if request.extensions.is_empty() {
                 format!("Failed to extract data with type {}. Extensions are empty, it looks like you forgot to add a value.", type_name::<Value>())
@@ -411,7 +437,8 @@ where
                     type_name::<Value>()
                 )
             })),
-        }
+        };
+        async move { res }
     }
 }
 
@@ -423,12 +450,12 @@ mod factory_extractor {
     use super::{ExtractionError, Extractor, Request};
 
     macro_rules! factory ({ $($param:ident)* } => {
-        impl<Client, $($param: Extractor<Client>,)*> Extractor<Client> for ($($param,)*) {
+        impl<Client: Sync, $($param: Extractor<Client> + Send,)*> Extractor<Client> for ($($param,)*) {
             type Error = ExtractionError;
 
             #[inline]
-            fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
-                Ok(($($param::extract(request).map_err(Into::into)?,)*))
+            async fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
+                Ok(($($param::extract(request).await.map_err(Into::into)?,)*))
             }
         }
     });
@@ -467,6 +494,7 @@ mod factory_extractor {
     factory! { A B C D E F G H I J K L M N O P }
 }
 
+#[allow(unreachable_code, clippy::extra_unused_type_parameters)]
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -519,16 +547,6 @@ mod tests {
         ));
     }
 
-    #[test]
-    fn test_unit_extract() {
-        let request = Request::<Reqwest>::default();
-
-        let (): () = Extractor::extract(&request).unwrap();
-        let _: Option<()> = Extractor::extract(&request).unwrap();
-        let _: Result<(), Infallible> = Extractor::extract(&request).unwrap();
-    }
-
-    #[allow(unreachable_code)]
     fn _check_bounds<Client, T: Extractor<Client>>() {
         unimplemented!("This function is only used for checking bounds");
 
@@ -616,8 +634,7 @@ mod tests {
         _check_bounds::<Client, ChatBoostRemoved>();
     }
 
-    #[allow(unreachable_code)]
-    fn _check_bounds_option<Client, T: Extractor<Client>>() {
+    fn _check_bounds_option<Client: Sync, T: Extractor<Client>>() {
         unimplemented!("This function is only used for checking bounds");
 
         _check_bounds::<Client, Option<()>>();
@@ -705,8 +722,7 @@ mod tests {
         _check_bounds::<Client, Option<ChatBoostRemoved>>();
     }
 
-    #[allow(unreachable_code)]
-    fn _check_bounds_result<Client, T: Extractor<Client>, Err: Into<ExtractionError>>() {
+    fn _check_bounds_result<Client: Sync, T: Extractor<Client>, Err: Into<ExtractionError>>() {
         unimplemented!("This function is only used for checking bounds");
 
         _check_bounds::<Client, Result<(), Infallible>>();

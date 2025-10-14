@@ -39,48 +39,48 @@ pub const DEFAULT_CAPACITY: usize = 64 * 1024; // 64 KiB
 /// <https://core.telegram.org/bots/api#inputfile>
 #[derive(Debug, Clone, Hash, PartialEq)]
 pub enum InputFile<'a> {
-    Id(FileId<'a>),
-    Url(UrlFile<'a>),
-    FS(FSFile<'a>),
-    Buffered(BufferedFile<'a>),
-    Stream(StreamFile<'a>),
+    Id(Box<FileId<'a>>),
+    Url(Box<UrlFile<'a>>),
+    FS(Box<FSFile<'a>>),
+    Buffered(Box<BufferedFile<'a>>),
+    Stream(Box<StreamFile<'a>>),
 }
 
 impl<'a> InputFile<'a> {
     /// Creates a new [`InputFile`] with [`FileId`]
     #[must_use]
     pub fn id(id: impl Into<Cow<'a, str>>) -> Self {
-        Self::Id(FileId::new(id))
+        Self::Id(Box::new(FileId::new(id)))
     }
 
     /// Creates a new [`InputFile`] with [`UrlFile`]
     #[must_use]
     pub fn url(url: impl Into<Cow<'a, str>>) -> Self {
-        Self::Url(UrlFile::new(url))
+        Self::Url(Box::new(UrlFile::new(url)))
     }
 
     /// Creates a new [`InputFile`] with [`FSFile`]
     #[must_use]
     pub fn fs(path: impl AsRef<Path>) -> Self {
-        Self::FS(FSFile::new(path))
+        Self::FS(Box::new(FSFile::new(path)))
     }
 
     /// Creates a new [`InputFile`] with [`FSFile`] and specified filename
     #[must_use]
     pub fn fs_with_name(path: impl AsRef<Path>, name: impl Into<Cow<'a, str>>) -> Self {
-        Self::FS(FSFile::new_with_name(path, name))
+        Self::FS(Box::new(FSFile::new_with_name(path, name)))
     }
 
     /// Creates a new [`InputFile`] with [`BufferedFile`]
     #[must_use]
     pub fn buffered(bytes: impl Into<Bytes>) -> Self {
-        Self::Buffered(BufferedFile::new(bytes))
+        Self::Buffered(Box::new(BufferedFile::new(bytes)))
     }
 
     /// Creates a new [`InputFile`] with [`BufferedFile`] and specified filename
     #[must_use]
     pub fn buffered_with_name(bytes: impl Into<Bytes>, name: impl Into<Cow<'a, str>>) -> Self {
-        Self::Buffered(BufferedFile::new_with_name(bytes, name))
+        Self::Buffered(Box::new(BufferedFile::new_with_name(bytes, name)))
     }
 
     /// Creates a new [`InputFile`] with [`StreamFile`]
@@ -94,7 +94,7 @@ impl<'a> InputFile<'a> {
     pub fn stream(
         stream: impl Stream<Item = Result<Bytes, io::Error>> + Unpin + Send + Sync + 'static,
     ) -> Self {
-        Self::Stream(StreamFile::new(stream))
+        Self::Stream(Box::new(StreamFile::new(stream)))
     }
 
     /// Creates a new [`InputFile`] with [`StreamFile`] and specified filename
@@ -103,7 +103,7 @@ impl<'a> InputFile<'a> {
         stream: impl Stream<Item = Result<Bytes, io::Error>> + Unpin + Send + Sync + 'static,
         name: impl Into<Cow<'a, str>>,
     ) -> Self {
-        Self::Stream(StreamFile::new_with_name(stream, name))
+        Self::Stream(Box::new(StreamFile::new_with_name(stream, name)))
     }
 }
 
@@ -155,31 +155,31 @@ impl Serialize for InputFile<'_> {
 
 impl<'a> From<FileId<'a>> for InputFile<'a> {
     fn from(file_id: FileId<'a>) -> Self {
-        Self::Id(file_id)
+        Self::Id(Box::new(file_id))
     }
 }
 
 impl<'a> From<UrlFile<'a>> for InputFile<'a> {
     fn from(url_file: UrlFile<'a>) -> Self {
-        Self::Url(url_file)
+        Self::Url(Box::new(url_file))
     }
 }
 
 impl<'a> From<FSFile<'a>> for InputFile<'a> {
     fn from(fs_file: FSFile<'a>) -> Self {
-        Self::FS(fs_file)
+        Self::FS(Box::new(fs_file))
     }
 }
 
 impl<'a> From<BufferedFile<'a>> for InputFile<'a> {
     fn from(buffered_file: BufferedFile<'a>) -> Self {
-        Self::Buffered(buffered_file)
+        Self::Buffered(Box::new(buffered_file))
     }
 }
 
 impl<'a> From<StreamFile<'a>> for InputFile<'a> {
     fn from(stream_file: StreamFile<'a>) -> Self {
-        Self::Stream(stream_file)
+        Self::Stream(Box::new(stream_file))
     }
 }
 

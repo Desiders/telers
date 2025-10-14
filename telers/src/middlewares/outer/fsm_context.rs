@@ -12,7 +12,6 @@ use crate::{
     Request,
 };
 
-use async_trait::async_trait;
 use std::fmt::{self, Debug, Formatter};
 use tracing::instrument;
 
@@ -55,7 +54,6 @@ impl<S> Default for FSMContext<S>
 where
     S: Default,
 {
-    #[must_use]
     fn default() -> Self {
         Self {
             storage: S::default(),
@@ -144,7 +142,6 @@ where
     }
 }
 
-#[async_trait]
 impl<Client, S> Middleware<Client> for FSMContext<S>
 where
     Client: Send + Sync + 'static,

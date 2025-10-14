@@ -79,8 +79,8 @@ enum ConvertKind {
 /// * `from` - type from which we need to convert event value (optional; required if `try_from` field is empty)
 /// * `try_from` - type from which we need to convert event value (optional; required if `from` field is empty)
 /// * `error` - type of error (optional) for `try_from`. \
-///     If it's empty, then we use `ConvertToTypeError` type as error type. \
-///     If it's not empty, then we use this type as error type.
+///   If it's empty, then we use `ConvertToTypeError` type as error type. \
+///   If it's not empty, then we use this type as error type.
 /// * `description` - description of type (optional)
 /// # Examples
 /// ```not_rust
@@ -395,13 +395,15 @@ fn impl_from_event_and_context(
                 impl <#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
                 where
                     #where_clause_punctuated
+                    #ident #ty_generics_punctuated: Send,
                     ::telers::types::Update: ::std::convert::Into<Self>
                 {
                     type Error = ::std::convert::Infallible;
 
                     #[inline]
-                    fn extract(request: &::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
-                        Ok((*request.update).clone().into())
+                    fn extract(request: &::telers::Request<#client_ty_generic>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+                        let val = (*request.update).clone().into();
+                        async move { Ok(val) }
                     }
                 }
             }
@@ -418,13 +420,15 @@ fn impl_from_event_and_context(
                 impl <#impl_generics_punctuated> ::telers::Extractor<#client_ty_generic> for #ident #ty_generics_punctuated
                 where
                     #where_clause_punctuated
+                    #ident #ty_generics_punctuated: Send,
                     ::telers::types::Update: ::std::convert::TryInto<Self>
                 {
                     type Error = #error_ty;
 
                     #[inline]
-                    fn extract(request: &::telers::Request<#client_ty_generic>) -> Result<Self, Self::Error> {
-                        ::std::convert::TryFrom::try_from((*request.update).clone())
+                    fn extract(request: &::telers::Request<#client_ty_generic>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+                        let val = ::std::convert::TryFrom::try_from((*request.update).clone());
+                        async move { val }
                     }
                 }
             }

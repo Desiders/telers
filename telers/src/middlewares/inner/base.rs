@@ -8,7 +8,6 @@ use crate::{
     Request,
 };
 
-use async_trait::async_trait;
 use futures_util::future::BoxFuture;
 use std::future::Future;
 
@@ -29,10 +28,10 @@ pub type Next<Client = Reqwest> = Box<
 /// - If you need to call middlewares after filters and before handlers
 /// - If you need to manipulate with call of next middleware or handler
 /// - If you need to manipulate with [`Request`] or [`HandlerResponse`]
+///
 /// Usually inner middlewares are more relevant than outer middlewares.
 ///
 /// Implement this trait for your own middlewares
-#[async_trait]
 pub trait Middleware<Client = Reqwest>: Clone + Send + Sync + 'static {
     /// Execute middleware
     /// # Arguments
@@ -43,23 +42,26 @@ pub trait Middleware<Client = Reqwest>: Clone + Send + Sync + 'static {
     /// # Errors
     /// If any inner middleware returns an error
     /// If handler returns an error. Probably it's the error to extract args to the handler
-    async fn call(
+    fn call(
         &mut self,
         request: Request<Client>,
         next: Next<Client>,
-    ) -> Result<HandlerResponse<Client>, EventErrorKind>;
+    ) -> impl Future<Output = Result<HandlerResponse<Client>, EventErrorKind>> + Send;
 }
 
 /// To possible use function-like as middlewares
-#[async_trait]
 impl<Client, F, Fut> Middleware<Client> for F
 where
     Client: Send + Sync + 'static,
     F: FnMut(Request<Client>, Next<Client>) -> Fut + Clone + Send + Sync + 'static,
     Fut: Future<Output = Result<HandlerResponse<Client>, EventErrorKind>> + Send,
 {
-    async fn call(&mut self, request: Request<Client>, next: Next<Client>) -> Fut::Output {
-        self(request, next).await
+    fn call(
+        &mut self,
+        request: Request<Client>,
+        next: Next<Client>,
+    ) -> impl Future<Output = Result<HandlerResponse<Client>, EventErrorKind>> + Send {
+        self(request, next)
     }
 }
 
@@ -138,11 +140,13 @@ mod tests {
         let handler_service =
             boxed_handler_factory(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
 
-        let mut request = Request::<Reqwest>::default();
-        request.update = Arc::new(Update {
-            id: 0,
-            kind: UpdateKind::Message(Message::default()),
-        });
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update {
+                id: 0,
+                kind: UpdateKind::Message(Message::default()),
+            }),
+            ..Default::default()
+        };
         let response = Middleware::call(
             &mut test_middleware,
             request,

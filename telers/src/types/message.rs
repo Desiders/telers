@@ -3350,7 +3350,6 @@ impl Message {
 }
 
 impl Default for Message {
-    #[must_use]
     fn default() -> Self {
         Message::Text(Box::default())
     }
@@ -5494,7 +5493,7 @@ mod tests {
             match message {
                 Message::Text(message) => {
                     assert_eq!(*message, message_kind);
-                    println!("{:?}", message);
+                    println!("{message:?}");
                 }
                 _ => panic!("Unexpected message type: {message:?}"),
             }

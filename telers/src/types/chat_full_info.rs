@@ -727,7 +727,6 @@ impl ChatFullInfo {
 }
 
 impl Default for ChatFullInfo {
-    #[must_use]
     fn default() -> Self {
         Self::Private(Box::default())
     }

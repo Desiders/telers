@@ -8,7 +8,6 @@ use crate::{
     Request,
 };
 
-use async_trait::async_trait;
 use std::future::Future;
 
 pub(crate) type BoxedCloneMiddlewareService<Client> =
@@ -24,32 +23,34 @@ pub type MiddlewareResponse<Client = Reqwest> = (Request<Client>, EventReturn);
 /// Prefer to use outer middlewares over inner middlewares in some cases:
 /// - If you need to call middlewares before filters, inner middlewares and handlers
 /// - If you need to manipulate with [`Request`] and [`crate::context::Context`] in it
+///
 /// Usually outer middlewares are used to manipulate with [`Request`].
 ///
 /// Implement this trait for your own middlewares
-#[async_trait]
 pub trait Middleware<Client = Reqwest>: Clone + Send + Sync + 'static {
     /// Execute middleware
     /// # Arguments
     /// * `request` - Data for observers, filters, handler and middlewares
     /// # Errors
     /// If outer middleware returns error
-    async fn call(
+    fn call(
         &mut self,
         request: Request<Client>,
-    ) -> Result<MiddlewareResponse<Client>, EventErrorKind>;
+    ) -> impl Future<Output = Result<MiddlewareResponse<Client>, EventErrorKind>> + Send;
 }
 
 /// To possible use function-like as middlewares
-#[async_trait]
 impl<Client, F, Fut> Middleware<Client> for F
 where
     Client: Send + Sync + 'static,
     F: FnMut(Request<Client>) -> Fut + Clone + Send + Sync + 'static,
     Fut: Future<Output = Result<MiddlewareResponse<Client>, EventErrorKind>> + Send,
 {
-    async fn call(&mut self, request: Request<Client>) -> Fut::Output {
-        self(request).await
+    fn call(
+        &mut self,
+        request: Request<Client>,
+    ) -> impl Future<Output = Result<MiddlewareResponse<Client>, EventErrorKind>> + Send {
+        self(request)
     }
 }
 
