@@ -1,6 +1,6 @@
 [package]
 name = "telers"
-version = "1.0.0-alpha.26"
+version = "1.0.0-alpha.27"
 edition = "2021"
 description = "An asynchronous framework for Telegram Bot API written in Rust"
 repository = "https://github.com/Desiders/telers"
@@ -41,7 +41,7 @@ default-signal = ["signal"]
 default_signal = ["default-signal"]
 
 [dependencies]
-telers-macros = { path = "../telers-macros", version = "1.0.0-alpha.3", features = ["default"] }
+telers-macros = { path = "../telers-macros", version = "1.0.0-alpha.4", features = ["default"] }
 tower = { version = "0.5", default-features = false, features = ["util"] }
 tokio = { version = "1.36", default-features = false, features = ["sync", "macros", "fs"] }
 tokio-util = { version = "0.7", default-features = false, features = ["codec"] }
