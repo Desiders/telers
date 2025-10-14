@@ -6,7 +6,6 @@
 //! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package text_case_filters
 //! ```
 
-use async_trait::async_trait;
 use std::future::Future;
 use telers::{
     enums::UpdateType,
@@ -21,7 +20,6 @@ use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt
 #[derive(Clone)]
 struct UppercaseFilter;
 
-#[async_trait]
 impl Filter for UppercaseFilter {
     async fn check(&mut self, request: &mut Request) -> bool {
         request

@@ -17,7 +17,6 @@
 //! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package fsm_and_business_connection
 //! ```
 
-use std::borrow::Cow;
 use telers::{
     enums::ContentType as ContentTypeEnum,
     enums::UpdateType,
@@ -45,8 +44,8 @@ enum State {
     Language,
 }
 
-impl State {
-    const fn as_str(&self) -> &'static str {
+impl AsRef<str> for State {
+    fn as_ref(&self) -> &str {
         match self {
             State::Name => "name",
             State::Language => "language",
@@ -59,13 +58,7 @@ impl State {
 // because we can use `State::Name` directly.
 impl PartialEq<&str> for State {
     fn eq(&self, other: &&str) -> bool {
-        self.as_str() == *other
-    }
-}
-
-impl From<State> for Cow<'static, str> {
-    fn from(state: State) -> Self {
-        Cow::Borrowed(state.as_str())
+        self.as_ref() == *other
     }
 }
 

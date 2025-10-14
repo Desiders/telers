@@ -8,7 +8,6 @@
 //! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package stats_incoming_updates_middleware
 //! ```
 
-use async_trait::async_trait;
 use std::sync::{
     atomic::{AtomicUsize, Ordering},
     Arc,
@@ -33,7 +32,6 @@ struct IncomingUpdates {
     counter: Arc<AtomicUsize>,
 }
 
-#[async_trait]
 impl OuterMiddleware for IncomingUpdates {
     async fn call(&mut self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
         self.counter.fetch_add(1, Ordering::SeqCst);
@@ -54,7 +52,6 @@ struct ProcessedHandlers {
     counter: Arc<AtomicUsize>,
 }
 
-#[async_trait]
 impl InnerMiddleware for ProcessedHandlers {
     async fn call(
         &mut self,

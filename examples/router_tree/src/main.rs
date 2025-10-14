@@ -9,7 +9,6 @@
 //! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package router_tree
 //! ```
 
-use async_trait::async_trait;
 use std::sync::{
     atomic::{AtomicUsize, Ordering},
     Arc,
@@ -33,7 +32,6 @@ struct IncomingEchoRouterUpdates {
     counter: Arc<AtomicUsize>,
 }
 
-#[async_trait]
 impl OuterMiddleware for IncomingEchoRouterUpdates {
     async fn call(&mut self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
         event!(Level::INFO, "Incoming echo router update");

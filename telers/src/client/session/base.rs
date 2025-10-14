@@ -11,10 +11,10 @@ use crate::{
     methods::{Response, TelegramMethod},
 };
 
-use async_trait::async_trait;
 use serde::de::DeserializeOwned;
 use std::{
     fmt::{self, Display, Formatter},
+    future::Future,
     ops::RangeInclusive,
 };
 use tracing::{debug_span, event, instrument, Level, Span};
@@ -82,7 +82,6 @@ impl ClientResponse {
     }
 }
 
-#[async_trait]
 pub trait Session: Send + Sync {
     /// Get configuration of Telegram Bot API server endpoints and local mode
     #[must_use]
@@ -97,12 +96,12 @@ pub trait Session: Send + Sync {
     /// # Errors
     /// If the request cannot be send or decoded
     #[must_use]
-    async fn send_request<Client, T>(
+    fn send_request<Client, T>(
         &self,
         bot: &Bot<Client>,
         method: &T,
         timeout: Option<f32>,
-    ) -> Result<ClientResponse, anyhow::Error>
+    ) -> impl Future<Output = Result<ClientResponse, anyhow::Error>> + Send
     where
         Client: Session,
         T: TelegramMethod + Send + Sync,
@@ -228,25 +227,27 @@ pub trait Session: Send + Sync {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an Telegram API error
-    async fn make_request<Client, T>(
+    fn make_request<Client, T>(
         &self,
         bot: &Bot<Client>,
         method: &T,
         timeout: Option<f32>,
-    ) -> Result<Response<T::Return>, SessionErrorKind>
+    ) -> impl Future<Output = Result<Response<T::Return>, SessionErrorKind>> + Send
     where
         Client: Session,
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync,
     {
-        let response = self.send_request(bot, method, timeout).await?;
+        async move {
+            let response = self.send_request(bot, method, timeout).await?;
 
-        debug_span!("response", status_code = response.status_code.as_u16()).in_scope(|| {
-            let resp = method.build_response(&response.content)?;
-            self.check_response(&resp, response.status_code)?;
+            debug_span!("response", status_code = response.status_code.as_u16()).in_scope(|| {
+                let resp = method.build_response(&response.content)?;
+                self.check_response(&resp, response.status_code)?;
 
-            Ok(resp)
-        })
+                Ok(resp)
+            })
+        }
     }
 
     /// Makes a request to Telegram API and get result from it
@@ -259,26 +260,28 @@ pub trait Session: Send + Sync {
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
     /// - If the response represents an telegram api error
-    async fn make_request_and_get_result<Client, T>(
+    fn make_request_and_get_result<Client, T>(
         &self,
         bot: &Bot<Client>,
         method: &T,
         timeout: Option<f32>,
-    ) -> Result<T::Return, SessionErrorKind>
+    ) -> impl Future<Output = Result<T::Return, SessionErrorKind>> + Send
     where
         Client: Session,
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync,
     {
-        let resp = self.make_request(bot, method, timeout).await?;
+        async move {
+            let resp = self.make_request(bot, method, timeout).await?;
 
-        // Unwrap safe because we checked it in `check_response`
-        Ok(resp.result.unwrap())
+            // Unwrap safe because we checked it in `check_response`
+            Ok(resp.result.unwrap())
+        }
     }
 
     /// Close client session. Default implementation does nothing.
-    async fn close(&self) -> Result<(), anyhow::Error> {
-        Ok(())
+    fn close(&self) -> impl Future<Output = Result<(), anyhow::Error>> + Send {
+        async move { Ok(()) }
     }
 }
 

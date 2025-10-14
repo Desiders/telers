@@ -23,7 +23,6 @@
 //!
 //! [`Bot::with_client`]: telers::Bot#method.with_client
 
-use async_trait::async_trait;
 use std::borrow::Cow;
 use telers::{
     client::{session::ClientResponse, telegram, Session},
@@ -42,7 +41,6 @@ struct CustomClient {
 }
 
 impl Default for CustomClient {
-    #[must_use]
     fn default() -> Self {
         Self {
             api: Cow::Borrowed(&telegram::PRODUCTION),
@@ -50,7 +48,6 @@ impl Default for CustomClient {
     }
 }
 
-#[async_trait]
 impl Session for CustomClient {
     fn api(&self) -> &telegram::APIServer {
         &self.api

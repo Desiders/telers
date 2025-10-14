@@ -21,7 +21,6 @@ use crate::{
     utils::format_error_report,
 };
 
-use async_trait::async_trait;
 use reqwest::{
     multipart::{Form, Part},
     Body, Client, ClientBuilder,
@@ -149,7 +148,6 @@ impl Reqwest {
 impl Default for Reqwest {
     /// # Panics
     /// This method panics if the client cannot be created
-    #[must_use]
     fn default() -> Self {
         Self {
             client: ClientBuilder::new()
@@ -161,9 +159,7 @@ impl Default for Reqwest {
     }
 }
 
-#[async_trait]
 impl Session for Reqwest {
-    #[must_use]
     fn api(&self) -> &telegram::APIServer {
         &self.api
     }

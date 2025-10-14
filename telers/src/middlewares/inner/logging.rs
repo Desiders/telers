@@ -5,7 +5,6 @@ use crate::{
     Request,
 };
 
-use async_trait::async_trait;
 use std::{
     fmt::{self, Display, Formatter},
     time::Instant,
@@ -28,7 +27,6 @@ impl Display for Logging {
     }
 }
 
-#[async_trait]
 impl<Client> Middleware<Client> for Logging
 where
     Client: Send + Sync + 'static,

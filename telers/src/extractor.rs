@@ -17,13 +17,11 @@
 //!     middlewares::{outer::{MiddlewareResponse, Middleware}},
 //!     Request,
 //! };
-//! use async_trait::async_trait;
 //!
 //! struct ToExtensionsMiddleware<T> {
 //!     data: T,
 //! }
 //!
-//! #[async_trait]
 //! impl<T> Middleware for ToExtensionsMiddleware<T>
 //! where
 //!     T: Send + Sync + Clone + 'static,
