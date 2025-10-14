@@ -18,11 +18,11 @@
 //! ```
 
 use telers::{
-    enums::ContentType as ContentTypeEnum,
+    enums::ContentType::Text,
     enums::UpdateType,
     event::{telegram::HandlerResult, EventReturn},
     filters::{Command, ContentType, State as StateFilter},
-    fsm::{Context as FSMContext, MemoryStorage, Storage, Strategy},
+    fsm::{Context as FSMContext, MemoryStorage, Storage, Strategy::UserInChatAndConnection},
     methods::SendMessage,
     middlewares::outer::FSMContext as FSMContextMiddleware,
     types::{Message, MessageText},
@@ -156,7 +156,7 @@ async fn language_handler<S: Storage>(
             // We don't need this, because `State::Language` is already set and doesn't change automatically
             // fsm.set_state(State::Language).await.map_err(Into::into)?;
         }
-    };
+    }
 
     Ok(EventReturn::Finish)
 }
@@ -180,7 +180,7 @@ async fn main() {
         .update
         .outer_middlewares
         // We use here `Strategy::UserInChatAndConnection` to have different states for business connections and other chats
-        .register(FSMContextMiddleware::new(storage).strategy(Strategy::UserInChatAndConnection));
+        .register(FSMContextMiddleware::new(storage).strategy(UserInChatAndConnection));
 
     router
         .business_message
@@ -190,12 +190,12 @@ async fn main() {
     router
         .business_message
         .register(name_handler::<MemoryStorage>)
-        .filter(ContentType::one(ContentTypeEnum::Text))
+        .filter(ContentType::one(Text))
         .filter(StateFilter::one(State::Name));
     router
         .business_message
         .register(language_handler::<MemoryStorage>)
-        .filter(ContentType::one(ContentTypeEnum::Text))
+        .filter(ContentType::one(Text))
         .filter(StateFilter::one(State::Language));
 
     let dispatcher = Dispatcher::builder()

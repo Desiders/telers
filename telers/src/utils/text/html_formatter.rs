@@ -21,12 +21,12 @@ const EMOJI_TAG: &str = "tg-emoji";
 /// <https://core.telegram.org/bots/api#html-style>
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Formatter {
-    bold_tag: &'static str,
-    italic_tag: &'static str,
-    underline_tag: &'static str,
-    strikethrough_tag: &'static str,
-    spoiler_tag: &'static str,
-    emoji_tag: &'static str,
+    bold: &'static str,
+    italic: &'static str,
+    underline: &'static str,
+    strikethrough: &'static str,
+    spoiler: &'static str,
+    emoji: &'static str,
 }
 
 impl Formatter {
@@ -35,20 +35,20 @@ impl Formatter {
     /// If you want to use the default tags, use `Formatter::default` instead.
     #[must_use]
     pub const fn new_with_tags(
-        bold_tag: &'static str,
-        italic_tag: &'static str,
-        underline_tag: &'static str,
-        strikethrough_tag: &'static str,
-        spoiler_tag: &'static str,
-        emoji_tag: &'static str,
+        bold: &'static str,
+        italic: &'static str,
+        underline: &'static str,
+        strikethrough: &'static str,
+        spoiler: &'static str,
+        emoji: &'static str,
     ) -> Self {
         Self {
-            bold_tag,
-            italic_tag,
-            underline_tag,
-            strikethrough_tag,
-            spoiler_tag,
-            emoji_tag,
+            bold,
+            italic,
+            underline,
+            strikethrough,
+            spoiler,
+            emoji,
         }
     }
 
@@ -77,35 +77,35 @@ impl TextFormatter for Formatter {
     where
         T: Display,
     {
-        format!("<{tag}>{text}</{tag}>", tag = self.bold_tag)
+        format!("<{tag}>{text}</{tag}>", tag = self.bold)
     }
 
     fn italic<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("<{tag}>{text}</{tag}>", tag = self.italic_tag)
+        format!("<{tag}>{text}</{tag}>", tag = self.italic)
     }
 
     fn underline<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("<{tag}>{text}</{tag}>", tag = self.underline_tag)
+        format!("<{tag}>{text}</{tag}>", tag = self.underline)
     }
 
     fn strikethrough<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("<{tag}>{text}</{tag}>", tag = self.strikethrough_tag)
+        format!("<{tag}>{text}</{tag}>", tag = self.strikethrough)
     }
 
     fn spoiler<T>(&self, text: T) -> String
     where
         T: Display,
     {
-        format!("<{tag}>{text}</{tag}>", tag = self.spoiler_tag)
+        format!("<{tag}>{text}</{tag}>", tag = self.spoiler)
     }
 
     fn blockquote<T>(&self, text: T) -> String
@@ -144,7 +144,7 @@ impl TextFormatter for Formatter {
     {
         format!(
             "<{tag} data-emoji-id=\"{emoji_id}\">{text}</{tag}>",
-            tag = self.emoji_tag,
+            tag = self.emoji,
         )
     }
 

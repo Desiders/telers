@@ -14,7 +14,7 @@ use std::sync::{
     Arc,
 };
 use telers::{
-    enums::ChatType as ChatTypeEnum,
+    enums::ChatType::Private,
     errors::EventErrorKind,
     event::{telegram::HandlerResult, EventReturn},
     filters::{ChatType, Command},
@@ -96,9 +96,7 @@ async fn main() {
     // This router will handle all private messages
     let mut private_router = Router::new("private");
     // Register filter for all private messages
-    private_router
-        .message
-        .filter(ChatType::one(ChatTypeEnum::Private));
+    private_router.message.filter(ChatType::one(Private));
     // Register handler for private messages, which will send a greeting message
     private_router
         .message

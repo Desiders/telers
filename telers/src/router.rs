@@ -772,7 +772,7 @@ where
                 } => {
                     request = updated_request;
                 }
-            };
+            }
 
             event!(Level::TRACE, "Propagate event to router");
 
@@ -780,24 +780,19 @@ where
 
             for middleware in observer.outer_middlewares_mut() {
                 let (updated_request, event_return) = middleware.call(request.clone()).await?;
-
                 match event_return {
                     // If middleware returns finish then update request because the middleware could have changed it
                     EventReturn::Finish => {
                         event!(Level::TRACE, "Outer middleware returns finish");
-
                         request = updated_request;
                     }
                     // If middleware returns skip, then we should skip this middleware and its changes
                     EventReturn::Skip => {
                         event!(Level::TRACE, "Outer middleware returns skip");
-
-                        continue;
                     }
                     // If middleware returns cancel, then we should reject propagation
                     EventReturn::Cancel => {
                         event!(Level::TRACE, "Outer middleware returns cancel");
-
                         return Ok(Response {
                             request,
                             propagate_result: PropagateEventResult::Rejected,
@@ -817,7 +812,6 @@ where
                 // If observer handled, then return a response
                 PropagateEventResult::Handled(response) => {
                     event!(Level::TRACE, "Event handled by router");
-
                     return Ok(Response {
                         request,
                         propagate_result: PropagateEventResult::Handled(response),
@@ -827,13 +821,12 @@ where
                 // Router don't know about rejected event by observer, so it returns unhandled response.
                 PropagateEventResult::Rejected => {
                     event!(Level::TRACE, "Event rejected by router");
-
                     return Ok(Response {
                         request,
                         propagate_result: PropagateEventResult::Unhandled,
                     });
                 }
-            };
+            }
 
             // Propagate event to sub routers
             for router in &mut self.sub_routers {
@@ -842,22 +835,18 @@ where
                     // If the event unhandled by the sub router's observer, then continue propagation
                     PropagateEventResult::Unhandled => {
                         event!(Level::TRACE, "Event unhandled by sub router");
-
-                        continue;
                     }
                     // If the event handled by the sub router's observer, then return a response
                     PropagateEventResult::Handled(_) => {
                         event!(Level::TRACE, "Event handled by sub router");
-
                         return Ok(router_response);
                     }
                     // If the event rejected by the sub router's observer, then return a response
                     PropagateEventResult::Rejected => {
                         event!(Level::TRACE, "Event rejected by sub router");
-
                         return Ok(router_response);
                     }
-                };
+                }
             }
 
             // If the event unhandled by all observers, then return an unhandled response
@@ -880,24 +869,19 @@ where
 
         for middleware in self.update.outer_middlewares_mut() {
             let (updated_request, event_return) = middleware.call(request.clone()).await?;
-
             match event_return {
                 // If middleware returns finish, then update request because the middleware could have changed it
                 EventReturn::Finish => {
                     event!(Level::TRACE, "Update outer middleware returns finish");
-
                     request = updated_request;
                 }
                 // If middleware returns skip, then we should skip this middleware and its changes
                 EventReturn::Skip => {
                     event!(Level::TRACE, "Update outer middleware returns skip");
-
-                    continue;
                 }
                 // If middleware returns cancel, then we should cancel propagation
                 EventReturn::Cancel => {
                     event!(Level::TRACE, "Update outer middleware returns cancel");
-
                     return Ok(Response {
                         request,
                         propagate_result: PropagateEventResult::Rejected,
@@ -913,7 +897,6 @@ where
             // If observer returns unhandled, then propagate event to next observer
             PropagateEventResult::Unhandled => {
                 event!(Level::TRACE, "Update event unhandled by router");
-
                 Ok(Response {
                     request,
                     propagate_result: PropagateEventResult::Unhandled,
@@ -922,7 +905,6 @@ where
             // If observer returns handled, then return a response
             PropagateEventResult::Handled(response) => {
                 event!(Level::TRACE, "Update event handled by router");
-
                 Ok(Response {
                     request,
                     propagate_result: PropagateEventResult::Handled(response),
@@ -932,7 +914,6 @@ where
             // Router don't know about rejected event by observer, so it returns unhandled response.
             PropagateEventResult::Rejected => {
                 event!(Level::TRACE, "Update event rejected by router");
-
                 Ok(Response {
                     request,
                     propagate_result: PropagateEventResult::Unhandled,

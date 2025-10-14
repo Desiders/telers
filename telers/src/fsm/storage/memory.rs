@@ -77,7 +77,7 @@ impl Storage for Memory {
                 entry.get_mut().states.pop();
             }
             Entry::Vacant(_) => {}
-        };
+        }
         Ok(())
     }
 

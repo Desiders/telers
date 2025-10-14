@@ -354,13 +354,12 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
             let updates = match bot.send(&method).await {
                 Ok(updates) => {
                     // Get last update id to set offset or skip updates if it's empty
-                    let id = match updates.last() {
-                        Some(Either::Left(Update { id, .. })) => id,
-                        Some(Either::Right(UpdateUnparsed { id, .. })) => id,
-                        None => {
-                            event!(Level::TRACE, "No updates received");
-                            continue;
-                        }
+                    let Some(
+                        Either::Left(Update { id, .. }) | Either::Right(UpdateUnparsed { id, .. }),
+                    ) = updates.last()
+                    else {
+                        event!(Level::TRACE, "No updates received");
+                        continue;
                     };
 
                     event!(
