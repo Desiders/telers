@@ -73,15 +73,17 @@ mod tests {
 
         let mut router_configured = router.configure_default();
 
-        let mut request = Request::<Reqwest>::default();
-        request.update = Arc::new(Update {
-            kind: UpdateKind::Message(Message::Text(Box::new(MessageText {
-                from: Some(User::default()),
-                thread_id: Some(1),
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update {
+                kind: UpdateKind::Message(Message::Text(Box::new(MessageText {
+                    from: Some(Default::default()),
+                    thread_id: Some(1),
+                    ..Default::default()
+                }))),
                 ..Default::default()
-            }))),
+            }),
             ..Default::default()
-        });
+        };
 
         router_configured
             .propagate_event(UpdateType::Message, request)

@@ -79,8 +79,8 @@ enum ConvertKind {
 /// * `from` - type from which we need to convert event value (optional; required if `try_from` field is empty)
 /// * `try_from` - type from which we need to convert event value (optional; required if `from` field is empty)
 /// * `error` - type of error (optional) for `try_from`. \
-///     If it's empty, then we use `ConvertToTypeError` type as error type. \
-///     If it's not empty, then we use this type as error type.
+///   If it's empty, then we use `ConvertToTypeError` type as error type. \
+///   If it's not empty, then we use this type as error type.
 /// * `description` - description of type (optional)
 /// # Examples
 /// ```not_rust

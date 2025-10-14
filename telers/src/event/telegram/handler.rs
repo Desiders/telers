@@ -289,11 +289,13 @@ mod tests {
         let mut handler =
             HandlerComposite::new(|(), ()| async { Ok::<_, Infallible>(EventReturn::Finish) });
 
-        let mut request = Request::<Reqwest>::default();
-        request.update = Arc::new(Update {
-            id: 0,
-            kind: UpdateKind::Message(Message::default()),
-        });
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update {
+                id: 0,
+                kind: UpdateKind::Message(Message::default()),
+            }),
+            ..Default::default()
+        };
 
         let response = handler.call(request).await.unwrap();
 
@@ -309,11 +311,13 @@ mod tests {
             Ok::<_, Infallible>(EventReturn::Finish)
         }));
 
-        let mut request = Request::<Reqwest>::default();
-        request.update = Arc::new(Update {
-            id: 0,
-            kind: UpdateKind::Message(Message::default()),
-        });
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update {
+                id: 0,
+                kind: UpdateKind::Message(Message::default()),
+            }),
+            ..Default::default()
+        };
 
         let response = handler.call(request).await.unwrap();
 

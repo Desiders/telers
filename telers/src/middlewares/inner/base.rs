@@ -28,6 +28,7 @@ pub type Next<Client = Reqwest> = Box<
 /// - If you need to call middlewares after filters and before handlers
 /// - If you need to manipulate with call of next middleware or handler
 /// - If you need to manipulate with [`Request`] or [`HandlerResponse`]
+///
 /// Usually inner middlewares are more relevant than outer middlewares.
 ///
 /// Implement this trait for your own middlewares
@@ -139,11 +140,13 @@ mod tests {
         let handler_service =
             boxed_handler_factory(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
 
-        let mut request = Request::<Reqwest>::default();
-        request.update = Arc::new(Update {
-            id: 0,
-            kind: UpdateKind::Message(Message::default()),
-        });
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update {
+                id: 0,
+                kind: UpdateKind::Message(Message::default()),
+            }),
+            ..Default::default()
+        };
         let response = Middleware::call(
             &mut test_middleware,
             request,

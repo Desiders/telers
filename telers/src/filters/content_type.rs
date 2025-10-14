@@ -27,9 +27,7 @@ impl<const N: usize> ContentType<N> {
 impl<const N: usize> ContentType<N> {
     #[must_use]
     pub fn validate(&self, content_type: ContentTypeEnum) -> bool {
-        self.content_types
-            .iter()
-            .any(|allowed_content_type| *allowed_content_type == content_type)
+        self.content_types.contains(&content_type)
     }
 }
 

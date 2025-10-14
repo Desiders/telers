@@ -4,11 +4,11 @@
 //! There are two types of event observers:
 //!
 //! * Simple observer:
-//!     [`Simple observer`] is used to handle simple events like startup and shutdown.
-//!     When you register a handler in this observer,
-//!     you specify the arguments that pass to handler when the event is trigger.
-//!     Return type of handler is [`Result<(), HandlerError>`].
-//!     When observer is trigger, it calls all handlers in order of registration and stops if one of them returns an error.
+//!   [`Simple observer`] is used to handle simple events like startup and shutdown.
+//!   When you register a handler in this observer,
+//!   you specify the arguments that pass to handler when the event is trigger.
+//!   Return type of handler is [`Result<(), HandlerError>`].
+//!   When observer is trigger, it calls all handlers in order of registration and stops if one of them returns an error.
 //!
 //! Registration of handlers looks like this:
 //! ```ignore
@@ -26,16 +26,16 @@
 //! ```
 //!
 //! * Telegram observer:
-//!     [`Telegram observer`] is used to handle telegram events like messages, callback queries, polls and all other event types.
-//!     You can register a handler with any arguments that implement [`Extractor`] trait, see [`extractors module`] for more details.
-//!     Return type of handler is [`Result<EventReturn, HandlerError>`],
-//!     where [`EventReturn`] is a special enum that can be used to control the propagation of the event,
-//!     see [`EventReturn`] for more details.
-//!     When observer is trigger, it calls outer middlewares and checks all handlers in order of registration.
-//!     It calls all filters for each handler and skips handler if one of them returns `false`.
-//!     If handler is pass the filters, observer calls inner middlewares and handler itself (in the middleware).
-//!     By default, the first handler that pass the filters stop the propagation of the event, so other handlers aren't calls,
-//!     but you can change this behaviour by specify another variant of [`EventReturn`]).
+//!   [`Telegram observer`] is used to handle telegram events like messages, callback queries, polls and all other event types.
+//!   You can register a handler with any arguments that implement [`Extractor`] trait, see [`extractors module`] for more details.
+//!   Return type of handler is [`Result<EventReturn, HandlerError>`],
+//!   where [`EventReturn`] is a special enum that can be used to control the propagation of the event,
+//!   see [`EventReturn`] for more details.
+//!   When observer is trigger, it calls outer middlewares and checks all handlers in order of registration.
+//!   It calls all filters for each handler and skips handler if one of them returns `false`.
+//!   If handler is pass the filters, observer calls inner middlewares and handler itself (in the middleware).
+//!   By default, the first handler that pass the filters stop the propagation of the event, so other handlers aren't calls,
+//!   but you can change this behaviour by specify another variant of [`EventReturn`]).
 //!
 //! Registration of handlers looks like this:
 //! ```ignore
@@ -82,9 +82,9 @@
 //! > finish event propagation by [`EventReturn::Finish`] or skip current handler and go to next handler (and its filters) by [`EventReturn::Skip`].
 //! * The above also applies to the special update observer with some differences:
 //! 1. Middlewares and handlers are called before other middlewares and handlers for the current event observer,
-//!     so processing units in update observer have priority in processing.
+//!    so processing units in update observer have priority in processing.
 //! 2. [`EventReturn::Cancel`] for update observer's innter middlrewares and handler don't stop event propagation for the current router,
-//!     it doesn't affect the processing of the event in any way.
+//!    it doesn't affect the processing of the event in any way.
 //!
 //! [`Simple observer`]: SimpleObserver
 //! [`Telegram observer`]: TelegramObserver

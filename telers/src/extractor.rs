@@ -465,6 +465,7 @@ mod factory_extractor {
     factory! { A B C D E F G H I J K L M N O P }
 }
 
+#[allow(unreachable_code, clippy::extra_unused_type_parameters)]
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -526,7 +527,6 @@ mod tests {
         let _: Result<(), Infallible> = Extractor::extract(&request).unwrap();
     }
 
-    #[allow(unreachable_code)]
     fn _check_bounds<Client, T: Extractor<Client>>() {
         unimplemented!("This function is only used for checking bounds");
 
@@ -614,7 +614,6 @@ mod tests {
         _check_bounds::<Client, ChatBoostRemoved>();
     }
 
-    #[allow(unreachable_code)]
     fn _check_bounds_option<Client, T: Extractor<Client>>() {
         unimplemented!("This function is only used for checking bounds");
 
@@ -703,7 +702,6 @@ mod tests {
         _check_bounds::<Client, Option<ChatBoostRemoved>>();
     }
 
-    #[allow(unreachable_code)]
     fn _check_bounds_result<Client, T: Extractor<Client>, Err: Into<ExtractionError>>() {
         unimplemented!("This function is only used for checking bounds");
 

@@ -5,13 +5,13 @@
 //!
 //! Ready-made implementations:
 //! * Memory (feature: `memory-storage`):
-//!     In-memory storage implementation.
-//!     This is a simple thread-safe in-memory storage implementation used for testing purposes usually, because it doesn't persist data between restarts
-//!     and isn't recommended for production use.
+//!   In-memory storage implementation.
+//!   This is a simple thread-safe in-memory storage implementation used for testing purposes usually, because it doesn't persist data between restarts
+//!   and isn't recommended for production use.
 //! * Redis (feature: `redis-storage`):
-//!     Redis storage implementation.
-//!     This is a thread-safe Redis storage implementation that persists data between restarts.
-//!     This is the recommended storage implementation for production use.
+//!   Redis storage implementation.
+//!   This is a thread-safe Redis storage implementation that persists data between restarts.
+//!   This is the recommended storage implementation for production use.
 
 pub mod base;
 #[cfg(feature = "memory-storage")]

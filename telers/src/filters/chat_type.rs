@@ -27,9 +27,7 @@ impl<const N: usize> ChatType<N> {
 impl<const N: usize> ChatType<N> {
     #[must_use]
     pub fn validate(&self, chat_type: ChatTypeEnum) -> bool {
-        self.chat_types
-            .iter()
-            .any(|allowed_chat_type| *allowed_chat_type == chat_type)
+        self.chat_types.contains(&chat_type)
     }
 }
 

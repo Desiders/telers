@@ -92,7 +92,7 @@ pub trait Session: Send + Sync {
     /// * `bot` - Bot instance for building request, it is mainly used for getting bot token
     /// * `method` - Telegram method for building request
     /// * `timeout` - Request timeout.
-    /// If `None`, then client timeout will be used, which is [`DEFAULT_TIMEOUT`] by default.
+    ///   If `None`, then client timeout will be used, which is [`DEFAULT_TIMEOUT`] by default.
     /// # Errors
     /// If the request cannot be send or decoded
     #[must_use]
@@ -222,7 +222,7 @@ pub trait Session: Send + Sync {
     /// * `bot` - Bot instance for building and sending request, it is mainly used for getting bot token
     /// * `method` - Telegram method for building and sending request
     /// * `timeout` - Request timeout.
-    /// If [`None`], then client timeout will be used, which is [`DEFAULT_TIMEOUT`] by default.
+    ///   If [`None`], then client timeout will be used, which is [`DEFAULT_TIMEOUT`] by default.
     /// # Errors
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
@@ -255,7 +255,7 @@ pub trait Session: Send + Sync {
     /// * `bot` - Bot instance for building and sending request, it is mainly used for getting bot token
     /// * `method` - Telegram method for building and sending request
     /// * `timeout` - Request timeout.
-    /// If `None`, then client timeout will be used, which is [`DEFAULT_TIMEOUT`] by default.
+    ///   If `None`, then client timeout will be used, which is [`DEFAULT_TIMEOUT`] by default.
     /// # Errors
     /// - If the request cannot be send or decoded
     /// - If the response cannot be parsed
@@ -302,7 +302,7 @@ mod tests {
             "result": {
                 "message_id": 423,
                 "from": {
-                    "id": 1 as i64,
+                    "id": 1i64,
                     "is_bot": true,
                     "first_name": "test",
                     "username": "test"

@@ -119,7 +119,7 @@ impl Context {
     #[inline]
     #[must_use]
     pub fn contains_key(&self, key: &'static str) -> bool {
-        self.map.as_ref().map_or(false, |map| map.contains_key(key))
+        self.map.as_ref().is_some_and(|map| map.contains_key(key))
     }
 
     #[inline]

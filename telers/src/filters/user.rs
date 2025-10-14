@@ -339,7 +339,7 @@ impl User {
 
     #[must_use]
     pub fn validate_id(&self, id: i64) -> bool {
-        self.ids.iter().any(|allowed_id| *allowed_id == id)
+        self.ids.contains(&id)
     }
 
     #[must_use]

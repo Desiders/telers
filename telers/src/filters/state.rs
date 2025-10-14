@@ -33,11 +33,7 @@ impl State {
     #[must_use]
     const fn validate(&self, is_some: bool) -> bool {
         if is_some {
-            if matches!(self, Self::Any) {
-                true
-            } else {
-                false
-            }
+            matches!(self, Self::Any)
         } else {
             matches!(self, Self::None)
         }

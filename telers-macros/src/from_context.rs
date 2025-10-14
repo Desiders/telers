@@ -212,8 +212,8 @@ impl ToTokens for Client {
 /// * `ident_where_clause` - where clause of `ident` type
 /// * `client` - client type
 /// * `context_attrs` - context attributes. \
-///     If `into` field is not empty, then we need to implement the trait for `into` type and require `Into<Self>` trait for `ident` type. \
-///     If `from` field is not empty, then we need to implement the trait for `ident` type and require `From<Self>` trait for `into` type.
+///   If `into` field is not empty, then we need to implement the trait for `into` type and require `Into<Self>` trait for `ident` type. \
+///   If `from` field is not empty, then we need to implement the trait for `ident` type and require `From<Self>` trait for `into` type.
 /// # Notes
 /// * Currently we can implement `Extractor` trait for types that implement `Into<Self>` or `From<Self>` traits only with the same generics.
 #[allow(clippy::too_many_lines)]
