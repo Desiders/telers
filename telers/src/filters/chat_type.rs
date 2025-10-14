@@ -1,57 +1,48 @@
 use super::base::Filter;
 use crate::{enums::ChatType as ChatTypeEnum, Request};
 
-use async_trait::async_trait;
+use std::future::Future;
 
-/// Filter for checking the type of chat
 #[derive(Debug, Clone)]
-pub struct ChatType {
-    chat_types: Vec<ChatTypeEnum>,
+pub struct ChatType<const N: usize> {
+    chat_types: [ChatTypeEnum; N],
 }
 
-impl ChatType {
-    /// Creates a new [`ChatType`] filter with one allowed chat type.
-    /// # Notes
-    /// You can use [`ChatTypeEnum`] or its string representation.
+impl ChatType<1> {
     pub fn one(chat_type: impl Into<ChatTypeEnum>) -> Self {
         Self {
-            chat_types: vec![chat_type.into()],
-        }
-    }
-
-    /// Creates a new [`ChatType`] filter with many allowed chat types.
-    /// # Notes
-    /// You can use [`ChatTypeEnum`] or its string representation.
-    pub fn many<T, I>(chat_types: I) -> Self
-    where
-        T: Into<ChatTypeEnum>,
-        I: IntoIterator<Item = T>,
-    {
-        Self {
-            chat_types: chat_types.into_iter().map(Into::into).collect(),
+            chat_types: [chat_type.into(); 1],
         }
     }
 }
 
-impl ChatType {
+impl<const N: usize> ChatType<N> {
+    pub fn many(chat_types: impl Into<[ChatTypeEnum; N]>) -> Self {
+        Self {
+            chat_types: chat_types.into(),
+        }
+    }
+}
+
+impl<const N: usize> ChatType<N> {
     #[must_use]
-    pub fn validate_chat_type(&self, chat_type: ChatTypeEnum) -> bool {
+    pub fn validate(&self, chat_type: ChatTypeEnum) -> bool {
         self.chat_types
             .iter()
-            .any(|allowed_chat_type| allowed_chat_type == &chat_type)
+            .any(|allowed_chat_type| *allowed_chat_type == chat_type)
     }
 }
 
-#[async_trait]
-impl<Client> Filter<Client> for ChatType
+impl<Client, const N: usize> Filter<Client> for ChatType<N>
 where
-    Client: Send + Sync + 'static,
+    Client: Send,
 {
-    async fn check(&mut self, request: &mut Request<Client>) -> bool {
-        match request.update.chat() {
-            Some(chat) => self.validate_chat_type(ChatTypeEnum::from(chat)),
+    fn check(&mut self, request: &mut Request<Client>) -> impl Future<Output = bool> {
+        let res = match request.update.chat() {
+            Some(chat) => self.validate(ChatTypeEnum::from(chat)),
             None => false,
-        }
+        };
+        async move { res }
     }
 }
 
@@ -63,8 +54,8 @@ mod tests {
     async fn test_chat_type() {
         let filter = ChatType::many([ChatTypeEnum::Private, ChatTypeEnum::Supergroup]);
 
-        assert!(filter.validate_chat_type(ChatTypeEnum::Private));
-        assert!(filter.validate_chat_type(ChatTypeEnum::Supergroup));
-        assert!(!filter.validate_chat_type(ChatTypeEnum::Channel));
+        assert!(filter.validate(ChatTypeEnum::Private));
+        assert!(filter.validate(ChatTypeEnum::Supergroup));
+        assert!(!filter.validate(ChatTypeEnum::Channel));
     }
 }

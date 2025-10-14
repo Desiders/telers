@@ -1,7 +1,6 @@
 use super::base::Filter;
 use crate::{types::User as UserType, Request};
 
-use async_trait::async_trait;
 use std::borrow::Cow;
 
 /// Filter for checking the user.
@@ -361,7 +360,6 @@ impl User {
     }
 }
 
-#[async_trait]
 impl<Client> Filter<Client> for User
 where
     Client: Send + Sync + 'static,

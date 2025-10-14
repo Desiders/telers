@@ -72,6 +72,6 @@ pub use chat_type::ChatType;
 pub use command::{Builder as CommandBuilder, Command, CommandObject};
 pub use content_type::ContentType;
 pub use logical::{And, Invert, Or};
-pub use state::{State, StateType};
+pub use state::State;
 pub use text::{Builder as TextBuilder, Text};
 pub use user::{Builder as UserBuilder, User};

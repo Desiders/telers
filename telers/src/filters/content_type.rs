@@ -1,59 +1,48 @@
 use super::base::Filter;
 use crate::{enums::ContentType as ContentTypeEnum, Request};
 
-use async_trait::async_trait;
+use std::future::Future;
 
-/// Filter for checking the type of content
 #[derive(Debug, Clone)]
-pub struct ContentType {
-    content_types: Vec<ContentTypeEnum>,
+pub struct ContentType<const N: usize> {
+    content_types: [ContentTypeEnum; N],
 }
 
-impl ContentType {
-    /// Creates a new [`ContentType`] filter with one allowed content type
-    /// # Notes
-    /// You can use [`ContentTypeEnum`] or its string representation
-    #[must_use]
+impl ContentType<1> {
     pub fn one(content_type: impl Into<ContentTypeEnum>) -> Self {
         Self {
-            content_types: vec![content_type.into()],
-        }
-    }
-
-    /// Creates a new [`ContentType`] filter with many allowed content types
-    /// # Notes
-    /// You can use [`ContentTypeEnum`] or its string representation
-    #[must_use]
-    pub fn many<T, I>(content_types: I) -> Self
-    where
-        T: Into<ContentTypeEnum>,
-        I: IntoIterator<Item = T>,
-    {
-        Self {
-            content_types: content_types.into_iter().map(Into::into).collect(),
+            content_types: [content_type.into(); 1],
         }
     }
 }
 
-impl ContentType {
+impl<const N: usize> ContentType<N> {
+    pub fn many(content_types: impl Into<[ContentTypeEnum; N]>) -> Self {
+        Self {
+            content_types: content_types.into(),
+        }
+    }
+}
+
+impl<const N: usize> ContentType<N> {
     #[must_use]
-    pub fn validate_content_type(&self, content_type: ContentTypeEnum) -> bool {
+    pub fn validate(&self, content_type: ContentTypeEnum) -> bool {
         self.content_types
             .iter()
-            .any(|allowed_content_type| allowed_content_type == &content_type)
+            .any(|allowed_content_type| *allowed_content_type == content_type)
     }
 }
 
-#[async_trait]
-impl<Client> Filter<Client> for ContentType
+impl<Client, const N: usize> Filter<Client> for ContentType<N>
 where
-    Client: Send + Sync + 'static,
+    Client: Send,
 {
-    async fn check(&mut self, request: &mut Request<Client>) -> bool {
-        let Some(message) = request.update.message() else {
-            return false;
+    fn check(&mut self, request: &mut Request<Client>) -> impl Future<Output = bool> {
+        let res = match request.update.message() {
+            Some(message) => self.validate(ContentTypeEnum::from(message)),
+            None => false,
         };
-        self.validate_content_type(ContentTypeEnum::from(message))
+        async move { res }
     }
 }
 
@@ -65,8 +54,8 @@ mod tests {
     async fn test_content_type() {
         let filter = ContentType::many([ContentTypeEnum::Text, ContentTypeEnum::Photo]);
 
-        assert!(filter.validate_content_type(ContentTypeEnum::Text));
-        assert!(filter.validate_content_type(ContentTypeEnum::Photo));
-        assert!(!filter.validate_content_type(ContentTypeEnum::Audio));
+        assert!(filter.validate(ContentTypeEnum::Text));
+        assert!(filter.validate(ContentTypeEnum::Photo));
+        assert!(!filter.validate(ContentTypeEnum::Audio));
     }
 }

@@ -1,7 +1,6 @@
 use super::base::Filter;
 use crate::Request;
 
-use async_trait::async_trait;
 use regex::Regex;
 use std::borrow::Cow;
 
@@ -381,7 +380,6 @@ impl Text {
     }
 }
 
-#[async_trait]
 impl<Client> Filter<Client> for Text
 where
     Client: Send + Sync + 'static,

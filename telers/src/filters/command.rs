@@ -7,7 +7,6 @@ use crate::{
     FromContext, Request,
 };
 
-use async_trait::async_trait;
 use regex::Regex;
 use std::{borrow::Cow, iter::once};
 use tracing::{event, instrument, Level};
@@ -186,7 +185,6 @@ impl Command {
 }
 
 impl Default for Command {
-    #[must_use]
     fn default() -> Self {
         Self {
             commands: vec![],
@@ -271,7 +269,6 @@ impl Builder {
 }
 
 impl Default for Builder {
-    #[must_use]
     fn default() -> Self {
         Self {
             commands: vec![],
@@ -417,7 +414,6 @@ impl CommandObject {
     }
 }
 
-#[async_trait]
 impl<Client> Filter<Client> for Command
 where
     Client: Session + 'static,
