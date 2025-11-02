@@ -249,6 +249,7 @@ pub mod shared_user;
 pub mod shipping_address;
 pub mod shipping_option;
 pub mod shipping_query;
+pub mod star_amount;
 pub mod star_transaction;
 pub mod star_transactions;
 pub mod sticker;
@@ -574,6 +575,7 @@ pub use shared_user::SharedUser;
 pub use shipping_address::ShippingAddress;
 pub use shipping_option::ShippingOption;
 pub use shipping_query::ShippingQuery;
+pub use star_amount::StarAmount;
 pub use star_transaction::{
     Receiver as StarTransactionReceiver, Source as StarTransactionSource, StarTransaction,
 };
