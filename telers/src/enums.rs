@@ -29,6 +29,7 @@
 //! [`MenuButton`]: telers::types::MenuButton
 //! [`Into`]: std::convert::Into
 
+pub mod active_period;
 pub mod bot_command_scope_type;
 pub mod chat_action;
 pub mod chat_member_status;
@@ -47,6 +48,7 @@ pub mod sticker_type;
 pub mod topic_icon_color;
 pub mod update_type;
 
+pub use active_period::ActivePeriod;
 pub use bot_command_scope_type::BotCommandScopeType;
 pub use chat_action::ChatAction;
 pub use chat_member_status::ChatMemberStatus;

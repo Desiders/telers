@@ -1,6 +1,8 @@
 use crate::{
     client::Bot,
-    types::{InputFile, InputMedia, InputPaidMedia, InputSticker, ResponseParameters},
+    types::{
+        InputFile, InputMedia, InputPaidMedia, InputSticker, InputStoryContent, ResponseParameters,
+    },
     utils::format_error_report,
 };
 
@@ -166,5 +168,19 @@ pub(super) fn prepare_input_paid_media_group<'a>(
 ) {
     for input_paid_media in input_paid_media_group {
         prepare_input_paid_media(files, input_paid_media);
+    }
+}
+
+pub(super) fn prepare_input_story_content<'a>(
+    files: &mut Vec<&'a InputFile<'a>>,
+    input_story_content: &'a InputStoryContent<'a>,
+) {
+    match input_story_content {
+        InputStoryContent::Photo(inner) => {
+            prepare_file(files, &inner.photo);
+        }
+        InputStoryContent::Video(inner) => {
+            prepare_file(files, &inner.video);
+        }
     }
 }
