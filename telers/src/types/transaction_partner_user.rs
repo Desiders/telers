@@ -23,4 +23,6 @@ pub struct TransactionPartnerUser {
     pub paid_media_payload: Option<Box<str>>,
     /// The gift sent to the user by the bot
     pub gift: Option<Gift>,
+    /// Number of months the gifted Telegram Premium subscription will be active for; for `premium_purchase` transactions only
+    pub premium_subscription_duration: Option<i64>,
 }
