@@ -57,6 +57,7 @@ pub enum Message {
     UsersShared(Box<UsersShared>),
     ChatShared(Box<ChatShared>),
     Gift(Box<Gift>),
+    UniqueGift(Box<UniqueGift>),
     ConnectedWebsite(Box<ConnectedWebsite>),
     WriteAccessAllowed(Box<WriteAccessAllowed>),
     PassportData(Box<PassportData>),
@@ -1450,6 +1451,24 @@ pub struct Gift {
     pub gift: types::GiftInfo,
 }
 
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
+pub struct UniqueGift {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: a unique gift was sent or received
+    #[serde(rename = "unique_gift")]
+    pub gift: types::UniqueGiftInfo,
+}
+
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
 #[event(try_from = Update)]
 pub struct ConnectedWebsite {
@@ -1966,6 +1985,7 @@ impl Message {
             Message::UsersShared(message) => message.id,
             Message::ChatShared(message) => message.id,
             Message::Gift(message) => message.id,
+            Message::UniqueGift(message) => message.id,
             Message::ConnectedWebsite(message) => message.id,
             Message::WriteAccessAllowed(message) => message.id,
             Message::PassportData(message) => message.id,
@@ -2064,6 +2084,7 @@ impl Message {
             Message::UsersShared(message) => message.date,
             Message::ChatShared(message) => message.date,
             Message::Gift(message) => message.date,
+            Message::UniqueGift(message) => message.date,
             Message::ConnectedWebsite(message) => message.date,
             Message::WriteAccessAllowed(message) => message.date,
             Message::PassportData(message) => message.date,
@@ -2234,6 +2255,7 @@ impl Message {
             Message::UsersShared(message) => &message.chat,
             Message::ChatShared(message) => &message.chat,
             Message::Gift(message) => &message.chat,
+            Message::UniqueGift(message) => &message.chat,
             Message::ConnectedWebsite(message) => &message.chat,
             Message::WriteAccessAllowed(message) => &message.chat,
             Message::PassportData(message) => &message.chat,
@@ -2499,6 +2521,7 @@ impl Message {
             Message::UsersShared(message) => message.from.as_ref(),
             Message::ChatShared(message) => message.from.as_ref(),
             Message::Gift(message) => message.from.as_ref(),
+            Message::UniqueGift(message) => message.from.as_ref(),
             Message::PassportData(message) => message.from.as_ref(),
             Message::ChatBackgroundSet(message) => message.from.as_ref(),
             Message::ForumTopicCreated(message) => message.from.as_ref(),
@@ -3113,6 +3136,14 @@ impl Message {
     }
 
     #[must_use]
+    pub const fn unique_gift_info(&self) -> Option<&types::UniqueGiftInfo> {
+        match self {
+            Message::UniqueGift(message) => Some(&message.gift),
+            _ => None,
+        }
+    }
+
+    #[must_use]
     pub const fn connected_website(&self) -> Option<&str> {
         match self {
             Message::ConnectedWebsite(message) => Some(&message.website),
@@ -3460,6 +3491,7 @@ impl_try_from_message!(WriteAccessAllowed, WriteAccessAllowed);
 impl_try_from_message!(UsersShared, UsersShared);
 impl_try_from_message!(ChatShared, ChatShared);
 impl_try_from_message!(Gift, Gift);
+impl_try_from_message!(UniqueGift, UniqueGift);
 impl_try_from_message!(MessageAutoDeleteTimerChanged, MessageAutoDeleteTimerChanged);
 
 impl TryFrom<Update> for Message {
@@ -3545,6 +3577,7 @@ impl_try_from_update!(WriteAccessAllowed);
 impl_try_from_update!(UsersShared);
 impl_try_from_update!(ChatShared);
 impl_try_from_update!(Gift);
+impl_try_from_update!(UniqueGift);
 impl_try_from_update!(MessageAutoDeleteTimerChanged);
 
 #[cfg(test)]

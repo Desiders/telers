@@ -77,6 +77,8 @@ pub enum ContentType {
     ChatShared,
     #[strum(serialize = "gift")]
     Gift,
+    #[strum(serialize = "unique_gift")]
+    UniqueGift,
     #[strum(serialize = "connected_website")]
     ConnectedWebsite,
     #[strum(serialize = "write_access_allowed")]
@@ -123,7 +125,7 @@ pub enum ContentType {
 
 impl ContentType {
     #[must_use]
-    pub const fn all() -> [ContentType; 56] {
+    pub const fn all() -> [ContentType; 57] {
         [
             ContentType::Text,
             ContentType::Animation,
@@ -160,6 +162,7 @@ impl ContentType {
             ContentType::UsersShared,
             ContentType::ChatShared,
             ContentType::Gift,
+            ContentType::UniqueGift,
             ContentType::ConnectedWebsite,
             ContentType::WriteAccessAllowed,
             ContentType::PassportData,
@@ -241,6 +244,7 @@ impl From<&Message> for ContentType {
             Message::UsersShared(_) => ContentType::UsersShared,
             Message::ChatShared(_) => ContentType::ChatShared,
             Message::Gift(_) => ContentType::Gift,
+            Message::UniqueGift(_) => ContentType::UniqueGift,
             Message::ConnectedWebsite(_) => ContentType::ConnectedWebsite,
             Message::WriteAccessAllowed(_) => ContentType::WriteAccessAllowed,
             Message::PassportData(_) => ContentType::PassportData,
