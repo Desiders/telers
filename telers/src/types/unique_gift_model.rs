@@ -10,7 +10,7 @@ pub struct UniqueGiftModel {
     /// Name of the model
     pub name: String,
     /// The sticker that represents the unique gift
-    pub sticker: Sticker,
+    pub sticker: Box<Sticker>,
     /// The number of unique gifts that receive this model for every 1000 gifts upgraded
     pub rarity_per_mille: i64,
 }

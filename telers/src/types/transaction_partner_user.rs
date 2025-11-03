@@ -62,6 +62,7 @@ pub struct TransactionPartnerUserBusinessAccountTransfer {
 }
 
 impl TransactionPartnerUser {
+    #[must_use]
     pub const fn user(&self) -> &User {
         match self {
             Self::InvoicePayment(TransactionPartnerUserInvoicePayment { user, .. })
@@ -75,6 +76,7 @@ impl TransactionPartnerUser {
         }
     }
 
+    #[must_use]
     pub const fn affiliate(&self) -> Option<&AffiliateInfo> {
         match self {
             Self::InvoicePayment(TransactionPartnerUserInvoicePayment { affiliate, .. })
@@ -85,6 +87,7 @@ impl TransactionPartnerUser {
         }
     }
 
+    #[must_use]
     pub const fn gift(&self) -> Option<&Gift> {
         match self {
             Self::GiftPurchase(TransactionPartnerUserGiftPurchase { gift, .. }) => Some(gift),
@@ -92,6 +95,7 @@ impl TransactionPartnerUser {
         }
     }
 
+    #[must_use]
     pub const fn premium_subscription_duration(&self) -> Option<i64> {
         match self {
             Self::PremiumPurchase(TransactionPartnerUserPremiumPurchase {
@@ -102,6 +106,7 @@ impl TransactionPartnerUser {
         }
     }
 
+    #[must_use]
     pub const fn paid_media(&self) -> Option<&[PaidMedia]> {
         match self {
             Self::PaidMediaPayment(TransactionPartnerUserPaidMediaPayment {
@@ -111,31 +116,29 @@ impl TransactionPartnerUser {
         }
     }
 
+    #[must_use]
     pub const fn paid_media_payload(&self) -> Option<&str> {
         match self {
             Self::PaidMediaPayment(TransactionPartnerUserPaidMediaPayment {
-                paid_media_payload,
+                paid_media_payload: Some(paid_media_payload),
                 ..
-            }) => match paid_media_payload {
-                Some(paid_media_payload) => Some(&**paid_media_payload),
-                None => None,
-            },
+            }) => Some(&**paid_media_payload),
             _ => None,
         }
     }
 
+    #[must_use]
     pub const fn invoice_payload(&self) -> Option<&str> {
         match self {
             Self::InvoicePayment(TransactionPartnerUserInvoicePayment {
-                invoice_payload, ..
-            }) => match invoice_payload {
-                Some(invoice_payload) => Some(invoice_payload.as_str()),
-                None => None,
-            },
+                invoice_payload: Some(invoice_payload),
+                ..
+            }) => Some(invoice_payload.as_str()),
             _ => None,
         }
     }
 
+    #[must_use]
     pub const fn subscription_period(&self) -> Option<i64> {
         match self {
             Self::InvoicePayment(TransactionPartnerUserInvoicePayment {

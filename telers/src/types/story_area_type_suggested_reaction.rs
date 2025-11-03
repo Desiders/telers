@@ -18,6 +18,7 @@ pub struct StoryAreaTypeSuggestedReaction {
 }
 
 impl StoryAreaTypeSuggestedReaction {
+    #[must_use]
     pub fn new(reaction_type: impl Into<ReactionType>) -> Self {
         Self {
             reaction_type: reaction_type.into(),
@@ -26,6 +27,7 @@ impl StoryAreaTypeSuggestedReaction {
         }
     }
 
+    #[must_use]
     pub fn reaction_type(self, val: impl Into<ReactionType>) -> Self {
         Self {
             reaction_type: val.into(),
@@ -33,6 +35,7 @@ impl StoryAreaTypeSuggestedReaction {
         }
     }
 
+    #[must_use]
     pub fn is_dark(self, val: bool) -> Self {
         Self {
             is_dark: Some(val),
@@ -40,6 +43,7 @@ impl StoryAreaTypeSuggestedReaction {
         }
     }
 
+    #[must_use]
     pub fn is_flipped(self, val: bool) -> Self {
         Self {
             is_flipped: Some(val),
@@ -49,6 +53,7 @@ impl StoryAreaTypeSuggestedReaction {
 }
 
 impl StoryAreaTypeSuggestedReaction {
+    #[must_use]
     pub fn is_dark_option(self, val: Option<bool>) -> Self {
         Self {
             is_dark: val,
@@ -56,6 +61,7 @@ impl StoryAreaTypeSuggestedReaction {
         }
     }
 
+    #[must_use]
     pub fn is_flipped_option(self, val: Option<bool>) -> Self {
         Self {
             is_flipped: val,

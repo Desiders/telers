@@ -67,14 +67,15 @@ impl Reqwest {
         data: &Data,
         files: Option<&[&InputFile<'_>]>,
     ) -> Result<Form, SerializerError> {
-        let mut form = data.serialize(MultipartSerializer::new()).map_err(|err| {
-            event!(
-                Level::ERROR,
-                error = format_error_report(&err),
-                "Cannot build a form"
-            );
-            err
-        })?;
+        let mut form = data
+            .serialize(MultipartSerializer::new())
+            .inspect_err(|err| {
+                event!(
+                    Level::ERROR,
+                    error = format_error_report(&err),
+                    "Cannot build a form"
+                );
+            })?;
 
         let Some(files) = files else {
             return Ok(form);
@@ -224,14 +225,13 @@ impl Session for Reqwest {
 
         let status_code = response.status().as_u16();
 
-        let content = response.text().await.map_err(|err| {
+        let content = response.text().await.inspect_err(|err| {
             event!(
                 Level::ERROR,
                 error = format_error_report(&err),
                 status_code,
                 "Cannot get a response content",
             );
-            err
         })?;
 
         Ok(ClientResponse::new(status_code, content))

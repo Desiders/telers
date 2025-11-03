@@ -18,6 +18,7 @@ pub struct StoryAreaTypeLocation {
 }
 
 impl StoryAreaTypeLocation {
+    #[must_use]
     pub fn new(latitude: f64, longitude: f64) -> Self {
         Self {
             latitude,
@@ -26,6 +27,7 @@ impl StoryAreaTypeLocation {
         }
     }
 
+    #[must_use]
     pub fn latitude(self, val: f64) -> Self {
         Self {
             latitude: val,
@@ -33,6 +35,7 @@ impl StoryAreaTypeLocation {
         }
     }
 
+    #[must_use]
     pub fn longitude(self, val: f64) -> Self {
         Self {
             longitude: val,
@@ -40,6 +43,7 @@ impl StoryAreaTypeLocation {
         }
     }
 
+    #[must_use]
     pub fn address(self, val: LocationAddress) -> Self {
         Self {
             address: Some(val),
@@ -49,6 +53,7 @@ impl StoryAreaTypeLocation {
 }
 
 impl StoryAreaTypeLocation {
+    #[must_use]
     pub fn address_optional(self, val: Option<LocationAddress>) -> Self {
         Self {
             address: val,

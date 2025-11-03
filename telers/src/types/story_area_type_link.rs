@@ -10,14 +10,13 @@ pub struct StoryAreaTypeLink {
 }
 
 impl StoryAreaTypeLink {
+    #[must_use]
     pub fn new(url: impl Into<String>) -> Self {
         Self { url: url.into() }
     }
 
+    #[must_use]
     pub fn url(self, val: impl Into<String>) -> Self {
-        Self {
-            url: val.into(),
-            ..self
-        }
+        Self { url: val.into() }
     }
 }

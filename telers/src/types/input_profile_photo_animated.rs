@@ -9,7 +9,7 @@ use crate::types::InputFile;
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct InputProfilePhotoAnimated<'a> {
-    /// The animated profile photo. Profile photos can't bereused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the photo was uploaded using `multipart/form-data` under <file_attach_name>. [`More information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
+    /// The animated profile photo. Profile photos can't bereused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the photo was uploaded using `multipart/form-data` under `<file_attach_name>`. [`More information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
     pub animation: InputFile<'a>,
     /// Timestamp in seconds of the frame that will be used as the static profile photo. Defaults to 0.0.
     pub main_frame_timestamp: Option<f64>,

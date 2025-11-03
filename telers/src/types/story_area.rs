@@ -15,6 +15,7 @@ pub struct StoryArea {
 }
 
 impl StoryArea {
+    #[must_use]
     pub fn new(position: StoryAreaPosition, area_type: StoryAreaType) -> Self {
         Self {
             position,
@@ -22,6 +23,7 @@ impl StoryArea {
         }
     }
 
+    #[must_use]
     pub fn position(self, val: StoryAreaPosition) -> Self {
         Self {
             position: val,
@@ -29,6 +31,7 @@ impl StoryArea {
         }
     }
 
+    #[must_use]
     pub fn area_type(self, val: StoryAreaType) -> Self {
         Self {
             area_type: val,

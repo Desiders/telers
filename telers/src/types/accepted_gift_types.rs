@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 /// # Documentation
 /// <https://core.telegram.org/bots/api#acceptedgifttypes>
 #[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[allow(clippy::struct_excessive_bools)]
 pub struct AcceptedGiftTypes {
     /// `true`, if unlimited regular gifts are accepted
     pub unlimited_gifts: bool,

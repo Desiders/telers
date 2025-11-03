@@ -20,6 +20,7 @@ pub struct StoryAreaPosition {
 }
 
 impl StoryAreaPosition {
+    #[must_use]
     pub fn new(
         x_percentage: f64,
         y_percentage: f64,
@@ -38,6 +39,7 @@ impl StoryAreaPosition {
         }
     }
 
+    #[must_use]
     pub fn x_percentage(self, val: f64) -> Self {
         Self {
             x_percentage: val,
@@ -45,6 +47,7 @@ impl StoryAreaPosition {
         }
     }
 
+    #[must_use]
     pub fn y_percentage(self, val: f64) -> Self {
         Self {
             y_percentage: val,
@@ -52,6 +55,7 @@ impl StoryAreaPosition {
         }
     }
 
+    #[must_use]
     pub fn width_percentage(self, val: f64) -> Self {
         Self {
             width_percentage: val,
@@ -59,6 +63,7 @@ impl StoryAreaPosition {
         }
     }
 
+    #[must_use]
     pub fn height_percentage(self, val: f64) -> Self {
         Self {
             height_percentage: val,
@@ -66,6 +71,7 @@ impl StoryAreaPosition {
         }
     }
 
+    #[must_use]
     pub fn rotation_angle(self, val: f64) -> Self {
         Self {
             rotation_angle: val,
@@ -73,6 +79,7 @@ impl StoryAreaPosition {
         }
     }
 
+    #[must_use]
     pub fn corner_radius_percentage(self, val: f64) -> Self {
         Self {
             corner_radius_percentage: val,

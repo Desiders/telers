@@ -71,6 +71,7 @@ impl UpgradeGift {
 }
 
 impl UpgradeGift {
+    #[must_use]
     pub fn keep_original_details_option(self, val: Option<bool>) -> Self {
         Self {
             keep_original_details: val,
@@ -78,6 +79,7 @@ impl UpgradeGift {
         }
     }
 
+    #[must_use]
     pub fn star_count_option(self, val: Option<i64>) -> Self {
         Self {
             star_count: val,

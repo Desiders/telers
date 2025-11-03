@@ -26,7 +26,6 @@ impl GetBusinessAccountStarBalance {
     pub fn business_connection_id(self, val: impl Into<String>) -> Self {
         Self {
             business_connection_id: val.into(),
-            ..self
         }
     }
 }

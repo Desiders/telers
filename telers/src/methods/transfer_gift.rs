@@ -71,6 +71,7 @@ impl TransferGift {
 }
 
 impl TransferGift {
+    #[must_use]
     pub fn new_owner_chat_id_option(self, val: Option<i64>) -> Self {
         Self {
             new_owner_chat_id: val,
@@ -78,6 +79,7 @@ impl TransferGift {
         }
     }
 
+    #[must_use]
     pub fn star_count_option(self, val: Option<i64>) -> Self {
         Self {
             star_count: val,

@@ -14,6 +14,7 @@ pub struct StoryAreaTypeWeather {
 }
 
 impl StoryAreaTypeWeather {
+    #[must_use]
     pub fn new(temperature: f64, emoji: String, background_color: i32) -> Self {
         Self {
             temperature,
@@ -22,6 +23,7 @@ impl StoryAreaTypeWeather {
         }
     }
 
+    #[must_use]
     pub fn temperature(self, val: f64) -> Self {
         Self {
             temperature: val,
@@ -29,10 +31,12 @@ impl StoryAreaTypeWeather {
         }
     }
 
+    #[must_use]
     pub fn emoji(self, val: String) -> Self {
         Self { emoji: val, ..self }
     }
 
+    #[must_use]
     pub fn background_color(self, val: i32) -> Self {
         Self {
             background_color: val,
