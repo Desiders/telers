@@ -29,6 +29,7 @@
 //! [`MenuButton`]: telers::types::MenuButton
 //! [`Into`]: std::convert::Into
 
+pub mod active_period;
 pub mod bot_command_scope_type;
 pub mod chat_action;
 pub mod chat_member_status;
@@ -42,11 +43,14 @@ pub mod menu_button_type;
 pub mod observer_name;
 pub mod parse_mode;
 pub mod poll_type;
+pub mod premium_subscription_month_count;
+pub mod premium_subscription_star_count;
 pub mod sticker_format;
 pub mod sticker_type;
 pub mod topic_icon_color;
 pub mod update_type;
 
+pub use active_period::ActivePeriod;
 pub use bot_command_scope_type::BotCommandScopeType;
 pub use chat_action::ChatAction;
 pub use chat_member_status::ChatMemberStatus;
@@ -60,6 +64,8 @@ pub use menu_button_type::MenuButtonType;
 pub use observer_name::{Simple as SimpleObserverName, Telegram as TelegramObserverName};
 pub use parse_mode::ParseMode;
 pub use poll_type::PollType;
+pub use premium_subscription_month_count::PremiumSubscriptionMonthCount;
+pub use premium_subscription_star_count::PremiumSubscriptionStarCount;
 pub use sticker_format::StickerFormat;
 pub use sticker_type::StickerType;
 pub use topic_icon_color::TopicIconColor;

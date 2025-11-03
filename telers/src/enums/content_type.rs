@@ -75,6 +75,10 @@ pub enum ContentType {
     UsersShared,
     #[strum(serialize = "chat_shared")]
     ChatShared,
+    #[strum(serialize = "gift")]
+    Gift,
+    #[strum(serialize = "unique_gift")]
+    UniqueGift,
     #[strum(serialize = "connected_website")]
     ConnectedWebsite,
     #[strum(serialize = "write_access_allowed")]
@@ -101,6 +105,8 @@ pub enum ContentType {
     GeneralForumTopicUnhidden,
     #[strum(serialize = "giveaway_created")]
     GiveawayCreated,
+    #[strum(serialize = "paid_message_price_changed")]
+    PaidMessagePriceChanged,
     #[strum(serialize = "giveaway")]
     Giveaway,
     #[strum(serialize = "giveaway_winners")]
@@ -121,7 +127,7 @@ pub enum ContentType {
 
 impl ContentType {
     #[must_use]
-    pub const fn all() -> [ContentType; 55] {
+    pub const fn all() -> [ContentType; 58] {
         [
             ContentType::Text,
             ContentType::Animation,
@@ -157,6 +163,8 @@ impl ContentType {
             ContentType::RefundedPayment,
             ContentType::UsersShared,
             ContentType::ChatShared,
+            ContentType::Gift,
+            ContentType::UniqueGift,
             ContentType::ConnectedWebsite,
             ContentType::WriteAccessAllowed,
             ContentType::PassportData,
@@ -170,6 +178,7 @@ impl ContentType {
             ContentType::GeneralForumTopicHidden,
             ContentType::GeneralForumTopicUnhidden,
             ContentType::GiveawayCreated,
+            ContentType::PaidMessagePriceChanged,
             ContentType::Giveaway,
             ContentType::GiveawayWinners,
             ContentType::GiveawayCompleted,
@@ -237,6 +246,8 @@ impl From<&Message> for ContentType {
             Message::RefundedPayment(_) => ContentType::RefundedPayment,
             Message::UsersShared(_) => ContentType::UsersShared,
             Message::ChatShared(_) => ContentType::ChatShared,
+            Message::Gift(_) => ContentType::Gift,
+            Message::UniqueGift(_) => ContentType::UniqueGift,
             Message::ConnectedWebsite(_) => ContentType::ConnectedWebsite,
             Message::WriteAccessAllowed(_) => ContentType::WriteAccessAllowed,
             Message::PassportData(_) => ContentType::PassportData,
@@ -250,6 +261,7 @@ impl From<&Message> for ContentType {
             Message::GeneralForumTopicHidden(_) => ContentType::GeneralForumTopicHidden,
             Message::GeneralForumTopicUnhidden(_) => ContentType::GeneralForumTopicUnhidden,
             Message::GiveawayCreated(_) => ContentType::GiveawayCreated,
+            Message::PaidMessagePriceChanged(_) => ContentType::PaidMessagePriceChanged,
             Message::Giveaway(_) => ContentType::Giveaway,
             Message::GiveawayWinners(_) => ContentType::GiveawayWinners,
             Message::GiveawayCompleted(_) => ContentType::GiveawayCompleted,

@@ -5,7 +5,6 @@ use crate::{client::Bot, types::ChatIdKind};
 use serde::Serialize;
 
 /// Use this method to delete a message, including service messages, with the following limitations:
-/// Use this method to delete a message, including service messages, with the following limitations:
 /// - A message can only be deleted if it was sent less than 48 hours ago.
 /// - Service messages about a supergroup, channel, or forum topic creation can't be deleted.
 /// - A dice message in a private chat can only be deleted if it was sent more than 24 hours ago.
@@ -17,7 +16,7 @@ use serde::Serialize;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#deletemessage>
 /// # Returns
-/// Returns `true` on success
+/// On success, `true` is returned
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct DeleteMessage {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)

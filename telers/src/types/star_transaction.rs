@@ -1,18 +1,18 @@
 use super::TransactionPartner;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 /// Describes a Telegram Star transaction.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#startransaction>
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(untagged)]
 pub enum StarTransaction {
     Source(Source),
     Receiver(Receiver),
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct Source {
     /// Unique identifier of the transaction. Coincides with the identifer of the original transaction for refund transactions. Coincides with [`SuccessfulPayment`](super::SuccessfulPayment)`.telegram_payment_charge_id` for successful incoming payments from users.
     pub id: Box<str>,
@@ -26,7 +26,7 @@ pub struct Source {
     pub source: TransactionPartner,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct Receiver {
     /// Unique identifier of the transaction. Coincides with the identifer of the original transaction for refund transactions. Coincides with [`SuccessfulPayment`](super::SuccessfulPayment)`.telegram_payment_charge_id` for successful incoming payments from users.
     pub id: Box<str>,

@@ -8,7 +8,7 @@ use serde::Serialize;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setstickersettitle>
 /// # Returns
-/// Returns `true` on success
+/// On success, `true` is returned
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct SetStickerSetTitle {
     /// Sticker set name

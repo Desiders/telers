@@ -8,7 +8,7 @@ use serde::Serialize;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#refundstarpayment>
 /// # Returns
-/// Returns `true` on success
+/// On success, `true` is returned
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct RefundStarPayment {
     /// Identifier of the user whose payment will be refunded

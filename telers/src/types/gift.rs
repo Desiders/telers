@@ -12,7 +12,7 @@ pub struct Gift {
     /// Unique identifier of the gift
     pub id: Box<str>,
     /// The sticker that represents the gift
-    pub sticker: Sticker,
+    pub sticker: Box<Sticker>,
     /// The number of Telegram Stars that must be paid to send the sticker
     pub star_count: i64,
     /// The number of Telegram Stars that must be paid to upgrade the gift to a unique one

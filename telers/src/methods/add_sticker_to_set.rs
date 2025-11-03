@@ -12,7 +12,7 @@ use serde::Serialize;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#addstickertoset>
 /// # Returns
-/// `true` on success
+/// On success, `true` is returned
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct AddStickerToSet<'a> {
     /// User identifier of sticker set owner

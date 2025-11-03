@@ -1,6 +1,8 @@
 use crate::{
     client::Bot,
-    types::{InputFile, InputMedia, InputPaidMedia, InputSticker, ResponseParameters},
+    types::{
+        InputFile, InputMedia, InputPaidMedia, InputSticker, InputStoryContent, ResponseParameters,
+    },
     utils::format_error_report,
 };
 
@@ -72,14 +74,13 @@ pub trait TelegramMethod {
     #[instrument(name = "build", skip_all)]
     fn build_response(&self, content: &str) -> Result<Response<Self::Return>, serde_json::Error> {
         event!(Level::TRACE, content, "Parsing");
-        let res = serde_json::from_str(content).map_err(|err| {
+        let res = serde_json::from_str(content).inspect_err(|err| {
             event!(
                 Level::ERROR,
                 error = format_error_report(&err),
                 content,
                 "Cannot parse content",
             );
-            err
         });
         event!(Level::TRACE, "Parsed");
         res
@@ -166,5 +167,19 @@ pub(super) fn prepare_input_paid_media_group<'a>(
 ) {
     for input_paid_media in input_paid_media_group {
         prepare_input_paid_media(files, input_paid_media);
+    }
+}
+
+pub(super) fn prepare_input_story_content<'a>(
+    files: &mut Vec<&'a InputFile<'a>>,
+    input_story_content: &'a InputStoryContent<'a>,
+) {
+    match input_story_content {
+        InputStoryContent::Photo(inner) => {
+            prepare_file(files, &inner.photo);
+        }
+        InputStoryContent::Video(inner) => {
+            prepare_file(files, &inner.video);
+        }
     }
 }

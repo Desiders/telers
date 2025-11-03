@@ -1,6 +1,6 @@
 use super::{Update, UpdateKind, User};
 
-use crate::{errors::ConvertToTypeError, FromEvent};
+use crate::{errors::ConvertToTypeError, types::BusinessBotRights, FromEvent};
 
 use serde::{Deserialize, Serialize};
 
@@ -18,8 +18,8 @@ pub struct BusinessConnection {
     pub user_chat_id: i64,
     /// Date the connection was established in Unix time
     pub date: i64,
-    /// `true`, if the bot can act on behalf of the business account in chats that were active in the last 24 hours
-    pub can_reply: bool,
+    /// Rights of the business bot
+    pub rights: BusinessBotRights,
     /// `true`, if the connection is active
     pub is_enabled: bool,
 }

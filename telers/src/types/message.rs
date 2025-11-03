@@ -56,6 +56,8 @@ pub enum Message {
     RefundedPayment(Box<RefundedPayment>),
     UsersShared(Box<UsersShared>),
     ChatShared(Box<ChatShared>),
+    Gift(Box<Gift>),
+    UniqueGift(Box<UniqueGift>),
     ConnectedWebsite(Box<ConnectedWebsite>),
     WriteAccessAllowed(Box<WriteAccessAllowed>),
     PassportData(Box<PassportData>),
@@ -72,6 +74,7 @@ pub enum Message {
     Giveaway(Box<Giveaway>),
     GiveawayWinners(Box<GiveawayWinners>),
     GiveawayCompleted(Box<GiveawayCompleted>),
+    PaidMessagePriceChanged(Box<PaidMessagePriceChanged>),
     VideoChatScheduled(Box<VideoChatScheduled>),
     VideoChatStarted(Box<VideoChatStarted>),
     VideoChatEnded(Box<VideoChatEnded>),
@@ -127,6 +130,8 @@ pub struct Animation {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Information about the animation
     pub animation: types::Animation,
     /// Caption
@@ -194,6 +199,8 @@ pub struct Audio {
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Information about the file
     pub audio: types::Audio,
     /// Caption
@@ -251,6 +258,8 @@ pub struct Contact {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the contact
@@ -301,6 +310,8 @@ pub struct Dice {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Message is a dice with random value
@@ -359,6 +370,8 @@ pub struct Document {
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Information about the file
     pub document: types::Document,
     /// Caption
@@ -476,6 +489,8 @@ pub struct Game {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the game. [`More about games`](https://core.telegram.org/bots/api#games)
@@ -528,6 +543,8 @@ pub struct Poll {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the poll
@@ -582,6 +599,8 @@ pub struct Venue {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the venue
@@ -636,6 +655,8 @@ pub struct Location {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the location
@@ -694,6 +715,8 @@ pub struct Photo {
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Available sizes of the photo
     pub photo: Box<[PhotoSize]>,
     /// Caption
@@ -768,6 +791,8 @@ pub struct Story {
     pub external_reply: Option<ExternalReplyInfo>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Forwarded story
     pub story: types::Story,
 }
@@ -816,6 +841,8 @@ pub struct Sticker {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the sticker
@@ -870,6 +897,8 @@ pub struct Text {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// The actual UTF-8 text of the message
     pub text: Box<str>,
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the text
@@ -932,6 +961,8 @@ pub struct Video {
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Information about the video
     pub video: types::Video,
     /// Caption
@@ -991,6 +1022,8 @@ pub struct VideoNote {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the video message
@@ -1045,6 +1078,8 @@ pub struct Voice {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Information about the file
     pub voice: types::Voice,
     /// Caption
@@ -1348,6 +1383,8 @@ pub struct Invoice {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Message is an invoice for a [`payment`](https://core.telegram.org/bots/api#payments), information about the invoice. [`More about payments`](https://core.telegram.org/bots/api#payments)
@@ -1432,6 +1469,41 @@ pub struct ChatShared {
     pub shared: types::ChatShared,
 }
 
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
+pub struct Gift {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: a chat was shared with the bot
+    pub gift: types::GiftInfo,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
+pub struct UniqueGift {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: a unique gift was sent or received
+    #[serde(rename = "unique_gift")]
+    pub gift: types::UniqueGiftInfo,
+}
+
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
 #[event(try_from = Update)]
 pub struct ConnectedWebsite {
@@ -1486,6 +1558,8 @@ pub struct PassportData {
     pub is_topic_message: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Telegram Passport data
     #[serde(rename = "passport_data")]
     pub data: types::PassportData,
@@ -1816,6 +1890,29 @@ pub struct GiveawayCompleted {
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
 #[event(try_from = Update)]
+pub struct PaidMessagePriceChanged {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: the price for paid messages has changed in the chat
+    #[serde(rename = "paid_message_price_changed")]
+    pub price_changed: types::PaidMessagePriceChanged,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct VideoChatScheduled {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1947,6 +2044,8 @@ impl Message {
             Message::RefundedPayment(message) => message.id,
             Message::UsersShared(message) => message.id,
             Message::ChatShared(message) => message.id,
+            Message::Gift(message) => message.id,
+            Message::UniqueGift(message) => message.id,
             Message::ConnectedWebsite(message) => message.id,
             Message::WriteAccessAllowed(message) => message.id,
             Message::PassportData(message) => message.id,
@@ -1965,6 +2064,7 @@ impl Message {
             Message::VideoChatParticipantsInvited(message) => message.id,
             Message::WebAppData(message) => message.id,
             Message::GiveawayCreated(message) => message.id,
+            Message::PaidMessagePriceChanged(message) => message.id,
             Message::Giveaway(message) => message.id,
             Message::GiveawayWinners(message) => message.id,
             Message::GiveawayCompleted(message) => message.id,
@@ -2000,6 +2100,7 @@ impl Message {
             Message::GeneralForumTopicHidden(message) => message.thread_id,
             Message::GeneralForumTopicUnhidden(message) => message.thread_id,
             Message::GiveawayCreated(message) => message.thread_id,
+            Message::PaidMessagePriceChanged(message) => message.thread_id,
             Message::Giveaway(message) => message.thread_id,
             Message::GiveawayWinners(message) => message.thread_id,
             Message::GiveawayCompleted(message) => message.thread_id,
@@ -2044,6 +2145,8 @@ impl Message {
             Message::RefundedPayment(message) => message.date,
             Message::UsersShared(message) => message.date,
             Message::ChatShared(message) => message.date,
+            Message::Gift(message) => message.date,
+            Message::UniqueGift(message) => message.date,
             Message::ConnectedWebsite(message) => message.date,
             Message::WriteAccessAllowed(message) => message.date,
             Message::PassportData(message) => message.date,
@@ -2062,6 +2165,7 @@ impl Message {
             Message::VideoChatParticipantsInvited(message) => message.date,
             Message::WebAppData(message) => message.date,
             Message::GiveawayCreated(message) => message.date,
+            Message::PaidMessagePriceChanged(message) => message.date,
             Message::Giveaway(message) => message.date,
             Message::GiveawayWinners(message) => message.date,
             Message::GiveawayCompleted(message) => message.date,
@@ -2213,6 +2317,8 @@ impl Message {
             Message::RefundedPayment(message) => &message.chat,
             Message::UsersShared(message) => &message.chat,
             Message::ChatShared(message) => &message.chat,
+            Message::Gift(message) => &message.chat,
+            Message::UniqueGift(message) => &message.chat,
             Message::ConnectedWebsite(message) => &message.chat,
             Message::WriteAccessAllowed(message) => &message.chat,
             Message::PassportData(message) => &message.chat,
@@ -2231,6 +2337,7 @@ impl Message {
             Message::VideoChatParticipantsInvited(message) => &message.chat,
             Message::WebAppData(message) => &message.chat,
             Message::GiveawayCreated(message) => &message.chat,
+            Message::PaidMessagePriceChanged(message) => &message.chat,
             Message::Giveaway(message) => &message.chat,
             Message::GiveawayWinners(message) => &message.chat,
             Message::GiveawayCompleted(message) => &message.chat,
@@ -2344,6 +2451,10 @@ impl Message {
                 None => None,
             },
             Message::Photo(message) => match message.entities {
+                Some(ref entities) => Some(entities),
+                None => None,
+            },
+            Message::Gift(message) => match message.gift.entities {
                 Some(ref entities) => Some(entities),
                 None => None,
             },
@@ -2473,6 +2584,8 @@ impl Message {
             Message::RefundedPayment(message) => message.from.as_ref(),
             Message::UsersShared(message) => message.from.as_ref(),
             Message::ChatShared(message) => message.from.as_ref(),
+            Message::Gift(message) => message.from.as_ref(),
+            Message::UniqueGift(message) => message.from.as_ref(),
             Message::PassportData(message) => message.from.as_ref(),
             Message::ChatBackgroundSet(message) => message.from.as_ref(),
             Message::ForumTopicCreated(message) => message.from.as_ref(),
@@ -2486,6 +2599,7 @@ impl Message {
             Message::VideoChatEnded(message) => message.from.as_ref(),
             Message::VideoChatParticipantsInvited(message) => message.from.as_ref(),
             Message::GiveawayCreated(message) => message.from.as_ref(),
+            Message::PaidMessagePriceChanged(message) => message.from.as_ref(),
             Message::Giveaway(message) => message.from.as_ref(),
             Message::GiveawayWinners(message) => message.from.as_ref(),
             Message::GiveawayCompleted(message) => message.from.as_ref(),
@@ -2574,6 +2688,7 @@ impl Message {
             Message::VideoChatEnded(message) => message.sender_chat.as_ref(),
             Message::VideoChatParticipantsInvited(message) => message.sender_chat.as_ref(),
             Message::GiveawayCreated(message) => message.sender_chat.as_ref(),
+            Message::PaidMessagePriceChanged(message) => message.sender_chat.as_ref(),
             Message::Giveaway(message) => message.sender_chat.as_ref(),
             Message::GiveawayWinners(message) => message.sender_chat.as_ref(),
             Message::GiveawayCompleted(message) => message.sender_chat.as_ref(),
@@ -2669,6 +2784,31 @@ impl Message {
                 Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn paid_star_count(&self) -> Option<i64> {
+        match self {
+            Message::Text(message) => message.paid_star_count,
+            Message::Animation(message) => message.paid_star_count,
+            Message::Audio(message) => message.paid_star_count,
+            Message::Document(message) => message.paid_star_count,
+            Message::Photo(message) => message.paid_star_count,
+            Message::Sticker(message) => message.paid_star_count,
+            Message::Story(message) => message.paid_star_count,
+            Message::Video(message) => message.paid_star_count,
+            Message::VideoNote(message) => message.paid_star_count,
+            Message::Voice(message) => message.paid_star_count,
+            Message::Contact(message) => message.paid_star_count,
+            Message::Dice(message) => message.paid_star_count,
+            Message::Game(message) => message.paid_star_count,
+            Message::Poll(message) => message.paid_star_count,
+            Message::Venue(message) => message.paid_star_count,
+            Message::Location(message) => message.paid_star_count,
+            Message::PassportData(message) => message.paid_star_count,
+            Message::Invoice(message) => message.paid_star_count,
             _ => None,
         }
     }
@@ -3079,6 +3219,22 @@ impl Message {
     }
 
     #[must_use]
+    pub const fn gift_info(&self) -> Option<&types::GiftInfo> {
+        match self {
+            Message::Gift(message) => Some(&message.gift),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn unique_gift_info(&self) -> Option<&types::UniqueGiftInfo> {
+        match self {
+            Message::UniqueGift(message) => Some(&message.gift),
+            _ => None,
+        }
+    }
+
+    #[must_use]
     pub const fn connected_website(&self) -> Option<&str> {
         match self {
             Message::ConnectedWebsite(message) => Some(&message.website),
@@ -3178,6 +3334,14 @@ impl Message {
     pub const fn giveaway_created(&self) -> Option<&types::GiveawayCreated> {
         match self {
             Message::GiveawayCreated(message) => Some(&message.created),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn paid_message_price_changed(&self) -> Option<&types::PaidMessagePriceChanged> {
+        match self {
+            Message::PaidMessagePriceChanged(message) => Some(&message.price_changed),
             _ => None,
         }
     }
@@ -3406,6 +3570,7 @@ impl_try_from_message!(ForumTopicReopened, ForumTopicReopened);
 impl_try_from_message!(GeneralForumTopicHidden, GeneralForumTopicHidden);
 impl_try_from_message!(GeneralForumTopicUnhidden, GeneralForumTopicUnhidden);
 impl_try_from_message!(GiveawayCreated, GiveawayCreated);
+impl_try_from_message!(PaidMessagePriceChanged, PaidMessagePriceChanged);
 impl_try_from_message!(Giveaway, Giveaway);
 impl_try_from_message!(GiveawayWinners, GiveawayWinners);
 impl_try_from_message!(GiveawayCompleted, GiveawayCompleted);
@@ -3425,6 +3590,8 @@ impl_try_from_message!(Voice, Voice);
 impl_try_from_message!(WriteAccessAllowed, WriteAccessAllowed);
 impl_try_from_message!(UsersShared, UsersShared);
 impl_try_from_message!(ChatShared, ChatShared);
+impl_try_from_message!(Gift, Gift);
+impl_try_from_message!(UniqueGift, UniqueGift);
 impl_try_from_message!(MessageAutoDeleteTimerChanged, MessageAutoDeleteTimerChanged);
 
 impl TryFrom<Update> for Message {
@@ -3490,6 +3657,7 @@ impl_try_from_update!(ForumTopicReopened);
 impl_try_from_update!(GeneralForumTopicHidden);
 impl_try_from_update!(GeneralForumTopicUnhidden);
 impl_try_from_update!(GiveawayCreated);
+impl_try_from_update!(PaidMessagePriceChanged);
 impl_try_from_update!(Giveaway);
 impl_try_from_update!(GiveawayWinners);
 impl_try_from_update!(GiveawayCompleted);
@@ -3509,6 +3677,8 @@ impl_try_from_update!(Voice);
 impl_try_from_update!(WriteAccessAllowed);
 impl_try_from_update!(UsersShared);
 impl_try_from_update!(ChatShared);
+impl_try_from_update!(Gift);
+impl_try_from_update!(UniqueGift);
 impl_try_from_update!(MessageAutoDeleteTimerChanged);
 
 #[cfg(test)]
@@ -4660,6 +4830,44 @@ mod tests {
     }
 
     #[test]
+    fn deserialize_gift() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "gift": {
+                "gift": {
+                    "id": "1",
+                    "sticker": {
+                        "file_id": "test",
+                        "file_unique_id": "test",
+                        "type": "regular",
+                        "width": 1,
+                        "height": 1,
+                        "is_animated": false,
+                        "is_video": false,
+                    },
+                    "star_count": 1,
+                },
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::Gift(message) => assert_eq!(*message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
     fn deserialize_connected_website() {
         let jsons = [serde_json::json!({
             "message_id": 1,
@@ -5141,6 +5349,34 @@ mod tests {
 
             match message {
                 Message::GiveawayCreated(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_paid_message_price_changed() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "paid_message_price_changed": {
+                "paid_message_star_count": 1,
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::PaidMessagePriceChanged(message) => {
                     assert_eq!(message, message_kind);
                 }
                 _ => panic!("Unexpected message type: {message:?}"),
