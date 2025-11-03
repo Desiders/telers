@@ -74,6 +74,7 @@ pub enum Message {
     Giveaway(Box<Giveaway>),
     GiveawayWinners(Box<GiveawayWinners>),
     GiveawayCompleted(Box<GiveawayCompleted>),
+    PaidMessagePriceChanged(Box<PaidMessagePriceChanged>),
     VideoChatScheduled(Box<VideoChatScheduled>),
     VideoChatStarted(Box<VideoChatStarted>),
     VideoChatEnded(Box<VideoChatEnded>),
@@ -1889,6 +1890,29 @@ pub struct GiveawayCompleted {
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
 #[event(try_from = Update)]
+pub struct PaidMessagePriceChanged {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: the price for paid messages has changed in the chat
+    #[serde(rename = "paid_message_price_changed")]
+    pub price_changed: types::PaidMessagePriceChanged,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct VideoChatScheduled {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -2040,6 +2064,7 @@ impl Message {
             Message::VideoChatParticipantsInvited(message) => message.id,
             Message::WebAppData(message) => message.id,
             Message::GiveawayCreated(message) => message.id,
+            Message::PaidMessagePriceChanged(message) => message.id,
             Message::Giveaway(message) => message.id,
             Message::GiveawayWinners(message) => message.id,
             Message::GiveawayCompleted(message) => message.id,
@@ -2075,6 +2100,7 @@ impl Message {
             Message::GeneralForumTopicHidden(message) => message.thread_id,
             Message::GeneralForumTopicUnhidden(message) => message.thread_id,
             Message::GiveawayCreated(message) => message.thread_id,
+            Message::PaidMessagePriceChanged(message) => message.thread_id,
             Message::Giveaway(message) => message.thread_id,
             Message::GiveawayWinners(message) => message.thread_id,
             Message::GiveawayCompleted(message) => message.thread_id,
@@ -2139,6 +2165,7 @@ impl Message {
             Message::VideoChatParticipantsInvited(message) => message.date,
             Message::WebAppData(message) => message.date,
             Message::GiveawayCreated(message) => message.date,
+            Message::PaidMessagePriceChanged(message) => message.date,
             Message::Giveaway(message) => message.date,
             Message::GiveawayWinners(message) => message.date,
             Message::GiveawayCompleted(message) => message.date,
@@ -2310,6 +2337,7 @@ impl Message {
             Message::VideoChatParticipantsInvited(message) => &message.chat,
             Message::WebAppData(message) => &message.chat,
             Message::GiveawayCreated(message) => &message.chat,
+            Message::PaidMessagePriceChanged(message) => &message.chat,
             Message::Giveaway(message) => &message.chat,
             Message::GiveawayWinners(message) => &message.chat,
             Message::GiveawayCompleted(message) => &message.chat,
@@ -2571,6 +2599,7 @@ impl Message {
             Message::VideoChatEnded(message) => message.from.as_ref(),
             Message::VideoChatParticipantsInvited(message) => message.from.as_ref(),
             Message::GiveawayCreated(message) => message.from.as_ref(),
+            Message::PaidMessagePriceChanged(message) => message.from.as_ref(),
             Message::Giveaway(message) => message.from.as_ref(),
             Message::GiveawayWinners(message) => message.from.as_ref(),
             Message::GiveawayCompleted(message) => message.from.as_ref(),
@@ -2659,6 +2688,7 @@ impl Message {
             Message::VideoChatEnded(message) => message.sender_chat.as_ref(),
             Message::VideoChatParticipantsInvited(message) => message.sender_chat.as_ref(),
             Message::GiveawayCreated(message) => message.sender_chat.as_ref(),
+            Message::PaidMessagePriceChanged(message) => message.sender_chat.as_ref(),
             Message::Giveaway(message) => message.sender_chat.as_ref(),
             Message::GiveawayWinners(message) => message.sender_chat.as_ref(),
             Message::GiveawayCompleted(message) => message.sender_chat.as_ref(),
@@ -3309,6 +3339,14 @@ impl Message {
     }
 
     #[must_use]
+    pub const fn paid_message_price_changed(&self) -> Option<&types::PaidMessagePriceChanged> {
+        match self {
+            Message::PaidMessagePriceChanged(message) => Some(&message.price_changed),
+            _ => None,
+        }
+    }
+
+    #[must_use]
     pub const fn giveaway(&self) -> Option<&types::Giveaway> {
         match self {
             Message::Giveaway(message) => Some(&message.giveaway),
@@ -3532,6 +3570,7 @@ impl_try_from_message!(ForumTopicReopened, ForumTopicReopened);
 impl_try_from_message!(GeneralForumTopicHidden, GeneralForumTopicHidden);
 impl_try_from_message!(GeneralForumTopicUnhidden, GeneralForumTopicUnhidden);
 impl_try_from_message!(GiveawayCreated, GiveawayCreated);
+impl_try_from_message!(PaidMessagePriceChanged, PaidMessagePriceChanged);
 impl_try_from_message!(Giveaway, Giveaway);
 impl_try_from_message!(GiveawayWinners, GiveawayWinners);
 impl_try_from_message!(GiveawayCompleted, GiveawayCompleted);
@@ -3618,6 +3657,7 @@ impl_try_from_update!(ForumTopicReopened);
 impl_try_from_update!(GeneralForumTopicHidden);
 impl_try_from_update!(GeneralForumTopicUnhidden);
 impl_try_from_update!(GiveawayCreated);
+impl_try_from_update!(PaidMessagePriceChanged);
 impl_try_from_update!(Giveaway);
 impl_try_from_update!(GiveawayWinners);
 impl_try_from_update!(GiveawayCompleted);
@@ -5309,6 +5349,34 @@ mod tests {
 
             match message {
                 Message::GiveawayCreated(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_paid_message_price_changed() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "paid_message_price_changed": {
+                "paid_message_star_count": 1,
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::PaidMessagePriceChanged(message) => {
                     assert_eq!(message, message_kind);
                 }
                 _ => panic!("Unexpected message type: {message:?}"),

@@ -105,6 +105,8 @@ pub enum ContentType {
     GeneralForumTopicUnhidden,
     #[strum(serialize = "giveaway_created")]
     GiveawayCreated,
+    #[strum(serialize = "paid_message_price_changed")]
+    PaidMessagePriceChanged,
     #[strum(serialize = "giveaway")]
     Giveaway,
     #[strum(serialize = "giveaway_winners")]
@@ -125,7 +127,7 @@ pub enum ContentType {
 
 impl ContentType {
     #[must_use]
-    pub const fn all() -> [ContentType; 57] {
+    pub const fn all() -> [ContentType; 58] {
         [
             ContentType::Text,
             ContentType::Animation,
@@ -176,6 +178,7 @@ impl ContentType {
             ContentType::GeneralForumTopicHidden,
             ContentType::GeneralForumTopicUnhidden,
             ContentType::GiveawayCreated,
+            ContentType::PaidMessagePriceChanged,
             ContentType::Giveaway,
             ContentType::GiveawayWinners,
             ContentType::GiveawayCompleted,
@@ -258,6 +261,7 @@ impl From<&Message> for ContentType {
             Message::GeneralForumTopicHidden(_) => ContentType::GeneralForumTopicHidden,
             Message::GeneralForumTopicUnhidden(_) => ContentType::GeneralForumTopicUnhidden,
             Message::GiveawayCreated(_) => ContentType::GiveawayCreated,
+            Message::PaidMessagePriceChanged(_) => ContentType::PaidMessagePriceChanged,
             Message::Giveaway(_) => ContentType::Giveaway,
             Message::GiveawayWinners(_) => ContentType::GiveawayWinners,
             Message::GiveawayCompleted(_) => ContentType::GiveawayCompleted,

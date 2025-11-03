@@ -218,6 +218,7 @@ pub mod paid_media_photo;
 pub mod paid_media_preview;
 pub mod paid_media_purchased;
 pub mod paid_media_video;
+pub mod paid_message_price_changed;
 pub mod passport_data;
 pub mod passport_element_error;
 pub mod passport_element_error_data_field;
@@ -545,6 +546,7 @@ pub use paid_media_photo::PaidMediaPhoto;
 pub use paid_media_preview::PaidMediaPreview;
 pub use paid_media_purchased::PaidMediaPurchased;
 pub use paid_media_video::PaidMediaVideo;
+pub use paid_message_price_changed::PaidMessagePriceChanged;
 pub use passport_data::PassportData;
 pub use passport_element_error::PassportElementError;
 pub use passport_element_error_data_field::{
