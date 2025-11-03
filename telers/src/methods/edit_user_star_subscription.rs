@@ -8,7 +8,7 @@ use serde::Serialize;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#edituserstarsubscription>
 /// # Returns
-/// Returns `true` on success
+/// On success, `true` is returned
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct EditUserStarSubscription {
     /// Identifier of the user whose subscription will be edited

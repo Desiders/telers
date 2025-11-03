@@ -8,7 +8,7 @@ use serde::Serialize;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setchatadministratorcustomtitle>
 /// # Returns
-/// Returns `true` on success
+/// On success, `true` is returned
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct SetChatAdministratorCustomTitle {
     /// Unique identifier for the target group or username of the target supergroup (in the format `@channelusername`)

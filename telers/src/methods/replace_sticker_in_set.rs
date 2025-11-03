@@ -8,7 +8,7 @@ use serde::Serialize;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#replacestickerinset>
 /// # Returns
-/// `true` on success
+/// On success, `true` is returned
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ReplaceStickerInSet<'a> {
     /// User identifier of the sticker set owner

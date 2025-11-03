@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setmyshortdescription>
 /// # Returns
-/// Returns `true` on success
+/// On success, `true` is returned
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct SetMyShortDescription {

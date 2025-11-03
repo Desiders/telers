@@ -8,7 +8,7 @@ use serde::Serialize;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#reopengeneralforumtopic>
 /// # Returns
-/// Returns `true` on success
+/// On success, `true` is returned
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct ReopenGeneralForumTopic {
     /// Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`)

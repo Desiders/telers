@@ -9,7 +9,7 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#createnewstickerset>
 /// # Returns
-/// Returns `true` on success
+/// On success, `true` is returned
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct CreateNewStickerSet<'a> {
