@@ -1,4 +1,3 @@
-/// This enum represents all possible types of the active period
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ActivePeriod {
     SixHours,
