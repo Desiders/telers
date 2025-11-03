@@ -129,6 +129,8 @@ pub struct Animation {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Information about the animation
     pub animation: types::Animation,
     /// Caption
@@ -196,6 +198,8 @@ pub struct Audio {
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Information about the file
     pub audio: types::Audio,
     /// Caption
@@ -253,6 +257,8 @@ pub struct Contact {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the contact
@@ -303,6 +309,8 @@ pub struct Dice {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Message is a dice with random value
@@ -361,6 +369,8 @@ pub struct Document {
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Information about the file
     pub document: types::Document,
     /// Caption
@@ -478,6 +488,8 @@ pub struct Game {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the game. [`More about games`](https://core.telegram.org/bots/api#games)
@@ -530,6 +542,8 @@ pub struct Poll {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the poll
@@ -584,6 +598,8 @@ pub struct Venue {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the venue
@@ -638,6 +654,8 @@ pub struct Location {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the location
@@ -696,6 +714,8 @@ pub struct Photo {
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Available sizes of the photo
     pub photo: Box<[PhotoSize]>,
     /// Caption
@@ -770,6 +790,8 @@ pub struct Story {
     pub external_reply: Option<ExternalReplyInfo>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Forwarded story
     pub story: types::Story,
 }
@@ -818,6 +840,8 @@ pub struct Sticker {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the sticker
@@ -872,6 +896,8 @@ pub struct Text {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// The actual UTF-8 text of the message
     pub text: Box<str>,
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the text
@@ -934,6 +960,8 @@ pub struct Video {
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Information about the video
     pub video: types::Video,
     /// Caption
@@ -993,6 +1021,8 @@ pub struct VideoNote {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the video message
@@ -1047,6 +1077,8 @@ pub struct Voice {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Information about the file
     pub voice: types::Voice,
     /// Caption
@@ -1350,6 +1382,8 @@ pub struct Invoice {
     pub is_from_offline: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Message is an invoice for a [`payment`](https://core.telegram.org/bots/api#payments), information about the invoice. [`More about payments`](https://core.telegram.org/bots/api#payments)
@@ -1523,6 +1557,8 @@ pub struct PassportData {
     pub is_topic_message: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
     /// Telegram Passport data
     #[serde(rename = "passport_data")]
     pub data: types::PassportData,
@@ -2718,6 +2754,31 @@ impl Message {
                 Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn paid_star_count(&self) -> Option<i64> {
+        match self {
+            Message::Text(message) => message.paid_star_count,
+            Message::Animation(message) => message.paid_star_count,
+            Message::Audio(message) => message.paid_star_count,
+            Message::Document(message) => message.paid_star_count,
+            Message::Photo(message) => message.paid_star_count,
+            Message::Sticker(message) => message.paid_star_count,
+            Message::Story(message) => message.paid_star_count,
+            Message::Video(message) => message.paid_star_count,
+            Message::VideoNote(message) => message.paid_star_count,
+            Message::Voice(message) => message.paid_star_count,
+            Message::Contact(message) => message.paid_star_count,
+            Message::Dice(message) => message.paid_star_count,
+            Message::Game(message) => message.paid_star_count,
+            Message::Poll(message) => message.paid_star_count,
+            Message::Venue(message) => message.paid_star_count,
+            Message::Location(message) => message.paid_star_count,
+            Message::PassportData(message) => message.paid_star_count,
+            Message::Invoice(message) => message.paid_star_count,
             _ => None,
         }
     }
