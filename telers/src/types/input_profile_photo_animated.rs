@@ -1,10 +1,12 @@
 use serde::Serialize;
+use serde_with::skip_serializing_none;
 
 use crate::types::InputFile;
 
 /// An animated profile photo in the MPEG4 format.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputprofilephotoanimated>
+#[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct InputProfilePhotoAnimated<'a> {
     /// The animated profile photo. Profile photos can't bereused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the photo was uploaded using `multipart/form-data` under <file_attach_name>. [`More information on Sending Files`](https://core.telegram.org/bots/api#sending-files).

@@ -2,12 +2,14 @@ use super::base::{Request, TelegramMethod};
 use crate::{client::Bot, types::OwnedGifts};
 
 use serde::Serialize;
+use serde_with::skip_serializing_none;
 
 /// Returns the gifts received and owned by a managed business account. Requires the `can_view_gifts_and_stars` business bot right.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getbusinessaccountgifts>
 /// # Returns
 /// On success, [`OwnedGifts`] is returned
+#[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct GetBusinessAccountGifts {
     /// Unique identifier of the business connection

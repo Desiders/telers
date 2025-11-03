@@ -1,13 +1,11 @@
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use serde::Deserialize;
 
 use super::{UniqueGift, User};
 
 /// Describes a unique gift received and owned by a user or a chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#ownedgiftunique>
-#[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct OwnedGiftUnique {
     /// Information about the unique gift
     pub gift: UniqueGift,

@@ -1,13 +1,11 @@
 use super::OwnedGift;
 
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use serde::Deserialize;
 
 /// Contains the list of gifts received and owned by a user or a chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#ownedgifts>
-#[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct OwnedGifts {
     /// The total number of gifts owned by the user or the chat
     pub total_count: i64,

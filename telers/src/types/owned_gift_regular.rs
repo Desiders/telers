@@ -1,13 +1,11 @@
-use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
+use serde::Deserialize;
 
 use super::{Gift, MessageEntity, User};
 
 /// Describes a regular gift owned by a user or a chat.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#ownedgiftregular>
-#[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct OwnedGiftRegular {
     /// Information about the regular gift
     pub gift: Gift,
