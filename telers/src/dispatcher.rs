@@ -64,7 +64,7 @@ use crate::{
     Extensions, Request, RouterConfigured,
 };
 
-use backoff::{backoff::Backoff, exponential::ExponentialBackoff, SystemClock};
+use backoff::{exponential::ExponentialBackoff, future::retry, SystemClock};
 use futures_util::future::BoxFuture;
 use std::{
     future::{Future, IntoFuture},
@@ -86,14 +86,14 @@ pub const DEFAULT_POLLING_TIMEOUT: i64 = 30;
 pub struct Dispatcher<
     Client = Reqwest,
     Propagator = RouterConfigured,
-    BackoffType = ExponentialBackoff<SystemClock>,
+    Backoff = ExponentialBackoff<SystemClock>,
 > {
     propagator: Propagator,
     bots: Vec<Bot<Client>>,
     extensions: Extensions,
     context: Context,
     polling_timeout: Option<i64>,
-    backoff: BackoffType,
+    backoff: Backoff,
     allowed_updates: Vec<UpdateType>,
 }
 
@@ -287,7 +287,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     }
 }
 
-impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType> {
+impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
     /// Main entry point for incoming updates.
     /// This method will propagate update to the main router.
     #[instrument(skip_all, fields(update_id = update.id, update_type))]
@@ -327,11 +327,11 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
         polling_timeout: Option<i64>,
         allowed_updates: Vec<UpdateType>,
         update_tx: mpsc::Sender<Update>,
-        mut backoff: BackoffType,
+        backoff: Backoff,
     ) -> mpsc::error::SendError<Update>
     where
         Client: Session,
-        BackoffType: Backoff,
+        Backoff: backoff::backoff::Backoff + Clone,
     {
         event!(Level::TRACE, "Start listening updates");
 
@@ -340,90 +340,49 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
             .timeout_option(polling_timeout)
             .allowed_updates(allowed_updates.iter().map(AsRef::as_ref));
 
-        // Flag for handling connection errors.
-        // If it's `true`, we will use backoff algorithm to next backoff.
-        // If it's `false`, we will use default backoff algorithm.
-        let mut failed = false;
-
         loop {
-            event!(
-                Level::TRACE,
-                "Send `getUpdates` request to the Telegram server",
-            );
+            let updates = retry(backoff.clone(), || {
+                let bot = &bot;
+                let method = &method;
 
-            let updates = match bot.send(&method).await {
-                Ok(updates) => {
-                    // Get last update id to set offset or skip updates if it's empty
-                    let Some(
-                        Either::Left(Update { id, .. }) | Either::Right(UpdateUnparsed { id, .. }),
-                    ) = updates.last()
-                    else {
-                        event!(Level::TRACE, "No updates received");
-                        continue;
-                    };
-
-                    event!(
-                        Level::TRACE,
-                        updates_len = updates.len(),
-                        last_update_id = id,
-                        "Received updates from the Telegram server",
-                    );
-
-                    // The `getUpdates` method returns the earliest 100 unconfirmed updates.
-                    // To confirm an update, use the offset parameter when calling `getUpdates`.
-                    // All updates with `update_id` less than or equal to `offset` will be marked.
-                    // as confirmed on the server and will no longer be returned.
-                    // So we need to set offset to the last update `id` + 1
-                    method.offset = Some(id + 1);
-
-                    updates
-                }
-                Err(err) => {
-                    event!(Level::ERROR, %err, "Failed to fetch updates");
-
-                    // If we failed to fetch updates, we will sleep for a while and try again
-                    failed = true;
-
-                    if let Some(duration) = backoff.next_backoff() {
-                        event!(
-                            Level::WARN,
-                            "Sleep for {duration:?} seconds and try again..."
-                        );
-
-                        tokio::time::sleep(duration).await;
+                async move {
+                    match bot.send(method).await {
+                        Ok(updates) => Ok(updates),
+                        Err(err) => {
+                            event!(Level::ERROR, %err, "Failed to fetch updates");
+                            Err(backoff::Error::transient(err))
+                        }
                     }
-                    continue;
                 }
+            })
+            .await
+            .expect("Retry gave up due to permanent error");
+
+            let Some(Either::Left(Update { id, .. }) | Either::Right(UpdateUnparsed { id, .. })) =
+                updates.last()
+            else {
+                event!(Level::TRACE, "No updates received");
+                continue;
             };
 
+            method.offset = Some(id + 1);
+
             for update in updates {
-                let update = match update {
-                    Either::Left(update) => update,
+                match update {
+                    Either::Left(update) => {
+                        if let Err(err) = update_tx.send(update).await {
+                            return err;
+                        }
+                    }
                     Either::Right(UpdateUnparsed { id, value }) => {
                         event!(
                             Level::ERROR,
-                            ?value,
-                            "Failed to parse update kind with ID {id}. \
-                            Please, open issue to fix that.",
+                            update_id = id,
+                            update = ?value,
+                            "Failed to parse update",
                         );
-                        continue;
                     }
                 };
-
-                event!(Level::TRACE, "Send update to the listener",);
-                if let Err(err) = update_tx.send(update).await {
-                    return err;
-                }
-            }
-
-            // If we successfully connected to the server, we will reset backoff config
-            if failed {
-                event!(Level::INFO, "Connection established successfully");
-
-                backoff.reset();
-
-                // Reset failed flag, because we successfully connected to the server and don't need to use backoff algorithm
-                failed = false;
             }
         }
     }
@@ -437,7 +396,7 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
     where
         Client: Session + Clone + 'static,
         Propagator: PropagateEvent<Client> + Clone,
-        BackoffType: Backoff + Send + Sync + Clone + 'static,
+        Backoff: backoff::backoff::Backoff + Send + Sync + Clone + 'static,
     {
         let (signal_tx, signal_rx) = watch::channel(());
         let (update_tx, mut update_rx) = mpsc::channel(CHANNEL_UPDATES_SIZE);
@@ -493,11 +452,11 @@ impl<Client, Propagator, BackoffType> Dispatcher<Client, Propagator, BackoffType
     /// # Panics
     /// - If failed to register exit signal handlers
     /// - If bots is empty
-    pub fn run_polling(self) -> Serve<Client, Propagator, BackoffType>
+    pub fn run_polling(self) -> Serve<Client, Propagator, Backoff>
     where
         Client: Session + Clone + 'static,
         Propagator: PropagateEvent<Client> + 'static,
-        BackoffType: Backoff + Send + Sync + Clone + 'static,
+        Backoff: backoff::backoff::Backoff + Send + Sync + Clone + 'static,
     {
         assert!(
             !self.bots.is_empty(),
@@ -533,7 +492,7 @@ impl<Client, Propagator, BackoffType> IntoFuture for Serve<Client, Propagator, B
 where
     Client: Session + Clone + 'static,
     Propagator: PropagateEvent<Client>,
-    BackoffType: Backoff + Send + Sync + Clone + 'static,
+    BackoffType: backoff::backoff::Backoff + Send + Sync + Clone + 'static,
 {
     type Output = Result<(), HandlerError>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
@@ -585,7 +544,7 @@ where
     Signal: Future + Send + 'static,
     Signal::Output: Send,
     Propagator: PropagateEvent<Client>,
-    BackoffType: Backoff + Send + Sync + Clone + 'static,
+    BackoffType: backoff::backoff::Backoff + Send + Sync + Clone + 'static,
 {
     type Output = Result<(), HandlerError>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
