@@ -61,7 +61,7 @@ impl TelegramMethod for GetStarTransactions {
     type Method = Self;
     type Return = StarTransactions;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
+    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
         Request::new("getStarTransactions", self, None)
     }
 }

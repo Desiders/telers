@@ -50,7 +50,7 @@ impl TelegramMethod for AnswerWebAppQuery {
     type Method = Self;
     type Return = SentWebAppMessage;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
+    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
         Request::new("answerWebAppQuery", self, None)
     }
 }

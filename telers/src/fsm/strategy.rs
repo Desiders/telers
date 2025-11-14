@@ -34,8 +34,10 @@ use std::fmt::{self, Display};
 /// # Notes
 /// In case of direct messages, `chat_id` and `user_id` will be equal, so all strategies will work the same way.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Default)]
 pub enum Strategy {
     /// `user_id` + `chat_id`
+    #[default]
     UserInChat,
     /// `chat_id` + `chat_id`
     Chat,
@@ -64,11 +66,6 @@ impl Display for Strategy {
     }
 }
 
-impl Default for Strategy {
-    fn default() -> Self {
-        Self::UserInChat
-    }
-}
 
 impl Strategy {
     #[must_use]

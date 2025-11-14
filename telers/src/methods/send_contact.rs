@@ -259,7 +259,7 @@ impl TelegramMethod for SendContact {
     type Method = Self;
     type Return = Message;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
+    fn build_request<Client>(&'_ self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
         Request::new("sendContact", self, None)
     }
 }

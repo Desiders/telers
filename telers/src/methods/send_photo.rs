@@ -330,7 +330,7 @@ impl TelegramMethod for SendPhoto<'_> {
     type Method = Self;
     type Return = Message;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
+    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
         let mut files = vec![];
         prepare_file(&mut files, &self.photo);
 

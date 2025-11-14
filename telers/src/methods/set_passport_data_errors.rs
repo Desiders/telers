@@ -69,7 +69,7 @@ impl TelegramMethod for SetPassportDataErrors {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
+    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
         Request::new("setPassportDataErrors", self, None)
     }
 }

@@ -37,7 +37,7 @@ impl TelegramMethod for GetBusinessConnection {
     type Method = Self;
     type Return = BusinessConnection;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
+    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
         Request::new("getBusinessConnection", self, None)
     }
 }

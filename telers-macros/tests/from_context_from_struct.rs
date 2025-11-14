@@ -1,5 +1,8 @@
-#![allow(dead_code)]
-#![allow(clippy::extra_unused_type_parameters, clippy::extra_unused_lifetimes)]
+#![allow(
+    clippy::extra_unused_type_parameters,
+    clippy::extra_unused_lifetimes,
+    dead_code
+)]
 
 use telers::extractor::Extractor;
 use telers_macros::FromContext;

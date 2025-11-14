@@ -18,6 +18,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
     IntoStaticStr,
 )]
 #[serde(tag = "type", rename_all = "snake_case")]
+#[derive(Default)]
 pub enum KeyboardButtonPollType {
     /// If `Quiz` is passed, the user will be allowed to create only polls in
     /// the quiz mode.
@@ -30,11 +31,7 @@ pub enum KeyboardButtonPollType {
     /// type.
     #[serde(rename = "")]
     #[strum(serialize = "any")]
+    #[default]
     Any,
 }
 
-impl Default for KeyboardButtonPollType {
-    fn default() -> Self {
-        Self::Any
-    }
-}

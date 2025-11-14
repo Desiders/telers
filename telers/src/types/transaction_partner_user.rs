@@ -22,7 +22,7 @@ pub struct TransactionPartnerUserInvoicePayment {
     /// Information about the affiliate that received a commission via this transaction
     pub affiliate: Option<AffiliateInfo>,
     /// Bot-specified invoice payload
-    pub invoice_payload: Option<String>,
+    pub invoice_payload: Option<Box<str>>,
     /// The duration of the paid subscription
     pub subscription_period: Option<i64>,
 }
@@ -133,7 +133,7 @@ impl TransactionPartnerUser {
             Self::InvoicePayment(TransactionPartnerUserInvoicePayment {
                 invoice_payload: Some(invoice_payload),
                 ..
-            }) => Some(invoice_payload.as_str()),
+            }) => Some(&**invoice_payload),
             _ => None,
         }
     }

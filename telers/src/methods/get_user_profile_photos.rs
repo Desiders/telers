@@ -75,7 +75,7 @@ impl TelegramMethod for GetUserProfilePhotos {
     type Method = Self;
     type Return = UserProfilePhotos;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
+    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
         Request::new("getUserProfilePhotos", self, None)
     }
 }

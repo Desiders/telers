@@ -226,7 +226,7 @@ impl TelegramMethod for EditMessageLiveLocation {
     type Method = Self;
     type Return = MessageOrTrue;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
+    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
         Request::new("editMessageLiveLocation", self, None)
     }
 }

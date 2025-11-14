@@ -1,4 +1,8 @@
-#![allow(clippy::extra_unused_type_parameters, clippy::extra_unused_lifetimes)]
+#![allow(
+    clippy::extra_unused_type_parameters,
+    clippy::extra_unused_lifetimes,
+    dead_code
+)]
 
 use std::convert::Infallible;
 use telers::{errors::ConvertToTypeError, extractor::Extractor, types::Update};

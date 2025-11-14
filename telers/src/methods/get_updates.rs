@@ -120,7 +120,7 @@ impl TelegramMethod for GetUpdates {
     type Method = Self;
     type Return = Vec<Either<Update, UpdateUnparsed>>;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
+    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
         Request::new("getUpdates", self, None)
     }
 }

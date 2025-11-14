@@ -85,7 +85,7 @@ impl TelegramMethod for UploadStickerFile<'_> {
     type Method = Self;
     type Return = File;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
+    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
         let mut files = vec![];
         prepare_file(&mut files, &self.sticker);
 

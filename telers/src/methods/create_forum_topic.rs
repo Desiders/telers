@@ -92,7 +92,7 @@ impl TelegramMethod for CreateForumTopic {
     type Method = Self;
     type Return = ForumTopic;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
+    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
         Request::new("createForumTopic", self, None)
     }
 }

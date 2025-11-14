@@ -74,7 +74,7 @@ impl TelegramMethod for ReplaceStickerInSet<'_> {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<Self::Method> {
+    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
         let mut files = vec![];
         prepare_input_sticker(&mut files, &self.sticker);
 
