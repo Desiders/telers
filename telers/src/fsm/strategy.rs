@@ -33,8 +33,7 @@ use std::fmt::{self, Display};
 ///
 /// # Notes
 /// In case of direct messages, `chat_id` and `user_id` will be equal, so all strategies will work the same way.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-#[derive(Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Default)]
 pub enum Strategy {
     /// `user_id` + `chat_id`
     #[default]
@@ -65,7 +64,6 @@ impl Display for Strategy {
         write!(f, "{}", self.as_str())
     }
 }
-
 
 impl Strategy {
     #[must_use]
