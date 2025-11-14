@@ -10,13 +10,35 @@ use serde::Serialize;
 /// # Returns
 /// On success, `true` is returned
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
-pub struct DeleteWebhook {}
+pub struct DeleteWebhook {
+    /// Pass `true` to drop all pending updates
+    pub drop_pending_updates: Option<bool>,
+}
 
 impl DeleteWebhook {
     #[inline]
     #[must_use]
     pub const fn new() -> Self {
-        Self {}
+        Self {
+            drop_pending_updates: None,
+        }
+    }
+
+    #[must_use]
+    pub fn drop_pending_updates(self, val: bool) -> Self {
+        Self {
+            drop_pending_updates: Some(val),
+            ..self
+        }
+    }
+}
+
+impl DeleteWebhook {
+    pub fn drop_pending_updates_option(self, val: Option<bool>) -> Self {
+        Self {
+            drop_pending_updates: val,
+            ..self
+        }
     }
 }
 
