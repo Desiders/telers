@@ -3,12 +3,14 @@ use super::base::{Request, TelegramMethod};
 use crate::client::Bot;
 
 use serde::Serialize;
+use serde_with::skip_serializing_none;
 
 /// Use this method to remove webhook integration if you decide to switch back to [`super::GetUpdates`].
 /// # Documentation
 /// <https://core.telegram.org/bots/api#deletewebhook>
 /// # Returns
 /// On success, `true` is returned
+#[skip_serializing_none]
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct DeleteWebhook {
     /// Pass `true` to drop all pending updates
