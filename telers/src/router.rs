@@ -185,7 +185,7 @@ pub trait PropagateEvent<Client>: Clone + Send + Sync + 'static {
     /// If any startup observer returns error
     fn emit_startup(&mut self) -> impl Future<Output = SimpleHandlerResult> + Send;
 
-    fn starup_handlers_len(&self) -> usize;
+    fn startup_handlers_len(&self) -> usize;
 
     /// Emit shutdown events
     /// # Errors
@@ -924,7 +924,7 @@ where
 
     #[instrument(skip_all, fields(router = self.name))]
     async fn emit_startup(&mut self) -> SimpleHandlerResult {
-        if self.starup_handlers_len() == 0 {
+        if self.startup_handlers_len() == 0 {
             event!(Level::TRACE, "Observers empty");
             return Ok(());
         }
@@ -943,7 +943,7 @@ where
         Ok(())
     }
 
-    fn starup_handlers_len(&self) -> usize {
+    fn startup_handlers_len(&self) -> usize {
         self.startup.handlers().len()
     }
 

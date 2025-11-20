@@ -39,7 +39,7 @@ pub struct User {
     pub supports_inline_queries: Option<bool>,
     /// `true`, if the bot can be connected to a Telegram Business account to receive its messages. Returned only in [`GetMe`](crate::methods::GetMe).
     pub can_connect_to_business: Option<bool>,
-    /// `true, if the bot has a main Web App. Returned only in [`GetMe`](crate::methods::GetMe).
+    /// `true`, if the bot has a main Web App. Returned only in [`GetMe`](crate::methods::GetMe).
     pub has_main_web_app: Option<bool>,
 }
 

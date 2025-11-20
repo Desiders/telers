@@ -30,17 +30,22 @@ impl DeleteWebhook {
     pub fn drop_pending_updates(self, val: bool) -> Self {
         Self {
             drop_pending_updates: Some(val),
-            ..self
         }
     }
 }
 
 impl DeleteWebhook {
+    #[must_use]
     pub fn drop_pending_updates_option(self, val: Option<bool>) -> Self {
         Self {
             drop_pending_updates: val,
-            ..self
         }
+    }
+}
+
+impl Default for DeleteWebhook {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

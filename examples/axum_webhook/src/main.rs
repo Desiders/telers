@@ -1,4 +1,4 @@
-//! This example shows how to create an echo bot and how to run it concurrently with polling `axum` server.
+//! This example shows how to setup webhooks for a bot using `axum` server.
 //!
 //! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash

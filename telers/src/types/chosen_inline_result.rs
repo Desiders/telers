@@ -7,7 +7,7 @@ use serde_with::skip_serializing_none;
 
 /// Represents a [`result`](https://core.telegram.org/bots/api#inlinequeryresult) of an inline query that was chosen by the user and sent to their chat partner.
 /// # Notes
-/// It is necessary to enable [`inline feedback`](https://core.telegram.org/bots/inline#collecting-feedback) via [`@BotFather`](https://t.me/botfather) in order to receive these objects in updates.
+/// It is necessary to enable [`inline feedback`](https://core.telegram.org/bots/inline#collecting-feedback) via [``@BotFather``](https://t.me/botfather) in order to receive these objects in updates.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#choseninlineresult>
 #[skip_serializing_none]

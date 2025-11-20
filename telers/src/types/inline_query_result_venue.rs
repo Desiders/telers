@@ -21,7 +21,7 @@ pub struct InlineQueryResultVenue {
     pub address: String,
     /// Foursquare identifier of the venue if known
     pub foursquare_id: Option<String>,
-    /// Foursquare type of the venue, if known. (For example, 'arts_entertainment/default', 'arts_entertainment/aquarium' or 'food/icecream'.)
+    /// Foursquare type of the venue, if known. (For example, `arts_entertainment/default`, `arts_entertainment/aquarium` or 'food/icecream'.)
     pub foursquare_type: Option<String>,
     /// Google Places identifier of the venue
     pub google_place_id: Option<String>,

@@ -184,7 +184,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     /// All bots use the same dispatcher, but each bot has the own polling process.
     /// Polling process gets updates and propagates them to the main propagator.
     /// # Notes
-    /// You can add sinlge bot using [`Builder::bot`] method
+    /// You can add single bot using [`Builder::bot`] method
     #[must_use]
     pub fn bots(self, val: impl IntoIterator<Item = Bot<Client>>) -> Self {
         Self {
@@ -382,7 +382,7 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
                             "Failed to parse update kind",
                         );
                     }
-                };
+                }
             }
         }
     }

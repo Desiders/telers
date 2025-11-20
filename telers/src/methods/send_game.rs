@@ -34,7 +34,7 @@ pub struct SendGame {
     pub message_effect_id: Option<String>,
     /// Description of the message to reply to
     pub reply_parameters: Option<ReplyParameters>,
-    /// A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). If empty, one ‘Play game_title’ button will be shown. If not empty, the first button must launch the game.
+    /// A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). If empty, one ‘Play `game_title`’ button will be shown. If not empty, the first button must launch the game.
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 

@@ -96,11 +96,11 @@ where
         event!(Level::TRACE, "Received event");
 
         let (parts, body) = req.into_parts();
-        let ref secret_token_header = match parts.headers.get(SECRET_TOKEN_HEADER_NAME) {
+        let secret_token_header = match parts.headers.get(SECRET_TOKEN_HEADER_NAME) {
             Some(token) => XTelegramBotApiSecretToken(Some(token.as_ref().into())),
             None => XTelegramBotApiSecretToken(None),
         };
-        if !verify(self.secret_token.as_deref(), secret_token_header) {
+        if !verify(self.secret_token.as_deref(), &secret_token_header) {
             event!(Level::ERROR, secret_token = ?secret_token_header, "Invalid secret token");
             return Box::pin(async move { StatusCode::UNAUTHORIZED.into_response() });
         }
@@ -141,7 +141,7 @@ where
                 if self.avoid_resend_updates {
                     tokio::select! {
                         _ = fut => {},
-                        _ = sleep(Duration::from_secs(55)) => event!(
+                        () = sleep(Duration::from_secs(55)) => event!(
                             Level::WARN,
                             "Detected slow handler execution. \
                             Telegram waits for a response for 60 seconds and re-send the update. \
@@ -159,7 +159,6 @@ where
 }
 
 #[inline]
-#[must_use]
 pub fn get_updates_router<S, Client, Propagator, Backoff>(
     handler: UpdatesHandler<Client, Propagator, Backoff>,
 ) -> MethodRouter<S, Infallible>

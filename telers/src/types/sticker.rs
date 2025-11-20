@@ -13,7 +13,7 @@ pub struct Sticker {
     pub file_id: Box<str>,
     /// Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
     pub file_unique_id: Box<str>,
-    /// Type of the sticker, currently one of 'regular', 'mask', 'custom_emoji'. The type of the sticker is independent from its format, which is determined by the fields *is_animated* and *is_video*.
+    /// Type of the sticker, currently one of `regular`, `mask`, `custom_emoji`. The type of the sticker is independent from its format, which is determined by the fields *`is_animated`* and *`is_video`*.
     #[serde(rename = "type")]
     pub sticker_type: Box<str>,
     /// Sticker width

@@ -19,7 +19,7 @@ pub struct InlineQueryResultVoice {
     pub caption: Option<String>,
     /// Mode for parsing entities in the voice message caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
     pub parse_mode: Option<String>,
-    /// List of special entities that appear in the caption, which can be specified instead of *parse_mode*
+    /// List of special entities that appear in the caption, which can be specified instead of *`parse_mode`*
     pub caption_entities: Option<Vec<MessageEntity>>,
     /// Recording duration in seconds
     pub voice_duration: Option<i64>,

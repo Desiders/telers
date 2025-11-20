@@ -22,7 +22,7 @@ pub struct CopyMessages {
     pub message_thread_id: Option<i64>,
     /// Unique identifier for the chat where the original messages were sent (or channel username in the format `@channelusername`)
     pub from_chat_id: ChatIdKind,
-    /// MIdentifiers of 1-100 messages in the chat `from_chat_id` to copy. The identifiers must be specified in a strictly increasing order.
+    /// Identifiers of 1-100 messages in the chat `from_chat_id` to copy. The identifiers must be specified in a strictly increasing order.
     pub message_ids: Vec<i64>,
     /// Sends the messages [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound
     pub disable_notification: Option<bool>,

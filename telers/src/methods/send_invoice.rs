@@ -72,7 +72,7 @@ pub struct SendInvoice {
     pub message_effect_id: Option<String>,
     /// Description of the message to reply to
     pub reply_parameters: Option<ReplyParameters>,
-    /// A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). If empty, one 'Pay `total price`' button will be shown. If not empty, the first button must be a Pay button.
+    /// A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). If empty, one 'Pay `total price` button will be shown. If not empty, the first button must be a Pay button.
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
