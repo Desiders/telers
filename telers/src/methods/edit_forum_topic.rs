@@ -5,7 +5,7 @@ use crate::{client::Bot, types::ChatIdKind};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 
-/// Use this method to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have can_manage_topics administrator rights, unless it is the creator of the topic.
+/// Use this method to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have `can_manage_topics` administrator rights, unless it is the creator of the topic.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#editforumtopic>
 /// # Returns

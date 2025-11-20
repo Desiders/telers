@@ -119,7 +119,7 @@ impl Text {
         }
     }
 
-    /// Creates a new [`Text`] fitler with pass text or compiled [`Regex`] pattern that must be equal to the text
+    /// Creates a new [`Text`] filter with pass text or compiled [`Regex`] pattern that must be equal to the text
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]
@@ -127,7 +127,7 @@ impl Text {
         Self::builder().text(text).build()
     }
 
-    /// Creates a new [`Text`] fitler with pass texts or compiled [`Regex`] patterns that must be equal to the text
+    /// Creates a new [`Text`] filter with pass texts or compiled [`Regex`] patterns that must be equal to the text
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
     #[must_use]

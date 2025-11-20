@@ -490,7 +490,7 @@ impl<'a> StreamFile<'a> {
     /// If stream is taken, default client implementation raises an error,
     /// so you need to use [`StreamFile::set_stream`] to set stream again.
     /// # Returns
-    /// After this function once returns `Some(_)` all consequtive calls before [`StreamFile::set_stream`]
+    /// After this function once returns `Some(_)` all consecutive calls before [`StreamFile::set_stream`]
     /// will return `None` as the value is already taken
     #[must_use]
     pub fn take_stream(

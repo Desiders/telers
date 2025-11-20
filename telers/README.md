@@ -46,6 +46,7 @@ More information about this crate can be found in the [crate documentation][docs
  - [Router tree][examples/router_tree]. This example shows how to create a router tree.
  - [Bot http client][examples/bot_http_client]. This example shows how to set a custom bot HTTP client.
  - [Axum and echo bot][examples/axum_and_echo_bot]. This example shows how to create an echo bot and run it concurrently with polling `axum` server.
+ - [Axum webhook][examples/axum_webhook]. This example shows how to setup webhooks for a bot using `axum` server.
 
 You may consider checking out [this directory][examples] for more examples.
 
@@ -61,6 +62,7 @@ This project is licensed under either of the following licenses, at your option:
 
 [examples]: https://github.com/Desiders/telers/tree/dev-1.x/examples
 [examples/axum_and_echo_bot]: https://github.com/Desiders/telers/tree/dev-1.x/examples/axum_and_echo_bot
+[examples/axum_webhook]: https://github.com/Desiders/telers/tree/dev-1.x/examples/axum_webhook
 [examples/bot_http_client]: https://github.com/Desiders/telers/tree/dev-1.x/examples/bot_http_client
 [examples/router_tree]: https://github.com/Desiders/telers/tree/dev-1.x/examples/router_tree
 [examples/fsm]: https://github.com/Desiders/telers/tree/dev-1.x/examples/fsm

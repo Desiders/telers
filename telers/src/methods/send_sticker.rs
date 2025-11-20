@@ -22,7 +22,7 @@ pub struct SendSticker<'a> {
     pub chat_id: ChatIdKind,
     /// Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
     pub message_thread_id: Option<i64>,
-    /// Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBM sticker using multipart/form-data. [More info on Sending Files »](https://core.telegram.org/bots/api#sending-files). Video and animated stickers can't be sent via an HTTP URL.
+    /// Sticker to send. Pass a `file_id` as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBM sticker using multipart/form-data. [More info on Sending Files »](https://core.telegram.org/bots/api#sending-files). Video and animated stickers can't be sent via an HTTP URL.
     pub sticker: InputFile<'a>,
     /// Emoji associated with the sticker; only for just uploaded stickers
     pub emoji: Option<String>,

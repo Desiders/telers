@@ -1,4 +1,4 @@
-//! This module contains the [`ErrorKind`] enum that reprensents Telegram Bot API errors.
+//! This module contains the [`ErrorKind`] enum that represents Telegram Bot API errors.
 //!
 //! All possible errors aren't documented in the official Telegram API documentation and usually
 //! defined by messages in the responses, but these messages can be changed in the future (frequent situation).

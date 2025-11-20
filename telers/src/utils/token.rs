@@ -34,7 +34,7 @@ pub fn validate(token: &str) -> bool {
 #[allow(clippy::missing_panics_doc)]
 #[must_use]
 pub fn extract_bot_id(token: &str) -> Option<i64> {
-    // `unwrap`'s is safe here because we already checked token in `validate_token`
+    // `unwrap`s is safe here because we already checked token in `validate_token`
     validate(token).then(|| token.split_once(':').unwrap().0.parse().unwrap())
 }
 
