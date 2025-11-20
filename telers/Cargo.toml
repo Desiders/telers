@@ -40,6 +40,9 @@ default-signal = ["signal"]
 # Legacy feature `default-signal` with underscore naming
 default_signal = ["default-signal"]
 
+webhooks = ["subtle"]
+webhooks-axum = ["webhooks", "axum"]
+
 [dependencies]
 telers-macros = { path = "../telers-macros", version = "1.0.0-alpha.4", features = ["default"] }
 tower = { version = "0.5", default-features = false, features = ["util"] }
@@ -68,6 +71,10 @@ deadpool-redis = { version = "0.20", default-features = false, features = ["rt_t
 
 native-tls = { version = "=0.2.13", optional = true }
 url = { version = "=2.5.2", optional = true }
+
+axum = { version = "0.8", default-features = false, optional = true }
+
+subtle = { version = "2.6", default-features = false, optional = true }
 
 [dev-dependencies]
 tokio-test = "0.4"

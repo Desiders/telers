@@ -25,6 +25,9 @@ pub mod router;
 pub mod types;
 pub mod utils;
 
+#[cfg(feature = "webhooks")]
+pub mod webhooks;
+
 pub use telers_macros::{FromContext, FromEvent};
 
 pub use client::Bot;
