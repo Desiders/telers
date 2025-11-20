@@ -26,7 +26,7 @@ use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt
 const SERVER_HOST: &str = "0.0.0.0";
 const SERVER_PORT: u16 = 3000;
 
-const WEBHOOK_URL: &str = "https://webhook.tunnel.touhou.dad";
+const WEBHOOK_URL: &str = "https://example.com";
 const HANDLER_PATH: &str = "/";
 const SECRET_TOKEN: &str = "123";
 
