@@ -71,7 +71,7 @@ async fn start_handler<S: Storage>(
         message.chat().id(),
         "Hello! What's your name?",
     ).business_connection_id(message.business_connection_id().expect(
-        "Business connection id should be set, because we regitered this handler for business connections only",
+        "Business connection id should be set, because we registered this handler for business connections only",
     )))
     .await?;
 
@@ -107,7 +107,7 @@ async fn name_handler<S: Storage>(
             format!("Nice to meet you, {name}! What's your native language?"),
         )
         .business_connection_id(message.business_connection_id.expect(
-            "Business connection id should be set, because we regitered this handler for business connections only",
+            "Business connection id should be set, because we registered this handler for business connections only",
         )),
     )
     .await?;
@@ -137,7 +137,7 @@ async fn language_handler<S: Storage>(
                 message.chat.id(),
                 format!("{name}, let's talk!"),
             ).business_connection_id(message.business_connection_id.expect(
-            "Business connection id should be set, because we regitered this handler for business connections only",
+            "Business connection id should be set, because we registered this handler for business connections only",
         )))
             .await?;
 
@@ -149,7 +149,7 @@ async fn language_handler<S: Storage>(
                 message.chat.id(),
                 format!("{name}, I don't speak your language. Please, choose another :(",),
             ).business_connection_id(message.business_connection_id.expect(
-                "Business connection id should be set, because we regitered this handler for business connections only",
+                "Business connection id should be set, because we registered this handler for business connections only",
             )))
             .await?;
 

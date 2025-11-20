@@ -13,7 +13,7 @@ pub struct InputTextMessageContent {
     pub message_text: String,
     /// Mode for parsing entities in the message text. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
     pub parse_mode: Option<String>,
-    /// List of special entities that appear in message text, which can be specified instead of *parse_mode*
+    /// List of special entities that appear in message text, which can be specified instead of *`parse_mode`*
     pub entities: Option<Vec<MessageEntity>>,
     /// Link preview generation options for the message
     pub link_preview_options: Option<LinkPreviewOptions>,

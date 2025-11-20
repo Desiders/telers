@@ -184,7 +184,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     /// All bots use the same dispatcher, but each bot has the own polling process.
     /// Polling process gets updates and propagates them to the main propagator.
     /// # Notes
-    /// You can add sinlge bot using [`Builder::bot`] method
+    /// You can add single bot using [`Builder::bot`] method
     #[must_use]
     pub fn bots(self, val: impl IntoIterator<Item = Bot<Client>>) -> Self {
         Self {
@@ -379,10 +379,10 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
                             Level::ERROR,
                             update_id = id,
                             update = ?value,
-                            "Failed to parse update",
+                            "Failed to parse update kind",
                         );
                     }
-                };
+                }
             }
         }
     }
@@ -452,7 +452,7 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
     /// # Panics
     /// - If failed to register exit signal handlers
     /// - If bots is empty
-    pub fn run_polling(self) -> Serve<Client, Propagator, Backoff>
+    pub fn run_polling(self) -> ServePolling<Client, Propagator, Backoff>
     where
         Client: Session + Clone + 'static,
         Propagator: PropagateEvent<Client> + 'static,
@@ -463,7 +463,123 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
             "You must add at least one bot to the dispatcher",
         );
 
+        ServePolling::new(self)
+    }
+
+    /// External process runner for emit startup and shutdown observers
+    /// # Warning
+    /// This method doesn't start polling, you must call [`Dispatcher::run_polling`] method to start polling.
+    ///
+    /// Can be used for cases when you need to run startup and shutdown observers without polling, for example, for webhooks
+    /// # Errors
+    /// - If any startup observer returns error
+    /// - If any shutdown observer returns error
+    /// # Panics
+    /// - If failed to register exit signal handlers
+    pub fn run_no_polling(self) -> Serve<Client, Propagator, Backoff>
+    where
+        Propagator: PropagateEvent<Client> + 'static,
+    {
         Serve::new(self)
+    }
+}
+
+pub struct ServePolling<Client, Propagator, BackoffType> {
+    dispatcher: Dispatcher<Client, Propagator, BackoffType>,
+}
+
+impl<Client, Propagator, BackoffType> ServePolling<Client, Propagator, BackoffType> {
+    pub const fn new(dispatcher: Dispatcher<Client, Propagator, BackoffType>) -> Self {
+        Self { dispatcher }
+    }
+
+    pub fn with_graceful_shutdown<Signal>(
+        self,
+        signal: Signal,
+    ) -> ServePollingWithGracefulShutdown<Client, Propagator, BackoffType, Signal>
+    where
+        Signal: Future + Send + 'static,
+        Signal::Output: Send,
+    {
+        ServePollingWithGracefulShutdown::new(self.dispatcher, signal)
+    }
+}
+
+impl<Client, Propagator, BackoffType> IntoFuture for ServePolling<Client, Propagator, BackoffType>
+where
+    Client: Session + Clone + 'static,
+    Propagator: PropagateEvent<Client>,
+    BackoffType: backoff::backoff::Backoff + Send + Sync + Clone + 'static,
+{
+    type Output = Result<(), HandlerError>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+
+    #[cfg(feature = "default_signal")]
+    fn into_future(self) -> Self::IntoFuture {
+        use crate::utils::shutdown_signal;
+
+        self.with_graceful_shutdown(shutdown_signal()).into_future()
+    }
+
+    #[cfg(not(feature = "default_signal"))]
+    fn into_future(self) -> Self::IntoFuture {
+        if self.dispatcher.propagator.shutdown_handlers_len() != 0 {
+            event!(
+                // I'm use target instead of name here because: https://github.com/tokio-rs/tracing/discussions/1587#discussioncomment-1370883
+                target: "telers:dispatcher:into_future",
+                Level::WARN,
+                "Shutdown observer can't be called without graceful shutdow. \
+                You can off this log by `telers:dispatcher:into_future=off`.",
+            );
+        }
+
+        self.with_graceful_shutdown(std::future::pending::<Self::Output>())
+            .into_future()
+    }
+}
+
+pub struct ServePollingWithGracefulShutdown<Client, Propagator, BackoffType, Signal> {
+    dispatcher: Dispatcher<Client, Propagator, BackoffType>,
+    signal: Signal,
+}
+
+impl<Client, Propagator, BackoffType, Signal>
+    ServePollingWithGracefulShutdown<Client, Propagator, BackoffType, Signal>
+{
+    pub const fn new(
+        dispatcher: Dispatcher<Client, Propagator, BackoffType>,
+        signal: Signal,
+    ) -> Self {
+        Self { dispatcher, signal }
+    }
+}
+
+impl<Client, Propagator, BackoffType, Signal> IntoFuture
+    for ServePollingWithGracefulShutdown<Client, Propagator, BackoffType, Signal>
+where
+    Client: Session + Clone + 'static,
+    Signal: Future + Send + 'static,
+    Signal::Output: Send,
+    Propagator: PropagateEvent<Client>,
+    BackoffType: backoff::backoff::Backoff + Send + Sync + Clone + 'static,
+{
+    type Output = Result<(), HandlerError>;
+    type IntoFuture = BoxFuture<'static, Self::Output>;
+
+    fn into_future(mut self) -> Self::IntoFuture {
+        Box::pin(async move {
+            self.dispatcher.propagator.emit_startup().await?;
+
+            let mut pollings = Vec::with_capacity(self.dispatcher.bots.len());
+            for bot in self.dispatcher.bots.clone() {
+                pollings.push(self.dispatcher.polling(bot));
+            }
+
+            self.signal.await;
+
+            self.dispatcher.propagator.emit_shutdown().await?;
+            Ok(())
+        })
     }
 }
 
@@ -490,9 +606,7 @@ impl<Client, Propagator, BackoffType> Serve<Client, Propagator, BackoffType> {
 
 impl<Client, Propagator, BackoffType> IntoFuture for Serve<Client, Propagator, BackoffType>
 where
-    Client: Session + Clone + 'static,
     Propagator: PropagateEvent<Client>,
-    BackoffType: backoff::backoff::Backoff + Send + Sync + Clone + 'static,
 {
     type Output = Result<(), HandlerError>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
@@ -540,11 +654,9 @@ impl<Client, Propagator, BackoffType, Signal>
 impl<Client, Propagator, BackoffType, Signal> IntoFuture
     for ServeWithGracefulShutdown<Client, Propagator, BackoffType, Signal>
 where
-    Client: Session + Clone + 'static,
     Signal: Future + Send + 'static,
     Signal::Output: Send,
     Propagator: PropagateEvent<Client>,
-    BackoffType: backoff::backoff::Backoff + Send + Sync + Clone + 'static,
 {
     type Output = Result<(), HandlerError>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
@@ -552,11 +664,6 @@ where
     fn into_future(mut self) -> Self::IntoFuture {
         Box::pin(async move {
             self.dispatcher.propagator.emit_startup().await?;
-
-            let mut pollings = Vec::with_capacity(self.dispatcher.bots.len());
-            for bot in self.dispatcher.bots.clone() {
-                pollings.push(self.dispatcher.polling(bot));
-            }
 
             self.signal.await;
 

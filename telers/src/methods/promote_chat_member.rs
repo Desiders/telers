@@ -43,7 +43,7 @@ pub struct PromoteChatMember {
     pub can_post_stories: Option<bool>,
     /// Pass `true` if the administrator can edit stories posted by other users
     pub can_edit_stories: Option<bool>,
-    /// Pass `true`` if the administrator can delete stories posted by other users
+    /// Pass `true`if the administrator can delete stories posted by other users
     pub can_delete_stories: Option<bool>,
     /// Pass `true` if the user is allowed to create, rename, close, and reopen forum topics, supergroups only
     pub can_manage_topics: Option<bool>,

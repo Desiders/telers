@@ -14,7 +14,7 @@ pub enum StarTransaction {
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct Source {
-    /// Unique identifier of the transaction. Coincides with the identifer of the original transaction for refund transactions. Coincides with [`SuccessfulPayment`](super::SuccessfulPayment)`.telegram_payment_charge_id` for successful incoming payments from users.
+    /// Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`SuccessfulPayment`](super::SuccessfulPayment)`.telegram_payment_charge_id` for successful incoming payments from users.
     pub id: Box<str>,
     /// Number of Telegram Stars transferred by the transaction
     pub amount: i64,
@@ -28,7 +28,7 @@ pub struct Source {
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct Receiver {
-    /// Unique identifier of the transaction. Coincides with the identifer of the original transaction for refund transactions. Coincides with [`SuccessfulPayment`](super::SuccessfulPayment)`.telegram_payment_charge_id` for successful incoming payments from users.
+    /// Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`SuccessfulPayment`](super::SuccessfulPayment)`.telegram_payment_charge_id` for successful incoming payments from users.
     pub id: Box<str>,
     /// Number of Telegram Stars transferred by the transaction
     pub amount: i64,

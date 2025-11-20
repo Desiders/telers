@@ -13,7 +13,7 @@ pub struct StickerSet {
     pub name: Box<str>,
     /// Sticker set title
     pub title: Box<str>,
-    /// Type of stickers in the set, currently one of 'regular', 'mask', 'custom_emoji'
+    /// Type of stickers in the set, currently one of `regular`, `mask`, `custom_emoji`
     pub sticker_type: Box<str>,
     /// List of all set stickers
     pub stickers: Box<[Sticker]>,

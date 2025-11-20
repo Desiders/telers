@@ -23,7 +23,7 @@ pub struct KeyboardButton {
     pub request_location: Option<bool>,
     /// If specified, the user will be asked to create a poll and send it to the bot when the button is pressed. Available in private chats only.
     pub request_poll: Option<KeyboardButtonPollType>,
-    /// If specified, the described [`Web App`](https://core.telegram.org/bots/webapps) will be launched when the button is pressed. The Web App will be able to send a 'web_app_data' service message. Available in private chats only.
+    /// If specified, the described [`Web App`](https://core.telegram.org/bots/webapps) will be launched when the button is pressed. The Web App will be able to send a `web_app_data` service message. Available in private chats only.
     pub web_app: Option<WebAppInfo>,
 }
 

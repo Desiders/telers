@@ -19,7 +19,7 @@ pub struct InlineQueryResultCachedMpeg4Gif {
     pub caption: Option<String>,
     /// Mode for parsing entities in the caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
     pub parse_mode: Option<String>,
-    /// List of special entities that appear in the caption, which can be specified instead of *parse_mode*
+    /// List of special entities that appear in the caption, which can be specified instead of *`parse_mode`*
     pub caption_entities: Option<Vec<MessageEntity>>,
     /// Pass `true`, if the caption must be shown above the message media
     pub show_caption_above_media: Option<bool>,

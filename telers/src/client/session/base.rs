@@ -25,7 +25,7 @@ pub const DEFAULT_TIMEOUT: f32 = 60.0;
 pub struct StatusCode(u16);
 
 impl StatusCode {
-    const SUCESS_STATUS_CODE_RANGE: RangeInclusive<u16> = 200..=226;
+    const SUCCESS_STATUS_CODE_RANGE: RangeInclusive<u16> = 200..=226;
 
     #[must_use]
     pub fn new(status_code: u16) -> Self {
@@ -34,7 +34,7 @@ impl StatusCode {
 
     #[must_use]
     pub fn is_success(&self) -> bool {
-        Self::SUCESS_STATUS_CODE_RANGE.contains(&self.0)
+        Self::SUCCESS_STATUS_CODE_RANGE.contains(&self.0)
     }
 
     #[must_use]

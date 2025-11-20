@@ -19,7 +19,7 @@ pub struct InlineQueryResultCachedVideo {
     pub caption: Option<String>,
     /// Mode for parsing entities in the video caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
     pub parse_mode: Option<String>,
-    /// List of special entities that appear in the caption, which can be specified instead of *parse_mode*
+    /// List of special entities that appear in the caption, which can be specified instead of *`parse_mode`*
     pub caption_entities: Option<Vec<MessageEntity>>,
     /// Pass `true`, if the caption must be shown above the message media
     pub show_caption_above_media: Option<bool>,
@@ -27,7 +27,7 @@ pub struct InlineQueryResultCachedVideo {
     pub description: Option<String>,
     /// [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
     pub reply_markup: Option<InlineKeyboardMarkup>,
-    /// Content of the message to be sent instead of the video. This field is **required** if InlineQueryResultVideo is used to send an HTML-page as a result (e.g., a YouTube video).
+    /// Content of the message to be sent instead of the video. This field is **required** if `InlineQueryResultVideo` is used to send an HTML-page as a result (e.g., a `YouTube` video).
     pub input_message_content: Option<InputMessageContent>,
 }
 

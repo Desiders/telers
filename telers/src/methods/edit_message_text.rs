@@ -22,7 +22,7 @@ pub struct EditMessageText {
     pub chat_id: Option<ChatIdKind>,
     /// Required if `inline_message_id` is not specified. Identifier of the message to edit
     pub message_id: Option<i64>,
-    /// Required if chat_id and message_id are not specified. Identifier of the inline message
+    /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
     pub inline_message_id: Option<String>,
     /// New text of the message, 1-4096 characters after entities parsing
     pub text: String,

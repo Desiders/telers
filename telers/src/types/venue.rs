@@ -17,7 +17,7 @@ pub struct Venue {
     pub address: Box<str>,
     /// Foursquare identifier of the venue
     pub foursquare_id: Option<Box<str>>,
-    /// Foursquare type of the venue. (For example, 'arts_entertainment/default', 'arts_entertainment/aquarium' or 'food/icecream'.)
+    /// Foursquare type of the venue. (For example, `arts_entertainment/default`, `arts_entertainment/aquarium` or `food/icecream`.)
     pub foursquare_type: Option<Box<str>>,
     /// Google Places identifier of the venue
     pub google_place_id: Option<Box<str>>,

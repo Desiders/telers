@@ -1,17 +1,20 @@
-//! This example shows how to create an echo bot and how to run it concurrently with polling `axum` server.
+//! This example shows how to setup webhooks for a bot using `axum` server.
 //!
 //! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package axum_and_echo_bot
+//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package axum_webhook
 //! ```
 
-use axum::{routing, Router as AxumRouter};
+use std::fmt::Display;
+
+use axum::Router as AxumRouter;
 use telers::{
     enums::UpdateType,
-    event::{telegram::HandlerResult, EventReturn},
-    methods::CopyMessage,
+    event::{simple, telegram::HandlerResult, EventReturn},
+    methods::{CopyMessage, SetWebhook},
     types::Message,
     utils::shutdown_signal,
+    webhooks::axum::{get_updates_router, UpdatesHandler},
     Bot, Dispatcher, Router as TelersRouter,
 };
 use tokio::{
@@ -22,6 +25,10 @@ use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt
 
 const SERVER_HOST: &str = "0.0.0.0";
 const SERVER_PORT: u16 = 3000;
+
+const WEBHOOK_URL: &str = "https://webhook.tunnel.touhou.dad";
+const HANDLER_PATH: &str = "/";
+const SECRET_TOKEN: &str = "123";
 
 async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
     bot.send(CopyMessage::new(
@@ -34,9 +41,20 @@ async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
     Ok(EventReturn::Finish)
 }
 
-#[allow(clippy::unused_async)]
-async fn hello_world_handler() -> &'static str {
-    "Hello, World!"
+async fn set_webhook(
+    bot: Bot,
+    webhook_url: impl Display,
+    handler_path: impl Display,
+    secret_token: Option<impl Into<String>>,
+) -> simple::HandlerResult {
+    bot.send(
+        SetWebhook::new(format!("{webhook_url}{handler_path}"))
+            .allowed_update(UpdateType::Message)
+            .secret_token_option(secret_token),
+    )
+    .await?;
+
+    Ok(())
 }
 
 #[tokio::main(flavor = "multi_thread")]
@@ -51,13 +69,20 @@ async fn main() {
     let mut router = TelersRouter::new("main");
     router.message.register(echo_handler);
 
+    router.startup.register(
+        set_webhook,
+        (bot.clone(), WEBHOOK_URL, HANDLER_PATH, Some(SECRET_TOKEN)),
+    );
+
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
-        .bot(bot)
-        .allowed_update(UpdateType::Message)
+        .bot(bot.clone())
         .build();
 
-    let app = AxumRouter::new().route("/", routing::get(hello_world_handler));
+    let app = AxumRouter::new().route(
+        HANDLER_PATH,
+        get_updates_router(UpdatesHandler::new(bot, dispatcher.clone()).secret_token(SECRET_TOKEN)),
+    );
 
     let (shutdown_tx, _) = channel(1);
 
@@ -82,7 +107,8 @@ async fn run_server(app: AxumRouter, mut shutdown_rx: Receiver<()>) {
 
 async fn run_dispatcher(dispatcher: Dispatcher, mut shutdown_rx: Receiver<()>) {
     dispatcher
-        .run_polling()
+        // We don't need polling
+        .run_no_polling()
         .with_graceful_shutdown(async move {
             let _ = shutdown_rx.recv().await;
         })
