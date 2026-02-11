@@ -157,6 +157,7 @@ pub mod inline_query_result_venue;
 pub mod inline_query_result_video;
 pub mod inline_query_result_voice;
 pub mod inline_query_results_button;
+pub mod input_checklist_task;
 pub mod input_contact_message_content;
 pub mod input_file;
 pub mod input_invoice_message_content;
@@ -452,6 +453,7 @@ pub use inline_query_result_venue::InlineQueryResultVenue;
 pub use inline_query_result_video::InlineQueryResultVideo;
 pub use inline_query_result_voice::InlineQueryResultVoice;
 pub use inline_query_results_button::InlineQueryResultsButton;
+pub use input_checklist_task::InputChecklistTask;
 pub use input_contact_message_content::InputContactMessageContent;
 pub use input_file::{
     BufferedFile as InputBufferedFile, FSFile as InputFSFile, FileId as InputFileId, InputFile,
