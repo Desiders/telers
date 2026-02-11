@@ -1,4 +1,4 @@
-use super::{Chat, UniqueGiftBackdrop, UniqueGiftModel, UniqueGiftSymbol};
+use crate::types::UniqueGift;
 
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -9,18 +9,18 @@ use serde_with::skip_serializing_none;
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct UniqueGiftInfo {
-    /// Human-readable name of the regular gift from which this unique gift was upgraded
-    pub base_name: Box<str>,
-    /// Unique name of the gift. This name can be used in `https://t.me/nft/...` links and story areas
-    pub name: Box<str>,
-    /// Unique number of the upgraded gift among gifts upgraded from the same regular gift
-    pub number: i64,
-    /// Model of the gift
-    pub model: UniqueGiftModel,
-    /// Symbol of the gift
-    pub symbol: UniqueGiftSymbol,
-    /// Backdrop of the gift
-    pub backdrop: UniqueGiftBackdrop,
-    /// Information about the chat that published the gift
-    pub publisher_chat: Option<Chat>,
+    /// Information about the gift
+    pub gift: UniqueGift,
+    /// Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, “resale” for gifts bought from other users, “gifted_upgrade” for upgrades purchased after the gift was sent, or “offer” for gifts bought or sold through gift purchase offers
+    pub origin: Box<str>,
+    /// For gifts bought from other users, the currency in which the payment for the gift was done. Currently, one of “XTR” for Telegram Stars or “TON” for toncoins.
+    pub last_resale_currency: Option<Box<str>>,
+    /// For gifts bought from other users, the price paid for the gift in either Telegram Stars or nanotoncoins
+    pub last_resale_amount: Option<i64>,
+    /// Unique identifier of the received gift for the bot; only present for gifts received on behalf of business accounts
+    pub owned_gift_id: Option<Box<str>>,
+    /// Number of Telegram Stars that must be paid to transfer the gift; omitted if the bot cannot transfer the gift
+    pub transfer_star_count: Option<i64>,
+    /// Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now
+    pub next_transfer_date: Option<i64>,
 }

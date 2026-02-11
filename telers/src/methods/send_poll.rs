@@ -28,7 +28,7 @@ pub struct SendPoll {
     pub question_parse_mode: Option<String>,
     /// A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of `question_parse_mode`
     pub question_entities: Option<Vec<MessageEntity>>,
-    /// A JSON-serialized list of 2-10 answer options
+    /// A JSON-serialized list of 2-12 answer options
     pub options: Vec<InputPollOption>,
     /// `true`, if the poll needs to be anonymous, defaults to `true`
     pub is_anonymous: Option<bool>,
