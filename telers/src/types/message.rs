@@ -65,6 +65,8 @@ pub enum Message {
     ProximityAlertTriggered(Box<ProximityAlertTriggered>),
     ChatBoostAdded(Box<ChatBoostAdded>),
     ChatBackgroundSet(Box<ChatBackgroundSet>),
+    ChecklistTasksDone(Box<ChecklistTasksDone>),
+    ChecklistTasksAdded(Box<ChecklistTasksAdded>),
     ForumTopicCreated(Box<ForumTopicCreated>),
     ForumTopicEdited(Box<ForumTopicEdited>),
     ForumTopicClosed(Box<ForumTopicClosed>),
@@ -1678,6 +1680,52 @@ pub struct ChatBackgroundSet {
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
 #[event(try_from = Update)]
+pub struct ChecklistTasksDone {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: some tasks in a checklist were marked as done or not done
+    #[serde(rename = "checklist_tasks_done")]
+    pub tasks: types::ChecklistTasksDone,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
+pub struct ChecklistTasksAdded {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: tasks were added to a checklist
+    #[serde(rename = "checklist_tasks_added")]
+    pub tasks: types::ChecklistTasksAdded,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct ForumTopicCreated {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -2110,6 +2158,8 @@ impl Message {
             Message::ProximityAlertTriggered(message) => message.id,
             Message::ChatBoostAdded(message) => message.id,
             Message::ChatBackgroundSet(message) => message.id,
+            Message::ChecklistTasksDone(message) => message.id,
+            Message::ChecklistTasksAdded(message) => message.id,
             Message::ForumTopicCreated(message) => message.id,
             Message::ForumTopicEdited(message) => message.id,
             Message::ForumTopicClosed(message) => message.id,
@@ -2213,6 +2263,8 @@ impl Message {
             Message::ProximityAlertTriggered(message) => message.date,
             Message::ChatBoostAdded(message) => message.date,
             Message::ChatBackgroundSet(message) => message.date,
+            Message::ChecklistTasksDone(message) => message.date,
+            Message::ChecklistTasksAdded(message) => message.date,
             Message::ForumTopicCreated(message) => message.date,
             Message::ForumTopicEdited(message) => message.date,
             Message::ForumTopicClosed(message) => message.date,
@@ -2391,6 +2443,8 @@ impl Message {
             Message::ProximityAlertTriggered(message) => &message.chat,
             Message::ChatBoostAdded(message) => &message.chat,
             Message::ChatBackgroundSet(message) => &message.chat,
+            Message::ChecklistTasksDone(message) => &message.chat,
+            Message::ChecklistTasksAdded(message) => &message.chat,
             Message::ForumTopicCreated(message) => &message.chat,
             Message::ForumTopicEdited(message) => &message.chat,
             Message::ForumTopicClosed(message) => &message.chat,
@@ -2660,6 +2714,8 @@ impl Message {
             Message::UniqueGift(message) => message.from.as_ref(),
             Message::PassportData(message) => message.from.as_ref(),
             Message::ChatBackgroundSet(message) => message.from.as_ref(),
+            Message::ChecklistTasksDone(message) => message.from.as_ref(),
+            Message::ChecklistTasksAdded(message) => message.from.as_ref(),
             Message::ForumTopicCreated(message) => message.from.as_ref(),
             Message::ForumTopicEdited(message) => message.from.as_ref(),
             Message::ForumTopicClosed(message) => message.from.as_ref(),
@@ -2751,6 +2807,8 @@ impl Message {
             Message::RefundedPayment(message) => message.sender_chat.as_ref(),
             Message::PassportData(message) => message.sender_chat.as_ref(),
             Message::ChatBackgroundSet(message) => message.sender_chat.as_ref(),
+            Message::ChecklistTasksDone(message) => message.sender_chat.as_ref(),
+            Message::ChecklistTasksAdded(message) => message.sender_chat.as_ref(),
             Message::ForumTopicCreated(message) => message.sender_chat.as_ref(),
             Message::ForumTopicEdited(message) => message.sender_chat.as_ref(),
             Message::ForumTopicClosed(message) => message.sender_chat.as_ref(),
@@ -3392,6 +3450,22 @@ impl Message {
     }
 
     #[must_use]
+    pub const fn checklist_tasks_done(&self) -> Option<&types::ChecklistTasksDone> {
+        match self {
+            Message::ChecklistTasksDone(message) => Some(&message.tasks),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn checklist_tasks_added(&self) -> Option<&types::ChecklistTasksAdded> {
+        match self {
+            Message::ChecklistTasksAdded(message) => Some(&message.tasks),
+            _ => None,
+        }
+    }
+
+    #[must_use]
     pub const fn forum_topic_closed(&self) -> Option<&types::ForumTopicClosed> {
         match self {
             Message::ForumTopicClosed(message) => Some(&message.closed),
@@ -3687,6 +3761,8 @@ impl_try_from_message!(Gift, Gift);
 impl_try_from_message!(UniqueGift, UniqueGift);
 impl_try_from_message!(MessageAutoDeleteTimerChanged, MessageAutoDeleteTimerChanged);
 impl_try_from_message!(Checklist, Checklist);
+impl_try_from_message!(ChecklistTasksDone, ChecklistTasksDone);
+impl_try_from_message!(ChecklistTasksAdded, ChecklistTasksAdded);
 
 impl TryFrom<Update> for Message {
     type Error = ConvertToTypeError;
@@ -3775,6 +3851,8 @@ impl_try_from_update!(Gift);
 impl_try_from_update!(UniqueGift);
 impl_try_from_update!(MessageAutoDeleteTimerChanged);
 impl_try_from_update!(Checklist);
+impl_try_from_update!(ChecklistTasksDone);
+impl_try_from_update!(ChecklistTasksAdded);
 
 #[cfg(test)]
 mod tests {
@@ -5239,6 +5317,65 @@ mod tests {
 
             match message {
                 Message::ChatBackgroundSet(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_checklist_tasks_done() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "checklist_tasks_done": {},
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::ChecklistTasksDone(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_checklist_tasks_added() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "checklist_tasks_added": {
+                "tasks": [
+                    {
+                        "id": 1,
+                        "text": "test",
+                    }
+                ],
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::ChecklistTasksAdded(message) => {
                     assert_eq!(message, message_kind);
                 }
                 _ => panic!("Unexpected message type: {message:?}"),

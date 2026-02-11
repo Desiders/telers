@@ -93,6 +93,10 @@ pub enum ContentType {
     ChatBoostAdded,
     #[strum(serialize = "chat_background_set")]
     ChatBackgroundSet,
+    #[strum(serialize = "checklist_tasks_done")]
+    ChecklistTasksDone,
+    #[strum(serialize = "checklist_tasks_added")]
+    ChecklistTasksAdded,
     #[strum(serialize = "forum_topic_created")]
     ForumTopicCreated,
     #[strum(serialize = "forum_topic_edited")]
@@ -129,7 +133,7 @@ pub enum ContentType {
 
 impl ContentType {
     #[must_use]
-    pub const fn all() -> [ContentType; 59] {
+    pub const fn all() -> [ContentType; 61] {
         [
             ContentType::Text,
             ContentType::Animation,
@@ -174,6 +178,8 @@ impl ContentType {
             ContentType::ProximityAlertTriggered,
             ContentType::ChatBoostAdded,
             ContentType::ChatBackgroundSet,
+            ContentType::ChecklistTasksDone,
+            ContentType::ChecklistTasksAdded,
             ContentType::ForumTopicCreated,
             ContentType::ForumTopicEdited,
             ContentType::ForumTopicClosed,
@@ -258,6 +264,8 @@ impl From<&Message> for ContentType {
             Message::ProximityAlertTriggered(_) => ContentType::ProximityAlertTriggered,
             Message::ChatBoostAdded(_) => ContentType::ChatBoostAdded,
             Message::ChatBackgroundSet(_) => ContentType::ChatBackgroundSet,
+            Message::ChecklistTasksDone(_) => ContentType::ChecklistTasksDone,
+            Message::ChecklistTasksAdded(_) => ContentType::ChecklistTasksAdded,
             Message::ForumTopicCreated(_) => ContentType::ForumTopicCreated,
             Message::ForumTopicEdited(_) => ContentType::ForumTopicEdited,
             Message::ForumTopicClosed(_) => ContentType::ForumTopicClosed,
