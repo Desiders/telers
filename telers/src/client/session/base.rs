@@ -99,7 +99,7 @@ pub trait Session: Send + Sync {
     fn send_request<Client, T>(
         &self,
         bot: &Bot<Client>,
-        method: &T,
+        method: T,
         timeout: Option<f32>,
     ) -> impl Future<Output = Result<ClientResponse, anyhow::Error>> + Send
     where
@@ -230,7 +230,7 @@ pub trait Session: Send + Sync {
     fn make_request<Client, T>(
         &self,
         bot: &Bot<Client>,
-        method: &T,
+        method: T,
         timeout: Option<f32>,
     ) -> impl Future<Output = Result<Response<T::Return>, SessionErrorKind>> + Send
     where
@@ -242,9 +242,8 @@ pub trait Session: Send + Sync {
             let response = self.send_request(bot, method, timeout).await?;
 
             debug_span!("response", status_code = response.status_code.as_u16()).in_scope(|| {
-                let resp = method.build_response(&response.content)?;
+                let resp = T::build_response(&response.content)?;
                 self.check_response(&resp, response.status_code)?;
-
                 Ok(resp)
             })
         }
@@ -263,7 +262,7 @@ pub trait Session: Send + Sync {
     fn make_request_and_get_result<Client, T>(
         &self,
         bot: &Bot<Client>,
-        method: &T,
+        method: T,
         timeout: Option<f32>,
     ) -> impl Future<Output = Result<T::Return, SessionErrorKind>> + Send
     where
@@ -294,8 +293,6 @@ mod tests {
 
     #[test]
     fn build_response() {
-        let method = SendMessage::new(810646651, "Hello, abc!");
-
         let content = json!(
         {
             "ok": true,
@@ -345,8 +342,7 @@ mod tests {
             "statud_code": 200,
         });
 
-        let result = method
-            .build_response(&content.to_string())
+        let result = SendMessage::build_response(&content.to_string())
             .unwrap()
             .result
             .unwrap();

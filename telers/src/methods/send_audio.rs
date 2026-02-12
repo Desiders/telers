@@ -17,8 +17,8 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// On success, the sent [`Message`] is returned
 #[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Serialize)]
-pub struct SendAudio<'a> {
+#[derive(Debug, Hash, PartialEq, Serialize)]
+pub struct SendAudio {
     /// Unique identifier of the business connection on behalf of which the message will be sent
     pub business_connection_id: Option<String>,
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
@@ -28,7 +28,7 @@ pub struct SendAudio<'a> {
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
     pub direct_messages_topic_id: Option<i64>,
     /// Audio file to send. Pass a `file_id` as String to send an audio file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an audio file from the Internet, or upload a new one using `multipart/form-data`. See [`more information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
-    pub audio: InputFile<'a>,
+    pub audio: InputFile,
     /// Audio caption, 0-1024 characters after entities parsing
     pub caption: Option<String>,
     /// Mode for parsing entities in the audio caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
@@ -42,7 +42,7 @@ pub struct SendAudio<'a> {
     /// Track name
     pub title: Option<String>,
     /// Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using `multipart/form-data`. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the thumbnail was uploaded using `multipart/form-data` under `<file_attach_name>`. [`More information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
-    pub thumbnail: Option<InputFile<'a>>,
+    pub thumbnail: Option<InputFile>,
     /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound
     pub disable_notification: Option<bool>,
     /// Protects the contents of the sent message from forwarding and saving
@@ -59,9 +59,9 @@ pub struct SendAudio<'a> {
     pub reply_markup: Option<ReplyMarkup>,
 }
 
-impl<'a> SendAudio<'a> {
+impl SendAudio {
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>, audio: impl Into<InputFile<'a>>) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, audio: impl Into<InputFile>) -> Self {
         Self {
             business_connection_id: None,
             chat_id: chat_id.into(),
@@ -118,7 +118,7 @@ impl<'a> SendAudio<'a> {
     }
 
     #[must_use]
-    pub fn audio(self, val: impl Into<InputFile<'a>>) -> Self {
+    pub fn audio(self, val: impl Into<InputFile>) -> Self {
         Self {
             audio: val.into(),
             ..self
@@ -194,7 +194,7 @@ impl<'a> SendAudio<'a> {
     }
 
     #[must_use]
-    pub fn thumbnail(self, val: impl Into<InputFile<'a>>) -> Self {
+    pub fn thumbnail(self, val: impl Into<InputFile>) -> Self {
         Self {
             thumbnail: Some(val.into()),
             ..self
@@ -258,7 +258,7 @@ impl<'a> SendAudio<'a> {
     }
 }
 
-impl<'a> SendAudio<'a> {
+impl SendAudio {
     #[must_use]
     pub fn business_connection_id_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
@@ -341,7 +341,7 @@ impl<'a> SendAudio<'a> {
     }
 
     #[must_use]
-    pub fn thumbnail_option(self, val: Option<impl Into<InputFile<'a>>>) -> Self {
+    pub fn thumbnail_option(self, val: Option<impl Into<InputFile>>) -> Self {
         Self {
             thumbnail: val.map(Into::into),
             ..self
@@ -405,23 +405,23 @@ impl<'a> SendAudio<'a> {
     }
 }
 
-impl TelegramMethod for SendAudio<'_> {
+impl TelegramMethod for SendAudio {
     type Method = Self;
     type Return = Message;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = vec![];
-        prepare_file(&mut files, &self.audio);
+        prepare_file(&mut files, &mut self.audio);
 
-        if let Some(file) = &self.thumbnail {
+        if let Some(file) = &mut self.thumbnail {
             prepare_file(&mut files, file);
         }
 
-        Request::new("sendAudio", self, Some(files.into()))
+        Request::new("sendAudio", self, Some(files))
     }
 }
 
-impl<'a> AsRef<SendAudio<'a>> for SendAudio<'a> {
+impl AsRef<SendAudio> for SendAudio {
     fn as_ref(&self) -> &Self {
         self
     }

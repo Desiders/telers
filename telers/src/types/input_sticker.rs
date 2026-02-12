@@ -7,10 +7,10 @@ use serde_with::skip_serializing_none;
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputsticker>
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct InputSticker<'a> {
+#[derive(Debug, PartialEq, Serialize)]
+pub struct InputSticker {
     /// The added sticker. Pass a `file_id` as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, upload a new one using `multipart/form-data`, or pass `attach://<file_attach_name>` to upload a new one using `multipart/form-data` under `<file_attach_name>` name. Animated and video stickers can't be uploaded via HTTP URL. [`More information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
-    pub sticker: InputFile<'a>,
+    pub sticker: InputFile,
     /// Format of the added sticker, must be one of "static" for a **.WEBP** or **.PNG** image, "animated" for a **.TGS** animation, "video" for a **WEBM** video
     pub format: String,
     /// List of 1-20 emoji associated with the sticker
@@ -21,9 +21,9 @@ pub struct InputSticker<'a> {
     pub keywords: Option<Vec<String>>,
 }
 
-impl<'a> InputSticker<'a> {
+impl InputSticker {
     #[must_use]
-    pub fn new(sticker: impl Into<InputFile<'a>>, format: impl Into<String>) -> Self {
+    pub fn new(sticker: impl Into<InputFile>, format: impl Into<String>) -> Self {
         Self {
             sticker: sticker.into(),
             format: format.into(),
@@ -34,7 +34,7 @@ impl<'a> InputSticker<'a> {
     }
 
     #[must_use]
-    pub fn sticker(self, val: impl Into<InputFile<'a>>) -> Self {
+    pub fn sticker(self, val: impl Into<InputFile>) -> Self {
         Self {
             sticker: val.into(),
             ..self
@@ -128,7 +128,7 @@ impl<'a> InputSticker<'a> {
     }
 }
 
-impl InputSticker<'_> {
+impl InputSticker {
     #[must_use]
     pub fn mask_position_option(self, val: Option<MaskPosition>) -> Self {
         Self {

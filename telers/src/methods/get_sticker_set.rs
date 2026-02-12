@@ -31,7 +31,7 @@ impl TelegramMethod for GetStickerSet {
     type Method = Self;
     type Return = StickerSet;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
         Request::new("getStickerSet", self, None)
     }
 }

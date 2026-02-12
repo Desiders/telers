@@ -17,8 +17,8 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// On success, the sent [`Message`] is returned
 #[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Serialize)]
-pub struct SendDocument<'a> {
+#[derive(Debug, Hash, PartialEq, Serialize)]
+pub struct SendDocument {
     /// Unique identifier of the business connection on behalf of which the message will be sent
     pub business_connection_id: Option<String>,
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
@@ -28,9 +28,9 @@ pub struct SendDocument<'a> {
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
     pub direct_messages_topic_id: Option<i64>,
     /// File to send. Pass a `file_id` as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using `multipart/form-data`. See [`more information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
-    pub document: InputFile<'a>,
+    pub document: InputFile,
     /// Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using `multipart/form-data`. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the thumbnail was uploaded using `multipart/form-data` under `<file_attach_name>`. [`More information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
-    pub thumbnail: Option<InputFile<'a>>,
+    pub thumbnail: Option<InputFile>,
     /// Document caption (may also be used when resending documents by `file_id`), 0-1024 characters after entities parsing
     pub caption: Option<String>,
     /// Mode for parsing entities in the document caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
@@ -55,9 +55,9 @@ pub struct SendDocument<'a> {
     pub reply_markup: Option<ReplyMarkup>,
 }
 
-impl<'a> SendDocument<'a> {
+impl SendDocument {
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>, document: impl Into<InputFile<'a>>) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, document: impl Into<InputFile>) -> Self {
         Self {
             business_connection_id: None,
             chat_id: chat_id.into(),
@@ -112,7 +112,7 @@ impl<'a> SendDocument<'a> {
     }
 
     #[must_use]
-    pub fn document(self, val: impl Into<InputFile<'a>>) -> Self {
+    pub fn document(self, val: impl Into<InputFile>) -> Self {
         Self {
             document: val.into(),
             ..self
@@ -120,7 +120,7 @@ impl<'a> SendDocument<'a> {
     }
 
     #[must_use]
-    pub fn thumbnail(self, val: impl Into<InputFile<'a>>) -> Self {
+    pub fn thumbnail(self, val: impl Into<InputFile>) -> Self {
         Self {
             thumbnail: Some(val.into()),
             ..self
@@ -236,7 +236,7 @@ impl<'a> SendDocument<'a> {
     }
 }
 
-impl SendDocument<'_> {
+impl SendDocument {
     #[must_use]
     pub fn business_connection_id_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
@@ -359,23 +359,23 @@ impl SendDocument<'_> {
     }
 }
 
-impl TelegramMethod for SendDocument<'_> {
+impl TelegramMethod for SendDocument {
     type Method = Self;
     type Return = Message;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = vec![];
-        prepare_file(&mut files, &self.document);
+        prepare_file(&mut files, &mut self.document);
 
-        if let Some(file) = &self.thumbnail {
+        if let Some(file) = &mut self.thumbnail {
             prepare_file(&mut files, file);
         }
 
-        Request::new("sendDocument", self, Some(files.into()))
+        Request::new("sendDocument", self, Some(files))
     }
 }
 
-impl<'a> AsRef<SendDocument<'a>> for SendDocument<'a> {
+impl AsRef<SendDocument> for SendDocument {
     fn as_ref(&self) -> &Self {
         self
     }

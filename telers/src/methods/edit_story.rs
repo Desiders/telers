@@ -14,14 +14,14 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// Returns [`Story`] on success
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct EditStory<'a> {
+#[derive(Debug, PartialEq, Serialize)]
+pub struct EditStory {
     /// Unique identifier of the business connection
     pub business_connection_id: String,
     /// Unique identifier of the story to edit
     pub story_id: String,
     /// Content of the story
-    pub content: InputStoryContent<'a>,
+    pub content: InputStoryContent,
     /// Caption of the story, 0-2048 characters after entities parsing
     pub caption: Option<String>,
     /// Mode for parsing entities in the story caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
@@ -32,12 +32,12 @@ pub struct EditStory<'a> {
     pub areas: Option<Vec<StoryArea>>,
 }
 
-impl<'a> EditStory<'a> {
+impl EditStory {
     #[must_use]
     pub fn new(
         business_connection_id: impl Into<String>,
         story_id: impl Into<String>,
-        content: impl Into<InputStoryContent<'a>>,
+        content: impl Into<InputStoryContent>,
     ) -> Self {
         Self {
             business_connection_id: business_connection_id.into(),
@@ -67,7 +67,7 @@ impl<'a> EditStory<'a> {
     }
 
     #[must_use]
-    pub fn content(self, val: impl Into<InputStoryContent<'a>>) -> Self {
+    pub fn content(self, val: impl Into<InputStoryContent>) -> Self {
         Self {
             content: val.into(),
             ..self
@@ -147,7 +147,7 @@ impl<'a> EditStory<'a> {
     }
 }
 
-impl EditStory<'_> {
+impl EditStory {
     #[must_use]
     pub fn caption_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
@@ -196,19 +196,19 @@ impl EditStory<'_> {
     }
 }
 
-impl TelegramMethod for EditStory<'_> {
+impl TelegramMethod for EditStory {
     type Method = Self;
     type Return = Story;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = vec![];
-        prepare_input_story_content(&mut files, &self.content);
+        prepare_input_story_content(&mut files, &mut self.content);
 
-        Request::new("editStory", self, Some(files.into()))
+        Request::new("editStory", self, Some(files))
     }
 }
 
-impl<'a> AsRef<EditStory<'a>> for EditStory<'a> {
+impl AsRef<EditStory> for EditStory {
     fn as_ref(&self) -> &Self {
         self
     }

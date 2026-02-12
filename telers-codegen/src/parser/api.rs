@@ -80,43 +80,98 @@ pub struct Type {
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
-pub struct Scheme {
+pub struct Schema {
     pub version: String,
     pub release_date: String,
     pub changelog: String,
     pub types: HashMap<TelegramTypeName, Type>,
 }
 
-impl Scheme {
+impl Schema {
     pub fn parse_from_jsom(content: &str) -> Result<Self, serde_json::Error> {
         serde_json::from_str(content)
     }
 
-    pub fn normalize(self) -> NormalizedScheme {
+    fn detect_subtype_kind(&self, subtypes: &[TelegramTypeName]) -> Option<SubtypeKind> {
+        if subtypes.is_empty() {
+            return None;
+        }
+
+        let Some(first_ty) = subtypes.first().and_then(|name| self.types.get(name)) else {
+            return Some(SubtypeKind::Untagged);
+        };
+
+        let candidates: Vec<&str> = first_ty
+            .fields
+            .iter()
+            .filter(|val| {
+                val.required
+                    && val.types == ["String"]
+                    && (val.description.contains("always") || val.description.contains("must be"))
+            })
+            .map(|val| val.name.as_str())
+            .collect();
+
+        for candidate in candidates {
+            let all_have_it = subtypes.iter().skip(1).all(|subtype_name| {
+                let Some(subtype) = self.types.get(subtype_name) else {
+                    return false;
+                };
+                subtype.fields.iter().any(|val| {
+                    val.name == candidate
+                        && val.required
+                        && val.types == ["String"]
+                        && (val.description.contains("always")
+                            || val.description.contains("must be"))
+                })
+            });
+
+            if all_have_it {
+                return Some(SubtypeKind::Tagged {
+                    tag_field: candidate.to_owned(),
+                });
+            }
+        }
+
+        Some(SubtypeKind::Untagged)
+    }
+
+    pub fn normalize(self) -> NormalizedSchema {
+        let mut subtype_kinds = HashMap::new();
+        for (name, ty) in &self.types {
+            if let Some(subtype_kind) = self.detect_subtype_kind(&ty.subtypes) {
+                subtype_kinds.insert(name.clone(), subtype_kind.clone());
+                for subtype in ty.subtypes.clone() {
+                    subtype_kinds.insert(subtype, subtype_kind.clone());
+                }
+            }
+        }
+
         let mut normalized_types = HashMap::new();
-        for (k, ty) in self.types {
-            let mut normalized_fields = vec![];
+        for (name, ty) in self.types {
+            let mut fields = vec![];
             for field in ty.fields {
-                normalized_fields.push(NormalizedField {
+                fields.push(NormalizedField {
                     r#type: field.identify_field_type(),
                     name: field.name,
                     required: field.required,
                     description: field.description,
                 });
             }
-
-            let normalized_ty = NormalizedType {
+            let subtype_kind = subtype_kinds.remove(&name);
+            let ty = NormalizedType {
                 name: ty.name,
                 href: ty.href,
                 description: ty.description,
-                fields: normalized_fields,
+                fields,
+                subtype_kind,
                 subtypes: ty.subtypes,
                 subtype_of: ty.subtype_of,
             };
-            normalized_types.insert(k, normalized_ty);
+            normalized_types.insert(name, ty);
         }
 
-        NormalizedScheme {
+        NormalizedSchema {
             version: self.version,
             release_date: self.release_date,
             changelog: self.changelog,
@@ -137,18 +192,25 @@ pub struct NormalizedField {
     pub r#type: TypeKindInField,
 }
 
+#[derive(Debug, Clone)]
+pub enum SubtypeKind {
+    Tagged { tag_field: String },
+    Untagged,
+}
+
 #[derive(Debug)]
 pub struct NormalizedType {
     pub name: TelegramTypeName,
     pub href: String,
     pub description: Vec<String>,
     pub fields: Vec<NormalizedField>,
+    pub subtype_kind: Option<SubtypeKind>,
     pub subtypes: Vec<TelegramTypeName>,
     pub subtype_of: Vec<TelegramTypeName>,
 }
 
 #[derive(Debug, Default)]
-pub struct NormalizedScheme {
+pub struct NormalizedSchema {
     pub version: String,
     pub release_date: String,
     pub changelog: String,
@@ -261,7 +323,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_parse_json_to_scheme() {
+    fn test_parse_json_to_schema() {
         let content = r#"
             {
                 "version": "1.0",
@@ -285,12 +347,12 @@ mod tests {
             }
         "#;
 
-        let scheme = Scheme::parse_from_jsom(content).unwrap();
+        let schema = Schema::parse_from_jsom(content).unwrap();
 
-        assert_eq!(scheme.version, "1.0");
-        assert_eq!(scheme.release_date, "2021-01-01");
-        assert_eq!(scheme.changelog, "Initial release");
-        assert_eq!(scheme.types.len(), 1);
+        assert_eq!(schema.version, "1.0");
+        assert_eq!(schema.release_date, "2021-01-01");
+        assert_eq!(schema.changelog, "Initial release");
+        assert_eq!(schema.types.len(), 1);
     }
 
     #[test]
@@ -318,10 +380,10 @@ mod tests {
             }
         "#;
 
-        let scheme = Scheme::parse_from_jsom(content).unwrap();
+        let schema = Schema::parse_from_jsom(content).unwrap();
 
-        assert!(scheme.is_telegram_type(&"Type1".to_owned()));
-        assert!(!scheme.is_telegram_type(&"Type2".to_owned()));
+        assert!(schema.is_telegram_type(&"Type1".to_owned()));
+        assert!(!schema.is_telegram_type(&"Type2".to_owned()));
     }
 
     #[test]
@@ -555,9 +617,9 @@ mod tests {
             }
         "#;
 
-        let scheme = Scheme::parse_from_jsom(content).unwrap();
+        let schema = Schema::parse_from_jsom(content).unwrap();
 
-        let fields = scheme.types.get("Type1").unwrap().fields.as_slice();
+        let fields = schema.types.get("Type1").unwrap().fields.as_slice();
 
         assert_eq!(
             fields.get(0).unwrap().identify_field_type(),
@@ -602,7 +664,7 @@ mod tests {
             TypeKindInField::Telegram("Type1".to_owned()),
         );
 
-        let fields = scheme.types.get("Type2").unwrap().fields.as_slice();
+        let fields = schema.types.get("Type2").unwrap().fields.as_slice();
 
         assert_eq!(
             fields.get(0).unwrap().identify_field_type(),

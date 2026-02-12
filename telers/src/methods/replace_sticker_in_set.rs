@@ -9,8 +9,8 @@ use serde::Serialize;
 /// <https://core.telegram.org/bots/api#replacestickerinset>
 /// # Returns
 /// On success, `true` is returned
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct ReplaceStickerInSet<'a> {
+#[derive(Debug, PartialEq, Serialize)]
+pub struct ReplaceStickerInSet {
     /// User identifier of the sticker set owner
     pub user_id: i64,
     /// Sticker set name
@@ -18,16 +18,16 @@ pub struct ReplaceStickerInSet<'a> {
     /// File identifier of the replaced sticker
     pub old_sticker: String,
     /// A JSON-serialized object with information about the added sticker. If exactly the same sticker had already been added to the set, then the set remains unchanged.
-    pub sticker: InputSticker<'a>,
+    pub sticker: InputSticker,
 }
 
-impl<'a> ReplaceStickerInSet<'a> {
+impl ReplaceStickerInSet {
     #[must_use]
     pub fn new(
         user_id: i64,
         name: impl Into<String>,
         old_sticker: impl Into<String>,
-        sticker: impl Into<InputSticker<'a>>,
+        sticker: impl Into<InputSticker>,
     ) -> Self {
         Self {
             user_id,
@@ -62,7 +62,7 @@ impl<'a> ReplaceStickerInSet<'a> {
     }
 
     #[must_use]
-    pub fn sticker(self, val: impl Into<InputSticker<'a>>) -> Self {
+    pub fn sticker(self, val: impl Into<InputSticker>) -> Self {
         Self {
             sticker: val.into(),
             ..self
@@ -70,19 +70,19 @@ impl<'a> ReplaceStickerInSet<'a> {
     }
 }
 
-impl TelegramMethod for ReplaceStickerInSet<'_> {
+impl TelegramMethod for ReplaceStickerInSet {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = vec![];
-        prepare_input_sticker(&mut files, &self.sticker);
+        prepare_input_sticker(&mut files, &mut self.sticker);
 
-        Request::new("replaceStickerInSet", self, Some(files.into()))
+        Request::new("replaceStickerInSet", self, Some(files))
     }
 }
 
-impl<'a> AsRef<ReplaceStickerInSet<'a>> for ReplaceStickerInSet<'a> {
+impl AsRef<ReplaceStickerInSet> for ReplaceStickerInSet {
     fn as_ref(&self) -> &Self {
         self
     }

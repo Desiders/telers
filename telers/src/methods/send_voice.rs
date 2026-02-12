@@ -17,8 +17,8 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// On success, the sent [`Message`] is returned
 #[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Serialize)]
-pub struct SendVoice<'a> {
+#[derive(Debug, Hash, PartialEq, Serialize)]
+pub struct SendVoice {
     /// Unique identifier of the business connection on behalf of which the message will be sent
     pub business_connection_id: Option<String>,
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
@@ -28,7 +28,7 @@ pub struct SendVoice<'a> {
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
     pub direct_messages_topic_id: Option<i64>,
     /// Voice to send. Pass a `file_id` as String to send a voice that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a Voice from the Internet, or upload a new one using `multipart/form-data`. See [`more information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
-    pub voice: InputFile<'a>,
+    pub voice: InputFile,
     /// Voice caption (may also be used when resending voices by `file_id`), 0-1024 characters after entities parsing
     pub caption: Option<String>,
     /// Mode for parsing entities in the voice message caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
@@ -53,9 +53,9 @@ pub struct SendVoice<'a> {
     pub reply_markup: Option<ReplyMarkup>,
 }
 
-impl<'a> SendVoice<'a> {
+impl SendVoice {
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>, voice: impl Into<InputFile<'a>>) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, voice: impl Into<InputFile>) -> Self {
         Self {
             business_connection_id: None,
             chat_id: chat_id.into(),
@@ -109,7 +109,7 @@ impl<'a> SendVoice<'a> {
     }
 
     #[must_use]
-    pub fn voice(self, val: impl Into<InputFile<'a>>) -> Self {
+    pub fn voice(self, val: impl Into<InputFile>) -> Self {
         Self {
             voice: val.into(),
             ..self
@@ -225,7 +225,7 @@ impl<'a> SendVoice<'a> {
     }
 }
 
-impl SendVoice<'_> {
+impl SendVoice {
     #[must_use]
     pub fn business_connection_id_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
@@ -348,19 +348,19 @@ impl SendVoice<'_> {
     }
 }
 
-impl TelegramMethod for SendVoice<'_> {
+impl TelegramMethod for SendVoice {
     type Method = Self;
     type Return = Message;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = vec![];
-        prepare_file(&mut files, &self.voice);
+        prepare_file(&mut files, &mut self.voice);
 
-        Request::new("sendVoice", self, Some(files.into()))
+        Request::new("sendVoice", self, Some(files))
     }
 }
 
-impl<'a> AsRef<SendVoice<'a>> for SendVoice<'a> {
+impl AsRef<SendVoice> for SendVoice {
     fn as_ref(&self) -> &Self {
         self
     }

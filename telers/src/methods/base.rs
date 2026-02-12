@@ -10,28 +10,24 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use tracing::{event, instrument, Level};
 
 /// This object represents a request to Telegram API
-pub struct Request<'a, T>
+pub struct Request<T>
 where
-    T: Serialize + ?Sized,
+    T: Serialize,
 {
     /// Telegram API method name
     pub method_name: &'static str,
     /// Telegram API method data
-    pub data: &'a T,
+    pub data: T,
     /// Files to send
-    pub files: Option<Box<[&'a InputFile<'a>]>>,
+    pub files: Option<Vec<InputFile>>,
 }
 
-impl<'a, T> Request<'a, T>
+impl<T> Request<T>
 where
-    T: Serialize + ?Sized,
+    T: Serialize,
 {
     #[must_use]
-    pub fn new(
-        method_name: &'static str,
-        data: &'a T,
-        files: Option<Box<[&'a InputFile<'a>]>>,
-    ) -> Self {
+    pub fn new(method_name: &'static str, data: T, files: Option<Vec<InputFile>>) -> Self {
         Self {
             method_name,
             data,
@@ -65,14 +61,14 @@ pub trait TelegramMethod {
     /// This method is called when a request is sent to Telegram API.
     /// It's need for preparing a request to Telegram API.
     #[must_use]
-    fn build_request<Client>(&'_ self, bot: &Bot<Client>) -> Request<'_, Self::Method>;
+    fn build_request<Client>(self, bot: &Bot<Client>) -> Request<Self::Method>;
 
     /// This method is called when a response is received from Telegram API.
     /// It's need for parsing a response from Telegram API.
     /// # Errors
     /// - If the response cannot be parsed
     #[instrument(name = "build", skip_all)]
-    fn build_response(&self, content: &str) -> Result<Response<Self::Return>, serde_json::Error> {
+    fn build_response(content: &str) -> Result<Response<Self::Return>, serde_json::Error> {
         event!(Level::TRACE, content, "Parsing");
         let res = serde_json::from_str(content).inspect_err(|err| {
             event!(
@@ -87,10 +83,10 @@ pub trait TelegramMethod {
     }
 }
 
-pub(super) fn prepare_file<'a>(files: &mut Vec<&'a InputFile<'a>>, file: &'a InputFile<'a>) {
+pub(super) fn prepare_file(files: &mut Vec<InputFile>, file: &mut InputFile) {
     match file {
         InputFile::FS(_) | InputFile::Buffered(_) | InputFile::Stream(_) => {
-            files.push(file);
+            files.push(file.take());
         }
         InputFile::Id(_) | InputFile::Url(_) => {
             // This file not require be in `multipart/form-data`
@@ -99,87 +95,81 @@ pub(super) fn prepare_file<'a>(files: &mut Vec<&'a InputFile<'a>>, file: &'a Inp
     }
 }
 
-pub(super) fn prepare_input_media<'a>(
-    files: &mut Vec<&'a InputFile<'a>>,
-    input_media: &'a InputMedia<'a>,
-) {
+pub(super) fn prepare_input_media(files: &mut Vec<InputFile>, input_media: &mut InputMedia) {
     match input_media {
         InputMedia::Animation(inner) => {
-            prepare_file(files, &inner.media);
+            prepare_file(files, &mut inner.media);
         }
         InputMedia::Audio(inner) => {
-            prepare_file(files, &inner.media);
+            prepare_file(files, &mut inner.media);
         }
         InputMedia::Document(inner) => {
-            prepare_file(files, &inner.media);
+            prepare_file(files, &mut inner.media);
         }
         InputMedia::Photo(inner) => {
-            prepare_file(files, &inner.media);
+            prepare_file(files, &mut inner.media);
         }
         InputMedia::Video(inner) => {
-            prepare_file(files, &inner.media);
+            prepare_file(files, &mut inner.media);
         }
     }
 }
 
-pub(super) fn prepare_input_media_group<'a>(
-    files: &mut Vec<&'a InputFile<'a>>,
-    input_media_group: &'a [InputMedia<'a>],
+pub(super) fn prepare_input_media_group(
+    files: &mut Vec<InputFile>,
+    input_media_group: Vec<&mut InputMedia>,
 ) {
     for input_media in input_media_group {
         prepare_input_media(files, input_media);
     }
 }
 
-pub(super) fn prepare_input_sticker<'a>(
-    files: &mut Vec<&'a InputFile<'a>>,
-    input_sticker: &'a InputSticker<'a>,
-) {
-    prepare_file(files, &input_sticker.sticker);
+pub(super) fn prepare_input_sticker(files: &mut Vec<InputFile>, input_sticker: &mut InputSticker) {
+    prepare_file(files, &mut input_sticker.sticker);
 }
 
-pub(super) fn prepare_input_stickers<'a>(
-    files: &mut Vec<&'a InputFile<'a>>,
-    input_stickers: &'a [InputSticker<'a>],
+pub(super) fn prepare_input_stickers(
+    files: &mut Vec<InputFile>,
+    input_stickers: Vec<&mut InputSticker>,
 ) {
     for input_sticker in input_stickers {
         prepare_input_sticker(files, input_sticker);
     }
 }
 
-pub(super) fn prepare_input_paid_media<'a>(
-    files: &mut Vec<&'a InputFile<'a>>,
-    input_paid_media: &'a InputPaidMedia<'a>,
+pub(super) fn prepare_input_paid_media(
+    files: &mut Vec<InputFile>,
+    input_paid_media: &mut InputPaidMedia,
 ) {
     match input_paid_media {
         InputPaidMedia::Photo(inner) => {
-            prepare_file(files, &inner.media);
+            prepare_file(files, &mut inner.media);
         }
         InputPaidMedia::Video(inner) => {
-            prepare_file(files, &inner.media);
+            prepare_file(files, &mut inner.media);
         }
     }
 }
 
-pub(super) fn prepare_input_paid_media_group<'a>(
-    files: &mut Vec<&'a InputFile<'a>>,
-    input_paid_media_group: &'a [InputPaidMedia<'a>],
+pub(super) fn prepare_input_paid_media_group(
+    files: &mut Vec<InputFile>,
+    input_paid_media_group: Vec<&mut InputPaidMedia>,
 ) {
     for input_paid_media in input_paid_media_group {
         prepare_input_paid_media(files, input_paid_media);
     }
 }
 
-pub(super) fn prepare_input_story_content<'a>(
-    files: &mut Vec<&'a InputFile<'a>>,
-    input_story_content: &'a InputStoryContent<'a>,
+pub(super) fn prepare_input_story_content(
+    files: &mut Vec<InputFile>,
+    input_story_content: &mut InputStoryContent,
 ) {
     match input_story_content {
         InputStoryContent::Photo(inner) => {
-            prepare_file(files, &inner.photo);
+            prepare_file(files, &mut inner.photo);
         }
         InputStoryContent::Video(inner) => {
-            prepare_file(files, &inner.video);
+            prepare_file(files, &mut inner.video);
         }
     }
 }

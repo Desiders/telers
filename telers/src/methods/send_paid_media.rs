@@ -14,8 +14,8 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// On success, the sent [`Message`] is returned
 #[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Serialize)]
-pub struct SendPaidMedia<'a> {
+#[derive(Debug, Hash, PartialEq, Serialize)]
+pub struct SendPaidMedia {
     /// Unique identifier of the business connection on behalf of which the message will be sent
     pub business_connection_id: Option<String>,
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`). If the chat is a channel, all Telegram Star proceeds from this media will be credited to the chat's balance. Otherwise, they will be credited to the bot's balance.
@@ -23,7 +23,7 @@ pub struct SendPaidMedia<'a> {
     /// The number of Telegram Stars that must be paid to buy access to the media
     pub star_count: i64,
     /// A JSON-serialized array describing the media to be sent; up to 10 items
-    pub media: Vec<InputPaidMedia<'a>>,
+    pub media: Vec<InputPaidMedia>,
     /// Bot-defined paid media payload, 0-128 bytes. This will not be displayed to the user, use it for your internal processes.
     pub payload: Option<String>,
     /// Media caption, 0-1024 characters after entities parsing
@@ -46,11 +46,11 @@ pub struct SendPaidMedia<'a> {
     pub reply_markup: Option<ReplyMarkup>,
 }
 
-impl<'a> SendPaidMedia<'a> {
+impl SendPaidMedia {
     #[must_use]
     pub fn new<T, I>(chat_id: impl Into<ChatIdKind>, star_count: i64, media: I) -> Self
     where
-        T: Into<InputPaidMedia<'a>>,
+        T: Into<InputPaidMedia>,
         I: IntoIterator<Item = T>,
     {
         Self {
@@ -96,7 +96,7 @@ impl<'a> SendPaidMedia<'a> {
     }
 
     #[must_use]
-    pub fn media_single(self, val: impl Into<InputPaidMedia<'a>>) -> Self {
+    pub fn media_single(self, val: impl Into<InputPaidMedia>) -> Self {
         Self {
             media: self.media.into_iter().chain(Some(val.into())).collect(),
             ..self
@@ -106,7 +106,7 @@ impl<'a> SendPaidMedia<'a> {
     #[must_use]
     pub fn media<T, I>(self, val: I) -> Self
     where
-        T: Into<InputPaidMedia<'a>>,
+        T: Into<InputPaidMedia>,
         I: IntoIterator<Item = T>,
     {
         Self {
@@ -220,7 +220,7 @@ impl<'a> SendPaidMedia<'a> {
     }
 }
 
-impl SendPaidMedia<'_> {
+impl SendPaidMedia {
     #[must_use]
     pub fn business_connection_id_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
@@ -319,19 +319,19 @@ impl SendPaidMedia<'_> {
     }
 }
 
-impl TelegramMethod for SendPaidMedia<'_> {
+impl TelegramMethod for SendPaidMedia {
     type Method = Self;
     type Return = Message;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = vec![];
-        prepare_input_paid_media_group(&mut files, &self.media);
+        prepare_input_paid_media_group(&mut files, self.media.iter_mut().collect());
 
-        Request::new("sendPaidMedia", self, Some(files.into()))
+        Request::new("sendPaidMedia", self, Some(files))
     }
 }
 
-impl<'a> AsRef<SendPaidMedia<'a>> for SendPaidMedia<'a> {
+impl AsRef<SendPaidMedia> for SendPaidMedia {
     fn as_ref(&self) -> &Self {
         self
     }

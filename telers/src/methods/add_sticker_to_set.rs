@@ -13,23 +13,19 @@ use serde::Serialize;
 /// <https://core.telegram.org/bots/api#addstickertoset>
 /// # Returns
 /// On success, `true` is returned
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct AddStickerToSet<'a> {
+#[derive(Debug, PartialEq, Serialize)]
+pub struct AddStickerToSet {
     /// User identifier of sticker set owner
     pub user_id: i64,
     /// Sticker set name
     pub name: String,
     /// A JSON-serialized object with information about the added sticker. If exactly the same sticker had already been added to the set, then the set isn't changed.
-    pub sticker: InputSticker<'a>,
+    pub sticker: InputSticker,
 }
 
-impl<'a> AddStickerToSet<'a> {
+impl AddStickerToSet {
     #[must_use]
-    pub fn new(
-        user_id: i64,
-        name: impl Into<String>,
-        sticker: impl Into<InputSticker<'a>>,
-    ) -> Self {
+    pub fn new(user_id: i64, name: impl Into<String>, sticker: impl Into<InputSticker>) -> Self {
         Self {
             user_id,
             name: name.into(),
@@ -54,7 +50,7 @@ impl<'a> AddStickerToSet<'a> {
     }
 
     #[must_use]
-    pub fn sticker(self, val: impl Into<InputSticker<'a>>) -> Self {
+    pub fn sticker(self, val: impl Into<InputSticker>) -> Self {
         Self {
             sticker: val.into(),
             ..self
@@ -62,19 +58,19 @@ impl<'a> AddStickerToSet<'a> {
     }
 }
 
-impl TelegramMethod for AddStickerToSet<'_> {
+impl TelegramMethod for AddStickerToSet {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = vec![];
-        prepare_input_sticker(&mut files, &self.sticker);
+        prepare_input_sticker(&mut files, &mut self.sticker);
 
-        Request::new("addStickerToSet", self, Some(files.into()))
+        Request::new("addStickerToSet", self, Some(files))
     }
 }
 
-impl<'a> AsRef<AddStickerToSet<'a>> for AddStickerToSet<'a> {
+impl AsRef<AddStickerToSet> for AddStickerToSet {
     fn as_ref(&self) -> &Self {
         self
     }

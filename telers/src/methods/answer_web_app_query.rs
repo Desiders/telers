@@ -12,7 +12,7 @@ use serde::Serialize;
 /// <https://core.telegram.org/bots/api#answerwebappquery>
 /// # Returns
 /// On success, a [`SentWebAppMessage`] object is returned
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct AnswerWebAppQuery {
     /// Unique identifier for the query to be answered
     pub web_app_query_id: String,
@@ -50,7 +50,7 @@ impl TelegramMethod for AnswerWebAppQuery {
     type Method = Self;
     type Return = SentWebAppMessage;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
         Request::new("answerWebAppQuery", self, None)
     }
 }

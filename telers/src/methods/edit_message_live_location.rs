@@ -15,7 +15,7 @@ use serde_with::skip_serializing_none;
 /// On success, if the edited message is not an inline message, the edited [`MessageOrTrue`] is returned,
 /// otherwise `true` is returned
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct EditMessageLiveLocation {
     /// Unique identifier of the business connection on behalf of which the message to be edited was sent
     pub business_connection_id: Option<String>,
@@ -226,7 +226,7 @@ impl TelegramMethod for EditMessageLiveLocation {
     type Method = Self;
     type Return = MessageOrTrue;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
         Request::new("editMessageLiveLocation", self, None)
     }
 }

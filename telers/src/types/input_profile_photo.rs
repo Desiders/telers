@@ -7,21 +7,21 @@ use serde::Serialize;
 /// - [`InputProfilePhotoAnimated`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputprofilephoto>
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
-pub enum InputProfilePhoto<'a> {
-    Static(InputProfilePhotoStatic<'a>),
-    Animated(InputProfilePhotoAnimated<'a>),
+pub enum InputProfilePhoto {
+    Static(InputProfilePhotoStatic),
+    Animated(InputProfilePhotoAnimated),
 }
 
-impl<'a> From<InputProfilePhotoStatic<'a>> for InputProfilePhoto<'a> {
-    fn from(photo: InputProfilePhotoStatic<'a>) -> Self {
+impl From<InputProfilePhotoStatic> for InputProfilePhoto {
+    fn from(photo: InputProfilePhotoStatic) -> Self {
         Self::Static(photo)
     }
 }
 
-impl<'a> From<InputProfilePhotoAnimated<'a>> for InputProfilePhoto<'a> {
-    fn from(photo: InputProfilePhotoAnimated<'a>) -> Self {
+impl From<InputProfilePhotoAnimated> for InputProfilePhoto {
+    fn from(photo: InputProfilePhotoAnimated) -> Self {
         Self::Animated(photo)
     }
 }

@@ -11,21 +11,21 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// On success, `true` is returned
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct SetBusinessAccountProfilePhoto<'a> {
+#[derive(Debug, PartialEq, Serialize)]
+pub struct SetBusinessAccountProfilePhoto {
     /// Unique identifier of the business connection
     pub business_connection_id: String,
     /// The new profile photo to set
-    pub photo: InputProfilePhoto<'a>,
+    pub photo: InputProfilePhoto,
     /// Pass `true` to set the public photo, which will be visible even if the main photo is hidden by the business account's privacy settings. An account can have only one public photo.
     pub is_public: Option<bool>,
 }
 
-impl<'a> SetBusinessAccountProfilePhoto<'a> {
+impl SetBusinessAccountProfilePhoto {
     #[must_use]
     pub fn new(
         business_connection_id: impl Into<String>,
-        photo: impl Into<InputProfilePhoto<'a>>,
+        photo: impl Into<InputProfilePhoto>,
     ) -> Self {
         Self {
             business_connection_id: business_connection_id.into(),
@@ -43,7 +43,7 @@ impl<'a> SetBusinessAccountProfilePhoto<'a> {
     }
 
     #[must_use]
-    pub fn photo(self, val: impl Into<InputProfilePhoto<'a>>) -> Self {
+    pub fn photo(self, val: impl Into<InputProfilePhoto>) -> Self {
         Self {
             photo: val.into(),
             ..self
@@ -59,7 +59,7 @@ impl<'a> SetBusinessAccountProfilePhoto<'a> {
     }
 }
 
-impl SetBusinessAccountProfilePhoto<'_> {
+impl SetBusinessAccountProfilePhoto {
     #[must_use]
     pub fn is_public_option(self, val: Option<bool>) -> Self {
         Self {
@@ -69,16 +69,16 @@ impl SetBusinessAccountProfilePhoto<'_> {
     }
 }
 
-impl TelegramMethod for SetBusinessAccountProfilePhoto<'_> {
+impl TelegramMethod for SetBusinessAccountProfilePhoto {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
         Request::new("setBusinessAccountProfilePhoto", self, None)
     }
 }
 
-impl<'a> AsRef<SetBusinessAccountProfilePhoto<'a>> for SetBusinessAccountProfilePhoto<'a> {
+impl AsRef<SetBusinessAccountProfilePhoto> for SetBusinessAccountProfilePhoto {
     fn as_ref(&self) -> &Self {
         self
     }

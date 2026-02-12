@@ -11,7 +11,7 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// On success, `true` is returned
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct SetStickerMaskPosition {
     /// File identifier of the sticker
     pub sticker: String,
@@ -49,7 +49,7 @@ impl TelegramMethod for SetStickerMaskPosition {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
         Request::new("setStickerMaskPosition", self, None)
     }
 }

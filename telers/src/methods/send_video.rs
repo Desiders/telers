@@ -17,8 +17,8 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// On success, the sent [`Message`] is returned
 #[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Serialize)]
-pub struct SendVideo<'a> {
+#[derive(Debug, Hash, PartialEq, Serialize)]
+pub struct SendVideo {
     /// Unique identifier of the business connection on behalf of which the message will be sent
     pub business_connection_id: Option<String>,
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
@@ -28,7 +28,7 @@ pub struct SendVideo<'a> {
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
     pub direct_messages_topic_id: Option<i64>,
     /// Video to send. Pass a `file_id` as String to send a video that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a video from the Internet, or upload a new one using `multipart/form-data`. See [`more information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
-    pub video: InputFile<'a>,
+    pub video: InputFile,
     /// Duration of sent video in seconds
     pub duration: Option<i64>,
     /// Video width
@@ -36,9 +36,9 @@ pub struct SendVideo<'a> {
     /// Video height
     pub height: Option<i64>,
     /// Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using `multipart/form-data`. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the thumbnail was uploaded using `multipart/form-data` under `<file_attach_name>`. [`More information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
-    pub thumbnail: Option<InputFile<'a>>,
+    pub thumbnail: Option<InputFile>,
     /// Cover for the video in the message. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new one using `multipart/form-data` under `<file_attach_name>` name. [`More information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
-    pub cover: Option<InputFile<'a>>,
+    pub cover: Option<InputFile>,
     /// Start timestamp for the video in the message
     pub start_timestamp: Option<i64>,
     /// Video caption (may also be used when resending videos by `file_id`), 0-1024 characters after entities parsing
@@ -69,9 +69,9 @@ pub struct SendVideo<'a> {
     pub reply_markup: Option<ReplyMarkup>,
 }
 
-impl<'a> SendVideo<'a> {
+impl SendVideo {
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>, video: impl Into<InputFile<'a>>) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, video: impl Into<InputFile>) -> Self {
         Self {
             business_connection_id: None,
             chat_id: chat_id.into(),
@@ -133,7 +133,7 @@ impl<'a> SendVideo<'a> {
     }
 
     #[must_use]
-    pub fn video(self, val: impl Into<InputFile<'a>>) -> Self {
+    pub fn video(self, val: impl Into<InputFile>) -> Self {
         Self {
             video: val.into(),
             ..self
@@ -165,7 +165,7 @@ impl<'a> SendVideo<'a> {
     }
 
     #[must_use]
-    pub fn thumbnail(self, val: impl Into<InputFile<'a>>) -> Self {
+    pub fn thumbnail(self, val: impl Into<InputFile>) -> Self {
         Self {
             thumbnail: Some(val.into()),
             ..self
@@ -173,7 +173,7 @@ impl<'a> SendVideo<'a> {
     }
 
     #[must_use]
-    pub fn cover(self, val: impl Into<InputFile<'a>>) -> Self {
+    pub fn cover(self, val: impl Into<InputFile>) -> Self {
         Self {
             cover: Some(val.into()),
             ..self
@@ -313,7 +313,7 @@ impl<'a> SendVideo<'a> {
     }
 }
 
-impl<'a> SendVideo<'a> {
+impl SendVideo {
     #[must_use]
     pub fn business_connection_id_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
@@ -360,7 +360,7 @@ impl<'a> SendVideo<'a> {
     }
 
     #[must_use]
-    pub fn thumbnail_option(self, val: Option<impl Into<InputFile<'a>>>) -> Self {
+    pub fn thumbnail_option(self, val: Option<impl Into<InputFile>>) -> Self {
         Self {
             thumbnail: val.map(Into::into),
             ..self
@@ -368,7 +368,7 @@ impl<'a> SendVideo<'a> {
     }
 
     #[must_use]
-    pub fn cover_option(self, val: Option<impl Into<InputFile<'a>>>) -> Self {
+    pub fn cover_option(self, val: Option<impl Into<InputFile>>) -> Self {
         Self {
             cover: val.map(Into::into),
             ..self
@@ -497,23 +497,23 @@ impl<'a> SendVideo<'a> {
     }
 }
 
-impl TelegramMethod for SendVideo<'_> {
+impl TelegramMethod for SendVideo {
     type Method = Self;
     type Return = Message;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = vec![];
-        prepare_file(&mut files, &self.video);
+        prepare_file(&mut files, &mut self.video);
 
-        if let Some(file) = &self.thumbnail {
+        if let Some(file) = &mut self.thumbnail {
             prepare_file(&mut files, file);
         }
 
-        Request::new("sendVideo", self, Some(files.into()))
+        Request::new("sendVideo", self, Some(files))
     }
 }
 
-impl<'a> AsRef<SendVideo<'a>> for SendVideo<'a> {
+impl AsRef<SendVideo> for SendVideo {
     fn as_ref(&self) -> &Self {
         self
     }

@@ -343,7 +343,7 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
         loop {
             let updates = retry(backoff.clone(), || {
                 let bot = &bot;
-                let method = &method;
+                let method = method.clone();
 
                 async move {
                     match bot.send(method).await {

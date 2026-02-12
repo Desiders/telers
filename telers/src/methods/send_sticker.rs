@@ -16,8 +16,8 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// On success, the sent [`Message`] is returned
 #[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Serialize)]
-pub struct SendSticker<'a> {
+#[derive(Debug, Hash, PartialEq, Serialize)]
+pub struct SendSticker {
     /// Unique identifier of the business connection on behalf of which the message will be sent
     pub business_connection_id: Option<String>,
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
@@ -27,7 +27,7 @@ pub struct SendSticker<'a> {
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
     pub direct_messages_topic_id: Option<i64>,
     /// Sticker to send. Pass a `file_id` as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBM sticker using multipart/form-data. [More info on Sending Files »](https://core.telegram.org/bots/api#sending-files). Video and animated stickers can't be sent via an HTTP URL.
-    pub sticker: InputFile<'a>,
+    pub sticker: InputFile,
     /// Emoji associated with the sticker; only for just uploaded stickers
     pub emoji: Option<String>,
     /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound
@@ -46,9 +46,9 @@ pub struct SendSticker<'a> {
     pub reply_markup: Option<ReplyMarkup>,
 }
 
-impl<'a> SendSticker<'a> {
+impl SendSticker {
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>, sticker: impl Into<InputFile<'a>>) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, sticker: impl Into<InputFile>) -> Self {
         Self {
             business_connection_id: None,
             chat_id: chat_id.into(),
@@ -99,7 +99,7 @@ impl<'a> SendSticker<'a> {
     }
 
     #[must_use]
-    pub fn sticker(self, val: impl Into<InputFile<'a>>) -> Self {
+    pub fn sticker(self, val: impl Into<InputFile>) -> Self {
         Self {
             sticker: val.into(),
             ..self
@@ -171,7 +171,7 @@ impl<'a> SendSticker<'a> {
     }
 }
 
-impl SendSticker<'_> {
+impl SendSticker {
     #[must_use]
     pub fn business_connection_id_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
@@ -261,19 +261,19 @@ impl SendSticker<'_> {
     }
 }
 
-impl TelegramMethod for SendSticker<'_> {
+impl TelegramMethod for SendSticker {
     type Method = Self;
     type Return = Message;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = vec![];
-        prepare_file(&mut files, &self.sticker);
+        prepare_file(&mut files, &mut self.sticker);
 
-        Request::new("sendSticker", self, Some(files.into()))
+        Request::new("sendSticker", self, Some(files))
     }
 }
 
-impl<'a> AsRef<SendSticker<'a>> for SendSticker<'a> {
+impl AsRef<SendSticker> for SendSticker {
     fn as_ref(&self) -> &Self {
         self
     }

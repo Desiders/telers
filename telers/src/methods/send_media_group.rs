@@ -14,8 +14,8 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// On success, an array of [`Message`]s that were sent is returned
 #[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Serialize)]
-pub struct SendMediaGroup<'a> {
+#[derive(Debug, Hash, PartialEq, Serialize)]
+pub struct SendMediaGroup {
     /// Unique identifier of the business connection on behalf of which the message will be sent
     pub business_connection_id: Option<String>,
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
@@ -25,7 +25,7 @@ pub struct SendMediaGroup<'a> {
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
     pub direct_messages_topic_id: Option<i64>,
     /// A JSON-serialized array describing messages to be sent, must include 2-10 items
-    pub media: Vec<InputMedia<'a>>,
+    pub media: Vec<InputMedia>,
     /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound
     pub disable_notification: Option<bool>,
     /// Protects the contents of the sent message from forwarding and saving
@@ -38,11 +38,11 @@ pub struct SendMediaGroup<'a> {
     pub reply_parameters: Option<ReplyParameters>,
 }
 
-impl<'a> SendMediaGroup<'a> {
+impl SendMediaGroup {
     #[must_use]
     pub fn new<T, I>(chat_id: impl Into<ChatIdKind>, media: I) -> Self
     where
-        T: Into<InputMedia<'a>>,
+        T: Into<InputMedia>,
         I: IntoIterator<Item = T>,
     {
         Self {
@@ -92,7 +92,7 @@ impl<'a> SendMediaGroup<'a> {
     }
 
     #[must_use]
-    pub fn media_single(self, val: impl Into<InputMedia<'a>>) -> Self {
+    pub fn media_single(self, val: impl Into<InputMedia>) -> Self {
         Self {
             media: self.media.into_iter().chain(Some(val.into())).collect(),
             ..self
@@ -102,7 +102,7 @@ impl<'a> SendMediaGroup<'a> {
     #[must_use]
     pub fn media<T, I>(self, val: I) -> Self
     where
-        T: Into<InputMedia<'a>>,
+        T: Into<InputMedia>,
         I: IntoIterator<Item = T>,
     {
         Self {
@@ -156,7 +156,7 @@ impl<'a> SendMediaGroup<'a> {
     }
 }
 
-impl SendMediaGroup<'_> {
+impl SendMediaGroup {
     #[must_use]
     pub fn business_connection_id_option(self, val: Option<String>) -> Self {
         Self {
@@ -222,19 +222,19 @@ impl SendMediaGroup<'_> {
     }
 }
 
-impl TelegramMethod for SendMediaGroup<'_> {
+impl TelegramMethod for SendMediaGroup {
     type Method = Self;
     type Return = Vec<Message>;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = vec![];
-        prepare_input_media_group(&mut files, &self.media);
+        prepare_input_media_group(&mut files, self.media.iter_mut().collect());
 
-        Request::new("sendMediaGroup", self, Some(files.into()))
+        Request::new("sendMediaGroup", self, Some(files))
     }
 }
 
-impl<'a> AsRef<SendMediaGroup<'a>> for SendMediaGroup<'a> {
+impl AsRef<SendMediaGroup> for SendMediaGroup {
     fn as_ref(&self) -> &Self {
         self
     }

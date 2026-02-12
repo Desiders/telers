@@ -16,8 +16,8 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// On success, if the edited message is not an inline message, the edited [`crate::types::Message`] is returned, otherwise `true` is returned
 #[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Serialize)]
-pub struct EditMessageMedia<'a> {
+#[derive(Debug, Hash, PartialEq, Serialize)]
+pub struct EditMessageMedia {
     /// Unique identifier of the business connection on behalf of which the message to be edited was sent
     pub business_connection_id: Option<String>,
     /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
@@ -27,14 +27,14 @@ pub struct EditMessageMedia<'a> {
     /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
     pub inline_message_id: Option<String>,
     /// A JSON-serialized object for a new media content of the message
-    pub media: InputMedia<'a>,
+    pub media: InputMedia,
     /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards).
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
-impl<'a> EditMessageMedia<'a> {
+impl EditMessageMedia {
     #[must_use]
-    pub fn new(media: impl Into<InputMedia<'a>>) -> Self {
+    pub fn new(media: impl Into<InputMedia>) -> Self {
         Self {
             business_connection_id: None,
             chat_id: None,
@@ -78,7 +78,7 @@ impl<'a> EditMessageMedia<'a> {
     }
 
     #[must_use]
-    pub fn media(self, val: impl Into<InputMedia<'a>>) -> Self {
+    pub fn media(self, val: impl Into<InputMedia>) -> Self {
         Self {
             media: val.into(),
             ..self
@@ -94,7 +94,7 @@ impl<'a> EditMessageMedia<'a> {
     }
 }
 
-impl EditMessageMedia<'_> {
+impl EditMessageMedia {
     #[must_use]
     pub fn business_connection_id_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
@@ -136,19 +136,19 @@ impl EditMessageMedia<'_> {
     }
 }
 
-impl TelegramMethod for EditMessageMedia<'_> {
+impl TelegramMethod for EditMessageMedia {
     type Method = Self;
     type Return = MessageOrTrue;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = vec![];
-        prepare_input_media(&mut files, &self.media);
+        prepare_input_media(&mut files, &mut self.media);
 
-        Request::new("editMessageMedia", self, Some(files.into()))
+        Request::new("editMessageMedia", self, Some(files))
     }
 }
 
-impl<'a> AsRef<EditMessageMedia<'a>> for EditMessageMedia<'a> {
+impl AsRef<EditMessageMedia> for EditMessageMedia {
     fn as_ref(&self) -> &Self {
         self
     }

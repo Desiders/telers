@@ -11,8 +11,8 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// On success, `true` is returned
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct CreateNewStickerSet<'a> {
+#[derive(Debug, PartialEq, Serialize)]
+pub struct CreateNewStickerSet {
     /// User identifier of created sticker set owner
     pub user_id: i64,
     /// Short name of sticker set, to be used in `t.me/addstickers/` URLs (e.g., animals). Can contain only english letters, digits and underscores. Must begin with a letter, can't contain consecutive underscores and must end in `_by_<bot username>`. `<bot_username>` is case insensitive. 1-64 characters.
@@ -20,20 +20,20 @@ pub struct CreateNewStickerSet<'a> {
     /// Sticker set title, 1-64 characters
     pub title: String,
     /// A JSON-serialized list of 1-50 initial stickers to be added to the sticker set
-    pub stickers: Vec<InputSticker<'a>>,
+    pub stickers: Vec<InputSticker>,
     /// Type of stickers in the set, pass `regular`, `mask` or `custom_emoji`. By default, a regular sticker set is created.
     pub sticker_type: Option<String>,
     /// Pass `true` if stickers in the sticker set must be repainted to the color of text when used in messages, the accent color if used as emoji status, white on chat photos, or another appropriate color based on context; for custom emoji sticker sets only
     pub needs_repainting: Option<bool>,
 }
 
-impl<'a> CreateNewStickerSet<'a> {
+impl CreateNewStickerSet {
     #[must_use]
     pub fn new(
         user_id: i64,
         name: impl Into<String>,
         title: impl Into<String>,
-        stickers: impl IntoIterator<Item = InputSticker<'a>>,
+        stickers: impl IntoIterator<Item = InputSticker>,
     ) -> Self {
         Self {
             user_id,
@@ -70,7 +70,7 @@ impl<'a> CreateNewStickerSet<'a> {
     }
 
     #[must_use]
-    pub fn sticker(self, val: InputSticker<'a>) -> Self {
+    pub fn sticker(self, val: InputSticker) -> Self {
         Self {
             stickers: self.stickers.into_iter().chain(Some(val)).collect(),
             ..self
@@ -78,7 +78,7 @@ impl<'a> CreateNewStickerSet<'a> {
     }
 
     #[must_use]
-    pub fn stickers(self, val: impl IntoIterator<Item = InputSticker<'a>>) -> Self {
+    pub fn stickers(self, val: impl IntoIterator<Item = InputSticker>) -> Self {
         Self {
             stickers: self.stickers.into_iter().chain(val).collect(),
             ..self
@@ -102,7 +102,7 @@ impl<'a> CreateNewStickerSet<'a> {
     }
 }
 
-impl CreateNewStickerSet<'_> {
+impl CreateNewStickerSet {
     #[must_use]
     pub fn sticker_type_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
@@ -120,19 +120,19 @@ impl CreateNewStickerSet<'_> {
     }
 }
 
-impl TelegramMethod for CreateNewStickerSet<'_> {
+impl TelegramMethod for CreateNewStickerSet {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = vec![];
-        prepare_input_stickers(&mut files, &self.stickers);
+        prepare_input_stickers(&mut files, self.stickers.iter_mut().collect());
 
-        Request::new("createNewStickerSet", self, Some(files.into()))
+        Request::new("createNewStickerSet", self, Some(files))
     }
 }
 
-impl<'a> AsRef<CreateNewStickerSet<'a>> for CreateNewStickerSet<'a> {
+impl AsRef<CreateNewStickerSet> for CreateNewStickerSet {
     fn as_ref(&self) -> &Self {
         self
     }

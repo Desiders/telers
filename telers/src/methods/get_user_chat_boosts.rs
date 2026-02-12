@@ -50,7 +50,7 @@ impl TelegramMethod for GetUserChatBoosts {
     type Method = Self;
     type Return = UserChatBoosts;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
         Request::new("getUserChatBoosts", self, None)
     }
 }

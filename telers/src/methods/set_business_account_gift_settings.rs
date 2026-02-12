@@ -8,7 +8,7 @@ use serde::Serialize;
 /// <https://core.telegram.org/bots/api#setbusinessaccountgiftsettings>
 /// # Returns
 /// On success, `true` is returned
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct SetBusinessAccountGiftSettings {
     /// Unique identifier of the business connection
     pub business_connection_id: String,
@@ -61,7 +61,7 @@ impl TelegramMethod for SetBusinessAccountGiftSettings {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
         Request::new("setBusinessAccountGiftSettings", self, None)
     }
 }

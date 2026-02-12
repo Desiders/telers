@@ -62,10 +62,10 @@ impl Reqwest {
     /// - If the form cannot be built
     /// - If file stream already taken
     #[instrument(skip(self, data))]
-    async fn build_form_data<Data: Serialize + ?Sized>(
+    async fn build_form_data<Data: Serialize>(
         &self,
-        data: &Data,
-        files: Option<&[&InputFile<'_>]>,
+        data: Data,
+        files: Option<Vec<InputFile>>,
     ) -> Result<Form, SerializerError> {
         let mut form = data
             .serialize(MultipartSerializer::new())
@@ -81,16 +81,15 @@ impl Reqwest {
             return Ok(form);
         };
 
-        for (index, file) in files.iter().enumerate() {
+        for file in files {
             match file {
                 InputFile::FS(file) => {
-                    let id = file.id().to_string();
-                    let file_name = file.file_name();
-                    let stream = file.clone().stream();
+                    let id = file.id.to_string();
+                    let file_name = file.file_name().map(ToOwned::to_owned);
+                    let body = Body::wrap_stream(file.stream());
 
-                    let body = Body::wrap_stream(stream);
                     let part = if let Some(file_name) = file_name {
-                        Part::stream(body).file_name(file_name.to_owned())
+                        Part::stream(body).file_name(file_name)
                     } else {
                         Part::stream(body).file_name(id.clone())
                     };
@@ -98,40 +97,22 @@ impl Reqwest {
                     form = form.part(id, part);
                 }
                 InputFile::Buffered(file) => {
-                    let id = file.id().to_string();
-                    let file_name = file.file_name();
-                    let bytes = file.bytes();
+                    let id = file.id.to_string();
 
-                    let part = if let Some(file_name) = file_name {
-                        Part::bytes(bytes.to_vec()).file_name(file_name.to_string())
+                    let part = if let Some(file_name) = file.file_name {
+                        Part::bytes(file.bytes.to_vec()).file_name(file_name.to_string())
                     } else {
-                        Part::bytes(bytes.to_vec()).file_name(id.clone())
+                        Part::bytes(file.bytes.to_vec()).file_name(id.clone())
                     };
 
                     form = form.part(id, part);
                 }
                 InputFile::Stream(file) => {
-                    let Some(stream) = file.take_stream() else {
-                        event!(
-                            Level::ERROR,
-                            "{}",
-                            format!(
-                                "File stream with index `{index}` already taken. \
-                                Read `StreamFile::take_stream` documentation for more information."
-                            )
-                        );
+                    let id = file.id.to_string();
+                    let body = Body::wrap_stream(file.stream.expect("file stream is empty"));
 
-                        return Err(SerializerError::Custom(Cow::Owned(format!(
-                            "File stream with index `{index}` already taken. \
-                            Read `StreamFile::take_stream` documentation for more information."
-                        ))));
-                    };
-                    let id = file.id().to_string();
-                    let file_name = file.file_name();
-
-                    let body = Body::wrap_stream(stream);
-                    let part = if let Some(file_name) = file_name {
-                        Part::stream(body).file_name(file_name.to_owned())
+                    let part = if let Some(file_name) = file.file_name {
+                        Part::stream(body).file_name(file_name)
                     } else {
                         Part::stream(body).file_name(id.clone())
                     };
@@ -180,7 +161,7 @@ impl Session for Reqwest {
     async fn send_request<Client, T>(
         &self,
         bot: &Bot<Client>,
-        method: &T,
+        method: T,
         timeout: Option<f32>,
     ) -> Result<ClientResponse, anyhow::Error>
     where
@@ -194,7 +175,7 @@ impl Session for Reqwest {
             .record("files", field::debug(&req.files))
             .record("method_name", req.method_name);
 
-        let form = self.build_form_data(req.data, req.files.as_deref()).await?;
+        let form = self.build_form_data(req.data, req.files).await?;
 
         let url = self.api.api_url(&bot.token, req.method_name);
 

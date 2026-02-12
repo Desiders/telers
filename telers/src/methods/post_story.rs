@@ -14,12 +14,12 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// Returns [`Story`] on success
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct PostStory<'a> {
+#[derive(Debug, PartialEq, Serialize)]
+pub struct PostStory {
     /// Unique identifier of the business connection
     pub business_connection_id: String,
     /// Content of the story
-    pub content: InputStoryContent<'a>,
+    pub content: InputStoryContent,
     /// Period after which the story is moved to the archive, in seconds; must be one of `6 * 3600`, `12 * 3600`, `86400`, or `2 * 86400`
     pub active_period: u32,
     /// Caption of the story, 0-2048 characters after entities parsing
@@ -36,11 +36,11 @@ pub struct PostStory<'a> {
     pub protect_content: Option<bool>,
 }
 
-impl<'a> PostStory<'a> {
+impl PostStory {
     #[must_use]
     pub fn new(
         business_connection_id: impl Into<String>,
-        content: impl Into<InputStoryContent<'a>>,
+        content: impl Into<InputStoryContent>,
         active_period: impl Into<u32>,
     ) -> Self {
         Self {
@@ -65,7 +65,7 @@ impl<'a> PostStory<'a> {
     }
 
     #[must_use]
-    pub fn content(self, val: impl Into<InputStoryContent<'a>>) -> Self {
+    pub fn content(self, val: impl Into<InputStoryContent>) -> Self {
         Self {
             content: val.into(),
             ..self
@@ -169,7 +169,7 @@ impl<'a> PostStory<'a> {
     }
 }
 
-impl PostStory<'_> {
+impl PostStory {
     #[must_use]
     pub fn caption_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
@@ -234,19 +234,19 @@ impl PostStory<'_> {
     }
 }
 
-impl TelegramMethod for PostStory<'_> {
+impl TelegramMethod for PostStory {
     type Method = Self;
     type Return = Story;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = vec![];
-        prepare_input_story_content(&mut files, &self.content);
+        prepare_input_story_content(&mut files, &mut self.content);
 
-        Request::new("postStory", self, Some(files.into()))
+        Request::new("postStory", self, Some(files))
     }
 }
 
-impl<'a> AsRef<PostStory<'a>> for PostStory<'a> {
+impl AsRef<PostStory> for PostStory {
     fn as_ref(&self) -> &Self {
         self
     }

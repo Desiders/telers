@@ -10,16 +10,16 @@ use serde::Serialize;
 /// # Returns
 /// On success, `true` is returned
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
-pub struct SetChatPhoto<'a> {
+pub struct SetChatPhoto {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatIdKind,
     /// New chat photo, uploaded using `multipart/form-data`
-    pub photo: InputFile<'a>,
+    pub photo: InputFile,
 }
 
-impl<'a> SetChatPhoto<'a> {
+impl SetChatPhoto {
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>, photo: impl Into<InputFile<'a>>) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, photo: impl Into<InputFile>) -> Self {
         Self {
             chat_id: chat_id.into(),
             photo: photo.into(),
@@ -35,7 +35,7 @@ impl<'a> SetChatPhoto<'a> {
     }
 
     #[must_use]
-    pub fn photo(self, val: impl Into<InputFile<'a>>) -> Self {
+    pub fn photo(self, val: impl Into<InputFile>) -> Self {
         Self {
             photo: val.into(),
             ..self

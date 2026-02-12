@@ -11,12 +11,12 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// On success, `true` is returned
 #[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Serialize)]
-pub struct SetWebhook<'a> {
+#[derive(Debug, Hash, PartialEq, Serialize)]
+pub struct SetWebhook {
     /// HTTPS URL to send updates to. Use an empty string to remove webhook integration
     pub url: String,
     /// Upload your public key certificate so that the root certificate in use can be checked. See our [self-signed guide](https://core.telegram.org/bots/self-signed) for details.
-    pub certificate: Option<InputFile<'a>>,
+    pub certificate: Option<InputFile>,
     /// The fixed IP address which will be used to send webhook requests instead of the IP address resolved through DNS
     pub ip_address: Option<String>,
     /// The maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to 40. Use lower values to limit the load on your bot's server, and higher values to increase your bot's throughput.
@@ -30,7 +30,7 @@ pub struct SetWebhook<'a> {
     pub secret_token: Option<String>,
 }
 
-impl<'a> SetWebhook<'a> {
+impl SetWebhook {
     #[must_use]
     pub fn new(url: impl Into<String>) -> Self {
         Self {
@@ -53,7 +53,7 @@ impl<'a> SetWebhook<'a> {
     }
 
     #[must_use]
-    pub fn certificate(self, val: impl Into<InputFile<'a>>) -> Self {
+    pub fn certificate(self, val: impl Into<InputFile>) -> Self {
         Self {
             certificate: Some(val.into()),
             ..self
@@ -121,9 +121,9 @@ impl<'a> SetWebhook<'a> {
     }
 }
 
-impl<'a> SetWebhook<'a> {
+impl SetWebhook {
     #[must_use]
-    pub fn certificate_option(self, val: Option<impl Into<InputFile<'a>>>) -> Self {
+    pub fn certificate_option(self, val: Option<impl Into<InputFile>>) -> Self {
         Self {
             certificate: val.map(Into::into),
             ..self
@@ -195,21 +195,21 @@ impl<'a> SetWebhook<'a> {
     }
 }
 
-impl TelegramMethod for SetWebhook<'_> {
+impl TelegramMethod for SetWebhook {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = vec![];
-        if let Some(file) = &self.certificate {
+        if let Some(file) = &mut self.certificate {
             prepare_file(&mut files, file);
         }
 
-        Request::new("setWebhook", self, Some(files.into()))
+        Request::new("setWebhook", self, Some(files))
     }
 }
 
-impl<'a> AsRef<SetWebhook<'a>> for SetWebhook<'a> {
+impl AsRef<SetWebhook> for SetWebhook {
     fn as_ref(&self) -> &Self {
         self
     }

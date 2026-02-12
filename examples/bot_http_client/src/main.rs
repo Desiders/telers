@@ -56,7 +56,7 @@ impl Session for CustomClient {
     async fn send_request<Client, T>(
         &self,
         _bot: &Bot<Client>,
-        _method: &T,
+        _method: T,
         _timeout: Option<f32>,
     ) -> Result<ClientResponse, anyhow::Error>
     where

@@ -14,19 +14,19 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// Returns the uploaded [`File`] on success
 #[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Serialize)]
-pub struct UploadStickerFile<'a> {
+#[derive(Debug, Hash, PartialEq, Serialize)]
+pub struct UploadStickerFile {
     /// User identifier of sticker file owner
     pub user_id: i64,
     /// A file with the sticker in `.WEBP`, `.PNG`, `.TGS`, or `.WEBM` format. See <https://core.telegram.org/stickers> for technical requirements. [More info on Sending Files »](https://core.telegram.org/bots/api#sending-files)
-    pub sticker: InputFile<'a>,
+    pub sticker: InputFile,
     /// Format of the sticker, must be one of `static`, `animated`, `video`
     pub sticker_format: Option<String>,
 }
 
-impl<'a> UploadStickerFile<'a> {
+impl UploadStickerFile {
     #[must_use]
-    pub fn new(user_id: i64, sticker: impl Into<InputFile<'a>>) -> Self {
+    pub fn new(user_id: i64, sticker: impl Into<InputFile>) -> Self {
         Self {
             user_id,
             sticker: sticker.into(),
@@ -43,7 +43,7 @@ impl<'a> UploadStickerFile<'a> {
     }
 
     #[must_use]
-    pub fn sticker(self, val: impl Into<InputFile<'a>>) -> Self {
+    pub fn sticker(self, val: impl Into<InputFile>) -> Self {
         Self {
             sticker: val.into(),
             ..self
@@ -65,7 +65,7 @@ impl<'a> UploadStickerFile<'a> {
     }
 }
 
-impl UploadStickerFile<'_> {
+impl UploadStickerFile {
     #[must_use]
     pub fn sticker_format_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
@@ -81,19 +81,19 @@ impl UploadStickerFile<'_> {
     }
 }
 
-impl TelegramMethod for UploadStickerFile<'_> {
+impl TelegramMethod for UploadStickerFile {
     type Method = Self;
     type Return = File;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = vec![];
-        prepare_file(&mut files, &self.sticker);
+        prepare_file(&mut files, &mut self.sticker);
 
-        Request::new("uploadStickerFile", self, Some(files.into()))
+        Request::new("uploadStickerFile", self, Some(files))
     }
 }
 
-impl<'a> AsRef<UploadStickerFile<'a>> for UploadStickerFile<'a> {
+impl AsRef<UploadStickerFile> for UploadStickerFile {
     fn as_ref(&self) -> &Self {
         self
     }

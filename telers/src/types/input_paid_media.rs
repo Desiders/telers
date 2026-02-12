@@ -7,21 +7,21 @@ use serde::Serialize;
 /// - [`InputPaidMediaVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputpaidmedia>
-#[derive(Debug, Clone, Hash, PartialEq, Serialize)]
+#[derive(Debug, Hash, PartialEq, Serialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
-pub enum InputPaidMedia<'a> {
-    Photo(InputPaidMediaPhoto<'a>),
-    Video(InputPaidMediaVideo<'a>),
+pub enum InputPaidMedia {
+    Photo(InputPaidMediaPhoto),
+    Video(InputPaidMediaVideo),
 }
 
-impl<'a> From<InputPaidMediaPhoto<'a>> for InputPaidMedia<'a> {
-    fn from(fill: InputPaidMediaPhoto<'a>) -> Self {
+impl From<InputPaidMediaPhoto> for InputPaidMedia {
+    fn from(fill: InputPaidMediaPhoto) -> Self {
         Self::Photo(fill)
     }
 }
 
-impl<'a> From<InputPaidMediaVideo<'a>> for InputPaidMedia<'a> {
-    fn from(fill: InputPaidMediaVideo<'a>) -> Self {
+impl From<InputPaidMediaVideo> for InputPaidMedia {
+    fn from(fill: InputPaidMediaVideo) -> Self {
         Self::Video(fill)
     }
 }

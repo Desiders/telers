@@ -12,7 +12,7 @@ use serde::Serialize;
 /// <https://core.telegram.org/bots/api#savepreparedinlinemessage>
 /// # Returns
 /// On success, a [`PreparedInlineMessage`] object is returned
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct SavePreparedInlineMessage {
     /// Unique identifier of the target user that can use the prepared message
     pub user_id: i64,
@@ -128,7 +128,7 @@ impl TelegramMethod for SavePreparedInlineMessage {
     type Method = Self;
     type Return = PreparedInlineMessage;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
         Request::new("savePreparedInlineMessage", self, None)
     }
 }

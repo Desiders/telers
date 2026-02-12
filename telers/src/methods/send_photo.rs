@@ -17,8 +17,8 @@ use serde_with::skip_serializing_none;
 /// # Returns
 /// On success, the sent [`Message`] is returned
 #[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Serialize)]
-pub struct SendPhoto<'a> {
+#[derive(Debug, Hash, PartialEq, Serialize)]
+pub struct SendPhoto {
     /// Unique identifier of the business connection on behalf of which the message will be sent
     pub business_connection_id: Option<String>,
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
@@ -28,7 +28,7 @@ pub struct SendPhoto<'a> {
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
     pub direct_messages_topic_id: Option<i64>,
     /// Photo to send. Pass a `file_id` as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using `multipart/form-data`. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. See [`more information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
-    pub photo: InputFile<'a>,
+    pub photo: InputFile,
     /// Photo caption, 0-1024 characters after entities parsing
     pub caption: Option<String>,
     /// Mode for parsing entities in the photo caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
@@ -55,9 +55,9 @@ pub struct SendPhoto<'a> {
     pub reply_markup: Option<ReplyMarkup>,
 }
 
-impl<'a> SendPhoto<'a> {
+impl SendPhoto {
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>, photo: impl Into<InputFile<'a>>) -> Self {
+    pub fn new(chat_id: impl Into<ChatIdKind>, photo: impl Into<InputFile>) -> Self {
         Self {
             business_connection_id: None,
             chat_id: chat_id.into(),
@@ -112,7 +112,7 @@ impl<'a> SendPhoto<'a> {
     }
 
     #[must_use]
-    pub fn photo(self, val: impl Into<InputFile<'a>>) -> Self {
+    pub fn photo(self, val: impl Into<InputFile>) -> Self {
         Self {
             photo: val.into(),
             ..self
@@ -236,7 +236,7 @@ impl<'a> SendPhoto<'a> {
     }
 }
 
-impl SendPhoto<'_> {
+impl SendPhoto {
     #[must_use]
     pub fn business_connection_id_option(self, val: Option<impl Into<String>>) -> Self {
         Self {
@@ -367,19 +367,19 @@ impl SendPhoto<'_> {
     }
 }
 
-impl TelegramMethod for SendPhoto<'_> {
+impl TelegramMethod for SendPhoto {
     type Method = Self;
     type Return = Message;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> Request<Self::Method> {
         let mut files = vec![];
-        prepare_file(&mut files, &self.photo);
+        prepare_file(&mut files, &mut self.photo);
 
-        Request::new("sendPhoto", self, Some(files.into()))
+        Request::new("sendPhoto", self, Some(files))
     }
 }
 
-impl<'a> AsRef<SendPhoto<'a>> for SendPhoto<'a> {
+impl AsRef<SendPhoto> for SendPhoto {
     fn as_ref(&self) -> &Self {
         self
     }
