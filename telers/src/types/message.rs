@@ -83,6 +83,11 @@ pub enum Message {
     GiveawayWinners(Box<GiveawayWinners>),
     GiveawayCompleted(Box<GiveawayCompleted>),
     PaidMessagePriceChanged(Box<PaidMessagePriceChanged>),
+    SuggestedPostApproved(Box<SuggestedPostApproved>),
+    SuggestedPostApprovalFailed(Box<SuggestedPostApprovalFailed>),
+    SuggestedPostDeclined(Box<SuggestedPostDeclined>),
+    SuggestedPostPaid(Box<SuggestedPostPaid>),
+    SuggestedPostRefunded(Box<SuggestedPostRefunded>),
     VideoChatScheduled(Box<VideoChatScheduled>),
     VideoChatStarted(Box<VideoChatStarted>),
     VideoChatEnded(Box<VideoChatEnded>),
@@ -2190,6 +2195,121 @@ pub struct PaidMessagePriceChanged {
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
 #[event(try_from = Update)]
+pub struct SuggestedPostApproved {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: a suggested post was approved
+    #[serde(rename = "suggested_post_approved")]
+    pub post: types::SuggestedPostApproved,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
+pub struct SuggestedPostApprovalFailed {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: approval of a suggested post has failed
+    #[serde(rename = "suggested_post_approval_failed")]
+    pub post: types::SuggestedPostApprovalFailed,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
+pub struct SuggestedPostDeclined {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: a suggested post was declined
+    #[serde(rename = "suggested_post_declined")]
+    pub post: types::SuggestedPostDeclined,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
+pub struct SuggestedPostPaid {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: payment for a suggested post was received
+    #[serde(rename = "suggested_post_paid")]
+    pub post: types::SuggestedPostPaid,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
+pub struct SuggestedPostRefunded {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: payment for a suggested post was refunded
+    #[serde(rename = "suggested_post_refunded")]
+    pub post: types::SuggestedPostRefunded,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct VideoChatScheduled {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -2346,6 +2466,11 @@ impl Message {
             Message::WebAppData(message) => message.id,
             Message::GiveawayCreated(message) => message.id,
             Message::PaidMessagePriceChanged(message) => message.id,
+            Message::SuggestedPostApproved(message) => message.id,
+            Message::SuggestedPostApprovalFailed(message) => message.id,
+            Message::SuggestedPostDeclined(message) => message.id,
+            Message::SuggestedPostPaid(message) => message.id,
+            Message::SuggestedPostRefunded(message) => message.id,
             Message::Giveaway(message) => message.id,
             Message::GiveawayWinners(message) => message.id,
             Message::GiveawayCompleted(message) => message.id,
@@ -2383,6 +2508,11 @@ impl Message {
             Message::GeneralForumTopicUnhidden(message) => message.thread_id,
             Message::GiveawayCreated(message) => message.thread_id,
             Message::PaidMessagePriceChanged(message) => message.thread_id,
+            Message::SuggestedPostApproved(message) => message.thread_id,
+            Message::SuggestedPostApprovalFailed(message) => message.thread_id,
+            Message::SuggestedPostDeclined(message) => message.thread_id,
+            Message::SuggestedPostPaid(message) => message.thread_id,
+            Message::SuggestedPostRefunded(message) => message.thread_id,
             Message::Giveaway(message) => message.thread_id,
             Message::GiveawayWinners(message) => message.thread_id,
             Message::GiveawayCompleted(message) => message.thread_id,
@@ -2481,6 +2611,11 @@ impl Message {
             Message::WebAppData(message) => message.date,
             Message::GiveawayCreated(message) => message.date,
             Message::PaidMessagePriceChanged(message) => message.date,
+            Message::SuggestedPostApproved(message) => message.date,
+            Message::SuggestedPostApprovalFailed(message) => message.date,
+            Message::SuggestedPostDeclined(message) => message.date,
+            Message::SuggestedPostPaid(message) => message.date,
+            Message::SuggestedPostRefunded(message) => message.date,
             Message::Giveaway(message) => message.date,
             Message::GiveawayWinners(message) => message.date,
             Message::GiveawayCompleted(message) => message.date,
@@ -2662,6 +2797,11 @@ impl Message {
             Message::WebAppData(message) => &message.chat,
             Message::GiveawayCreated(message) => &message.chat,
             Message::PaidMessagePriceChanged(message) => &message.chat,
+            Message::SuggestedPostApproved(message) => &message.chat,
+            Message::SuggestedPostApprovalFailed(message) => &message.chat,
+            Message::SuggestedPostDeclined(message) => &message.chat,
+            Message::SuggestedPostPaid(message) => &message.chat,
+            Message::SuggestedPostRefunded(message) => &message.chat,
             Message::Giveaway(message) => &message.chat,
             Message::GiveawayWinners(message) => &message.chat,
             Message::GiveawayCompleted(message) => &message.chat,
@@ -2955,6 +3095,11 @@ impl Message {
             Message::VideoChatParticipantsInvited(message) => message.from.as_ref(),
             Message::GiveawayCreated(message) => message.from.as_ref(),
             Message::PaidMessagePriceChanged(message) => message.from.as_ref(),
+            Message::SuggestedPostApproved(message) => message.from.as_ref(),
+            Message::SuggestedPostApprovalFailed(message) => message.from.as_ref(),
+            Message::SuggestedPostDeclined(message) => message.from.as_ref(),
+            Message::SuggestedPostPaid(message) => message.from.as_ref(),
+            Message::SuggestedPostRefunded(message) => message.from.as_ref(),
             Message::Giveaway(message) => message.from.as_ref(),
             Message::GiveawayWinners(message) => message.from.as_ref(),
             Message::GiveawayCompleted(message) => message.from.as_ref(),
@@ -3049,6 +3194,11 @@ impl Message {
             Message::VideoChatParticipantsInvited(message) => message.sender_chat.as_ref(),
             Message::GiveawayCreated(message) => message.sender_chat.as_ref(),
             Message::PaidMessagePriceChanged(message) => message.sender_chat.as_ref(),
+            Message::SuggestedPostApproved(message) => message.sender_chat.as_ref(),
+            Message::SuggestedPostApprovalFailed(message) => message.sender_chat.as_ref(),
+            Message::SuggestedPostDeclined(message) => message.sender_chat.as_ref(),
+            Message::SuggestedPostPaid(message) => message.sender_chat.as_ref(),
+            Message::SuggestedPostRefunded(message) => message.sender_chat.as_ref(),
             Message::Giveaway(message) => message.sender_chat.as_ref(),
             Message::GiveawayWinners(message) => message.sender_chat.as_ref(),
             Message::GiveawayCompleted(message) => message.sender_chat.as_ref(),
@@ -3823,6 +3973,48 @@ impl Message {
     }
 
     #[must_use]
+    pub const fn suggested_post_approved(&self) -> Option<&types::SuggestedPostApproved> {
+        match self {
+            Message::SuggestedPostApproved(message) => Some(&message.post),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn suggested_post_approval_failed(
+        &self,
+    ) -> Option<&types::SuggestedPostApprovalFailed> {
+        match self {
+            Message::SuggestedPostApprovalFailed(message) => Some(&message.post),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn suggested_post_declined(&self) -> Option<&types::SuggestedPostDeclined> {
+        match self {
+            Message::SuggestedPostDeclined(message) => Some(&message.post),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn suggested_post_paid(&self) -> Option<&types::SuggestedPostPaid> {
+        match self {
+            Message::SuggestedPostPaid(message) => Some(&message.post),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn suggested_post_refunded(&self) -> Option<&types::SuggestedPostRefunded> {
+        match self {
+            Message::SuggestedPostRefunded(message) => Some(&message.post),
+            _ => None,
+        }
+    }
+
+    #[must_use]
     pub const fn giveaway(&self) -> Option<&types::Giveaway> {
         match self {
             Message::Giveaway(message) => Some(&message.giveaway),
@@ -4073,6 +4265,11 @@ impl_try_from_message!(Checklist, Checklist);
 impl_try_from_message!(ChecklistTasksDone, ChecklistTasksDone);
 impl_try_from_message!(ChecklistTasksAdded, ChecklistTasksAdded);
 impl_try_from_message!(DirectMessagePriceChanged, DirectMessagePriceChanged);
+impl_try_from_message!(SuggestedPostApproved, SuggestedPostApproved);
+impl_try_from_message!(SuggestedPostApprovalFailed, SuggestedPostApprovalFailed);
+impl_try_from_message!(SuggestedPostDeclined, SuggestedPostDeclined);
+impl_try_from_message!(SuggestedPostPaid, SuggestedPostPaid);
+impl_try_from_message!(SuggestedPostRefunded, SuggestedPostRefunded);
 
 impl TryFrom<Update> for Message {
     type Error = ConvertToTypeError;
@@ -4164,6 +4361,11 @@ impl_try_from_update!(Checklist);
 impl_try_from_update!(ChecklistTasksDone);
 impl_try_from_update!(ChecklistTasksAdded);
 impl_try_from_update!(DirectMessagePriceChanged);
+impl_try_from_update!(SuggestedPostApproved);
+impl_try_from_update!(SuggestedPostApprovalFailed);
+impl_try_from_update!(SuggestedPostDeclined);
+impl_try_from_update!(SuggestedPostPaid);
+impl_try_from_update!(SuggestedPostRefunded);
 
 #[cfg(test)]
 mod tests {
@@ -5981,6 +6183,123 @@ mod tests {
 
             match message {
                 Message::PaidMessagePriceChanged(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_suggested_post_approved() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "suggested_post_approved": {
+                "price": {
+                    "currency": "TON",
+                    "amount": 1,
+                },
+                "send_date": 1,
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::SuggestedPostApproved(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_suggested_post_declined() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "suggested_post_declined": {
+                "comment": "test",
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::SuggestedPostDeclined(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_suggested_post_paid() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "suggested_post_paid": {
+                "currency": "TON",
+                "amount": 1,
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::SuggestedPostPaid(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_suggested_post_refunded() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "suggested_post_refunded": {
+                "reason": "payment_refunded",
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::SuggestedPostRefunded(message) => {
                     assert_eq!(message, message_kind);
                 }
                 _ => panic!("Unexpected message type: {message:?}"),
