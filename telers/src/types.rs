@@ -111,6 +111,7 @@ pub mod chosen_inline_result;
 pub mod contact;
 pub mod copy_text_button;
 pub mod dice;
+pub mod direct_message_price_changed;
 pub mod document;
 pub mod encrypted_credentials;
 pub mod encrypted_passport_element;
@@ -386,6 +387,7 @@ pub use chosen_inline_result::ChosenInlineResult;
 pub use contact::Contact;
 pub use copy_text_button::CopyTextButton;
 pub use dice::Dice;
+pub use direct_message_price_changed::DirectMessagePriceChanged;
 pub use document::Document;
 pub use encrypted_credentials::EncryptedCredentials;
 pub use encrypted_passport_element::{

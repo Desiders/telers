@@ -67,6 +67,7 @@ pub enum Message {
     ChatBackgroundSet(Box<ChatBackgroundSet>),
     ChecklistTasksDone(Box<ChecklistTasksDone>),
     ChecklistTasksAdded(Box<ChecklistTasksAdded>),
+    DirectMessagePriceChanged(Box<DirectMessagePriceChanged>),
     ForumTopicCreated(Box<ForumTopicCreated>),
     ForumTopicEdited(Box<ForumTopicEdited>),
     ForumTopicClosed(Box<ForumTopicClosed>),
@@ -1726,6 +1727,29 @@ pub struct ChecklistTasksAdded {
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
 #[event(try_from = Update)]
+pub struct DirectMessagePriceChanged {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: the price for paid messages in the corresponding direct messages chat of a channel has changed
+    #[serde(rename = "direct_message_price_changed")]
+    pub price: types::DirectMessagePriceChanged,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct ForumTopicCreated {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -2012,7 +2036,7 @@ pub struct PaidMessagePriceChanged {
     pub chat: Chat,
     /// Service message: the price for paid messages has changed in the chat
     #[serde(rename = "paid_message_price_changed")]
-    pub price_changed: types::PaidMessagePriceChanged,
+    pub price_changed: types::DirectMessagePriceChanged,
 }
 
 #[skip_serializing_none]
@@ -2160,6 +2184,7 @@ impl Message {
             Message::ChatBackgroundSet(message) => message.id,
             Message::ChecklistTasksDone(message) => message.id,
             Message::ChecklistTasksAdded(message) => message.id,
+            Message::DirectMessagePriceChanged(message) => message.id,
             Message::ForumTopicCreated(message) => message.id,
             Message::ForumTopicEdited(message) => message.id,
             Message::ForumTopicClosed(message) => message.id,
@@ -2265,6 +2290,7 @@ impl Message {
             Message::ChatBackgroundSet(message) => message.date,
             Message::ChecklistTasksDone(message) => message.date,
             Message::ChecklistTasksAdded(message) => message.date,
+            Message::DirectMessagePriceChanged(message) => message.date,
             Message::ForumTopicCreated(message) => message.date,
             Message::ForumTopicEdited(message) => message.date,
             Message::ForumTopicClosed(message) => message.date,
@@ -2445,6 +2471,7 @@ impl Message {
             Message::ChatBackgroundSet(message) => &message.chat,
             Message::ChecklistTasksDone(message) => &message.chat,
             Message::ChecklistTasksAdded(message) => &message.chat,
+            Message::DirectMessagePriceChanged(message) => &message.chat,
             Message::ForumTopicCreated(message) => &message.chat,
             Message::ForumTopicEdited(message) => &message.chat,
             Message::ForumTopicClosed(message) => &message.chat,
@@ -2716,6 +2743,7 @@ impl Message {
             Message::ChatBackgroundSet(message) => message.from.as_ref(),
             Message::ChecklistTasksDone(message) => message.from.as_ref(),
             Message::ChecklistTasksAdded(message) => message.from.as_ref(),
+            Message::DirectMessagePriceChanged(message) => message.from.as_ref(),
             Message::ForumTopicCreated(message) => message.from.as_ref(),
             Message::ForumTopicEdited(message) => message.from.as_ref(),
             Message::ForumTopicClosed(message) => message.from.as_ref(),
@@ -2809,6 +2837,7 @@ impl Message {
             Message::ChatBackgroundSet(message) => message.sender_chat.as_ref(),
             Message::ChecklistTasksDone(message) => message.sender_chat.as_ref(),
             Message::ChecklistTasksAdded(message) => message.sender_chat.as_ref(),
+            Message::DirectMessagePriceChanged(message) => message.sender_chat.as_ref(),
             Message::ForumTopicCreated(message) => message.sender_chat.as_ref(),
             Message::ForumTopicEdited(message) => message.sender_chat.as_ref(),
             Message::ForumTopicClosed(message) => message.sender_chat.as_ref(),
@@ -3466,6 +3495,14 @@ impl Message {
     }
 
     #[must_use]
+    pub const fn direct_message_price_changed(&self) -> Option<&types::DirectMessagePriceChanged> {
+        match self {
+            Message::DirectMessagePriceChanged(message) => Some(&message.price),
+            _ => None,
+        }
+    }
+
+    #[must_use]
     pub const fn forum_topic_closed(&self) -> Option<&types::ForumTopicClosed> {
         match self {
             Message::ForumTopicClosed(message) => Some(&message.closed),
@@ -3506,7 +3543,7 @@ impl Message {
     }
 
     #[must_use]
-    pub const fn paid_message_price_changed(&self) -> Option<&types::PaidMessagePriceChanged> {
+    pub const fn paid_message_price_changed(&self) -> Option<&types::DirectMessagePriceChanged> {
         match self {
             Message::PaidMessagePriceChanged(message) => Some(&message.price_changed),
             _ => None,
@@ -3763,6 +3800,7 @@ impl_try_from_message!(MessageAutoDeleteTimerChanged, MessageAutoDeleteTimerChan
 impl_try_from_message!(Checklist, Checklist);
 impl_try_from_message!(ChecklistTasksDone, ChecklistTasksDone);
 impl_try_from_message!(ChecklistTasksAdded, ChecklistTasksAdded);
+impl_try_from_message!(DirectMessagePriceChanged, DirectMessagePriceChanged);
 
 impl TryFrom<Update> for Message {
     type Error = ConvertToTypeError;
@@ -3853,6 +3891,7 @@ impl_try_from_update!(MessageAutoDeleteTimerChanged);
 impl_try_from_update!(Checklist);
 impl_try_from_update!(ChecklistTasksDone);
 impl_try_from_update!(ChecklistTasksAdded);
+impl_try_from_update!(DirectMessagePriceChanged);
 
 #[cfg(test)]
 mod tests {
@@ -5376,6 +5415,34 @@ mod tests {
 
             match message {
                 Message::ChecklistTasksAdded(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_direct_message_price_changed() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "direct_message_price_changed": {
+                "are_direct_messages_enabled": true,
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::DirectMessagePriceChanged(message) => {
                     assert_eq!(message, message_kind);
                 }
                 _ => panic!("Unexpected message type: {message:?}"),

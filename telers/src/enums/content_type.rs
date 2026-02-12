@@ -97,6 +97,8 @@ pub enum ContentType {
     ChecklistTasksDone,
     #[strum(serialize = "checklist_tasks_added")]
     ChecklistTasksAdded,
+    #[strum(serialize = "direct_message_price_changed")]
+    DirectMessagePriceChanged,
     #[strum(serialize = "forum_topic_created")]
     ForumTopicCreated,
     #[strum(serialize = "forum_topic_edited")]
@@ -133,7 +135,7 @@ pub enum ContentType {
 
 impl ContentType {
     #[must_use]
-    pub const fn all() -> [ContentType; 61] {
+    pub const fn all() -> [ContentType; 62] {
         [
             ContentType::Text,
             ContentType::Animation,
@@ -180,6 +182,7 @@ impl ContentType {
             ContentType::ChatBackgroundSet,
             ContentType::ChecklistTasksDone,
             ContentType::ChecklistTasksAdded,
+            ContentType::DirectMessagePriceChanged,
             ContentType::ForumTopicCreated,
             ContentType::ForumTopicEdited,
             ContentType::ForumTopicClosed,
@@ -266,6 +269,7 @@ impl From<&Message> for ContentType {
             Message::ChatBackgroundSet(_) => ContentType::ChatBackgroundSet,
             Message::ChecklistTasksDone(_) => ContentType::ChecklistTasksDone,
             Message::ChecklistTasksAdded(_) => ContentType::ChecklistTasksAdded,
+            Message::DirectMessagePriceChanged(_) => ContentType::DirectMessagePriceChanged,
             Message::ForumTopicCreated(_) => ContentType::ForumTopicCreated,
             Message::ForumTopicEdited(_) => ContentType::ForumTopicEdited,
             Message::ForumTopicClosed(_) => ContentType::ForumTopicClosed,
