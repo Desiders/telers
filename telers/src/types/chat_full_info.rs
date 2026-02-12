@@ -113,6 +113,8 @@ pub struct SupergroupFullInfo {
     pub username: Option<Box<str>>,
     /// `true`, if the chat is a forum (has [`topics`](https://telegram.org/blog/topics-in-groups-collectible-usernames#topics-in-groups) enabled)
     pub is_forum: Option<bool>,
+    /// `true`, if the chat is the direct messages chat of a channel
+    pub is_direct_messages: Option<bool>,
     /// Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See [accent colors](https://core.telegram.org/bots/api#accent-colors) for more details.
     pub accent_color_id: i64,
     /// The maximum number of reactions that can be set on a message in the chat
@@ -289,6 +291,14 @@ impl ChatFullInfo {
     pub const fn is_forum(&self) -> Option<bool> {
         match self {
             Self::Supergroup(chat) => chat.is_forum,
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn is_direct_messages(&self) -> Option<bool> {
+        match self {
+            Self::Supergroup(chat) => chat.is_direct_messages,
             _ => None,
         }
     }

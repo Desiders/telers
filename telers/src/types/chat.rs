@@ -52,6 +52,8 @@ pub struct Supergroup {
     pub username: Option<Box<str>>,
     /// `true`, if the chat is a forum (has [`topics`](https://telegram.org/blog/topics-in-groups-collectible-usernames#topics-in-groups) enabled)
     pub is_forum: Option<bool>,
+    /// `true`, if the chat is the direct messages chat of a channel
+    pub is_direct_messages: Option<bool>,
 }
 
 #[skip_serializing_none]
@@ -134,6 +136,14 @@ impl Chat {
     pub const fn is_forum(&self) -> Option<bool> {
         match self {
             Self::Supergroup(chat) => chat.is_forum,
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn is_direct_messages(&self) -> Option<bool> {
+        match self {
+            Self::Supergroup(chat) => chat.is_direct_messages,
             _ => None,
         }
     }
