@@ -2036,7 +2036,7 @@ pub struct PaidMessagePriceChanged {
     pub chat: Chat,
     /// Service message: the price for paid messages has changed in the chat
     #[serde(rename = "paid_message_price_changed")]
-    pub price_changed: types::DirectMessagePriceChanged,
+    pub price: types::PaidMessagePriceChanged,
 }
 
 #[skip_serializing_none]
@@ -3543,9 +3543,9 @@ impl Message {
     }
 
     #[must_use]
-    pub const fn paid_message_price_changed(&self) -> Option<&types::DirectMessagePriceChanged> {
+    pub const fn paid_message_price_changed(&self) -> Option<&types::PaidMessagePriceChanged> {
         match self {
-            Message::PaidMessagePriceChanged(message) => Some(&message.price_changed),
+            Message::PaidMessagePriceChanged(message) => Some(&message.price),
             _ => None,
         }
     }
