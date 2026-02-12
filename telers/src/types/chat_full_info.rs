@@ -123,6 +123,8 @@ pub struct SupergroupFullInfo {
     pub photo: Option<ChatPhoto>,
     /// If non-empty, the list of all [active chat usernames](https://telegram.org/blog/topics-in-groups-collectible-usernames/ru?ln=a#collectible-usernames).
     pub active_usernames: Option<Box<[Box<str>]>>,
+    /// Information about the corresponding channel chat
+    pub parent_chat: Option<Chat>,
     /// List of available reactions allowed in the chat. If omitted, then all [emoji reactions](https://core.telegram.org/bots/api#reactiontypeemoji) are allowed.
     pub available_reactions: Option<Box<[ReactionType]>>,
     /// Custom emoji identifier of emoji chosen by the chat for the reply header and link preview background.
@@ -392,6 +394,14 @@ impl ChatFullInfo {
         match self {
             Self::Group(_) | Self::Supergroup(_) | Self::Channel(_) => None,
             Self::Private(chat) => chat.personal_chat.as_ref(),
+        }
+    }
+
+    #[must_use]
+    pub const fn parent_chat(&self) -> Option<&Chat> {
+        match self {
+            Self::Private(_) | Self::Group(_) | Self::Channel(_) => None,
+            Self::Supergroup(chat) => chat.parent_chat.as_ref(),
         }
     }
 
