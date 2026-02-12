@@ -3,9 +3,9 @@ use crate::types::UniqueGift;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-/// This object describes a unique gift that was upgraded from a regular gift.
+/// Describes a service message about a unique gift that was sent or received.
 /// # Documentation
-/// <https://core.telegram.org/bots/api#uniquegift>
+/// <https://core.telegram.org/bots/api#uniquegiftinfo>
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct UniqueGiftInfo {
