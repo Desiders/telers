@@ -140,6 +140,8 @@ pub struct Animation {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -211,6 +213,8 @@ pub struct Audio {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// The unique identifier of a media message group this message belongs to
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
@@ -278,6 +282,8 @@ pub struct Checklist {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -336,6 +342,8 @@ pub struct Contact {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -392,6 +400,8 @@ pub struct Dice {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -454,6 +464,8 @@ pub struct Document {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// The unique identifier of a media message group this message belongs to
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
@@ -518,6 +530,8 @@ pub struct PaidMedia {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// The unique identifier of a media message group this message belongs to
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
@@ -581,6 +595,8 @@ pub struct Game {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -639,6 +655,8 @@ pub struct Poll {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -699,6 +717,8 @@ pub struct Venue {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -759,6 +779,8 @@ pub struct Location {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -821,6 +843,8 @@ pub struct Photo {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// The unique identifier of a media message group this message belongs to
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
@@ -955,6 +979,8 @@ pub struct Sticker {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -1015,6 +1041,8 @@ pub struct Text {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -1081,6 +1109,8 @@ pub struct Video {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// The unique identifier of a media message group this message belongs to
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
@@ -1148,6 +1178,8 @@ pub struct VideoNote {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -1208,6 +1240,8 @@ pub struct Voice {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -1521,6 +1555,8 @@ pub struct Invoice {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -3292,6 +3328,56 @@ impl Message {
             Message::Video(message) => message.has_protected_content,
             Message::Voice(message) => message.has_protected_content,
             Message::Photo(message) => message.has_protected_content,
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn is_from_offline(&self) -> Option<bool> {
+        match self {
+            Message::Text(message) => message.is_from_offline,
+            Message::Animation(message) => message.is_from_offline,
+            Message::Audio(message) => message.is_from_offline,
+            Message::Document(message) => message.is_from_offline,
+            Message::PaidMedia(message) => message.is_from_offline,
+            Message::Photo(message) => message.is_from_offline,
+            Message::Sticker(message) => message.is_from_offline,
+            Message::Video(message) => message.is_from_offline,
+            Message::VideoNote(message) => message.is_from_offline,
+            Message::Voice(message) => message.is_from_offline,
+            Message::Checklist(message) => message.is_from_offline,
+            Message::Contact(message) => message.is_from_offline,
+            Message::Dice(message) => message.is_from_offline,
+            Message::Game(message) => message.is_from_offline,
+            Message::Poll(message) => message.is_from_offline,
+            Message::Venue(message) => message.is_from_offline,
+            Message::Location(message) => message.is_from_offline,
+            Message::Invoice(message) => message.is_from_offline,
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn is_paid_post(&self) -> Option<bool> {
+        match self {
+            Message::Text(message) => message.is_paid_post,
+            Message::Animation(message) => message.is_paid_post,
+            Message::Audio(message) => message.is_paid_post,
+            Message::Document(message) => message.is_paid_post,
+            Message::PaidMedia(message) => message.is_paid_post,
+            Message::Photo(message) => message.is_paid_post,
+            Message::Sticker(message) => message.is_paid_post,
+            Message::Video(message) => message.is_paid_post,
+            Message::VideoNote(message) => message.is_paid_post,
+            Message::Voice(message) => message.is_paid_post,
+            Message::Checklist(message) => message.is_paid_post,
+            Message::Contact(message) => message.is_paid_post,
+            Message::Dice(message) => message.is_paid_post,
+            Message::Game(message) => message.is_paid_post,
+            Message::Poll(message) => message.is_paid_post,
+            Message::Venue(message) => message.is_paid_post,
+            Message::Location(message) => message.is_paid_post,
+            Message::Invoice(message) => message.is_paid_post,
             _ => None,
         }
     }
