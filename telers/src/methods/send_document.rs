@@ -20,8 +20,10 @@ pub struct SendDocument<'a> {
     pub business_connection_id: Option<String>,
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatIdKind,
-    /// Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+    /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     pub message_thread_id: Option<i64>,
+    /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
+    pub direct_messages_topic_id: Option<i64>,
     /// File to send. Pass a `file_id` as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using `multipart/form-data`. See [`more information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
     pub document: InputFile<'a>,
     /// Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using `multipart/form-data`. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the thumbnail was uploaded using `multipart/form-data` under `<file_attach_name>`. [`More information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
@@ -55,6 +57,7 @@ impl<'a> SendDocument<'a> {
             business_connection_id: None,
             chat_id: chat_id.into(),
             message_thread_id: None,
+            direct_messages_topic_id: None,
             document: document.into(),
             thumbnail: None,
             caption: None,
@@ -90,6 +93,14 @@ impl<'a> SendDocument<'a> {
     pub fn message_thread_id(self, val: i64) -> Self {
         Self {
             message_thread_id: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn direct_messages_topic_id(self, val: i64) -> Self {
+        Self {
+            direct_messages_topic_id: Some(val),
             ..self
         }
     }
@@ -224,6 +235,14 @@ impl SendDocument<'_> {
     pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
         Self {
             message_thread_id: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn direct_messages_topic_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            direct_messages_topic_id: val,
             ..self
         }
     }

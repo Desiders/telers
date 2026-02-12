@@ -18,8 +18,10 @@ use serde_with::skip_serializing_none;
 pub struct SendInvoice {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatIdKind,
-    /// Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+    /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     pub message_thread_id: Option<i64>,
+    /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
+    pub direct_messages_topic_id: Option<i64>,
     /// Product name, 1-32 characters
     pub title: String,
     /// Product description, 1-255 characters
@@ -90,6 +92,7 @@ impl SendInvoice {
         Self {
             chat_id: chat_id.into(),
             message_thread_id: None,
+            direct_messages_topic_id: None,
             title: title.into(),
             description: description.into(),
             payload: payload.into(),
@@ -132,6 +135,14 @@ impl SendInvoice {
     pub fn message_thread_id(self, val: i64) -> Self {
         Self {
             message_thread_id: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn direct_messages_topic_id(self, val: i64) -> Self {
+        Self {
+            direct_messages_topic_id: Some(val),
             ..self
         }
     }

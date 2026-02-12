@@ -600,7 +600,7 @@ pub use prepared_inline_message::PreparedInlineMessage;
 pub use proximity_alert_triggered::ProximityAlertTriggered;
 pub use reaction_count::ReactionCount;
 pub use reaction_type::ReactionType;
-pub use reaction_type_custom_emoji::ReapctionTypeCustomEmoji;
+pub use reaction_type_custom_emoji::ReactionTypeCustomEmoji;
 pub use reaction_type_emoji::ReactionTypeEmoji;
 pub use reaction_type_paid::ReactionTypePaid;
 pub use refunded_payment::RefundedPayment;

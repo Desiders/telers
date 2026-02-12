@@ -20,8 +20,10 @@ pub struct SendAudio<'a> {
     pub business_connection_id: Option<String>,
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatIdKind,
-    /// Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+    /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     pub message_thread_id: Option<i64>,
+    /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
+    pub direct_messages_topic_id: Option<i64>,
     /// Audio file to send. Pass a `file_id` as String to send an audio file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an audio file from the Internet, or upload a new one using `multipart/form-data`. See [`more information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
     pub audio: InputFile<'a>,
     /// Audio caption, 0-1024 characters after entities parsing
@@ -59,6 +61,7 @@ impl<'a> SendAudio<'a> {
             business_connection_id: None,
             chat_id: chat_id.into(),
             message_thread_id: None,
+            direct_messages_topic_id: None,
             audio: audio.into(),
             caption: None,
             parse_mode: None,
@@ -96,6 +99,14 @@ impl<'a> SendAudio<'a> {
     pub fn message_thread_id(self, val: i64) -> Self {
         Self {
             message_thread_id: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn direct_messages_topic_id(self, val: i64) -> Self {
+        Self {
+            direct_messages_topic_id: Some(val),
             ..self
         }
     }
@@ -246,6 +257,14 @@ impl<'a> SendAudio<'a> {
     pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
         Self {
             message_thread_id: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn direct_messages_topic_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            direct_messages_topic_id: val,
             ..self
         }
     }

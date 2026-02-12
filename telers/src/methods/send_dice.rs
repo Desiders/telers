@@ -20,8 +20,10 @@ pub struct SendDice {
     pub business_connection_id: Option<String>,
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatIdKind,
-    /// Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+    /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     pub message_thread_id: Option<i64>,
+    /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
+    pub direct_messages_topic_id: Option<i64>,
     /// Emoji on which the dice throw animation is based. Currently, must be one of `🎲`, `🎯`, `🏀`, `⚽`, `🎳`, or `🎰`. Dice can have values 1-6 for `🎲`, `🎯` and `🎳`, values 1-5 for `🏀` and `⚽`, and values 1-64 for `🎰`. Defaults to `🎲`
     pub emoji: Option<String>,
     /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound
@@ -45,6 +47,7 @@ impl SendDice {
             business_connection_id: None,
             chat_id: chat_id.into(),
             message_thread_id: None,
+            direct_messages_topic_id: None,
             emoji: None,
             disable_notification: None,
             protect_content: None,
@@ -75,6 +78,14 @@ impl SendDice {
     pub fn message_thread_id(self, val: i64) -> Self {
         Self {
             message_thread_id: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn direct_messages_topic_id(self, val: i64) -> Self {
+        Self {
+            direct_messages_topic_id: Some(val),
             ..self
         }
     }
@@ -149,6 +160,14 @@ impl SendDice {
     pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
         Self {
             message_thread_id: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn direct_messages_topic_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            direct_messages_topic_id: val,
             ..self
         }
     }
