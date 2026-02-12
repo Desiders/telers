@@ -5,7 +5,7 @@ use super::{
 
 use crate::{
     errors::ConvertToTypeError,
-    types::{self, DirectMessagesTopic},
+    types::{self, DirectMessagesTopic, SuggestedPostInfo},
     FromEvent,
 };
 
@@ -153,6 +153,8 @@ pub struct Animation {
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
     #[serde(rename = "caption_entities")]
     pub entities: Option<Box<[MessageEntity]>>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// `true`, if the caption must be shown above the message media
     pub show_caption_above_media: Option<bool>,
     /// Unique identifier of the message effect added to the message
@@ -228,6 +230,8 @@ pub struct Audio {
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
     #[serde(rename = "caption_entities")]
     pub entities: Option<Box<[MessageEntity]>>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary `url` buttons.
@@ -348,6 +352,8 @@ pub struct Contact {
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
     pub paid_star_count: Option<i64>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the contact
@@ -406,6 +412,8 @@ pub struct Dice {
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
     pub paid_star_count: Option<i64>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Message is a dice with random value
@@ -479,6 +487,8 @@ pub struct Document {
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
     #[serde(rename = "caption_entities")]
     pub entities: Option<Box<[MessageEntity]>>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary `url` buttons.
@@ -543,6 +553,8 @@ pub struct PaidMedia {
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
     #[serde(rename = "caption_entities")]
     pub entities: Option<Box<[MessageEntity]>>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// `true`, if the caption must be shown above the message media
     pub show_caption_above_media: Option<bool>,
     /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary `url` buttons.
@@ -723,6 +735,8 @@ pub struct Venue {
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
     pub paid_star_count: Option<i64>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the venue
@@ -785,6 +799,8 @@ pub struct Location {
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
     pub paid_star_count: Option<i64>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the location
@@ -858,6 +874,8 @@ pub struct Photo {
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
     #[serde(rename = "caption_entities")]
     pub entities: Option<Box<[MessageEntity]>>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// `true`, if the caption must be shown above the message media
     pub show_caption_above_media: Option<bool>,
     /// Unique identifier of the message effect added to the message
@@ -985,6 +1003,8 @@ pub struct Sticker {
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
     pub paid_star_count: Option<i64>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the sticker
@@ -1053,6 +1073,8 @@ pub struct Text {
     pub entities: Option<Box<[MessageEntity]>>,
     /// Options used for link preview generation for the message, if it is a text message an
     pub link_preview_options: Option<LinkPreviewOptions>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary `url` buttons.
@@ -1124,6 +1146,8 @@ pub struct Video {
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
     #[serde(rename = "caption_entities")]
     pub entities: Option<Box<[MessageEntity]>>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// `true`, if the caption must be shown above the message media
     pub show_caption_above_media: Option<bool>,
     /// Unique identifier of the message effect added to the message
@@ -1184,6 +1208,8 @@ pub struct VideoNote {
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
     pub paid_star_count: Option<i64>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the video message
@@ -1253,6 +1279,8 @@ pub struct Voice {
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
     #[serde(rename = "caption_entities")]
     pub entities: Option<Box<[MessageEntity]>>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary `url` buttons.
@@ -1561,6 +1589,8 @@ pub struct Invoice {
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
     pub paid_star_count: Option<i64>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Message is an invoice for a [`payment`](https://core.telegram.org/bots/api#payments), information about the invoice. [`More about payments`](https://core.telegram.org/bots/api#payments)
@@ -2757,6 +2787,28 @@ impl Message {
                 Some(ref entities) => Some(entities),
                 None => None,
             },
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn suggested_post_info(&self) -> Option<&SuggestedPostInfo> {
+        match self {
+            Message::Text(message) => message.suggested_post_info.as_ref(),
+            Message::Photo(message) => message.suggested_post_info.as_ref(),
+            Message::Video(message) => message.suggested_post_info.as_ref(),
+            Message::Animation(message) => message.suggested_post_info.as_ref(),
+            Message::Audio(message) => message.suggested_post_info.as_ref(),
+            Message::Document(message) => message.suggested_post_info.as_ref(),
+            Message::PaidMedia(message) => message.suggested_post_info.as_ref(),
+            Message::Sticker(message) => message.suggested_post_info.as_ref(),
+            Message::VideoNote(message) => message.suggested_post_info.as_ref(),
+            Message::Voice(message) => message.suggested_post_info.as_ref(),
+            Message::Location(message) => message.suggested_post_info.as_ref(),
+            Message::Venue(message) => message.suggested_post_info.as_ref(),
+            Message::Contact(message) => message.suggested_post_info.as_ref(),
+            Message::Dice(message) => message.suggested_post_info.as_ref(),
+            Message::Invoice(message) => message.suggested_post_info.as_ref(),
             _ => None,
         }
     }
