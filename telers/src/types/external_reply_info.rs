@@ -21,6 +21,7 @@ pub enum ExternalReplyInfo {
     Video(Box<Video>),
     VideoNote(Box<VideoNote>),
     Voice(Box<Voice>),
+    Checklist(Box<Checklist>),
     Contact(Box<Contact>),
     Dice(Box<Dice>),
     Game(Box<Game>),
@@ -184,6 +185,19 @@ pub struct Voice {
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct Checklist {
+    /// Origin of the message replied to by the given message
+    pub origin: MessageOrigin,
+    /// Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
+    pub chat: Option<Chat>,
+    /// Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
+    pub message_id: Option<i64>,
+    /// Message is a checklist
+    pub checklist: types::Checklist,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct Contact {
     /// Origin of the message replied to by the given message
     pub origin: MessageOrigin,
@@ -313,6 +327,7 @@ impl ExternalReplyInfo {
             ExternalReplyInfo::Video(external_reply_info) => &external_reply_info.origin,
             ExternalReplyInfo::VideoNote(external_reply_info) => &external_reply_info.origin,
             ExternalReplyInfo::Voice(external_reply_info) => &external_reply_info.origin,
+            ExternalReplyInfo::Checklist(external_reply_info) => &external_reply_info.origin,
             ExternalReplyInfo::Contact(external_reply_info) => &external_reply_info.origin,
             ExternalReplyInfo::Dice(external_reply_info) => &external_reply_info.origin,
             ExternalReplyInfo::Game(external_reply_info) => &external_reply_info.origin,
@@ -367,6 +382,10 @@ impl ExternalReplyInfo {
                 None => None,
             },
             ExternalReplyInfo::Voice(external_reply_info) => match external_reply_info.chat {
+                Some(ref chat) => Some(chat),
+                None => None,
+            },
+            ExternalReplyInfo::Checklist(external_reply_info) => match external_reply_info.chat {
                 Some(ref chat) => Some(chat),
                 None => None,
             },
@@ -428,6 +447,7 @@ impl ExternalReplyInfo {
             ExternalReplyInfo::Video(external_reply_info) => external_reply_info.message_id,
             ExternalReplyInfo::VideoNote(external_reply_info) => external_reply_info.message_id,
             ExternalReplyInfo::Voice(external_reply_info) => external_reply_info.message_id,
+            ExternalReplyInfo::Checklist(external_reply_info) => external_reply_info.message_id,
             ExternalReplyInfo::Contact(external_reply_info) => external_reply_info.message_id,
             ExternalReplyInfo::Dice(external_reply_info) => external_reply_info.message_id,
             ExternalReplyInfo::Game(external_reply_info) => external_reply_info.message_id,
@@ -798,6 +818,42 @@ mod tests {
 
             match external_reply_info {
                 ExternalReplyInfo::Voice(external_reply_info) => {
+                    assert_eq!(external_reply_info, external_reply_info_kind)
+                }
+                _ => panic!("Unexpected external reply info type: {external_reply_info:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_checklist() {
+        let jsons = [serde_json::json!({
+            "origin": {
+                "type": "user",
+                "date": 0,
+                "sender_user": {
+                    "id": 1,
+                    "is_bot": false,
+                    "first_name": "test",
+                },
+            },
+            "checklist": {
+                "title": "test",
+                "tasks": [
+                    {
+                        "id": 1,
+                        "text": "test",
+                    }
+                ],
+            },
+        })];
+
+        for json in jsons {
+            let external_reply_info_kind = serde_json::from_value(json.clone()).unwrap();
+            let external_reply_info: ExternalReplyInfo = serde_json::from_value(json).unwrap();
+
+            match external_reply_info {
+                ExternalReplyInfo::Checklist(external_reply_info) => {
                     assert_eq!(external_reply_info, external_reply_info_kind)
                 }
                 _ => panic!("Unexpected external reply info type: {external_reply_info:?}"),

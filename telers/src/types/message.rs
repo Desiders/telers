@@ -33,6 +33,7 @@ pub enum Message {
     Video(Box<Video>),
     VideoNote(Box<VideoNote>),
     Voice(Box<Voice>),
+    Checklist(Box<Checklist>),
     Contact(Box<Contact>),
     Dice(Box<Dice>),
     Game(Box<Game>),
@@ -64,6 +65,9 @@ pub enum Message {
     ProximityAlertTriggered(Box<ProximityAlertTriggered>),
     ChatBoostAdded(Box<ChatBoostAdded>),
     ChatBackgroundSet(Box<ChatBackgroundSet>),
+    ChecklistTasksDone(Box<ChecklistTasksDone>),
+    ChecklistTasksAdded(Box<ChecklistTasksAdded>),
+    DirectMessagePriceChanged(Box<DirectMessagePriceChanged>),
     ForumTopicCreated(Box<ForumTopicCreated>),
     ForumTopicEdited(Box<ForumTopicEdited>),
     ForumTopicClosed(Box<ForumTopicClosed>),
@@ -210,6 +214,62 @@ pub struct Audio {
     pub entities: Option<Box<[MessageEntity]>>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
+    /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary `url` buttons.
+    pub reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
+pub struct Checklist {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
+    pub sender_boost_count: Option<i64>,
+    /// The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
+    pub sender_business_bot: Option<User>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
+    pub business_connection_id: Option<Box<str>>,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Information about the original message for forwarded messages
+    pub forward_origin: Option<MessageOrigin>,
+    /// `true`, if the message is sent to a forum topic
+    pub is_topic_message: Option<bool>,
+    /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
+    pub is_automatic_forward: Option<bool>,
+    /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *`reply_to_message`* fields even if it itself is a reply.
+    pub reply_to_message: Option<Message>,
+    /// For replies to a story, the original story
+    pub reply_to_story: Option<types::Story>,
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
+    pub external_reply: Option<ExternalReplyInfo>,
+    /// Bot through which the message was sent
+    pub via_bot: Option<User>,
+    /// Date the message was last edited in Unix time
+    pub edit_date: Option<i64>,
+    /// `true`, if the message can't be forwarded
+    pub has_protected_content: Option<bool>,
+    /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
+    pub is_from_offline: Option<bool>,
+    /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
+    pub author_signature: Option<Box<str>>,
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
+    pub paid_star_count: Option<i64>,
+    /// Unique identifier of the message effect added to the message
+    pub effect_id: Option<Box<str>>,
+    /// Message is a checklist
+    pub checklist: types::Checklist,
     /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary `url` buttons.
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
@@ -1621,6 +1681,75 @@ pub struct ChatBackgroundSet {
 #[skip_serializing_none]
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
 #[event(try_from = Update)]
+pub struct ChecklistTasksDone {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: some tasks in a checklist were marked as done or not done
+    #[serde(rename = "checklist_tasks_done")]
+    pub tasks: types::ChecklistTasksDone,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
+pub struct ChecklistTasksAdded {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: tasks were added to a checklist
+    #[serde(rename = "checklist_tasks_added")]
+    pub tasks: types::ChecklistTasksAdded,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
+pub struct DirectMessagePriceChanged {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: the price for paid messages in the corresponding direct messages chat of a channel has changed
+    #[serde(rename = "direct_message_price_changed")]
+    pub price: types::DirectMessagePriceChanged,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
 pub struct ForumTopicCreated {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
@@ -1907,7 +2036,7 @@ pub struct PaidMessagePriceChanged {
     pub chat: Chat,
     /// Service message: the price for paid messages has changed in the chat
     #[serde(rename = "paid_message_price_changed")]
-    pub price_changed: types::PaidMessagePriceChanged,
+    pub price: types::PaidMessagePriceChanged,
 }
 
 #[skip_serializing_none]
@@ -2021,6 +2150,7 @@ impl Message {
             Message::Video(message) => message.id,
             Message::VideoNote(message) => message.id,
             Message::Voice(message) => message.id,
+            Message::Checklist(message) => message.id,
             Message::Contact(message) => message.id,
             Message::Dice(message) => message.id,
             Message::Game(message) => message.id,
@@ -2052,6 +2182,9 @@ impl Message {
             Message::ProximityAlertTriggered(message) => message.id,
             Message::ChatBoostAdded(message) => message.id,
             Message::ChatBackgroundSet(message) => message.id,
+            Message::ChecklistTasksDone(message) => message.id,
+            Message::ChecklistTasksAdded(message) => message.id,
+            Message::DirectMessagePriceChanged(message) => message.id,
             Message::ForumTopicCreated(message) => message.id,
             Message::ForumTopicEdited(message) => message.id,
             Message::ForumTopicClosed(message) => message.id,
@@ -2084,6 +2217,7 @@ impl Message {
             Message::Video(message) => message.thread_id,
             Message::VideoNote(message) => message.thread_id,
             Message::Voice(message) => message.thread_id,
+            Message::Checklist(message) => message.thread_id,
             Message::Contact(message) => message.thread_id,
             Message::Dice(message) => message.thread_id,
             Message::Game(message) => message.thread_id,
@@ -2122,6 +2256,7 @@ impl Message {
             Message::Video(message) => message.date,
             Message::VideoNote(message) => message.date,
             Message::Voice(message) => message.date,
+            Message::Checklist(message) => message.date,
             Message::Contact(message) => message.date,
             Message::Dice(message) => message.date,
             Message::Game(message) => message.date,
@@ -2153,6 +2288,9 @@ impl Message {
             Message::ProximityAlertTriggered(message) => message.date,
             Message::ChatBoostAdded(message) => message.date,
             Message::ChatBackgroundSet(message) => message.date,
+            Message::ChecklistTasksDone(message) => message.date,
+            Message::ChecklistTasksAdded(message) => message.date,
+            Message::DirectMessagePriceChanged(message) => message.date,
             Message::ForumTopicCreated(message) => message.date,
             Message::ForumTopicEdited(message) => message.date,
             Message::ForumTopicClosed(message) => message.date,
@@ -2185,6 +2323,7 @@ impl Message {
             Message::Video(message) => message.sender_business_bot.as_ref(),
             Message::VideoNote(message) => message.sender_business_bot.as_ref(),
             Message::Voice(message) => message.sender_business_bot.as_ref(),
+            Message::Checklist(message) => message.sender_business_bot.as_ref(),
             Message::Contact(message) => message.sender_business_bot.as_ref(),
             Message::Dice(message) => message.sender_business_bot.as_ref(),
             Message::Game(message) => message.sender_business_bot.as_ref(),
@@ -2244,6 +2383,10 @@ impl Message {
                 Some(ref connection_id) => Some(connection_id),
                 None => None,
             },
+            Message::Checklist(message) => match message.business_connection_id {
+                Some(ref connection_id) => Some(connection_id),
+                None => None,
+            },
             Message::Contact(message) => match message.business_connection_id {
                 Some(ref connection_id) => Some(connection_id),
                 None => None,
@@ -2294,6 +2437,7 @@ impl Message {
             Message::Video(message) => &message.chat,
             Message::VideoNote(message) => &message.chat,
             Message::Voice(message) => &message.chat,
+            Message::Checklist(message) => &message.chat,
             Message::Contact(message) => &message.chat,
             Message::Dice(message) => &message.chat,
             Message::Game(message) => &message.chat,
@@ -2325,6 +2469,9 @@ impl Message {
             Message::ProximityAlertTriggered(message) => &message.chat,
             Message::ChatBoostAdded(message) => &message.chat,
             Message::ChatBackgroundSet(message) => &message.chat,
+            Message::ChecklistTasksDone(message) => &message.chat,
+            Message::ChecklistTasksAdded(message) => &message.chat,
+            Message::DirectMessagePriceChanged(message) => &message.chat,
             Message::ForumTopicCreated(message) => &message.chat,
             Message::ForumTopicEdited(message) => &message.chat,
             Message::ForumTopicClosed(message) => &message.chat,
@@ -2356,6 +2503,7 @@ impl Message {
             Message::Sticker(message) => message.via_bot.as_ref(),
             Message::Video(message) => message.via_bot.as_ref(),
             Message::Voice(message) => message.via_bot.as_ref(),
+            Message::Checklist(message) => message.via_bot.as_ref(),
             Message::Contact(message) => message.via_bot.as_ref(),
             Message::Game(message) => message.via_bot.as_ref(),
             Message::Venue(message) => message.via_bot.as_ref(),
@@ -2455,6 +2603,10 @@ impl Message {
                 None => None,
             },
             Message::Gift(message) => match message.gift.entities {
+                Some(ref entities) => Some(entities),
+                None => None,
+            },
+            Message::Checklist(message) => match message.checklist.title_entities {
                 Some(ref entities) => Some(entities),
                 None => None,
             },
@@ -2563,6 +2715,7 @@ impl Message {
             Message::Video(message) => message.from.as_ref(),
             Message::VideoNote(message) => message.from.as_ref(),
             Message::Voice(message) => message.from.as_ref(),
+            Message::Checklist(message) => message.from.as_ref(),
             Message::Contact(message) => message.from.as_ref(),
             Message::Dice(message) => message.from.as_ref(),
             Message::Game(message) => message.from.as_ref(),
@@ -2588,6 +2741,9 @@ impl Message {
             Message::UniqueGift(message) => message.from.as_ref(),
             Message::PassportData(message) => message.from.as_ref(),
             Message::ChatBackgroundSet(message) => message.from.as_ref(),
+            Message::ChecklistTasksDone(message) => message.from.as_ref(),
+            Message::ChecklistTasksAdded(message) => message.from.as_ref(),
+            Message::DirectMessagePriceChanged(message) => message.from.as_ref(),
             Message::ForumTopicCreated(message) => message.from.as_ref(),
             Message::ForumTopicEdited(message) => message.from.as_ref(),
             Message::ForumTopicClosed(message) => message.from.as_ref(),
@@ -2629,6 +2785,7 @@ impl Message {
             Message::Video(message) => message.sender_boost_count,
             Message::VideoNote(message) => message.sender_boost_count,
             Message::Voice(message) => message.sender_boost_count,
+            Message::Checklist(message) => message.sender_boost_count,
             Message::Contact(message) => message.sender_boost_count,
             Message::Dice(message) => message.sender_boost_count,
             Message::Game(message) => message.sender_boost_count,
@@ -2654,6 +2811,7 @@ impl Message {
             Message::Video(message) => message.sender_chat.as_ref(),
             Message::VideoNote(message) => message.sender_chat.as_ref(),
             Message::Voice(message) => message.sender_chat.as_ref(),
+            Message::Checklist(message) => message.sender_chat.as_ref(),
             Message::Contact(message) => message.sender_chat.as_ref(),
             Message::Dice(message) => message.sender_chat.as_ref(),
             Message::Game(message) => message.sender_chat.as_ref(),
@@ -2677,6 +2835,9 @@ impl Message {
             Message::RefundedPayment(message) => message.sender_chat.as_ref(),
             Message::PassportData(message) => message.sender_chat.as_ref(),
             Message::ChatBackgroundSet(message) => message.sender_chat.as_ref(),
+            Message::ChecklistTasksDone(message) => message.sender_chat.as_ref(),
+            Message::ChecklistTasksAdded(message) => message.sender_chat.as_ref(),
+            Message::DirectMessagePriceChanged(message) => message.sender_chat.as_ref(),
             Message::ForumTopicCreated(message) => message.sender_chat.as_ref(),
             Message::ForumTopicEdited(message) => message.sender_chat.as_ref(),
             Message::ForumTopicClosed(message) => message.sender_chat.as_ref(),
@@ -2752,6 +2913,10 @@ impl Message {
                 Some(ref author_signature) => Some(author_signature),
                 None => None,
             },
+            Message::Checklist(message) => match message.author_signature {
+                Some(ref author_signature) => Some(author_signature),
+                None => None,
+            },
             Message::Contact(message) => match message.author_signature {
                 Some(ref author_signature) => Some(author_signature),
                 None => None,
@@ -2801,6 +2966,7 @@ impl Message {
             Message::Video(message) => message.paid_star_count,
             Message::VideoNote(message) => message.paid_star_count,
             Message::Voice(message) => message.paid_star_count,
+            Message::Checklist(message) => message.paid_star_count,
             Message::Contact(message) => message.paid_star_count,
             Message::Dice(message) => message.paid_star_count,
             Message::Game(message) => message.paid_star_count,
@@ -2826,6 +2992,7 @@ impl Message {
             Message::Video(message) => message.reply_to_message.as_ref(),
             Message::VideoNote(message) => message.reply_to_message.as_ref(),
             Message::Voice(message) => message.reply_to_message.as_ref(),
+            Message::Checklist(message) => message.reply_to_message.as_ref(),
             Message::Contact(message) => message.reply_to_message.as_ref(),
             Message::Dice(message) => message.reply_to_message.as_ref(),
             Message::Game(message) => message.reply_to_message.as_ref(),
@@ -2860,6 +3027,7 @@ impl Message {
             Message::Video(message) => message.reply_to_story.as_ref(),
             Message::VideoNote(message) => message.reply_to_story.as_ref(),
             Message::Voice(message) => message.reply_to_story.as_ref(),
+            Message::Checklist(message) => message.reply_to_story.as_ref(),
             Message::Contact(message) => message.reply_to_story.as_ref(),
             Message::Dice(message) => message.reply_to_story.as_ref(),
             Message::Game(message) => message.reply_to_story.as_ref(),
@@ -2892,6 +3060,7 @@ impl Message {
             Message::Video(message) => message.external_reply.as_ref(),
             Message::VideoNote(message) => message.external_reply.as_ref(),
             Message::Voice(message) => message.external_reply.as_ref(),
+            Message::Checklist(message) => message.external_reply.as_ref(),
             Message::Contact(message) => message.external_reply.as_ref(),
             Message::Dice(message) => message.external_reply.as_ref(),
             Message::Game(message) => message.external_reply.as_ref(),
@@ -2934,6 +3103,7 @@ impl Message {
             Message::Poll(message) => message.edit_date,
             Message::Venue(message) => message.edit_date,
             Message::Location(message) => message.edit_date,
+            Message::Checklist(message) => message.edit_date,
             _ => None,
         }
     }
@@ -2950,6 +3120,7 @@ impl Message {
             Message::Video(message) => message.reply_markup.as_ref(),
             Message::VideoNote(message) => message.reply_markup.as_ref(),
             Message::Voice(message) => message.reply_markup.as_ref(),
+            Message::Checklist(message) => message.reply_markup.as_ref(),
             Message::Contact(message) => message.reply_markup.as_ref(),
             Message::Dice(message) => message.reply_markup.as_ref(),
             Message::Game(message) => message.reply_markup.as_ref(),
@@ -3005,6 +3176,7 @@ impl Message {
             Message::Video(message) => message.forward_origin.as_ref(),
             Message::VideoNote(message) => message.forward_origin.as_ref(),
             Message::Voice(message) => message.forward_origin.as_ref(),
+            Message::Checklist(message) => message.forward_origin.as_ref(),
             Message::Contact(message) => message.forward_origin.as_ref(),
             Message::Dice(message) => message.forward_origin.as_ref(),
             Message::Game(message) => message.forward_origin.as_ref(),
@@ -3028,6 +3200,14 @@ impl Message {
     pub const fn audio(&self) -> Option<&types::Audio> {
         match self {
             Message::Audio(message) => Some(&message.audio),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn checklist(&self) -> Option<&types::Checklist> {
+        match self {
+            Message::Checklist(message) => Some(&message.checklist),
             _ => None,
         }
     }
@@ -3299,6 +3479,30 @@ impl Message {
     }
 
     #[must_use]
+    pub const fn checklist_tasks_done(&self) -> Option<&types::ChecklistTasksDone> {
+        match self {
+            Message::ChecklistTasksDone(message) => Some(&message.tasks),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn checklist_tasks_added(&self) -> Option<&types::ChecklistTasksAdded> {
+        match self {
+            Message::ChecklistTasksAdded(message) => Some(&message.tasks),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn direct_message_price_changed(&self) -> Option<&types::DirectMessagePriceChanged> {
+        match self {
+            Message::DirectMessagePriceChanged(message) => Some(&message.price),
+            _ => None,
+        }
+    }
+
+    #[must_use]
     pub const fn forum_topic_closed(&self) -> Option<&types::ForumTopicClosed> {
         match self {
             Message::ForumTopicClosed(message) => Some(&message.closed),
@@ -3341,7 +3545,7 @@ impl Message {
     #[must_use]
     pub const fn paid_message_price_changed(&self) -> Option<&types::PaidMessagePriceChanged> {
         match self {
-            Message::PaidMessagePriceChanged(message) => Some(&message.price_changed),
+            Message::PaidMessagePriceChanged(message) => Some(&message.price),
             _ => None,
         }
     }
@@ -3593,6 +3797,10 @@ impl_try_from_message!(ChatShared, ChatShared);
 impl_try_from_message!(Gift, Gift);
 impl_try_from_message!(UniqueGift, UniqueGift);
 impl_try_from_message!(MessageAutoDeleteTimerChanged, MessageAutoDeleteTimerChanged);
+impl_try_from_message!(Checklist, Checklist);
+impl_try_from_message!(ChecklistTasksDone, ChecklistTasksDone);
+impl_try_from_message!(ChecklistTasksAdded, ChecklistTasksAdded);
+impl_try_from_message!(DirectMessagePriceChanged, DirectMessagePriceChanged);
 
 impl TryFrom<Update> for Message {
     type Error = ConvertToTypeError;
@@ -3680,6 +3888,10 @@ impl_try_from_update!(ChatShared);
 impl_try_from_update!(Gift);
 impl_try_from_update!(UniqueGift);
 impl_try_from_update!(MessageAutoDeleteTimerChanged);
+impl_try_from_update!(Checklist);
+impl_try_from_update!(ChecklistTasksDone);
+impl_try_from_update!(ChecklistTasksAdded);
+impl_try_from_update!(DirectMessagePriceChanged);
 
 #[cfg(test)]
 mod tests {
@@ -4136,6 +4348,39 @@ mod tests {
 
             match message {
                 Message::Voice(message) => assert_eq!(*message, message_kind),
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_checklist() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "author_signature": "test",
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "checklist": {
+                "title": "test",
+                "tasks": [
+                    {
+                        "id": 1,
+                        "text": "test",
+                    }
+                ],
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::Checklist(message) => assert_eq!(*message, message_kind),
                 _ => panic!("Unexpected message type: {message:?}"),
             }
         }
@@ -5111,6 +5356,93 @@ mod tests {
 
             match message {
                 Message::ChatBackgroundSet(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_checklist_tasks_done() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "checklist_tasks_done": {},
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::ChecklistTasksDone(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_checklist_tasks_added() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "checklist_tasks_added": {
+                "tasks": [
+                    {
+                        "id": 1,
+                        "text": "test",
+                    }
+                ],
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::ChecklistTasksAdded(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_direct_message_price_changed() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "direct_message_price_changed": {
+                "are_direct_messages_enabled": true,
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::DirectMessagePriceChanged(message) => {
                     assert_eq!(message, message_kind);
                 }
                 _ => panic!("Unexpected message type: {message:?}"),
