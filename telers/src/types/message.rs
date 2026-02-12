@@ -3,7 +3,11 @@ use super::{
     MessageEntity, MessageOrigin, PhotoSize, TextQuote, Update, UpdateKind, User,
 };
 
-use crate::{errors::ConvertToTypeError, types, FromEvent};
+use crate::{
+    errors::ConvertToTypeError,
+    types::{self, DirectMessagesTopic},
+    FromEvent,
+};
 
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -93,9 +97,11 @@ pub struct Animation {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -162,9 +168,11 @@ pub struct Audio {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -229,9 +237,11 @@ pub struct Checklist {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -287,9 +297,11 @@ pub struct Contact {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -343,9 +355,11 @@ pub struct Dice {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -397,9 +411,11 @@ pub struct Document {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -526,9 +542,11 @@ pub struct Game {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -582,9 +600,11 @@ pub struct Poll {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -638,9 +658,11 @@ pub struct Venue {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -696,9 +718,11 @@ pub struct Location {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -754,9 +778,11 @@ pub struct Photo {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -850,9 +876,11 @@ pub struct Story {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -888,9 +916,11 @@ pub struct Sticker {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -942,9 +972,11 @@ pub struct Text {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1006,9 +1038,11 @@ pub struct Video {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1077,9 +1111,11 @@ pub struct VideoNote {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1131,9 +1167,11 @@ pub struct Voice {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1411,9 +1449,11 @@ pub struct Pinned {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1444,9 +1484,11 @@ pub struct Invoice {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1580,7 +1622,7 @@ pub struct Gift {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    /// Service message: a chat was shared with the bot
+    /// Service message: a regular gift was sent or received
     pub gift: types::GiftInfo,
 }
 
@@ -1639,9 +1681,11 @@ pub struct PassportData {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1700,9 +1744,11 @@ pub struct ChatBackgroundSet {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1723,9 +1769,11 @@ pub struct ChecklistTasksDone {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1746,9 +1794,11 @@ pub struct ChecklistTasksAdded {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1769,9 +1819,11 @@ pub struct DirectMessagePriceChanged {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1792,7 +1844,7 @@ pub struct ForumTopicCreated {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1819,7 +1871,7 @@ pub struct ForumTopicEdited {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1846,7 +1898,7 @@ pub struct ForumTopicClosed {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1873,7 +1925,7 @@ pub struct ForumTopicReopened {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1900,7 +1952,7 @@ pub struct GeneralForumTopicHidden {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1927,7 +1979,7 @@ pub struct GeneralForumTopicUnhidden {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1954,7 +2006,7 @@ pub struct GiveawayCreated {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1977,9 +2029,11 @@ pub struct Giveaway {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -2001,9 +2055,11 @@ pub struct GiveawayWinners {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -2026,7 +2082,7 @@ pub struct GiveawayCompleted {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -2049,7 +2105,7 @@ pub struct PaidMessagePriceChanged {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -2264,6 +2320,35 @@ impl Message {
             Message::Giveaway(message) => message.thread_id,
             Message::GiveawayWinners(message) => message.thread_id,
             Message::GiveawayCompleted(message) => message.thread_id,
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn direct_messages_topic(&self) -> Option<&DirectMessagesTopic> {
+        match self {
+            Message::Text(message) => message.direct_messages_topic.as_ref(),
+            Message::Animation(message) => message.direct_messages_topic.as_ref(),
+            Message::Audio(message) => message.direct_messages_topic.as_ref(),
+            Message::Document(message) => message.direct_messages_topic.as_ref(),
+            Message::Photo(message) => message.direct_messages_topic.as_ref(),
+            Message::Sticker(message) => message.direct_messages_topic.as_ref(),
+            Message::Story(message) => message.direct_messages_topic.as_ref(),
+            Message::Video(message) => message.direct_messages_topic.as_ref(),
+            Message::VideoNote(message) => message.direct_messages_topic.as_ref(),
+            Message::Voice(message) => message.direct_messages_topic.as_ref(),
+            Message::Checklist(message) => message.direct_messages_topic.as_ref(),
+            Message::Contact(message) => message.direct_messages_topic.as_ref(),
+            Message::Dice(message) => message.direct_messages_topic.as_ref(),
+            Message::Game(message) => message.direct_messages_topic.as_ref(),
+            Message::Poll(message) => message.direct_messages_topic.as_ref(),
+            Message::Venue(message) => message.direct_messages_topic.as_ref(),
+            Message::Location(message) => message.direct_messages_topic.as_ref(),
+            Message::Pinned(message) => message.direct_messages_topic.as_ref(),
+            Message::Invoice(message) => message.direct_messages_topic.as_ref(),
+            Message::PassportData(message) => message.direct_messages_topic.as_ref(),
+            Message::Giveaway(message) => message.direct_messages_topic.as_ref(),
+            Message::GiveawayWinners(message) => message.direct_messages_topic.as_ref(),
             _ => None,
         }
     }
