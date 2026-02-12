@@ -38,6 +38,8 @@ pub struct ChatAdministratorRights {
     pub can_delete_stories: Option<bool>,
     /// `true`, if the user is allowed to create, rename, close, and reopen forum topics; supergroups only
     pub can_manage_topics: Option<bool>,
+    /// `true`, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only
+    pub can_manage_direct_messages: Option<bool>,
 }
 
 impl ChatAdministratorRights {
@@ -69,6 +71,7 @@ impl ChatAdministratorRights {
             can_edit_stories: None,
             can_delete_stories: None,
             can_manage_topics: None,
+            can_manage_direct_messages: None,
         }
     }
 
@@ -191,6 +194,14 @@ impl ChatAdministratorRights {
             ..self
         }
     }
+
+    #[must_use]
+    pub fn can_manage_direct_messages(self, val: bool) -> Self {
+        Self {
+            can_manage_direct_messages: Some(val),
+            ..self
+        }
+    }
 }
 
 impl ChatAdministratorRights {
@@ -246,6 +257,14 @@ impl ChatAdministratorRights {
     pub fn can_manage_topics_option(self, val: Option<bool>) -> Self {
         Self {
             can_manage_topics: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn can_manage_direct_messages_option(self, val: Option<bool>) -> Self {
+        Self {
+            can_manage_direct_messages: val,
             ..self
         }
     }
