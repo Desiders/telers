@@ -20,7 +20,7 @@ pub struct SendPoll {
     pub business_connection_id: Option<String>,
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatIdKind,
-    /// Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+    /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     pub message_thread_id: Option<i64>,
     /// Poll question, 1-300 characters
     pub question: String,

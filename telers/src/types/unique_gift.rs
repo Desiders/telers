@@ -2,7 +2,7 @@ use crate::types::{Chat, UniqueGiftBackdrop, UniqueGiftModel, UniqueGiftSymbol};
 
 use serde::{Deserialize, Serialize};
 
-/// This object describes a unique gift that was upgraded from a regular gift
+/// This object describes a unique gift that was upgraded from a regular gift.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#uniquegift>
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]

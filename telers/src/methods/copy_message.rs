@@ -18,8 +18,10 @@ use serde_with::skip_serializing_none;
 pub struct CopyMessage {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatIdKind,
-    /// Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+    /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     pub message_thread_id: Option<i64>,
+    /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
+    pub direct_messages_topic_id: Option<i64>,
     /// Unique identifier for the chat where the original message was sent (or channel username in the format `@channelusername`)
     pub from_chat_id: ChatIdKind,
     /// Message identifier in the chat specified in `from_chat_id`
@@ -56,6 +58,7 @@ impl CopyMessage {
         Self {
             chat_id: chat_id.into(),
             message_thread_id: None,
+            direct_messages_topic_id: None,
             from_chat_id: from_chat_id.into(),
             message_id,
             video_start_timestamp: None,
@@ -83,6 +86,14 @@ impl CopyMessage {
     pub fn message_thread_id(self, val: i64) -> Self {
         Self {
             message_thread_id: Some(val),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn direct_messages_topic_id(self, val: i64) -> Self {
+        Self {
+            direct_messages_topic_id: Some(val),
             ..self
         }
     }
@@ -209,6 +220,14 @@ impl CopyMessage {
     pub fn message_thread_id_option(self, val: Option<i64>) -> Self {
         Self {
             message_thread_id: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn direct_messages_topic_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            direct_messages_topic_id: val,
             ..self
         }
     }

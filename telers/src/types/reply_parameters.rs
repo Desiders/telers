@@ -23,6 +23,8 @@ pub struct ReplyParameters {
     pub quote_entities: Option<Vec<MessageEntity>>,
     /// Position of the quote in the original message in UTF-16 code units
     pub quote_position: Option<u16>,
+    /// Identifier of the specific checklist task to be replied to
+    pub checklist_task_id: Option<i64>,
 }
 
 impl ReplyParameters {
@@ -36,6 +38,7 @@ impl ReplyParameters {
             quote_parse_mode: None,
             quote_entities: None,
             quote_position: None,
+            checklist_task_id: None,
         }
     }
 
@@ -114,6 +117,14 @@ impl ReplyParameters {
             ..self
         }
     }
+
+    #[must_use]
+    pub fn checklist_task_id(self, val: i64) -> Self {
+        Self {
+            checklist_task_id: Some(val),
+            ..self
+        }
+    }
 }
 
 impl ReplyParameters {
@@ -170,6 +181,14 @@ impl ReplyParameters {
     pub fn quote_position_option(self, val: Option<u16>) -> Self {
         Self {
             quote_position: val,
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn checklist_task_id_option(self, val: Option<i64>) -> Self {
+        Self {
+            checklist_task_id: val,
             ..self
         }
     }

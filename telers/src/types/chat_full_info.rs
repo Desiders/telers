@@ -113,6 +113,8 @@ pub struct SupergroupFullInfo {
     pub username: Option<Box<str>>,
     /// `true`, if the chat is a forum (has [`topics`](https://telegram.org/blog/topics-in-groups-collectible-usernames#topics-in-groups) enabled)
     pub is_forum: Option<bool>,
+    /// `true`, if the chat is the direct messages chat of a channel
+    pub is_direct_messages: Option<bool>,
     /// Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See [accent colors](https://core.telegram.org/bots/api#accent-colors) for more details.
     pub accent_color_id: i64,
     /// The maximum number of reactions that can be set on a message in the chat
@@ -121,6 +123,8 @@ pub struct SupergroupFullInfo {
     pub photo: Option<ChatPhoto>,
     /// If non-empty, the list of all [active chat usernames](https://telegram.org/blog/topics-in-groups-collectible-usernames/ru?ln=a#collectible-usernames).
     pub active_usernames: Option<Box<[Box<str>]>>,
+    /// Information about the corresponding channel chat
+    pub parent_chat: Option<Chat>,
     /// List of available reactions allowed in the chat. If omitted, then all [emoji reactions](https://core.telegram.org/bots/api#reactiontypeemoji) are allowed.
     pub available_reactions: Option<Box<[ReactionType]>>,
     /// Custom emoji identifier of emoji chosen by the chat for the reply header and link preview background.
@@ -294,6 +298,14 @@ impl ChatFullInfo {
     }
 
     #[must_use]
+    pub const fn is_direct_messages(&self) -> Option<bool> {
+        match self {
+            Self::Supergroup(chat) => chat.is_direct_messages,
+            _ => None,
+        }
+    }
+
+    #[must_use]
     pub const fn accent_color_id(&self) -> Option<i64> {
         match self {
             Self::Group(_) | Self::Private(_) => None,
@@ -382,6 +394,14 @@ impl ChatFullInfo {
         match self {
             Self::Group(_) | Self::Supergroup(_) | Self::Channel(_) => None,
             Self::Private(chat) => chat.personal_chat.as_ref(),
+        }
+    }
+
+    #[must_use]
+    pub const fn parent_chat(&self) -> Option<&Chat> {
+        match self {
+            Self::Private(_) | Self::Group(_) | Self::Channel(_) => None,
+            Self::Supergroup(chat) => chat.parent_chat.as_ref(),
         }
     }
 

@@ -20,7 +20,7 @@ pub struct SendGame {
     pub business_connection_id: Option<String>,
     /// Unique identifier for the target chat
     pub chat_id: i64,
-    /// Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+    /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     pub message_thread_id: Option<i64>,
     /// Short name of the game, serves as the unique identifier for the game. Set up your games via [Botfather](https://t.me/botfather).
     pub game_short_name: String,

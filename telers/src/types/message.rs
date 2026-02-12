@@ -3,7 +3,11 @@ use super::{
     MessageEntity, MessageOrigin, PhotoSize, TextQuote, Update, UpdateKind, User,
 };
 
-use crate::{errors::ConvertToTypeError, types, FromEvent};
+use crate::{
+    errors::ConvertToTypeError,
+    types::{self, DirectMessagesTopic, SuggestedPostInfo},
+    FromEvent,
+};
 
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -79,6 +83,11 @@ pub enum Message {
     GiveawayWinners(Box<GiveawayWinners>),
     GiveawayCompleted(Box<GiveawayCompleted>),
     PaidMessagePriceChanged(Box<PaidMessagePriceChanged>),
+    SuggestedPostApproved(Box<SuggestedPostApproved>),
+    SuggestedPostApprovalFailed(Box<SuggestedPostApprovalFailed>),
+    SuggestedPostDeclined(Box<SuggestedPostDeclined>),
+    SuggestedPostPaid(Box<SuggestedPostPaid>),
+    SuggestedPostRefunded(Box<SuggestedPostRefunded>),
     VideoChatScheduled(Box<VideoChatScheduled>),
     VideoChatStarted(Box<VideoChatStarted>),
     VideoChatEnded(Box<VideoChatEnded>),
@@ -93,9 +102,11 @@ pub struct Animation {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -120,6 +131,8 @@ pub struct Animation {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -132,6 +145,8 @@ pub struct Animation {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -143,6 +158,8 @@ pub struct Animation {
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
     #[serde(rename = "caption_entities")]
     pub entities: Option<Box<[MessageEntity]>>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// `true`, if the caption must be shown above the message media
     pub show_caption_above_media: Option<bool>,
     /// Unique identifier of the message effect added to the message
@@ -160,9 +177,11 @@ pub struct Audio {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -187,6 +206,8 @@ pub struct Audio {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -199,6 +220,8 @@ pub struct Audio {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// The unique identifier of a media message group this message belongs to
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
@@ -212,6 +235,8 @@ pub struct Audio {
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
     #[serde(rename = "caption_entities")]
     pub entities: Option<Box<[MessageEntity]>>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary `url` buttons.
@@ -225,9 +250,11 @@ pub struct Checklist {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -252,6 +279,8 @@ pub struct Checklist {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -262,6 +291,8 @@ pub struct Checklist {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -281,9 +312,11 @@ pub struct Contact {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -308,6 +341,8 @@ pub struct Contact {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -316,10 +351,14 @@ pub struct Contact {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
     pub paid_star_count: Option<i64>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the contact
@@ -335,9 +374,11 @@ pub struct Dice {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -362,16 +403,22 @@ pub struct Dice {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// `true`, if the message can't be forwarded
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
     pub paid_star_count: Option<i64>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Message is a dice with random value
@@ -387,9 +434,11 @@ pub struct Document {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -414,6 +463,8 @@ pub struct Document {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -426,6 +477,8 @@ pub struct Document {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// The unique identifier of a media message group this message belongs to
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
@@ -439,6 +492,8 @@ pub struct Document {
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
     #[serde(rename = "caption_entities")]
     pub entities: Option<Box<[MessageEntity]>>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary `url` buttons.
@@ -476,6 +531,8 @@ pub struct PaidMedia {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -488,6 +545,8 @@ pub struct PaidMedia {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// The unique identifier of a media message group this message belongs to
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
@@ -499,6 +558,8 @@ pub struct PaidMedia {
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
     #[serde(rename = "caption_entities")]
     pub entities: Option<Box<[MessageEntity]>>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// `true`, if the caption must be shown above the message media
     pub show_caption_above_media: Option<bool>,
     /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary `url` buttons.
@@ -512,9 +573,11 @@ pub struct Game {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -537,6 +600,8 @@ pub struct Game {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -547,6 +612,8 @@ pub struct Game {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -566,9 +633,11 @@ pub struct Poll {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -593,6 +662,8 @@ pub struct Poll {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Date the message was last edited in Unix time
@@ -601,6 +672,8 @@ pub struct Poll {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -620,9 +693,11 @@ pub struct Venue {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -647,6 +722,8 @@ pub struct Venue {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -657,10 +734,14 @@ pub struct Venue {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
     pub paid_star_count: Option<i64>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the venue
@@ -676,9 +757,11 @@ pub struct Location {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -703,6 +786,8 @@ pub struct Location {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -713,10 +798,14 @@ pub struct Location {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
     pub paid_star_count: Option<i64>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the location
@@ -732,9 +821,11 @@ pub struct Photo {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -759,6 +850,8 @@ pub struct Photo {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -771,6 +864,8 @@ pub struct Photo {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// The unique identifier of a media message group this message belongs to
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
@@ -784,6 +879,8 @@ pub struct Photo {
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
     #[serde(rename = "caption_entities")]
     pub entities: Option<Box<[MessageEntity]>>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// `true`, if the caption must be shown above the message media
     pub show_caption_above_media: Option<bool>,
     /// Unique identifier of the message effect added to the message
@@ -826,9 +923,11 @@ pub struct Story {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -864,9 +963,11 @@ pub struct Sticker {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -891,6 +992,8 @@ pub struct Sticker {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -899,10 +1002,14 @@ pub struct Sticker {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
     pub paid_star_count: Option<i64>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the sticker
@@ -916,9 +1023,11 @@ pub struct Text {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -943,6 +1052,8 @@ pub struct Text {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -955,6 +1066,8 @@ pub struct Text {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -965,6 +1078,8 @@ pub struct Text {
     pub entities: Option<Box<[MessageEntity]>>,
     /// Options used for link preview generation for the message, if it is a text message an
     pub link_preview_options: Option<LinkPreviewOptions>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary `url` buttons.
@@ -978,9 +1093,11 @@ pub struct Video {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1005,6 +1122,8 @@ pub struct Video {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -1017,6 +1136,8 @@ pub struct Video {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// The unique identifier of a media message group this message belongs to
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
@@ -1030,6 +1151,8 @@ pub struct Video {
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
     #[serde(rename = "caption_entities")]
     pub entities: Option<Box<[MessageEntity]>>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// `true`, if the caption must be shown above the message media
     pub show_caption_above_media: Option<bool>,
     /// Unique identifier of the message effect added to the message
@@ -1047,9 +1170,11 @@ pub struct VideoNote {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1074,16 +1199,22 @@ pub struct VideoNote {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// `true`, if the message can't be forwarded
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
     pub paid_star_count: Option<i64>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Information about the video message
@@ -1099,9 +1230,11 @@ pub struct Voice {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1126,6 +1259,8 @@ pub struct Voice {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -1136,6 +1271,8 @@ pub struct Voice {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
@@ -1147,6 +1284,8 @@ pub struct Voice {
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the caption
     #[serde(rename = "caption_entities")]
     pub entities: Option<Box<[MessageEntity]>>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary `url` buttons.
@@ -1377,9 +1516,11 @@ pub struct Pinned {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1396,6 +1537,8 @@ pub struct Pinned {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Specified message was pinned. Note that the Message object in this field will not contain further *`reply_to_message`* fields even if it is itself a reply.
     #[serde(rename = "pinned_message")]
     pub message: Box<MaybeInaccessibleMessage>,
@@ -1408,9 +1551,11 @@ pub struct Invoice {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1433,6 +1578,8 @@ pub struct Invoice {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -1441,10 +1588,14 @@ pub struct Invoice {
     pub has_protected_content: Option<bool>,
     /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     pub is_from_offline: Option<bool>,
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    pub is_paid_post: Option<bool>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     pub author_signature: Option<Box<str>>,
     /// The number of Telegram Stars that were paid by the sender of the message to send it
     pub paid_star_count: Option<i64>,
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    pub suggested_post_info: Option<SuggestedPostInfo>,
     /// Unique identifier of the message effect added to the message
     pub effect_id: Option<Box<str>>,
     /// Message is an invoice for a [`payment`](https://core.telegram.org/bots/api#payments), information about the invoice. [`More about payments`](https://core.telegram.org/bots/api#payments)
@@ -1542,7 +1693,7 @@ pub struct Gift {
     pub date: i64,
     /// Conversation the message belongs to
     pub chat: Chat,
-    /// Service message: a chat was shared with the bot
+    /// Service message: a regular gift was sent or received
     pub gift: types::GiftInfo,
 }
 
@@ -1601,9 +1752,11 @@ pub struct PassportData {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1662,9 +1815,11 @@ pub struct ChatBackgroundSet {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1685,9 +1840,11 @@ pub struct ChecklistTasksDone {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1708,9 +1865,11 @@ pub struct ChecklistTasksAdded {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1731,9 +1890,11 @@ pub struct DirectMessagePriceChanged {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1754,7 +1915,7 @@ pub struct ForumTopicCreated {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1769,8 +1930,6 @@ pub struct ForumTopicCreated {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *`reply_to_message`* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// For replies to a story, the original story
-    pub reply_to_story: Option<types::Story>,
     /// Service message: forum topic created
     #[serde(rename = "forum_topic_created")]
     pub created: types::ForumTopicCreated,
@@ -1783,7 +1942,7 @@ pub struct ForumTopicEdited {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1798,8 +1957,6 @@ pub struct ForumTopicEdited {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *`reply_to_message`* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// For replies to a story, the original story
-    pub reply_to_story: Option<types::Story>,
     /// Service message: forum topic edited
     #[serde(rename = "forum_topic_edited")]
     pub edited: types::ForumTopicEdited,
@@ -1812,7 +1969,7 @@ pub struct ForumTopicClosed {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1827,8 +1984,6 @@ pub struct ForumTopicClosed {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *`reply_to_message`* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// For replies to a story, the original story
-    pub reply_to_story: Option<types::Story>,
     /// Service message: forum topic closed
     #[serde(rename = "forum_topic_closed")]
     pub closed: types::ForumTopicClosed,
@@ -1841,7 +1996,7 @@ pub struct ForumTopicReopened {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1856,8 +2011,6 @@ pub struct ForumTopicReopened {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *`reply_to_message`* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// For replies to a story, the original story
-    pub reply_to_story: Option<types::Story>,
     /// Service message: forum topic reopened
     #[serde(rename = "forum_topic_reopened")]
     pub reopened: types::ForumTopicReopened,
@@ -1870,7 +2023,7 @@ pub struct GeneralForumTopicHidden {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1885,8 +2038,6 @@ pub struct GeneralForumTopicHidden {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *`reply_to_message`* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// For replies to a story, the original story
-    pub reply_to_story: Option<types::Story>,
     /// Service message: the `General` forum topic hidden
     #[serde(rename = "general_forum_topic_hidden")]
     pub hidden: types::GeneralForumTopicHidden,
@@ -1899,7 +2050,7 @@ pub struct GeneralForumTopicUnhidden {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1914,8 +2065,6 @@ pub struct GeneralForumTopicUnhidden {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *`reply_to_message`* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// For replies to a story, the original story
-    pub reply_to_story: Option<types::Story>,
     /// Service message: the `General` forum topic unhidden
     #[serde(rename = "general_forum_topic_unhidden")]
     pub unhidden: types::GeneralForumTopicUnhidden,
@@ -1928,7 +2077,7 @@ pub struct GiveawayCreated {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1951,9 +2100,11 @@ pub struct Giveaway {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -1975,9 +2126,11 @@ pub struct GiveawayWinners {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
+    /// Information about the direct messages chat topic that contains the message
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -2000,7 +2153,7 @@ pub struct GiveawayCompleted {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -2023,7 +2176,7 @@ pub struct PaidMessagePriceChanged {
     /// Unique message identifier inside this chat
     #[serde(rename = "message_id")]
     pub id: i64,
-    /// Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[serde(rename = "message_thread_id")]
     pub thread_id: Option<i64>,
     /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
@@ -2037,6 +2190,121 @@ pub struct PaidMessagePriceChanged {
     /// Service message: the price for paid messages has changed in the chat
     #[serde(rename = "paid_message_price_changed")]
     pub price: types::PaidMessagePriceChanged,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
+pub struct SuggestedPostApproved {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: a suggested post was approved
+    #[serde(rename = "suggested_post_approved")]
+    pub post: types::SuggestedPostApproved,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
+pub struct SuggestedPostApprovalFailed {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: approval of a suggested post has failed
+    #[serde(rename = "suggested_post_approval_failed")]
+    pub post: types::SuggestedPostApprovalFailed,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
+pub struct SuggestedPostDeclined {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: a suggested post was declined
+    #[serde(rename = "suggested_post_declined")]
+    pub post: types::SuggestedPostDeclined,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
+pub struct SuggestedPostPaid {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: payment for a suggested post was received
+    #[serde(rename = "suggested_post_paid")]
+    pub post: types::SuggestedPostPaid,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
+#[event(try_from = Update)]
+pub struct SuggestedPostRefunded {
+    /// Unique message identifier inside this chat
+    #[serde(rename = "message_id")]
+    pub id: i64,
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
+    #[serde(rename = "message_thread_id")]
+    pub thread_id: Option<i64>,
+    /// Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub from: Option<User>,
+    /// Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field *from* contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+    pub sender_chat: Option<Chat>,
+    /// Date the message was sent in Unix time
+    pub date: i64,
+    /// Conversation the message belongs to
+    pub chat: Chat,
+    /// Service message: payment for a suggested post was refunded
+    #[serde(rename = "suggested_post_refunded")]
+    pub post: types::SuggestedPostRefunded,
 }
 
 #[skip_serializing_none]
@@ -2198,6 +2466,11 @@ impl Message {
             Message::WebAppData(message) => message.id,
             Message::GiveawayCreated(message) => message.id,
             Message::PaidMessagePriceChanged(message) => message.id,
+            Message::SuggestedPostApproved(message) => message.id,
+            Message::SuggestedPostApprovalFailed(message) => message.id,
+            Message::SuggestedPostDeclined(message) => message.id,
+            Message::SuggestedPostPaid(message) => message.id,
+            Message::SuggestedPostRefunded(message) => message.id,
             Message::Giveaway(message) => message.id,
             Message::GiveawayWinners(message) => message.id,
             Message::GiveawayCompleted(message) => message.id,
@@ -2235,9 +2508,43 @@ impl Message {
             Message::GeneralForumTopicUnhidden(message) => message.thread_id,
             Message::GiveawayCreated(message) => message.thread_id,
             Message::PaidMessagePriceChanged(message) => message.thread_id,
+            Message::SuggestedPostApproved(message) => message.thread_id,
+            Message::SuggestedPostApprovalFailed(message) => message.thread_id,
+            Message::SuggestedPostDeclined(message) => message.thread_id,
+            Message::SuggestedPostPaid(message) => message.thread_id,
+            Message::SuggestedPostRefunded(message) => message.thread_id,
             Message::Giveaway(message) => message.thread_id,
             Message::GiveawayWinners(message) => message.thread_id,
             Message::GiveawayCompleted(message) => message.thread_id,
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn direct_messages_topic(&self) -> Option<&DirectMessagesTopic> {
+        match self {
+            Message::Text(message) => message.direct_messages_topic.as_ref(),
+            Message::Animation(message) => message.direct_messages_topic.as_ref(),
+            Message::Audio(message) => message.direct_messages_topic.as_ref(),
+            Message::Document(message) => message.direct_messages_topic.as_ref(),
+            Message::Photo(message) => message.direct_messages_topic.as_ref(),
+            Message::Sticker(message) => message.direct_messages_topic.as_ref(),
+            Message::Story(message) => message.direct_messages_topic.as_ref(),
+            Message::Video(message) => message.direct_messages_topic.as_ref(),
+            Message::VideoNote(message) => message.direct_messages_topic.as_ref(),
+            Message::Voice(message) => message.direct_messages_topic.as_ref(),
+            Message::Checklist(message) => message.direct_messages_topic.as_ref(),
+            Message::Contact(message) => message.direct_messages_topic.as_ref(),
+            Message::Dice(message) => message.direct_messages_topic.as_ref(),
+            Message::Game(message) => message.direct_messages_topic.as_ref(),
+            Message::Poll(message) => message.direct_messages_topic.as_ref(),
+            Message::Venue(message) => message.direct_messages_topic.as_ref(),
+            Message::Location(message) => message.direct_messages_topic.as_ref(),
+            Message::Pinned(message) => message.direct_messages_topic.as_ref(),
+            Message::Invoice(message) => message.direct_messages_topic.as_ref(),
+            Message::PassportData(message) => message.direct_messages_topic.as_ref(),
+            Message::Giveaway(message) => message.direct_messages_topic.as_ref(),
+            Message::GiveawayWinners(message) => message.direct_messages_topic.as_ref(),
             _ => None,
         }
     }
@@ -2304,6 +2611,11 @@ impl Message {
             Message::WebAppData(message) => message.date,
             Message::GiveawayCreated(message) => message.date,
             Message::PaidMessagePriceChanged(message) => message.date,
+            Message::SuggestedPostApproved(message) => message.date,
+            Message::SuggestedPostApprovalFailed(message) => message.date,
+            Message::SuggestedPostDeclined(message) => message.date,
+            Message::SuggestedPostPaid(message) => message.date,
+            Message::SuggestedPostRefunded(message) => message.date,
             Message::Giveaway(message) => message.date,
             Message::GiveawayWinners(message) => message.date,
             Message::GiveawayCompleted(message) => message.date,
@@ -2485,6 +2797,11 @@ impl Message {
             Message::WebAppData(message) => &message.chat,
             Message::GiveawayCreated(message) => &message.chat,
             Message::PaidMessagePriceChanged(message) => &message.chat,
+            Message::SuggestedPostApproved(message) => &message.chat,
+            Message::SuggestedPostApprovalFailed(message) => &message.chat,
+            Message::SuggestedPostDeclined(message) => &message.chat,
+            Message::SuggestedPostPaid(message) => &message.chat,
+            Message::SuggestedPostRefunded(message) => &message.chat,
             Message::Giveaway(message) => &message.chat,
             Message::GiveawayWinners(message) => &message.chat,
             Message::GiveawayCompleted(message) => &message.chat,
@@ -2610,6 +2927,28 @@ impl Message {
                 Some(ref entities) => Some(entities),
                 None => None,
             },
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn suggested_post_info(&self) -> Option<&SuggestedPostInfo> {
+        match self {
+            Message::Text(message) => message.suggested_post_info.as_ref(),
+            Message::Photo(message) => message.suggested_post_info.as_ref(),
+            Message::Video(message) => message.suggested_post_info.as_ref(),
+            Message::Animation(message) => message.suggested_post_info.as_ref(),
+            Message::Audio(message) => message.suggested_post_info.as_ref(),
+            Message::Document(message) => message.suggested_post_info.as_ref(),
+            Message::PaidMedia(message) => message.suggested_post_info.as_ref(),
+            Message::Sticker(message) => message.suggested_post_info.as_ref(),
+            Message::VideoNote(message) => message.suggested_post_info.as_ref(),
+            Message::Voice(message) => message.suggested_post_info.as_ref(),
+            Message::Location(message) => message.suggested_post_info.as_ref(),
+            Message::Venue(message) => message.suggested_post_info.as_ref(),
+            Message::Contact(message) => message.suggested_post_info.as_ref(),
+            Message::Dice(message) => message.suggested_post_info.as_ref(),
+            Message::Invoice(message) => message.suggested_post_info.as_ref(),
             _ => None,
         }
     }
@@ -2756,6 +3095,11 @@ impl Message {
             Message::VideoChatParticipantsInvited(message) => message.from.as_ref(),
             Message::GiveawayCreated(message) => message.from.as_ref(),
             Message::PaidMessagePriceChanged(message) => message.from.as_ref(),
+            Message::SuggestedPostApproved(message) => message.from.as_ref(),
+            Message::SuggestedPostApprovalFailed(message) => message.from.as_ref(),
+            Message::SuggestedPostDeclined(message) => message.from.as_ref(),
+            Message::SuggestedPostPaid(message) => message.from.as_ref(),
+            Message::SuggestedPostRefunded(message) => message.from.as_ref(),
             Message::Giveaway(message) => message.from.as_ref(),
             Message::GiveawayWinners(message) => message.from.as_ref(),
             Message::GiveawayCompleted(message) => message.from.as_ref(),
@@ -2850,6 +3194,11 @@ impl Message {
             Message::VideoChatParticipantsInvited(message) => message.sender_chat.as_ref(),
             Message::GiveawayCreated(message) => message.sender_chat.as_ref(),
             Message::PaidMessagePriceChanged(message) => message.sender_chat.as_ref(),
+            Message::SuggestedPostApproved(message) => message.sender_chat.as_ref(),
+            Message::SuggestedPostApprovalFailed(message) => message.sender_chat.as_ref(),
+            Message::SuggestedPostDeclined(message) => message.sender_chat.as_ref(),
+            Message::SuggestedPostPaid(message) => message.sender_chat.as_ref(),
+            Message::SuggestedPostRefunded(message) => message.sender_chat.as_ref(),
             Message::Giveaway(message) => message.sender_chat.as_ref(),
             Message::GiveawayWinners(message) => message.sender_chat.as_ref(),
             Message::GiveawayCompleted(message) => message.sender_chat.as_ref(),
@@ -3036,12 +3385,35 @@ impl Message {
             Message::Location(message) => message.reply_to_story.as_ref(),
             Message::Pinned(message) => message.reply_to_story.as_ref(),
             Message::Invoice(message) => message.reply_to_story.as_ref(),
-            Message::ForumTopicCreated(message) => message.reply_to_story.as_ref(),
-            Message::ForumTopicEdited(message) => message.reply_to_story.as_ref(),
-            Message::ForumTopicClosed(message) => message.reply_to_story.as_ref(),
-            Message::ForumTopicReopened(message) => message.reply_to_story.as_ref(),
-            Message::GeneralForumTopicHidden(message) => message.reply_to_story.as_ref(),
-            Message::GeneralForumTopicUnhidden(message) => message.reply_to_story.as_ref(),
+            _ => None,
+        }
+    }
+
+    /// # Notes
+    /// I don't know when `reply_to_checklist_task_id` is used, but it's in the API so I'm including it in same places as `reply_to_story`.
+    /// If you know when it's used, please let me know.
+    #[must_use]
+    pub const fn reply_to_checklist_task_id(&self) -> Option<i64> {
+        match self {
+            Message::Text(message) => message.reply_to_checklist_task_id,
+            Message::Animation(message) => message.reply_to_checklist_task_id,
+            Message::Audio(message) => message.reply_to_checklist_task_id,
+            Message::Document(message) => message.reply_to_checklist_task_id,
+            Message::PaidMedia(message) => message.reply_to_checklist_task_id,
+            Message::Photo(message) => message.reply_to_checklist_task_id,
+            Message::Sticker(message) => message.reply_to_checklist_task_id,
+            Message::Video(message) => message.reply_to_checklist_task_id,
+            Message::VideoNote(message) => message.reply_to_checklist_task_id,
+            Message::Voice(message) => message.reply_to_checklist_task_id,
+            Message::Checklist(message) => message.reply_to_checklist_task_id,
+            Message::Contact(message) => message.reply_to_checklist_task_id,
+            Message::Dice(message) => message.reply_to_checklist_task_id,
+            Message::Game(message) => message.reply_to_checklist_task_id,
+            Message::Poll(message) => message.reply_to_checklist_task_id,
+            Message::Venue(message) => message.reply_to_checklist_task_id,
+            Message::Location(message) => message.reply_to_checklist_task_id,
+            Message::Pinned(message) => message.reply_to_checklist_task_id,
+            Message::Invoice(message) => message.reply_to_checklist_task_id,
             _ => None,
         }
     }
@@ -3158,6 +3530,56 @@ impl Message {
             Message::Video(message) => message.has_protected_content,
             Message::Voice(message) => message.has_protected_content,
             Message::Photo(message) => message.has_protected_content,
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn is_from_offline(&self) -> Option<bool> {
+        match self {
+            Message::Text(message) => message.is_from_offline,
+            Message::Animation(message) => message.is_from_offline,
+            Message::Audio(message) => message.is_from_offline,
+            Message::Document(message) => message.is_from_offline,
+            Message::PaidMedia(message) => message.is_from_offline,
+            Message::Photo(message) => message.is_from_offline,
+            Message::Sticker(message) => message.is_from_offline,
+            Message::Video(message) => message.is_from_offline,
+            Message::VideoNote(message) => message.is_from_offline,
+            Message::Voice(message) => message.is_from_offline,
+            Message::Checklist(message) => message.is_from_offline,
+            Message::Contact(message) => message.is_from_offline,
+            Message::Dice(message) => message.is_from_offline,
+            Message::Game(message) => message.is_from_offline,
+            Message::Poll(message) => message.is_from_offline,
+            Message::Venue(message) => message.is_from_offline,
+            Message::Location(message) => message.is_from_offline,
+            Message::Invoice(message) => message.is_from_offline,
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn is_paid_post(&self) -> Option<bool> {
+        match self {
+            Message::Text(message) => message.is_paid_post,
+            Message::Animation(message) => message.is_paid_post,
+            Message::Audio(message) => message.is_paid_post,
+            Message::Document(message) => message.is_paid_post,
+            Message::PaidMedia(message) => message.is_paid_post,
+            Message::Photo(message) => message.is_paid_post,
+            Message::Sticker(message) => message.is_paid_post,
+            Message::Video(message) => message.is_paid_post,
+            Message::VideoNote(message) => message.is_paid_post,
+            Message::Voice(message) => message.is_paid_post,
+            Message::Checklist(message) => message.is_paid_post,
+            Message::Contact(message) => message.is_paid_post,
+            Message::Dice(message) => message.is_paid_post,
+            Message::Game(message) => message.is_paid_post,
+            Message::Poll(message) => message.is_paid_post,
+            Message::Venue(message) => message.is_paid_post,
+            Message::Location(message) => message.is_paid_post,
+            Message::Invoice(message) => message.is_paid_post,
             _ => None,
         }
     }
@@ -3551,6 +3973,48 @@ impl Message {
     }
 
     #[must_use]
+    pub const fn suggested_post_approved(&self) -> Option<&types::SuggestedPostApproved> {
+        match self {
+            Message::SuggestedPostApproved(message) => Some(&message.post),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn suggested_post_approval_failed(
+        &self,
+    ) -> Option<&types::SuggestedPostApprovalFailed> {
+        match self {
+            Message::SuggestedPostApprovalFailed(message) => Some(&message.post),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn suggested_post_declined(&self) -> Option<&types::SuggestedPostDeclined> {
+        match self {
+            Message::SuggestedPostDeclined(message) => Some(&message.post),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn suggested_post_paid(&self) -> Option<&types::SuggestedPostPaid> {
+        match self {
+            Message::SuggestedPostPaid(message) => Some(&message.post),
+            _ => None,
+        }
+    }
+
+    #[must_use]
+    pub const fn suggested_post_refunded(&self) -> Option<&types::SuggestedPostRefunded> {
+        match self {
+            Message::SuggestedPostRefunded(message) => Some(&message.post),
+            _ => None,
+        }
+    }
+
+    #[must_use]
     pub const fn giveaway(&self) -> Option<&types::Giveaway> {
         match self {
             Message::Giveaway(message) => Some(&message.giveaway),
@@ -3801,6 +4265,11 @@ impl_try_from_message!(Checklist, Checklist);
 impl_try_from_message!(ChecklistTasksDone, ChecklistTasksDone);
 impl_try_from_message!(ChecklistTasksAdded, ChecklistTasksAdded);
 impl_try_from_message!(DirectMessagePriceChanged, DirectMessagePriceChanged);
+impl_try_from_message!(SuggestedPostApproved, SuggestedPostApproved);
+impl_try_from_message!(SuggestedPostApprovalFailed, SuggestedPostApprovalFailed);
+impl_try_from_message!(SuggestedPostDeclined, SuggestedPostDeclined);
+impl_try_from_message!(SuggestedPostPaid, SuggestedPostPaid);
+impl_try_from_message!(SuggestedPostRefunded, SuggestedPostRefunded);
 
 impl TryFrom<Update> for Message {
     type Error = ConvertToTypeError;
@@ -3892,6 +4361,11 @@ impl_try_from_update!(Checklist);
 impl_try_from_update!(ChecklistTasksDone);
 impl_try_from_update!(ChecklistTasksAdded);
 impl_try_from_update!(DirectMessagePriceChanged);
+impl_try_from_update!(SuggestedPostApproved);
+impl_try_from_update!(SuggestedPostApprovalFailed);
+impl_try_from_update!(SuggestedPostDeclined);
+impl_try_from_update!(SuggestedPostPaid);
+impl_try_from_update!(SuggestedPostRefunded);
 
 #[cfg(test)]
 mod tests {
@@ -5709,6 +6183,123 @@ mod tests {
 
             match message {
                 Message::PaidMessagePriceChanged(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_suggested_post_approved() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "suggested_post_approved": {
+                "price": {
+                    "currency": "TON",
+                    "amount": 1,
+                },
+                "send_date": 1,
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::SuggestedPostApproved(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_suggested_post_declined() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "suggested_post_declined": {
+                "comment": "test",
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::SuggestedPostDeclined(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_suggested_post_paid() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "suggested_post_paid": {
+                "currency": "TON",
+                "amount": 1,
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::SuggestedPostPaid(message) => {
+                    assert_eq!(message, message_kind);
+                }
+                _ => panic!("Unexpected message type: {message:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn deserialize_suggested_post_refunded() {
+        let jsons = [serde_json::json!({
+            "message_id": 1,
+            "date": 0,
+            "chat": {
+                "id": -1,
+                "title": "test",
+                "type": "channel",
+            },
+            "suggested_post_refunded": {
+                "reason": "payment_refunded",
+            },
+        })];
+
+        for json in jsons {
+            let message_kind = serde_json::from_value(json.clone()).unwrap();
+            let message = serde_json::from_value(json).unwrap();
+
+            match message {
+                Message::SuggestedPostRefunded(message) => {
                     assert_eq!(message, message_kind);
                 }
                 _ => panic!("Unexpected message type: {message:?}"),

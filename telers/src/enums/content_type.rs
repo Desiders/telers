@@ -115,6 +115,16 @@ pub enum ContentType {
     GiveawayCreated,
     #[strum(serialize = "paid_message_price_changed")]
     PaidMessagePriceChanged,
+    #[strum(serialize = "suggested_post_approved")]
+    SuggestedPostApproved,
+    #[strum(serialize = "suggested_post_approval_failed")]
+    SuggestedPostApprovalFailed,
+    #[strum(serialize = "suggested_post_declined")]
+    SuggestedPostDeclined,
+    #[strum(serialize = "suggested_post_paid")]
+    SuggestedPostPaid,
+    #[strum(serialize = "suggested_post_refunded")]
+    SuggestedPostRefunded,
     #[strum(serialize = "giveaway")]
     Giveaway,
     #[strum(serialize = "giveaway_winners")]
@@ -135,7 +145,7 @@ pub enum ContentType {
 
 impl ContentType {
     #[must_use]
-    pub const fn all() -> [ContentType; 62] {
+    pub const fn all() -> [ContentType; 67] {
         [
             ContentType::Text,
             ContentType::Animation,
@@ -191,6 +201,11 @@ impl ContentType {
             ContentType::GeneralForumTopicUnhidden,
             ContentType::GiveawayCreated,
             ContentType::PaidMessagePriceChanged,
+            ContentType::SuggestedPostApproved,
+            ContentType::SuggestedPostApprovalFailed,
+            ContentType::SuggestedPostDeclined,
+            ContentType::SuggestedPostPaid,
+            ContentType::SuggestedPostRefunded,
             ContentType::Giveaway,
             ContentType::GiveawayWinners,
             ContentType::GiveawayCompleted,
@@ -278,6 +293,11 @@ impl From<&Message> for ContentType {
             Message::GeneralForumTopicUnhidden(_) => ContentType::GeneralForumTopicUnhidden,
             Message::GiveawayCreated(_) => ContentType::GiveawayCreated,
             Message::PaidMessagePriceChanged(_) => ContentType::PaidMessagePriceChanged,
+            Message::SuggestedPostApproved(_) => ContentType::SuggestedPostApproved,
+            Message::SuggestedPostApprovalFailed(_) => ContentType::SuggestedPostApprovalFailed,
+            Message::SuggestedPostDeclined(_) => ContentType::SuggestedPostDeclined,
+            Message::SuggestedPostPaid(_) => ContentType::SuggestedPostPaid,
+            Message::SuggestedPostRefunded(_) => ContentType::SuggestedPostRefunded,
             Message::Giveaway(_) => ContentType::Giveaway,
             Message::GiveawayWinners(_) => ContentType::GiveawayWinners,
             Message::GiveawayCompleted(_) => ContentType::GiveawayCompleted,
