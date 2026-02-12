@@ -120,6 +120,8 @@ pub struct Animation {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -187,6 +189,8 @@ pub struct Audio {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -252,6 +256,8 @@ pub struct Checklist {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -308,6 +314,8 @@ pub struct Contact {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -362,6 +370,8 @@ pub struct Dice {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// `true`, if the message can't be forwarded
@@ -414,6 +424,8 @@ pub struct Document {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -476,6 +488,8 @@ pub struct PaidMedia {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -537,6 +551,8 @@ pub struct Game {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -593,6 +609,8 @@ pub struct Poll {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Date the message was last edited in Unix time
@@ -647,6 +665,8 @@ pub struct Venue {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -703,6 +723,8 @@ pub struct Location {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -759,6 +781,8 @@ pub struct Photo {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -891,6 +915,8 @@ pub struct Sticker {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -943,6 +969,8 @@ pub struct Text {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -1005,6 +1033,8 @@ pub struct Video {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -1074,6 +1104,8 @@ pub struct VideoNote {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// `true`, if the message can't be forwarded
@@ -1126,6 +1158,8 @@ pub struct Voice {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// For replies that quote part of the original message, the quoted part of the message
@@ -1396,6 +1430,8 @@ pub struct Pinned {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Specified message was pinned. Note that the Message object in this field will not contain further *`reply_to_message`* fields even if it is itself a reply.
     #[serde(rename = "pinned_message")]
     pub message: Box<MaybeInaccessibleMessage>,
@@ -1433,6 +1469,8 @@ pub struct Invoice {
     pub reply_to_message: Option<Message>,
     /// For replies to a story, the original story
     pub reply_to_story: Option<types::Story>,
+    /// Identifier of the specific checklist task that is being replied to
+    pub reply_to_checklist_task_id: Option<i64>,
     /// Information about the message that is being replied to, which may come from another chat or forum topic
     pub external_reply: Option<ExternalReplyInfo>,
     /// Bot through which the message was sent
@@ -1769,8 +1807,6 @@ pub struct ForumTopicCreated {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *`reply_to_message`* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// For replies to a story, the original story
-    pub reply_to_story: Option<types::Story>,
     /// Service message: forum topic created
     #[serde(rename = "forum_topic_created")]
     pub created: types::ForumTopicCreated,
@@ -1798,8 +1834,6 @@ pub struct ForumTopicEdited {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *`reply_to_message`* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// For replies to a story, the original story
-    pub reply_to_story: Option<types::Story>,
     /// Service message: forum topic edited
     #[serde(rename = "forum_topic_edited")]
     pub edited: types::ForumTopicEdited,
@@ -1827,8 +1861,6 @@ pub struct ForumTopicClosed {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *`reply_to_message`* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// For replies to a story, the original story
-    pub reply_to_story: Option<types::Story>,
     /// Service message: forum topic closed
     #[serde(rename = "forum_topic_closed")]
     pub closed: types::ForumTopicClosed,
@@ -1856,8 +1888,6 @@ pub struct ForumTopicReopened {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *`reply_to_message`* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// For replies to a story, the original story
-    pub reply_to_story: Option<types::Story>,
     /// Service message: forum topic reopened
     #[serde(rename = "forum_topic_reopened")]
     pub reopened: types::ForumTopicReopened,
@@ -1885,8 +1915,6 @@ pub struct GeneralForumTopicHidden {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *`reply_to_message`* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// For replies to a story, the original story
-    pub reply_to_story: Option<types::Story>,
     /// Service message: the `General` forum topic hidden
     #[serde(rename = "general_forum_topic_hidden")]
     pub hidden: types::GeneralForumTopicHidden,
@@ -1914,8 +1942,6 @@ pub struct GeneralForumTopicUnhidden {
     pub is_topic_message: Option<bool>,
     /// For replies, the original message. Note that the [Message object](https://core.telegram.org/bots/api#message) in this field will not contain further *`reply_to_message`* fields even if it itself is a reply.
     pub reply_to_message: Option<Message>,
-    /// For replies to a story, the original story
-    pub reply_to_story: Option<types::Story>,
     /// Service message: the `General` forum topic unhidden
     #[serde(rename = "general_forum_topic_unhidden")]
     pub unhidden: types::GeneralForumTopicUnhidden,
@@ -3036,12 +3062,35 @@ impl Message {
             Message::Location(message) => message.reply_to_story.as_ref(),
             Message::Pinned(message) => message.reply_to_story.as_ref(),
             Message::Invoice(message) => message.reply_to_story.as_ref(),
-            Message::ForumTopicCreated(message) => message.reply_to_story.as_ref(),
-            Message::ForumTopicEdited(message) => message.reply_to_story.as_ref(),
-            Message::ForumTopicClosed(message) => message.reply_to_story.as_ref(),
-            Message::ForumTopicReopened(message) => message.reply_to_story.as_ref(),
-            Message::GeneralForumTopicHidden(message) => message.reply_to_story.as_ref(),
-            Message::GeneralForumTopicUnhidden(message) => message.reply_to_story.as_ref(),
+            _ => None,
+        }
+    }
+
+    /// # Notes
+    /// I don't know when `reply_to_checklist_task_id` is used, but it's in the API so I'm including it in same places as `reply_to_story`.
+    /// If you know when it's used, please let me know.
+    #[must_use]
+    pub const fn reply_to_checklist_task_id(&self) -> Option<i64> {
+        match self {
+            Message::Text(message) => message.reply_to_checklist_task_id,
+            Message::Animation(message) => message.reply_to_checklist_task_id,
+            Message::Audio(message) => message.reply_to_checklist_task_id,
+            Message::Document(message) => message.reply_to_checklist_task_id,
+            Message::PaidMedia(message) => message.reply_to_checklist_task_id,
+            Message::Photo(message) => message.reply_to_checklist_task_id,
+            Message::Sticker(message) => message.reply_to_checklist_task_id,
+            Message::Video(message) => message.reply_to_checklist_task_id,
+            Message::VideoNote(message) => message.reply_to_checklist_task_id,
+            Message::Voice(message) => message.reply_to_checklist_task_id,
+            Message::Checklist(message) => message.reply_to_checklist_task_id,
+            Message::Contact(message) => message.reply_to_checklist_task_id,
+            Message::Dice(message) => message.reply_to_checklist_task_id,
+            Message::Game(message) => message.reply_to_checklist_task_id,
+            Message::Poll(message) => message.reply_to_checklist_task_id,
+            Message::Venue(message) => message.reply_to_checklist_task_id,
+            Message::Location(message) => message.reply_to_checklist_task_id,
+            Message::Pinned(message) => message.reply_to_checklist_task_id,
+            Message::Invoice(message) => message.reply_to_checklist_task_id,
             _ => None,
         }
     }
