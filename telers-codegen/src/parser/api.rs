@@ -1,5 +1,8 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use syn::Path;
+
+use crate::file::camel_to_rs_filename;
 
 /// [`TelegramTypeName`] is a string that is used to identify a type, for example `Chat` or `User`.
 pub type TelegramTypeName = String;
@@ -21,11 +24,11 @@ impl Field {
         let types = self.types.as_slice();
 
         if multi_type_is_input_file(types) {
-            return TypeKindInField::Telegram("InputFile".to_owned());
+            return TypeKindInField::InputFile;
         }
 
         if multi_type_is_chat_id(types) {
-            return TypeKindInField::Telegram("ChatId".to_owned());
+            return TypeKindInField::ChatId;
         }
 
         if multi_type_is_reply_markup(types, &self.name) {
@@ -77,6 +80,12 @@ pub struct Type {
     pub subtypes: Vec<TelegramTypeName>,
     #[serde(default)]
     pub subtype_of: Vec<TelegramTypeName>,
+}
+
+impl Type {
+    pub fn filename(&self) -> String {
+        camel_to_rs_filename(&self.name)
+    }
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
@@ -209,6 +218,24 @@ pub struct NormalizedType {
     pub subtype_of: Vec<TelegramTypeName>,
 }
 
+impl NormalizedType {
+    pub fn get_paths(&self) -> Vec<Path> {
+        if self.fields.is_empty() {
+            let mut variants = vec![];
+            for name in &self.subtypes {
+                variants.push(syn::parse_str(&format!("super::{name}")).expect("incorrect path"));
+            }
+            return variants;
+        }
+
+        self.fields
+            .iter()
+            .map(|val| val.r#type.get_path())
+            .flatten()
+            .collect()
+    }
+}
+
 #[derive(Debug, Default)]
 pub struct NormalizedSchema {
     pub version: String,
@@ -237,10 +264,30 @@ pub enum BooleanKind {
 #[derive(Debug, PartialEq, Eq)]
 pub enum TypeKindInField {
     String,
+    InputFile,
+    ChatId,
     Integer(IntegerKind),
     Boolean(BooleanKind),
     Telegram(TelegramTypeName),
     Array(Box<TypeKindInField>),
+}
+
+impl TypeKindInField {
+    pub fn get_path(&self) -> Option<Path> {
+        match self {
+            TypeKindInField::InputFile => {
+                Some(syn::parse_str(&format!("super::InputFile")).expect("incorrect path"))
+            }
+            TypeKindInField::ChatId => {
+                Some(syn::parse_str(&format!("super::ChatId")).expect("incorrect path"))
+            }
+            TypeKindInField::Telegram(name) => {
+                Some(syn::parse_str(&format!("super::{name}")).expect("incorrect path"))
+            }
+            TypeKindInField::Array(kind) => kind.get_path(),
+            _ => None,
+        }
+    }
 }
 
 pub fn is_string(raw_type: &RawType) -> bool {
@@ -668,11 +715,11 @@ mod tests {
 
         assert_eq!(
             fields.get(0).unwrap().identify_field_type(),
-            TypeKindInField::Telegram("InputFile".to_owned()),
+            TypeKindInField::InputFile,
         );
         assert_eq!(
             fields.get(1).unwrap().identify_field_type(),
-            TypeKindInField::Telegram("InputFile".to_owned()),
+            TypeKindInField::InputFile
         );
         assert_eq!(
             fields.get(2).unwrap().identify_field_type(),
@@ -684,11 +731,11 @@ mod tests {
         );
         assert_eq!(
             fields.get(4).unwrap().identify_field_type(),
-            TypeKindInField::Telegram("ChatId".to_owned()),
+            TypeKindInField::ChatId,
         );
         assert_eq!(
             fields.get(5).unwrap().identify_field_type(),
-            TypeKindInField::Telegram("ChatId".to_owned()),
+            TypeKindInField::ChatId,
         );
         assert_eq!(
             fields.get(6).unwrap().identify_field_type(),
