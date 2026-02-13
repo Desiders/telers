@@ -18,7 +18,7 @@ pluralizer = "0.5"
 serde_json = "1.0"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-syn = { version = "2.0", features = ["full"] }
+syn = { version = "2.0", features = ["full", "extra-traits"] }
 clap = { version = "4.5.0", features = ["derive"] }
 reqwest = { version = "0.13", features = ["blocking"] }
 serde = { version = "1.0", features = ["derive"] }

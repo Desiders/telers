@@ -1,8 +1,6 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use syn::Path;
-
-use crate::file::camel_to_rs_filename;
 
 /// [`TelegramTypeName`] is a string that is used to identify a type, for example `Chat` or `User`.
 pub type TelegramTypeName = String;
@@ -82,12 +80,6 @@ pub struct Type {
     pub subtype_of: Vec<TelegramTypeName>,
 }
 
-impl Type {
-    pub fn filename(&self) -> String {
-        camel_to_rs_filename(&self.name)
-    }
-}
-
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Schema {
     pub version: String,
@@ -160,11 +152,18 @@ impl Schema {
         for (name, ty) in self.types {
             let mut fields = vec![];
             for field in ty.fields {
+                let field_type = field.identify_field_type();
+                let is_recursive = match field_type {
+                    TypeKindInField::Telegram(ref ty) => *ty == name,
+                    _ => false,
+                };
+
                 fields.push(NormalizedField {
-                    r#type: field.identify_field_type(),
                     name: field.name,
                     required: field.required,
                     description: field.description,
+                    r#type: field_type,
+                    is_recursive,
                 });
             }
             let subtype_kind = subtype_kinds.remove(&name);
@@ -199,6 +198,7 @@ pub struct NormalizedField {
     pub required: bool,
     pub description: String,
     pub r#type: TypeKindInField,
+    pub is_recursive: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -221,18 +221,33 @@ pub struct NormalizedType {
 impl NormalizedType {
     pub fn get_paths(&self) -> Vec<Path> {
         if self.fields.is_empty() {
-            let mut variants = vec![];
+            let mut variants = HashSet::new();
             for name in &self.subtypes {
-                variants.push(syn::parse_str(&format!("super::{name}")).expect("incorrect path"));
+                variants.insert(syn::parse_str(&format!("super::{name}")).expect("incorrect path"));
             }
-            return variants;
+            return variants.into_iter().collect();
         }
 
-        self.fields
-            .iter()
-            .map(|val| val.r#type.get_path())
-            .flatten()
-            .collect()
+        let mut paths = HashSet::new();
+        for field in &self.fields {
+            if let Some(path) = field.r#type.get_path() {
+                paths.insert(path);
+            }
+        }
+
+        let filtered_paths: Vec<Path> = paths
+            .into_iter()
+            .filter(|path| {
+                if let Some(ident) = path.get_ident() {
+                    ident.to_string() != self.name
+                } else if let Some(segment) = path.segments.last() {
+                    segment.ident.to_string() != self.name
+                } else {
+                    true
+                }
+            })
+            .collect();
+        filtered_paths
     }
 }
 
@@ -279,7 +294,7 @@ impl TypeKindInField {
                 Some(syn::parse_str(&format!("super::InputFile")).expect("incorrect path"))
             }
             TypeKindInField::ChatId => {
-                Some(syn::parse_str(&format!("super::ChatId")).expect("incorrect path"))
+                Some(syn::parse_str(&format!("super::ChatIdKind")).expect("incorrect path"))
             }
             TypeKindInField::Telegram(name) => {
                 Some(syn::parse_str(&format!("super::{name}")).expect("incorrect path"))

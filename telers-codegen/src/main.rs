@@ -1,7 +1,7 @@
 use clap::Parser;
 use std::{fs, path::PathBuf, process};
 use telers_codegen::{
-    file::{camel_to_rs_filename, write_tokens_to_file},
+    file::{camel_to_filename, write_tokens_to_file},
     generator::{self},
     parser::api::Schema,
 };
@@ -38,12 +38,22 @@ fn main() {
 
     for (name, ty) in &schema.types {
         let tokens = generator::types::tokenize_type(ty, &schema);
-        let filename = camel_to_rs_filename(&name);
+        let filename = camel_to_filename(&name, Some("rs"));
         write_tokens_to_file(&tokens, &args.generated_dir_path.join("types"), &filename)
             .unwrap_or_else(|err| {
-                eprintln!("Failed to write file '{filename}': {err}\nContent: {tokens}");
+                eprintln!(
+                    "Failed to write file '{filename}' in dir types: {err}\nContent: {tokens}"
+                );
                 process::exit(1);
             });
     }
     println!("Types generated");
+
+    let type_names = schema.types.keys().collect::<Vec<_>>();
+    let tokens = generator::types::tokenize_types_mod(type_names.as_slice());
+    write_tokens_to_file(&tokens, &args.generated_dir_path, "types.rs").unwrap_or_else(|err| {
+        eprintln!("Failed to write file 'types.rs': {err}\nContent: {tokens}");
+        process::exit(1);
+    });
+    println!("Types module generated");
 }

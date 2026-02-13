@@ -8,11 +8,12 @@ pub fn write_tokens_to_file(
     filename: &str,
 ) -> anyhow::Result<()> {
     let formatted = format_tokens(&tokens)?;
+    fs::create_dir_all(dir)?;
     fs::write(dir.join(filename), formatted)?;
     Ok(())
 }
 
-pub fn camel_to_rs_filename(input: &str) -> String {
+pub fn camel_to_filename(input: &str, ext: Option<&str>) -> String {
     let mut result = String::with_capacity(input.len() + 3);
     let chars: Vec<char> = input.chars().collect();
 
@@ -40,6 +41,10 @@ pub fn camel_to_rs_filename(input: &str) -> String {
         }
     }
 
-    result.push_str(".rs");
+    if let Some(ext) = ext {
+        result.push('.');
+        result.push_str(ext);
+    }
+
     result
 }

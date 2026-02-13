@@ -1,4 +1,5 @@
 use crate::{
+    file::camel_to_filename,
     generator::helpers::{
         format_attr_description, format_description, get_singular_and_plural_forms,
         sanitize_field_name,
@@ -368,6 +369,27 @@ pub fn tokenize_type(type_quote: &NormalizedType, _schema: &NormalizedSchema) ->
         #type_quote
         #impls_for_subtypes_quote
         #builder_impl
+    }
+}
+
+pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
+    let mods_quote = type_names.iter().map(|&name| {
+        let mod_name = format_ident!("{}", camel_to_filename(name, None));
+        quote! {
+            pub mod #mod_name;
+        }
+    });
+    let uses_quote = type_names.iter().map(|&name| {
+        let mod_name = format_ident!("{}", camel_to_filename(name, None));
+        let type_name = format_ident!("{name}");
+        quote! {
+            pub use #mod_name::#type_name;
+        }
+    });
+
+    quote! {
+        #( #mods_quote )*
+        #( #uses_quote )*
     }
 }
 
