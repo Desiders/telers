@@ -10,19 +10,63 @@ pub fn format_tokens(tokens: impl Display) -> syn::Result<String> {
 fn add_blank_lines_between_items(code: &str) -> String {
     let lines: Vec<&str> = code.lines().collect();
     let mut result = String::new();
+    let mut i = 0;
+    let mut in_use_block = false;
 
-    for (i, line) in lines.iter().enumerate() {
+    while i < lines.len() {
+        let line = lines[i];
         let trimmed = line.trim_start();
-        let is_top_level = !line.starts_with(' ') && !line.starts_with('\t');
-        let prev_is_not_blank = i > 0 && !lines[i - 1].trim().is_empty();
-        let prev_is_not_doc = i > 0 && !lines[i - 1].trim_start().starts_with("///");
 
-        if is_top_level && trimmed.starts_with("///") && prev_is_not_blank && prev_is_not_doc {
-            result.push('\n');
+        let is_use = trimmed.starts_with("use ");
+        let is_top_level = !line.starts_with(' ') && !line.starts_with('\t');
+        let is_attribute = trimmed.starts_with("#[");
+        let is_doc_comment = trimmed.starts_with("///");
+        let is_item_keyword = (trimmed.starts_with("pub")
+            || trimmed.starts_with("impl")
+            || trimmed.starts_with("const")
+            || trimmed.starts_with("fn")
+            || trimmed.starts_with("struct")
+            || trimmed.starts_with("enum")
+            || trimmed.starts_with("type")
+            || trimmed.starts_with("mod"))
+            && !trimmed.starts_with("pub use");
+
+        if is_use {
+            if !in_use_block && i > 0 && !result.is_empty() {
+                let prev_line = lines[i - 1];
+                if !prev_line.trim_start().starts_with("use ") && !result.ends_with("\n\n") {
+                    result.push('\n');
+                }
+            }
+            in_use_block = true;
+        } else {
+            if in_use_block {
+                in_use_block = false;
+                if !result.ends_with("\n\n") {
+                    result.push('\n');
+                }
+            }
+        }
+
+        if i > 0 && !result.is_empty() && !is_use && !in_use_block {
+            let prev_line = lines[i - 1];
+            let prev_trimmed = prev_line.trim_start();
+
+            let should_not_add_blank = prev_trimmed.starts_with("///")
+                || prev_trimmed.starts_with("#[")
+                || (is_doc_comment && !prev_trimmed.starts_with("use "))
+                || is_attribute;
+
+            if is_top_level && is_item_keyword && !should_not_add_blank {
+                if !result.ends_with("\n\n") {
+                    result.push('\n');
+                }
+            }
         }
 
         result.push_str(line);
         result.push('\n');
+        i += 1;
     }
 
     result

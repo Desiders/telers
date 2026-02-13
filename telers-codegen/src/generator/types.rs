@@ -115,18 +115,38 @@ impl ToTokens for NormalizedType {
     }
 }
 
+pub fn get_from_impls_for_subtypes(
+    type_quote: &NormalizedType,
+    _schema: &NormalizedSchema,
+) -> Vec<TokenStream> {
+    type_quote
+        .subtypes
+        .iter()
+        .map(|subtype| {
+            let name = format_ident!("{}", type_quote.name);
+            let subtype_name = format_ident!("{subtype}");
+            quote! {
+                impl From<#subtype_name> for #name {
+                    fn from(subtype: #subtype_name) -> Self {
+                        #name::#subtype_name(subtype)
+                    }
+                }
+            }
+        })
+        .collect()
+}
+
 pub fn tokenize_type(type_quote: &NormalizedType, _schema: &NormalizedSchema) -> TokenStream {
     let paths = type_quote.get_paths();
 
-    let imports_quote = quote! {
-        #(
-            use #paths;
-        )*
-    };
+    let imports_quote = quote! { #(use #paths;)* };
+    let impls_for_subtypes = get_from_impls_for_subtypes(type_quote, _schema);
+    let impls_for_subtypes_quote = quote! { #(#impls_for_subtypes)* };
 
     let file_quote = quote! {
         #imports_quote
         #type_quote
+        #impls_for_subtypes_quote
     };
 
     file_quote
