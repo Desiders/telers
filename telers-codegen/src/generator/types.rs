@@ -5,13 +5,14 @@ use crate::{
         sanitize_field_name,
     },
     parser::api::{
-        BooleanKind, IntegerKind, NormalizedField, NormalizedSchema, NormalizedType, SubtypeKind,
-        TypeKindInField,
+        BooleanKind, IntegerKind, NormalizedField, NormalizedSchema, NormalizedSubtypeVariant,
+        NormalizedType, SubtypeKind, TypeKindInField,
     },
 };
 
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
+use syn::{punctuated::Punctuated, Path, PathSegment};
 
 impl ToTokens for TypeKindInField {
     fn to_tokens(&self, tokens: &mut TokenStream) {
@@ -39,6 +40,15 @@ impl ToTokens for TypeKindInField {
     }
 }
 
+impl ToTokens for NormalizedSubtypeVariant {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let variant = format_ident!("{}", self.variant);
+        let name = format_ident!("{}", self.name);
+        let ts = quote! { #variant(#name), };
+        tokens.extend(ts);
+    }
+}
+
 impl ToTokens for NormalizedField {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let name = sanitize_field_name(&self.name);
@@ -46,11 +56,23 @@ impl ToTokens for NormalizedField {
         let doc = format_attr_description(&self.description);
 
         let ts = if self.required {
-            quote! {
-                #[doc = #doc]
-                pub #name: #ty,
+            if self.is_recursive || self.is_boxed {
+                quote! {
+                    #[doc = #doc]
+                    pub #name: Box<#ty>,
+                }
+            } else {
+                quote! {
+                    #[doc = #doc]
+                    pub #name: #ty,
+                }
             }
         } else {
+            let ty = if self.is_recursive || self.is_boxed {
+                quote! { Box<#ty> }
+            } else {
+                quote! { #ty }
+            };
             quote! {
                 #[doc = #doc]
                 #[serde(skip_serializing_if = "Option::is_none")]
@@ -67,17 +89,14 @@ impl ToTokens for NormalizedType {
         let doc_lines = format_description(&self.description, &self.href);
 
         let ts = if self.subtypes.is_empty() {
-            let fields: Box<[_]> = self
-                .fields
-                .iter()
-                .filter(|field| {
-                    if let Some(SubtypeKind::Tagged { ref tag_field }) = self.subtype_kind {
-                        field.name != *tag_field
-                    } else {
-                        true
-                    }
-                })
-                .collect();
+            let fields = self.fields.iter().filter(|field| {
+                if let Some(SubtypeKind::Tagged { ref tag_field }) = self.subtype_kind {
+                    field.name != *tag_field
+                } else {
+                    true
+                }
+            });
+
             quote! {
                 #( #[doc = #doc_lines] )*
                 #[derive(Clone, Debug, Serialize)]
@@ -86,15 +105,6 @@ impl ToTokens for NormalizedType {
                 }
             }
         } else {
-            let variants: Box<[_]> = self
-                .subtypes
-                .iter()
-                .map(|name| {
-                    let variant_name = format_ident!("{name}");
-                    quote! { #variant_name(#variant_name) }
-                })
-                .collect();
-
             let serde_attr = match &self.subtype_kind {
                 Some(SubtypeKind::Tagged { tag_field }) => quote! {
                     #[serde(tag = #tag_field)]
@@ -104,13 +114,14 @@ impl ToTokens for NormalizedType {
                 },
                 None => quote! {},
             };
+            let subtypes = self.subtypes.iter();
 
             quote! {
                 #( #[doc = #doc_lines] )*
                 #[derive(Clone, Debug, Serialize)]
                 #serde_attr
                 pub enum #name {
-                    #( #variants, )*
+                    #( #subtypes )*
                 }
             }
         };
@@ -125,11 +136,11 @@ pub fn get_from_impls_for_subtypes(type_quote: &NormalizedType) -> Vec<TokenStre
         .iter()
         .map(|subtype| {
             let name = format_ident!("{}", type_quote.name);
-            let subtype_name = format_ident!("{subtype}");
+            let subtype_variant = format_ident!("{}", subtype.variant);
             quote! {
-                impl From<#subtype_name> for #name {
-                    fn from(subtype: #subtype_name) -> Self {
-                        #name::#subtype_name(subtype)
+                impl From<#subtype_variant> for #name {
+                    fn from(val: #subtype_variant) -> Self {
+                        Self::#subtype_variant(val)
                     }
                 }
             }
@@ -187,7 +198,11 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
             let new_init = fields.iter().map(|field| {
                 let name = sanitize_field_name(&field.name);
                 if field.required {
-                    quote! { #name: #name.into() }
+                    if field.is_recursive || field.is_boxed {
+                        quote! { #name: Box::new(#name.into()) }
+                    } else {
+                        quote! { #name: #name.into() }
+                    }
                 } else {
                     quote! { #name: None }
                 }
@@ -318,9 +333,17 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
             } else {
                 let doc = format_attr_description(&field.description);
                 let value = if field.required {
-                    quote! { val.into() }
+                    if field.is_recursive || field.is_boxed {
+                        quote! { Box::new(val.into()) }
+                    } else {
+                        quote! { val.into() }
+                    }
                 } else {
-                    quote! { Some(val.into()) }
+                    if field.is_recursive || field.is_boxed {
+                        quote! { Some(Box::new(val.into())) }
+                    } else {
+                        quote! { Some(val.into()) }
+                    }
                 };
                 methods.push(quote! {
                     #[doc = #doc]
@@ -330,13 +353,19 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
                     }
                 });
 
+                let method_name = format_ident!("{}_option", field.name);
+                let value = if field.is_recursive || field.is_boxed {
+                    quote! { val.map(|val| Box::new(val.into())) }
+                } else {
+                    quote! { val.map(Into::into) }
+                };
+
                 if !field.required {
-                    let method_name = format_ident!("{}_option", field.name);
                     methods.push(quote! {
                         #[doc = #doc]
                         #[must_use]
                         pub fn #method_name(self, val: Option<impl Into<#ty>>) -> Self {
-                            Self { #name: val.map(Into::into), ..self }
+                            Self { #name: #value, ..self }
                         }
                     });
                 }
@@ -379,6 +408,10 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
             pub mod #mod_name;
         }
     });
+    let mod_name = format_ident!("non_telegram");
+    let non_telegram_mods_quote = quote! {
+        pub(crate) mod #mod_name;
+    };
     let uses_quote = type_names.iter().map(|&name| {
         let mod_name = format_ident!("{}", camel_to_filename(name, None));
         let type_name = format_ident!("{name}");
@@ -387,7 +420,22 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
         }
     });
 
+    let mut segments = Punctuated::new();
+    segments.push(PathSegment::from(format_ident!("non_telegram")));
+    segments.push(PathSegment::from(format_ident!("chat_id_kind")));
+
+    let chat_id_kind_mod_name = Path {
+        leading_colon: None,
+        segments,
+    };
+    let chat_id_kind_type_name = format_ident!("ChatIdKind");
+    let non_telegram_uses_quote = quote! {
+        pub use #chat_id_kind_mod_name::#chat_id_kind_type_name;
+    };
+
     quote! {
+        #non_telegram_mods_quote
+        #non_telegram_uses_quote
         #( #mods_quote )*
         #( #uses_quote )*
     }
@@ -396,8 +444,8 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
 #[cfg(test)]
 mod tests {
     use super::{
-        tokenize_type, IntegerKind, NormalizedField, NormalizedSchema, NormalizedType, SubtypeKind,
-        TypeKindInField,
+        tokenize_type, IntegerKind, NormalizedField, NormalizedSchema, NormalizedSubtypeVariant,
+        NormalizedType, SubtypeKind, TypeKindInField,
     };
 
     #[test]
@@ -412,12 +460,16 @@ mod tests {
                     required: true,
                     description: "Unique message identifier".into(),
                     r#type: TypeKindInField::Integer(IntegerKind::Int64),
+                    is_recursive: false,
+                    is_boxed: false,
                 },
                 NormalizedField {
                     name: "text".into(),
                     required: false,
                     description: "Message text".into(),
                     r#type: TypeKindInField::String,
+                    is_recursive: false,
+                    is_boxed: false,
                 },
             ],
 
@@ -447,7 +499,16 @@ mod tests {
             subtype_kind: Some(SubtypeKind::Tagged {
                 tag_field: "type".into(),
             }),
-            subtypes: vec!["MessageOriginUser".into(), "MessageOriginHiddenUser".into()],
+            subtypes: vec![
+                NormalizedSubtypeVariant {
+                    variant: "MessageOriginUser".into(),
+                    name: "MessageOriginUser".into(),
+                },
+                NormalizedSubtypeVariant {
+                    variant: "MessageOriginHiddenUser".into(),
+                    name: "MessageOriginHiddenUser".into(),
+                },
+            ],
             subtype_of: vec![],
         };
         let schema = NormalizedSchema::default();
@@ -467,7 +528,16 @@ mod tests {
             description: vec!["Describes a message that may be inaccessible.".into()],
             fields: vec![],
             subtype_kind: Some(SubtypeKind::Untagged),
-            subtypes: vec!["Message".into(), "InaccessibleMessage".into()],
+            subtypes: vec![
+                NormalizedSubtypeVariant {
+                    variant: "Message".into(),
+                    name: "Message".into(),
+                },
+                NormalizedSubtypeVariant {
+                    variant: "InaccessibleMessage".into(),
+                    name: "InaccessibleMessage".into(),
+                },
+            ],
             subtype_of: vec![],
         };
         let schema = NormalizedSchema::default();

@@ -157,6 +157,13 @@ impl Schema {
                     TypeKindInField::Telegram(ref ty) => *ty == name,
                     _ => false,
                 };
+                let is_boxed = match field_type {
+                    TypeKindInField::Telegram(ref name) => match name.as_str() {
+                        "Message" | "MaybeInaccessibleMessage" => true,
+                        _ => false,
+                    },
+                    _ => false,
+                };
 
                 fields.push(NormalizedField {
                     name: field.name,
@@ -164,16 +171,25 @@ impl Schema {
                     description: field.description,
                     r#type: field_type,
                     is_recursive,
+                    is_boxed,
                 });
             }
             let subtype_kind = subtype_kinds.remove(&name);
+            let subtypes = ty
+                .subtypes
+                .into_iter()
+                .map(|name| NormalizedSubtypeVariant {
+                    variant: name.clone(),
+                    name,
+                })
+                .collect();
             let ty = NormalizedType {
                 name: ty.name,
                 href: ty.href,
                 description: ty.description,
                 fields,
                 subtype_kind,
-                subtypes: ty.subtypes,
+                subtypes,
                 subtype_of: ty.subtype_of,
             };
             normalized_types.insert(name, ty);
@@ -199,6 +215,7 @@ pub struct NormalizedField {
     pub description: String,
     pub r#type: TypeKindInField,
     pub is_recursive: bool,
+    pub is_boxed: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -208,13 +225,19 @@ pub enum SubtypeKind {
 }
 
 #[derive(Debug)]
+pub struct NormalizedSubtypeVariant {
+    pub variant: TelegramTypeName,
+    pub name: TelegramTypeName,
+}
+
+#[derive(Debug)]
 pub struct NormalizedType {
     pub name: TelegramTypeName,
     pub href: String,
     pub description: Vec<String>,
     pub fields: Vec<NormalizedField>,
     pub subtype_kind: Option<SubtypeKind>,
-    pub subtypes: Vec<TelegramTypeName>,
+    pub subtypes: Vec<NormalizedSubtypeVariant>,
     pub subtype_of: Vec<TelegramTypeName>,
 }
 
@@ -222,8 +245,10 @@ impl NormalizedType {
     pub fn get_paths(&self) -> Vec<Path> {
         if self.fields.is_empty() {
             let mut variants = HashSet::new();
-            for name in &self.subtypes {
-                variants.insert(syn::parse_str(&format!("super::{name}")).expect("incorrect path"));
+            for subtype in &self.subtypes {
+                variants.insert(
+                    syn::parse_str(&format!("super::{}", subtype.name)).expect("incorrect path"),
+                );
             }
             return variants.into_iter().collect();
         }
