@@ -38,7 +38,7 @@ fn main() {
 
     for (name, ty) in &schema.types {
         let tokens = generator::types::tokenize_type(ty, &schema);
-        let filename = camel_to_filename(&name, Some("rs"));
+        let filename = camel_to_filename(name, Some("rs"));
         write_tokens_to_file(&tokens, &args.generated_dir_path.join("types"), &filename)
             .unwrap_or_else(|err| {
                 eprintln!(

@@ -1,7 +1,7 @@
 use crate::{
     file::camel_to_filename,
     generator::helpers::{
-        format_attr_description, format_description, get_singular_and_plural_forms,
+        camel_to_snake, format_attr_description, format_description, get_singular_and_plural_forms,
         sanitize_field_name,
     },
     parser::api::{
@@ -12,6 +12,7 @@ use crate::{
 
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
+use std::collections::HashMap;
 use syn::{punctuated::Punctuated, Path, PathSegment};
 
 impl ToTokens for TypeKindInField {
@@ -332,23 +333,22 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
                 }
             } else {
                 let doc = format_attr_description(&field.description);
-                let value = if field.required {
-                    if field.is_recursive || field.is_boxed {
-                        quote! { Box::new(val.into()) }
-                    } else {
-                        quote! { val.into() }
-                    }
+                let value = if field.is_recursive || field.is_boxed {
+                    quote! { Box::new(val.into()) }
                 } else {
-                    if field.is_recursive || field.is_boxed {
-                        quote! { Some(Box::new(val.into())) }
-                    } else {
-                        quote! { Some(val.into()) }
-                    }
+                    quote! { val.into() }
                 };
+                let value = if field.required {
+                    value
+                } else {
+                    quote! { Some(#value) }
+                };
+
+                let method_name = format_ident!("{name}");
                 methods.push(quote! {
                     #[doc = #doc]
                     #[must_use]
-                    pub fn #name(self, val: impl Into<#ty>) -> Self {
+                    pub fn #method_name(self, val: impl Into<#ty>) -> Self {
                         Self { #name: #value, ..self }
                     }
                 });
@@ -383,21 +383,256 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
     }
 }
 
-pub fn tokenize_type(type_quote: &NormalizedType, _schema: &NormalizedSchema) -> TokenStream {
-    let paths = type_quote.get_paths();
+pub fn get_impl_for_type(type_quote: &NormalizedType, schema: &NormalizedSchema) -> TokenStream {
+    if type_quote.subtypes.is_empty() {
+        return quote! {};
+    }
 
-    let imports_quote = quote! { #(use #paths;)* };
+    let type_name = format_ident!("{}", type_quote.name);
+
+    let mut methods = vec![];
+
+    for subtype in &type_quote.subtypes {
+        let variant = format_ident!("{}", subtype.variant);
+        let name = format_ident!("{}", subtype.name);
+        let variant_snake_case = camel_to_snake(&subtype.variant);
+        let is_method_name = format_ident!("is_{variant_snake_case}");
+        let get_method_name = format_ident!("into_{variant_snake_case}");
+
+        methods.push(quote! {
+            #[must_use]
+            pub const fn #is_method_name(&self) -> bool {
+                matches!(self, Self::#variant(_))
+            }
+        });
+        methods.push(quote! {
+            #[must_use]
+            pub fn #get_method_name(self) -> Option<#name> {
+                if let Self::#variant(val) = self {
+                    Some(val)
+                } else {
+                    None
+                }
+            }
+        });
+    }
+
+    let mut field_to_variants = HashMap::new();
+
+    for subtype_variant in &type_quote.subtypes {
+        if let Some(subtype) = schema.types.get(&subtype_variant.name) {
+            for field in &subtype.fields {
+                if let Some(SubtypeKind::Tagged { ref tag_field }) = type_quote.subtype_kind {
+                    if field.name == *tag_field {
+                        continue;
+                    }
+                }
+
+                let entry = field_to_variants
+                    .entry(field.name.clone())
+                    .or_insert_with(|| (field, vec![]));
+                entry.1.push(subtype_variant);
+            }
+        }
+    }
+
+    for (field_name_str, (first_field, variants)) in field_to_variants {
+        if !variants.iter().all(|variant| {
+            let subtype = schema.types.get(&variant.name).unwrap();
+            let field = subtype
+                .fields
+                .iter()
+                .find(|f| f.name == field_name_str)
+                .unwrap();
+            field.r#type == first_field.r#type && field.required == first_field.required
+        }) {
+            continue;
+        }
+
+        let field_name = sanitize_field_name(&field_name_str);
+        let field_type = &first_field.r#type;
+
+        let is_copy = field_type.is_copy();
+        let is_string = matches!(field_type, TypeKindInField::String);
+        let is_boxed = first_field.is_recursive || first_field.is_boxed;
+        let is_array = matches!(field_type, TypeKindInField::Array(_));
+
+        let is_common = variants.len() == type_quote.subtypes.len();
+
+        let (return_type, body, needs_option_wrapper) = if is_common {
+            if is_array {
+                if let TypeKindInField::Array(inner) = field_type {
+                    if first_field.required {
+                        (quote! { &[#inner] }, quote! { &inner.#field_name }, false)
+                    } else {
+                        (
+                            quote! { Option<&[#inner]> },
+                            quote! { inner.#field_name.as_deref() },
+                            false,
+                        )
+                    }
+                } else {
+                    unreachable!()
+                }
+            } else {
+                match (first_field.required, is_copy, is_string) {
+                    (true, true, _) => {
+                        (quote! { #field_type }, quote! { inner.#field_name }, false)
+                    }
+                    (false, true, _) => (
+                        quote! { Option<#field_type> },
+                        quote! { inner.#field_name },
+                        false,
+                    ),
+                    (true, false, true) => (
+                        quote! { &str },
+                        quote! { inner.#field_name.as_str() },
+                        false,
+                    ),
+                    (false, false, true) => (
+                        quote! { Option<&str> },
+                        quote! { inner.#field_name.as_deref() },
+                        false,
+                    ),
+                    (true, false, false) => (
+                        quote! { &#field_type },
+                        quote! { &inner.#field_name },
+                        false,
+                    ),
+                    (false, false, false) => {
+                        let body = if is_boxed {
+                            quote! { inner.#field_name.as_deref() }
+                        } else {
+                            quote! { inner.#field_name.as_ref() }
+                        };
+                        (quote! { Option<&#field_type> }, body, false)
+                    }
+                }
+            }
+        } else {
+            if is_array {
+                if let TypeKindInField::Array(inner) = field_type {
+                    if first_field.required {
+                        (
+                            quote! { Option<&[#inner]> },
+                            quote! { &inner.#field_name },
+                            true,
+                        )
+                    } else {
+                        (
+                            quote! { Option<&[#inner]> },
+                            quote! { inner.#field_name.as_deref() },
+                            false,
+                        )
+                    }
+                } else {
+                    unreachable!()
+                }
+            } else {
+                match (first_field.required, is_copy, is_string) {
+                    (true, true, _) => (
+                        quote! { Option<#field_type> },
+                        quote! { inner.#field_name },
+                        true,
+                    ),
+                    (false, true, _) => (
+                        quote! { Option<#field_type> },
+                        quote! { inner.#field_name },
+                        false,
+                    ),
+                    (true, false, true) => (
+                        quote! { Option<&str> },
+                        quote! { inner.#field_name.as_str() },
+                        true,
+                    ),
+                    (false, false, true) => (
+                        quote! { Option<&str> },
+                        quote! { inner.#field_name.as_deref() },
+                        false,
+                    ),
+                    (true, false, false) => (
+                        quote! { Option<&#field_type> },
+                        quote! { &inner.#field_name },
+                        true,
+                    ),
+                    (false, false, false) => {
+                        let body = if is_boxed {
+                            quote! { inner.#field_name.as_deref() }
+                        } else {
+                            quote! { inner.#field_name.as_ref() }
+                        };
+                        (quote! { Option<&#field_type> }, body, false)
+                    }
+                }
+            }
+        };
+
+        let match_arms = variants.iter().map(|subtype| {
+            let variant_name = format_ident!("{}", subtype.variant);
+            let arm_body = if needs_option_wrapper {
+                quote! { Some(#body) }
+            } else {
+                body.clone()
+            };
+
+            quote! {
+                Self::#variant_name(inner) => #arm_body
+            }
+        });
+
+        let method = if is_common {
+            quote! {
+                #[must_use]
+                pub fn #field_name(&self) -> #return_type {
+                    match self {
+                        #( #match_arms ),*
+                    }
+                }
+            }
+        } else {
+            quote! {
+                #[must_use]
+                pub fn #field_name(&self) -> #return_type {
+                    match self {
+                        #( #match_arms, )*
+                        _ => None,
+                    }
+                }
+            }
+        };
+        methods.push(method);
+    }
+
+    quote! {
+        impl #type_name {
+            #( #methods )*
+        }
+    }
+}
+
+pub fn tokenize_type(type_quote: &NormalizedType, schema: &NormalizedSchema) -> TokenStream {
+    let imports_quote = if type_quote.get_paths_count() == 0 {
+        quote! {
+            use serde::Serialize;
+        }
+    } else {
+        quote! {
+            use super::*;
+            use serde::Serialize;
+        }
+    };
+
     let impls_for_subtypes = get_from_impls_for_subtypes(type_quote);
     let impls_for_subtypes_quote = quote! { #(#impls_for_subtypes)* };
     let builder_impl = builder_impl_for_type(type_quote);
+    let get_impl = get_impl_for_type(type_quote, schema);
 
     quote! {
-        use serde::Serialize;
-
         #imports_quote
         #type_quote
         #impls_for_subtypes_quote
         #builder_impl
+        #get_impl
     }
 }
 
@@ -422,7 +657,6 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
 
     let mut segments = Punctuated::new();
     segments.push(PathSegment::from(format_ident!("non_telegram")));
-    segments.push(PathSegment::from(format_ident!("chat_id_kind")));
 
     let chat_id_kind_mod_name = Path {
         leading_colon: None,

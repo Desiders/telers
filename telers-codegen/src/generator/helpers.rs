@@ -33,7 +33,7 @@ pub fn format_description(description: &[String], href: &str) -> Vec<String> {
     description
         .iter()
         .map(|line| format!(" {}", sanitize_description(line)))
-        .chain([format!(" # Documentation"), format!(" <{}>", href)])
+        .chain([" # Documentation".to_string(), format!(" <{}>", href)])
         .collect()
 }
 
@@ -43,4 +43,35 @@ pub fn format_attr_description(description: &str) -> String {
 
 pub fn get_singular_and_plural_forms(name: &str) -> (String, String) {
     (pluralize(name, 1, false), pluralize(name, 2, false))
+}
+
+pub fn camel_to_snake(input: &str) -> String {
+    let mut result = String::with_capacity(input.len() + 3);
+    let chars: Vec<char> = input.chars().collect();
+
+    for i in 0..chars.len() {
+        let c = chars[i];
+
+        if c.is_uppercase() {
+            if i > 0 {
+                let prev = chars[i - 1];
+                let next = chars.get(i + 1);
+
+                if prev.is_lowercase()
+                    || prev.is_ascii_digit()
+                    || (prev.is_uppercase() && next.is_some_and(|n| n.is_lowercase()))
+                {
+                    result.push('_');
+                }
+            }
+
+            for lower in c.to_lowercase() {
+                result.push(lower);
+            }
+        } else {
+            result.push(c);
+        }
+    }
+
+    result
 }

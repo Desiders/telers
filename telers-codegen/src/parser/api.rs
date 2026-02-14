@@ -1,6 +1,7 @@
+use quote::format_ident;
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet};
-use syn::Path;
+use std::collections::HashMap;
+use syn::{punctuated::Punctuated, Path, PathSegment};
 
 /// [`TelegramTypeName`] is a string that is used to identify a type, for example `Chat` or `User`.
 pub type TelegramTypeName = String;
@@ -243,36 +244,26 @@ pub struct NormalizedType {
 
 impl NormalizedType {
     pub fn get_paths(&self) -> Vec<Path> {
-        if self.fields.is_empty() {
-            let mut variants = HashSet::new();
-            for subtype in &self.subtypes {
-                variants.insert(
-                    syn::parse_str(&format!("super::{}", subtype.name)).expect("incorrect path"),
-                );
-            }
-            return variants.into_iter().collect();
-        }
-
-        let mut paths = HashSet::new();
+        let mut paths = vec![];
         for field in &self.fields {
             if let Some(path) = field.r#type.get_path() {
-                paths.insert(path);
+                paths.push(path);
             }
         }
+        for subtype in &self.subtypes {
+            let mut segments = Punctuated::new();
+            segments.push(PathSegment::from(format_ident!("{}", subtype.name)));
+            let path = Path {
+                leading_colon: None,
+                segments,
+            };
+            paths.push(path);
+        }
+        paths
+    }
 
-        let filtered_paths: Vec<Path> = paths
-            .into_iter()
-            .filter(|path| {
-                if let Some(ident) = path.get_ident() {
-                    ident.to_string() != self.name
-                } else if let Some(segment) = path.segments.last() {
-                    segment.ident.to_string() != self.name
-                } else {
-                    true
-                }
-            })
-            .collect();
-        filtered_paths
+    pub fn get_paths_count(&self) -> usize {
+        self.get_paths().len()
     }
 }
 
@@ -316,10 +307,10 @@ impl TypeKindInField {
     pub fn get_path(&self) -> Option<Path> {
         match self {
             TypeKindInField::InputFile => {
-                Some(syn::parse_str(&format!("super::InputFile")).expect("incorrect path"))
+                Some(syn::parse_str("super::InputFile").expect("incorrect path"))
             }
             TypeKindInField::ChatId => {
-                Some(syn::parse_str(&format!("super::ChatIdKind")).expect("incorrect path"))
+                Some(syn::parse_str("super::ChatIdKind").expect("incorrect path"))
             }
             TypeKindInField::Telegram(name) => {
                 Some(syn::parse_str(&format!("super::{name}")).expect("incorrect path"))
@@ -327,6 +318,13 @@ impl TypeKindInField {
             TypeKindInField::Array(kind) => kind.get_path(),
             _ => None,
         }
+    }
+
+    pub fn is_copy(&self) -> bool {
+        matches!(
+            self,
+            TypeKindInField::Integer(_) | TypeKindInField::Boolean(_)
+        )
     }
 }
 
