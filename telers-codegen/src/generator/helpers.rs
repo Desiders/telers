@@ -75,3 +75,23 @@ pub fn camel_to_snake(input: &str) -> String {
 
     result
 }
+
+pub fn snake_to_upper_camel(input: &str) -> String {
+    let mut result = String::with_capacity(input.len());
+    let mut capitalize_next = true;
+
+    for c in input.chars() {
+        if c == '_' {
+            capitalize_next = true;
+        } else if capitalize_next {
+            for upper in c.to_uppercase() {
+                result.push(upper);
+            }
+            capitalize_next = false;
+        } else {
+            result.push(c);
+        }
+    }
+
+    result
+}

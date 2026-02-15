@@ -29,12 +29,19 @@ fn main() {
         process::exit(1);
     });
 
-    let schema = Schema::parse_from_jsom(&schema_content)
+    let mut schema = Schema::parse_from_jsom(&schema_content)
         .unwrap_or_else(|err| {
             eprintln!("Failed to parse schema file: {err}");
             process::exit(1);
         })
         .normalize();
+    schema.split_message_types();
+    schema.split_chat_types();
+    schema.split_sticker_types();
+    schema.split_poll_types();
+    schema.split_giveaway_types();
+    schema.split_giveaway_winners_types();
+    schema.split_star_transaction_types();
 
     for (name, ty) in &schema.types {
         let tokens = generator::types::tokenize_type(ty, &schema);

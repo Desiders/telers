@@ -143,10 +143,11 @@ pub fn get_from_impls_for_subtypes(type_quote: &NormalizedType) -> Vec<TokenStre
         .iter()
         .map(|subtype| {
             let name = format_ident!("{}", type_quote.name);
+            let subtype_name = format_ident!("{}", subtype.name);
             let subtype_variant = format_ident!("{}", subtype.variant);
             quote! {
-                impl From<#subtype_variant> for #name {
-                    fn from(val: #subtype_variant) -> Self {
+                impl From<#subtype_name> for #name {
+                    fn from(val: #subtype_name) -> Self {
                         Self::#subtype_variant(val)
                     }
                 }
@@ -228,7 +229,7 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
             quote! {
                 #doc_lines
                 #[must_use]
-                pub fn new() -> Self {
+                pub const fn new() -> Self {
                     Self {}
                 }
             }
@@ -407,7 +408,7 @@ pub fn get_impl_for_type(type_quote: &NormalizedType, schema: &NormalizedSchema)
         let name = format_ident!("{}", subtype.name);
         let variant_snake_case = camel_to_snake(&subtype.variant);
         let is_method_name = format_ident!("is_{variant_snake_case}");
-        let get_method_name = format_ident!("into_{variant_snake_case}");
+        let into_method_name = format_ident!("into_{variant_snake_case}");
 
         methods.push(quote! {
             #[must_use]
@@ -417,7 +418,7 @@ pub fn get_impl_for_type(type_quote: &NormalizedType, schema: &NormalizedSchema)
         });
         methods.push(quote! {
             #[must_use]
-            pub fn #get_method_name(self) -> Option<#name> {
+            pub fn #into_method_name(self) -> Option<#name> {
                 if let Self::#variant(val) = self {
                     Some(val)
                 } else {
@@ -473,11 +474,11 @@ pub fn get_impl_for_type(type_quote: &NormalizedType, schema: &NormalizedSchema)
             if is_array {
                 if let TypeKindInField::Array(inner) = field_type {
                     if first_field.required {
-                        (quote! { &[#inner] }, quote! { &*inner.#field_name }, false)
+                        (quote! { &[#inner] }, quote! { &*val.#field_name }, false)
                     } else {
                         (
                             quote! { Option<&[#inner]> },
-                            quote! { inner.#field_name.as_deref() },
+                            quote! { val.#field_name.as_deref() },
                             false,
                         )
                     }
@@ -486,30 +487,26 @@ pub fn get_impl_for_type(type_quote: &NormalizedType, schema: &NormalizedSchema)
                 }
             } else {
                 match (first_field.required, is_copy, is_string) {
-                    (true, true, _) => {
-                        (quote! { #field_type }, quote! { inner.#field_name }, false)
-                    }
+                    (true, true, _) => (quote! { #field_type }, quote! { val.#field_name }, false),
                     (false, true, _) => (
                         quote! { Option<#field_type> },
-                        quote! { inner.#field_name },
+                        quote! { val.#field_name },
                         false,
                     ),
-                    (true, false, true) => (quote! { &str }, quote! { &*inner.#field_name }, false),
+                    (true, false, true) => (quote! { &str }, quote! { &*val.#field_name }, false),
                     (false, false, true) => (
                         quote! { Option<&str> },
-                        quote! { inner.#field_name.as_deref() },
+                        quote! { val.#field_name.as_deref() },
                         false,
                     ),
-                    (true, false, false) => (
-                        quote! { &#field_type },
-                        quote! { &inner.#field_name },
-                        false,
-                    ),
+                    (true, false, false) => {
+                        (quote! { &#field_type }, quote! { &val.#field_name }, false)
+                    }
                     (false, false, false) => {
                         let body = if is_boxed {
-                            quote! { inner.#field_name.as_deref() }
+                            quote! { val.#field_name.as_deref() }
                         } else {
-                            quote! { inner.#field_name.as_ref() }
+                            quote! { val.#field_name.as_ref() }
                         };
                         (quote! { Option<&#field_type> }, body, false)
                     }
@@ -521,13 +518,13 @@ pub fn get_impl_for_type(type_quote: &NormalizedType, schema: &NormalizedSchema)
                     if first_field.required {
                         (
                             quote! { Option<&[#inner]> },
-                            quote! { &*inner.#field_name },
+                            quote! { &*val.#field_name },
                             true,
                         )
                     } else {
                         (
                             quote! { Option<&[#inner]> },
-                            quote! { inner.#field_name.as_deref() },
+                            quote! { val.#field_name.as_deref() },
                             false,
                         )
                     }
@@ -538,34 +535,32 @@ pub fn get_impl_for_type(type_quote: &NormalizedType, schema: &NormalizedSchema)
                 match (first_field.required, is_copy, is_string) {
                     (true, true, _) => (
                         quote! { Option<#field_type> },
-                        quote! { inner.#field_name },
+                        quote! { val.#field_name },
                         true,
                     ),
                     (false, true, _) => (
                         quote! { Option<#field_type> },
-                        quote! { inner.#field_name },
+                        quote! { val.#field_name },
                         false,
                     ),
-                    (true, false, true) => (
-                        quote! { Option<&str> },
-                        quote! { &*inner.#field_name },
-                        true,
-                    ),
+                    (true, false, true) => {
+                        (quote! { Option<&str> }, quote! { &*val.#field_name }, true)
+                    }
                     (false, false, true) => (
                         quote! { Option<&str> },
-                        quote! { inner.#field_name.as_deref() },
+                        quote! { val.#field_name.as_deref() },
                         false,
                     ),
                     (true, false, false) => (
                         quote! { Option<&#field_type> },
-                        quote! { &inner.#field_name },
+                        quote! { &val.#field_name },
                         true,
                     ),
                     (false, false, false) => {
                         let body = if is_boxed {
-                            quote! { inner.#field_name.as_deref() }
+                            quote! { val.#field_name.as_deref() }
                         } else {
-                            quote! { inner.#field_name.as_ref() }
+                            quote! { val.#field_name.as_ref() }
                         };
                         (quote! { Option<&#field_type> }, body, false)
                     }
@@ -582,7 +577,7 @@ pub fn get_impl_for_type(type_quote: &NormalizedType, schema: &NormalizedSchema)
             };
 
             quote! {
-                Self::#variant_name(inner) => #arm_body
+                Self::#variant_name(val) => #arm_body
             }
         });
 
@@ -636,9 +631,9 @@ pub fn tokenize_type(type_quote: &NormalizedType, schema: &NormalizedSchema) -> 
     quote! {
         #imports_quote
         #type_quote
-        #impls_for_subtypes_quote
         #builder_impl
         #get_impl
+        #impls_for_subtypes_quote
     }
 }
 
