@@ -1,4 +1,5 @@
 use quote::format_ident;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use syn::{punctuated::Punctuated, Path, PathSegment};
@@ -160,7 +161,33 @@ impl Schema {
                 };
                 let is_boxed = match field_type {
                     TypeKindInField::Telegram(ref name) => match name.as_str() {
-                        "Message" | "MaybeInaccessibleMessage" => true,
+                        "Message"
+                        | "MaybeInaccessibleMessage"
+                        | "User"
+                        | "Chat"
+                        | "PhotoSize"
+                        | "Animation"
+                        | "Document"
+                        | "Sticker"
+                        | "Video"
+                        | "Audio"
+                        | "Venue"
+                        | "VideoNote"
+                        | "Voice"
+                        | "Poll"
+                        | "Invoice"
+                        | "Location"
+                        | "Contact"
+                        | "Game"
+                        | "Gift"
+                        | "UniqueGift"
+                        | "GiftInfo"
+                        | "UniqueGiftInfo"
+                        | "GiveawayWinners"
+                        | "Giveaway"
+                        | "ExternalReplyInfo"
+                        | "ShippingAddress"
+                        | "SuccessfulPayment" => true,
                         _ => false,
                     },
                     _ => false,
@@ -277,10 +304,16 @@ pub struct NormalizedSchema {
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum IntegerKind {
-    Int64,
-    Int32,
+    Int8,
     Int16,
+    Int32,
+    Int64,
+    UInt8,
+    UInt16,
+    UInt32,
+    UInt64,
     Float32,
+    Float64,
 }
 
 /// # Variants
@@ -332,15 +365,58 @@ pub fn is_string(raw_type: &RawType) -> bool {
     raw_type == "String"
 }
 
-/// # Notes
-/// Currently use only [`IntegerKind::Int64`] and [`IntegerKind::Float32`].
-/// Need to add support for other integer types by its description.
-pub fn get_if_integer(raw_type: &RawType, _description: &str) -> Option<IntegerKind> {
+pub fn get_if_integer(raw_type: &RawType, description: &str) -> Option<IntegerKind> {
     match raw_type.as_str() {
-        "Integer" => Some(IntegerKind::Int64),
-        "Float" => Some(IntegerKind::Float32),
+        "Integer" => {
+            if let Some((min, max)) = extract_range(description) {
+                if min < 0 {
+                    if max <= i8::MAX as i64 {
+                        Some(IntegerKind::Int8)
+                    } else if max <= i16::MAX as i64 {
+                        Some(IntegerKind::Int16)
+                    } else if max <= i32::MAX as i64 {
+                        Some(IntegerKind::Int32)
+                    } else {
+                        Some(IntegerKind::Int64)
+                    }
+                } else {
+                    if max <= u8::MAX as i64 {
+                        Some(IntegerKind::UInt8)
+                    } else if max <= u16::MAX as i64 {
+                        Some(IntegerKind::UInt16)
+                    } else if max <= u32::MAX as i64 {
+                        Some(IntegerKind::UInt32)
+                    } else {
+                        Some(IntegerKind::UInt64)
+                    }
+                }
+            } else {
+                Some(IntegerKind::Int64)
+            }
+        }
+        "Float" => Some(IntegerKind::Float64),
         _ => None,
     }
+}
+
+fn extract_range(description: &str) -> Option<(i64, i64)> {
+    let doc = description.to_lowercase();
+    let patterns = [
+        // from -999 to 999, between -999 and 999, 1-100, 1 to 100, etc.
+        r"(?:from|between|must be)?\s*([-]?\d+)\s*(?:-|to|and)\s*([-]?\d+)",
+    ];
+    for pattern in patterns {
+        let re = Regex::new(pattern).ok()?;
+        if let Some(caps) = re.captures(&doc) {
+            let min: i64 = caps[1].parse().ok()?;
+            let max: i64 = caps[2].parse().ok()?;
+
+            if min <= max {
+                return Some((min, max));
+            }
+        }
+    }
+    None
 }
 
 /// # Notes

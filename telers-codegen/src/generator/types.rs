@@ -18,12 +18,18 @@ use syn::{punctuated::Punctuated, Path, PathSegment};
 impl ToTokens for TypeKindInField {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let ts = match self {
-            TypeKindInField::String => quote! { String },
+            TypeKindInField::String => quote! { Box<str> },
             TypeKindInField::Integer(kind) => match kind {
-                IntegerKind::Int64 => quote! { i64 },
-                IntegerKind::Int32 => quote! { i32 },
+                IntegerKind::Int8 => quote! { i8 },
                 IntegerKind::Int16 => quote! { i16 },
+                IntegerKind::Int32 => quote! { i32 },
+                IntegerKind::Int64 => quote! { i64 },
+                IntegerKind::UInt8 => quote! { u8 },
+                IntegerKind::UInt16 => quote! { u16 },
+                IntegerKind::UInt32 => quote! { u32 },
+                IntegerKind::UInt64 => quote! { u64 },
                 IntegerKind::Float32 => quote! { f32 },
+                IntegerKind::Float64 => quote! { f64 },
             },
             TypeKindInField::Boolean(kind) => match kind {
                 BooleanKind::Any => quote! { bool },
@@ -35,7 +41,7 @@ impl ToTokens for TypeKindInField {
             }
             TypeKindInField::InputFile => quote! { InputFile },
             TypeKindInField::ChatId => quote! { ChatIdKind },
-            TypeKindInField::Array(inner) => quote! { Vec<#inner> },
+            TypeKindInField::Array(inner) => quote! { Box<[#inner]> },
         };
         tokens.extend(ts);
     }
@@ -168,8 +174,8 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
         })
         .collect();
 
-    let required_fields: Vec<_> = fields.iter().filter(|f| f.required).copied().collect();
-    let optional_fields: Vec<_> = fields.iter().filter(|f| !f.required).copied().collect();
+    let required_fields: Box<[_]> = fields.iter().filter(|f| f.required).copied().collect();
+    let optional_fields: Box<[_]> = fields.iter().filter(|f| !f.required).copied().collect();
 
     let new_method_ts = {
         let mut doc_lines = TokenStream::new();
@@ -262,21 +268,23 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
 
                 let body = if field.required {
                     quote! {
-                        let mut #name = self.#name;
+                        let mut #name = std::mem::take(&mut self.#name).into_vec();
                         #name.extend(val.into());
+                        let #name = #name.into_boxed_slice();
                         Self { #name, ..self }
                     }
                 } else {
                     quote! {
-                        let mut #name = self.#name.unwrap_or_default();
+                        let mut #name = self.#name.take().unwrap_or_default().into_vec();
                         #name.extend(val.into());
+                        let #name = #name.into_boxed_slice();
                         Self { #name: Some(#name), ..self }
                     }
                 };
                 methods.push(quote! {
                     #doc_lines
                     #[must_use]
-                    pub fn #plural_method_name(self, val: impl Into<Vec<#inner>>) -> Self {
+                    pub fn #plural_method_name(mut self, val: impl Into<#ty>) -> Self {
                         #body
                     }
                 });
@@ -292,14 +300,16 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
 
                     let body = if field.required {
                         quote! {
-                            let mut #name = self.#name;
+                            let mut #name = std::mem::take(&mut self.#name).into_vec();
                             #name.push(val.into());
+                            let #name = #name.into_boxed_slice();
                             Self { #name, ..self }
                         }
                     } else {
                         quote! {
-                            let mut #name = self.#name.unwrap_or_default();
+                            let mut #name = self.#name.take().unwrap_or_default().into_vec();
                             #name.push(val.into());
+                            let #name = #name.into_boxed_slice();
                             Self { #name: Some(#name), ..self }
                         }
                     };
@@ -307,7 +317,7 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
                     methods.push(quote! {
                         #doc_lines
                         #[must_use]
-                        pub fn #singular_method_name(self, val: impl Into<#inner>) -> Self {
+                        pub fn #singular_method_name(mut self, val: impl Into<#inner>) -> Self {
                             #body
                         }
                     });
@@ -326,7 +336,7 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
                     methods.push(quote! {
                         #doc_lines
                         #[must_use]
-                        pub fn #method_name(self, val: Option<impl Into<Vec<#inner>>>) -> Self {
+                        pub fn #method_name(self, val: Option<impl Into<#ty>>) -> Self {
                             Self { #name: val.map(Into::into), ..self }
                         }
                     });
@@ -463,7 +473,7 @@ pub fn get_impl_for_type(type_quote: &NormalizedType, schema: &NormalizedSchema)
             if is_array {
                 if let TypeKindInField::Array(inner) = field_type {
                     if first_field.required {
-                        (quote! { &[#inner] }, quote! { &inner.#field_name }, false)
+                        (quote! { &[#inner] }, quote! { &*inner.#field_name }, false)
                     } else {
                         (
                             quote! { Option<&[#inner]> },
@@ -484,11 +494,7 @@ pub fn get_impl_for_type(type_quote: &NormalizedType, schema: &NormalizedSchema)
                         quote! { inner.#field_name },
                         false,
                     ),
-                    (true, false, true) => (
-                        quote! { &str },
-                        quote! { inner.#field_name.as_str() },
-                        false,
-                    ),
+                    (true, false, true) => (quote! { &str }, quote! { &*inner.#field_name }, false),
                     (false, false, true) => (
                         quote! { Option<&str> },
                         quote! { inner.#field_name.as_deref() },
@@ -515,7 +521,7 @@ pub fn get_impl_for_type(type_quote: &NormalizedType, schema: &NormalizedSchema)
                     if first_field.required {
                         (
                             quote! { Option<&[#inner]> },
-                            quote! { &inner.#field_name },
+                            quote! { &*inner.#field_name },
                             true,
                         )
                     } else {
@@ -542,7 +548,7 @@ pub fn get_impl_for_type(type_quote: &NormalizedType, schema: &NormalizedSchema)
                     ),
                     (true, false, true) => (
                         quote! { Option<&str> },
-                        quote! { inner.#field_name.as_str() },
+                        quote! { &*inner.#field_name },
                         true,
                     ),
                     (false, false, true) => (
@@ -720,7 +726,7 @@ mod tests {
         assert!(result.contains("struct Message"));
         assert!(result.contains("Unique message identifier"));
         assert!(result.contains("message_id : i64"));
-        assert!(result.contains("text : Option < String >"));
+        assert!(result.contains("text : Option < Box < str > >"));
     }
 
     #[test]
