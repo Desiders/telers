@@ -50,7 +50,8 @@ tokio = { version = "1.36", default-features = false, features = ["sync", "macro
 tokio-util = { version = "0.7", default-features = false, features = ["codec"] }
 reqwest = { version = "0.12", default-features = false, features = ["multipart", "stream"] }
 serde = { version = "1.0", default-features = false, features = ["derive"] }
-serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
+serde_json = { version = "1.0", default-features = false, features = ["alloc", "unbounded_depth"] }
+serde_stacker = { version = "0.1", default-features = false }
 serde_with = { version = "3.6", default-features = false, features = ["macros"] }
 strum = { version = "0.27", default-features = false, features = ["std"] }
 strum_macros = { version = "0.27", default-features = false }
