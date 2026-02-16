@@ -3,6 +3,7 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{cmp::Ordering, collections::HashMap, mem};
 use syn::{punctuated::Punctuated, Path, PathSegment};
+use tracing::warn;
 
 use crate::generator::helpers::snake_to_upper_camel;
 
@@ -13,31 +14,11 @@ pub type RawType = String;
 const BOXED_TYPES: &[&str] = &[
     "Message",
     "MaybeInaccessibleMessage",
-    "User",
     "Chat",
-    "PhotoSize",
-    "Animation",
-    "Document",
-    "Sticker",
-    "Video",
-    "Audio",
-    "Venue",
-    "VideoNote",
-    "Voice",
-    "Poll",
-    "Invoice",
-    "Location",
-    "Contact",
-    "Game",
+    "User",
+    "ExternalReplyInfo",
     "Gift",
     "UniqueGift",
-    "GiftInfo",
-    "UniqueGiftInfo",
-    "GiveawayWinners",
-    "Giveaway",
-    "ExternalReplyInfo",
-    "ShippingAddress",
-    "SuccessfulPayment",
 ];
 
 fn sort_fields(fields: &mut Vec<NormalizedField>) {
@@ -99,6 +80,36 @@ impl Field {
 
         TypeKindInField::Telegram(r#type.to_owned())
     }
+
+    pub fn is_tagged(&self) -> bool {
+        self.required
+            && self.types == ["String"]
+            && (self.description.contains("always") || self.description.contains("must be"))
+    }
+
+    pub fn get_tagged_value(&self) -> Option<String> {
+        if !is_string(self.types.first()?) {
+            return None;
+        }
+        let desc = self.description.to_lowercase();
+        let patterns = [
+            r#"always "([^"]+)""#,
+            r#"always ([a-z_]+)"#,
+            r#"must be "([^"]+)""#,
+            r#"must be ([a-z_]+)"#,
+        ];
+
+        for pattern in patterns {
+            if let Ok(re) = Regex::new(pattern) {
+                if let Some(caps) = re.captures(&desc) {
+                    if let Some(m) = caps.get(1) {
+                        return Some(m.as_str().to_owned());
+                    }
+                }
+            }
+        }
+        None
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -127,56 +138,57 @@ impl Schema {
         serde_json::from_str(content)
     }
 
-    fn detect_subtype_kind(&self, subtypes: &[TelegramTypeName]) -> Option<SubtypeKind> {
+    fn detect_subtypes(
+        &self,
+        subtypes: &[TelegramTypeName],
+    ) -> Option<(SubtypeKind, SubtypeTaggedValues)> {
         if subtypes.is_empty() {
             return None;
         }
 
-        let Some(first_ty) = subtypes.first().and_then(|name| self.types.get(name)) else {
-            return Some(SubtypeKind::Untagged);
+        let mut tagged_values = SubtypeTaggedValues::default();
+        let first_ty = self.types.get(subtypes.first().unwrap()).unwrap();
+        let Some(first_ty_tagged_field) = first_ty.fields.get(0) else {
+            return Some((SubtypeKind::Untagged, tagged_values));
         };
+        if !first_ty_tagged_field.is_tagged() {
+            return Some((SubtypeKind::Untagged, tagged_values));
+        }
+        tagged_values.insert(
+            first_ty.name.clone(),
+            first_ty_tagged_field.get_tagged_value().unwrap(),
+        );
 
-        let candidates: Vec<&str> = first_ty
-            .fields
-            .iter()
-            .filter(|f| {
-                f.required
-                    && f.types == ["String"]
-                    && (f.description.contains("always") || f.description.contains("must be"))
-            })
-            .map(|f| f.name.as_str())
-            .collect();
-
-        for candidate in candidates {
-            let all_have_it = subtypes.iter().skip(1).all(|subtype_name| {
-                self.types.get(subtype_name).is_some_and(|subtype| {
-                    subtype.fields.iter().any(|f| {
-                        f.name == candidate
-                            && f.required
-                            && f.types == ["String"]
-                            && (f.description.contains("always")
-                                || f.description.contains("must be"))
-                    })
-                })
-            });
-
-            if all_have_it {
-                return Some(SubtypeKind::Tagged {
-                    tag_field: candidate.to_owned(),
-                });
+        for subtype in subtypes.iter().skip(1) {
+            let ty = self.types.get(subtype).unwrap();
+            let Some(ty_tagged_field) = ty.fields.get(0) else {
+                return Some((SubtypeKind::Untagged, tagged_values));
+            };
+            if !ty_tagged_field.is_tagged() {
+                return Some((SubtypeKind::Untagged, tagged_values));
             }
+            tagged_values.insert(ty.name.clone(), ty_tagged_field.get_tagged_value().unwrap());
         }
 
-        Some(SubtypeKind::Untagged)
+        Some((
+            SubtypeKind::Tagged {
+                tag_field: first_ty_tagged_field.name.clone(),
+                parent_tag_field: None,
+            },
+            tagged_values,
+        ))
     }
 
     pub fn normalize(self) -> NormalizedSchema {
-        let mut subtype_kinds: HashMap<String, SubtypeKind> = HashMap::new();
+        let mut subtype_info = HashMap::new();
         for (name, ty) in &self.types {
-            if let Some(kind) = self.detect_subtype_kind(&ty.subtypes) {
-                subtype_kinds.insert(name.clone(), kind.clone());
+            if let Some((kind, tagged_values)) = self.detect_subtypes(&ty.subtypes) {
+                subtype_info.insert(name.clone(), (kind.clone(), None));
                 for subtype in &ty.subtypes {
-                    subtype_kinds.insert(subtype.clone(), kind.clone());
+                    subtype_info.insert(
+                        subtype.clone(),
+                        (kind.clone(), tagged_values.get(subtype).cloned()),
+                    );
                 }
             }
         }
@@ -204,15 +216,24 @@ impl Schema {
                         }
                     })
                     .collect();
-                let subtype_kind = subtype_kinds.remove(&name);
                 let subtypes = ty
                     .subtypes
                     .into_iter()
-                    .map(|n| NormalizedSubtypeVariant {
-                        variant: n.clone(),
-                        name: n,
+                    .map(|name| {
+                        let subtype_value = subtype_info
+                            .get(&name)
+                            .map(|(_, tagged_value)| tagged_value);
+                        let variant = match subtype_value {
+                            Some(Some(value)) => snake_to_upper_camel(value),
+                            _ => name.clone(),
+                        };
+                        NormalizedSubtypeVariant {
+                            variant,
+                            ty_name: name,
+                        }
                     })
                     .collect();
+                let subtype_kind = subtype_info.get(&name).map(|(kind, _)| kind).cloned();
                 let normalized = NormalizedType {
                     name: ty.name,
                     href: ty.href,
@@ -249,16 +270,58 @@ pub struct NormalizedField {
     pub is_boxed: bool,
 }
 
+impl NormalizedField {
+    pub fn is_tagged(&self, tag_field: Option<&str>, parent_tag_field: Option<&str>) -> bool {
+        let Some(tag_name) = tag_field else {
+            return false;
+        };
+        if self.r#type != TypeKindInField::String {
+            return false;
+        }
+        if self.name == tag_name {
+            return true;
+        }
+        if let Some(parent_tag_field) = parent_tag_field {
+            if self.name == parent_tag_field {
+                return true;
+            }
+        }
+        false
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum SubtypeKind {
-    Tagged { tag_field: String },
+    Tagged {
+        tag_field: String,
+        parent_tag_field: Option<String>,
+    },
     Untagged,
+    UntaggedInTagged {
+        tag_field: String,
+    },
 }
+
+impl SubtypeKind {
+    pub fn get_tags(&self) -> (Option<&str>, Option<&str>) {
+        match self {
+            SubtypeKind::Untagged => (None, None),
+            SubtypeKind::UntaggedInTagged { tag_field } => (Some(tag_field.as_str()), None),
+            SubtypeKind::Tagged {
+                tag_field,
+                parent_tag_field,
+            } => (Some(tag_field.as_str()), parent_tag_field.as_deref()),
+        }
+    }
+}
+
+pub type SubtypeTaggedValue = String;
+pub type SubtypeTaggedValues = HashMap<String, SubtypeTaggedValue>;
 
 #[derive(Debug)]
 pub struct NormalizedSubtypeVariant {
     pub variant: TelegramTypeName,
-    pub name: TelegramTypeName,
+    pub ty_name: TelegramTypeName,
 }
 
 #[derive(Debug)]
@@ -279,7 +342,7 @@ impl NormalizedType {
             .filter_map(|f| f.r#type.get_path())
             .chain(self.subtypes.iter().map(|s| {
                 let mut segments = Punctuated::new();
-                segments.push(PathSegment::from(format_ident!("{}", s.name)));
+                segments.push(PathSegment::from(format_ident!("{}", s.ty_name)));
                 Path {
                     leading_colon: None,
                     segments,
@@ -319,9 +382,88 @@ impl NormalizedSchema {
             .iter()
             .map(|(variant, name)| NormalizedSubtypeVariant {
                 variant: variant.clone(),
-                name: name.clone(),
+                ty_name: name.clone(),
             })
             .collect();
+    }
+
+    pub fn split_inline_query_result(&mut self) {
+        let inline_query_result = self
+            .types
+            .get_mut("InlineQueryResult")
+            .expect("InlineQueryResult doesn't exist in schema");
+
+        enum TypeKind {
+            CachedAndNotCached,
+            Cached,
+            NotCached,
+        }
+
+        let inline_query_types = [
+            ("Audio", TypeKind::CachedAndNotCached),
+            ("Document", TypeKind::CachedAndNotCached),
+            ("Gif", TypeKind::CachedAndNotCached),
+            ("Mpeg4Gif", TypeKind::CachedAndNotCached),
+            ("Phot", TypeKind::CachedAndNotCached),
+            ("Sticker", TypeKind::Cached),
+            ("Video", TypeKind::CachedAndNotCached),
+            ("Voice", TypeKind::CachedAndNotCached),
+            ("Article", TypeKind::NotCached),
+            ("Contact", TypeKind::NotCached),
+            ("Game", TypeKind::NotCached),
+            ("Location", TypeKind::NotCached),
+            ("Venue", TypeKind::NotCached),
+        ];
+
+        let mut types = HashMap::new();
+
+        for mut subtype in mem::take(&mut inline_query_result.subtypes) {
+            let Some((inline_query_type, kind)) = inline_query_types
+                .iter()
+                .find(|(variant, _)| subtype.variant == *variant)
+            else {
+                warn!("Unknown inline query type: {}", subtype.variant);
+                continue;
+            };
+
+            match kind {
+                TypeKind::CachedAndNotCached => {
+                    let cached = format!("InlineQueryResultCached{inline_query_type}");
+                    let not_cached = format!("InlineQueryResult{inline_query_type}");
+                    let combined = format!("InlineQueryResult{inline_query_type}Kind");
+
+                    let name = combined.to_string();
+                    if types.contains_key(&name) {
+                        continue;
+                    }
+                    subtype.ty_name = name.clone();
+
+                    types.insert(
+                        name.clone(),
+                        NormalizedType {
+                            name: name.clone(),
+                            href: inline_query_result.href.clone(),
+                            description: vec![
+                                "# Notes".to_owned(),
+                                format!("This object represents an inline query result kind as combine of {cached} and {not_cached}."),
+                            ],
+                            fields: vec![],
+                            subtype_kind: Some(SubtypeKind::UntaggedInTagged { tag_field: "type".to_owned() }),
+                            subtypes: vec![
+                                NormalizedSubtypeVariant { variant: "Cached".to_owned(), ty_name: cached.to_string() },
+                                NormalizedSubtypeVariant { variant: "Uncached".to_owned(), ty_name: not_cached.to_string() },
+                            ],
+                            subtype_of: vec![inline_query_result.name.clone()],
+                        },
+                    );
+                }
+                _ => {}
+            }
+
+            inline_query_result.subtypes.push(subtype);
+        }
+
+        self.types.extend(types);
     }
 
     pub fn split_message_types(&mut self) {
@@ -439,7 +581,7 @@ impl NormalizedSchema {
                 let description = vec![
                     field.description.clone(),
                     "# Notes".to_owned(),
-                    format!("This object represents a {kind_label} from original message field `{field_name}`."),
+                    format!("This object represents a {kind_label} from original message field {field_name}."),
                 ];
 
                 types.insert(
@@ -463,6 +605,134 @@ impl NormalizedSchema {
         self.types.extend(types);
     }
 
+    pub fn split_external_reply_info_types(&mut self) {
+        let mut info = self
+            .types
+            .remove("ExternalReplyInfo")
+            .expect("ExternalReplyInfo doesn't exist in schema");
+
+        let mut common_fields = vec![];
+        let mut content_fields_map = HashMap::new();
+
+        for field in mem::take(&mut info.fields) {
+            let name = field.name.clone();
+            let desc = field.description.to_lowercase();
+            let is_content_field = desc.contains("message is") || name == "giveaway_winners";
+            if is_content_field {
+                content_fields_map.insert(name, field);
+            } else {
+                common_fields.push(field);
+            }
+        }
+
+        let mut types = HashMap::new();
+        let mut subtypes = vec![];
+
+        for (field_name, mut field) in content_fields_map {
+            let variant_name = snake_to_upper_camel(&field_name);
+            let type_name = format!("{}{variant_name}", info.name);
+            field.required = true;
+
+            let mut fields = common_fields.clone();
+            fields.push(field.clone());
+            sort_fields(&mut fields);
+
+            let description = vec![
+                field.description.clone(),
+                "# Notes".to_owned(),
+                format!("This object represents an external reply info from original field `{field_name}`."),
+            ];
+
+            types.insert(
+                type_name.clone(),
+                NormalizedType {
+                    name: type_name.clone(),
+                    href: info.href.clone(),
+                    description,
+                    fields,
+                    subtype_kind: Some(SubtypeKind::Untagged),
+                    subtypes: vec![],
+                    subtype_of: vec![info.name.clone()],
+                },
+            );
+            subtypes.push((variant_name, type_name));
+        }
+
+        Self::finalize_split(&mut info, &subtypes, SubtypeKind::Untagged);
+        self.types.insert(info.name.clone(), info);
+        self.types.extend(types);
+    }
+
+    pub fn split_update_types(&mut self) {
+        let mut update = self
+            .types
+            .remove("Update")
+            .expect("Update doesn't exist in schema");
+
+        let mut common_fields = vec![];
+        let mut variant_fields_map = HashMap::new();
+
+        for field in mem::take(&mut update.fields) {
+            if field.name == "update_id" {
+                common_fields.push(field);
+                continue;
+            }
+
+            variant_fields_map.insert(field.name.clone(), field);
+        }
+
+        let mut types = HashMap::new();
+        let mut subtypes = vec![];
+
+        for (field_name, mut field) in variant_fields_map {
+            let variant_name = snake_to_upper_camel(&field_name);
+            let type_name = format!("{}{variant_name}", update.name);
+
+            field.required = true;
+
+            let mut fields = common_fields.clone();
+            fields.push(field.clone());
+            sort_fields(&mut fields);
+
+            let description = vec![
+                field.description.clone(),
+                "# Notes".to_owned(),
+                format!(
+                    "This object represents an update from original update field `{field_name}`."
+                ),
+            ];
+
+            types.insert(
+                type_name.clone(),
+                NormalizedType {
+                    name: type_name.clone(),
+                    href: update.href.clone(),
+                    description,
+                    fields,
+                    subtype_kind: Some(SubtypeKind::Untagged),
+                    subtypes: vec![],
+                    subtype_of: vec![update.name.clone()],
+                },
+            );
+            subtypes.push((variant_name, type_name));
+        }
+
+        update
+            .description
+            .push("Currently, it can be one of".to_owned());
+        for (_, name) in &subtypes {
+            update.description.push(format!("- {name}"));
+        }
+        update.subtype_kind = Some(SubtypeKind::Untagged);
+        update.subtypes = subtypes
+            .into_iter()
+            .map(|(variant, ty_name)| NormalizedSubtypeVariant { variant, ty_name })
+            .collect();
+
+        self.types.insert(update.name.clone(), update);
+        self.types.extend(types);
+    }
+
     pub fn split_chat_types(&mut self) {
         self.split_chat_type("Chat");
         self.split_chat_type("ChatFullInfo");
@@ -478,7 +748,7 @@ impl NormalizedSchema {
         let mut common_fields = vec![];
         let mut type_fields_map: HashMap<&str, Vec<_>> = HashMap::new();
 
-        for field in mem::take(&mut chat.fields) {
+        for mut field in mem::take(&mut chat.fields) {
             if field.name == "type" {
                 common_fields.push(field);
                 continue;
@@ -494,17 +764,16 @@ impl NormalizedSchema {
             } else if desc.contains("group") {
                 applicable.push("group");
             }
-            if desc.contains("channel") {
+            if desc.contains("channel") && field.name != "is_direct_messages" {
                 applicable.push("channel");
             }
             if applicable.is_empty() {
                 applicable.extend(chat_types);
+            } else {
+                field.required = !desc.contains("if available");
             }
-
-            let is_optional = desc.contains("if available");
             for &chat_type in &applicable {
-                let mut f = field.clone();
-                f.required = !is_optional;
+                let f = field.clone();
                 type_fields_map.entry(chat_type).or_default().push(f);
             }
         }
@@ -537,6 +806,7 @@ impl NormalizedSchema {
                     fields,
                     subtype_kind: Some(SubtypeKind::Tagged {
                         tag_field: "type".to_owned(),
+                        parent_tag_field: None,
                     }),
                     subtypes: vec![],
                     subtype_of: vec![chat.name.clone()],
@@ -550,6 +820,7 @@ impl NormalizedSchema {
             &subtypes,
             SubtypeKind::Tagged {
                 tag_field: "type".to_owned(),
+                parent_tag_field: None,
             },
         );
         self.types.insert(chat.name.clone(), chat);
@@ -584,10 +855,11 @@ impl NormalizedSchema {
             }
             if applicable.is_empty() {
                 applicable.extend(sticker_types);
-            }
+            };
 
             for &t in &applicable {
-                type_fields_map.entry(t).or_default().push(field.clone());
+                let f = field.clone();
+                type_fields_map.entry(t).or_default().push(f);
             }
         }
 
@@ -613,7 +885,10 @@ impl NormalizedSchema {
                     format!("This object represents a sticker from original sticker type `{sticker_type}`."),
                 ],
                 fields,
-                subtype_kind: Some(SubtypeKind::Tagged { tag_field: "type".to_owned() }),
+                subtype_kind: Some(SubtypeKind::Tagged {
+                    tag_field: "type".to_owned(),
+                    parent_tag_field: None,
+                }),
                 subtypes: vec![],
                 subtype_of: vec![sticker.name.clone()],
             });
@@ -625,6 +900,7 @@ impl NormalizedSchema {
             &subtypes,
             SubtypeKind::Tagged {
                 tag_field: "type".to_owned(),
+                parent_tag_field: None,
             },
         );
         self.types.insert(sticker.name.clone(), sticker);
@@ -659,7 +935,8 @@ impl NormalizedSchema {
             }
 
             for &t in &applicable {
-                type_fields_map.entry(t).or_default().push(field.clone());
+                let f = field.clone();
+                type_fields_map.entry(t).or_default().push(f);
             }
         }
 
@@ -691,6 +968,7 @@ impl NormalizedSchema {
                     fields,
                     subtype_kind: Some(SubtypeKind::Tagged {
                         tag_field: "type".to_owned(),
+                        parent_tag_field: None,
                     }),
                     subtypes: vec![],
                     subtype_of: vec![poll.name.clone()],
@@ -704,6 +982,7 @@ impl NormalizedSchema {
             &subtypes,
             SubtypeKind::Tagged {
                 tag_field: "type".to_owned(),
+                parent_tag_field: None,
             },
         );
         self.types.insert(poll.name.clone(), poll);
@@ -721,20 +1000,20 @@ impl NormalizedSchema {
         for mut field in mem::take(&mut giveaway.fields) {
             let desc = field.description.to_lowercase();
             let mut applicable = vec![];
-            if desc.contains("telegram star") || field.name == "prize_star_count" {
-                field.required = true;
+            if desc.contains("telegram star") {
                 applicable.push("star");
             }
-            if desc.contains("telegram premium") || field.name == "premium_subscription_month_count"
-            {
-                field.required = true;
+            if desc.contains("telegram premium") {
                 applicable.push("premium");
             }
             if applicable.is_empty() {
                 applicable.extend(giveaway_types);
+            } else {
+                field.required = true;
             }
             for &t in &applicable {
-                type_fields_map.entry(t).or_default().push(field.clone());
+                let f = field.clone();
+                type_fields_map.entry(t).or_default().push(f);
             }
         }
 
@@ -768,17 +1047,16 @@ impl NormalizedSchema {
         for mut field in mem::take(&mut winners.fields) {
             let desc = field.description.to_lowercase();
             let mut applicable = vec![];
-            if desc.contains("telegram star") || field.name == "prize_star_count" {
-                field.required = true;
+            if desc.contains("telegram star") {
                 applicable.push("star");
             }
-            if desc.contains("telegram premium") || field.name == "premium_subscription_month_count"
-            {
-                field.required = true;
+            if desc.contains("telegram premium") {
                 applicable.push("premium");
             }
             if applicable.is_empty() {
                 applicable.extend(winners_types);
+            } else {
+                field.required = true;
             }
             for &t in &applicable {
                 type_fields_map.entry(t).or_default().push(field.clone());
@@ -794,7 +1072,7 @@ impl NormalizedSchema {
                 vec![
                     format!("This object represents a {t} giveaway winners."),
                     "# Notes".to_owned(),
-                    format!("This object represents giveaway winners from original type `{t}`."),
+                    format!("This object represents giveaway winners from original field `{t}`."),
                 ]
             },
         );
@@ -815,19 +1093,20 @@ impl NormalizedSchema {
         for mut field in mem::take(&mut transaction.fields) {
             let desc = field.description.to_lowercase();
             let mut applicable = vec![];
-            if desc.contains("source of an incoming transaction") || field.name == "source" {
-                field.required = true;
+            if desc.contains("source of an incoming transaction") {
                 applicable.push("incoming");
             }
-            if desc.contains("receiver of an outgoing transaction") || field.name == "receiver" {
-                field.required = true;
+            if desc.contains("receiver of an outgoing transaction") {
                 applicable.push("outgoing");
             }
             if applicable.is_empty() {
                 applicable.extend(transaction_types);
+            } else {
+                field.required = true;
             }
             for &t in &applicable {
-                type_fields_map.entry(t).or_default().push(field.clone());
+                let f = field.clone();
+                type_fields_map.entry(t).or_default().push(f);
             }
         }
 
@@ -838,15 +1117,312 @@ impl NormalizedSchema {
             &type_fields_map,
             |t| {
                 vec![
-                    format!("This object represents an {} Star transaction.", t),
+                    format!("This object represents an {t} star transaction."),
                     "# Notes".to_owned(),
-                    format!("This object represents a Star transaction from original type `{t}`."),
+                    format!("This object represents a star transaction from original field `{t}`."),
                 ]
             },
         );
 
         Self::finalize_split(&mut transaction, &subtypes, SubtypeKind::Untagged);
         self.types.insert(transaction.name.clone(), transaction);
+        self.types.extend(types);
+    }
+
+    pub fn split_encrypted_passport_element_types(&mut self) {
+        let mut element = self
+            .types
+            .remove("EncryptedPassportElement")
+            .expect("EncryptedPassportElement doesn't exist in schema");
+
+        let element_types = [
+            "personal_details",
+            "passport",
+            "driver_license",
+            "identity_card",
+            "internal_passport",
+            "address",
+            "utility_bill",
+            "bank_statement",
+            "rental_agreement",
+            "passport_registration",
+            "temporary_registration",
+            "phone_number",
+            "email",
+        ];
+
+        let mut common_fields = vec![];
+        let mut type_fields_map: HashMap<&str, Vec<_>> = HashMap::new();
+
+        for mut field in mem::take(&mut element.fields) {
+            if field.name == "type" {
+                common_fields.push(field);
+                continue;
+            }
+
+            let desc = field.description.to_lowercase();
+            let mut applicable = vec![];
+            for &t in &element_types {
+                let type_key = format!("\"{}\"", t);
+                if desc.contains(&type_key) {
+                    applicable.push(t);
+                }
+            }
+            if applicable.is_empty() {
+                applicable.extend(element_types);
+            } else {
+                field.required = true;
+            }
+
+            for &element_type in &applicable {
+                let f = field.clone();
+                type_fields_map.entry(element_type).or_default().push(f);
+            }
+        }
+
+        let mut types = HashMap::new();
+        let mut subtypes = vec![];
+
+        for element_type in element_types {
+            let variant_name = snake_to_upper_camel(element_type);
+            let type_name = format!("{}{variant_name}", element.name);
+
+            let mut fields = common_fields.clone();
+            if let Some(specific) = type_fields_map.get(element_type) {
+                fields.extend(specific.clone());
+            }
+            sort_fields(&mut fields);
+
+            types.insert(
+                type_name.clone(),
+                NormalizedType {
+                    name: type_name.clone(),
+                    href: element.href.clone(),
+                    description: vec![
+                        format!("This object represents a/an {} encrypted passport element.", element_type.replace("_", " ")),
+                        "# Notes".to_owned(),
+                        format!("This object represents an encrypted passport element from original field `{element_type}`."),
+                    ],
+                    fields,
+                    subtype_kind: Some(SubtypeKind::Tagged {
+                        tag_field: "type".to_owned(),parent_tag_field: None,
+                    }),
+                    subtypes: vec![],
+                    subtype_of: vec![element.name.clone()],
+                },
+            );
+            subtypes.push((variant_name, type_name));
+        }
+
+        Self::finalize_split(
+            &mut element,
+            &subtypes,
+            SubtypeKind::Tagged {
+                tag_field: "type".to_owned(),
+                parent_tag_field: None,
+            },
+        );
+        self.types.insert(element.name.clone(), element);
+        self.types.extend(types);
+    }
+
+    pub fn split_message_entity_types(&mut self) {
+        let mut entity = self
+            .types
+            .remove("MessageEntity")
+            .expect("MessageEntity doesn't exist in schema");
+
+        let entity_types = [
+            "mention",
+            "hashtag",
+            "cashtag",
+            "bot_command",
+            "url",
+            "email",
+            "phone_number",
+            "bold",
+            "italic",
+            "underline",
+            "strikethrough",
+            "spoiler",
+            "blockquote",
+            "expandable_blockquote",
+            "code",
+            "pre",
+            "text_link",
+            "text_mention",
+            "custom_emoji",
+        ];
+
+        let mut common_fields = vec![];
+        let mut type_fields_map: HashMap<&str, Vec<_>> = HashMap::new();
+
+        for mut field in mem::take(&mut entity.fields) {
+            if field.name == "type" {
+                common_fields.push(field);
+                continue;
+            }
+
+            let desc = field.description.to_lowercase();
+            let mut applicable = vec![];
+
+            for &t in &entity_types {
+                let type_key = format!("\"{}\"", t);
+                if desc.contains(&type_key) {
+                    applicable.push(t);
+                }
+            }
+            if applicable.is_empty() {
+                applicable.extend(entity_types);
+            } else {
+                field.required = ["url", "user", "custom_emoji_id"].contains(&field.name.as_str())
+                    || field.required;
+            }
+
+            for &entity_type in &applicable {
+                let f = field.clone();
+                type_fields_map.entry(entity_type).or_default().push(f);
+            }
+        }
+
+        let mut types = HashMap::new();
+        let mut subtypes = vec![];
+
+        for entity_type in entity_types {
+            let variant_name = snake_to_upper_camel(entity_type);
+            let type_name = format!("{}{variant_name}", entity.name);
+
+            let mut fields = common_fields.clone();
+            if let Some(specific) = type_fields_map.get(entity_type) {
+                fields.extend(specific.clone());
+            }
+            sort_fields(&mut fields);
+
+            types.insert(
+                type_name.clone(),
+                NormalizedType {
+                    name: type_name.clone(),
+                    href: entity.href.clone(),
+                    description: vec![
+                        format!("This object represents a/an {} message entity.", entity_type.replace("_", " ")),
+                        "# Notes".to_owned(),
+                        format!("This object represents a message entity from original field `{entity_type}`."),
+                    ],
+                    fields,
+                    subtype_kind: Some(SubtypeKind::Tagged {
+                        tag_field: "type".to_owned(),
+                        parent_tag_field: None,
+                    }),
+                    subtypes: vec![],
+                    subtype_of: vec![entity.name.clone()],
+                },
+            );
+            subtypes.push((variant_name, type_name));
+        }
+
+        Self::finalize_split(
+            &mut entity,
+            &subtypes,
+            SubtypeKind::Tagged {
+                tag_field: "type".to_owned(),
+                parent_tag_field: None,
+            },
+        );
+        self.types.insert(entity.name.clone(), entity);
+        self.types.extend(types);
+    }
+
+    pub fn split_transaction_partner_user_types(&mut self) {
+        let mut partner = self
+            .types
+            .remove("TransactionPartnerUser")
+            .expect("TransactionPartnerUser doesn't exist in schema");
+
+        let transaction_types = [
+            "invoice_payment",
+            "paid_media_payment",
+            "gift_purchase",
+            "premium_purchase",
+            "business_account_transfer",
+        ];
+
+        let parent_tag_field = match partner.subtype_kind.as_ref().unwrap() {
+            SubtypeKind::Tagged { tag_field, .. } => tag_field.to_owned(),
+            _ => unreachable!(),
+        };
+        let mut common_fields = vec![];
+        let mut type_fields_map: HashMap<&str, Vec<_>> = HashMap::new();
+
+        for mut field in mem::take(&mut partner.fields) {
+            if field.name == "transaction_type" {
+                common_fields.push(field);
+                continue;
+            }
+
+            let desc = field.description.to_lowercase();
+            let mut applicable = vec![];
+            for &t in &transaction_types {
+                let type_key = format!("\"{}\"", t);
+                if desc.contains(&type_key) {
+                    applicable.push(t);
+                }
+            }
+            if applicable.is_empty() {
+                applicable.extend(transaction_types);
+            } else {
+                field.required = !desc.contains("can be available");
+            }
+
+            for &t in &applicable {
+                let f = field.clone();
+                type_fields_map.entry(t).or_default().push(f);
+            }
+        }
+
+        let mut types = HashMap::new();
+        let mut subtypes = vec![];
+
+        for transaction_type in transaction_types {
+            let variant_name = snake_to_upper_camel(transaction_type);
+            let type_name = format!("{}{variant_name}", partner.name);
+
+            let mut fields = common_fields.clone();
+            if let Some(specific) = type_fields_map.get(transaction_type) {
+                fields.extend(specific.clone());
+            }
+            sort_fields(&mut fields);
+
+            types.insert(
+                type_name.clone(),
+                NormalizedType {
+                    name: type_name.clone(),
+                    href: partner.href.clone(),
+                    description: vec![
+                        format!("This object represents a/an {} transaction partner user.", transaction_type.replace("_", " ")),
+                        "# Notes".to_owned(),
+                        format!("This object represents a transaction partner user from original field `{transaction_type}`."),
+                    ],
+                    fields,
+                    subtype_kind: Some(SubtypeKind::Tagged {
+                        tag_field: "transaction_type".to_owned(),
+                        parent_tag_field: Some(parent_tag_field.clone()),
+                    }),
+                    subtypes: vec![],
+                    subtype_of: vec![partner.name.clone()],
+                },
+            );
+            subtypes.push((variant_name, type_name));
+        }
+
+        Self::finalize_split(
+            &mut partner,
+            &subtypes,
+            SubtypeKind::Tagged {
+                tag_field: "transaction_type".to_owned(),
+                parent_tag_field: Some(parent_tag_field),
+            },
+        );
+        self.types.insert(partner.name.clone(), partner);
         self.types.extend(types);
     }
 
@@ -2312,7 +2888,7 @@ mod tests {
         }
 
         for subtype in &message.subtypes {
-            let type_name = &subtype.name;
+            let type_name = &subtype.ty_name;
             let ty = normalized.types.get(type_name).unwrap();
 
             assert!(
@@ -2517,7 +3093,7 @@ mod tests {
         }
 
         for subtype in &chat.subtypes {
-            let type_name = &subtype.name;
+            let type_name = &subtype.ty_name;
             let ty = normalized.types.get(type_name).unwrap();
 
             assert!(
@@ -2568,4 +3144,23 @@ mod tests {
             }
         }
     }
+
+    // #[test]
+    // fn test_create_enums_from_fields() {
+    //     let content = r#"
+    //         {
+    //             "version": "1.0",
+    //             "release_date": "2021-01-01",
+    //             "changelog": "Initial release",
+    //             "types": {
+
+    //             }
+    //         }
+    //     "#;
+
+    //     let schema = Schema::parse_from_json(content).unwrap();
+    //     let mut normalized = schema.normalize();
+
+    //     normalized.create_enums_from_fields();
+    // }
 }

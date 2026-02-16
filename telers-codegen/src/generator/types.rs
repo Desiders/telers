@@ -48,7 +48,7 @@ impl ToTokens for NormalizedSubtypeVariant {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let (variant, name) = (
             format_ident!("{}", self.variant),
-            format_ident!("{}", self.name),
+            format_ident!("{}", self.ty_name),
         );
         tokens.extend(quote! { #variant(#name), });
     }
@@ -83,10 +83,17 @@ impl ToTokens for NormalizedType {
         let name = format_ident!("{}", self.name.as_str());
         let doc_lines = format_description(&self.description, &self.href);
 
-        let is_tag_field = |field: &&NormalizedField| matches!(&self.subtype_kind, Some(SubtypeKind::Tagged { tag_field }) if field.name == *tag_field);
+        let (tag_field, parent_tag_field) = self
+            .subtype_kind
+            .as_ref()
+            .map(|kind| kind.get_tags())
+            .unwrap_or_default();
 
         let ts = if self.subtypes.is_empty() {
-            let fields = self.fields.iter().filter(|f| !is_tag_field(f));
+            let fields = self
+                .fields
+                .iter()
+                .filter(|f| !f.is_tagged(tag_field, parent_tag_field));
             quote! {
                 #( #[doc = #doc_lines] )*
                 #[derive(Clone, Debug, Serialize)]
@@ -96,8 +103,12 @@ impl ToTokens for NormalizedType {
             }
         } else {
             let serde_attr = match &self.subtype_kind {
-                Some(SubtypeKind::Tagged { tag_field }) => quote! { #[serde(tag = #tag_field)] },
-                Some(SubtypeKind::Untagged) => quote! { #[serde(untagged)] },
+                Some(SubtypeKind::Tagged { tag_field, .. }) => {
+                    quote! { #[serde(tag = #tag_field)] }
+                }
+                Some(SubtypeKind::Untagged | SubtypeKind::UntaggedInTagged { .. }) => {
+                    quote! { #[serde(untagged)] }
+                }
                 None => quote! {},
             };
             let subtypes = self.subtypes.iter();
@@ -121,7 +132,7 @@ pub fn get_from_impls_for_subtypes(type_quote: &NormalizedType) -> Vec<TokenStre
         .iter()
         .map(|subtype| {
             let name = format_ident!("{}", type_quote.name);
-            let subtype_name = format_ident!("{}", subtype.name);
+            let subtype_name = format_ident!("{}", subtype.ty_name);
             let subtype_variant = format_ident!("{}", subtype.variant);
             quote! {
                 impl From<#subtype_name> for #name {
@@ -141,19 +152,22 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
 
     let type_name = format_ident!("{}", type_quote.name);
 
-    let is_tag_field = |field: &&NormalizedField| matches!(&type_quote.subtype_kind, Some(SubtypeKind::Tagged { tag_field }) if field.name == *tag_field);
+    let (tag_field, parent_tag_field) = type_quote
+        .subtype_kind
+        .as_ref()
+        .map(|kind| kind.get_tags())
+        .unwrap_or_default();
 
     let fields: Box<[_]> = type_quote
         .fields
         .iter()
-        .filter(|f| !is_tag_field(f))
+        .filter(|f| !f.is_tagged(tag_field, parent_tag_field))
         .collect();
     let required_fields: Box<[_]> = fields.iter().filter(|f| f.required).copied().collect();
     let optional_fields: Box<[_]> = fields.iter().filter(|f| !f.required).copied().collect();
 
     let new_method_ts = {
-        let doc_creates =
-            format_attr_description(&format!("Creates a new [`{}`].", type_quote.name));
+        let doc_creates = format_attr_description(&format!("Creates a new {}.", type_quote.name));
         let mut doc_lines: Vec<TokenStream> = vec![quote! { #[doc = #doc_creates] }];
 
         if !required_fields.is_empty() {
@@ -161,13 +175,15 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
             doc_lines.push(quote! { #[doc = ""] #[doc = #doc_args] });
             for &field in &required_fields {
                 let doc =
-                    format_attr_description(&format!("* `{}` - {}", field.name, field.description));
+                    format_attr_description(&format!("* {} - {}", field.name, field.description));
                 doc_lines.push(quote! { #[doc = #doc] });
             }
         }
         if !optional_fields.is_empty() {
+            let doc_notes = format_attr_description("# Notes");
             let doc_opt = format_attr_description("Use builder methods to set optional fields.");
-            doc_lines.push(quote! { #[doc = ""] #[doc = #doc_opt] });
+            doc_lines
+                .push(quote! { #[doc = ""] #[doc = #doc_notes] #[doc = ""] #[doc = #doc_opt] });
         }
 
         if !fields.is_empty() {
@@ -230,8 +246,9 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
 
                 let make_doc = |note: &str| {
                     let desc = format_attr_description(&field.description);
+                    let notes = format_attr_description("# Notes");
                     let note = format_attr_description(note);
-                    quote! { #[doc = #desc] #[doc = ""] #[doc = "# Notes"] #[doc = ""] #[doc = #note] }
+                    quote! { #[doc = #desc] #[doc = ""] #[doc = #notes] #[doc = #note] }
                 };
                 let make_body = |is_many: bool| -> TokenStream {
                     let op = if is_many {
@@ -332,18 +349,25 @@ pub fn get_impl_for_type(type_quote: &NormalizedType, schema: &NormalizedSchema)
     let type_name = format_ident!("{}", type_quote.name);
     let mut methods = vec![];
 
+    let (tag_field, parent_tag_field) = type_quote
+        .subtype_kind
+        .as_ref()
+        .map(|kind| kind.get_tags())
+        .unwrap_or_default();
+    let mut fields_subtypes_map: HashMap<&str, Vec<(&NormalizedSubtypeVariant, &NormalizedField)>> =
+        HashMap::new();
     for subtype in &type_quote.subtypes {
         let variant = format_ident!("{}", subtype.variant);
-        let name = format_ident!("{}", subtype.name);
+        let name = format_ident!("{}", subtype.ty_name);
         let snake = camel_to_snake(&subtype.variant);
-        let is_name = format_ident!("is_{snake}");
-        let into_name = format_ident!("into_{snake}");
+        let is_name = format_ident!("is_{snake}_variant");
+        let into_name = format_ident!("into_{snake}_variant");
 
         methods.extend([
             quote! {
                 #[must_use]
                 pub const fn #is_name(&self) -> bool {
-                    if let Self::#variant(val) = self { true } else { false }
+                    if let Self::#variant(_) = self { true } else { false }
                 }
             },
             quote! {
@@ -353,129 +377,109 @@ pub fn get_impl_for_type(type_quote: &NormalizedType, schema: &NormalizedSchema)
                 }
             },
         ]);
-    }
 
-    let mut field_to_variants: HashMap<String, (&NormalizedField, Vec<&NormalizedSubtypeVariant>)> =
-        HashMap::new();
-
-    for subtype_variant in &type_quote.subtypes {
-        if let Some(subtype) = schema.types.get(&subtype_variant.name) {
-            for field in &subtype.fields {
-                if matches!(&type_quote.subtype_kind, Some(SubtypeKind::Tagged { tag_field }) if field.name == *tag_field)
-                {
-                    continue;
-                }
-                field_to_variants
-                    .entry(field.name.clone())
-                    .or_insert_with(|| (field, vec![]))
-                    .1
-                    .push(subtype_variant);
+        let ty = schema.types.get(&subtype.ty_name).unwrap();
+        for field in &ty.fields {
+            if field.is_tagged(tag_field, parent_tag_field) {
+                continue;
             }
+            fields_subtypes_map
+                .entry(&field.name)
+                .or_default()
+                .push((subtype, field));
         }
     }
 
-    for (field_name, (first_field, variants)) in field_to_variants {
-        if !variants.iter().all(|variant| {
-            let subtype = schema.types.get(&variant.name).unwrap();
-            let field = subtype
-                .fields
-                .iter()
-                .find(|f| f.name == field_name)
-                .unwrap();
-            field.r#type == first_field.r#type && field.required == first_field.required
-        }) {
+    for (field_name, subtypes) in fields_subtypes_map {
+        let method_name = sanitize_field_name(&field_name);
+        let field = &subtypes[0].1;
+        let field_ty = &field.r#type;
+
+        let is_identical_field_type = subtypes.iter().all(|(_, f)| f.r#type == *field_ty);
+        if !is_identical_field_type {
             continue;
         }
+        let is_common = subtypes.len() == type_quote.subtypes.len();
+        let is_required_for_all = is_common && subtypes.iter().all(|(_, f)| f.required);
+        let is_copy = field_ty.is_copy();
 
-        let field_name = sanitize_field_name(&field_name);
-        let field_type = &first_field.r#type;
-        let is_copy = field_type.is_copy();
-        let is_string = matches!(field_type, TypeKindInField::String);
-        let is_boxed = first_field.is_recursive || first_field.is_boxed;
-        let is_array = matches!(field_type, TypeKindInField::Array(_));
-        let is_common = variants.len() == type_quote.subtypes.len();
-
-        // Compute (return_type, body) for the "as if common" case
-        let (base_rt, body): (TokenStream, TokenStream) = if is_array {
-            let TypeKindInField::Array(inner) = field_type else {
-                unreachable!()
-            };
-            if first_field.required {
-                (quote! { &[#inner] }, quote! { &*val.#field_name })
-            } else {
-                (
-                    quote! { Option<&[#inner]> },
-                    quote! { val.#field_name.as_deref() },
-                )
-            }
-        } else {
-            match (first_field.required, is_copy, is_string) {
-                (true, true, _) => (quote! { #field_type }, quote! { val.#field_name }),
-                (false, true, _) => (quote! { Option<#field_type> }, quote! { val.#field_name }),
-                (true, false, true) => (quote! { &str }, quote! { &*val.#field_name }),
-                (false, false, true) => (
-                    quote! { Option<&str> },
-                    quote! { val.#field_name.as_deref() },
-                ),
-                (true, false, false) => (quote! { &#field_type }, quote! { &val.#field_name }),
-                (false, false, false) => {
-                    let b = if is_boxed {
-                        quote! { val.#field_name.as_deref() }
-                    } else {
-                        quote! { val.#field_name.as_ref() }
-                    };
-                    (quote! { Option<&#field_type> }, b)
-                }
-            }
+        let return_ty = match (is_required_for_all, is_copy, field_ty) {
+            (true, _, TypeKindInField::Array(inner)) => quote! { &[#inner] },
+            (false, _, TypeKindInField::Array(inner)) => quote! { Option<&[#inner]> },
+            (true, _, TypeKindInField::String) => quote! { &str },
+            (false, _, TypeKindInField::String) => quote! { Option<&str> },
+            (true, false, _) => quote! { &#field_ty },
+            (false, false, _) => quote! { Option<&#field_ty> },
+            (true, true, _) => quote! { #field_ty },
+            (false, true, _) => quote! { Option<#field_ty> },
         };
 
-        // For non-common required fields, wrap return type in Option and set needs_option_wrapper
-        let (return_type, needs_option_wrapper) = if !is_common && first_field.required {
-            let wrapped = if is_array {
-                let TypeKindInField::Array(inner) = field_type else {
-                    unreachable!()
-                };
-                quote! { Option<&[#inner]> }
+        let doc_helper = format_attr_description(&format!("Helper method for field {field_name}."));
+        let doc_variants = format_attr_description("# Variants");
+        let mut doc_lines: Vec<TokenStream> = vec![
+            quote! { #[doc = #doc_helper] },
+            quote! { #[doc = ""] },
+            quote! { #[doc = #doc_variants] },
+        ];
+        let mut match_arms = vec![];
+        for (subtype, field) in subtypes {
+            let variant = format_ident!("{}", subtype.variant);
+
+            let doc_field =
+                format_attr_description(&format!("- {}. {}", subtype.ty_name, field.description));
+            doc_lines.push(quote! { #[doc = #doc_field] });
+
+            let field_name = sanitize_field_name(&field.name);
+            let field_ty = &field.r#type;
+            let is_copy = field_ty.is_copy();
+            let is_required = field.required;
+            let is_string = matches!(field_ty, TypeKindInField::String);
+            let is_array = matches!(field_ty, TypeKindInField::Array(_));
+            let is_boxed = field.is_recursive || field.is_boxed || is_string;
+
+            #[rustfmt::skip]
+            let body = if is_array {
+                if is_required {
+                    quote! { &*val.#field_name }
+                } else {
+                    quote! { val.#field_name.as_deref() }
+                }
             } else {
-                match (is_copy, is_string) {
-                    (true, _) => quote! { Option<#field_type> },
-                    (false, true) => quote! { Option<&str> },
-                    (false, false) => quote! { Option<&#field_type> },
+                match (is_required, is_copy, is_boxed) {
+                    // Is copy
+                    (_    , true,    _) => quote! { val.#field_name },
+                    // Is required boxed
+                    (true ,    _, true) => quote! { &*val.#field_name },
+                    // Is optional boxed
+                    (false,    _, true) => quote! { val.#field_name.as_deref() },
+                    // Is optional type
+                    (false,    _,    _) => quote! { val.#field_name.as_ref() },
+                    // Is required type
+                    (true ,    _,    _) => quote! { &val.#field_name },
                 }
             };
-            (wrapped, true)
-        } else {
-            (base_rt, false)
-        };
-
-        let doc = format_attr_description(&first_field.description);
-        let match_arms = variants.iter().map(|subtype| {
-            let variant_name = format_ident!("{}", subtype.variant);
-            let arm_body = if needs_option_wrapper {
+            let body = if is_required && !is_required_for_all {
                 quote! { Some(#body) }
             } else {
-                body.clone()
+                quote! { #body }
             };
-            quote! { Self::#variant_name(val) => #arm_body }
-        });
 
-        let method = if is_common {
-            quote! {
-                #[doc = #doc]
-                #[must_use]
-                pub fn #field_name(&self) -> #return_type {
-                    match self { #( #match_arms ),* }
-                }
-            }
-        } else {
-            quote! {
-                #[doc = #doc]
-                #[must_use]
-                pub fn #field_name(&self) -> #return_type {
-                    match self { #( #match_arms, )* _ => None }
-                }
+            match_arms.push(quote! {
+                Self::#variant(val) => #body
+            });
+        }
+        if !is_common {
+            match_arms.push(quote! { _ => None });
+        }
+
+        let method = quote! {
+            #( #doc_lines )*
+            #[must_use]
+            pub fn #method_name(&self) -> #return_ty {
+                match self { #( #match_arms ),* }
             }
         };
+
         methods.push(method);
     }
 
@@ -590,15 +594,16 @@ mod tests {
             fields: vec![],
             subtype_kind: Some(SubtypeKind::Tagged {
                 tag_field: "type".into(),
+                parent_tag_field: None,
             }),
             subtypes: vec![
                 NormalizedSubtypeVariant {
                     variant: "MessageOriginUser".into(),
-                    name: "MessageOriginUser".into(),
+                    ty_name: "MessageOriginUser".into(),
                 },
                 NormalizedSubtypeVariant {
                     variant: "MessageOriginHiddenUser".into(),
-                    name: "MessageOriginHiddenUser".into(),
+                    ty_name: "MessageOriginHiddenUser".into(),
                 },
             ],
             subtype_of: vec![],
@@ -623,11 +628,11 @@ mod tests {
             subtypes: vec![
                 NormalizedSubtypeVariant {
                     variant: "Message".into(),
-                    name: "Message".into(),
+                    ty_name: "Message".into(),
                 },
                 NormalizedSubtypeVariant {
                     variant: "InaccessibleMessage".into(),
-                    name: "InaccessibleMessage".into(),
+                    ty_name: "InaccessibleMessage".into(),
                 },
             ],
             subtype_of: vec![],

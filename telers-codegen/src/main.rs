@@ -37,12 +37,18 @@ fn main() {
         .normalize();
 
     schema.split_message_types();
+    schema.split_external_reply_info_types();
+    schema.split_update_types();
     schema.split_chat_types();
     schema.split_sticker_types();
     schema.split_poll_types();
     schema.split_giveaway_types();
     schema.split_giveaway_winners_types();
     schema.split_star_transaction_types();
+    schema.split_encrypted_passport_element_types();
+    schema.split_message_entity_types();
+    schema.split_inline_query_result();
+    schema.split_transaction_partner_user_types();
 
     let types_dir = args.generated_dir_path.join("types");
     for (name, ty) in &schema.types {

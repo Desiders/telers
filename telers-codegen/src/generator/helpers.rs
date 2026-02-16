@@ -19,10 +19,49 @@ pub fn sanitize_field_name(name: &str) -> proc_macro2::Ident {
     }
 }
 
-fn sanitize_description(description: &str) -> &str {
-    description
-        .strip_prefix("Optional. ")
-        .unwrap_or(description)
+fn sanitize_description(description: &str) -> String {
+    let description = description
+        .replace("Optional. ", "")
+        .replace("True", "`true`")
+        .replace("False", "`false`")
+        .replace("None", "`null`");
+
+    let mut result = String::with_capacity(description.len());
+    let mut chars = description.chars().peekable();
+
+    while let Some(ch) = chars.next() {
+        if ch.is_uppercase() {
+            let mut word = String::from(ch);
+            let mut has_camel_case = false;
+            let mut prev_uppercase = true;
+
+            while let Some(&next_c) = chars.peek() {
+                if !next_c.is_alphanumeric() {
+                    break;
+                }
+                if next_c.is_alphabetic() {
+                    if next_c.is_uppercase() && !prev_uppercase {
+                        has_camel_case = true;
+                    }
+                    prev_uppercase = next_c.is_uppercase();
+                }
+                word.push(next_c);
+                chars.next();
+            }
+
+            if word.chars().count() > 1 && has_camel_case {
+                result.push('[');
+                result.push_str(&word);
+                result.push(']');
+            } else {
+                result.push_str(&word);
+            }
+
+            continue;
+        }
+        result.push(ch);
+    }
+    result
 }
 
 pub fn format_description(description: &[String], href: &str) -> Vec<String> {
