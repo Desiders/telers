@@ -1,5 +1,4 @@
 use crate::generator::helpers::{camel_to_snake, format_tokens};
-
 use std::{fmt::Display, fs, path::Path};
 
 pub fn write_tokens_to_file(
@@ -15,11 +14,9 @@ pub fn write_tokens_to_file(
 
 pub fn camel_to_filename(input: &str, ext: Option<&str>) -> String {
     let mut result = camel_to_snake(input);
-
     if let Some(ext) = ext {
         result.push('.');
         result.push_str(ext);
     }
-
     result
 }

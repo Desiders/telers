@@ -4,22 +4,18 @@ use std::fmt::Display;
 
 pub fn format_tokens(tokens: impl Display) -> syn::Result<String> {
     let syntax_tree = syn::parse_file(&tokens.to_string())?;
-    let formatted = prettyplease::unparse(&syntax_tree);
-    Ok(formatted)
+    Ok(prettyplease::unparse(&syntax_tree))
 }
 
+const RESERVED_KEYWORDS: &[&str] = &[
+    "type", "self", "ref", "move", "use", "mod", "impl", "trait", "where",
+];
+
 pub fn sanitize_field_name(name: &str) -> proc_macro2::Ident {
-    match name {
-        "type" => format_ident!("r#type"),
-        "self" => format_ident!("r#self"),
-        "ref" => format_ident!("r#ref"),
-        "move" => format_ident!("r#move"),
-        "use" => format_ident!("r#use"),
-        "mod" => format_ident!("r#mod"),
-        "impl" => format_ident!("r#impl"),
-        "trait" => format_ident!("r#trait"),
-        "where" => format_ident!("r#where"),
-        _ => format_ident!("{name}"),
+    if RESERVED_KEYWORDS.contains(&name) {
+        format_ident!("r#{name}")
+    } else {
+        format_ident!("{name}")
     }
 }
 
@@ -33,7 +29,7 @@ pub fn format_description(description: &[String], href: &str) -> Vec<String> {
     description
         .iter()
         .map(|line| format!(" {}", sanitize_description(line)))
-        .chain([" # Documentation".to_string(), format!(" <{}>", href)])
+        .chain([" # Documentation".to_string(), format!(" <{href}>")])
         .collect()
 }
 
@@ -49,25 +45,18 @@ pub fn camel_to_snake(input: &str) -> String {
     let mut result = String::with_capacity(input.len() + 3);
     let chars: Vec<char> = input.chars().collect();
 
-    for i in 0..chars.len() {
-        let c = chars[i];
-
+    for (i, &c) in chars.iter().enumerate() {
         if c.is_uppercase() {
-            if i > 0 {
-                let prev = chars[i - 1];
-                let next = chars.get(i + 1);
-
-                if prev.is_lowercase()
-                    || prev.is_ascii_digit()
-                    || (prev.is_uppercase() && next.is_some_and(|n| n.is_lowercase()))
-                {
-                    result.push('_');
-                }
+            let prev = i.checked_sub(1).map(|j| chars[j]);
+            let next = chars.get(i + 1);
+            if prev.is_some_and(|p| {
+                p.is_lowercase()
+                    || p.is_ascii_digit()
+                    || (p.is_uppercase() && next.is_some_and(|n| n.is_lowercase()))
+            }) {
+                result.push('_');
             }
-
-            for lower in c.to_lowercase() {
-                result.push(lower);
-            }
+            result.extend(c.to_lowercase());
         } else {
             result.push(c);
         }
@@ -83,13 +72,13 @@ pub fn snake_to_upper_camel(input: &str) -> String {
     for c in input.chars() {
         if c == '_' {
             capitalize_next = true;
-        } else if capitalize_next {
-            for upper in c.to_uppercase() {
-                result.push(upper);
+        } else {
+            if capitalize_next {
+                result.extend(c.to_uppercase());
+            } else {
+                result.push(c);
             }
             capitalize_next = false;
-        } else {
-            result.push(c);
         }
     }
 

@@ -2,7 +2,7 @@ use clap::Parser;
 use std::{fs, path::PathBuf, process};
 use telers_codegen::{
     file::{camel_to_filename, write_tokens_to_file},
-    generator::{self},
+    generator,
     parser::api::Schema,
 };
 
@@ -24,17 +24,18 @@ fn main() {
     let schema_content = fs::read_to_string(&args.schema_json_path).unwrap_or_else(|err| {
         eprintln!(
             "Failed to read schema file '{}': {err}",
-            args.schema_json_path.display(),
+            args.schema_json_path.display()
         );
         process::exit(1);
     });
 
-    let mut schema = Schema::parse_from_jsom(&schema_content)
+    let mut schema = Schema::parse_from_json(&schema_content)
         .unwrap_or_else(|err| {
             eprintln!("Failed to parse schema file: {err}");
             process::exit(1);
         })
         .normalize();
+
     schema.split_message_types();
     schema.split_chat_types();
     schema.split_sticker_types();
@@ -43,16 +44,14 @@ fn main() {
     schema.split_giveaway_winners_types();
     schema.split_star_transaction_types();
 
+    let types_dir = args.generated_dir_path.join("types");
     for (name, ty) in &schema.types {
         let tokens = generator::types::tokenize_type(ty, &schema);
         let filename = camel_to_filename(name, Some("rs"));
-        write_tokens_to_file(&tokens, &args.generated_dir_path.join("types"), &filename)
-            .unwrap_or_else(|err| {
-                eprintln!(
-                    "Failed to write file '{filename}' in dir types: {err}\nContent: {tokens}"
-                );
-                process::exit(1);
-            });
+        write_tokens_to_file(&tokens, &types_dir, &filename).unwrap_or_else(|err| {
+            eprintln!("Failed to write file '{filename}' in dir types: {err}\nContent: {tokens}");
+            process::exit(1);
+        });
     }
     println!("Types generated");
 
