@@ -146,10 +146,7 @@ struct TagField {
     field_value: String,
 }
 
-fn get_parse_target(
-    ty: &NormalizedType,
-    schema: &NormalizedSchema,
-) -> Option<ParseTarget> {
+fn get_parse_target(ty: &NormalizedType, schema: &NormalizedSchema) -> Option<ParseTarget> {
     let parent_name = ty.subtype_of.first()?;
     let parent = schema.types.get(parent_name)?;
     let variant = parent
@@ -254,7 +251,7 @@ fn generate_type_json_value(
                 field.description.as_str(),
                 None,
             )
-                .map(|value| quote! { #name: #value })
+            .map(|value| quote! { #name: #value })
         })
         .collect::<Vec<_>>();
 

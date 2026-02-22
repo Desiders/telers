@@ -62,6 +62,7 @@ fn main() {
     schema.split_message_entity_types();
     schema.split_inline_query_result();
     schema.split_transaction_partner_user_types();
+    schema.reorder_untagged_subtypes();
 
     if args.generate_tests {
         let tests_dir = args.generated_dir_path.join("tests");

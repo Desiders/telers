@@ -1,7 +1,11 @@
 use quote::format_ident;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::{cmp::Ordering, collections::HashMap, mem};
+use std::{
+    cmp::Ordering,
+    collections::{HashMap, HashSet},
+    mem,
+};
 use syn::{punctuated::Punctuated, Path, PathSegment};
 use tracing::warn;
 
@@ -385,6 +389,59 @@ impl NormalizedSchema {
                 ty_name: name.clone(),
             })
             .collect();
+    }
+
+    /// Reorders subtypes for untagged enums to place more specific variants first.
+    ///
+    /// This avoids premature matching of broad variants during serde untagged deserialization.
+    pub fn reorder_untagged_subtypes(&mut self) {
+        let required_fields_map: HashMap<_, _> = self
+            .types
+            .iter()
+            .map(|(name, ty)| {
+                let required: HashSet<String> = ty
+                    .fields
+                    .iter()
+                    .filter(|f| f.required)
+                    .map(|f| f.name.clone())
+                    .collect();
+                (name.clone(), (required, ty.fields.len()))
+            })
+            .collect();
+
+        for ty in self.types.values_mut() {
+            let is_untagged = matches!(
+                ty.subtype_kind,
+                Some(SubtypeKind::Untagged | SubtypeKind::UntaggedInTagged { .. })
+            );
+            if !is_untagged || ty.subtypes.len() < 2 {
+                continue;
+            }
+
+            ty.subtypes.sort_by(|a, b| {
+                let Some((a_required, a_fields_len)) = required_fields_map.get(&a.ty_name) else {
+                    return Ordering::Equal;
+                };
+                let Some((b_required, b_fields_len)) = required_fields_map.get(&b.ty_name) else {
+                    return Ordering::Equal;
+                };
+
+                let a_is_superset = a_required.is_superset(b_required) && a_required != b_required;
+                let b_is_superset = b_required.is_superset(a_required) && a_required != b_required;
+                if a_is_superset {
+                    return Ordering::Less;
+                }
+                if b_is_superset {
+                    return Ordering::Greater;
+                }
+
+                b_required
+                    .len()
+                    .cmp(&a_required.len())
+                    .then_with(|| b_fields_len.cmp(a_fields_len))
+                    .then_with(|| a.ty_name.cmp(&b.ty_name))
+            });
+        }
     }
 
     pub fn split_inline_query_result(&mut self) {
