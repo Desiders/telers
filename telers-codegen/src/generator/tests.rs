@@ -315,16 +315,14 @@ fn extract_tagged_string_value(description: &str) -> Option<String> {
         "can be",
         "currently one of",
         "currently can be",
+        "for example",
     ];
 
-    let search_area = MARKERS
-        .iter()
-        .find_map(|marker| {
-            description
-                .find(marker)
-                .map(|idx| &description[idx + marker.len()..])
-        })
-        .unwrap_or(description.as_str());
+    let search_area = MARKERS.iter().find_map(|marker| {
+        description
+            .find(marker)
+            .map(|idx| &description[idx + marker.len()..])
+    })?;
 
     extract_first_quoted_token(search_area).or_else(|| extract_first_bare_token(search_area))
 }
