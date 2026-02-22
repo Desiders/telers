@@ -10,12 +10,25 @@ use telers_codegen::{
 #[command(author, version)]
 struct Args {
     /// Path to generated directory
-    #[arg(long, default_value = "./generated")]
+    #[arg(
+        long,
+        visible_alias = "gen-dir",
+        value_name = "PATH",
+        default_value = "./generated"
+    )]
     generated_dir_path: PathBuf,
 
     /// Path to schema JSON file
-    #[arg(long, value_name = "PATH")]
+    #[arg(long, visible_alias = "schema", value_name = "PATH")]
     schema_json_path: PathBuf,
+
+    /// Generate serde tests in a single integration test file
+    #[arg(long, visible_alias = "tests", default_value_t = false)]
+    generate_tests: bool,
+
+    /// Rust path used in generated tests import: use <path>::types::*;
+    #[arg(long, visible_alias = "types-path")]
+    tests_types_path: String,
 }
 
 fn main() {
@@ -50,7 +63,18 @@ fn main() {
     schema.split_inline_query_result();
     schema.split_transaction_partner_user_types();
 
-    let types_dir = args.generated_dir_path.join("types");
+    if args.generate_tests {
+        let tests_dir = args.generated_dir_path.join("tests");
+        let tokens = generator::tests::tokenize_tests(&schema, &args.tests_types_path);
+        let filename = "generated.rs";
+        write_tokens_to_file(&tokens, &tests_dir, filename).unwrap_or_else(|err| {
+            eprintln!("Failed to write file '{filename}' in dir tests: {err}\nContent: {tokens}");
+            process::exit(1);
+        });
+        println!("Tests generated in one file");
+    }
+
+    let types_dir = args.generated_dir_path.join("src/types");
     for (name, ty) in &schema.types {
         let tokens = generator::types::tokenize_type(ty, &schema);
         let filename = camel_to_filename(name, Some("rs"));
