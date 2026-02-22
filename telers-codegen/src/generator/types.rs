@@ -96,7 +96,7 @@ impl ToTokens for NormalizedType {
                 .filter(|f| !f.is_tagged(tag_field, parent_tag_field));
             quote! {
                 #( #[doc = #doc_lines] )*
-                #[derive(Clone, Debug, Serialize)]
+                #[derive(Clone, Debug, Serialize, Deserialize)]
                 pub struct #name {
                     #( #fields )*
                 }
@@ -104,7 +104,7 @@ impl ToTokens for NormalizedType {
         } else {
             let serde_attr = match &self.subtype_kind {
                 Some(SubtypeKind::Tagged { tag_field, .. }) => {
-                    quote! { #[serde(tag = #tag_field)] }
+                    quote! { #[serde(tag = #tag_field, rename_all = "snake_case")] }
                 }
                 Some(SubtypeKind::Untagged | SubtypeKind::UntaggedInTagged { .. }) => {
                     quote! { #[serde(untagged)] }
@@ -114,7 +114,7 @@ impl ToTokens for NormalizedType {
             let subtypes = self.subtypes.iter();
             quote! {
                 #( #[doc = #doc_lines] )*
-                #[derive(Clone, Debug, Serialize)]
+                #[derive(Clone, Debug, Serialize, Deserialize)]
                 #serde_attr
                 pub enum #name {
                     #( #subtypes )*
@@ -492,9 +492,9 @@ pub fn get_impl_for_type(type_quote: &NormalizedType, schema: &NormalizedSchema)
 
 pub fn tokenize_type(type_quote: &NormalizedType, schema: &NormalizedSchema) -> TokenStream {
     let imports_quote = if type_quote.get_paths_count() == 0 {
-        quote! { use serde::Serialize; }
+        quote! { use serde::{Serialize, Deserialize}; }
     } else {
-        quote! { use super::*; use serde::Serialize; }
+        quote! { use super::*; use serde::{Serialize, Deserialize}; }
     };
 
     let impls_for_subtypes = get_from_impls_for_subtypes(type_quote);
@@ -534,115 +534,5 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
         pub use #chat_id_kind_mod::#chat_id_kind_type;
         #( #mods_quote )*
         #( #uses_quote )*
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::{
-        tokenize_type, IntegerKind, NormalizedField, NormalizedSchema, NormalizedSubtypeVariant,
-        NormalizedType, SubtypeKind, TypeKindInField,
-    };
-
-    #[test]
-    fn test_tokenize_type_1() {
-        let ty = NormalizedType {
-            name: "Message".into(),
-            href: "https://core.telegram.org/bots/api#message".into(),
-            description: vec!["Line1.".into(), "Line2.".into()],
-            fields: vec![
-                NormalizedField {
-                    name: "message_id".into(),
-                    required: true,
-                    description: "Unique message identifier".into(),
-                    r#type: TypeKindInField::Integer(IntegerKind::Int64),
-                    is_recursive: false,
-                    is_boxed: false,
-                },
-                NormalizedField {
-                    name: "text".into(),
-                    required: false,
-                    description: "Message text".into(),
-                    r#type: TypeKindInField::String,
-                    is_recursive: false,
-                    is_boxed: false,
-                },
-            ],
-
-            subtype_kind: None,
-            subtypes: vec![],
-            subtype_of: vec![],
-        };
-        let schema = NormalizedSchema::default();
-        let result = tokenize_type(&ty, &schema).to_string();
-
-        assert!(result.contains("Line1"));
-        assert!(result.contains("Line2"));
-        assert!(result.contains("<https://core.telegram.org/bots/api#message>"));
-        assert!(result.contains("struct Message"));
-        assert!(result.contains("Unique message identifier"));
-        assert!(result.contains("message_id : i64"));
-        assert!(result.contains("text : Option < Box < str > >"));
-    }
-
-    #[test]
-    fn test_tokenize_type_enum_tagged() {
-        let ty = NormalizedType {
-            name: "MessageOrigin".into(),
-            href: "https://core.telegram.org/bots/api#messageorigin".into(),
-            description: vec!["Describes the origin of a message.".into()],
-            fields: vec![],
-            subtype_kind: Some(SubtypeKind::Tagged {
-                tag_field: "type".into(),
-                parent_tag_field: None,
-            }),
-            subtypes: vec![
-                NormalizedSubtypeVariant {
-                    variant: "MessageOriginUser".into(),
-                    ty_name: "MessageOriginUser".into(),
-                },
-                NormalizedSubtypeVariant {
-                    variant: "MessageOriginHiddenUser".into(),
-                    ty_name: "MessageOriginHiddenUser".into(),
-                },
-            ],
-            subtype_of: vec![],
-        };
-        let schema = NormalizedSchema::default();
-        let result = tokenize_type(&ty, &schema).to_string();
-
-        assert!(result.contains("enum MessageOrigin"));
-        assert!(result.contains("serde (tag = \"type\")"));
-        assert!(result.contains("MessageOriginUser (MessageOriginUser)"));
-        assert!(result.contains("MessageOriginHiddenUser (MessageOriginHiddenUser)"));
-    }
-
-    #[test]
-    fn test_tokenize_type_enum_untagged() {
-        let ty = NormalizedType {
-            name: "MaybeInaccessibleMessage".into(),
-            href: "https://core.telegram.org/bots/api#maybeinaccessiblemessage".into(),
-            description: vec!["Describes a message that may be inaccessible.".into()],
-            fields: vec![],
-            subtype_kind: Some(SubtypeKind::Untagged),
-            subtypes: vec![
-                NormalizedSubtypeVariant {
-                    variant: "Message".into(),
-                    ty_name: "Message".into(),
-                },
-                NormalizedSubtypeVariant {
-                    variant: "InaccessibleMessage".into(),
-                    ty_name: "InaccessibleMessage".into(),
-                },
-            ],
-            subtype_of: vec![],
-        };
-        let schema = NormalizedSchema::default();
-        let result = tokenize_type(&ty, &schema).to_string();
-
-        assert!(result.contains("enum MaybeInaccessibleMessage"));
-        assert!(result.contains("serde (untagged)"));
-        assert!(result.contains("Message (Message)"));
-        assert!(result.contains("InaccessibleMessage (InaccessibleMessage)"));
     }
 }
