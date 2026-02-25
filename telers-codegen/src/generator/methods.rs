@@ -1,0 +1,413 @@
+use crate::{
+    file::camel_to_filename,
+    generator::helpers::{
+        format_attr_description, format_description, get_singular_and_plural_forms,
+        sanitize_field_name,
+    },
+    parser::api::{NormalizedMethod, TypeKindInField},
+};
+
+use proc_macro2::TokenStream;
+use quote::{format_ident, quote, ToTokens};
+
+fn format_type_kind_rust(kind: &TypeKindInField) -> String {
+    kind.to_token_stream().to_string().replace(" ", "")
+}
+
+fn struct_name_to_method_name(name: &str) -> String {
+    let mut chars = name.chars();
+    let Some(first) = chars.next() else {
+        return String::new();
+    };
+    first.to_lowercase().chain(chars).collect()
+}
+
+fn collect_prepare_steps(method_quote: &NormalizedMethod) -> Vec<TokenStream> {
+    let mut steps = vec![];
+    for field in &method_quote.fields {
+        let name = sanitize_field_name(&field.name);
+        match (&field.r#type, field.required) {
+            (TypeKindInField::InputFile, true) => {
+                steps.push(quote! { prepare_file(&mut files, &mut self.#name); });
+            }
+            (TypeKindInField::InputFile, false) => {
+                steps.push(quote! {
+                    if let Some(file) = &mut self.#name {
+                        prepare_file(&mut files, file);
+                    }
+                });
+            }
+            (TypeKindInField::Telegram(ty_name), true) if ty_name == "InputMedia" => {
+                steps.push(quote! { prepare_input_media(&mut files, &mut self.#name); });
+            }
+            (TypeKindInField::Telegram(ty_name), false) if ty_name == "InputMedia" => {
+                steps.push(quote! {
+                    if let Some(media) = &mut self.#name {
+                        prepare_input_media(&mut files, media);
+                    }
+                });
+            }
+            (TypeKindInField::Array(inner), true) if matches!(inner.as_ref(), TypeKindInField::Telegram(ty_name) if ty_name == "InputMedia") =>
+            {
+                steps.push(quote! { prepare_input_media_group(&mut files, self.#name.iter_mut().collect()); });
+            }
+            (TypeKindInField::Array(inner), false) if matches!(inner.as_ref(), TypeKindInField::Telegram(ty_name) if ty_name == "InputMedia") =>
+            {
+                steps.push(quote! {
+                    if let Some(media) = &mut self.#name {
+                        prepare_input_media_group(&mut files, media.iter_mut().collect());
+                    }
+                });
+            }
+            (TypeKindInField::Telegram(ty_name), true) if ty_name == "InputSticker" => {
+                steps.push(quote! { prepare_input_sticker(&mut files, &mut self.#name); });
+            }
+            (TypeKindInField::Telegram(ty_name), false) if ty_name == "InputSticker" => {
+                steps.push(quote! {
+                    if let Some(sticker) = &mut self.#name {
+                        prepare_input_sticker(&mut files, sticker);
+                    }
+                });
+            }
+            (TypeKindInField::Array(inner), true) if matches!(inner.as_ref(), TypeKindInField::Telegram(ty_name) if ty_name == "InputSticker") =>
+            {
+                steps.push(
+                    quote! { prepare_input_stickers(&mut files, self.#name.iter_mut().collect()); },
+                );
+            }
+            (TypeKindInField::Array(inner), false) if matches!(inner.as_ref(), TypeKindInField::Telegram(ty_name) if ty_name == "InputSticker") =>
+            {
+                steps.push(quote! {
+                    if let Some(stickers) = &mut self.#name {
+                        prepare_input_stickers(&mut files, stickers.iter_mut().collect());
+                    }
+                });
+            }
+            (TypeKindInField::Telegram(ty_name), true) if ty_name == "InputPaidMedia" => {
+                steps.push(quote! { prepare_input_paid_media(&mut files, &mut self.#name); });
+            }
+            (TypeKindInField::Telegram(ty_name), false) if ty_name == "InputPaidMedia" => {
+                steps.push(quote! {
+                    if let Some(media) = &mut self.#name {
+                        prepare_input_paid_media(&mut files, media);
+                    }
+                });
+            }
+            (TypeKindInField::Array(inner), true) if matches!(inner.as_ref(), TypeKindInField::Telegram(ty_name) if ty_name == "InputPaidMedia") =>
+            {
+                steps.push(quote! { prepare_input_paid_media_group(&mut files, self.#name.iter_mut().collect()); });
+            }
+            (TypeKindInField::Array(inner), false) if matches!(inner.as_ref(), TypeKindInField::Telegram(ty_name) if ty_name == "InputPaidMedia") =>
+            {
+                steps.push(quote! {
+                    if let Some(media) = &mut self.#name {
+                        prepare_input_paid_media_group(&mut files, media.iter_mut().collect());
+                    }
+                });
+            }
+            (TypeKindInField::Telegram(ty_name), true) if ty_name == "InputStoryContent" => {
+                steps.push(quote! { prepare_input_story_content(&mut files, &mut self.#name); });
+            }
+            (TypeKindInField::Telegram(ty_name), false) if ty_name == "InputStoryContent" => {
+                steps.push(quote! {
+                    if let Some(content) = &mut self.#name {
+                        prepare_input_story_content(&mut files, content);
+                    }
+                });
+            }
+            _ => {}
+        }
+    }
+    steps
+}
+
+/// Builds method return type:
+/// - `[]` -> `()`
+/// - `[T]` -> `T`
+/// - `[T1, T2, ...]` -> `Either<T1, Either<T2, ...>>`
+pub fn tokenize_method_return_type(returns: &[TypeKindInField]) -> TokenStream {
+    let mut iter = returns.iter().map(|kind| quote! { #kind });
+    let Some(first) = iter.next() else {
+        return quote! { () };
+    };
+    iter.fold(first, |acc, next| quote! { either::Either<#acc, #next> })
+}
+
+pub fn builder_impl_for_method(method_quote: &NormalizedMethod) -> TokenStream {
+    let method_name = format_ident!("{}", method_quote.name);
+
+    let fields: Box<[_]> = method_quote.fields.iter().collect();
+    let required_fields: Box<[_]> = fields.iter().filter(|f| f.required).copied().collect();
+    let optional_fields: Box<[_]> = fields.iter().filter(|f| !f.required).copied().collect();
+
+    let new_method_ts = {
+        let doc_creates = format_attr_description(&format!("Creates a new {}.", method_quote.name));
+        let mut doc_lines = vec![quote! { #[doc = #doc_creates] }];
+
+        if !required_fields.is_empty() {
+            let doc_args = format_attr_description("# Arguments");
+            doc_lines.push(quote! { #[doc = ""] #[doc = #doc_args] });
+            for &field in &required_fields {
+                let doc =
+                    format_attr_description(&format!("* {} - {}", field.name, field.description));
+                doc_lines.push(quote! { #[doc = #doc] });
+            }
+        }
+        if !optional_fields.is_empty() {
+            let doc_notes = format_attr_description("# Notes");
+            let doc_opt = format_attr_description("Use builder methods to set optional fields.");
+            doc_lines.push(quote! { #[doc = ""] #[doc = #doc_notes] #[doc = #doc_opt] });
+        }
+
+        if !fields.is_empty() {
+            let new_args = required_fields.iter().map(|field| {
+                let name = sanitize_field_name(&field.name);
+                let ty = &field.r#type;
+                quote! { #name: impl Into<#ty> }
+            });
+            let new_init = fields.iter().map(|field| {
+                let name = sanitize_field_name(&field.name);
+                if field.required {
+                    if field.is_recursive || field.is_boxed {
+                        quote! { #name: Box::new(#name.into()) }
+                    } else {
+                        quote! { #name: #name.into() }
+                    }
+                } else {
+                    quote! { #name: None }
+                }
+            });
+            quote! {
+                #( #doc_lines )*
+                #[must_use]
+                pub fn new(#( #new_args ),*) -> Self {
+                    Self { #( #new_init, )* }
+                }
+            }
+        } else {
+            quote! {
+                #( #doc_lines )*
+                #[must_use]
+                pub const fn new() -> Self {
+                    Self {}
+                }
+            }
+        }
+    };
+
+    let builder_methods_ts: Vec<_> = fields
+        .iter()
+        .flat_map(|field| {
+            let mut methods = vec![];
+            let name = sanitize_field_name(&field.name);
+            let ty = &field.r#type;
+
+            if let TypeKindInField::Array(inner) = ty {
+                let (singular, plural) = get_singular_and_plural_forms(&field.name);
+                let singular_name = sanitize_field_name(&singular);
+                let plural_name = sanitize_field_name(&plural);
+
+                let make_doc = |note: &str| {
+                    let desc = format_attr_description(&field.description);
+                    let notes = format_attr_description("# Notes");
+                    let note = format_attr_description(note);
+                    quote! { #[doc = #desc] #[doc = ""] #[doc = #notes] #[doc = #note] }
+                };
+                let make_body = |is_many: bool| -> TokenStream {
+                    let op = if is_many {
+                        quote! { val.into() }
+                    } else {
+                        quote! { Some(val.into()) }
+                    };
+                    if field.required {
+                        quote! {
+                            Self { #name: self.#name.into_vec().into_iter().chain(#op).collect(), ..self }
+                        }
+                    } else {
+                        quote! {
+                            Self { #name: Some(self.#name.unwrap_or_default().into_vec().into_iter().chain(#op).collect()), ..self }
+                        }
+                    }
+                };
+
+                let (plural_doc, plural_body) = (make_doc("Adds multiple elements."), make_body(true));
+                methods.push(quote! {
+                    #plural_doc
+                    #[must_use]
+                    pub fn #plural_name(self, val: impl Into<#ty>) -> Self {
+                        #plural_body
+                    }
+                });
+
+                if singular_name != plural_name {
+                    let (singular_doc, singular_body) =
+                        (make_doc("Adds a single element."), make_body(false));
+                    methods.push(quote! {
+                        #singular_doc
+                        #[must_use]
+                        pub fn #singular_name(self, val: impl Into<#inner>) -> Self {
+                            #singular_body
+                        }
+                    });
+                }
+
+                if !field.required {
+                    let option_doc = make_doc("Adds a single element.");
+                    let option_name = format_ident!("{}_option", field.name);
+                    methods.push(quote! {
+                        #option_doc
+                        #[must_use]
+                        pub fn #option_name(self, val: Option<impl Into<#ty>>) -> Self {
+                            Self { #name: val.map(Into::into), ..self }
+                        }
+                    });
+                }
+            } else {
+                let doc = format_attr_description(&field.description);
+                let boxed = field.is_recursive || field.is_boxed;
+                let inner_value = if boxed {
+                    quote! { Box::new(val.into()) }
+                } else {
+                    quote! { val.into() }
+                };
+                let value = if field.required {
+                    inner_value.clone()
+                } else {
+                    quote! { Some(#inner_value) }
+                };
+
+                methods.push(quote! {
+                    #[doc = #doc]
+                    #[must_use]
+                    pub fn #name(self, val: impl Into<#ty>) -> Self {
+                        Self { #name: #value, ..self }
+                    }
+                });
+
+                if !field.required {
+                    let opt_value = if boxed {
+                        quote! { val.map(|val| Box::new(val.into())) }
+                    } else {
+                        quote! { val.map(Into::into) }
+                    };
+                    let method_name = format_ident!("{}_option", field.name);
+                    methods.push(quote! {
+                        #[doc = #doc]
+                        #[must_use]
+                        pub fn #method_name(self, val: Option<impl Into<#ty>>) -> Self {
+                            Self { #name: #opt_value, ..self }
+                        }
+                    });
+                }
+            }
+            methods
+        })
+        .collect();
+
+    quote! {
+        impl #method_name {
+            #new_method_ts
+            #( #builder_methods_ts )*
+        }
+    }
+}
+
+fn tokenize_telegram_method_impl(method_quote: &NormalizedMethod) -> TokenStream {
+    let method_name = format_ident!("{}", method_quote.name);
+    let method_api_name = struct_name_to_method_name(&method_quote.name);
+    let return_type_tokens = tokenize_method_return_type(&method_quote.returns);
+    let prepare_steps = collect_prepare_steps(method_quote);
+
+    if prepare_steps.is_empty() {
+        return quote! {
+            impl TelegramMethod for #method_name {
+                type Method = Self;
+                type Return = #return_type_tokens;
+
+                fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
+                    Request::new(#method_api_name, self, None)
+                }
+            }
+        };
+    }
+
+    quote! {
+        impl TelegramMethod for #method_name {
+            type Method = Self;
+            type Return = #return_type_tokens;
+
+            fn build_request<Client>(mut self, _bot: &Bot<Client>) -> Request<Self::Method> {
+                let mut files = vec![];
+                #( #prepare_steps )*
+
+                Request::new(#method_api_name, self, Some(files))
+            }
+        }
+    }
+}
+
+pub fn tokenize_method(method_quote: &NormalizedMethod) -> TokenStream {
+    let method_name = format_ident!("{}", method_quote.name);
+    let doc_lines = format_description(&method_quote.description, &method_quote.href);
+    let returns_doc = if method_quote.returns.is_empty() {
+        vec![]
+    } else {
+        let mut docs = vec![quote! { #[doc = " # Returns"] }];
+        for return_type in &method_quote.returns {
+            let line = format!(" - {}", format_type_kind_rust(return_type));
+            docs.push(quote! { #[doc = #line] });
+        }
+        docs
+    };
+    let fields = method_quote.fields.iter().map(|field| {
+        let name = sanitize_field_name(&field.name);
+        let doc = format_attr_description(&field.description);
+        let ty = &field.r#type;
+        if field.required {
+            quote! { #[doc = #doc] pub #name: #ty, }
+        } else {
+            quote! {
+                #[doc = #doc]
+                #[serde(skip_serializing_if = "Option::is_none")]
+                pub #name: Option<#ty>,
+            }
+        }
+    });
+    let builder_impl = builder_impl_for_method(method_quote);
+    let telegram_method_impl = tokenize_telegram_method_impl(method_quote);
+
+    quote! {
+        use super::*;
+        use crate::{client::Bot, types::*};
+        use serde::Serialize;
+
+        #( #[doc = #doc_lines] )*
+        #( #returns_doc )*
+        #[derive(Clone, Debug, Serialize)]
+        pub struct #method_name {
+            #( #fields )*
+        }
+
+        #builder_impl
+        #telegram_method_impl
+    }
+}
+
+pub fn tokenize_methods_mod(method_names: &[&String]) -> TokenStream {
+    let mods_quote = method_names.iter().map(|&name| {
+        let mod_name = format_ident!("{}", camel_to_filename(name, None));
+        quote! { pub mod #mod_name; }
+    });
+    let uses_quote = method_names.iter().map(|&name| {
+        let mod_name = format_ident!("{}", camel_to_filename(name, None));
+        let method_name = format_ident!("{name}");
+        quote! { pub use #mod_name::#method_name; }
+    });
+
+    quote! {
+        pub(crate) mod non_telegram;
+        pub use non_telegram::*;
+        #( #mods_quote )*
+        #( #uses_quote )*
+    }
+}

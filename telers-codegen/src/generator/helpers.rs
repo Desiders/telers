@@ -123,3 +123,11 @@ pub fn snake_to_upper_camel(input: &str) -> String {
 
     result
 }
+
+pub fn capitalize(input: &str) -> String {
+    let mut chars = input.chars();
+    let Some(first) = chars.next() else {
+        return String::new();
+    };
+    first.to_uppercase().chain(chars).collect()
+}

@@ -9,9 +9,10 @@ use std::{
 use syn::{punctuated::Punctuated, Path, PathSegment};
 use tracing::warn;
 
-use crate::generator::helpers::snake_to_upper_camel;
+use crate::generator::helpers::{capitalize, snake_to_upper_camel};
 
 pub type TelegramTypeName = String;
+pub type TelegramMethodName = String;
 pub type FieldName = String;
 pub type RawType = String;
 
@@ -47,7 +48,7 @@ impl Field {
     pub fn identify_field_type(&self) -> TypeKindInField {
         let types = self.types.as_slice();
 
-        if multi_type_is_input_file(types) {
+        if multi_type_is_input_file(types, &self.description) {
             return TypeKindInField::InputFile;
         }
         if multi_type_is_chat_id(types) {
@@ -55,6 +56,11 @@ impl Field {
         }
         if multi_type_is_reply_markup(types, &self.name) {
             return TypeKindInField::Telegram("ReplyMarkup".to_owned());
+        }
+        if multi_type_is_input_media(types, &self.name) {
+            return TypeKindInField::Array(Box::new(TypeKindInField::Telegram(
+                "InputMedia".to_owned(),
+            )));
         }
         if types.len() > 1 {
             unimplemented!("Unknown case for multi types");
@@ -129,11 +135,23 @@ pub struct Type {
     pub subtype_of: Vec<TelegramTypeName>,
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Method {
+    pub name: TelegramMethodName,
+    pub href: String,
+    pub description: Vec<String>,
+    pub returns: Vec<RawType>,
+    #[serde(default)]
+    pub fields: Vec<Field>,
+}
+
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Schema {
     pub version: String,
     pub release_date: String,
     pub changelog: String,
+    #[serde(default)]
+    pub methods: HashMap<TelegramMethodName, Method>,
     pub types: HashMap<TelegramTypeName, Type>,
 }
 
@@ -217,6 +235,7 @@ impl Schema {
                             r#type: field_type,
                             is_recursive,
                             is_boxed,
+                            is_update_variant_field: false,
                         }
                     })
                     .collect();
@@ -246,8 +265,56 @@ impl Schema {
                     subtype_kind,
                     subtypes,
                     subtype_of: ty.subtype_of,
+                    has_extra_fields: true,
                 };
                 (name, normalized)
+            })
+            .collect();
+
+        let normalized_methods = self
+            .methods
+            .into_iter()
+            .map(|(name, method)| {
+                let mut fields = method
+                    .fields
+                    .into_iter()
+                    .map(|field| {
+                        let field_type = field.identify_field_type();
+                        NormalizedField {
+                            name: field.name,
+                            required: field.required,
+                            description: field.description,
+                            r#type: field_type,
+                            is_recursive: false,
+                            is_boxed: false,
+                            is_update_variant_field: false,
+                        }
+                    })
+                    .collect::<Vec<_>>();
+                sort_fields(&mut fields);
+
+                (
+                    name,
+                    NormalizedMethod {
+                        name: capitalize(&method.name),
+                        href: method.href,
+                        description: method.description,
+                        returns: method
+                            .returns
+                            .into_iter()
+                            .map(|r#type| {
+                                Field {
+                                    name: "returns".to_owned(),
+                                    required: true,
+                                    description: String::new(),
+                                    types: vec![r#type],
+                                }
+                                .identify_field_type()
+                            })
+                            .collect(),
+                        fields,
+                    },
+                )
             })
             .collect();
 
@@ -255,6 +322,7 @@ impl Schema {
             version: self.version,
             release_date: self.release_date,
             changelog: self.changelog,
+            methods: normalized_methods,
             types: normalized_types,
         }
     }
@@ -272,6 +340,7 @@ pub struct NormalizedField {
     pub r#type: TypeKindInField,
     pub is_recursive: bool,
     pub is_boxed: bool,
+    pub is_update_variant_field: bool,
 }
 
 impl NormalizedField {
@@ -337,6 +406,7 @@ pub struct NormalizedType {
     pub subtype_kind: Option<SubtypeKind>,
     pub subtypes: Vec<NormalizedSubtypeVariant>,
     pub subtype_of: Vec<TelegramTypeName>,
+    pub has_extra_fields: bool,
 }
 
 impl NormalizedType {
@@ -358,6 +428,28 @@ impl NormalizedType {
     pub fn get_paths_count(&self) -> usize {
         self.get_paths().len()
     }
+
+    pub fn is_update(&self) -> bool {
+        matches!(&self.subtype_kind, Some(SubtypeKind::Untagged)) && self.name == "Update"
+    }
+
+    pub fn is_update_variant(&self) -> bool {
+        matches!(&self.subtype_kind, Some(SubtypeKind::Untagged))
+            && self.subtype_of.contains(&"Update".to_owned())
+    }
+
+    pub fn update_variant_ty_field(&self) -> Option<&NormalizedField> {
+        self.fields.iter().find(|f| f.is_update_variant_field)
+    }
+}
+
+#[derive(Debug)]
+pub struct NormalizedMethod {
+    pub name: TelegramMethodName,
+    pub href: String,
+    pub description: Vec<String>,
+    pub returns: Vec<TypeKindInField>,
+    pub fields: Vec<NormalizedField>,
 }
 
 #[derive(Debug, Default)]
@@ -365,6 +457,7 @@ pub struct NormalizedSchema {
     pub version: String,
     pub release_date: String,
     pub changelog: String,
+    pub methods: HashMap<TelegramMethodName, NormalizedMethod>,
     pub types: HashMap<TelegramTypeName, NormalizedType>,
 }
 
@@ -389,6 +482,13 @@ impl NormalizedSchema {
                 ty_name: name.clone(),
             })
             .collect();
+    }
+
+    /// Skips types by name
+    pub fn skip_types(&mut self, names: &[&str]) {
+        for &name in names {
+            self.types.remove(name);
+        }
     }
 
     /// Reorders subtypes for untagged enums to place more specific variants first.
@@ -511,6 +611,7 @@ impl NormalizedSchema {
                                 NormalizedSubtypeVariant { variant: "Uncached".to_owned(), ty_name: not_cached.to_string() },
                             ],
                             subtype_of: vec![inline_query_result.name.clone()],
+                            has_extra_fields: false,
                         },
                     );
                 }
@@ -521,6 +622,47 @@ impl NormalizedSchema {
         }
 
         self.types.extend(types);
+    }
+
+    /// Creates synthetic `ReplyMarkup` type as untagged union of existing reply markup types.
+    pub fn compose_reply_markup_type(&mut self) {
+        let subtypes = vec![
+            (
+                "InlineKeyboardMarkup".to_owned(),
+                "InlineKeyboardMarkup".to_owned(),
+            ),
+            (
+                "ReplyKeyboardMarkup".to_owned(),
+                "ReplyKeyboardMarkup".to_owned(),
+            ),
+            (
+                "ReplyKeyboardRemove".to_owned(),
+                "ReplyKeyboardRemove".to_owned(),
+            ),
+            ("ForceReply".to_owned(), "ForceReply".to_owned()),
+        ];
+
+        let mut reply_markup = NormalizedType {
+            name: "ReplyMarkup".to_owned(),
+            href: "https://core.telegram.org/bots/api".to_owned(),
+            description: vec!["This object represents available reply markup variants.".to_owned()],
+            fields: vec![],
+            subtype_kind: None,
+            subtypes: vec![],
+            subtype_of: vec![],
+            has_extra_fields: false,
+        };
+        Self::finalize_split(&mut reply_markup, &subtypes, SubtypeKind::Untagged);
+
+        for (_, subtype_name) in &subtypes {
+            let subtype = self
+                .types
+                .get_mut(subtype_name)
+                .expect("Subtype should exist in schema");
+            subtype.subtype_of.push(reply_markup.name.clone());
+        }
+
+        self.types.insert(reply_markup.name.clone(), reply_markup);
     }
 
     pub fn split_message_types(&mut self) {
@@ -651,6 +793,7 @@ impl NormalizedSchema {
                         subtype_kind: Some(SubtypeKind::Untagged),
                         subtypes: vec![],
                         subtype_of: vec![message.name.clone()],
+                        has_extra_fields: true,
                     },
                 );
                 subtypes.push((variant_name, type_name));
@@ -710,6 +853,7 @@ impl NormalizedSchema {
                     subtype_kind: Some(SubtypeKind::Untagged),
                     subtypes: vec![],
                     subtype_of: vec![info.name.clone()],
+                    has_extra_fields: true,
                 },
             );
             subtypes.push((variant_name, type_name));
@@ -746,10 +890,7 @@ impl NormalizedSchema {
             let type_name = format!("{}{variant_name}", update.name);
 
             field.required = true;
-
-            let mut fields = common_fields.clone();
-            fields.push(field.clone());
-            sort_fields(&mut fields);
+            field.is_update_variant_field = true;
 
             let description = vec![
                 field.description.clone(),
@@ -758,6 +899,10 @@ impl NormalizedSchema {
                     "This object represents an update from original update field `{field_name}`."
                 ),
             ];
+
+            let mut fields = common_fields.clone();
+            fields.push(field);
+            sort_fields(&mut fields);
 
             types.insert(
                 type_name.clone(),
@@ -769,6 +914,7 @@ impl NormalizedSchema {
                     subtype_kind: Some(SubtypeKind::Untagged),
                     subtypes: vec![],
                     subtype_of: vec![update.name.clone()],
+                    has_extra_fields: false,
                 },
             );
             subtypes.push((variant_name, type_name));
@@ -786,6 +932,21 @@ impl NormalizedSchema {
             .map(|(variant, ty_name)| NormalizedSubtypeVariant { variant, ty_name })
             .collect();
 
+        self.types.insert(
+            "UpdateUnparsed".to_owned(),
+            NormalizedType {
+                name: "UpdateUnparsed".to_owned(),
+                href: update.href.clone(),
+                description: vec![
+                    "This object represents an update that can't be parsed.".to_owned()
+                ],
+                fields: common_fields,
+                subtype_kind: None,
+                subtypes: vec![],
+                subtype_of: vec![],
+                has_extra_fields: true,
+            },
+        );
         self.types.insert(update.name.clone(), update);
         self.types.extend(types);
     }
@@ -867,6 +1028,7 @@ impl NormalizedSchema {
                     }),
                     subtypes: vec![],
                     subtype_of: vec![chat.name.clone()],
+                    has_extra_fields: true,
                 },
             );
             subtypes.push((variant_name, type_name));
@@ -948,6 +1110,7 @@ impl NormalizedSchema {
                 }),
                 subtypes: vec![],
                 subtype_of: vec![sticker.name.clone()],
+                has_extra_fields: true,
             });
             subtypes.push((variant_name, type_name));
         }
@@ -1029,6 +1192,7 @@ impl NormalizedSchema {
                     }),
                     subtypes: vec![],
                     subtype_of: vec![poll.name.clone()],
+                    has_extra_fields: true,
                 },
             );
             subtypes.push((variant_name, type_name));
@@ -1266,6 +1430,7 @@ impl NormalizedSchema {
                     }),
                     subtypes: vec![],
                     subtype_of: vec![element.name.clone()],
+                    has_extra_fields: true,
                 },
             );
             subtypes.push((variant_name, type_name));
@@ -1327,6 +1492,7 @@ impl NormalizedSchema {
                 let type_key = format!("\"{}\"", t);
                 if desc.contains(&type_key) {
                     applicable.push(t);
+                    break;
                 }
             }
             if applicable.is_empty() {
@@ -1372,6 +1538,7 @@ impl NormalizedSchema {
                     }),
                     subtypes: vec![],
                     subtype_of: vec![entity.name.clone()],
+                    has_extra_fields: true,
                 },
             );
             subtypes.push((variant_name, type_name));
@@ -1466,6 +1633,7 @@ impl NormalizedSchema {
                     }),
                     subtypes: vec![],
                     subtype_of: vec![partner.name.clone()],
+                    has_extra_fields: true,
                 },
             );
             subtypes.push((variant_name, type_name));
@@ -1511,6 +1679,7 @@ impl NormalizedSchema {
                     subtype_kind: Some(SubtypeKind::Untagged),
                     subtypes: vec![],
                     subtype_of: vec![parent_name.to_owned()],
+                    has_extra_fields: true,
                 },
             );
             subtypes.push((variant_name, type_name));
@@ -1641,7 +1810,11 @@ pub fn is_array_of(raw_type: &RawType) -> bool {
 }
 
 /// `InputFile` if types is `[InputFile]` or `[InputFile, String]`.
-pub fn multi_type_is_input_file(types: &[RawType]) -> bool {
+pub fn multi_type_is_input_file(types: &[RawType], description: &str) -> bool {
+    if description.contains("attach://<file_attach_name>") {
+        return true;
+    }
+
     let has_input_file = types.contains(&"InputFile".to_owned());
     match types.len() {
         1 => has_input_file,
@@ -1660,6 +1833,23 @@ pub fn multi_type_is_chat_id(types: &[RawType]) -> bool {
 /// `ReplyMarkup` if field name is `reply_markup` and there are multiple types.
 pub fn multi_type_is_reply_markup(types: &[RawType], name: &str) -> bool {
     types.len() > 1 && name == "reply_markup"
+}
+
+/// `Array of InputMedia` for field `media` in sendMediaGroup-like methods.
+pub fn multi_type_is_input_media(types: &[RawType], name: &str) -> bool {
+    if name != "media" {
+        return false;
+    }
+    let expected = [
+        "Array of InputMediaAudio",
+        "Array of InputMediaDocument",
+        "Array of InputMediaPhoto",
+        "Array of InputMediaVideo",
+    ];
+    types.len() == expected.len()
+        && expected
+            .iter()
+            .all(|expected_type| types.contains(&expected_type.to_string()))
 }
 
 #[cfg(test)]
@@ -1768,20 +1958,20 @@ mod tests {
 
     #[test]
     fn test_multi_type_is_input_file() {
-        assert!(multi_type_is_input_file(&["InputFile".to_owned()]));
-        assert!(multi_type_is_input_file(&[
-            "InputFile".to_owned(),
-            "String".to_owned(),
-        ]));
-        assert!(multi_type_is_input_file(&[
-            "String".to_owned(),
-            "InputFile".to_owned(),
-        ]));
-        assert!(!multi_type_is_input_file(&["String".to_owned()]));
-        assert!(!multi_type_is_input_file(&[
-            "String".to_owned(),
-            "Integer".to_owned(),
-        ]));
+        assert!(multi_type_is_input_file(&["InputFile".to_owned()], ""));
+        assert!(multi_type_is_input_file(
+            &["InputFile".to_owned(), "String".to_owned(),],
+            ""
+        ));
+        assert!(multi_type_is_input_file(
+            &["String".to_owned(), "InputFile".to_owned(),],
+            ""
+        ));
+        assert!(!multi_type_is_input_file(&["String".to_owned()], ""));
+        assert!(!multi_type_is_input_file(
+            &["String".to_owned(), "Integer".to_owned(),],
+            ""
+        ));
     }
 
     #[test]
@@ -1830,6 +2020,35 @@ mod tests {
                 "InlineKeyboardMarkup".to_owned(),
             ],
             "reply_markup"
+        ));
+    }
+
+    #[test]
+    fn test_multi_type_is_input_media() {
+        assert!(multi_type_is_input_media(
+            &[
+                "Array of InputMediaAudio".to_owned(),
+                "Array of InputMediaDocument".to_owned(),
+                "Array of InputMediaPhoto".to_owned(),
+                "Array of InputMediaVideo".to_owned(),
+            ],
+            "media"
+        ));
+        assert!(!multi_type_is_input_media(
+            &[
+                "Array of InputMediaAudio".to_owned(),
+                "Array of InputMediaDocument".to_owned(),
+            ],
+            "media"
+        ));
+        assert!(!multi_type_is_input_media(
+            &[
+                "Array of InputMediaAudio".to_owned(),
+                "Array of InputMediaDocument".to_owned(),
+                "Array of InputMediaPhoto".to_owned(),
+                "Array of InputMediaVideo".to_owned(),
+            ],
+            "results"
         ));
     }
 

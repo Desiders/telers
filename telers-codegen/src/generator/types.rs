@@ -13,7 +13,6 @@ use crate::{
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
 use std::collections::HashMap;
-use syn::{punctuated::Punctuated, Path, PathSegment};
 
 impl ToTokens for TypeKindInField {
     fn to_tokens(&self, tokens: &mut TokenStream) {
@@ -89,16 +88,26 @@ impl ToTokens for NormalizedType {
             .map(|kind| kind.get_tags())
             .unwrap_or_default();
 
+        let derive_quotes = get_derives_for_types(self);
         let ts = if self.subtypes.is_empty() {
             let fields = self
                 .fields
                 .iter()
                 .filter(|f| !f.is_tagged(tag_field, parent_tag_field));
+            let extra_field = if self.has_extra_fields {
+                quote! {
+                    #[serde(flatten)]
+                    pub _extra: BTreeMap<Box<str>, serde_json::Value>,
+                }
+            } else {
+                quote! {}
+            };
             quote! {
                 #( #[doc = #doc_lines] )*
-                #[derive(Clone, Debug, Serialize, Deserialize)]
+                #( #derive_quotes )*
                 pub struct #name {
                     #( #fields )*
+                    #extra_field
                 }
             }
         } else {
@@ -114,7 +123,7 @@ impl ToTokens for NormalizedType {
             let subtypes = self.subtypes.iter();
             quote! {
                 #( #[doc = #doc_lines] )*
-                #[derive(Clone, Debug, Serialize, Deserialize)]
+                #( #derive_quotes )*
                 #serde_attr
                 pub enum #name {
                     #( #subtypes )*
@@ -127,22 +136,182 @@ impl ToTokens for NormalizedType {
 }
 
 pub fn get_from_impls_for_subtypes(type_quote: &NormalizedType) -> Vec<TokenStream> {
-    type_quote
-        .subtypes
-        .iter()
-        .map(|subtype| {
-            let name = format_ident!("{}", type_quote.name);
-            let subtype_name = format_ident!("{}", subtype.ty_name);
-            let subtype_variant = format_ident!("{}", subtype.variant);
-            quote! {
-                impl From<#subtype_name> for #name {
-                    fn from(val: #subtype_name) -> Self {
-                        Self::#subtype_variant(val)
+    let name = format_ident!("{}", type_quote.name);
+
+    let mut impl_quotes = vec![];
+    for subtype in &type_quote.subtypes {
+        let subtype_name = format_ident!("{}", subtype.ty_name);
+        let subtype_variant = format_ident!("{}", subtype.variant);
+        impl_quotes.push(quote! {
+            impl From<#subtype_name> for #name {
+                #[inline]
+                fn from(val: #subtype_name) -> Self {
+                    Self::#subtype_variant(val)
+                }
+            }
+            impl TryFrom<#name> for #subtype_name {
+                type Error = crate::errors::ConvertToTypeError;
+                #[inline]
+                fn try_from(val: #name) -> Result<Self, Self::Error> {
+                    if let #name::#subtype_variant(inner) = val {
+                        Ok(inner)
+                    } else {
+                        Err(Self::Error::new(stringify!(#name), stringify!(#subtype_name)))
                     }
                 }
             }
-        })
-        .collect()
+        });
+    }
+    impl_quotes
+}
+
+pub fn get_impls_for_types(
+    type_quote: &NormalizedType,
+    schema: &NormalizedSchema,
+) -> Vec<TokenStream> {
+    let name = format_ident!("{}", type_quote.name);
+
+    let mut impl_quotes = vec![];
+
+    if type_quote.is_update_variant() {
+        let ty_field = type_quote
+            .update_variant_ty_field()
+            .expect("Update variant doesn't have type field");
+        let field_name = format_ident!("{}", ty_field.name);
+        let field_ty = &ty_field.r#type;
+
+        let body = if ty_field.is_boxed || ty_field.is_recursive {
+            quote! { *val.#field_name }
+        } else {
+            quote! { val.#field_name }
+        };
+
+        impl_quotes.push(quote! {
+            impl From<#name> for #field_ty {
+                #[inline]
+                fn from(val: #name) -> Self {
+                    #body
+                }
+            }
+        });
+        impl_quotes.push(quote! {
+            impl<Client> crate::Extractor<Client> for #name
+            {
+                type Error = crate::errors::ConvertToTypeError;
+
+                #[inline]
+                fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+                    let val = TryFrom::try_from((*request.update).clone());
+                    async move { val }
+                }
+            }
+        });
+    }
+
+    if type_quote.is_update() {
+        impl_quotes.push(quote! {
+            impl<Client> crate::Extractor<Client> for Update
+            {
+                type Error = std::convert::Infallible;
+
+                #[inline]
+                fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+                    let val = (*request.update).clone();
+                    async move { Ok(val) }
+                }
+            }
+        });
+        impl_quotes.push(quote! {
+            impl<Client> crate::Extractor<Client> for std::sync::Arc<Update>
+            {
+                type Error = std::convert::Infallible;
+
+                #[inline]
+                fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+                    let val = request.update.clone();
+                    async move { Ok(val) }
+                }
+            }
+        });
+
+        // We need to collect all types that can be got from update variants,
+        // for example `Message` from `UpdateMessage` and `UpdateBusinessMessage`,
+        // so that we can generate `impl From<Update> for Message` for each of variants.
+        let mut types_update_variants_with_field: HashMap<&str, Vec<_>> = HashMap::new();
+
+        for subtype in &type_quote.subtypes {
+            let variant_ty = schema.types.get(&subtype.ty_name).unwrap();
+            let variant_field_ty = variant_ty
+                .update_variant_ty_field()
+                .expect("Update variant doesn't have type field");
+            let TypeKindInField::Telegram(variant_field_ty_name) = &variant_field_ty.r#type else {
+                panic!("Update variant type field must be Telegram type");
+            };
+
+            types_update_variants_with_field
+                .entry(variant_field_ty_name.as_str())
+                .or_default()
+                .push((subtype.variant.as_str(), variant_field_ty));
+        }
+
+        for (variant_field_ty_name, variants_with_field) in types_update_variants_with_field {
+            let variant_field_ty_name = format_ident!("{}", variant_field_ty_name);
+
+            let mut match_arms = vec![];
+            for (variant, ty_field) in variants_with_field {
+                let variant = format_ident!("{}", variant);
+                let field_name = format_ident!("{}", ty_field.name);
+
+                let body = if ty_field.is_boxed || ty_field.is_recursive {
+                    quote! { *val.#field_name }
+                } else {
+                    quote! { val.#field_name }
+                };
+
+                match_arms.push(quote! {
+                    Update::#variant(val) => Ok(#body)
+                });
+            }
+            match_arms.push(quote! {
+                _ => Err(crate::errors::ConvertToTypeError::new(stringify!(Update), stringify!(#variant_field_ty_name)))
+            });
+
+            impl_quotes.push(quote! {
+                impl TryFrom<Update> for #variant_field_ty_name {
+                    type Error = crate::errors::ConvertToTypeError;
+                    #[inline]
+                    fn try_from(val: Update) -> Result<Self, crate::errors::ConvertToTypeError> {
+                        match val {
+                            #(#match_arms),*
+                        }
+                    }
+                }
+            });
+            impl_quotes.push(quote! {
+                impl<Client> crate::Extractor<Client> for #variant_field_ty_name
+                {
+                    type Error = crate::errors::ConvertToTypeError;
+
+                    #[inline]
+                    fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+                        let val = TryFrom::try_from((*request.update).clone());
+                        async move { val }
+                    }
+                }
+            });
+        }
+    }
+
+    impl_quotes
+}
+
+pub fn get_derives_for_types(_type_quote: &NormalizedType) -> Vec<TokenStream> {
+    let derive_quotes = vec![
+        quote! { #[derive(Clone, Debug)] },
+        quote! { #[derive(Serialize, Deserialize)] },
+    ];
+
+    derive_quotes
 }
 
 pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
@@ -182,11 +351,27 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
         if !optional_fields.is_empty() {
             let doc_notes = format_attr_description("# Notes");
             let doc_opt = format_attr_description("Use builder methods to set optional fields.");
-            doc_lines
-                .push(quote! { #[doc = ""] #[doc = #doc_notes] #[doc = ""] #[doc = #doc_opt] });
+            doc_lines.push(quote! { #[doc = ""] #[doc = #doc_notes] #[doc = #doc_opt] });
         }
 
-        if !fields.is_empty() {
+        if fields.is_empty() {
+            let extra_field = if type_quote.has_extra_fields {
+                quote! {
+                    _extra: BTreeMap::new(),
+                }
+            } else {
+                quote! {}
+            };
+            quote! {
+                #( #doc_lines )*
+                #[must_use]
+                pub const fn new() -> Self {
+                    Self {
+                        #extra_field
+                    }
+                }
+            }
+        } else {
             let new_args = required_fields.iter().map(|field| {
                 let name = sanitize_field_name(&field.name);
                 let ty = &field.r#type;
@@ -204,19 +389,21 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
                     quote! { #name: None }
                 }
             });
+            let extra_field = if type_quote.has_extra_fields {
+                quote! {
+                    _extra: BTreeMap::new(),
+                }
+            } else {
+                quote! {}
+            };
             quote! {
                 #( #doc_lines )*
                 #[must_use]
                 pub fn new(#( #new_args ),*) -> Self {
-                    Self { #( #new_init, )* }
-                }
-            }
-        } else {
-            quote! {
-                #( #doc_lines )*
-                #[must_use]
-                pub const fn new() -> Self {
-                    Self {}
+                    Self {
+                        #( #new_init, )*
+                        #extra_field
+                    }
                 }
             }
         }
@@ -341,7 +528,10 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
     }
 }
 
-pub fn get_impl_for_type(type_quote: &NormalizedType, schema: &NormalizedSchema) -> TokenStream {
+pub fn get_helper_impls_for_type(
+    type_quote: &NormalizedType,
+    schema: &NormalizedSchema,
+) -> TokenStream {
     if type_quote.subtypes.is_empty() {
         return quote! {};
     }
@@ -491,22 +681,27 @@ pub fn get_impl_for_type(type_quote: &NormalizedType, schema: &NormalizedSchema)
 }
 
 pub fn tokenize_type(type_quote: &NormalizedType, schema: &NormalizedSchema) -> TokenStream {
-    let imports_quote = if type_quote.get_paths_count() == 0 {
-        quote! { use serde::{Serialize, Deserialize}; }
-    } else {
-        quote! { use super::*; use serde::{Serialize, Deserialize}; }
-    };
+    let mut import_quotes = vec![];
+    if type_quote.get_paths_count() > 0 {
+        import_quotes.push(quote! { use super::*; });
+    }
+    if type_quote.has_extra_fields && type_quote.subtypes.is_empty() {
+        import_quotes.push(quote! { use std::collections::BTreeMap; });
+    }
+    import_quotes.push(quote! { use serde::{Serialize, Deserialize}; });
 
-    let impls_for_subtypes = get_from_impls_for_subtypes(type_quote);
-    let builder_impl = builder_impl_for_type(type_quote);
-    let get_impl = get_impl_for_type(type_quote, schema);
+    let type_impls = get_impls_for_types(type_quote, schema);
+    let subtype_impls = get_from_impls_for_subtypes(type_quote);
+    let builder_impls = builder_impl_for_type(type_quote);
+    let helper_impld = get_helper_impls_for_type(type_quote, schema);
 
     quote! {
-        #imports_quote
+        #( #import_quotes )*
         #type_quote
-        #builder_impl
-        #get_impl
-        #( #impls_for_subtypes )*
+        #builder_impls
+        #helper_impld
+        #( #type_impls )*
+        #( #subtype_impls )*
     }
 }
 
@@ -521,17 +716,9 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
         quote! { pub use #mod_name::#type_name; }
     });
 
-    let mut segments = Punctuated::new();
-    segments.push(PathSegment::from(format_ident!("non_telegram")));
-    let chat_id_kind_mod = Path {
-        leading_colon: None,
-        segments,
-    };
-    let chat_id_kind_type = format_ident!("ChatIdKind");
-
     quote! {
         pub(crate) mod non_telegram;
-        pub use #chat_id_kind_mod::#chat_id_kind_type;
+        pub use non_telegram::*;
         #( #mods_quote )*
         #( #uses_quote )*
     }

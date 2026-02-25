@@ -49,6 +49,7 @@ fn main() {
         })
         .normalize();
 
+    schema.skip_types(&["InputFile"]);
     schema.split_message_types();
     schema.split_external_reply_info_types();
     schema.split_update_types();
@@ -62,12 +63,13 @@ fn main() {
     schema.split_message_entity_types();
     schema.split_inline_query_result();
     schema.split_transaction_partner_user_types();
+    schema.compose_reply_markup_type();
     schema.reorder_untagged_subtypes();
 
     if args.generate_tests {
         let tests_dir = args.generated_dir_path.join("tests");
         let tokens = generator::tests::tokenize_tests(&schema, &args.tests_types_path);
-        let filename = "generated.rs";
+        let filename = "types_generated.rs";
         write_tokens_to_file(&tokens, &tests_dir, filename).unwrap_or_else(|err| {
             eprintln!("Failed to write file '{filename}' in dir tests: {err}\nContent: {tokens}");
             process::exit(1);
@@ -75,7 +77,8 @@ fn main() {
         println!("Tests generated in one file");
     }
 
-    let types_dir = args.generated_dir_path.join("src/types");
+    let src_dir = args.generated_dir_path.join("src");
+    let types_dir = src_dir.join("types");
     for (name, ty) in &schema.types {
         let tokens = generator::types::tokenize_type(ty, &schema);
         let filename = camel_to_filename(name, Some("rs"));
@@ -88,9 +91,28 @@ fn main() {
 
     let type_names = schema.types.keys().collect::<Vec<_>>();
     let tokens = generator::types::tokenize_types_mod(type_names.as_slice());
-    write_tokens_to_file(&tokens, &args.generated_dir_path, "types.rs").unwrap_or_else(|err| {
+    write_tokens_to_file(&tokens, &src_dir, "types.rs").unwrap_or_else(|err| {
         eprintln!("Failed to write file 'types.rs': {err}\nContent: {tokens}");
         process::exit(1);
     });
     println!("Types module generated");
+
+    let methods_dir = src_dir.join("methods");
+    for method in schema.methods.values() {
+        let tokens = generator::methods::tokenize_method(method);
+        let filename = camel_to_filename(&method.name, Some("rs"));
+        write_tokens_to_file(&tokens, &methods_dir, &filename).unwrap_or_else(|err| {
+            eprintln!("Failed to write file '{filename}' in dir methods: {err}\nContent: {tokens}");
+            process::exit(1);
+        });
+    }
+    println!("Methods generated");
+
+    let method_names = schema.methods.values().map(|m| &m.name).collect::<Vec<_>>();
+    let tokens = generator::methods::tokenize_methods_mod(method_names.as_slice());
+    write_tokens_to_file(&tokens, &src_dir, "methods.rs").unwrap_or_else(|err| {
+        eprintln!("Failed to write file 'methods.rs': {err}\nContent: {tokens}");
+        process::exit(1);
+    });
+    println!("Methods module generated");
 }
