@@ -10,7 +10,7 @@ use crate::{
     },
 };
 
-use proc_macro2::TokenStream;
+use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote, ToTokens};
 use std::collections::{HashMap, HashSet};
 
@@ -255,8 +255,8 @@ pub fn get_impls_for_types(
                 .push((subtype.variant.as_str(), variant_field_ty));
         }
 
-        for (variant_field_ty_name, variants_with_field) in types_update_variants_with_field {
-            let variant_field_ty_name = format_ident!("{}", variant_field_ty_name);
+        for (variant_field_ty_name_str, variants_with_field) in types_update_variants_with_field {
+            let variant_field_ty_name = format_ident!("{}", variant_field_ty_name_str);
 
             let mut match_arms = vec![];
             for (variant, ty_field) in variants_with_field {
@@ -295,11 +295,50 @@ pub fn get_impls_for_types(
 
                     #[inline]
                     fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
-                        let val = TryFrom::try_from((*request.update).clone());
+                        let val = (*request.update).clone().try_into();
                         async move { val }
                     }
                 }
             });
+
+            // If update inner type is an enum (for example `Message`), also expose
+            // extractors for each of its variants (for example `MessageText`).
+            let Some(inner_ty) = schema.types.get(variant_field_ty_name_str) else {
+                continue;
+            };
+            if inner_ty.subtypes.is_empty() {
+                continue;
+            }
+
+            let mut seen_subtype_names = HashSet::new();
+            for subtype in &inner_ty.subtypes {
+                if !seen_subtype_names.insert(subtype.ty_name.as_str()) {
+                    continue;
+                }
+
+                let subtype_ty_name = format_ident!("{}", subtype.ty_name);
+                impl_quotes.push(quote! {
+                    impl TryFrom<Update> for #subtype_ty_name {
+                        type Error = crate::errors::ConvertToTypeError;
+                        #[inline]
+                        fn try_from(val: Update) -> Result<Self, Self::Error> {
+                            let parent: #variant_field_ty_name = val.try_into()?;
+                            parent.try_into()
+                        }
+                    }
+                });
+                impl_quotes.push(quote! {
+                    impl<Client> crate::Extractor<Client> for #subtype_ty_name
+                    {
+                        type Error = crate::errors::ConvertToTypeError;
+                        #[inline]
+                        fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+                            let val = (*request.update).clone().try_into();
+                            async move { val }
+                        }
+                    }
+                });
+            }
         }
     }
 
@@ -600,6 +639,113 @@ fn collect_common_fields<'a>(
     }
 }
 
+fn helper_method_return_type(field_ty: &TypeKindInField, fully_required: bool) -> TokenStream {
+    match field_ty {
+        TypeKindInField::Array(inner) if fully_required => quote! { &[#inner] },
+        TypeKindInField::Array(inner) => quote! { Option<&[#inner]> },
+        TypeKindInField::String if fully_required => quote! { &str },
+        TypeKindInField::String => quote! { Option<&str> },
+        _ if field_ty.is_copy() && fully_required => quote! { #field_ty },
+        _ if field_ty.is_copy() => quote! { Option<#field_ty> },
+        _ if fully_required => quote! { &#field_ty },
+        _ => quote! { Option<&#field_ty> },
+    }
+}
+
+fn helper_field_accessor_expr(field: &NormalizedField) -> TokenStream {
+    let field_ident = sanitize_field_name(&field.name);
+    let field_ty = &field.r#type;
+    let is_required = field.required;
+
+    if matches!(field_ty, TypeKindInField::Array(_)) {
+        if is_required {
+            quote! { &*val.#field_ident }
+        } else {
+            quote! { val.#field_ident.as_deref() }
+        }
+    } else if field_ty.is_copy() {
+        quote! { val.#field_ident }
+    } else if field.is_recursive || field.is_boxed || matches!(field_ty, TypeKindInField::String) {
+        if is_required {
+            quote! { &*val.#field_ident }
+        } else {
+            quote! { val.#field_ident.as_deref() }
+        }
+    } else if is_required {
+        quote! { &val.#field_ident }
+    } else {
+        quote! { val.#field_ident.as_ref() }
+    }
+}
+
+fn nested_inner_accessor_expr(
+    inner_ident: &Ident,
+    inner_field: &NormalizedField,
+    inner_ty: &TypeKindInField,
+    inner_is_enum: bool,
+    inner_field_fully_required: bool,
+    fully_required: bool,
+) -> TokenStream {
+    if inner_is_enum {
+        if inner_field_fully_required && !fully_required {
+            quote! { Some(inner.#inner_ident()) }
+        } else {
+            quote! { inner.#inner_ident() }
+        }
+    } else if matches!(inner_ty, TypeKindInField::Array(_)) {
+        if inner_field.required {
+            quote! { Some(&*inner.#inner_ident) }
+        } else {
+            quote! { inner.#inner_ident.as_deref() }
+        }
+    } else {
+        let is_inner_copy = inner_ty.is_copy();
+        let is_inner_boxed = inner_field.is_recursive
+            || inner_field.is_boxed
+            || matches!(inner_ty, TypeKindInField::String);
+
+        match (
+            inner_field.required,
+            is_inner_copy,
+            is_inner_boxed,
+            fully_required,
+        ) {
+            (true, true, _, true) => quote! { inner.#inner_ident },
+            (true, true, _, false) => quote! { Some(inner.#inner_ident) },
+            (false, true, _, _) => quote! { inner.#inner_ident },
+            (true, false, true, true) => quote! { &*inner.#inner_ident },
+            (true, false, true, false) => quote! { Some(&*inner.#inner_ident) },
+            (false, _, true, _) => quote! { inner.#inner_ident.as_deref() },
+            (true, false, false, true) => quote! { &inner.#inner_ident },
+            (true, false, false, false) => quote! { Some(&inner.#inner_ident) },
+            (false, false, false, _) => quote! { inner.#inner_ident.as_ref() },
+        }
+    }
+}
+
+fn nested_outer_accessor_expr(
+    outer_ident: &Ident,
+    outer_field: &NormalizedField,
+    inner_access: TokenStream,
+) -> TokenStream {
+    let is_outer_boxed = outer_field.is_recursive || outer_field.is_boxed;
+    if outer_field.required {
+        let get_inner = if is_outer_boxed {
+            quote! { &*val.#outer_ident }
+        } else {
+            quote! { &val.#outer_ident }
+        };
+        quote! { { let inner = #get_inner; #inner_access } }
+    } else {
+        let as_opt = if is_outer_boxed {
+            quote! { val.#outer_ident.as_deref() }
+        } else {
+            quote! { val.#outer_ident.as_ref() }
+        };
+        quote! { #as_opt.and_then(|inner| #inner_access) }
+    }
+}
+
 pub fn get_helper_impls_for_type(
     type_quote: &NormalizedType,
     schema: &NormalizedSchema,
@@ -663,18 +809,7 @@ pub fn get_helper_impls_for_type(
         }
         let is_common = subtypes.len() == type_quote.subtypes.len();
         let is_required_for_all = is_common && subtypes.iter().all(|(_, f)| f.required);
-        let is_copy = field_ty.is_copy();
-
-        let return_ty = match (is_required_for_all, is_copy, field_ty) {
-            (true, _, TypeKindInField::Array(inner)) => quote! { &[#inner] },
-            (false, _, TypeKindInField::Array(inner)) => quote! { Option<&[#inner]> },
-            (true, _, TypeKindInField::String) => quote! { &str },
-            (false, _, TypeKindInField::String) => quote! { Option<&str> },
-            (true, false, _) => quote! { &#field_ty },
-            (false, false, _) => quote! { Option<&#field_ty> },
-            (true, true, _) => quote! { #field_ty },
-            (false, true, _) => quote! { Option<#field_ty> },
-        };
+        let return_ty = helper_method_return_type(field_ty, is_required_for_all);
 
         let doc_helper = format_attr_description(&format!("Helper method for field {field_name}."));
         let doc_variants = format_attr_description("# Variants");
@@ -691,31 +826,8 @@ pub fn get_helper_impls_for_type(
                 format_attr_description(&format!("- {}. {}", subtype.ty_name, field.description));
             doc_lines.push(quote! { #[doc = #doc_field] });
 
-            let field_name = sanitize_field_name(&field.name);
-            let field_ty = &field.r#type;
-            let is_copy = field_ty.is_copy();
-            let is_required = field.required;
-            let is_string = matches!(field_ty, TypeKindInField::String);
-            let is_array = matches!(field_ty, TypeKindInField::Array(_));
-            let is_boxed = field.is_recursive || field.is_boxed || is_string;
-
-            #[rustfmt::skip]
-            let body = if is_array {
-                if is_required {
-                    quote! { &*val.#field_name }
-                } else {
-                    quote! { val.#field_name.as_deref() }
-                }
-            } else {
-                match (is_required, is_copy, is_boxed) {
-                    (_    , true,    _) => quote! { val.#field_name },
-                    (true ,    _, true) => quote! { &*val.#field_name },
-                    (false,    _, true) => quote! { val.#field_name.as_deref() },
-                    (false,    _,    _) => quote! { val.#field_name.as_ref() },
-                    (true ,    _,    _) => quote! { &val.#field_name },
-                }
-            };
-            let body = if is_required && !is_required_for_all {
+            let body = helper_field_accessor_expr(field);
+            let body = if field.required && !is_required_for_all {
                 quote! { Some(#body) }
             } else {
                 quote! { #body }
@@ -829,35 +941,7 @@ pub fn get_helper_impls_for_type(
             && is_inner_req_all
             && entries.iter().all(|(_, outer, _, _, _)| outer.required);
 
-        let is_inner_copy = inner_ty.is_copy();
-        let is_inner_string = matches!(inner_ty, TypeKindInField::String);
-        let is_inner_array = matches!(inner_ty, TypeKindInField::Array(_));
-
-        let return_ty = match (
-            fully_required,
-            is_inner_array,
-            is_inner_string,
-            is_inner_copy,
-        ) {
-            (true, true, _, _) => {
-                let TypeKindInField::Array(e) = inner_ty else {
-                    unreachable!()
-                };
-                quote! { &[#e] }
-            }
-            (false, true, _, _) => {
-                let TypeKindInField::Array(e) = inner_ty else {
-                    unreachable!()
-                };
-                quote! { Option<&[#e]> }
-            }
-            (true, _, true, _) => quote! { &str },
-            (false, _, true, _) => quote! { Option<&str> },
-            (true, _, _, true) => quote! { #inner_ty },
-            (false, _, _, true) => quote! { Option<#inner_ty> },
-            (true, _, _, false) => quote! { &#inner_ty },
-            (false, _, _, false) => quote! { Option<&#inner_ty> },
-        };
+        let return_ty = helper_method_return_type(inner_ty, fully_required);
 
         let mut match_arms = vec![];
         for (subtype, outer_field, inner_field, inner_is_enum, inner_field_fully_required) in
@@ -866,53 +950,15 @@ pub fn get_helper_impls_for_type(
             let variant = format_ident!("{}", subtype.variant);
             let outer_ident = sanitize_field_name(&outer_field.name);
             let inner_ident = sanitize_field_name(&inner_field.name);
-            let is_outer_req = outer_field.required;
-            let is_outer_boxed = outer_field.is_recursive || outer_field.is_boxed;
-
-            let inner_access = if *inner_is_enum {
-                if *inner_field_fully_required && !fully_required {
-                    quote! { Some(inner.#inner_ident()) }
-                } else {
-                    quote! { inner.#inner_ident() }
-                }
-            } else if is_inner_array {
-                let is_inner_req = inner_field.required;
-                if is_inner_req {
-                    quote! { Some(&*inner.#inner_ident) }
-                } else {
-                    quote! { inner.#inner_ident.as_deref() }
-                }
-            } else {
-                let is_inner_req = inner_field.required;
-                let is_boxed = inner_field.is_recursive || inner_field.is_boxed || is_inner_string;
-                match (is_inner_req, is_inner_copy, is_boxed, fully_required) {
-                    (true, true, _, true) => quote! { inner.#inner_ident },
-                    (true, true, _, false) => quote! { Some(inner.#inner_ident) },
-                    (false, true, _, _) => quote! { inner.#inner_ident },
-                    (true, _, true, true) => quote! { &*inner.#inner_ident },
-                    (true, _, true, false) => quote! { Some(&*inner.#inner_ident) },
-                    (false, _, true, _) => quote! { inner.#inner_ident.as_deref() },
-                    (true, false, false, true) => quote! { &inner.#inner_ident },
-                    (true, false, false, false) => quote! { Some(&inner.#inner_ident) },
-                    (false, false, false, _) => quote! { inner.#inner_ident.as_ref() },
-                }
-            };
-
-            let body = if is_outer_req {
-                let get_inner = if is_outer_boxed {
-                    quote! { &*val.#outer_ident }
-                } else {
-                    quote! { &val.#outer_ident }
-                };
-                quote! { { let inner = #get_inner; #inner_access } }
-            } else {
-                let as_opt = if is_outer_boxed {
-                    quote! { val.#outer_ident.as_deref() }
-                } else {
-                    quote! { val.#outer_ident.as_ref() }
-                };
-                quote! { #as_opt.and_then(|inner| #inner_access) }
-            };
+            let inner_access = nested_inner_accessor_expr(
+                &inner_ident,
+                inner_field,
+                inner_ty,
+                *inner_is_enum,
+                *inner_field_fully_required,
+                fully_required,
+            );
+            let body = nested_outer_accessor_expr(&outer_ident, outer_field, inner_access);
 
             match_arms.push(quote! { Self::#variant(val) => #body });
         }
@@ -921,7 +967,7 @@ pub fn get_helper_impls_for_type(
         }
 
         let doc = format_attr_description(&format!(
-            "Helper method for nested field `{inner_field_name}`."
+            "Helper method for nested field {inner_field_name}."
         ));
         methods.push(quote! {
             #[doc = #doc]

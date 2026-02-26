@@ -7,7 +7,7 @@ use crate::{
     parser::api::{NormalizedMethod, TypeKindInField},
 };
 
-use proc_macro2::TokenStream;
+use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote, ToTokens};
 
 fn format_type_kind_rust(kind: &TypeKindInField) -> String {
@@ -22,101 +22,122 @@ fn struct_name_to_method_name(name: &str) -> String {
     first.to_lowercase().chain(chars).collect()
 }
 
+#[derive(Clone, Copy)]
+enum PrepareStepKind {
+    Single {
+        function_name: &'static str,
+        optional_binding: &'static str,
+    },
+    Group {
+        function_name: &'static str,
+        optional_binding: &'static str,
+    },
+}
+
+fn is_telegram_type(kind: &TypeKindInField, name: &str) -> bool {
+    matches!(kind, TypeKindInField::Telegram(ty_name) if ty_name == name)
+}
+
+fn is_array_of_telegram_type(kind: &TypeKindInField, name: &str) -> bool {
+    matches!(
+        kind,
+        TypeKindInField::Array(inner)
+            if matches!(inner.as_ref(), TypeKindInField::Telegram(ty_name) if ty_name == name)
+    )
+}
+
+fn get_prepare_step_kind(kind: &TypeKindInField) -> Option<PrepareStepKind> {
+    let single = |function_name, optional_binding| PrepareStepKind::Single {
+        function_name,
+        optional_binding,
+    };
+    let group = |function_name, optional_binding| PrepareStepKind::Group {
+        function_name,
+        optional_binding,
+    };
+
+    match () {
+        _ if matches!(kind, TypeKindInField::InputFile) => Some(single("prepare_file", "file")),
+        _ if is_telegram_type(kind, "InputMedia") => Some(single("prepare_input_media", "media")),
+        _ if is_array_of_telegram_type(kind, "InputMedia") => {
+            Some(group("prepare_input_media_group", "media"))
+        }
+        _ if is_telegram_type(kind, "InputSticker") => {
+            Some(single("prepare_input_sticker", "sticker"))
+        }
+        _ if is_array_of_telegram_type(kind, "InputSticker") => {
+            Some(group("prepare_input_stickers", "stickers"))
+        }
+        _ if is_telegram_type(kind, "InputPaidMedia") => {
+            Some(single("prepare_input_paid_media", "media"))
+        }
+        _ if is_array_of_telegram_type(kind, "InputPaidMedia") => {
+            Some(group("prepare_input_paid_media_group", "media"))
+        }
+        _ if is_telegram_type(kind, "InputStoryContent") => {
+            Some(single("prepare_input_story_content", "content"))
+        }
+        _ => None,
+    }
+}
+
+impl PrepareStepKind {
+    fn required_tokens(self, field_name: &Ident) -> TokenStream {
+        match self {
+            Self::Single { function_name, .. } => {
+                let function = format_ident!("{function_name}");
+                quote! { #function(&mut files, &mut self.#field_name); }
+            }
+            Self::Group { function_name, .. } => {
+                let function = format_ident!("{function_name}");
+                quote! { #function(&mut files, self.#field_name.iter_mut().collect()); }
+            }
+        }
+    }
+
+    fn optional_tokens(self, field_name: &Ident) -> TokenStream {
+        match self {
+            Self::Single {
+                function_name,
+                optional_binding,
+            } => {
+                let function = format_ident!("{function_name}");
+                let binding = format_ident!("{optional_binding}");
+                quote! {
+                    if let Some(#binding) = &mut self.#field_name {
+                        #function(&mut files, #binding);
+                    }
+                }
+            }
+            Self::Group {
+                function_name,
+                optional_binding,
+            } => {
+                let function = format_ident!("{function_name}");
+                let binding = format_ident!("{optional_binding}");
+                quote! {
+                    if let Some(#binding) = &mut self.#field_name {
+                        #function(&mut files, #binding.iter_mut().collect());
+                    }
+                }
+            }
+        }
+    }
+}
+
 fn collect_prepare_steps(method_quote: &NormalizedMethod) -> Vec<TokenStream> {
     let mut steps = vec![];
     for field in &method_quote.fields {
         let name = sanitize_field_name(&field.name);
-        match (&field.r#type, field.required) {
-            (TypeKindInField::InputFile, true) => {
-                steps.push(quote! { prepare_file(&mut files, &mut self.#name); });
-            }
-            (TypeKindInField::InputFile, false) => {
-                steps.push(quote! {
-                    if let Some(file) = &mut self.#name {
-                        prepare_file(&mut files, file);
-                    }
-                });
-            }
-            (TypeKindInField::Telegram(ty_name), true) if ty_name == "InputMedia" => {
-                steps.push(quote! { prepare_input_media(&mut files, &mut self.#name); });
-            }
-            (TypeKindInField::Telegram(ty_name), false) if ty_name == "InputMedia" => {
-                steps.push(quote! {
-                    if let Some(media) = &mut self.#name {
-                        prepare_input_media(&mut files, media);
-                    }
-                });
-            }
-            (TypeKindInField::Array(inner), true) if matches!(inner.as_ref(), TypeKindInField::Telegram(ty_name) if ty_name == "InputMedia") =>
-            {
-                steps.push(quote! { prepare_input_media_group(&mut files, self.#name.iter_mut().collect()); });
-            }
-            (TypeKindInField::Array(inner), false) if matches!(inner.as_ref(), TypeKindInField::Telegram(ty_name) if ty_name == "InputMedia") =>
-            {
-                steps.push(quote! {
-                    if let Some(media) = &mut self.#name {
-                        prepare_input_media_group(&mut files, media.iter_mut().collect());
-                    }
-                });
-            }
-            (TypeKindInField::Telegram(ty_name), true) if ty_name == "InputSticker" => {
-                steps.push(quote! { prepare_input_sticker(&mut files, &mut self.#name); });
-            }
-            (TypeKindInField::Telegram(ty_name), false) if ty_name == "InputSticker" => {
-                steps.push(quote! {
-                    if let Some(sticker) = &mut self.#name {
-                        prepare_input_sticker(&mut files, sticker);
-                    }
-                });
-            }
-            (TypeKindInField::Array(inner), true) if matches!(inner.as_ref(), TypeKindInField::Telegram(ty_name) if ty_name == "InputSticker") =>
-            {
-                steps.push(
-                    quote! { prepare_input_stickers(&mut files, self.#name.iter_mut().collect()); },
-                );
-            }
-            (TypeKindInField::Array(inner), false) if matches!(inner.as_ref(), TypeKindInField::Telegram(ty_name) if ty_name == "InputSticker") =>
-            {
-                steps.push(quote! {
-                    if let Some(stickers) = &mut self.#name {
-                        prepare_input_stickers(&mut files, stickers.iter_mut().collect());
-                    }
-                });
-            }
-            (TypeKindInField::Telegram(ty_name), true) if ty_name == "InputPaidMedia" => {
-                steps.push(quote! { prepare_input_paid_media(&mut files, &mut self.#name); });
-            }
-            (TypeKindInField::Telegram(ty_name), false) if ty_name == "InputPaidMedia" => {
-                steps.push(quote! {
-                    if let Some(media) = &mut self.#name {
-                        prepare_input_paid_media(&mut files, media);
-                    }
-                });
-            }
-            (TypeKindInField::Array(inner), true) if matches!(inner.as_ref(), TypeKindInField::Telegram(ty_name) if ty_name == "InputPaidMedia") =>
-            {
-                steps.push(quote! { prepare_input_paid_media_group(&mut files, self.#name.iter_mut().collect()); });
-            }
-            (TypeKindInField::Array(inner), false) if matches!(inner.as_ref(), TypeKindInField::Telegram(ty_name) if ty_name == "InputPaidMedia") =>
-            {
-                steps.push(quote! {
-                    if let Some(media) = &mut self.#name {
-                        prepare_input_paid_media_group(&mut files, media.iter_mut().collect());
-                    }
-                });
-            }
-            (TypeKindInField::Telegram(ty_name), true) if ty_name == "InputStoryContent" => {
-                steps.push(quote! { prepare_input_story_content(&mut files, &mut self.#name); });
-            }
-            (TypeKindInField::Telegram(ty_name), false) if ty_name == "InputStoryContent" => {
-                steps.push(quote! {
-                    if let Some(content) = &mut self.#name {
-                        prepare_input_story_content(&mut files, content);
-                    }
-                });
-            }
-            _ => {}
-        }
+        let Some(kind) = get_prepare_step_kind(&field.r#type) else {
+            continue;
+        };
+        let step = if field.required {
+            kind.required_tokens(&name)
+        } else {
+            kind.optional_tokens(&name)
+        };
+        steps.push(step);
     }
     steps
 }
@@ -377,22 +398,27 @@ fn tokenize_telegram_method_impl(method_quote: &NormalizedMethod) -> TokenStream
 }
 
 pub fn tokenize_method(method_quote: &NormalizedMethod) -> TokenStream {
-    let mut import_quotes = vec![];
-    import_quotes.push(quote! { use super::*; });
-    import_quotes.push(quote! { use crate::client::Bot; });
-    if method_quote
+    let requires_types_import = method_quote
         .fields
         .iter()
-        .any(|val| val.r#type.require_import())
-        || method_quote.returns.iter().any(|val| val.require_import())
-    {
-        import_quotes.push(quote! { use crate::types::*; });
-    }
-    import_quotes.push(quote! { use serde::Serialize; });
+        .any(|field| field.r#type.require_import())
+        || method_quote
+            .returns
+            .iter()
+            .any(TypeKindInField::require_import);
+    let import_quotes: Vec<_> = [
+        Some(quote! { use super::*; }),
+        Some(quote! { use crate::client::Bot; }),
+        requires_types_import.then(|| quote! { use crate::types::*; }),
+        Some(quote! { use serde::Serialize; }),
+    ]
+    .into_iter()
+    .flatten()
+    .collect();
 
     let method_name = format_ident!("{}", method_quote.name);
     let doc_lines = format_description(&method_quote.description, &method_quote.href);
-    let returns_doc = if method_quote.returns.is_empty() {
+    let returns_doc: Vec<_> = if method_quote.returns.is_empty() {
         vec![]
     } else {
         let mut docs = vec![quote! { #[doc = " # Returns"] }];

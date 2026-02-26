@@ -192,11 +192,12 @@ pub fn tokenize_enum_parse_mode() -> TokenStream {
 }
 
 pub fn tokenize_kind_enums_mod(type_names: &[&str], own_type_names: &[&str]) -> TokenStream {
-    let mods_quote = type_names.iter().map(|&name| {
-        let mod_name = format_ident!("{}", camel_to_filename(name, None));
-        quote! { pub mod #mod_name; }
-    });
-    let own_mods_quote = own_type_names.iter().map(|&name| {
+    let all_module_names: Vec<_> = type_names
+        .iter()
+        .chain(own_type_names.iter())
+        .copied()
+        .collect();
+    let mods_quote = all_module_names.iter().map(|&name| {
         let mod_name = format_ident!("{}", camel_to_filename(name, None));
         quote! { pub mod #mod_name; }
     });
@@ -213,7 +214,6 @@ pub fn tokenize_kind_enums_mod(type_names: &[&str], own_type_names: &[&str]) -> 
 
     quote! {
         #( #mods_quote )*
-        #( #own_mods_quote )*
         #( #uses_quote )*
         #( #own_uses_quote )*
     }
