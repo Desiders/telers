@@ -38,6 +38,7 @@ impl ToTokens for TypeKindInField {
             TypeKindInField::InputFile => quote! { InputFile },
             TypeKindInField::ChatId => quote! { ChatIdKind },
             TypeKindInField::Array(inner) => quote! { Box<[#inner]> },
+            TypeKindInField::Either(left, right) => quote! { crate::Either<#left, #right> },
         };
         tokens.extend(ts);
     }
@@ -330,10 +331,10 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
     let fields: Box<[_]> = type_quote
         .fields
         .iter()
-        .filter(|f| !f.is_tagged(tag_field, parent_tag_field))
+        .filter(|&f| !f.is_tagged(tag_field, parent_tag_field))
         .collect();
-    let required_fields: Box<[_]> = fields.iter().filter(|f| f.required).copied().collect();
-    let optional_fields: Box<[_]> = fields.iter().filter(|f| !f.required).copied().collect();
+    let required_fields: Box<[_]> = fields.iter().filter(|&&f| f.required).copied().collect();
+    let optional_fields: Box<[_]> = fields.iter().filter(|&&f| !f.required).copied().collect();
 
     let new_method_ts = {
         let doc_creates = format_attr_description(&format!("Creates a new {}.", type_quote.name));
@@ -372,15 +373,38 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
                 }
             }
         } else {
-            let new_args = required_fields.iter().map(|field| {
-                let name = sanitize_field_name(&field.name);
-                let ty = &field.r#type;
-                quote! { #name: impl Into<#ty> }
-            });
+            let new_generics: Vec<_> = required_fields
+                .iter()
+                .enumerate()
+                .flat_map(|(i, field)| {
+                    let ty = &field.r#type;
+                    let t = format_ident!("T{i}");
+                    if let TypeKindInField::Array(inner) = ty {
+                        let t_item = format_ident!("T{i}Item");
+                        vec![
+                            quote! { #t_item: Into<#inner> },
+                            quote! { #t: IntoIterator<Item = #t_item> },
+                        ]
+                    } else {
+                        vec![quote! { #t: Into<#ty> }]
+                    }
+                })
+                .collect();
+            let new_args: Vec<_> = required_fields
+                .iter()
+                .enumerate()
+                .map(|(i, field)| {
+                    let name = sanitize_field_name(&field.name);
+                    let t = format_ident!("T{i}");
+                    quote! { #name: #t }
+                })
+                .collect();
             let new_init = fields.iter().map(|field| {
                 let name = sanitize_field_name(&field.name);
                 if field.required {
-                    if field.is_recursive || field.is_boxed {
+                    if let TypeKindInField::Array(_) = &field.r#type {
+                        quote! { #name: #name.into_iter().map(Into::into).collect() }
+                    } else if field.is_recursive || field.is_boxed {
                         quote! { #name: Box::new(#name.into()) }
                     } else {
                         quote! { #name: #name.into() }
@@ -399,7 +423,7 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
             quote! {
                 #( #doc_lines )*
                 #[must_use]
-                pub fn new(#( #new_args ),*) -> Self {
+                pub fn new<#( #new_generics ),*>(#( #new_args ),*) -> Self {
                     Self {
                         #( #new_init, )*
                         #extra_field
@@ -458,7 +482,7 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
                 methods.push(quote! {
                     #plural_doc
                     #[must_use]
-                    pub fn #plural_name(self, val: impl Into<#ty>) -> Self {
+                    pub fn #plural_name<T: Into<#ty>>(self, val: T) -> Self {
                         #plural_body
                     }
                 });
@@ -468,7 +492,7 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
                     methods.push(quote! {
                         #singular_doc
                         #[must_use]
-                        pub fn #singular_name(self, val: impl Into<#inner>) -> Self {
+                        pub fn #singular_name<T: Into<#inner>>(self, val: T) -> Self {
                             #singular_body
                         }
                     });
@@ -480,7 +504,7 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
                     methods.push(quote! {
                         #option_doc
                         #[must_use]
-                        pub fn #option_name(self, val: Option<impl Into<#ty>>) -> Self {
+                        pub fn #option_name<T: Into<#ty>>(self, val: Option<T>) -> Self {
                             Self { #name: val.map(Into::into), ..self }
                         }
                     });
@@ -494,7 +518,7 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
                 methods.push(quote! {
                     #[doc = #doc]
                     #[must_use]
-                    pub fn #name(self, val: impl Into<#ty>) -> Self {
+                    pub fn #name<T: Into<#ty>>(self, val: T) -> Self {
                         Self { #name: #value, ..self }
                     }
                 });
@@ -509,7 +533,7 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
                     methods.push(quote! {
                         #[doc = #doc]
                         #[must_use]
-                        pub fn #method_name(self, val: Option<impl Into<#ty>>) -> Self {
+                        pub fn #method_name<T: Into<#ty>>(self, val: Option<T>) -> Self {
                             Self { #name: #opt_value, ..self }
                         }
                     });
@@ -693,13 +717,13 @@ pub fn tokenize_type(type_quote: &NormalizedType, schema: &NormalizedSchema) -> 
     let type_impls = get_impls_for_types(type_quote, schema);
     let subtype_impls = get_from_impls_for_subtypes(type_quote);
     let builder_impls = builder_impl_for_type(type_quote);
-    let helper_impld = get_helper_impls_for_type(type_quote, schema);
+    let helper_impls = get_helper_impls_for_type(type_quote, schema);
 
     quote! {
         #( #import_quotes )*
         #type_quote
         #builder_impls
-        #helper_impld
+        #helper_impls
         #( #type_impls )*
         #( #subtype_impls )*
     }

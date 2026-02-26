@@ -1651,6 +1651,21 @@ impl NormalizedSchema {
         self.types.extend(types);
     }
 
+    pub fn modify_get_updates_returns_method(&mut self) {
+        let method = self
+            .methods
+            .get_mut("getUpdates")
+            .expect("getUpdates doesn't exist in schema");
+
+        method.returns.remove(0);
+        let either_ty = TypeKindInField::Array(Box::new(TypeKindInField::Either(
+            Box::new(TypeKindInField::Telegram("Update".to_owned())),
+            Box::new(TypeKindInField::Telegram("UpdateUnparsed".to_owned())),
+        )));
+
+        method.returns.insert(0, either_ty);
+    }
+
     /// Shared helper for split methods that produce `Untagged` subtypes with no common fields.
     fn build_untagged_subtypes(
         parent_name: &str,
@@ -1720,6 +1735,7 @@ pub enum TypeKindInField {
     Boolean(BooleanKind),
     Telegram(TelegramTypeName),
     Array(Box<TypeKindInField>),
+    Either(Box<TypeKindInField>, Box<TypeKindInField>),
 }
 
 impl TypeKindInField {
@@ -1744,6 +1760,17 @@ impl TypeKindInField {
             self,
             TypeKindInField::Integer(_) | TypeKindInField::Boolean(_)
         )
+    }
+
+    pub fn require_import(&self) -> bool {
+        match self {
+            TypeKindInField::Telegram(_) => true,
+            TypeKindInField::ChatId => true,
+            TypeKindInField::InputFile => true,
+            TypeKindInField::Either(left, right) => left.require_import() || right.require_import(),
+            TypeKindInField::Array(inner) => inner.require_import(),
+            _ => false,
+        }
     }
 }
 

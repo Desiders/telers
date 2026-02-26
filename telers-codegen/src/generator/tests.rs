@@ -302,6 +302,10 @@ fn generate_field_json_value(
             let ty = schema.types.get(name)?;
             Some(generate_type_json_value(ty, schema, visiting, forced_tag))
         }
+        TypeKindInField::Either(left, _right) => {
+            let left_value = generate_field_json_value(left, schema, visiting, description, None)?;
+            Some(quote! { either::Either::Left(#left_value) })
+        }
     }
 }
 

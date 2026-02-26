@@ -130,15 +130,15 @@ pub fn tokenize_method_return_type(returns: &[TypeKindInField]) -> TokenStream {
     let Some(first) = iter.next() else {
         return quote! { () };
     };
-    iter.fold(first, |acc, next| quote! { either::Either<#acc, #next> })
+    iter.fold(first, |acc, next| quote! { crate::Either<#acc, #next> })
 }
 
 pub fn builder_impl_for_method(method_quote: &NormalizedMethod) -> TokenStream {
     let method_name = format_ident!("{}", method_quote.name);
 
     let fields: Box<[_]> = method_quote.fields.iter().collect();
-    let required_fields: Box<[_]> = fields.iter().filter(|f| f.required).copied().collect();
-    let optional_fields: Box<[_]> = fields.iter().filter(|f| !f.required).copied().collect();
+    let required_fields: Box<[_]> = fields.iter().filter(|&&f| f.required).copied().collect();
+    let optional_fields: Box<[_]> = fields.iter().filter(|&&f| !f.required).copied().collect();
 
     let new_method_ts = {
         let doc_creates = format_attr_description(&format!("Creates a new {}.", method_quote.name));
@@ -160,15 +160,38 @@ pub fn builder_impl_for_method(method_quote: &NormalizedMethod) -> TokenStream {
         }
 
         if !fields.is_empty() {
-            let new_args = required_fields.iter().map(|field| {
-                let name = sanitize_field_name(&field.name);
-                let ty = &field.r#type;
-                quote! { #name: impl Into<#ty> }
-            });
+            let new_generics: Vec<_> = required_fields
+                .iter()
+                .enumerate()
+                .flat_map(|(i, field)| {
+                    let ty = &field.r#type;
+                    let t = format_ident!("T{i}");
+                    if let TypeKindInField::Array(inner) = ty {
+                        let t_item = format_ident!("T{i}Item");
+                        vec![
+                            quote! { #t_item: Into<#inner> },
+                            quote! { #t: IntoIterator<Item = #t_item> },
+                        ]
+                    } else {
+                        vec![quote! { #t: Into<#ty> }]
+                    }
+                })
+                .collect();
+            let new_args: Vec<_> = required_fields
+                .iter()
+                .enumerate()
+                .map(|(i, field)| {
+                    let name = sanitize_field_name(&field.name);
+                    let t = format_ident!("T{i}");
+                    quote! { #name: #t }
+                })
+                .collect();
             let new_init = fields.iter().map(|field| {
                 let name = sanitize_field_name(&field.name);
                 if field.required {
-                    if field.is_recursive || field.is_boxed {
+                    if let TypeKindInField::Array(_) = &field.r#type {
+                        quote! { #name: #name.into_iter().map(Into::into).collect() }
+                    } else if field.is_recursive || field.is_boxed {
                         quote! { #name: Box::new(#name.into()) }
                     } else {
                         quote! { #name: #name.into() }
@@ -180,7 +203,7 @@ pub fn builder_impl_for_method(method_quote: &NormalizedMethod) -> TokenStream {
             quote! {
                 #( #doc_lines )*
                 #[must_use]
-                pub fn new(#( #new_args ),*) -> Self {
+                pub fn new<#( #new_generics ),*>(#( #new_args ),*) -> Self {
                     Self { #( #new_init, )* }
                 }
             }
@@ -213,52 +236,59 @@ pub fn builder_impl_for_method(method_quote: &NormalizedMethod) -> TokenStream {
                     let note = format_attr_description(note);
                     quote! { #[doc = #desc] #[doc = ""] #[doc = #notes] #[doc = #note] }
                 };
-                let make_body = |is_many: bool| -> TokenStream {
-                    let op = if is_many {
-                        quote! { val.into() }
-                    } else {
-                        quote! { Some(val.into()) }
-                    };
-                    if field.required {
+                let make_singular_body = |is_required: bool| -> TokenStream {
+                    if is_required {
                         quote! {
-                            Self { #name: self.#name.into_vec().into_iter().chain(#op).collect(), ..self }
+                            Self { #name: self.#name.into_vec().into_iter().chain(Some(val.into())).collect(), ..self }
                         }
                     } else {
                         quote! {
-                            Self { #name: Some(self.#name.unwrap_or_default().into_vec().into_iter().chain(#op).collect()), ..self }
+                            Self { #name: Some(self.#name.unwrap_or_default().into_vec().into_iter().chain(Some(val.into())).collect()), ..self }
+                        }
+                    }
+                };
+                let make_plural_body = |is_required: bool| -> TokenStream {
+                    if is_required {
+                        quote! {
+                            Self { #name: self.#name.into_vec().into_iter().chain(val.into_iter().map(Into::into)).collect(), ..self }
+                        }
+                    } else {
+                        quote! {
+                            Self { #name: Some(self.#name.unwrap_or_default().into_vec().into_iter().chain(val.into_iter().map(Into::into)).collect()), ..self }
                         }
                     }
                 };
 
-                let (plural_doc, plural_body) = (make_doc("Adds multiple elements."), make_body(true));
+                let plural_doc = make_doc("Adds multiple elements.");
+                let plural_body = make_plural_body(field.required);
                 methods.push(quote! {
                     #plural_doc
                     #[must_use]
-                    pub fn #plural_name(self, val: impl Into<#ty>) -> Self {
+                    pub fn #plural_name<TItem: Into<#inner>, T: IntoIterator<Item = TItem>>(self, val: T) -> Self {
                         #plural_body
                     }
                 });
 
                 if singular_name != plural_name {
-                    let (singular_doc, singular_body) =
-                        (make_doc("Adds a single element."), make_body(false));
+                    let singular_doc = make_doc("Adds a single element.");
+                    let singular_body = make_singular_body(field.required);
                     methods.push(quote! {
                         #singular_doc
                         #[must_use]
-                        pub fn #singular_name(self, val: impl Into<#inner>) -> Self {
+                        pub fn #singular_name<T: Into<#inner>>(self, val: T) -> Self {
                             #singular_body
                         }
                     });
                 }
 
                 if !field.required {
-                    let option_doc = make_doc("Adds a single element.");
+                    let option_doc = make_doc("Adds multiple elements.");
                     let option_name = format_ident!("{}_option", field.name);
                     methods.push(quote! {
                         #option_doc
                         #[must_use]
-                        pub fn #option_name(self, val: Option<impl Into<#ty>>) -> Self {
-                            Self { #name: val.map(Into::into), ..self }
+                        pub fn #option_name<TItem: Into<#inner>, T: IntoIterator<Item = TItem>>(self, val: Option<T>) -> Self {
+                            Self { #name: val.map(|v| v.into_iter().map(Into::into).collect()), ..self }
                         }
                     });
                 }
@@ -279,7 +309,7 @@ pub fn builder_impl_for_method(method_quote: &NormalizedMethod) -> TokenStream {
                 methods.push(quote! {
                     #[doc = #doc]
                     #[must_use]
-                    pub fn #name(self, val: impl Into<#ty>) -> Self {
+                    pub fn #name<T: Into<#ty>>(self, val: T) -> Self {
                         Self { #name: #value, ..self }
                     }
                 });
@@ -294,7 +324,7 @@ pub fn builder_impl_for_method(method_quote: &NormalizedMethod) -> TokenStream {
                     methods.push(quote! {
                         #[doc = #doc]
                         #[must_use]
-                        pub fn #method_name(self, val: Option<impl Into<#ty>>) -> Self {
+                        pub fn #method_name<T: Into<#ty>>(self, val: Option<T>) -> Self {
                             Self { #name: #opt_value, ..self }
                         }
                     });
@@ -347,6 +377,19 @@ fn tokenize_telegram_method_impl(method_quote: &NormalizedMethod) -> TokenStream
 }
 
 pub fn tokenize_method(method_quote: &NormalizedMethod) -> TokenStream {
+    let mut import_quotes = vec![];
+    import_quotes.push(quote! { use super::*; });
+    import_quotes.push(quote! { use crate::client::Bot; });
+    if method_quote
+        .fields
+        .iter()
+        .any(|val| val.r#type.require_import())
+        || method_quote.returns.iter().any(|val| val.require_import())
+    {
+        import_quotes.push(quote! { use crate::types::*; });
+    }
+    import_quotes.push(quote! { use serde::Serialize; });
+
     let method_name = format_ident!("{}", method_quote.name);
     let doc_lines = format_description(&method_quote.description, &method_quote.href);
     let returns_doc = if method_quote.returns.is_empty() {
@@ -377,9 +420,7 @@ pub fn tokenize_method(method_quote: &NormalizedMethod) -> TokenStream {
     let telegram_method_impl = tokenize_telegram_method_impl(method_quote);
 
     quote! {
-        use super::*;
-        use crate::{client::Bot, types::*};
-        use serde::Serialize;
+        #( #import_quotes )*
 
         #( #[doc = #doc_lines] )*
         #( #returns_doc )*

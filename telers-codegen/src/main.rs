@@ -65,6 +65,7 @@ fn main() {
     schema.split_transaction_partner_user_types();
     schema.compose_reply_markup_type();
     schema.reorder_untagged_subtypes();
+    schema.modify_get_updates_returns_method();
 
     if args.generate_tests {
         let tests_dir = args.generated_dir_path.join("tests");
