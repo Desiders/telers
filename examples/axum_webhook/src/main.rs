@@ -34,7 +34,7 @@ async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
     bot.send(CopyMessage::new(
         message.chat().id(),
         message.chat().id(),
-        message.id(),
+        message.message_id(),
     ))
     .await?;
 
@@ -45,7 +45,7 @@ async fn set_webhook(
     bot: Bot,
     webhook_url: impl Display,
     handler_path: impl Display,
-    secret_token: Option<impl Into<String>>,
+    secret_token: Option<impl Into<Box<str>>>,
 ) -> simple::HandlerResult {
     bot.send(
         SetWebhook::new(format!("{webhook_url}{handler_path}"))

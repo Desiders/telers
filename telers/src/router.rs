@@ -95,7 +95,7 @@
 
 use crate::{
     client::Reqwest,
-    enums::{SimpleObserverName, TelegramObserverName, UpdateType},
+    enums::UpdateType,
     errors::EventErrorKind,
     event::{
         bases::{EventReturn, PropagateEventResult},
@@ -300,32 +300,32 @@ where
         Self {
             name: router_name,
             sub_routers: vec![],
-            message: TelegramObserver::new(TelegramObserverName::Message),
-            edited_message: TelegramObserver::new(TelegramObserverName::EditedMessage),
-            channel_post: TelegramObserver::new(TelegramObserverName::ChannelPost),
-            edited_channel_post: TelegramObserver::new(TelegramObserverName::EditedChannelPost),
-            business_connection: TelegramObserver::new(TelegramObserverName::BusinessConnection),
-            business_message: TelegramObserver::new(TelegramObserverName::BusinessMessage),
-            edited_business_message: TelegramObserver::new(TelegramObserverName::EditedBusinessMessage),
-            deleted_business_messages: TelegramObserver::new(TelegramObserverName::DeletedBusinessMessages),
-            message_reaction: TelegramObserver::new(TelegramObserverName::MessageReaction),
-            message_reaction_count: TelegramObserver::new(TelegramObserverName::MessageReactionCount),
-            inline_query: TelegramObserver::new(TelegramObserverName::InlineQuery),
-            chosen_inline_result: TelegramObserver::new(TelegramObserverName::ChosenInlineResult),
-            callback_query: TelegramObserver::new(TelegramObserverName::CallbackQuery),
-            shipping_query: TelegramObserver::new(TelegramObserverName::ShippingQuery),
-            pre_checkout_query: TelegramObserver::new(TelegramObserverName::PreCheckoutQuery),
-            purchased_paid_media: TelegramObserver::new(TelegramObserverName::PurchasedPaidMedia),
-            poll: TelegramObserver::new(TelegramObserverName::Poll),
-            poll_answer: TelegramObserver::new(TelegramObserverName::PollAnswer),
-            my_chat_member: TelegramObserver::new(TelegramObserverName::MyChatMember),
-            chat_member: TelegramObserver::new(TelegramObserverName::ChatMember),
-            chat_join_request: TelegramObserver::new(TelegramObserverName::ChatJoinRequest),
-            chat_boost: TelegramObserver::new(TelegramObserverName::ChatBoost),
-            removed_chat_boost: TelegramObserver::new(TelegramObserverName::RemovedChatBoost),
-            update: TelegramObserver::new(TelegramObserverName::Update),
-            startup: SimpleObserver::new(SimpleObserverName::Startup),
-            shutdown: SimpleObserver::new(SimpleObserverName::Shutdown),
+            message: TelegramObserver::new("message"),
+            edited_message: TelegramObserver::new("edited_message"),
+            channel_post: TelegramObserver::new("channel_post"),
+            edited_channel_post: TelegramObserver::new("edited_channel_post"),
+            business_connection: TelegramObserver::new("business_connection"),
+            business_message: TelegramObserver::new("business_message"),
+            edited_business_message: TelegramObserver::new("edited_business_message"),
+            deleted_business_messages: TelegramObserver::new("deleted_business_messages"),
+            message_reaction: TelegramObserver::new("message_reaction"),
+            message_reaction_count: TelegramObserver::new("message_reaction_count"),
+            inline_query: TelegramObserver::new("inline_query"),
+            chosen_inline_result: TelegramObserver::new("chosen_inline_result"),
+            callback_query: TelegramObserver::new("callback_query"),
+            shipping_query: TelegramObserver::new("shipping_query"),
+            pre_checkout_query: TelegramObserver::new("pre_checkout_query"),
+            purchased_paid_media: TelegramObserver::new("purchased_paid_media"),
+            poll: TelegramObserver::new("poll"),
+            poll_answer: TelegramObserver::new("poll_answer"),
+            my_chat_member: TelegramObserver::new("my_chat_member"),
+            chat_member: TelegramObserver::new("chat_member"),
+            chat_join_request: TelegramObserver::new("chat_join_request"),
+            chat_boost: TelegramObserver::new("chat_boost"),
+            removed_chat_boost: TelegramObserver::new("removed_chat_boost"),
+            update: TelegramObserver::new("update"),
+            startup: SimpleObserver::new("startup"),
+            shutdown: SimpleObserver::new("shutdown"),
         }
     }
 
@@ -430,13 +430,11 @@ impl<Client> Router<Client> {
     /// If observer has no handlers, then it will be skipped.
     /// If observer update type is in the skip list, then it will be skipped.
     /// This method is useful for getting updates only for registered update types.
-    /// # Panics
-    /// If can't convert observer event name to [`UpdateType`]
     #[must_use]
     pub fn resolve_used_update_types_with_skip(
         &self,
-        skip_update_types: impl IntoIterator<Item = UpdateType>,
-    ) -> HashSet<UpdateType> {
+        skip_update_types: impl IntoIterator<Item = &'static str>,
+    ) -> HashSet<&'static str> {
         let skip_update_types = skip_update_types.into_iter().collect::<HashSet<_>>();
         let mut used_update_types = HashSet::new();
 
@@ -444,19 +442,11 @@ impl<Client> Router<Client> {
             if observer.handlers().is_empty() {
                 continue;
             }
-
-            let Some(update_type) = observer.event_name.into() else {
-                // If can't convert observer event name to `UpdateType`, then skip it, because it's `TelegramObserverName::Update`
-                continue;
-            };
-
-            if skip_update_types.contains(&update_type) {
+            if skip_update_types.contains(observer.event_name) {
                 continue;
             }
-
-            used_update_types.insert(update_type);
+            used_update_types.insert(observer.event_name);
         }
-
         for router in &self.sub_routers {
             used_update_types
                 .extend(router.resolve_used_update_types_with_skip(skip_update_types.clone()));
@@ -468,10 +458,8 @@ impl<Client> Router<Client> {
     /// Resolve used update types from the current router and its sub routers.
     /// If observer has no handlers, then it will be skipped.
     /// This method is useful for getting updates only for registered update types.
-    /// # Panics
-    /// If can't convert observer event name to [`UpdateType`]
     #[must_use]
-    pub fn resolve_used_update_types(&self) -> HashSet<UpdateType> {
+    pub fn resolve_used_update_types(&self) -> HashSet<&'static str> {
         self.resolve_used_update_types_with_skip([])
     }
 }
@@ -1311,10 +1299,11 @@ mod tests {
         client::Reqwest,
         event::{telegram::HandlerResult as TelegramHandlerResult, EventReturn},
         middlewares::Next,
-        Context,
+        types::{Chat, ChatPrivate, Message, MessageText, Update, UpdateMessage},
+        Bot, Context, Extensions,
     };
 
-    use std::convert::Infallible;
+    use std::{convert::Infallible, sync::Arc};
     use tokio;
 
     #[test]
@@ -1358,7 +1347,7 @@ mod tests {
         assert_eq!(router_configured.sub_routers.len(), 3);
         assert_eq!(router_configured.name, "main");
 
-        let message_observer_name = UpdateType::Message;
+        let message_observer_name = UpdateType::Message.as_ref();
 
         router_configured
             .sub_routers
@@ -1471,7 +1460,20 @@ mod tests {
 
     #[tokio::test]
     async fn test_propagate_event() {
-        let request = Request::<Reqwest>::default();
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                Message::Text(MessageText::new(
+                    Chat::Private(ChatPrivate::new("", 0, "")),
+                    0,
+                    0,
+                    "",
+                )),
+                0,
+            ))),
+            bot: Bot::default(),
+            context: crate::Context::default(),
+            extensions: Extensions::default(),
+        };
 
         let mut router = Router::new("test_handler");
         router
@@ -1585,7 +1587,20 @@ mod tests {
 
     #[tokio::test]
     async fn test_propagate_event_with_filter() {
-        let request = Request::<Reqwest>::default();
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                Message::Text(MessageText::new(
+                    Chat::Private(ChatPrivate::new("", 0, "")),
+                    0,
+                    0,
+                    "",
+                )),
+                0,
+            ))),
+            bot: Bot::default(),
+            context: crate::Context::default(),
+            extensions: Extensions::default(),
+        };
 
         let mut router = Router::new("test_handler_with_filter");
         router
@@ -1661,8 +1676,8 @@ mod tests {
         let update_types = router.resolve_used_update_types();
 
         assert_eq!(update_types.len(), 2);
-        assert!(update_types.contains(&UpdateType::Message));
-        assert!(update_types.contains(&UpdateType::EditedMessage));
+        assert!(update_types.contains(UpdateType::Message.as_ref()));
+        assert!(update_types.contains(UpdateType::EditedMessage.as_ref()));
 
         let mut router2 = Router::<Reqwest>::new("test2");
 
@@ -1682,15 +1697,16 @@ mod tests {
         println!("{update_types:?}");
 
         assert_eq!(update_types.len(), 3);
-        assert!(update_types.contains(&UpdateType::Message));
-        assert!(update_types.contains(&UpdateType::EditedMessage));
-        assert!(update_types.contains(&UpdateType::ChannelPost));
+        assert!(update_types.contains(UpdateType::Message.as_ref()));
+        assert!(update_types.contains(UpdateType::EditedMessage.as_ref()));
+        assert!(update_types.contains(UpdateType::ChannelPost.as_ref()));
 
-        let update_types = router.resolve_used_update_types_with_skip([UpdateType::Message]);
+        let update_types =
+            router.resolve_used_update_types_with_skip([UpdateType::Message.as_ref()]);
 
         assert_eq!(update_types.len(), 2);
-        assert!(update_types.contains(&UpdateType::EditedMessage));
-        assert!(update_types.contains(&UpdateType::ChannelPost));
+        assert!(update_types.contains(UpdateType::EditedMessage.as_ref()));
+        assert!(update_types.contains(UpdateType::ChannelPost.as_ref()));
     }
 
     struct DummyClient;

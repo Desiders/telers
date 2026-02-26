@@ -1,13 +1,10 @@
-use std::fmt::Display;
-
 use super::{Formatter as TextFormatter, FormatterErrorKind};
-
 use crate::types::{
-    CustomEmojiMessageEntity, MessageEntity, MessageEntityKind, PreMessageEntity,
-    TextLinkMessageEntity, TextMentionMessageEntity, User,
+    MessageEntity, MessageEntityCustomEmoji, MessageEntityPre, MessageEntityTextLink,
+    MessageEntityTextMention,
 };
 
-use tracing::{event, Level};
+use std::fmt::Display;
 
 const CHARS: [char; 18] = [
     '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!',
@@ -165,8 +162,8 @@ impl TextFormatter for Formatter {
             return Err(FormatterErrorKind::EmptyText);
         }
 
-        let offset = entity.offset as usize;
-        let length = entity.length as usize;
+        let offset = entity.offset() as usize;
+        let length = entity.length() as usize;
 
         if offset + length > text_len {
             return Err(FormatterErrorKind::IndexOutOfBounds);
@@ -176,44 +173,35 @@ impl TextFormatter for Formatter {
         let editable_text = &text[offset..offset + length];
         let next_text = &text[offset + length..];
 
-        let edited_text = match entity.kind() {
-            MessageEntityKind::Mention => format!("@{editable_text}"),
-            MessageEntityKind::Hashtag => format!("#{editable_text}"),
-            MessageEntityKind::Cashtag => format!("${editable_text}"),
-            MessageEntityKind::BotCommand => format!("/{editable_text}"),
-            MessageEntityKind::Url | MessageEntityKind::Email | MessageEntityKind::PhoneNumber => {
+        let edited_text = match entity {
+            MessageEntity::Mention(_) => format!("@{editable_text}"),
+            MessageEntity::Hashtag(_) => format!("#{editable_text}"),
+            MessageEntity::Cashtag(_) => format!("${editable_text}"),
+            MessageEntity::BotCommand(_) => format!("/{editable_text}"),
+            MessageEntity::Url(_) | MessageEntity::Email(_) | MessageEntity::PhoneNumber(_) => {
                 editable_text.to_owned()
             }
-            MessageEntityKind::Bold => self.bold(editable_text),
-            MessageEntityKind::Italic => self.italic(editable_text),
-            MessageEntityKind::Underline => self.underline(editable_text),
-            MessageEntityKind::Strikethrough => self.strikethrough(editable_text),
-            MessageEntityKind::Spoiler => self.spoiler(editable_text),
-            MessageEntityKind::Blockquote => self.blockquote(editable_text),
-            MessageEntityKind::ExpandableBlockquote => self.expandable_blockquote(editable_text),
-            MessageEntityKind::Code => self.code(editable_text),
-            MessageEntityKind::Pre(PreMessageEntity { language }) => match language {
+            MessageEntity::Bold(_) => self.bold(editable_text),
+            MessageEntity::Italic(_) => self.italic(editable_text),
+            MessageEntity::Underline(_) => self.underline(editable_text),
+            MessageEntity::Strikethrough(_) => self.strikethrough(editable_text),
+            MessageEntity::Spoiler(_) => self.spoiler(editable_text),
+            MessageEntity::Blockquote(_) => self.blockquote(editable_text),
+            MessageEntity::ExpandableBlockquote(_) => self.expandable_blockquote(editable_text),
+            MessageEntity::Code(_) => self.code(editable_text),
+            MessageEntity::Pre(MessageEntityPre { language, .. }) => match language {
                 Some(language) => self.pre_language(editable_text, language),
                 None => self.pre(editable_text),
             },
-            MessageEntityKind::TextLink(TextLinkMessageEntity { url }) => {
+            MessageEntity::TextLink(MessageEntityTextLink { url, .. }) => {
                 self.text_link(editable_text, url)
             }
-            MessageEntityKind::TextMention(TextMentionMessageEntity {
-                user: User { id: user_id, .. },
-            }) => self.text_mention(editable_text, *user_id),
-            MessageEntityKind::CustomEmoji(CustomEmojiMessageEntity { custom_emoji_id }) => {
-                self.custom_emoji(editable_text, custom_emoji_id)
+            MessageEntity::TextMention(MessageEntityTextMention { user, .. }) => {
+                self.text_mention(editable_text, user.id)
             }
-            MessageEntityKind::Unknown => {
-                event!(
-                    Level::WARN,
-                    "Unknown entity kind: {:?}. Using the original text.",
-                    entity.kind()
-                );
-
-                editable_text.to_owned()
-            }
+            MessageEntity::CustomEmoji(MessageEntityCustomEmoji {
+                custom_emoji_id, ..
+            }) => self.custom_emoji(editable_text, custom_emoji_id),
         };
 
         Ok(format!("{previous_text}{edited_text}{next_text}"))

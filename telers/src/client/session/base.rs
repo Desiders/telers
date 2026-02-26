@@ -347,6 +347,6 @@ mod tests {
             .result
             .unwrap();
 
-        assert_eq!(result.id(), 423);
+        assert_eq!(result.message_id(), 423);
     }
 }

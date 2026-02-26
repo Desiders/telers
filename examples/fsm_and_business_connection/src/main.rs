@@ -18,10 +18,10 @@
 //! ```
 
 use telers::{
-    enums::ContentType::Text,
+    enums::MessageType::Text,
     enums::UpdateType,
     event::{telegram::HandlerResult, EventReturn},
-    filters::{Command, ContentType, State as StateFilter},
+    filters::{Command, MessageType, State as StateFilter},
     fsm::{Context as FSMContext, MemoryStorage, Storage, Strategy::UserInChatAndConnection},
     methods::SendMessage,
     middlewares::outer::FSMContext as FSMContextMiddleware,
@@ -190,12 +190,12 @@ async fn main() {
     router
         .business_message
         .register(name_handler::<MemoryStorage>)
-        .filter(ContentType::one(Text))
+        .filter(MessageType::one(Text))
         .filter(StateFilter::one(State::Name));
     router
         .business_message
         .register(language_handler::<MemoryStorage>)
-        .filter(ContentType::one(Text))
+        .filter(MessageType::one(Text))
         .filter(StateFilter::one(State::Language));
 
     let dispatcher = Dispatcher::builder()

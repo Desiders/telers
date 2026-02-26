@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::types::{MessageEntity, MessageEntityKind};
+use crate::types::MessageEntity;
 
 #[derive(Debug, thiserror::Error)]
 pub enum ErrorKind {
@@ -97,53 +97,18 @@ pub trait Formatter {
         T: Display;
 
     /// Apply the [`MessageEntity`] to the given text with offset and length.
-    /// # Notes
-    /// Differences between [`Formatter::apply_entity`] and [`Formatter::apply_entity_kind`]:
-    /// - [`Formatter::apply_entity`] will apply the [`MessageEntityKind`] to the given text with offset and length
-    /// - [`Formatter::apply_entity_kind`] will apply the [`MessageEntityKind`] to the whole given text
     /// # Errors
     /// - If the given text is empty, then the [`ErrorKind::EmptyText`] will be returned.
     /// - If the given entity offset+length is out of bounds, then the [`ErrorKind::IndexOutOfBounds`] will be returned.
     fn apply_entity<T>(&self, text: T, entity: &MessageEntity) -> Result<String, ErrorKind>
     where
         T: Display;
-
-    /// Apply the [`MessageEntityKind`] to the whole given text.
-    /// # Notes
-    /// Differences between [`Formatter::apply_entity`] and [`Formatter::apply_entity_kind`]:
-    /// - [`Formatter::apply_entity`] will apply the [`MessageEntityKind`] to the given text with offset and length
-    /// - [`Formatter::apply_entity_kind`] will apply the [`MessageEntityKind`] to the whole given text
-    /// # Warning
-    /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
-    /// # Errors
-    /// - If the given text is empty, then the [`ErrorKind::EmptyText`] will be returned.
-    /// - If the given entity offset+length is out of bounds, then the [`ErrorKind::IndexOutOfBounds`] will be returned.
-    #[allow(clippy::cast_possible_truncation)]
-    fn apply_entity_kind<T>(
-        &self,
-        text: T,
-        entity_kind: MessageEntityKind,
-    ) -> Result<String, ErrorKind>
-    where
-        T: Display,
-    {
-        let text = text.to_string();
-        let text_len = text.len();
-
-        if text_len == 0 {
-            return Err(ErrorKind::EmptyText);
-        }
-
-        let offset = 0;
-        let length = text_len as u16;
-
-        self.apply_entity(text, &MessageEntity::new(offset, length, entity_kind))
-    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::types::MessageEntityBold;
 
     struct TestFormatter;
 
@@ -166,8 +131,8 @@ mod tests {
                 return Err(ErrorKind::EmptyText);
             }
 
-            let offset = entity.offset as usize;
-            let length = entity.length as usize;
+            let offset = entity.offset() as usize;
+            let length = entity.length() as usize;
 
             if offset + length > text_len {
                 return Err(ErrorKind::IndexOutOfBounds);
@@ -175,9 +140,10 @@ mod tests {
 
             let editable_text = &text[offset..offset + length];
 
-            let edited_text = match entity.kind() {
-                MessageEntityKind::Bold => self.bold(editable_text),
-                _ => unimplemented!(),
+            let edited_text = if entity.is_bold_variant() {
+                self.bold(editable_text)
+            } else {
+                unimplemented!();
             };
 
             let mut text = text.to_owned();
@@ -285,21 +251,22 @@ mod tests {
     fn test_apply_entity() {
         let formatter = TestFormatter;
         let text = "Hello, world!";
-        let entity = MessageEntity::new(0, 5, MessageEntityKind::Bold);
+
+        let entity = MessageEntity::Bold(MessageEntityBold::new(0, 5));
 
         assert_eq!(
             formatter.apply_entity(text, &entity).unwrap(),
             "**Hello**, world!"
         );
 
-        let entity = MessageEntity::new(7, 5, MessageEntityKind::Bold);
+        let entity = MessageEntity::Bold(MessageEntityBold::new(7, 5));
 
         assert_eq!(
             formatter.apply_entity(text, &entity).unwrap(),
             "Hello, **world**!"
         );
 
-        let entity = MessageEntity::new(0, text.len() as u16, MessageEntityKind::Bold);
+        let entity = MessageEntity::Bold(MessageEntityBold::new(0, text.len() as i64));
 
         assert_eq!(
             formatter.apply_entity(text, &entity).unwrap(),
@@ -312,44 +279,20 @@ mod tests {
     fn test_apply_entity_panic() {
         let formatter = TestFormatter;
         let text = "Hello, world!";
-        let entity = MessageEntity::new(0, 15, MessageEntityKind::Bold);
+        let entity = MessageEntity::Bold(MessageEntityBold::new(0, 15));
 
         formatter.apply_entity(text, &entity).unwrap();
 
-        let entity = MessageEntity::new(7, 9, MessageEntityKind::Bold);
+        let entity = MessageEntity::Bold(MessageEntityBold::new(7, 9));
 
         formatter.apply_entity(text, &entity).unwrap();
 
-        let entity = MessageEntity::new(0, text.len() as u16 + 1, MessageEntityKind::Bold);
+        let entity = MessageEntity::Bold(MessageEntityBold::new(0, text.len() as i64 + 1));
 
         formatter.apply_entity(text, &entity).unwrap();
 
         let text = "";
 
         formatter.apply_entity(text, &entity).unwrap();
-    }
-
-    #[test]
-    fn test_apply_entity_kind() {
-        let formatter = TestFormatter;
-        let text = "Hello, world!";
-
-        assert_eq!(
-            formatter
-                .apply_entity_kind(text, MessageEntityKind::Bold)
-                .unwrap(),
-            "**Hello, world!**"
-        );
-    }
-
-    #[test]
-    #[should_panic]
-    fn test_apply_entity_kind_panic() {
-        let formatter = TestFormatter;
-        let text = "";
-
-        formatter
-            .apply_entity_kind(text, MessageEntityKind::Bold)
-            .unwrap();
     }
 }

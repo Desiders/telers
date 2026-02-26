@@ -1,5 +1,4 @@
 use crate::{
-    enums::TelegramObserverName,
     errors::EventErrorKind,
     event::{
         bases::{EventReturn, PropagateEventResult},
@@ -43,7 +42,7 @@ impl<Client> Debug for Response<Client> {
 
 /// Event observer for telegram events
 pub struct Observer<Client> {
-    pub event_name: TelegramObserverName,
+    pub event_name: &'static str,
 
     handlers: Vec<HandlerComposite<Client>>,
     common: Box<HandlerComposite<Client>>,
@@ -58,15 +57,14 @@ where
 {
     #[allow(unreachable_code)]
     #[must_use]
-    pub fn new(event_name: TelegramObserverName) -> Self {
+    pub fn new(event_name: &'static str) -> Self {
         Self {
             event_name,
             handlers: vec![],
             common: Box::new(HandlerComposite::<Client>::new(|| async move {
                 // This handler never will be called, so we can use `unreachable!` macro
-                ({
-                    unreachable!("This handler never will be used");
-                }) as Result<(), Infallible>
+                unreachable!("This handler never will be used");
+                Ok::<_, Infallible>(())
             })),
             inner_middlewares: InnerMiddlewareManager::<Client>::default(),
             outer_middlewares: OuterMiddlewareManager::<Client>::default(),
@@ -292,7 +290,7 @@ where
     Client: Send + Sync + 'static,
 {
     fn default() -> Self {
-        Self::new(TelegramObserverName::Message)
+        Self::new("message")
     }
 }
 
@@ -321,7 +319,8 @@ mod tests {
         client::Reqwest,
         errors::HandlerError,
         filters::Command,
-        types::{Message, MessageText, Update, UpdateKind},
+        types::{Chat, ChatPrivate, Message, MessageText, Update, UpdateMessage},
+        Bot, Extensions,
     };
 
     use anyhow::anyhow;
@@ -341,7 +340,20 @@ mod tests {
             Ok::<_, Infallible>(EventReturn::Finish)
         });
 
-        let mut request = Request::<Reqwest>::default();
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                Message::Text(MessageText::new(
+                    Chat::Private(ChatPrivate::new("", 0, "")),
+                    0,
+                    0,
+                    "/start",
+                )),
+                0,
+            ))),
+            bot: Bot::default(),
+            context: crate::Context::default(),
+            extensions: Extensions::default(),
+        };
         let response = observer.trigger(request.clone()).await.unwrap();
 
         // Filter not pass, so handler should be rejected
@@ -349,14 +361,6 @@ mod tests {
             PropagateEventResult::Rejected => {}
             _ => panic!("Unexpected result"),
         }
-
-        request.update = Arc::new(Update {
-            kind: UpdateKind::Message(Message::Text(Box::new(MessageText {
-                text: "/start".to_owned().into(),
-                ..Default::default()
-            }))),
-            ..Default::default()
-        });
 
         let response = observer.trigger(request).await.unwrap();
 
@@ -378,7 +382,20 @@ mod tests {
             Ok::<_, Infallible>(EventReturn::Finish)
         });
 
-        let request = Request::<Reqwest>::default();
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                Message::Text(MessageText::new(
+                    Chat::Private(ChatPrivate::new("", 0, "")),
+                    0,
+                    0,
+                    "",
+                )),
+                0,
+            ))),
+            bot: Bot::default(),
+            context: crate::Context::default(),
+            extensions: Extensions::default(),
+        };
         let response = observer.trigger(request).await.unwrap();
 
         // First handler returns error, second handler shouldn't be called
@@ -397,7 +414,20 @@ mod tests {
         observer.register(|| async { Ok::<_, Infallible>(EventReturn::Skip) });
         observer.register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
 
-        let request = Request::<Reqwest>::default();
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                Message::Text(MessageText::new(
+                    Chat::Private(ChatPrivate::new("", 0, "")),
+                    0,
+                    0,
+                    "/start",
+                )),
+                0,
+            ))),
+            bot: Bot::default(),
+            context: crate::Context::default(),
+            extensions: Extensions::default(),
+        };
         let response = observer.trigger(request.clone()).await.unwrap();
 
         // First handler returns `EventReturn::Skip`, so second handler should be called

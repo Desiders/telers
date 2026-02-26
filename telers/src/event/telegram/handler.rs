@@ -261,7 +261,8 @@ mod tests {
         client::Reqwest,
         event::EventReturn,
         filters::Command,
-        types::{Message, Update, UpdateKind},
+        types::{Chat, ChatPrivate, Message, MessageText, Update, UpdateMessage},
+        Bot, Extensions,
     };
 
     use std::{convert::Infallible, sync::Arc};
@@ -290,11 +291,18 @@ mod tests {
             HandlerComposite::new(|(), ()| async { Ok::<_, Infallible>(EventReturn::Finish) });
 
         let request = Request::<Reqwest> {
-            update: Arc::new(Update {
-                id: 0,
-                kind: UpdateKind::Message(Message::default()),
-            }),
-            ..Default::default()
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                Message::Text(MessageText::new(
+                    Chat::Private(ChatPrivate::new("", 0, "")),
+                    0,
+                    0,
+                    "",
+                )),
+                0,
+            ))),
+            bot: Bot::default(),
+            context: crate::Context::default(),
+            extensions: Extensions::default(),
         };
 
         let response = handler.call(request).await.unwrap();
@@ -312,11 +320,18 @@ mod tests {
         }));
 
         let request = Request::<Reqwest> {
-            update: Arc::new(Update {
-                id: 0,
-                kind: UpdateKind::Message(Message::default()),
-            }),
-            ..Default::default()
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                Message::Text(MessageText::new(
+                    Chat::Private(ChatPrivate::new("", 0, "")),
+                    0,
+                    0,
+                    "",
+                )),
+                0,
+            ))),
+            bot: Bot::default(),
+            context: crate::Context::default(),
+            extensions: Extensions::default(),
         };
 
         let response = handler.call(request).await.unwrap();

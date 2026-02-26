@@ -72,10 +72,10 @@ where
 mod tests {
     use super::*;
     use crate::{
-        client::{Bot, Reqwest},
+        client::Reqwest,
         context::Context,
-        types::{Message, Update, UpdateKind},
-        Extensions,
+        types::{Chat, ChatPrivate, Message, MessageText, Update, UpdateMessage},
+        Bot, Extensions,
     };
 
     use std::sync::Arc;
@@ -86,12 +86,17 @@ mod tests {
         let mut middleware =
             |request: Request<Reqwest>| async move { Ok((request, EventReturn::default())) };
 
-        let request = Request {
-            bot: Bot::<Reqwest>::default(),
-            update: Arc::new(Update {
-                id: 0,
-                kind: UpdateKind::Message(Message::default()),
-            }),
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                Message::Text(MessageText::new(
+                    Chat::Private(ChatPrivate::new("", 0, "")),
+                    0,
+                    0,
+                    "",
+                )),
+                0,
+            ))),
+            bot: Bot::default(),
             context: Context::default(),
             extensions: Extensions::default(),
         };

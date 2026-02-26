@@ -33,7 +33,7 @@ struct UpdateId(i64);
 
 impl From<Update> for UpdateId {
     fn from(update: Update) -> Self {
-        Self(update.id)
+        Self(update.update_id())
     }
 }
 
@@ -54,8 +54,8 @@ impl TryFrom<Update> for UpdateChatId {
     type Error = ConvertToTypeError; // You can use your own error type here
 
     fn try_from(update: Update) -> Result<Self, Self::Error> {
-        match update.chat_id() {
-            Some(chat_id) => Ok(Self(chat_id)),
+        match update.chat() {
+            Some(chat) => Ok(Self(chat.id())),
             None => Err(ConvertToTypeError::new("Update", "UpdateChatId")),
         }
     }

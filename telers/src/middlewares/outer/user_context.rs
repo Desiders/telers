@@ -54,7 +54,8 @@ mod tests {
         context::Context,
         enums::UpdateType,
         router::{PropagateEvent as _, Router},
-        types::{Chat, Message, MessageText, Update, UpdateKind, User},
+        types::{Chat, ChatPrivate, Message, MessageText, Update, UpdateMessage, User},
+        Bot, Extensions,
     };
 
     use std::{convert::Infallible, sync::Arc};
@@ -74,15 +75,17 @@ mod tests {
         let mut router_configured = router.configure_default();
 
         let request = Request::<Reqwest> {
-            update: Arc::new(Update {
-                kind: UpdateKind::Message(Message::Text(Box::new(MessageText {
-                    from: Some(Default::default()),
-                    thread_id: Some(1),
-                    ..Default::default()
-                }))),
-                ..Default::default()
-            }),
-            ..Default::default()
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                Message::Text(
+                    MessageText::new(Chat::Private(ChatPrivate::new("", 0, "")), 0, 0, "")
+                        .from(User::new(0, true, ""))
+                        .message_thread_id(0),
+                ),
+                0,
+            ))),
+            bot: Bot::default(),
+            context: Context::default(),
+            extensions: Extensions::default(),
         };
 
         router_configured
@@ -109,7 +112,20 @@ mod tests {
 
         let mut router_configured = router.configure_default();
 
-        let request = Request::<Reqwest>::default();
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                Message::Text(MessageText::new(
+                    Chat::Private(ChatPrivate::new("", 0, "")),
+                    0,
+                    0,
+                    "",
+                )),
+                0,
+            ))),
+            bot: Bot::default(),
+            context: crate::Context::default(),
+            extensions: Extensions::default(),
+        };
         router_configured
             .propagate_event(UpdateType::Message, request)
             .await

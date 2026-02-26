@@ -1,9 +1,6 @@
-use crate::{
-    enums::SimpleObserverName,
-    event::{
-        service::Service,
-        simple::handler::{Handler, HandlerComposite, HandlerResult},
-    },
+use crate::event::{
+    service::Service,
+    simple::handler::{Handler, HandlerComposite, HandlerResult},
 };
 
 use std::fmt::{self, Debug, Formatter};
@@ -12,14 +9,14 @@ use std::fmt::{self, Debug, Formatter};
 /// Is used for managing events isn't related with Telegram (For example startup/shutdown events)
 #[derive(Clone)]
 pub struct Observer {
-    pub event_name: SimpleObserverName,
+    pub event_name: &'static str,
     handlers: Vec<HandlerComposite>,
 }
 
 impl Observer {
     #[inline]
     #[must_use]
-    pub const fn new(event_name: SimpleObserverName) -> Self {
+    pub const fn new(event_name: &'static str) -> Self {
         Self {
             event_name,
             handlers: vec![],
@@ -122,10 +119,10 @@ mod tests {
             Ok(())
         }
 
-        let mut startup_observer = Observer::new(SimpleObserverName::Startup);
+        let mut startup_observer = Observer::new("startup");
         startup_observer.register(on_startup, ("Hello, world!",));
 
-        let mut shutdown_observer = Observer::new(SimpleObserverName::Shutdown);
+        let mut shutdown_observer = Observer::new("shutdown");
         shutdown_observer.register(on_shutdown, ("Goodbye, world!",));
 
         startup_observer.trigger(()).await.unwrap();
@@ -146,10 +143,10 @@ mod tests {
             Err(HandlerError::new(anyhow!("test")))
         }
 
-        let mut startup_observer = Observer::new(SimpleObserverName::Startup);
+        let mut startup_observer = Observer::new("startup");
         startup_observer.register(on_startup, ("Hello, world!",));
 
-        let mut shutdown_observer = Observer::new(SimpleObserverName::Shutdown);
+        let mut shutdown_observer = Observer::new("shutdown");
         shutdown_observer.register(on_shutdown, ("Goodbye, world!",));
 
         assert!(

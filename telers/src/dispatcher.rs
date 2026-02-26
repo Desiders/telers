@@ -60,7 +60,7 @@ use crate::{
     enums::UpdateType,
     errors::{EventErrorKind, HandlerError},
     methods::GetUpdates,
-    types::{Update, UpdateUnparsed},
+    types::Update,
     Extensions, Request, RouterConfigured,
 };
 
@@ -76,7 +76,7 @@ use tokio::{
 };
 use tracing::{event, field, instrument, Level, Span};
 
-const GET_UPDATES_SIZE: i64 = 100;
+const GET_UPDATES_SIZE: u8 = 100;
 const CHANNEL_UPDATES_SIZE: usize = 100;
 
 pub const DEFAULT_POLLING_TIMEOUT: i64 = 30;
@@ -94,7 +94,7 @@ pub struct Dispatcher<
     context: Context,
     polling_timeout: Option<i64>,
     backoff: Backoff,
-    allowed_updates: Vec<UpdateType>,
+    allowed_updates: Vec<Box<str>>,
 }
 
 impl<Client, Propagator> Dispatcher<Client, Propagator>
@@ -114,7 +114,7 @@ pub struct Builder<Client, Propagator, BackoffType = ExponentialBackoff<SystemCl
     extensions: Extensions,
     polling_timeout: Option<i64>,
     backoff: BackoffType,
-    allowed_updates: Vec<UpdateType>,
+    allowed_updates: Vec<Box<str>>,
 }
 
 impl<Client, Propagator> Default for Builder<Client, Propagator>
@@ -253,9 +253,13 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     /// # Notes
     /// You can add multiple update types using [`Builder::allowed_updates`] method
     #[must_use]
-    pub fn allowed_update(self, val: UpdateType) -> Self {
+    pub fn allowed_update(self, val: impl Into<Box<str>>) -> Self {
         Self {
-            allowed_updates: self.allowed_updates.into_iter().chain(Some(val)).collect(),
+            allowed_updates: self
+                .allowed_updates
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
             ..self
         }
     }
@@ -266,9 +270,17 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     /// # Notes
     /// You can add single update type using [`Builder::allowed_update`] method
     #[must_use]
-    pub fn allowed_updates(self, val: impl IntoIterator<Item = UpdateType>) -> Self {
+    pub fn allowed_updates<T, I>(self, val: I) -> Self
+    where
+        T: Into<Box<str>>,
+        I: IntoIterator<Item = T>,
+    {
         Self {
-            allowed_updates: self.allowed_updates.into_iter().chain(val).collect(),
+            allowed_updates: self
+                .allowed_updates
+                .into_iter()
+                .chain(val.into_iter().map(Into::into))
+                .collect(),
             ..self
         }
     }
@@ -290,7 +302,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
 impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
     /// Main entry point for incoming updates.
     /// This method will propagate update to the main router.
-    #[instrument(skip_all, fields(update_id = update.id, update_type))]
+    #[instrument(skip_all, fields(update_id = update.update_id(), update_type))]
     pub async fn feed_update(
         &mut self,
         bot: Bot<Client>,
@@ -325,7 +337,7 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
     async fn listen_updates(
         bot: Bot<Client>,
         polling_timeout: Option<i64>,
-        allowed_updates: Vec<UpdateType>,
+        allowed_updates: Vec<Box<str>>,
         update_tx: mpsc::Sender<Update>,
         backoff: Backoff,
     ) -> mpsc::error::SendError<Update>
@@ -338,7 +350,7 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
         let mut method = GetUpdates::new()
             .limit(GET_UPDATES_SIZE)
             .timeout_option(polling_timeout)
-            .allowed_updates(allowed_updates.iter().map(AsRef::as_ref));
+            .allowed_updates(allowed_updates.clone());
 
         loop {
             let updates = retry(backoff.clone(), || {
@@ -358,11 +370,13 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
             .await
             .expect("Retry gave up due to permanent error");
 
-            let Some(Either::Left(Update { id, .. }) | Either::Right(UpdateUnparsed { id, .. })) =
-                updates.last()
-            else {
-                event!(Level::TRACE, "No updates received");
-                continue;
+            let id = match updates.last() {
+                Some(Either::Left(update)) => update.update_id(),
+                Some(Either::Right(update)) => update.update_id,
+                None => {
+                    event!(Level::TRACE, "No updates received");
+                    continue;
+                }
             };
 
             method.offset = Some(id + 1);
@@ -374,12 +388,12 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
                             return err;
                         }
                     }
-                    Either::Right(UpdateUnparsed { id, value }) => {
+                    Either::Right(update) => {
                         event!(
                             Level::ERROR,
-                            update_id = id,
-                            update = ?value,
-                            "Failed to parse update kind",
+                            update_id = update.update_id,
+                            update = ?update._extra,
+                            "Failed to parse update",
                         );
                     }
                 }
@@ -427,7 +441,7 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
                 while let Some(update) = update_rx.recv().await {
                     event!(
                         Level::TRACE,
-                        update_id = update.id,
+                        update_id = update.update_id(),
                         "Received update from the listener"
                     );
 
@@ -680,6 +694,7 @@ mod tests {
         client::Reqwest,
         event::bases::{EventReturn, PropagateEventResult},
         router::Router,
+        types::{Chat, ChatPrivate, Message, MessageText, UpdateMessage},
     };
 
     use std::convert::Infallible;
@@ -688,7 +703,15 @@ mod tests {
     #[tokio::test]
     async fn test_feed_update() {
         let bot = Bot::<Reqwest>::default();
-        let update = Arc::new(Update::default());
+        let update = Arc::new(Update::Message(UpdateMessage::new(
+            Message::Text(MessageText::new(
+                Chat::Private(ChatPrivate::new("", 0, "")),
+                0,
+                0,
+                "",
+            )),
+            0,
+        )));
 
         let router = Router::new("main");
         let mut dispatcher = Dispatcher::builder()

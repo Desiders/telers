@@ -19,18 +19,18 @@ use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 async fn serialize_handler(bot: Bot, update: Update) -> HandlerResult {
-    if let Some(chat_id) = update.chat_id() {
+    if let Some(chat) = update.chat() {
         match serde_json::to_string_pretty(&update) {
             Ok(text) => {
                 bot.send(
-                    SendMessage::new(chat_id, html_pre_language(html_quote(text), "json"))
+                    SendMessage::new(chat.id(), html_pre_language(html_quote(text), "json"))
                         .parse_mode(ParseMode::HTML),
                 )
                 .await?;
             }
             Err(err) => {
                 bot.send(SendMessage::new(
-                    chat_id,
+                    chat.id(),
                     format!("Serialize error :(\n\n{err:?}"),
                 ))
                 .await?;

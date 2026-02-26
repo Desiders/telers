@@ -387,7 +387,8 @@ where
     async fn check(&mut self, request: &mut Request<Client>) -> bool {
         request
             .update
-            .text_or_caption()
+            .text()
+            .or(request.update.caption())
             .is_some_and(|text| self.validate_text(text))
     }
 }

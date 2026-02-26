@@ -114,7 +114,9 @@ impl Command {
                 .map(|command| match command.into() {
                     PatternType::Text(text) => PatternType::Text(text),
                     // We convert object to text, because this pattern type is just a shortcut for text
-                    PatternType::Object(command) => PatternType::Text(command.command.into()),
+                    PatternType::Object(command) => {
+                        PatternType::Text(Cow::Owned(command.command.into_string()))
+                    }
                     PatternType::Regex(regex) => {
                         if ignore_mention {
                             event!(Level::WARN, "Ignore mention flag doesn't work with regexes");
@@ -423,7 +425,7 @@ where
         let Some(message) = request.update.message() else {
             return false;
         };
-        let Some(text) = message.text_or_caption() else {
+        let Some(text) = message.text().or(message.caption()) else {
             return false;
         };
         let Some(command) = CommandObject::extract(text) else {

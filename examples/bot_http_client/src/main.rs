@@ -75,7 +75,7 @@ async fn echo_handler(bot: Bot<impl Session>, message: Message) -> HandlerResult
     bot.send(CopyMessage::new(
         message.chat().id(),
         message.chat().id(),
-        message.id(),
+        message.message_id(),
     ))
     .await?;
 

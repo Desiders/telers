@@ -20,9 +20,9 @@
 //!   for example, text, [`BotCommand`] (just alias to text of command) or [`Regex`].
 //!   You can create a filter with `new` method with transferring all necessary data at once, or use [`CommandBuilder`] to create a filter step by step.
 //!   Instead of [`CommandBuilder`] you can use [`Command`] `one`, `one_with_prefix`, `many`, `many_with_prefix` methods.
-//! * [`ContentType`]:
+//! * [`MessageType`]:
 //!   Filter for checking the type of the message content.
-//!   Usually used with [`ContentTypeEnum`] (or its string representation) to check the type of content.
+//!   Usually used with [`enums::MessageType`] (or its string representation) to check the type of content.
 //!   Creates with `one` or `many` methods.
 //! * [`State`]:
 //!   Filter for checking the state of the user/chat/etc.
@@ -50,7 +50,7 @@
 //! [`Cow`]: std::borrow::Cow
 //! [`Regex`]: regex::Regex
 //! [`ChatTypeEnum`]: telers::enums::ChatType
-//! [`ContentTypeEnum`]: telers::enums::ContentType
+//! [`enums::MessageType`]: telers::enums::MessageType
 //! [`BotCommand`]: telers::types::BotCommand
 //! [`Regex`]: regex::Regex
 //! [`Request`]: telers::Request
@@ -61,8 +61,8 @@
 pub mod base;
 pub mod chat_type;
 pub mod command;
-pub mod content_type;
 pub mod logical;
+pub mod message_type;
 pub mod state;
 pub mod text;
 pub mod user;
@@ -70,8 +70,8 @@ pub mod user;
 pub use base::Filter;
 pub use chat_type::ChatType;
 pub use command::{Builder as CommandBuilder, Command, CommandObject};
-pub use content_type::ContentType;
 pub use logical::{And, Invert, Or};
+pub use message_type::MessageType;
 pub use state::State;
 pub use text::{Builder as TextBuilder, Text};
 pub use user::{Builder as UserBuilder, User};

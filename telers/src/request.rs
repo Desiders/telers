@@ -2,7 +2,7 @@ use crate::{client::Reqwest, types::Update, Bot, Context, Extensions};
 
 use std::{fmt, sync::Arc};
 
-#[derive(Default, Clone)]
+#[derive(Clone)]
 pub struct Request<Client = Reqwest> {
     pub bot: Bot<Client>,
     pub update: Arc<Update>,

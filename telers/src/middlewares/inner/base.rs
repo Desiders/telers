@@ -123,7 +123,8 @@ mod tests {
     use crate::{
         client::Reqwest,
         event::{telegram::handler::boxed_handler_factory, EventReturn},
-        types::{Message, Update, UpdateKind},
+        types::{Chat, ChatPrivate, Message, MessageText, Update, UpdateMessage},
+        Bot, Extensions,
     };
 
     use std::{convert::Infallible, sync::Arc};
@@ -141,11 +142,18 @@ mod tests {
             boxed_handler_factory(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
 
         let request = Request::<Reqwest> {
-            update: Arc::new(Update {
-                id: 0,
-                kind: UpdateKind::Message(Message::default()),
-            }),
-            ..Default::default()
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                Message::Text(MessageText::new(
+                    Chat::Private(ChatPrivate::new("", 0, "")),
+                    0,
+                    0,
+                    "",
+                )),
+                0,
+            ))),
+            bot: Bot::default(),
+            context: crate::Context::default(),
+            extensions: Extensions::default(),
         };
         let response = Middleware::call(
             &mut test_middleware,
