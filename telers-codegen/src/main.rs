@@ -98,6 +98,41 @@ fn main() {
     });
     println!("Types module generated");
 
+    let enums_dir = src_dir.join("enums");
+    let enum_names = schema
+        .types
+        .iter()
+        .filter(|(_, ty)| !ty.subtypes.is_empty())
+        .filter_map(|(name, ty)| {
+            let tokens = generator::enums::tokenize_kind_enum_file(ty)?;
+            let filename = camel_to_filename(name, Some("rs"));
+            write_tokens_to_file(&tokens, &enums_dir, &filename).unwrap_or_else(|err| {
+                eprintln!(
+                    "Failed to write file '{filename}' in dir enums: {err}\nContent: {tokens}"
+                );
+                process::exit(1);
+            });
+            Some(name.as_str())
+        })
+        .collect::<Vec<_>>();
+    let tokens_with_names = generator::enums::tokenize_own_enums();
+    let mut own_enum_names = vec![];
+    for (name, tokens) in &tokens_with_names {
+        let filename = camel_to_filename(name, Some("rs"));
+        write_tokens_to_file(tokens, &enums_dir, &filename).unwrap_or_else(|err| {
+            eprintln!("Failed to write file '{filename}' in dir enums: {err}\nContent: {tokens}");
+            process::exit(1);
+        });
+        own_enum_names.push(*name);
+    }
+    let tokens =
+        generator::enums::tokenize_kind_enums_mod(enum_names.as_slice(), own_enum_names.as_slice());
+    write_tokens_to_file(&tokens, &src_dir, "enums.rs").unwrap_or_else(|err| {
+        eprintln!("Failed to write file 'enums.rs': {err}\nContent: {tokens}");
+        process::exit(1);
+    });
+    println!("Enums generated");
+
     let methods_dir = src_dir.join("methods");
     for method in schema.methods.values() {
         let tokens = generator::methods::tokenize_method(method);

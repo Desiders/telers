@@ -1,3 +1,4 @@
+pub mod enums;
 pub mod helpers;
 pub mod methods;
 pub mod tests;
