@@ -340,13 +340,13 @@ mod tests {
             Ok::<_, Infallible>(EventReturn::Finish)
         });
 
-        let request = Request::<Reqwest> {
+        let mut request = Request::<Reqwest> {
             update: Arc::new(Update::Message(UpdateMessage::new(
                 Message::Text(MessageText::new(
                     Chat::Private(ChatPrivate::new("", 0, "")),
                     0,
                     0,
-                    "/start",
+                    "",
                 )),
                 0,
             ))),
@@ -361,6 +361,16 @@ mod tests {
             PropagateEventResult::Rejected => {}
             _ => panic!("Unexpected result"),
         }
+
+        request.update = Arc::new(Update::Message(UpdateMessage::new(
+            Message::Text(MessageText::new(
+                Chat::Private(ChatPrivate::new("", 0, "")),
+                0,
+                0,
+                "/start",
+            )),
+            0,
+        )));
 
         let response = observer.trigger(request).await.unwrap();
 

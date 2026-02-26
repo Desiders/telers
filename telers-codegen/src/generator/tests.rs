@@ -292,7 +292,7 @@ fn generate_field_json_value(
         },
         TypeKindInField::Boolean(_) => Some(quote! { true }),
         TypeKindInField::ChatId => Some(quote! { "123" }),
-        TypeKindInField::InputFile => None,
+        TypeKindInField::InputFile => Some(quote! { "" }),
         TypeKindInField::Array(inner) => {
             let inner_value =
                 generate_field_json_value(inner, schema, visiting, description, None)?;

@@ -26,14 +26,6 @@ const BOXED_TYPES: &[&str] = &[
     "UniqueGift",
 ];
 
-fn sort_fields(fields: &mut Vec<NormalizedField>) {
-    fields.sort_by(|a, b| match (a.required, b.required) {
-        (true, false) => Ordering::Less,
-        (false, true) => Ordering::Greater,
-        _ => a.name.cmp(&b.name),
-    });
-}
-
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Field {
     pub name: FieldName,
@@ -275,7 +267,7 @@ impl Schema {
             .methods
             .into_iter()
             .map(|(name, method)| {
-                let mut fields = method
+                let fields = method
                     .fields
                     .into_iter()
                     .map(|field| {
@@ -291,8 +283,6 @@ impl Schema {
                         }
                     })
                     .collect::<Vec<_>>();
-                sort_fields(&mut fields);
-
                 (
                     name,
                     NormalizedMethod {
@@ -775,7 +765,6 @@ impl NormalizedSchema {
 
                 let mut fields = common_fields.clone();
                 fields.push(field.clone());
-                sort_fields(&mut fields);
 
                 let description = vec![
                     field.description.clone(),
@@ -835,7 +824,6 @@ impl NormalizedSchema {
 
             let mut fields = common_fields.clone();
             fields.push(field.clone());
-            sort_fields(&mut fields);
 
             let description = vec![
                 field.description.clone(),
@@ -902,7 +890,6 @@ impl NormalizedSchema {
 
             let mut fields = common_fields.clone();
             fields.push(field);
-            sort_fields(&mut fields);
 
             types.insert(
                 type_name.clone(),
@@ -1007,7 +994,6 @@ impl NormalizedSchema {
             if let Some(specific) = type_fields_map.get(chat_type) {
                 fields.extend(specific.clone());
             }
-            sort_fields(&mut fields);
 
             types.insert(
                 type_name.clone(),
@@ -1093,7 +1079,6 @@ impl NormalizedSchema {
             if let Some(specific) = type_fields_map.get(sticker_type) {
                 fields.extend(specific.clone());
             }
-            sort_fields(&mut fields);
 
             types.insert(type_name.clone(), NormalizedType {
                 name: type_name.clone(),
@@ -1171,7 +1156,6 @@ impl NormalizedSchema {
             if let Some(specific) = type_fields_map.get(poll_type) {
                 fields.extend(specific.clone());
             }
-            sort_fields(&mut fields);
 
             types.insert(
                 type_name.clone(),
@@ -1412,7 +1396,6 @@ impl NormalizedSchema {
             if let Some(specific) = type_fields_map.get(element_type) {
                 fields.extend(specific.clone());
             }
-            sort_fields(&mut fields);
 
             types.insert(
                 type_name.clone(),
@@ -1519,7 +1502,6 @@ impl NormalizedSchema {
             if let Some(specific) = type_fields_map.get(entity_type) {
                 fields.extend(specific.clone());
             }
-            sort_fields(&mut fields);
 
             types.insert(
                 type_name.clone(),
@@ -1614,7 +1596,6 @@ impl NormalizedSchema {
             if let Some(specific) = type_fields_map.get(transaction_type) {
                 fields.extend(specific.clone());
             }
-            sort_fields(&mut fields);
 
             types.insert(
                 type_name.clone(),
@@ -1681,8 +1662,7 @@ impl NormalizedSchema {
             let variant_name = snake_to_upper_camel(key);
             let type_name = format!("{parent_name}{variant_name}");
 
-            let mut fields = type_fields_map.get(key).cloned().unwrap_or_default();
-            sort_fields(&mut fields);
+            let fields = type_fields_map.get(key).cloned().unwrap_or_default();
 
             types.insert(
                 type_name.clone(),
