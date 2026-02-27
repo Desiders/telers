@@ -1,47 +1,40 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::ChatIdKind};
-
+use crate::client::Bot;
 use serde::Serialize;
-
-/// Use this method to delete a group sticker set from a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field `can_set_sticker_set` optionally returned in [`GetChat`](crate::methods::GetChat) requests to check if the bot can use this method.
+/// Use this method to delete a group sticker set from a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field `can_set_sticker_set` optionally returned in getChat requests to check if the bot can use this method. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#deletechatstickerset>
 /// # Returns
-/// On success, `true` is returned
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct DeleteChatStickerSet {
-    /// Unique identifier for the target chat or username of the target supergroup (in the format `@channelusername`)
-    pub chat_id: ChatIdKind,
+    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    pub chat_id: crate::types::ChatIdKind,
 }
-
 impl DeleteChatStickerSet {
+    /// Creates a new `DeleteChatStickerSet`.
+    ///
+    /// # Arguments
+    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>) -> Self {
+    pub fn new<T0: Into<crate::types::ChatIdKind>>(chat_id: T0) -> Self {
         Self {
             chat_id: chat_id.into(),
         }
     }
 
+    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
     #[must_use]
-    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
-        Self {
-            chat_id: val.into(),
-        }
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
+        let mut this = self;
+        this.chat_id = val.into();
+        this
     }
 }
-
-impl TelegramMethod for DeleteChatStickerSet {
+impl super::TelegramMethod for DeleteChatStickerSet {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        Request::new("deleteChatStickerSet", self, None)
-    }
-}
-
-impl AsRef<DeleteChatStickerSet> for DeleteChatStickerSet {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("deleteChatStickerSet", self, None)
     }
 }

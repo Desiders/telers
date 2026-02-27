@@ -78,7 +78,7 @@ mod tests {
             update: Arc::new(Update::Message(UpdateMessage::new(
                 0,
                 Message::Text(
-                    MessageText::new(0, 0, ChatPrivate::new(0, "", ""), "")
+                    MessageText::new(0, 0, ChatPrivate::new(0), "")
                         .from(User::new(0, true, ""))
                         .message_thread_id(0),
                 ),
@@ -115,7 +115,7 @@ mod tests {
         let request = Request::<Reqwest> {
             update: Arc::new(Update::Message(UpdateMessage::new(
                 0,
-                MessageText::new(0, 0, ChatPrivate::new(0, "", ""), ""),
+                MessageText::new(0, 0, ChatPrivate::new(0), ""),
             ))),
             bot: Bot::default(),
             context: crate::Context::default(),

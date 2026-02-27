@@ -1,61 +1,63 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::MaskPosition};
-
+use crate::client::Bot;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Use this method to change the [`MaskPosition`] of a mask sticker. The sticker must belong to a sticker set that was created by the bot.
+/// Use this method to change the mask position of a mask sticker. The sticker must belong to a sticker set that was created by the bot. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setstickermaskposition>
 /// # Returns
-/// On success, `true` is returned
-#[skip_serializing_none]
-#[derive(Debug, PartialEq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct SetStickerMaskPosition {
     /// File identifier of the sticker
-    pub sticker: String,
+    pub sticker: Box<str>,
     /// A JSON-serialized object with the position where the mask should be placed on faces. Omit the parameter to remove the mask position.
-    pub mask_position: Option<MaskPosition>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mask_position: Option<crate::types::MaskPosition>,
 }
-
 impl SetStickerMaskPosition {
+    /// Creates a new `SetStickerMaskPosition`.
+    ///
+    /// # Arguments
+    /// * `sticker` - File identifier of the sticker
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(sticker: impl Into<String>) -> Self {
+    pub fn new<T0: Into<Box<str>>>(sticker: T0) -> Self {
         Self {
             sticker: sticker.into(),
             mask_position: None,
         }
     }
 
+    /// File identifier of the sticker
     #[must_use]
-    pub fn sticker(self, val: impl Into<String>) -> Self {
-        Self {
-            sticker: val.into(),
-            ..self
-        }
+    pub fn sticker<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.sticker = val.into();
+        this
     }
 
+    /// A JSON-serialized object with the position where the mask should be placed on faces. Omit the parameter to remove the mask position.
     #[must_use]
-    pub fn mask_position(self, val: MaskPosition) -> Self {
-        Self {
-            mask_position: Some(val),
-            ..self
-        }
+    pub fn mask_position<T: Into<crate::types::MaskPosition>>(self, val: T) -> Self {
+        let mut this = self;
+        this.mask_position = Some(val.into());
+        this
+    }
+
+    /// A JSON-serialized object with the position where the mask should be placed on faces. Omit the parameter to remove the mask position.
+    #[must_use]
+    pub fn mask_position_option<T: Into<crate::types::MaskPosition>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.mask_position = val.map(Into::into);
+        this
     }
 }
-
-impl TelegramMethod for SetStickerMaskPosition {
+impl super::TelegramMethod for SetStickerMaskPosition {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        Request::new("setStickerMaskPosition", self, None)
-    }
-}
-
-impl AsRef<SetStickerMaskPosition> for SetStickerMaskPosition {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("setStickerMaskPosition", self, None)
     }
 }

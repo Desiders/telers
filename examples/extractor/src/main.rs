@@ -51,7 +51,9 @@ impl From<Update> for UpdateId {
 struct UpdateChatId(i64);
 
 impl TryFrom<Update> for UpdateChatId {
-    type Error = ConvertToTypeError; // You can use your own error type here
+    type Error = ConvertToTypeError;
+
+    // You can use your own error type here
 
     fn try_from(update: Update) -> Result<Self, Self::Error> {
         match update.chat() {

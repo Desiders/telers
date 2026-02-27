@@ -1,18 +1,100 @@
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-
 /// This object represents a forum topic.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#forumtopic>
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ForumTopic {
     /// Unique identifier of the forum topic
     pub message_thread_id: i64,
     /// Name of the topic
     pub name: Box<str>,
     /// Color of the topic icon in RGB format
-    pub icon_color: Box<str>,
+    pub icon_color: i64,
     /// Unique identifier of the custom emoji shown as the topic icon
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_custom_emoji_id: Option<Box<str>>,
+    /// `true`, if the name of the topic wasn't specified explicitly by its creator and likely needs to be changed by the bot
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_name_implicit: Option<bool>,
+}
+impl ForumTopic {
+    /// Creates a new `ForumTopic`.
+    ///
+    /// # Arguments
+    /// * `message_thread_id` - Unique identifier of the forum topic
+    /// * `name` - Name of the topic
+    /// * `icon_color` - Color of the topic icon in RGB format
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
+    #[must_use]
+    pub fn new<T0: Into<i64>, T1: Into<Box<str>>, T2: Into<i64>>(
+        message_thread_id: T0,
+        name: T1,
+        icon_color: T2,
+    ) -> Self {
+        Self {
+            message_thread_id: message_thread_id.into(),
+            name: name.into(),
+            icon_color: icon_color.into(),
+            icon_custom_emoji_id: None,
+            is_name_implicit: None,
+        }
+    }
+
+    /// Unique identifier of the forum topic
+    #[must_use]
+    pub fn message_thread_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.message_thread_id = val.into();
+        this
+    }
+
+    /// Name of the topic
+    #[must_use]
+    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.name = val.into();
+        this
+    }
+
+    /// Color of the topic icon in RGB format
+    #[must_use]
+    pub fn icon_color<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.icon_color = val.into();
+        this
+    }
+
+    /// Unique identifier of the custom emoji shown as the topic icon
+    #[must_use]
+    pub fn icon_custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.icon_custom_emoji_id = Some(val.into());
+        this
+    }
+
+    /// Unique identifier of the custom emoji shown as the topic icon
+    #[must_use]
+    pub fn icon_custom_emoji_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.icon_custom_emoji_id = val.map(Into::into);
+        this
+    }
+
+    /// `true`, if the name of the topic wasn't specified explicitly by its creator and likely needs to be changed by the bot
+    #[must_use]
+    pub fn is_name_implicit<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.is_name_implicit = Some(val.into());
+        this
+    }
+
+    /// `true`, if the name of the topic wasn't specified explicitly by its creator and likely needs to be changed by the bot
+    #[must_use]
+    pub fn is_name_implicit_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.is_name_implicit = val.map(Into::into);
+        this
+    }
 }

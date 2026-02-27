@@ -140,11 +140,12 @@ mod tests {
 
             let editable_text = &text[offset..offset + length];
 
-            let edited_text = if entity.is_bold_variant() {
-                self.bold(editable_text)
+            if let MessageEntity::Bold(_) = entity {
             } else {
                 unimplemented!();
-            };
+            }
+
+            let edited_text = self.bold(editable_text);
 
             let mut text = text.to_owned();
             text.replace_range(offset..offset + length, &edited_text);

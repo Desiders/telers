@@ -69,15 +69,15 @@ pub trait TelegramMethod {
     /// - If the response cannot be parsed
     #[instrument(name = "build", skip_all)]
     fn build_response(content: &str) -> Result<Response<Self::Return>, serde_json::Error> {
-        event!(Level::TRACE, content, "Parsing");
+        event!(Level::TRACE, %content, "Parsing");
         let mut deserializer = serde_json::Deserializer::from_str(content);
         deserializer.disable_recursion_limit();
         let deserializer = serde_stacker::Deserializer::new(&mut deserializer);
         let res = Response::<Self::Return>::deserialize(deserializer).inspect_err(|err| {
             event!(
                 Level::ERROR,
-                error = format_error_report(&err),
-                content,
+                error = %format_error_report(&err),
+                %content,
                 "Cannot parse content",
             );
         });

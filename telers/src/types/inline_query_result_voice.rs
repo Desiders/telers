@@ -1,40 +1,49 @@
-use super::{InlineKeyboardMarkup, InputMessageContent, MessageEntity};
-
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-
 /// Represents a link to a voice recording in an .OGG container encoded with OPUS. By default, this voice recording will be sent by the user. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the the voice message.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultvoice>
-#[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct InlineQueryResultVoice {
-    /// Unique identifier for this result, 1-64 Bytes
-    pub id: String,
+    /// Unique identifier for this result, 1-64 bytes
+    pub id: Box<str>,
     /// A valid URL for the voice recording
-    pub voice_url: String,
+    pub voice_url: Box<str>,
     /// Recording title
-    pub title: String,
+    pub title: Box<str>,
     /// Caption, 0-1024 characters after entities parsing
-    pub caption: Option<String>,
-    /// Mode for parsing entities in the voice message caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
-    pub parse_mode: Option<String>,
-    /// List of special entities that appear in the caption, which can be specified instead of *`parse_mode`*
-    pub caption_entities: Option<Vec<MessageEntity>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caption: Option<Box<str>>,
+    /// Mode for parsing entities in the voice message caption. See formatting options for more details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parse_mode: Option<Box<str>>,
+    /// List of special entities that appear in the caption, which can be specified instead of `parse_mode`
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caption_entities: Option<Box<[crate::types::MessageEntity]>>,
     /// Recording duration in seconds
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub voice_duration: Option<i64>,
-    /// [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
-    pub reply_markup: Option<InlineKeyboardMarkup>,
+    /// Inline keyboard attached to the message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
     /// Content of the message to be sent instead of the voice recording
-    pub input_message_content: Option<InputMessageContent>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_message_content: Option<crate::types::InputMessageContent>,
 }
-
 impl InlineQueryResultVoice {
+    /// Creates a new `InlineQueryResultVoice`.
+    ///
+    /// # Arguments
+    /// * `id` - Unique identifier for this result, 1-64 bytes
+    /// * `voice_url` - A valid URL for the voice recording
+    /// * `title` - Recording title
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(
-        id: impl Into<String>,
-        voice_url: impl Into<String>,
-        title: impl Into<String>,
+    pub fn new<T0: Into<Box<str>>, T1: Into<Box<str>>, T2: Into<Box<str>>>(
+        id: T0,
+        voice_url: T1,
+        title: T2,
     ) -> Self {
         Self {
             id: id.into(),
@@ -49,154 +58,163 @@ impl InlineQueryResultVoice {
         }
     }
 
+    /// Unique identifier for this result, 1-64 bytes
     #[must_use]
-    pub fn id(self, val: impl Into<String>) -> Self {
-        Self {
-            id: val.into(),
-            ..self
-        }
+    pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.id = val.into();
+        this
     }
 
+    /// A valid URL for the voice recording
     #[must_use]
-    pub fn voice_url(self, val: impl Into<String>) -> Self {
-        Self {
-            voice_url: val.into(),
-            ..self
-        }
+    pub fn voice_url<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.voice_url = val.into();
+        this
     }
 
+    /// Recording title
     #[must_use]
-    pub fn title(self, val: impl Into<String>) -> Self {
-        Self {
-            title: val.into(),
-            ..self
-        }
+    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.title = val.into();
+        this
     }
 
+    /// Caption, 0-1024 characters after entities parsing
     #[must_use]
-    pub fn caption(self, val: impl Into<String>) -> Self {
-        Self {
-            caption: Some(val.into()),
-            ..self
-        }
+    pub fn caption<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.caption = Some(val.into());
+        this
     }
 
+    /// Caption, 0-1024 characters after entities parsing
     #[must_use]
-    pub fn parse_mode(self, val: impl Into<String>) -> Self {
-        Self {
-            parse_mode: Some(val.into()),
-            ..self
-        }
+    pub fn caption_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.caption = val.map(Into::into);
+        this
     }
 
+    /// Mode for parsing entities in the voice message caption. See formatting options for more details.
     #[must_use]
-    pub fn caption_entity(self, val: MessageEntity) -> Self {
-        Self {
-            caption_entities: Some(
-                self.caption_entities
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(Some(val))
-                    .collect(),
-            ),
-            ..self
-        }
+    pub fn parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.parse_mode = Some(val.into());
+        this
     }
 
+    /// Mode for parsing entities in the voice message caption. See formatting options for more details.
     #[must_use]
-    pub fn caption_entities(self, val: impl IntoIterator<Item = MessageEntity>) -> Self {
-        Self {
-            caption_entities: Some(
-                self.caption_entities
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(val)
-                    .collect(),
-            ),
-            ..self
-        }
+    pub fn parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.parse_mode = val.map(Into::into);
+        this
     }
 
+    /// List of special entities that appear in the caption, which can be specified instead of `parse_mode`
+    ///
+    /// # Notes
+    /// Adds multiple elements.
     #[must_use]
-    pub fn voice_duration(self, val: i64) -> Self {
-        Self {
-            voice_duration: Some(val),
-            ..self
-        }
+    pub fn caption_entities<T: Into<Box<[crate::types::MessageEntity]>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.caption_entities = Some(
+            this.caption_entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into())
+                .collect(),
+        );
+        this
     }
 
+    /// List of special entities that appear in the caption, which can be specified instead of `parse_mode`
+    ///
+    /// # Notes
+    /// Adds a single element.
     #[must_use]
-    pub fn reply_markup(self, val: impl Into<InlineKeyboardMarkup>) -> Self {
-        Self {
-            reply_markup: Some(val.into()),
-            ..self
-        }
+    pub fn caption_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
+        let mut this = self;
+        this.caption_entities = Some(
+            this.caption_entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        this
     }
 
+    /// List of special entities that appear in the caption, which can be specified instead of `parse_mode`
+    ///
+    /// # Notes
+    /// Adds a single element.
     #[must_use]
-    pub fn input_message_content(self, val: impl Into<InputMessageContent>) -> Self {
-        Self {
-            input_message_content: Some(val.into()),
-            ..self
-        }
-    }
-}
-
-impl InlineQueryResultVoice {
-    #[must_use]
-    pub fn caption_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            caption: val.map(Into::into),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            parse_mode: val.map(Into::into),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn caption_entities_option(
+    pub fn caption_entities_option<T: Into<Box<[crate::types::MessageEntity]>>>(
         self,
-        val: Option<impl IntoIterator<Item = MessageEntity>>,
+        val: Option<T>,
     ) -> Self {
-        Self {
-            caption_entities: val.map(|val| {
-                self.caption_entities
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(val)
-                    .collect()
-            }),
-            ..self
-        }
+        let mut this = self;
+        this.caption_entities = val.map(Into::into);
+        this
     }
 
+    /// Recording duration in seconds
     #[must_use]
-    pub fn voice_duration_option(self, val: Option<i64>) -> Self {
-        Self {
-            voice_duration: val,
-            ..self
-        }
+    pub fn voice_duration<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.voice_duration = Some(val.into());
+        this
     }
 
+    /// Recording duration in seconds
     #[must_use]
-    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
-        Self {
-            reply_markup: val.map(Into::into),
-            ..self
-        }
+    pub fn voice_duration_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.voice_duration = val.map(Into::into);
+        this
     }
 
+    /// Inline keyboard attached to the message
     #[must_use]
-    pub fn input_message_content_option(self, val: Option<impl Into<InputMessageContent>>) -> Self {
-        Self {
-            input_message_content: val.map(Into::into),
-            ..self
-        }
+    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(self, val: T) -> Self {
+        let mut this = self;
+        this.reply_markup = Some(val.into());
+        this
+    }
+
+    /// Inline keyboard attached to the message
+    #[must_use]
+    pub fn reply_markup_option<T: Into<crate::types::InlineKeyboardMarkup>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.reply_markup = val.map(Into::into);
+        this
+    }
+
+    /// Content of the message to be sent instead of the voice recording
+    #[must_use]
+    pub fn input_message_content<T: Into<crate::types::InputMessageContent>>(self, val: T) -> Self {
+        let mut this = self;
+        this.input_message_content = Some(val.into());
+        this
+    }
+
+    /// Content of the message to be sent instead of the voice recording
+    #[must_use]
+    pub fn input_message_content_option<T: Into<crate::types::InputMessageContent>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.input_message_content = val.map(Into::into);
+        this
     }
 }

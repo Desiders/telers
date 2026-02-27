@@ -1,101 +1,98 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::ChatIdKind};
-
+use crate::client::Bot;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Use this method to add a message to the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the `can_pin_messages` administrator right in a supergroup or `can_edit_messages` administrator right in a channel.
+/// Use this method to add a message to the list of pinned messages in a chat. In private chats and channel direct messages chats, all non-service messages can be pinned. Conversely, the bot must be an administrator with the '`can_pin_messages`' right or the '`can_edit_messages`' right to pin messages in groups and channels respectively. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#pinchatmessage>
 /// # Returns
-/// On success, `true` is returned
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct PinChatMessage {
     /// Unique identifier of the business connection on behalf of which the message will be pinned
-    pub business_connection_id: Option<String>,
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
-    pub chat_id: ChatIdKind,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub business_connection_id: Option<Box<str>>,
+    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    pub chat_id: crate::types::ChatIdKind,
     /// Identifier of a message to pin
     pub message_id: i64,
-    /// Pass `true`, if it is not necessary to send a notification to all chat members about the new pinned message. Notifications are always disabled in channels and `private_chats`.
+    /// Pass `true` if it is not necessary to send a notification to all chat members about the new pinned message. Notifications are always disabled in channels and private chats.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_notification: Option<bool>,
 }
-
 impl PinChatMessage {
+    /// Creates a new `PinChatMessage`.
+    ///
+    /// # Arguments
+    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// * `message_id` - Identifier of a message to pin
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>, message_id: i64) -> Self {
+    pub fn new<T0: Into<crate::types::ChatIdKind>, T1: Into<i64>>(
+        chat_id: T0,
+        message_id: T1,
+    ) -> Self {
         Self {
             business_connection_id: None,
             chat_id: chat_id.into(),
-            message_id,
+            message_id: message_id.into(),
             disable_notification: None,
         }
     }
 
+    /// Unique identifier of the business connection on behalf of which the message will be pinned
     #[must_use]
-    pub fn business_connection_id(self, val: impl Into<String>) -> Self {
-        Self {
-            business_connection_id: Some(val.into()),
-            ..self
-        }
+    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.business_connection_id = Some(val.into());
+        this
     }
 
+    /// Unique identifier of the business connection on behalf of which the message will be pinned
     #[must_use]
-    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
-        Self {
-            chat_id: val.into(),
-            ..self
-        }
+    pub fn business_connection_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.business_connection_id = val.map(Into::into);
+        this
     }
 
+    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
     #[must_use]
-    pub fn message_id(self, val: i64) -> Self {
-        Self {
-            message_id: val,
-            ..self
-        }
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
+        let mut this = self;
+        this.chat_id = val.into();
+        this
     }
 
+    /// Identifier of a message to pin
     #[must_use]
-    pub fn disable_notification(self, val: bool) -> Self {
-        Self {
-            disable_notification: Some(val),
-            ..self
-        }
-    }
-}
-
-impl PinChatMessage {
-    #[must_use]
-    pub fn business_connection_id_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            business_connection_id: val.map(Into::into),
-            ..self
-        }
+    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.message_id = val.into();
+        this
     }
 
+    /// Pass `true` if it is not necessary to send a notification to all chat members about the new pinned message. Notifications are always disabled in channels and private chats.
     #[must_use]
-    pub fn disable_notification_option(self, val: Option<bool>) -> Self {
-        Self {
-            disable_notification: val,
-            ..self
-        }
+    pub fn disable_notification<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.disable_notification = Some(val.into());
+        this
+    }
+
+    /// Pass `true` if it is not necessary to send a notification to all chat members about the new pinned message. Notifications are always disabled in channels and private chats.
+    #[must_use]
+    pub fn disable_notification_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.disable_notification = val.map(Into::into);
+        this
     }
 }
-
-impl TelegramMethod for PinChatMessage {
+impl super::TelegramMethod for PinChatMessage {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        Request::new("pinChatMessage", self, None)
-    }
-}
-
-impl AsRef<PinChatMessage> for PinChatMessage {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("pinChatMessage", self, None)
     }
 }

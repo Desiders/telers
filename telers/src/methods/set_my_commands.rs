@@ -1,101 +1,112 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{
-    client::Bot,
-    types::{BotCommand, BotCommandScope},
-};
-
+use crate::client::Bot;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Use this method to change the list of the bot's commands. See [this manual](https://core.telegram.org/bots/features#commands) for more details about bot commands.
+/// Use this method to change the list of the bot's commands. See this manual for more details about bot commands. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setmycommands>
 /// # Returns
-/// On success, `true` is returned
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct SetMyCommands {
     /// A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
-    pub commands: Vec<BotCommand>,
-    /// A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to [`BotCommandScopeDefault`](crate::types::BotCommandScopeDefault).
-    pub scope: Option<BotCommandScope>,
-    /// A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands.
-    pub language_code: Option<String>,
+    pub commands: Box<[crate::types::BotCommand]>,
+    /// A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to [`BotCommandScopeDefault`].
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub scope: Option<crate::types::BotCommandScope>,
+    /// A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub language_code: Option<Box<str>>,
 }
-
 impl SetMyCommands {
+    /// Creates a new `SetMyCommands`.
+    ///
+    /// # Arguments
+    /// * `commands` - A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(commands: impl IntoIterator<Item = BotCommand>) -> Self {
+    pub fn new<T0Item: Into<crate::types::BotCommand>, T0: IntoIterator<Item = T0Item>>(
+        commands: T0,
+    ) -> Self {
         Self {
-            commands: commands.into_iter().collect(),
+            commands: commands.into_iter().map(Into::into).collect(),
             scope: None,
             language_code: None,
         }
     }
 
+    /// A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
+    ///
+    /// # Notes
+    /// Adds multiple elements.
     #[must_use]
-    pub fn command(self, val: BotCommand) -> Self {
-        Self {
-            commands: self.commands.into_iter().chain(Some(val)).collect(),
-            ..self
-        }
+    pub fn commands<TItem: Into<crate::types::BotCommand>, T: IntoIterator<Item = TItem>>(
+        self,
+        val: T,
+    ) -> Self {
+        let mut this = self;
+        this.commands = this
+            .commands
+            .into_vec()
+            .into_iter()
+            .chain(val.into_iter().map(Into::into))
+            .collect();
+        this
     }
 
+    /// A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
+    ///
+    /// # Notes
+    /// Adds a single element.
     #[must_use]
-    pub fn commands(self, val: impl IntoIterator<Item = BotCommand>) -> Self {
-        Self {
-            commands: self.commands.into_iter().chain(val).collect(),
-            ..self
-        }
+    pub fn command<T: Into<crate::types::BotCommand>>(self, val: T) -> Self {
+        let mut this = self;
+        this.commands = this
+            .commands
+            .into_vec()
+            .into_iter()
+            .chain(Some(val.into()))
+            .collect();
+        this
     }
 
+    /// A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to [`BotCommandScopeDefault`].
     #[must_use]
-    pub fn scope(self, val: impl Into<BotCommandScope>) -> Self {
-        Self {
-            scope: Some(val.into()),
-            ..self
-        }
+    pub fn scope<T: Into<crate::types::BotCommandScope>>(self, val: T) -> Self {
+        let mut this = self;
+        this.scope = Some(val.into());
+        this
     }
 
+    /// A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to [`BotCommandScopeDefault`].
     #[must_use]
-    pub fn language_code(self, val: impl Into<String>) -> Self {
-        Self {
-            language_code: Some(val.into()),
-            ..self
-        }
+    pub fn scope_option<T: Into<crate::types::BotCommandScope>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.scope = val.map(Into::into);
+        this
+    }
+
+    /// A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
+    #[must_use]
+    pub fn language_code<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.language_code = Some(val.into());
+        this
+    }
+
+    /// A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
+    #[must_use]
+    pub fn language_code_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.language_code = val.map(Into::into);
+        this
     }
 }
-
-impl SetMyCommands {
-    #[must_use]
-    pub fn scope_option(self, val: Option<impl Into<BotCommandScope>>) -> Self {
-        Self {
-            scope: val.map(Into::into),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn language_code_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            language_code: val.map(Into::into),
-            ..self
-        }
-    }
-}
-
-impl TelegramMethod for SetMyCommands {
+impl super::TelegramMethod for SetMyCommands {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        Request::new("setMyCommands", self, None)
-    }
-}
-
-impl AsRef<SetMyCommands> for SetMyCommands {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("setMyCommands", self, None)
     }
 }

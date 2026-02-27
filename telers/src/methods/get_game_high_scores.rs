@@ -1,111 +1,103 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::GameHighScore};
-
+use crate::client::Bot;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game.
+/// Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of [`GameHighScore`] objects.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getgamehighscores>
-/// # Note
-/// This method will currently return scores for the target user, plus two of their closest neighbors on each side. Will also return the top three users if the user and their neighbors are not among them. Please note that this behavior is subject to change.
 /// # Returns
-/// Returns an Array of [`GameHighScore`] objects
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `Box<[crate::types::GameHighScore]>`
+#[derive(Clone, Debug, Serialize)]
 pub struct GetGameHighScores {
     /// Target user id
     pub user_id: i64,
     /// Required if `inline_message_id` is not specified. Unique identifier for the target chat
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub chat_id: Option<i64>,
     /// Required if `inline_message_id` is not specified. Identifier of the sent message
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub message_id: Option<i64>,
     /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
-    pub inline_message_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub inline_message_id: Option<Box<str>>,
 }
-
 impl GetGameHighScores {
+    /// Creates a new `GetGameHighScores`.
+    ///
+    /// # Arguments
+    /// * `user_id` - Target user id
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(user_id: i64) -> Self {
+    pub fn new<T0: Into<i64>>(user_id: T0) -> Self {
         Self {
-            user_id,
+            user_id: user_id.into(),
             chat_id: None,
             message_id: None,
             inline_message_id: None,
         }
     }
 
+    /// Target user id
     #[must_use]
-    pub fn user_id(self, val: i64) -> Self {
-        Self {
-            user_id: val,
-            ..self
-        }
+    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.user_id = val.into();
+        this
     }
 
+    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat
     #[must_use]
-    pub fn chat_id(self, val: i64) -> Self {
-        Self {
-            chat_id: Some(val),
-            ..self
-        }
+    pub fn chat_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.chat_id = Some(val.into());
+        this
     }
 
+    /// Required if `inline_message_id` is not specified. Unique identifier for the target chat
     #[must_use]
-    pub fn message_id(self, val: i64) -> Self {
-        Self {
-            message_id: Some(val),
-            ..self
-        }
+    pub fn chat_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.chat_id = val.map(Into::into);
+        this
     }
 
+    /// Required if `inline_message_id` is not specified. Identifier of the sent message
     #[must_use]
-    pub fn inline_message_id(self, val: impl Into<String>) -> Self {
-        Self {
-            inline_message_id: Some(val.into()),
-            ..self
-        }
-    }
-}
-
-impl GetGameHighScores {
-    #[must_use]
-    pub fn chat_id_option(self, val: Option<i64>) -> Self {
-        Self {
-            chat_id: val,
-            ..self
-        }
+    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.message_id = Some(val.into());
+        this
     }
 
+    /// Required if `inline_message_id` is not specified. Identifier of the sent message
     #[must_use]
-    pub fn message_id_option(self, val: Option<i64>) -> Self {
-        Self {
-            message_id: val,
-            ..self
-        }
+    pub fn message_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.message_id = val.map(Into::into);
+        this
     }
 
+    /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
     #[must_use]
-    pub fn inline_message_id_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            inline_message_id: val.map(Into::into),
-            ..self
-        }
+    pub fn inline_message_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.inline_message_id = Some(val.into());
+        this
+    }
+
+    /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
+    #[must_use]
+    pub fn inline_message_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.inline_message_id = val.map(Into::into);
+        this
     }
 }
-
-impl TelegramMethod for GetGameHighScores {
+impl super::TelegramMethod for GetGameHighScores {
     type Method = Self;
-    type Return = Vec<GameHighScore>;
+    type Return = Box<[crate::types::GameHighScore]>;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        Request::new("getGameHighScores", self, None)
-    }
-}
-
-impl AsRef<GetGameHighScores> for GetGameHighScores {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("getGameHighScores", self, None)
     }
 }

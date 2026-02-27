@@ -1,12 +1,55 @@
-use super::Gift;
-
 use serde::{Deserialize, Serialize};
-
 /// This object represent a list of gifts.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#gifts>
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Gifts {
     /// The list of gifts
-    pub gifts: Box<[Gift]>,
+    pub gifts: Box<[crate::types::Gift]>,
+}
+impl Gifts {
+    /// Creates a new `Gifts`.
+    ///
+    /// # Arguments
+    /// * `gifts` - The list of gifts
+    #[must_use]
+    pub fn new<T0Item: Into<crate::types::Gift>, T0: IntoIterator<Item = T0Item>>(
+        gifts: T0,
+    ) -> Self {
+        Self {
+            gifts: gifts.into_iter().map(Into::into).collect(),
+        }
+    }
+
+    /// The list of gifts
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn gifts<T: Into<Box<[crate::types::Gift]>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.gifts = this
+            .gifts
+            .into_vec()
+            .into_iter()
+            .chain(val.into())
+            .collect();
+        this
+    }
+
+    /// The list of gifts
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn gift<T: Into<crate::types::Gift>>(self, val: T) -> Self {
+        let mut this = self;
+        this.gifts = this
+            .gifts
+            .into_vec()
+            .into_iter()
+            .chain(Some(val.into()))
+            .collect();
+        this
+    }
 }

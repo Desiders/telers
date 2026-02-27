@@ -1,57 +1,77 @@
-use super::{InlineKeyboardMarkup, InputMessageContent};
-
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-
 /// Represents a venue. By default, the venue will be sent by the user. Alternatively, you can use `input_message_content` to send a message with the specified content instead of the venue.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultvenue>
-#[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct InlineQueryResultVenue {
     /// Unique identifier for this result, 1-64 Bytes
-    pub id: String,
+    pub id: Box<str>,
     /// Latitude of the venue location in degrees
     pub latitude: f64,
     /// Longitude of the venue location in degrees
     pub longitude: f64,
     /// Title of the venue
-    pub title: String,
+    pub title: Box<str>,
     /// Address of the venue
-    pub address: String,
+    pub address: Box<str>,
     /// Foursquare identifier of the venue if known
-    pub foursquare_id: Option<String>,
-    /// Foursquare type of the venue, if known. (For example, `arts_entertainment/default`, `arts_entertainment/aquarium` or 'food/icecream'.)
-    pub foursquare_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub foursquare_id: Option<Box<str>>,
+    /// Foursquare type of the venue, if known. (For example, `arts_entertainment/default`, `arts_entertainment/aquarium` or `food/icecream`.)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub foursquare_type: Option<Box<str>>,
     /// Google Places identifier of the venue
-    pub google_place_id: Option<String>,
-    /// Google Places type of the venue. (See [`supported types`](https://developers.google.com/places/web-service/supported_types).)
-    pub google_place_type: Option<String>,
-    /// [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
-    pub reply_markup: Option<InlineKeyboardMarkup>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub google_place_id: Option<Box<str>>,
+    /// Google Places type of the venue. (See supported types.)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub google_place_type: Option<Box<str>>,
+    /// Inline keyboard attached to the message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
     /// Content of the message to be sent instead of the venue
-    pub input_message_content: Option<InputMessageContent>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_message_content: Option<crate::types::InputMessageContent>,
     /// Url of the thumbnail for the result
-    pub thumbnail_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub thumbnail_url: Option<Box<str>>,
     /// Thumbnail width
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub thumbnail_width: Option<i64>,
     /// Thumbnail height
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub thumbnail_height: Option<i64>,
 }
-
 impl InlineQueryResultVenue {
+    /// Creates a new `InlineQueryResultVenue`.
+    ///
+    /// # Arguments
+    /// * `id` - Unique identifier for this result, 1-64 Bytes
+    /// * `latitude` - Latitude of the venue location in degrees
+    /// * `longitude` - Longitude of the venue location in degrees
+    /// * `title` - Title of the venue
+    /// * `address` - Address of the venue
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(
-        id: impl Into<String>,
-        latitude: f64,
-        longitude: f64,
-        title: impl Into<String>,
-        address: impl Into<String>,
+    pub fn new<
+        T0: Into<Box<str>>,
+        T1: Into<f64>,
+        T2: Into<f64>,
+        T3: Into<Box<str>>,
+        T4: Into<Box<str>>,
+    >(
+        id: T0,
+        latitude: T1,
+        longitude: T2,
+        title: T3,
+        address: T4,
     ) -> Self {
         Self {
             id: id.into(),
-            latitude,
-            longitude,
+            latitude: latitude.into(),
+            longitude: longitude.into(),
             title: title.into(),
             address: address.into(),
             foursquare_id: None,
@@ -66,189 +86,193 @@ impl InlineQueryResultVenue {
         }
     }
 
+    /// Unique identifier for this result, 1-64 Bytes
     #[must_use]
-    pub fn id(self, val: impl Into<String>) -> Self {
-        Self {
-            id: val.into(),
-            ..self
-        }
+    pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.id = val.into();
+        this
     }
 
+    /// Latitude of the venue location in degrees
     #[must_use]
-    pub fn latitude(self, val: f64) -> Self {
-        Self {
-            latitude: val,
-            ..self
-        }
+    pub fn latitude<T: Into<f64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.latitude = val.into();
+        this
     }
 
+    /// Longitude of the venue location in degrees
     #[must_use]
-    pub fn longitude(self, val: f64) -> Self {
-        Self {
-            longitude: val,
-            ..self
-        }
+    pub fn longitude<T: Into<f64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.longitude = val.into();
+        this
     }
 
+    /// Title of the venue
     #[must_use]
-    pub fn title(self, val: impl Into<String>) -> Self {
-        Self {
-            title: val.into(),
-            ..self
-        }
+    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.title = val.into();
+        this
     }
 
+    /// Address of the venue
     #[must_use]
-    pub fn address(self, val: impl Into<String>) -> Self {
-        Self {
-            address: val.into(),
-            ..self
-        }
+    pub fn address<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.address = val.into();
+        this
     }
 
+    /// Foursquare identifier of the venue if known
     #[must_use]
-    pub fn foursquare_id(self, val: impl Into<String>) -> Self {
-        Self {
-            foursquare_id: Some(val.into()),
-            ..self
-        }
+    pub fn foursquare_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.foursquare_id = Some(val.into());
+        this
     }
 
+    /// Foursquare identifier of the venue if known
     #[must_use]
-    pub fn foursquare_type(self, val: impl Into<String>) -> Self {
-        Self {
-            foursquare_type: Some(val.into()),
-            ..self
-        }
+    pub fn foursquare_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.foursquare_id = val.map(Into::into);
+        this
     }
 
+    /// Foursquare type of the venue, if known. (For example, `arts_entertainment/default`, `arts_entertainment/aquarium` or `food/icecream`.)
     #[must_use]
-    pub fn google_place_id(self, val: impl Into<String>) -> Self {
-        Self {
-            google_place_id: Some(val.into()),
-            ..self
-        }
+    pub fn foursquare_type<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.foursquare_type = Some(val.into());
+        this
     }
 
+    /// Foursquare type of the venue, if known. (For example, `arts_entertainment/default`, `arts_entertainment/aquarium` or `food/icecream`.)
     #[must_use]
-    pub fn google_place_type(self, val: impl Into<String>) -> Self {
-        Self {
-            google_place_type: Some(val.into()),
-            ..self
-        }
+    pub fn foursquare_type_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.foursquare_type = val.map(Into::into);
+        this
     }
 
+    /// Google Places identifier of the venue
     #[must_use]
-    pub fn reply_markup(self, val: impl Into<InlineKeyboardMarkup>) -> Self {
-        Self {
-            reply_markup: Some(val.into()),
-            ..self
-        }
+    pub fn google_place_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.google_place_id = Some(val.into());
+        this
     }
 
+    /// Google Places identifier of the venue
     #[must_use]
-    pub fn input_message_content(self, val: impl Into<InputMessageContent>) -> Self {
-        Self {
-            input_message_content: Some(val.into()),
-            ..self
-        }
+    pub fn google_place_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.google_place_id = val.map(Into::into);
+        this
     }
 
+    /// Google Places type of the venue. (See supported types.)
     #[must_use]
-    pub fn thumbnail_url(self, val: impl Into<String>) -> Self {
-        Self {
-            thumbnail_url: Some(val.into()),
-            ..self
-        }
+    pub fn google_place_type<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.google_place_type = Some(val.into());
+        this
     }
 
+    /// Google Places type of the venue. (See supported types.)
     #[must_use]
-    pub fn thumbnail_width(self, val: i64) -> Self {
-        Self {
-            thumbnail_width: Some(val),
-            ..self
-        }
+    pub fn google_place_type_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.google_place_type = val.map(Into::into);
+        this
     }
 
+    /// Inline keyboard attached to the message
     #[must_use]
-    pub fn thumbnail_height(self, val: i64) -> Self {
-        Self {
-            thumbnail_height: Some(val),
-            ..self
-        }
-    }
-}
-
-impl InlineQueryResultVenue {
-    #[must_use]
-    pub fn foursquare_id_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            foursquare_id: val.map(Into::into),
-            ..self
-        }
+    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(self, val: T) -> Self {
+        let mut this = self;
+        this.reply_markup = Some(val.into());
+        this
     }
 
+    /// Inline keyboard attached to the message
     #[must_use]
-    pub fn foursquare_type_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            foursquare_type: val.map(Into::into),
-            ..self
-        }
+    pub fn reply_markup_option<T: Into<crate::types::InlineKeyboardMarkup>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.reply_markup = val.map(Into::into);
+        this
     }
 
+    /// Content of the message to be sent instead of the venue
     #[must_use]
-    pub fn google_place_id_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            google_place_id: val.map(Into::into),
-            ..self
-        }
+    pub fn input_message_content<T: Into<crate::types::InputMessageContent>>(self, val: T) -> Self {
+        let mut this = self;
+        this.input_message_content = Some(val.into());
+        this
     }
 
+    /// Content of the message to be sent instead of the venue
     #[must_use]
-    pub fn google_place_type_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            google_place_type: val.map(Into::into),
-            ..self
-        }
+    pub fn input_message_content_option<T: Into<crate::types::InputMessageContent>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.input_message_content = val.map(Into::into);
+        this
     }
 
+    /// Url of the thumbnail for the result
     #[must_use]
-    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
-        Self {
-            reply_markup: val.map(Into::into),
-            ..self
-        }
+    pub fn thumbnail_url<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.thumbnail_url = Some(val.into());
+        this
     }
 
+    /// Url of the thumbnail for the result
     #[must_use]
-    pub fn input_message_content_option(self, val: Option<impl Into<InputMessageContent>>) -> Self {
-        Self {
-            input_message_content: val.map(Into::into),
-            ..self
-        }
+    pub fn thumbnail_url_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.thumbnail_url = val.map(Into::into);
+        this
     }
 
+    /// Thumbnail width
     #[must_use]
-    pub fn thumbnail_url_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            thumbnail_url: val.map(Into::into),
-            ..self
-        }
+    pub fn thumbnail_width<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.thumbnail_width = Some(val.into());
+        this
     }
 
+    /// Thumbnail width
     #[must_use]
-    pub fn thumbnail_width_option(self, val: Option<i64>) -> Self {
-        Self {
-            thumbnail_width: val,
-            ..self
-        }
+    pub fn thumbnail_width_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.thumbnail_width = val.map(Into::into);
+        this
     }
 
+    /// Thumbnail height
     #[must_use]
-    pub fn thumbnail_height_option(self, val: Option<i64>) -> Self {
-        Self {
-            thumbnail_height: val,
-            ..self
-        }
+    pub fn thumbnail_height<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.thumbnail_height = Some(val.into());
+        this
+    }
+
+    /// Thumbnail height
+    #[must_use]
+    pub fn thumbnail_height_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.thumbnail_height = val.map(Into::into);
+        this
     }
 }

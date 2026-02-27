@@ -1,46 +1,5 @@
-//! This module contains telegram types from the [Telegram Bot API](https://core.telegram.org/bots/api).
-//! Each type has a description and a link to the official documentation,
-//! but we recommend to use documentation instead of description (docs copy-paste) because it has actual info
-//!
-//! Telegram types are represented as Rust structs, if a field:
-//! - is optional, it will be wrapped in [`Option`],
-//! - is an array, it will be wrapped in [`Vec`] or slice wrapped in [`Box`],
-//! - is a recursive type, it will be wrapped in [`Box`].
-//! - is a tagged union, it will be wrapped in `enum` with variants named as in the documentation,
-//! - is a type with optional fields, it can be represented as an enum with variants for specific cases (check [`Message`] for example).
-//! - is a string, it will be represented as [`String`] or [`str`] wrapped in [`Box`],
-//! - is a number, it will be represented as [`i64`] or [`u16`] if it's UTF-16 code unit,
-//! - is a float, it will be represented as [`f64`],
-//! - is a boolean, it will be represented as [`bool`],
-//! - is a file, it will be represented as [`InputFile`],
-//! - is a chat id with kind (integer or string), it will be represented as [`ChatIdKind`],
-//! - is a date, it will be represented as [`i64`] (unix timestamp).
-//!
-//! Tagged unions are represented as enums with variants named as in the documentation
-//! and we implement [`From`] trait for them to make it easier to convert from them to the enum.
-//! For example, [`BotCommandScope`] is represented as enum with variants:
-//! - [`BotCommandScopeDefault`]
-//! - [`BotCommandScopeAllPrivateChats`]
-//! - [`BotCommandScopeAllGroupChats`]
-//! - [`BotCommandScopeAllChatAdministrators`]
-//! - [`BotCommandScopeChat`]
-//! - [`BotCommandScopeChatAdministrators`]
-//! - [`BotCommandScopeChatMember`]
-//!
-//! Each variant has an implementation of [`From`] trait to convert from the variant to the [`BotCommandScope`],
-//! so you can write `from` and `into` to convert between them instead of boilerplate code.
-//!
-//! Many methods in the library accept "union" and tagged types as generic parameters with [`Into`] trait bounds,
-//! so you can pass any of the variants to them.
-//!
-//! The telegram type with optional fields can be represented as an enum with variants for specific cases.
-//! For example, [`Message`] is represented as enum with variants:
-//! - [`MessageText`]
-//! - [`MessageAnimation`]
-//! - and so on... (see [`Message`] for full list of variants).
-//!
-//! Each variant has an implementation of [`Into`] trait to convert from the variant to the [`Message`].
-
+pub(crate) mod non_telegram;
+pub use non_telegram::*;
 pub mod accepted_gift_types;
 pub mod affiliate_info;
 pub mod animation;
@@ -87,8 +46,13 @@ pub mod chat_boost_source_gift_code;
 pub mod chat_boost_source_giveaway;
 pub mod chat_boost_source_premium;
 pub mod chat_boost_updated;
+pub mod chat_channel;
 pub mod chat_full_info;
-pub mod chat_id_kind;
+pub mod chat_full_info_channel;
+pub mod chat_full_info_group;
+pub mod chat_full_info_private;
+pub mod chat_full_info_supergroup;
+pub mod chat_group;
 pub mod chat_invite_link;
 pub mod chat_join_request;
 pub mod chat_location;
@@ -100,9 +64,13 @@ pub mod chat_member_member;
 pub mod chat_member_owner;
 pub mod chat_member_restricted;
 pub mod chat_member_updated;
+pub mod chat_owner_changed;
+pub mod chat_owner_left;
 pub mod chat_permissions;
 pub mod chat_photo;
+pub mod chat_private;
 pub mod chat_shared;
+pub mod chat_supergroup;
 pub mod checklist;
 pub mod checklist_task;
 pub mod checklist_tasks_added;
@@ -116,7 +84,39 @@ pub mod direct_messages_topic;
 pub mod document;
 pub mod encrypted_credentials;
 pub mod encrypted_passport_element;
+pub mod encrypted_passport_element_address;
+pub mod encrypted_passport_element_bank_statement;
+pub mod encrypted_passport_element_driver_license;
+pub mod encrypted_passport_element_email;
+pub mod encrypted_passport_element_identity_card;
+pub mod encrypted_passport_element_internal_passport;
+pub mod encrypted_passport_element_passport;
+pub mod encrypted_passport_element_passport_registration;
+pub mod encrypted_passport_element_personal_details;
+pub mod encrypted_passport_element_phone_number;
+pub mod encrypted_passport_element_rental_agreement;
+pub mod encrypted_passport_element_temporary_registration;
+pub mod encrypted_passport_element_utility_bill;
 pub mod external_reply_info;
+pub mod external_reply_info_animation;
+pub mod external_reply_info_audio;
+pub mod external_reply_info_checklist;
+pub mod external_reply_info_contact;
+pub mod external_reply_info_dice;
+pub mod external_reply_info_document;
+pub mod external_reply_info_game;
+pub mod external_reply_info_giveaway;
+pub mod external_reply_info_giveaway_winners;
+pub mod external_reply_info_invoice;
+pub mod external_reply_info_location;
+pub mod external_reply_info_photo;
+pub mod external_reply_info_poll;
+pub mod external_reply_info_sticker;
+pub mod external_reply_info_story;
+pub mod external_reply_info_venue;
+pub mod external_reply_info_video;
+pub mod external_reply_info_video_note;
+pub mod external_reply_info_voice;
 pub mod file;
 pub mod force_reply;
 pub mod forum_topic;
@@ -129,12 +129,17 @@ pub mod game_high_score;
 pub mod general_forum_topic_hidden;
 pub mod general_forum_topic_unhidden;
 pub mod gift;
+pub mod gift_background;
 pub mod gift_info;
 pub mod gifts;
 pub mod giveaway;
 pub mod giveaway_completed;
 pub mod giveaway_created;
+pub mod giveaway_premium;
+pub mod giveaway_star;
 pub mod giveaway_winners;
+pub mod giveaway_winners_premium;
+pub mod giveaway_winners_star;
 pub mod inaccessible_message;
 pub mod inline_keyboard_button;
 pub mod inline_keyboard_markup;
@@ -142,6 +147,7 @@ pub mod inline_query;
 pub mod inline_query_result;
 pub mod inline_query_result_article;
 pub mod inline_query_result_audio;
+pub mod inline_query_result_audio_kind;
 pub mod inline_query_result_cached_audio;
 pub mod inline_query_result_cached_document;
 pub mod inline_query_result_cached_gif;
@@ -152,19 +158,22 @@ pub mod inline_query_result_cached_video;
 pub mod inline_query_result_cached_voice;
 pub mod inline_query_result_contact;
 pub mod inline_query_result_document;
+pub mod inline_query_result_document_kind;
 pub mod inline_query_result_game;
 pub mod inline_query_result_gif;
+pub mod inline_query_result_gif_kind;
 pub mod inline_query_result_location;
 pub mod inline_query_result_mpeg4_gif;
 pub mod inline_query_result_photo;
 pub mod inline_query_result_venue;
 pub mod inline_query_result_video;
+pub mod inline_query_result_video_kind;
 pub mod inline_query_result_voice;
+pub mod inline_query_result_voice_kind;
 pub mod inline_query_results_button;
 pub mod input_checklist;
 pub mod input_checklist_task;
 pub mod input_contact_message_content;
-pub mod input_file;
 pub mod input_invoice_message_content;
 pub mod input_location_message_content;
 pub mod input_media;
@@ -204,17 +213,105 @@ pub mod menu_button_commands;
 pub mod menu_button_default;
 pub mod menu_button_web_app;
 pub mod message;
+pub mod message_animation;
+pub mod message_audio;
 pub mod message_auto_delete_timer_changed;
+pub mod message_boost_added;
+pub mod message_channel_chat_created;
+pub mod message_chat_background_set;
+pub mod message_chat_owner_changed;
+pub mod message_chat_owner_left;
+pub mod message_chat_shared;
+pub mod message_checklist;
+pub mod message_checklist_tasks_added;
+pub mod message_checklist_tasks_done;
+pub mod message_connected_website;
+pub mod message_contact;
+pub mod message_delete_chat_photo;
+pub mod message_dice;
+pub mod message_direct_message_price_changed;
+pub mod message_document;
 pub mod message_entity;
+pub mod message_entity_blockquote;
+pub mod message_entity_bold;
+pub mod message_entity_bot_command;
+pub mod message_entity_cashtag;
+pub mod message_entity_code;
+pub mod message_entity_custom_emoji;
+pub mod message_entity_email;
+pub mod message_entity_expandable_blockquote;
+pub mod message_entity_hashtag;
+pub mod message_entity_italic;
+pub mod message_entity_mention;
+pub mod message_entity_phone_number;
+pub mod message_entity_pre;
+pub mod message_entity_spoiler;
+pub mod message_entity_strikethrough;
+pub mod message_entity_text_link;
+pub mod message_entity_text_mention;
+pub mod message_entity_underline;
+pub mod message_entity_url;
+pub mod message_forum_topic_closed;
+pub mod message_forum_topic_created;
+pub mod message_forum_topic_edited;
+pub mod message_forum_topic_reopened;
+pub mod message_game;
+pub mod message_general_forum_topic_hidden;
+pub mod message_general_forum_topic_unhidden;
+pub mod message_gift;
+pub mod message_gift_upgrade_sent;
+pub mod message_giveaway;
+pub mod message_giveaway_completed;
+pub mod message_giveaway_created;
+pub mod message_giveaway_winners;
+pub mod message_group_chat_created;
 pub mod message_id;
-pub mod message_or_true;
+pub mod message_invoice;
+pub mod message_left_chat_member;
+pub mod message_location;
+pub mod message_message_auto_delete_timer_changed;
+pub mod message_migrate_from_chat_id;
+pub mod message_migrate_to_chat_id;
+pub mod message_new_chat_members;
+pub mod message_new_chat_photo;
+pub mod message_new_chat_title;
 pub mod message_origin;
 pub mod message_origin_channel;
 pub mod message_origin_chat;
 pub mod message_origin_hidden_user;
 pub mod message_origin_user;
+pub mod message_paid_media;
+pub mod message_paid_message_price_changed;
+pub mod message_passport_data;
+pub mod message_photo;
+pub mod message_pinned_message;
+pub mod message_poll;
+pub mod message_proximity_alert_triggered;
 pub mod message_reaction_count_updated;
 pub mod message_reaction_updated;
+pub mod message_refunded_payment;
+pub mod message_sticker;
+pub mod message_story;
+pub mod message_successful_payment;
+pub mod message_suggested_post_approval_failed;
+pub mod message_suggested_post_approved;
+pub mod message_suggested_post_declined;
+pub mod message_suggested_post_paid;
+pub mod message_suggested_post_refunded;
+pub mod message_supergroup_chat_created;
+pub mod message_text;
+pub mod message_unique_gift;
+pub mod message_users_shared;
+pub mod message_venue;
+pub mod message_video;
+pub mod message_video_chat_ended;
+pub mod message_video_chat_participants_invited;
+pub mod message_video_chat_scheduled;
+pub mod message_video_chat_started;
+pub mod message_video_note;
+pub mod message_voice;
+pub mod message_web_app_data;
+pub mod message_write_access_allowed;
 pub mod order_info;
 pub mod owned_gift;
 pub mod owned_gift_regular;
@@ -243,6 +340,8 @@ pub mod photo_size;
 pub mod poll;
 pub mod poll_answer;
 pub mod poll_option;
+pub mod poll_quiz;
+pub mod poll_regular;
 pub mod pre_checkout_query;
 pub mod prepared_inline_message;
 pub mod proximity_alert_triggered;
@@ -268,8 +367,13 @@ pub mod shipping_option;
 pub mod shipping_query;
 pub mod star_amount;
 pub mod star_transaction;
+pub mod star_transaction_incoming;
+pub mod star_transaction_outgoing;
 pub mod star_transactions;
 pub mod sticker;
+pub mod sticker_custom_emoji;
+pub mod sticker_mask;
+pub mod sticker_regular;
 pub mod sticker_set;
 pub mod story;
 pub mod story_area;
@@ -299,16 +403,48 @@ pub mod transaction_partner_other;
 pub mod transaction_partner_telegram_ads;
 pub mod transaction_partner_telegram_api;
 pub mod transaction_partner_user;
+pub mod transaction_partner_user_business_account_transfer;
+pub mod transaction_partner_user_gift_purchase;
+pub mod transaction_partner_user_invoice_payment;
+pub mod transaction_partner_user_paid_media_payment;
+pub mod transaction_partner_user_premium_purchase;
 pub mod unique_gift;
 pub mod unique_gift_backdrop;
 pub mod unique_gift_backdrop_colors;
+pub mod unique_gift_colors;
 pub mod unique_gift_info;
 pub mod unique_gift_model;
 pub mod unique_gift_symbol;
 pub mod update;
+pub mod update_business_connection;
+pub mod update_business_message;
+pub mod update_callback_query;
+pub mod update_channel_post;
+pub mod update_chat_boost;
+pub mod update_chat_join_request;
+pub mod update_chat_member;
+pub mod update_chosen_inline_result;
+pub mod update_deleted_business_messages;
+pub mod update_edited_business_message;
+pub mod update_edited_channel_post;
+pub mod update_edited_message;
+pub mod update_inline_query;
+pub mod update_message;
+pub mod update_message_reaction;
+pub mod update_message_reaction_count;
+pub mod update_my_chat_member;
+pub mod update_poll;
+pub mod update_poll_answer;
+pub mod update_pre_checkout_query;
+pub mod update_purchased_paid_media;
+pub mod update_removed_chat_boost;
+pub mod update_shipping_query;
+pub mod update_unparsed;
 pub mod user;
 pub mod user_chat_boosts;
+pub mod user_profile_audios;
 pub mod user_profile_photos;
+pub mod user_rating;
 pub mod users_shared;
 pub mod venue;
 pub mod video;
@@ -317,13 +453,12 @@ pub mod video_chat_participants_invited;
 pub mod video_chat_scheduled;
 pub mod video_chat_started;
 pub mod video_note;
+pub mod video_quality;
 pub mod voice;
 pub mod web_app_data;
 pub mod web_app_info;
-pub mod web_app_user;
 pub mod webhook_info;
 pub mod write_access_allowed;
-
 pub use accepted_gift_types::AcceptedGiftTypes;
 pub use affiliate_info::AffiliateInfo;
 pub use animation::Animation;
@@ -359,7 +494,7 @@ pub use business_opening_hours::BusinessOpeningHours;
 pub use business_opening_hours_interval::BusinessOpeningHoursInterval;
 pub use callback_game::CallbackGame;
 pub use callback_query::CallbackQuery;
-pub use chat::{Channel, Chat, Group, Private, Supergroup};
+pub use chat::Chat;
 pub use chat_administrator_rights::ChatAdministratorRights;
 pub use chat_background::ChatBackground;
 pub use chat_boost::ChatBoost;
@@ -370,10 +505,13 @@ pub use chat_boost_source_gift_code::ChatBoostSourceGiftCode;
 pub use chat_boost_source_giveaway::ChatBoostSourceGiveaway;
 pub use chat_boost_source_premium::ChatBoostSourcePremium;
 pub use chat_boost_updated::ChatBoostUpdated;
-pub use chat_full_info::{
-    ChannelFullInfo, ChatFullInfo, GroupFullInfo, PrivateFullInfo, SupergroupFullInfo,
-};
-pub use chat_id_kind::ChatIdKind;
+pub use chat_channel::ChatChannel;
+pub use chat_full_info::ChatFullInfo;
+pub use chat_full_info_channel::ChatFullInfoChannel;
+pub use chat_full_info_group::ChatFullInfoGroup;
+pub use chat_full_info_private::ChatFullInfoPrivate;
+pub use chat_full_info_supergroup::ChatFullInfoSupergroup;
+pub use chat_group::ChatGroup;
 pub use chat_invite_link::ChatInviteLink;
 pub use chat_join_request::ChatJoinRequest;
 pub use chat_location::ChatLocation;
@@ -385,9 +523,13 @@ pub use chat_member_member::ChatMemberMember;
 pub use chat_member_owner::ChatMemberOwner;
 pub use chat_member_restricted::ChatMemberRestricted;
 pub use chat_member_updated::ChatMemberUpdated;
+pub use chat_owner_changed::ChatOwnerChanged;
+pub use chat_owner_left::ChatOwnerLeft;
 pub use chat_permissions::ChatPermissions;
 pub use chat_photo::ChatPhoto;
+pub use chat_private::ChatPrivate;
 pub use chat_shared::ChatShared;
+pub use chat_supergroup::ChatSupergroup;
 pub use checklist::Checklist;
 pub use checklist_task::ChecklistTask;
 pub use checklist_tasks_added::ChecklistTasksAdded;
@@ -400,32 +542,40 @@ pub use direct_message_price_changed::DirectMessagePriceChanged;
 pub use direct_messages_topic::DirectMessagesTopic;
 pub use document::Document;
 pub use encrypted_credentials::EncryptedCredentials;
-pub use encrypted_passport_element::{
-    Address as EncryptedPassportElementAddress,
-    BankStatement as EncryptedPassportElementBankStatement,
-    DriverLicense as EncryptedPassportElementDriverLicense, Email as EncryptedPassportElementEmail,
-    EncryptedPassportElement, IdentityCard as EncryptedPassportElementIdentityCard,
-    InternalPassport as EncryptedPassportElementInternalPassport,
-    Passport as EncryptedPassportElementPassport,
-    PassportRegistration as EncryptedPassportElementPassportRegistration,
-    PersonalDetails as EncryptedPassportElementPersonalDetails,
-    PhoneNumber as EncryptedPassportElementPhoneNumber,
-    RentalAgreement as EncryptedPassportElementRentalAgreement,
-    TemporaryRegistration as EncryptedPassportElementTemporaryRegistration,
-    UtilityBill as EncryptedPassportElementUtilityBill,
-};
-pub use external_reply_info::{
-    Animation as ExternalReplyInfoAnimation, Audio as ExternalReplyInfoAudio,
-    Contact as ExternalReplyInfoContact, Dice as ExternalReplyInfoDice,
-    Document as ExternalReplyInfoDocument, ExternalReplyInfo, Game as ExternalReplyInfoGame,
-    Giveaway as ExternalReplyInfoGiveaway, GiveawayWinners as ExternalReplyInfoGiveawayWinners,
-    Invoice as ExternalReplyInfoInvoice, Location as ExternalReplyInfoLocation,
-    PaidMedia as ExternalReplyInfoPaidMedia, Photo as ExternalReplyInfoPhoto,
-    Poll as ExternalReplyInfoPoll, Sticker as ExternalReplyInfoSticker,
-    Story as ExternalReplyInfoStory, Venue as ExternalReplyInfoVenue,
-    Video as ExternalReplyInfoVideo, VideoNote as ExternalReplyInfoVideoNote,
-    Voice as ExternalReplyInfoVoice,
-};
+pub use encrypted_passport_element::EncryptedPassportElement;
+pub use encrypted_passport_element_address::EncryptedPassportElementAddress;
+pub use encrypted_passport_element_bank_statement::EncryptedPassportElementBankStatement;
+pub use encrypted_passport_element_driver_license::EncryptedPassportElementDriverLicense;
+pub use encrypted_passport_element_email::EncryptedPassportElementEmail;
+pub use encrypted_passport_element_identity_card::EncryptedPassportElementIdentityCard;
+pub use encrypted_passport_element_internal_passport::EncryptedPassportElementInternalPassport;
+pub use encrypted_passport_element_passport::EncryptedPassportElementPassport;
+pub use encrypted_passport_element_passport_registration::EncryptedPassportElementPassportRegistration;
+pub use encrypted_passport_element_personal_details::EncryptedPassportElementPersonalDetails;
+pub use encrypted_passport_element_phone_number::EncryptedPassportElementPhoneNumber;
+pub use encrypted_passport_element_rental_agreement::EncryptedPassportElementRentalAgreement;
+pub use encrypted_passport_element_temporary_registration::EncryptedPassportElementTemporaryRegistration;
+pub use encrypted_passport_element_utility_bill::EncryptedPassportElementUtilityBill;
+pub use external_reply_info::ExternalReplyInfo;
+pub use external_reply_info_animation::ExternalReplyInfoAnimation;
+pub use external_reply_info_audio::ExternalReplyInfoAudio;
+pub use external_reply_info_checklist::ExternalReplyInfoChecklist;
+pub use external_reply_info_contact::ExternalReplyInfoContact;
+pub use external_reply_info_dice::ExternalReplyInfoDice;
+pub use external_reply_info_document::ExternalReplyInfoDocument;
+pub use external_reply_info_game::ExternalReplyInfoGame;
+pub use external_reply_info_giveaway::ExternalReplyInfoGiveaway;
+pub use external_reply_info_giveaway_winners::ExternalReplyInfoGiveawayWinners;
+pub use external_reply_info_invoice::ExternalReplyInfoInvoice;
+pub use external_reply_info_location::ExternalReplyInfoLocation;
+pub use external_reply_info_photo::ExternalReplyInfoPhoto;
+pub use external_reply_info_poll::ExternalReplyInfoPoll;
+pub use external_reply_info_sticker::ExternalReplyInfoSticker;
+pub use external_reply_info_story::ExternalReplyInfoStory;
+pub use external_reply_info_venue::ExternalReplyInfoVenue;
+pub use external_reply_info_video::ExternalReplyInfoVideo;
+pub use external_reply_info_video_note::ExternalReplyInfoVideoNote;
+pub use external_reply_info_voice::ExternalReplyInfoVoice;
 pub use file::File;
 pub use force_reply::ForceReply;
 pub use forum_topic::ForumTopic;
@@ -438,12 +588,17 @@ pub use game_high_score::GameHighScore;
 pub use general_forum_topic_hidden::GeneralForumTopicHidden;
 pub use general_forum_topic_unhidden::GeneralForumTopicUnhidden;
 pub use gift::Gift;
+pub use gift_background::GiftBackground;
 pub use gift_info::GiftInfo;
 pub use gifts::Gifts;
 pub use giveaway::Giveaway;
 pub use giveaway_completed::GiveawayCompleted;
 pub use giveaway_created::GiveawayCreated;
+pub use giveaway_premium::GiveawayPremium;
+pub use giveaway_star::GiveawayStar;
 pub use giveaway_winners::GiveawayWinners;
+pub use giveaway_winners_premium::GiveawayWinnersPremium;
+pub use giveaway_winners_star::GiveawayWinnersStar;
 pub use inaccessible_message::InaccessibleMessage;
 pub use inline_keyboard_button::InlineKeyboardButton;
 pub use inline_keyboard_markup::InlineKeyboardMarkup;
@@ -451,6 +606,7 @@ pub use inline_query::InlineQuery;
 pub use inline_query_result::InlineQueryResult;
 pub use inline_query_result_article::InlineQueryResultArticle;
 pub use inline_query_result_audio::InlineQueryResultAudio;
+pub use inline_query_result_audio_kind::InlineQueryResultAudioKind;
 pub use inline_query_result_cached_audio::InlineQueryResultCachedAudio;
 pub use inline_query_result_cached_document::InlineQueryResultCachedDocument;
 pub use inline_query_result_cached_gif::InlineQueryResultCachedGif;
@@ -461,22 +617,22 @@ pub use inline_query_result_cached_video::InlineQueryResultCachedVideo;
 pub use inline_query_result_cached_voice::InlineQueryResultCachedVoice;
 pub use inline_query_result_contact::InlineQueryResultContact;
 pub use inline_query_result_document::InlineQueryResultDocument;
+pub use inline_query_result_document_kind::InlineQueryResultDocumentKind;
 pub use inline_query_result_game::InlineQueryResultGame;
 pub use inline_query_result_gif::InlineQueryResultGif;
+pub use inline_query_result_gif_kind::InlineQueryResultGifKind;
 pub use inline_query_result_location::InlineQueryResultLocation;
 pub use inline_query_result_mpeg4_gif::InlineQueryResultMpeg4Gif;
 pub use inline_query_result_photo::InlineQueryResultPhoto;
 pub use inline_query_result_venue::InlineQueryResultVenue;
 pub use inline_query_result_video::InlineQueryResultVideo;
+pub use inline_query_result_video_kind::InlineQueryResultVideoKind;
 pub use inline_query_result_voice::InlineQueryResultVoice;
+pub use inline_query_result_voice_kind::InlineQueryResultVoiceKind;
 pub use inline_query_results_button::InlineQueryResultsButton;
 pub use input_checklist::InputChecklist;
 pub use input_checklist_task::InputChecklistTask;
 pub use input_contact_message_content::InputContactMessageContent;
-pub use input_file::{
-    BufferedFile as InputBufferedFile, FSFile as InputFSFile, FileId as InputFileId, InputFile,
-    StreamFile as InputStreamFile, UrlFile as InputUrlFile,
-};
 pub use input_invoice_message_content::InputInvoiceMessageContent;
 pub use input_location_message_content::InputLocationMessageContent;
 pub use input_media::InputMedia;
@@ -515,50 +671,106 @@ pub use menu_button::MenuButton;
 pub use menu_button_commands::MenuButtonCommands;
 pub use menu_button_default::MenuButtonDefault;
 pub use menu_button_web_app::MenuButtonWebApp;
-pub use message::{
-    Animation as MessageAnimation, Audio as MessageAudio,
-    ChannelChatCreated as MessageChannelChatCreated, ChatShared as MessageChatShared,
-    ConnectedWebsite as MessageConnectedWebsite, Contact as MessageContact,
-    DeleteChatPhoto as MessageDeleteChatPhoto, Dice as MessageDice, Document as MessageDocument,
-    ForumTopicClosed as MessageForumTopicClosed, ForumTopicCreated as MessageForumTopicCreated,
-    ForumTopicEdited as MessageForumTopicEdited, ForumTopicReopened as MessageForumTopicReopened,
-    Game as MessageGame, GeneralForumTopicHidden as MessageGeneralForumTopicHidden,
-    GeneralForumTopicUnhidden as MessageGeneralForumTopicUnhidden, Giveaway as MessageGiveaway,
-    GiveawayCompleted as MessageGiveawayCompleted, GiveawayCreated as MessageGiveawayCreated,
-    GiveawayWinners as MessageGiveawayWinners, GroupChatCreated as MessageGroupChatCreated,
-    Invoice as MessageInvoice, LeftChatMember as MessageLeftChatMember,
-    Location as MessageLocation, Message,
-    MessageAutoDeleteTimerChanged as MessageMessageAutoDeleteTimerChanged,
-    MigrateFromChat as MessageMigrateFromChat, MigrateToChat as MessageMigrateToChat,
-    NewChatMembers as MessageNewChatMembers, NewChatPhoto as MessageNewChatPhoto,
-    NewChatTitle as MessageNewChatTitle, PaidMedia as MessagePaidMedia,
-    PassportData as MessagePassportData, Photo as MessagePhoto, Pinned as MessagePinned,
-    Poll as MessagePoll, ProximityAlertTriggered as MessageProximityAlertTriggered,
-    RefundedPayment as MessageRefundedPayment, Sticker as MessageSticker, Story as MessageStory,
-    SuccessfulPayment as MessageSuccessfulPayment,
-    SupergroupChatCreated as MessageSupergroupChatCreated, Text as MessageText,
-    UsersShared as MessageUsersShared, Venue as MessageVenue, Video as MessageVideo,
-    VideoChatEnded as MessageVideoChatEnded,
-    VideoChatParticipantsInvited as MessageVideoChatParticipantsInvited,
-    VideoChatScheduled as MessageVideoChatScheduled, VideoChatStarted as MessageVideoChatStarted,
-    VideoNote as MessageVideoNote, Voice as MessageVoice, WebAppData as MessageWebAppData,
-    WriteAccessAllowed as MessageWriteAccessAllowed,
-};
+pub use message::Message;
+pub use message_animation::MessageAnimation;
+pub use message_audio::MessageAudio;
 pub use message_auto_delete_timer_changed::MessageAutoDeleteTimerChanged;
-pub use message_entity::{
-    CustomEmoji as CustomEmojiMessageEntity, Kind as MessageEntityKind, MessageEntity,
-    Pre as PreMessageEntity, TextLink as TextLinkMessageEntity,
-    TextMention as TextMentionMessageEntity,
-};
+pub use message_boost_added::MessageBoostAdded;
+pub use message_channel_chat_created::MessageChannelChatCreated;
+pub use message_chat_background_set::MessageChatBackgroundSet;
+pub use message_chat_owner_changed::MessageChatOwnerChanged;
+pub use message_chat_owner_left::MessageChatOwnerLeft;
+pub use message_chat_shared::MessageChatShared;
+pub use message_checklist::MessageChecklist;
+pub use message_checklist_tasks_added::MessageChecklistTasksAdded;
+pub use message_checklist_tasks_done::MessageChecklistTasksDone;
+pub use message_connected_website::MessageConnectedWebsite;
+pub use message_contact::MessageContact;
+pub use message_delete_chat_photo::MessageDeleteChatPhoto;
+pub use message_dice::MessageDice;
+pub use message_direct_message_price_changed::MessageDirectMessagePriceChanged;
+pub use message_document::MessageDocument;
+pub use message_entity::MessageEntity;
+pub use message_entity_blockquote::MessageEntityBlockquote;
+pub use message_entity_bold::MessageEntityBold;
+pub use message_entity_bot_command::MessageEntityBotCommand;
+pub use message_entity_cashtag::MessageEntityCashtag;
+pub use message_entity_code::MessageEntityCode;
+pub use message_entity_custom_emoji::MessageEntityCustomEmoji;
+pub use message_entity_email::MessageEntityEmail;
+pub use message_entity_expandable_blockquote::MessageEntityExpandableBlockquote;
+pub use message_entity_hashtag::MessageEntityHashtag;
+pub use message_entity_italic::MessageEntityItalic;
+pub use message_entity_mention::MessageEntityMention;
+pub use message_entity_phone_number::MessageEntityPhoneNumber;
+pub use message_entity_pre::MessageEntityPre;
+pub use message_entity_spoiler::MessageEntitySpoiler;
+pub use message_entity_strikethrough::MessageEntityStrikethrough;
+pub use message_entity_text_link::MessageEntityTextLink;
+pub use message_entity_text_mention::MessageEntityTextMention;
+pub use message_entity_underline::MessageEntityUnderline;
+pub use message_entity_url::MessageEntityUrl;
+pub use message_forum_topic_closed::MessageForumTopicClosed;
+pub use message_forum_topic_created::MessageForumTopicCreated;
+pub use message_forum_topic_edited::MessageForumTopicEdited;
+pub use message_forum_topic_reopened::MessageForumTopicReopened;
+pub use message_game::MessageGame;
+pub use message_general_forum_topic_hidden::MessageGeneralForumTopicHidden;
+pub use message_general_forum_topic_unhidden::MessageGeneralForumTopicUnhidden;
+pub use message_gift::MessageGift;
+pub use message_gift_upgrade_sent::MessageGiftUpgradeSent;
+pub use message_giveaway::MessageGiveaway;
+pub use message_giveaway_completed::MessageGiveawayCompleted;
+pub use message_giveaway_created::MessageGiveawayCreated;
+pub use message_giveaway_winners::MessageGiveawayWinners;
+pub use message_group_chat_created::MessageGroupChatCreated;
 pub use message_id::MessageId;
-pub use message_or_true::MessageOrTrue;
+pub use message_invoice::MessageInvoice;
+pub use message_left_chat_member::MessageLeftChatMember;
+pub use message_location::MessageLocation;
+pub use message_message_auto_delete_timer_changed::MessageMessageAutoDeleteTimerChanged;
+pub use message_migrate_from_chat_id::MessageMigrateFromChatId;
+pub use message_migrate_to_chat_id::MessageMigrateToChatId;
+pub use message_new_chat_members::MessageNewChatMembers;
+pub use message_new_chat_photo::MessageNewChatPhoto;
+pub use message_new_chat_title::MessageNewChatTitle;
 pub use message_origin::MessageOrigin;
 pub use message_origin_channel::MessageOriginChannel;
 pub use message_origin_chat::MessageOriginChat;
 pub use message_origin_hidden_user::MessageOriginHiddenUser;
 pub use message_origin_user::MessageOriginUser;
+pub use message_paid_media::MessagePaidMedia;
+pub use message_paid_message_price_changed::MessagePaidMessagePriceChanged;
+pub use message_passport_data::MessagePassportData;
+pub use message_photo::MessagePhoto;
+pub use message_pinned_message::MessagePinnedMessage;
+pub use message_poll::MessagePoll;
+pub use message_proximity_alert_triggered::MessageProximityAlertTriggered;
 pub use message_reaction_count_updated::MessageReactionCountUpdated;
 pub use message_reaction_updated::MessageReactionUpdated;
+pub use message_refunded_payment::MessageRefundedPayment;
+pub use message_sticker::MessageSticker;
+pub use message_story::MessageStory;
+pub use message_successful_payment::MessageSuccessfulPayment;
+pub use message_suggested_post_approval_failed::MessageSuggestedPostApprovalFailed;
+pub use message_suggested_post_approved::MessageSuggestedPostApproved;
+pub use message_suggested_post_declined::MessageSuggestedPostDeclined;
+pub use message_suggested_post_paid::MessageSuggestedPostPaid;
+pub use message_suggested_post_refunded::MessageSuggestedPostRefunded;
+pub use message_supergroup_chat_created::MessageSupergroupChatCreated;
+pub use message_text::MessageText;
+pub use message_unique_gift::MessageUniqueGift;
+pub use message_users_shared::MessageUsersShared;
+pub use message_venue::MessageVenue;
+pub use message_video::MessageVideo;
+pub use message_video_chat_ended::MessageVideoChatEnded;
+pub use message_video_chat_participants_invited::MessageVideoChatParticipantsInvited;
+pub use message_video_chat_scheduled::MessageVideoChatScheduled;
+pub use message_video_chat_started::MessageVideoChatStarted;
+pub use message_video_note::MessageVideoNote;
+pub use message_voice::MessageVoice;
+pub use message_web_app_data::MessageWebAppData;
+pub use message_write_access_allowed::MessageWriteAccessAllowed;
 pub use order_info::OrderInfo;
 pub use owned_gift::OwnedGift;
 pub use owned_gift_regular::OwnedGiftRegular;
@@ -573,36 +785,22 @@ pub use paid_media_video::PaidMediaVideo;
 pub use paid_message_price_changed::PaidMessagePriceChanged;
 pub use passport_data::PassportData;
 pub use passport_element_error::PassportElementError;
-pub use passport_element_error_data_field::{
-    ElementType as PassportElementErrorDataFieldType, PassportElementErrorDataField,
-};
-pub use passport_element_error_file::{
-    ElementType as PassportElementErrorFileType, PassportElementErrorFile,
-};
-pub use passport_element_error_files::{
-    ElementType as PassportElementErrorFilesType, PassportElementErrorFiles,
-};
-pub use passport_element_error_front_side::{
-    ElementType as PassportElementErrorFrontSideType, PassportElementErrorFrontSide,
-};
-pub use passport_element_error_reverse_side::{
-    ElementType as PassportElementErrorReverseSideType, PassportElementErrorReverseSide,
-};
-pub use passport_element_error_selfie::{
-    ElementType as PassportElementErrorSelfieType, PassportElementErrorSelfie,
-};
-pub use passport_element_error_translation_file::{
-    ElementType as PassportElementErrorTranslationFileType, PassportElementErrorTranslationFile,
-};
-pub use passport_element_error_translation_files::{
-    ElementType as PassportElementErrorTranslationFilesType, PassportElementErrorTranslationFiles,
-};
+pub use passport_element_error_data_field::PassportElementErrorDataField;
+pub use passport_element_error_file::PassportElementErrorFile;
+pub use passport_element_error_files::PassportElementErrorFiles;
+pub use passport_element_error_front_side::PassportElementErrorFrontSide;
+pub use passport_element_error_reverse_side::PassportElementErrorReverseSide;
+pub use passport_element_error_selfie::PassportElementErrorSelfie;
+pub use passport_element_error_translation_file::PassportElementErrorTranslationFile;
+pub use passport_element_error_translation_files::PassportElementErrorTranslationFiles;
 pub use passport_element_error_unspecified::PassportElementErrorUnspecified;
 pub use passport_file::PassportFile;
 pub use photo_size::PhotoSize;
-pub use poll::{Poll, Quiz as PollQuiz, Regular as PollRegular};
+pub use poll::Poll;
 pub use poll_answer::PollAnswer;
 pub use poll_option::PollOption;
+pub use poll_quiz::PollQuiz;
+pub use poll_regular::PollRegular;
 pub use pre_checkout_query::PreCheckoutQuery;
 pub use prepared_inline_message::PreparedInlineMessage;
 pub use proximity_alert_triggered::ProximityAlertTriggered;
@@ -627,11 +825,14 @@ pub use shipping_address::ShippingAddress;
 pub use shipping_option::ShippingOption;
 pub use shipping_query::ShippingQuery;
 pub use star_amount::StarAmount;
-pub use star_transaction::{
-    Receiver as StarTransactionReceiver, Source as StarTransactionSource, StarTransaction,
-};
+pub use star_transaction::StarTransaction;
+pub use star_transaction_incoming::StarTransactionIncoming;
+pub use star_transaction_outgoing::StarTransactionOutgoing;
 pub use star_transactions::StarTransactions;
 pub use sticker::Sticker;
+pub use sticker_custom_emoji::StickerCustomEmoji;
+pub use sticker_mask::StickerMask;
+pub use sticker_regular::StickerRegular;
 pub use sticker_set::StickerSet;
 pub use story::Story;
 pub use story_area::StoryArea;
@@ -661,16 +862,48 @@ pub use transaction_partner_other::TransactionPartnerOther;
 pub use transaction_partner_telegram_ads::TransactionPartnerTelegramAds;
 pub use transaction_partner_telegram_api::TransactionPartnerTelegramApi;
 pub use transaction_partner_user::TransactionPartnerUser;
+pub use transaction_partner_user_business_account_transfer::TransactionPartnerUserBusinessAccountTransfer;
+pub use transaction_partner_user_gift_purchase::TransactionPartnerUserGiftPurchase;
+pub use transaction_partner_user_invoice_payment::TransactionPartnerUserInvoicePayment;
+pub use transaction_partner_user_paid_media_payment::TransactionPartnerUserPaidMediaPayment;
+pub use transaction_partner_user_premium_purchase::TransactionPartnerUserPremiumPurchase;
 pub use unique_gift::UniqueGift;
 pub use unique_gift_backdrop::UniqueGiftBackdrop;
 pub use unique_gift_backdrop_colors::UniqueGiftBackdropColors;
+pub use unique_gift_colors::UniqueGiftColors;
 pub use unique_gift_info::UniqueGiftInfo;
 pub use unique_gift_model::UniqueGiftModel;
 pub use unique_gift_symbol::UniqueGiftSymbol;
-pub use update::{Kind as UpdateKind, Update};
+pub use update::Update;
+pub use update_business_connection::UpdateBusinessConnection;
+pub use update_business_message::UpdateBusinessMessage;
+pub use update_callback_query::UpdateCallbackQuery;
+pub use update_channel_post::UpdateChannelPost;
+pub use update_chat_boost::UpdateChatBoost;
+pub use update_chat_join_request::UpdateChatJoinRequest;
+pub use update_chat_member::UpdateChatMember;
+pub use update_chosen_inline_result::UpdateChosenInlineResult;
+pub use update_deleted_business_messages::UpdateDeletedBusinessMessages;
+pub use update_edited_business_message::UpdateEditedBusinessMessage;
+pub use update_edited_channel_post::UpdateEditedChannelPost;
+pub use update_edited_message::UpdateEditedMessage;
+pub use update_inline_query::UpdateInlineQuery;
+pub use update_message::UpdateMessage;
+pub use update_message_reaction::UpdateMessageReaction;
+pub use update_message_reaction_count::UpdateMessageReactionCount;
+pub use update_my_chat_member::UpdateMyChatMember;
+pub use update_poll::UpdatePoll;
+pub use update_poll_answer::UpdatePollAnswer;
+pub use update_pre_checkout_query::UpdatePreCheckoutQuery;
+pub use update_purchased_paid_media::UpdatePurchasedPaidMedia;
+pub use update_removed_chat_boost::UpdateRemovedChatBoost;
+pub use update_shipping_query::UpdateShippingQuery;
+pub use update_unparsed::UpdateUnparsed;
 pub use user::User;
 pub use user_chat_boosts::UserChatBoosts;
+pub use user_profile_audios::UserProfileAudios;
 pub use user_profile_photos::UserProfilePhotos;
+pub use user_rating::UserRating;
 pub use users_shared::UsersShared;
 pub use venue::Venue;
 pub use video::Video;
@@ -679,11 +912,9 @@ pub use video_chat_participants_invited::VideoChatParticipantsInvited;
 pub use video_chat_scheduled::VideoChatScheduled;
 pub use video_chat_started::VideoChatStarted;
 pub use video_note::VideoNote;
+pub use video_quality::VideoQuality;
 pub use voice::Voice;
 pub use web_app_data::WebAppData;
 pub use web_app_info::WebAppInfo;
-pub use web_app_user::WebAppUser;
 pub use webhook_info::WebhookInfo;
 pub use write_access_allowed::WriteAccessAllowed;
-
-pub(crate) use update::UpdateUnparsed;

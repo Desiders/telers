@@ -1,38 +1,101 @@
-use super::{Location, Update, UpdateKind, User};
-
-use crate::{errors::ConvertToTypeError, FromEvent};
-
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-
-/// Represents a [`result`](https://core.telegram.org/bots/api#inlinequeryresult) of an inline query that was chosen by the user and sent to their chat partner.
-/// # Notes
-/// It is necessary to enable [`inline feedback`](https://core.telegram.org/bots/inline#collecting-feedback) via [``@BotFather``](https://t.me/botfather) in order to receive these objects in updates.
+/// Represents a result of an inline query that was chosen by the user and sent to their chat partner.
+/// Note: It is necessary to enable inline feedback via @[`BotFather`] in order to receive these objects in updates.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#choseninlineresult>
-#[skip_serializing_none]
-#[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
-#[event(try_from = Update)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ChosenInlineResult {
     /// The unique identifier for the result that was chosen
     pub result_id: Box<str>,
     /// The user that chose the result
-    pub from: User,
+    pub from: Box<crate::types::User>,
     /// Sender location, only for bots that require user location
-    pub location: Option<Location>,
-    /// Identifier of the sent inline message. Available only if there is an [`inline keyboard`](https://core.telegram.org/bots/api#inlinekeyboardmarkup) attached to the message. Will be also received in [`callback queries`](https://core.telegram.org/bots/api#callbackquery) and can be used to [`edit`](https://core.telegram.org/bots/api#updating-messages) the message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub location: Option<crate::types::Location>,
+    /// Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. Will be also received in callback queries and can be used to edit the message.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub inline_message_id: Option<Box<str>>,
     /// The query that was used to obtain the result
     pub query: Box<str>,
 }
-
-impl TryFrom<Update> for ChosenInlineResult {
-    type Error = ConvertToTypeError;
-
-    fn try_from(update: Update) -> Result<Self, Self::Error> {
-        match update.kind {
-            UpdateKind::ChosenInlineResult(val) => Ok(val),
-            _ => Err(ConvertToTypeError::new("Update", "ChosenInlineResult")),
+impl ChosenInlineResult {
+    /// Creates a new `ChosenInlineResult`.
+    ///
+    /// # Arguments
+    /// * `result_id` - The unique identifier for the result that was chosen
+    /// * `from` - The user that chose the result
+    /// * `query` - The query that was used to obtain the result
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
+    #[must_use]
+    pub fn new<T0: Into<Box<str>>, T1: Into<crate::types::User>, T2: Into<Box<str>>>(
+        result_id: T0,
+        from: T1,
+        query: T2,
+    ) -> Self {
+        Self {
+            result_id: result_id.into(),
+            from: Box::new(from.into()),
+            location: None,
+            inline_message_id: None,
+            query: query.into(),
         }
+    }
+
+    /// The unique identifier for the result that was chosen
+    #[must_use]
+    pub fn result_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.result_id = val.into();
+        this
+    }
+
+    /// The user that chose the result
+    #[must_use]
+    pub fn from<T: Into<crate::types::User>>(self, val: T) -> Self {
+        let mut this = self;
+        this.from = Box::new(val.into());
+        this
+    }
+
+    /// Sender location, only for bots that require user location
+    #[must_use]
+    pub fn location<T: Into<crate::types::Location>>(self, val: T) -> Self {
+        let mut this = self;
+        this.location = Some(val.into());
+        this
+    }
+
+    /// Sender location, only for bots that require user location
+    #[must_use]
+    pub fn location_option<T: Into<crate::types::Location>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.location = val.map(Into::into);
+        this
+    }
+
+    /// Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. Will be also received in callback queries and can be used to edit the message.
+    #[must_use]
+    pub fn inline_message_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.inline_message_id = Some(val.into());
+        this
+    }
+
+    /// Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. Will be also received in callback queries and can be used to edit the message.
+    #[must_use]
+    pub fn inline_message_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.inline_message_id = val.map(Into::into);
+        this
+    }
+
+    /// The query that was used to obtain the result
+    #[must_use]
+    pub fn query<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.query = val.into();
+        this
     }
 }

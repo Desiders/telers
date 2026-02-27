@@ -1,54 +1,57 @@
-use serde::Serialize;
-
+use serde::{Deserialize, Serialize};
 /// Represents an issue in an unspecified place. The error is considered resolved when new data is added.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerrorunspecified>
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PassportElementErrorUnspecified {
     /// Type of element of the user's Telegram Passport which has the issue
-    #[serde(rename = "type")]
-    pub element_type: String,
+    pub r#type: Box<str>,
     /// Base64-encoded element hash
-    pub element_hash: String,
+    pub element_hash: Box<str>,
     /// Error message
-    pub message: String,
+    pub message: Box<str>,
 }
-
 impl PassportElementErrorUnspecified {
+    /// Creates a new `PassportElementErrorUnspecified`.
+    ///
+    /// # Arguments
+    /// * `type` - Type of element of the user's Telegram Passport which has the issue
+    /// * `element_hash` - Base64-encoded element hash
+    /// * `message` - Error message
     #[must_use]
-    pub fn new(
-        element_type: impl Into<String>,
-        element_hash: impl Into<String>,
-        message: impl Into<String>,
+    pub fn new<T0: Into<Box<str>>, T1: Into<Box<str>>, T2: Into<Box<str>>>(
+        r#type: T0,
+        element_hash: T1,
+        message: T2,
     ) -> Self {
         Self {
-            element_type: element_type.into(),
+            r#type: r#type.into(),
             element_hash: element_hash.into(),
             message: message.into(),
         }
     }
 
+    /// Type of element of the user's Telegram Passport which has the issue
     #[must_use]
-    pub fn element_type(self, val: impl Into<String>) -> Self {
-        Self {
-            element_type: val.into(),
-            ..self
-        }
+    pub fn r#type<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.r#type = val.into();
+        this
     }
 
+    /// Base64-encoded element hash
     #[must_use]
-    pub fn element_hash(self, val: impl Into<String>) -> Self {
-        Self {
-            element_hash: val.into(),
-            ..self
-        }
+    pub fn element_hash<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.element_hash = val.into();
+        this
     }
 
+    /// Error message
     #[must_use]
-    pub fn message(self, val: impl Into<String>) -> Self {
-        Self {
-            message: val.into(),
-            ..self
-        }
+    pub fn message<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.message = val.into();
+        this
     }
 }

@@ -1,108 +1,118 @@
-use crate::types::MessageEntity;
-
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-
 /// Describes a task to add to a checklist.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputchecklisttask>
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct InputChecklistTask {
     /// Unique identifier of the task; must be positive and unique among all task identifiers currently present in the checklist
     pub id: i64,
     /// Text of the task; 1-100 characters after entities parsing
-    pub text: String,
-    /// Mode for parsing entities in the text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.
-    pub parse_mode: Option<String>,
-    /// List of special entities that appear in the text, which can be specified instead of `parse_mode`. Currently, only `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, and `custom_emoji` entities are allowed.
-    pub text_entities: Option<Vec<MessageEntity>>,
+    pub text: Box<str>,
+    /// Mode for parsing entities in the text. See formatting options for more details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parse_mode: Option<Box<str>>,
+    /// List of special entities that appear in the text, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities are allowed.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text_entities: Option<Box<[crate::types::MessageEntity]>>,
 }
-
 impl InputChecklistTask {
+    /// Creates a new `InputChecklistTask`.
+    ///
+    /// # Arguments
+    /// * `id` - Unique identifier of the task; must be positive and unique among all task identifiers currently present in the checklist
+    /// * `text` - Text of the task; 1-100 characters after entities parsing
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(id: i64, text: impl Into<String>) -> Self {
+    pub fn new<T0: Into<i64>, T1: Into<Box<str>>>(id: T0, text: T1) -> Self {
         Self {
-            id,
+            id: id.into(),
             text: text.into(),
             parse_mode: None,
             text_entities: None,
         }
     }
 
+    /// Unique identifier of the task; must be positive and unique among all task identifiers currently present in the checklist
     #[must_use]
-    pub fn id(self, val: i64) -> Self {
-        Self { id: val, ..self }
+    pub fn id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.id = val.into();
+        this
     }
 
+    /// Text of the task; 1-100 characters after entities parsing
     #[must_use]
-    pub fn text(self, val: impl Into<String>) -> Self {
-        Self {
-            text: val.into(),
-            ..self
-        }
+    pub fn text<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.text = val.into();
+        this
     }
 
+    /// Mode for parsing entities in the text. See formatting options for more details.
     #[must_use]
-    pub fn parse_mode(self, val: impl Into<String>) -> Self {
-        Self {
-            parse_mode: Some(val.into()),
-            ..self
-        }
+    pub fn parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.parse_mode = Some(val.into());
+        this
     }
 
+    /// Mode for parsing entities in the text. See formatting options for more details.
     #[must_use]
-    pub fn text_entity(self, val: MessageEntity) -> Self {
-        Self {
-            text_entities: Some(
-                self.text_entities
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(Some(val))
-                    .collect(),
-            ),
-            ..self
-        }
+    pub fn parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.parse_mode = val.map(Into::into);
+        this
     }
 
+    /// List of special entities that appear in the text, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities are allowed.
+    ///
+    /// # Notes
+    /// Adds multiple elements.
     #[must_use]
-    pub fn text_entities(self, val: impl IntoIterator<Item = MessageEntity>) -> Self {
-        Self {
-            text_entities: Some(
-                self.text_entities
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(val)
-                    .collect(),
-            ),
-            ..self
-        }
-    }
-}
-
-impl InputChecklistTask {
-    #[must_use]
-    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            parse_mode: val.map(Into::into),
-            ..self
-        }
+    pub fn text_entities<T: Into<Box<[crate::types::MessageEntity]>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.text_entities = Some(
+            this.text_entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into())
+                .collect(),
+        );
+        this
     }
 
+    /// List of special entities that appear in the text, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities are allowed.
+    ///
+    /// # Notes
+    /// Adds a single element.
     #[must_use]
-    pub fn text_entities_option(
+    pub fn text_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
+        let mut this = self;
+        this.text_entities = Some(
+            this.text_entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        this
+    }
+
+    /// List of special entities that appear in the text, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities are allowed.
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn text_entities_option<T: Into<Box<[crate::types::MessageEntity]>>>(
         self,
-        val: Option<impl IntoIterator<Item = MessageEntity>>,
+        val: Option<T>,
     ) -> Self {
-        Self {
-            text_entities: val.map(|val| {
-                self.text_entities
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(val)
-                    .collect()
-            }),
-            ..self
-        }
+        let mut this = self;
+        this.text_entities = val.map(Into::into);
+        this
     }
 }

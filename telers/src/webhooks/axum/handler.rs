@@ -116,11 +116,14 @@ where
             };
             let update = match serde_json::from_str::<Either<Update, UpdateUnparsed>>(&update_raw) {
                 Ok(Left(update)) => update,
-                Ok(Right(UpdateUnparsed { update_id, _extra })) => {
+                Ok(Right(UpdateUnparsed {
+                    update_id,
+                    extra,
+                })) => {
                     event!(
                         Level::ERROR,
                         update_id,
-                        extra = ?_extra,
+                        ?extra,
                         "Failed to parse update kind",
                     );
                     return StatusCode::OK.into_response();

@@ -9,8 +9,9 @@ use std::collections::HashMap;
 #[derive(FromContext)]
 #[context(
     key = "fsm_context",
-    description = "Context is used to manage state and data of the user in specified storage. This context is \
-                   available only if `FSMContext` middleware is used and `user_id` in context is not empty."
+    description = "Context is used to manage state and data of the user in specified storage. \
+                   This context is available only if `FSMContext` middleware is used and \
+                   `user_id` in context is not empty."
 )]
 pub struct Context<S> {
     storage: S,
@@ -19,7 +20,10 @@ pub struct Context<S> {
 
 impl<S> Context<S> {
     pub fn new(storage: S, key: StorageKey) -> Self {
-        Self { storage, key }
+        Self {
+            storage,
+            key,
+        }
     }
 }
 

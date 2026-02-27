@@ -1,11 +1,4 @@
-use super::{
-    BotCommandScopeAllChatAdministrators, BotCommandScopeAllGroupChats,
-    BotCommandScopeAllPrivateChats, BotCommandScopeChat, BotCommandScopeChatAdministrators,
-    BotCommandScopeChatMember, BotCommandScopeDefault, ChatIdKind,
-};
-
 use serde::{Deserialize, Serialize};
-
 /// This object represents the scope to which bot commands are applied. Currently, the following 7 scopes are supported:
 /// - [`BotCommandScopeDefault`]
 /// - [`BotCommandScopeAllPrivateChats`]
@@ -16,99 +9,176 @@ use serde::{Deserialize, Serialize};
 /// - [`BotCommandScopeChatMember`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscope>
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum BotCommandScope {
-    Default(BotCommandScopeDefault),
-    AllPrivateChats(BotCommandScopeAllPrivateChats),
-    AllGroupChats(BotCommandScopeAllGroupChats),
-    AllChatAdministrators(BotCommandScopeAllChatAdministrators),
-    Chat(BotCommandScopeChat),
-    ChatAdministrators(BotCommandScopeChatAdministrators),
-    ChatMember(BotCommandScopeChatMember),
+    Default(crate::types::BotCommandScopeDefault),
+    AllPrivateChats(crate::types::BotCommandScopeAllPrivateChats),
+    AllGroupChats(crate::types::BotCommandScopeAllGroupChats),
+    AllChatAdministrators(crate::types::BotCommandScopeAllChatAdministrators),
+    Chat(crate::types::BotCommandScopeChat),
+    ChatAdministrators(crate::types::BotCommandScopeChatAdministrators),
+    ChatMember(crate::types::BotCommandScopeChatMember),
 }
-
 impl BotCommandScope {
+    /// Helper method for field `chat_id`.
+    ///
+    /// # Variants
+    /// - `BotCommandScopeChat`. Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.
+    /// - `BotCommandScopeChatAdministrators`. Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.
+    /// - `BotCommandScopeChatMember`. Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.
     #[must_use]
-    pub const fn default() -> Self {
-        Self::Default(BotCommandScopeDefault::new())
+    pub fn chat_id(&self) -> Option<&crate::types::ChatIdKind> {
+        match self {
+            Self::Chat(val) => Some(&val.chat_id),
+            Self::ChatAdministrators(val) => Some(&val.chat_id),
+            Self::ChatMember(val) => Some(&val.chat_id),
+            _ => None,
+        }
     }
 
+    /// Helper method for field `user_id`.
+    ///
+    /// # Variants
+    /// - `BotCommandScopeChatMember`. Unique identifier of the target user
     #[must_use]
-    pub const fn all_private_chats() -> Self {
-        Self::AllPrivateChats(BotCommandScopeAllPrivateChats::new())
-    }
-
-    #[must_use]
-    pub const fn all_group_chats() -> Self {
-        Self::AllGroupChats(BotCommandScopeAllGroupChats::new())
-    }
-
-    #[must_use]
-    pub const fn all_chat_administrators() -> Self {
-        Self::AllChatAdministrators(BotCommandScopeAllChatAdministrators::new())
-    }
-
-    #[must_use]
-    pub fn chat(chat_id: impl Into<ChatIdKind>) -> Self {
-        Self::Chat(BotCommandScopeChat::new(chat_id))
-    }
-
-    #[must_use]
-    pub fn chat_administrators(chat_id: impl Into<ChatIdKind>) -> Self {
-        Self::ChatAdministrators(BotCommandScopeChatAdministrators::new(chat_id))
-    }
-
-    #[must_use]
-    pub fn chat_member(chat_id: impl Into<ChatIdKind>, user_id: i64) -> Self {
-        Self::ChatMember(BotCommandScopeChatMember::new(chat_id, user_id))
+    pub fn user_id(&self) -> Option<i64> {
+        match self {
+            Self::ChatMember(val) => Some(val.user_id),
+            _ => None,
+        }
     }
 }
-
-impl Default for BotCommandScope {
-    fn default() -> Self {
-        Self::default()
+impl From<crate::types::BotCommandScopeDefault> for BotCommandScope {
+    fn from(val: crate::types::BotCommandScopeDefault) -> Self {
+        Self::Default(val)
     }
 }
+impl TryFrom<BotCommandScope> for crate::types::BotCommandScopeDefault {
+    type Error = crate::errors::ConvertToTypeError;
 
-impl From<BotCommandScopeDefault> for BotCommandScope {
-    fn from(scope: BotCommandScopeDefault) -> Self {
-        BotCommandScope::Default(scope)
+    fn try_from(val: BotCommandScope) -> Result<Self, Self::Error> {
+        if let BotCommandScope::Default(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(BotCommandScope),
+                stringify!(BotCommandScopeDefault),
+            ))
+        }
     }
 }
-
-impl From<BotCommandScopeAllPrivateChats> for BotCommandScope {
-    fn from(scope: BotCommandScopeAllPrivateChats) -> Self {
-        BotCommandScope::AllPrivateChats(scope)
+impl From<crate::types::BotCommandScopeAllPrivateChats> for BotCommandScope {
+    fn from(val: crate::types::BotCommandScopeAllPrivateChats) -> Self {
+        Self::AllPrivateChats(val)
     }
 }
+impl TryFrom<BotCommandScope> for crate::types::BotCommandScopeAllPrivateChats {
+    type Error = crate::errors::ConvertToTypeError;
 
-impl From<BotCommandScopeAllGroupChats> for BotCommandScope {
-    fn from(scope: BotCommandScopeAllGroupChats) -> Self {
-        BotCommandScope::AllGroupChats(scope)
+    fn try_from(val: BotCommandScope) -> Result<Self, Self::Error> {
+        if let BotCommandScope::AllPrivateChats(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(BotCommandScope),
+                stringify!(BotCommandScopeAllPrivateChats),
+            ))
+        }
     }
 }
-
-impl From<BotCommandScopeAllChatAdministrators> for BotCommandScope {
-    fn from(scope: BotCommandScopeAllChatAdministrators) -> Self {
-        BotCommandScope::AllChatAdministrators(scope)
+impl From<crate::types::BotCommandScopeAllGroupChats> for BotCommandScope {
+    fn from(val: crate::types::BotCommandScopeAllGroupChats) -> Self {
+        Self::AllGroupChats(val)
     }
 }
+impl TryFrom<BotCommandScope> for crate::types::BotCommandScopeAllGroupChats {
+    type Error = crate::errors::ConvertToTypeError;
 
-impl From<BotCommandScopeChat> for BotCommandScope {
-    fn from(scope: BotCommandScopeChat) -> Self {
-        BotCommandScope::Chat(scope)
+    fn try_from(val: BotCommandScope) -> Result<Self, Self::Error> {
+        if let BotCommandScope::AllGroupChats(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(BotCommandScope),
+                stringify!(BotCommandScopeAllGroupChats),
+            ))
+        }
     }
 }
-
-impl From<BotCommandScopeChatAdministrators> for BotCommandScope {
-    fn from(scope: BotCommandScopeChatAdministrators) -> Self {
-        BotCommandScope::ChatAdministrators(scope)
+impl From<crate::types::BotCommandScopeAllChatAdministrators> for BotCommandScope {
+    fn from(val: crate::types::BotCommandScopeAllChatAdministrators) -> Self {
+        Self::AllChatAdministrators(val)
     }
 }
+impl TryFrom<BotCommandScope> for crate::types::BotCommandScopeAllChatAdministrators {
+    type Error = crate::errors::ConvertToTypeError;
 
-impl From<BotCommandScopeChatMember> for BotCommandScope {
-    fn from(scope: BotCommandScopeChatMember) -> Self {
-        BotCommandScope::ChatMember(scope)
+    fn try_from(val: BotCommandScope) -> Result<Self, Self::Error> {
+        if let BotCommandScope::AllChatAdministrators(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(BotCommandScope),
+                stringify!(BotCommandScopeAllChatAdministrators),
+            ))
+        }
+    }
+}
+impl From<crate::types::BotCommandScopeChat> for BotCommandScope {
+    fn from(val: crate::types::BotCommandScopeChat) -> Self {
+        Self::Chat(val)
+    }
+}
+impl TryFrom<BotCommandScope> for crate::types::BotCommandScopeChat {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: BotCommandScope) -> Result<Self, Self::Error> {
+        if let BotCommandScope::Chat(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(BotCommandScope),
+                stringify!(BotCommandScopeChat),
+            ))
+        }
+    }
+}
+impl From<crate::types::BotCommandScopeChatAdministrators> for BotCommandScope {
+    fn from(val: crate::types::BotCommandScopeChatAdministrators) -> Self {
+        Self::ChatAdministrators(val)
+    }
+}
+impl TryFrom<BotCommandScope> for crate::types::BotCommandScopeChatAdministrators {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: BotCommandScope) -> Result<Self, Self::Error> {
+        if let BotCommandScope::ChatAdministrators(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(BotCommandScope),
+                stringify!(BotCommandScopeChatAdministrators),
+            ))
+        }
+    }
+}
+impl From<crate::types::BotCommandScopeChatMember> for BotCommandScope {
+    fn from(val: crate::types::BotCommandScopeChatMember) -> Self {
+        Self::ChatMember(val)
+    }
+}
+impl TryFrom<BotCommandScope> for crate::types::BotCommandScopeChatMember {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: BotCommandScope) -> Result<Self, Self::Error> {
+        if let BotCommandScope::ChatMember(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(BotCommandScope),
+                stringify!(BotCommandScopeChatMember),
+            ))
+        }
     }
 }

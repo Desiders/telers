@@ -207,7 +207,9 @@ pub struct FileId {
 impl FileId {
     #[must_use]
     pub fn new(id: impl Into<String>) -> Self {
-        Self { id: id.into() }
+        Self {
+            id: id.into(),
+        }
     }
 
     #[must_use]
@@ -232,7 +234,7 @@ impl Default for FileId {
     fn default() -> Self {
         warn!("Empty file id used as default. Don't forget to change it.");
 
-        Self::new("".to_owned())
+        Self::new(String::new())
     }
 }
 
@@ -244,7 +246,9 @@ pub struct UrlFile {
 impl UrlFile {
     #[must_use]
     pub fn new(url: impl Into<String>) -> Self {
-        Self { url: url.into() }
+        Self {
+            url: url.into(),
+        }
     }
 
     #[must_use]
@@ -441,6 +445,7 @@ impl Debug for BufferedFile {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         f.debug_struct("BufferedFile")
             .field("id", &self.id)
+            .field("bytes", &self.bytes.len())
             .field("file_name", &self.file_name)
             .field("str_to_file", &self.str_to_file)
             .finish()
@@ -525,6 +530,7 @@ impl Debug for StreamFile {
         f.debug_struct("StreamFile")
             .field("id", &self.id)
             .field("file_name", &self.file_name)
+            .field("stream", &self.stream.as_ref().map(|_| "<stream>"))
             .field("str_to_file", &self.str_to_file)
             .finish()
     }
@@ -532,7 +538,10 @@ impl Debug for StreamFile {
 
 impl Clone for StreamFile {
     fn clone(&self) -> Self {
-        warn!("Cloning stream file. Stream can't be cloned, so `None` used. Don't forget to change it.");
+        warn!(
+            "Cloning stream file. Stream can't be cloned, so `None` used. Don't forget to change \
+             it."
+        );
 
         Self {
             id: self.id,

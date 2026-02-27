@@ -89,7 +89,7 @@ mod tests {
         let request = Request::<Reqwest> {
             update: Arc::new(Update::Message(UpdateMessage::new(
                 0,
-                MessageText::new(0, 0, ChatPrivate::new(0, "", ""), ""),
+                MessageText::new(0, 0, ChatPrivate::new(0), ""),
             ))),
             bot: Bot::default(),
             context: Context::default(),

@@ -1,76 +1,74 @@
-use super::base::{Request, TelegramMethod};
-
 use crate::client::Bot;
-
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Use this method to change the bot's name.
+/// Use this method to change the bot's name. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setmyname>
 /// # Returns
-/// On success, `true` is returned
-#[skip_serializing_none]
-#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct SetMyName {
     /// New bot name; 0-64 characters. Pass an empty string to remove the dedicated name for the given language.
-    pub name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<Box<str>>,
     /// A two-letter ISO 639-1 language code. If empty, the name will be shown to all users for whose language there is no dedicated name.
-    pub language_code: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub language_code: Option<Box<str>>,
 }
-
 impl SetMyName {
+    /// Creates a new `SetMyName`.
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
     pub fn new() -> Self {
-        Self::default()
-    }
-
-    #[must_use]
-    pub fn name(self, val: impl Into<String>) -> Self {
         Self {
-            name: Some(val.into()),
-            ..self
+            name: None,
+            language_code: None,
         }
     }
 
+    /// New bot name; 0-64 characters. Pass an empty string to remove the dedicated name for the given language.
     #[must_use]
-    pub fn language_code(self, val: impl Into<String>) -> Self {
-        Self {
-            language_code: Some(val.into()),
-            ..self
-        }
+    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.name = Some(val.into());
+        this
+    }
+
+    /// New bot name; 0-64 characters. Pass an empty string to remove the dedicated name for the given language.
+    #[must_use]
+    pub fn name_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.name = val.map(Into::into);
+        this
+    }
+
+    /// A two-letter ISO 639-1 language code. If empty, the name will be shown to all users for whose language there is no dedicated name.
+    #[must_use]
+    pub fn language_code<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.language_code = Some(val.into());
+        this
+    }
+
+    /// A two-letter ISO 639-1 language code. If empty, the name will be shown to all users for whose language there is no dedicated name.
+    #[must_use]
+    pub fn language_code_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.language_code = val.map(Into::into);
+        this
     }
 }
-
-impl SetMyName {
-    #[must_use]
-    pub fn name_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            name: val.map(Into::into),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn language_code_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            language_code: val.map(Into::into),
-            ..self
-        }
+impl Default for SetMyName {
+    fn default() -> Self {
+        Self::new()
     }
 }
-
-impl TelegramMethod for SetMyName {
+impl super::TelegramMethod for SetMyName {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        Request::new("setMyName", self, None)
-    }
-}
-
-impl AsRef<SetMyName> for SetMyName {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("setMyName", self, None)
     }
 }

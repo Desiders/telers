@@ -1,52 +1,52 @@
-use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-use crate::types::InputFile;
-
+use serde::{Deserialize, Serialize};
 /// An animated profile photo in the MPEG4 format.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputprofilephotoanimated>
-#[skip_serializing_none]
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct InputProfilePhotoAnimated {
-    /// The animated profile photo. Profile photos can't bereused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the photo was uploaded using `multipart/form-data` under `<file_attach_name>`. [`More information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
-    pub animation: InputFile,
+    /// The animated profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass `attach://<file_attach_name>` if the photo was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
+    pub animation: crate::types::InputFile,
     /// Timestamp in seconds of the frame that will be used as the static profile photo. Defaults to 0.0.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub main_frame_timestamp: Option<f64>,
 }
-
 impl InputProfilePhotoAnimated {
+    /// Creates a new `InputProfilePhotoAnimated`.
+    ///
+    /// # Arguments
+    /// * `animation` - The animated profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass `attach://<file_attach_name>` if the photo was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(animation: impl Into<InputFile>) -> Self {
+    pub fn new<T0: Into<crate::types::InputFile>>(animation: T0) -> Self {
         Self {
             animation: animation.into(),
             main_frame_timestamp: None,
         }
     }
 
+    /// The animated profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass `attach://<file_attach_name>` if the photo was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
-    pub fn animation(self, val: impl Into<InputFile>) -> Self {
-        Self {
-            animation: val.into(),
-            ..self
-        }
+    pub fn animation<T: Into<crate::types::InputFile>>(self, val: T) -> Self {
+        let mut this = self;
+        this.animation = val.into();
+        this
     }
 
+    /// Timestamp in seconds of the frame that will be used as the static profile photo. Defaults to 0.0.
     #[must_use]
-    pub fn main_frame_timestamp(self, val: f64) -> Self {
-        Self {
-            main_frame_timestamp: Some(val),
-            ..self
-        }
+    pub fn main_frame_timestamp<T: Into<f64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.main_frame_timestamp = Some(val.into());
+        this
     }
-}
 
-impl InputProfilePhotoAnimated {
+    /// Timestamp in seconds of the frame that will be used as the static profile photo. Defaults to 0.0.
     #[must_use]
-    pub fn main_frame_timestamp_option(self, val: Option<f64>) -> Self {
-        Self {
-            main_frame_timestamp: val,
-            ..self
-        }
+    pub fn main_frame_timestamp_option<T: Into<f64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.main_frame_timestamp = val.map(Into::into);
+        this
     }
 }

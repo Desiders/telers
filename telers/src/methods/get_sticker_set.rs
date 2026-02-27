@@ -1,43 +1,40 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::StickerSet};
-
+use crate::client::Bot;
 use serde::Serialize;
-
-/// Use this method to get a sticker set.
+/// Use this method to get a sticker set. On success, a [`StickerSet`] object is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getstickerset>
 /// # Returns
-/// On success, a [`StickerSet`] object is returned
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `crate::types::StickerSet`
+#[derive(Clone, Debug, Serialize)]
 pub struct GetStickerSet {
     /// Name of the sticker set
-    pub name: String,
+    pub name: Box<str>,
 }
-
 impl GetStickerSet {
+    /// Creates a new `GetStickerSet`.
+    ///
+    /// # Arguments
+    /// * `name` - Name of the sticker set
     #[must_use]
-    pub fn new(name: impl Into<String>) -> Self {
-        Self { name: name.into() }
+    pub fn new<T0: Into<Box<str>>>(name: T0) -> Self {
+        Self {
+            name: name.into(),
+        }
     }
 
+    /// Name of the sticker set
     #[must_use]
-    pub fn name(self, val: impl Into<String>) -> Self {
-        Self { name: val.into() }
+    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.name = val.into();
+        this
     }
 }
-
-impl TelegramMethod for GetStickerSet {
+impl super::TelegramMethod for GetStickerSet {
     type Method = Self;
-    type Return = StickerSet;
+    type Return = crate::types::StickerSet;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        Request::new("getStickerSet", self, None)
-    }
-}
-
-impl AsRef<GetStickerSet> for GetStickerSet {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("getStickerSet", self, None)
     }
 }

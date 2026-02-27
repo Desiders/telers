@@ -1,7 +1,9 @@
+#![allow(clippy::too_many_lines, clippy::missing_panics_doc)]
+
 use crate::{
     file::camel_to_filename,
     generator::helpers::{
-        camel_to_snake, format_attr_description, format_description, get_singular_and_plural_forms,
+        format_attr_description, format_description, get_singular_and_plural_forms,
         sanitize_field_name,
     },
     parser::api::{
@@ -12,7 +14,18 @@ use crate::{
 
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote, ToTokens};
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashSet};
+
+enum AccessExpr {
+    Plain(TokenStream),
+    Optional(TokenStream),
+    WrapInSome(TokenStream),
+    EnumMethod {
+        method: Ident,
+        returns_option: bool,
+        wrap_in_some: bool,
+    },
+}
 
 impl ToTokens for TypeKindInField {
     fn to_tokens(&self, tokens: &mut TokenStream) {
@@ -33,10 +46,10 @@ impl ToTokens for TypeKindInField {
             TypeKindInField::Boolean(_) => quote! { bool },
             TypeKindInField::Telegram(name) => {
                 let ident = format_ident!("{name}");
-                quote! { #ident }
+                quote! { crate::types::#ident }
             }
-            TypeKindInField::InputFile => quote! { InputFile },
-            TypeKindInField::ChatId => quote! { ChatIdKind },
+            TypeKindInField::InputFile => quote! { crate::types::InputFile },
+            TypeKindInField::ChatId => quote! { crate::types::ChatIdKind },
             TypeKindInField::Array(inner) => quote! { Box<[#inner]> },
             TypeKindInField::Either(left, right) => quote! { crate::Either<#left, #right> },
         };
@@ -46,11 +59,9 @@ impl ToTokens for TypeKindInField {
 
 impl ToTokens for NormalizedSubtypeVariant {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let (variant, name) = (
-            format_ident!("{}", self.variant),
-            format_ident!("{}", self.ty_name),
-        );
-        tokens.extend(quote! { #variant(#name), });
+        let variant = format_ident!("{}", self.variant);
+        let name = format_ident!("{}", self.ty_name);
+        tokens.extend(quote! { #variant(crate::types::#name), });
     }
 }
 
@@ -98,7 +109,7 @@ impl ToTokens for NormalizedType {
             let extra_field = if self.has_extra_fields {
                 quote! {
                     #[serde(flatten)]
-                    pub _extra: BTreeMap<Box<str>, serde_json::Value>,
+                    pub extra: BTreeMap<Box<str>, serde_json::Value>,
                 }
             } else {
                 quote! {}
@@ -113,10 +124,17 @@ impl ToTokens for NormalizedType {
             }
         } else {
             let serde_attr = match &self.subtype_kind {
-                Some(SubtypeKind::Tagged { tag_field, .. }) => {
+                Some(SubtypeKind::Tagged {
+                    tag_field, ..
+                }) => {
                     quote! { #[serde(tag = #tag_field, rename_all = "snake_case")] }
                 }
-                Some(SubtypeKind::Untagged | SubtypeKind::UntaggedInTagged { .. }) => {
+                Some(
+                    SubtypeKind::Untagged
+                    | SubtypeKind::UntaggedInTagged {
+                        ..
+                    },
+                ) => {
                     quote! { #[serde(untagged)] }
                 }
                 None => quote! {},
@@ -136,29 +154,53 @@ impl ToTokens for NormalizedType {
     }
 }
 
+#[must_use]
 pub fn get_from_impls_for_subtypes(type_quote: &NormalizedType) -> Vec<TokenStream> {
     let name = format_ident!("{}", type_quote.name);
+    let variant_count = type_quote.subtypes.len();
 
     let mut impl_quotes = vec![];
     for subtype in &type_quote.subtypes {
         let subtype_name = format_ident!("{}", subtype.ty_name);
+        let subtype_path = quote! { crate::types::#subtype_name };
         let subtype_variant = format_ident!("{}", subtype.variant);
+        let try_from_body = if variant_count == 1 {
+            quote! {
+                let #name::#subtype_variant(inner) = val;
+                Ok(inner)
+            }
+        } else if variant_count == 2 {
+            let other_variant = type_quote
+                .subtypes
+                .iter()
+                .find(|other| other.variant != subtype.variant)
+                .map(|other| format_ident!("{}", other.variant))
+                .expect("two-variant enum must contain the second variant");
+            quote! {
+                match val {
+                    #name::#subtype_variant(inner) => Ok(inner),
+                    #name::#other_variant(_) => Err(Self::Error::new(stringify!(#name), stringify!(#subtype_name))),
+                }
+            }
+        } else {
+            quote! {
+                if let #name::#subtype_variant(inner) = val {
+                    Ok(inner)
+                } else {
+                    Err(Self::Error::new(stringify!(#name), stringify!(#subtype_name)))
+                }
+            }
+        };
         impl_quotes.push(quote! {
-            impl From<#subtype_name> for #name {
-                #[inline]
-                fn from(val: #subtype_name) -> Self {
+            impl From<#subtype_path> for #name {
+                fn from(val: #subtype_path) -> Self {
                     Self::#subtype_variant(val)
                 }
             }
-            impl TryFrom<#name> for #subtype_name {
+            impl TryFrom<#name> for #subtype_path {
                 type Error = crate::errors::ConvertToTypeError;
-                #[inline]
                 fn try_from(val: #name) -> Result<Self, Self::Error> {
-                    if let #name::#subtype_variant(inner) = val {
-                        Ok(inner)
-                    } else {
-                        Err(Self::Error::new(stringify!(#name), stringify!(#subtype_name)))
-                    }
+                    #try_from_body
                 }
             }
         });
@@ -166,6 +208,7 @@ pub fn get_from_impls_for_subtypes(type_quote: &NormalizedType) -> Vec<TokenStre
     impl_quotes
 }
 
+#[must_use]
 pub fn get_impls_for_types(
     type_quote: &NormalizedType,
     schema: &NormalizedSchema,
@@ -189,7 +232,6 @@ pub fn get_impls_for_types(
 
         impl_quotes.push(quote! {
             impl From<#name> for #field_ty {
-                #[inline]
                 fn from(val: #name) -> Self {
                     #body
                 }
@@ -199,8 +241,6 @@ pub fn get_impls_for_types(
             impl<Client> crate::Extractor<Client> for #name
             {
                 type Error = crate::errors::ConvertToTypeError;
-
-                #[inline]
                 fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
                     let val = TryFrom::try_from((*request.update).clone());
                     async move { val }
@@ -214,8 +254,6 @@ pub fn get_impls_for_types(
             impl<Client> crate::Extractor<Client> for Update
             {
                 type Error = std::convert::Infallible;
-
-                #[inline]
                 fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
                     let val = (*request.update).clone();
                     async move { Ok(val) }
@@ -226,8 +264,6 @@ pub fn get_impls_for_types(
             impl<Client> crate::Extractor<Client> for std::sync::Arc<Update>
             {
                 type Error = std::convert::Infallible;
-
-                #[inline]
                 fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
                     let val = request.update.clone();
                     async move { Ok(val) }
@@ -238,7 +274,7 @@ pub fn get_impls_for_types(
         // We need to collect all types that can be got from update variants,
         // for example `Message` from `UpdateMessage` and `UpdateBusinessMessage`,
         // so that we can generate `impl From<Update> for Message` for each of variants.
-        let mut types_update_variants_with_field: HashMap<&str, Vec<_>> = HashMap::new();
+        let mut types_update_variants_with_field: BTreeMap<&str, Vec<_>> = BTreeMap::new();
 
         for subtype in &type_quote.subtypes {
             let variant_ty = schema.types.get(&subtype.ty_name).unwrap();
@@ -257,6 +293,7 @@ pub fn get_impls_for_types(
 
         for (variant_field_ty_name_str, variants_with_field) in types_update_variants_with_field {
             let variant_field_ty_name = format_ident!("{}", variant_field_ty_name_str);
+            let variant_field_ty_path = quote! { crate::types::#variant_field_ty_name };
 
             let mut match_arms = vec![];
             for (variant, ty_field) in variants_with_field {
@@ -278,9 +315,8 @@ pub fn get_impls_for_types(
             });
 
             impl_quotes.push(quote! {
-                impl TryFrom<Update> for #variant_field_ty_name {
+                impl TryFrom<Update> for #variant_field_ty_path {
                     type Error = crate::errors::ConvertToTypeError;
-                    #[inline]
                     fn try_from(val: Update) -> Result<Self, crate::errors::ConvertToTypeError> {
                         match val {
                             #(#match_arms),*
@@ -289,11 +325,9 @@ pub fn get_impls_for_types(
                 }
             });
             impl_quotes.push(quote! {
-                impl<Client> crate::Extractor<Client> for #variant_field_ty_name
+                impl<Client> crate::Extractor<Client> for #variant_field_ty_path
                 {
                     type Error = crate::errors::ConvertToTypeError;
-
-                    #[inline]
                     fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
                         let val = (*request.update).clone().try_into();
                         async move { val }
@@ -317,21 +351,20 @@ pub fn get_impls_for_types(
                 }
 
                 let subtype_ty_name = format_ident!("{}", subtype.ty_name);
+                let subtype_ty_path = quote! { crate::types::#subtype_ty_name };
                 impl_quotes.push(quote! {
-                    impl TryFrom<Update> for #subtype_ty_name {
+                    impl TryFrom<Update> for #subtype_ty_path {
                         type Error = crate::errors::ConvertToTypeError;
-                        #[inline]
                         fn try_from(val: Update) -> Result<Self, Self::Error> {
-                            let parent: #variant_field_ty_name = val.try_into()?;
+                            let parent: #variant_field_ty_path = val.try_into()?;
                             parent.try_into()
                         }
                     }
                 });
                 impl_quotes.push(quote! {
-                    impl<Client> crate::Extractor<Client> for #subtype_ty_name
+                    impl<Client> crate::Extractor<Client> for #subtype_ty_path
                     {
                         type Error = crate::errors::ConvertToTypeError;
-                        #[inline]
                         fn extract(request: &crate::Request<Client>) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
                             let val = (*request.update).clone().try_into();
                             async move { val }
@@ -345,6 +378,7 @@ pub fn get_impls_for_types(
     impl_quotes
 }
 
+#[must_use]
 pub fn get_derives_for_types(_type_quote: &NormalizedType) -> Vec<TokenStream> {
     let derive_quotes = vec![
         quote! { #[derive(Clone, Debug)] },
@@ -354,6 +388,8 @@ pub fn get_derives_for_types(_type_quote: &NormalizedType) -> Vec<TokenStream> {
     derive_quotes
 }
 
+#[must_use]
+#[allow(clippy::too_many_lines)]
 pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
     if !type_quote.subtypes.is_empty() {
         return quote! {};
@@ -376,7 +412,7 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
     let optional_fields: Box<[_]> = fields.iter().filter(|&&f| !f.required).copied().collect();
 
     let new_method_ts = {
-        let doc_creates = format_attr_description(&format!("Creates a new {}.", type_quote.name));
+        let doc_creates = format_attr_description(&format!("Creates a new `{}`.", type_quote.name));
         let mut doc_lines: Vec<TokenStream> = vec![quote! { #[doc = #doc_creates] }];
 
         if !required_fields.is_empty() {
@@ -384,7 +420,7 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
             doc_lines.push(quote! { #[doc = ""] #[doc = #doc_args] });
             for &field in &required_fields {
                 let doc =
-                    format_attr_description(&format!("* {} - {}", field.name, field.description));
+                    format_attr_description(&format!("* `{}` - {}", field.name, field.description));
                 doc_lines.push(quote! { #[doc = #doc] });
             }
         }
@@ -397,7 +433,7 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
         if fields.is_empty() {
             let extra_field = if type_quote.has_extra_fields {
                 quote! {
-                    _extra: BTreeMap::new(),
+                    extra: BTreeMap::new(),
                 }
             } else {
                 quote! {}
@@ -454,7 +490,7 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
             });
             let extra_field = if type_quote.has_extra_fields {
                 quote! {
-                    _extra: BTreeMap::new(),
+                    extra: BTreeMap::new(),
                 }
             } else {
                 quote! {}
@@ -508,11 +544,15 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
                     };
                     if field.required {
                         quote! {
-                            Self { #name: self.#name.into_vec().into_iter().chain(#op).collect(), ..self }
+                            let mut this = self;
+                            this.#name = this.#name.into_vec().into_iter().chain(#op).collect();
+                            this
                         }
                     } else {
                         quote! {
-                            Self { #name: Some(self.#name.unwrap_or_default().into_vec().into_iter().chain(#op).collect()), ..self }
+                            let mut this = self;
+                            this.#name = Some(this.#name.unwrap_or_default().into_vec().into_iter().chain(#op).collect());
+                            this
                         }
                     }
                 };
@@ -544,7 +584,9 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
                         #option_doc
                         #[must_use]
                         pub fn #option_name<T: Into<#ty>>(self, val: Option<T>) -> Self {
-                            Self { #name: val.map(Into::into), ..self }
+                            let mut this = self;
+                            this.#name = val.map(Into::into);
+                            this
                         }
                     });
                 }
@@ -558,7 +600,9 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
                     #[doc = #doc]
                     #[must_use]
                     pub fn #name<T: Into<#ty>>(self, val: T) -> Self {
-                        Self { #name: #value, ..self }
+                        let mut this = self;
+                        this.#name = #value;
+                        this
                     }
                 });
 
@@ -573,7 +617,9 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
                         #[doc = #doc]
                         #[must_use]
                         pub fn #method_name<T: Into<#ty>>(self, val: Option<T>) -> Self {
-                            Self { #name: #opt_value, ..self }
+                            let mut this = self;
+                            this.#name = #opt_value;
+                            this
                         }
                     });
                 }
@@ -591,10 +637,11 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
     }
 }
 
+#[must_use]
 fn collect_common_fields<'a>(
     ty: &'a NormalizedType,
     schema: &'a NormalizedSchema,
-) -> HashMap<&'a str, (&'a NormalizedField, bool, bool)> {
+) -> BTreeMap<&'a str, (&'a NormalizedField, bool, bool)> {
     let (tag_field, parent_tag_field) = ty
         .subtype_kind
         .as_ref()
@@ -608,7 +655,7 @@ fn collect_common_fields<'a>(
             .map(|f| (f.name.as_str(), (f, f.required, true)))
             .collect()
     } else {
-        let mut map: HashMap<&str, Vec<&NormalizedField>> = HashMap::new();
+        let mut map: BTreeMap<&str, Vec<&NormalizedField>> = BTreeMap::new();
         for subtype in &ty.subtypes {
             let sub_ty = schema.types.get(&subtype.ty_name).unwrap();
             // ↓ use the subtype's own tag context, not the parent's
@@ -639,6 +686,7 @@ fn collect_common_fields<'a>(
     }
 }
 
+#[must_use]
 fn helper_method_return_type(field_ty: &TypeKindInField, fully_required: bool) -> TokenStream {
     match field_ty {
         TypeKindInField::Array(inner) if fully_required => quote! { &[#inner] },
@@ -652,6 +700,7 @@ fn helper_method_return_type(field_ty: &TypeKindInField, fully_required: bool) -
     }
 }
 
+#[must_use]
 fn helper_field_accessor_expr(field: &NormalizedField) -> TokenStream {
     let field_ident = sanitize_field_name(&field.name);
     let field_ty = &field.r#type;
@@ -659,7 +708,7 @@ fn helper_field_accessor_expr(field: &NormalizedField) -> TokenStream {
 
     if matches!(field_ty, TypeKindInField::Array(_)) {
         if is_required {
-            quote! { &*val.#field_ident }
+            quote! { val.#field_ident.as_ref() }
         } else {
             quote! { val.#field_ident.as_deref() }
         }
@@ -667,7 +716,7 @@ fn helper_field_accessor_expr(field: &NormalizedField) -> TokenStream {
         quote! { val.#field_ident }
     } else if field.is_recursive || field.is_boxed || matches!(field_ty, TypeKindInField::String) {
         if is_required {
-            quote! { &*val.#field_ident }
+            quote! { val.#field_ident.as_ref() }
         } else {
             quote! { val.#field_ident.as_deref() }
         }
@@ -678,6 +727,7 @@ fn helper_field_accessor_expr(field: &NormalizedField) -> TokenStream {
     }
 }
 
+#[must_use]
 fn nested_inner_accessor_expr(
     inner_ident: &Ident,
     inner_field: &NormalizedField,
@@ -685,18 +735,32 @@ fn nested_inner_accessor_expr(
     inner_is_enum: bool,
     inner_field_fully_required: bool,
     fully_required: bool,
-) -> TokenStream {
+) -> AccessExpr {
     if inner_is_enum {
         if inner_field_fully_required && !fully_required {
-            quote! { Some(inner.#inner_ident()) }
+            AccessExpr::EnumMethod {
+                method: inner_ident.clone(),
+                returns_option: false,
+                wrap_in_some: true,
+            }
+        } else if inner_field_fully_required {
+            AccessExpr::EnumMethod {
+                method: inner_ident.clone(),
+                returns_option: false,
+                wrap_in_some: false,
+            }
         } else {
-            quote! { inner.#inner_ident() }
+            AccessExpr::EnumMethod {
+                method: inner_ident.clone(),
+                returns_option: true,
+                wrap_in_some: false,
+            }
         }
     } else if matches!(inner_ty, TypeKindInField::Array(_)) {
         if inner_field.required {
-            quote! { Some(&*inner.#inner_ident) }
+            AccessExpr::WrapInSome(quote! { inner.#inner_ident.as_ref() })
         } else {
-            quote! { inner.#inner_ident.as_deref() }
+            AccessExpr::Optional(quote! { inner.#inner_ident.as_deref() })
         }
     } else {
         let is_inner_copy = inner_ty.is_copy();
@@ -710,42 +774,122 @@ fn nested_inner_accessor_expr(
             is_inner_boxed,
             fully_required,
         ) {
-            (true, true, _, true) => quote! { inner.#inner_ident },
-            (true, true, _, false) => quote! { Some(inner.#inner_ident) },
-            (false, true, ..) => quote! { inner.#inner_ident },
-            (true, false, true, true) => quote! { &*inner.#inner_ident },
-            (true, false, true, false) => quote! { Some(&*inner.#inner_ident) },
-            (false, _, true, _) => quote! { inner.#inner_ident.as_deref() },
-            (true, false, false, true) => quote! { &inner.#inner_ident },
-            (true, false, false, false) => quote! { Some(&inner.#inner_ident) },
-            (false, false, false, _) => quote! { inner.#inner_ident.as_ref() },
+            (true, true, _, true) => AccessExpr::Plain(quote! { inner.#inner_ident }),
+            (true, true, _, false) => AccessExpr::WrapInSome(quote! { inner.#inner_ident }),
+            (false, true, ..) => AccessExpr::Optional(quote! { inner.#inner_ident }),
+            (true, false, true, true) => AccessExpr::Plain(quote! { inner.#inner_ident.as_ref() }),
+            (true, false, true, false) => {
+                AccessExpr::WrapInSome(quote! { inner.#inner_ident.as_ref() })
+            }
+            (false, _, true, _) => AccessExpr::Optional(quote! { inner.#inner_ident.as_deref() }),
+            (true, false, false, true) => AccessExpr::Plain(quote! { &inner.#inner_ident }),
+            (true, false, false, false) => AccessExpr::WrapInSome(quote! { &inner.#inner_ident }),
+            (false, false, false, _) => {
+                AccessExpr::Optional(quote! { inner.#inner_ident.as_ref() })
+            }
         }
     }
 }
 
+#[must_use]
 fn nested_outer_accessor_expr(
     outer_ident: &Ident,
     outer_field: &NormalizedField,
-    inner_access: TokenStream,
+    inner_access: AccessExpr,
 ) -> TokenStream {
+    let enum_method_path = |method: &Ident| {
+        let TypeKindInField::Telegram(outer_ty_name) = &outer_field.r#type else {
+            unreachable!("enum method access requires telegram outer field");
+        };
+        let outer_ty_ident = format_ident!("{outer_ty_name}");
+        quote! { crate::types::#outer_ty_ident::#method }
+    };
+
     let is_outer_boxed = outer_field.is_recursive || outer_field.is_boxed;
     if outer_field.required {
         let get_inner = if is_outer_boxed {
-            quote! { &*val.#outer_ident }
+            quote! { val.#outer_ident.as_ref() }
         } else {
             quote! { &val.#outer_ident }
         };
-        quote! { { let inner = #get_inner; #inner_access } }
+        let body = match inner_access {
+            AccessExpr::Plain(tokens) | AccessExpr::Optional(tokens) => tokens,
+            AccessExpr::WrapInSome(tokens) => quote! { Some(#tokens) },
+            AccessExpr::EnumMethod {
+                method,
+                returns_option,
+                wrap_in_some,
+            } => {
+                let method_path = enum_method_path(&method);
+                if returns_option {
+                    quote! { #method_path(inner) }
+                } else if wrap_in_some {
+                    quote! { Some(#method_path(inner)) }
+                } else {
+                    quote! { #method_path(inner) }
+                }
+            }
+        };
+        quote! { { let inner = #get_inner; #body } }
     } else {
         let as_opt = if is_outer_boxed {
             quote! { val.#outer_ident.as_deref() }
         } else {
             quote! { val.#outer_ident.as_ref() }
         };
-        quote! { #as_opt.and_then(|inner| #inner_access) }
+        let use_match = match &inner_access {
+            AccessExpr::Plain(tokens)
+            | AccessExpr::Optional(tokens)
+            | AccessExpr::WrapInSome(tokens) => {
+                let code = tokens.to_string();
+                code.contains("if let") || code.contains("match ")
+            }
+            AccessExpr::EnumMethod {
+                ..
+            } => false,
+        };
+        match inner_access {
+            AccessExpr::Plain(tokens) | AccessExpr::WrapInSome(tokens) => {
+                if use_match {
+                    quote! {
+                        match #as_opt {
+                            Some(inner) => Some(#tokens),
+                            None => None,
+                        }
+                    }
+                } else {
+                    quote! { #as_opt.map(|inner| #tokens) }
+                }
+            }
+            AccessExpr::Optional(tokens) => {
+                if use_match {
+                    quote! {
+                        match #as_opt {
+                            Some(inner) => #tokens,
+                            None => None,
+                        }
+                    }
+                } else {
+                    quote! { #as_opt.and_then(|inner| #tokens) }
+                }
+            }
+            AccessExpr::EnumMethod {
+                method,
+                returns_option,
+                ..
+            } => {
+                let method_path = enum_method_path(&method);
+                if returns_option {
+                    quote! { #as_opt.and_then(#method_path) }
+                } else {
+                    quote! { #as_opt.map(#method_path) }
+                }
+            }
+        }
     }
 }
 
+#[must_use]
 pub fn get_helper_impls_for_type(
     type_quote: &NormalizedType,
     schema: &NormalizedSchema,
@@ -762,30 +906,11 @@ pub fn get_helper_impls_for_type(
         .as_ref()
         .map(|kind| kind.get_tags())
         .unwrap_or_default();
-    let mut fields_subtypes_map: HashMap<&str, Vec<(&NormalizedSubtypeVariant, &NormalizedField)>> =
-        HashMap::new();
+    let mut fields_subtypes_map: BTreeMap<
+        &str,
+        Vec<(&NormalizedSubtypeVariant, &NormalizedField)>,
+    > = BTreeMap::new();
     for subtype in &type_quote.subtypes {
-        let variant = format_ident!("{}", subtype.variant);
-        let name = format_ident!("{}", subtype.ty_name);
-        let snake = camel_to_snake(&subtype.variant);
-        let is_name = format_ident!("is_{snake}_variant");
-        let into_name = format_ident!("into_{snake}_variant");
-
-        methods.extend([
-            quote! {
-                #[must_use]
-                pub const fn #is_name(&self) -> bool {
-                    if let Self::#variant(_) = self { true } else { false }
-                }
-            },
-            quote! {
-                #[must_use]
-                pub fn #into_name(self) -> Option<#name> {
-                    if let Self::#variant(val) = self { Some(val) } else { None }
-                }
-            },
-        ]);
-
         let ty = schema.types.get(&subtype.ty_name).unwrap();
         for field in &ty.fields {
             if field.is_tagged(tag_field, parent_tag_field) {
@@ -799,7 +924,7 @@ pub fn get_helper_impls_for_type(
     }
 
     for (&field_name, subtypes) in &fields_subtypes_map {
-        let method_name = sanitize_field_name(&field_name);
+        let method_name = sanitize_field_name(field_name);
         let field = &subtypes[0].1;
         let field_ty = &field.r#type;
 
@@ -811,7 +936,8 @@ pub fn get_helper_impls_for_type(
         let is_required_for_all = is_common && subtypes.iter().all(|(_, f)| f.required);
         let return_ty = helper_method_return_type(field_ty, is_required_for_all);
 
-        let doc_helper = format_attr_description(&format!("Helper method for field {field_name}."));
+        let doc_helper =
+            format_attr_description(&format!("Helper method for field `{field_name}`."));
         let doc_variants = format_attr_description("# Variants");
         let mut doc_lines: Vec<TokenStream> = vec![
             quote! { #[doc = #doc_helper] },
@@ -823,7 +949,7 @@ pub fn get_helper_impls_for_type(
             let variant = format_ident!("{}", subtype.variant);
 
             let doc_field =
-                format_attr_description(&format!("- {}. {}", subtype.ty_name, field.description));
+                format_attr_description(&format!("- `{}`. {}", subtype.ty_name, field.description));
             doc_lines.push(quote! { #[doc = #doc_field] });
 
             let body = helper_field_accessor_expr(field);
@@ -838,7 +964,18 @@ pub fn get_helper_impls_for_type(
             });
         }
         if !is_common {
-            match_arms.push(quote! { _ => None });
+            let present: HashSet<&str> = subtypes.iter().map(|(s, _)| s.variant.as_str()).collect();
+            let missing: Vec<_> = type_quote
+                .subtypes
+                .iter()
+                .filter(|s| !present.contains(s.variant.as_str()))
+                .collect();
+            if missing.len() == 1 {
+                let missing_variant = format_ident!("{}", missing[0].variant);
+                match_arms.push(quote! { Self::#missing_variant(_) => None });
+            } else {
+                match_arms.push(quote! { _ => None });
+            }
         }
 
         let method = quote! {
@@ -852,7 +989,8 @@ pub fn get_helper_impls_for_type(
         methods.push(method);
     }
 
-    let mut nested_map: HashMap<
+    #[allow(clippy::type_complexity)]
+    let mut nested_map: BTreeMap<
         String,
         Vec<(
             &NormalizedSubtypeVariant,
@@ -861,9 +999,9 @@ pub fn get_helper_impls_for_type(
             bool,             // inner_is_enum
             bool,             // inner_field_fully_required (within inner type)
         )>,
-    > = HashMap::new();
+    > = BTreeMap::new();
 
-    for (_, outer_subtypes) in &fields_subtypes_map {
+    for outer_subtypes in fields_subtypes_map.values() {
         let first_outer = outer_subtypes[0].1;
         let outer_ty = &first_outer.r#type;
 
@@ -893,10 +1031,10 @@ pub fn get_helper_impls_for_type(
             }
             for (subtype, outer_field) in outer_subtypes {
                 nested_map
-                    .entry(inner_field_name.to_string())
+                    .entry((*inner_field_name).to_string())
                     .or_default()
                     .push((
-                        subtype,
+                        *subtype,
                         outer_field,
                         inner_field,
                         inner_is_enum,
@@ -942,6 +1080,92 @@ pub fn get_helper_impls_for_type(
             && entries.iter().all(|(_, outer, ..)| outer.required);
 
         let return_ty = helper_method_return_type(inner_ty, fully_required);
+        let outer_field_name = entries[0].1.name.as_str();
+        let can_delegate_via_outer_helper = is_all_covered
+            && entries
+                .iter()
+                .all(|(_, outer, ..)| outer.name == outer_field_name);
+        let outer_fully_required = entries.iter().all(|(_, outer, ..)| outer.required);
+
+        if can_delegate_via_outer_helper {
+            let outer_ident = sanitize_field_name(outer_field_name);
+            let (_, outer_field, inner_field, inner_is_enum, inner_field_fully_required) =
+                entries[0];
+            let inner_ident = sanitize_field_name(&inner_field.name);
+            let delegated = if inner_is_enum {
+                let TypeKindInField::Telegram(inner_ty_name) = &outer_field.r#type else {
+                    unreachable!("enum nested helper must have telegram type");
+                };
+                let inner_ty_ident = format_ident!("{inner_ty_name}");
+                let method_path = quote! { crate::types::#inner_ty_ident::#inner_ident };
+
+                if outer_fully_required {
+                    if inner_field_fully_required {
+                        if fully_required {
+                            quote! { #method_path(self.#outer_ident()) }
+                        } else {
+                            quote! { Some(#method_path(self.#outer_ident())) }
+                        }
+                    } else {
+                        quote! { #method_path(self.#outer_ident()) }
+                    }
+                } else if inner_field_fully_required {
+                    quote! { self.#outer_ident().map(#method_path) }
+                } else {
+                    quote! { self.#outer_ident().and_then(#method_path) }
+                }
+            } else {
+                let inner_access = nested_inner_accessor_expr(
+                    &inner_ident,
+                    inner_field,
+                    inner_ty,
+                    inner_is_enum,
+                    inner_field_fully_required,
+                    fully_required,
+                );
+                if outer_fully_required {
+                    match inner_access {
+                        AccessExpr::Plain(tokens) | AccessExpr::Optional(tokens) => {
+                            quote! { { let inner = self.#outer_ident(); #tokens } }
+                        }
+                        AccessExpr::WrapInSome(tokens) => {
+                            quote! { { let inner = self.#outer_ident(); Some(#tokens) } }
+                        }
+                        AccessExpr::EnumMethod {
+                            ..
+                        } => {
+                            unreachable!("enum method access handled in the enum delegation branch",)
+                        }
+                    }
+                } else {
+                    match inner_access {
+                        AccessExpr::Plain(tokens) | AccessExpr::WrapInSome(tokens) => {
+                            quote! { self.#outer_ident().map(|inner| #tokens) }
+                        }
+                        AccessExpr::Optional(tokens) => {
+                            quote! { self.#outer_ident().and_then(|inner| #tokens) }
+                        }
+                        AccessExpr::EnumMethod {
+                            ..
+                        } => {
+                            unreachable!("enum method access handled in the enum delegation branch",)
+                        }
+                    }
+                }
+            };
+
+            let doc = format_attr_description(&format!(
+                "Helper method for nested field `{inner_field_name}`."
+            ));
+            methods.push(quote! {
+                #[doc = #doc]
+                #[must_use]
+                pub fn #method_ident(&self) -> #return_ty {
+                    #delegated
+                }
+            });
+            continue;
+        }
 
         let mut match_arms = vec![];
         for (subtype, outer_field, inner_field, inner_is_enum, inner_field_fully_required) in
@@ -963,11 +1187,22 @@ pub fn get_helper_impls_for_type(
             match_arms.push(quote! { Self::#variant(val) => #body });
         }
         if !is_all_covered {
-            match_arms.push(quote! { _ => None });
+            let present: HashSet<&str> = entries.iter().map(|(s, ..)| s.variant.as_str()).collect();
+            let missing: Vec<_> = type_quote
+                .subtypes
+                .iter()
+                .filter(|s| !present.contains(s.variant.as_str()))
+                .collect();
+            if missing.len() == 1 {
+                let missing_variant = format_ident!("{}", missing[0].variant);
+                match_arms.push(quote! { Self::#missing_variant(_) => None });
+            } else {
+                match_arms.push(quote! { _ => None });
+            }
         }
 
         let doc = format_attr_description(&format!(
-            "Helper method for nested field {inner_field_name}."
+            "Helper method for nested field `{inner_field_name}`."
         ));
         methods.push(quote! {
             #[doc = #doc]
@@ -985,11 +1220,9 @@ pub fn get_helper_impls_for_type(
     }
 }
 
+#[must_use]
 pub fn tokenize_type(type_quote: &NormalizedType, schema: &NormalizedSchema) -> TokenStream {
     let mut import_quotes = vec![];
-    if type_quote.get_paths_count() > 0 {
-        import_quotes.push(quote! { use super::*; });
-    }
     if type_quote.has_extra_fields && type_quote.subtypes.is_empty() {
         import_quotes.push(quote! { use std::collections::BTreeMap; });
     }
@@ -1010,6 +1243,7 @@ pub fn tokenize_type(type_quote: &NormalizedType, schema: &NormalizedSchema) -> 
     }
 }
 
+#[must_use]
 pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
     let mods_quote = type_names.iter().map(|&name| {
         let mod_name = format_ident!("{}", camel_to_filename(name, None));

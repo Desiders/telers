@@ -26,11 +26,12 @@ struct Args {
     #[arg(long, visible_alias = "tests", default_value_t = false)]
     generate_tests: bool,
 
-    /// Rust path used in generated tests import: use <path>::types::*;
+    /// Rust path used in generated tests import: `use <path>::types::*;`
     #[arg(long, visible_alias = "types-path")]
     tests_types_path: String,
 }
 
+#[allow(clippy::too_many_lines)]
 fn main() {
     let args = Args::parse();
 

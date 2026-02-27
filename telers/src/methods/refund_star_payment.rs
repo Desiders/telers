@@ -1,59 +1,55 @@
-use super::base::{Request, TelegramMethod};
-
 use crate::client::Bot;
-
 use serde::Serialize;
-
-/// Refunds a successful payment in [`Telegram Stars`](https://t.me/BotNews/90)
+/// Refunds a successful payment in Telegram Stars. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#refundstarpayment>
 /// # Returns
-/// On success, `true` is returned
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct RefundStarPayment {
     /// Identifier of the user whose payment will be refunded
     pub user_id: i64,
     /// Telegram payment identifier
-    pub telegram_payment_charge_id: String,
+    pub telegram_payment_charge_id: Box<str>,
 }
-
 impl RefundStarPayment {
+    /// Creates a new `RefundStarPayment`.
+    ///
+    /// # Arguments
+    /// * `user_id` - Identifier of the user whose payment will be refunded
+    /// * `telegram_payment_charge_id` - Telegram payment identifier
     #[must_use]
-    pub fn new(user_id: i64, telegram_payment_charge_id: impl Into<String>) -> Self {
+    pub fn new<T0: Into<i64>, T1: Into<Box<str>>>(
+        user_id: T0,
+        telegram_payment_charge_id: T1,
+    ) -> Self {
         Self {
-            user_id,
+            user_id: user_id.into(),
             telegram_payment_charge_id: telegram_payment_charge_id.into(),
         }
     }
 
+    /// Identifier of the user whose payment will be refunded
     #[must_use]
-    pub fn user_id(self, val: i64) -> Self {
-        Self {
-            user_id: val,
-            ..self
-        }
+    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.user_id = val.into();
+        this
     }
 
+    /// Telegram payment identifier
     #[must_use]
-    pub fn telegram_payment_charge_id(self, val: impl Into<String>) -> Self {
-        Self {
-            telegram_payment_charge_id: val.into(),
-            ..self
-        }
+    pub fn telegram_payment_charge_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.telegram_payment_charge_id = val.into();
+        this
     }
 }
-
-impl TelegramMethod for RefundStarPayment {
+impl super::TelegramMethod for RefundStarPayment {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        Request::new("refundStarPayment", self, None)
-    }
-}
-
-impl AsRef<RefundStarPayment> for RefundStarPayment {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("refundStarPayment", self, None)
     }
 }

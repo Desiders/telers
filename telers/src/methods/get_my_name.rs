@@ -1,56 +1,54 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::BotName};
-
+use crate::client::Bot;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Use this method to get the current bot name for the given user language.
+/// Use this method to get the current bot name for the given user language. Returns [`BotName`] on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getmyname>
 /// # Returns
-/// Returns [`BotName`] on success
-#[skip_serializing_none]
-#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `crate::types::BotName`
+#[derive(Clone, Debug, Serialize)]
 pub struct GetMyName {
     /// A two-letter ISO 639-1 language code or an empty string
-    pub language_code: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub language_code: Option<Box<str>>,
 }
-
 impl GetMyName {
+    /// Creates a new `GetMyName`.
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
     pub fn new() -> Self {
-        Self::default()
-    }
-
-    #[must_use]
-    pub fn language_code(self, val: impl Into<String>) -> Self {
         Self {
-            language_code: Some(val.into()),
+            language_code: None,
         }
     }
-}
 
-impl GetMyName {
+    /// A two-letter ISO 639-1 language code or an empty string
     #[must_use]
-    pub fn language_code_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            language_code: val.map(Into::into),
-        }
+    pub fn language_code<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.language_code = Some(val.into());
+        this
+    }
+
+    /// A two-letter ISO 639-1 language code or an empty string
+    #[must_use]
+    pub fn language_code_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.language_code = val.map(Into::into);
+        this
     }
 }
-
-impl TelegramMethod for GetMyName {
+impl Default for GetMyName {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+impl super::TelegramMethod for GetMyName {
     type Method = Self;
-    type Return = BotName;
+    type Return = crate::types::BotName;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        Request::new("getMyName", self, None)
-    }
-}
-
-impl AsRef<GetMyName> for GetMyName {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("getMyName", self, None)
     }
 }

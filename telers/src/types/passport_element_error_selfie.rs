@@ -1,62 +1,57 @@
-use serde::Serialize;
-use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
-
+use serde::{Deserialize, Serialize};
 /// Represents an issue with the selfie with a document. The error is considered resolved when the file with the selfie changes.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerrorselfie>
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PassportElementErrorSelfie {
-    /// The section of the user's Telegram Passport which has the issue
-    #[serde(rename = "type")]
-    pub element_type: ElementType,
+    /// The section of the user's Telegram Passport which has the issue, one of `passport`, `driver_license`, `identity_card`, `internal_passport`
+    pub r#type: Box<str>,
     /// Base64-encoded hash of the file with the selfie
-    pub file_hash: String,
+    pub file_hash: Box<str>,
     /// Error message
-    pub message: String,
+    pub message: Box<str>,
 }
-
 impl PassportElementErrorSelfie {
+    /// Creates a new `PassportElementErrorSelfie`.
+    ///
+    /// # Arguments
+    /// * `type` - The section of the user's Telegram Passport which has the issue, one of `passport`, `driver_license`, `identity_card`, `internal_passport`
+    /// * `file_hash` - Base64-encoded hash of the file with the selfie
+    /// * `message` - Error message
     #[must_use]
-    pub fn new(
-        element_type: ElementType,
-        file_hash: impl Into<String>,
-        message: impl Into<String>,
+    pub fn new<T0: Into<Box<str>>, T1: Into<Box<str>>, T2: Into<Box<str>>>(
+        r#type: T0,
+        file_hash: T1,
+        message: T2,
     ) -> Self {
         Self {
-            element_type,
+            r#type: r#type.into(),
             file_hash: file_hash.into(),
             message: message.into(),
         }
     }
 
+    /// The section of the user's Telegram Passport which has the issue, one of `passport`, `driver_license`, `identity_card`, `internal_passport`
     #[must_use]
-    pub fn file_hash(self, val: impl Into<String>) -> Self {
-        Self {
-            file_hash: val.into(),
-            ..self
-        }
+    pub fn r#type<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.r#type = val.into();
+        this
     }
 
+    /// Base64-encoded hash of the file with the selfie
     #[must_use]
-    pub fn message(self, val: impl Into<String>) -> Self {
-        Self {
-            message: val.into(),
-            ..self
-        }
+    pub fn file_hash<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.file_hash = val.into();
+        this
     }
-}
 
-#[derive(
-    Debug, Display, Clone, Copy, PartialEq, Eq, Hash, Serialize, EnumString, AsRefStr, IntoStaticStr,
-)]
-#[serde(rename_all = "snake_case")]
-pub enum ElementType {
-    #[strum(serialize = "passport")]
-    Passport,
-    #[strum(serialize = "driver_license")]
-    DriverLicense,
-    #[strum(serialize = "identity_card")]
-    IdentityCard,
-    #[strum(serialize = "internal_passport")]
-    InternalPassport,
+    /// Error message
+    #[must_use]
+    pub fn message<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.message = val.into();
+        this
+    }
 }

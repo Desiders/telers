@@ -412,13 +412,14 @@ where
             Some(value) => Ok(Self(value.clone())),
             None => Err(ExtractionError::new(if request.extensions.is_empty() {
                 format!(
-                    "Failed to extract data with type {}. Extensions are empty, it looks like you forgot to add a \
-                     value.",
+                    "Failed to extract data with type {}. Extensions are empty, it looks like you \
+                     forgot to add a value.",
                     type_name::<Value>()
                 )
             } else {
                 format!(
-                    "Failed to extract data with type {}. It looks like you forgot to add a value of this type.",
+                    "Failed to extract data with type {}. It looks like you forgot to add a value \
+                     of this type.",
                     type_name::<Value>()
                 )
             })),

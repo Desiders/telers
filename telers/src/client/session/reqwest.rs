@@ -100,7 +100,7 @@ impl Reqwest {
                     let id = file.id.to_string();
 
                     let part = if let Some(file_name) = file.file_name {
-                        Part::bytes(file.bytes.to_vec()).file_name(file_name.to_string())
+                        Part::bytes(file.bytes.to_vec()).file_name(file_name.clone())
                     } else {
                         Part::bytes(file.bytes.to_vec()).file_name(id.clone())
                     };

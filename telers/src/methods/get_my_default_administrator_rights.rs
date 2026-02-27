@@ -1,54 +1,54 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::ChatAdministratorRights};
-
+use crate::client::Bot;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Use this method to get the current default administrator rights of the bot.
+/// Use this method to get the current default administrator rights of the bot. Returns [`ChatAdministratorRights`] on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getmydefaultadministratorrights>
 /// # Returns
-/// Returns [`ChatAdministratorRights`] on success
-#[skip_serializing_none]
-#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `crate::types::ChatAdministratorRights`
+#[derive(Clone, Debug, Serialize)]
 pub struct GetMyDefaultAdministratorRights {
     /// Pass `true` to get default administrator rights of the bot in channels. Otherwise, default administrator rights of the bot for groups and supergroups will be returned.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub for_channels: Option<bool>,
 }
-
 impl GetMyDefaultAdministratorRights {
+    /// Creates a new `GetMyDefaultAdministratorRights`.
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
     pub fn new() -> Self {
-        Self::default()
-    }
-
-    #[must_use]
-    pub fn for_channels(self, val: bool) -> Self {
         Self {
-            for_channels: Some(val),
+            for_channels: None,
         }
     }
-}
 
-impl GetMyDefaultAdministratorRights {
+    /// Pass `true` to get default administrator rights of the bot in channels. Otherwise, default administrator rights of the bot for groups and supergroups will be returned.
     #[must_use]
-    pub fn for_channels_option(self, val: Option<bool>) -> Self {
-        Self { for_channels: val }
+    pub fn for_channels<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.for_channels = Some(val.into());
+        this
+    }
+
+    /// Pass `true` to get default administrator rights of the bot in channels. Otherwise, default administrator rights of the bot for groups and supergroups will be returned.
+    #[must_use]
+    pub fn for_channels_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.for_channels = val.map(Into::into);
+        this
     }
 }
-
-impl TelegramMethod for GetMyDefaultAdministratorRights {
+impl Default for GetMyDefaultAdministratorRights {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+impl super::TelegramMethod for GetMyDefaultAdministratorRights {
     type Method = Self;
-    type Return = ChatAdministratorRights;
+    type Return = crate::types::ChatAdministratorRights;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        Request::new("getMyDefaultAdministratorRights", self, None)
-    }
-}
-
-impl AsRef<GetMyDefaultAdministratorRights> for GetMyDefaultAdministratorRights {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("getMyDefaultAdministratorRights", self, None)
     }
 }

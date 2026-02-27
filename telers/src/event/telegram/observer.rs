@@ -343,7 +343,7 @@ mod tests {
         let mut request = Request::<Reqwest> {
             update: Arc::new(Update::Message(UpdateMessage::new(
                 0,
-                MessageText::new(0, 0, ChatPrivate::new(0, "", ""), ""),
+                MessageText::new(0, 0, ChatPrivate::new(0), ""),
             ))),
             bot: Bot::default(),
             context: crate::Context::default(),
@@ -359,7 +359,7 @@ mod tests {
 
         request.update = Arc::new(Update::Message(UpdateMessage::new(
             0,
-            MessageText::new(0, 0, ChatPrivate::new(0, "", ""), "/start"),
+            MessageText::new(0, 0, ChatPrivate::new(0), "/start"),
         )));
 
         let response = observer.trigger(request).await.unwrap();
@@ -385,7 +385,7 @@ mod tests {
         let request = Request::<Reqwest> {
             update: Arc::new(Update::Message(UpdateMessage::new(
                 0,
-                MessageText::new(0, 0, ChatPrivate::new(0, "", ""), ""),
+                MessageText::new(0, 0, ChatPrivate::new(0), ""),
             ))),
             bot: Bot::default(),
             context: crate::Context::default(),
@@ -412,7 +412,7 @@ mod tests {
         let request = Request::<Reqwest> {
             update: Arc::new(Update::Message(UpdateMessage::new(
                 0,
-                MessageText::new(0, 0, ChatPrivate::new(0, "", ""), "/start"),
+                MessageText::new(0, 0, ChatPrivate::new(0), "/start"),
             ))),
             bot: Bot::default(),
             context: crate::Context::default(),

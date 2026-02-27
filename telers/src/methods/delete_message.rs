@@ -1,9 +1,5 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::ChatIdKind};
-
+use crate::client::Bot;
 use serde::Serialize;
-
 /// Use this method to delete a message, including service messages, with the following limitations:
 /// - A message can only be deleted if it was sent less than 48 hours ago.
 /// - Service messages about a supergroup, channel, or forum topic creation can't be deleted.
@@ -12,56 +8,59 @@ use serde::Serialize;
 /// - Bots can delete incoming messages in private chats.
 /// - Bots granted `can_post_messages` permissions can delete outgoing messages in channels.
 /// - If the bot is an administrator of a group, it can delete any message there.
-/// - If the bot has `can_delete_messages` permission in a supergroup or a channel, it can delete any message there.
+/// - If the bot has `can_delete_messages` administrator right in a supergroup or a channel, it can delete any message there.
+/// - If the bot has `can_manage_direct_messages` administrator right in a channel, it can delete any message in the corresponding direct messages chat.
+///
+/// Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#deletemessage>
 /// # Returns
-/// On success, `true` is returned
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct DeleteMessage {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
-    pub chat_id: ChatIdKind,
+    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    pub chat_id: crate::types::ChatIdKind,
     /// Identifier of the message to delete
     pub message_id: i64,
 }
-
 impl DeleteMessage {
+    /// Creates a new `DeleteMessage`.
+    ///
+    /// # Arguments
+    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// * `message_id` - Identifier of the message to delete
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>, message_id: i64) -> Self {
+    pub fn new<T0: Into<crate::types::ChatIdKind>, T1: Into<i64>>(
+        chat_id: T0,
+        message_id: T1,
+    ) -> Self {
         Self {
             chat_id: chat_id.into(),
-            message_id,
+            message_id: message_id.into(),
         }
     }
 
+    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
     #[must_use]
-    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
-        Self {
-            chat_id: val.into(),
-            ..self
-        }
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
+        let mut this = self;
+        this.chat_id = val.into();
+        this
     }
 
+    /// Identifier of the message to delete
     #[must_use]
-    pub fn message_id(self, val: i64) -> Self {
-        Self {
-            message_id: val,
-            ..self
-        }
+    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.message_id = val.into();
+        this
     }
 }
-
-impl TelegramMethod for DeleteMessage {
+impl super::TelegramMethod for DeleteMessage {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        Request::new("deleteMessage", self, None)
-    }
-}
-
-impl AsRef<DeleteMessage> for DeleteMessage {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("deleteMessage", self, None)
     }
 }

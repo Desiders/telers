@@ -7,6 +7,7 @@ use crate::{
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
+#[must_use]
 pub fn tokenize_kind_enum(type_quote: &NormalizedType) -> Option<TokenStream> {
     if type_quote.subtypes.is_empty() {
         return None;
@@ -111,20 +112,24 @@ pub fn tokenize_kind_enum(type_quote: &NormalizedType) -> Option<TokenStream> {
     })
 }
 
+#[must_use]
 pub fn tokenize_kind_enum_file(type_quote: &NormalizedType) -> Option<TokenStream> {
     let kind_ts = tokenize_kind_enum(type_quote)?;
+    let type_name = format_ident!("{}", type_quote.name);
 
     Some(quote! {
-        use crate::types::*;
+        use crate::types::#type_name;
 
         #kind_ts
     })
 }
 
+#[must_use]
 pub fn tokenize_own_enums() -> Vec<(&'static str, TokenStream)> {
     vec![("ParseMode", tokenize_enum_parse_mode())]
 }
 
+#[must_use]
 pub fn tokenize_enum_parse_mode() -> TokenStream {
     let variants = [
         ("Markdown", "Markdown"),
@@ -191,6 +196,7 @@ pub fn tokenize_enum_parse_mode() -> TokenStream {
     }
 }
 
+#[must_use]
 pub fn tokenize_kind_enums_mod(type_names: &[&str], own_type_names: &[&str]) -> TokenStream {
     let all_module_names: Vec<_> = type_names
         .iter()

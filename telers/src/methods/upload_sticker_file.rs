@@ -1,100 +1,70 @@
-use super::base::{prepare_file, Request, TelegramMethod};
-
-use crate::{
-    client::Bot,
-    types::{File, InputFile},
-};
-
+use crate::client::Bot;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Use this method to upload a .PNG file with a sticker for later use in [`CreateNewStickerSet`](crate::methods::CreateNewStickerSet) and [`AddStickerToSet`](crate::methods::AddStickerToSet) methods (can be used multiple times)
+/// Use this method to upload a file with a sticker for later use in the create[`NewStickerSet`], add[`StickerToSet`], or replace[`StickerInSet`] methods (the file can be used multiple times). Returns the uploaded File on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#uploadstickerfile>
 /// # Returns
-/// Returns the uploaded [`File`] on success
-#[skip_serializing_none]
-#[derive(Debug, Hash, PartialEq, Serialize)]
+/// - `crate::types::File`
+#[derive(Clone, Debug, Serialize)]
 pub struct UploadStickerFile {
     /// User identifier of sticker file owner
     pub user_id: i64,
-    /// A file with the sticker in `.WEBP`, `.PNG`, `.TGS`, or `.WEBM` format. See <https://core.telegram.org/stickers> for technical requirements. [More info on Sending Files »](https://core.telegram.org/bots/api#sending-files)
-    pub sticker: InputFile,
+    /// A file with the sticker in .WEBP, .PNG, .TGS, or .WEBM format. See <https://core.telegram.org/stickers> for technical requirements. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
+    pub sticker: crate::types::InputFile,
     /// Format of the sticker, must be one of `static`, `animated`, `video`
-    pub sticker_format: Option<String>,
+    pub sticker_format: Box<str>,
 }
-
 impl UploadStickerFile {
+    /// Creates a new `UploadStickerFile`.
+    ///
+    /// # Arguments
+    /// * `user_id` - User identifier of sticker file owner
+    /// * `sticker` - A file with the sticker in .WEBP, .PNG, .TGS, or .WEBM format. See <https://core.telegram.org/stickers> for technical requirements. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
+    /// * `sticker_format` - Format of the sticker, must be one of `static`, `animated`, `video`
     #[must_use]
-    pub fn new(user_id: i64, sticker: impl Into<InputFile>) -> Self {
+    pub fn new<T0: Into<i64>, T1: Into<crate::types::InputFile>, T2: Into<Box<str>>>(
+        user_id: T0,
+        sticker: T1,
+        sticker_format: T2,
+    ) -> Self {
         Self {
-            user_id,
+            user_id: user_id.into(),
             sticker: sticker.into(),
-            sticker_format: None,
+            sticker_format: sticker_format.into(),
         }
     }
 
+    /// User identifier of sticker file owner
     #[must_use]
-    pub fn user_id(self, val: i64) -> Self {
-        Self {
-            user_id: val,
-            ..self
-        }
+    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.user_id = val.into();
+        this
     }
 
+    /// A file with the sticker in .WEBP, .PNG, .TGS, or .WEBM format. See <https://core.telegram.org/stickers> for technical requirements. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
-    pub fn sticker(self, val: impl Into<InputFile>) -> Self {
-        Self {
-            sticker: val.into(),
-            ..self
-        }
+    pub fn sticker<T: Into<crate::types::InputFile>>(self, val: T) -> Self {
+        let mut this = self;
+        this.sticker = val.into();
+        this
     }
 
+    /// Format of the sticker, must be one of `static`, `animated`, `video`
     #[must_use]
-    pub fn sticker_format(self, val: impl Into<String>) -> Self {
-        Self {
-            sticker_format: Some(val.into()),
-            ..self
-        }
-    }
-
-    /// Alias to [`UploadStickerFile::sticker_format`] method
-    #[must_use]
-    pub fn format(self, val: impl Into<String>) -> Self {
-        self.sticker_format(val)
+    pub fn sticker_format<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.sticker_format = val.into();
+        this
     }
 }
-
-impl UploadStickerFile {
-    #[must_use]
-    pub fn sticker_format_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            sticker_format: val.map(Into::into),
-            ..self
-        }
-    }
-
-    /// Alias to [`UploadStickerFile::sticker_format_option`] method
-    #[must_use]
-    pub fn format_option(self, val: Option<impl Into<String>>) -> Self {
-        self.sticker_format_option(val)
-    }
-}
-
-impl TelegramMethod for UploadStickerFile {
+impl super::TelegramMethod for UploadStickerFile {
     type Method = Self;
-    type Return = File;
+    type Return = crate::types::File;
 
-    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> Request<Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
-        prepare_file(&mut files, &mut self.sticker);
-
-        Request::new("uploadStickerFile", self, Some(files))
-    }
-}
-
-impl AsRef<UploadStickerFile> for UploadStickerFile {
-    fn as_ref(&self) -> &Self {
-        self
+        super::prepare_file(&mut files, &mut self.sticker);
+        super::Request::new("uploadStickerFile", self, Some(files))
     }
 }

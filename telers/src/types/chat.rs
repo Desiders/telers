@@ -1,156 +1,185 @@
-use crate::FromContext;
-
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-
 /// This object represents a chat.
+/// Currently, it can be one of
+/// - [`ChatChannel`]
+/// - [`ChatGroup`]
+/// - [`ChatPrivate`]
+/// - [`ChatSupergroup`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chat>
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, FromContext)]
-#[context(
-    key = "event_chat",
-    description = "This object represents a chat. \
-    This context is available only if `UserContext` middleware is used (default middleware) and chat in `Update` is not empty."
-)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum Chat {
-    Private(Box<Private>),
-    Group(Box<Group>),
-    Supergroup(Box<Supergroup>),
-    Channel(Box<Channel>),
+    Private(crate::types::ChatPrivate),
+    Group(crate::types::ChatGroup),
+    Supergroup(crate::types::ChatSupergroup),
+    Channel(crate::types::ChatChannel),
 }
-
-#[skip_serializing_none]
-#[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
-pub struct Private {
-    /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
-    pub id: i64,
-    /// Username
-    pub username: Option<Box<str>>,
-    /// First name of the other party
-    pub first_name: Option<Box<str>>,
-    /// Last name of the other party
-    pub last_name: Option<Box<str>>,
-}
-
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-pub struct Group {
-    /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
-    pub id: i64,
-    /// Title
-    pub title: Box<str>,
-}
-
-#[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-pub struct Supergroup {
-    /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
-    pub id: i64,
-    /// Title
-    pub title: Box<str>,
-    /// Username
-    pub username: Option<Box<str>>,
-    /// `true`, if the chat is a forum (has [`topics`](https://telegram.org/blog/topics-in-groups-collectible-usernames#topics-in-groups) enabled)
-    pub is_forum: Option<bool>,
-    /// `true`, if the chat is the direct messages chat of a channel
-    pub is_direct_messages: Option<bool>,
-}
-
-#[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
-pub struct Channel {
-    /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
-    pub id: i64,
-    /// Title
-    pub title: Box<str>,
-    /// Username
-    pub username: Option<Box<str>>,
-}
-
 impl Chat {
+    /// Helper method for field `first_name`.
+    ///
+    /// # Variants
+    /// - `ChatPrivate`. First name of the other party in a private chat
     #[must_use]
-    pub const fn id(&self) -> i64 {
+    pub fn first_name(&self) -> Option<&str> {
         match self {
-            Self::Private(chat) => chat.id,
-            Self::Group(chat) => chat.id,
-            Self::Supergroup(chat) => chat.id,
-            Self::Channel(chat) => chat.id,
+            Self::Private(val) => val.first_name.as_deref(),
+            _ => None,
         }
     }
 
+    /// Helper method for field `id`.
+    ///
+    /// # Variants
+    /// - `ChatPrivate`. Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// - `ChatGroup`. Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// - `ChatSupergroup`. Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// - `ChatChannel`. Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     #[must_use]
-    pub const fn title(&self) -> Option<&str> {
+    pub fn id(&self) -> i64 {
         match self {
-            Self::Private(_) => None,
-            Self::Group(chat) => Some(&chat.title),
-            Self::Supergroup(chat) => Some(&chat.title),
-            Self::Channel(chat) => Some(&chat.title),
+            Self::Private(val) => val.id,
+            Self::Group(val) => val.id,
+            Self::Supergroup(val) => val.id,
+            Self::Channel(val) => val.id,
         }
     }
 
-    #[allow(clippy::match_as_ref)]
+    /// Helper method for field `is_direct_messages`.
+    ///
+    /// # Variants
+    /// - `ChatPrivate`. `true`, if the chat is the direct messages chat of a channel
+    /// - `ChatGroup`. `true`, if the chat is the direct messages chat of a channel
+    /// - `ChatSupergroup`. `true`, if the chat is the direct messages chat of a channel
+    /// - `ChatChannel`. `true`, if the chat is the direct messages chat of a channel
     #[must_use]
-    pub const fn username(&self) -> Option<&str> {
+    pub fn is_direct_messages(&self) -> Option<bool> {
         match self {
+            Self::Private(val) => val.is_direct_messages,
+            Self::Group(val) => val.is_direct_messages,
+            Self::Supergroup(val) => val.is_direct_messages,
+            Self::Channel(val) => val.is_direct_messages,
+        }
+    }
+
+    /// Helper method for field `is_forum`.
+    ///
+    /// # Variants
+    /// - `ChatSupergroup`. `true`, if the supergroup chat is a forum (has topics enabled)
+    #[must_use]
+    pub fn is_forum(&self) -> Option<bool> {
+        match self {
+            Self::Supergroup(val) => val.is_forum,
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `last_name`.
+    ///
+    /// # Variants
+    /// - `ChatPrivate`. Last name of the other party in a private chat
+    #[must_use]
+    pub fn last_name(&self) -> Option<&str> {
+        match self {
+            Self::Private(val) => val.last_name.as_deref(),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `title`.
+    ///
+    /// # Variants
+    /// - `ChatSupergroup`. Title, for supergroups, channels and group chats
+    /// - `ChatChannel`. Title, for supergroups, channels and group chats
+    #[must_use]
+    pub fn title(&self) -> Option<&str> {
+        match self {
+            Self::Supergroup(val) => val.title.as_deref(),
+            Self::Channel(val) => val.title.as_deref(),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `username`.
+    ///
+    /// # Variants
+    /// - `ChatPrivate`. Username, for private chats, supergroups and channels if available
+    /// - `ChatSupergroup`. Username, for private chats, supergroups and channels if available
+    /// - `ChatChannel`. Username, for private chats, supergroups and channels if available
+    #[must_use]
+    pub fn username(&self) -> Option<&str> {
+        match self {
+            Self::Private(val) => val.username.as_deref(),
+            Self::Supergroup(val) => val.username.as_deref(),
+            Self::Channel(val) => val.username.as_deref(),
             Self::Group(_) => None,
-            Self::Private(chat) => match chat.username {
-                Some(ref username) => Some(username),
-                None => None,
-            },
-            Self::Supergroup(chat) => match chat.username {
-                Some(ref username) => Some(username),
-                None => None,
-            },
-            Self::Channel(chat) => match chat.username {
-                Some(ref username) => Some(username),
-                None => None,
-            },
-        }
-    }
-
-    #[allow(clippy::match_as_ref)]
-    #[must_use]
-    pub const fn first_name(&self) -> Option<&str> {
-        match self {
-            Self::Private(chat) => match chat.first_name {
-                Some(ref first_name) => Some(first_name),
-                None => None,
-            },
-            _ => None,
-        }
-    }
-
-    #[allow(clippy::match_as_ref)]
-    #[must_use]
-    pub const fn last_name(&self) -> Option<&str> {
-        match self {
-            Self::Private(chat) => match chat.last_name {
-                Some(ref last_name) => Some(last_name),
-                None => None,
-            },
-            _ => None,
-        }
-    }
-
-    #[must_use]
-    pub const fn is_forum(&self) -> Option<bool> {
-        match self {
-            Self::Supergroup(chat) => chat.is_forum,
-            _ => None,
-        }
-    }
-
-    #[must_use]
-    pub const fn is_direct_messages(&self) -> Option<bool> {
-        match self {
-            Self::Supergroup(chat) => chat.is_direct_messages,
-            _ => None,
         }
     }
 }
+impl From<crate::types::ChatPrivate> for Chat {
+    fn from(val: crate::types::ChatPrivate) -> Self {
+        Self::Private(val)
+    }
+}
+impl TryFrom<Chat> for crate::types::ChatPrivate {
+    type Error = crate::errors::ConvertToTypeError;
 
-impl Default for Chat {
-    fn default() -> Self {
-        Self::Private(Box::default())
+    fn try_from(val: Chat) -> Result<Self, Self::Error> {
+        if let Chat::Private(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(stringify!(Chat), stringify!(ChatPrivate)))
+        }
+    }
+}
+impl From<crate::types::ChatGroup> for Chat {
+    fn from(val: crate::types::ChatGroup) -> Self {
+        Self::Group(val)
+    }
+}
+impl TryFrom<Chat> for crate::types::ChatGroup {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Chat) -> Result<Self, Self::Error> {
+        if let Chat::Group(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(stringify!(Chat), stringify!(ChatGroup)))
+        }
+    }
+}
+impl From<crate::types::ChatSupergroup> for Chat {
+    fn from(val: crate::types::ChatSupergroup) -> Self {
+        Self::Supergroup(val)
+    }
+}
+impl TryFrom<Chat> for crate::types::ChatSupergroup {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Chat) -> Result<Self, Self::Error> {
+        if let Chat::Supergroup(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Chat),
+                stringify!(ChatSupergroup),
+            ))
+        }
+    }
+}
+impl From<crate::types::ChatChannel> for Chat {
+    fn from(val: crate::types::ChatChannel) -> Self {
+        Self::Channel(val)
+    }
+}
+impl TryFrom<Chat> for crate::types::ChatChannel {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Chat) -> Result<Self, Self::Error> {
+        if let Chat::Channel(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(stringify!(Chat), stringify!(ChatChannel)))
+        }
     }
 }

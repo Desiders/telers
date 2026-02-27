@@ -427,9 +427,10 @@ where
             user,
         ));
 
-        self.text(text)
-            .entity(&entity)
-            .expect("Failed to add mention for the user without username. Report this issue to the developers")
+        self.text(text).entity(&entity).expect(
+            "Failed to add mention for the user without username. Report this issue to the \
+             developers",
+        )
     }
 
     /// Add custom emoji to the text instead of unicode emoji.

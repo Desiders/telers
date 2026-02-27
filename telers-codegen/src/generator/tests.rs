@@ -1,3 +1,5 @@
+#![allow(clippy::missing_panics_doc)]
+
 use crate::{
     generator::helpers::camel_to_snake,
     parser::api::{IntegerKind, NormalizedSchema, NormalizedType, TypeKindInField},
@@ -8,6 +10,7 @@ use quote::{format_ident, quote};
 use std::collections::HashSet;
 use syn::{LitStr, Path};
 
+#[must_use]
 pub fn tokenize_tests(schema: &NormalizedSchema, types_path: &str) -> TokenStream {
     let types_path: Path =
         syn::parse_str(types_path).expect("invalid types path, expected Rust path");
@@ -92,6 +95,7 @@ pub fn tokenize_tests(schema: &NormalizedSchema, types_path: &str) -> TokenStrea
     }
 }
 
+#[must_use]
 pub fn tokenize_type_test(ty: &NormalizedType, schema: &NormalizedSchema) -> TokenStream {
     let parse_target = get_parse_target(ty, schema);
     let parse_type_name = parse_target
@@ -146,6 +150,7 @@ struct TagField {
     field_value: String,
 }
 
+#[must_use]
 fn get_parse_target(ty: &NormalizedType, schema: &NormalizedSchema) -> Option<ParseTarget> {
     let parent_name = ty.subtype_of.first()?;
     let parent = schema.types.get(parent_name)?;
@@ -171,6 +176,7 @@ fn get_parse_target(ty: &NormalizedType, schema: &NormalizedSchema) -> Option<Pa
     })
 }
 
+#[must_use]
 fn get_subtypes_from_description(ty: &NormalizedType, schema: &NormalizedSchema) -> Vec<String> {
     let mut subtype_names = vec![];
     let mut read_subtypes = false;
@@ -203,6 +209,7 @@ fn get_subtypes_from_description(ty: &NormalizedType, schema: &NormalizedSchema)
     subtype_names
 }
 
+#[must_use]
 fn generate_example_json_value(
     ty: &NormalizedType,
     schema: &NormalizedSchema,
@@ -212,6 +219,7 @@ fn generate_example_json_value(
     generate_type_json_value(ty, schema, &mut visiting, forced_tag)
 }
 
+#[must_use]
 fn generate_type_json_value(
     ty: &NormalizedType,
     schema: &NormalizedSchema,
@@ -272,6 +280,7 @@ fn generate_type_json_value(
     }
 }
 
+#[must_use]
 fn generate_field_json_value(
     kind: &TypeKindInField,
     schema: &NormalizedSchema,
@@ -287,7 +296,7 @@ fn generate_field_json_value(
             Some(quote! { #value })
         }
         TypeKindInField::Integer(kind) => match kind {
-            IntegerKind::Float32 | IntegerKind::Float64 => Some(quote! { 3.14 }),
+            IntegerKind::Float32 | IntegerKind::Float64 => Some(quote! { 1.25 }),
             _ => Some(quote! { 1 }),
         },
         TypeKindInField::Boolean(_) => Some(quote! { true }),
@@ -309,6 +318,8 @@ fn generate_field_json_value(
     }
 }
 
+#[must_use]
+#[allow(clippy::items_after_statements)]
 fn extract_tagged_string_value(description: &str) -> Option<String> {
     let description = description.to_lowercase();
     const MARKERS: &[&str] = &[
@@ -331,12 +342,14 @@ fn extract_tagged_string_value(description: &str) -> Option<String> {
     extract_first_quoted_token(search_area).or_else(|| extract_first_bare_token(search_area))
 }
 
+#[must_use]
 fn extract_first_quoted_token(input: &str) -> Option<String> {
     extract_between(input, '"', '"')
         .or_else(|| extract_between(input, '“', '”'))
         .or_else(|| extract_between(input, '`', '`'))
 }
 
+#[must_use]
 fn extract_between(input: &str, start: char, end: char) -> Option<String> {
     let start_idx = input.find(start)?;
     let rest = &input[start_idx + start.len_utf8()..];
@@ -349,6 +362,7 @@ fn extract_between(input: &str, start: char, end: char) -> Option<String> {
     }
 }
 
+#[must_use]
 fn extract_first_bare_token(input: &str) -> Option<String> {
     let words = input.split_whitespace();
     for word in words {
@@ -362,6 +376,7 @@ fn extract_first_bare_token(input: &str) -> Option<String> {
     None
 }
 
+#[must_use]
 fn is_identifier_like(token: &str) -> bool {
     !token.is_empty() && token.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
 }

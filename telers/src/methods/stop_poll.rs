@@ -1,104 +1,101 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{
-    client::Bot,
-    types::{ChatIdKind, InlineKeyboardMarkup, Poll},
-};
-
+use crate::client::Bot;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Use this method to stop a poll which was sent by the bot.
+/// Use this method to stop a poll which was sent by the bot. On success, the stopped Poll is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#stoppoll>
 /// # Returns
-/// On success, the stopped [`Poll`] is returned
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `crate::types::Poll`
+#[derive(Clone, Debug, Serialize)]
 pub struct StopPoll {
     /// Unique identifier of the business connection on behalf of which the message to be edited was sent
-    pub business_connection_id: Option<String>,
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
-    pub chat_id: ChatIdKind,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub business_connection_id: Option<Box<str>>,
+    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    pub chat_id: crate::types::ChatIdKind,
     /// Identifier of the original message with the poll
     pub message_id: i64,
-    /// A JSON-serialized object for a new message [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards).
-    pub reply_markup: Option<InlineKeyboardMarkup>,
+    /// A JSON-serialized object for a new message inline keyboard.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
 }
-
 impl StopPoll {
+    /// Creates a new `StopPoll`.
+    ///
+    /// # Arguments
+    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// * `message_id` - Identifier of the original message with the poll
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>, message_id: i64) -> Self {
+    pub fn new<T0: Into<crate::types::ChatIdKind>, T1: Into<i64>>(
+        chat_id: T0,
+        message_id: T1,
+    ) -> Self {
         Self {
             business_connection_id: None,
             chat_id: chat_id.into(),
-            message_id,
+            message_id: message_id.into(),
             reply_markup: None,
         }
     }
 
+    /// Unique identifier of the business connection on behalf of which the message to be edited was sent
     #[must_use]
-    pub fn business_connection_id(self, val: impl Into<String>) -> Self {
-        Self {
-            business_connection_id: Some(val.into()),
-            ..self
-        }
+    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.business_connection_id = Some(val.into());
+        this
     }
 
+    /// Unique identifier of the business connection on behalf of which the message to be edited was sent
     #[must_use]
-    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
-        Self {
-            chat_id: val.into(),
-            ..self
-        }
+    pub fn business_connection_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.business_connection_id = val.map(Into::into);
+        this
     }
 
+    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
     #[must_use]
-    pub fn message_id(self, val: i64) -> Self {
-        Self {
-            message_id: val,
-            ..self
-        }
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
+        let mut this = self;
+        this.chat_id = val.into();
+        this
     }
 
+    /// Identifier of the original message with the poll
     #[must_use]
-    pub fn reply_markup(self, val: impl Into<InlineKeyboardMarkup>) -> Self {
-        Self {
-            reply_markup: Some(val.into()),
-            ..self
-        }
+    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.message_id = val.into();
+        this
+    }
+
+    /// A JSON-serialized object for a new message inline keyboard.
+    #[must_use]
+    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(self, val: T) -> Self {
+        let mut this = self;
+        this.reply_markup = Some(val.into());
+        this
+    }
+
+    /// A JSON-serialized object for a new message inline keyboard.
+    #[must_use]
+    pub fn reply_markup_option<T: Into<crate::types::InlineKeyboardMarkup>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.reply_markup = val.map(Into::into);
+        this
     }
 }
-
-impl StopPoll {
-    #[must_use]
-    pub fn business_connection_id_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            business_connection_id: val.map(Into::into),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
-        Self {
-            reply_markup: val.map(Into::into),
-            ..self
-        }
-    }
-}
-
-impl TelegramMethod for StopPoll {
+impl super::TelegramMethod for StopPoll {
     type Method = Self;
-    type Return = Poll;
+    type Return = crate::types::Poll;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        Request::new("stopPoll", self, None)
-    }
-}
-
-impl AsRef<StopPoll> for StopPoll {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("stopPoll", self, None)
     }
 }

@@ -1,62 +1,55 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{
-    client::Bot,
-    types::{InlineQueryResult, SentWebAppMessage},
-};
-
+use crate::client::Bot;
 use serde::Serialize;
-
-/// Use this method to set the result of an interaction with a [`Web App`](https://core.telegram.org/bots/webapps) and send a corresponding message on behalf of the user to the chat from which the query originated.
+/// Use this method to set the result of an interaction with a Web App and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a [`SentWebAppMessage`] object is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#answerwebappquery>
 /// # Returns
-/// On success, a [`SentWebAppMessage`] object is returned
-#[derive(Debug, PartialEq, Serialize)]
+/// - `crate::types::SentWebAppMessage`
+#[derive(Clone, Debug, Serialize)]
 pub struct AnswerWebAppQuery {
     /// Unique identifier for the query to be answered
-    pub web_app_query_id: String,
+    pub web_app_query_id: Box<str>,
     /// A JSON-serialized object describing the message to be sent
-    pub result: InlineQueryResult,
+    pub result: crate::types::InlineQueryResult,
 }
-
 impl AnswerWebAppQuery {
+    /// Creates a new `AnswerWebAppQuery`.
+    ///
+    /// # Arguments
+    /// * `web_app_query_id` - Unique identifier for the query to be answered
+    /// * `result` - A JSON-serialized object describing the message to be sent
     #[must_use]
-    pub fn new(web_app_query_id: impl Into<String>, result: impl Into<InlineQueryResult>) -> Self {
+    pub fn new<T0: Into<Box<str>>, T1: Into<crate::types::InlineQueryResult>>(
+        web_app_query_id: T0,
+        result: T1,
+    ) -> Self {
         Self {
             web_app_query_id: web_app_query_id.into(),
             result: result.into(),
         }
     }
 
+    /// Unique identifier for the query to be answered
     #[must_use]
-    pub fn web_app_query_id(self, val: impl Into<String>) -> Self {
-        Self {
-            web_app_query_id: val.into(),
-            ..self
-        }
+    pub fn web_app_query_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.web_app_query_id = val.into();
+        this
     }
 
+    /// A JSON-serialized object describing the message to be sent
     #[must_use]
-    pub fn result(self, val: impl Into<InlineQueryResult>) -> Self {
-        Self {
-            result: val.into(),
-            ..self
-        }
+    pub fn result<T: Into<crate::types::InlineQueryResult>>(self, val: T) -> Self {
+        let mut this = self;
+        this.result = val.into();
+        this
     }
 }
-
-impl TelegramMethod for AnswerWebAppQuery {
+impl super::TelegramMethod for AnswerWebAppQuery {
     type Method = Self;
-    type Return = SentWebAppMessage;
+    type Return = crate::types::SentWebAppMessage;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        Request::new("answerWebAppQuery", self, None)
-    }
-}
-
-impl AsRef<AnswerWebAppQuery> for AnswerWebAppQuery {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("answerWebAppQuery", self, None)
     }
 }

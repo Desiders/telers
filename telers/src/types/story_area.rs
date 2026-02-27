@@ -1,41 +1,44 @@
-use serde::Serialize;
-
-use super::{StoryAreaPosition, StoryAreaType};
-
+use serde::{Deserialize, Serialize};
 /// Describes a clickable area on a story media.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#storyarea>
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct StoryArea {
     /// Position of the area
-    pub position: StoryAreaPosition,
+    pub position: crate::types::StoryAreaPosition,
     /// Type of the area
-    #[serde(rename = "type")]
-    pub area_type: StoryAreaType,
+    pub r#type: crate::types::StoryAreaType,
 }
-
 impl StoryArea {
+    /// Creates a new `StoryArea`.
+    ///
+    /// # Arguments
+    /// * `position` - Position of the area
+    /// * `type` - Type of the area
     #[must_use]
-    pub fn new(position: StoryAreaPosition, area_type: StoryAreaType) -> Self {
+    pub fn new<T0: Into<crate::types::StoryAreaPosition>, T1: Into<crate::types::StoryAreaType>>(
+        position: T0,
+        r#type: T1,
+    ) -> Self {
         Self {
-            position,
-            area_type,
+            position: position.into(),
+            r#type: r#type.into(),
         }
     }
 
+    /// Position of the area
     #[must_use]
-    pub fn position(self, val: StoryAreaPosition) -> Self {
-        Self {
-            position: val,
-            ..self
-        }
+    pub fn position<T: Into<crate::types::StoryAreaPosition>>(self, val: T) -> Self {
+        let mut this = self;
+        this.position = val.into();
+        this
     }
 
+    /// Type of the area
     #[must_use]
-    pub fn area_type(self, val: StoryAreaType) -> Self {
-        Self {
-            area_type: val,
-            ..self
-        }
+    pub fn r#type<T: Into<crate::types::StoryAreaType>>(self, val: T) -> Self {
+        let mut this = self;
+        this.r#type = val.into();
+        this
     }
 }

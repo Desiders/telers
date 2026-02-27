@@ -1,26 +1,29 @@
-use super::InputFile;
-
-use serde::Serialize;
-
+use serde::{Deserialize, Serialize};
 /// The paid media to send is a photo.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputpaidmediaphoto>
-#[derive(Debug, Hash, PartialEq, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct InputPaidMediaPhoto {
-    /// File to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new one using `multipart/form-data` under `<file_attach_name>` name. [`More information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
-    pub media: InputFile,
+    /// File to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
+    pub media: crate::types::InputFile,
 }
-
 impl InputPaidMediaPhoto {
+    /// Creates a new `InputPaidMediaPhoto`.
+    ///
+    /// # Arguments
+    /// * `media` - File to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
-    pub fn new(media: impl Into<InputFile>) -> Self {
+    pub fn new<T0: Into<crate::types::InputFile>>(media: T0) -> Self {
         Self {
             media: media.into(),
         }
     }
 
+    /// File to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
-    pub fn media(self, val: impl Into<InputFile>) -> Self {
-        Self { media: val.into() }
+    pub fn media<T: Into<crate::types::InputFile>>(self, val: T) -> Self {
+        let mut this = self;
+        this.media = val.into();
+        this
     }
 }

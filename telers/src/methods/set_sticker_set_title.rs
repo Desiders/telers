@@ -1,59 +1,52 @@
-use super::base::{Request, TelegramMethod};
-
 use crate::client::Bot;
-
 use serde::Serialize;
-
-/// Use this method to set the title of a created sticker set.
+/// Use this method to set the title of a created sticker set. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setstickersettitle>
 /// # Returns
-/// On success, `true` is returned
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct SetStickerSetTitle {
     /// Sticker set name
-    pub name: String,
+    pub name: Box<str>,
     /// Sticker set title, 1-64 characters
-    pub title: String,
+    pub title: Box<str>,
 }
-
 impl SetStickerSetTitle {
+    /// Creates a new `SetStickerSetTitle`.
+    ///
+    /// # Arguments
+    /// * `name` - Sticker set name
+    /// * `title` - Sticker set title, 1-64 characters
     #[must_use]
-    pub fn new(name: impl Into<String>, title: impl Into<String>) -> Self {
+    pub fn new<T0: Into<Box<str>>, T1: Into<Box<str>>>(name: T0, title: T1) -> Self {
         Self {
             name: name.into(),
             title: title.into(),
         }
     }
 
+    /// Sticker set name
     #[must_use]
-    pub fn name(self, val: impl Into<String>) -> Self {
-        Self {
-            name: val.into(),
-            ..self
-        }
+    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.name = val.into();
+        this
     }
 
+    /// Sticker set title, 1-64 characters
     #[must_use]
-    pub fn title(self, val: impl Into<String>) -> Self {
-        Self {
-            title: val.into(),
-            ..self
-        }
+    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.title = val.into();
+        this
     }
 }
-
-impl TelegramMethod for SetStickerSetTitle {
+impl super::TelegramMethod for SetStickerSetTitle {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        Request::new("setStickerSetTitle", self, None)
-    }
-}
-
-impl AsRef<SetStickerSetTitle> for SetStickerSetTitle {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("setStickerSetTitle", self, None)
     }
 }

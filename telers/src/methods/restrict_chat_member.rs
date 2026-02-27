@@ -1,115 +1,115 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{
-    client::Bot,
-    types::{ChatIdKind, ChatPermissions},
-};
-
+use crate::client::Bot;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Use this method to restrict a user in a supergroup. The bot must be an administrator in the supergroup for this to work and must have the appropriate administrator rights. Pass `true` for all permissions to lift restrictions from a user.
+/// Use this method to restrict a user in a supergroup. The bot must be an administrator in the supergroup for this to work and must have the appropriate administrator rights. Pass `true` for all permissions to lift restrictions from a user. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#restrictchatmember>
 /// # Returns
-/// On success, `true` is returned
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct RestrictChatMember {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
-    pub chat_id: ChatIdKind,
+    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier of the target user
     pub user_id: i64,
     /// A JSON-serialized object for new user permissions
-    pub permissions: ChatPermissions,
+    pub permissions: crate::types::ChatPermissions,
     /// Pass `true` if chat permissions are set independently. Otherwise, the `can_send_other_messages` and `can_add_web_page_previews` permissions will imply the `can_send_messages`, `can_send_audios`, `can_send_documents`, `can_send_photos`, `can_send_videos`, `can_send_video_notes`, and `can_send_voice_notes` permissions; the `can_send_polls` permission will imply the `can_send_messages` permission.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub use_independent_chat_permissions: Option<bool>,
     /// Date when restrictions will be lifted for the user; Unix time. If user is restricted for more than 366 days or less than 30 seconds from the current time, they are considered to be restricted forever
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub until_date: Option<i64>,
 }
-
 impl RestrictChatMember {
+    /// Creates a new `RestrictChatMember`.
+    ///
+    /// # Arguments
+    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// * `user_id` - Unique identifier of the target user
+    /// * `permissions` - A JSON-serialized object for new user permissions
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>, user_id: i64, permissions: ChatPermissions) -> Self {
+    pub fn new<
+        T0: Into<crate::types::ChatIdKind>,
+        T1: Into<i64>,
+        T2: Into<crate::types::ChatPermissions>,
+    >(
+        chat_id: T0,
+        user_id: T1,
+        permissions: T2,
+    ) -> Self {
         Self {
             chat_id: chat_id.into(),
-            user_id,
-            permissions,
+            user_id: user_id.into(),
+            permissions: permissions.into(),
             use_independent_chat_permissions: None,
             until_date: None,
         }
     }
 
+    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
     #[must_use]
-    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
-        Self {
-            chat_id: val.into(),
-            ..self
-        }
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
+        let mut this = self;
+        this.chat_id = val.into();
+        this
     }
 
+    /// Unique identifier of the target user
     #[must_use]
-    pub fn user_id(self, val: i64) -> Self {
-        Self {
-            user_id: val,
-            ..self
-        }
+    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.user_id = val.into();
+        this
     }
 
+    /// A JSON-serialized object for new user permissions
     #[must_use]
-    pub fn permissions(self, val: ChatPermissions) -> Self {
-        Self {
-            permissions: val,
-            ..self
-        }
+    pub fn permissions<T: Into<crate::types::ChatPermissions>>(self, val: T) -> Self {
+        let mut this = self;
+        this.permissions = val.into();
+        this
     }
 
+    /// Pass `true` if chat permissions are set independently. Otherwise, the `can_send_other_messages` and `can_add_web_page_previews` permissions will imply the `can_send_messages`, `can_send_audios`, `can_send_documents`, `can_send_photos`, `can_send_videos`, `can_send_video_notes`, and `can_send_voice_notes` permissions; the `can_send_polls` permission will imply the `can_send_messages` permission.
     #[must_use]
-    pub fn use_independent_chat_permissions(self, val: bool) -> Self {
-        Self {
-            use_independent_chat_permissions: Some(val),
-            ..self
-        }
+    pub fn use_independent_chat_permissions<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.use_independent_chat_permissions = Some(val.into());
+        this
     }
 
+    /// Pass `true` if chat permissions are set independently. Otherwise, the `can_send_other_messages` and `can_add_web_page_previews` permissions will imply the `can_send_messages`, `can_send_audios`, `can_send_documents`, `can_send_photos`, `can_send_videos`, `can_send_video_notes`, and `can_send_voice_notes` permissions; the `can_send_polls` permission will imply the `can_send_messages` permission.
     #[must_use]
-    pub fn until_date(self, val: i64) -> Self {
-        Self {
-            until_date: Some(val),
-            ..self
-        }
-    }
-}
-
-impl RestrictChatMember {
-    #[must_use]
-    pub fn use_independent_chat_permissions_option(self, val: Option<bool>) -> Self {
-        Self {
-            use_independent_chat_permissions: val,
-            ..self
-        }
+    pub fn use_independent_chat_permissions_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.use_independent_chat_permissions = val.map(Into::into);
+        this
     }
 
+    /// Date when restrictions will be lifted for the user; Unix time. If user is restricted for more than 366 days or less than 30 seconds from the current time, they are considered to be restricted forever
     #[must_use]
-    pub fn until_date_option(self, val: Option<i64>) -> Self {
-        Self {
-            until_date: val,
-            ..self
-        }
+    pub fn until_date<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.until_date = Some(val.into());
+        this
+    }
+
+    /// Date when restrictions will be lifted for the user; Unix time. If user is restricted for more than 366 days or less than 30 seconds from the current time, they are considered to be restricted forever
+    #[must_use]
+    pub fn until_date_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.until_date = val.map(Into::into);
+        this
     }
 }
-
-impl TelegramMethod for RestrictChatMember {
+impl super::TelegramMethod for RestrictChatMember {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        Request::new("restrictChatMember", self, None)
-    }
-}
-
-impl AsRef<RestrictChatMember> for RestrictChatMember {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("restrictChatMember", self, None)
     }
 }

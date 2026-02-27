@@ -1,109 +1,123 @@
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-
 /// This object represents an inline button that switches the current user to inline mode in a chosen chat, with an optional default inline query.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#switchinlinequerychosenchat>
-#[skip_serializing_none]
-#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SwitchInlineQueryChosenChat {
     /// The default inline query to be inserted in the input field. If left empty, only the bot's username will be inserted
-    pub query: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub query: Option<Box<str>>,
     /// `true`, if private chats with users can be chosen
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_user_chats: Option<bool>,
     /// `true`, if private chats with bots can be chosen
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_bot_chats: Option<bool>,
     /// `true`, if group and supergroup chats can be chosen
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_group_chats: Option<bool>,
     /// `true`, if channel chats can be chosen
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_channel_chats: Option<bool>,
 }
-
 impl SwitchInlineQueryChosenChat {
+    /// Creates a new `SwitchInlineQueryChosenChat`.
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
     pub fn new() -> Self {
-        Self::default()
-    }
-
-    #[must_use]
-    pub fn query(self, val: impl Into<String>) -> Self {
         Self {
-            query: Some(val.into()),
-            ..self
+            query: None,
+            allow_user_chats: None,
+            allow_bot_chats: None,
+            allow_group_chats: None,
+            allow_channel_chats: None,
         }
     }
 
+    /// The default inline query to be inserted in the input field. If left empty, only the bot's username will be inserted
     #[must_use]
-    pub fn allow_user_chats(self, val: bool) -> Self {
-        Self {
-            allow_user_chats: Some(val),
-            ..self
-        }
+    pub fn query<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.query = Some(val.into());
+        this
     }
 
+    /// The default inline query to be inserted in the input field. If left empty, only the bot's username will be inserted
     #[must_use]
-    pub fn allow_bot_chats(self, val: bool) -> Self {
-        Self {
-            allow_bot_chats: Some(val),
-            ..self
-        }
+    pub fn query_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.query = val.map(Into::into);
+        this
     }
 
+    /// `true`, if private chats with users can be chosen
     #[must_use]
-    pub fn allow_group_chats(self, val: bool) -> Self {
-        Self {
-            allow_group_chats: Some(val),
-            ..self
-        }
+    pub fn allow_user_chats<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.allow_user_chats = Some(val.into());
+        this
     }
 
+    /// `true`, if private chats with users can be chosen
     #[must_use]
-    pub fn allow_channel_chats(self, val: bool) -> Self {
-        Self {
-            allow_channel_chats: Some(val),
-            ..self
-        }
+    pub fn allow_user_chats_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.allow_user_chats = val.map(Into::into);
+        this
+    }
+
+    /// `true`, if private chats with bots can be chosen
+    #[must_use]
+    pub fn allow_bot_chats<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.allow_bot_chats = Some(val.into());
+        this
+    }
+
+    /// `true`, if private chats with bots can be chosen
+    #[must_use]
+    pub fn allow_bot_chats_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.allow_bot_chats = val.map(Into::into);
+        this
+    }
+
+    /// `true`, if group and supergroup chats can be chosen
+    #[must_use]
+    pub fn allow_group_chats<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.allow_group_chats = Some(val.into());
+        this
+    }
+
+    /// `true`, if group and supergroup chats can be chosen
+    #[must_use]
+    pub fn allow_group_chats_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.allow_group_chats = val.map(Into::into);
+        this
+    }
+
+    /// `true`, if channel chats can be chosen
+    #[must_use]
+    pub fn allow_channel_chats<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.allow_channel_chats = Some(val.into());
+        this
+    }
+
+    /// `true`, if channel chats can be chosen
+    #[must_use]
+    pub fn allow_channel_chats_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.allow_channel_chats = val.map(Into::into);
+        this
     }
 }
-
-impl SwitchInlineQueryChosenChat {
-    #[must_use]
-    pub fn query_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            query: val.map(Into::into),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn allow_user_chats_option(self, val: Option<bool>) -> Self {
-        Self {
-            allow_user_chats: val,
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn allow_bot_chats_option(self, val: Option<bool>) -> Self {
-        Self {
-            allow_bot_chats: val,
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn allow_group_chats_option(self, val: Option<bool>) -> Self {
-        Self {
-            allow_group_chats: val,
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn allow_channel_chats_option(self, val: Option<bool>) -> Self {
-        Self {
-            allow_channel_chats: val,
-            ..self
-        }
+impl Default for SwitchInlineQueryChosenChat {
+    fn default() -> Self {
+        Self::new()
     }
 }

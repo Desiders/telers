@@ -1,3 +1,9 @@
+#![allow(
+    clippy::missing_panics_doc,
+    clippy::too_many_lines,
+    clippy::missing_errors_doc
+)]
+
 use quote::format_ident;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
@@ -24,6 +30,16 @@ const BOXED_TYPES: &[&str] = &[
     "ExternalReplyInfo",
     "Gift",
     "UniqueGift",
+    "BackgroundType",
+    "Audio",
+    "Animation",
+    "Poll",
+    "Sticker",
+    "SuccessfulPayment",
+    "VideoNote",
+    "Venue",
+    "Video",
+    "Document",
 ];
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -37,6 +53,7 @@ pub struct Field {
 impl Field {
     /// # Panics
     /// * If the field has multiple types, but it's not a known special case.
+    #[must_use]
     pub fn identify_field_type(&self) -> TypeKindInField {
         let types = self.types.as_slice();
 
@@ -83,12 +100,14 @@ impl Field {
         TypeKindInField::Telegram(r#type.to_owned())
     }
 
+    #[must_use]
     pub fn is_tagged(&self) -> bool {
         self.required
             && self.types == ["String"]
             && (self.description.contains("always") || self.description.contains("must be"))
     }
 
+    #[must_use]
     pub fn get_tagged_value(&self) -> Option<String> {
         if !is_string(self.types.first()?) {
             return None;
@@ -96,9 +115,9 @@ impl Field {
         let desc = self.description.to_lowercase();
         let patterns = [
             r#"always "([^"]+)""#,
-            r#"always ([a-z_]+)"#,
+            r"always ([a-z_]+)",
             r#"must be "([^"]+)""#,
-            r#"must be ([a-z_]+)"#,
+            r"must be ([a-z_]+)",
         ];
 
         for pattern in patterns {
@@ -162,7 +181,7 @@ impl Schema {
 
         let mut tagged_values = SubtypeTaggedValues::default();
         let first_ty = self.types.get(subtypes.first().unwrap()).unwrap();
-        let Some(first_ty_tagged_field) = first_ty.fields.get(0) else {
+        let Some(first_ty_tagged_field) = first_ty.fields.first() else {
             return Some((SubtypeKind::Untagged, tagged_values));
         };
         if !first_ty_tagged_field.is_tagged() {
@@ -175,7 +194,7 @@ impl Schema {
 
         for subtype in subtypes.iter().skip(1) {
             let ty = self.types.get(subtype).unwrap();
-            let Some(ty_tagged_field) = ty.fields.get(0) else {
+            let Some(ty_tagged_field) = ty.fields.first() else {
                 return Some((SubtypeKind::Untagged, tagged_values));
             };
             if !ty_tagged_field.is_tagged() {
@@ -193,6 +212,7 @@ impl Schema {
         ))
     }
 
+    #[must_use]
     pub fn normalize(self) -> NormalizedSchema {
         let mut subtype_info = HashMap::new();
         for (name, ty) in &self.types {
@@ -257,7 +277,7 @@ impl Schema {
                     subtype_kind,
                     subtypes,
                     subtype_of: ty.subtype_of,
-                    has_extra_fields: true,
+                    has_extra_fields: false,
                 };
                 (name, normalized)
             })
@@ -317,11 +337,13 @@ impl Schema {
         }
     }
 
+    #[must_use]
     pub fn is_telegram_type(&self, raw_type: &RawType) -> bool {
         self.types.contains_key(raw_type)
     }
 }
 
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Debug, Clone)]
 pub struct NormalizedField {
     pub name: FieldName,
@@ -334,6 +356,7 @@ pub struct NormalizedField {
 }
 
 impl NormalizedField {
+    #[must_use]
     pub fn is_tagged(&self, tag_field: Option<&str>, parent_tag_field: Option<&str>) -> bool {
         let Some(tag_name) = tag_field else {
             return false;
@@ -366,10 +389,13 @@ pub enum SubtypeKind {
 }
 
 impl SubtypeKind {
+    #[must_use]
     pub fn get_tags(&self) -> (Option<&str>, Option<&str>) {
         match self {
             SubtypeKind::Untagged => (None, None),
-            SubtypeKind::UntaggedInTagged { tag_field } => (Some(tag_field.as_str()), None),
+            SubtypeKind::UntaggedInTagged {
+                tag_field,
+            } => (Some(tag_field.as_str()), None),
             SubtypeKind::Tagged {
                 tag_field,
                 parent_tag_field,
@@ -400,6 +426,7 @@ pub struct NormalizedType {
 }
 
 impl NormalizedType {
+    #[must_use]
     pub fn get_paths(&self) -> Vec<Path> {
         self.fields
             .iter()
@@ -415,19 +442,23 @@ impl NormalizedType {
             .collect()
     }
 
+    #[must_use]
     pub fn get_paths_count(&self) -> usize {
         self.get_paths().len()
     }
 
+    #[must_use]
     pub fn is_update(&self) -> bool {
         matches!(&self.subtype_kind, Some(SubtypeKind::Untagged)) && self.name == "Update"
     }
 
+    #[must_use]
     pub fn is_update_variant(&self) -> bool {
         matches!(&self.subtype_kind, Some(SubtypeKind::Untagged))
             && self.subtype_of.contains(&"Update".to_owned())
     }
 
+    #[must_use]
     pub fn update_variant_ty_field(&self) -> Option<&NormalizedField> {
         self.fields.iter().find(|f| f.is_update_variant_field)
     }
@@ -452,18 +483,21 @@ pub struct NormalizedSchema {
 }
 
 impl NormalizedSchema {
-    /// Finalizes a parent enum type after splitting: sets description, subtype_kind, subtypes.
+    /// Finalizes a parent enum type after splitting: sets description, `subtype_kind`, subtypes.
     fn finalize_split(
         parent: &mut NormalizedType,
         subtypes: &[(String, String)],
         subtype_kind: SubtypeKind,
     ) {
+        let mut sorted_subtypes = subtypes.to_vec();
+        sorted_subtypes.sort_by(|a, b| a.1.cmp(&b.1).then_with(|| a.0.cmp(&b.0)));
+
         parent
             .description
             .push("Currently, it can be one of".to_owned());
         parent
             .description
-            .extend(subtypes.iter().map(|(_, name)| format!("- {name}")));
+            .extend(sorted_subtypes.iter().map(|(_, name)| format!("- {name}")));
         parent.subtype_kind = Some(subtype_kind);
         parent.subtypes = subtypes
             .iter()
@@ -540,6 +574,7 @@ impl NormalizedSchema {
             .get_mut("InlineQueryResult")
             .expect("InlineQueryResult doesn't exist in schema");
 
+        #[allow(clippy::items_after_statements)]
         enum TypeKind {
             CachedAndNotCached,
             Cached,
@@ -573,50 +608,47 @@ impl NormalizedSchema {
                 continue;
             };
 
-            match kind {
-                TypeKind::CachedAndNotCached => {
-                    let cached = format!("InlineQueryResultCached{inline_query_type}");
-                    let not_cached = format!("InlineQueryResult{inline_query_type}");
-                    let combined = format!("InlineQueryResult{inline_query_type}Kind");
+            if let TypeKind::CachedAndNotCached = kind {
+                let cached = format!("InlineQueryResultCached{inline_query_type}");
+                let not_cached = format!("InlineQueryResult{inline_query_type}");
+                let combined = format!("InlineQueryResult{inline_query_type}Kind");
 
-                    let name = combined.to_string();
-                    if types.contains_key(&name) {
-                        continue;
-                    }
-                    subtype.ty_name = name.clone();
-
-                    types.insert(
-                        name.clone(),
-                        NormalizedType {
-                            name: name.clone(),
-                            href: inline_query_result.href.clone(),
-                            description: vec![
-                                "# Notes".to_owned(),
-                                format!(
-                                    "This object represents an inline query result kind as combine of {cached} and \
-                                     {not_cached}."
-                                ),
-                            ],
-                            fields: vec![],
-                            subtype_kind: Some(SubtypeKind::UntaggedInTagged {
-                                tag_field: "type".to_owned(),
-                            }),
-                            subtypes: vec![
-                                NormalizedSubtypeVariant {
-                                    variant: "Cached".to_owned(),
-                                    ty_name: cached.to_string(),
-                                },
-                                NormalizedSubtypeVariant {
-                                    variant: "Uncached".to_owned(),
-                                    ty_name: not_cached.to_string(),
-                                },
-                            ],
-                            subtype_of: vec![inline_query_result.name.clone()],
-                            has_extra_fields: false,
-                        },
-                    );
+                let name = combined.clone();
+                if types.contains_key(&name) {
+                    continue;
                 }
-                _ => {}
+                subtype.ty_name.clone_from(&name);
+
+                types.insert(
+                    name.clone(),
+                    NormalizedType {
+                        name: name.clone(),
+                        href: inline_query_result.href.clone(),
+                        description: vec![
+                            "# Notes".to_owned(),
+                            format!(
+                                "This object represents an inline query result kind as combine of \
+                                 {cached} and {not_cached}."
+                            ),
+                        ],
+                        fields: vec![],
+                        subtype_kind: Some(SubtypeKind::UntaggedInTagged {
+                            tag_field: "type".to_owned(),
+                        }),
+                        subtypes: vec![
+                            NormalizedSubtypeVariant {
+                                variant: "Cached".to_owned(),
+                                ty_name: cached.clone(),
+                            },
+                            NormalizedSubtypeVariant {
+                                variant: "Uncached".to_owned(),
+                                ty_name: not_cached.clone(),
+                            },
+                        ],
+                        subtype_of: vec![inline_query_result.name.clone()],
+                        has_extra_fields: false,
+                    },
+                );
             }
 
             inline_query_result.subtypes.push(subtype);
@@ -780,7 +812,10 @@ impl NormalizedSchema {
                 let description = vec![
                     field.description.clone(),
                     "# Notes".to_owned(),
-                    format!("This object represents a {kind_label} from original message field {field_name}."),
+                    format!(
+                        "This object represents a {kind_label} from original message field \
+                         {field_name}."
+                    ),
                 ];
 
                 types.insert(
@@ -793,7 +828,7 @@ impl NormalizedSchema {
                         subtype_kind: Some(SubtypeKind::Untagged),
                         subtypes: vec![],
                         subtype_of: vec![message.name.clone()],
-                        has_extra_fields: true,
+                        has_extra_fields: false,
                     },
                 );
                 subtypes.push((variant_name, type_name));
@@ -839,7 +874,10 @@ impl NormalizedSchema {
             let description = vec![
                 field.description.clone(),
                 "# Notes".to_owned(),
-                format!("This object represents an external reply info from original field `{field_name}`."),
+                format!(
+                    "This object represents an external reply info from original field \
+                     `{field_name}`."
+                ),
             ];
 
             types.insert(
@@ -852,7 +890,7 @@ impl NormalizedSchema {
                     subtype_kind: Some(SubtypeKind::Untagged),
                     subtypes: vec![],
                     subtype_of: vec![info.name.clone()],
-                    has_extra_fields: true,
+                    has_extra_fields: false,
                 },
             );
             subtypes.push((variant_name, type_name));
@@ -918,16 +956,21 @@ impl NormalizedSchema {
             subtypes.push((variant_name, type_name));
         }
 
+        let mut sorted_subtypes = subtypes.clone();
+        sorted_subtypes.sort_by(|a, b| a.1.cmp(&b.1).then_with(|| a.0.cmp(&b.0)));
         update
             .description
             .push("Currently, it can be one of".to_owned());
-        for (_, name) in &subtypes {
+        for (_, name) in &sorted_subtypes {
             update.description.push(format!("- {name}"));
         }
         update.subtype_kind = Some(SubtypeKind::Untagged);
         update.subtypes = subtypes
             .into_iter()
-            .map(|(variant, ty_name)| NormalizedSubtypeVariant { variant, ty_name })
+            .map(|(variant, ty_name)| NormalizedSubtypeVariant {
+                variant,
+                ty_name,
+            })
             .collect();
 
         self.types.insert(
@@ -964,7 +1007,7 @@ impl NormalizedSchema {
         let mut common_fields = vec![];
         let mut type_fields_map: HashMap<&str, Vec<_>> = HashMap::new();
 
-        for mut field in mem::take(&mut chat.fields) {
+        for field in mem::take(&mut chat.fields) {
             if field.name == "type" {
                 common_fields.push(field);
                 continue;
@@ -985,8 +1028,6 @@ impl NormalizedSchema {
             }
             if applicable.is_empty() {
                 applicable.extend(chat_types);
-            } else {
-                field.required = !desc.contains("if available");
             }
             for &chat_type in &applicable {
                 let f = field.clone();
@@ -1025,7 +1066,7 @@ impl NormalizedSchema {
                     }),
                     subtypes: vec![],
                     subtype_of: vec![chat.name.clone()],
-                    has_extra_fields: true,
+                    has_extra_fields: false,
                 },
             );
             subtypes.push((variant_name, type_name));
@@ -1071,7 +1112,7 @@ impl NormalizedSchema {
             }
             if applicable.is_empty() {
                 applicable.extend(sticker_types);
-            };
+            }
 
             for &t in &applicable {
                 let f = field.clone();
@@ -1099,7 +1140,10 @@ impl NormalizedSchema {
                     description: vec![
                         format!("This object represents a {} sticker.", sticker_type),
                         "# Notes".to_owned(),
-                        format!("This object represents a sticker from original sticker type `{sticker_type}`."),
+                        format!(
+                            "This object represents a sticker from original sticker type \
+                             `{sticker_type}`."
+                        ),
                     ],
                     fields,
                     subtype_kind: Some(SubtypeKind::Tagged {
@@ -1108,7 +1152,7 @@ impl NormalizedSchema {
                     }),
                     subtypes: vec![],
                     subtype_of: vec![sticker.name.clone()],
-                    has_extra_fields: true,
+                    has_extra_fields: false,
                 },
             );
             subtypes.push((variant_name, type_name));
@@ -1190,7 +1234,7 @@ impl NormalizedSchema {
                     }),
                     subtypes: vec![],
                     subtype_of: vec![poll.name.clone()],
-                    has_extra_fields: true,
+                    has_extra_fields: false,
                 },
             );
             subtypes.push((variant_name, type_name));
@@ -1382,7 +1426,7 @@ impl NormalizedSchema {
             let desc = field.description.to_lowercase();
             let mut applicable = vec![];
             for &t in &element_types {
-                let type_key = format!("\"{}\"", t);
+                let type_key = format!("\"{t}\"");
                 if desc.contains(&type_key) {
                     applicable.push(t);
                 }
@@ -1419,12 +1463,12 @@ impl NormalizedSchema {
                     description: vec![
                         format!(
                             "This object represents a/an {} encrypted passport element.",
-                            element_type.replace("_", " ")
+                            element_type.replace('_', " ")
                         ),
                         "# Notes".to_owned(),
                         format!(
-                            "This object represents an encrypted passport element from original field \
-                             `{element_type}`."
+                            "This object represents an encrypted passport element from original \
+                             field `{element_type}`."
                         ),
                     ],
                     fields,
@@ -1434,7 +1478,7 @@ impl NormalizedSchema {
                     }),
                     subtypes: vec![],
                     subtype_of: vec![element.name.clone()],
-                    has_extra_fields: true,
+                    has_extra_fields: false,
                 },
             );
             subtypes.push((variant_name, type_name));
@@ -1493,7 +1537,7 @@ impl NormalizedSchema {
             let mut applicable = vec![];
 
             for &t in &entity_types {
-                let type_key = format!("\"{}\"", t);
+                let type_key = format!("\"{t}\"");
                 if desc.contains(&type_key) {
                     applicable.push(t);
                     break;
@@ -1532,10 +1576,13 @@ impl NormalizedSchema {
                     description: vec![
                         format!(
                             "This object represents a/an {} message entity.",
-                            entity_type.replace("_", " ")
+                            entity_type.replace('_', " ")
                         ),
                         "# Notes".to_owned(),
-                        format!("This object represents a message entity from original field `{entity_type}`."),
+                        format!(
+                            "This object represents a message entity from original field \
+                             `{entity_type}`."
+                        ),
                     ],
                     fields,
                     subtype_kind: Some(SubtypeKind::Tagged {
@@ -1544,7 +1591,7 @@ impl NormalizedSchema {
                     }),
                     subtypes: vec![],
                     subtype_of: vec![entity.name.clone()],
-                    has_extra_fields: true,
+                    has_extra_fields: false,
                 },
             );
             subtypes.push((variant_name, type_name));
@@ -1577,7 +1624,9 @@ impl NormalizedSchema {
         ];
 
         let parent_tag_field = match partner.subtype_kind.as_ref().unwrap() {
-            SubtypeKind::Tagged { tag_field, .. } => tag_field.to_owned(),
+            SubtypeKind::Tagged {
+                tag_field, ..
+            } => tag_field.to_owned(),
             _ => unreachable!(),
         };
         let mut common_fields = vec![];
@@ -1592,7 +1641,7 @@ impl NormalizedSchema {
             let desc = field.description.to_lowercase();
             let mut applicable = vec![];
             for &t in &transaction_types {
-                let type_key = format!("\"{}\"", t);
+                let type_key = format!("\"{t}\"");
                 if desc.contains(&type_key) {
                     applicable.push(t);
                 }
@@ -1629,12 +1678,12 @@ impl NormalizedSchema {
                     description: vec![
                         format!(
                             "This object represents a/an {} transaction partner user.",
-                            transaction_type.replace("_", " ")
+                            transaction_type.replace('_', " ")
                         ),
                         "# Notes".to_owned(),
                         format!(
-                            "This object represents a transaction partner user from original field \
-                             `{transaction_type}`."
+                            "This object represents a transaction partner user from original \
+                             field `{transaction_type}`."
                         ),
                     ],
                     fields,
@@ -1644,7 +1693,7 @@ impl NormalizedSchema {
                     }),
                     subtypes: vec![],
                     subtype_of: vec![partner.name.clone()],
-                    has_extra_fields: true,
+                    has_extra_fields: false,
                 },
             );
             subtypes.push((variant_name, type_name));
@@ -1704,7 +1753,7 @@ impl NormalizedSchema {
                     subtype_kind: Some(SubtypeKind::Untagged),
                     subtypes: vec![],
                     subtype_of: vec![parent_name.to_owned()],
-                    has_extra_fields: true,
+                    has_extra_fields: false,
                 },
             );
             subtypes.push((variant_name, type_name));
@@ -1749,6 +1798,7 @@ pub enum TypeKindInField {
 }
 
 impl TypeKindInField {
+    #[must_use]
     pub fn get_path(&self) -> Option<Path> {
         match self {
             TypeKindInField::InputFile => {
@@ -1765,6 +1815,7 @@ impl TypeKindInField {
         }
     }
 
+    #[must_use]
     pub fn is_copy(&self) -> bool {
         matches!(
             self,
@@ -1772,11 +1823,12 @@ impl TypeKindInField {
         )
     }
 
+    #[must_use]
     pub fn require_import(&self) -> bool {
         match self {
-            TypeKindInField::Telegram(_) => true,
-            TypeKindInField::ChatId => true,
-            TypeKindInField::InputFile => true,
+            TypeKindInField::Telegram(_) | TypeKindInField::ChatId | TypeKindInField::InputFile => {
+                true
+            }
             TypeKindInField::Either(left, right) => left.require_import() || right.require_import(),
             TypeKindInField::Array(inner) => inner.require_import(),
             _ => false,
@@ -1784,30 +1836,32 @@ impl TypeKindInField {
     }
 }
 
+#[must_use]
 pub fn is_string(raw_type: &RawType) -> bool {
     raw_type == "String"
 }
 
+#[must_use]
 pub fn get_if_integer(raw_type: &RawType, description: &str) -> Option<IntegerKind> {
     match raw_type.as_str() {
         "Integer" => Some(match extract_range(description) {
             Some((min, max)) if min < 0 => {
-                if max <= i8::MAX as i64 {
+                if max <= i64::from(i8::MAX) {
                     IntegerKind::Int8
-                } else if max <= i16::MAX as i64 {
+                } else if max <= i64::from(i16::MAX) {
                     IntegerKind::Int16
-                } else if max <= i32::MAX as i64 {
+                } else if max <= i64::from(i32::MAX) {
                     IntegerKind::Int32
                 } else {
                     IntegerKind::Int64
                 }
             }
             Some((_, max)) => {
-                if max <= u8::MAX as i64 {
+                if max <= i64::from(u8::MAX) {
                     IntegerKind::UInt8
-                } else if max <= u16::MAX as i64 {
+                } else if max <= i64::from(u16::MAX) {
                     IntegerKind::UInt16
-                } else if max <= u32::MAX as i64 {
+                } else if max <= i64::from(u32::MAX) {
                     IntegerKind::UInt32
                 } else {
                     IntegerKind::UInt64
@@ -1833,6 +1887,7 @@ fn extract_range(description: &str) -> Option<(i64, i64)> {
 /// # Notes
 /// Currently use only [`BooleanKind::Any`] and [`BooleanKind::True`].
 /// Type like `False` is not used in the Telegram API.
+#[must_use]
 pub fn get_if_boolean(raw_type: &RawType) -> Option<BooleanKind> {
     match raw_type.as_str() {
         "Boolean" => Some(BooleanKind::Any),
@@ -1842,11 +1897,13 @@ pub fn get_if_boolean(raw_type: &RawType) -> Option<BooleanKind> {
 }
 
 /// All arrays in the Telegram API start with `Array of` prefix.
+#[must_use]
 pub fn is_array_of(raw_type: &RawType) -> bool {
     raw_type.starts_with("Array of")
 }
 
 /// `InputFile` if types is `[InputFile]` or `[InputFile, String]`.
+#[must_use]
 pub fn multi_type_is_input_file(types: &[RawType], description: &str) -> bool {
     if description.contains("attach://<file_attach_name>") {
         return true;
@@ -1861,6 +1918,7 @@ pub fn multi_type_is_input_file(types: &[RawType], description: &str) -> bool {
 }
 
 /// `ChatId` if types is `[Integer, String]`.
+#[must_use]
 pub fn multi_type_is_chat_id(types: &[RawType]) -> bool {
     types.len() == 2
         && types.contains(&"Integer".to_owned())
@@ -1868,11 +1926,13 @@ pub fn multi_type_is_chat_id(types: &[RawType]) -> bool {
 }
 
 /// `ReplyMarkup` if field name is `reply_markup` and there are multiple types.
+#[must_use]
 pub fn multi_type_is_reply_markup(types: &[RawType], name: &str) -> bool {
     types.len() > 1 && name == "reply_markup"
 }
 
 /// `Array of InputMedia` for field `media` in sendMediaGroup-like methods.
+#[must_use]
 pub fn multi_type_is_input_media(types: &[RawType], name: &str) -> bool {
     if name != "media" {
         return false;
@@ -1886,7 +1946,7 @@ pub fn multi_type_is_input_media(types: &[RawType], name: &str) -> bool {
     types.len() == expected.len()
         && expected
             .iter()
-            .all(|expected_type| types.contains(&expected_type.to_string()))
+            .all(|&expected_type| types.contains(&expected_type.to_string()))
 }
 
 #[cfg(test)]

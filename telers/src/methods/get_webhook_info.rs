@@ -1,35 +1,29 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::WebhookInfo};
-
+use crate::client::Bot;
 use serde::Serialize;
-
-/// Use this method to get current webhook status. Requires no parameters.
+/// Use this method to get current webhook status. Requires no parameters. On success, returns a [`WebhookInfo`] object. If the bot is using getUpdates, will return an object with the url field empty.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getwebhookinfo>
 /// # Returns
-/// Returns [`WebhookInfo`] on success. If the bot is using [`super::GetUpdates`], will return an object with the `url` field empty.
-#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `crate::types::WebhookInfo`
+#[derive(Clone, Debug, Serialize)]
 pub struct GetWebhookInfo {}
-
 impl GetWebhookInfo {
+    /// Creates a new `GetWebhookInfo`.
     #[must_use]
     pub const fn new() -> Self {
         Self {}
     }
 }
-
-impl TelegramMethod for GetWebhookInfo {
-    type Method = Self;
-    type Return = WebhookInfo;
-
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        Request::new("getWebhookInfo", self, None)
+impl Default for GetWebhookInfo {
+    fn default() -> Self {
+        Self::new()
     }
 }
+impl super::TelegramMethod for GetWebhookInfo {
+    type Method = Self;
+    type Return = crate::types::WebhookInfo;
 
-impl AsRef<GetWebhookInfo> for GetWebhookInfo {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("getWebhookInfo", self, None)
     }
 }

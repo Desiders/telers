@@ -1,47 +1,40 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::ChatIdKind};
-
+use crate::client::Bot;
 use serde::Serialize;
-
-/// Use this method to get the number of members in a chat.
+/// Use this method to get the number of members in a chat. Returns Int on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getchatmembercount>
 /// # Returns
-/// Returns `i64` on success
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `i64`
+#[derive(Clone, Debug, Serialize)]
 pub struct GetChatMemberCount {
-    /// Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`)
-    pub chat_id: ChatIdKind,
+    /// Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
+    pub chat_id: crate::types::ChatIdKind,
 }
-
 impl GetChatMemberCount {
+    /// Creates a new `GetChatMemberCount`.
+    ///
+    /// # Arguments
+    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>) -> Self {
+    pub fn new<T0: Into<crate::types::ChatIdKind>>(chat_id: T0) -> Self {
         Self {
             chat_id: chat_id.into(),
         }
     }
 
+    /// Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
     #[must_use]
-    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
-        Self {
-            chat_id: val.into(),
-        }
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
+        let mut this = self;
+        this.chat_id = val.into();
+        this
     }
 }
-
-impl TelegramMethod for GetChatMemberCount {
+impl super::TelegramMethod for GetChatMemberCount {
     type Method = Self;
     type Return = i64;
 
-    fn build_request<Client>(self, _bot: &Bot<Client>) -> Request<Self::Method> {
-        Request::new("getChatMemberCount", self, None)
-    }
-}
-
-impl AsRef<GetChatMemberCount> for GetChatMemberCount {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("getChatMemberCount", self, None)
     }
 }

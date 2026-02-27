@@ -302,6 +302,8 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
 impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
     /// Main entry point for incoming updates.
     /// This method will propagate update to the main router.
+    /// # Errors
+    /// Returns an error when event propagation fails.
     #[instrument(skip_all, fields(update_id = update.update_id(), update_type))]
     pub async fn feed_update(
         &mut self,
@@ -392,7 +394,7 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
                         event!(
                             Level::ERROR,
                             update_id = update.update_id,
-                            update = ?update._extra,
+                            update = ?update.extra,
                             "Failed to parse update",
                         );
                     }
@@ -504,7 +506,9 @@ pub struct ServePolling<Client, Propagator, BackoffType> {
 
 impl<Client, Propagator, BackoffType> ServePolling<Client, Propagator, BackoffType> {
     pub const fn new(dispatcher: Dispatcher<Client, Propagator, BackoffType>) -> Self {
-        Self { dispatcher }
+        Self {
+            dispatcher,
+        }
     }
 
     pub fn with_graceful_shutdown<Signal>(
@@ -564,7 +568,10 @@ impl<Client, Propagator, BackoffType, Signal>
         dispatcher: Dispatcher<Client, Propagator, BackoffType>,
         signal: Signal,
     ) -> Self {
-        Self { dispatcher, signal }
+        Self {
+            dispatcher,
+            signal,
+        }
     }
 }
 
@@ -603,7 +610,9 @@ pub struct Serve<Client, Propagator, BackoffType> {
 
 impl<Client, Propagator, BackoffType> Serve<Client, Propagator, BackoffType> {
     pub const fn new(dispatcher: Dispatcher<Client, Propagator, BackoffType>) -> Self {
-        Self { dispatcher }
+        Self {
+            dispatcher,
+        }
     }
 
     pub fn with_graceful_shutdown<Signal>(
@@ -661,7 +670,10 @@ impl<Client, Propagator, BackoffType, Signal>
         dispatcher: Dispatcher<Client, Propagator, BackoffType>,
         signal: Signal,
     ) -> Self {
-        Self { dispatcher, signal }
+        Self {
+            dispatcher,
+            signal,
+        }
     }
 }
 
@@ -705,7 +717,7 @@ mod tests {
         let bot = Bot::<Reqwest>::default();
         let update = Arc::new(Update::Message(UpdateMessage::new(
             0,
-            MessageText::new(0, 0, ChatPrivate::new(0, "", ""), ""),
+            MessageText::new(0, 0, ChatPrivate::new(0), ""),
         )));
 
         let router = Router::new("main");

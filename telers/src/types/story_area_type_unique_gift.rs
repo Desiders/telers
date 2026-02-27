@@ -1,16 +1,29 @@
-use serde::Serialize;
-
+use serde::{Deserialize, Serialize};
 /// Describes a story area pointing to a unique gift. Currently, a story can have at most 1 unique gift area.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#storyareatypeuniquegift>
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct StoryAreaTypeUniqueGift {
     /// Unique name of the gift
-    pub name: String,
+    pub name: Box<str>,
 }
-
 impl StoryAreaTypeUniqueGift {
-    pub fn new(name: impl Into<String>) -> Self {
-        Self { name: name.into() }
+    /// Creates a new `StoryAreaTypeUniqueGift`.
+    ///
+    /// # Arguments
+    /// * `name` - Unique name of the gift
+    #[must_use]
+    pub fn new<T0: Into<Box<str>>>(name: T0) -> Self {
+        Self {
+            name: name.into(),
+        }
+    }
+
+    /// Unique name of the gift
+    #[must_use]
+    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.name = val.into();
+        this
     }
 }

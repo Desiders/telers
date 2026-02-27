@@ -76,12 +76,18 @@ impl KeyBuilderImpl {
 
     #[must_use]
     pub fn with_prefix(self, prefix: &'static str) -> Self {
-        Self { prefix, ..self }
+        Self {
+            prefix,
+            ..self
+        }
     }
 
     #[must_use]
     pub fn with_separator(self, separator: &'static str) -> Self {
-        Self { separator, ..self }
+        Self {
+            separator,
+            ..self
+        }
     }
 
     #[must_use]
@@ -164,19 +170,24 @@ impl<K: KeyBuilder> Redis<K> {
             Err(err) => match err {
                 CreatePoolError::Config(err) => match err {
                     ConfigError::UrlAndConnectionSpecified => unreachable!(
-                        "This error should not be occurred because we use `IntoConnectionInfo` where it will use only \
-                         one of them.If you see this error, then report it to the library maintainer."
+                        "This error should not be occurred because we use `IntoConnectionInfo` \
+                         where it will use only one of them.If you see this error, then report it \
+                         to the library maintainer."
                     ),
                     ConfigError::Redis(err) => return Err(err),
                 },
                 CreatePoolError::Build(_) => unreachable!(
-                    "This error should not be occurred because we specify runtime in `create_pool` method.If you see \
-                     this error, then report it to the library maintainer."
+                    "This error should not be occurred because we specify runtime in \
+                     `create_pool` method.If you see this error, then report it to the library \
+                     maintainer."
                 ),
             },
         };
 
-        Ok(Self { pool, key_builder })
+        Ok(Self {
+            pool,
+            key_builder,
+        })
     }
 
     #[must_use]
@@ -648,7 +659,10 @@ impl<K: KeyBuilder + Clone> Storage for Redis<K> {
                                 );
 
                                 Error::new(
-                                    format!("Failed to convert `serde_json::Value` to value. Storage key: {key}"),
+                                    format!(
+                                        "Failed to convert `serde_json::Value` to value. Storage \
+                                         key: {key}"
+                                    ),
                                     err,
                                 )
                             })

@@ -190,7 +190,8 @@ impl Serializer for MultipartSerializer {
         T: Serialize + ?Sized,
     {
         Err(Error::top_level(format!(
-            "newtype_variant: name: {name}, variant_index: {variant_index}, variant: {variant}, value: (...)"
+            "newtype_variant: name: {name}, variant_index: {variant_index}, variant: {variant}, \
+             value: (...)"
         )))
     }
 
@@ -220,7 +221,8 @@ impl Serializer for MultipartSerializer {
         len: usize,
     ) -> Result<Self::SerializeTupleVariant, Self::Error> {
         Err(Error::top_level(format!(
-            "tuple_variant: name: {name}, variant_index: {variant_index}, variant: {variant}, len: {len}"
+            "tuple_variant: name: {name}, variant_index: {variant_index}, variant: {variant}, \
+             len: {len}"
         )))
     }
 
@@ -236,7 +238,8 @@ impl Serializer for MultipartSerializer {
         len: usize,
     ) -> Result<Self::SerializeStructVariant, Self::Error> {
         Err(Error::top_level(format!(
-            "struct_variant: name: {name}, variant_index: {variant_index}, variant: {variant}, len: {len}"
+            "struct_variant: name: {name}, variant_index: {variant_index}, variant: {variant}, \
+             len: {len}"
         )))
     }
 }
