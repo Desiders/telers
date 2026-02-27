@@ -255,29 +255,29 @@ pub struct Router<Client = Reqwest> {
     name: &'static str,
     sub_routers: Vec<Router<Client>>,
 
-    pub message: TelegramObserver<Client>,
-    pub edited_message: TelegramObserver<Client>,
-    pub channel_post: TelegramObserver<Client>,
-    pub edited_channel_post: TelegramObserver<Client>,
     pub business_connection: TelegramObserver<Client>,
     pub business_message: TelegramObserver<Client>,
-    pub edited_business_message: TelegramObserver<Client>,
+    pub callback_query: TelegramObserver<Client>,
+    pub channel_post: TelegramObserver<Client>,
+    pub chat_boost: TelegramObserver<Client>,
+    pub chat_join_request: TelegramObserver<Client>,
+    pub chat_member: TelegramObserver<Client>,
+    pub chosen_inline_result: TelegramObserver<Client>,
     pub deleted_business_messages: TelegramObserver<Client>,
+    pub edited_business_message: TelegramObserver<Client>,
+    pub edited_channel_post: TelegramObserver<Client>,
+    pub edited_message: TelegramObserver<Client>,
+    pub inline_query: TelegramObserver<Client>,
+    pub message: TelegramObserver<Client>,
     pub message_reaction: TelegramObserver<Client>,
     pub message_reaction_count: TelegramObserver<Client>,
-    pub inline_query: TelegramObserver<Client>,
-    pub chosen_inline_result: TelegramObserver<Client>,
-    pub callback_query: TelegramObserver<Client>,
-    pub shipping_query: TelegramObserver<Client>,
-    pub pre_checkout_query: TelegramObserver<Client>,
-    pub purchased_paid_media: TelegramObserver<Client>,
+    pub my_chat_member: TelegramObserver<Client>,
     pub poll: TelegramObserver<Client>,
     pub poll_answer: TelegramObserver<Client>,
-    pub my_chat_member: TelegramObserver<Client>,
-    pub chat_member: TelegramObserver<Client>,
-    pub chat_join_request: TelegramObserver<Client>,
-    pub chat_boost: TelegramObserver<Client>,
+    pub pre_checkout_query: TelegramObserver<Client>,
+    pub purchased_paid_media: TelegramObserver<Client>,
     pub removed_chat_boost: TelegramObserver<Client>,
+    pub shipping_query: TelegramObserver<Client>,
     /// This special event observer is used to handle all telegram events.
     /// It's called for router and its sub routers and before other telegram observers.
     /// This observer is useful for register important middlewares (often libraries) like `FSMContext` and `UserContext`,
@@ -1299,7 +1299,7 @@ mod tests {
         client::Reqwest,
         event::{telegram::HandlerResult as TelegramHandlerResult, EventReturn},
         middlewares::Next,
-        types::{Chat, ChatPrivate, Message, MessageText, Update, UpdateMessage},
+        types::{ChatPrivate, MessageText, Update, UpdateMessage},
         Bot, Context, Extensions,
     };
 
@@ -1462,13 +1462,8 @@ mod tests {
     async fn test_propagate_event() {
         let request = Request::<Reqwest> {
             update: Arc::new(Update::Message(UpdateMessage::new(
-                Message::Text(MessageText::new(
-                    Chat::Private(ChatPrivate::new("", 0, "")),
-                    0,
-                    0,
-                    "",
-                )),
                 0,
+                MessageText::new(0, 0, ChatPrivate::new(0, "", ""), ""),
             ))),
             bot: Bot::default(),
             context: crate::Context::default(),
@@ -1589,13 +1584,8 @@ mod tests {
     async fn test_propagate_event_with_filter() {
         let request = Request::<Reqwest> {
             update: Arc::new(Update::Message(UpdateMessage::new(
-                Message::Text(MessageText::new(
-                    Chat::Private(ChatPrivate::new("", 0, "")),
-                    0,
-                    0,
-                    "",
-                )),
                 0,
+                MessageText::new(0, 0, ChatPrivate::new(0, "", ""), ""),
             ))),
             bot: Bot::default(),
             context: crate::Context::default(),

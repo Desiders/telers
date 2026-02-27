@@ -62,16 +62,15 @@ impl MultipartSerializer {
 }
 
 impl Serializer for MultipartSerializer {
-    type Ok = Form;
     type Error = Error;
-
-    type SerializeStruct = Self;
+    type Ok = Form;
+    type SerializeMap = Impossible<Self::Ok, Self::Error>;
     type SerializeSeq = Impossible<Self::Ok, Self::Error>;
+    type SerializeStruct = Self;
+    type SerializeStructVariant = Impossible<Self::Ok, Self::Error>;
     type SerializeTuple = Impossible<Self::Ok, Self::Error>;
     type SerializeTupleStruct = Impossible<Self::Ok, Self::Error>;
     type SerializeTupleVariant = Impossible<Self::Ok, Self::Error>;
-    type SerializeMap = Impossible<Self::Ok, Self::Error>;
-    type SerializeStructVariant = Impossible<Self::Ok, Self::Error>;
 
     fn serialize_struct(
         self,
@@ -243,8 +242,8 @@ impl Serializer for MultipartSerializer {
 }
 
 impl SerializeStruct for MultipartSerializer {
-    type Ok = Form;
     type Error = Error;
+    type Ok = Form;
 
     fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<(), Self::Error>
     where
@@ -262,16 +261,15 @@ impl SerializeStruct for MultipartSerializer {
 }
 
 impl Serializer for PartSerializer {
-    type Ok = Part;
     type Error = Error;
-
-    type SerializeStruct = JsonPartSerializer;
+    type Ok = Part;
+    type SerializeMap = Impossible<Self::Ok, Self::Error>;
     type SerializeSeq = JsonPartSerializer;
+    type SerializeStruct = JsonPartSerializer;
+    type SerializeStructVariant = Impossible<Self::Ok, Self::Error>;
     type SerializeTuple = Impossible<Self::Ok, Self::Error>;
     type SerializeTupleStruct = Impossible<Self::Ok, Self::Error>;
     type SerializeTupleVariant = Impossible<Self::Ok, Self::Error>;
-    type SerializeMap = Impossible<Self::Ok, Self::Error>;
-    type SerializeStructVariant = Impossible<Self::Ok, Self::Error>;
 
     fn serialize_bool(self, val: bool) -> Result<Self::Ok, Self::Error> {
         Ok(Part::text(val.to_string()))
@@ -437,8 +435,8 @@ impl Serializer for PartSerializer {
 }
 
 impl SerializeStruct for JsonPartSerializer {
-    type Ok = Part;
     type Error = Error;
+    type Ok = Part;
 
     fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<(), Self::Error>
     where
@@ -470,8 +468,8 @@ impl SerializeStruct for JsonPartSerializer {
 }
 
 impl SerializeSeq for JsonPartSerializer {
-    type Ok = Part;
     type Error = Error;
+    type Ok = Part;
 
     fn serialize_element<T>(&mut self, value: &T) -> Result<(), Self::Error>
     where

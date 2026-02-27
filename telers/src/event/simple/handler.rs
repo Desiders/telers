@@ -52,9 +52,9 @@ impl HandlerComposite {
 }
 
 impl Service<()> for HandlerComposite {
-    type Response = ();
     type Error = HandlerError;
     type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
+    type Response = ();
 
     fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
         Poll::Ready(Ok(()))

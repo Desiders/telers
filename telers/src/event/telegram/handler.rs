@@ -134,9 +134,9 @@ impl<Client> Clone for HandlerComposite<Client> {
 }
 
 impl<Client> Service<Request<Client>> for HandlerComposite<Client> {
-    type Response = Response<Client>;
     type Error = ExtractionError;
     type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
+    type Response = Response<Client>;
 
     fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
         Poll::Ready(Ok(()))
@@ -261,7 +261,7 @@ mod tests {
         client::Reqwest,
         event::EventReturn,
         filters::Command,
-        types::{Chat, ChatPrivate, Message, MessageText, Update, UpdateMessage},
+        types::{ChatPrivate, MessageText, Update, UpdateMessage},
         Bot, Extensions,
     };
 
@@ -292,13 +292,8 @@ mod tests {
 
         let request = Request::<Reqwest> {
             update: Arc::new(Update::Message(UpdateMessage::new(
-                Message::Text(MessageText::new(
-                    Chat::Private(ChatPrivate::new("", 0, "")),
-                    0,
-                    0,
-                    "",
-                )),
                 0,
+                MessageText::new(0, 0, ChatPrivate::new(0, "", ""), ""),
             ))),
             bot: Bot::default(),
             context: crate::Context::default(),
@@ -321,13 +316,8 @@ mod tests {
 
         let request = Request::<Reqwest> {
             update: Arc::new(Update::Message(UpdateMessage::new(
-                Message::Text(MessageText::new(
-                    Chat::Private(ChatPrivate::new("", 0, "")),
-                    0,
-                    0,
-                    "",
-                )),
                 0,
+                MessageText::new(0, 0, ChatPrivate::new(0, "", ""), ""),
             ))),
             bot: Bot::default(),
             context: crate::Context::default(),

@@ -218,7 +218,7 @@ impl<Client> Observer<Client> {
                 Some((middleware, middlewares)) => {
                     let next = wrap_to_next(
                         handler.service.clone(),
-                        middlewares.to_vec().into_boxed_slice(), // we use it instead of `into` because some versions of rustc can't infer type
+                        middlewares.to_vec().into_boxed_slice(), /* we use it instead of `into` because some versions of rustc can't infer type */
                     );
                     middleware.call((request.clone(), next)).await
                 }
@@ -319,7 +319,7 @@ mod tests {
         client::Reqwest,
         errors::HandlerError,
         filters::Command,
-        types::{Chat, ChatPrivate, Message, MessageText, Update, UpdateMessage},
+        types::{ChatPrivate, MessageText, Update, UpdateMessage},
         Bot, Extensions,
     };
 
@@ -342,13 +342,8 @@ mod tests {
 
         let mut request = Request::<Reqwest> {
             update: Arc::new(Update::Message(UpdateMessage::new(
-                Message::Text(MessageText::new(
-                    Chat::Private(ChatPrivate::new("", 0, "")),
-                    0,
-                    0,
-                    "",
-                )),
                 0,
+                MessageText::new(0, 0, ChatPrivate::new(0, "", ""), ""),
             ))),
             bot: Bot::default(),
             context: crate::Context::default(),
@@ -363,13 +358,8 @@ mod tests {
         }
 
         request.update = Arc::new(Update::Message(UpdateMessage::new(
-            Message::Text(MessageText::new(
-                Chat::Private(ChatPrivate::new("", 0, "")),
-                0,
-                0,
-                "/start",
-            )),
             0,
+            MessageText::new(0, 0, ChatPrivate::new(0, "", ""), "/start"),
         )));
 
         let response = observer.trigger(request).await.unwrap();
@@ -394,13 +384,8 @@ mod tests {
 
         let request = Request::<Reqwest> {
             update: Arc::new(Update::Message(UpdateMessage::new(
-                Message::Text(MessageText::new(
-                    Chat::Private(ChatPrivate::new("", 0, "")),
-                    0,
-                    0,
-                    "",
-                )),
                 0,
+                MessageText::new(0, 0, ChatPrivate::new(0, "", ""), ""),
             ))),
             bot: Bot::default(),
             context: crate::Context::default(),
@@ -426,13 +411,8 @@ mod tests {
 
         let request = Request::<Reqwest> {
             update: Arc::new(Update::Message(UpdateMessage::new(
-                Message::Text(MessageText::new(
-                    Chat::Private(ChatPrivate::new("", 0, "")),
-                    0,
-                    0,
-                    "/start",
-                )),
                 0,
+                MessageText::new(0, 0, ChatPrivate::new(0, "", ""), "/start"),
             ))),
             bot: Bot::default(),
             context: crate::Context::default(),

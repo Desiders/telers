@@ -18,8 +18,7 @@
 //! ```
 
 use telers::{
-    enums::MessageType::Text,
-    enums::UpdateType,
+    enums::{MessageType::Text, UpdateType},
     event::{telegram::HandlerResult, EventReturn},
     filters::{Command, MessageType, State as StateFilter},
     fsm::{Context as FSMContext, MemoryStorage, Storage, Strategy::UserInChatAndConnection},
@@ -67,12 +66,14 @@ async fn start_handler<S: Storage>(
     message: Message,
     fsm: FSMContext<S>,
 ) -> HandlerResult {
-    bot.send(SendMessage::new(
-        message.chat().id(),
-        "Hello! What's your name?",
-    ).business_connection_id(message.business_connection_id().expect(
-        "Business connection id should be set, because we registered this handler for business connections only",
-    )))
+    bot.send(
+        SendMessage::new(message.chat().id(), "Hello! What's your name?").business_connection_id(
+            message.business_connection_id().expect(
+                "Business connection id should be set, because we registered this handler for business connections \
+                 only",
+            ),
+        ),
+    )
     .await?;
 
     // We set state to `State::Name` to point that we are waiting for user's name.
@@ -133,24 +134,30 @@ async fn language_handler<S: Storage>(
     // Check if user's language is acceptable
     match language.to_lowercase().as_str() {
         "english" | "en" => {
-            bot.send(SendMessage::new(
-                message.chat.id(),
-                format!("{name}, let's talk!"),
-            ).business_connection_id(message.business_connection_id.expect(
-            "Business connection id should be set, because we registered this handler for business connections only",
-        )))
+            bot.send(
+                SendMessage::new(message.chat.id(), format!("{name}, let's talk!")).business_connection_id(
+                    message.business_connection_id.expect(
+                        "Business connection id should be set, because we registered this handler for business \
+                         connections only",
+                    ),
+                ),
+            )
             .await?;
 
             // Remove state and data from FSM storage, because we don't need them anymore
             fsm.finish().await.map_err(Into::into)?;
         }
         _ => {
-            bot.send(SendMessage::new(
-                message.chat.id(),
-                format!("{name}, I don't speak your language. Please, choose another :(",),
-            ).business_connection_id(message.business_connection_id.expect(
-                "Business connection id should be set, because we registered this handler for business connections only",
-            )))
+            bot.send(
+                SendMessage::new(
+                    message.chat.id(),
+                    format!("{name}, I don't speak your language. Please, choose another :(",),
+                )
+                .business_connection_id(message.business_connection_id.expect(
+                    "Business connection id should be set, because we registered this handler for business \
+                     connections only",
+                )),
+            )
             .await?;
 
             // We don't need this, because `State::Language` is already set and doesn't change automatically

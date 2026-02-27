@@ -1,6 +1,6 @@
 [workspace]
 members = ["telers", "telers-*", "examples/*"]
-default-members = ["telers", "telers-codegen", "examples/*"]
+default-members = ["telers", "telers-*", "examples/*"]
 resolver = "2"
 
 [profile.dev]

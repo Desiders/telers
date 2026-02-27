@@ -65,8 +65,8 @@ impl Session for CustomClient {
         T::Method: Send + Sync,
     {
         unimplemented!(
-            "Send request is not implemented for custom client. \
-            You can use default client or implement it for your custom client."
+            "Send request is not implemented for custom client. You can use default client or implement it for your \
+             custom client."
         )
     }
 }

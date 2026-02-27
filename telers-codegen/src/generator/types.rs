@@ -712,7 +712,7 @@ fn nested_inner_accessor_expr(
         ) {
             (true, true, _, true) => quote! { inner.#inner_ident },
             (true, true, _, false) => quote! { Some(inner.#inner_ident) },
-            (false, true, _, _) => quote! { inner.#inner_ident },
+            (false, true, ..) => quote! { inner.#inner_ident },
             (true, false, true, true) => quote! { &*inner.#inner_ident },
             (true, false, true, false) => quote! { Some(&*inner.#inner_ident) },
             (false, _, true, _) => quote! { inner.#inner_ident.as_deref() },
@@ -908,14 +908,14 @@ pub fn get_helper_impls_for_type(
 
     for (inner_field_name, entries) in nested_map {
         let inner_ty = &entries[0].2.r#type;
-        if !entries.iter().all(|(_, _, f, _, _)| &f.r#type == inner_ty) {
+        if !entries.iter().all(|(_, _, f, ..)| &f.r#type == inner_ty) {
             continue;
         }
 
         let mut seen = HashSet::new();
         if entries
             .iter()
-            .any(|(s, _, _, _, _)| !seen.insert(s.variant.as_str()))
+            .any(|(s, ..)| !seen.insert(s.variant.as_str()))
         {
             continue;
         }
@@ -939,7 +939,7 @@ pub fn get_helper_impls_for_type(
                 });
         let fully_required = is_all_covered
             && is_inner_req_all
-            && entries.iter().all(|(_, outer, _, _, _)| outer.required);
+            && entries.iter().all(|(_, outer, ..)| outer.required);
 
         let return_ty = helper_method_return_type(inner_ty, fully_required);
 

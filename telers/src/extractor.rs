@@ -14,7 +14,7 @@
 //! use telers::{
 //!     errors::EventErrorKind,
 //!     event::{telegram::HandlerResult, EventReturn},
-//!     middlewares::{outer::{MiddlewareResponse, Middleware}},
+//!     middlewares::outer::{Middleware, MiddlewareResponse},
 //!     Request,
 //! };
 //!
@@ -52,8 +52,8 @@
 //! Simple example with extracting id from [`Update`]:
 //!
 //! ```rust
-//! use telers::{Extractor, Request};
 //! use std::convert::Infallible;
+//! use telers::{Extractor, Request};
 //!
 //! struct UpdateId(i64);
 //!
@@ -78,12 +78,14 @@
 //! Another example with extracting id of the user who sent the message from [`Update`]:
 //!
 //! ```rust
-//! use telers::{Extractor, errors::ConvertToTypeError, Request};
+//! use telers::{errors::ConvertToTypeError, Extractor, Request};
 //!
 //! struct UpdateFromId(i64);
 //!
 //! impl Extractor for UpdateFromId {
-//!     type Error = ConvertToTypeError; // you can use your own error type, this is just an example
+//!     type Error = ConvertToTypeError;
+//!
+//!     // you can use your own error type, this is just an example
 //!
 //!     async fn extract(request: &Request) -> Result<Self, Self::Error> {
 //!         match request.update.from_id() {
@@ -99,12 +101,14 @@
 //! because the trait is implemented for `Option<T>` and `Result<T, E>` where `T: Extractor`:
 //!
 //! ```rust
-//! use telers::{Extractor, errors::ConvertToTypeError, Request};
+//! use telers::{errors::ConvertToTypeError, Extractor, Request};
 //!
 //! struct UpdateFromId(i64);
 //!
 //! impl Extractor for UpdateFromId {
-//!     type Error = ConvertToTypeError; // you can use your own error type, this is just an example
+//!     type Error = ConvertToTypeError;
+//!
+//!     // you can use your own error type, this is just an example
 //!
 //!     async fn extract(request: &Request) -> Result<Self, Self::Error> {
 //!         match request.update.from_id() {
@@ -177,14 +181,15 @@
 //! but you can specify your own error type with `#[event(error = "...")]` attribute:
 //!
 //! ```rust
-//! use telers::{types::Update, FromEvent};
 //! use std::convert::Infallible;
+//! use telers::{types::Update, FromEvent};
 //!
 //! #[derive(FromEvent)]
 //! #[event(try_from = Update, error = Infallible)]
 //! struct UpdateId(i64);
 //!
-//! impl TryFrom<Update> for UpdateId { // we use `TryFrom` here just for example, you need to use `From` if error is impossible
+//! impl TryFrom<Update> for UpdateId {
+//!     // we use `TryFrom` here just for example, you need to use `From` if error is impossible
 //!     type Error = Infallible;
 //!
 //!     fn try_from(update: Update) -> Result<Self, Self::Error> {
@@ -217,8 +222,9 @@
 //!
 //! #[derive(Clone, FromContext)]
 //! #[context(
-//!  key = "my_struct",
-//!  description = "This struct is set in the `MyMiddleware` middleware. If it is not set, then the `MyMiddleware` middleware is not used.",
+//!     key = "my_struct",
+//!     description = "This struct is set in the `MyMiddleware` middleware. If it is not set, \
+//!                    then the `MyMiddleware` middleware is not used."
 //! )]
 //! struct MyStruct {
 //!     field: i32,
@@ -405,7 +411,11 @@ where
         let res = match request.extensions.get::<Value>() {
             Some(value) => Ok(Self(value.clone())),
             None => Err(ExtractionError::new(if request.extensions.is_empty() {
-                format!("Failed to extract data with type {}. Extensions are empty, it looks like you forgot to add a value.", type_name::<Value>())
+                format!(
+                    "Failed to extract data with type {}. Extensions are empty, it looks like you forgot to add a \
+                     value.",
+                    type_name::<Value>()
+                )
             } else {
                 format!(
                     "Failed to extract data with type {}. It looks like you forgot to add a value of this type.",

@@ -355,7 +355,8 @@ impl Command {
 #[derive(Debug, Clone, Hash, PartialEq, Eq, FromContext)]
 #[context(
     key = "command",
-    description = "Parsed command object. This type is available only if the command filter is used and filer is passed."
+    description = "Parsed command object. This type is available only if the command filter is used and filer is \
+                   passed."
 )]
 pub struct CommandObject {
     /// Command without prefix and mention

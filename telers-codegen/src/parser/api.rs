@@ -592,13 +592,24 @@ impl NormalizedSchema {
                             href: inline_query_result.href.clone(),
                             description: vec![
                                 "# Notes".to_owned(),
-                                format!("This object represents an inline query result kind as combine of {cached} and {not_cached}."),
+                                format!(
+                                    "This object represents an inline query result kind as combine of {cached} and \
+                                     {not_cached}."
+                                ),
                             ],
                             fields: vec![],
-                            subtype_kind: Some(SubtypeKind::UntaggedInTagged { tag_field: "type".to_owned() }),
+                            subtype_kind: Some(SubtypeKind::UntaggedInTagged {
+                                tag_field: "type".to_owned(),
+                            }),
                             subtypes: vec![
-                                NormalizedSubtypeVariant { variant: "Cached".to_owned(), ty_name: cached.to_string() },
-                                NormalizedSubtypeVariant { variant: "Uncached".to_owned(), ty_name: not_cached.to_string() },
+                                NormalizedSubtypeVariant {
+                                    variant: "Cached".to_owned(),
+                                    ty_name: cached.to_string(),
+                                },
+                                NormalizedSubtypeVariant {
+                                    variant: "Uncached".to_owned(),
+                                    ty_name: not_cached.to_string(),
+                                },
                             ],
                             subtype_of: vec![inline_query_result.name.clone()],
                             has_extra_fields: false,
@@ -1080,23 +1091,26 @@ impl NormalizedSchema {
                 fields.extend(specific.clone());
             }
 
-            types.insert(type_name.clone(), NormalizedType {
-                name: type_name.clone(),
-                href: sticker.href.clone(),
-                description: vec![
-                    format!("This object represents a {} sticker.", sticker_type),
-                    "# Notes".to_owned(),
-                    format!("This object represents a sticker from original sticker type `{sticker_type}`."),
-                ],
-                fields,
-                subtype_kind: Some(SubtypeKind::Tagged {
-                    tag_field: "type".to_owned(),
-                    parent_tag_field: None,
-                }),
-                subtypes: vec![],
-                subtype_of: vec![sticker.name.clone()],
-                has_extra_fields: true,
-            });
+            types.insert(
+                type_name.clone(),
+                NormalizedType {
+                    name: type_name.clone(),
+                    href: sticker.href.clone(),
+                    description: vec![
+                        format!("This object represents a {} sticker.", sticker_type),
+                        "# Notes".to_owned(),
+                        format!("This object represents a sticker from original sticker type `{sticker_type}`."),
+                    ],
+                    fields,
+                    subtype_kind: Some(SubtypeKind::Tagged {
+                        tag_field: "type".to_owned(),
+                        parent_tag_field: None,
+                    }),
+                    subtypes: vec![],
+                    subtype_of: vec![sticker.name.clone()],
+                    has_extra_fields: true,
+                },
+            );
             subtypes.push((variant_name, type_name));
         }
 
@@ -1403,13 +1417,20 @@ impl NormalizedSchema {
                     name: type_name.clone(),
                     href: element.href.clone(),
                     description: vec![
-                        format!("This object represents a/an {} encrypted passport element.", element_type.replace("_", " ")),
+                        format!(
+                            "This object represents a/an {} encrypted passport element.",
+                            element_type.replace("_", " ")
+                        ),
                         "# Notes".to_owned(),
-                        format!("This object represents an encrypted passport element from original field `{element_type}`."),
+                        format!(
+                            "This object represents an encrypted passport element from original field \
+                             `{element_type}`."
+                        ),
                     ],
                     fields,
                     subtype_kind: Some(SubtypeKind::Tagged {
-                        tag_field: "type".to_owned(),parent_tag_field: None,
+                        tag_field: "type".to_owned(),
+                        parent_tag_field: None,
                     }),
                     subtypes: vec![],
                     subtype_of: vec![element.name.clone()],
@@ -1509,7 +1530,10 @@ impl NormalizedSchema {
                     name: type_name.clone(),
                     href: entity.href.clone(),
                     description: vec![
-                        format!("This object represents a/an {} message entity.", entity_type.replace("_", " ")),
+                        format!(
+                            "This object represents a/an {} message entity.",
+                            entity_type.replace("_", " ")
+                        ),
                         "# Notes".to_owned(),
                         format!("This object represents a message entity from original field `{entity_type}`."),
                     ],
@@ -1603,9 +1627,15 @@ impl NormalizedSchema {
                     name: type_name.clone(),
                     href: partner.href.clone(),
                     description: vec![
-                        format!("This object represents a/an {} transaction partner user.", transaction_type.replace("_", " ")),
+                        format!(
+                            "This object represents a/an {} transaction partner user.",
+                            transaction_type.replace("_", " ")
+                        ),
                         "# Notes".to_owned(),
-                        format!("This object represents a transaction partner user from original field `{transaction_type}`."),
+                        format!(
+                            "This object represents a transaction partner user from original field \
+                             `{transaction_type}`."
+                        ),
                     ],
                     fields,
                     subtype_kind: Some(SubtypeKind::Tagged {

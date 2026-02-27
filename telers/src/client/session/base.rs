@@ -297,38 +297,40 @@ mod tests {
         {
             "ok": true,
             "result": {
-                "message_id": 423,
+                "date": 1,
+                "message_id": 1,
+                "text": "test",
                 "from": {
                     "id": 1i64,
                     "is_bot": true,
                     "first_name": "test",
                     "username": "test"
                 },
-                "chat": {
+                "chat":{
                     "id": 1,
                     "first_name": "test",
+                    "last_name": "test",
                     "username": "test",
                     "type": "private",
                 },
-                "date": 1706267365,
+                "date": 1,
                 "reply_to_message": {
-                    "message_id": 422,
+                    "message_id": 2,
+                    "text": "/start",
                     "from": {
                         "id": 1,
                         "is_bot": false,
                         "first_name": "test",
                         "username": "test",
-                        "language_code": "ru",
-                        "is_premium": true,
                     },
                     "chat":{
                         "id": 1,
                         "first_name": "test",
+                        "last_name": "test",
                         "username": "test",
                         "type": "private",
                     },
                     "date": 1,
-                    "text": "/start",
                     "entities":[
                         {
                             "offset": 0,
@@ -337,7 +339,6 @@ mod tests {
                         },
                     ],
                 },
-                "text": "test",
             },
             "statud_code": 200,
         });
@@ -347,6 +348,6 @@ mod tests {
             .result
             .unwrap();
 
-        assert_eq!(result.message_id(), 423);
+        assert_eq!(result.message_id(), 1);
     }
 }

@@ -19,7 +19,8 @@ use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt
 
 async fn handler(bot: Bot, message: Message) -> HandlerResult {
     // First way to format text by using formatting directly in the text.
-    let text = "This is <b>bold</b> text.\nThis is <i>italic</i> text.\nThis is <a href=\"https://example.com\">link</a>.";
+    let text =
+        "This is <b>bold</b> text.\nThis is <i>italic</i> text.\nThis is <a href=\"https://example.com\">link</a>.";
 
     // We should use `parse_mode` to specify that we use HTML formatting.
     bot.send(SendMessage::new(message.chat().id(), text).parse_mode(ParseMode::HTML))

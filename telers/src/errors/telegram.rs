@@ -28,7 +28,9 @@ pub enum ErrorKind {
         message: Box<str>,
         retry_after: i64,
     },
-    #[error("TelegramMigrateToChat: {message:?} (migrate to chat id: {migrate_to_chat_id:?}, see {url:?} for more info)")]
+    #[error(
+        "TelegramMigrateToChat: {message:?} (migrate to chat id: {migrate_to_chat_id:?}, see {url:?} for more info)"
+    )]
     MigrateToChat {
         url: &'static str, // https://core.telegram.org/bots/api#responseparameters
         message: Box<str>,

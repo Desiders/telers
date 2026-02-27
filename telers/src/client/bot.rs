@@ -14,7 +14,7 @@
 //!
 //! # Examples
 //! ```rust
-//! use telers::{Bot, methods::SendMessage};
+//! use telers::{methods::SendMessage, Bot};
 //!
 //! async fn call_method(bot: Bot) {
 //!     let chat_id = 1;
@@ -27,14 +27,16 @@
 //! You also can use [`Bot::send_with_timeout`] method to send requests with timeout:
 //!
 //! ```rust
-//! use telers::{Bot, methods::SendMessage};
+//! use telers::{methods::SendMessage, Bot};
 //!
 //! async fn call_method(bot: Bot) {
 //!     let chat_id = 1;
 //!     let text = "Hello, world!";
 //!     let timeout = 10.0; // 10 seconds
 //!
-//!     let _ = bot.send_with_timeout(SendMessage::new(chat_id, text), timeout).await;
+//!     let _ = bot
+//!         .send_with_timeout(SendMessage::new(chat_id, text), timeout)
+//!         .await;
 //! }
 //! ```
 //!
@@ -80,8 +82,8 @@ impl<Client> Bot<Client> {
     pub fn with_client(token: impl Into<String>, client: Client) -> Self {
         let token = token.into();
         let id = token::extract_bot_id(&token).expect(
-            "This bot token is invalid, please check it. \
-                If you test your bot, and you don't have a token, use `Bot::default` method instead of `Bot::new`.",
+            "This bot token is invalid, please check it. If you test your bot, and you don't have a token, use \
+             `Bot::default` method instead of `Bot::new`.",
         );
         let hidden_token = token::hide(&token);
 

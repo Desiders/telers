@@ -18,8 +18,7 @@
 //! ```
 
 use telers::{
-    enums::MessageType::Text,
-    enums::UpdateType,
+    enums::{MessageType::Text, UpdateType},
     event::{telegram::HandlerResult, EventReturn},
     filters::{Command, MessageType, State as StateFilter},
     fsm::{Context as FSMContext, MemoryStorage, Storage, Strategy::UserInChat},

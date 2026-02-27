@@ -74,7 +74,7 @@ mod tests {
     use crate::{
         client::Reqwest,
         context::Context,
-        types::{Chat, ChatPrivate, Message, MessageText, Update, UpdateMessage},
+        types::{ChatPrivate, MessageText, Update, UpdateMessage},
         Bot, Extensions,
     };
 
@@ -88,13 +88,8 @@ mod tests {
 
         let request = Request::<Reqwest> {
             update: Arc::new(Update::Message(UpdateMessage::new(
-                Message::Text(MessageText::new(
-                    Chat::Private(ChatPrivate::new("", 0, "")),
-                    0,
-                    0,
-                    "",
-                )),
                 0,
+                MessageText::new(0, 0, ChatPrivate::new(0, "", ""), ""),
             ))),
             bot: Bot::default(),
             context: Context::default(),

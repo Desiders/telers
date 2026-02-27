@@ -525,8 +525,8 @@ where
     Propagator: PropagateEvent<Client>,
     BackoffType: backoff::backoff::Backoff + Send + Sync + Clone + 'static,
 {
-    type Output = Result<(), HandlerError>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
+    type Output = Result<(), HandlerError>;
 
     #[cfg(feature = "default_signal")]
     fn into_future(self) -> Self::IntoFuture {
@@ -577,8 +577,8 @@ where
     Propagator: PropagateEvent<Client>,
     BackoffType: backoff::backoff::Backoff + Send + Sync + Clone + 'static,
 {
-    type Output = Result<(), HandlerError>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
+    type Output = Result<(), HandlerError>;
 
     fn into_future(mut self) -> Self::IntoFuture {
         Box::pin(async move {
@@ -622,8 +622,8 @@ impl<Client, Propagator, BackoffType> IntoFuture for Serve<Client, Propagator, B
 where
     Propagator: PropagateEvent<Client>,
 {
-    type Output = Result<(), HandlerError>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
+    type Output = Result<(), HandlerError>;
 
     #[cfg(feature = "default_signal")]
     fn into_future(self) -> Self::IntoFuture {
@@ -672,8 +672,8 @@ where
     Signal::Output: Send,
     Propagator: PropagateEvent<Client>,
 {
-    type Output = Result<(), HandlerError>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
+    type Output = Result<(), HandlerError>;
 
     fn into_future(mut self) -> Self::IntoFuture {
         Box::pin(async move {
@@ -694,7 +694,7 @@ mod tests {
         client::Reqwest,
         event::bases::{EventReturn, PropagateEventResult},
         router::Router,
-        types::{Chat, ChatPrivate, Message, MessageText, UpdateMessage},
+        types::{ChatPrivate, MessageText, UpdateMessage},
     };
 
     use std::convert::Infallible;
@@ -704,13 +704,8 @@ mod tests {
     async fn test_feed_update() {
         let bot = Bot::<Reqwest>::default();
         let update = Arc::new(Update::Message(UpdateMessage::new(
-            Message::Text(MessageText::new(
-                Chat::Private(ChatPrivate::new("", 0, "")),
-                0,
-                0,
-                "",
-            )),
             0,
+            MessageText::new(0, 0, ChatPrivate::new(0, "", ""), ""),
         )));
 
         let router = Router::new("main");
