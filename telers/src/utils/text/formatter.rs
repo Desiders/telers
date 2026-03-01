@@ -92,6 +92,17 @@ pub trait Formatter {
         L: Display;
 
     #[must_use]
+    fn date_time<T>(&self, text: T, unix_time: i64) -> String
+    where
+        T: Display;
+
+    #[must_use]
+    fn date_time_with_format<T, F>(&self, text: T, unix_time: i64, date_time_format: F) -> String
+    where
+        T: Display,
+        F: Display;
+
+    #[must_use]
     fn quote<T>(&self, text: T) -> String
     where
         T: Display;
@@ -236,6 +247,26 @@ mod tests {
         where
             C: Display,
             L: Display,
+        {
+            todo!()
+        }
+
+        fn date_time<T>(&self, _text: T, _unix_time: i64) -> String
+        where
+            T: Display,
+        {
+            todo!()
+        }
+
+        fn date_time_with_format<T, F>(
+            &self,
+            _text: T,
+            _unix_time: i64,
+            _date_time_format: F,
+        ) -> String
+        where
+            T: Display,
+            F: Display,
         {
             todo!()
         }

@@ -1,7 +1,7 @@
 use super::{Formatter as TextFormatter, FormatterErrorKind};
 use crate::types::{
-    MessageEntity, MessageEntityCustomEmoji, MessageEntityPre, MessageEntityTextLink,
-    MessageEntityTextMention,
+    MessageEntity, MessageEntityCustomEmoji, MessageEntityDateTime, MessageEntityPre,
+    MessageEntityTextLink, MessageEntityTextMention,
 };
 
 use std::fmt::Display;
@@ -135,6 +135,30 @@ impl TextFormatter for Formatter {
         format!("```{language}\n{text}\n```")
     }
 
+    fn date_time<T>(&self, text: T, unix_time: i64) -> String
+    where
+        T: Display,
+    {
+        format!(
+            "!{}",
+            self.text_link(text, format!("tg://time?unix={unix_time}"))
+        )
+    }
+
+    fn date_time_with_format<T, F>(&self, text: T, unix_time: i64, date_time_format: F) -> String
+    where
+        T: Display,
+        F: Display,
+    {
+        format!(
+            "!{}",
+            self.text_link(
+                text,
+                format!("tg://time?unix={unix_time}&format={date_time_format}")
+            )
+        )
+    }
+
     fn quote<T>(&self, text: T) -> String
     where
         T: Display,
@@ -204,6 +228,16 @@ impl TextFormatter for Formatter {
             MessageEntity::CustomEmoji(MessageEntityCustomEmoji {
                 custom_emoji_id, ..
             }) => self.custom_emoji(editable_text, custom_emoji_id),
+            MessageEntity::DateTime(MessageEntityDateTime {
+                unix_time,
+                date_time_format,
+                ..
+            }) => match date_time_format {
+                Some(date_time_format) => {
+                    self.date_time_with_format(editable_text, *unix_time, date_time_format)
+                }
+                None => self.date_time(editable_text, *unix_time),
+            },
         };
 
         Ok(format!("{previous_text}{edited_text}{next_text}"))
@@ -262,6 +296,18 @@ pub fn pre(text: impl Display) -> String {
 
 pub fn pre_language(text: impl Display, language: &str) -> String {
     FORMATTER.pre_language(text, language)
+}
+
+pub fn date_time(text: impl Display, unix_time: i64) -> String {
+    FORMATTER.date_time(text, unix_time)
+}
+
+pub fn date_time_with_format(
+    text: impl Display,
+    unix_time: i64,
+    date_time_format: impl Display,
+) -> String {
+    FORMATTER.date_time_with_format(text, unix_time, date_time_format)
 }
 
 pub fn quote(text: impl Display) -> String {
@@ -361,6 +407,16 @@ mod tests {
         assert_eq!(
             formatter.pre_language("text", "python"),
             "```python\ntext\n```"
+        );
+    }
+
+    #[test]
+    fn test_date_time() {
+        let formatter = Formatter::default();
+        assert_eq!(formatter.date_time("text", 1), "![text](tg://time?unix=1)");
+        assert_eq!(
+            formatter.date_time_with_format("text", 1, "test"),
+            "![text](tg://time?unix=1&format=test)"
         );
     }
 

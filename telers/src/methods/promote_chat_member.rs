@@ -59,6 +59,9 @@ pub struct PromoteChatMember {
     /// Pass `true` if the administrator can manage direct messages within the channel and decline suggested posts; for channels only
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_direct_messages: Option<bool>,
+    /// Pass `true` if the administrator can edit the tags of regular members; for groups and supergroups only
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_manage_tags: Option<bool>,
 }
 impl PromoteChatMember {
     /// Creates a new `PromoteChatMember`.
@@ -93,6 +96,7 @@ impl PromoteChatMember {
             can_pin_messages: None,
             can_manage_topics: None,
             can_manage_direct_messages: None,
+            can_manage_tags: None,
         }
     }
 
@@ -365,6 +369,22 @@ impl PromoteChatMember {
     pub fn can_manage_direct_messages_option<T: Into<bool>>(self, val: Option<T>) -> Self {
         let mut this = self;
         this.can_manage_direct_messages = val.map(Into::into);
+        this
+    }
+
+    /// Pass `true` if the administrator can edit the tags of regular members; for groups and supergroups only
+    #[must_use]
+    pub fn can_manage_tags<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.can_manage_tags = Some(val.into());
+        this
+    }
+
+    /// Pass `true` if the administrator can edit the tags of regular members; for groups and supergroups only
+    #[must_use]
+    pub fn can_manage_tags_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.can_manage_tags = val.map(Into::into);
         this
     }
 }

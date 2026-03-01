@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to stream a partial message to a user while the message is being generated; supported only for bots with forum topic mode enabled. Returns `true` on success.
+/// Use this method to stream a partial message to a user while the message is being generated. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sendmessagedraft>
 /// # Returns

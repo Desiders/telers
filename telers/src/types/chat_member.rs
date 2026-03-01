@@ -105,6 +105,18 @@ impl ChatMember {
         }
     }
 
+    /// Helper method for field `can_edit_tag`.
+    ///
+    /// # Variants
+    /// - `ChatMemberRestricted`. `true`, if the user is allowed to edit their own tag
+    #[must_use]
+    pub fn can_edit_tag(&self) -> Option<bool> {
+        match self {
+            Self::Restricted(val) => Some(val.can_edit_tag),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `can_invite_users`.
     ///
     /// # Variants
@@ -139,6 +151,18 @@ impl ChatMember {
     pub fn can_manage_direct_messages(&self) -> Option<bool> {
         match self {
             Self::Administrator(val) => val.can_manage_direct_messages,
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `can_manage_tags`.
+    ///
+    /// # Variants
+    /// - `ChatMemberAdministrator`. `true`, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted defaults to the value of `can_pin_messages`.
+    #[must_use]
+    pub fn can_manage_tags(&self) -> Option<bool> {
+        match self {
+            Self::Administrator(val) => val.can_manage_tags,
             _ => None,
         }
     }
@@ -375,6 +399,20 @@ impl ChatMember {
     pub fn is_member(&self) -> Option<bool> {
         match self {
             Self::Restricted(val) => Some(val.is_member),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `tag`.
+    ///
+    /// # Variants
+    /// - `ChatMemberMember`. Tag of the member
+    /// - `ChatMemberRestricted`. Tag of the member
+    #[must_use]
+    pub fn tag(&self) -> Option<&str> {
+        match self {
+            Self::Member(val) => val.tag.as_deref(),
+            Self::Restricted(val) => val.tag.as_deref(),
             _ => None,
         }
     }

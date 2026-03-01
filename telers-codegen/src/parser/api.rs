@@ -1522,6 +1522,7 @@ impl NormalizedSchema {
             "text_link",
             "text_mention",
             "custom_emoji",
+            "date_time",
         ];
 
         let mut common_fields = vec![];
@@ -1546,8 +1547,11 @@ impl NormalizedSchema {
             if applicable.is_empty() {
                 applicable.extend(entity_types);
             } else {
-                field.required = ["url", "user", "custom_emoji_id"].contains(&field.name.as_str())
-                    || field.required;
+                if !field.required {
+                    if !["language", "date_time_format"].contains(&field.name.as_str()) {
+                        field.required = true;
+                    }
+                }
             }
 
             for &entity_type in &applicable {

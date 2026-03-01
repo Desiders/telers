@@ -797,6 +797,18 @@ impl ChatFullInfo {
         }
     }
 
+    /// Helper method for nested field `can_edit_tag`.
+    #[must_use]
+    pub fn can_edit_tag(&self) -> Option<bool> {
+        match self {
+            Self::Supergroup(val) => val
+                .permissions
+                .as_ref()
+                .and_then(|inner| inner.can_edit_tag),
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `can_invite_users`.
     #[must_use]
     pub fn can_invite_users(&self) -> Option<bool> {
@@ -1656,6 +1668,13 @@ impl ChatFullInfo {
     pub fn sender_chat(&self) -> Option<&crate::types::Chat> {
         self.pinned_message()
             .and_then(crate::types::Message::sender_chat)
+    }
+
+    /// Helper method for nested field `sender_tag`.
+    #[must_use]
+    pub fn sender_tag(&self) -> Option<&str> {
+        self.pinned_message()
+            .and_then(crate::types::Message::sender_tag)
     }
 
     /// Helper method for nested field `show_caption_above_media`.

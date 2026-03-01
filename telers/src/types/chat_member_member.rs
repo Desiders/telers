@@ -4,6 +4,9 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#chatmembermember>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ChatMemberMember {
+    /// Tag of the member
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tag: Option<Box<str>>,
     /// Information about the user
     pub user: Box<crate::types::User>,
     /// Date when the user's subscription will expire; Unix time
@@ -21,9 +24,26 @@ impl ChatMemberMember {
     #[must_use]
     pub fn new<T0: Into<crate::types::User>>(user: T0) -> Self {
         Self {
+            tag: None,
             user: Box::new(user.into()),
             until_date: None,
         }
+    }
+
+    /// Tag of the member
+    #[must_use]
+    pub fn tag<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.tag = Some(val.into());
+        this
+    }
+
+    /// Tag of the member
+    #[must_use]
+    pub fn tag_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.tag = val.map(Into::into);
+        this
     }
 
     /// Information about the user

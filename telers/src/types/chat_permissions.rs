@@ -34,6 +34,9 @@ pub struct ChatPermissions {
     /// `true`, if the user is allowed to add web page previews to their messages
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_add_web_page_previews: Option<bool>,
+    /// `true`, if the user is allowed to edit their own tag
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_edit_tag: Option<bool>,
     /// `true`, if the user is allowed to change the chat title, photo and other settings. Ignored in public supergroups
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_change_info: Option<bool>,
@@ -65,6 +68,7 @@ impl ChatPermissions {
             can_send_polls: None,
             can_send_other_messages: None,
             can_add_web_page_previews: None,
+            can_edit_tag: None,
             can_change_info: None,
             can_invite_users: None,
             can_pin_messages: None,
@@ -229,6 +233,22 @@ impl ChatPermissions {
     pub fn can_add_web_page_previews_option<T: Into<bool>>(self, val: Option<T>) -> Self {
         let mut this = self;
         this.can_add_web_page_previews = val.map(Into::into);
+        this
+    }
+
+    /// `true`, if the user is allowed to edit their own tag
+    #[must_use]
+    pub fn can_edit_tag<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.can_edit_tag = Some(val.into());
+        this
+    }
+
+    /// `true`, if the user is allowed to edit their own tag
+    #[must_use]
+    pub fn can_edit_tag_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.can_edit_tag = val.map(Into::into);
         this
     }
 

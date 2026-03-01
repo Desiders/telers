@@ -3556,6 +3556,38 @@ impl Update {
         }
     }
 
+    /// Helper method for nested field `sender_tag`.
+    #[must_use]
+    pub fn sender_tag(&self) -> Option<&str> {
+        match self {
+            Self::BusinessMessage(val) => {
+                let inner = val.business_message.as_ref();
+                crate::types::Message::sender_tag(inner)
+            }
+            Self::ChannelPost(val) => {
+                let inner = val.channel_post.as_ref();
+                crate::types::Message::sender_tag(inner)
+            }
+            Self::EditedBusinessMessage(val) => {
+                let inner = val.edited_business_message.as_ref();
+                crate::types::Message::sender_tag(inner)
+            }
+            Self::EditedChannelPost(val) => {
+                let inner = val.edited_channel_post.as_ref();
+                crate::types::Message::sender_tag(inner)
+            }
+            Self::EditedMessage(val) => {
+                let inner = val.edited_message.as_ref();
+                crate::types::Message::sender_tag(inner)
+            }
+            Self::Message(val) => {
+                let inner = val.message.as_ref();
+                crate::types::Message::sender_tag(inner)
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `shipping_address`.
     #[must_use]
     pub fn shipping_address(&self) -> Option<&crate::types::ShippingAddress> {

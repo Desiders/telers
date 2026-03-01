@@ -4,6 +4,9 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#chatmemberrestricted>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ChatMemberRestricted {
+    /// Tag of the member
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tag: Option<Box<str>>,
     /// Information about the user
     pub user: Box<crate::types::User>,
     /// `true`, if the user is a member of the chat at the moment of the request
@@ -28,6 +31,8 @@ pub struct ChatMemberRestricted {
     pub can_send_other_messages: bool,
     /// `true`, if the user is allowed to add web page previews to their messages
     pub can_add_web_page_previews: bool,
+    /// `true`, if the user is allowed to edit their own tag
+    pub can_edit_tag: bool,
     /// `true`, if the user is allowed to change the chat title, photo and other settings
     pub can_change_info: bool,
     /// `true`, if the user is allowed to invite new users to the chat
@@ -55,11 +60,15 @@ impl ChatMemberRestricted {
     /// * `can_send_polls` - `true`, if the user is allowed to send polls and checklists
     /// * `can_send_other_messages` - `true`, if the user is allowed to send animations, games, stickers and use inline bots
     /// * `can_add_web_page_previews` - `true`, if the user is allowed to add web page previews to their messages
+    /// * `can_edit_tag` - `true`, if the user is allowed to edit their own tag
     /// * `can_change_info` - `true`, if the user is allowed to change the chat title, photo and other settings
     /// * `can_invite_users` - `true`, if the user is allowed to invite new users to the chat
     /// * `can_pin_messages` - `true`, if the user is allowed to pin messages
     /// * `can_manage_topics` - `true`, if the user is allowed to create forum topics
     /// * `until_date` - Date when restrictions will be lifted for this user; Unix time. If 0, then the user is restricted forever
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
     pub fn new<
         T0: Into<crate::types::User>,
@@ -78,7 +87,8 @@ impl ChatMemberRestricted {
         T13: Into<bool>,
         T14: Into<bool>,
         T15: Into<bool>,
-        T16: Into<i64>,
+        T16: Into<bool>,
+        T17: Into<i64>,
     >(
         user: T0,
         is_member: T1,
@@ -92,13 +102,15 @@ impl ChatMemberRestricted {
         can_send_polls: T9,
         can_send_other_messages: T10,
         can_add_web_page_previews: T11,
-        can_change_info: T12,
-        can_invite_users: T13,
-        can_pin_messages: T14,
-        can_manage_topics: T15,
-        until_date: T16,
+        can_edit_tag: T12,
+        can_change_info: T13,
+        can_invite_users: T14,
+        can_pin_messages: T15,
+        can_manage_topics: T16,
+        until_date: T17,
     ) -> Self {
         Self {
+            tag: None,
             user: Box::new(user.into()),
             is_member: is_member.into(),
             can_send_messages: can_send_messages.into(),
@@ -111,12 +123,29 @@ impl ChatMemberRestricted {
             can_send_polls: can_send_polls.into(),
             can_send_other_messages: can_send_other_messages.into(),
             can_add_web_page_previews: can_add_web_page_previews.into(),
+            can_edit_tag: can_edit_tag.into(),
             can_change_info: can_change_info.into(),
             can_invite_users: can_invite_users.into(),
             can_pin_messages: can_pin_messages.into(),
             can_manage_topics: can_manage_topics.into(),
             until_date: until_date.into(),
         }
+    }
+
+    /// Tag of the member
+    #[must_use]
+    pub fn tag<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.tag = Some(val.into());
+        this
+    }
+
+    /// Tag of the member
+    #[must_use]
+    pub fn tag_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.tag = val.map(Into::into);
+        this
     }
 
     /// Information about the user
@@ -212,6 +241,14 @@ impl ChatMemberRestricted {
     pub fn can_add_web_page_previews<T: Into<bool>>(self, val: T) -> Self {
         let mut this = self;
         this.can_add_web_page_previews = val.into();
+        this
+    }
+
+    /// `true`, if the user is allowed to edit their own tag
+    #[must_use]
+    pub fn can_edit_tag<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.can_edit_tag = val.into();
         this
     }
 

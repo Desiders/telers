@@ -26,6 +26,9 @@ pub struct MessageGeneralForumTopicHidden {
     /// The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sender_business_bot: Option<Box<crate::types::User>>,
+    /// Tag or custom title of the sender of the message; for supergroups only
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sender_tag: Option<Box<str>>,
     /// Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     pub date: i64,
     /// Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
@@ -72,7 +75,7 @@ pub struct MessageGeneralForumTopicHidden {
     /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_paid_post: Option<bool>,
-    /// The unique identifier of a media message group this message belongs to
+    /// The unique identifier inside this chat of a media message group this message belongs to
     #[serde(skip_serializing_if = "Option::is_none")]
     pub media_group_id: Option<Box<str>>,
     /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
@@ -142,6 +145,7 @@ impl MessageGeneralForumTopicHidden {
             sender_chat: None,
             sender_boost_count: None,
             sender_business_bot: None,
+            sender_tag: None,
             date: date.into(),
             business_connection_id: None,
             chat: Box::new(chat.into()),
@@ -278,6 +282,22 @@ impl MessageGeneralForumTopicHidden {
     pub fn sender_business_bot_option<T: Into<crate::types::User>>(self, val: Option<T>) -> Self {
         let mut this = self;
         this.sender_business_bot = val.map(|val| Box::new(val.into()));
+        this
+    }
+
+    /// Tag or custom title of the sender of the message; for supergroups only
+    #[must_use]
+    pub fn sender_tag<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.sender_tag = Some(val.into());
+        this
+    }
+
+    /// Tag or custom title of the sender of the message; for supergroups only
+    #[must_use]
+    pub fn sender_tag_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.sender_tag = val.map(Into::into);
         this
     }
 
@@ -527,7 +547,7 @@ impl MessageGeneralForumTopicHidden {
         this
     }
 
-    /// The unique identifier of a media message group this message belongs to
+    /// The unique identifier inside this chat of a media message group this message belongs to
     #[must_use]
     pub fn media_group_id<T: Into<Box<str>>>(self, val: T) -> Self {
         let mut this = self;
@@ -535,7 +555,7 @@ impl MessageGeneralForumTopicHidden {
         this
     }
 
-    /// The unique identifier of a media message group this message belongs to
+    /// The unique identifier inside this chat of a media message group this message belongs to
     #[must_use]
     pub fn media_group_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
         let mut this = self;

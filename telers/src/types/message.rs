@@ -3539,76 +3539,76 @@ impl Message {
     /// Helper method for field `media_group_id`.
     ///
     /// # Variants
-    /// - `MessageAnimation`. The unique identifier of a media message group this message belongs to
-    /// - `MessageAudio`. The unique identifier of a media message group this message belongs to
-    /// - `MessageBoostAdded`. The unique identifier of a media message group this message belongs to
-    /// - `MessageChannelChatCreated`. The unique identifier of a media message group this message belongs to
-    /// - `MessageChatBackgroundSet`. The unique identifier of a media message group this message belongs to
-    /// - `MessageChatOwnerChanged`. The unique identifier of a media message group this message belongs to
-    /// - `MessageChatOwnerLeft`. The unique identifier of a media message group this message belongs to
-    /// - `MessageChatShared`. The unique identifier of a media message group this message belongs to
-    /// - `MessageChecklist`. The unique identifier of a media message group this message belongs to
-    /// - `MessageChecklistTasksAdded`. The unique identifier of a media message group this message belongs to
-    /// - `MessageChecklistTasksDone`. The unique identifier of a media message group this message belongs to
-    /// - `MessageConnectedWebsite`. The unique identifier of a media message group this message belongs to
-    /// - `MessageContact`. The unique identifier of a media message group this message belongs to
-    /// - `MessageDeleteChatPhoto`. The unique identifier of a media message group this message belongs to
-    /// - `MessageDice`. The unique identifier of a media message group this message belongs to
-    /// - `MessageDirectMessagePriceChanged`. The unique identifier of a media message group this message belongs to
-    /// - `MessageDocument`. The unique identifier of a media message group this message belongs to
-    /// - `MessageForumTopicClosed`. The unique identifier of a media message group this message belongs to
-    /// - `MessageForumTopicCreated`. The unique identifier of a media message group this message belongs to
-    /// - `MessageForumTopicEdited`. The unique identifier of a media message group this message belongs to
-    /// - `MessageForumTopicReopened`. The unique identifier of a media message group this message belongs to
-    /// - `MessageGame`. The unique identifier of a media message group this message belongs to
-    /// - `MessageGeneralForumTopicHidden`. The unique identifier of a media message group this message belongs to
-    /// - `MessageGeneralForumTopicUnhidden`. The unique identifier of a media message group this message belongs to
-    /// - `MessageGift`. The unique identifier of a media message group this message belongs to
-    /// - `MessageGiftUpgradeSent`. The unique identifier of a media message group this message belongs to
-    /// - `MessageGiveaway`. The unique identifier of a media message group this message belongs to
-    /// - `MessageGiveawayCompleted`. The unique identifier of a media message group this message belongs to
-    /// - `MessageGiveawayCreated`. The unique identifier of a media message group this message belongs to
-    /// - `MessageGiveawayWinners`. The unique identifier of a media message group this message belongs to
-    /// - `MessageGroupChatCreated`. The unique identifier of a media message group this message belongs to
-    /// - `MessageInvoice`. The unique identifier of a media message group this message belongs to
-    /// - `MessageLeftChatMember`. The unique identifier of a media message group this message belongs to
-    /// - `MessageLocation`. The unique identifier of a media message group this message belongs to
-    /// - `MessageMessageAutoDeleteTimerChanged`. The unique identifier of a media message group this message belongs to
-    /// - `MessageMigrateFromChatId`. The unique identifier of a media message group this message belongs to
-    /// - `MessageMigrateToChatId`. The unique identifier of a media message group this message belongs to
-    /// - `MessageNewChatMembers`. The unique identifier of a media message group this message belongs to
-    /// - `MessageNewChatPhoto`. The unique identifier of a media message group this message belongs to
-    /// - `MessageNewChatTitle`. The unique identifier of a media message group this message belongs to
-    /// - `MessagePaidMedia`. The unique identifier of a media message group this message belongs to
-    /// - `MessagePaidMessagePriceChanged`. The unique identifier of a media message group this message belongs to
-    /// - `MessagePassportData`. The unique identifier of a media message group this message belongs to
-    /// - `MessagePhoto`. The unique identifier of a media message group this message belongs to
-    /// - `MessagePinnedMessage`. The unique identifier of a media message group this message belongs to
-    /// - `MessagePoll`. The unique identifier of a media message group this message belongs to
-    /// - `MessageProximityAlertTriggered`. The unique identifier of a media message group this message belongs to
-    /// - `MessageRefundedPayment`. The unique identifier of a media message group this message belongs to
-    /// - `MessageSticker`. The unique identifier of a media message group this message belongs to
-    /// - `MessageStory`. The unique identifier of a media message group this message belongs to
-    /// - `MessageSuccessfulPayment`. The unique identifier of a media message group this message belongs to
-    /// - `MessageSuggestedPostApprovalFailed`. The unique identifier of a media message group this message belongs to
-    /// - `MessageSuggestedPostApproved`. The unique identifier of a media message group this message belongs to
-    /// - `MessageSuggestedPostDeclined`. The unique identifier of a media message group this message belongs to
-    /// - `MessageSuggestedPostPaid`. The unique identifier of a media message group this message belongs to
-    /// - `MessageSuggestedPostRefunded`. The unique identifier of a media message group this message belongs to
-    /// - `MessageSupergroupChatCreated`. The unique identifier of a media message group this message belongs to
-    /// - `MessageText`. The unique identifier of a media message group this message belongs to
-    /// - `MessageUniqueGift`. The unique identifier of a media message group this message belongs to
-    /// - `MessageUsersShared`. The unique identifier of a media message group this message belongs to
-    /// - `MessageVenue`. The unique identifier of a media message group this message belongs to
-    /// - `MessageVideo`. The unique identifier of a media message group this message belongs to
-    /// - `MessageVideoChatEnded`. The unique identifier of a media message group this message belongs to
-    /// - `MessageVideoChatParticipantsInvited`. The unique identifier of a media message group this message belongs to
-    /// - `MessageVideoChatScheduled`. The unique identifier of a media message group this message belongs to
-    /// - `MessageVideoChatStarted`. The unique identifier of a media message group this message belongs to
-    /// - `MessageVideoNote`. The unique identifier of a media message group this message belongs to
-    /// - `MessageVoice`. The unique identifier of a media message group this message belongs to
-    /// - `MessageWebAppData`. The unique identifier of a media message group this message belongs to
-    /// - `MessageWriteAccessAllowed`. The unique identifier of a media message group this message belongs to
+    /// - `MessageAnimation`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageAudio`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageBoostAdded`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageChannelChatCreated`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageChatBackgroundSet`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageChatOwnerChanged`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageChatOwnerLeft`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageChatShared`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageChecklist`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageChecklistTasksAdded`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageChecklistTasksDone`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageConnectedWebsite`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageContact`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageDeleteChatPhoto`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageDice`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageDirectMessagePriceChanged`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageDocument`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageForumTopicClosed`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageForumTopicCreated`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageForumTopicEdited`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageForumTopicReopened`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageGame`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageGeneralForumTopicHidden`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageGeneralForumTopicUnhidden`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageGift`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageGiftUpgradeSent`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageGiveaway`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageGiveawayCompleted`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageGiveawayCreated`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageGiveawayWinners`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageGroupChatCreated`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageInvoice`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageLeftChatMember`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageLocation`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageMessageAutoDeleteTimerChanged`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageMigrateFromChatId`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageMigrateToChatId`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageNewChatMembers`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageNewChatPhoto`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageNewChatTitle`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessagePaidMedia`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessagePaidMessagePriceChanged`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessagePassportData`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessagePhoto`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessagePinnedMessage`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessagePoll`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageProximityAlertTriggered`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageRefundedPayment`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageSticker`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageStory`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageSuccessfulPayment`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageSuggestedPostApprovalFailed`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageSuggestedPostApproved`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageSuggestedPostDeclined`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageSuggestedPostPaid`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageSuggestedPostRefunded`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageSupergroupChatCreated`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageText`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageUniqueGift`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageUsersShared`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageVenue`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageVideo`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageVideoChatEnded`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageVideoChatParticipantsInvited`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageVideoChatScheduled`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageVideoChatStarted`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageVideoNote`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageVoice`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageWebAppData`. The unique identifier inside this chat of a media message group this message belongs to
+    /// - `MessageWriteAccessAllowed`. The unique identifier inside this chat of a media message group this message belongs to
     #[must_use]
     pub fn media_group_id(&self) -> Option<&str> {
         match self {
@@ -5493,6 +5493,155 @@ impl Message {
             Self::Voice(val) => val.sender_chat.as_deref(),
             Self::WebAppData(val) => val.sender_chat.as_deref(),
             Self::WriteAccessAllowed(val) => val.sender_chat.as_deref(),
+        }
+    }
+
+    /// Helper method for field `sender_tag`.
+    ///
+    /// # Variants
+    /// - `MessageAnimation`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageAudio`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageBoostAdded`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageChannelChatCreated`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageChatBackgroundSet`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageChatOwnerChanged`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageChatOwnerLeft`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageChatShared`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageChecklist`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageChecklistTasksAdded`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageChecklistTasksDone`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageConnectedWebsite`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageContact`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageDeleteChatPhoto`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageDice`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageDirectMessagePriceChanged`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageDocument`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageForumTopicClosed`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageForumTopicCreated`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageForumTopicEdited`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageForumTopicReopened`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageGame`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageGeneralForumTopicHidden`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageGeneralForumTopicUnhidden`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageGift`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageGiftUpgradeSent`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageGiveaway`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageGiveawayCompleted`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageGiveawayCreated`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageGiveawayWinners`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageGroupChatCreated`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageInvoice`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageLeftChatMember`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageLocation`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageMessageAutoDeleteTimerChanged`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageMigrateFromChatId`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageMigrateToChatId`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageNewChatMembers`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageNewChatPhoto`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageNewChatTitle`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessagePaidMedia`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessagePaidMessagePriceChanged`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessagePassportData`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessagePhoto`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessagePinnedMessage`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessagePoll`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageProximityAlertTriggered`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageRefundedPayment`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageSticker`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageStory`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageSuccessfulPayment`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageSuggestedPostApprovalFailed`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageSuggestedPostApproved`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageSuggestedPostDeclined`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageSuggestedPostPaid`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageSuggestedPostRefunded`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageSupergroupChatCreated`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageText`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageUniqueGift`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageUsersShared`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageVenue`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageVideo`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageVideoChatEnded`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageVideoChatParticipantsInvited`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageVideoChatScheduled`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageVideoChatStarted`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageVideoNote`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageVoice`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageWebAppData`. Tag or custom title of the sender of the message; for supergroups only
+    /// - `MessageWriteAccessAllowed`. Tag or custom title of the sender of the message; for supergroups only
+    #[must_use]
+    pub fn sender_tag(&self) -> Option<&str> {
+        match self {
+            Self::Animation(val) => val.sender_tag.as_deref(),
+            Self::Audio(val) => val.sender_tag.as_deref(),
+            Self::BoostAdded(val) => val.sender_tag.as_deref(),
+            Self::ChannelChatCreated(val) => val.sender_tag.as_deref(),
+            Self::ChatBackgroundSet(val) => val.sender_tag.as_deref(),
+            Self::ChatOwnerChanged(val) => val.sender_tag.as_deref(),
+            Self::ChatOwnerLeft(val) => val.sender_tag.as_deref(),
+            Self::ChatShared(val) => val.sender_tag.as_deref(),
+            Self::Checklist(val) => val.sender_tag.as_deref(),
+            Self::ChecklistTasksAdded(val) => val.sender_tag.as_deref(),
+            Self::ChecklistTasksDone(val) => val.sender_tag.as_deref(),
+            Self::ConnectedWebsite(val) => val.sender_tag.as_deref(),
+            Self::Contact(val) => val.sender_tag.as_deref(),
+            Self::DeleteChatPhoto(val) => val.sender_tag.as_deref(),
+            Self::Dice(val) => val.sender_tag.as_deref(),
+            Self::DirectMessagePriceChanged(val) => val.sender_tag.as_deref(),
+            Self::Document(val) => val.sender_tag.as_deref(),
+            Self::ForumTopicClosed(val) => val.sender_tag.as_deref(),
+            Self::ForumTopicCreated(val) => val.sender_tag.as_deref(),
+            Self::ForumTopicEdited(val) => val.sender_tag.as_deref(),
+            Self::ForumTopicReopened(val) => val.sender_tag.as_deref(),
+            Self::Game(val) => val.sender_tag.as_deref(),
+            Self::GeneralForumTopicHidden(val) => val.sender_tag.as_deref(),
+            Self::GeneralForumTopicUnhidden(val) => val.sender_tag.as_deref(),
+            Self::Gift(val) => val.sender_tag.as_deref(),
+            Self::GiftUpgradeSent(val) => val.sender_tag.as_deref(),
+            Self::Giveaway(val) => val.sender_tag.as_deref(),
+            Self::GiveawayCompleted(val) => val.sender_tag.as_deref(),
+            Self::GiveawayCreated(val) => val.sender_tag.as_deref(),
+            Self::GiveawayWinners(val) => val.sender_tag.as_deref(),
+            Self::GroupChatCreated(val) => val.sender_tag.as_deref(),
+            Self::Invoice(val) => val.sender_tag.as_deref(),
+            Self::LeftChatMember(val) => val.sender_tag.as_deref(),
+            Self::Location(val) => val.sender_tag.as_deref(),
+            Self::MessageAutoDeleteTimerChanged(val) => val.sender_tag.as_deref(),
+            Self::MigrateFromChatId(val) => val.sender_tag.as_deref(),
+            Self::MigrateToChatId(val) => val.sender_tag.as_deref(),
+            Self::NewChatMembers(val) => val.sender_tag.as_deref(),
+            Self::NewChatPhoto(val) => val.sender_tag.as_deref(),
+            Self::NewChatTitle(val) => val.sender_tag.as_deref(),
+            Self::PaidMedia(val) => val.sender_tag.as_deref(),
+            Self::PaidMessagePriceChanged(val) => val.sender_tag.as_deref(),
+            Self::PassportData(val) => val.sender_tag.as_deref(),
+            Self::Photo(val) => val.sender_tag.as_deref(),
+            Self::PinnedMessage(val) => val.sender_tag.as_deref(),
+            Self::Poll(val) => val.sender_tag.as_deref(),
+            Self::ProximityAlertTriggered(val) => val.sender_tag.as_deref(),
+            Self::RefundedPayment(val) => val.sender_tag.as_deref(),
+            Self::Sticker(val) => val.sender_tag.as_deref(),
+            Self::Story(val) => val.sender_tag.as_deref(),
+            Self::SuccessfulPayment(val) => val.sender_tag.as_deref(),
+            Self::SuggestedPostApprovalFailed(val) => val.sender_tag.as_deref(),
+            Self::SuggestedPostApproved(val) => val.sender_tag.as_deref(),
+            Self::SuggestedPostDeclined(val) => val.sender_tag.as_deref(),
+            Self::SuggestedPostPaid(val) => val.sender_tag.as_deref(),
+            Self::SuggestedPostRefunded(val) => val.sender_tag.as_deref(),
+            Self::SupergroupChatCreated(val) => val.sender_tag.as_deref(),
+            Self::Text(val) => val.sender_tag.as_deref(),
+            Self::UniqueGift(val) => val.sender_tag.as_deref(),
+            Self::UsersShared(val) => val.sender_tag.as_deref(),
+            Self::Venue(val) => val.sender_tag.as_deref(),
+            Self::Video(val) => val.sender_tag.as_deref(),
+            Self::VideoChatEnded(val) => val.sender_tag.as_deref(),
+            Self::VideoChatParticipantsInvited(val) => val.sender_tag.as_deref(),
+            Self::VideoChatScheduled(val) => val.sender_tag.as_deref(),
+            Self::VideoChatStarted(val) => val.sender_tag.as_deref(),
+            Self::VideoNote(val) => val.sender_tag.as_deref(),
+            Self::Voice(val) => val.sender_tag.as_deref(),
+            Self::WebAppData(val) => val.sender_tag.as_deref(),
+            Self::WriteAccessAllowed(val) => val.sender_tag.as_deref(),
         }
     }
 

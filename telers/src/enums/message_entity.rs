@@ -8,6 +8,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`MessageEntityCashtag`]
 /// - [`MessageEntityCode`]
 /// - [`MessageEntityCustomEmoji`]
+/// - [`MessageEntityDateTime`]
 /// - [`MessageEntityEmail`]
 /// - [`MessageEntityExpandableBlockquote`]
 /// - [`MessageEntityHashtag`]
@@ -63,10 +64,12 @@ pub enum MessageEntityType {
     TextMention,
     #[strum(serialize = "custom_emoji")]
     CustomEmoji,
+    #[strum(serialize = "date_time")]
+    DateTime,
 }
 impl MessageEntityType {
     #[must_use]
-    pub const fn all() -> [MessageEntityType; 19usize] {
+    pub const fn all() -> [MessageEntityType; 20usize] {
         [
             MessageEntityType::Mention,
             MessageEntityType::Hashtag,
@@ -87,6 +90,7 @@ impl MessageEntityType {
             MessageEntityType::TextLink,
             MessageEntityType::TextMention,
             MessageEntityType::CustomEmoji,
+            MessageEntityType::DateTime,
         ]
     }
 }
@@ -127,6 +131,7 @@ impl<'a> From<&'a MessageEntity> for MessageEntityType {
             MessageEntity::TextLink(_) => MessageEntityType::TextLink,
             MessageEntity::TextMention(_) => MessageEntityType::TextMention,
             MessageEntity::CustomEmoji(_) => MessageEntityType::CustomEmoji,
+            MessageEntity::DateTime(_) => MessageEntityType::DateTime,
         }
     }
 }

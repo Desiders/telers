@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 /// - [`MessageEntityCashtag`]
 /// - [`MessageEntityCode`]
 /// - [`MessageEntityCustomEmoji`]
+/// - [`MessageEntityDateTime`]
 /// - [`MessageEntityEmail`]
 /// - [`MessageEntityExpandableBlockquote`]
 /// - [`MessageEntityHashtag`]
@@ -44,6 +45,7 @@ pub enum MessageEntity {
     TextLink(crate::types::MessageEntityTextLink),
     TextMention(crate::types::MessageEntityTextMention),
     CustomEmoji(crate::types::MessageEntityCustomEmoji),
+    DateTime(crate::types::MessageEntityDateTime),
 }
 impl MessageEntity {
     /// Helper method for field `custom_emoji_id`.
@@ -54,6 +56,18 @@ impl MessageEntity {
     pub fn custom_emoji_id(&self) -> Option<&str> {
         match self {
             Self::CustomEmoji(val) => Some(val.custom_emoji_id.as_ref()),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `date_time_format`.
+    ///
+    /// # Variants
+    /// - `MessageEntityDateTime`. For `date_time` only, the string that defines the formatting of the date and time. See date-time entity formatting for more details.
+    #[must_use]
+    pub fn date_time_format(&self) -> Option<&str> {
+        match self {
+            Self::DateTime(val) => val.date_time_format.as_deref(),
             _ => None,
         }
     }
@@ -92,6 +106,7 @@ impl MessageEntity {
     /// - `MessageEntityTextLink`. Length of the entity in UTF-16 code units
     /// - `MessageEntityTextMention`. Length of the entity in UTF-16 code units
     /// - `MessageEntityCustomEmoji`. Length of the entity in UTF-16 code units
+    /// - `MessageEntityDateTime`. Length of the entity in UTF-16 code units
     #[must_use]
     pub fn length(&self) -> i64 {
         match self {
@@ -114,6 +129,7 @@ impl MessageEntity {
             Self::TextLink(val) => val.length,
             Self::TextMention(val) => val.length,
             Self::CustomEmoji(val) => val.length,
+            Self::DateTime(val) => val.length,
         }
     }
 
@@ -139,6 +155,7 @@ impl MessageEntity {
     /// - `MessageEntityTextLink`. Offset in UTF-16 code units to the start of the entity
     /// - `MessageEntityTextMention`. Offset in UTF-16 code units to the start of the entity
     /// - `MessageEntityCustomEmoji`. Offset in UTF-16 code units to the start of the entity
+    /// - `MessageEntityDateTime`. Offset in UTF-16 code units to the start of the entity
     #[must_use]
     pub fn offset(&self) -> i64 {
         match self {
@@ -161,6 +178,19 @@ impl MessageEntity {
             Self::TextLink(val) => val.offset,
             Self::TextMention(val) => val.offset,
             Self::CustomEmoji(val) => val.offset,
+            Self::DateTime(val) => val.offset,
+        }
+    }
+
+    /// Helper method for field `unix_time`.
+    ///
+    /// # Variants
+    /// - `MessageEntityDateTime`. For `date_time` only, the Unix time associated with the entity
+    #[must_use]
+    pub fn unix_time(&self) -> Option<i64> {
+        match self {
+            Self::DateTime(val) => Some(val.unix_time),
+            _ => None,
         }
     }
 
@@ -725,6 +755,25 @@ impl TryFrom<MessageEntity> for crate::types::MessageEntityCustomEmoji {
             Err(Self::Error::new(
                 stringify!(MessageEntity),
                 stringify!(MessageEntityCustomEmoji),
+            ))
+        }
+    }
+}
+impl From<crate::types::MessageEntityDateTime> for MessageEntity {
+    fn from(val: crate::types::MessageEntityDateTime) -> Self {
+        Self::DateTime(val)
+    }
+}
+impl TryFrom<MessageEntity> for crate::types::MessageEntityDateTime {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: MessageEntity) -> Result<Self, Self::Error> {
+        if let MessageEntity::DateTime(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(MessageEntity),
+                stringify!(MessageEntityDateTime),
             ))
         }
     }

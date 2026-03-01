@@ -848,8 +848,9 @@ fn test_chat_member_restricted_serialize_deserialize() {
         true, "can_send_documents" : true, "can_send_photos" : true, "can_send_videos" :
         true, "can_send_video_notes" : true, "can_send_voice_notes" : true,
         "can_send_polls" : true, "can_send_other_messages" : true,
-        "can_add_web_page_previews" : true, "can_change_info" : true, "can_invite_users"
-        : true, "can_pin_messages" : true, "can_manage_topics" : true, "until_date" : 1 }
+        "can_add_web_page_previews" : true, "can_edit_tag" : true, "can_change_info" :
+        true, "can_invite_users" : true, "can_pin_messages" : true, "can_manage_topics" :
+        true, "until_date" : 1 }
     );
     let parsed: ChatMember = must_parse(stringify!(ChatMember), &value);
     assert!(
@@ -4162,6 +4163,23 @@ fn test_message_entity_custom_emoji_serialize_deserialize() {
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
         stringify!(MessageEntity),
         stringify!(CustomEmoji),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(MessageEntity), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(MessageEntity), &parsed);
+}
+#[test]
+fn test_message_entity_date_time_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "date_time", "offset" : 1, "length" : 1, "unix_time" : 1 }
+    );
+    let parsed: MessageEntity = must_parse(stringify!(MessageEntity), &value);
+    assert!(
+        matches!(&parsed, MessageEntity::DateTime(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(MessageEntity),
+        stringify!(DateTime),
         parsed
     );
     let parsed_value = must_to_value(stringify!(MessageEntity), &parsed);
