@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to get the current bot description for the given user language. Returns [`BotDescription`] on success.
+/// Use this method to get the current bot description for the given user language. Returns [`crate::types::BotDescription`] on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getmydescription>
 /// # Returns

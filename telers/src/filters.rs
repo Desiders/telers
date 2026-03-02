@@ -26,13 +26,13 @@
 //!   Creates with `one` or `many` methods.
 //! * [`State`]:
 //!   Filter for checking the state of the user/chat/etc.
-//!   Filter accepts [`StateType`] that represents a state type for verification,
+//!   Filter accepts a state mode represented by [`State`] variants,
 //!   for example, equal, any or none.
 //!   You can create a filter with `one` or `many` if you want to check the state with the exact value
 //!   or use `any` or `none` if you want to check the state with any value or without state, respectively.
 //! * [`Text`]:
 //!   This filter checks if the text matches the specified pattern.
-//!   Gets the text from the [`update`], the text of the message, the text of the inline query, the data of the callback query, etc.
+//!   Gets the text from the update: the text of the message, the text of the inline query, the data of the callback query, etc.
 //!   Filter accepts [`text pattern type`] that represents a text pattern type to check for equality, so you can use [`Regex`] or [`Cow`] to check the text.
 //!   You can create a filter with `one` or `many` if you want to check the text with the exact value.
 //!   If you want to check the text with `contains`, `starts_with` or `ends_with` methods that accept only [`Cow`],

@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 /// This object describes the origin of a message. It can be one of
-/// - [`MessageOriginUser`]
-/// - [`MessageOriginHiddenUser`]
-/// - [`MessageOriginChat`]
-/// - [`MessageOriginChannel`]
+/// - [`crate::types::MessageOriginUser`]
+/// - [`crate::types::MessageOriginHiddenUser`]
+/// - [`crate::types::MessageOriginChat`]
+/// - [`crate::types::MessageOriginChannel`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#messageorigin>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -31,8 +31,7 @@ impl MessageOrigin {
 
     /// Helper method for field `chat`.
     ///
-    /// # Variants
-    /// - `MessageOriginChannel`. Channel chat to which the message was originally sent
+    /// Channel chat to which the message was originally sent
     #[must_use]
     pub fn chat(&self) -> Option<&crate::types::Chat> {
         match self {
@@ -43,11 +42,7 @@ impl MessageOrigin {
 
     /// Helper method for field `date`.
     ///
-    /// # Variants
-    /// - `MessageOriginUser`. Date the message was sent originally in Unix time
-    /// - `MessageOriginHiddenUser`. Date the message was sent originally in Unix time
-    /// - `MessageOriginChat`. Date the message was sent originally in Unix time
-    /// - `MessageOriginChannel`. Date the message was sent originally in Unix time
+    /// Date the message was sent originally in Unix time
     #[must_use]
     pub fn date(&self) -> i64 {
         match self {
@@ -60,8 +55,7 @@ impl MessageOrigin {
 
     /// Helper method for field `message_id`.
     ///
-    /// # Variants
-    /// - `MessageOriginChannel`. Unique message identifier inside the chat
+    /// Unique message identifier inside the chat
     #[must_use]
     pub fn message_id(&self) -> Option<i64> {
         match self {
@@ -72,8 +66,7 @@ impl MessageOrigin {
 
     /// Helper method for field `sender_chat`.
     ///
-    /// # Variants
-    /// - `MessageOriginChat`. Chat that sent the message originally
+    /// Chat that sent the message originally
     #[must_use]
     pub fn sender_chat(&self) -> Option<&crate::types::Chat> {
         match self {
@@ -84,8 +77,7 @@ impl MessageOrigin {
 
     /// Helper method for field `sender_user`.
     ///
-    /// # Variants
-    /// - `MessageOriginUser`. User that sent the message originally
+    /// User that sent the message originally
     #[must_use]
     pub fn sender_user(&self) -> Option<&crate::types::User> {
         match self {
@@ -96,8 +88,7 @@ impl MessageOrigin {
 
     /// Helper method for field `sender_user_name`.
     ///
-    /// # Variants
-    /// - `MessageOriginHiddenUser`. Name of the user that sent the message originally
+    /// Name of the user that sent the message originally
     #[must_use]
     pub fn sender_user_name(&self) -> Option<&str> {
         match self {

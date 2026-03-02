@@ -1,8 +1,8 @@
 use crate::types::OwnedGift;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes a gift received and owned by a user or a chat. Currently, it can be one of
-/// - [`OwnedGiftRegular`]
-/// - [`OwnedGiftUnique`]
+/// - [`crate::types::OwnedGiftRegular`]
+/// - [`crate::types::OwnedGiftUnique`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#ownedgift>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

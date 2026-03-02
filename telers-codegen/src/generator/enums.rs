@@ -15,7 +15,21 @@ pub fn tokenize_kind_enum(type_quote: &NormalizedType) -> Option<TokenStream> {
 
     let type_name = format_ident!("{}", type_quote.name);
     let kind_name = format_ident!("{}Type", type_quote.name);
-    let doc_lines = format_description(&type_quote.description, &type_quote.href);
+    let mut doc_lines = format_description(&type_quote.description, &type_quote.href);
+    for subtype in &type_quote.subtypes {
+        let code_name = format!("`{}`", subtype.ty_name);
+        let bare_link = format!("[`{}`]", subtype.ty_name);
+        let link_name = format!("[`crate::types::{}`]", subtype.ty_name);
+        for line in &mut doc_lines {
+            if line.contains(&code_name) {
+                *line = line.replace(&code_name, &link_name);
+            }
+            if line.contains(&bare_link) {
+                *line = line.replace(&bare_link, &link_name);
+            }
+        }
+    }
+    doc_lines = link_prefixed_type_mentions(doc_lines, &type_quote.name);
 
     let variant_count = type_quote.subtypes.len();
 
@@ -110,6 +124,46 @@ pub fn tokenize_kind_enum(type_quote: &NormalizedType) -> Option<TokenStream> {
 
         #from_type_impl
     })
+}
+
+fn link_prefixed_type_mentions(lines: Vec<String>, prefix: &str) -> Vec<String> {
+    lines
+        .into_iter()
+        .map(|line| {
+            let mut out = String::with_capacity(line.len() + 32);
+            let mut rest = line.as_str();
+
+            while let Some(start) = rest.find('`') {
+                out.push_str(&rest[..start]);
+                let after_start = &rest[start + 1..];
+                if let Some(end_rel) = after_start.find('`') {
+                    let token = &after_start[..end_rel];
+                    if token.starts_with(prefix)
+                        && token.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
+                    {
+                        out.push_str("[`crate::types::");
+                        out.push_str(token);
+                        out.push_str("`]");
+                    } else {
+                        out.push('`');
+                        out.push_str(token);
+                        out.push('`');
+                    }
+                    rest = &after_start[end_rel + 1..];
+                } else {
+                    out.push_str(&rest[start..]);
+                    break;
+                }
+            }
+
+            if out.is_empty() {
+                line
+            } else {
+                out.push_str(rest);
+                out
+            }
+        })
+        .collect()
 }
 
 #[must_use]
@@ -219,6 +273,22 @@ pub fn tokenize_kind_enums_mod(type_names: &[&str], own_type_names: &[&str]) -> 
     });
 
     quote! {
+        //! Enum helpers and discriminator types for Telegram objects.
+        //!
+        //! This module contains:
+        //! - generated `*Type` enums for polymorphic Telegram objects (for example `MessageType`)
+        //! - hand-authored enums like [`ParseMode`]
+        //!
+        //! # Examples
+        //! ```rust
+        //! use telers::{enums::ParseMode, methods::SendMessage};
+        //!
+        //! let request = SendMessage::new(1_i64, "*Hello world!*")
+        //!     .parse_mode(ParseMode::Markdown);
+        //!
+        //! assert_eq!(request.parse_mode.as_deref(), Some("Markdown"));
+        //! ```
+
         #( #mods_quote )*
         #( #uses_quote )*
         #( #own_uses_quote )*

@@ -15,7 +15,7 @@ pub struct SendGame {
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message_thread_id: Option<i64>,
-    /// Short name of the game, serves as the unique identifier for the game. Set up your games via @[`BotFather`].
+    /// Short name of the game, serves as the unique identifier for the game. Set up your games via @`BotFather`.
     pub game_short_name: Box<str>,
     /// Sends the message silently. Users will receive a notification with no sound.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -41,7 +41,7 @@ impl SendGame {
     ///
     /// # Arguments
     /// * `chat_id` - Unique identifier for the target chat. Games can't be sent to channel direct messages chats and channel chats.
-    /// * `game_short_name` - Short name of the game, serves as the unique identifier for the game. Set up your games via @[`BotFather`].
+    /// * `game_short_name` - Short name of the game, serves as the unique identifier for the game. Set up your games via @`BotFather`.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -101,7 +101,7 @@ impl SendGame {
         this
     }
 
-    /// Short name of the game, serves as the unique identifier for the game. Set up your games via @[`BotFather`].
+    /// Short name of the game, serves as the unique identifier for the game. Set up your games via @`BotFather`.
     #[must_use]
     pub fn game_short_name<T: Into<Box<str>>>(self, val: T) -> Self {
         let mut this = self;

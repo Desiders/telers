@@ -4,14 +4,14 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#inlinekeyboardmarkup>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct InlineKeyboardMarkup {
-    /// Array of button rows, each represented by an Array of [`InlineKeyboardButton`] objects
+    /// Array of button rows, each represented by an Array of [`crate::types::InlineKeyboardButton`] objects
     pub inline_keyboard: Box<[Box<[crate::types::InlineKeyboardButton]>]>,
 }
 impl InlineKeyboardMarkup {
     /// Creates a new `InlineKeyboardMarkup`.
     ///
     /// # Arguments
-    /// * `inline_keyboard` - Array of button rows, each represented by an Array of [`InlineKeyboardButton`] objects
+    /// * `inline_keyboard` - Array of button rows, each represented by an Array of [`crate::types::InlineKeyboardButton`] objects
     #[must_use]
     pub fn new<
         T0Item: Into<Box<[crate::types::InlineKeyboardButton]>>,
@@ -24,7 +24,7 @@ impl InlineKeyboardMarkup {
         }
     }
 
-    /// Array of button rows, each represented by an Array of [`InlineKeyboardButton`] objects
+    /// Array of button rows, each represented by an Array of [`crate::types::InlineKeyboardButton`] objects
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -43,7 +43,7 @@ impl InlineKeyboardMarkup {
         this
     }
 
-    /// Array of button rows, each represented by an Array of [`InlineKeyboardButton`] objects
+    /// Array of button rows, each represented by an Array of [`crate::types::InlineKeyboardButton`] objects
     ///
     /// # Notes
     /// Adds a single element.

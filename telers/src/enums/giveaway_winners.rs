@@ -2,8 +2,8 @@ use crate::types::GiveawayWinners;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents a message about the completion of a giveaway with public winners.
 /// Currently, it can be one of
-/// - [`GiveawayWinnersPremium`]
-/// - [`GiveawayWinnersStar`]
+/// - [`crate::types::GiveawayWinnersPremium`]
+/// - [`crate::types::GiveawayWinnersStar`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#giveawaywinners>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

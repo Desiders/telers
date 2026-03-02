@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 /// This object describes a gift received and owned by a user or a chat. Currently, it can be one of
-/// - [`OwnedGiftRegular`]
-/// - [`OwnedGiftUnique`]
+/// - [`crate::types::OwnedGiftRegular`]
+/// - [`crate::types::OwnedGiftUnique`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#ownedgift>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -13,8 +13,7 @@ pub enum OwnedGift {
 impl OwnedGift {
     /// Helper method for field `can_be_transferred`.
     ///
-    /// # Variants
-    /// - `OwnedGiftUnique`. `true`, if the gift can be transferred to another owner; for gifts received on behalf of business accounts only
+    /// `true`, if the gift can be transferred to another owner; for gifts received on behalf of business accounts only
     #[must_use]
     pub fn can_be_transferred(&self) -> Option<bool> {
         match self {
@@ -25,8 +24,7 @@ impl OwnedGift {
 
     /// Helper method for field `can_be_upgraded`.
     ///
-    /// # Variants
-    /// - `OwnedGiftRegular`. `true`, if the gift can be upgraded to a unique gift; for gifts received on behalf of business accounts only
+    /// `true`, if the gift can be upgraded to a unique gift; for gifts received on behalf of business accounts only
     #[must_use]
     pub fn can_be_upgraded(&self) -> Option<bool> {
         match self {
@@ -37,8 +35,7 @@ impl OwnedGift {
 
     /// Helper method for field `convert_star_count`.
     ///
-    /// # Variants
-    /// - `OwnedGiftRegular`. Number of Telegram Stars that can be claimed by the receiver instead of the gift; omitted if the gift cannot be converted to Telegram Stars; for gifts received on behalf of business accounts only
+    /// Number of Telegram Stars that can be claimed by the receiver instead of the gift; omitted if the gift cannot be converted to Telegram Stars; for gifts received on behalf of business accounts only
     #[must_use]
     pub fn convert_star_count(&self) -> Option<i64> {
         match self {
@@ -49,8 +46,7 @@ impl OwnedGift {
 
     /// Helper method for field `entities`.
     ///
-    /// # Variants
-    /// - `OwnedGiftRegular`. Special entities that appear in the text
+    /// Special entities that appear in the text
     #[must_use]
     pub fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
         match self {
@@ -61,8 +57,7 @@ impl OwnedGift {
 
     /// Helper method for field `is_private`.
     ///
-    /// # Variants
-    /// - `OwnedGiftRegular`. `true`, if the sender and gift text are shown only to the gift receiver; otherwise, everyone will be able to see them
+    /// `true`, if the sender and gift text are shown only to the gift receiver; otherwise, everyone will be able to see them
     #[must_use]
     pub fn is_private(&self) -> Option<bool> {
         match self {
@@ -73,9 +68,7 @@ impl OwnedGift {
 
     /// Helper method for field `is_saved`.
     ///
-    /// # Variants
-    /// - `OwnedGiftRegular`. `true`, if the gift is displayed on the account's profile page; for gifts received on behalf of business accounts only
-    /// - `OwnedGiftUnique`. `true`, if the gift is displayed on the account's profile page; for gifts received on behalf of business accounts only
+    /// `true`, if the gift is displayed on the account's profile page; for gifts received on behalf of business accounts only
     #[must_use]
     pub fn is_saved(&self) -> Option<bool> {
         match self {
@@ -86,8 +79,7 @@ impl OwnedGift {
 
     /// Helper method for field `is_upgrade_separate`.
     ///
-    /// # Variants
-    /// - `OwnedGiftRegular`. `true`, if the gift's upgrade was purchased after the gift was sent; for gifts received on behalf of business accounts only
+    /// `true`, if the gift's upgrade was purchased after the gift was sent; for gifts received on behalf of business accounts only
     #[must_use]
     pub fn is_upgrade_separate(&self) -> Option<bool> {
         match self {
@@ -98,8 +90,7 @@ impl OwnedGift {
 
     /// Helper method for field `next_transfer_date`.
     ///
-    /// # Variants
-    /// - `OwnedGiftUnique`. Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now
+    /// Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now
     #[must_use]
     pub fn next_transfer_date(&self) -> Option<i64> {
         match self {
@@ -123,8 +114,7 @@ impl OwnedGift {
 
     /// Helper method for field `prepaid_upgrade_star_count`.
     ///
-    /// # Variants
-    /// - `OwnedGiftRegular`. Number of Telegram Stars that were paid for the ability to upgrade the gift
+    /// Number of Telegram Stars that were paid for the ability to upgrade the gift
     #[must_use]
     pub fn prepaid_upgrade_star_count(&self) -> Option<i64> {
         match self {
@@ -135,9 +125,7 @@ impl OwnedGift {
 
     /// Helper method for field `send_date`.
     ///
-    /// # Variants
-    /// - `OwnedGiftRegular`. Date the gift was sent in Unix time
-    /// - `OwnedGiftUnique`. Date the gift was sent in Unix time
+    /// Date the gift was sent in Unix time
     #[must_use]
     pub fn send_date(&self) -> i64 {
         match self {
@@ -148,9 +136,7 @@ impl OwnedGift {
 
     /// Helper method for field `sender_user`.
     ///
-    /// # Variants
-    /// - `OwnedGiftRegular`. Sender of the gift if it is a known user
-    /// - `OwnedGiftUnique`. Sender of the gift if it is a known user
+    /// Sender of the gift if it is a known user
     #[must_use]
     pub fn sender_user(&self) -> Option<&crate::types::User> {
         match self {
@@ -161,8 +147,7 @@ impl OwnedGift {
 
     /// Helper method for field `text`.
     ///
-    /// # Variants
-    /// - `OwnedGiftRegular`. Text of the message that was added to the gift
+    /// Text of the message that was added to the gift
     #[must_use]
     pub fn text(&self) -> Option<&str> {
         match self {
@@ -173,8 +158,7 @@ impl OwnedGift {
 
     /// Helper method for field `transfer_star_count`.
     ///
-    /// # Variants
-    /// - `OwnedGiftUnique`. Number of Telegram Stars that must be paid to transfer the gift; omitted if the bot cannot transfer the gift
+    /// Number of Telegram Stars that must be paid to transfer the gift; omitted if the bot cannot transfer the gift
     #[must_use]
     pub fn transfer_star_count(&self) -> Option<i64> {
         match self {
@@ -185,8 +169,7 @@ impl OwnedGift {
 
     /// Helper method for field `unique_gift_number`.
     ///
-    /// # Variants
-    /// - `OwnedGiftRegular`. Unique number reserved for this gift when upgraded. See the number field in [`UniqueGift`]
+    /// Unique number reserved for this gift when upgraded. See the number field in [`crate::types::UniqueGift`]
     #[must_use]
     pub fn unique_gift_number(&self) -> Option<i64> {
         match self {
@@ -197,8 +180,7 @@ impl OwnedGift {
 
     /// Helper method for field `was_refunded`.
     ///
-    /// # Variants
-    /// - `OwnedGiftRegular`. `true`, if the gift was refunded and isn't available anymore
+    /// `true`, if the gift was refunded and isn't available anymore
     #[must_use]
     pub fn was_refunded(&self) -> Option<bool> {
         match self {

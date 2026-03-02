@@ -1,12 +1,12 @@
 use serde::{Deserialize, Serialize};
 /// This object describes the source of a transaction, or its recipient for outgoing transactions. Currently, it can be one of
-/// - [`TransactionPartnerUser`]
-/// - [`TransactionPartnerChat`]
-/// - [`TransactionPartnerAffiliateProgram`]
-/// - [`TransactionPartnerFragment`]
-/// - [`TransactionPartnerTelegramAds`]
-/// - [`TransactionPartnerTelegramApi`]
-/// - [`TransactionPartnerOther`]
+/// - [`crate::types::TransactionPartnerUser`]
+/// - [`crate::types::TransactionPartnerChat`]
+/// - [`crate::types::TransactionPartnerAffiliateProgram`]
+/// - [`crate::types::TransactionPartnerFragment`]
+/// - [`crate::types::TransactionPartnerTelegramAds`]
+/// - [`crate::types::TransactionPartnerTelegramApi`]
+/// - [`crate::types::TransactionPartnerOther`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transactionpartner>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -23,8 +23,7 @@ pub enum TransactionPartner {
 impl TransactionPartner {
     /// Helper method for field `chat`.
     ///
-    /// # Variants
-    /// - `TransactionPartnerChat`. Information about the chat
+    /// Information about the chat
     #[must_use]
     pub fn chat(&self) -> Option<&crate::types::Chat> {
         match self {
@@ -35,8 +34,7 @@ impl TransactionPartner {
 
     /// Helper method for field `commission_per_mille`.
     ///
-    /// # Variants
-    /// - `TransactionPartnerAffiliateProgram`. The number of Telegram Stars received by the bot for each 1000 Telegram Stars received by the affiliate program sponsor from referred users
+    /// The number of Telegram Stars received by the bot for each 1000 Telegram Stars received by the affiliate program sponsor from referred users
     #[must_use]
     pub fn commission_per_mille(&self) -> Option<i64> {
         match self {
@@ -47,8 +45,7 @@ impl TransactionPartner {
 
     /// Helper method for field `gift`.
     ///
-    /// # Variants
-    /// - `TransactionPartnerChat`. The gift sent to the chat by the bot
+    /// The gift sent to the chat by the bot
     #[must_use]
     pub fn gift(&self) -> Option<&crate::types::Gift> {
         match self {
@@ -59,8 +56,7 @@ impl TransactionPartner {
 
     /// Helper method for field `request_count`.
     ///
-    /// # Variants
-    /// - `TransactionPartnerTelegramApi`. The number of successful requests that exceeded regular limits and were therefore billed
+    /// The number of successful requests that exceeded regular limits and were therefore billed
     #[must_use]
     pub fn request_count(&self) -> Option<i64> {
         match self {
@@ -71,8 +67,7 @@ impl TransactionPartner {
 
     /// Helper method for field `sponsor_user`.
     ///
-    /// # Variants
-    /// - `TransactionPartnerAffiliateProgram`. Information about the bot that sponsored the affiliate program
+    /// Information about the bot that sponsored the affiliate program
     #[must_use]
     pub fn sponsor_user(&self) -> Option<&crate::types::User> {
         match self {
@@ -83,8 +78,7 @@ impl TransactionPartner {
 
     /// Helper method for field `withdrawal_state`.
     ///
-    /// # Variants
-    /// - `TransactionPartnerFragment`. State of the transaction if the transaction is outgoing
+    /// State of the transaction if the transaction is outgoing
     #[must_use]
     pub fn withdrawal_state(&self) -> Option<&crate::types::RevenueWithdrawalState> {
         match self {

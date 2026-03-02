@@ -1,7 +1,7 @@
 use crate::types::InlineQueryResultGifKind;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// # Notes
-/// This object represents an inline query result kind as combine of [`InlineQueryResultCachedGif`] and [`InlineQueryResultGif`].
+/// This object represents an inline query result kind as combine of [`crate::types::InlineQueryResultCachedGif`] and [`crate::types::InlineQueryResultGif`].
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Stores a message that can be sent by a user of a Mini App. Returns a [`PreparedInlineMessage`] object.
+/// Stores a message that can be sent by a user of a Mini App. Returns a [`crate::types::PreparedInlineMessage`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#savepreparedinlinemessage>
 /// # Returns

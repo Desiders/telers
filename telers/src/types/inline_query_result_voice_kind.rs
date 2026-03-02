@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 /// # Notes
-/// This object represents an inline query result kind as combine of [`InlineQueryResultCachedVoice`] and [`InlineQueryResultVoice`].
+/// This object represents an inline query result kind as combine of [`crate::types::InlineQueryResultCachedVoice`] and [`crate::types::InlineQueryResultVoice`].
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -12,9 +12,7 @@ pub enum InlineQueryResultVoiceKind {
 impl InlineQueryResultVoiceKind {
     /// Helper method for field `caption`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVoice`. Caption, 0-1024 characters after entities parsing
-    /// - `InlineQueryResultCachedVoice`. Caption, 0-1024 characters after entities parsing
+    /// Caption, 0-1024 characters after entities parsing
     #[must_use]
     pub fn caption(&self) -> Option<&str> {
         match self {
@@ -25,9 +23,7 @@ impl InlineQueryResultVoiceKind {
 
     /// Helper method for field `caption_entities`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVoice`. List of special entities that appear in the caption, which can be specified instead of `parse_mode`
-    /// - `InlineQueryResultCachedVoice`. List of special entities that appear in the caption, which can be specified instead of `parse_mode`
+    /// List of special entities that appear in the caption, which can be specified instead of `parse_mode`
     #[must_use]
     pub fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
         match self {
@@ -38,9 +34,7 @@ impl InlineQueryResultVoiceKind {
 
     /// Helper method for field `id`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVoice`. Unique identifier for this result, 1-64 bytes
-    /// - `InlineQueryResultCachedVoice`. Unique identifier for this result, 1-64 bytes
+    /// Unique identifier for this result, 1-64 bytes
     #[must_use]
     pub fn id(&self) -> &str {
         match self {
@@ -64,9 +58,7 @@ impl InlineQueryResultVoiceKind {
 
     /// Helper method for field `parse_mode`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVoice`. Mode for parsing entities in the voice message caption. See formatting options for more details.
-    /// - `InlineQueryResultCachedVoice`. Mode for parsing entities in the voice message caption. See formatting options for more details.
+    /// Mode for parsing entities in the voice message caption. See formatting options for more details.
     #[must_use]
     pub fn parse_mode(&self) -> Option<&str> {
         match self {
@@ -77,9 +69,7 @@ impl InlineQueryResultVoiceKind {
 
     /// Helper method for field `reply_markup`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVoice`. Inline keyboard attached to the message
-    /// - `InlineQueryResultCachedVoice`. Inline keyboard attached to the message
+    /// Inline keyboard attached to the message
     #[must_use]
     pub fn reply_markup(&self) -> Option<&crate::types::InlineKeyboardMarkup> {
         match self {
@@ -103,8 +93,7 @@ impl InlineQueryResultVoiceKind {
 
     /// Helper method for field `voice_duration`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVoice`. Recording duration in seconds
+    /// Recording duration in seconds
     #[must_use]
     pub fn voice_duration(&self) -> Option<i64> {
         match self {
@@ -115,8 +104,7 @@ impl InlineQueryResultVoiceKind {
 
     /// Helper method for field `voice_file_id`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultCachedVoice`. A valid file identifier for the voice message
+    /// A valid file identifier for the voice message
     #[must_use]
     pub fn voice_file_id(&self) -> Option<&str> {
         match self {
@@ -127,8 +115,7 @@ impl InlineQueryResultVoiceKind {
 
     /// Helper method for field `voice_url`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVoice`. A valid URL for the voice recording
+    /// A valid URL for the voice recording
     #[must_use]
     pub fn voice_url(&self) -> Option<&str> {
         match self {

@@ -1,12 +1,12 @@
 use serde::{Deserialize, Serialize};
 /// This object represents the scope to which bot commands are applied. Currently, the following 7 scopes are supported:
-/// - [`BotCommandScopeDefault`]
-/// - [`BotCommandScopeAllPrivateChats`]
-/// - [`BotCommandScopeAllGroupChats`]
-/// - [`BotCommandScopeAllChatAdministrators`]
-/// - [`BotCommandScopeChat`]
-/// - [`BotCommandScopeChatAdministrators`]
-/// - [`BotCommandScopeChatMember`]
+/// - [`crate::types::BotCommandScopeDefault`]
+/// - [`crate::types::BotCommandScopeAllPrivateChats`]
+/// - [`crate::types::BotCommandScopeAllGroupChats`]
+/// - [`crate::types::BotCommandScopeAllChatAdministrators`]
+/// - [`crate::types::BotCommandScopeChat`]
+/// - [`crate::types::BotCommandScopeChatAdministrators`]
+/// - [`crate::types::BotCommandScopeChatMember`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscope>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -23,10 +23,7 @@ pub enum BotCommandScope {
 impl BotCommandScope {
     /// Helper method for field `chat_id`.
     ///
-    /// # Variants
-    /// - `BotCommandScopeChat`. Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.
-    /// - `BotCommandScopeChatAdministrators`. Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.
-    /// - `BotCommandScopeChatMember`. Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.
+    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.
     #[must_use]
     pub fn chat_id(&self) -> Option<&crate::types::ChatIdKind> {
         match self {
@@ -39,8 +36,7 @@ impl BotCommandScope {
 
     /// Helper method for field `user_id`.
     ///
-    /// # Variants
-    /// - `BotCommandScopeChatMember`. Unique identifier of the target user
+    /// Unique identifier of the target user
     #[must_use]
     pub fn user_id(&self) -> Option<i64> {
         match self {

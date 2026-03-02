@@ -1,25 +1,25 @@
 use serde::{Deserialize, Serialize};
 /// This object represents one result of an inline query. Telegram clients currently support results of the following 20 types:
-/// - [`InlineQueryResultCachedAudio`]
-/// - [`InlineQueryResultCachedDocument`]
-/// - [`InlineQueryResultCachedGif`]
-/// - [`InlineQueryResultCachedMpeg4Gif`]
-/// - [`InlineQueryResultCachedPhoto`]
-/// - [`InlineQueryResultCachedSticker`]
-/// - [`InlineQueryResultCachedVideo`]
-/// - [`InlineQueryResultCachedVoice`]
-/// - [`InlineQueryResultArticle`]
-/// - [`InlineQueryResultAudio`]
-/// - [`InlineQueryResultContact`]
-/// - [`InlineQueryResultGame`]
-/// - [`InlineQueryResultDocument`]
-/// - [`InlineQueryResultGif`]
-/// - [`InlineQueryResultLocation`]
-/// - [`InlineQueryResultMpeg4Gif`]
-/// - [`InlineQueryResultPhoto`]
-/// - [`InlineQueryResultVenue`]
-/// - [`InlineQueryResultVideo`]
-/// - [`InlineQueryResultVoice`]
+/// - [`crate::types::InlineQueryResultCachedAudio`]
+/// - [`crate::types::InlineQueryResultCachedDocument`]
+/// - [`crate::types::InlineQueryResultCachedGif`]
+/// - [`crate::types::InlineQueryResultCachedMpeg4Gif`]
+/// - [`crate::types::InlineQueryResultCachedPhoto`]
+/// - [`crate::types::InlineQueryResultCachedSticker`]
+/// - [`crate::types::InlineQueryResultCachedVideo`]
+/// - [`crate::types::InlineQueryResultCachedVoice`]
+/// - [`crate::types::InlineQueryResultArticle`]
+/// - [`crate::types::InlineQueryResultAudio`]
+/// - [`crate::types::InlineQueryResultContact`]
+/// - [`crate::types::InlineQueryResultGame`]
+/// - [`crate::types::InlineQueryResultDocument`]
+/// - [`crate::types::InlineQueryResultGif`]
+/// - [`crate::types::InlineQueryResultLocation`]
+/// - [`crate::types::InlineQueryResultMpeg4Gif`]
+/// - [`crate::types::InlineQueryResultPhoto`]
+/// - [`crate::types::InlineQueryResultVenue`]
+/// - [`crate::types::InlineQueryResultVideo`]
+/// - [`crate::types::InlineQueryResultVoice`]
 ///
 /// Note: All URLs passed in inline query results will be available to end users and therefore must be assumed to be public.
 /// # Documentation
@@ -42,8 +42,7 @@ pub enum InlineQueryResult {
 impl InlineQueryResult {
     /// Helper method for field `address`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVenue`. Address of the venue
+    /// Address of the venue
     #[must_use]
     pub fn address(&self) -> Option<&str> {
         match self {
@@ -54,8 +53,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `description`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultArticle`. Short description of the result
+    /// Short description of the result
     #[must_use]
     pub fn description(&self) -> Option<&str> {
         match self {
@@ -66,8 +64,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `first_name`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultContact`. Contact's first name
+    /// Contact's first name
     #[must_use]
     pub fn first_name(&self) -> Option<&str> {
         match self {
@@ -78,8 +75,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `foursquare_id`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVenue`. Foursquare identifier of the venue if known
+    /// Foursquare identifier of the venue if known
     #[must_use]
     pub fn foursquare_id(&self) -> Option<&str> {
         match self {
@@ -90,8 +86,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `foursquare_type`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVenue`. Foursquare type of the venue, if known. (For example, `arts_entertainment/default`, `arts_entertainment/aquarium` or `food/icecream`.)
+    /// Foursquare type of the venue, if known. (For example, `arts_entertainment/default`, `arts_entertainment/aquarium` or `food/icecream`.)
     #[must_use]
     pub fn foursquare_type(&self) -> Option<&str> {
         match self {
@@ -102,8 +97,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `game_short_name`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultGame`. Short name of the game
+    /// Short name of the game
     #[must_use]
     pub fn game_short_name(&self) -> Option<&str> {
         match self {
@@ -114,8 +108,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `google_place_id`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVenue`. Google Places identifier of the venue
+    /// Google Places identifier of the venue
     #[must_use]
     pub fn google_place_id(&self) -> Option<&str> {
         match self {
@@ -126,8 +119,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `google_place_type`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVenue`. Google Places type of the venue. (See supported types.)
+    /// Google Places type of the venue. (See supported types.)
     #[must_use]
     pub fn google_place_type(&self) -> Option<&str> {
         match self {
@@ -138,8 +130,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `heading`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultLocation`. For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
+    /// For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
     #[must_use]
     pub fn heading(&self) -> Option<u16> {
         match self {
@@ -150,8 +141,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `horizontal_accuracy`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultLocation`. The radius of uncertainty for the location, measured in meters; 0-1500
+    /// The radius of uncertainty for the location, measured in meters; 0-1500
     #[must_use]
     pub fn horizontal_accuracy(&self) -> Option<f64> {
         match self {
@@ -163,12 +153,8 @@ impl InlineQueryResult {
     /// Helper method for field `id`.
     ///
     /// # Variants
-    /// - `InlineQueryResultCachedSticker`. Unique identifier for this result, 1-64 bytes
-    /// - `InlineQueryResultArticle`. Unique identifier for this result, 1-64 Bytes
-    /// - `InlineQueryResultContact`. Unique identifier for this result, 1-64 Bytes
-    /// - `InlineQueryResultGame`. Unique identifier for this result, 1-64 bytes
-    /// - `InlineQueryResultLocation`. Unique identifier for this result, 1-64 Bytes
-    /// - `InlineQueryResultVenue`. Unique identifier for this result, 1-64 Bytes
+    /// - `InlineQueryResultCachedSticker`, `InlineQueryResultGame`. Unique identifier for this result, 1-64 bytes
+    /// - `InlineQueryResultArticle`, `InlineQueryResultContact`, `InlineQueryResultLocation`, `InlineQueryResultVenue`. Unique identifier for this result, 1-64 Bytes
     #[must_use]
     pub fn id(&self) -> Option<&str> {
         match self {
@@ -204,8 +190,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `last_name`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultContact`. Contact's last name
+    /// Contact's last name
     #[must_use]
     pub fn last_name(&self) -> Option<&str> {
         match self {
@@ -230,8 +215,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `live_period`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultLocation`. Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely.
+    /// Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely.
     #[must_use]
     pub fn live_period(&self) -> Option<u32> {
         match self {
@@ -256,8 +240,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `phone_number`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultContact`. Contact's phone number
+    /// Contact's phone number
     #[must_use]
     pub fn phone_number(&self) -> Option<&str> {
         match self {
@@ -268,8 +251,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `proximity_alert_radius`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultLocation`. For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
+    /// For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
     #[must_use]
     pub fn proximity_alert_radius(&self) -> Option<u32> {
         match self {
@@ -280,13 +262,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `reply_markup`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultCachedSticker`. Inline keyboard attached to the message
-    /// - `InlineQueryResultArticle`. Inline keyboard attached to the message
-    /// - `InlineQueryResultContact`. Inline keyboard attached to the message
-    /// - `InlineQueryResultGame`. Inline keyboard attached to the message
-    /// - `InlineQueryResultLocation`. Inline keyboard attached to the message
-    /// - `InlineQueryResultVenue`. Inline keyboard attached to the message
+    /// Inline keyboard attached to the message
     #[must_use]
     pub fn reply_markup(&self) -> Option<&crate::types::InlineKeyboardMarkup> {
         match self {
@@ -302,8 +278,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `sticker_file_id`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultCachedSticker`. A valid file identifier of the sticker
+    /// A valid file identifier of the sticker
     #[must_use]
     pub fn sticker_file_id(&self) -> Option<&str> {
         match self {
@@ -314,11 +289,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `thumbnail_height`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultArticle`. Thumbnail height
-    /// - `InlineQueryResultContact`. Thumbnail height
-    /// - `InlineQueryResultLocation`. Thumbnail height
-    /// - `InlineQueryResultVenue`. Thumbnail height
+    /// Thumbnail height
     #[must_use]
     pub fn thumbnail_height(&self) -> Option<i64> {
         match self {
@@ -332,11 +303,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `thumbnail_url`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultArticle`. Url of the thumbnail for the result
-    /// - `InlineQueryResultContact`. Url of the thumbnail for the result
-    /// - `InlineQueryResultLocation`. Url of the thumbnail for the result
-    /// - `InlineQueryResultVenue`. Url of the thumbnail for the result
+    /// Url of the thumbnail for the result
     #[must_use]
     pub fn thumbnail_url(&self) -> Option<&str> {
         match self {
@@ -350,11 +317,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `thumbnail_width`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultArticle`. Thumbnail width
-    /// - `InlineQueryResultContact`. Thumbnail width
-    /// - `InlineQueryResultLocation`. Thumbnail width
-    /// - `InlineQueryResultVenue`. Thumbnail width
+    /// Thumbnail width
     #[must_use]
     pub fn thumbnail_width(&self) -> Option<i64> {
         match self {
@@ -384,8 +347,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `url`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultArticle`. URL of the result
+    /// URL of the result
     #[must_use]
     pub fn url(&self) -> Option<&str> {
         match self {
@@ -396,8 +358,7 @@ impl InlineQueryResult {
 
     /// Helper method for field `vcard`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultContact`. Additional data about the contact in the form of a vCard, 0-2048 bytes
+    /// Additional data about the contact in the form of a vCard, 0-2048 bytes
     #[must_use]
     pub fn vcard(&self) -> Option<&str> {
         match self {

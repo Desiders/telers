@@ -1,8 +1,8 @@
 use crate::types::InputPaidMedia;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes the paid media to be sent. Currently, it can be one of
-/// - [`InputPaidMediaPhoto`]
-/// - [`InputPaidMediaVideo`]
+/// - [`crate::types::InputPaidMediaPhoto`]
+/// - [`crate::types::InputPaidMediaVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputpaidmedia>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

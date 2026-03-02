@@ -1,13 +1,13 @@
 use crate::types::TransactionPartner;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes the source of a transaction, or its recipient for outgoing transactions. Currently, it can be one of
-/// - [`TransactionPartnerUser`]
-/// - [`TransactionPartnerChat`]
-/// - [`TransactionPartnerAffiliateProgram`]
-/// - [`TransactionPartnerFragment`]
-/// - [`TransactionPartnerTelegramAds`]
-/// - [`TransactionPartnerTelegramApi`]
-/// - [`TransactionPartnerOther`]
+/// - [`crate::types::TransactionPartnerUser`]
+/// - [`crate::types::TransactionPartnerChat`]
+/// - [`crate::types::TransactionPartnerAffiliateProgram`]
+/// - [`crate::types::TransactionPartnerFragment`]
+/// - [`crate::types::TransactionPartnerTelegramAds`]
+/// - [`crate::types::TransactionPartnerTelegramApi`]
+/// - [`crate::types::TransactionPartnerOther`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transactionpartner>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

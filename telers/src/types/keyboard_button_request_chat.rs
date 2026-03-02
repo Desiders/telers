@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#keyboardbuttonrequestchat>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct KeyboardButtonRequestChat {
-    /// Signed 32-bit identifier of the request, which will be received back in the [`ChatShared`] object. Must be unique within the message
+    /// Signed 32-bit identifier of the request, which will be received back in the [`crate::types::ChatShared`] object. Must be unique within the message
     pub request_id: i64,
     /// Pass `true` to request a channel chat, pass `false` to request a group or a supergroup chat.
     pub chat_is_channel: bool,
@@ -40,7 +40,7 @@ impl KeyboardButtonRequestChat {
     /// Creates a new `KeyboardButtonRequestChat`.
     ///
     /// # Arguments
-    /// * `request_id` - Signed 32-bit identifier of the request, which will be received back in the [`ChatShared`] object. Must be unique within the message
+    /// * `request_id` - Signed 32-bit identifier of the request, which will be received back in the [`crate::types::ChatShared`] object. Must be unique within the message
     /// * `chat_is_channel` - Pass `true` to request a channel chat, pass `false` to request a group or a supergroup chat.
     ///
     /// # Notes
@@ -62,7 +62,7 @@ impl KeyboardButtonRequestChat {
         }
     }
 
-    /// Signed 32-bit identifier of the request, which will be received back in the [`ChatShared`] object. Must be unique within the message
+    /// Signed 32-bit identifier of the request, which will be received back in the [`crate::types::ChatShared`] object. Must be unique within the message
     #[must_use]
     pub fn request_id<T: Into<i64>>(self, val: T) -> Self {
         let mut this = self;

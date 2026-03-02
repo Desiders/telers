@@ -1,14 +1,14 @@
 use serde::{Deserialize, Serialize};
 /// This object represents an error in the Telegram Passport element which was submitted that should be resolved by the user. It should be one of:
-/// - [`PassportElementErrorDataField`]
-/// - [`PassportElementErrorFrontSide`]
-/// - [`PassportElementErrorReverseSide`]
-/// - [`PassportElementErrorSelfie`]
-/// - [`PassportElementErrorFile`]
-/// - [`PassportElementErrorFiles`]
-/// - [`PassportElementErrorTranslationFile`]
-/// - [`PassportElementErrorTranslationFiles`]
-/// - [`PassportElementErrorUnspecified`]
+/// - [`crate::types::PassportElementErrorDataField`]
+/// - [`crate::types::PassportElementErrorFrontSide`]
+/// - [`crate::types::PassportElementErrorReverseSide`]
+/// - [`crate::types::PassportElementErrorSelfie`]
+/// - [`crate::types::PassportElementErrorFile`]
+/// - [`crate::types::PassportElementErrorFiles`]
+/// - [`crate::types::PassportElementErrorTranslationFile`]
+/// - [`crate::types::PassportElementErrorTranslationFiles`]
+/// - [`crate::types::PassportElementErrorUnspecified`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerror>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -27,8 +27,7 @@ pub enum PassportElementError {
 impl PassportElementError {
     /// Helper method for field `data_hash`.
     ///
-    /// # Variants
-    /// - `PassportElementErrorDataField`. Base64-encoded data hash
+    /// Base64-encoded data hash
     #[must_use]
     pub fn data_hash(&self) -> Option<&str> {
         match self {
@@ -39,8 +38,7 @@ impl PassportElementError {
 
     /// Helper method for field `element_hash`.
     ///
-    /// # Variants
-    /// - `PassportElementErrorUnspecified`. Base64-encoded element hash
+    /// Base64-encoded element hash
     #[must_use]
     pub fn element_hash(&self) -> Option<&str> {
         match self {
@@ -51,8 +49,7 @@ impl PassportElementError {
 
     /// Helper method for field `field_name`.
     ///
-    /// # Variants
-    /// - `PassportElementErrorDataField`. Name of the data field which has the error
+    /// Name of the data field which has the error
     #[must_use]
     pub fn field_name(&self) -> Option<&str> {
         match self {
@@ -67,8 +64,7 @@ impl PassportElementError {
     /// - `PassportElementErrorFrontSide`. Base64-encoded hash of the file with the front side of the document
     /// - `PassportElementErrorReverseSide`. Base64-encoded hash of the file with the reverse side of the document
     /// - `PassportElementErrorSelfie`. Base64-encoded hash of the file with the selfie
-    /// - `PassportElementErrorFile`. Base64-encoded file hash
-    /// - `PassportElementErrorTranslationFile`. Base64-encoded file hash
+    /// - `PassportElementErrorFile`, `PassportElementErrorTranslationFile`. Base64-encoded file hash
     #[must_use]
     pub fn file_hash(&self) -> Option<&str> {
         match self {
@@ -83,9 +79,7 @@ impl PassportElementError {
 
     /// Helper method for field `file_hashes`.
     ///
-    /// # Variants
-    /// - `PassportElementErrorFiles`. List of base64-encoded file hashes
-    /// - `PassportElementErrorTranslationFiles`. List of base64-encoded file hashes
+    /// List of base64-encoded file hashes
     #[must_use]
     pub fn file_hashes(&self) -> Option<&[Box<str>]> {
         match self {
@@ -97,16 +91,7 @@ impl PassportElementError {
 
     /// Helper method for field `message`.
     ///
-    /// # Variants
-    /// - `PassportElementErrorDataField`. Error message
-    /// - `PassportElementErrorFrontSide`. Error message
-    /// - `PassportElementErrorReverseSide`. Error message
-    /// - `PassportElementErrorSelfie`. Error message
-    /// - `PassportElementErrorFile`. Error message
-    /// - `PassportElementErrorFiles`. Error message
-    /// - `PassportElementErrorTranslationFile`. Error message
-    /// - `PassportElementErrorTranslationFiles`. Error message
-    /// - `PassportElementErrorUnspecified`. Error message
+    /// Error message
     #[must_use]
     pub fn message(&self) -> &str {
         match self {
@@ -126,13 +111,10 @@ impl PassportElementError {
     ///
     /// # Variants
     /// - `PassportElementErrorDataField`. The section of the user's Telegram Passport which has the error, one of `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport`, `address`
-    /// - `PassportElementErrorFrontSide`. The section of the user's Telegram Passport which has the issue, one of `passport`, `driver_license`, `identity_card`, `internal_passport`
+    /// - `PassportElementErrorFrontSide`, `PassportElementErrorSelfie`. The section of the user's Telegram Passport which has the issue, one of `passport`, `driver_license`, `identity_card`, `internal_passport`
     /// - `PassportElementErrorReverseSide`. The section of the user's Telegram Passport which has the issue, one of `driver_license`, `identity_card`
-    /// - `PassportElementErrorSelfie`. The section of the user's Telegram Passport which has the issue, one of `passport`, `driver_license`, `identity_card`, `internal_passport`
-    /// - `PassportElementErrorFile`. The section of the user's Telegram Passport which has the issue, one of `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`, `temporary_registration`
-    /// - `PassportElementErrorFiles`. The section of the user's Telegram Passport which has the issue, one of `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`, `temporary_registration`
-    /// - `PassportElementErrorTranslationFile`. Type of element of the user's Telegram Passport which has the issue, one of `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`, `temporary_registration`
-    /// - `PassportElementErrorTranslationFiles`. Type of element of the user's Telegram Passport which has the issue, one of `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`, `temporary_registration`
+    /// - `PassportElementErrorFile`, `PassportElementErrorFiles`. The section of the user's Telegram Passport which has the issue, one of `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`, `temporary_registration`
+    /// - `PassportElementErrorTranslationFile`, `PassportElementErrorTranslationFiles`. Type of element of the user's Telegram Passport which has the issue, one of `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`, `temporary_registration`
     /// - `PassportElementErrorUnspecified`. Type of element of the user's Telegram Passport which has the issue
     #[must_use]
     pub fn r#type(&self) -> &str {

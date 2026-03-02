@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to get a list of profile pictures for a user. Returns a [`UserProfilePhotos`] object.
+/// Use this method to get a list of profile pictures for a user. Returns a [`crate::types::UserProfilePhotos`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getuserprofilephotos>
 /// # Returns

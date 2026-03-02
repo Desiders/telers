@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 /// This object describes the type of a reaction. Currently, it can be one of
-/// - [`ReactionTypeEmoji`]
-/// - [`ReactionTypeCustomEmoji`]
-/// - [`ReactionTypePaid`]
+/// - [`crate::types::ReactionTypeEmoji`]
+/// - [`crate::types::ReactionTypeCustomEmoji`]
+/// - [`crate::types::ReactionTypePaid`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#reactiontype>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -15,8 +15,7 @@ pub enum ReactionType {
 impl ReactionType {
     /// Helper method for field `custom_emoji_id`.
     ///
-    /// # Variants
-    /// - `ReactionTypeCustomEmoji`. Custom emoji identifier
+    /// Custom emoji identifier
     #[must_use]
     pub fn custom_emoji_id(&self) -> Option<&str> {
         match self {
@@ -27,8 +26,7 @@ impl ReactionType {
 
     /// Helper method for field `emoji`.
     ///
-    /// # Variants
-    /// - `ReactionTypeEmoji`. Reaction emoji. Currently, it can be one of `❤`, `👍`, `👎`, `🔥`, `🥰`, `👏`, `😁`, `🤔`, `🤯`, `😱`, `🤬`, `😢`, `🎉`, `🤩`, `🤮`, `💩`, `🙏`, `👌`, `🕊`, `🤡`, `🥱`, `🥴`, `😍`, `🐳`, `❤‍🔥`, `🌚`, `🌭`, `💯`, `🤣`, `⚡`, `🍌`, `🏆`, `💔`, `🤨`, `😐`, `🍓`, `🍾`, `💋`, `🖕`, `😈`, `😴`, `😭`, `🤓`, `👻`, `👨‍💻`, `👀`, `🎃`, `🙈`, `😇`, `😨`, `🤝`, `✍`, `🤗`, `🫡`, `🎅`, `🎄`, `☃`, `💅`, `🤪`, `🗿`, `🆒`, `💘`, `🙉`, `🦄`, `😘`, `💊`, `🙊`, `😎`, `👾`, `🤷‍♂`, `🤷`, `🤷‍♀`, `😡`
+    /// Reaction emoji. Currently, it can be one of `❤`, `👍`, `👎`, `🔥`, `🥰`, `👏`, `😁`, `🤔`, `🤯`, `😱`, `🤬`, `😢`, `🎉`, `🤩`, `🤮`, `💩`, `🙏`, `👌`, `🕊`, `🤡`, `🥱`, `🥴`, `😍`, `🐳`, `❤‍🔥`, `🌚`, `🌭`, `💯`, `🤣`, `⚡`, `🍌`, `🏆`, `💔`, `🤨`, `😐`, `🍓`, `🍾`, `💋`, `🖕`, `😈`, `😴`, `😭`, `🤓`, `👻`, `👨‍💻`, `👀`, `🎃`, `🙈`, `😇`, `😨`, `🤝`, `✍`, `🤗`, `🫡`, `🎅`, `🎄`, `☃`, `💅`, `🤪`, `🗿`, `🆒`, `💘`, `🙉`, `🦄`, `😘`, `💊`, `🙊`, `😎`, `👾`, `🤷‍♂`, `🤷`, `🤷‍♀`, `😡`
     #[must_use]
     pub fn emoji(&self) -> Option<&str> {
         match self {

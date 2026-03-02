@@ -16,6 +16,10 @@ use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote, ToTokens};
 use std::collections::{BTreeMap, HashSet};
 
+struct TypeDocContext<'a> {
+    schema_type_names: &'a HashSet<String>,
+}
+
 enum AccessExpr {
     Plain(TokenStream),
     Optional(TokenStream),
@@ -25,6 +29,109 @@ enum AccessExpr {
         returns_option: bool,
         wrap_in_some: bool,
     },
+}
+
+fn collect_telegram_type_names(kind: &TypeKindInField, out: &mut HashSet<String>) {
+    match kind {
+        TypeKindInField::Telegram(name) => {
+            out.insert(name.clone());
+        }
+        TypeKindInField::Array(inner) => collect_telegram_type_names(inner, out),
+        TypeKindInField::Either(left, right) => {
+            collect_telegram_type_names(left, out);
+            collect_telegram_type_names(right, out);
+        }
+        _ => {}
+    }
+}
+
+#[must_use]
+fn link_known_type_mentions(doc: &str, names: &HashSet<String>) -> String {
+    let mut out = String::with_capacity(doc.len() + 32);
+    let mut rest = doc;
+
+    while let Some(pos) = rest.find('`') {
+        out.push_str(&rest[..pos]);
+
+        // Handle bracketed form: [`Type`]
+        if pos > 0 && rest.as_bytes()[pos - 1] == b'[' {
+            out.pop(); // remove '[' that was already pushed
+            let after_tick = &rest[pos + 1..];
+            if let Some(end_tick) = after_tick.find('`') {
+                let token = &after_tick[..end_tick];
+                let after_end_tick = &after_tick[end_tick + 1..];
+                if let Some(after_bracket) = after_end_tick.strip_prefix(']') {
+                    if names.contains(token) {
+                        out.push_str("[`crate::types::");
+                        out.push_str(token);
+                        out.push_str("`]");
+                    } else {
+                        out.push_str("[`");
+                        out.push_str(token);
+                        out.push_str("`]");
+                    }
+                    rest = after_bracket;
+                    continue;
+                }
+            }
+            out.push('[');
+            out.push('`');
+            rest = &rest[pos + 1..];
+            continue;
+        }
+
+        // Handle plain backticked form: `Type`
+        let after_tick = &rest[pos + 1..];
+        if let Some(end_tick) = after_tick.find('`') {
+            let token = &after_tick[..end_tick];
+            if names.contains(token) {
+                out.push_str("[`crate::types::");
+                out.push_str(token);
+                out.push_str("`]");
+            } else {
+                out.push('`');
+                out.push_str(token);
+                out.push('`');
+            }
+            rest = &after_tick[end_tick + 1..];
+        } else {
+            out.push('`');
+            out.push_str(after_tick);
+            rest = "";
+            break;
+        }
+    }
+
+    out.push_str(rest);
+    out
+}
+
+#[must_use]
+fn format_field_doc(description: &str, kind: &TypeKindInField, ctx: &TypeDocContext<'_>) -> String {
+    let mut names = HashSet::new();
+    collect_telegram_type_names(kind, &mut names);
+    let doc = format_attr_description(description);
+    let doc = link_known_type_mentions(&doc, &names);
+    normalize_doc_line_prefix(&link_schema_type_mentions(&doc, ctx))
+}
+
+#[must_use]
+fn format_field_arg_doc(field: &NormalizedField, ctx: &TypeDocContext<'_>) -> String {
+    let doc = format_attr_description(&format!("* `{}` - {}", field.name, field.description));
+    let mut names = HashSet::new();
+    collect_telegram_type_names(&field.r#type, &mut names);
+    let doc = link_known_type_mentions(&doc, &names);
+    normalize_doc_line_prefix(&link_schema_type_mentions(&doc, ctx))
+}
+
+#[must_use]
+fn link_schema_type_mentions(doc: &str, ctx: &TypeDocContext<'_>) -> String {
+    link_known_type_mentions(doc, ctx.schema_type_names)
+}
+
+#[must_use]
+fn normalize_doc_line_prefix(doc: &str) -> String {
+    format!(" {}", doc.trim_start())
 }
 
 impl ToTokens for TypeKindInField {
@@ -65,93 +172,146 @@ impl ToTokens for NormalizedSubtypeVariant {
     }
 }
 
-impl ToTokens for NormalizedField {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let name = sanitize_field_name(&self.name);
-        let doc = format_attr_description(&self.description);
-        let raw_ty = &self.r#type;
-        let ty = if self.is_recursive || self.is_boxed {
-            quote! { Box<#raw_ty> }
-        } else {
-            quote! { #raw_ty }
-        };
+fn tokenize_field(field: &NormalizedField, ctx: &TypeDocContext<'_>) -> TokenStream {
+    let name = sanitize_field_name(&field.name);
+    let doc = format_field_doc(&field.description, &field.r#type, ctx);
+    let raw_ty = &field.r#type;
+    let ty = if field.is_recursive || field.is_boxed {
+        quote! { Box<#raw_ty> }
+    } else {
+        quote! { #raw_ty }
+    };
 
-        let ts = if self.required {
-            quote! { #[doc = #doc] pub #name: #ty, }
-        } else {
-            quote! {
-                #[doc = #doc]
-                #[serde(skip_serializing_if = "Option::is_none")]
-                pub #name: Option<#ty>,
-            }
-        };
-        tokens.extend(ts);
+    if field.required {
+        quote! { #[doc = #doc] pub #name: #ty, }
+    } else {
+        quote! {
+            #[doc = #doc]
+            #[serde(skip_serializing_if = "Option::is_none")]
+            pub #name: Option<#ty>,
+        }
     }
 }
 
-impl ToTokens for NormalizedType {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let name = format_ident!("{}", self.name.as_str());
-        let doc_lines = format_description(&self.description, &self.href);
+fn tokenize_type_definition(type_quote: &NormalizedType, ctx: &TypeDocContext<'_>) -> TokenStream {
+    let name = format_ident!("{}", type_quote.name.as_str());
+    let mut doc_lines = format_description(&type_quote.description, &type_quote.href);
+    doc_lines = doc_lines
+        .into_iter()
+        .map(|line| link_schema_type_mentions(&line, ctx))
+        .collect();
+    doc_lines = link_prefixed_type_mentions(doc_lines, &type_quote.name);
+    for subtype in &type_quote.subtypes {
+        let type_name = &subtype.ty_name;
+        let code = format!("`{type_name}`");
+        let bare_link = format!("[`{type_name}`]");
+        let path_link = format!("[`crate::types::{type_name}`]");
+        for line in &mut doc_lines {
+            if line.contains(&code) {
+                *line = line.replace(&code, &path_link);
+            }
+            if line.contains(&bare_link) {
+                *line = line.replace(&bare_link, &path_link);
+            }
+        }
+    }
 
-        let (tag_field, parent_tag_field) = self
-            .subtype_kind
-            .as_ref()
-            .map(|kind| kind.get_tags())
-            .unwrap_or_default();
+    let (tag_field, parent_tag_field) = type_quote
+        .subtype_kind
+        .as_ref()
+        .map(|kind| kind.get_tags())
+        .unwrap_or_default();
 
-        let derive_quotes = get_derives_for_types(self);
-        let ts = if self.subtypes.is_empty() {
-            let fields = self
-                .fields
-                .iter()
-                .filter(|f| !f.is_tagged(tag_field, parent_tag_field));
-            let extra_field = if self.has_extra_fields {
-                quote! {
-                    #[serde(flatten)]
-                    pub extra: BTreeMap<Box<str>, serde_json::Value>,
-                }
-            } else {
-                quote! {}
-            };
+    let derive_quotes = get_derives_for_types(type_quote);
+    if type_quote.subtypes.is_empty() {
+        let fields = type_quote
+            .fields
+            .iter()
+            .filter(|f| !f.is_tagged(tag_field, parent_tag_field))
+            .map(|f| tokenize_field(f, ctx));
+        let extra_field = if type_quote.has_extra_fields {
             quote! {
-                #( #[doc = #doc_lines] )*
-                #( #derive_quotes )*
-                pub struct #name {
-                    #( #fields )*
-                    #extra_field
-                }
+                #[serde(flatten)]
+                pub extra: BTreeMap<Box<str>, serde_json::Value>,
             }
         } else {
-            let serde_attr = match &self.subtype_kind {
-                Some(SubtypeKind::Tagged {
-                    tag_field, ..
-                }) => {
-                    quote! { #[serde(tag = #tag_field, rename_all = "snake_case")] }
-                }
-                Some(
-                    SubtypeKind::Untagged
-                    | SubtypeKind::UntaggedInTagged {
-                        ..
-                    },
-                ) => {
-                    quote! { #[serde(untagged)] }
-                }
-                None => quote! {},
-            };
-            let subtypes = self.subtypes.iter();
-            quote! {
-                #( #[doc = #doc_lines] )*
-                #( #derive_quotes )*
-                #serde_attr
-                pub enum #name {
-                    #( #subtypes )*
+            quote! {}
+        };
+        quote! {
+            #( #[doc = #doc_lines] )*
+            #( #derive_quotes )*
+            pub struct #name {
+                #( #fields )*
+                #extra_field
+            }
+        }
+    } else {
+        let serde_attr = match &type_quote.subtype_kind {
+            Some(SubtypeKind::Tagged {
+                tag_field, ..
+            }) => {
+                quote! { #[serde(tag = #tag_field, rename_all = "snake_case")] }
+            }
+            Some(
+                SubtypeKind::Untagged
+                | SubtypeKind::UntaggedInTagged {
+                    ..
+                },
+            ) => {
+                quote! { #[serde(untagged)] }
+            }
+            None => quote! {},
+        };
+        let subtypes = type_quote.subtypes.iter();
+        quote! {
+            #( #[doc = #doc_lines] )*
+            #( #derive_quotes )*
+            #serde_attr
+            pub enum #name {
+                #( #subtypes )*
+            }
+        }
+    }
+}
+
+fn link_prefixed_type_mentions(lines: Vec<String>, prefix: &str) -> Vec<String> {
+    lines
+        .into_iter()
+        .map(|line| {
+            let mut out = String::with_capacity(line.len() + 32);
+            let mut rest = line.as_str();
+
+            while let Some(start) = rest.find('`') {
+                out.push_str(&rest[..start]);
+                let after_start = &rest[start + 1..];
+                if let Some(end_rel) = after_start.find('`') {
+                    let token = &after_start[..end_rel];
+                    if token.starts_with(prefix)
+                        && token.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
+                    {
+                        out.push_str("[`crate::types::");
+                        out.push_str(token);
+                        out.push_str("`]");
+                    } else {
+                        out.push('`');
+                        out.push_str(token);
+                        out.push('`');
+                    }
+                    rest = &after_start[end_rel + 1..];
+                } else {
+                    out.push_str(&rest[start..]);
+                    break;
                 }
             }
-        };
 
-        tokens.extend(ts);
-    }
+            if out.is_empty() {
+                line
+            } else {
+                out.push_str(rest);
+                out
+            }
+        })
+        .collect()
 }
 
 #[must_use]
@@ -390,7 +550,7 @@ pub fn get_derives_for_types(_type_quote: &NormalizedType) -> Vec<TokenStream> {
 
 #[must_use]
 #[allow(clippy::too_many_lines)]
-pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
+fn builder_impl_for_type(type_quote: &NormalizedType, ctx: &TypeDocContext<'_>) -> TokenStream {
     if !type_quote.subtypes.is_empty() {
         return quote! {};
     }
@@ -419,8 +579,7 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
             let doc_args = format_attr_description("# Arguments");
             doc_lines.push(quote! { #[doc = ""] #[doc = #doc_args] });
             for &field in &required_fields {
-                let doc =
-                    format_attr_description(&format!("* `{}` - {}", field.name, field.description));
+                let doc = format_field_arg_doc(field, ctx);
                 doc_lines.push(quote! { #[doc = #doc] });
             }
         }
@@ -531,7 +690,7 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
                 let plural_name = sanitize_field_name(&plural);
 
                 let make_doc = |note: &str| {
-                    let desc = format_attr_description(&field.description);
+                    let desc = format_field_doc(&field.description, &field.r#type, ctx);
                     let notes = format_attr_description("# Notes");
                     let note = format_attr_description(note);
                     quote! { #[doc = #desc] #[doc = ""] #[doc = #notes] #[doc = #note] }
@@ -591,7 +750,7 @@ pub fn builder_impl_for_type(type_quote: &NormalizedType) -> TokenStream {
                     });
                 }
             } else {
-                let doc = format_attr_description(&field.description);
+                let doc = format_field_doc(&field.description, &field.r#type, ctx);
                 let boxed = field.is_recursive || field.is_boxed;
                 let inner_value = if boxed { quote! { Box::new(val.into()) } } else { quote! { val.into() } };
                 let value = if field.required { inner_value.clone() } else { quote! { Some(#inner_value) } };
@@ -890,9 +1049,10 @@ fn nested_outer_accessor_expr(
 }
 
 #[must_use]
-pub fn get_helper_impls_for_type(
+fn get_helper_impls_for_type(
     type_quote: &NormalizedType,
     schema: &NormalizedSchema,
+    ctx: &TypeDocContext<'_>,
 ) -> TokenStream {
     if type_quote.subtypes.is_empty() {
         return quote! {};
@@ -938,19 +1098,48 @@ pub fn get_helper_impls_for_type(
 
         let doc_helper =
             format_attr_description(&format!("Helper method for field `{field_name}`."));
-        let doc_variants = format_attr_description("# Variants");
-        let mut doc_lines: Vec<TokenStream> = vec![
-            quote! { #[doc = #doc_helper] },
-            quote! { #[doc = ""] },
-            quote! { #[doc = #doc_variants] },
-        ];
+        let mut doc_lines: Vec<TokenStream> =
+            vec![quote! { #[doc = #doc_helper] }, quote! { #[doc = ""] }];
+
+        let mut desc_groups: Vec<(&str, Vec<&str>)> = vec![];
+        for (subtype, field) in subtypes {
+            let desc = field.description.as_str();
+            if let Some(group) = desc_groups.iter_mut().find(|(d, _)| *d == desc) {
+                group.1.push(subtype.ty_name.as_str());
+            } else {
+                desc_groups.push((desc, vec![subtype.ty_name.as_str()]));
+            }
+        }
+
+        let all_same_description = desc_groups.len() == 1;
+        if !all_same_description {
+            let doc_variants = format_attr_description("# Variants");
+            doc_lines.push(quote! { #[doc = #doc_variants] });
+        }
+
+        for (description, ty_names) in &desc_groups {
+            let doc_field = if all_same_description {
+                format_field_doc(description, field_ty, ctx)
+            } else {
+                let label = if ty_names.len() == 1 {
+                    format!("- `{}`", ty_names[0])
+                } else {
+                    let joined = ty_names
+                        .iter()
+                        .map(|n| format!("`{n}`"))
+                        .collect::<Vec<_>>()
+                        .join(", ");
+                    format!("- {joined}")
+                };
+                let linked_description = format_field_doc(description, field_ty, ctx);
+                format_attr_description(&format!("{label}. {}", linked_description.trim_start()))
+            };
+            doc_lines.push(quote! { #[doc = #doc_field] });
+        }
+
         let mut match_arms = vec![];
         for (subtype, field) in subtypes {
             let variant = format_ident!("{}", subtype.variant);
-
-            let doc_field =
-                format_attr_description(&format!("- `{}`. {}", subtype.ty_name, field.description));
-            doc_lines.push(quote! { #[doc = #doc_field] });
 
             let body = helper_field_accessor_expr(field);
             let body = if field.required && !is_required_for_all {
@@ -1221,7 +1410,15 @@ pub fn get_helper_impls_for_type(
 }
 
 #[must_use]
-pub fn tokenize_type(type_quote: &NormalizedType, schema: &NormalizedSchema) -> TokenStream {
+#[allow(clippy::implicit_hasher)]
+pub fn tokenize_type(
+    type_quote: &NormalizedType,
+    schema: &NormalizedSchema,
+    known_schema_type_names: &HashSet<String>,
+) -> TokenStream {
+    let ctx = TypeDocContext {
+        schema_type_names: known_schema_type_names,
+    };
     let mut import_quotes = vec![];
     if type_quote.has_extra_fields && type_quote.subtypes.is_empty() {
         import_quotes.push(quote! { use std::collections::BTreeMap; });
@@ -1230,12 +1427,13 @@ pub fn tokenize_type(type_quote: &NormalizedType, schema: &NormalizedSchema) -> 
 
     let type_impls = get_impls_for_types(type_quote, schema);
     let subtype_impls = get_from_impls_for_subtypes(type_quote);
-    let builder_impls = builder_impl_for_type(type_quote);
-    let helper_impls = get_helper_impls_for_type(type_quote, schema);
+    let type_definition = tokenize_type_definition(type_quote, &ctx);
+    let builder_impls = builder_impl_for_type(type_quote, &ctx);
+    let helper_impls = get_helper_impls_for_type(type_quote, schema, &ctx);
 
     quote! {
         #( #import_quotes )*
-        #type_quote
+        #type_definition
         #builder_impls
         #helper_impls
         #( #type_impls )*
@@ -1256,6 +1454,51 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
     });
 
     quote! {
+        //! Telegram Bot API data types and helper models.
+        //!
+        //! This module re-exports all generated types from the `crate::types` module, including
+        //! shared helper types from `non_telegram`.
+        //! Generated type builders follow the same conventions as method builders:
+        //! - optional fields can be set with normal chainable builder methods
+        //! - optional fields also expose `_option(...)` variants to pass `Option<T>` directly
+        //!   (including `None` to clear/unset a field)
+        //!
+        //! For polymorphic API objects (for example [`crate::types::Message`]), telers uses enums with
+        //! split subtypes. In these cases, use generated helper methods like `message.chat()`
+        //! and `message.text()` instead of field access like `message.chat`.
+        //!
+        //! # Examples
+        //! ```rust
+        //! use telers::types::{ChatIdKind, InlineKeyboardButton, InlineKeyboardMarkup};
+        //!
+        //! let chat_id = ChatIdKind::id(1);
+        //! let keyboard = InlineKeyboardMarkup::new([[
+        //!     InlineKeyboardButton::new("Open Telegram API docs")
+        //!         // Regular builder setter.
+        //!         .url("https://core.telegram.org/bots/api")
+        //!         // `_option(...)` variant for Option<T> values.
+        //!         .url_option(Some("https://core.telegram.org/bots/api")),
+        //! ]]);
+        //!
+        //! assert!(matches!(chat_id, ChatIdKind::Id(_)));
+        //! assert_eq!(keyboard.inline_keyboard.len(), 1);
+        //! ```
+        //!
+        //! ```rust
+        //! use telers::types::Message;
+        //!
+        //! fn inspect_message(message: &Message) {
+        //!     // `Message` is an enum, so helper methods provide unified access.
+        //!     let _chat = message.chat();
+        //!     let _message_id = message.message_id();
+        //!     let _maybe_text = message.text();
+        //! }
+        //! ```
+
+        #![allow(clippy::too_many_arguments)]
+        #![allow(clippy::struct_excessive_bools)]
+        #![allow(clippy::large_enum_variant)]
+
         pub(crate) mod non_telegram;
         pub use non_telegram::*;
         #( #mods_quote )*

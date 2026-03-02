@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#keyboardbuttonrequestusers>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct KeyboardButtonRequestUsers {
-    /// Signed 32-bit identifier of the request that will be received back in the [`UsersShared`] object. Must be unique within the message
+    /// Signed 32-bit identifier of the request that will be received back in the [`crate::types::UsersShared`] object. Must be unique within the message
     pub request_id: i64,
     /// Pass `true` to request bots, pass `false` to request regular users. If not specified, no additional restrictions are applied.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -29,7 +29,7 @@ impl KeyboardButtonRequestUsers {
     /// Creates a new `KeyboardButtonRequestUsers`.
     ///
     /// # Arguments
-    /// * `request_id` - Signed 32-bit identifier of the request that will be received back in the [`UsersShared`] object. Must be unique within the message
+    /// * `request_id` - Signed 32-bit identifier of the request that will be received back in the [`crate::types::UsersShared`] object. Must be unique within the message
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -46,7 +46,7 @@ impl KeyboardButtonRequestUsers {
         }
     }
 
-    /// Signed 32-bit identifier of the request that will be received back in the [`UsersShared`] object. Must be unique within the message
+    /// Signed 32-bit identifier of the request that will be received back in the [`crate::types::UsersShared`] object. Must be unique within the message
     #[must_use]
     pub fn request_id<T: Into<i64>>(self, val: T) -> Self {
         let mut this = self;

@@ -1,9 +1,9 @@
 use crate::types::PaidMedia;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes paid media. Currently, it can be one of
-/// - [`PaidMediaPreview`]
-/// - [`PaidMediaPhoto`]
-/// - [`PaidMediaVideo`]
+/// - [`crate::types::PaidMediaPreview`]
+/// - [`crate::types::PaidMediaPhoto`]
+/// - [`crate::types::PaidMediaVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#paidmedia>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

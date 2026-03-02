@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 /// This object contains information about a poll.
 /// Currently, it can be one of
-/// - [`PollQuiz`]
-/// - [`PollRegular`]
+/// - [`crate::types::PollQuiz`]
+/// - [`crate::types::PollRegular`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#poll>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -14,9 +14,7 @@ pub enum Poll {
 impl Poll {
     /// Helper method for field `allows_multiple_answers`.
     ///
-    /// # Variants
-    /// - `PollRegular`. `true`, if the poll allows multiple answers
-    /// - `PollQuiz`. `true`, if the poll allows multiple answers
+    /// `true`, if the poll allows multiple answers
     #[must_use]
     pub fn allows_multiple_answers(&self) -> bool {
         match self {
@@ -27,9 +25,7 @@ impl Poll {
 
     /// Helper method for field `close_date`.
     ///
-    /// # Variants
-    /// - `PollRegular`. Point in time (Unix timestamp) when the poll will be automatically closed
-    /// - `PollQuiz`. Point in time (Unix timestamp) when the poll will be automatically closed
+    /// Point in time (Unix timestamp) when the poll will be automatically closed
     #[must_use]
     pub fn close_date(&self) -> Option<i64> {
         match self {
@@ -40,8 +36,7 @@ impl Poll {
 
     /// Helper method for field `correct_option_id`.
     ///
-    /// # Variants
-    /// - `PollQuiz`. 0-based identifier of the correct answer option. Available only for polls in the quiz mode, which are closed, or was sent (not forwarded) by the bot or to the private chat with the bot.
+    /// 0-based identifier of the correct answer option. Available only for polls in the quiz mode, which are closed, or was sent (not forwarded) by the bot or to the private chat with the bot.
     #[must_use]
     pub fn correct_option_id(&self) -> Option<i64> {
         match self {
@@ -52,8 +47,7 @@ impl Poll {
 
     /// Helper method for field `explanation`.
     ///
-    /// # Variants
-    /// - `PollQuiz`. Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters
+    /// Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters
     #[must_use]
     pub fn explanation(&self) -> Option<&str> {
         match self {
@@ -64,9 +58,7 @@ impl Poll {
 
     /// Helper method for field `explanation_entities`.
     ///
-    /// # Variants
-    /// - `PollRegular`. Special entities like usernames, URLs, bot commands, etc. that appear in the explanation
-    /// - `PollQuiz`. Special entities like usernames, URLs, bot commands, etc. that appear in the explanation
+    /// Special entities like usernames, URLs, bot commands, etc. that appear in the explanation
     #[must_use]
     pub fn explanation_entities(&self) -> Option<&[crate::types::MessageEntity]> {
         match self {
@@ -77,9 +69,7 @@ impl Poll {
 
     /// Helper method for field `id`.
     ///
-    /// # Variants
-    /// - `PollRegular`. Unique poll identifier
-    /// - `PollQuiz`. Unique poll identifier
+    /// Unique poll identifier
     #[must_use]
     pub fn id(&self) -> &str {
         match self {
@@ -90,9 +80,7 @@ impl Poll {
 
     /// Helper method for field `is_anonymous`.
     ///
-    /// # Variants
-    /// - `PollRegular`. `true`, if the poll is anonymous
-    /// - `PollQuiz`. `true`, if the poll is anonymous
+    /// `true`, if the poll is anonymous
     #[must_use]
     pub fn is_anonymous(&self) -> bool {
         match self {
@@ -103,9 +91,7 @@ impl Poll {
 
     /// Helper method for field `is_closed`.
     ///
-    /// # Variants
-    /// - `PollRegular`. `true`, if the poll is closed
-    /// - `PollQuiz`. `true`, if the poll is closed
+    /// `true`, if the poll is closed
     #[must_use]
     pub fn is_closed(&self) -> bool {
         match self {
@@ -116,9 +102,7 @@ impl Poll {
 
     /// Helper method for field `open_period`.
     ///
-    /// # Variants
-    /// - `PollRegular`. Amount of time in seconds the poll will be active after creation
-    /// - `PollQuiz`. Amount of time in seconds the poll will be active after creation
+    /// Amount of time in seconds the poll will be active after creation
     #[must_use]
     pub fn open_period(&self) -> Option<i64> {
         match self {
@@ -129,9 +113,7 @@ impl Poll {
 
     /// Helper method for field `options`.
     ///
-    /// # Variants
-    /// - `PollRegular`. List of poll options
-    /// - `PollQuiz`. List of poll options
+    /// List of poll options
     #[must_use]
     pub fn options(&self) -> &[crate::types::PollOption] {
         match self {
@@ -142,9 +124,7 @@ impl Poll {
 
     /// Helper method for field `question`.
     ///
-    /// # Variants
-    /// - `PollRegular`. Poll question, 1-300 characters
-    /// - `PollQuiz`. Poll question, 1-300 characters
+    /// Poll question, 1-300 characters
     #[must_use]
     pub fn question(&self) -> &str {
         match self {
@@ -155,9 +135,7 @@ impl Poll {
 
     /// Helper method for field `question_entities`.
     ///
-    /// # Variants
-    /// - `PollRegular`. Special entities that appear in the question. Currently, only custom emoji entities are allowed in poll questions
-    /// - `PollQuiz`. Special entities that appear in the question. Currently, only custom emoji entities are allowed in poll questions
+    /// Special entities that appear in the question. Currently, only custom emoji entities are allowed in poll questions
     #[must_use]
     pub fn question_entities(&self) -> Option<&[crate::types::MessageEntity]> {
         match self {
@@ -168,9 +146,7 @@ impl Poll {
 
     /// Helper method for field `total_voter_count`.
     ///
-    /// # Variants
-    /// - `PollRegular`. Total number of users that voted in the poll
-    /// - `PollQuiz`. Total number of users that voted in the poll
+    /// Total number of users that voted in the poll
     #[must_use]
     pub fn total_voter_count(&self) -> i64 {
         match self {

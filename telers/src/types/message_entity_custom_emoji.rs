@@ -10,7 +10,7 @@ pub struct MessageEntityCustomEmoji {
     pub offset: i64,
     /// Length of the entity in UTF-16 code units
     pub length: i64,
-    /// For `custom_emoji` only, unique identifier of the custom emoji. Use get[`CustomEmojiStickers`] to get full information about the sticker
+    /// For `custom_emoji` only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker
     pub custom_emoji_id: Box<str>,
 }
 impl MessageEntityCustomEmoji {
@@ -19,7 +19,7 @@ impl MessageEntityCustomEmoji {
     /// # Arguments
     /// * `offset` - Offset in UTF-16 code units to the start of the entity
     /// * `length` - Length of the entity in UTF-16 code units
-    /// * `custom_emoji_id` - For `custom_emoji` only, unique identifier of the custom emoji. Use get[`CustomEmojiStickers`] to get full information about the sticker
+    /// * `custom_emoji_id` - For `custom_emoji` only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker
     #[must_use]
     pub fn new<T0: Into<i64>, T1: Into<i64>, T2: Into<Box<str>>>(
         offset: T0,
@@ -49,7 +49,7 @@ impl MessageEntityCustomEmoji {
         this
     }
 
-    /// For `custom_emoji` only, unique identifier of the custom emoji. Use get[`CustomEmojiStickers`] to get full information about the sticker
+    /// For `custom_emoji` only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker
     #[must_use]
     pub fn custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
         let mut this = self;

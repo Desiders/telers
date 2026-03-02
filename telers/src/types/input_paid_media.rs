@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 /// This object describes the paid media to be sent. Currently, it can be one of
-/// - [`InputPaidMediaPhoto`]
-/// - [`InputPaidMediaVideo`]
+/// - [`crate::types::InputPaidMediaPhoto`]
+/// - [`crate::types::InputPaidMediaVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputpaidmedia>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -13,8 +13,7 @@ pub enum InputPaidMedia {
 impl InputPaidMedia {
     /// Helper method for field `cover`.
     ///
-    /// # Variants
-    /// - `InputPaidMediaVideo`. Cover for the video in the message. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
+    /// Cover for the video in the message. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
     pub fn cover(&self) -> Option<&crate::types::InputFile> {
         match self {
@@ -25,8 +24,7 @@ impl InputPaidMedia {
 
     /// Helper method for field `duration`.
     ///
-    /// # Variants
-    /// - `InputPaidMediaVideo`. Video duration in seconds
+    /// Video duration in seconds
     #[must_use]
     pub fn duration(&self) -> Option<i64> {
         match self {
@@ -37,8 +35,7 @@ impl InputPaidMedia {
 
     /// Helper method for field `height`.
     ///
-    /// # Variants
-    /// - `InputPaidMediaVideo`. Video height
+    /// Video height
     #[must_use]
     pub fn height(&self) -> Option<i64> {
         match self {
@@ -49,9 +46,7 @@ impl InputPaidMedia {
 
     /// Helper method for field `media`.
     ///
-    /// # Variants
-    /// - `InputPaidMediaPhoto`. File to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
-    /// - `InputPaidMediaVideo`. File to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
+    /// File to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
     pub fn media(&self) -> &crate::types::InputFile {
         match self {
@@ -62,8 +57,7 @@ impl InputPaidMedia {
 
     /// Helper method for field `start_timestamp`.
     ///
-    /// # Variants
-    /// - `InputPaidMediaVideo`. Start timestamp for the video in the message
+    /// Start timestamp for the video in the message
     #[must_use]
     pub fn start_timestamp(&self) -> Option<i64> {
         match self {
@@ -74,8 +68,7 @@ impl InputPaidMedia {
 
     /// Helper method for field `supports_streaming`.
     ///
-    /// # Variants
-    /// - `InputPaidMediaVideo`. Pass `true` if the uploaded video is suitable for streaming
+    /// Pass `true` if the uploaded video is suitable for streaming
     #[must_use]
     pub fn supports_streaming(&self) -> Option<bool> {
         match self {
@@ -86,8 +79,7 @@ impl InputPaidMedia {
 
     /// Helper method for field `thumbnail`.
     ///
-    /// # Variants
-    /// - `InputPaidMediaVideo`. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the thumbnail was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
+    /// Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the thumbnail was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
     pub fn thumbnail(&self) -> Option<&crate::types::InputFile> {
         match self {
@@ -98,8 +90,7 @@ impl InputPaidMedia {
 
     /// Helper method for field `width`.
     ///
-    /// # Variants
-    /// - `InputPaidMediaVideo`. Video width
+    /// Video width
     #[must_use]
     pub fn width(&self) -> Option<i64> {
         match self {

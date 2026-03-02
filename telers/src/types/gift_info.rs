@@ -30,7 +30,7 @@ pub struct GiftInfo {
     /// `true`, if the sender and gift text are shown only to the gift receiver; otherwise, everyone will be able to see them
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_private: Option<bool>,
-    /// Unique number reserved for this gift when upgraded. See the number field in [`UniqueGift`]
+    /// Unique number reserved for this gift when upgraded. See the number field in [`crate::types::UniqueGift`]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unique_gift_number: Option<i64>,
 }
@@ -228,7 +228,7 @@ impl GiftInfo {
         this
     }
 
-    /// Unique number reserved for this gift when upgraded. See the number field in [`UniqueGift`]
+    /// Unique number reserved for this gift when upgraded. See the number field in [`crate::types::UniqueGift`]
     #[must_use]
     pub fn unique_gift_number<T: Into<i64>>(self, val: T) -> Self {
         let mut this = self;
@@ -236,7 +236,7 @@ impl GiftInfo {
         this
     }
 
-    /// Unique number reserved for this gift when upgraded. See the number field in [`UniqueGift`]
+    /// Unique number reserved for this gift when upgraded. See the number field in [`crate::types::UniqueGift`]
     #[must_use]
     pub fn unique_gift_number_option<T: Into<i64>>(self, val: Option<T>) -> Self {
         let mut this = self;

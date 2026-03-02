@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 /// This object describes the way a background is filled based on the selected colors. Currently, it can be one of
-/// - [`BackgroundFillSolid`]
-/// - [`BackgroundFillGradient`]
-/// - [`BackgroundFillFreeformGradient`]
+/// - [`crate::types::BackgroundFillSolid`]
+/// - [`crate::types::BackgroundFillGradient`]
+/// - [`crate::types::BackgroundFillFreeformGradient`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#backgroundfill>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -15,8 +15,7 @@ pub enum BackgroundFill {
 impl BackgroundFill {
     /// Helper method for field `bottom_color`.
     ///
-    /// # Variants
-    /// - `BackgroundFillGradient`. Bottom color of the gradient in the RGB24 format
+    /// Bottom color of the gradient in the RGB24 format
     #[must_use]
     pub fn bottom_color(&self) -> Option<i64> {
         match self {
@@ -27,8 +26,7 @@ impl BackgroundFill {
 
     /// Helper method for field `color`.
     ///
-    /// # Variants
-    /// - `BackgroundFillSolid`. The color of the background fill in the RGB24 format
+    /// The color of the background fill in the RGB24 format
     #[must_use]
     pub fn color(&self) -> Option<i64> {
         match self {
@@ -39,8 +37,7 @@ impl BackgroundFill {
 
     /// Helper method for field `colors`.
     ///
-    /// # Variants
-    /// - `BackgroundFillFreeformGradient`. A list of the 3 or 4 base colors that are used to generate the freeform gradient in the RGB24 format
+    /// A list of the 3 or 4 base colors that are used to generate the freeform gradient in the RGB24 format
     #[must_use]
     pub fn colors(&self) -> Option<&[i64]> {
         match self {
@@ -51,8 +48,7 @@ impl BackgroundFill {
 
     /// Helper method for field `rotation_angle`.
     ///
-    /// # Variants
-    /// - `BackgroundFillGradient`. Clockwise rotation angle of the background fill in degrees; 0-359
+    /// Clockwise rotation angle of the background fill in degrees; 0-359
     #[must_use]
     pub fn rotation_angle(&self) -> Option<u16> {
         match self {
@@ -63,8 +59,7 @@ impl BackgroundFill {
 
     /// Helper method for field `top_color`.
     ///
-    /// # Variants
-    /// - `BackgroundFillGradient`. Top color of the gradient in the RGB24 format
+    /// Top color of the gradient in the RGB24 format
     #[must_use]
     pub fn top_color(&self) -> Option<i64> {
         match self {

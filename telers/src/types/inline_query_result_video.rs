@@ -41,7 +41,7 @@ pub struct InlineQueryResultVideo {
     /// Inline keyboard attached to the message
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
-    /// Content of the message to be sent instead of the video. This field is required if [`InlineQueryResultVideo`] is used to send an HTML-page as a result (e.g., a [`YouTube`] video).
+    /// Content of the message to be sent instead of the video. This field is required if [`crate::types::InlineQueryResultVideo`] is used to send an HTML-page as a result (e.g., a `YouTube` video).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub input_message_content: Option<crate::types::InputMessageContent>,
 }
@@ -311,7 +311,7 @@ impl InlineQueryResultVideo {
         this
     }
 
-    /// Content of the message to be sent instead of the video. This field is required if [`InlineQueryResultVideo`] is used to send an HTML-page as a result (e.g., a [`YouTube`] video).
+    /// Content of the message to be sent instead of the video. This field is required if [`crate::types::InlineQueryResultVideo`] is used to send an HTML-page as a result (e.g., a `YouTube` video).
     #[must_use]
     pub fn input_message_content<T: Into<crate::types::InputMessageContent>>(self, val: T) -> Self {
         let mut this = self;
@@ -319,7 +319,7 @@ impl InlineQueryResultVideo {
         this
     }
 
-    /// Content of the message to be sent instead of the video. This field is required if [`InlineQueryResultVideo`] is used to send an HTML-page as a result (e.g., a [`YouTube`] video).
+    /// Content of the message to be sent instead of the video. This field is required if [`crate::types::InlineQueryResultVideo`] is used to send an HTML-page as a result (e.g., a `YouTube` video).
     #[must_use]
     pub fn input_message_content_option<T: Into<crate::types::InputMessageContent>>(
         self,

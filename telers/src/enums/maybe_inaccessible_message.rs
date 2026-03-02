@@ -2,7 +2,7 @@ use crate::types::MaybeInaccessibleMessage;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes a message that can be inaccessible to the bot. It can be one of
 /// - Message
-/// - [`InaccessibleMessage`]
+/// - [`crate::types::InaccessibleMessage`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#maybeinaccessiblemessage>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

@@ -2,11 +2,11 @@ use crate::types::TransactionPartnerUser;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// Describes a transaction with a user.
 /// Currently, it can be one of
-/// - [`TransactionPartnerUserBusinessAccountTransfer`]
-/// - [`TransactionPartnerUserGiftPurchase`]
-/// - [`TransactionPartnerUserInvoicePayment`]
-/// - [`TransactionPartnerUserPaidMediaPayment`]
-/// - [`TransactionPartnerUserPremiumPurchase`]
+/// - [`crate::types::TransactionPartnerUserBusinessAccountTransfer`]
+/// - [`crate::types::TransactionPartnerUserGiftPurchase`]
+/// - [`crate::types::TransactionPartnerUserInvoicePayment`]
+/// - [`crate::types::TransactionPartnerUserPaidMediaPayment`]
+/// - [`crate::types::TransactionPartnerUserPremiumPurchase`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transactionpartneruser>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

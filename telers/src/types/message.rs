@@ -1,76 +1,76 @@
 use serde::{Deserialize, Serialize};
 /// This object represents a message.
 /// Currently, it can be one of
-/// - [`MessageAnimation`]
-/// - [`MessageAudio`]
-/// - [`MessageBoostAdded`]
-/// - [`MessageChannelChatCreated`]
-/// - [`MessageChatBackgroundSet`]
-/// - [`MessageChatOwnerChanged`]
-/// - [`MessageChatOwnerLeft`]
-/// - [`MessageChatShared`]
-/// - [`MessageChecklist`]
-/// - [`MessageChecklistTasksAdded`]
-/// - [`MessageChecklistTasksDone`]
-/// - [`MessageConnectedWebsite`]
-/// - [`MessageContact`]
-/// - [`MessageDeleteChatPhoto`]
-/// - [`MessageDice`]
-/// - [`MessageDirectMessagePriceChanged`]
-/// - [`MessageDocument`]
-/// - [`MessageForumTopicClosed`]
-/// - [`MessageForumTopicCreated`]
-/// - [`MessageForumTopicEdited`]
-/// - [`MessageForumTopicReopened`]
-/// - [`MessageGame`]
-/// - [`MessageGeneralForumTopicHidden`]
-/// - [`MessageGeneralForumTopicUnhidden`]
-/// - [`MessageGift`]
-/// - [`MessageGiftUpgradeSent`]
-/// - [`MessageGiveaway`]
-/// - [`MessageGiveawayCompleted`]
-/// - [`MessageGiveawayCreated`]
-/// - [`MessageGiveawayWinners`]
-/// - [`MessageGroupChatCreated`]
-/// - [`MessageInvoice`]
-/// - [`MessageLeftChatMember`]
-/// - [`MessageLocation`]
-/// - [`MessageMessageAutoDeleteTimerChanged`]
-/// - [`MessageMigrateFromChatId`]
-/// - [`MessageMigrateToChatId`]
-/// - [`MessageNewChatMembers`]
-/// - [`MessageNewChatPhoto`]
-/// - [`MessageNewChatTitle`]
-/// - [`MessagePaidMedia`]
-/// - [`MessagePaidMessagePriceChanged`]
-/// - [`MessagePassportData`]
-/// - [`MessagePhoto`]
-/// - [`MessagePinnedMessage`]
-/// - [`MessagePoll`]
-/// - [`MessageProximityAlertTriggered`]
-/// - [`MessageRefundedPayment`]
-/// - [`MessageSticker`]
-/// - [`MessageStory`]
-/// - [`MessageSuccessfulPayment`]
-/// - [`MessageSuggestedPostApprovalFailed`]
-/// - [`MessageSuggestedPostApproved`]
-/// - [`MessageSuggestedPostDeclined`]
-/// - [`MessageSuggestedPostPaid`]
-/// - [`MessageSuggestedPostRefunded`]
-/// - [`MessageSupergroupChatCreated`]
-/// - [`MessageText`]
-/// - [`MessageUniqueGift`]
-/// - [`MessageUsersShared`]
-/// - [`MessageVenue`]
-/// - [`MessageVideo`]
-/// - [`MessageVideoChatEnded`]
-/// - [`MessageVideoChatParticipantsInvited`]
-/// - [`MessageVideoChatScheduled`]
-/// - [`MessageVideoChatStarted`]
-/// - [`MessageVideoNote`]
-/// - [`MessageVoice`]
-/// - [`MessageWebAppData`]
-/// - [`MessageWriteAccessAllowed`]
+/// - [`crate::types::MessageAnimation`]
+/// - [`crate::types::MessageAudio`]
+/// - [`crate::types::MessageBoostAdded`]
+/// - [`crate::types::MessageChannelChatCreated`]
+/// - [`crate::types::MessageChatBackgroundSet`]
+/// - [`crate::types::MessageChatOwnerChanged`]
+/// - [`crate::types::MessageChatOwnerLeft`]
+/// - [`crate::types::MessageChatShared`]
+/// - [`crate::types::MessageChecklist`]
+/// - [`crate::types::MessageChecklistTasksAdded`]
+/// - [`crate::types::MessageChecklistTasksDone`]
+/// - [`crate::types::MessageConnectedWebsite`]
+/// - [`crate::types::MessageContact`]
+/// - [`crate::types::MessageDeleteChatPhoto`]
+/// - [`crate::types::MessageDice`]
+/// - [`crate::types::MessageDirectMessagePriceChanged`]
+/// - [`crate::types::MessageDocument`]
+/// - [`crate::types::MessageForumTopicClosed`]
+/// - [`crate::types::MessageForumTopicCreated`]
+/// - [`crate::types::MessageForumTopicEdited`]
+/// - [`crate::types::MessageForumTopicReopened`]
+/// - [`crate::types::MessageGame`]
+/// - [`crate::types::MessageGeneralForumTopicHidden`]
+/// - [`crate::types::MessageGeneralForumTopicUnhidden`]
+/// - [`crate::types::MessageGift`]
+/// - [`crate::types::MessageGiftUpgradeSent`]
+/// - [`crate::types::MessageGiveaway`]
+/// - [`crate::types::MessageGiveawayCompleted`]
+/// - [`crate::types::MessageGiveawayCreated`]
+/// - [`crate::types::MessageGiveawayWinners`]
+/// - [`crate::types::MessageGroupChatCreated`]
+/// - [`crate::types::MessageInvoice`]
+/// - [`crate::types::MessageLeftChatMember`]
+/// - [`crate::types::MessageLocation`]
+/// - [`crate::types::MessageMessageAutoDeleteTimerChanged`]
+/// - [`crate::types::MessageMigrateFromChatId`]
+/// - [`crate::types::MessageMigrateToChatId`]
+/// - [`crate::types::MessageNewChatMembers`]
+/// - [`crate::types::MessageNewChatPhoto`]
+/// - [`crate::types::MessageNewChatTitle`]
+/// - [`crate::types::MessagePaidMedia`]
+/// - [`crate::types::MessagePaidMessagePriceChanged`]
+/// - [`crate::types::MessagePassportData`]
+/// - [`crate::types::MessagePhoto`]
+/// - [`crate::types::MessagePinnedMessage`]
+/// - [`crate::types::MessagePoll`]
+/// - [`crate::types::MessageProximityAlertTriggered`]
+/// - [`crate::types::MessageRefundedPayment`]
+/// - [`crate::types::MessageSticker`]
+/// - [`crate::types::MessageStory`]
+/// - [`crate::types::MessageSuccessfulPayment`]
+/// - [`crate::types::MessageSuggestedPostApprovalFailed`]
+/// - [`crate::types::MessageSuggestedPostApproved`]
+/// - [`crate::types::MessageSuggestedPostDeclined`]
+/// - [`crate::types::MessageSuggestedPostPaid`]
+/// - [`crate::types::MessageSuggestedPostRefunded`]
+/// - [`crate::types::MessageSupergroupChatCreated`]
+/// - [`crate::types::MessageText`]
+/// - [`crate::types::MessageUniqueGift`]
+/// - [`crate::types::MessageUsersShared`]
+/// - [`crate::types::MessageVenue`]
+/// - [`crate::types::MessageVideo`]
+/// - [`crate::types::MessageVideoChatEnded`]
+/// - [`crate::types::MessageVideoChatParticipantsInvited`]
+/// - [`crate::types::MessageVideoChatScheduled`]
+/// - [`crate::types::MessageVideoChatStarted`]
+/// - [`crate::types::MessageVideoNote`]
+/// - [`crate::types::MessageVoice`]
+/// - [`crate::types::MessageWebAppData`]
+/// - [`crate::types::MessageWriteAccessAllowed`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#message>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -150,8 +150,7 @@ pub enum Message {
 impl Message {
     /// Helper method for field `animation`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set
+    /// Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set
     #[must_use]
     pub fn animation(&self) -> Option<&crate::types::Animation> {
         match self {
@@ -162,8 +161,7 @@ impl Message {
 
     /// Helper method for field `audio`.
     ///
-    /// # Variants
-    /// - `MessageAudio`. Message is an audio file, information about the file
+    /// Message is an audio file, information about the file
     #[must_use]
     pub fn audio(&self) -> Option<&crate::types::Audio> {
         match self {
@@ -174,77 +172,7 @@ impl Message {
 
     /// Helper method for field `author_signature`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageAudio`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageBoostAdded`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageChannelChatCreated`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageChatBackgroundSet`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageChatOwnerChanged`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageChatOwnerLeft`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageChatShared`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageChecklist`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageChecklistTasksAdded`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageChecklistTasksDone`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageConnectedWebsite`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageContact`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageDeleteChatPhoto`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageDice`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageDirectMessagePriceChanged`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageDocument`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageForumTopicClosed`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageForumTopicCreated`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageForumTopicEdited`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageForumTopicReopened`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageGame`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageGeneralForumTopicHidden`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageGeneralForumTopicUnhidden`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageGift`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageGiftUpgradeSent`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageGiveaway`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageGiveawayCompleted`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageGiveawayCreated`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageGiveawayWinners`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageGroupChatCreated`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageInvoice`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageLeftChatMember`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageLocation`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageMessageAutoDeleteTimerChanged`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageMigrateFromChatId`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageMigrateToChatId`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageNewChatMembers`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageNewChatPhoto`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageNewChatTitle`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessagePaidMedia`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessagePaidMessagePriceChanged`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessagePassportData`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessagePhoto`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessagePinnedMessage`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessagePoll`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageProximityAlertTriggered`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageRefundedPayment`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageSticker`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageStory`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageSuccessfulPayment`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageSuggestedPostApprovalFailed`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageSuggestedPostApproved`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageSuggestedPostDeclined`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageSuggestedPostPaid`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageSuggestedPostRefunded`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageSupergroupChatCreated`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageText`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageUniqueGift`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageUsersShared`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageVenue`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageVideo`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageVideoChatEnded`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageVideoChatParticipantsInvited`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageVideoChatScheduled`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageVideoChatStarted`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageVideoNote`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageVoice`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageWebAppData`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    /// - `MessageWriteAccessAllowed`. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
+    /// Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     #[must_use]
     pub fn author_signature(&self) -> Option<&str> {
         match self {
@@ -323,8 +251,7 @@ impl Message {
 
     /// Helper method for field `boost_added`.
     ///
-    /// # Variants
-    /// - `MessageBoostAdded`. Service message: user boosted the chat
+    /// Service message: user boosted the chat
     #[must_use]
     pub fn boost_added(&self) -> Option<&crate::types::ChatBoostAdded> {
         match self {
@@ -335,77 +262,7 @@ impl Message {
 
     /// Helper method for field `business_connection_id`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageAudio`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageBoostAdded`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageChannelChatCreated`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageChatBackgroundSet`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageChatOwnerChanged`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageChatOwnerLeft`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageChatShared`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageChecklist`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageChecklistTasksAdded`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageChecklistTasksDone`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageConnectedWebsite`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageContact`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageDeleteChatPhoto`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageDice`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageDirectMessagePriceChanged`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageDocument`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageForumTopicClosed`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageForumTopicCreated`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageForumTopicEdited`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageForumTopicReopened`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageGame`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageGeneralForumTopicHidden`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageGeneralForumTopicUnhidden`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageGift`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageGiftUpgradeSent`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageGiveaway`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageGiveawayCompleted`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageGiveawayCreated`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageGiveawayWinners`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageGroupChatCreated`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageInvoice`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageLeftChatMember`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageLocation`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageMessageAutoDeleteTimerChanged`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageMigrateFromChatId`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageMigrateToChatId`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageNewChatMembers`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageNewChatPhoto`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageNewChatTitle`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessagePaidMedia`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessagePaidMessagePriceChanged`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessagePassportData`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessagePhoto`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessagePinnedMessage`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessagePoll`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageProximityAlertTriggered`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageRefundedPayment`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageSticker`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageStory`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageSuccessfulPayment`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageSuggestedPostApprovalFailed`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageSuggestedPostApproved`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageSuggestedPostDeclined`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageSuggestedPostPaid`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageSuggestedPostRefunded`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageSupergroupChatCreated`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageText`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageUniqueGift`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageUsersShared`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageVenue`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageVideo`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageVideoChatEnded`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageVideoChatParticipantsInvited`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageVideoChatScheduled`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageVideoChatStarted`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageVideoNote`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageVoice`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageWebAppData`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    /// - `MessageWriteAccessAllowed`. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
+    /// Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
     #[must_use]
     pub fn business_connection_id(&self) -> Option<&str> {
         match self {
@@ -484,77 +341,7 @@ impl Message {
 
     /// Helper method for field `caption`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageAudio`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageBoostAdded`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageChannelChatCreated`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageChatBackgroundSet`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageChatOwnerChanged`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageChatOwnerLeft`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageChatShared`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageChecklist`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageChecklistTasksAdded`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageChecklistTasksDone`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageConnectedWebsite`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageContact`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageDeleteChatPhoto`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageDice`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageDirectMessagePriceChanged`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageDocument`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageForumTopicClosed`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageForumTopicCreated`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageForumTopicEdited`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageForumTopicReopened`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageGame`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageGeneralForumTopicHidden`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageGeneralForumTopicUnhidden`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageGift`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageGiftUpgradeSent`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageGiveaway`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageGiveawayCompleted`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageGiveawayCreated`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageGiveawayWinners`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageGroupChatCreated`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageInvoice`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageLeftChatMember`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageLocation`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageMessageAutoDeleteTimerChanged`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageMigrateFromChatId`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageMigrateToChatId`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageNewChatMembers`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageNewChatPhoto`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageNewChatTitle`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessagePaidMedia`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessagePaidMessagePriceChanged`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessagePassportData`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessagePhoto`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessagePinnedMessage`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessagePoll`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageProximityAlertTriggered`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageRefundedPayment`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageSticker`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageStory`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageSuccessfulPayment`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageSuggestedPostApprovalFailed`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageSuggestedPostApproved`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageSuggestedPostDeclined`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageSuggestedPostPaid`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageSuggestedPostRefunded`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageSupergroupChatCreated`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageText`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageUniqueGift`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageUsersShared`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageVenue`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageVideo`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageVideoChatEnded`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageVideoChatParticipantsInvited`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageVideoChatScheduled`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageVideoChatStarted`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageVideoNote`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageVoice`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageWebAppData`. Caption for the animation, audio, document, paid media, photo, video or voice
-    /// - `MessageWriteAccessAllowed`. Caption for the animation, audio, document, paid media, photo, video or voice
+    /// Caption for the animation, audio, document, paid media, photo, video or voice
     #[must_use]
     pub fn caption(&self) -> Option<&str> {
         match self {
@@ -633,77 +420,7 @@ impl Message {
 
     /// Helper method for field `caption_entities`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageAudio`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageBoostAdded`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageChannelChatCreated`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageChatBackgroundSet`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageChatOwnerChanged`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageChatOwnerLeft`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageChatShared`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageChecklist`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageChecklistTasksAdded`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageChecklistTasksDone`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageConnectedWebsite`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageContact`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageDeleteChatPhoto`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageDice`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageDirectMessagePriceChanged`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageDocument`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageForumTopicClosed`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageForumTopicCreated`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageForumTopicEdited`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageForumTopicReopened`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageGame`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageGeneralForumTopicHidden`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageGeneralForumTopicUnhidden`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageGift`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageGiftUpgradeSent`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageGiveaway`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageGiveawayCompleted`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageGiveawayCreated`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageGiveawayWinners`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageGroupChatCreated`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageInvoice`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageLeftChatMember`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageLocation`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageMessageAutoDeleteTimerChanged`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageMigrateFromChatId`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageMigrateToChatId`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageNewChatMembers`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageNewChatPhoto`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageNewChatTitle`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessagePaidMedia`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessagePaidMessagePriceChanged`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessagePassportData`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessagePhoto`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessagePinnedMessage`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessagePoll`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageProximityAlertTriggered`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageRefundedPayment`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageSticker`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageStory`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageSuccessfulPayment`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageSuggestedPostApprovalFailed`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageSuggestedPostApproved`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageSuggestedPostDeclined`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageSuggestedPostPaid`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageSuggestedPostRefunded`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageSupergroupChatCreated`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageText`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageUniqueGift`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageUsersShared`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageVenue`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageVideo`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageVideoChatEnded`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageVideoChatParticipantsInvited`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageVideoChatScheduled`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageVideoChatStarted`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageVideoNote`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageVoice`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageWebAppData`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
-    /// - `MessageWriteAccessAllowed`. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
+    /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
     #[must_use]
     pub fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
         match self {
@@ -782,8 +499,7 @@ impl Message {
 
     /// Helper method for field `channel_chat_created`.
     ///
-    /// # Variants
-    /// - `MessageChannelChatCreated`. Service message: the channel has been created. This field can't be received in a message coming through updates, because bot can't be a member of a channel when it is created. It can only be found in `reply_to_message` if someone replies to a very first message in a channel.
+    /// Service message: the channel has been created. This field can't be received in a message coming through updates, because bot can't be a member of a channel when it is created. It can only be found in `reply_to_message` if someone replies to a very first message in a channel.
     #[must_use]
     pub fn channel_chat_created(&self) -> Option<bool> {
         match self {
@@ -794,77 +510,7 @@ impl Message {
 
     /// Helper method for field `chat`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Chat the message belongs to
-    /// - `MessageAudio`. Chat the message belongs to
-    /// - `MessageBoostAdded`. Chat the message belongs to
-    /// - `MessageChannelChatCreated`. Chat the message belongs to
-    /// - `MessageChatBackgroundSet`. Chat the message belongs to
-    /// - `MessageChatOwnerChanged`. Chat the message belongs to
-    /// - `MessageChatOwnerLeft`. Chat the message belongs to
-    /// - `MessageChatShared`. Chat the message belongs to
-    /// - `MessageChecklist`. Chat the message belongs to
-    /// - `MessageChecklistTasksAdded`. Chat the message belongs to
-    /// - `MessageChecklistTasksDone`. Chat the message belongs to
-    /// - `MessageConnectedWebsite`. Chat the message belongs to
-    /// - `MessageContact`. Chat the message belongs to
-    /// - `MessageDeleteChatPhoto`. Chat the message belongs to
-    /// - `MessageDice`. Chat the message belongs to
-    /// - `MessageDirectMessagePriceChanged`. Chat the message belongs to
-    /// - `MessageDocument`. Chat the message belongs to
-    /// - `MessageForumTopicClosed`. Chat the message belongs to
-    /// - `MessageForumTopicCreated`. Chat the message belongs to
-    /// - `MessageForumTopicEdited`. Chat the message belongs to
-    /// - `MessageForumTopicReopened`. Chat the message belongs to
-    /// - `MessageGame`. Chat the message belongs to
-    /// - `MessageGeneralForumTopicHidden`. Chat the message belongs to
-    /// - `MessageGeneralForumTopicUnhidden`. Chat the message belongs to
-    /// - `MessageGift`. Chat the message belongs to
-    /// - `MessageGiftUpgradeSent`. Chat the message belongs to
-    /// - `MessageGiveaway`. Chat the message belongs to
-    /// - `MessageGiveawayCompleted`. Chat the message belongs to
-    /// - `MessageGiveawayCreated`. Chat the message belongs to
-    /// - `MessageGiveawayWinners`. Chat the message belongs to
-    /// - `MessageGroupChatCreated`. Chat the message belongs to
-    /// - `MessageInvoice`. Chat the message belongs to
-    /// - `MessageLeftChatMember`. Chat the message belongs to
-    /// - `MessageLocation`. Chat the message belongs to
-    /// - `MessageMessageAutoDeleteTimerChanged`. Chat the message belongs to
-    /// - `MessageMigrateFromChatId`. Chat the message belongs to
-    /// - `MessageMigrateToChatId`. Chat the message belongs to
-    /// - `MessageNewChatMembers`. Chat the message belongs to
-    /// - `MessageNewChatPhoto`. Chat the message belongs to
-    /// - `MessageNewChatTitle`. Chat the message belongs to
-    /// - `MessagePaidMedia`. Chat the message belongs to
-    /// - `MessagePaidMessagePriceChanged`. Chat the message belongs to
-    /// - `MessagePassportData`. Chat the message belongs to
-    /// - `MessagePhoto`. Chat the message belongs to
-    /// - `MessagePinnedMessage`. Chat the message belongs to
-    /// - `MessagePoll`. Chat the message belongs to
-    /// - `MessageProximityAlertTriggered`. Chat the message belongs to
-    /// - `MessageRefundedPayment`. Chat the message belongs to
-    /// - `MessageSticker`. Chat the message belongs to
-    /// - `MessageStory`. Chat the message belongs to
-    /// - `MessageSuccessfulPayment`. Chat the message belongs to
-    /// - `MessageSuggestedPostApprovalFailed`. Chat the message belongs to
-    /// - `MessageSuggestedPostApproved`. Chat the message belongs to
-    /// - `MessageSuggestedPostDeclined`. Chat the message belongs to
-    /// - `MessageSuggestedPostPaid`. Chat the message belongs to
-    /// - `MessageSuggestedPostRefunded`. Chat the message belongs to
-    /// - `MessageSupergroupChatCreated`. Chat the message belongs to
-    /// - `MessageText`. Chat the message belongs to
-    /// - `MessageUniqueGift`. Chat the message belongs to
-    /// - `MessageUsersShared`. Chat the message belongs to
-    /// - `MessageVenue`. Chat the message belongs to
-    /// - `MessageVideo`. Chat the message belongs to
-    /// - `MessageVideoChatEnded`. Chat the message belongs to
-    /// - `MessageVideoChatParticipantsInvited`. Chat the message belongs to
-    /// - `MessageVideoChatScheduled`. Chat the message belongs to
-    /// - `MessageVideoChatStarted`. Chat the message belongs to
-    /// - `MessageVideoNote`. Chat the message belongs to
-    /// - `MessageVoice`. Chat the message belongs to
-    /// - `MessageWebAppData`. Chat the message belongs to
-    /// - `MessageWriteAccessAllowed`. Chat the message belongs to
+    /// Chat the message belongs to
     #[must_use]
     pub fn chat(&self) -> &crate::types::Chat {
         match self {
@@ -943,8 +589,7 @@ impl Message {
 
     /// Helper method for field `chat_background_set`.
     ///
-    /// # Variants
-    /// - `MessageChatBackgroundSet`. Service message: chat background set
+    /// Service message: chat background set
     #[must_use]
     pub fn chat_background_set(&self) -> Option<&crate::types::ChatBackground> {
         match self {
@@ -955,8 +600,7 @@ impl Message {
 
     /// Helper method for field `chat_owner_changed`.
     ///
-    /// # Variants
-    /// - `MessageChatOwnerChanged`. Service message: chat owner has changed
+    /// Service message: chat owner has changed
     #[must_use]
     pub fn chat_owner_changed(&self) -> Option<&crate::types::ChatOwnerChanged> {
         match self {
@@ -967,8 +611,7 @@ impl Message {
 
     /// Helper method for field `chat_owner_left`.
     ///
-    /// # Variants
-    /// - `MessageChatOwnerLeft`. Service message: chat owner has left
+    /// Service message: chat owner has left
     #[must_use]
     pub fn chat_owner_left(&self) -> Option<&crate::types::ChatOwnerLeft> {
         match self {
@@ -979,8 +622,7 @@ impl Message {
 
     /// Helper method for field `chat_shared`.
     ///
-    /// # Variants
-    /// - `MessageChatShared`. Service message: a chat was shared with the bot
+    /// Service message: a chat was shared with the bot
     #[must_use]
     pub fn chat_shared(&self) -> Option<&crate::types::ChatShared> {
         match self {
@@ -991,8 +633,7 @@ impl Message {
 
     /// Helper method for field `checklist`.
     ///
-    /// # Variants
-    /// - `MessageChecklist`. Message is a checklist
+    /// Message is a checklist
     #[must_use]
     pub fn checklist(&self) -> Option<&crate::types::Checklist> {
         match self {
@@ -1003,8 +644,7 @@ impl Message {
 
     /// Helper method for field `checklist_tasks_added`.
     ///
-    /// # Variants
-    /// - `MessageChecklistTasksAdded`. Service message: tasks were added to a checklist
+    /// Service message: tasks were added to a checklist
     #[must_use]
     pub fn checklist_tasks_added(&self) -> Option<&crate::types::ChecklistTasksAdded> {
         match self {
@@ -1015,8 +655,7 @@ impl Message {
 
     /// Helper method for field `checklist_tasks_done`.
     ///
-    /// # Variants
-    /// - `MessageChecklistTasksDone`. Service message: some tasks in a checklist were marked as done or not done
+    /// Service message: some tasks in a checklist were marked as done or not done
     #[must_use]
     pub fn checklist_tasks_done(&self) -> Option<&crate::types::ChecklistTasksDone> {
         match self {
@@ -1027,8 +666,7 @@ impl Message {
 
     /// Helper method for field `connected_website`.
     ///
-    /// # Variants
-    /// - `MessageConnectedWebsite`. The domain name of the website on which the user has logged in. More about Telegram Login: <https://core.telegram.org/widgets/login>
+    /// The domain name of the website on which the user has logged in. More about Telegram Login: <https://core.telegram.org/widgets/login>
     #[must_use]
     pub fn connected_website(&self) -> Option<&str> {
         match self {
@@ -1039,8 +677,7 @@ impl Message {
 
     /// Helper method for field `contact`.
     ///
-    /// # Variants
-    /// - `MessageContact`. Message is a shared contact, information about the contact
+    /// Message is a shared contact, information about the contact
     #[must_use]
     pub fn contact(&self) -> Option<&crate::types::Contact> {
         match self {
@@ -1051,77 +688,7 @@ impl Message {
 
     /// Helper method for field `date`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageAudio`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageBoostAdded`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageChannelChatCreated`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageChatBackgroundSet`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageChatOwnerChanged`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageChatOwnerLeft`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageChatShared`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageChecklist`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageChecklistTasksAdded`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageChecklistTasksDone`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageConnectedWebsite`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageContact`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageDeleteChatPhoto`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageDice`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageDirectMessagePriceChanged`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageDocument`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageForumTopicClosed`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageForumTopicCreated`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageForumTopicEdited`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageForumTopicReopened`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageGame`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageGeneralForumTopicHidden`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageGeneralForumTopicUnhidden`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageGift`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageGiftUpgradeSent`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageGiveaway`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageGiveawayCompleted`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageGiveawayCreated`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageGiveawayWinners`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageGroupChatCreated`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageInvoice`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageLeftChatMember`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageLocation`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageMessageAutoDeleteTimerChanged`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageMigrateFromChatId`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageMigrateToChatId`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageNewChatMembers`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageNewChatPhoto`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageNewChatTitle`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessagePaidMedia`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessagePaidMessagePriceChanged`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessagePassportData`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessagePhoto`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessagePinnedMessage`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessagePoll`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageProximityAlertTriggered`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageRefundedPayment`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageSticker`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageStory`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageSuccessfulPayment`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageSuggestedPostApprovalFailed`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageSuggestedPostApproved`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageSuggestedPostDeclined`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageSuggestedPostPaid`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageSuggestedPostRefunded`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageSupergroupChatCreated`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageText`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageUniqueGift`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageUsersShared`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageVenue`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageVideo`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageVideoChatEnded`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageVideoChatParticipantsInvited`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageVideoChatScheduled`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageVideoChatStarted`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageVideoNote`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageVoice`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageWebAppData`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
-    /// - `MessageWriteAccessAllowed`. Date the message was sent in Unix time. It is always a positive number, representing a valid date.
+    /// Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     #[must_use]
     pub fn date(&self) -> i64 {
         match self {
@@ -1200,8 +767,7 @@ impl Message {
 
     /// Helper method for field `delete_chat_photo`.
     ///
-    /// # Variants
-    /// - `MessageDeleteChatPhoto`. Service message: the chat photo was deleted
+    /// Service message: the chat photo was deleted
     #[must_use]
     pub fn delete_chat_photo(&self) -> Option<bool> {
         match self {
@@ -1212,8 +778,7 @@ impl Message {
 
     /// Helper method for field `dice`.
     ///
-    /// # Variants
-    /// - `MessageDice`. Message is a dice with random value
+    /// Message is a dice with random value
     #[must_use]
     pub fn dice(&self) -> Option<&crate::types::Dice> {
         match self {
@@ -1224,8 +789,7 @@ impl Message {
 
     /// Helper method for field `direct_message_price_changed`.
     ///
-    /// # Variants
-    /// - `MessageDirectMessagePriceChanged`. Service message: the price for paid messages in the corresponding direct messages chat of a channel has changed
+    /// Service message: the price for paid messages in the corresponding direct messages chat of a channel has changed
     #[must_use]
     pub fn direct_message_price_changed(&self) -> Option<&crate::types::DirectMessagePriceChanged> {
         match self {
@@ -1236,77 +800,7 @@ impl Message {
 
     /// Helper method for field `direct_messages_topic`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Information about the direct messages chat topic that contains the message
-    /// - `MessageAudio`. Information about the direct messages chat topic that contains the message
-    /// - `MessageBoostAdded`. Information about the direct messages chat topic that contains the message
-    /// - `MessageChannelChatCreated`. Information about the direct messages chat topic that contains the message
-    /// - `MessageChatBackgroundSet`. Information about the direct messages chat topic that contains the message
-    /// - `MessageChatOwnerChanged`. Information about the direct messages chat topic that contains the message
-    /// - `MessageChatOwnerLeft`. Information about the direct messages chat topic that contains the message
-    /// - `MessageChatShared`. Information about the direct messages chat topic that contains the message
-    /// - `MessageChecklist`. Information about the direct messages chat topic that contains the message
-    /// - `MessageChecklistTasksAdded`. Information about the direct messages chat topic that contains the message
-    /// - `MessageChecklistTasksDone`. Information about the direct messages chat topic that contains the message
-    /// - `MessageConnectedWebsite`. Information about the direct messages chat topic that contains the message
-    /// - `MessageContact`. Information about the direct messages chat topic that contains the message
-    /// - `MessageDeleteChatPhoto`. Information about the direct messages chat topic that contains the message
-    /// - `MessageDice`. Information about the direct messages chat topic that contains the message
-    /// - `MessageDirectMessagePriceChanged`. Information about the direct messages chat topic that contains the message
-    /// - `MessageDocument`. Information about the direct messages chat topic that contains the message
-    /// - `MessageForumTopicClosed`. Information about the direct messages chat topic that contains the message
-    /// - `MessageForumTopicCreated`. Information about the direct messages chat topic that contains the message
-    /// - `MessageForumTopicEdited`. Information about the direct messages chat topic that contains the message
-    /// - `MessageForumTopicReopened`. Information about the direct messages chat topic that contains the message
-    /// - `MessageGame`. Information about the direct messages chat topic that contains the message
-    /// - `MessageGeneralForumTopicHidden`. Information about the direct messages chat topic that contains the message
-    /// - `MessageGeneralForumTopicUnhidden`. Information about the direct messages chat topic that contains the message
-    /// - `MessageGift`. Information about the direct messages chat topic that contains the message
-    /// - `MessageGiftUpgradeSent`. Information about the direct messages chat topic that contains the message
-    /// - `MessageGiveaway`. Information about the direct messages chat topic that contains the message
-    /// - `MessageGiveawayCompleted`. Information about the direct messages chat topic that contains the message
-    /// - `MessageGiveawayCreated`. Information about the direct messages chat topic that contains the message
-    /// - `MessageGiveawayWinners`. Information about the direct messages chat topic that contains the message
-    /// - `MessageGroupChatCreated`. Information about the direct messages chat topic that contains the message
-    /// - `MessageInvoice`. Information about the direct messages chat topic that contains the message
-    /// - `MessageLeftChatMember`. Information about the direct messages chat topic that contains the message
-    /// - `MessageLocation`. Information about the direct messages chat topic that contains the message
-    /// - `MessageMessageAutoDeleteTimerChanged`. Information about the direct messages chat topic that contains the message
-    /// - `MessageMigrateFromChatId`. Information about the direct messages chat topic that contains the message
-    /// - `MessageMigrateToChatId`. Information about the direct messages chat topic that contains the message
-    /// - `MessageNewChatMembers`. Information about the direct messages chat topic that contains the message
-    /// - `MessageNewChatPhoto`. Information about the direct messages chat topic that contains the message
-    /// - `MessageNewChatTitle`. Information about the direct messages chat topic that contains the message
-    /// - `MessagePaidMedia`. Information about the direct messages chat topic that contains the message
-    /// - `MessagePaidMessagePriceChanged`. Information about the direct messages chat topic that contains the message
-    /// - `MessagePassportData`. Information about the direct messages chat topic that contains the message
-    /// - `MessagePhoto`. Information about the direct messages chat topic that contains the message
-    /// - `MessagePinnedMessage`. Information about the direct messages chat topic that contains the message
-    /// - `MessagePoll`. Information about the direct messages chat topic that contains the message
-    /// - `MessageProximityAlertTriggered`. Information about the direct messages chat topic that contains the message
-    /// - `MessageRefundedPayment`. Information about the direct messages chat topic that contains the message
-    /// - `MessageSticker`. Information about the direct messages chat topic that contains the message
-    /// - `MessageStory`. Information about the direct messages chat topic that contains the message
-    /// - `MessageSuccessfulPayment`. Information about the direct messages chat topic that contains the message
-    /// - `MessageSuggestedPostApprovalFailed`. Information about the direct messages chat topic that contains the message
-    /// - `MessageSuggestedPostApproved`. Information about the direct messages chat topic that contains the message
-    /// - `MessageSuggestedPostDeclined`. Information about the direct messages chat topic that contains the message
-    /// - `MessageSuggestedPostPaid`. Information about the direct messages chat topic that contains the message
-    /// - `MessageSuggestedPostRefunded`. Information about the direct messages chat topic that contains the message
-    /// - `MessageSupergroupChatCreated`. Information about the direct messages chat topic that contains the message
-    /// - `MessageText`. Information about the direct messages chat topic that contains the message
-    /// - `MessageUniqueGift`. Information about the direct messages chat topic that contains the message
-    /// - `MessageUsersShared`. Information about the direct messages chat topic that contains the message
-    /// - `MessageVenue`. Information about the direct messages chat topic that contains the message
-    /// - `MessageVideo`. Information about the direct messages chat topic that contains the message
-    /// - `MessageVideoChatEnded`. Information about the direct messages chat topic that contains the message
-    /// - `MessageVideoChatParticipantsInvited`. Information about the direct messages chat topic that contains the message
-    /// - `MessageVideoChatScheduled`. Information about the direct messages chat topic that contains the message
-    /// - `MessageVideoChatStarted`. Information about the direct messages chat topic that contains the message
-    /// - `MessageVideoNote`. Information about the direct messages chat topic that contains the message
-    /// - `MessageVoice`. Information about the direct messages chat topic that contains the message
-    /// - `MessageWebAppData`. Information about the direct messages chat topic that contains the message
-    /// - `MessageWriteAccessAllowed`. Information about the direct messages chat topic that contains the message
+    /// Information about the direct messages chat topic that contains the message
     #[must_use]
     pub fn direct_messages_topic(&self) -> Option<&crate::types::DirectMessagesTopic> {
         match self {
@@ -1385,8 +879,7 @@ impl Message {
 
     /// Helper method for field `document`.
     ///
-    /// # Variants
-    /// - `MessageDocument`. Message is a general file, information about the file
+    /// Message is a general file, information about the file
     #[must_use]
     pub fn document(&self) -> Option<&crate::types::Document> {
         match self {
@@ -1397,77 +890,7 @@ impl Message {
 
     /// Helper method for field `edit_date`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Date the message was last edited in Unix time
-    /// - `MessageAudio`. Date the message was last edited in Unix time
-    /// - `MessageBoostAdded`. Date the message was last edited in Unix time
-    /// - `MessageChannelChatCreated`. Date the message was last edited in Unix time
-    /// - `MessageChatBackgroundSet`. Date the message was last edited in Unix time
-    /// - `MessageChatOwnerChanged`. Date the message was last edited in Unix time
-    /// - `MessageChatOwnerLeft`. Date the message was last edited in Unix time
-    /// - `MessageChatShared`. Date the message was last edited in Unix time
-    /// - `MessageChecklist`. Date the message was last edited in Unix time
-    /// - `MessageChecklistTasksAdded`. Date the message was last edited in Unix time
-    /// - `MessageChecklistTasksDone`. Date the message was last edited in Unix time
-    /// - `MessageConnectedWebsite`. Date the message was last edited in Unix time
-    /// - `MessageContact`. Date the message was last edited in Unix time
-    /// - `MessageDeleteChatPhoto`. Date the message was last edited in Unix time
-    /// - `MessageDice`. Date the message was last edited in Unix time
-    /// - `MessageDirectMessagePriceChanged`. Date the message was last edited in Unix time
-    /// - `MessageDocument`. Date the message was last edited in Unix time
-    /// - `MessageForumTopicClosed`. Date the message was last edited in Unix time
-    /// - `MessageForumTopicCreated`. Date the message was last edited in Unix time
-    /// - `MessageForumTopicEdited`. Date the message was last edited in Unix time
-    /// - `MessageForumTopicReopened`. Date the message was last edited in Unix time
-    /// - `MessageGame`. Date the message was last edited in Unix time
-    /// - `MessageGeneralForumTopicHidden`. Date the message was last edited in Unix time
-    /// - `MessageGeneralForumTopicUnhidden`. Date the message was last edited in Unix time
-    /// - `MessageGift`. Date the message was last edited in Unix time
-    /// - `MessageGiftUpgradeSent`. Date the message was last edited in Unix time
-    /// - `MessageGiveaway`. Date the message was last edited in Unix time
-    /// - `MessageGiveawayCompleted`. Date the message was last edited in Unix time
-    /// - `MessageGiveawayCreated`. Date the message was last edited in Unix time
-    /// - `MessageGiveawayWinners`. Date the message was last edited in Unix time
-    /// - `MessageGroupChatCreated`. Date the message was last edited in Unix time
-    /// - `MessageInvoice`. Date the message was last edited in Unix time
-    /// - `MessageLeftChatMember`. Date the message was last edited in Unix time
-    /// - `MessageLocation`. Date the message was last edited in Unix time
-    /// - `MessageMessageAutoDeleteTimerChanged`. Date the message was last edited in Unix time
-    /// - `MessageMigrateFromChatId`. Date the message was last edited in Unix time
-    /// - `MessageMigrateToChatId`. Date the message was last edited in Unix time
-    /// - `MessageNewChatMembers`. Date the message was last edited in Unix time
-    /// - `MessageNewChatPhoto`. Date the message was last edited in Unix time
-    /// - `MessageNewChatTitle`. Date the message was last edited in Unix time
-    /// - `MessagePaidMedia`. Date the message was last edited in Unix time
-    /// - `MessagePaidMessagePriceChanged`. Date the message was last edited in Unix time
-    /// - `MessagePassportData`. Date the message was last edited in Unix time
-    /// - `MessagePhoto`. Date the message was last edited in Unix time
-    /// - `MessagePinnedMessage`. Date the message was last edited in Unix time
-    /// - `MessagePoll`. Date the message was last edited in Unix time
-    /// - `MessageProximityAlertTriggered`. Date the message was last edited in Unix time
-    /// - `MessageRefundedPayment`. Date the message was last edited in Unix time
-    /// - `MessageSticker`. Date the message was last edited in Unix time
-    /// - `MessageStory`. Date the message was last edited in Unix time
-    /// - `MessageSuccessfulPayment`. Date the message was last edited in Unix time
-    /// - `MessageSuggestedPostApprovalFailed`. Date the message was last edited in Unix time
-    /// - `MessageSuggestedPostApproved`. Date the message was last edited in Unix time
-    /// - `MessageSuggestedPostDeclined`. Date the message was last edited in Unix time
-    /// - `MessageSuggestedPostPaid`. Date the message was last edited in Unix time
-    /// - `MessageSuggestedPostRefunded`. Date the message was last edited in Unix time
-    /// - `MessageSupergroupChatCreated`. Date the message was last edited in Unix time
-    /// - `MessageText`. Date the message was last edited in Unix time
-    /// - `MessageUniqueGift`. Date the message was last edited in Unix time
-    /// - `MessageUsersShared`. Date the message was last edited in Unix time
-    /// - `MessageVenue`. Date the message was last edited in Unix time
-    /// - `MessageVideo`. Date the message was last edited in Unix time
-    /// - `MessageVideoChatEnded`. Date the message was last edited in Unix time
-    /// - `MessageVideoChatParticipantsInvited`. Date the message was last edited in Unix time
-    /// - `MessageVideoChatScheduled`. Date the message was last edited in Unix time
-    /// - `MessageVideoChatStarted`. Date the message was last edited in Unix time
-    /// - `MessageVideoNote`. Date the message was last edited in Unix time
-    /// - `MessageVoice`. Date the message was last edited in Unix time
-    /// - `MessageWebAppData`. Date the message was last edited in Unix time
-    /// - `MessageWriteAccessAllowed`. Date the message was last edited in Unix time
+    /// Date the message was last edited in Unix time
     #[must_use]
     pub fn edit_date(&self) -> Option<i64> {
         match self {
@@ -1546,77 +969,7 @@ impl Message {
 
     /// Helper method for field `effect_id`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Unique identifier of the message effect added to the message
-    /// - `MessageAudio`. Unique identifier of the message effect added to the message
-    /// - `MessageBoostAdded`. Unique identifier of the message effect added to the message
-    /// - `MessageChannelChatCreated`. Unique identifier of the message effect added to the message
-    /// - `MessageChatBackgroundSet`. Unique identifier of the message effect added to the message
-    /// - `MessageChatOwnerChanged`. Unique identifier of the message effect added to the message
-    /// - `MessageChatOwnerLeft`. Unique identifier of the message effect added to the message
-    /// - `MessageChatShared`. Unique identifier of the message effect added to the message
-    /// - `MessageChecklist`. Unique identifier of the message effect added to the message
-    /// - `MessageChecklistTasksAdded`. Unique identifier of the message effect added to the message
-    /// - `MessageChecklistTasksDone`. Unique identifier of the message effect added to the message
-    /// - `MessageConnectedWebsite`. Unique identifier of the message effect added to the message
-    /// - `MessageContact`. Unique identifier of the message effect added to the message
-    /// - `MessageDeleteChatPhoto`. Unique identifier of the message effect added to the message
-    /// - `MessageDice`. Unique identifier of the message effect added to the message
-    /// - `MessageDirectMessagePriceChanged`. Unique identifier of the message effect added to the message
-    /// - `MessageDocument`. Unique identifier of the message effect added to the message
-    /// - `MessageForumTopicClosed`. Unique identifier of the message effect added to the message
-    /// - `MessageForumTopicCreated`. Unique identifier of the message effect added to the message
-    /// - `MessageForumTopicEdited`. Unique identifier of the message effect added to the message
-    /// - `MessageForumTopicReopened`. Unique identifier of the message effect added to the message
-    /// - `MessageGame`. Unique identifier of the message effect added to the message
-    /// - `MessageGeneralForumTopicHidden`. Unique identifier of the message effect added to the message
-    /// - `MessageGeneralForumTopicUnhidden`. Unique identifier of the message effect added to the message
-    /// - `MessageGift`. Unique identifier of the message effect added to the message
-    /// - `MessageGiftUpgradeSent`. Unique identifier of the message effect added to the message
-    /// - `MessageGiveaway`. Unique identifier of the message effect added to the message
-    /// - `MessageGiveawayCompleted`. Unique identifier of the message effect added to the message
-    /// - `MessageGiveawayCreated`. Unique identifier of the message effect added to the message
-    /// - `MessageGiveawayWinners`. Unique identifier of the message effect added to the message
-    /// - `MessageGroupChatCreated`. Unique identifier of the message effect added to the message
-    /// - `MessageInvoice`. Unique identifier of the message effect added to the message
-    /// - `MessageLeftChatMember`. Unique identifier of the message effect added to the message
-    /// - `MessageLocation`. Unique identifier of the message effect added to the message
-    /// - `MessageMessageAutoDeleteTimerChanged`. Unique identifier of the message effect added to the message
-    /// - `MessageMigrateFromChatId`. Unique identifier of the message effect added to the message
-    /// - `MessageMigrateToChatId`. Unique identifier of the message effect added to the message
-    /// - `MessageNewChatMembers`. Unique identifier of the message effect added to the message
-    /// - `MessageNewChatPhoto`. Unique identifier of the message effect added to the message
-    /// - `MessageNewChatTitle`. Unique identifier of the message effect added to the message
-    /// - `MessagePaidMedia`. Unique identifier of the message effect added to the message
-    /// - `MessagePaidMessagePriceChanged`. Unique identifier of the message effect added to the message
-    /// - `MessagePassportData`. Unique identifier of the message effect added to the message
-    /// - `MessagePhoto`. Unique identifier of the message effect added to the message
-    /// - `MessagePinnedMessage`. Unique identifier of the message effect added to the message
-    /// - `MessagePoll`. Unique identifier of the message effect added to the message
-    /// - `MessageProximityAlertTriggered`. Unique identifier of the message effect added to the message
-    /// - `MessageRefundedPayment`. Unique identifier of the message effect added to the message
-    /// - `MessageSticker`. Unique identifier of the message effect added to the message
-    /// - `MessageStory`. Unique identifier of the message effect added to the message
-    /// - `MessageSuccessfulPayment`. Unique identifier of the message effect added to the message
-    /// - `MessageSuggestedPostApprovalFailed`. Unique identifier of the message effect added to the message
-    /// - `MessageSuggestedPostApproved`. Unique identifier of the message effect added to the message
-    /// - `MessageSuggestedPostDeclined`. Unique identifier of the message effect added to the message
-    /// - `MessageSuggestedPostPaid`. Unique identifier of the message effect added to the message
-    /// - `MessageSuggestedPostRefunded`. Unique identifier of the message effect added to the message
-    /// - `MessageSupergroupChatCreated`. Unique identifier of the message effect added to the message
-    /// - `MessageText`. Unique identifier of the message effect added to the message
-    /// - `MessageUniqueGift`. Unique identifier of the message effect added to the message
-    /// - `MessageUsersShared`. Unique identifier of the message effect added to the message
-    /// - `MessageVenue`. Unique identifier of the message effect added to the message
-    /// - `MessageVideo`. Unique identifier of the message effect added to the message
-    /// - `MessageVideoChatEnded`. Unique identifier of the message effect added to the message
-    /// - `MessageVideoChatParticipantsInvited`. Unique identifier of the message effect added to the message
-    /// - `MessageVideoChatScheduled`. Unique identifier of the message effect added to the message
-    /// - `MessageVideoChatStarted`. Unique identifier of the message effect added to the message
-    /// - `MessageVideoNote`. Unique identifier of the message effect added to the message
-    /// - `MessageVoice`. Unique identifier of the message effect added to the message
-    /// - `MessageWebAppData`. Unique identifier of the message effect added to the message
-    /// - `MessageWriteAccessAllowed`. Unique identifier of the message effect added to the message
+    /// Unique identifier of the message effect added to the message
     #[must_use]
     pub fn effect_id(&self) -> Option<&str> {
         match self {
@@ -1695,77 +1048,7 @@ impl Message {
 
     /// Helper method for field `entities`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageAudio`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageBoostAdded`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageChannelChatCreated`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageChatBackgroundSet`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageChatOwnerChanged`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageChatOwnerLeft`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageChatShared`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageChecklist`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageChecklistTasksAdded`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageChecklistTasksDone`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageConnectedWebsite`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageContact`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageDeleteChatPhoto`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageDice`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageDirectMessagePriceChanged`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageDocument`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageForumTopicClosed`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageForumTopicCreated`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageForumTopicEdited`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageForumTopicReopened`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageGame`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageGeneralForumTopicHidden`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageGeneralForumTopicUnhidden`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageGift`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageGiftUpgradeSent`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageGiveaway`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageGiveawayCompleted`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageGiveawayCreated`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageGiveawayWinners`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageGroupChatCreated`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageInvoice`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageLeftChatMember`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageLocation`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageMessageAutoDeleteTimerChanged`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageMigrateFromChatId`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageMigrateToChatId`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageNewChatMembers`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageNewChatPhoto`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageNewChatTitle`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessagePaidMedia`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessagePaidMessagePriceChanged`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessagePassportData`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessagePhoto`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessagePinnedMessage`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessagePoll`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageProximityAlertTriggered`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageRefundedPayment`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageSticker`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageStory`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageSuccessfulPayment`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageSuggestedPostApprovalFailed`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageSuggestedPostApproved`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageSuggestedPostDeclined`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageSuggestedPostPaid`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageSuggestedPostRefunded`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageSupergroupChatCreated`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageText`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageUniqueGift`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageUsersShared`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageVenue`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageVideo`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageVideoChatEnded`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageVideoChatParticipantsInvited`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageVideoChatScheduled`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageVideoChatStarted`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageVideoNote`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageVoice`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageWebAppData`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
-    /// - `MessageWriteAccessAllowed`. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
+    /// For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
     #[must_use]
     pub fn entities(&self) -> Option<&[crate::types::MessageEntity]> {
         match self {
@@ -1844,77 +1127,7 @@ impl Message {
 
     /// Helper method for field `external_reply`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageAudio`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageBoostAdded`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageChannelChatCreated`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageChatBackgroundSet`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageChatOwnerChanged`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageChatOwnerLeft`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageChatShared`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageChecklist`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageChecklistTasksAdded`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageChecklistTasksDone`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageConnectedWebsite`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageContact`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageDeleteChatPhoto`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageDice`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageDirectMessagePriceChanged`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageDocument`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageForumTopicClosed`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageForumTopicCreated`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageForumTopicEdited`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageForumTopicReopened`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageGame`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageGeneralForumTopicHidden`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageGeneralForumTopicUnhidden`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageGift`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageGiftUpgradeSent`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageGiveaway`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageGiveawayCompleted`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageGiveawayCreated`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageGiveawayWinners`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageGroupChatCreated`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageInvoice`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageLeftChatMember`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageLocation`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageMessageAutoDeleteTimerChanged`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageMigrateFromChatId`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageMigrateToChatId`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageNewChatMembers`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageNewChatPhoto`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageNewChatTitle`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessagePaidMedia`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessagePaidMessagePriceChanged`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessagePassportData`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessagePhoto`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessagePinnedMessage`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessagePoll`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageProximityAlertTriggered`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageRefundedPayment`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageSticker`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageStory`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageSuccessfulPayment`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageSuggestedPostApprovalFailed`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageSuggestedPostApproved`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageSuggestedPostDeclined`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageSuggestedPostPaid`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageSuggestedPostRefunded`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageSupergroupChatCreated`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageText`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageUniqueGift`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageUsersShared`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageVenue`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageVideo`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageVideoChatEnded`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageVideoChatParticipantsInvited`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageVideoChatScheduled`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageVideoChatStarted`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageVideoNote`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageVoice`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageWebAppData`. Information about the message that is being replied to, which may come from another chat or forum topic
-    /// - `MessageWriteAccessAllowed`. Information about the message that is being replied to, which may come from another chat or forum topic
+    /// Information about the message that is being replied to, which may come from another chat or forum topic
     #[must_use]
     pub fn external_reply(&self) -> Option<&crate::types::ExternalReplyInfo> {
         match self {
@@ -1993,8 +1206,7 @@ impl Message {
 
     /// Helper method for field `forum_topic_closed`.
     ///
-    /// # Variants
-    /// - `MessageForumTopicClosed`. Service message: forum topic closed
+    /// Service message: forum topic closed
     #[must_use]
     pub fn forum_topic_closed(&self) -> Option<&crate::types::ForumTopicClosed> {
         match self {
@@ -2005,8 +1217,7 @@ impl Message {
 
     /// Helper method for field `forum_topic_created`.
     ///
-    /// # Variants
-    /// - `MessageForumTopicCreated`. Service message: forum topic created
+    /// Service message: forum topic created
     #[must_use]
     pub fn forum_topic_created(&self) -> Option<&crate::types::ForumTopicCreated> {
         match self {
@@ -2017,8 +1228,7 @@ impl Message {
 
     /// Helper method for field `forum_topic_edited`.
     ///
-    /// # Variants
-    /// - `MessageForumTopicEdited`. Service message: forum topic edited
+    /// Service message: forum topic edited
     #[must_use]
     pub fn forum_topic_edited(&self) -> Option<&crate::types::ForumTopicEdited> {
         match self {
@@ -2029,8 +1239,7 @@ impl Message {
 
     /// Helper method for field `forum_topic_reopened`.
     ///
-    /// # Variants
-    /// - `MessageForumTopicReopened`. Service message: forum topic reopened
+    /// Service message: forum topic reopened
     #[must_use]
     pub fn forum_topic_reopened(&self) -> Option<&crate::types::ForumTopicReopened> {
         match self {
@@ -2041,77 +1250,7 @@ impl Message {
 
     /// Helper method for field `forward_origin`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Information about the original message for forwarded messages
-    /// - `MessageAudio`. Information about the original message for forwarded messages
-    /// - `MessageBoostAdded`. Information about the original message for forwarded messages
-    /// - `MessageChannelChatCreated`. Information about the original message for forwarded messages
-    /// - `MessageChatBackgroundSet`. Information about the original message for forwarded messages
-    /// - `MessageChatOwnerChanged`. Information about the original message for forwarded messages
-    /// - `MessageChatOwnerLeft`. Information about the original message for forwarded messages
-    /// - `MessageChatShared`. Information about the original message for forwarded messages
-    /// - `MessageChecklist`. Information about the original message for forwarded messages
-    /// - `MessageChecklistTasksAdded`. Information about the original message for forwarded messages
-    /// - `MessageChecklistTasksDone`. Information about the original message for forwarded messages
-    /// - `MessageConnectedWebsite`. Information about the original message for forwarded messages
-    /// - `MessageContact`. Information about the original message for forwarded messages
-    /// - `MessageDeleteChatPhoto`. Information about the original message for forwarded messages
-    /// - `MessageDice`. Information about the original message for forwarded messages
-    /// - `MessageDirectMessagePriceChanged`. Information about the original message for forwarded messages
-    /// - `MessageDocument`. Information about the original message for forwarded messages
-    /// - `MessageForumTopicClosed`. Information about the original message for forwarded messages
-    /// - `MessageForumTopicCreated`. Information about the original message for forwarded messages
-    /// - `MessageForumTopicEdited`. Information about the original message for forwarded messages
-    /// - `MessageForumTopicReopened`. Information about the original message for forwarded messages
-    /// - `MessageGame`. Information about the original message for forwarded messages
-    /// - `MessageGeneralForumTopicHidden`. Information about the original message for forwarded messages
-    /// - `MessageGeneralForumTopicUnhidden`. Information about the original message for forwarded messages
-    /// - `MessageGift`. Information about the original message for forwarded messages
-    /// - `MessageGiftUpgradeSent`. Information about the original message for forwarded messages
-    /// - `MessageGiveaway`. Information about the original message for forwarded messages
-    /// - `MessageGiveawayCompleted`. Information about the original message for forwarded messages
-    /// - `MessageGiveawayCreated`. Information about the original message for forwarded messages
-    /// - `MessageGiveawayWinners`. Information about the original message for forwarded messages
-    /// - `MessageGroupChatCreated`. Information about the original message for forwarded messages
-    /// - `MessageInvoice`. Information about the original message for forwarded messages
-    /// - `MessageLeftChatMember`. Information about the original message for forwarded messages
-    /// - `MessageLocation`. Information about the original message for forwarded messages
-    /// - `MessageMessageAutoDeleteTimerChanged`. Information about the original message for forwarded messages
-    /// - `MessageMigrateFromChatId`. Information about the original message for forwarded messages
-    /// - `MessageMigrateToChatId`. Information about the original message for forwarded messages
-    /// - `MessageNewChatMembers`. Information about the original message for forwarded messages
-    /// - `MessageNewChatPhoto`. Information about the original message for forwarded messages
-    /// - `MessageNewChatTitle`. Information about the original message for forwarded messages
-    /// - `MessagePaidMedia`. Information about the original message for forwarded messages
-    /// - `MessagePaidMessagePriceChanged`. Information about the original message for forwarded messages
-    /// - `MessagePassportData`. Information about the original message for forwarded messages
-    /// - `MessagePhoto`. Information about the original message for forwarded messages
-    /// - `MessagePinnedMessage`. Information about the original message for forwarded messages
-    /// - `MessagePoll`. Information about the original message for forwarded messages
-    /// - `MessageProximityAlertTriggered`. Information about the original message for forwarded messages
-    /// - `MessageRefundedPayment`. Information about the original message for forwarded messages
-    /// - `MessageSticker`. Information about the original message for forwarded messages
-    /// - `MessageStory`. Information about the original message for forwarded messages
-    /// - `MessageSuccessfulPayment`. Information about the original message for forwarded messages
-    /// - `MessageSuggestedPostApprovalFailed`. Information about the original message for forwarded messages
-    /// - `MessageSuggestedPostApproved`. Information about the original message for forwarded messages
-    /// - `MessageSuggestedPostDeclined`. Information about the original message for forwarded messages
-    /// - `MessageSuggestedPostPaid`. Information about the original message for forwarded messages
-    /// - `MessageSuggestedPostRefunded`. Information about the original message for forwarded messages
-    /// - `MessageSupergroupChatCreated`. Information about the original message for forwarded messages
-    /// - `MessageText`. Information about the original message for forwarded messages
-    /// - `MessageUniqueGift`. Information about the original message for forwarded messages
-    /// - `MessageUsersShared`. Information about the original message for forwarded messages
-    /// - `MessageVenue`. Information about the original message for forwarded messages
-    /// - `MessageVideo`. Information about the original message for forwarded messages
-    /// - `MessageVideoChatEnded`. Information about the original message for forwarded messages
-    /// - `MessageVideoChatParticipantsInvited`. Information about the original message for forwarded messages
-    /// - `MessageVideoChatScheduled`. Information about the original message for forwarded messages
-    /// - `MessageVideoChatStarted`. Information about the original message for forwarded messages
-    /// - `MessageVideoNote`. Information about the original message for forwarded messages
-    /// - `MessageVoice`. Information about the original message for forwarded messages
-    /// - `MessageWebAppData`. Information about the original message for forwarded messages
-    /// - `MessageWriteAccessAllowed`. Information about the original message for forwarded messages
+    /// Information about the original message for forwarded messages
     #[must_use]
     pub fn forward_origin(&self) -> Option<&crate::types::MessageOrigin> {
         match self {
@@ -2190,77 +1329,7 @@ impl Message {
 
     /// Helper method for field `from`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageAudio`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageBoostAdded`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageChannelChatCreated`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageChatBackgroundSet`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageChatOwnerChanged`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageChatOwnerLeft`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageChatShared`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageChecklist`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageChecklistTasksAdded`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageChecklistTasksDone`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageConnectedWebsite`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageContact`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageDeleteChatPhoto`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageDice`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageDirectMessagePriceChanged`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageDocument`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageForumTopicClosed`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageForumTopicCreated`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageForumTopicEdited`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageForumTopicReopened`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageGame`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageGeneralForumTopicHidden`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageGeneralForumTopicUnhidden`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageGift`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageGiftUpgradeSent`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageGiveaway`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageGiveawayCompleted`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageGiveawayCreated`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageGiveawayWinners`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageGroupChatCreated`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageInvoice`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageLeftChatMember`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageLocation`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageMessageAutoDeleteTimerChanged`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageMigrateFromChatId`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageMigrateToChatId`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageNewChatMembers`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageNewChatPhoto`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageNewChatTitle`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessagePaidMedia`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessagePaidMessagePriceChanged`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessagePassportData`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessagePhoto`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessagePinnedMessage`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessagePoll`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageProximityAlertTriggered`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageRefundedPayment`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageSticker`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageStory`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageSuccessfulPayment`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageSuggestedPostApprovalFailed`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageSuggestedPostApproved`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageSuggestedPostDeclined`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageSuggestedPostPaid`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageSuggestedPostRefunded`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageSupergroupChatCreated`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageText`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageUniqueGift`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageUsersShared`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageVenue`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageVideo`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageVideoChatEnded`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageVideoChatParticipantsInvited`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageVideoChatScheduled`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageVideoChatStarted`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageVideoNote`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageVoice`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageWebAppData`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
-    /// - `MessageWriteAccessAllowed`. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
+    /// Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
     #[must_use]
     pub fn from(&self) -> Option<&crate::types::User> {
         match self {
@@ -2339,8 +1408,7 @@ impl Message {
 
     /// Helper method for field `game`.
     ///
-    /// # Variants
-    /// - `MessageGame`. Message is a game, information about the game. More about games: <https://core.telegram.org/bots/api#games>
+    /// Message is a game, information about the game. More about games: <https://core.telegram.org/bots/api#games>
     #[must_use]
     pub fn game(&self) -> Option<&crate::types::Game> {
         match self {
@@ -2351,8 +1419,7 @@ impl Message {
 
     /// Helper method for field `general_forum_topic_hidden`.
     ///
-    /// # Variants
-    /// - `MessageGeneralForumTopicHidden`. Service message: the 'General' forum topic hidden
+    /// Service message: the 'General' forum topic hidden
     #[must_use]
     pub fn general_forum_topic_hidden(&self) -> Option<&crate::types::GeneralForumTopicHidden> {
         match self {
@@ -2363,8 +1430,7 @@ impl Message {
 
     /// Helper method for field `general_forum_topic_unhidden`.
     ///
-    /// # Variants
-    /// - `MessageGeneralForumTopicUnhidden`. Service message: the 'General' forum topic unhidden
+    /// Service message: the 'General' forum topic unhidden
     #[must_use]
     pub fn general_forum_topic_unhidden(&self) -> Option<&crate::types::GeneralForumTopicUnhidden> {
         match self {
@@ -2375,8 +1441,7 @@ impl Message {
 
     /// Helper method for field `gift`.
     ///
-    /// # Variants
-    /// - `MessageGift`. Service message: a regular gift was sent or received
+    /// Service message: a regular gift was sent or received
     #[must_use]
     pub fn gift(&self) -> Option<&crate::types::GiftInfo> {
         match self {
@@ -2387,8 +1452,7 @@ impl Message {
 
     /// Helper method for field `gift_upgrade_sent`.
     ///
-    /// # Variants
-    /// - `MessageGiftUpgradeSent`. Service message: upgrade of a gift was purchased after the gift was sent
+    /// Service message: upgrade of a gift was purchased after the gift was sent
     #[must_use]
     pub fn gift_upgrade_sent(&self) -> Option<&crate::types::GiftInfo> {
         match self {
@@ -2399,8 +1463,7 @@ impl Message {
 
     /// Helper method for field `giveaway`.
     ///
-    /// # Variants
-    /// - `MessageGiveaway`. The message is a scheduled giveaway message
+    /// The message is a scheduled giveaway message
     #[must_use]
     pub fn giveaway(&self) -> Option<&crate::types::Giveaway> {
         match self {
@@ -2411,8 +1474,7 @@ impl Message {
 
     /// Helper method for field `giveaway_completed`.
     ///
-    /// # Variants
-    /// - `MessageGiveawayCompleted`. Service message: a giveaway without public winners was completed
+    /// Service message: a giveaway without public winners was completed
     #[must_use]
     pub fn giveaway_completed(&self) -> Option<&crate::types::GiveawayCompleted> {
         match self {
@@ -2423,8 +1485,7 @@ impl Message {
 
     /// Helper method for field `giveaway_created`.
     ///
-    /// # Variants
-    /// - `MessageGiveawayCreated`. Service message: a scheduled giveaway was created
+    /// Service message: a scheduled giveaway was created
     #[must_use]
     pub fn giveaway_created(&self) -> Option<&crate::types::GiveawayCreated> {
         match self {
@@ -2435,8 +1496,7 @@ impl Message {
 
     /// Helper method for field `giveaway_winners`.
     ///
-    /// # Variants
-    /// - `MessageGiveawayWinners`. A giveaway with public winners was completed
+    /// A giveaway with public winners was completed
     #[must_use]
     pub fn giveaway_winners(&self) -> Option<&crate::types::GiveawayWinners> {
         match self {
@@ -2447,8 +1507,7 @@ impl Message {
 
     /// Helper method for field `group_chat_created`.
     ///
-    /// # Variants
-    /// - `MessageGroupChatCreated`. Service message: the group has been created
+    /// Service message: the group has been created
     #[must_use]
     pub fn group_chat_created(&self) -> Option<bool> {
         match self {
@@ -2459,77 +1518,7 @@ impl Message {
 
     /// Helper method for field `has_media_spoiler`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageAudio`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageBoostAdded`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageChannelChatCreated`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageChatBackgroundSet`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageChatOwnerChanged`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageChatOwnerLeft`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageChatShared`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageChecklist`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageChecklistTasksAdded`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageChecklistTasksDone`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageConnectedWebsite`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageContact`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageDeleteChatPhoto`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageDice`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageDirectMessagePriceChanged`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageDocument`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageForumTopicClosed`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageForumTopicCreated`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageForumTopicEdited`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageForumTopicReopened`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageGame`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageGeneralForumTopicHidden`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageGeneralForumTopicUnhidden`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageGift`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageGiftUpgradeSent`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageGiveaway`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageGiveawayCompleted`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageGiveawayCreated`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageGiveawayWinners`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageGroupChatCreated`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageInvoice`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageLeftChatMember`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageLocation`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageMessageAutoDeleteTimerChanged`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageMigrateFromChatId`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageMigrateToChatId`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageNewChatMembers`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageNewChatPhoto`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageNewChatTitle`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessagePaidMedia`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessagePaidMessagePriceChanged`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessagePassportData`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessagePhoto`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessagePinnedMessage`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessagePoll`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageProximityAlertTriggered`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageRefundedPayment`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageSticker`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageStory`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageSuccessfulPayment`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageSuggestedPostApprovalFailed`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageSuggestedPostApproved`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageSuggestedPostDeclined`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageSuggestedPostPaid`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageSuggestedPostRefunded`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageSupergroupChatCreated`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageText`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageUniqueGift`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageUsersShared`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageVenue`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageVideo`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageVideoChatEnded`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageVideoChatParticipantsInvited`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageVideoChatScheduled`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageVideoChatStarted`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageVideoNote`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageVoice`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageWebAppData`. `true`, if the message media is covered by a spoiler animation
-    /// - `MessageWriteAccessAllowed`. `true`, if the message media is covered by a spoiler animation
+    /// `true`, if the message media is covered by a spoiler animation
     #[must_use]
     pub fn has_media_spoiler(&self) -> Option<bool> {
         match self {
@@ -2608,77 +1597,7 @@ impl Message {
 
     /// Helper method for field `has_protected_content`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. `true`, if the message can't be forwarded
-    /// - `MessageAudio`. `true`, if the message can't be forwarded
-    /// - `MessageBoostAdded`. `true`, if the message can't be forwarded
-    /// - `MessageChannelChatCreated`. `true`, if the message can't be forwarded
-    /// - `MessageChatBackgroundSet`. `true`, if the message can't be forwarded
-    /// - `MessageChatOwnerChanged`. `true`, if the message can't be forwarded
-    /// - `MessageChatOwnerLeft`. `true`, if the message can't be forwarded
-    /// - `MessageChatShared`. `true`, if the message can't be forwarded
-    /// - `MessageChecklist`. `true`, if the message can't be forwarded
-    /// - `MessageChecklistTasksAdded`. `true`, if the message can't be forwarded
-    /// - `MessageChecklistTasksDone`. `true`, if the message can't be forwarded
-    /// - `MessageConnectedWebsite`. `true`, if the message can't be forwarded
-    /// - `MessageContact`. `true`, if the message can't be forwarded
-    /// - `MessageDeleteChatPhoto`. `true`, if the message can't be forwarded
-    /// - `MessageDice`. `true`, if the message can't be forwarded
-    /// - `MessageDirectMessagePriceChanged`. `true`, if the message can't be forwarded
-    /// - `MessageDocument`. `true`, if the message can't be forwarded
-    /// - `MessageForumTopicClosed`. `true`, if the message can't be forwarded
-    /// - `MessageForumTopicCreated`. `true`, if the message can't be forwarded
-    /// - `MessageForumTopicEdited`. `true`, if the message can't be forwarded
-    /// - `MessageForumTopicReopened`. `true`, if the message can't be forwarded
-    /// - `MessageGame`. `true`, if the message can't be forwarded
-    /// - `MessageGeneralForumTopicHidden`. `true`, if the message can't be forwarded
-    /// - `MessageGeneralForumTopicUnhidden`. `true`, if the message can't be forwarded
-    /// - `MessageGift`. `true`, if the message can't be forwarded
-    /// - `MessageGiftUpgradeSent`. `true`, if the message can't be forwarded
-    /// - `MessageGiveaway`. `true`, if the message can't be forwarded
-    /// - `MessageGiveawayCompleted`. `true`, if the message can't be forwarded
-    /// - `MessageGiveawayCreated`. `true`, if the message can't be forwarded
-    /// - `MessageGiveawayWinners`. `true`, if the message can't be forwarded
-    /// - `MessageGroupChatCreated`. `true`, if the message can't be forwarded
-    /// - `MessageInvoice`. `true`, if the message can't be forwarded
-    /// - `MessageLeftChatMember`. `true`, if the message can't be forwarded
-    /// - `MessageLocation`. `true`, if the message can't be forwarded
-    /// - `MessageMessageAutoDeleteTimerChanged`. `true`, if the message can't be forwarded
-    /// - `MessageMigrateFromChatId`. `true`, if the message can't be forwarded
-    /// - `MessageMigrateToChatId`. `true`, if the message can't be forwarded
-    /// - `MessageNewChatMembers`. `true`, if the message can't be forwarded
-    /// - `MessageNewChatPhoto`. `true`, if the message can't be forwarded
-    /// - `MessageNewChatTitle`. `true`, if the message can't be forwarded
-    /// - `MessagePaidMedia`. `true`, if the message can't be forwarded
-    /// - `MessagePaidMessagePriceChanged`. `true`, if the message can't be forwarded
-    /// - `MessagePassportData`. `true`, if the message can't be forwarded
-    /// - `MessagePhoto`. `true`, if the message can't be forwarded
-    /// - `MessagePinnedMessage`. `true`, if the message can't be forwarded
-    /// - `MessagePoll`. `true`, if the message can't be forwarded
-    /// - `MessageProximityAlertTriggered`. `true`, if the message can't be forwarded
-    /// - `MessageRefundedPayment`. `true`, if the message can't be forwarded
-    /// - `MessageSticker`. `true`, if the message can't be forwarded
-    /// - `MessageStory`. `true`, if the message can't be forwarded
-    /// - `MessageSuccessfulPayment`. `true`, if the message can't be forwarded
-    /// - `MessageSuggestedPostApprovalFailed`. `true`, if the message can't be forwarded
-    /// - `MessageSuggestedPostApproved`. `true`, if the message can't be forwarded
-    /// - `MessageSuggestedPostDeclined`. `true`, if the message can't be forwarded
-    /// - `MessageSuggestedPostPaid`. `true`, if the message can't be forwarded
-    /// - `MessageSuggestedPostRefunded`. `true`, if the message can't be forwarded
-    /// - `MessageSupergroupChatCreated`. `true`, if the message can't be forwarded
-    /// - `MessageText`. `true`, if the message can't be forwarded
-    /// - `MessageUniqueGift`. `true`, if the message can't be forwarded
-    /// - `MessageUsersShared`. `true`, if the message can't be forwarded
-    /// - `MessageVenue`. `true`, if the message can't be forwarded
-    /// - `MessageVideo`. `true`, if the message can't be forwarded
-    /// - `MessageVideoChatEnded`. `true`, if the message can't be forwarded
-    /// - `MessageVideoChatParticipantsInvited`. `true`, if the message can't be forwarded
-    /// - `MessageVideoChatScheduled`. `true`, if the message can't be forwarded
-    /// - `MessageVideoChatStarted`. `true`, if the message can't be forwarded
-    /// - `MessageVideoNote`. `true`, if the message can't be forwarded
-    /// - `MessageVoice`. `true`, if the message can't be forwarded
-    /// - `MessageWebAppData`. `true`, if the message can't be forwarded
-    /// - `MessageWriteAccessAllowed`. `true`, if the message can't be forwarded
+    /// `true`, if the message can't be forwarded
     #[must_use]
     pub fn has_protected_content(&self) -> Option<bool> {
         match self {
@@ -2757,8 +1676,7 @@ impl Message {
 
     /// Helper method for field `invoice`.
     ///
-    /// # Variants
-    /// - `MessageInvoice`. Message is an invoice for a payment, information about the invoice. More about payments: <https://core.telegram.org/bots/api#payments>
+    /// Message is an invoice for a payment, information about the invoice. More about payments: <https://core.telegram.org/bots/api#payments>
     #[must_use]
     pub fn invoice(&self) -> Option<&crate::types::Invoice> {
         match self {
@@ -2769,77 +1687,7 @@ impl Message {
 
     /// Helper method for field `is_automatic_forward`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageAudio`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageBoostAdded`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageChannelChatCreated`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageChatBackgroundSet`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageChatOwnerChanged`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageChatOwnerLeft`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageChatShared`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageChecklist`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageChecklistTasksAdded`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageChecklistTasksDone`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageConnectedWebsite`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageContact`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageDeleteChatPhoto`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageDice`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageDirectMessagePriceChanged`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageDocument`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageForumTopicClosed`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageForumTopicCreated`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageForumTopicEdited`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageForumTopicReopened`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageGame`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageGeneralForumTopicHidden`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageGeneralForumTopicUnhidden`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageGift`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageGiftUpgradeSent`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageGiveaway`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageGiveawayCompleted`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageGiveawayCreated`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageGiveawayWinners`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageGroupChatCreated`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageInvoice`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageLeftChatMember`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageLocation`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageMessageAutoDeleteTimerChanged`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageMigrateFromChatId`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageMigrateToChatId`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageNewChatMembers`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageNewChatPhoto`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageNewChatTitle`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessagePaidMedia`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessagePaidMessagePriceChanged`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessagePassportData`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessagePhoto`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessagePinnedMessage`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessagePoll`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageProximityAlertTriggered`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageRefundedPayment`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageSticker`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageStory`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageSuccessfulPayment`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageSuggestedPostApprovalFailed`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageSuggestedPostApproved`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageSuggestedPostDeclined`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageSuggestedPostPaid`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageSuggestedPostRefunded`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageSupergroupChatCreated`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageText`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageUniqueGift`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageUsersShared`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageVenue`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageVideo`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageVideoChatEnded`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageVideoChatParticipantsInvited`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageVideoChatScheduled`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageVideoChatStarted`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageVideoNote`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageVoice`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageWebAppData`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
-    /// - `MessageWriteAccessAllowed`. `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
+    /// `true`, if the message is a channel post that was automatically forwarded to the connected discussion group
     #[must_use]
     pub fn is_automatic_forward(&self) -> Option<bool> {
         match self {
@@ -2918,77 +1766,7 @@ impl Message {
 
     /// Helper method for field `is_from_offline`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageAudio`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageBoostAdded`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageChannelChatCreated`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageChatBackgroundSet`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageChatOwnerChanged`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageChatOwnerLeft`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageChatShared`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageChecklist`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageChecklistTasksAdded`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageChecklistTasksDone`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageConnectedWebsite`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageContact`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageDeleteChatPhoto`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageDice`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageDirectMessagePriceChanged`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageDocument`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageForumTopicClosed`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageForumTopicCreated`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageForumTopicEdited`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageForumTopicReopened`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageGame`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageGeneralForumTopicHidden`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageGeneralForumTopicUnhidden`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageGift`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageGiftUpgradeSent`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageGiveaway`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageGiveawayCompleted`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageGiveawayCreated`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageGiveawayWinners`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageGroupChatCreated`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageInvoice`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageLeftChatMember`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageLocation`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageMessageAutoDeleteTimerChanged`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageMigrateFromChatId`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageMigrateToChatId`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageNewChatMembers`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageNewChatPhoto`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageNewChatTitle`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessagePaidMedia`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessagePaidMessagePriceChanged`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessagePassportData`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessagePhoto`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessagePinnedMessage`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessagePoll`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageProximityAlertTriggered`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageRefundedPayment`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageSticker`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageStory`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageSuccessfulPayment`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageSuggestedPostApprovalFailed`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageSuggestedPostApproved`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageSuggestedPostDeclined`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageSuggestedPostPaid`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageSuggestedPostRefunded`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageSupergroupChatCreated`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageText`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageUniqueGift`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageUsersShared`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageVenue`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageVideo`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageVideoChatEnded`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageVideoChatParticipantsInvited`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageVideoChatScheduled`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageVideoChatStarted`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageVideoNote`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageVoice`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageWebAppData`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
-    /// - `MessageWriteAccessAllowed`. `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
+    /// `true`, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     #[must_use]
     pub fn is_from_offline(&self) -> Option<bool> {
         match self {
@@ -3067,77 +1845,7 @@ impl Message {
 
     /// Helper method for field `is_paid_post`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageAudio`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageBoostAdded`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageChannelChatCreated`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageChatBackgroundSet`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageChatOwnerChanged`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageChatOwnerLeft`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageChatShared`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageChecklist`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageChecklistTasksAdded`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageChecklistTasksDone`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageConnectedWebsite`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageContact`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageDeleteChatPhoto`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageDice`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageDirectMessagePriceChanged`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageDocument`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageForumTopicClosed`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageForumTopicCreated`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageForumTopicEdited`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageForumTopicReopened`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageGame`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageGeneralForumTopicHidden`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageGeneralForumTopicUnhidden`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageGift`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageGiftUpgradeSent`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageGiveaway`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageGiveawayCompleted`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageGiveawayCreated`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageGiveawayWinners`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageGroupChatCreated`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageInvoice`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageLeftChatMember`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageLocation`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageMessageAutoDeleteTimerChanged`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageMigrateFromChatId`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageMigrateToChatId`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageNewChatMembers`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageNewChatPhoto`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageNewChatTitle`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessagePaidMedia`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessagePaidMessagePriceChanged`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessagePassportData`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessagePhoto`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessagePinnedMessage`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessagePoll`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageProximityAlertTriggered`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageRefundedPayment`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageSticker`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageStory`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageSuccessfulPayment`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageSuggestedPostApprovalFailed`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageSuggestedPostApproved`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageSuggestedPostDeclined`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageSuggestedPostPaid`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageSuggestedPostRefunded`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageSupergroupChatCreated`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageText`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageUniqueGift`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageUsersShared`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageVenue`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageVideo`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageVideoChatEnded`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageVideoChatParticipantsInvited`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageVideoChatScheduled`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageVideoChatStarted`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageVideoNote`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageVoice`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageWebAppData`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
-    /// - `MessageWriteAccessAllowed`. `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    /// `true`, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
     #[must_use]
     pub fn is_paid_post(&self) -> Option<bool> {
         match self {
@@ -3216,77 +1924,7 @@ impl Message {
 
     /// Helper method for field `is_topic_message`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageAudio`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageBoostAdded`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageChannelChatCreated`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageChatBackgroundSet`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageChatOwnerChanged`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageChatOwnerLeft`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageChatShared`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageChecklist`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageChecklistTasksAdded`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageChecklistTasksDone`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageConnectedWebsite`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageContact`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageDeleteChatPhoto`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageDice`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageDirectMessagePriceChanged`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageDocument`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageForumTopicClosed`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageForumTopicCreated`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageForumTopicEdited`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageForumTopicReopened`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageGame`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageGeneralForumTopicHidden`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageGeneralForumTopicUnhidden`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageGift`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageGiftUpgradeSent`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageGiveaway`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageGiveawayCompleted`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageGiveawayCreated`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageGiveawayWinners`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageGroupChatCreated`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageInvoice`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageLeftChatMember`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageLocation`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageMessageAutoDeleteTimerChanged`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageMigrateFromChatId`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageMigrateToChatId`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageNewChatMembers`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageNewChatPhoto`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageNewChatTitle`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessagePaidMedia`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessagePaidMessagePriceChanged`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessagePassportData`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessagePhoto`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessagePinnedMessage`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessagePoll`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageProximityAlertTriggered`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageRefundedPayment`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageSticker`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageStory`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageSuccessfulPayment`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageSuggestedPostApprovalFailed`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageSuggestedPostApproved`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageSuggestedPostDeclined`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageSuggestedPostPaid`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageSuggestedPostRefunded`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageSupergroupChatCreated`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageText`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageUniqueGift`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageUsersShared`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageVenue`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageVideo`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageVideoChatEnded`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageVideoChatParticipantsInvited`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageVideoChatScheduled`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageVideoChatStarted`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageVideoNote`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageVoice`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageWebAppData`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
-    /// - `MessageWriteAccessAllowed`. `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
+    /// `true`, if the message is sent to a topic in a forum supergroup or a private chat with the bot
     #[must_use]
     pub fn is_topic_message(&self) -> Option<bool> {
         match self {
@@ -3365,8 +2003,7 @@ impl Message {
 
     /// Helper method for field `left_chat_member`.
     ///
-    /// # Variants
-    /// - `MessageLeftChatMember`. A member was removed from the group, information about them (this member may be the bot itself)
+    /// A member was removed from the group, information about them (this member may be the bot itself)
     #[must_use]
     pub fn left_chat_member(&self) -> Option<&crate::types::User> {
         match self {
@@ -3377,77 +2014,7 @@ impl Message {
 
     /// Helper method for field `link_preview_options`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageAudio`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageBoostAdded`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageChannelChatCreated`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageChatBackgroundSet`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageChatOwnerChanged`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageChatOwnerLeft`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageChatShared`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageChecklist`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageChecklistTasksAdded`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageChecklistTasksDone`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageConnectedWebsite`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageContact`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageDeleteChatPhoto`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageDice`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageDirectMessagePriceChanged`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageDocument`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageForumTopicClosed`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageForumTopicCreated`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageForumTopicEdited`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageForumTopicReopened`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageGame`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageGeneralForumTopicHidden`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageGeneralForumTopicUnhidden`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageGift`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageGiftUpgradeSent`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageGiveaway`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageGiveawayCompleted`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageGiveawayCreated`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageGiveawayWinners`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageGroupChatCreated`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageInvoice`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageLeftChatMember`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageLocation`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageMessageAutoDeleteTimerChanged`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageMigrateFromChatId`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageMigrateToChatId`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageNewChatMembers`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageNewChatPhoto`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageNewChatTitle`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessagePaidMedia`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessagePaidMessagePriceChanged`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessagePassportData`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessagePhoto`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessagePinnedMessage`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessagePoll`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageProximityAlertTriggered`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageRefundedPayment`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageSticker`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageStory`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageSuccessfulPayment`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageSuggestedPostApprovalFailed`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageSuggestedPostApproved`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageSuggestedPostDeclined`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageSuggestedPostPaid`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageSuggestedPostRefunded`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageSupergroupChatCreated`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageText`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageUniqueGift`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageUsersShared`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageVenue`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageVideo`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageVideoChatEnded`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageVideoChatParticipantsInvited`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageVideoChatScheduled`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageVideoChatStarted`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageVideoNote`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageVoice`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageWebAppData`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
-    /// - `MessageWriteAccessAllowed`. Options used for link preview generation for the message, if it is a text message and link preview options were changed
+    /// Options used for link preview generation for the message, if it is a text message and link preview options were changed
     #[must_use]
     pub fn link_preview_options(&self) -> Option<&crate::types::LinkPreviewOptions> {
         match self {
@@ -3526,8 +2093,7 @@ impl Message {
 
     /// Helper method for field `location`.
     ///
-    /// # Variants
-    /// - `MessageLocation`. Message is a shared location, information about the location
+    /// Message is a shared location, information about the location
     #[must_use]
     pub fn location(&self) -> Option<&crate::types::Location> {
         match self {
@@ -3538,77 +2104,7 @@ impl Message {
 
     /// Helper method for field `media_group_id`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageAudio`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageBoostAdded`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageChannelChatCreated`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageChatBackgroundSet`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageChatOwnerChanged`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageChatOwnerLeft`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageChatShared`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageChecklist`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageChecklistTasksAdded`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageChecklistTasksDone`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageConnectedWebsite`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageContact`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageDeleteChatPhoto`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageDice`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageDirectMessagePriceChanged`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageDocument`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageForumTopicClosed`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageForumTopicCreated`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageForumTopicEdited`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageForumTopicReopened`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageGame`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageGeneralForumTopicHidden`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageGeneralForumTopicUnhidden`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageGift`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageGiftUpgradeSent`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageGiveaway`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageGiveawayCompleted`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageGiveawayCreated`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageGiveawayWinners`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageGroupChatCreated`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageInvoice`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageLeftChatMember`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageLocation`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageMessageAutoDeleteTimerChanged`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageMigrateFromChatId`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageMigrateToChatId`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageNewChatMembers`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageNewChatPhoto`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageNewChatTitle`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessagePaidMedia`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessagePaidMessagePriceChanged`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessagePassportData`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessagePhoto`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessagePinnedMessage`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessagePoll`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageProximityAlertTriggered`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageRefundedPayment`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageSticker`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageStory`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageSuccessfulPayment`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageSuggestedPostApprovalFailed`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageSuggestedPostApproved`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageSuggestedPostDeclined`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageSuggestedPostPaid`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageSuggestedPostRefunded`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageSupergroupChatCreated`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageText`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageUniqueGift`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageUsersShared`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageVenue`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageVideo`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageVideoChatEnded`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageVideoChatParticipantsInvited`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageVideoChatScheduled`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageVideoChatStarted`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageVideoNote`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageVoice`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageWebAppData`. The unique identifier inside this chat of a media message group this message belongs to
-    /// - `MessageWriteAccessAllowed`. The unique identifier inside this chat of a media message group this message belongs to
+    /// The unique identifier inside this chat of a media message group this message belongs to
     #[must_use]
     pub fn media_group_id(&self) -> Option<&str> {
         match self {
@@ -3687,8 +2183,7 @@ impl Message {
 
     /// Helper method for field `message_auto_delete_timer_changed`.
     ///
-    /// # Variants
-    /// - `MessageMessageAutoDeleteTimerChanged`. Service message: auto-delete timer settings changed in the chat
+    /// Service message: auto-delete timer settings changed in the chat
     #[must_use]
     pub fn message_auto_delete_timer_changed(
         &self,
@@ -3703,77 +2198,7 @@ impl Message {
 
     /// Helper method for field `message_id`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageAudio`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageBoostAdded`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageChannelChatCreated`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageChatBackgroundSet`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageChatOwnerChanged`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageChatOwnerLeft`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageChatShared`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageChecklist`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageChecklistTasksAdded`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageChecklistTasksDone`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageConnectedWebsite`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageContact`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageDeleteChatPhoto`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageDice`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageDirectMessagePriceChanged`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageDocument`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageForumTopicClosed`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageForumTopicCreated`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageForumTopicEdited`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageForumTopicReopened`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageGame`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageGeneralForumTopicHidden`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageGeneralForumTopicUnhidden`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageGift`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageGiftUpgradeSent`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageGiveaway`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageGiveawayCompleted`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageGiveawayCreated`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageGiveawayWinners`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageGroupChatCreated`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageInvoice`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageLeftChatMember`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageLocation`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageMessageAutoDeleteTimerChanged`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageMigrateFromChatId`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageMigrateToChatId`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageNewChatMembers`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageNewChatPhoto`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageNewChatTitle`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessagePaidMedia`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessagePaidMessagePriceChanged`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessagePassportData`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessagePhoto`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessagePinnedMessage`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessagePoll`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageProximityAlertTriggered`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageRefundedPayment`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageSticker`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageStory`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageSuccessfulPayment`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageSuggestedPostApprovalFailed`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageSuggestedPostApproved`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageSuggestedPostDeclined`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageSuggestedPostPaid`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageSuggestedPostRefunded`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageSupergroupChatCreated`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageText`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageUniqueGift`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageUsersShared`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageVenue`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageVideo`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageVideoChatEnded`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageVideoChatParticipantsInvited`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageVideoChatScheduled`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageVideoChatStarted`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageVideoNote`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageVoice`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageWebAppData`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
-    /// - `MessageWriteAccessAllowed`. Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
+    /// Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
     #[must_use]
     pub fn message_id(&self) -> i64 {
         match self {
@@ -3852,77 +2277,7 @@ impl Message {
 
     /// Helper method for field `message_thread_id`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageAudio`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageBoostAdded`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageChannelChatCreated`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageChatBackgroundSet`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageChatOwnerChanged`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageChatOwnerLeft`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageChatShared`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageChecklist`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageChecklistTasksAdded`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageChecklistTasksDone`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageConnectedWebsite`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageContact`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageDeleteChatPhoto`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageDice`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageDirectMessagePriceChanged`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageDocument`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageForumTopicClosed`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageForumTopicCreated`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageForumTopicEdited`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageForumTopicReopened`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageGame`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageGeneralForumTopicHidden`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageGeneralForumTopicUnhidden`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageGift`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageGiftUpgradeSent`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageGiveaway`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageGiveawayCompleted`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageGiveawayCreated`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageGiveawayWinners`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageGroupChatCreated`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageInvoice`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageLeftChatMember`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageLocation`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageMessageAutoDeleteTimerChanged`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageMigrateFromChatId`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageMigrateToChatId`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageNewChatMembers`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageNewChatPhoto`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageNewChatTitle`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessagePaidMedia`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessagePaidMessagePriceChanged`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessagePassportData`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessagePhoto`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessagePinnedMessage`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessagePoll`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageProximityAlertTriggered`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageRefundedPayment`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageSticker`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageStory`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageSuccessfulPayment`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageSuggestedPostApprovalFailed`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageSuggestedPostApproved`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageSuggestedPostDeclined`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageSuggestedPostPaid`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageSuggestedPostRefunded`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageSupergroupChatCreated`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageText`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageUniqueGift`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageUsersShared`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageVenue`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageVideo`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageVideoChatEnded`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageVideoChatParticipantsInvited`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageVideoChatScheduled`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageVideoChatStarted`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageVideoNote`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageVoice`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageWebAppData`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
-    /// - `MessageWriteAccessAllowed`. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
+    /// Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     #[must_use]
     pub fn message_thread_id(&self) -> Option<i64> {
         match self {
@@ -4001,8 +2356,7 @@ impl Message {
 
     /// Helper method for field `migrate_from_chat_id`.
     ///
-    /// # Variants
-    /// - `MessageMigrateFromChatId`. The supergroup has been migrated from a group with the specified identifier. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// The supergroup has been migrated from a group with the specified identifier. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     #[must_use]
     pub fn migrate_from_chat_id(&self) -> Option<i64> {
         match self {
@@ -4013,8 +2367,7 @@ impl Message {
 
     /// Helper method for field `migrate_to_chat_id`.
     ///
-    /// # Variants
-    /// - `MessageMigrateToChatId`. The group has been migrated to a supergroup with the specified identifier. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// The group has been migrated to a supergroup with the specified identifier. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     #[must_use]
     pub fn migrate_to_chat_id(&self) -> Option<i64> {
         match self {
@@ -4025,8 +2378,7 @@ impl Message {
 
     /// Helper method for field `new_chat_members`.
     ///
-    /// # Variants
-    /// - `MessageNewChatMembers`. New members that were added to the group or supergroup and information about them (the bot itself may be one of these members)
+    /// New members that were added to the group or supergroup and information about them (the bot itself may be one of these members)
     #[must_use]
     pub fn new_chat_members(&self) -> Option<&[crate::types::User]> {
         match self {
@@ -4037,8 +2389,7 @@ impl Message {
 
     /// Helper method for field `new_chat_photo`.
     ///
-    /// # Variants
-    /// - `MessageNewChatPhoto`. A chat photo was change to this value
+    /// A chat photo was change to this value
     #[must_use]
     pub fn new_chat_photo(&self) -> Option<&[crate::types::PhotoSize]> {
         match self {
@@ -4049,8 +2400,7 @@ impl Message {
 
     /// Helper method for field `new_chat_title`.
     ///
-    /// # Variants
-    /// - `MessageNewChatTitle`. A chat title was changed to this value
+    /// A chat title was changed to this value
     #[must_use]
     pub fn new_chat_title(&self) -> Option<&str> {
         match self {
@@ -4061,8 +2411,7 @@ impl Message {
 
     /// Helper method for field `paid_media`.
     ///
-    /// # Variants
-    /// - `MessagePaidMedia`. Message contains paid media; information about the paid media
+    /// Message contains paid media; information about the paid media
     #[must_use]
     pub fn paid_media(&self) -> Option<&crate::types::PaidMediaInfo> {
         match self {
@@ -4073,8 +2422,7 @@ impl Message {
 
     /// Helper method for field `paid_message_price_changed`.
     ///
-    /// # Variants
-    /// - `MessagePaidMessagePriceChanged`. Service message: the price for paid messages has changed in the chat
+    /// Service message: the price for paid messages has changed in the chat
     #[must_use]
     pub fn paid_message_price_changed(&self) -> Option<&crate::types::PaidMessagePriceChanged> {
         match self {
@@ -4085,77 +2433,7 @@ impl Message {
 
     /// Helper method for field `paid_star_count`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageAudio`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageBoostAdded`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageChannelChatCreated`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageChatBackgroundSet`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageChatOwnerChanged`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageChatOwnerLeft`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageChatShared`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageChecklist`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageChecklistTasksAdded`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageChecklistTasksDone`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageConnectedWebsite`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageContact`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageDeleteChatPhoto`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageDice`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageDirectMessagePriceChanged`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageDocument`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageForumTopicClosed`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageForumTopicCreated`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageForumTopicEdited`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageForumTopicReopened`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageGame`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageGeneralForumTopicHidden`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageGeneralForumTopicUnhidden`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageGift`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageGiftUpgradeSent`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageGiveaway`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageGiveawayCompleted`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageGiveawayCreated`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageGiveawayWinners`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageGroupChatCreated`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageInvoice`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageLeftChatMember`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageLocation`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageMessageAutoDeleteTimerChanged`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageMigrateFromChatId`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageMigrateToChatId`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageNewChatMembers`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageNewChatPhoto`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageNewChatTitle`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessagePaidMedia`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessagePaidMessagePriceChanged`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessagePassportData`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessagePhoto`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessagePinnedMessage`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessagePoll`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageProximityAlertTriggered`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageRefundedPayment`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageSticker`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageStory`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageSuccessfulPayment`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageSuggestedPostApprovalFailed`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageSuggestedPostApproved`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageSuggestedPostDeclined`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageSuggestedPostPaid`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageSuggestedPostRefunded`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageSupergroupChatCreated`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageText`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageUniqueGift`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageUsersShared`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageVenue`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageVideo`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageVideoChatEnded`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageVideoChatParticipantsInvited`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageVideoChatScheduled`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageVideoChatStarted`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageVideoNote`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageVoice`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageWebAppData`. The number of Telegram Stars that were paid by the sender of the message to send it
-    /// - `MessageWriteAccessAllowed`. The number of Telegram Stars that were paid by the sender of the message to send it
+    /// The number of Telegram Stars that were paid by the sender of the message to send it
     #[must_use]
     pub fn paid_star_count(&self) -> Option<i64> {
         match self {
@@ -4234,8 +2512,7 @@ impl Message {
 
     /// Helper method for field `passport_data`.
     ///
-    /// # Variants
-    /// - `MessagePassportData`. Telegram Passport data
+    /// Telegram Passport data
     #[must_use]
     pub fn passport_data(&self) -> Option<&crate::types::PassportData> {
         match self {
@@ -4246,8 +2523,7 @@ impl Message {
 
     /// Helper method for field `photo`.
     ///
-    /// # Variants
-    /// - `MessagePhoto`. Message is a photo, available sizes of the photo
+    /// Message is a photo, available sizes of the photo
     #[must_use]
     pub fn photo(&self) -> Option<&[crate::types::PhotoSize]> {
         match self {
@@ -4258,8 +2534,7 @@ impl Message {
 
     /// Helper method for field `pinned_message`.
     ///
-    /// # Variants
-    /// - `MessagePinnedMessage`. Specified message was pinned. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
+    /// Specified message was pinned. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
     #[must_use]
     pub fn pinned_message(&self) -> Option<&crate::types::MaybeInaccessibleMessage> {
         match self {
@@ -4270,8 +2545,7 @@ impl Message {
 
     /// Helper method for field `poll`.
     ///
-    /// # Variants
-    /// - `MessagePoll`. Message is a native poll, information about the poll
+    /// Message is a native poll, information about the poll
     #[must_use]
     pub fn poll(&self) -> Option<&crate::types::Poll> {
         match self {
@@ -4282,8 +2556,7 @@ impl Message {
 
     /// Helper method for field `proximity_alert_triggered`.
     ///
-    /// # Variants
-    /// - `MessageProximityAlertTriggered`. Service message. A user in the chat triggered another user's proximity alert while sharing Live Location.
+    /// Service message. A user in the chat triggered another user's proximity alert while sharing Live Location.
     #[must_use]
     pub fn proximity_alert_triggered(&self) -> Option<&crate::types::ProximityAlertTriggered> {
         match self {
@@ -4294,77 +2567,7 @@ impl Message {
 
     /// Helper method for field `quote`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageAudio`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageBoostAdded`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageChannelChatCreated`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageChatBackgroundSet`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageChatOwnerChanged`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageChatOwnerLeft`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageChatShared`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageChecklist`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageChecklistTasksAdded`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageChecklistTasksDone`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageConnectedWebsite`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageContact`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageDeleteChatPhoto`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageDice`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageDirectMessagePriceChanged`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageDocument`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageForumTopicClosed`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageForumTopicCreated`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageForumTopicEdited`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageForumTopicReopened`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageGame`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageGeneralForumTopicHidden`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageGeneralForumTopicUnhidden`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageGift`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageGiftUpgradeSent`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageGiveaway`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageGiveawayCompleted`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageGiveawayCreated`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageGiveawayWinners`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageGroupChatCreated`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageInvoice`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageLeftChatMember`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageLocation`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageMessageAutoDeleteTimerChanged`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageMigrateFromChatId`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageMigrateToChatId`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageNewChatMembers`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageNewChatPhoto`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageNewChatTitle`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessagePaidMedia`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessagePaidMessagePriceChanged`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessagePassportData`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessagePhoto`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessagePinnedMessage`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessagePoll`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageProximityAlertTriggered`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageRefundedPayment`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageSticker`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageStory`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageSuccessfulPayment`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageSuggestedPostApprovalFailed`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageSuggestedPostApproved`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageSuggestedPostDeclined`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageSuggestedPostPaid`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageSuggestedPostRefunded`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageSupergroupChatCreated`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageText`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageUniqueGift`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageUsersShared`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageVenue`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageVideo`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageVideoChatEnded`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageVideoChatParticipantsInvited`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageVideoChatScheduled`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageVideoChatStarted`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageVideoNote`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageVoice`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageWebAppData`. For replies that quote part of the original message, the quoted part of the message
-    /// - `MessageWriteAccessAllowed`. For replies that quote part of the original message, the quoted part of the message
+    /// For replies that quote part of the original message, the quoted part of the message
     #[must_use]
     pub fn quote(&self) -> Option<&crate::types::TextQuote> {
         match self {
@@ -4443,8 +2646,7 @@ impl Message {
 
     /// Helper method for field `refunded_payment`.
     ///
-    /// # Variants
-    /// - `MessageRefundedPayment`. Message is a service message about a refunded payment, information about the payment. More about payments: <https://core.telegram.org/bots/api#payments>
+    /// Message is a service message about a refunded payment, information about the payment. More about payments: <https://core.telegram.org/bots/api#payments>
     #[must_use]
     pub fn refunded_payment(&self) -> Option<&crate::types::RefundedPayment> {
         match self {
@@ -4455,77 +2657,7 @@ impl Message {
 
     /// Helper method for field `reply_markup`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageAudio`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageBoostAdded`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageChannelChatCreated`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageChatBackgroundSet`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageChatOwnerChanged`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageChatOwnerLeft`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageChatShared`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageChecklist`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageChecklistTasksAdded`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageChecklistTasksDone`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageConnectedWebsite`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageContact`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageDeleteChatPhoto`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageDice`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageDirectMessagePriceChanged`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageDocument`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageForumTopicClosed`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageForumTopicCreated`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageForumTopicEdited`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageForumTopicReopened`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageGame`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageGeneralForumTopicHidden`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageGeneralForumTopicUnhidden`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageGift`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageGiftUpgradeSent`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageGiveaway`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageGiveawayCompleted`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageGiveawayCreated`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageGiveawayWinners`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageGroupChatCreated`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageInvoice`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageLeftChatMember`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageLocation`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageMessageAutoDeleteTimerChanged`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageMigrateFromChatId`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageMigrateToChatId`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageNewChatMembers`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageNewChatPhoto`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageNewChatTitle`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessagePaidMedia`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessagePaidMessagePriceChanged`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessagePassportData`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessagePhoto`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessagePinnedMessage`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessagePoll`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageProximityAlertTriggered`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageRefundedPayment`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageSticker`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageStory`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageSuccessfulPayment`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageSuggestedPostApprovalFailed`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageSuggestedPostApproved`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageSuggestedPostDeclined`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageSuggestedPostPaid`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageSuggestedPostRefunded`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageSupergroupChatCreated`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageText`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageUniqueGift`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageUsersShared`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageVenue`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageVideo`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageVideoChatEnded`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageVideoChatParticipantsInvited`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageVideoChatScheduled`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageVideoChatStarted`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageVideoNote`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageVoice`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageWebAppData`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
-    /// - `MessageWriteAccessAllowed`. Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
+    /// Inline keyboard attached to the message. `login_url` buttons are represented as ordinary url buttons.
     #[must_use]
     pub fn reply_markup(&self) -> Option<&crate::types::InlineKeyboardMarkup> {
         match self {
@@ -4604,77 +2736,7 @@ impl Message {
 
     /// Helper method for field `reply_to_checklist_task_id`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageAudio`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageBoostAdded`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageChannelChatCreated`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageChatBackgroundSet`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageChatOwnerChanged`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageChatOwnerLeft`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageChatShared`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageChecklist`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageChecklistTasksAdded`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageChecklistTasksDone`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageConnectedWebsite`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageContact`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageDeleteChatPhoto`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageDice`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageDirectMessagePriceChanged`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageDocument`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageForumTopicClosed`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageForumTopicCreated`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageForumTopicEdited`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageForumTopicReopened`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageGame`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageGeneralForumTopicHidden`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageGeneralForumTopicUnhidden`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageGift`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageGiftUpgradeSent`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageGiveaway`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageGiveawayCompleted`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageGiveawayCreated`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageGiveawayWinners`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageGroupChatCreated`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageInvoice`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageLeftChatMember`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageLocation`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageMessageAutoDeleteTimerChanged`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageMigrateFromChatId`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageMigrateToChatId`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageNewChatMembers`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageNewChatPhoto`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageNewChatTitle`. Identifier of the specific checklist task that is being replied to
-    /// - `MessagePaidMedia`. Identifier of the specific checklist task that is being replied to
-    /// - `MessagePaidMessagePriceChanged`. Identifier of the specific checklist task that is being replied to
-    /// - `MessagePassportData`. Identifier of the specific checklist task that is being replied to
-    /// - `MessagePhoto`. Identifier of the specific checklist task that is being replied to
-    /// - `MessagePinnedMessage`. Identifier of the specific checklist task that is being replied to
-    /// - `MessagePoll`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageProximityAlertTriggered`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageRefundedPayment`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageSticker`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageStory`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageSuccessfulPayment`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageSuggestedPostApprovalFailed`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageSuggestedPostApproved`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageSuggestedPostDeclined`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageSuggestedPostPaid`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageSuggestedPostRefunded`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageSupergroupChatCreated`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageText`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageUniqueGift`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageUsersShared`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageVenue`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageVideo`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageVideoChatEnded`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageVideoChatParticipantsInvited`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageVideoChatScheduled`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageVideoChatStarted`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageVideoNote`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageVoice`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageWebAppData`. Identifier of the specific checklist task that is being replied to
-    /// - `MessageWriteAccessAllowed`. Identifier of the specific checklist task that is being replied to
+    /// Identifier of the specific checklist task that is being replied to
     #[must_use]
     pub fn reply_to_checklist_task_id(&self) -> Option<i64> {
         match self {
@@ -4753,77 +2815,7 @@ impl Message {
 
     /// Helper method for field `reply_to_message`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageAudio`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageBoostAdded`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageChannelChatCreated`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageChatBackgroundSet`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageChatOwnerChanged`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageChatOwnerLeft`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageChatShared`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageChecklist`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageChecklistTasksAdded`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageChecklistTasksDone`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageConnectedWebsite`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageContact`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageDeleteChatPhoto`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageDice`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageDirectMessagePriceChanged`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageDocument`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageForumTopicClosed`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageForumTopicCreated`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageForumTopicEdited`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageForumTopicReopened`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageGame`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageGeneralForumTopicHidden`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageGeneralForumTopicUnhidden`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageGift`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageGiftUpgradeSent`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageGiveaway`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageGiveawayCompleted`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageGiveawayCreated`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageGiveawayWinners`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageGroupChatCreated`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageInvoice`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageLeftChatMember`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageLocation`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageMessageAutoDeleteTimerChanged`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageMigrateFromChatId`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageMigrateToChatId`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageNewChatMembers`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageNewChatPhoto`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageNewChatTitle`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessagePaidMedia`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessagePaidMessagePriceChanged`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessagePassportData`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessagePhoto`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessagePinnedMessage`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessagePoll`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageProximityAlertTriggered`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageRefundedPayment`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageSticker`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageStory`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageSuccessfulPayment`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageSuggestedPostApprovalFailed`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageSuggestedPostApproved`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageSuggestedPostDeclined`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageSuggestedPostPaid`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageSuggestedPostRefunded`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageSupergroupChatCreated`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageText`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageUniqueGift`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageUsersShared`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageVenue`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageVideo`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageVideoChatEnded`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageVideoChatParticipantsInvited`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageVideoChatScheduled`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageVideoChatStarted`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageVideoNote`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageVoice`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageWebAppData`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
-    /// - `MessageWriteAccessAllowed`. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
+    /// For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further `reply_to_message` fields even if it itself is a reply.
     #[must_use]
     pub fn reply_to_message(&self) -> Option<&crate::types::Message> {
         match self {
@@ -4902,77 +2894,7 @@ impl Message {
 
     /// Helper method for field `reply_to_story`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. For replies to a story, the original story
-    /// - `MessageAudio`. For replies to a story, the original story
-    /// - `MessageBoostAdded`. For replies to a story, the original story
-    /// - `MessageChannelChatCreated`. For replies to a story, the original story
-    /// - `MessageChatBackgroundSet`. For replies to a story, the original story
-    /// - `MessageChatOwnerChanged`. For replies to a story, the original story
-    /// - `MessageChatOwnerLeft`. For replies to a story, the original story
-    /// - `MessageChatShared`. For replies to a story, the original story
-    /// - `MessageChecklist`. For replies to a story, the original story
-    /// - `MessageChecklistTasksAdded`. For replies to a story, the original story
-    /// - `MessageChecklistTasksDone`. For replies to a story, the original story
-    /// - `MessageConnectedWebsite`. For replies to a story, the original story
-    /// - `MessageContact`. For replies to a story, the original story
-    /// - `MessageDeleteChatPhoto`. For replies to a story, the original story
-    /// - `MessageDice`. For replies to a story, the original story
-    /// - `MessageDirectMessagePriceChanged`. For replies to a story, the original story
-    /// - `MessageDocument`. For replies to a story, the original story
-    /// - `MessageForumTopicClosed`. For replies to a story, the original story
-    /// - `MessageForumTopicCreated`. For replies to a story, the original story
-    /// - `MessageForumTopicEdited`. For replies to a story, the original story
-    /// - `MessageForumTopicReopened`. For replies to a story, the original story
-    /// - `MessageGame`. For replies to a story, the original story
-    /// - `MessageGeneralForumTopicHidden`. For replies to a story, the original story
-    /// - `MessageGeneralForumTopicUnhidden`. For replies to a story, the original story
-    /// - `MessageGift`. For replies to a story, the original story
-    /// - `MessageGiftUpgradeSent`. For replies to a story, the original story
-    /// - `MessageGiveaway`. For replies to a story, the original story
-    /// - `MessageGiveawayCompleted`. For replies to a story, the original story
-    /// - `MessageGiveawayCreated`. For replies to a story, the original story
-    /// - `MessageGiveawayWinners`. For replies to a story, the original story
-    /// - `MessageGroupChatCreated`. For replies to a story, the original story
-    /// - `MessageInvoice`. For replies to a story, the original story
-    /// - `MessageLeftChatMember`. For replies to a story, the original story
-    /// - `MessageLocation`. For replies to a story, the original story
-    /// - `MessageMessageAutoDeleteTimerChanged`. For replies to a story, the original story
-    /// - `MessageMigrateFromChatId`. For replies to a story, the original story
-    /// - `MessageMigrateToChatId`. For replies to a story, the original story
-    /// - `MessageNewChatMembers`. For replies to a story, the original story
-    /// - `MessageNewChatPhoto`. For replies to a story, the original story
-    /// - `MessageNewChatTitle`. For replies to a story, the original story
-    /// - `MessagePaidMedia`. For replies to a story, the original story
-    /// - `MessagePaidMessagePriceChanged`. For replies to a story, the original story
-    /// - `MessagePassportData`. For replies to a story, the original story
-    /// - `MessagePhoto`. For replies to a story, the original story
-    /// - `MessagePinnedMessage`. For replies to a story, the original story
-    /// - `MessagePoll`. For replies to a story, the original story
-    /// - `MessageProximityAlertTriggered`. For replies to a story, the original story
-    /// - `MessageRefundedPayment`. For replies to a story, the original story
-    /// - `MessageSticker`. For replies to a story, the original story
-    /// - `MessageStory`. For replies to a story, the original story
-    /// - `MessageSuccessfulPayment`. For replies to a story, the original story
-    /// - `MessageSuggestedPostApprovalFailed`. For replies to a story, the original story
-    /// - `MessageSuggestedPostApproved`. For replies to a story, the original story
-    /// - `MessageSuggestedPostDeclined`. For replies to a story, the original story
-    /// - `MessageSuggestedPostPaid`. For replies to a story, the original story
-    /// - `MessageSuggestedPostRefunded`. For replies to a story, the original story
-    /// - `MessageSupergroupChatCreated`. For replies to a story, the original story
-    /// - `MessageText`. For replies to a story, the original story
-    /// - `MessageUniqueGift`. For replies to a story, the original story
-    /// - `MessageUsersShared`. For replies to a story, the original story
-    /// - `MessageVenue`. For replies to a story, the original story
-    /// - `MessageVideo`. For replies to a story, the original story
-    /// - `MessageVideoChatEnded`. For replies to a story, the original story
-    /// - `MessageVideoChatParticipantsInvited`. For replies to a story, the original story
-    /// - `MessageVideoChatScheduled`. For replies to a story, the original story
-    /// - `MessageVideoChatStarted`. For replies to a story, the original story
-    /// - `MessageVideoNote`. For replies to a story, the original story
-    /// - `MessageVoice`. For replies to a story, the original story
-    /// - `MessageWebAppData`. For replies to a story, the original story
-    /// - `MessageWriteAccessAllowed`. For replies to a story, the original story
+    /// For replies to a story, the original story
     #[must_use]
     pub fn reply_to_story(&self) -> Option<&crate::types::Story> {
         match self {
@@ -5051,77 +2973,7 @@ impl Message {
 
     /// Helper method for field `sender_boost_count`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageAudio`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageBoostAdded`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageChannelChatCreated`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageChatBackgroundSet`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageChatOwnerChanged`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageChatOwnerLeft`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageChatShared`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageChecklist`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageChecklistTasksAdded`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageChecklistTasksDone`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageConnectedWebsite`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageContact`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageDeleteChatPhoto`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageDice`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageDirectMessagePriceChanged`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageDocument`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageForumTopicClosed`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageForumTopicCreated`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageForumTopicEdited`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageForumTopicReopened`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageGame`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageGeneralForumTopicHidden`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageGeneralForumTopicUnhidden`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageGift`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageGiftUpgradeSent`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageGiveaway`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageGiveawayCompleted`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageGiveawayCreated`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageGiveawayWinners`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageGroupChatCreated`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageInvoice`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageLeftChatMember`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageLocation`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageMessageAutoDeleteTimerChanged`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageMigrateFromChatId`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageMigrateToChatId`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageNewChatMembers`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageNewChatPhoto`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageNewChatTitle`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessagePaidMedia`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessagePaidMessagePriceChanged`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessagePassportData`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessagePhoto`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessagePinnedMessage`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessagePoll`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageProximityAlertTriggered`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageRefundedPayment`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageSticker`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageStory`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageSuccessfulPayment`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageSuggestedPostApprovalFailed`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageSuggestedPostApproved`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageSuggestedPostDeclined`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageSuggestedPostPaid`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageSuggestedPostRefunded`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageSupergroupChatCreated`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageText`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageUniqueGift`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageUsersShared`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageVenue`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageVideo`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageVideoChatEnded`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageVideoChatParticipantsInvited`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageVideoChatScheduled`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageVideoChatStarted`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageVideoNote`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageVoice`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageWebAppData`. If the sender of the message boosted the chat, the number of boosts added by the user
-    /// - `MessageWriteAccessAllowed`. If the sender of the message boosted the chat, the number of boosts added by the user
+    /// If the sender of the message boosted the chat, the number of boosts added by the user
     #[must_use]
     pub fn sender_boost_count(&self) -> Option<i64> {
         match self {
@@ -5200,77 +3052,7 @@ impl Message {
 
     /// Helper method for field `sender_business_bot`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageAudio`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageBoostAdded`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageChannelChatCreated`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageChatBackgroundSet`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageChatOwnerChanged`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageChatOwnerLeft`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageChatShared`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageChecklist`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageChecklistTasksAdded`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageChecklistTasksDone`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageConnectedWebsite`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageContact`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageDeleteChatPhoto`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageDice`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageDirectMessagePriceChanged`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageDocument`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageForumTopicClosed`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageForumTopicCreated`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageForumTopicEdited`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageForumTopicReopened`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageGame`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageGeneralForumTopicHidden`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageGeneralForumTopicUnhidden`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageGift`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageGiftUpgradeSent`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageGiveaway`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageGiveawayCompleted`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageGiveawayCreated`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageGiveawayWinners`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageGroupChatCreated`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageInvoice`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageLeftChatMember`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageLocation`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageMessageAutoDeleteTimerChanged`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageMigrateFromChatId`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageMigrateToChatId`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageNewChatMembers`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageNewChatPhoto`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageNewChatTitle`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessagePaidMedia`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessagePaidMessagePriceChanged`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessagePassportData`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessagePhoto`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessagePinnedMessage`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessagePoll`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageProximityAlertTriggered`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageRefundedPayment`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageSticker`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageStory`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageSuccessfulPayment`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageSuggestedPostApprovalFailed`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageSuggestedPostApproved`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageSuggestedPostDeclined`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageSuggestedPostPaid`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageSuggestedPostRefunded`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageSupergroupChatCreated`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageText`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageUniqueGift`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageUsersShared`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageVenue`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageVideo`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageVideoChatEnded`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageVideoChatParticipantsInvited`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageVideoChatScheduled`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageVideoChatStarted`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageVideoNote`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageVoice`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageWebAppData`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
-    /// - `MessageWriteAccessAllowed`. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
+    /// The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
     #[must_use]
     pub fn sender_business_bot(&self) -> Option<&crate::types::User> {
         match self {
@@ -5349,77 +3131,7 @@ impl Message {
 
     /// Helper method for field `sender_chat`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageAudio`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageBoostAdded`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageChannelChatCreated`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageChatBackgroundSet`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageChatOwnerChanged`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageChatOwnerLeft`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageChatShared`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageChecklist`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageChecklistTasksAdded`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageChecklistTasksDone`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageConnectedWebsite`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageContact`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageDeleteChatPhoto`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageDice`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageDirectMessagePriceChanged`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageDocument`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageForumTopicClosed`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageForumTopicCreated`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageForumTopicEdited`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageForumTopicReopened`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageGame`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageGeneralForumTopicHidden`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageGeneralForumTopicUnhidden`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageGift`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageGiftUpgradeSent`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageGiveaway`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageGiveawayCompleted`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageGiveawayCreated`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageGiveawayWinners`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageGroupChatCreated`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageInvoice`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageLeftChatMember`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageLocation`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageMessageAutoDeleteTimerChanged`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageMigrateFromChatId`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageMigrateToChatId`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageNewChatMembers`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageNewChatPhoto`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageNewChatTitle`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessagePaidMedia`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessagePaidMessagePriceChanged`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessagePassportData`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessagePhoto`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessagePinnedMessage`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessagePoll`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageProximityAlertTriggered`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageRefundedPayment`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageSticker`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageStory`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageSuccessfulPayment`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageSuggestedPostApprovalFailed`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageSuggestedPostApproved`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageSuggestedPostDeclined`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageSuggestedPostPaid`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageSuggestedPostRefunded`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageSupergroupChatCreated`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageText`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageUniqueGift`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageUsersShared`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageVenue`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageVideo`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageVideoChatEnded`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageVideoChatParticipantsInvited`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageVideoChatScheduled`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageVideoChatStarted`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageVideoNote`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageVoice`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageWebAppData`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
-    /// - `MessageWriteAccessAllowed`. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
+    /// Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
     #[must_use]
     pub fn sender_chat(&self) -> Option<&crate::types::Chat> {
         match self {
@@ -5498,77 +3210,7 @@ impl Message {
 
     /// Helper method for field `sender_tag`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageAudio`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageBoostAdded`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageChannelChatCreated`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageChatBackgroundSet`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageChatOwnerChanged`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageChatOwnerLeft`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageChatShared`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageChecklist`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageChecklistTasksAdded`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageChecklistTasksDone`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageConnectedWebsite`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageContact`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageDeleteChatPhoto`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageDice`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageDirectMessagePriceChanged`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageDocument`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageForumTopicClosed`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageForumTopicCreated`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageForumTopicEdited`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageForumTopicReopened`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageGame`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageGeneralForumTopicHidden`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageGeneralForumTopicUnhidden`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageGift`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageGiftUpgradeSent`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageGiveaway`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageGiveawayCompleted`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageGiveawayCreated`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageGiveawayWinners`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageGroupChatCreated`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageInvoice`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageLeftChatMember`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageLocation`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageMessageAutoDeleteTimerChanged`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageMigrateFromChatId`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageMigrateToChatId`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageNewChatMembers`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageNewChatPhoto`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageNewChatTitle`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessagePaidMedia`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessagePaidMessagePriceChanged`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessagePassportData`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessagePhoto`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessagePinnedMessage`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessagePoll`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageProximityAlertTriggered`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageRefundedPayment`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageSticker`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageStory`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageSuccessfulPayment`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageSuggestedPostApprovalFailed`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageSuggestedPostApproved`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageSuggestedPostDeclined`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageSuggestedPostPaid`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageSuggestedPostRefunded`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageSupergroupChatCreated`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageText`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageUniqueGift`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageUsersShared`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageVenue`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageVideo`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageVideoChatEnded`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageVideoChatParticipantsInvited`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageVideoChatScheduled`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageVideoChatStarted`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageVideoNote`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageVoice`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageWebAppData`. Tag or custom title of the sender of the message; for supergroups only
-    /// - `MessageWriteAccessAllowed`. Tag or custom title of the sender of the message; for supergroups only
+    /// Tag or custom title of the sender of the message; for supergroups only
     #[must_use]
     pub fn sender_tag(&self) -> Option<&str> {
         match self {
@@ -5647,77 +3289,7 @@ impl Message {
 
     /// Helper method for field `show_caption_above_media`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. `true`, if the caption must be shown above the message media
-    /// - `MessageAudio`. `true`, if the caption must be shown above the message media
-    /// - `MessageBoostAdded`. `true`, if the caption must be shown above the message media
-    /// - `MessageChannelChatCreated`. `true`, if the caption must be shown above the message media
-    /// - `MessageChatBackgroundSet`. `true`, if the caption must be shown above the message media
-    /// - `MessageChatOwnerChanged`. `true`, if the caption must be shown above the message media
-    /// - `MessageChatOwnerLeft`. `true`, if the caption must be shown above the message media
-    /// - `MessageChatShared`. `true`, if the caption must be shown above the message media
-    /// - `MessageChecklist`. `true`, if the caption must be shown above the message media
-    /// - `MessageChecklistTasksAdded`. `true`, if the caption must be shown above the message media
-    /// - `MessageChecklistTasksDone`. `true`, if the caption must be shown above the message media
-    /// - `MessageConnectedWebsite`. `true`, if the caption must be shown above the message media
-    /// - `MessageContact`. `true`, if the caption must be shown above the message media
-    /// - `MessageDeleteChatPhoto`. `true`, if the caption must be shown above the message media
-    /// - `MessageDice`. `true`, if the caption must be shown above the message media
-    /// - `MessageDirectMessagePriceChanged`. `true`, if the caption must be shown above the message media
-    /// - `MessageDocument`. `true`, if the caption must be shown above the message media
-    /// - `MessageForumTopicClosed`. `true`, if the caption must be shown above the message media
-    /// - `MessageForumTopicCreated`. `true`, if the caption must be shown above the message media
-    /// - `MessageForumTopicEdited`. `true`, if the caption must be shown above the message media
-    /// - `MessageForumTopicReopened`. `true`, if the caption must be shown above the message media
-    /// - `MessageGame`. `true`, if the caption must be shown above the message media
-    /// - `MessageGeneralForumTopicHidden`. `true`, if the caption must be shown above the message media
-    /// - `MessageGeneralForumTopicUnhidden`. `true`, if the caption must be shown above the message media
-    /// - `MessageGift`. `true`, if the caption must be shown above the message media
-    /// - `MessageGiftUpgradeSent`. `true`, if the caption must be shown above the message media
-    /// - `MessageGiveaway`. `true`, if the caption must be shown above the message media
-    /// - `MessageGiveawayCompleted`. `true`, if the caption must be shown above the message media
-    /// - `MessageGiveawayCreated`. `true`, if the caption must be shown above the message media
-    /// - `MessageGiveawayWinners`. `true`, if the caption must be shown above the message media
-    /// - `MessageGroupChatCreated`. `true`, if the caption must be shown above the message media
-    /// - `MessageInvoice`. `true`, if the caption must be shown above the message media
-    /// - `MessageLeftChatMember`. `true`, if the caption must be shown above the message media
-    /// - `MessageLocation`. `true`, if the caption must be shown above the message media
-    /// - `MessageMessageAutoDeleteTimerChanged`. `true`, if the caption must be shown above the message media
-    /// - `MessageMigrateFromChatId`. `true`, if the caption must be shown above the message media
-    /// - `MessageMigrateToChatId`. `true`, if the caption must be shown above the message media
-    /// - `MessageNewChatMembers`. `true`, if the caption must be shown above the message media
-    /// - `MessageNewChatPhoto`. `true`, if the caption must be shown above the message media
-    /// - `MessageNewChatTitle`. `true`, if the caption must be shown above the message media
-    /// - `MessagePaidMedia`. `true`, if the caption must be shown above the message media
-    /// - `MessagePaidMessagePriceChanged`. `true`, if the caption must be shown above the message media
-    /// - `MessagePassportData`. `true`, if the caption must be shown above the message media
-    /// - `MessagePhoto`. `true`, if the caption must be shown above the message media
-    /// - `MessagePinnedMessage`. `true`, if the caption must be shown above the message media
-    /// - `MessagePoll`. `true`, if the caption must be shown above the message media
-    /// - `MessageProximityAlertTriggered`. `true`, if the caption must be shown above the message media
-    /// - `MessageRefundedPayment`. `true`, if the caption must be shown above the message media
-    /// - `MessageSticker`. `true`, if the caption must be shown above the message media
-    /// - `MessageStory`. `true`, if the caption must be shown above the message media
-    /// - `MessageSuccessfulPayment`. `true`, if the caption must be shown above the message media
-    /// - `MessageSuggestedPostApprovalFailed`. `true`, if the caption must be shown above the message media
-    /// - `MessageSuggestedPostApproved`. `true`, if the caption must be shown above the message media
-    /// - `MessageSuggestedPostDeclined`. `true`, if the caption must be shown above the message media
-    /// - `MessageSuggestedPostPaid`. `true`, if the caption must be shown above the message media
-    /// - `MessageSuggestedPostRefunded`. `true`, if the caption must be shown above the message media
-    /// - `MessageSupergroupChatCreated`. `true`, if the caption must be shown above the message media
-    /// - `MessageText`. `true`, if the caption must be shown above the message media
-    /// - `MessageUniqueGift`. `true`, if the caption must be shown above the message media
-    /// - `MessageUsersShared`. `true`, if the caption must be shown above the message media
-    /// - `MessageVenue`. `true`, if the caption must be shown above the message media
-    /// - `MessageVideo`. `true`, if the caption must be shown above the message media
-    /// - `MessageVideoChatEnded`. `true`, if the caption must be shown above the message media
-    /// - `MessageVideoChatParticipantsInvited`. `true`, if the caption must be shown above the message media
-    /// - `MessageVideoChatScheduled`. `true`, if the caption must be shown above the message media
-    /// - `MessageVideoChatStarted`. `true`, if the caption must be shown above the message media
-    /// - `MessageVideoNote`. `true`, if the caption must be shown above the message media
-    /// - `MessageVoice`. `true`, if the caption must be shown above the message media
-    /// - `MessageWebAppData`. `true`, if the caption must be shown above the message media
-    /// - `MessageWriteAccessAllowed`. `true`, if the caption must be shown above the message media
+    /// `true`, if the caption must be shown above the message media
     #[must_use]
     pub fn show_caption_above_media(&self) -> Option<bool> {
         match self {
@@ -5796,8 +3368,7 @@ impl Message {
 
     /// Helper method for field `sticker`.
     ///
-    /// # Variants
-    /// - `MessageSticker`. Message is a sticker, information about the sticker
+    /// Message is a sticker, information about the sticker
     #[must_use]
     pub fn sticker(&self) -> Option<&crate::types::Sticker> {
         match self {
@@ -5808,8 +3379,7 @@ impl Message {
 
     /// Helper method for field `story`.
     ///
-    /// # Variants
-    /// - `MessageStory`. Message is a forwarded story
+    /// Message is a forwarded story
     #[must_use]
     pub fn story(&self) -> Option<&crate::types::Story> {
         match self {
@@ -5820,8 +3390,7 @@ impl Message {
 
     /// Helper method for field `successful_payment`.
     ///
-    /// # Variants
-    /// - `MessageSuccessfulPayment`. Message is a service message about a successful payment, information about the payment. More about payments: <https://core.telegram.org/bots/api#payments>
+    /// Message is a service message about a successful payment, information about the payment. More about payments: <https://core.telegram.org/bots/api#payments>
     #[must_use]
     pub fn successful_payment(&self) -> Option<&crate::types::SuccessfulPayment> {
         match self {
@@ -5832,8 +3401,7 @@ impl Message {
 
     /// Helper method for field `suggested_post_approval_failed`.
     ///
-    /// # Variants
-    /// - `MessageSuggestedPostApprovalFailed`. Service message: approval of a suggested post has failed
+    /// Service message: approval of a suggested post has failed
     #[must_use]
     pub fn suggested_post_approval_failed(
         &self,
@@ -5846,8 +3414,7 @@ impl Message {
 
     /// Helper method for field `suggested_post_approved`.
     ///
-    /// # Variants
-    /// - `MessageSuggestedPostApproved`. Service message: a suggested post was approved
+    /// Service message: a suggested post was approved
     #[must_use]
     pub fn suggested_post_approved(&self) -> Option<&crate::types::SuggestedPostApproved> {
         match self {
@@ -5858,8 +3425,7 @@ impl Message {
 
     /// Helper method for field `suggested_post_declined`.
     ///
-    /// # Variants
-    /// - `MessageSuggestedPostDeclined`. Service message: a suggested post was declined
+    /// Service message: a suggested post was declined
     #[must_use]
     pub fn suggested_post_declined(&self) -> Option<&crate::types::SuggestedPostDeclined> {
         match self {
@@ -5870,77 +3436,7 @@ impl Message {
 
     /// Helper method for field `suggested_post_info`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageAudio`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageBoostAdded`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageChannelChatCreated`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageChatBackgroundSet`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageChatOwnerChanged`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageChatOwnerLeft`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageChatShared`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageChecklist`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageChecklistTasksAdded`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageChecklistTasksDone`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageConnectedWebsite`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageContact`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageDeleteChatPhoto`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageDice`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageDirectMessagePriceChanged`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageDocument`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageForumTopicClosed`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageForumTopicCreated`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageForumTopicEdited`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageForumTopicReopened`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageGame`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageGeneralForumTopicHidden`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageGeneralForumTopicUnhidden`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageGift`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageGiftUpgradeSent`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageGiveaway`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageGiveawayCompleted`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageGiveawayCreated`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageGiveawayWinners`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageGroupChatCreated`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageInvoice`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageLeftChatMember`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageLocation`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageMessageAutoDeleteTimerChanged`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageMigrateFromChatId`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageMigrateToChatId`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageNewChatMembers`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageNewChatPhoto`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageNewChatTitle`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessagePaidMedia`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessagePaidMessagePriceChanged`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessagePassportData`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessagePhoto`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessagePinnedMessage`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessagePoll`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageProximityAlertTriggered`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageRefundedPayment`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageSticker`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageStory`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageSuccessfulPayment`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageSuggestedPostApprovalFailed`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageSuggestedPostApproved`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageSuggestedPostDeclined`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageSuggestedPostPaid`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageSuggestedPostRefunded`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageSupergroupChatCreated`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageText`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageUniqueGift`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageUsersShared`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageVenue`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageVideo`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageVideoChatEnded`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageVideoChatParticipantsInvited`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageVideoChatScheduled`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageVideoChatStarted`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageVideoNote`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageVoice`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageWebAppData`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
-    /// - `MessageWriteAccessAllowed`. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    /// Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
     #[must_use]
     pub fn suggested_post_info(&self) -> Option<&crate::types::SuggestedPostInfo> {
         match self {
@@ -6019,8 +3515,7 @@ impl Message {
 
     /// Helper method for field `suggested_post_paid`.
     ///
-    /// # Variants
-    /// - `MessageSuggestedPostPaid`. Service message: payment for a suggested post was received
+    /// Service message: payment for a suggested post was received
     #[must_use]
     pub fn suggested_post_paid(&self) -> Option<&crate::types::SuggestedPostPaid> {
         match self {
@@ -6031,8 +3526,7 @@ impl Message {
 
     /// Helper method for field `suggested_post_refunded`.
     ///
-    /// # Variants
-    /// - `MessageSuggestedPostRefunded`. Service message: payment for a suggested post was refunded
+    /// Service message: payment for a suggested post was refunded
     #[must_use]
     pub fn suggested_post_refunded(&self) -> Option<&crate::types::SuggestedPostRefunded> {
         match self {
@@ -6043,8 +3537,7 @@ impl Message {
 
     /// Helper method for field `supergroup_chat_created`.
     ///
-    /// # Variants
-    /// - `MessageSupergroupChatCreated`. Service message: the supergroup has been created. This field can't be received in a message coming through updates, because bot can't be a member of a supergroup when it is created. It can only be found in `reply_to_message` if someone replies to a very first message in a directly created supergroup.
+    /// Service message: the supergroup has been created. This field can't be received in a message coming through updates, because bot can't be a member of a supergroup when it is created. It can only be found in `reply_to_message` if someone replies to a very first message in a directly created supergroup.
     #[must_use]
     pub fn supergroup_chat_created(&self) -> Option<bool> {
         match self {
@@ -6055,8 +3548,7 @@ impl Message {
 
     /// Helper method for field `text`.
     ///
-    /// # Variants
-    /// - `MessageText`. For text messages, the actual UTF-8 text of the message
+    /// For text messages, the actual UTF-8 text of the message
     #[must_use]
     pub fn text(&self) -> Option<&str> {
         match self {
@@ -6067,8 +3559,7 @@ impl Message {
 
     /// Helper method for field `unique_gift`.
     ///
-    /// # Variants
-    /// - `MessageUniqueGift`. Service message: a unique gift was sent or received
+    /// Service message: a unique gift was sent or received
     #[must_use]
     pub fn unique_gift(&self) -> Option<&crate::types::UniqueGiftInfo> {
         match self {
@@ -6079,8 +3570,7 @@ impl Message {
 
     /// Helper method for field `users_shared`.
     ///
-    /// # Variants
-    /// - `MessageUsersShared`. Service message: users were shared with the bot
+    /// Service message: users were shared with the bot
     #[must_use]
     pub fn users_shared(&self) -> Option<&crate::types::UsersShared> {
         match self {
@@ -6091,8 +3581,7 @@ impl Message {
 
     /// Helper method for field `venue`.
     ///
-    /// # Variants
-    /// - `MessageVenue`. Message is a venue, information about the venue. For backward compatibility, when this field is set, the location field will also be set
+    /// Message is a venue, information about the venue. For backward compatibility, when this field is set, the location field will also be set
     #[must_use]
     pub fn venue(&self) -> Option<&crate::types::Venue> {
         match self {
@@ -6103,77 +3592,7 @@ impl Message {
 
     /// Helper method for field `via_bot`.
     ///
-    /// # Variants
-    /// - `MessageAnimation`. Bot through which the message was sent
-    /// - `MessageAudio`. Bot through which the message was sent
-    /// - `MessageBoostAdded`. Bot through which the message was sent
-    /// - `MessageChannelChatCreated`. Bot through which the message was sent
-    /// - `MessageChatBackgroundSet`. Bot through which the message was sent
-    /// - `MessageChatOwnerChanged`. Bot through which the message was sent
-    /// - `MessageChatOwnerLeft`. Bot through which the message was sent
-    /// - `MessageChatShared`. Bot through which the message was sent
-    /// - `MessageChecklist`. Bot through which the message was sent
-    /// - `MessageChecklistTasksAdded`. Bot through which the message was sent
-    /// - `MessageChecklistTasksDone`. Bot through which the message was sent
-    /// - `MessageConnectedWebsite`. Bot through which the message was sent
-    /// - `MessageContact`. Bot through which the message was sent
-    /// - `MessageDeleteChatPhoto`. Bot through which the message was sent
-    /// - `MessageDice`. Bot through which the message was sent
-    /// - `MessageDirectMessagePriceChanged`. Bot through which the message was sent
-    /// - `MessageDocument`. Bot through which the message was sent
-    /// - `MessageForumTopicClosed`. Bot through which the message was sent
-    /// - `MessageForumTopicCreated`. Bot through which the message was sent
-    /// - `MessageForumTopicEdited`. Bot through which the message was sent
-    /// - `MessageForumTopicReopened`. Bot through which the message was sent
-    /// - `MessageGame`. Bot through which the message was sent
-    /// - `MessageGeneralForumTopicHidden`. Bot through which the message was sent
-    /// - `MessageGeneralForumTopicUnhidden`. Bot through which the message was sent
-    /// - `MessageGift`. Bot through which the message was sent
-    /// - `MessageGiftUpgradeSent`. Bot through which the message was sent
-    /// - `MessageGiveaway`. Bot through which the message was sent
-    /// - `MessageGiveawayCompleted`. Bot through which the message was sent
-    /// - `MessageGiveawayCreated`. Bot through which the message was sent
-    /// - `MessageGiveawayWinners`. Bot through which the message was sent
-    /// - `MessageGroupChatCreated`. Bot through which the message was sent
-    /// - `MessageInvoice`. Bot through which the message was sent
-    /// - `MessageLeftChatMember`. Bot through which the message was sent
-    /// - `MessageLocation`. Bot through which the message was sent
-    /// - `MessageMessageAutoDeleteTimerChanged`. Bot through which the message was sent
-    /// - `MessageMigrateFromChatId`. Bot through which the message was sent
-    /// - `MessageMigrateToChatId`. Bot through which the message was sent
-    /// - `MessageNewChatMembers`. Bot through which the message was sent
-    /// - `MessageNewChatPhoto`. Bot through which the message was sent
-    /// - `MessageNewChatTitle`. Bot through which the message was sent
-    /// - `MessagePaidMedia`. Bot through which the message was sent
-    /// - `MessagePaidMessagePriceChanged`. Bot through which the message was sent
-    /// - `MessagePassportData`. Bot through which the message was sent
-    /// - `MessagePhoto`. Bot through which the message was sent
-    /// - `MessagePinnedMessage`. Bot through which the message was sent
-    /// - `MessagePoll`. Bot through which the message was sent
-    /// - `MessageProximityAlertTriggered`. Bot through which the message was sent
-    /// - `MessageRefundedPayment`. Bot through which the message was sent
-    /// - `MessageSticker`. Bot through which the message was sent
-    /// - `MessageStory`. Bot through which the message was sent
-    /// - `MessageSuccessfulPayment`. Bot through which the message was sent
-    /// - `MessageSuggestedPostApprovalFailed`. Bot through which the message was sent
-    /// - `MessageSuggestedPostApproved`. Bot through which the message was sent
-    /// - `MessageSuggestedPostDeclined`. Bot through which the message was sent
-    /// - `MessageSuggestedPostPaid`. Bot through which the message was sent
-    /// - `MessageSuggestedPostRefunded`. Bot through which the message was sent
-    /// - `MessageSupergroupChatCreated`. Bot through which the message was sent
-    /// - `MessageText`. Bot through which the message was sent
-    /// - `MessageUniqueGift`. Bot through which the message was sent
-    /// - `MessageUsersShared`. Bot through which the message was sent
-    /// - `MessageVenue`. Bot through which the message was sent
-    /// - `MessageVideo`. Bot through which the message was sent
-    /// - `MessageVideoChatEnded`. Bot through which the message was sent
-    /// - `MessageVideoChatParticipantsInvited`. Bot through which the message was sent
-    /// - `MessageVideoChatScheduled`. Bot through which the message was sent
-    /// - `MessageVideoChatStarted`. Bot through which the message was sent
-    /// - `MessageVideoNote`. Bot through which the message was sent
-    /// - `MessageVoice`. Bot through which the message was sent
-    /// - `MessageWebAppData`. Bot through which the message was sent
-    /// - `MessageWriteAccessAllowed`. Bot through which the message was sent
+    /// Bot through which the message was sent
     #[must_use]
     pub fn via_bot(&self) -> Option<&crate::types::User> {
         match self {
@@ -6252,8 +3671,7 @@ impl Message {
 
     /// Helper method for field `video`.
     ///
-    /// # Variants
-    /// - `MessageVideo`. Message is a video, information about the video
+    /// Message is a video, information about the video
     #[must_use]
     pub fn video(&self) -> Option<&crate::types::Video> {
         match self {
@@ -6264,8 +3682,7 @@ impl Message {
 
     /// Helper method for field `video_chat_ended`.
     ///
-    /// # Variants
-    /// - `MessageVideoChatEnded`. Service message: video chat ended
+    /// Service message: video chat ended
     #[must_use]
     pub fn video_chat_ended(&self) -> Option<&crate::types::VideoChatEnded> {
         match self {
@@ -6276,8 +3693,7 @@ impl Message {
 
     /// Helper method for field `video_chat_participants_invited`.
     ///
-    /// # Variants
-    /// - `MessageVideoChatParticipantsInvited`. Service message: new participants invited to a video chat
+    /// Service message: new participants invited to a video chat
     #[must_use]
     pub fn video_chat_participants_invited(
         &self,
@@ -6290,8 +3706,7 @@ impl Message {
 
     /// Helper method for field `video_chat_scheduled`.
     ///
-    /// # Variants
-    /// - `MessageVideoChatScheduled`. Service message: video chat scheduled
+    /// Service message: video chat scheduled
     #[must_use]
     pub fn video_chat_scheduled(&self) -> Option<&crate::types::VideoChatScheduled> {
         match self {
@@ -6302,8 +3717,7 @@ impl Message {
 
     /// Helper method for field `video_chat_started`.
     ///
-    /// # Variants
-    /// - `MessageVideoChatStarted`. Service message: video chat started
+    /// Service message: video chat started
     #[must_use]
     pub fn video_chat_started(&self) -> Option<&crate::types::VideoChatStarted> {
         match self {
@@ -6314,8 +3728,7 @@ impl Message {
 
     /// Helper method for field `video_note`.
     ///
-    /// # Variants
-    /// - `MessageVideoNote`. Message is a video note, information about the video message
+    /// Message is a video note, information about the video message
     #[must_use]
     pub fn video_note(&self) -> Option<&crate::types::VideoNote> {
         match self {
@@ -6326,8 +3739,7 @@ impl Message {
 
     /// Helper method for field `voice`.
     ///
-    /// # Variants
-    /// - `MessageVoice`. Message is a voice message, information about the file
+    /// Message is a voice message, information about the file
     #[must_use]
     pub fn voice(&self) -> Option<&crate::types::Voice> {
         match self {
@@ -6338,8 +3750,7 @@ impl Message {
 
     /// Helper method for field `web_app_data`.
     ///
-    /// # Variants
-    /// - `MessageWebAppData`. Service message: data sent by a Web App
+    /// Service message: data sent by a Web App
     #[must_use]
     pub fn web_app_data(&self) -> Option<&crate::types::WebAppData> {
         match self {
@@ -6350,8 +3761,7 @@ impl Message {
 
     /// Helper method for field `write_access_allowed`.
     ///
-    /// # Variants
-    /// - `MessageWriteAccessAllowed`. Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method request[`WriteAccess`]
+    /// Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess
     #[must_use]
     pub fn write_access_allowed(&self) -> Option<&crate::types::WriteAccessAllowed> {
         match self {

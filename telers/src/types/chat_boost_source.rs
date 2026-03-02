@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 /// This object describes the source of a chat boost. It can be one of
-/// - [`ChatBoostSourcePremium`]
-/// - [`ChatBoostSourceGiftCode`]
-/// - [`ChatBoostSourceGiveaway`]
+/// - [`crate::types::ChatBoostSourcePremium`]
+/// - [`crate::types::ChatBoostSourceGiftCode`]
+/// - [`crate::types::ChatBoostSourceGiveaway`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatboostsource>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -15,8 +15,7 @@ pub enum ChatBoostSource {
 impl ChatBoostSource {
     /// Helper method for field `giveaway_message_id`.
     ///
-    /// # Variants
-    /// - `ChatBoostSourceGiveaway`. Identifier of a message in the chat with the giveaway; the message could have been deleted already. May be 0 if the message isn't sent yet.
+    /// Identifier of a message in the chat with the giveaway; the message could have been deleted already. May be 0 if the message isn't sent yet.
     #[must_use]
     pub fn giveaway_message_id(&self) -> Option<i64> {
         match self {
@@ -27,8 +26,7 @@ impl ChatBoostSource {
 
     /// Helper method for field `is_unclaimed`.
     ///
-    /// # Variants
-    /// - `ChatBoostSourceGiveaway`. `true`, if the giveaway was completed, but there was no user to win the prize
+    /// `true`, if the giveaway was completed, but there was no user to win the prize
     #[must_use]
     pub fn is_unclaimed(&self) -> Option<bool> {
         match self {
@@ -39,8 +37,7 @@ impl ChatBoostSource {
 
     /// Helper method for field `prize_star_count`.
     ///
-    /// # Variants
-    /// - `ChatBoostSourceGiveaway`. The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
+    /// The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
     #[must_use]
     pub fn prize_star_count(&self) -> Option<i64> {
         match self {

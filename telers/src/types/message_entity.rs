@@ -1,26 +1,26 @@
 use serde::{Deserialize, Serialize};
 /// This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc.
 /// Currently, it can be one of
-/// - [`MessageEntityBlockquote`]
-/// - [`MessageEntityBold`]
-/// - [`MessageEntityBotCommand`]
-/// - [`MessageEntityCashtag`]
-/// - [`MessageEntityCode`]
-/// - [`MessageEntityCustomEmoji`]
-/// - [`MessageEntityDateTime`]
-/// - [`MessageEntityEmail`]
-/// - [`MessageEntityExpandableBlockquote`]
-/// - [`MessageEntityHashtag`]
-/// - [`MessageEntityItalic`]
-/// - [`MessageEntityMention`]
-/// - [`MessageEntityPhoneNumber`]
-/// - [`MessageEntityPre`]
-/// - [`MessageEntitySpoiler`]
-/// - [`MessageEntityStrikethrough`]
-/// - [`MessageEntityTextLink`]
-/// - [`MessageEntityTextMention`]
-/// - [`MessageEntityUnderline`]
-/// - [`MessageEntityUrl`]
+/// - [`crate::types::MessageEntityBlockquote`]
+/// - [`crate::types::MessageEntityBold`]
+/// - [`crate::types::MessageEntityBotCommand`]
+/// - [`crate::types::MessageEntityCashtag`]
+/// - [`crate::types::MessageEntityCode`]
+/// - [`crate::types::MessageEntityCustomEmoji`]
+/// - [`crate::types::MessageEntityDateTime`]
+/// - [`crate::types::MessageEntityEmail`]
+/// - [`crate::types::MessageEntityExpandableBlockquote`]
+/// - [`crate::types::MessageEntityHashtag`]
+/// - [`crate::types::MessageEntityItalic`]
+/// - [`crate::types::MessageEntityMention`]
+/// - [`crate::types::MessageEntityPhoneNumber`]
+/// - [`crate::types::MessageEntityPre`]
+/// - [`crate::types::MessageEntitySpoiler`]
+/// - [`crate::types::MessageEntityStrikethrough`]
+/// - [`crate::types::MessageEntityTextLink`]
+/// - [`crate::types::MessageEntityTextMention`]
+/// - [`crate::types::MessageEntityUnderline`]
+/// - [`crate::types::MessageEntityUrl`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#messageentity>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -50,8 +50,7 @@ pub enum MessageEntity {
 impl MessageEntity {
     /// Helper method for field `custom_emoji_id`.
     ///
-    /// # Variants
-    /// - `MessageEntityCustomEmoji`. For `custom_emoji` only, unique identifier of the custom emoji. Use get[`CustomEmojiStickers`] to get full information about the sticker
+    /// For `custom_emoji` only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker
     #[must_use]
     pub fn custom_emoji_id(&self) -> Option<&str> {
         match self {
@@ -62,8 +61,7 @@ impl MessageEntity {
 
     /// Helper method for field `date_time_format`.
     ///
-    /// # Variants
-    /// - `MessageEntityDateTime`. For `date_time` only, the string that defines the formatting of the date and time. See date-time entity formatting for more details.
+    /// For `date_time` only, the string that defines the formatting of the date and time. See date-time entity formatting for more details.
     #[must_use]
     pub fn date_time_format(&self) -> Option<&str> {
         match self {
@@ -74,8 +72,7 @@ impl MessageEntity {
 
     /// Helper method for field `language`.
     ///
-    /// # Variants
-    /// - `MessageEntityPre`. For `pre` only, the programming language of the entity text
+    /// For `pre` only, the programming language of the entity text
     #[must_use]
     pub fn language(&self) -> Option<&str> {
         match self {
@@ -86,27 +83,7 @@ impl MessageEntity {
 
     /// Helper method for field `length`.
     ///
-    /// # Variants
-    /// - `MessageEntityMention`. Length of the entity in UTF-16 code units
-    /// - `MessageEntityHashtag`. Length of the entity in UTF-16 code units
-    /// - `MessageEntityCashtag`. Length of the entity in UTF-16 code units
-    /// - `MessageEntityBotCommand`. Length of the entity in UTF-16 code units
-    /// - `MessageEntityUrl`. Length of the entity in UTF-16 code units
-    /// - `MessageEntityEmail`. Length of the entity in UTF-16 code units
-    /// - `MessageEntityPhoneNumber`. Length of the entity in UTF-16 code units
-    /// - `MessageEntityBold`. Length of the entity in UTF-16 code units
-    /// - `MessageEntityItalic`. Length of the entity in UTF-16 code units
-    /// - `MessageEntityUnderline`. Length of the entity in UTF-16 code units
-    /// - `MessageEntityStrikethrough`. Length of the entity in UTF-16 code units
-    /// - `MessageEntitySpoiler`. Length of the entity in UTF-16 code units
-    /// - `MessageEntityBlockquote`. Length of the entity in UTF-16 code units
-    /// - `MessageEntityExpandableBlockquote`. Length of the entity in UTF-16 code units
-    /// - `MessageEntityCode`. Length of the entity in UTF-16 code units
-    /// - `MessageEntityPre`. Length of the entity in UTF-16 code units
-    /// - `MessageEntityTextLink`. Length of the entity in UTF-16 code units
-    /// - `MessageEntityTextMention`. Length of the entity in UTF-16 code units
-    /// - `MessageEntityCustomEmoji`. Length of the entity in UTF-16 code units
-    /// - `MessageEntityDateTime`. Length of the entity in UTF-16 code units
+    /// Length of the entity in UTF-16 code units
     #[must_use]
     pub fn length(&self) -> i64 {
         match self {
@@ -135,27 +112,7 @@ impl MessageEntity {
 
     /// Helper method for field `offset`.
     ///
-    /// # Variants
-    /// - `MessageEntityMention`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntityHashtag`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntityCashtag`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntityBotCommand`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntityUrl`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntityEmail`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntityPhoneNumber`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntityBold`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntityItalic`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntityUnderline`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntityStrikethrough`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntitySpoiler`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntityBlockquote`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntityExpandableBlockquote`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntityCode`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntityPre`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntityTextLink`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntityTextMention`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntityCustomEmoji`. Offset in UTF-16 code units to the start of the entity
-    /// - `MessageEntityDateTime`. Offset in UTF-16 code units to the start of the entity
+    /// Offset in UTF-16 code units to the start of the entity
     #[must_use]
     pub fn offset(&self) -> i64 {
         match self {
@@ -184,8 +141,7 @@ impl MessageEntity {
 
     /// Helper method for field `unix_time`.
     ///
-    /// # Variants
-    /// - `MessageEntityDateTime`. For `date_time` only, the Unix time associated with the entity
+    /// For `date_time` only, the Unix time associated with the entity
     #[must_use]
     pub fn unix_time(&self) -> Option<i64> {
         match self {
@@ -196,8 +152,7 @@ impl MessageEntity {
 
     /// Helper method for field `url`.
     ///
-    /// # Variants
-    /// - `MessageEntityTextLink`. For `text_link` only, URL that will be opened after user taps on the text
+    /// For `text_link` only, URL that will be opened after user taps on the text
     #[must_use]
     pub fn url(&self) -> Option<&str> {
         match self {
@@ -208,8 +163,7 @@ impl MessageEntity {
 
     /// Helper method for field `user`.
     ///
-    /// # Variants
-    /// - `MessageEntityTextMention`. For `text_mention` only, the mentioned user
+    /// For `text_mention` only, the mentioned user
     #[must_use]
     pub fn user(&self) -> Option<&crate::types::User> {
         match self {

@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to get a list of profile audios for a user. Returns a [`UserProfileAudios`] object.
+/// Use this method to get a list of profile audios for a user. Returns a [`crate::types::UserProfileAudios`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getuserprofileaudios>
 /// # Returns

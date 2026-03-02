@@ -15,9 +15,10 @@
 //!     errors::EventErrorKind,
 //!     event::{telegram::HandlerResult, EventReturn},
 //!     middlewares::outer::{Middleware, MiddlewareResponse},
-//!     Request,
+//!     Extension, Request,
 //! };
 //!
+//! #[derive(Clone)]
 //! struct ToExtensionsMiddleware<T> {
 //!     data: T,
 //! }
@@ -26,14 +27,17 @@
 //! where
 //!     T: Send + Sync + Clone + 'static,
 //! {
-//!     async fn call(&self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
+//!     async fn call(
+//!         &mut self,
+//!         mut request: Request,
+//!     ) -> Result<MiddlewareResponse, EventErrorKind> {
 //!         request.extensions.insert(self.data.clone());
 //!
 //!         Ok((request, EventReturn::default()))
 //!     }
 //! }
 //!
-//! async fn send_data_handler(Extension(data2): Extension<Data>) -> HandlerResult {
+//! async fn send_data_handler<T>(Extension(data2): Extension<T>) -> HandlerResult {
 //!     todo!();
 //! }
 //! ```
@@ -45,11 +49,11 @@
 //! Ways to implement [`Extractor`] for your own types:
 //! * Implement it directly (much boilerplate code, but it's needed for complex types)
 //! * Use the [`FromContext`] macro (simple way to implement this for types in a [`Context`] by its key)
-//! * Use the [`FromEvent`] macro (simple way to implement this for types in an event, for example, [`Update`])
+//! * Use the [`FromEvent`] macro (simple way to implement this for types in an event, for example, [`crate::types::Update`])
 //!
 //! ## Implementing directly
 //!
-//! Simple example with extracting id from [`Update`]:
+//! Simple example with extracting id from [`crate::types::Update`]:
 //!
 //! ```rust
 //! use std::convert::Infallible;
@@ -61,12 +65,12 @@
 //!     type Error = Infallible;
 //!
 //!     async fn extract(request: &Request) -> Result<Self, Self::Error> {
-//!         Ok(UpdateId(request.update.id))
+//!         Ok(UpdateId(request.update.update_id()))
 //!     }
 //! }
 //! ```
 //!
-//! This example will extract the [`Update`] id to the handler argument.
+//! This example will extract the [`crate::types::Update`] id to the handler argument.
 //! After that, you can use this argument in the handler:
 //!
 //! ```ignore
@@ -75,7 +79,7 @@
 //! }
 //! ```
 //!
-//! Another example with extracting id of the user who sent the message from [`Update`]:
+//! Another example with extracting id of the user who sent the message from [`crate::types::Update`]:
 //!
 //! ```rust
 //! use telers::{errors::ConvertToTypeError, Extractor, Request};
@@ -88,8 +92,8 @@
 //!     // you can use your own error type, this is just an example
 //!
 //!     async fn extract(request: &Request) -> Result<Self, Self::Error> {
-//!         match request.update.from_id() {
-//!             Some(from_id) => Ok(UpdateFromId(from_id)),
+//!         match request.update.from() {
+//!             Some(from) => Ok(UpdateFromId(from.id)),
 //!             None => Err(ConvertToTypeError::new("Update", "UpdateFromId")),
 //!         }
 //!     }
@@ -111,8 +115,8 @@
 //!     // you can use your own error type, this is just an example
 //!
 //!     async fn extract(request: &Request) -> Result<Self, Self::Error> {
-//!         match request.update.from_id() {
-//!             Some(from_id) => Ok(UpdateFromId(from_id)),
+//!         match request.update.from() {
+//!             Some(from) => Ok(UpdateFromId(from.id)),
 //!             None => Err(ConvertToTypeError::new("Update", "UpdateFromId")),
 //!         }
 //!     }
@@ -137,7 +141,7 @@
 //!
 //! ## Implementing with [`FromEvent`] macro
 //!
-//! Simple example with extracting id from [`Update`]:
+//! Simple example with extracting id from [`crate::types::Update`]:
 //!
 //! ```rust
 //! use telers::{types::Update, FromEvent};
@@ -149,7 +153,7 @@
 //! // We need to implement `From<Update>` for `UpdateId` by ourselves (this is required by `FromEvent` macro)
 //! impl From<Update> for UpdateId {
 //!     fn from(update: Update) -> Self {
-//!         Self(update.id)
+//!         Self(update.update_id())
 //!     }
 //! }
 //! ```
@@ -169,8 +173,8 @@
 //!     type Error = ConvertToTypeError;
 //!
 //!     fn try_from(update: Update) -> Result<Self, Self::Error> {
-//!         match update.from_id() {
-//!             Some(id) => Ok(Self(id)),
+//!         match update.from() {
+//!             Some(from) => Ok(Self(from.id)),
 //!             None => Err(ConvertToTypeError::new("Update", "UpdateFromId")),
 //!         }
 //!     }
@@ -193,7 +197,7 @@
 //!     type Error = Infallible;
 //!
 //!     fn try_from(update: Update) -> Result<Self, Self::Error> {
-//!         Ok(Self(update.id))
+//!         Ok(Self(update.update_id()))
 //!     }
 //! }
 //! ```
@@ -295,7 +299,7 @@ use crate::{
 
 use std::{any::type_name, convert::Infallible, future::Future};
 
-/// Trait for extracting data from [`Update`] and [`Context`] to handlers arguments
+/// Trait for extracting data from [`crate::types::Update`] and [`Context`] to handlers arguments
 pub trait Extractor<Client = Reqwest>: Sized {
     type Error: Into<ExtractionError>;
 
@@ -312,7 +316,7 @@ pub trait Extractor<Client = Reqwest>: Sized {
 }
 
 /// To be able to use [`Option`] as handler argument
-/// This implementation will return `None` if extraction was unsuccessful, and [`Some(value)`] otherwise
+/// This implementation will return `None` if extraction was unsuccessful, and `Some(value)` otherwise
 impl<Client, T: Extractor<Client>> Extractor<Client> for Option<T>
 where
     Client: Sync,
@@ -329,7 +333,7 @@ where
 }
 
 /// To be able to use [`Result`] as handler argument
-/// This implementation will return [`Ok(value)`] if extraction was successful, and [`Err(error)`] otherwise,
+/// This implementation will return `Ok(value)` if extraction was successful, and `Err(error)` otherwise,
 /// where `error` is `T::Error` converted to `E`
 impl<Client, T, E> Extractor<Client> for Result<T, E>
 where
@@ -346,7 +350,7 @@ where
 }
 
 /// To be able to use handler without arguments
-/// Handler without arguments will be called with [`()`] argument (unit type)
+/// Handler without arguments will be called with `()` argument (unit type)
 impl<Client> Extractor<Client> for () {
     type Error = Infallible;
 

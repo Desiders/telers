@@ -45,12 +45,12 @@
 //! [`Dispatcher::new`]: Dispatcher#method.new
 //! [`Builder::polling_timeout`]: Builder#method.polling_timeout
 //! [`Builder::backoff`]: Builder#method.backoff
-//! [`Dispatcher::run_polling`]: Service#method.run_polling
-//! [`Dispatcher::emit_startup`]: Service#method.emit_startup
-//! [`Dispatcher::emit_shutdown`]: Service#method.emit_shutdown
-//! [`Dispatcher::run_polling_without_startup_and_shutdown`]: Service#method.run_polling_without_startup_and_shutdown
-//! [`Dispatcher::feed_update`]: Service#method.feed_update
-//! [`Dispatcher::feed_update_with_context`]: Service#method.feed_update_with_context
+//! [`Dispatcher::run_polling`]: Dispatcher#method.run_polling
+//! [`Dispatcher::emit_startup`]: Dispatcher#method.emit_startup
+//! [`Dispatcher::emit_shutdown`]: Dispatcher#method.emit_shutdown
+//! [`Dispatcher::run_polling_without_startup_and_shutdown`]: Dispatcher#method.run_polling_without_startup_and_shutdown
+//! [`Dispatcher::feed_update`]: Dispatcher#method.feed_update
+//! [`Dispatcher::feed_update_with_context`]: Dispatcher#method.feed_update_with_context
 
 use super::router::{PropagateEvent, Response};
 use crate::{

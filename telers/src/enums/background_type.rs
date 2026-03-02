@@ -1,10 +1,10 @@
 use crate::types::BackgroundType;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes the type of a background. Currently, it can be one of
-/// - [`BackgroundTypeFill`]
-/// - [`BackgroundTypeWallpaper`]
-/// - [`BackgroundTypePattern`]
-/// - [`BackgroundTypeChatTheme`]
+/// - [`crate::types::BackgroundTypeFill`]
+/// - [`crate::types::BackgroundTypeWallpaper`]
+/// - [`crate::types::BackgroundTypePattern`]
+/// - [`crate::types::BackgroundTypeChatTheme`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#backgroundtype>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

@@ -1,13 +1,13 @@
 use crate::types::BotCommandScope;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents the scope to which bot commands are applied. Currently, the following 7 scopes are supported:
-/// - [`BotCommandScopeDefault`]
-/// - [`BotCommandScopeAllPrivateChats`]
-/// - [`BotCommandScopeAllGroupChats`]
-/// - [`BotCommandScopeAllChatAdministrators`]
-/// - [`BotCommandScopeChat`]
-/// - [`BotCommandScopeChatAdministrators`]
-/// - [`BotCommandScopeChatMember`]
+/// - [`crate::types::BotCommandScopeDefault`]
+/// - [`crate::types::BotCommandScopeAllPrivateChats`]
+/// - [`crate::types::BotCommandScopeAllGroupChats`]
+/// - [`crate::types::BotCommandScopeAllChatAdministrators`]
+/// - [`crate::types::BotCommandScopeChat`]
+/// - [`crate::types::BotCommandScopeChatAdministrators`]
+/// - [`crate::types::BotCommandScopeChatMember`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#botcommandscope>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 /// This object describes paid media. Currently, it can be one of
-/// - [`PaidMediaPreview`]
-/// - [`PaidMediaPhoto`]
-/// - [`PaidMediaVideo`]
+/// - [`crate::types::PaidMediaPreview`]
+/// - [`crate::types::PaidMediaPhoto`]
+/// - [`crate::types::PaidMediaVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#paidmedia>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -15,8 +15,7 @@ pub enum PaidMedia {
 impl PaidMedia {
     /// Helper method for field `duration`.
     ///
-    /// # Variants
-    /// - `PaidMediaPreview`. Duration of the media in seconds as defined by the sender
+    /// Duration of the media in seconds as defined by the sender
     #[must_use]
     pub fn duration(&self) -> Option<i64> {
         match self {
@@ -27,8 +26,7 @@ impl PaidMedia {
 
     /// Helper method for field `height`.
     ///
-    /// # Variants
-    /// - `PaidMediaPreview`. Media height as defined by the sender
+    /// Media height as defined by the sender
     #[must_use]
     pub fn height(&self) -> Option<i64> {
         match self {
@@ -39,8 +37,7 @@ impl PaidMedia {
 
     /// Helper method for field `photo`.
     ///
-    /// # Variants
-    /// - `PaidMediaPhoto`. The photo
+    /// The photo
     #[must_use]
     pub fn photo(&self) -> Option<&[crate::types::PhotoSize]> {
         match self {
@@ -51,8 +48,7 @@ impl PaidMedia {
 
     /// Helper method for field `video`.
     ///
-    /// # Variants
-    /// - `PaidMediaVideo`. The video
+    /// The video
     #[must_use]
     pub fn video(&self) -> Option<&crate::types::Video> {
         match self {
@@ -63,8 +59,7 @@ impl PaidMedia {
 
     /// Helper method for field `width`.
     ///
-    /// # Variants
-    /// - `PaidMediaPreview`. Media width as defined by the sender
+    /// Media width as defined by the sender
     #[must_use]
     pub fn width(&self) -> Option<i64> {
         match self {

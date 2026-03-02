@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 /// This object describes a message that can be inaccessible to the bot. It can be one of
 /// - Message
-/// - [`InaccessibleMessage`]
+/// - [`crate::types::InaccessibleMessage`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#maybeinaccessiblemessage>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -13,8 +13,7 @@ pub enum MaybeInaccessibleMessage {
 impl MaybeInaccessibleMessage {
     /// Helper method for field `chat`.
     ///
-    /// # Variants
-    /// - `InaccessibleMessage`. Chat the message belonged to
+    /// Chat the message belonged to
     #[must_use]
     pub fn chat(&self) -> Option<&crate::types::Chat> {
         match self {
@@ -25,8 +24,7 @@ impl MaybeInaccessibleMessage {
 
     /// Helper method for field `date`.
     ///
-    /// # Variants
-    /// - `InaccessibleMessage`. Always 0. The field can be used to differentiate regular and inaccessible messages.
+    /// Always 0. The field can be used to differentiate regular and inaccessible messages.
     #[must_use]
     pub fn date(&self) -> Option<i64> {
         match self {
@@ -37,8 +35,7 @@ impl MaybeInaccessibleMessage {
 
     /// Helper method for field `message_id`.
     ///
-    /// # Variants
-    /// - `InaccessibleMessage`. Unique message identifier inside the chat
+    /// Unique message identifier inside the chat
     #[must_use]
     pub fn message_id(&self) -> Option<i64> {
         match self {

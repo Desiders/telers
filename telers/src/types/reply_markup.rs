@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
 /// This object represents available reply markup variants.
 /// Currently, it can be one of
-/// - [`ForceReply`]
-/// - [`InlineKeyboardMarkup`]
-/// - [`ReplyKeyboardMarkup`]
-/// - [`ReplyKeyboardRemove`]
+/// - [`crate::types::ForceReply`]
+/// - [`crate::types::InlineKeyboardMarkup`]
+/// - [`crate::types::ReplyKeyboardMarkup`]
+/// - [`crate::types::ReplyKeyboardRemove`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -18,8 +18,7 @@ pub enum ReplyMarkup {
 impl ReplyMarkup {
     /// Helper method for field `force_reply`.
     ///
-    /// # Variants
-    /// - `ForceReply`. Shows reply interface to the user, as if they manually selected the bot's message and tapped 'Reply'
+    /// Shows reply interface to the user, as if they manually selected the bot's message and tapped 'Reply'
     #[must_use]
     pub fn force_reply(&self) -> Option<bool> {
         match self {
@@ -30,8 +29,7 @@ impl ReplyMarkup {
 
     /// Helper method for field `inline_keyboard`.
     ///
-    /// # Variants
-    /// - `InlineKeyboardMarkup`. Array of button rows, each represented by an Array of [`InlineKeyboardButton`] objects
+    /// Array of button rows, each represented by an Array of [`crate::types::InlineKeyboardButton`] objects
     #[must_use]
     pub fn inline_keyboard(&self) -> Option<&[Box<[crate::types::InlineKeyboardButton]>]> {
         match self {
@@ -56,8 +54,7 @@ impl ReplyMarkup {
 
     /// Helper method for field `is_persistent`.
     ///
-    /// # Variants
-    /// - `ReplyKeyboardMarkup`. Requests clients to always show the keyboard when the regular keyboard is hidden. Defaults to false, in which case the custom keyboard can be hidden and opened with a keyboard icon.
+    /// Requests clients to always show the keyboard when the regular keyboard is hidden. Defaults to false, in which case the custom keyboard can be hidden and opened with a keyboard icon.
     #[must_use]
     pub fn is_persistent(&self) -> Option<bool> {
         match self {
@@ -68,8 +65,7 @@ impl ReplyMarkup {
 
     /// Helper method for field `keyboard`.
     ///
-    /// # Variants
-    /// - `ReplyKeyboardMarkup`. Array of button rows, each represented by an Array of [`KeyboardButton`] objects
+    /// Array of button rows, each represented by an Array of [`crate::types::KeyboardButton`] objects
     #[must_use]
     pub fn keyboard(&self) -> Option<&[Box<[crate::types::KeyboardButton]>]> {
         match self {
@@ -80,8 +76,7 @@ impl ReplyMarkup {
 
     /// Helper method for field `one_time_keyboard`.
     ///
-    /// # Variants
-    /// - `ReplyKeyboardMarkup`. Requests clients to hide the keyboard as soon as it's been used. The keyboard will still be available, but clients will automatically display the usual letter-keyboard in the chat - the user can press a special button in the input field to see the custom keyboard again. Defaults to false.
+    /// Requests clients to hide the keyboard as soon as it's been used. The keyboard will still be available, but clients will automatically display the usual letter-keyboard in the chat - the user can press a special button in the input field to see the custom keyboard again. Defaults to false.
     #[must_use]
     pub fn one_time_keyboard(&self) -> Option<bool> {
         match self {
@@ -92,8 +87,7 @@ impl ReplyMarkup {
 
     /// Helper method for field `remove_keyboard`.
     ///
-    /// # Variants
-    /// - `ReplyKeyboardRemove`. Requests clients to remove the custom keyboard (user will not be able to summon this keyboard; if you want to hide the keyboard from sight but keep it accessible, use `one_time_keyboard` in [`ReplyKeyboardMarkup`])
+    /// Requests clients to remove the custom keyboard (user will not be able to summon this keyboard; if you want to hide the keyboard from sight but keep it accessible, use `one_time_keyboard` in [`crate::types::ReplyKeyboardMarkup`])
     #[must_use]
     pub fn remove_keyboard(&self) -> Option<bool> {
         match self {
@@ -104,8 +98,7 @@ impl ReplyMarkup {
 
     /// Helper method for field `resize_keyboard`.
     ///
-    /// # Variants
-    /// - `ReplyKeyboardMarkup`. Requests clients to resize the keyboard vertically for optimal fit (e.g., make the keyboard smaller if there are just two rows of buttons). Defaults to false, in which case the custom keyboard is always of the same height as the app's standard keyboard.
+    /// Requests clients to resize the keyboard vertically for optimal fit (e.g., make the keyboard smaller if there are just two rows of buttons). Defaults to false, in which case the custom keyboard is always of the same height as the app's standard keyboard.
     #[must_use]
     pub fn resize_keyboard(&self) -> Option<bool> {
         match self {

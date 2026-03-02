@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 /// This object describes the content of a story to post. Currently, it can be one of
-/// - [`InputStoryContentPhoto`]
-/// - [`InputStoryContentVideo`]
+/// - [`crate::types::InputStoryContentPhoto`]
+/// - [`crate::types::InputStoryContentVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputstorycontent>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -13,8 +13,7 @@ pub enum InputStoryContent {
 impl InputStoryContent {
     /// Helper method for field `cover_frame_timestamp`.
     ///
-    /// # Variants
-    /// - `InputStoryContentVideo`. Timestamp in seconds of the frame that will be used as the static cover for the story. Defaults to 0.0.
+    /// Timestamp in seconds of the frame that will be used as the static cover for the story. Defaults to 0.0.
     #[must_use]
     pub fn cover_frame_timestamp(&self) -> Option<f64> {
         match self {
@@ -25,8 +24,7 @@ impl InputStoryContent {
 
     /// Helper method for field `duration`.
     ///
-    /// # Variants
-    /// - `InputStoryContentVideo`. Precise duration of the video in seconds; 0-60
+    /// Precise duration of the video in seconds; 0-60
     #[must_use]
     pub fn duration(&self) -> Option<f64> {
         match self {
@@ -37,8 +35,7 @@ impl InputStoryContent {
 
     /// Helper method for field `is_animation`.
     ///
-    /// # Variants
-    /// - `InputStoryContentVideo`. Pass `true` if the video has no sound
+    /// Pass `true` if the video has no sound
     #[must_use]
     pub fn is_animation(&self) -> Option<bool> {
         match self {
@@ -49,8 +46,7 @@ impl InputStoryContent {
 
     /// Helper method for field `photo`.
     ///
-    /// # Variants
-    /// - `InputStoryContentPhoto`. The photo to post as a story. The photo must be of the size 1080x1920 and must not exceed 10 MB. The photo can't be reused and can only be uploaded as a new file, so you can pass `attach://<file_attach_name>` if the photo was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
+    /// The photo to post as a story. The photo must be of the size 1080x1920 and must not exceed 10 MB. The photo can't be reused and can only be uploaded as a new file, so you can pass `attach://<file_attach_name>` if the photo was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
     pub fn photo(&self) -> Option<&crate::types::InputFile> {
         match self {
@@ -61,8 +57,7 @@ impl InputStoryContent {
 
     /// Helper method for field `video`.
     ///
-    /// # Variants
-    /// - `InputStoryContentVideo`. The video to post as a story. The video must be of the size 720x1280, streamable, encoded with H.265 codec, with key frames added each second in the MPEG4 format, and must not exceed 30 MB. The video can't be reused and can only be uploaded as a new file, so you can pass `attach://<file_attach_name>` if the video was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
+    /// The video to post as a story. The video must be of the size 720x1280, streamable, encoded with H.265 codec, with key frames added each second in the MPEG4 format, and must not exceed 30 MB. The video can't be reused and can only be uploaded as a new file, so you can pass `attach://<file_attach_name>` if the video was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
     pub fn video(&self) -> Option<&crate::types::InputFile> {
         match self {

@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#startransaction>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct StarTransactionIncoming {
-    /// Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`SuccessfulPayment`].`telegram_payment_charge_id` for successful incoming payments from users.
+    /// Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`crate::types::SuccessfulPayment`].`telegram_payment_charge_id` for successful incoming payments from users.
     pub id: Box<str>,
     /// Integer amount of Telegram Stars transferred by the transaction
     pub amount: i64,
@@ -22,7 +22,7 @@ impl StarTransactionIncoming {
     /// Creates a new `StarTransactionIncoming`.
     ///
     /// # Arguments
-    /// * `id` - Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`SuccessfulPayment`].`telegram_payment_charge_id` for successful incoming payments from users.
+    /// * `id` - Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`crate::types::SuccessfulPayment`].`telegram_payment_charge_id` for successful incoming payments from users.
     /// * `amount` - Integer amount of Telegram Stars transferred by the transaction
     /// * `date` - Date the transaction was created in Unix time
     /// * `source` - Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions
@@ -50,7 +50,7 @@ impl StarTransactionIncoming {
         }
     }
 
-    /// Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`SuccessfulPayment`].`telegram_payment_charge_id` for successful incoming payments from users.
+    /// Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`crate::types::SuccessfulPayment`].`telegram_payment_charge_id` for successful incoming payments from users.
     #[must_use]
     pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
         let mut this = self;

@@ -2,10 +2,10 @@ use crate::types::ChatFullInfo;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object contains full information about a chat.
 /// Currently, it can be one of
-/// - [`ChatFullInfoChannel`]
-/// - [`ChatFullInfoGroup`]
-/// - [`ChatFullInfoPrivate`]
-/// - [`ChatFullInfoSupergroup`]
+/// - [`crate::types::ChatFullInfoChannel`]
+/// - [`crate::types::ChatFullInfoGroup`]
+/// - [`crate::types::ChatFullInfoPrivate`]
+/// - [`crate::types::ChatFullInfoSupergroup`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatfullinfo>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

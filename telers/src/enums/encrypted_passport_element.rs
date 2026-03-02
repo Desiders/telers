@@ -2,19 +2,19 @@ use crate::types::EncryptedPassportElement;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// Describes documents or other Telegram Passport elements shared with the bot by the user.
 /// Currently, it can be one of
-/// - [`EncryptedPassportElementAddress`]
-/// - [`EncryptedPassportElementBankStatement`]
-/// - [`EncryptedPassportElementDriverLicense`]
-/// - [`EncryptedPassportElementEmail`]
-/// - [`EncryptedPassportElementIdentityCard`]
-/// - [`EncryptedPassportElementInternalPassport`]
-/// - [`EncryptedPassportElementPassport`]
-/// - [`EncryptedPassportElementPassportRegistration`]
-/// - [`EncryptedPassportElementPersonalDetails`]
-/// - [`EncryptedPassportElementPhoneNumber`]
-/// - [`EncryptedPassportElementRentalAgreement`]
-/// - [`EncryptedPassportElementTemporaryRegistration`]
-/// - [`EncryptedPassportElementUtilityBill`]
+/// - [`crate::types::EncryptedPassportElementAddress`]
+/// - [`crate::types::EncryptedPassportElementBankStatement`]
+/// - [`crate::types::EncryptedPassportElementDriverLicense`]
+/// - [`crate::types::EncryptedPassportElementEmail`]
+/// - [`crate::types::EncryptedPassportElementIdentityCard`]
+/// - [`crate::types::EncryptedPassportElementInternalPassport`]
+/// - [`crate::types::EncryptedPassportElementPassport`]
+/// - [`crate::types::EncryptedPassportElementPassportRegistration`]
+/// - [`crate::types::EncryptedPassportElementPersonalDetails`]
+/// - [`crate::types::EncryptedPassportElementPhoneNumber`]
+/// - [`crate::types::EncryptedPassportElementRentalAgreement`]
+/// - [`crate::types::EncryptedPassportElementTemporaryRegistration`]
+/// - [`crate::types::EncryptedPassportElementUtilityBill`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#encryptedpassportelement>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

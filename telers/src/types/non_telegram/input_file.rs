@@ -75,10 +75,10 @@ impl InputFile {
     /// Creates a new [`InputFile`] with [`StreamFile`]
     /// # Warning
     /// If stream is taken, default client implementation raises an error,
-    /// so you need to use [`StreamFile::set_stream`] to set stream again.
+    /// so you need to create a new [`StreamFile`] to provide a fresh stream.
     /// This need because the stream can't be restored after it was taken.
     ///
-    /// Check [`StreamFile::take_stream`] and [`StreamFile::set_stream`] for more information.
+    /// Check [`StreamFile::take`] for more information.
     #[must_use]
     pub fn stream(
         stream: impl Stream<Item = Result<Bytes, io::Error>> + Unpin + Send + Sync + 'static,

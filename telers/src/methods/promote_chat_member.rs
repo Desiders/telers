@@ -53,7 +53,7 @@ pub struct PromoteChatMember {
     /// Pass `true` if the administrator can pin messages; for supergroups only
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_pin_messages: Option<bool>,
-    /// Pass `true` if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only
+    /// Pass `true` if the user is allowed to create, rename, [`crate::methods::Close`], and reopen forum topics; for supergroups only
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_topics: Option<bool>,
     /// Pass `true` if the administrator can manage direct messages within the channel and decline suggested posts; for channels only
@@ -340,7 +340,7 @@ impl PromoteChatMember {
         this
     }
 
-    /// Pass `true` if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only
+    /// Pass `true` if the user is allowed to create, rename, [`crate::methods::Close`], and reopen forum topics; for supergroups only
     #[must_use]
     pub fn can_manage_topics<T: Into<bool>>(self, val: T) -> Self {
         let mut this = self;
@@ -348,7 +348,7 @@ impl PromoteChatMember {
         this
     }
 
-    /// Pass `true` if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only
+    /// Pass `true` if the user is allowed to create, rename, [`crate::methods::Close`], and reopen forum topics; for supergroups only
     #[must_use]
     pub fn can_manage_topics_option<T: Into<bool>>(self, val: Option<T>) -> Self {
         let mut this = self;

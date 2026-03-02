@@ -6,9 +6,9 @@ use std::borrow::Cow;
 
 /// Represents a command pattern type for verification
 /// # Variants
-/// * [`PatternType::Text(Cow<str>)`]:
+/// * `PatternType::Text(Cow<str>)`:
 ///   A command pattern with text
-/// * [`PatternType::Regex(Regex)`]:
+/// * `PatternType::Regex(Regex)`:
 ///   A command pattern with regex, compiled with [`Regex`] struct. \
 ///   If filter used with `ignore_case` flag, then the regex will be compiled with `(?i)` flag (ignore case sensitive flag).
 #[derive(Debug, Clone)]

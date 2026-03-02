@@ -1,11 +1,11 @@
 use serde::{Deserialize, Serialize};
 /// Describes a transaction with a user.
 /// Currently, it can be one of
-/// - [`TransactionPartnerUserBusinessAccountTransfer`]
-/// - [`TransactionPartnerUserGiftPurchase`]
-/// - [`TransactionPartnerUserInvoicePayment`]
-/// - [`TransactionPartnerUserPaidMediaPayment`]
-/// - [`TransactionPartnerUserPremiumPurchase`]
+/// - [`crate::types::TransactionPartnerUserBusinessAccountTransfer`]
+/// - [`crate::types::TransactionPartnerUserGiftPurchase`]
+/// - [`crate::types::TransactionPartnerUserInvoicePayment`]
+/// - [`crate::types::TransactionPartnerUserPaidMediaPayment`]
+/// - [`crate::types::TransactionPartnerUserPremiumPurchase`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transactionpartneruser>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -20,9 +20,7 @@ pub enum TransactionPartnerUser {
 impl TransactionPartnerUser {
     /// Helper method for field `affiliate`.
     ///
-    /// # Variants
-    /// - `TransactionPartnerUserInvoicePayment`. Information about the affiliate that received a commission via this transaction. Can be available only for `invoice_payment` and `paid_media_payment` transactions.
-    /// - `TransactionPartnerUserPaidMediaPayment`. Information about the affiliate that received a commission via this transaction. Can be available only for `invoice_payment` and `paid_media_payment` transactions.
+    /// Information about the affiliate that received a commission via this transaction. Can be available only for `invoice_payment` and `paid_media_payment` transactions.
     #[must_use]
     pub fn affiliate(&self) -> Option<&crate::types::AffiliateInfo> {
         match self {
@@ -34,8 +32,7 @@ impl TransactionPartnerUser {
 
     /// Helper method for field `gift`.
     ///
-    /// # Variants
-    /// - `TransactionPartnerUserGiftPurchase`. The gift sent to the user by the bot; for `gift_purchase` transactions only
+    /// The gift sent to the user by the bot; for `gift_purchase` transactions only
     #[must_use]
     pub fn gift(&self) -> Option<&crate::types::Gift> {
         match self {
@@ -46,8 +43,7 @@ impl TransactionPartnerUser {
 
     /// Helper method for field `invoice_payload`.
     ///
-    /// # Variants
-    /// - `TransactionPartnerUserInvoicePayment`. Bot-specified invoice payload. Can be available only for `invoice_payment` transactions.
+    /// Bot-specified invoice payload. Can be available only for `invoice_payment` transactions.
     #[must_use]
     pub fn invoice_payload(&self) -> Option<&str> {
         match self {
@@ -58,8 +54,7 @@ impl TransactionPartnerUser {
 
     /// Helper method for field `paid_media`.
     ///
-    /// # Variants
-    /// - `TransactionPartnerUserPaidMediaPayment`. Information about the paid media bought by the user; for `paid_media_payment` transactions only
+    /// Information about the paid media bought by the user; for `paid_media_payment` transactions only
     #[must_use]
     pub fn paid_media(&self) -> Option<&[crate::types::PaidMedia]> {
         match self {
@@ -70,8 +65,7 @@ impl TransactionPartnerUser {
 
     /// Helper method for field `paid_media_payload`.
     ///
-    /// # Variants
-    /// - `TransactionPartnerUserPaidMediaPayment`. Bot-specified paid media payload. Can be available only for `paid_media_payment` transactions.
+    /// Bot-specified paid media payload. Can be available only for `paid_media_payment` transactions.
     #[must_use]
     pub fn paid_media_payload(&self) -> Option<&str> {
         match self {
@@ -82,8 +76,7 @@ impl TransactionPartnerUser {
 
     /// Helper method for field `premium_subscription_duration`.
     ///
-    /// # Variants
-    /// - `TransactionPartnerUserPremiumPurchase`. Number of months the gifted Telegram Premium subscription will be active for; for `premium_purchase` transactions only
+    /// Number of months the gifted Telegram Premium subscription will be active for; for `premium_purchase` transactions only
     #[must_use]
     pub fn premium_subscription_duration(&self) -> Option<i64> {
         match self {
@@ -94,8 +87,7 @@ impl TransactionPartnerUser {
 
     /// Helper method for field `subscription_period`.
     ///
-    /// # Variants
-    /// - `TransactionPartnerUserInvoicePayment`. The duration of the paid subscription. Can be available only for `invoice_payment` transactions.
+    /// The duration of the paid subscription. Can be available only for `invoice_payment` transactions.
     #[must_use]
     pub fn subscription_period(&self) -> Option<i64> {
         match self {
@@ -106,12 +98,7 @@ impl TransactionPartnerUser {
 
     /// Helper method for field `user`.
     ///
-    /// # Variants
-    /// - `TransactionPartnerUserInvoicePayment`. Information about the user
-    /// - `TransactionPartnerUserPaidMediaPayment`. Information about the user
-    /// - `TransactionPartnerUserGiftPurchase`. Information about the user
-    /// - `TransactionPartnerUserPremiumPurchase`. Information about the user
-    /// - `TransactionPartnerUserBusinessAccountTransfer`. Information about the user
+    /// Information about the user
     #[must_use]
     pub fn user(&self) -> &crate::types::User {
         match self {

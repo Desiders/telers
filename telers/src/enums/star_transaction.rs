@@ -2,8 +2,8 @@ use crate::types::StarTransaction;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// Describes a Telegram Star transaction. Note that if the buyer initiates a chargeback with the payment provider from whom they acquired Stars (e.g., Apple, Google) following this transaction, the refunded Stars will be deducted from the bot's balance. This is outside of Telegram's control.
 /// Currently, it can be one of
-/// - [`StarTransactionIncoming`]
-/// - [`StarTransactionOutgoing`]
+/// - [`crate::types::StarTransactionIncoming`]
+/// - [`crate::types::StarTransactionOutgoing`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#startransaction>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

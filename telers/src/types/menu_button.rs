@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
 /// This object describes the bot's menu button in a private chat. It should be one of
-/// - [`MenuButtonCommands`]
-/// - [`MenuButtonWebApp`]
-/// - [`MenuButtonDefault`]
+/// - [`crate::types::MenuButtonCommands`]
+/// - [`crate::types::MenuButtonWebApp`]
+/// - [`crate::types::MenuButtonDefault`]
 ///
-/// If a menu button other than [`MenuButtonDefault`] is set for a private chat, then it is applied in the chat. Otherwise the default menu button is applied. By default, the menu button opens the list of bot commands.
+/// If a menu button other than [`crate::types::MenuButtonDefault`] is set for a private chat, then it is applied in the chat. Otherwise the default menu button is applied. By default, the menu button opens the list of bot commands.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#menubutton>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -17,8 +17,7 @@ pub enum MenuButton {
 impl MenuButton {
     /// Helper method for field `text`.
     ///
-    /// # Variants
-    /// - `MenuButtonWebApp`. Text on the button
+    /// Text on the button
     #[must_use]
     pub fn text(&self) -> Option<&str> {
         match self {
@@ -29,8 +28,7 @@ impl MenuButton {
 
     /// Helper method for field `web_app`.
     ///
-    /// # Variants
-    /// - `MenuButtonWebApp`. Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answer[`WebAppQuery`]. Alternatively, a t.me link to a Web App of the bot can be specified in the object instead of the Web App's URL, in which case the Web App will be opened as if the user pressed the link.
+    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Alternatively, a t.me link to a Web App of the bot can be specified in the object instead of the Web App's URL, in which case the Web App will be opened as if the user pressed the link.
     #[must_use]
     pub fn web_app(&self) -> Option<&crate::types::WebAppInfo> {
         match self {

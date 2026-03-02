@@ -101,15 +101,23 @@ fn sanitize_description(description: &str) -> String {
         .replace("tg://user?id=<`user_id`>", "`tg://user?id=<user_id>`")
         .replace("tg://user?id=<user_id>", "`tg://user?id=<user_id>`")
         .replace(
-            "https://api.telegram.org/file/bot<token>/<file_path>",
-            "`https://api.telegram.org/file/bot<token>/<file_path>`",
-        )
-        .replace(
             "<https://api.telegram.org/file/bot<`token`>/<`file_path`>>",
             "`https://api.telegram.org/file/bot<token>/<file_path>`",
         )
         .replace(
+            "<https://api.telegram.org/file/bot<`token`>/<`file_path`>",
+            "`https://api.telegram.org/file/bot<token>/<file_path>`",
+        )
+        .replace(
             "<https://api.telegram.org/file/bot<token>/<file_path>>",
+            "`https://api.telegram.org/file/bot<token>/<file_path>`",
+        )
+        .replace(
+            "<https://api.telegram.org/file/bot<token>/<file_path>",
+            "`https://api.telegram.org/file/bot<token>/<file_path>`",
+        )
+        .replace(
+            "https://api.telegram.org/file/bot<token>/<file_path>",
             "`https://api.telegram.org/file/bot<token>/<file_path>`",
         )
         .replace(
@@ -141,6 +149,17 @@ fn sanitize_description(description: &str) -> String {
             continue;
         }
         if ch.is_uppercase() {
+            // Don't split CamelCase fragments that are in the middle of a lower-cased identifier
+            // (e.g. `getForumTopicIconStickers`).
+            if result
+                .chars()
+                .last()
+                .is_some_and(|c| c.is_ascii_alphanumeric() || c == '_')
+            {
+                result.push(ch);
+                continue;
+            }
+
             let mut word = String::from(ch);
             let mut has_camel_case = false;
             let mut prev_uppercase = true;
@@ -206,15 +225,49 @@ fn sanitize_description(description: &str) -> String {
         .collect::<Vec<_>>()
         .join(" ");
 
+    // Raw schema text often contains unresolved intra-doc links like [`SomeType`]
+    // that are not in local module scope. Render them as code to avoid broken links.
+    let result = demote_intra_doc_links_to_code(&result);
+
     result
+        .replace(
+            "<https://api.telegram.org/file/bot<`token`>/<`file_path>`>",
+            "`https://api.telegram.org/file/bot<token>/<file_path>`",
+        )
         .replace(
             "<https://api.telegram.org/file/bot<`token`>/<`file_path`>>",
             "`https://api.telegram.org/file/bot<token>/<file_path>`",
         )
-        .replace(
-            "<https://api.telegram.org/file/bot<token>/<file_path>>",
-            "`https://api.telegram.org/file/bot<token>/<file_path>`",
-        )
+}
+
+#[must_use]
+fn demote_intra_doc_links_to_code(input: &str) -> String {
+    let mut out = String::with_capacity(input.len());
+    let mut rest = input;
+
+    while let Some(start) = rest.find("[`") {
+        out.push_str(&rest[..start]);
+        let after_start = &rest[start + 2..];
+        if let Some(end) = after_start.find("`]") {
+            let content = &after_start[..end];
+            if content.contains("::") || content.contains("://") {
+                out.push_str("[`");
+                out.push_str(content);
+                out.push_str("`]");
+            } else {
+                out.push('`');
+                out.push_str(content);
+                out.push('`');
+            }
+            rest = &after_start[end + 2..];
+        } else {
+            out.push_str(&rest[start..]);
+            return out;
+        }
+    }
+
+    out.push_str(rest);
+    out
 }
 
 #[must_use]

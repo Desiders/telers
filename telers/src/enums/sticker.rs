@@ -2,9 +2,9 @@ use crate::types::Sticker;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents a sticker.
 /// Currently, it can be one of
-/// - [`StickerCustomEmoji`]
-/// - [`StickerMask`]
-/// - [`StickerRegular`]
+/// - [`crate::types::StickerCustomEmoji`]
+/// - [`crate::types::StickerMask`]
+/// - [`crate::types::StickerRegular`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sticker>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

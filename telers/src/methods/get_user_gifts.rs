@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Returns the gifts owned and hosted by a user. Returns [`OwnedGifts`] on success.
+/// Returns the gifts owned and hosted by a user. Returns [`crate::types::OwnedGifts`] on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getusergifts>
 /// # Returns

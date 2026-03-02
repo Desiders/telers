@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to get a sticker set. On success, a [`StickerSet`] object is returned.
+/// Use this method to get a sticker set. On success, a [`crate::types::StickerSet`] object is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getstickerset>
 /// # Returns

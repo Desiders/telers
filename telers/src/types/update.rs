@@ -2,29 +2,29 @@ use serde::{Deserialize, Serialize};
 /// This object represents an incoming update.
 /// At most one of the optional parameters can be present in any given update.
 /// Currently, it can be one of
-/// - [`UpdateBusinessConnection`]
-/// - [`UpdateBusinessMessage`]
-/// - [`UpdateCallbackQuery`]
-/// - [`UpdateChannelPost`]
-/// - [`UpdateChatBoost`]
-/// - [`UpdateChatJoinRequest`]
-/// - [`UpdateChatMember`]
-/// - [`UpdateChosenInlineResult`]
-/// - [`UpdateDeletedBusinessMessages`]
-/// - [`UpdateEditedBusinessMessage`]
-/// - [`UpdateEditedChannelPost`]
-/// - [`UpdateEditedMessage`]
-/// - [`UpdateInlineQuery`]
-/// - [`UpdateMessage`]
-/// - [`UpdateMessageReaction`]
-/// - [`UpdateMessageReactionCount`]
-/// - [`UpdateMyChatMember`]
-/// - [`UpdatePoll`]
-/// - [`UpdatePollAnswer`]
-/// - [`UpdatePreCheckoutQuery`]
-/// - [`UpdatePurchasedPaidMedia`]
-/// - [`UpdateRemovedChatBoost`]
-/// - [`UpdateShippingQuery`]
+/// - [`crate::types::UpdateBusinessConnection`]
+/// - [`crate::types::UpdateBusinessMessage`]
+/// - [`crate::types::UpdateCallbackQuery`]
+/// - [`crate::types::UpdateChannelPost`]
+/// - [`crate::types::UpdateChatBoost`]
+/// - [`crate::types::UpdateChatJoinRequest`]
+/// - [`crate::types::UpdateChatMember`]
+/// - [`crate::types::UpdateChosenInlineResult`]
+/// - [`crate::types::UpdateDeletedBusinessMessages`]
+/// - [`crate::types::UpdateEditedBusinessMessage`]
+/// - [`crate::types::UpdateEditedChannelPost`]
+/// - [`crate::types::UpdateEditedMessage`]
+/// - [`crate::types::UpdateInlineQuery`]
+/// - [`crate::types::UpdateMessage`]
+/// - [`crate::types::UpdateMessageReaction`]
+/// - [`crate::types::UpdateMessageReactionCount`]
+/// - [`crate::types::UpdateMyChatMember`]
+/// - [`crate::types::UpdatePoll`]
+/// - [`crate::types::UpdatePollAnswer`]
+/// - [`crate::types::UpdatePreCheckoutQuery`]
+/// - [`crate::types::UpdatePurchasedPaidMedia`]
+/// - [`crate::types::UpdateRemovedChatBoost`]
+/// - [`crate::types::UpdateShippingQuery`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#update>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -57,8 +57,7 @@ pub enum Update {
 impl Update {
     /// Helper method for field `business_connection`.
     ///
-    /// # Variants
-    /// - `UpdateBusinessConnection`. The bot was connected to or disconnected from a business account, or a user edited an existing connection with the bot
+    /// The bot was connected to or disconnected from a business account, or a user edited an existing connection with the bot
     #[must_use]
     pub fn business_connection(&self) -> Option<&crate::types::BusinessConnection> {
         match self {
@@ -69,8 +68,7 @@ impl Update {
 
     /// Helper method for field `business_message`.
     ///
-    /// # Variants
-    /// - `UpdateBusinessMessage`. New message from a connected business account
+    /// New message from a connected business account
     #[must_use]
     pub fn business_message(&self) -> Option<&crate::types::Message> {
         match self {
@@ -81,8 +79,7 @@ impl Update {
 
     /// Helper method for field `callback_query`.
     ///
-    /// # Variants
-    /// - `UpdateCallbackQuery`. New incoming callback query
+    /// New incoming callback query
     #[must_use]
     pub fn callback_query(&self) -> Option<&crate::types::CallbackQuery> {
         match self {
@@ -93,8 +90,7 @@ impl Update {
 
     /// Helper method for field `channel_post`.
     ///
-    /// # Variants
-    /// - `UpdateChannelPost`. New incoming channel post of any kind - text, photo, sticker, etc.
+    /// New incoming channel post of any kind - text, photo, sticker, etc.
     #[must_use]
     pub fn channel_post(&self) -> Option<&crate::types::Message> {
         match self {
@@ -105,8 +101,7 @@ impl Update {
 
     /// Helper method for field `chat_boost`.
     ///
-    /// # Variants
-    /// - `UpdateChatBoost`. A chat boost was added or changed. The bot must be an administrator in the chat to receive these updates.
+    /// A chat boost was added or changed. The bot must be an administrator in the chat to receive these updates.
     #[must_use]
     pub fn chat_boost(&self) -> Option<&crate::types::ChatBoostUpdated> {
         match self {
@@ -117,8 +112,7 @@ impl Update {
 
     /// Helper method for field `chat_join_request`.
     ///
-    /// # Variants
-    /// - `UpdateChatJoinRequest`. A request to join the chat has been sent. The bot must have the `can_invite_users` administrator right in the chat to receive these updates.
+    /// A request to join the chat has been sent. The bot must have the `can_invite_users` administrator right in the chat to receive these updates.
     #[must_use]
     pub fn chat_join_request(&self) -> Option<&crate::types::ChatJoinRequest> {
         match self {
@@ -129,8 +123,7 @@ impl Update {
 
     /// Helper method for field `chat_member`.
     ///
-    /// # Variants
-    /// - `UpdateChatMember`. A chat member's status was updated in a chat. The bot must be an administrator in the chat and must explicitly specify `chat_member` in the list of `allowed_updates` to receive these updates.
+    /// A chat member's status was updated in a chat. The bot must be an administrator in the chat and must explicitly specify `chat_member` in the list of `allowed_updates` to receive these updates.
     #[must_use]
     pub fn chat_member(&self) -> Option<&crate::types::ChatMemberUpdated> {
         match self {
@@ -141,8 +134,7 @@ impl Update {
 
     /// Helper method for field `chosen_inline_result`.
     ///
-    /// # Variants
-    /// - `UpdateChosenInlineResult`. The result of an inline query that was chosen by a user and sent to their chat partner. Please see our documentation on the feedback collecting for details on how to enable these updates for your bot.
+    /// The result of an inline query that was chosen by a user and sent to their chat partner. Please see our documentation on the feedback collecting for details on how to enable these updates for your bot.
     #[must_use]
     pub fn chosen_inline_result(&self) -> Option<&crate::types::ChosenInlineResult> {
         match self {
@@ -153,8 +145,7 @@ impl Update {
 
     /// Helper method for field `deleted_business_messages`.
     ///
-    /// # Variants
-    /// - `UpdateDeletedBusinessMessages`. Messages were deleted from a connected business account
+    /// Messages were deleted from a connected business account
     #[must_use]
     pub fn deleted_business_messages(&self) -> Option<&crate::types::BusinessMessagesDeleted> {
         match self {
@@ -165,8 +156,7 @@ impl Update {
 
     /// Helper method for field `edited_business_message`.
     ///
-    /// # Variants
-    /// - `UpdateEditedBusinessMessage`. New version of a message from a connected business account
+    /// New version of a message from a connected business account
     #[must_use]
     pub fn edited_business_message(&self) -> Option<&crate::types::Message> {
         match self {
@@ -177,8 +167,7 @@ impl Update {
 
     /// Helper method for field `edited_channel_post`.
     ///
-    /// # Variants
-    /// - `UpdateEditedChannelPost`. New version of a channel post that is known to the bot and was edited. This update may at times be triggered by changes to message fields that are either unavailable or not actively used by your bot.
+    /// New version of a channel post that is known to the bot and was edited. This update may at times be triggered by changes to message fields that are either unavailable or not actively used by your bot.
     #[must_use]
     pub fn edited_channel_post(&self) -> Option<&crate::types::Message> {
         match self {
@@ -189,8 +178,7 @@ impl Update {
 
     /// Helper method for field `edited_message`.
     ///
-    /// # Variants
-    /// - `UpdateEditedMessage`. New version of a message that is known to the bot and was edited. This update may at times be triggered by changes to message fields that are either unavailable or not actively used by your bot.
+    /// New version of a message that is known to the bot and was edited. This update may at times be triggered by changes to message fields that are either unavailable or not actively used by your bot.
     #[must_use]
     pub fn edited_message(&self) -> Option<&crate::types::Message> {
         match self {
@@ -201,8 +189,7 @@ impl Update {
 
     /// Helper method for field `inline_query`.
     ///
-    /// # Variants
-    /// - `UpdateInlineQuery`. New incoming inline query
+    /// New incoming inline query
     #[must_use]
     pub fn inline_query(&self) -> Option<&crate::types::InlineQuery> {
         match self {
@@ -213,8 +200,7 @@ impl Update {
 
     /// Helper method for field `message`.
     ///
-    /// # Variants
-    /// - `UpdateMessage`. New incoming message of any kind - text, photo, sticker, etc.
+    /// New incoming message of any kind - text, photo, sticker, etc.
     #[must_use]
     pub fn message(&self) -> Option<&crate::types::Message> {
         match self {
@@ -225,8 +211,7 @@ impl Update {
 
     /// Helper method for field `message_reaction`.
     ///
-    /// # Variants
-    /// - `UpdateMessageReaction`. A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify `message_reaction` in the list of `allowed_updates` to receive these updates. The update isn't received for reactions set by bots.
+    /// A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify `message_reaction` in the list of `allowed_updates` to receive these updates. The update isn't received for reactions set by bots.
     #[must_use]
     pub fn message_reaction(&self) -> Option<&crate::types::MessageReactionUpdated> {
         match self {
@@ -237,8 +222,7 @@ impl Update {
 
     /// Helper method for field `message_reaction_count`.
     ///
-    /// # Variants
-    /// - `UpdateMessageReactionCount`. Reactions to a message with anonymous reactions were changed. The bot must be an administrator in the chat and must explicitly specify `message_reaction_count` in the list of `allowed_updates` to receive these updates. The updates are grouped and can be sent with delay up to a few minutes.
+    /// Reactions to a message with anonymous reactions were changed. The bot must be an administrator in the chat and must explicitly specify `message_reaction_count` in the list of `allowed_updates` to receive these updates. The updates are grouped and can be sent with delay up to a few minutes.
     #[must_use]
     pub fn message_reaction_count(&self) -> Option<&crate::types::MessageReactionCountUpdated> {
         match self {
@@ -249,8 +233,7 @@ impl Update {
 
     /// Helper method for field `my_chat_member`.
     ///
-    /// # Variants
-    /// - `UpdateMyChatMember`. The bot's chat member status was updated in a chat. For private chats, this update is received only when the bot is blocked or unblocked by the user.
+    /// The bot's chat member status was updated in a chat. For private chats, this update is received only when the bot is blocked or unblocked by the user.
     #[must_use]
     pub fn my_chat_member(&self) -> Option<&crate::types::ChatMemberUpdated> {
         match self {
@@ -261,8 +244,7 @@ impl Update {
 
     /// Helper method for field `poll`.
     ///
-    /// # Variants
-    /// - `UpdatePoll`. New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot
+    /// New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot
     #[must_use]
     pub fn poll(&self) -> Option<&crate::types::Poll> {
         match self {
@@ -273,8 +255,7 @@ impl Update {
 
     /// Helper method for field `poll_answer`.
     ///
-    /// # Variants
-    /// - `UpdatePollAnswer`. A user changed their answer in a non-anonymous poll. Bots receive new votes only in polls that were sent by the bot itself.
+    /// A user changed their answer in a non-anonymous poll. Bots receive new votes only in polls that were sent by the bot itself.
     #[must_use]
     pub fn poll_answer(&self) -> Option<&crate::types::PollAnswer> {
         match self {
@@ -285,8 +266,7 @@ impl Update {
 
     /// Helper method for field `pre_checkout_query`.
     ///
-    /// # Variants
-    /// - `UpdatePreCheckoutQuery`. New incoming pre-checkout query. Contains full information about checkout
+    /// New incoming pre-checkout query. Contains full information about checkout
     #[must_use]
     pub fn pre_checkout_query(&self) -> Option<&crate::types::PreCheckoutQuery> {
         match self {
@@ -297,8 +277,7 @@ impl Update {
 
     /// Helper method for field `purchased_paid_media`.
     ///
-    /// # Variants
-    /// - `UpdatePurchasedPaidMedia`. A user purchased paid media with a non-empty payload sent by the bot in a non-channel chat
+    /// A user purchased paid media with a non-empty payload sent by the bot in a non-channel chat
     #[must_use]
     pub fn purchased_paid_media(&self) -> Option<&crate::types::PaidMediaPurchased> {
         match self {
@@ -309,8 +288,7 @@ impl Update {
 
     /// Helper method for field `removed_chat_boost`.
     ///
-    /// # Variants
-    /// - `UpdateRemovedChatBoost`. A boost was removed from a chat. The bot must be an administrator in the chat to receive these updates.
+    /// A boost was removed from a chat. The bot must be an administrator in the chat to receive these updates.
     #[must_use]
     pub fn removed_chat_boost(&self) -> Option<&crate::types::ChatBoostRemoved> {
         match self {
@@ -321,8 +299,7 @@ impl Update {
 
     /// Helper method for field `shipping_query`.
     ///
-    /// # Variants
-    /// - `UpdateShippingQuery`. New incoming shipping query. Only for invoices with flexible price
+    /// New incoming shipping query. Only for invoices with flexible price
     #[must_use]
     pub fn shipping_query(&self) -> Option<&crate::types::ShippingQuery> {
         match self {
@@ -333,30 +310,7 @@ impl Update {
 
     /// Helper method for field `update_id`.
     ///
-    /// # Variants
-    /// - `UpdateBusinessConnection`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdateBusinessMessage`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdateCallbackQuery`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdateChannelPost`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdateChatBoost`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdateChatJoinRequest`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdateChatMember`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdateChosenInlineResult`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdateDeletedBusinessMessages`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdateEditedBusinessMessage`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdateEditedChannelPost`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdateEditedMessage`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdateInlineQuery`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdateMessage`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdateMessageReaction`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdateMessageReactionCount`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdateMyChatMember`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdatePoll`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdatePollAnswer`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdatePreCheckoutQuery`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdatePurchasedPaidMedia`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdateRemovedChatBoost`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-    /// - `UpdateShippingQuery`. The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
+    /// The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
     #[must_use]
     pub fn update_id(&self) -> i64 {
         match self {

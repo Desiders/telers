@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
-/// This object represents a service message about a user allowing a bot to write messages after adding it to the attachment menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method request[`WriteAccess`].
+/// This object represents a service message about a user allowing a bot to write messages after adding it to the attachment menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#writeaccessallowed>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WriteAccessAllowed {
-    /// `true`, if the access was granted after the user accepted an explicit request from a Web App sent by the method request[`WriteAccess`]
+    /// `true`, if the access was granted after the user accepted an explicit request from a Web App sent by the method requestWriteAccess
     #[serde(skip_serializing_if = "Option::is_none")]
     pub from_request: Option<bool>,
     /// Name of the Web App, if the access was granted when the Web App was launched from a link
@@ -28,7 +28,7 @@ impl WriteAccessAllowed {
         }
     }
 
-    /// `true`, if the access was granted after the user accepted an explicit request from a Web App sent by the method request[`WriteAccess`]
+    /// `true`, if the access was granted after the user accepted an explicit request from a Web App sent by the method requestWriteAccess
     #[must_use]
     pub fn from_request<T: Into<bool>>(self, val: T) -> Self {
         let mut this = self;
@@ -36,7 +36,7 @@ impl WriteAccessAllowed {
         this
     }
 
-    /// `true`, if the access was granted after the user accepted an explicit request from a Web App sent by the method request[`WriteAccess`]
+    /// `true`, if the access was granted after the user accepted an explicit request from a Web App sent by the method requestWriteAccess
     #[must_use]
     pub fn from_request_option<T: Into<bool>>(self, val: Option<T>) -> Self {
         let mut this = self;

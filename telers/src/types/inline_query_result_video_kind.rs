@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 /// # Notes
-/// This object represents an inline query result kind as combine of [`InlineQueryResultCachedVideo`] and [`InlineQueryResultVideo`].
+/// This object represents an inline query result kind as combine of [`crate::types::InlineQueryResultCachedVideo`] and [`crate::types::InlineQueryResultVideo`].
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -12,9 +12,7 @@ pub enum InlineQueryResultVideoKind {
 impl InlineQueryResultVideoKind {
     /// Helper method for field `caption`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVideo`. Caption of the video to be sent, 0-1024 characters after entities parsing
-    /// - `InlineQueryResultCachedVideo`. Caption of the video to be sent, 0-1024 characters after entities parsing
+    /// Caption of the video to be sent, 0-1024 characters after entities parsing
     #[must_use]
     pub fn caption(&self) -> Option<&str> {
         match self {
@@ -25,9 +23,7 @@ impl InlineQueryResultVideoKind {
 
     /// Helper method for field `caption_entities`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVideo`. List of special entities that appear in the caption, which can be specified instead of `parse_mode`
-    /// - `InlineQueryResultCachedVideo`. List of special entities that appear in the caption, which can be specified instead of `parse_mode`
+    /// List of special entities that appear in the caption, which can be specified instead of `parse_mode`
     #[must_use]
     pub fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
         match self {
@@ -38,9 +34,7 @@ impl InlineQueryResultVideoKind {
 
     /// Helper method for field `description`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVideo`. Short description of the result
-    /// - `InlineQueryResultCachedVideo`. Short description of the result
+    /// Short description of the result
     #[must_use]
     pub fn description(&self) -> Option<&str> {
         match self {
@@ -51,9 +45,7 @@ impl InlineQueryResultVideoKind {
 
     /// Helper method for field `id`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVideo`. Unique identifier for this result, 1-64 bytes
-    /// - `InlineQueryResultCachedVideo`. Unique identifier for this result, 1-64 bytes
+    /// Unique identifier for this result, 1-64 bytes
     #[must_use]
     pub fn id(&self) -> &str {
         match self {
@@ -65,7 +57,7 @@ impl InlineQueryResultVideoKind {
     /// Helper method for field `input_message_content`.
     ///
     /// # Variants
-    /// - `InlineQueryResultVideo`. Content of the message to be sent instead of the video. This field is required if [`InlineQueryResultVideo`] is used to send an HTML-page as a result (e.g., a [`YouTube`] video).
+    /// - `InlineQueryResultVideo`. Content of the message to be sent instead of the video. This field is required if [`crate::types::InlineQueryResultVideo`] is used to send an HTML-page as a result (e.g., a `YouTube` video).
     /// - `InlineQueryResultCachedVideo`. Content of the message to be sent instead of the video
     #[must_use]
     pub fn input_message_content(&self) -> Option<&crate::types::InputMessageContent> {
@@ -77,8 +69,7 @@ impl InlineQueryResultVideoKind {
 
     /// Helper method for field `mime_type`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVideo`. MIME type of the content of the video URL, `text/html` or `video/mp4`
+    /// MIME type of the content of the video URL, `text/html` or `video/mp4`
     #[must_use]
     pub fn mime_type(&self) -> Option<&str> {
         match self {
@@ -89,9 +80,7 @@ impl InlineQueryResultVideoKind {
 
     /// Helper method for field `parse_mode`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVideo`. Mode for parsing entities in the video caption. See formatting options for more details.
-    /// - `InlineQueryResultCachedVideo`. Mode for parsing entities in the video caption. See formatting options for more details.
+    /// Mode for parsing entities in the video caption. See formatting options for more details.
     #[must_use]
     pub fn parse_mode(&self) -> Option<&str> {
         match self {
@@ -102,9 +91,7 @@ impl InlineQueryResultVideoKind {
 
     /// Helper method for field `reply_markup`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVideo`. Inline keyboard attached to the message
-    /// - `InlineQueryResultCachedVideo`. Inline keyboard attached to the message
+    /// Inline keyboard attached to the message
     #[must_use]
     pub fn reply_markup(&self) -> Option<&crate::types::InlineKeyboardMarkup> {
         match self {
@@ -115,9 +102,7 @@ impl InlineQueryResultVideoKind {
 
     /// Helper method for field `show_caption_above_media`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVideo`. Pass `true`, if the caption must be shown above the message media
-    /// - `InlineQueryResultCachedVideo`. Pass `true`, if the caption must be shown above the message media
+    /// Pass `true`, if the caption must be shown above the message media
     #[must_use]
     pub fn show_caption_above_media(&self) -> Option<bool> {
         match self {
@@ -128,8 +113,7 @@ impl InlineQueryResultVideoKind {
 
     /// Helper method for field `thumbnail_url`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVideo`. URL of the thumbnail (JPEG only) for the video
+    /// URL of the thumbnail (JPEG only) for the video
     #[must_use]
     pub fn thumbnail_url(&self) -> Option<&str> {
         match self {
@@ -140,9 +124,7 @@ impl InlineQueryResultVideoKind {
 
     /// Helper method for field `title`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVideo`. Title for the result
-    /// - `InlineQueryResultCachedVideo`. Title for the result
+    /// Title for the result
     #[must_use]
     pub fn title(&self) -> &str {
         match self {
@@ -153,8 +135,7 @@ impl InlineQueryResultVideoKind {
 
     /// Helper method for field `video_duration`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVideo`. Video duration in seconds
+    /// Video duration in seconds
     #[must_use]
     pub fn video_duration(&self) -> Option<i64> {
         match self {
@@ -165,8 +146,7 @@ impl InlineQueryResultVideoKind {
 
     /// Helper method for field `video_file_id`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultCachedVideo`. A valid file identifier for the video file
+    /// A valid file identifier for the video file
     #[must_use]
     pub fn video_file_id(&self) -> Option<&str> {
         match self {
@@ -177,8 +157,7 @@ impl InlineQueryResultVideoKind {
 
     /// Helper method for field `video_height`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVideo`. Video height
+    /// Video height
     #[must_use]
     pub fn video_height(&self) -> Option<i64> {
         match self {
@@ -189,8 +168,7 @@ impl InlineQueryResultVideoKind {
 
     /// Helper method for field `video_url`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVideo`. A valid URL for the embedded video player or video file
+    /// A valid URL for the embedded video player or video file
     #[must_use]
     pub fn video_url(&self) -> Option<&str> {
         match self {
@@ -201,8 +179,7 @@ impl InlineQueryResultVideoKind {
 
     /// Helper method for field `video_width`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultVideo`. Video width
+    /// Video width
     #[must_use]
     pub fn video_width(&self) -> Option<i64> {
         match self {

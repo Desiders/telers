@@ -11,6 +11,12 @@ use crate::{
 
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote, ToTokens};
+use std::collections::{HashMap, HashSet};
+
+struct MethodDocContext<'a> {
+    schema_type_names: &'a HashSet<String>,
+    api_method_names: &'a HashMap<String, String>,
+}
 
 #[must_use]
 fn format_type_kind_rust(kind: &TypeKindInField) -> String {
@@ -158,6 +164,155 @@ fn collect_prepare_steps(method_quote: &NormalizedMethod) -> Vec<TokenStream> {
     steps
 }
 
+fn collect_telegram_type_names(kind: &TypeKindInField, out: &mut HashSet<String>) {
+    match kind {
+        TypeKindInField::Telegram(name) => {
+            out.insert(name.clone());
+        }
+        TypeKindInField::Array(inner) => collect_telegram_type_names(inner, out),
+        TypeKindInField::Either(left, right) => {
+            collect_telegram_type_names(left, out);
+            collect_telegram_type_names(right, out);
+        }
+        _ => {}
+    }
+}
+
+#[must_use]
+fn link_known_type_mentions(doc: &str, names: &HashSet<String>) -> String {
+    let mut out = String::with_capacity(doc.len() + 32);
+    let mut rest = doc;
+
+    while let Some(pos) = rest.find('`') {
+        out.push_str(&rest[..pos]);
+
+        if pos > 0 && rest.as_bytes()[pos - 1] == b'[' {
+            out.pop();
+            let after_tick = &rest[pos + 1..];
+            if let Some(end_tick) = after_tick.find('`') {
+                let token = &after_tick[..end_tick];
+                let after_end_tick = &after_tick[end_tick + 1..];
+                if let Some(after_bracket) = after_end_tick.strip_prefix(']') {
+                    if names.contains(token) {
+                        out.push_str("[`crate::types::");
+                        out.push_str(token);
+                        out.push_str("`]");
+                    } else {
+                        out.push_str("[`");
+                        out.push_str(token);
+                        out.push_str("`]");
+                    }
+                    rest = after_bracket;
+                    continue;
+                }
+            }
+            out.push('[');
+            out.push('`');
+            rest = &rest[pos + 1..];
+            continue;
+        }
+
+        let after_tick = &rest[pos + 1..];
+        if let Some(end_tick) = after_tick.find('`') {
+            let token = &after_tick[..end_tick];
+            if names.contains(token) {
+                out.push_str("[`crate::types::");
+                out.push_str(token);
+                out.push_str("`]");
+            } else {
+                out.push('`');
+                out.push_str(token);
+                out.push('`');
+            }
+            rest = &after_tick[end_tick + 1..];
+        } else {
+            out.push('`');
+            out.push_str(after_tick);
+            rest = "";
+            break;
+        }
+    }
+
+    out.push_str(rest);
+    out
+}
+
+#[must_use]
+fn format_field_doc(
+    description: &str,
+    kind: &TypeKindInField,
+    ctx: &MethodDocContext<'_>,
+) -> String {
+    let mut names = HashSet::new();
+    collect_telegram_type_names(kind, &mut names);
+    let doc = format_attr_description(description);
+    let doc = link_known_type_mentions(&doc, &names);
+    let doc = link_known_method_mentions(&doc, ctx);
+    normalize_doc_line_prefix(&link_schema_type_mentions(&doc, ctx))
+}
+
+#[must_use]
+fn format_field_arg_doc(
+    field_name: &str,
+    description: &str,
+    kind: &TypeKindInField,
+    ctx: &MethodDocContext<'_>,
+) -> String {
+    let doc = format_attr_description(&format!("* `{field_name}` - {description}"));
+    let mut names = HashSet::new();
+    collect_telegram_type_names(kind, &mut names);
+    let doc = link_known_type_mentions(&doc, &names);
+    let doc = link_known_method_mentions(&doc, ctx);
+    normalize_doc_line_prefix(&link_schema_type_mentions(&doc, ctx))
+}
+
+#[must_use]
+fn link_known_method_mentions(doc: &str, ctx: &MethodDocContext<'_>) -> String {
+    doc.split_whitespace()
+        .map(|token| {
+            if token.contains("](") || token.starts_with("[`crate::methods::") {
+                return token.to_string();
+            }
+
+            let start = token
+                .find(|c: char| c.is_ascii_alphanumeric() || c == '`')
+                .unwrap_or(0);
+            let end = token
+                .rfind(|c: char| c.is_ascii_alphanumeric() || c == '`')
+                .map_or(token.len(), |idx| idx + 1);
+            let (prefix, rest) = token.split_at(start);
+            let (core, suffix) = rest.split_at(end.saturating_sub(start));
+
+            let plain = core.trim_matches('`');
+            if let Some(method_name) = ctx.api_method_names.get(plain) {
+                return format!("{prefix}[`crate::methods::{method_name}`]{suffix}");
+            }
+
+            token.to_string()
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+#[must_use]
+fn normalize_doc_line_prefix(doc: &str) -> String {
+    format!(" {}", doc.trim_start())
+}
+
+#[must_use]
+fn link_schema_type_mentions(doc: &str, ctx: &MethodDocContext<'_>) -> String {
+    link_known_type_mentions(doc, ctx.schema_type_names)
+}
+
+fn collect_telegram_type_names_from_method(method: &NormalizedMethod, out: &mut HashSet<String>) {
+    for field in &method.fields {
+        collect_telegram_type_names(&field.r#type, out);
+    }
+    for ret in &method.returns {
+        collect_telegram_type_names(ret, out);
+    }
+}
+
 /// Builds method return type:
 /// - `[]` -> `()`
 /// - `[T]` -> `T`
@@ -172,7 +327,10 @@ pub fn tokenize_method_return_type(returns: &[TypeKindInField]) -> TokenStream {
 }
 
 #[must_use]
-pub fn builder_impl_for_method(method_quote: &NormalizedMethod) -> TokenStream {
+fn builder_impl_for_method(
+    method_quote: &NormalizedMethod,
+    ctx: &MethodDocContext<'_>,
+) -> TokenStream {
     let method_name = format_ident!("{}", method_quote.name);
 
     let fields: Box<[_]> = method_quote.fields.iter().collect();
@@ -188,8 +346,7 @@ pub fn builder_impl_for_method(method_quote: &NormalizedMethod) -> TokenStream {
             let doc_args = format_attr_description("# Arguments");
             doc_lines.push(quote! { #[doc = ""] #[doc = #doc_args] });
             for &field in &required_fields {
-                let doc =
-                    format_attr_description(&format!("* `{}` - {}", field.name, field.description));
+                let doc = format_field_arg_doc(&field.name, &field.description, &field.r#type, ctx);
                 doc_lines.push(quote! { #[doc = #doc] });
             }
         }
@@ -283,7 +440,7 @@ pub fn builder_impl_for_method(method_quote: &NormalizedMethod) -> TokenStream {
                 let plural_name = sanitize_field_name(&plural);
 
                 let make_doc = |note: &str| {
-                    let desc = format_attr_description(&field.description);
+                    let desc = format_field_doc(&field.description, &field.r#type, ctx);
                     let notes = format_attr_description("# Notes");
                     let note = format_attr_description(note);
                     quote! { #[doc = #desc] #[doc = ""] #[doc = #notes] #[doc = #note] }
@@ -355,7 +512,7 @@ pub fn builder_impl_for_method(method_quote: &NormalizedMethod) -> TokenStream {
                     });
                 }
             } else {
-                let doc = format_attr_description(&field.description);
+                let doc = format_field_doc(&field.description, &field.r#type, ctx);
                 let boxed = field.is_recursive || field.is_boxed;
                 let inner_value = if boxed {
                     quote! { Box::new(val.into()) }
@@ -445,7 +602,17 @@ fn tokenize_telegram_method_impl(method_quote: &NormalizedMethod) -> TokenStream
 }
 
 #[must_use]
-pub fn tokenize_method(method_quote: &NormalizedMethod) -> TokenStream {
+#[allow(clippy::implicit_hasher)]
+pub fn tokenize_method(
+    method_quote: &NormalizedMethod,
+    known_schema_type_names: &HashSet<String>,
+    known_api_method_names: &HashMap<String, String>,
+) -> TokenStream {
+    let ctx = MethodDocContext {
+        schema_type_names: known_schema_type_names,
+        api_method_names: known_api_method_names,
+    };
+
     let import_quotes: Vec<_> = [
         Some(quote! { use crate::client::Bot; }),
         Some(quote! { use serde::Serialize; }),
@@ -455,7 +622,16 @@ pub fn tokenize_method(method_quote: &NormalizedMethod) -> TokenStream {
     .collect();
 
     let method_name = format_ident!("{}", method_quote.name);
-    let doc_lines = format_description(&method_quote.description, &method_quote.href);
+    let mut doc_lines = format_description(&method_quote.description, &method_quote.href);
+    let mut known_type_names = HashSet::new();
+    collect_telegram_type_names_from_method(method_quote, &mut known_type_names);
+    doc_lines = doc_lines
+        .into_iter()
+        .map(|line| {
+            let line = link_known_type_mentions(&line, &known_type_names);
+            link_schema_type_mentions(&line, &ctx)
+        })
+        .collect();
     let returns_doc: Vec<_> = if method_quote.returns.is_empty() {
         vec![]
     } else {
@@ -468,7 +644,7 @@ pub fn tokenize_method(method_quote: &NormalizedMethod) -> TokenStream {
     };
     let fields = method_quote.fields.iter().map(|field| {
         let name = sanitize_field_name(&field.name);
-        let doc = format_attr_description(&field.description);
+        let doc = format_field_doc(&field.description, &field.r#type, &ctx);
         let ty = &field.r#type;
         if field.required {
             quote! { #[doc = #doc] pub #name: #ty, }
@@ -480,7 +656,7 @@ pub fn tokenize_method(method_quote: &NormalizedMethod) -> TokenStream {
             }
         }
     });
-    let builder_impl = builder_impl_for_method(method_quote);
+    let builder_impl = builder_impl_for_method(method_quote, &ctx);
     let telegram_method_impl = tokenize_telegram_method_impl(method_quote);
 
     quote! {
@@ -511,6 +687,31 @@ pub fn tokenize_methods_mod(method_names: &[&String]) -> TokenStream {
     });
 
     quote! {
+        //! Telegram Bot API methods and their request builders.
+        //!
+        //! This module re-exports all generated method structs from the `crate::methods` module.
+        //! Each method follows a builder style:
+        //! - required arguments are passed to `new(...)`
+        //! - optional arguments are set by chainable builder methods
+        //! - optional fields also have `_option(...)` variants to pass `Option<T>` directly
+        //!   (including `None` to clear/unset a field)
+        //!
+        //! # Examples
+        //! ```rust
+        //! use telers::{methods::SendMessage, errors::SessionErrorKind, Bot};
+        //!
+        //! async fn send_text(bot: Bot) -> Result<(), SessionErrorKind> {
+        //!     let request = SendMessage::new(1_i64, "Hello world!")
+        //!         // Regular builder setter.
+        //!         .disable_notification(true)
+        //!         // `_option(...)` variant for Option<T> values.
+        //!         .disable_notification_option(Some(true));
+        //!
+        //!     bot.send(request).await?;
+        //!     Ok(())
+        //! }
+        //! ```
+
         pub(crate) mod non_telegram;
         pub use non_telegram::*;
         #( #mods_quote )*
