@@ -19,8 +19,7 @@ pub enum StoryAreaType {
 impl StoryAreaType {
     /// Helper method for field `address`.
     ///
-    /// # Variants
-    /// - `StoryAreaTypeLocation`. Address of the location
+    /// Address of the location
     #[must_use]
     pub fn address(&self) -> Option<&crate::types::LocationAddress> {
         match self {
@@ -31,8 +30,7 @@ impl StoryAreaType {
 
     /// Helper method for field `background_color`.
     ///
-    /// # Variants
-    /// - `StoryAreaTypeWeather`. A color of the area background in the ARGB format
+    /// A color of the area background in the ARGB format
     #[must_use]
     pub fn background_color(&self) -> Option<i64> {
         match self {
@@ -43,8 +41,7 @@ impl StoryAreaType {
 
     /// Helper method for field `emoji`.
     ///
-    /// # Variants
-    /// - `StoryAreaTypeWeather`. Emoji representing the weather
+    /// Emoji representing the weather
     #[must_use]
     pub fn emoji(&self) -> Option<&str> {
         match self {
@@ -55,8 +52,7 @@ impl StoryAreaType {
 
     /// Helper method for field `is_dark`.
     ///
-    /// # Variants
-    /// - `StoryAreaTypeSuggestedReaction`. Pass `true` if the reaction area has a dark background
+    /// Pass `true` if the reaction area has a dark background
     #[must_use]
     pub fn is_dark(&self) -> Option<bool> {
         match self {
@@ -67,8 +63,7 @@ impl StoryAreaType {
 
     /// Helper method for field `is_flipped`.
     ///
-    /// # Variants
-    /// - `StoryAreaTypeSuggestedReaction`. Pass `true` if reaction area corner is flipped
+    /// Pass `true` if reaction area corner is flipped
     #[must_use]
     pub fn is_flipped(&self) -> Option<bool> {
         match self {
@@ -79,8 +74,7 @@ impl StoryAreaType {
 
     /// Helper method for field `latitude`.
     ///
-    /// # Variants
-    /// - `StoryAreaTypeLocation`. Location latitude in degrees
+    /// Location latitude in degrees
     #[must_use]
     pub fn latitude(&self) -> Option<f64> {
         match self {
@@ -91,8 +85,7 @@ impl StoryAreaType {
 
     /// Helper method for field `longitude`.
     ///
-    /// # Variants
-    /// - `StoryAreaTypeLocation`. Location longitude in degrees
+    /// Location longitude in degrees
     #[must_use]
     pub fn longitude(&self) -> Option<f64> {
         match self {
@@ -103,8 +96,7 @@ impl StoryAreaType {
 
     /// Helper method for field `name`.
     ///
-    /// # Variants
-    /// - `StoryAreaTypeUniqueGift`. Unique name of the gift
+    /// Unique name of the gift
     #[must_use]
     pub fn name(&self) -> Option<&str> {
         match self {
@@ -115,8 +107,7 @@ impl StoryAreaType {
 
     /// Helper method for field `reaction_type`.
     ///
-    /// # Variants
-    /// - `StoryAreaTypeSuggestedReaction`. Type of the reaction
+    /// Type of the reaction
     #[must_use]
     pub fn reaction_type(&self) -> Option<&crate::types::ReactionType> {
         match self {
@@ -127,8 +118,7 @@ impl StoryAreaType {
 
     /// Helper method for field `temperature`.
     ///
-    /// # Variants
-    /// - `StoryAreaTypeWeather`. Temperature, in degree Celsius
+    /// Temperature, in degree Celsius
     #[must_use]
     pub fn temperature(&self) -> Option<f64> {
         match self {
@@ -139,8 +129,7 @@ impl StoryAreaType {
 
     /// Helper method for field `url`.
     ///
-    /// # Variants
-    /// - `StoryAreaTypeLink`. HTTP or tg:// URL to be opened when the area is clicked
+    /// HTTP or tg:// URL to be opened when the area is clicked
     #[must_use]
     pub fn url(&self) -> Option<&str> {
         match self {

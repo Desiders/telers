@@ -13,8 +13,7 @@ pub enum InputProfilePhoto {
 impl InputProfilePhoto {
     /// Helper method for field `animation`.
     ///
-    /// # Variants
-    /// - `InputProfilePhotoAnimated`. The animated profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass `attach://<file_attach_name>` if the photo was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
+    /// The animated profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass `attach://<file_attach_name>` if the photo was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
     pub fn animation(&self) -> Option<&crate::types::InputFile> {
         match self {
@@ -25,8 +24,7 @@ impl InputProfilePhoto {
 
     /// Helper method for field `main_frame_timestamp`.
     ///
-    /// # Variants
-    /// - `InputProfilePhotoAnimated`. Timestamp in seconds of the frame that will be used as the static profile photo. Defaults to 0.0.
+    /// Timestamp in seconds of the frame that will be used as the static profile photo. Defaults to 0.0.
     #[must_use]
     pub fn main_frame_timestamp(&self) -> Option<f64> {
         match self {
@@ -37,8 +35,7 @@ impl InputProfilePhoto {
 
     /// Helper method for field `photo`.
     ///
-    /// # Variants
-    /// - `InputProfilePhotoStatic`. The static profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass `attach://<file_attach_name>` if the photo was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
+    /// The static profile photo. Profile photos can't be reused and can only be uploaded as a new file, so you can pass `attach://<file_attach_name>` if the photo was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
     pub fn photo(&self) -> Option<&crate::types::InputFile> {
         match self {

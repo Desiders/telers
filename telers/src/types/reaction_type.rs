@@ -15,8 +15,7 @@ pub enum ReactionType {
 impl ReactionType {
     /// Helper method for field `custom_emoji_id`.
     ///
-    /// # Variants
-    /// - `ReactionTypeCustomEmoji`. Custom emoji identifier
+    /// Custom emoji identifier
     #[must_use]
     pub fn custom_emoji_id(&self) -> Option<&str> {
         match self {
@@ -27,8 +26,7 @@ impl ReactionType {
 
     /// Helper method for field `emoji`.
     ///
-    /// # Variants
-    /// - `ReactionTypeEmoji`. Reaction emoji. Currently, it can be one of `❤`, `👍`, `👎`, `🔥`, `🥰`, `👏`, `😁`, `🤔`, `🤯`, `😱`, `🤬`, `😢`, `🎉`, `🤩`, `🤮`, `💩`, `🙏`, `👌`, `🕊`, `🤡`, `🥱`, `🥴`, `😍`, `🐳`, `❤‍🔥`, `🌚`, `🌭`, `💯`, `🤣`, `⚡`, `🍌`, `🏆`, `💔`, `🤨`, `😐`, `🍓`, `🍾`, `💋`, `🖕`, `😈`, `😴`, `😭`, `🤓`, `👻`, `👨‍💻`, `👀`, `🎃`, `🙈`, `😇`, `😨`, `🤝`, `✍`, `🤗`, `🫡`, `🎅`, `🎄`, `☃`, `💅`, `🤪`, `🗿`, `🆒`, `💘`, `🙉`, `🦄`, `😘`, `💊`, `🙊`, `😎`, `👾`, `🤷‍♂`, `🤷`, `🤷‍♀`, `😡`
+    /// Reaction emoji. Currently, it can be one of `❤`, `👍`, `👎`, `🔥`, `🥰`, `👏`, `😁`, `🤔`, `🤯`, `😱`, `🤬`, `😢`, `🎉`, `🤩`, `🤮`, `💩`, `🙏`, `👌`, `🕊`, `🤡`, `🥱`, `🥴`, `😍`, `🐳`, `❤‍🔥`, `🌚`, `🌭`, `💯`, `🤣`, `⚡`, `🍌`, `🏆`, `💔`, `🤨`, `😐`, `🍓`, `🍾`, `💋`, `🖕`, `😈`, `😴`, `😭`, `🤓`, `👻`, `👨‍💻`, `👀`, `🎃`, `🙈`, `😇`, `😨`, `🤝`, `✍`, `🤗`, `🫡`, `🎅`, `🎄`, `☃`, `💅`, `🤪`, `🗿`, `🆒`, `💘`, `🙉`, `🦄`, `😘`, `💊`, `🙊`, `😎`, `👾`, `🤷‍♂`, `🤷`, `🤷‍♀`, `😡`
     #[must_use]
     pub fn emoji(&self) -> Option<&str> {
         match self {

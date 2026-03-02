@@ -14,9 +14,7 @@ pub enum Giveaway {
 impl Giveaway {
     /// Helper method for field `chats`.
     ///
-    /// # Variants
-    /// - `GiveawayPremium`. The list of chats which the user must join to participate in the giveaway
-    /// - `GiveawayStar`. The list of chats which the user must join to participate in the giveaway
+    /// The list of chats which the user must join to participate in the giveaway
     #[must_use]
     pub fn chats(&self) -> &[crate::types::Chat] {
         match self {
@@ -27,9 +25,7 @@ impl Giveaway {
 
     /// Helper method for field `country_codes`.
     ///
-    /// # Variants
-    /// - `GiveawayPremium`. A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which eligible users for the giveaway must come. If empty, then all users can participate in the giveaway. Users with a phone number that was bought on Fragment can always participate in giveaways.
-    /// - `GiveawayStar`. A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which eligible users for the giveaway must come. If empty, then all users can participate in the giveaway. Users with a phone number that was bought on Fragment can always participate in giveaways.
+    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which eligible users for the giveaway must come. If empty, then all users can participate in the giveaway. Users with a phone number that was bought on Fragment can always participate in giveaways.
     #[must_use]
     pub fn country_codes(&self) -> Option<&[Box<str>]> {
         match self {
@@ -40,9 +36,7 @@ impl Giveaway {
 
     /// Helper method for field `has_public_winners`.
     ///
-    /// # Variants
-    /// - `GiveawayPremium`. `true`, if the list of giveaway winners will be visible to everyone
-    /// - `GiveawayStar`. `true`, if the list of giveaway winners will be visible to everyone
+    /// `true`, if the list of giveaway winners will be visible to everyone
     #[must_use]
     pub fn has_public_winners(&self) -> Option<bool> {
         match self {
@@ -53,9 +47,7 @@ impl Giveaway {
 
     /// Helper method for field `only_new_members`.
     ///
-    /// # Variants
-    /// - `GiveawayPremium`. `true`, if only users who join the chats after the giveaway started should be eligible to win
-    /// - `GiveawayStar`. `true`, if only users who join the chats after the giveaway started should be eligible to win
+    /// `true`, if only users who join the chats after the giveaway started should be eligible to win
     #[must_use]
     pub fn only_new_members(&self) -> Option<bool> {
         match self {
@@ -66,8 +58,7 @@ impl Giveaway {
 
     /// Helper method for field `premium_subscription_month_count`.
     ///
-    /// # Variants
-    /// - `GiveawayPremium`. The number of months the Telegram Premium subscription won from the giveaway will be active for; for Telegram Premium giveaways only
+    /// The number of months the Telegram Premium subscription won from the giveaway will be active for; for Telegram Premium giveaways only
     #[must_use]
     pub fn premium_subscription_month_count(&self) -> Option<i64> {
         match self {
@@ -78,9 +69,7 @@ impl Giveaway {
 
     /// Helper method for field `prize_description`.
     ///
-    /// # Variants
-    /// - `GiveawayPremium`. Description of additional giveaway prize
-    /// - `GiveawayStar`. Description of additional giveaway prize
+    /// Description of additional giveaway prize
     #[must_use]
     pub fn prize_description(&self) -> Option<&str> {
         match self {
@@ -91,8 +80,7 @@ impl Giveaway {
 
     /// Helper method for field `prize_star_count`.
     ///
-    /// # Variants
-    /// - `GiveawayStar`. The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
+    /// The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
     #[must_use]
     pub fn prize_star_count(&self) -> Option<i64> {
         match self {
@@ -103,9 +91,7 @@ impl Giveaway {
 
     /// Helper method for field `winner_count`.
     ///
-    /// # Variants
-    /// - `GiveawayPremium`. The number of users which are supposed to be selected as winners of the giveaway
-    /// - `GiveawayStar`. The number of users which are supposed to be selected as winners of the giveaway
+    /// The number of users which are supposed to be selected as winners of the giveaway
     #[must_use]
     pub fn winner_count(&self) -> i64 {
         match self {
@@ -116,9 +102,7 @@ impl Giveaway {
 
     /// Helper method for field `winners_selection_date`.
     ///
-    /// # Variants
-    /// - `GiveawayPremium`. Point in time (Unix timestamp) when winners of the giveaway will be selected
-    /// - `GiveawayStar`. Point in time (Unix timestamp) when winners of the giveaway will be selected
+    /// Point in time (Unix timestamp) when winners of the giveaway will be selected
     #[must_use]
     pub fn winners_selection_date(&self) -> i64 {
         match self {

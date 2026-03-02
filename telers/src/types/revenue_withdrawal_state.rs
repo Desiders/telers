@@ -15,8 +15,7 @@ pub enum RevenueWithdrawalState {
 impl RevenueWithdrawalState {
     /// Helper method for field `date`.
     ///
-    /// # Variants
-    /// - `RevenueWithdrawalStateSucceeded`. Date the withdrawal was completed in Unix time
+    /// Date the withdrawal was completed in Unix time
     #[must_use]
     pub fn date(&self) -> Option<i64> {
         match self {
@@ -27,8 +26,7 @@ impl RevenueWithdrawalState {
 
     /// Helper method for field `url`.
     ///
-    /// # Variants
-    /// - `RevenueWithdrawalStateSucceeded`. An HTTPS URL that can be used to see transaction details
+    /// An HTTPS URL that can be used to see transaction details
     #[must_use]
     pub fn url(&self) -> Option<&str> {
         match self {

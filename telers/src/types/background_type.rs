@@ -17,9 +17,7 @@ pub enum BackgroundType {
 impl BackgroundType {
     /// Helper method for field `dark_theme_dimming`.
     ///
-    /// # Variants
-    /// - `BackgroundTypeFill`. Dimming of the background in dark themes, as a percentage; 0-100
-    /// - `BackgroundTypeWallpaper`. Dimming of the background in dark themes, as a percentage; 0-100
+    /// Dimming of the background in dark themes, as a percentage; 0-100
     #[must_use]
     pub fn dark_theme_dimming(&self) -> Option<u8> {
         match self {
@@ -59,8 +57,7 @@ impl BackgroundType {
 
     /// Helper method for field `intensity`.
     ///
-    /// # Variants
-    /// - `BackgroundTypePattern`. Intensity of the pattern when it is shown above the filled background; 0-100
+    /// Intensity of the pattern when it is shown above the filled background; 0-100
     #[must_use]
     pub fn intensity(&self) -> Option<u8> {
         match self {
@@ -71,8 +68,7 @@ impl BackgroundType {
 
     /// Helper method for field `is_blurred`.
     ///
-    /// # Variants
-    /// - `BackgroundTypeWallpaper`. `true`, if the wallpaper is downscaled to fit in a 450x450 square and then box-blurred with radius 12
+    /// `true`, if the wallpaper is downscaled to fit in a 450x450 square and then box-blurred with radius 12
     #[must_use]
     pub fn is_blurred(&self) -> Option<bool> {
         match self {
@@ -83,8 +79,7 @@ impl BackgroundType {
 
     /// Helper method for field `is_inverted`.
     ///
-    /// # Variants
-    /// - `BackgroundTypePattern`. `true`, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only
+    /// `true`, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only
     #[must_use]
     pub fn is_inverted(&self) -> Option<bool> {
         match self {
@@ -95,9 +90,7 @@ impl BackgroundType {
 
     /// Helper method for field `is_moving`.
     ///
-    /// # Variants
-    /// - `BackgroundTypeWallpaper`. `true`, if the background moves slightly when the device is tilted
-    /// - `BackgroundTypePattern`. `true`, if the background moves slightly when the device is tilted
+    /// `true`, if the background moves slightly when the device is tilted
     #[must_use]
     pub fn is_moving(&self) -> Option<bool> {
         match self {
@@ -109,8 +102,7 @@ impl BackgroundType {
 
     /// Helper method for field `theme_name`.
     ///
-    /// # Variants
-    /// - `BackgroundTypeChatTheme`. Name of the chat theme, which is usually an emoji
+    /// Name of the chat theme, which is usually an emoji
     #[must_use]
     pub fn theme_name(&self) -> Option<&str> {
         match self {

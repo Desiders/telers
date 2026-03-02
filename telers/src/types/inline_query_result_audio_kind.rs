@@ -12,8 +12,7 @@ pub enum InlineQueryResultAudioKind {
 impl InlineQueryResultAudioKind {
     /// Helper method for field `audio_duration`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultAudio`. Audio duration in seconds
+    /// Audio duration in seconds
     #[must_use]
     pub fn audio_duration(&self) -> Option<i64> {
         match self {
@@ -24,8 +23,7 @@ impl InlineQueryResultAudioKind {
 
     /// Helper method for field `audio_file_id`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultCachedAudio`. A valid file identifier for the audio file
+    /// A valid file identifier for the audio file
     #[must_use]
     pub fn audio_file_id(&self) -> Option<&str> {
         match self {
@@ -36,8 +34,7 @@ impl InlineQueryResultAudioKind {
 
     /// Helper method for field `audio_url`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultAudio`. A valid URL for the audio file
+    /// A valid URL for the audio file
     #[must_use]
     pub fn audio_url(&self) -> Option<&str> {
         match self {
@@ -48,9 +45,7 @@ impl InlineQueryResultAudioKind {
 
     /// Helper method for field `caption`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultAudio`. Caption, 0-1024 characters after entities parsing
-    /// - `InlineQueryResultCachedAudio`. Caption, 0-1024 characters after entities parsing
+    /// Caption, 0-1024 characters after entities parsing
     #[must_use]
     pub fn caption(&self) -> Option<&str> {
         match self {
@@ -61,9 +56,7 @@ impl InlineQueryResultAudioKind {
 
     /// Helper method for field `caption_entities`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultAudio`. List of special entities that appear in the caption, which can be specified instead of `parse_mode`
-    /// - `InlineQueryResultCachedAudio`. List of special entities that appear in the caption, which can be specified instead of `parse_mode`
+    /// List of special entities that appear in the caption, which can be specified instead of `parse_mode`
     #[must_use]
     pub fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
         match self {
@@ -74,9 +67,7 @@ impl InlineQueryResultAudioKind {
 
     /// Helper method for field `id`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultAudio`. Unique identifier for this result, 1-64 bytes
-    /// - `InlineQueryResultCachedAudio`. Unique identifier for this result, 1-64 bytes
+    /// Unique identifier for this result, 1-64 bytes
     #[must_use]
     pub fn id(&self) -> &str {
         match self {
@@ -87,9 +78,7 @@ impl InlineQueryResultAudioKind {
 
     /// Helper method for field `input_message_content`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultAudio`. Content of the message to be sent instead of the audio
-    /// - `InlineQueryResultCachedAudio`. Content of the message to be sent instead of the audio
+    /// Content of the message to be sent instead of the audio
     #[must_use]
     pub fn input_message_content(&self) -> Option<&crate::types::InputMessageContent> {
         match self {
@@ -100,9 +89,7 @@ impl InlineQueryResultAudioKind {
 
     /// Helper method for field `parse_mode`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultAudio`. Mode for parsing entities in the audio caption. See formatting options for more details.
-    /// - `InlineQueryResultCachedAudio`. Mode for parsing entities in the audio caption. See formatting options for more details.
+    /// Mode for parsing entities in the audio caption. See formatting options for more details.
     #[must_use]
     pub fn parse_mode(&self) -> Option<&str> {
         match self {
@@ -113,8 +100,7 @@ impl InlineQueryResultAudioKind {
 
     /// Helper method for field `performer`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultAudio`. Performer
+    /// Performer
     #[must_use]
     pub fn performer(&self) -> Option<&str> {
         match self {
@@ -125,9 +111,7 @@ impl InlineQueryResultAudioKind {
 
     /// Helper method for field `reply_markup`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultAudio`. Inline keyboard attached to the message
-    /// - `InlineQueryResultCachedAudio`. Inline keyboard attached to the message
+    /// Inline keyboard attached to the message
     #[must_use]
     pub fn reply_markup(&self) -> Option<&crate::types::InlineKeyboardMarkup> {
         match self {
@@ -138,8 +122,7 @@ impl InlineQueryResultAudioKind {
 
     /// Helper method for field `title`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultAudio`. Title
+    /// Title
     #[must_use]
     pub fn title(&self) -> Option<&str> {
         match self {

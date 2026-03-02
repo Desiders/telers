@@ -23,10 +23,7 @@ pub enum BotCommandScope {
 impl BotCommandScope {
     /// Helper method for field `chat_id`.
     ///
-    /// # Variants
-    /// - `BotCommandScopeChat`. Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.
-    /// - `BotCommandScopeChatAdministrators`. Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.
-    /// - `BotCommandScopeChatMember`. Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.
+    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.
     #[must_use]
     pub fn chat_id(&self) -> Option<&crate::types::ChatIdKind> {
         match self {
@@ -39,8 +36,7 @@ impl BotCommandScope {
 
     /// Helper method for field `user_id`.
     ///
-    /// # Variants
-    /// - `BotCommandScopeChatMember`. Unique identifier of the target user
+    /// Unique identifier of the target user
     #[must_use]
     pub fn user_id(&self) -> Option<i64> {
         match self {

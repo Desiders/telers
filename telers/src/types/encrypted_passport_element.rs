@@ -36,13 +36,7 @@ pub enum EncryptedPassportElement {
 impl EncryptedPassportElement {
     /// Helper method for field `data`.
     ///
-    /// # Variants
-    /// - `EncryptedPassportElementPersonalDetails`. Base64-encoded encrypted Telegram Passport element data provided by the user; available only for `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport` and `address` types. Can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementPassport`. Base64-encoded encrypted Telegram Passport element data provided by the user; available only for `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport` and `address` types. Can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementDriverLicense`. Base64-encoded encrypted Telegram Passport element data provided by the user; available only for `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport` and `address` types. Can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementIdentityCard`. Base64-encoded encrypted Telegram Passport element data provided by the user; available only for `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport` and `address` types. Can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementInternalPassport`. Base64-encoded encrypted Telegram Passport element data provided by the user; available only for `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport` and `address` types. Can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementAddress`. Base64-encoded encrypted Telegram Passport element data provided by the user; available only for `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport` and `address` types. Can be decrypted and verified using the accompanying [`EncryptedCredentials`].
+    /// Base64-encoded encrypted Telegram Passport element data provided by the user; available only for `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport` and `address` types. Can be decrypted and verified using the accompanying [`EncryptedCredentials`].
     #[must_use]
     pub fn data(&self) -> Option<&str> {
         match self {
@@ -58,8 +52,7 @@ impl EncryptedPassportElement {
 
     /// Helper method for field `email`.
     ///
-    /// # Variants
-    /// - `EncryptedPassportElementEmail`. User's verified email address; available only for `email` type
+    /// User's verified email address; available only for `email` type
     #[must_use]
     pub fn email(&self) -> Option<&str> {
         match self {
@@ -70,12 +63,7 @@ impl EncryptedPassportElement {
 
     /// Helper method for field `files`.
     ///
-    /// # Variants
-    /// - `EncryptedPassportElementUtilityBill`. Array of encrypted files with documents provided by the user; available only for `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementBankStatement`. Array of encrypted files with documents provided by the user; available only for `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementRentalAgreement`. Array of encrypted files with documents provided by the user; available only for `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementPassportRegistration`. Array of encrypted files with documents provided by the user; available only for `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementTemporaryRegistration`. Array of encrypted files with documents provided by the user; available only for `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`EncryptedCredentials`].
+    /// Array of encrypted files with documents provided by the user; available only for `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`EncryptedCredentials`].
     #[must_use]
     pub fn files(&self) -> Option<&[crate::types::PassportFile]> {
         match self {
@@ -90,11 +78,7 @@ impl EncryptedPassportElement {
 
     /// Helper method for field `front_side`.
     ///
-    /// # Variants
-    /// - `EncryptedPassportElementPassport`. Encrypted file with the front side of the document, provided by the user; available only for `passport`, `driver_license`, `identity_card` and `internal_passport`. The file can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementDriverLicense`. Encrypted file with the front side of the document, provided by the user; available only for `passport`, `driver_license`, `identity_card` and `internal_passport`. The file can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementIdentityCard`. Encrypted file with the front side of the document, provided by the user; available only for `passport`, `driver_license`, `identity_card` and `internal_passport`. The file can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementInternalPassport`. Encrypted file with the front side of the document, provided by the user; available only for `passport`, `driver_license`, `identity_card` and `internal_passport`. The file can be decrypted and verified using the accompanying [`EncryptedCredentials`].
+    /// Encrypted file with the front side of the document, provided by the user; available only for `passport`, `driver_license`, `identity_card` and `internal_passport`. The file can be decrypted and verified using the accompanying [`EncryptedCredentials`].
     #[must_use]
     pub fn front_side(&self) -> Option<&crate::types::PassportFile> {
         match self {
@@ -108,20 +92,7 @@ impl EncryptedPassportElement {
 
     /// Helper method for field `hash`.
     ///
-    /// # Variants
-    /// - `EncryptedPassportElementPersonalDetails`. Base64-encoded element hash for using in [`PassportElementErrorUnspecified`]
-    /// - `EncryptedPassportElementPassport`. Base64-encoded element hash for using in [`PassportElementErrorUnspecified`]
-    /// - `EncryptedPassportElementDriverLicense`. Base64-encoded element hash for using in [`PassportElementErrorUnspecified`]
-    /// - `EncryptedPassportElementIdentityCard`. Base64-encoded element hash for using in [`PassportElementErrorUnspecified`]
-    /// - `EncryptedPassportElementInternalPassport`. Base64-encoded element hash for using in [`PassportElementErrorUnspecified`]
-    /// - `EncryptedPassportElementAddress`. Base64-encoded element hash for using in [`PassportElementErrorUnspecified`]
-    /// - `EncryptedPassportElementUtilityBill`. Base64-encoded element hash for using in [`PassportElementErrorUnspecified`]
-    /// - `EncryptedPassportElementBankStatement`. Base64-encoded element hash for using in [`PassportElementErrorUnspecified`]
-    /// - `EncryptedPassportElementRentalAgreement`. Base64-encoded element hash for using in [`PassportElementErrorUnspecified`]
-    /// - `EncryptedPassportElementPassportRegistration`. Base64-encoded element hash for using in [`PassportElementErrorUnspecified`]
-    /// - `EncryptedPassportElementTemporaryRegistration`. Base64-encoded element hash for using in [`PassportElementErrorUnspecified`]
-    /// - `EncryptedPassportElementPhoneNumber`. Base64-encoded element hash for using in [`PassportElementErrorUnspecified`]
-    /// - `EncryptedPassportElementEmail`. Base64-encoded element hash for using in [`PassportElementErrorUnspecified`]
+    /// Base64-encoded element hash for using in [`PassportElementErrorUnspecified`]
     #[must_use]
     pub fn hash(&self) -> &str {
         match self {
@@ -143,8 +114,7 @@ impl EncryptedPassportElement {
 
     /// Helper method for field `phone_number`.
     ///
-    /// # Variants
-    /// - `EncryptedPassportElementPhoneNumber`. User's verified phone number; available only for `phone_number` type
+    /// User's verified phone number; available only for `phone_number` type
     #[must_use]
     pub fn phone_number(&self) -> Option<&str> {
         match self {
@@ -155,9 +125,7 @@ impl EncryptedPassportElement {
 
     /// Helper method for field `reverse_side`.
     ///
-    /// # Variants
-    /// - `EncryptedPassportElementDriverLicense`. Encrypted file with the reverse side of the document, provided by the user; available only for `driver_license` and `identity_card`. The file can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementIdentityCard`. Encrypted file with the reverse side of the document, provided by the user; available only for `driver_license` and `identity_card`. The file can be decrypted and verified using the accompanying [`EncryptedCredentials`].
+    /// Encrypted file with the reverse side of the document, provided by the user; available only for `driver_license` and `identity_card`. The file can be decrypted and verified using the accompanying [`EncryptedCredentials`].
     #[must_use]
     pub fn reverse_side(&self) -> Option<&crate::types::PassportFile> {
         match self {
@@ -169,11 +137,7 @@ impl EncryptedPassportElement {
 
     /// Helper method for field `selfie`.
     ///
-    /// # Variants
-    /// - `EncryptedPassportElementPassport`. Encrypted file with the selfie of the user holding a document, provided by the user; available if requested for `passport`, `driver_license`, `identity_card` and `internal_passport`. The file can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementDriverLicense`. Encrypted file with the selfie of the user holding a document, provided by the user; available if requested for `passport`, `driver_license`, `identity_card` and `internal_passport`. The file can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementIdentityCard`. Encrypted file with the selfie of the user holding a document, provided by the user; available if requested for `passport`, `driver_license`, `identity_card` and `internal_passport`. The file can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementInternalPassport`. Encrypted file with the selfie of the user holding a document, provided by the user; available if requested for `passport`, `driver_license`, `identity_card` and `internal_passport`. The file can be decrypted and verified using the accompanying [`EncryptedCredentials`].
+    /// Encrypted file with the selfie of the user holding a document, provided by the user; available if requested for `passport`, `driver_license`, `identity_card` and `internal_passport`. The file can be decrypted and verified using the accompanying [`EncryptedCredentials`].
     #[must_use]
     pub fn selfie(&self) -> Option<&crate::types::PassportFile> {
         match self {
@@ -187,16 +151,7 @@ impl EncryptedPassportElement {
 
     /// Helper method for field `translation`.
     ///
-    /// # Variants
-    /// - `EncryptedPassportElementPassport`. Array of encrypted files with translated versions of documents provided by the user; available if requested for `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementDriverLicense`. Array of encrypted files with translated versions of documents provided by the user; available if requested for `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementIdentityCard`. Array of encrypted files with translated versions of documents provided by the user; available if requested for `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementInternalPassport`. Array of encrypted files with translated versions of documents provided by the user; available if requested for `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementUtilityBill`. Array of encrypted files with translated versions of documents provided by the user; available if requested for `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementBankStatement`. Array of encrypted files with translated versions of documents provided by the user; available if requested for `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementRentalAgreement`. Array of encrypted files with translated versions of documents provided by the user; available if requested for `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementPassportRegistration`. Array of encrypted files with translated versions of documents provided by the user; available if requested for `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// - `EncryptedPassportElementTemporaryRegistration`. Array of encrypted files with translated versions of documents provided by the user; available if requested for `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`EncryptedCredentials`].
+    /// Array of encrypted files with translated versions of documents provided by the user; available if requested for `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration` and `temporary_registration` types. Files can be decrypted and verified using the accompanying [`EncryptedCredentials`].
     #[must_use]
     pub fn translation(&self) -> Option<&[crate::types::PassportFile]> {
         match self {

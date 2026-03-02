@@ -14,9 +14,7 @@ pub enum GiveawayWinners {
 impl GiveawayWinners {
     /// Helper method for field `additional_chat_count`.
     ///
-    /// # Variants
-    /// - `GiveawayWinnersPremium`. The number of other chats the user had to join in order to be eligible for the giveaway
-    /// - `GiveawayWinnersStar`. The number of other chats the user had to join in order to be eligible for the giveaway
+    /// The number of other chats the user had to join in order to be eligible for the giveaway
     #[must_use]
     pub fn additional_chat_count(&self) -> Option<i64> {
         match self {
@@ -27,9 +25,7 @@ impl GiveawayWinners {
 
     /// Helper method for field `chat`.
     ///
-    /// # Variants
-    /// - `GiveawayWinnersPremium`. The chat that created the giveaway
-    /// - `GiveawayWinnersStar`. The chat that created the giveaway
+    /// The chat that created the giveaway
     #[must_use]
     pub fn chat(&self) -> &crate::types::Chat {
         match self {
@@ -40,9 +36,7 @@ impl GiveawayWinners {
 
     /// Helper method for field `giveaway_message_id`.
     ///
-    /// # Variants
-    /// - `GiveawayWinnersPremium`. Identifier of the message with the giveaway in the chat
-    /// - `GiveawayWinnersStar`. Identifier of the message with the giveaway in the chat
+    /// Identifier of the message with the giveaway in the chat
     #[must_use]
     pub fn giveaway_message_id(&self) -> i64 {
         match self {
@@ -53,9 +47,7 @@ impl GiveawayWinners {
 
     /// Helper method for field `only_new_members`.
     ///
-    /// # Variants
-    /// - `GiveawayWinnersPremium`. `true`, if only users who had joined the chats after the giveaway started were eligible to win
-    /// - `GiveawayWinnersStar`. `true`, if only users who had joined the chats after the giveaway started were eligible to win
+    /// `true`, if only users who had joined the chats after the giveaway started were eligible to win
     #[must_use]
     pub fn only_new_members(&self) -> Option<bool> {
         match self {
@@ -66,8 +58,7 @@ impl GiveawayWinners {
 
     /// Helper method for field `premium_subscription_month_count`.
     ///
-    /// # Variants
-    /// - `GiveawayWinnersPremium`. The number of months the Telegram Premium subscription won from the giveaway will be active for; for Telegram Premium giveaways only
+    /// The number of months the Telegram Premium subscription won from the giveaway will be active for; for Telegram Premium giveaways only
     #[must_use]
     pub fn premium_subscription_month_count(&self) -> Option<i64> {
         match self {
@@ -78,9 +69,7 @@ impl GiveawayWinners {
 
     /// Helper method for field `prize_description`.
     ///
-    /// # Variants
-    /// - `GiveawayWinnersPremium`. Description of additional giveaway prize
-    /// - `GiveawayWinnersStar`. Description of additional giveaway prize
+    /// Description of additional giveaway prize
     #[must_use]
     pub fn prize_description(&self) -> Option<&str> {
         match self {
@@ -91,8 +80,7 @@ impl GiveawayWinners {
 
     /// Helper method for field `prize_star_count`.
     ///
-    /// # Variants
-    /// - `GiveawayWinnersStar`. The number of Telegram Stars that were split between giveaway winners; for Telegram Star giveaways only
+    /// The number of Telegram Stars that were split between giveaway winners; for Telegram Star giveaways only
     #[must_use]
     pub fn prize_star_count(&self) -> Option<i64> {
         match self {
@@ -103,9 +91,7 @@ impl GiveawayWinners {
 
     /// Helper method for field `unclaimed_prize_count`.
     ///
-    /// # Variants
-    /// - `GiveawayWinnersPremium`. Number of undistributed prizes
-    /// - `GiveawayWinnersStar`. Number of undistributed prizes
+    /// Number of undistributed prizes
     #[must_use]
     pub fn unclaimed_prize_count(&self) -> Option<i64> {
         match self {
@@ -116,9 +102,7 @@ impl GiveawayWinners {
 
     /// Helper method for field `was_refunded`.
     ///
-    /// # Variants
-    /// - `GiveawayWinnersPremium`. `true`, if the giveaway was canceled because the payment for it was refunded
-    /// - `GiveawayWinnersStar`. `true`, if the giveaway was canceled because the payment for it was refunded
+    /// `true`, if the giveaway was canceled because the payment for it was refunded
     #[must_use]
     pub fn was_refunded(&self) -> Option<bool> {
         match self {
@@ -129,9 +113,7 @@ impl GiveawayWinners {
 
     /// Helper method for field `winner_count`.
     ///
-    /// # Variants
-    /// - `GiveawayWinnersPremium`. Total number of winners in the giveaway
-    /// - `GiveawayWinnersStar`. Total number of winners in the giveaway
+    /// Total number of winners in the giveaway
     #[must_use]
     pub fn winner_count(&self) -> i64 {
         match self {
@@ -142,9 +124,7 @@ impl GiveawayWinners {
 
     /// Helper method for field `winners`.
     ///
-    /// # Variants
-    /// - `GiveawayWinnersPremium`. List of up to 100 winners of the giveaway
-    /// - `GiveawayWinnersStar`. List of up to 100 winners of the giveaway
+    /// List of up to 100 winners of the giveaway
     #[must_use]
     pub fn winners(&self) -> &[crate::types::User] {
         match self {
@@ -155,9 +135,7 @@ impl GiveawayWinners {
 
     /// Helper method for field `winners_selection_date`.
     ///
-    /// # Variants
-    /// - `GiveawayWinnersPremium`. Point in time (Unix timestamp) when winners of the giveaway were selected
-    /// - `GiveawayWinnersStar`. Point in time (Unix timestamp) when winners of the giveaway were selected
+    /// Point in time (Unix timestamp) when winners of the giveaway were selected
     #[must_use]
     pub fn winners_selection_date(&self) -> i64 {
         match self {

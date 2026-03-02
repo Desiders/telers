@@ -48,8 +48,7 @@ pub enum ExternalReplyInfo {
 impl ExternalReplyInfo {
     /// Helper method for field `animation`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoAnimation`. Message is an animation, information about the animation
+    /// Message is an animation, information about the animation
     #[must_use]
     pub fn animation(&self) -> Option<&crate::types::Animation> {
         match self {
@@ -60,8 +59,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `audio`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoAudio`. Message is an audio file, information about the file
+    /// Message is an audio file, information about the file
     #[must_use]
     pub fn audio(&self) -> Option<&crate::types::Audio> {
         match self {
@@ -72,26 +70,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `chat`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoAnimation`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoAudio`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoChecklist`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoContact`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoDice`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoDocument`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoGame`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoGiveaway`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoGiveawayWinners`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoInvoice`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoLocation`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoPhoto`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoPoll`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoSticker`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoStory`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoVenue`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoVideo`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoVideoNote`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoVoice`. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
+    /// Chat the original message belongs to. Available only if the chat is a supergroup or a channel.
     #[must_use]
     pub fn chat(&self) -> Option<&crate::types::Chat> {
         match self {
@@ -119,8 +98,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `checklist`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoChecklist`. Message is a checklist
+    /// Message is a checklist
     #[must_use]
     pub fn checklist(&self) -> Option<&crate::types::Checklist> {
         match self {
@@ -131,8 +109,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `contact`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoContact`. Message is a shared contact, information about the contact
+    /// Message is a shared contact, information about the contact
     #[must_use]
     pub fn contact(&self) -> Option<&crate::types::Contact> {
         match self {
@@ -143,8 +120,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `dice`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoDice`. Message is a dice with random value
+    /// Message is a dice with random value
     #[must_use]
     pub fn dice(&self) -> Option<&crate::types::Dice> {
         match self {
@@ -155,8 +131,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `document`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoDocument`. Message is a general file, information about the file
+    /// Message is a general file, information about the file
     #[must_use]
     pub fn document(&self) -> Option<&crate::types::Document> {
         match self {
@@ -167,8 +142,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `game`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoGame`. Message is a game, information about the game. More about games: <https://core.telegram.org/bots/api#games>
+    /// Message is a game, information about the game. More about games: <https://core.telegram.org/bots/api#games>
     #[must_use]
     pub fn game(&self) -> Option<&crate::types::Game> {
         match self {
@@ -179,8 +153,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `giveaway`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoGiveaway`. Message is a scheduled giveaway, information about the giveaway
+    /// Message is a scheduled giveaway, information about the giveaway
     #[must_use]
     pub fn giveaway(&self) -> Option<&crate::types::Giveaway> {
         match self {
@@ -191,8 +164,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `giveaway_winners`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoGiveawayWinners`. A giveaway with public winners was completed
+    /// A giveaway with public winners was completed
     #[must_use]
     pub fn giveaway_winners(&self) -> Option<&crate::types::GiveawayWinners> {
         match self {
@@ -203,26 +175,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `has_media_spoiler`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoAnimation`. `true`, if the message media is covered by a spoiler animation
-    /// - `ExternalReplyInfoAudio`. `true`, if the message media is covered by a spoiler animation
-    /// - `ExternalReplyInfoChecklist`. `true`, if the message media is covered by a spoiler animation
-    /// - `ExternalReplyInfoContact`. `true`, if the message media is covered by a spoiler animation
-    /// - `ExternalReplyInfoDice`. `true`, if the message media is covered by a spoiler animation
-    /// - `ExternalReplyInfoDocument`. `true`, if the message media is covered by a spoiler animation
-    /// - `ExternalReplyInfoGame`. `true`, if the message media is covered by a spoiler animation
-    /// - `ExternalReplyInfoGiveaway`. `true`, if the message media is covered by a spoiler animation
-    /// - `ExternalReplyInfoGiveawayWinners`. `true`, if the message media is covered by a spoiler animation
-    /// - `ExternalReplyInfoInvoice`. `true`, if the message media is covered by a spoiler animation
-    /// - `ExternalReplyInfoLocation`. `true`, if the message media is covered by a spoiler animation
-    /// - `ExternalReplyInfoPhoto`. `true`, if the message media is covered by a spoiler animation
-    /// - `ExternalReplyInfoPoll`. `true`, if the message media is covered by a spoiler animation
-    /// - `ExternalReplyInfoSticker`. `true`, if the message media is covered by a spoiler animation
-    /// - `ExternalReplyInfoStory`. `true`, if the message media is covered by a spoiler animation
-    /// - `ExternalReplyInfoVenue`. `true`, if the message media is covered by a spoiler animation
-    /// - `ExternalReplyInfoVideo`. `true`, if the message media is covered by a spoiler animation
-    /// - `ExternalReplyInfoVideoNote`. `true`, if the message media is covered by a spoiler animation
-    /// - `ExternalReplyInfoVoice`. `true`, if the message media is covered by a spoiler animation
+    /// `true`, if the message media is covered by a spoiler animation
     #[must_use]
     pub fn has_media_spoiler(&self) -> Option<bool> {
         match self {
@@ -250,8 +203,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `invoice`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoInvoice`. Message is an invoice for a payment, information about the invoice. More about payments: <https://core.telegram.org/bots/api#payments>
+    /// Message is an invoice for a payment, information about the invoice. More about payments: <https://core.telegram.org/bots/api#payments>
     #[must_use]
     pub fn invoice(&self) -> Option<&crate::types::Invoice> {
         match self {
@@ -262,26 +214,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `link_preview_options`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoAnimation`. Options used for link preview generation for the original message, if it is a text message
-    /// - `ExternalReplyInfoAudio`. Options used for link preview generation for the original message, if it is a text message
-    /// - `ExternalReplyInfoChecklist`. Options used for link preview generation for the original message, if it is a text message
-    /// - `ExternalReplyInfoContact`. Options used for link preview generation for the original message, if it is a text message
-    /// - `ExternalReplyInfoDice`. Options used for link preview generation for the original message, if it is a text message
-    /// - `ExternalReplyInfoDocument`. Options used for link preview generation for the original message, if it is a text message
-    /// - `ExternalReplyInfoGame`. Options used for link preview generation for the original message, if it is a text message
-    /// - `ExternalReplyInfoGiveaway`. Options used for link preview generation for the original message, if it is a text message
-    /// - `ExternalReplyInfoGiveawayWinners`. Options used for link preview generation for the original message, if it is a text message
-    /// - `ExternalReplyInfoInvoice`. Options used for link preview generation for the original message, if it is a text message
-    /// - `ExternalReplyInfoLocation`. Options used for link preview generation for the original message, if it is a text message
-    /// - `ExternalReplyInfoPhoto`. Options used for link preview generation for the original message, if it is a text message
-    /// - `ExternalReplyInfoPoll`. Options used for link preview generation for the original message, if it is a text message
-    /// - `ExternalReplyInfoSticker`. Options used for link preview generation for the original message, if it is a text message
-    /// - `ExternalReplyInfoStory`. Options used for link preview generation for the original message, if it is a text message
-    /// - `ExternalReplyInfoVenue`. Options used for link preview generation for the original message, if it is a text message
-    /// - `ExternalReplyInfoVideo`. Options used for link preview generation for the original message, if it is a text message
-    /// - `ExternalReplyInfoVideoNote`. Options used for link preview generation for the original message, if it is a text message
-    /// - `ExternalReplyInfoVoice`. Options used for link preview generation for the original message, if it is a text message
+    /// Options used for link preview generation for the original message, if it is a text message
     #[must_use]
     pub fn link_preview_options(&self) -> Option<&crate::types::LinkPreviewOptions> {
         match self {
@@ -309,8 +242,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `location`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoLocation`. Message is a shared location, information about the location
+    /// Message is a shared location, information about the location
     #[must_use]
     pub fn location(&self) -> Option<&crate::types::Location> {
         match self {
@@ -321,26 +253,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `message_id`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoAnimation`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoAudio`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoChecklist`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoContact`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoDice`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoDocument`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoGame`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoGiveaway`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoGiveawayWinners`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoInvoice`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoLocation`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoPhoto`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoPoll`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoSticker`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoStory`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoVenue`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoVideo`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoVideoNote`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
-    /// - `ExternalReplyInfoVoice`. Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
+    /// Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel.
     #[must_use]
     pub fn message_id(&self) -> Option<i64> {
         match self {
@@ -368,26 +281,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `origin`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoAnimation`. Origin of the message replied to by the given message
-    /// - `ExternalReplyInfoAudio`. Origin of the message replied to by the given message
-    /// - `ExternalReplyInfoChecklist`. Origin of the message replied to by the given message
-    /// - `ExternalReplyInfoContact`. Origin of the message replied to by the given message
-    /// - `ExternalReplyInfoDice`. Origin of the message replied to by the given message
-    /// - `ExternalReplyInfoDocument`. Origin of the message replied to by the given message
-    /// - `ExternalReplyInfoGame`. Origin of the message replied to by the given message
-    /// - `ExternalReplyInfoGiveaway`. Origin of the message replied to by the given message
-    /// - `ExternalReplyInfoGiveawayWinners`. Origin of the message replied to by the given message
-    /// - `ExternalReplyInfoInvoice`. Origin of the message replied to by the given message
-    /// - `ExternalReplyInfoLocation`. Origin of the message replied to by the given message
-    /// - `ExternalReplyInfoPhoto`. Origin of the message replied to by the given message
-    /// - `ExternalReplyInfoPoll`. Origin of the message replied to by the given message
-    /// - `ExternalReplyInfoSticker`. Origin of the message replied to by the given message
-    /// - `ExternalReplyInfoStory`. Origin of the message replied to by the given message
-    /// - `ExternalReplyInfoVenue`. Origin of the message replied to by the given message
-    /// - `ExternalReplyInfoVideo`. Origin of the message replied to by the given message
-    /// - `ExternalReplyInfoVideoNote`. Origin of the message replied to by the given message
-    /// - `ExternalReplyInfoVoice`. Origin of the message replied to by the given message
+    /// Origin of the message replied to by the given message
     #[must_use]
     pub fn origin(&self) -> &crate::types::MessageOrigin {
         match self {
@@ -415,26 +309,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `paid_media`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoAnimation`. Message contains paid media; information about the paid media
-    /// - `ExternalReplyInfoAudio`. Message contains paid media; information about the paid media
-    /// - `ExternalReplyInfoChecklist`. Message contains paid media; information about the paid media
-    /// - `ExternalReplyInfoContact`. Message contains paid media; information about the paid media
-    /// - `ExternalReplyInfoDice`. Message contains paid media; information about the paid media
-    /// - `ExternalReplyInfoDocument`. Message contains paid media; information about the paid media
-    /// - `ExternalReplyInfoGame`. Message contains paid media; information about the paid media
-    /// - `ExternalReplyInfoGiveaway`. Message contains paid media; information about the paid media
-    /// - `ExternalReplyInfoGiveawayWinners`. Message contains paid media; information about the paid media
-    /// - `ExternalReplyInfoInvoice`. Message contains paid media; information about the paid media
-    /// - `ExternalReplyInfoLocation`. Message contains paid media; information about the paid media
-    /// - `ExternalReplyInfoPhoto`. Message contains paid media; information about the paid media
-    /// - `ExternalReplyInfoPoll`. Message contains paid media; information about the paid media
-    /// - `ExternalReplyInfoSticker`. Message contains paid media; information about the paid media
-    /// - `ExternalReplyInfoStory`. Message contains paid media; information about the paid media
-    /// - `ExternalReplyInfoVenue`. Message contains paid media; information about the paid media
-    /// - `ExternalReplyInfoVideo`. Message contains paid media; information about the paid media
-    /// - `ExternalReplyInfoVideoNote`. Message contains paid media; information about the paid media
-    /// - `ExternalReplyInfoVoice`. Message contains paid media; information about the paid media
+    /// Message contains paid media; information about the paid media
     #[must_use]
     pub fn paid_media(&self) -> Option<&crate::types::PaidMediaInfo> {
         match self {
@@ -462,8 +337,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `photo`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoPhoto`. Message is a photo, available sizes of the photo
+    /// Message is a photo, available sizes of the photo
     #[must_use]
     pub fn photo(&self) -> Option<&[crate::types::PhotoSize]> {
         match self {
@@ -474,8 +348,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `poll`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoPoll`. Message is a native poll, information about the poll
+    /// Message is a native poll, information about the poll
     #[must_use]
     pub fn poll(&self) -> Option<&crate::types::Poll> {
         match self {
@@ -486,8 +359,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `sticker`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoSticker`. Message is a sticker, information about the sticker
+    /// Message is a sticker, information about the sticker
     #[must_use]
     pub fn sticker(&self) -> Option<&crate::types::Sticker> {
         match self {
@@ -498,8 +370,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `story`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoStory`. Message is a forwarded story
+    /// Message is a forwarded story
     #[must_use]
     pub fn story(&self) -> Option<&crate::types::Story> {
         match self {
@@ -510,8 +381,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `venue`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoVenue`. Message is a venue, information about the venue
+    /// Message is a venue, information about the venue
     #[must_use]
     pub fn venue(&self) -> Option<&crate::types::Venue> {
         match self {
@@ -522,8 +392,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `video`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoVideo`. Message is a video, information about the video
+    /// Message is a video, information about the video
     #[must_use]
     pub fn video(&self) -> Option<&crate::types::Video> {
         match self {
@@ -534,8 +403,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `video_note`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoVideoNote`. Message is a video note, information about the video message
+    /// Message is a video note, information about the video message
     #[must_use]
     pub fn video_note(&self) -> Option<&crate::types::VideoNote> {
         match self {
@@ -546,8 +414,7 @@ impl ExternalReplyInfo {
 
     /// Helper method for field `voice`.
     ///
-    /// # Variants
-    /// - `ExternalReplyInfoVoice`. Message is a voice message, information about the file
+    /// Message is a voice message, information about the file
     #[must_use]
     pub fn voice(&self) -> Option<&crate::types::Voice> {
         match self {

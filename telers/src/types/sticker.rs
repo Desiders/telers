@@ -16,10 +16,7 @@ pub enum Sticker {
 impl Sticker {
     /// Helper method for field `custom_emoji_id`.
     ///
-    /// # Variants
-    /// - `StickerRegular`. For custom emoji stickers, unique identifier of the custom emoji
-    /// - `StickerMask`. For custom emoji stickers, unique identifier of the custom emoji
-    /// - `StickerCustomEmoji`. For custom emoji stickers, unique identifier of the custom emoji
+    /// For custom emoji stickers, unique identifier of the custom emoji
     #[must_use]
     pub fn custom_emoji_id(&self) -> Option<&str> {
         match self {
@@ -31,10 +28,7 @@ impl Sticker {
 
     /// Helper method for field `emoji`.
     ///
-    /// # Variants
-    /// - `StickerRegular`. Emoji associated with the sticker
-    /// - `StickerMask`. Emoji associated with the sticker
-    /// - `StickerCustomEmoji`. Emoji associated with the sticker
+    /// Emoji associated with the sticker
     #[must_use]
     pub fn emoji(&self) -> Option<&str> {
         match self {
@@ -46,10 +40,7 @@ impl Sticker {
 
     /// Helper method for field `file_id`.
     ///
-    /// # Variants
-    /// - `StickerRegular`. Identifier for this file, which can be used to download or reuse the file
-    /// - `StickerMask`. Identifier for this file, which can be used to download or reuse the file
-    /// - `StickerCustomEmoji`. Identifier for this file, which can be used to download or reuse the file
+    /// Identifier for this file, which can be used to download or reuse the file
     #[must_use]
     pub fn file_id(&self) -> &str {
         match self {
@@ -61,10 +52,7 @@ impl Sticker {
 
     /// Helper method for field `file_size`.
     ///
-    /// # Variants
-    /// - `StickerRegular`. File size in bytes
-    /// - `StickerMask`. File size in bytes
-    /// - `StickerCustomEmoji`. File size in bytes
+    /// File size in bytes
     #[must_use]
     pub fn file_size(&self) -> Option<i64> {
         match self {
@@ -76,10 +64,7 @@ impl Sticker {
 
     /// Helper method for field `file_unique_id`.
     ///
-    /// # Variants
-    /// - `StickerRegular`. Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-    /// - `StickerMask`. Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-    /// - `StickerCustomEmoji`. Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
+    /// Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
     #[must_use]
     pub fn file_unique_id(&self) -> &str {
         match self {
@@ -91,10 +76,7 @@ impl Sticker {
 
     /// Helper method for field `height`.
     ///
-    /// # Variants
-    /// - `StickerRegular`. Sticker height
-    /// - `StickerMask`. Sticker height
-    /// - `StickerCustomEmoji`. Sticker height
+    /// Sticker height
     #[must_use]
     pub fn height(&self) -> i64 {
         match self {
@@ -106,10 +88,7 @@ impl Sticker {
 
     /// Helper method for field `is_animated`.
     ///
-    /// # Variants
-    /// - `StickerRegular`. `true`, if the sticker is animated
-    /// - `StickerMask`. `true`, if the sticker is animated
-    /// - `StickerCustomEmoji`. `true`, if the sticker is animated
+    /// `true`, if the sticker is animated
     #[must_use]
     pub fn is_animated(&self) -> bool {
         match self {
@@ -121,10 +100,7 @@ impl Sticker {
 
     /// Helper method for field `is_video`.
     ///
-    /// # Variants
-    /// - `StickerRegular`. `true`, if the sticker is a video sticker
-    /// - `StickerMask`. `true`, if the sticker is a video sticker
-    /// - `StickerCustomEmoji`. `true`, if the sticker is a video sticker
+    /// `true`, if the sticker is a video sticker
     #[must_use]
     pub fn is_video(&self) -> bool {
         match self {
@@ -136,8 +112,7 @@ impl Sticker {
 
     /// Helper method for field `mask_position`.
     ///
-    /// # Variants
-    /// - `StickerMask`. For mask stickers, the position where the mask should be placed
+    /// For mask stickers, the position where the mask should be placed
     #[must_use]
     pub fn mask_position(&self) -> Option<&crate::types::MaskPosition> {
         match self {
@@ -148,10 +123,7 @@ impl Sticker {
 
     /// Helper method for field `needs_repainting`.
     ///
-    /// # Variants
-    /// - `StickerRegular`. `true`, if the sticker must be repainted to a text color in messages, the color of the Telegram Premium badge in emoji status, white color on chat photos, or another appropriate color in other places
-    /// - `StickerMask`. `true`, if the sticker must be repainted to a text color in messages, the color of the Telegram Premium badge in emoji status, white color on chat photos, or another appropriate color in other places
-    /// - `StickerCustomEmoji`. `true`, if the sticker must be repainted to a text color in messages, the color of the Telegram Premium badge in emoji status, white color on chat photos, or another appropriate color in other places
+    /// `true`, if the sticker must be repainted to a text color in messages, the color of the Telegram Premium badge in emoji status, white color on chat photos, or another appropriate color in other places
     #[must_use]
     pub fn needs_repainting(&self) -> Option<bool> {
         match self {
@@ -163,8 +135,7 @@ impl Sticker {
 
     /// Helper method for field `premium_animation`.
     ///
-    /// # Variants
-    /// - `StickerRegular`. For premium regular stickers, premium animation for the sticker
+    /// For premium regular stickers, premium animation for the sticker
     #[must_use]
     pub fn premium_animation(&self) -> Option<&crate::types::File> {
         match self {
@@ -175,10 +146,7 @@ impl Sticker {
 
     /// Helper method for field `set_name`.
     ///
-    /// # Variants
-    /// - `StickerRegular`. Name of the sticker set to which the sticker belongs
-    /// - `StickerMask`. Name of the sticker set to which the sticker belongs
-    /// - `StickerCustomEmoji`. Name of the sticker set to which the sticker belongs
+    /// Name of the sticker set to which the sticker belongs
     #[must_use]
     pub fn set_name(&self) -> Option<&str> {
         match self {
@@ -190,10 +158,7 @@ impl Sticker {
 
     /// Helper method for field `thumbnail`.
     ///
-    /// # Variants
-    /// - `StickerRegular`. Sticker thumbnail in the .WEBP or .JPG format
-    /// - `StickerMask`. Sticker thumbnail in the .WEBP or .JPG format
-    /// - `StickerCustomEmoji`. Sticker thumbnail in the .WEBP or .JPG format
+    /// Sticker thumbnail in the .WEBP or .JPG format
     #[must_use]
     pub fn thumbnail(&self) -> Option<&crate::types::PhotoSize> {
         match self {
@@ -205,10 +170,7 @@ impl Sticker {
 
     /// Helper method for field `width`.
     ///
-    /// # Variants
-    /// - `StickerRegular`. Sticker width
-    /// - `StickerMask`. Sticker width
-    /// - `StickerCustomEmoji`. Sticker width
+    /// Sticker width
     #[must_use]
     pub fn width(&self) -> i64 {
         match self {

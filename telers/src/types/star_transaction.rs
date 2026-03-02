@@ -14,9 +14,7 @@ pub enum StarTransaction {
 impl StarTransaction {
     /// Helper method for field `amount`.
     ///
-    /// # Variants
-    /// - `StarTransactionIncoming`. Integer amount of Telegram Stars transferred by the transaction
-    /// - `StarTransactionOutgoing`. Integer amount of Telegram Stars transferred by the transaction
+    /// Integer amount of Telegram Stars transferred by the transaction
     #[must_use]
     pub fn amount(&self) -> i64 {
         match self {
@@ -27,9 +25,7 @@ impl StarTransaction {
 
     /// Helper method for field `date`.
     ///
-    /// # Variants
-    /// - `StarTransactionIncoming`. Date the transaction was created in Unix time
-    /// - `StarTransactionOutgoing`. Date the transaction was created in Unix time
+    /// Date the transaction was created in Unix time
     #[must_use]
     pub fn date(&self) -> i64 {
         match self {
@@ -40,9 +36,7 @@ impl StarTransaction {
 
     /// Helper method for field `id`.
     ///
-    /// # Variants
-    /// - `StarTransactionIncoming`. Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`SuccessfulPayment`].`telegram_payment_charge_id` for successful incoming payments from users.
-    /// - `StarTransactionOutgoing`. Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`SuccessfulPayment`].`telegram_payment_charge_id` for successful incoming payments from users.
+    /// Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`SuccessfulPayment`].`telegram_payment_charge_id` for successful incoming payments from users.
     #[must_use]
     pub fn id(&self) -> &str {
         match self {
@@ -53,9 +47,7 @@ impl StarTransaction {
 
     /// Helper method for field `nanostar_amount`.
     ///
-    /// # Variants
-    /// - `StarTransactionIncoming`. The number of 1/1000000000 shares of Telegram Stars transferred by the transaction; from 0 to 999999999
-    /// - `StarTransactionOutgoing`. The number of 1/1000000000 shares of Telegram Stars transferred by the transaction; from 0 to 999999999
+    /// The number of 1/1000000000 shares of Telegram Stars transferred by the transaction; from 0 to 999999999
     #[must_use]
     pub fn nanostar_amount(&self) -> Option<u32> {
         match self {
@@ -66,8 +58,7 @@ impl StarTransaction {
 
     /// Helper method for field `receiver`.
     ///
-    /// # Variants
-    /// - `StarTransactionOutgoing`. Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions
+    /// Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions
     #[must_use]
     pub fn receiver(&self) -> Option<&crate::types::TransactionPartner> {
         match self {
@@ -78,8 +69,7 @@ impl StarTransaction {
 
     /// Helper method for field `source`.
     ///
-    /// # Variants
-    /// - `StarTransactionIncoming`. Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions
+    /// Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions
     #[must_use]
     pub fn source(&self) -> Option<&crate::types::TransactionPartner> {
         match self {

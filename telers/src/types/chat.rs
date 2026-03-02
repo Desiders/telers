@@ -18,8 +18,7 @@ pub enum Chat {
 impl Chat {
     /// Helper method for field `first_name`.
     ///
-    /// # Variants
-    /// - `ChatPrivate`. First name of the other party in a private chat
+    /// First name of the other party in a private chat
     #[must_use]
     pub fn first_name(&self) -> Option<&str> {
         match self {
@@ -30,11 +29,7 @@ impl Chat {
 
     /// Helper method for field `id`.
     ///
-    /// # Variants
-    /// - `ChatPrivate`. Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
-    /// - `ChatGroup`. Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
-    /// - `ChatSupergroup`. Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
-    /// - `ChatChannel`. Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     #[must_use]
     pub fn id(&self) -> i64 {
         match self {
@@ -47,11 +42,7 @@ impl Chat {
 
     /// Helper method for field `is_direct_messages`.
     ///
-    /// # Variants
-    /// - `ChatPrivate`. `true`, if the chat is the direct messages chat of a channel
-    /// - `ChatGroup`. `true`, if the chat is the direct messages chat of a channel
-    /// - `ChatSupergroup`. `true`, if the chat is the direct messages chat of a channel
-    /// - `ChatChannel`. `true`, if the chat is the direct messages chat of a channel
+    /// `true`, if the chat is the direct messages chat of a channel
     #[must_use]
     pub fn is_direct_messages(&self) -> Option<bool> {
         match self {
@@ -64,8 +55,7 @@ impl Chat {
 
     /// Helper method for field `is_forum`.
     ///
-    /// # Variants
-    /// - `ChatSupergroup`. `true`, if the supergroup chat is a forum (has topics enabled)
+    /// `true`, if the supergroup chat is a forum (has topics enabled)
     #[must_use]
     pub fn is_forum(&self) -> Option<bool> {
         match self {
@@ -76,8 +66,7 @@ impl Chat {
 
     /// Helper method for field `last_name`.
     ///
-    /// # Variants
-    /// - `ChatPrivate`. Last name of the other party in a private chat
+    /// Last name of the other party in a private chat
     #[must_use]
     pub fn last_name(&self) -> Option<&str> {
         match self {
@@ -88,9 +77,7 @@ impl Chat {
 
     /// Helper method for field `title`.
     ///
-    /// # Variants
-    /// - `ChatSupergroup`. Title, for supergroups, channels and group chats
-    /// - `ChatChannel`. Title, for supergroups, channels and group chats
+    /// Title, for supergroups, channels and group chats
     #[must_use]
     pub fn title(&self) -> Option<&str> {
         match self {
@@ -102,10 +89,7 @@ impl Chat {
 
     /// Helper method for field `username`.
     ///
-    /// # Variants
-    /// - `ChatPrivate`. Username, for private chats, supergroups and channels if available
-    /// - `ChatSupergroup`. Username, for private chats, supergroups and channels if available
-    /// - `ChatChannel`. Username, for private chats, supergroups and channels if available
+    /// Username, for private chats, supergroups and channels if available
     #[must_use]
     pub fn username(&self) -> Option<&str> {
         match self {

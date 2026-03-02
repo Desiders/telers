@@ -12,9 +12,7 @@ pub enum InlineQueryResultDocumentKind {
 impl InlineQueryResultDocumentKind {
     /// Helper method for field `caption`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultDocument`. Caption of the document to be sent, 0-1024 characters after entities parsing
-    /// - `InlineQueryResultCachedDocument`. Caption of the document to be sent, 0-1024 characters after entities parsing
+    /// Caption of the document to be sent, 0-1024 characters after entities parsing
     #[must_use]
     pub fn caption(&self) -> Option<&str> {
         match self {
@@ -25,9 +23,7 @@ impl InlineQueryResultDocumentKind {
 
     /// Helper method for field `caption_entities`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultDocument`. List of special entities that appear in the caption, which can be specified instead of `parse_mode`
-    /// - `InlineQueryResultCachedDocument`. List of special entities that appear in the caption, which can be specified instead of `parse_mode`
+    /// List of special entities that appear in the caption, which can be specified instead of `parse_mode`
     #[must_use]
     pub fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
         match self {
@@ -38,9 +34,7 @@ impl InlineQueryResultDocumentKind {
 
     /// Helper method for field `description`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultDocument`. Short description of the result
-    /// - `InlineQueryResultCachedDocument`. Short description of the result
+    /// Short description of the result
     #[must_use]
     pub fn description(&self) -> Option<&str> {
         match self {
@@ -51,8 +45,7 @@ impl InlineQueryResultDocumentKind {
 
     /// Helper method for field `document_file_id`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultCachedDocument`. A valid file identifier for the file
+    /// A valid file identifier for the file
     #[must_use]
     pub fn document_file_id(&self) -> Option<&str> {
         match self {
@@ -63,8 +56,7 @@ impl InlineQueryResultDocumentKind {
 
     /// Helper method for field `document_url`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultDocument`. A valid URL for the file
+    /// A valid URL for the file
     #[must_use]
     pub fn document_url(&self) -> Option<&str> {
         match self {
@@ -75,9 +67,7 @@ impl InlineQueryResultDocumentKind {
 
     /// Helper method for field `id`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultDocument`. Unique identifier for this result, 1-64 bytes
-    /// - `InlineQueryResultCachedDocument`. Unique identifier for this result, 1-64 bytes
+    /// Unique identifier for this result, 1-64 bytes
     #[must_use]
     pub fn id(&self) -> &str {
         match self {
@@ -88,9 +78,7 @@ impl InlineQueryResultDocumentKind {
 
     /// Helper method for field `input_message_content`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultDocument`. Content of the message to be sent instead of the file
-    /// - `InlineQueryResultCachedDocument`. Content of the message to be sent instead of the file
+    /// Content of the message to be sent instead of the file
     #[must_use]
     pub fn input_message_content(&self) -> Option<&crate::types::InputMessageContent> {
         match self {
@@ -101,8 +89,7 @@ impl InlineQueryResultDocumentKind {
 
     /// Helper method for field `mime_type`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultDocument`. MIME type of the content of the file, either `application/pdf` or `application/zip`
+    /// MIME type of the content of the file, either `application/pdf` or `application/zip`
     #[must_use]
     pub fn mime_type(&self) -> Option<&str> {
         match self {
@@ -113,9 +100,7 @@ impl InlineQueryResultDocumentKind {
 
     /// Helper method for field `parse_mode`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultDocument`. Mode for parsing entities in the document caption. See formatting options for more details.
-    /// - `InlineQueryResultCachedDocument`. Mode for parsing entities in the document caption. See formatting options for more details.
+    /// Mode for parsing entities in the document caption. See formatting options for more details.
     #[must_use]
     pub fn parse_mode(&self) -> Option<&str> {
         match self {
@@ -126,9 +111,7 @@ impl InlineQueryResultDocumentKind {
 
     /// Helper method for field `reply_markup`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultDocument`. Inline keyboard attached to the message
-    /// - `InlineQueryResultCachedDocument`. Inline keyboard attached to the message
+    /// Inline keyboard attached to the message
     #[must_use]
     pub fn reply_markup(&self) -> Option<&crate::types::InlineKeyboardMarkup> {
         match self {
@@ -139,8 +122,7 @@ impl InlineQueryResultDocumentKind {
 
     /// Helper method for field `thumbnail_height`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultDocument`. Thumbnail height
+    /// Thumbnail height
     #[must_use]
     pub fn thumbnail_height(&self) -> Option<i64> {
         match self {
@@ -151,8 +133,7 @@ impl InlineQueryResultDocumentKind {
 
     /// Helper method for field `thumbnail_url`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultDocument`. URL of the thumbnail (JPEG only) for the file
+    /// URL of the thumbnail (JPEG only) for the file
     #[must_use]
     pub fn thumbnail_url(&self) -> Option<&str> {
         match self {
@@ -163,8 +144,7 @@ impl InlineQueryResultDocumentKind {
 
     /// Helper method for field `thumbnail_width`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultDocument`. Thumbnail width
+    /// Thumbnail width
     #[must_use]
     pub fn thumbnail_width(&self) -> Option<i64> {
         match self {
@@ -175,9 +155,7 @@ impl InlineQueryResultDocumentKind {
 
     /// Helper method for field `title`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultDocument`. Title for the result
-    /// - `InlineQueryResultCachedDocument`. Title for the result
+    /// Title for the result
     #[must_use]
     pub fn title(&self) -> &str {
         match self {

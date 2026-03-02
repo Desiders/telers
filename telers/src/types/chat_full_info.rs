@@ -18,11 +18,7 @@ pub enum ChatFullInfo {
 impl ChatFullInfo {
     /// Helper method for field `accent_color_id`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details.
-    /// - `ChatFullInfoGroup`. Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details.
-    /// - `ChatFullInfoSupergroup`. Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details.
-    /// - `ChatFullInfoChannel`. Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details.
+    /// Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details.
     #[must_use]
     pub fn accent_color_id(&self) -> i64 {
         match self {
@@ -35,8 +31,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `accepted_gift_types`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. Information about types of gifts that are accepted by the chat or by the corresponding user for private chats
+    /// Information about types of gifts that are accepted by the chat or by the corresponding user for private chats
     #[must_use]
     pub fn accepted_gift_types(&self) -> Option<&crate::types::AcceptedGiftTypes> {
         match self {
@@ -47,10 +42,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `active_usernames`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. If non-empty, the list of all active chat usernames; for private chats, supergroups and channels
-    /// - `ChatFullInfoSupergroup`. If non-empty, the list of all active chat usernames; for private chats, supergroups and channels
-    /// - `ChatFullInfoChannel`. If non-empty, the list of all active chat usernames; for private chats, supergroups and channels
+    /// If non-empty, the list of all active chat usernames; for private chats, supergroups and channels
     #[must_use]
     pub fn active_usernames(&self) -> Option<&[Box<str>]> {
         match self {
@@ -63,11 +55,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `available_reactions`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed.
-    /// - `ChatFullInfoGroup`. List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed.
-    /// - `ChatFullInfoSupergroup`. List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed.
-    /// - `ChatFullInfoChannel`. List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed.
+    /// List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed.
     #[must_use]
     pub fn available_reactions(&self) -> Option<&[crate::types::ReactionType]> {
         match self {
@@ -80,11 +68,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `background_custom_emoji_id`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background
-    /// - `ChatFullInfoGroup`. Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background
-    /// - `ChatFullInfoSupergroup`. Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background
-    /// - `ChatFullInfoChannel`. Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background
+    /// Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background
     #[must_use]
     pub fn background_custom_emoji_id(&self) -> Option<&str> {
         match self {
@@ -97,8 +81,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `bio`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. Bio of the other party in a private chat
+    /// Bio of the other party in a private chat
     #[must_use]
     pub fn bio(&self) -> Option<&str> {
         match self {
@@ -109,8 +92,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `birthdate`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. For private chats, the date of birth of the user
+    /// For private chats, the date of birth of the user
     #[must_use]
     pub fn birthdate(&self) -> Option<&crate::types::Birthdate> {
         match self {
@@ -121,8 +103,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `business_intro`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. For private chats with business accounts, the intro of the business
+    /// For private chats with business accounts, the intro of the business
     #[must_use]
     pub fn business_intro(&self) -> Option<&crate::types::BusinessIntro> {
         match self {
@@ -133,8 +114,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `business_location`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. For private chats with business accounts, the location of the business
+    /// For private chats with business accounts, the location of the business
     #[must_use]
     pub fn business_location(&self) -> Option<&crate::types::BusinessLocation> {
         match self {
@@ -145,8 +125,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `business_opening_hours`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. For private chats with business accounts, the opening hours of the business
+    /// For private chats with business accounts, the opening hours of the business
     #[must_use]
     pub fn business_opening_hours(&self) -> Option<&crate::types::BusinessOpeningHours> {
         match self {
@@ -157,8 +136,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `can_send_paid_media`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoChannel`. `true`, if paid media messages can be sent or forwarded to the channel chat. The field is available only for channel chats.
+    /// `true`, if paid media messages can be sent or forwarded to the channel chat. The field is available only for channel chats.
     #[must_use]
     pub fn can_send_paid_media(&self) -> Option<bool> {
         match self {
@@ -169,8 +147,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `can_set_sticker_set`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoGroup`. `true`, if the bot can change the group sticker set
+    /// `true`, if the bot can change the group sticker set
     #[must_use]
     pub fn can_set_sticker_set(&self) -> Option<bool> {
         match self {
@@ -181,8 +158,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `custom_emoji_sticker_set_name`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoSupergroup`. For supergroups, the name of the group's custom emoji sticker set. Custom emoji from this set can be used by all users and bots in the group.
+    /// For supergroups, the name of the group's custom emoji sticker set. Custom emoji from this set can be used by all users and bots in the group.
     #[must_use]
     pub fn custom_emoji_sticker_set_name(&self) -> Option<&str> {
         match self {
@@ -193,9 +169,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `description`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoSupergroup`. Description, for groups, supergroups and channel chats
-    /// - `ChatFullInfoChannel`. Description, for groups, supergroups and channel chats
+    /// Description, for groups, supergroups and channel chats
     #[must_use]
     pub fn description(&self) -> Option<&str> {
         match self {
@@ -207,8 +181,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `emoji_status_custom_emoji_id`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. Custom emoji identifier of the emoji status of the chat or the other party in a private chat
+    /// Custom emoji identifier of the emoji status of the chat or the other party in a private chat
     #[must_use]
     pub fn emoji_status_custom_emoji_id(&self) -> Option<&str> {
         match self {
@@ -219,8 +192,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `emoji_status_expiration_date`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. Expiration date of the emoji status of the chat or the other party in a private chat, in Unix time, if any
+    /// Expiration date of the emoji status of the chat or the other party in a private chat, in Unix time, if any
     #[must_use]
     pub fn emoji_status_expiration_date(&self) -> Option<i64> {
         match self {
@@ -231,8 +203,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `first_name`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. First name of the other party in a private chat
+    /// First name of the other party in a private chat
     #[must_use]
     pub fn first_name(&self) -> Option<&str> {
         match self {
@@ -243,8 +214,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `first_profile_audio`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. For private chats, the first audio added to the profile of the user
+    /// For private chats, the first audio added to the profile of the user
     #[must_use]
     pub fn first_profile_audio(&self) -> Option<&crate::types::Audio> {
         match self {
@@ -255,8 +225,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `has_aggressive_anti_spam_enabled`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoSupergroup`. `true`, if aggressive anti-spam checks are enabled in the supergroup. The field is only available to chat administrators.
+    /// `true`, if aggressive anti-spam checks are enabled in the supergroup. The field is only available to chat administrators.
     #[must_use]
     pub fn has_aggressive_anti_spam_enabled(&self) -> Option<bool> {
         match self {
@@ -267,11 +236,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `has_hidden_members`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. `true`, if non-administrators can only get the list of bots and administrators in the chat
-    /// - `ChatFullInfoGroup`. `true`, if non-administrators can only get the list of bots and administrators in the chat
-    /// - `ChatFullInfoSupergroup`. `true`, if non-administrators can only get the list of bots and administrators in the chat
-    /// - `ChatFullInfoChannel`. `true`, if non-administrators can only get the list of bots and administrators in the chat
+    /// `true`, if non-administrators can only get the list of bots and administrators in the chat
     #[must_use]
     pub fn has_hidden_members(&self) -> Option<bool> {
         match self {
@@ -284,8 +249,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `has_private_forwards`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. `true`, if privacy settings of the other party in the private chat allows to use ``tg://user?id=<user_id>`` links only in chats with the user
+    /// `true`, if privacy settings of the other party in the private chat allows to use ``tg://user?id=<user_id>`` links only in chats with the user
     #[must_use]
     pub fn has_private_forwards(&self) -> Option<bool> {
         match self {
@@ -296,11 +260,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `has_protected_content`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. `true`, if messages from the chat can't be forwarded to other chats
-    /// - `ChatFullInfoGroup`. `true`, if messages from the chat can't be forwarded to other chats
-    /// - `ChatFullInfoSupergroup`. `true`, if messages from the chat can't be forwarded to other chats
-    /// - `ChatFullInfoChannel`. `true`, if messages from the chat can't be forwarded to other chats
+    /// `true`, if messages from the chat can't be forwarded to other chats
     #[must_use]
     pub fn has_protected_content(&self) -> Option<bool> {
         match self {
@@ -313,8 +273,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `has_restricted_voice_and_video_messages`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. `true`, if the privacy settings of the other party restrict sending voice and video note messages in the private chat
+    /// `true`, if the privacy settings of the other party restrict sending voice and video note messages in the private chat
     #[must_use]
     pub fn has_restricted_voice_and_video_messages(&self) -> Option<bool> {
         match self {
@@ -325,11 +284,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `has_visible_history`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. `true`, if new chat members will have access to old messages; available only to chat administrators
-    /// - `ChatFullInfoGroup`. `true`, if new chat members will have access to old messages; available only to chat administrators
-    /// - `ChatFullInfoSupergroup`. `true`, if new chat members will have access to old messages; available only to chat administrators
-    /// - `ChatFullInfoChannel`. `true`, if new chat members will have access to old messages; available only to chat administrators
+    /// `true`, if new chat members will have access to old messages; available only to chat administrators
     #[must_use]
     pub fn has_visible_history(&self) -> Option<bool> {
         match self {
@@ -342,11 +297,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `id`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
-    /// - `ChatFullInfoGroup`. Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
-    /// - `ChatFullInfoSupergroup`. Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
-    /// - `ChatFullInfoChannel`. Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+    /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     #[must_use]
     pub fn id(&self) -> i64 {
         match self {
@@ -359,9 +310,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `invite_link`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoSupergroup`. Primary invite link, for groups, supergroups and channel chats
-    /// - `ChatFullInfoChannel`. Primary invite link, for groups, supergroups and channel chats
+    /// Primary invite link, for groups, supergroups and channel chats
     #[must_use]
     pub fn invite_link(&self) -> Option<&str> {
         match self {
@@ -373,11 +322,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `is_direct_messages`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. `true`, if the chat is the direct messages chat of a channel
-    /// - `ChatFullInfoGroup`. `true`, if the chat is the direct messages chat of a channel
-    /// - `ChatFullInfoSupergroup`. `true`, if the chat is the direct messages chat of a channel
-    /// - `ChatFullInfoChannel`. `true`, if the chat is the direct messages chat of a channel
+    /// `true`, if the chat is the direct messages chat of a channel
     #[must_use]
     pub fn is_direct_messages(&self) -> Option<bool> {
         match self {
@@ -390,8 +335,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `is_forum`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoSupergroup`. `true`, if the supergroup chat is a forum (has topics enabled)
+    /// `true`, if the supergroup chat is a forum (has topics enabled)
     #[must_use]
     pub fn is_forum(&self) -> Option<bool> {
         match self {
@@ -402,8 +346,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `join_by_request`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoSupergroup`. `true`, if all users directly joining the supergroup without using an invite link need to be approved by supergroup administrators
+    /// `true`, if all users directly joining the supergroup without using an invite link need to be approved by supergroup administrators
     #[must_use]
     pub fn join_by_request(&self) -> Option<bool> {
         match self {
@@ -414,8 +357,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `join_to_send_messages`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoSupergroup`. `true`, if users need to join the supergroup before they can send messages
+    /// `true`, if users need to join the supergroup before they can send messages
     #[must_use]
     pub fn join_to_send_messages(&self) -> Option<bool> {
         match self {
@@ -426,8 +368,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `last_name`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. Last name of the other party in a private chat
+    /// Last name of the other party in a private chat
     #[must_use]
     pub fn last_name(&self) -> Option<&str> {
         match self {
@@ -438,9 +379,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `linked_chat_id`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoSupergroup`. Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats. This identifier may be greater than 32 bits and some programming languages may have difficulty/silent defects in interpreting it. But it is smaller than 52 bits, so a signed 64 bit integer or double-precision float type are safe for storing this identifier.
-    /// - `ChatFullInfoChannel`. Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats. This identifier may be greater than 32 bits and some programming languages may have difficulty/silent defects in interpreting it. But it is smaller than 52 bits, so a signed 64 bit integer or double-precision float type are safe for storing this identifier.
+    /// Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats. This identifier may be greater than 32 bits and some programming languages may have difficulty/silent defects in interpreting it. But it is smaller than 52 bits, so a signed 64 bit integer or double-precision float type are safe for storing this identifier.
     #[must_use]
     pub fn linked_chat_id(&self) -> Option<i64> {
         match self {
@@ -452,8 +391,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `location`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoSupergroup`. For supergroups, the location to which the supergroup is connected
+    /// For supergroups, the location to which the supergroup is connected
     #[must_use]
     pub fn location(&self) -> Option<&crate::types::ChatLocation> {
         match self {
@@ -464,11 +402,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `max_reaction_count`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. The maximum number of reactions that can be set on a message in the chat
-    /// - `ChatFullInfoGroup`. The maximum number of reactions that can be set on a message in the chat
-    /// - `ChatFullInfoSupergroup`. The maximum number of reactions that can be set on a message in the chat
-    /// - `ChatFullInfoChannel`. The maximum number of reactions that can be set on a message in the chat
+    /// The maximum number of reactions that can be set on a message in the chat
     #[must_use]
     pub fn max_reaction_count(&self) -> i64 {
         match self {
@@ -481,11 +415,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `message_auto_delete_time`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. The time after which all messages sent to the chat will be automatically deleted; in seconds
-    /// - `ChatFullInfoGroup`. The time after which all messages sent to the chat will be automatically deleted; in seconds
-    /// - `ChatFullInfoSupergroup`. The time after which all messages sent to the chat will be automatically deleted; in seconds
-    /// - `ChatFullInfoChannel`. The time after which all messages sent to the chat will be automatically deleted; in seconds
+    /// The time after which all messages sent to the chat will be automatically deleted; in seconds
     #[must_use]
     pub fn message_auto_delete_time(&self) -> Option<i64> {
         match self {
@@ -498,11 +428,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `paid_message_star_count`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. The number of Telegram Stars a general user have to pay to send a message to the chat
-    /// - `ChatFullInfoGroup`. The number of Telegram Stars a general user have to pay to send a message to the chat
-    /// - `ChatFullInfoSupergroup`. The number of Telegram Stars a general user have to pay to send a message to the chat
-    /// - `ChatFullInfoChannel`. The number of Telegram Stars a general user have to pay to send a message to the chat
+    /// The number of Telegram Stars a general user have to pay to send a message to the chat
     #[must_use]
     pub fn paid_message_star_count(&self) -> Option<i64> {
         match self {
@@ -515,8 +441,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `parent_chat`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoChannel`. Information about the corresponding channel chat; for direct messages chats only
+    /// Information about the corresponding channel chat; for direct messages chats only
     #[must_use]
     pub fn parent_chat(&self) -> Option<&crate::types::Chat> {
         match self {
@@ -527,8 +452,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `permissions`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoSupergroup`. Default chat member permissions, for groups and supergroups
+    /// Default chat member permissions, for groups and supergroups
     #[must_use]
     pub fn permissions(&self) -> Option<&crate::types::ChatPermissions> {
         match self {
@@ -539,9 +463,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `personal_chat`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. For private chats, the personal channel of the user
-    /// - `ChatFullInfoChannel`. For private chats, the personal channel of the user
+    /// For private chats, the personal channel of the user
     #[must_use]
     pub fn personal_chat(&self) -> Option<&crate::types::Chat> {
         match self {
@@ -553,11 +475,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `photo`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. Chat photo
-    /// - `ChatFullInfoGroup`. Chat photo
-    /// - `ChatFullInfoSupergroup`. Chat photo
-    /// - `ChatFullInfoChannel`. Chat photo
+    /// Chat photo
     #[must_use]
     pub fn photo(&self) -> Option<&crate::types::ChatPhoto> {
         match self {
@@ -570,11 +488,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `pinned_message`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. The most recent pinned message (by sending date)
-    /// - `ChatFullInfoGroup`. The most recent pinned message (by sending date)
-    /// - `ChatFullInfoSupergroup`. The most recent pinned message (by sending date)
-    /// - `ChatFullInfoChannel`. The most recent pinned message (by sending date)
+    /// The most recent pinned message (by sending date)
     #[must_use]
     pub fn pinned_message(&self) -> Option<&crate::types::Message> {
         match self {
@@ -587,11 +501,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `profile_accent_color_id`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. Identifier of the accent color for the chat's profile background. See profile accent colors for more details.
-    /// - `ChatFullInfoGroup`. Identifier of the accent color for the chat's profile background. See profile accent colors for more details.
-    /// - `ChatFullInfoSupergroup`. Identifier of the accent color for the chat's profile background. See profile accent colors for more details.
-    /// - `ChatFullInfoChannel`. Identifier of the accent color for the chat's profile background. See profile accent colors for more details.
+    /// Identifier of the accent color for the chat's profile background. See profile accent colors for more details.
     #[must_use]
     pub fn profile_accent_color_id(&self) -> Option<i64> {
         match self {
@@ -604,11 +514,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `profile_background_custom_emoji_id`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. Custom emoji identifier of the emoji chosen by the chat for its profile background
-    /// - `ChatFullInfoGroup`. Custom emoji identifier of the emoji chosen by the chat for its profile background
-    /// - `ChatFullInfoSupergroup`. Custom emoji identifier of the emoji chosen by the chat for its profile background
-    /// - `ChatFullInfoChannel`. Custom emoji identifier of the emoji chosen by the chat for its profile background
+    /// Custom emoji identifier of the emoji chosen by the chat for its profile background
     #[must_use]
     pub fn profile_background_custom_emoji_id(&self) -> Option<&str> {
         match self {
@@ -621,8 +527,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `rating`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. For private chats, the rating of the user if any
+    /// For private chats, the rating of the user if any
     #[must_use]
     pub fn rating(&self) -> Option<&crate::types::UserRating> {
         match self {
@@ -633,8 +538,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `slow_mode_delay`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoSupergroup`. For supergroups, the minimum allowed delay between consecutive messages sent by each unprivileged user; in seconds
+    /// For supergroups, the minimum allowed delay between consecutive messages sent by each unprivileged user; in seconds
     #[must_use]
     pub fn slow_mode_delay(&self) -> Option<i64> {
         match self {
@@ -645,8 +549,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `sticker_set_name`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoSupergroup`. For supergroups, name of the group sticker set
+    /// For supergroups, name of the group sticker set
     #[must_use]
     pub fn sticker_set_name(&self) -> Option<&str> {
         match self {
@@ -657,9 +560,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `title`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoSupergroup`. Title, for supergroups, channels and group chats
-    /// - `ChatFullInfoChannel`. Title, for supergroups, channels and group chats
+    /// Title, for supergroups, channels and group chats
     #[must_use]
     pub fn title(&self) -> Option<&str> {
         match self {
@@ -671,11 +572,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `unique_gift_colors`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews
-    /// - `ChatFullInfoGroup`. The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews
-    /// - `ChatFullInfoSupergroup`. The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews
-    /// - `ChatFullInfoChannel`. The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews
+    /// The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews
     #[must_use]
     pub fn unique_gift_colors(&self) -> Option<&crate::types::UniqueGiftColors> {
         match self {
@@ -688,8 +585,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `unrestrict_boost_count`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoSupergroup`. For supergroups, the minimum number of boosts that a non-administrator user needs to add in order to ignore slow mode and chat permissions
+    /// For supergroups, the minimum number of boosts that a non-administrator user needs to add in order to ignore slow mode and chat permissions
     #[must_use]
     pub fn unrestrict_boost_count(&self) -> Option<i64> {
         match self {
@@ -700,10 +596,7 @@ impl ChatFullInfo {
 
     /// Helper method for field `username`.
     ///
-    /// # Variants
-    /// - `ChatFullInfoPrivate`. Username, for private chats, supergroups and channels if available
-    /// - `ChatFullInfoSupergroup`. Username, for private chats, supergroups and channels if available
-    /// - `ChatFullInfoChannel`. Username, for private chats, supergroups and channels if available
+    /// Username, for private chats, supergroups and channels if available
     #[must_use]
     pub fn username(&self) -> Option<&str> {
         match self {

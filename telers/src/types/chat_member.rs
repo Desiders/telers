@@ -21,8 +21,7 @@ pub enum ChatMember {
 impl ChatMember {
     /// Helper method for field `can_add_web_page_previews`.
     ///
-    /// # Variants
-    /// - `ChatMemberRestricted`. `true`, if the user is allowed to add web page previews to their messages
+    /// `true`, if the user is allowed to add web page previews to their messages
     #[must_use]
     pub fn can_add_web_page_previews(&self) -> Option<bool> {
         match self {
@@ -33,8 +32,7 @@ impl ChatMember {
 
     /// Helper method for field `can_be_edited`.
     ///
-    /// # Variants
-    /// - `ChatMemberAdministrator`. `true`, if the bot is allowed to edit administrator privileges of that user
+    /// `true`, if the bot is allowed to edit administrator privileges of that user
     #[must_use]
     pub fn can_be_edited(&self) -> Option<bool> {
         match self {
@@ -45,9 +43,7 @@ impl ChatMember {
 
     /// Helper method for field `can_change_info`.
     ///
-    /// # Variants
-    /// - `ChatMemberAdministrator`. `true`, if the user is allowed to change the chat title, photo and other settings
-    /// - `ChatMemberRestricted`. `true`, if the user is allowed to change the chat title, photo and other settings
+    /// `true`, if the user is allowed to change the chat title, photo and other settings
     #[must_use]
     pub fn can_change_info(&self) -> Option<bool> {
         match self {
@@ -59,8 +55,7 @@ impl ChatMember {
 
     /// Helper method for field `can_delete_messages`.
     ///
-    /// # Variants
-    /// - `ChatMemberAdministrator`. `true`, if the administrator can delete messages of other users
+    /// `true`, if the administrator can delete messages of other users
     #[must_use]
     pub fn can_delete_messages(&self) -> Option<bool> {
         match self {
@@ -71,8 +66,7 @@ impl ChatMember {
 
     /// Helper method for field `can_delete_stories`.
     ///
-    /// # Variants
-    /// - `ChatMemberAdministrator`. `true`, if the administrator can delete stories posted by other users
+    /// `true`, if the administrator can delete stories posted by other users
     #[must_use]
     pub fn can_delete_stories(&self) -> Option<bool> {
         match self {
@@ -83,8 +77,7 @@ impl ChatMember {
 
     /// Helper method for field `can_edit_messages`.
     ///
-    /// # Variants
-    /// - `ChatMemberAdministrator`. `true`, if the administrator can edit messages of other users and can pin messages; for channels only
+    /// `true`, if the administrator can edit messages of other users and can pin messages; for channels only
     #[must_use]
     pub fn can_edit_messages(&self) -> Option<bool> {
         match self {
@@ -95,8 +88,7 @@ impl ChatMember {
 
     /// Helper method for field `can_edit_stories`.
     ///
-    /// # Variants
-    /// - `ChatMemberAdministrator`. `true`, if the administrator can edit stories posted by other users, post stories to the chat page, pin chat stories, and access the chat's story archive
+    /// `true`, if the administrator can edit stories posted by other users, post stories to the chat page, pin chat stories, and access the chat's story archive
     #[must_use]
     pub fn can_edit_stories(&self) -> Option<bool> {
         match self {
@@ -107,8 +99,7 @@ impl ChatMember {
 
     /// Helper method for field `can_edit_tag`.
     ///
-    /// # Variants
-    /// - `ChatMemberRestricted`. `true`, if the user is allowed to edit their own tag
+    /// `true`, if the user is allowed to edit their own tag
     #[must_use]
     pub fn can_edit_tag(&self) -> Option<bool> {
         match self {
@@ -119,9 +110,7 @@ impl ChatMember {
 
     /// Helper method for field `can_invite_users`.
     ///
-    /// # Variants
-    /// - `ChatMemberAdministrator`. `true`, if the user is allowed to invite new users to the chat
-    /// - `ChatMemberRestricted`. `true`, if the user is allowed to invite new users to the chat
+    /// `true`, if the user is allowed to invite new users to the chat
     #[must_use]
     pub fn can_invite_users(&self) -> Option<bool> {
         match self {
@@ -133,8 +122,7 @@ impl ChatMember {
 
     /// Helper method for field `can_manage_chat`.
     ///
-    /// # Variants
-    /// - `ChatMemberAdministrator`. `true`, if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages, ignore slow mode, and send messages to the chat without paying Telegram Stars. Implied by any other administrator privilege.
+    /// `true`, if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages, ignore slow mode, and send messages to the chat without paying Telegram Stars. Implied by any other administrator privilege.
     #[must_use]
     pub fn can_manage_chat(&self) -> Option<bool> {
         match self {
@@ -145,8 +133,7 @@ impl ChatMember {
 
     /// Helper method for field `can_manage_direct_messages`.
     ///
-    /// # Variants
-    /// - `ChatMemberAdministrator`. `true`, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only
+    /// `true`, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only
     #[must_use]
     pub fn can_manage_direct_messages(&self) -> Option<bool> {
         match self {
@@ -157,8 +144,7 @@ impl ChatMember {
 
     /// Helper method for field `can_manage_tags`.
     ///
-    /// # Variants
-    /// - `ChatMemberAdministrator`. `true`, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted defaults to the value of `can_pin_messages`.
+    /// `true`, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted defaults to the value of `can_pin_messages`.
     #[must_use]
     pub fn can_manage_tags(&self) -> Option<bool> {
         match self {
@@ -183,8 +169,7 @@ impl ChatMember {
 
     /// Helper method for field `can_manage_video_chats`.
     ///
-    /// # Variants
-    /// - `ChatMemberAdministrator`. `true`, if the administrator can manage video chats
+    /// `true`, if the administrator can manage video chats
     #[must_use]
     pub fn can_manage_video_chats(&self) -> Option<bool> {
         match self {
@@ -209,8 +194,7 @@ impl ChatMember {
 
     /// Helper method for field `can_post_messages`.
     ///
-    /// # Variants
-    /// - `ChatMemberAdministrator`. `true`, if the administrator can post messages in the channel, approve suggested posts, or access channel statistics; for channels only
+    /// `true`, if the administrator can post messages in the channel, approve suggested posts, or access channel statistics; for channels only
     #[must_use]
     pub fn can_post_messages(&self) -> Option<bool> {
         match self {
@@ -221,8 +205,7 @@ impl ChatMember {
 
     /// Helper method for field `can_post_stories`.
     ///
-    /// # Variants
-    /// - `ChatMemberAdministrator`. `true`, if the administrator can post stories to the chat
+    /// `true`, if the administrator can post stories to the chat
     #[must_use]
     pub fn can_post_stories(&self) -> Option<bool> {
         match self {
@@ -233,8 +216,7 @@ impl ChatMember {
 
     /// Helper method for field `can_promote_members`.
     ///
-    /// # Variants
-    /// - `ChatMemberAdministrator`. `true`, if the administrator can add new administrators with a subset of their own privileges or demote administrators that they have promoted, directly or indirectly (promoted by administrators that were appointed by the user)
+    /// `true`, if the administrator can add new administrators with a subset of their own privileges or demote administrators that they have promoted, directly or indirectly (promoted by administrators that were appointed by the user)
     #[must_use]
     pub fn can_promote_members(&self) -> Option<bool> {
         match self {
@@ -245,8 +227,7 @@ impl ChatMember {
 
     /// Helper method for field `can_restrict_members`.
     ///
-    /// # Variants
-    /// - `ChatMemberAdministrator`. `true`, if the administrator can restrict, ban or unban chat members, or access supergroup statistics
+    /// `true`, if the administrator can restrict, ban or unban chat members, or access supergroup statistics
     #[must_use]
     pub fn can_restrict_members(&self) -> Option<bool> {
         match self {
@@ -257,8 +238,7 @@ impl ChatMember {
 
     /// Helper method for field `can_send_audios`.
     ///
-    /// # Variants
-    /// - `ChatMemberRestricted`. `true`, if the user is allowed to send audios
+    /// `true`, if the user is allowed to send audios
     #[must_use]
     pub fn can_send_audios(&self) -> Option<bool> {
         match self {
@@ -269,8 +249,7 @@ impl ChatMember {
 
     /// Helper method for field `can_send_documents`.
     ///
-    /// # Variants
-    /// - `ChatMemberRestricted`. `true`, if the user is allowed to send documents
+    /// `true`, if the user is allowed to send documents
     #[must_use]
     pub fn can_send_documents(&self) -> Option<bool> {
         match self {
@@ -281,8 +260,7 @@ impl ChatMember {
 
     /// Helper method for field `can_send_messages`.
     ///
-    /// # Variants
-    /// - `ChatMemberRestricted`. `true`, if the user is allowed to send text messages, contacts, giveaways, giveaway winners, invoices, locations and venues
+    /// `true`, if the user is allowed to send text messages, contacts, giveaways, giveaway winners, invoices, locations and venues
     #[must_use]
     pub fn can_send_messages(&self) -> Option<bool> {
         match self {
@@ -293,8 +271,7 @@ impl ChatMember {
 
     /// Helper method for field `can_send_other_messages`.
     ///
-    /// # Variants
-    /// - `ChatMemberRestricted`. `true`, if the user is allowed to send animations, games, stickers and use inline bots
+    /// `true`, if the user is allowed to send animations, games, stickers and use inline bots
     #[must_use]
     pub fn can_send_other_messages(&self) -> Option<bool> {
         match self {
@@ -305,8 +282,7 @@ impl ChatMember {
 
     /// Helper method for field `can_send_photos`.
     ///
-    /// # Variants
-    /// - `ChatMemberRestricted`. `true`, if the user is allowed to send photos
+    /// `true`, if the user is allowed to send photos
     #[must_use]
     pub fn can_send_photos(&self) -> Option<bool> {
         match self {
@@ -317,8 +293,7 @@ impl ChatMember {
 
     /// Helper method for field `can_send_polls`.
     ///
-    /// # Variants
-    /// - `ChatMemberRestricted`. `true`, if the user is allowed to send polls and checklists
+    /// `true`, if the user is allowed to send polls and checklists
     #[must_use]
     pub fn can_send_polls(&self) -> Option<bool> {
         match self {
@@ -329,8 +304,7 @@ impl ChatMember {
 
     /// Helper method for field `can_send_video_notes`.
     ///
-    /// # Variants
-    /// - `ChatMemberRestricted`. `true`, if the user is allowed to send video notes
+    /// `true`, if the user is allowed to send video notes
     #[must_use]
     pub fn can_send_video_notes(&self) -> Option<bool> {
         match self {
@@ -341,8 +315,7 @@ impl ChatMember {
 
     /// Helper method for field `can_send_videos`.
     ///
-    /// # Variants
-    /// - `ChatMemberRestricted`. `true`, if the user is allowed to send videos
+    /// `true`, if the user is allowed to send videos
     #[must_use]
     pub fn can_send_videos(&self) -> Option<bool> {
         match self {
@@ -353,8 +326,7 @@ impl ChatMember {
 
     /// Helper method for field `can_send_voice_notes`.
     ///
-    /// # Variants
-    /// - `ChatMemberRestricted`. `true`, if the user is allowed to send voice notes
+    /// `true`, if the user is allowed to send voice notes
     #[must_use]
     pub fn can_send_voice_notes(&self) -> Option<bool> {
         match self {
@@ -365,9 +337,7 @@ impl ChatMember {
 
     /// Helper method for field `custom_title`.
     ///
-    /// # Variants
-    /// - `ChatMemberOwner`. Custom title for this user
-    /// - `ChatMemberAdministrator`. Custom title for this user
+    /// Custom title for this user
     #[must_use]
     pub fn custom_title(&self) -> Option<&str> {
         match self {
@@ -379,9 +349,7 @@ impl ChatMember {
 
     /// Helper method for field `is_anonymous`.
     ///
-    /// # Variants
-    /// - `ChatMemberOwner`. `true`, if the user's presence in the chat is hidden
-    /// - `ChatMemberAdministrator`. `true`, if the user's presence in the chat is hidden
+    /// `true`, if the user's presence in the chat is hidden
     #[must_use]
     pub fn is_anonymous(&self) -> Option<bool> {
         match self {
@@ -393,8 +361,7 @@ impl ChatMember {
 
     /// Helper method for field `is_member`.
     ///
-    /// # Variants
-    /// - `ChatMemberRestricted`. `true`, if the user is a member of the chat at the moment of the request
+    /// `true`, if the user is a member of the chat at the moment of the request
     #[must_use]
     pub fn is_member(&self) -> Option<bool> {
         match self {
@@ -405,9 +372,7 @@ impl ChatMember {
 
     /// Helper method for field `tag`.
     ///
-    /// # Variants
-    /// - `ChatMemberMember`. Tag of the member
-    /// - `ChatMemberRestricted`. Tag of the member
+    /// Tag of the member
     #[must_use]
     pub fn tag(&self) -> Option<&str> {
         match self {
@@ -435,13 +400,7 @@ impl ChatMember {
 
     /// Helper method for field `user`.
     ///
-    /// # Variants
-    /// - `ChatMemberOwner`. Information about the user
-    /// - `ChatMemberAdministrator`. Information about the user
-    /// - `ChatMemberMember`. Information about the user
-    /// - `ChatMemberRestricted`. Information about the user
-    /// - `ChatMemberLeft`. Information about the user
-    /// - `ChatMemberBanned`. Information about the user
+    /// Information about the user
     #[must_use]
     pub fn user(&self) -> &crate::types::User {
         match self {

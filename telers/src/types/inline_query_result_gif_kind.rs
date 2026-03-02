@@ -12,9 +12,7 @@ pub enum InlineQueryResultGifKind {
 impl InlineQueryResultGifKind {
     /// Helper method for field `caption`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultGif`. Caption of the GIF file to be sent, 0-1024 characters after entities parsing
-    /// - `InlineQueryResultCachedGif`. Caption of the GIF file to be sent, 0-1024 characters after entities parsing
+    /// Caption of the GIF file to be sent, 0-1024 characters after entities parsing
     #[must_use]
     pub fn caption(&self) -> Option<&str> {
         match self {
@@ -25,9 +23,7 @@ impl InlineQueryResultGifKind {
 
     /// Helper method for field `caption_entities`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultGif`. List of special entities that appear in the caption, which can be specified instead of `parse_mode`
-    /// - `InlineQueryResultCachedGif`. List of special entities that appear in the caption, which can be specified instead of `parse_mode`
+    /// List of special entities that appear in the caption, which can be specified instead of `parse_mode`
     #[must_use]
     pub fn caption_entities(&self) -> Option<&[crate::types::MessageEntity]> {
         match self {
@@ -38,8 +34,7 @@ impl InlineQueryResultGifKind {
 
     /// Helper method for field `gif_duration`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultGif`. Duration of the GIF in seconds
+    /// Duration of the GIF in seconds
     #[must_use]
     pub fn gif_duration(&self) -> Option<i64> {
         match self {
@@ -50,8 +45,7 @@ impl InlineQueryResultGifKind {
 
     /// Helper method for field `gif_file_id`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultCachedGif`. A valid file identifier for the GIF file
+    /// A valid file identifier for the GIF file
     #[must_use]
     pub fn gif_file_id(&self) -> Option<&str> {
         match self {
@@ -62,8 +56,7 @@ impl InlineQueryResultGifKind {
 
     /// Helper method for field `gif_height`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultGif`. Height of the GIF
+    /// Height of the GIF
     #[must_use]
     pub fn gif_height(&self) -> Option<i64> {
         match self {
@@ -74,8 +67,7 @@ impl InlineQueryResultGifKind {
 
     /// Helper method for field `gif_url`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultGif`. A valid URL for the GIF file
+    /// A valid URL for the GIF file
     #[must_use]
     pub fn gif_url(&self) -> Option<&str> {
         match self {
@@ -86,8 +78,7 @@ impl InlineQueryResultGifKind {
 
     /// Helper method for field `gif_width`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultGif`. Width of the GIF
+    /// Width of the GIF
     #[must_use]
     pub fn gif_width(&self) -> Option<i64> {
         match self {
@@ -98,9 +89,7 @@ impl InlineQueryResultGifKind {
 
     /// Helper method for field `id`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultGif`. Unique identifier for this result, 1-64 bytes
-    /// - `InlineQueryResultCachedGif`. Unique identifier for this result, 1-64 bytes
+    /// Unique identifier for this result, 1-64 bytes
     #[must_use]
     pub fn id(&self) -> &str {
         match self {
@@ -111,9 +100,7 @@ impl InlineQueryResultGifKind {
 
     /// Helper method for field `input_message_content`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultGif`. Content of the message to be sent instead of the GIF animation
-    /// - `InlineQueryResultCachedGif`. Content of the message to be sent instead of the GIF animation
+    /// Content of the message to be sent instead of the GIF animation
     #[must_use]
     pub fn input_message_content(&self) -> Option<&crate::types::InputMessageContent> {
         match self {
@@ -124,9 +111,7 @@ impl InlineQueryResultGifKind {
 
     /// Helper method for field `parse_mode`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultGif`. Mode for parsing entities in the caption. See formatting options for more details.
-    /// - `InlineQueryResultCachedGif`. Mode for parsing entities in the caption. See formatting options for more details.
+    /// Mode for parsing entities in the caption. See formatting options for more details.
     #[must_use]
     pub fn parse_mode(&self) -> Option<&str> {
         match self {
@@ -137,9 +122,7 @@ impl InlineQueryResultGifKind {
 
     /// Helper method for field `reply_markup`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultGif`. Inline keyboard attached to the message
-    /// - `InlineQueryResultCachedGif`. Inline keyboard attached to the message
+    /// Inline keyboard attached to the message
     #[must_use]
     pub fn reply_markup(&self) -> Option<&crate::types::InlineKeyboardMarkup> {
         match self {
@@ -150,9 +133,7 @@ impl InlineQueryResultGifKind {
 
     /// Helper method for field `show_caption_above_media`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultGif`. Pass `true`, if the caption must be shown above the message media
-    /// - `InlineQueryResultCachedGif`. Pass `true`, if the caption must be shown above the message media
+    /// Pass `true`, if the caption must be shown above the message media
     #[must_use]
     pub fn show_caption_above_media(&self) -> Option<bool> {
         match self {
@@ -163,8 +144,7 @@ impl InlineQueryResultGifKind {
 
     /// Helper method for field `thumbnail_mime_type`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultGif`. MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`, or `video/mp4`. Defaults to `image/jpeg`
+    /// MIME type of the thumbnail, must be one of `image/jpeg`, `image/gif`, or `video/mp4`. Defaults to `image/jpeg`
     #[must_use]
     pub fn thumbnail_mime_type(&self) -> Option<&str> {
         match self {
@@ -175,8 +155,7 @@ impl InlineQueryResultGifKind {
 
     /// Helper method for field `thumbnail_url`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultGif`. URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
+    /// URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
     #[must_use]
     pub fn thumbnail_url(&self) -> Option<&str> {
         match self {
@@ -187,9 +166,7 @@ impl InlineQueryResultGifKind {
 
     /// Helper method for field `title`.
     ///
-    /// # Variants
-    /// - `InlineQueryResultGif`. Title for the result
-    /// - `InlineQueryResultCachedGif`. Title for the result
+    /// Title for the result
     #[must_use]
     pub fn title(&self) -> Option<&str> {
         match self {

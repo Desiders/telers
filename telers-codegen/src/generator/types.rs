@@ -938,19 +938,47 @@ pub fn get_helper_impls_for_type(
 
         let doc_helper =
             format_attr_description(&format!("Helper method for field `{field_name}`."));
-        let doc_variants = format_attr_description("# Variants");
-        let mut doc_lines: Vec<TokenStream> = vec![
-            quote! { #[doc = #doc_helper] },
-            quote! { #[doc = ""] },
-            quote! { #[doc = #doc_variants] },
-        ];
+        let mut doc_lines: Vec<TokenStream> =
+            vec![quote! { #[doc = #doc_helper] }, quote! { #[doc = ""] }];
+
+        let mut desc_groups: Vec<(&str, Vec<&str>)> = vec![];
+        for (subtype, field) in subtypes {
+            let desc = field.description.as_str();
+            if let Some(group) = desc_groups.iter_mut().find(|(d, _)| *d == desc) {
+                group.1.push(subtype.ty_name.as_str());
+            } else {
+                desc_groups.push((desc, vec![subtype.ty_name.as_str()]));
+            }
+        }
+
+        let all_same_description = desc_groups.len() == 1;
+        if !all_same_description {
+            let doc_variants = format_attr_description("# Variants");
+            doc_lines.push(quote! { #[doc = #doc_variants] });
+        }
+
+        for (description, ty_names) in &desc_groups {
+            let doc_field = if all_same_description {
+                format_attr_description(description)
+            } else {
+                let label = if ty_names.len() == 1 {
+                    format!("- `{}`", ty_names[0])
+                } else {
+                    let joined = ty_names
+                        .iter()
+                        .map(|n| format!("`{n}`"))
+                        .collect::<Vec<_>>()
+                        .join(", ");
+                    format!("- {joined}")
+                };
+                format_attr_description(&format!("{label}. {description}"))
+            };
+            doc_lines.push(quote! { #[doc = #doc_field] });
+        }
+
         let mut match_arms = vec![];
         for (subtype, field) in subtypes {
             let variant = format_ident!("{}", subtype.variant);
-
-            let doc_field =
-                format_attr_description(&format!("- `{}`. {}", subtype.ty_name, field.description));
-            doc_lines.push(quote! { #[doc = #doc_field] });
 
             let body = helper_field_accessor_expr(field);
             let body = if field.required && !is_required_for_all {
