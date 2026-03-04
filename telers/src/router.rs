@@ -489,14 +489,14 @@ impl<Client> Router<Client> {
     ///
     /// 4. **Recursively Configure Sub Routers and Build the Final Router:**
     ///    Each sub-router is recursively configured by calling `configure` on it with a cloned
-    ///    copy of the configuration. Finally, a new [`RouterConfigured`] instance is created,
+    ///    copy of the configuration. Finally, a new [`Configured`] instance is created,
     ///    incorporating all the updated fields and middleware registrations.
     ///
     /// # Parameters
     /// - `config`: A configuration that contains default outer and inner middlewares.
     ///
     /// # Returns
-    /// A fully configured router instance ([`RouterConfigured`]) with all middleware registrations applied.
+    /// A fully configured router instance ([`Configured`]) with all middleware registrations applied.
     #[must_use]
     #[allow(clippy::too_many_lines)]
     pub fn configure(mut self, mut config: Config<Client>) -> Configured<Client> {

@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
 /// This object represents available reply markup variants.
 /// Currently, it can be one of
-/// - [`ForceReply`]
-/// - [`InlineKeyboardMarkup`]
-/// - [`ReplyKeyboardMarkup`]
-/// - [`ReplyKeyboardRemove`]
+/// - [`crate::types::ForceReply`]
+/// - [`crate::types::InlineKeyboardMarkup`]
+/// - [`crate::types::ReplyKeyboardMarkup`]
+/// - [`crate::types::ReplyKeyboardRemove`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -29,7 +29,7 @@ impl ReplyMarkup {
 
     /// Helper method for field `inline_keyboard`.
     ///
-    /// Array of button rows, each represented by an Array of [`InlineKeyboardButton`] objects
+    /// Array of button rows, each represented by an Array of [`crate::types::InlineKeyboardButton`] objects
     #[must_use]
     pub fn inline_keyboard(&self) -> Option<&[Box<[crate::types::InlineKeyboardButton]>]> {
         match self {
@@ -65,7 +65,7 @@ impl ReplyMarkup {
 
     /// Helper method for field `keyboard`.
     ///
-    /// Array of button rows, each represented by an Array of [`KeyboardButton`] objects
+    /// Array of button rows, each represented by an Array of [`crate::types::KeyboardButton`] objects
     #[must_use]
     pub fn keyboard(&self) -> Option<&[Box<[crate::types::KeyboardButton]>]> {
         match self {
@@ -87,7 +87,7 @@ impl ReplyMarkup {
 
     /// Helper method for field `remove_keyboard`.
     ///
-    /// Requests clients to remove the custom keyboard (user will not be able to summon this keyboard; if you want to hide the keyboard from sight but keep it accessible, use `one_time_keyboard` in [`ReplyKeyboardMarkup`])
+    /// Requests clients to remove the custom keyboard (user will not be able to summon this keyboard; if you want to hide the keyboard from sight but keep it accessible, use `one_time_keyboard` in [`crate::types::ReplyKeyboardMarkup`])
     #[must_use]
     pub fn remove_keyboard(&self) -> Option<bool> {
         match self {

@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 /// This object describes the way a background is filled based on the selected colors. Currently, it can be one of
-/// - [`BackgroundFillSolid`]
-/// - [`BackgroundFillGradient`]
-/// - [`BackgroundFillFreeformGradient`]
+/// - [`crate::types::BackgroundFillSolid`]
+/// - [`crate::types::BackgroundFillGradient`]
+/// - [`crate::types::BackgroundFillFreeformGradient`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#backgroundfill>
 #[derive(Clone, Debug, Serialize, Deserialize)]

@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 /// This object contains information about a poll.
 /// Currently, it can be one of
-/// - [`PollQuiz`]
-/// - [`PollRegular`]
+/// - [`crate::types::PollQuiz`]
+/// - [`crate::types::PollRegular`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#poll>
 #[derive(Clone, Debug, Serialize, Deserialize)]

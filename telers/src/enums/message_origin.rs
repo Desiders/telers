@@ -1,10 +1,10 @@
 use crate::types::MessageOrigin;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes the origin of a message. It can be one of
-/// - [`MessageOriginUser`]
-/// - [`MessageOriginHiddenUser`]
-/// - [`MessageOriginChat`]
-/// - [`MessageOriginChannel`]
+/// - [`crate::types::MessageOriginUser`]
+/// - [`crate::types::MessageOriginHiddenUser`]
+/// - [`crate::types::MessageOriginChat`]
+/// - [`crate::types::MessageOriginChannel`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#messageorigin>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

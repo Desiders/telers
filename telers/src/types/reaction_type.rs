@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 /// This object describes the type of a reaction. Currently, it can be one of
-/// - [`ReactionTypeEmoji`]
-/// - [`ReactionTypeCustomEmoji`]
-/// - [`ReactionTypePaid`]
+/// - [`crate::types::ReactionTypeEmoji`]
+/// - [`crate::types::ReactionTypeCustomEmoji`]
+/// - [`crate::types::ReactionTypePaid`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#reactiontype>
 #[derive(Clone, Debug, Serialize, Deserialize)]

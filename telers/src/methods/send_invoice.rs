@@ -21,7 +21,7 @@ pub struct SendInvoice {
     pub description: Box<str>,
     /// Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
     pub payload: Box<str>,
-    /// Payment provider token, obtained via @[`BotFather`]. Pass an empty string for payments in Telegram Stars.
+    /// Payment provider token, obtained via @`BotFather`. Pass an empty string for payments in Telegram Stars.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub provider_token: Option<Box<str>>,
     /// Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR` for payments in Telegram Stars.
@@ -224,7 +224,7 @@ impl SendInvoice {
         this
     }
 
-    /// Payment provider token, obtained via @[`BotFather`]. Pass an empty string for payments in Telegram Stars.
+    /// Payment provider token, obtained via @`BotFather`. Pass an empty string for payments in Telegram Stars.
     #[must_use]
     pub fn provider_token<T: Into<Box<str>>>(self, val: T) -> Self {
         let mut this = self;
@@ -232,7 +232,7 @@ impl SendInvoice {
         this
     }
 
-    /// Payment provider token, obtained via @[`BotFather`]. Pass an empty string for payments in Telegram Stars.
+    /// Payment provider token, obtained via @`BotFather`. Pass an empty string for payments in Telegram Stars.
     #[must_use]
     pub fn provider_token_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
         let mut this = self;

@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to get current webhook status. Requires no parameters. On success, returns a [`WebhookInfo`] object. If the bot is using getUpdates, will return an object with the url field empty.
+/// Use this method to get current webhook status. Requires no parameters. On success, returns a [`crate::types::WebhookInfo`] object. If the bot is using getUpdates, will return an object with the url field empty.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getwebhookinfo>
 /// # Returns

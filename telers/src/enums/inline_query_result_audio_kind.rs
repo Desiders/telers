@@ -1,7 +1,7 @@
 use crate::types::InlineQueryResultAudioKind;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// # Notes
-/// This object represents an inline query result kind as combine of [`InlineQueryResultCachedAudio`] and [`InlineQueryResultAudio`].
+/// This object represents an inline query result kind as combine of [`crate::types::InlineQueryResultCachedAudio`] and [`crate::types::InlineQueryResultAudio`].
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 /// This object describes the type of a background. Currently, it can be one of
-/// - [`BackgroundTypeFill`]
-/// - [`BackgroundTypeWallpaper`]
-/// - [`BackgroundTypePattern`]
-/// - [`BackgroundTypeChatTheme`]
+/// - [`crate::types::BackgroundTypeFill`]
+/// - [`crate::types::BackgroundTypeWallpaper`]
+/// - [`crate::types::BackgroundTypePattern`]
+/// - [`crate::types::BackgroundTypeChatTheme`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#backgroundtype>
 #[derive(Clone, Debug, Serialize, Deserialize)]

@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 /// This object represents a sticker.
 /// Currently, it can be one of
-/// - [`StickerCustomEmoji`]
-/// - [`StickerMask`]
-/// - [`StickerRegular`]
+/// - [`crate::types::StickerCustomEmoji`]
+/// - [`crate::types::StickerMask`]
+/// - [`crate::types::StickerRegular`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#sticker>
 #[derive(Clone, Debug, Serialize, Deserialize)]

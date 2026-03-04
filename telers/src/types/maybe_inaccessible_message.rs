@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 /// This object describes a message that can be inaccessible to the bot. It can be one of
 /// - Message
-/// - [`InaccessibleMessage`]
+/// - [`crate::types::InaccessibleMessage`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#maybeinaccessiblemessage>
 #[derive(Clone, Debug, Serialize, Deserialize)]

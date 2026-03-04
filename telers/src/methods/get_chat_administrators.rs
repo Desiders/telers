@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to get a list of administrators in a chat, which aren't bots. Returns an Array of [`ChatMember`] objects.
+/// Use this method to get a list of administrators in a chat, which aren't bots. Returns an Array of [`crate::types::ChatMember`] objects.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getchatadministrators>
 /// # Returns

@@ -1,8 +1,8 @@
 use crate::types::InputProfilePhoto;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes a profile photo to set. Currently, it can be one of
-/// - [`InputProfilePhotoStatic`]
-/// - [`InputProfilePhotoAnimated`]
+/// - [`crate::types::InputProfilePhotoStatic`]
+/// - [`crate::types::InputProfilePhotoAnimated`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputprofilephoto>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

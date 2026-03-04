@@ -9,7 +9,7 @@ use serde::Serialize;
 pub struct SetMyCommands {
     /// A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
     pub commands: Box<[crate::types::BotCommand]>,
-    /// A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to [`BotCommandScopeDefault`].
+    /// A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to [`crate::types::BotCommandScopeDefault`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub scope: Option<crate::types::BotCommandScope>,
     /// A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
@@ -70,7 +70,7 @@ impl SetMyCommands {
         this
     }
 
-    /// A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to [`BotCommandScopeDefault`].
+    /// A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to [`crate::types::BotCommandScopeDefault`].
     #[must_use]
     pub fn scope<T: Into<crate::types::BotCommandScope>>(self, val: T) -> Self {
         let mut this = self;
@@ -78,7 +78,7 @@ impl SetMyCommands {
         this
     }
 
-    /// A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to [`BotCommandScopeDefault`].
+    /// A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to [`crate::types::BotCommandScopeDefault`].
     #[must_use]
     pub fn scope_option<T: Into<crate::types::BotCommandScope>>(self, val: Option<T>) -> Self {
         let mut this = self;

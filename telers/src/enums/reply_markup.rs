@@ -2,10 +2,10 @@ use crate::types::ReplyMarkup;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents available reply markup variants.
 /// Currently, it can be one of
-/// - [`ForceReply`]
-/// - [`InlineKeyboardMarkup`]
-/// - [`ReplyKeyboardMarkup`]
-/// - [`ReplyKeyboardRemove`]
+/// - [`crate::types::ForceReply`]
+/// - [`crate::types::InlineKeyboardMarkup`]
+/// - [`crate::types::ReplyKeyboardMarkup`]
+/// - [`crate::types::ReplyKeyboardRemove`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

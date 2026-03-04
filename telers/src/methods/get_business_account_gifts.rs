@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Returns the gifts received and owned by a managed business account. Requires the `can_view_gifts_and_stars` business bot right. Returns [`OwnedGifts`] on success.
+/// Returns the gifts received and owned by a managed business account. Requires the `can_view_gifts_and_stars` business bot right. Returns [`crate::types::OwnedGifts`] on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getbusinessaccountgifts>
 /// # Returns

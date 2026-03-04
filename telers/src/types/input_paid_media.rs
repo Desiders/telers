@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 /// This object describes the paid media to be sent. Currently, it can be one of
-/// - [`InputPaidMediaPhoto`]
-/// - [`InputPaidMediaVideo`]
+/// - [`crate::types::InputPaidMediaPhoto`]
+/// - [`crate::types::InputPaidMediaVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputpaidmedia>
 #[derive(Clone, Debug, Serialize, Deserialize)]

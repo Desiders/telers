@@ -1,26 +1,26 @@
 use serde::{Deserialize, Serialize};
 /// This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc.
 /// Currently, it can be one of
-/// - [`MessageEntityBlockquote`]
-/// - [`MessageEntityBold`]
-/// - [`MessageEntityBotCommand`]
-/// - [`MessageEntityCashtag`]
-/// - [`MessageEntityCode`]
-/// - [`MessageEntityCustomEmoji`]
-/// - [`MessageEntityDateTime`]
-/// - [`MessageEntityEmail`]
-/// - [`MessageEntityExpandableBlockquote`]
-/// - [`MessageEntityHashtag`]
-/// - [`MessageEntityItalic`]
-/// - [`MessageEntityMention`]
-/// - [`MessageEntityPhoneNumber`]
-/// - [`MessageEntityPre`]
-/// - [`MessageEntitySpoiler`]
-/// - [`MessageEntityStrikethrough`]
-/// - [`MessageEntityTextLink`]
-/// - [`MessageEntityTextMention`]
-/// - [`MessageEntityUnderline`]
-/// - [`MessageEntityUrl`]
+/// - [`crate::types::MessageEntityBlockquote`]
+/// - [`crate::types::MessageEntityBold`]
+/// - [`crate::types::MessageEntityBotCommand`]
+/// - [`crate::types::MessageEntityCashtag`]
+/// - [`crate::types::MessageEntityCode`]
+/// - [`crate::types::MessageEntityCustomEmoji`]
+/// - [`crate::types::MessageEntityDateTime`]
+/// - [`crate::types::MessageEntityEmail`]
+/// - [`crate::types::MessageEntityExpandableBlockquote`]
+/// - [`crate::types::MessageEntityHashtag`]
+/// - [`crate::types::MessageEntityItalic`]
+/// - [`crate::types::MessageEntityMention`]
+/// - [`crate::types::MessageEntityPhoneNumber`]
+/// - [`crate::types::MessageEntityPre`]
+/// - [`crate::types::MessageEntitySpoiler`]
+/// - [`crate::types::MessageEntityStrikethrough`]
+/// - [`crate::types::MessageEntityTextLink`]
+/// - [`crate::types::MessageEntityTextMention`]
+/// - [`crate::types::MessageEntityUnderline`]
+/// - [`crate::types::MessageEntityUrl`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#messageentity>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -50,7 +50,7 @@ pub enum MessageEntity {
 impl MessageEntity {
     /// Helper method for field `custom_emoji_id`.
     ///
-    /// For `custom_emoji` only, unique identifier of the custom emoji. Use get[`CustomEmojiStickers`] to get full information about the sticker
+    /// For `custom_emoji` only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker
     #[must_use]
     pub fn custom_emoji_id(&self) -> Option<&str> {
         match self {

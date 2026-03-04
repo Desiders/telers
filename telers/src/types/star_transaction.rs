@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 /// Describes a Telegram Star transaction. Note that if the buyer initiates a chargeback with the payment provider from whom they acquired Stars (e.g., Apple, Google) following this transaction, the refunded Stars will be deducted from the bot's balance. This is outside of Telegram's control.
 /// Currently, it can be one of
-/// - [`StarTransactionIncoming`]
-/// - [`StarTransactionOutgoing`]
+/// - [`crate::types::StarTransactionIncoming`]
+/// - [`crate::types::StarTransactionOutgoing`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#startransaction>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -36,7 +36,7 @@ impl StarTransaction {
 
     /// Helper method for field `id`.
     ///
-    /// Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`SuccessfulPayment`].`telegram_payment_charge_id` for successful incoming payments from users.
+    /// Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`crate::types::SuccessfulPayment`].`telegram_payment_charge_id` for successful incoming payments from users.
     #[must_use]
     pub fn id(&self) -> &str {
         match self {

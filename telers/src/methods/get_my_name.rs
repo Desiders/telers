@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to get the current bot name for the given user language. Returns [`BotName`] on success.
+/// Use this method to get the current bot name for the given user language. Returns [`crate::types::BotName`] on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getmyname>
 /// # Returns

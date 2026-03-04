@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 /// This object represents a message about a scheduled giveaway.
 /// Currently, it can be one of
-/// - [`GiveawayPremium`]
-/// - [`GiveawayStar`]
+/// - [`crate::types::GiveawayPremium`]
+/// - [`crate::types::GiveawayStar`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#giveaway>
 #[derive(Clone, Debug, Serialize, Deserialize)]

@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-/// This object contains information about a chat that was shared with the bot using a [`KeyboardButtonRequestChat`] button.
+/// This object contains information about a chat that was shared with the bot using a [`crate::types::KeyboardButtonRequestChat`] button.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatshared>
 #[derive(Clone, Debug, Serialize, Deserialize)]

@@ -14,7 +14,7 @@ pub struct EditForumTopic {
     /// New topic name, 0-128 characters. If not specified or empty, the current name of the topic will be kept
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<Box<str>>,
-    /// New unique identifier of the custom emoji shown as the topic icon. Use get[`ForumTopicIconStickers`] to get all allowed custom emoji identifiers. Pass an empty string to remove the icon. If not specified, the current icon will be kept
+    /// New unique identifier of the custom emoji shown as the topic icon. Use [`crate::methods::GetForumTopicIconStickers`] to get all allowed custom emoji identifiers. Pass an empty string to remove the icon. If not specified, the current icon will be kept
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_custom_emoji_id: Option<Box<str>>,
 }
@@ -72,7 +72,7 @@ impl EditForumTopic {
         this
     }
 
-    /// New unique identifier of the custom emoji shown as the topic icon. Use get[`ForumTopicIconStickers`] to get all allowed custom emoji identifiers. Pass an empty string to remove the icon. If not specified, the current icon will be kept
+    /// New unique identifier of the custom emoji shown as the topic icon. Use [`crate::methods::GetForumTopicIconStickers`] to get all allowed custom emoji identifiers. Pass an empty string to remove the icon. If not specified, the current icon will be kept
     #[must_use]
     pub fn icon_custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
         let mut this = self;
@@ -80,7 +80,7 @@ impl EditForumTopic {
         this
     }
 
-    /// New unique identifier of the custom emoji shown as the topic icon. Use get[`ForumTopicIconStickers`] to get all allowed custom emoji identifiers. Pass an empty string to remove the icon. If not specified, the current icon will be kept
+    /// New unique identifier of the custom emoji shown as the topic icon. Use [`crate::methods::GetForumTopicIconStickers`] to get all allowed custom emoji identifiers. Pass an empty string to remove the icon. If not specified, the current icon will be kept
     #[must_use]
     pub fn icon_custom_emoji_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
         let mut this = self;

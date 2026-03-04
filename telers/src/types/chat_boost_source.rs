@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 /// This object describes the source of a chat boost. It can be one of
-/// - [`ChatBoostSourcePremium`]
-/// - [`ChatBoostSourceGiftCode`]
-/// - [`ChatBoostSourceGiveaway`]
+/// - [`crate::types::ChatBoostSourcePremium`]
+/// - [`crate::types::ChatBoostSourceGiftCode`]
+/// - [`crate::types::ChatBoostSourceGiveaway`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatboostsource>
 #[derive(Clone, Debug, Serialize, Deserialize)]

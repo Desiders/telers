@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to create a topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the `can_manage_topics` administrator right. Returns information about the created topic as a [`ForumTopic`] object.
+/// Use this method to create a topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the `can_manage_topics` administrator right. Returns information about the created topic as a [`crate::types::ForumTopic`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#createforumtopic>
 /// # Returns
@@ -14,7 +14,7 @@ pub struct CreateForumTopic {
     /// Color of the topic icon in RGB format. Currently, must be one of 7322096 (0x6FB9F0), 16766590 (0xFFD67E), 13338331 (0xCB86DB), 9367192 (0x8EEE98), 16749490 (0xFF93B2), or 16478047 (0xFB6F5F)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_color: Option<i64>,
-    /// Unique identifier of the custom emoji shown as the topic icon. Use get[`ForumTopicIconStickers`] to get all allowed custom emoji identifiers.
+    /// Unique identifier of the custom emoji shown as the topic icon. Use [`crate::methods::GetForumTopicIconStickers`] to get all allowed custom emoji identifiers.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_custom_emoji_id: Option<Box<str>>,
 }
@@ -72,7 +72,7 @@ impl CreateForumTopic {
         this
     }
 
-    /// Unique identifier of the custom emoji shown as the topic icon. Use get[`ForumTopicIconStickers`] to get all allowed custom emoji identifiers.
+    /// Unique identifier of the custom emoji shown as the topic icon. Use [`crate::methods::GetForumTopicIconStickers`] to get all allowed custom emoji identifiers.
     #[must_use]
     pub fn icon_custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
         let mut this = self;
@@ -80,7 +80,7 @@ impl CreateForumTopic {
         this
     }
 
-    /// Unique identifier of the custom emoji shown as the topic icon. Use get[`ForumTopicIconStickers`] to get all allowed custom emoji identifiers.
+    /// Unique identifier of the custom emoji shown as the topic icon. Use [`crate::methods::GetForumTopicIconStickers`] to get all allowed custom emoji identifiers.
     #[must_use]
     pub fn icon_custom_emoji_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
         let mut this = self;

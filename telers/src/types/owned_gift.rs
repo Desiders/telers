@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 /// This object describes a gift received and owned by a user or a chat. Currently, it can be one of
-/// - [`OwnedGiftRegular`]
-/// - [`OwnedGiftUnique`]
+/// - [`crate::types::OwnedGiftRegular`]
+/// - [`crate::types::OwnedGiftUnique`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#ownedgift>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -169,7 +169,7 @@ impl OwnedGift {
 
     /// Helper method for field `unique_gift_number`.
     ///
-    /// Unique number reserved for this gift when upgraded. See the number field in [`UniqueGift`]
+    /// Unique number reserved for this gift when upgraded. See the number field in [`crate::types::UniqueGift`]
     #[must_use]
     pub fn unique_gift_number(&self) -> Option<i64> {
         match self {

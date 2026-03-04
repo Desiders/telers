@@ -1,11 +1,11 @@
 use crate::types::StoryAreaType;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// Describes the type of a clickable area on a story. Currently, it can be one of
-/// - [`StoryAreaTypeLocation`]
-/// - [`StoryAreaTypeSuggestedReaction`]
-/// - [`StoryAreaTypeLink`]
-/// - [`StoryAreaTypeWeather`]
-/// - [`StoryAreaTypeUniqueGift`]
+/// - [`crate::types::StoryAreaTypeLocation`]
+/// - [`crate::types::StoryAreaTypeSuggestedReaction`]
+/// - [`crate::types::StoryAreaTypeLink`]
+/// - [`crate::types::StoryAreaTypeWeather`]
+/// - [`crate::types::StoryAreaTypeUniqueGift`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#storyareatype>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

@@ -1,7 +1,7 @@
 use crate::types::InlineQueryResultVideoKind;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// # Notes
-/// This object represents an inline query result kind as combine of [`InlineQueryResultCachedVideo`] and [`InlineQueryResultVideo`].
+/// This object represents an inline query result kind as combine of [`crate::types::InlineQueryResultCachedVideo`] and [`crate::types::InlineQueryResultVideo`].
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

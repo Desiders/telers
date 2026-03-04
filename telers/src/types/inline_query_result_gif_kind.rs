@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 /// # Notes
-/// This object represents an inline query result kind as combine of [`InlineQueryResultCachedGif`] and [`InlineQueryResultGif`].
+/// This object represents an inline query result kind as combine of [`crate::types::InlineQueryResultCachedGif`] and [`crate::types::InlineQueryResultGif`].
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
 #[derive(Clone, Debug, Serialize, Deserialize)]

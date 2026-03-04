@@ -49,11 +49,11 @@
 //! Ways to implement [`Extractor`] for your own types:
 //! * Implement it directly (much boilerplate code, but it's needed for complex types)
 //! * Use the [`FromContext`] macro (simple way to implement this for types in a [`Context`] by its key)
-//! * Use the [`FromEvent`] macro (simple way to implement this for types in an event, for example, [`Update`])
+//! * Use the [`FromEvent`] macro (simple way to implement this for types in an event, for example, [`crate::types::Update`])
 //!
 //! ## Implementing directly
 //!
-//! Simple example with extracting id from [`Update`]:
+//! Simple example with extracting id from [`crate::types::Update`]:
 //!
 //! ```rust
 //! use std::convert::Infallible;
@@ -70,7 +70,7 @@
 //! }
 //! ```
 //!
-//! This example will extract the [`Update`] id to the handler argument.
+//! This example will extract the [`crate::types::Update`] id to the handler argument.
 //! After that, you can use this argument in the handler:
 //!
 //! ```ignore
@@ -79,7 +79,7 @@
 //! }
 //! ```
 //!
-//! Another example with extracting id of the user who sent the message from [`Update`]:
+//! Another example with extracting id of the user who sent the message from [`crate::types::Update`]:
 //!
 //! ```rust
 //! use telers::{errors::ConvertToTypeError, Extractor, Request};
@@ -141,7 +141,7 @@
 //!
 //! ## Implementing with [`FromEvent`] macro
 //!
-//! Simple example with extracting id from [`Update`]:
+//! Simple example with extracting id from [`crate::types::Update`]:
 //!
 //! ```rust
 //! use telers::{types::Update, FromEvent};
@@ -299,7 +299,7 @@ use crate::{
 
 use std::{any::type_name, convert::Infallible, future::Future};
 
-/// Trait for extracting data from [`Update`] and [`Context`] to handlers arguments
+/// Trait for extracting data from [`crate::types::Update`] and [`Context`] to handlers arguments
 pub trait Extractor<Client = Reqwest>: Sized {
     type Error: Into<ExtractionError>;
 
@@ -316,7 +316,7 @@ pub trait Extractor<Client = Reqwest>: Sized {
 }
 
 /// To be able to use [`Option`] as handler argument
-/// This implementation will return `None` if extraction was unsuccessful, and [`Some(value)`] otherwise
+/// This implementation will return `None` if extraction was unsuccessful, and `Some(value)` otherwise
 impl<Client, T: Extractor<Client>> Extractor<Client> for Option<T>
 where
     Client: Sync,
@@ -333,7 +333,7 @@ where
 }
 
 /// To be able to use [`Result`] as handler argument
-/// This implementation will return [`Ok(value)`] if extraction was successful, and [`Err(error)`] otherwise,
+/// This implementation will return `Ok(value)` if extraction was successful, and `Err(error)` otherwise,
 /// where `error` is `T::Error` converted to `E`
 impl<Client, T, E> Extractor<Client> for Result<T, E>
 where
@@ -350,7 +350,7 @@ where
 }
 
 /// To be able to use handler without arguments
-/// Handler without arguments will be called with [`()`] argument (unit type)
+/// Handler without arguments will be called with `()` argument (unit type)
 impl<Client> Extractor<Client> for () {
     type Error = Infallible;
 

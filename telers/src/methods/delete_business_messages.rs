@@ -9,7 +9,7 @@ use serde::Serialize;
 pub struct DeleteBusinessMessages {
     /// Unique identifier of the business connection on behalf of which to delete the messages
     pub business_connection_id: Box<str>,
-    /// A JSON-serialized list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See deleteMessage for limitations on which messages can be deleted
+    /// A JSON-serialized list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted
     pub message_ids: Box<[u8]>,
 }
 impl DeleteBusinessMessages {
@@ -17,7 +17,7 @@ impl DeleteBusinessMessages {
     ///
     /// # Arguments
     /// * `business_connection_id` - Unique identifier of the business connection on behalf of which to delete the messages
-    /// * `message_ids` - A JSON-serialized list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See deleteMessage for limitations on which messages can be deleted
+    /// * `message_ids` - A JSON-serialized list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted
     #[must_use]
     pub fn new<T0: Into<Box<str>>, T1Item: Into<u8>, T1: IntoIterator<Item = T1Item>>(
         business_connection_id: T0,
@@ -37,7 +37,7 @@ impl DeleteBusinessMessages {
         this
     }
 
-    /// A JSON-serialized list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See deleteMessage for limitations on which messages can be deleted
+    /// A JSON-serialized list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -53,7 +53,7 @@ impl DeleteBusinessMessages {
         this
     }
 
-    /// A JSON-serialized list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See deleteMessage for limitations on which messages can be deleted
+    /// A JSON-serialized list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted
     ///
     /// # Notes
     /// Adds a single element.

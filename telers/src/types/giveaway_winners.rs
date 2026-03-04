@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 /// This object represents a message about the completion of a giveaway with public winners.
 /// Currently, it can be one of
-/// - [`GiveawayWinnersPremium`]
-/// - [`GiveawayWinnersStar`]
+/// - [`crate::types::GiveawayWinnersPremium`]
+/// - [`crate::types::GiveawayWinnersStar`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#giveawaywinners>
 #[derive(Clone, Debug, Serialize, Deserialize)]

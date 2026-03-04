@@ -1,6 +1,6 @@
 //! Telegram Bot API methods and their request builders.
 //!
-//! This module re-exports all generated method structs from [`crate::methods::*`].
+//! This module re-exports all generated method structs from the `crate::methods` module.
 //! Each method follows a builder style:
 //! - required arguments are passed to `new(...)`
 //! - optional arguments are set by chainable builder methods

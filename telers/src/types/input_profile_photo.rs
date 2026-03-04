@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 /// This object describes a profile photo to set. Currently, it can be one of
-/// - [`InputProfilePhotoStatic`]
-/// - [`InputProfilePhotoAnimated`]
+/// - [`crate::types::InputProfilePhotoStatic`]
+/// - [`crate::types::InputProfilePhotoAnimated`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputprofilephoto>
 #[derive(Clone, Debug, Serialize, Deserialize)]

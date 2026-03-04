@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 /// # Notes
-/// This object represents an inline query result kind as combine of [`InlineQueryResultCachedVideo`] and [`InlineQueryResultVideo`].
+/// This object represents an inline query result kind as combine of [`crate::types::InlineQueryResultCachedVideo`] and [`crate::types::InlineQueryResultVideo`].
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -57,7 +57,7 @@ impl InlineQueryResultVideoKind {
     /// Helper method for field `input_message_content`.
     ///
     /// # Variants
-    /// - `InlineQueryResultVideo`. Content of the message to be sent instead of the video. This field is required if [`InlineQueryResultVideo`] is used to send an HTML-page as a result (e.g., a [`YouTube`] video).
+    /// - `InlineQueryResultVideo`. Content of the message to be sent instead of the video. This field is required if [`crate::types::InlineQueryResultVideo`] is used to send an HTML-page as a result (e.g., a `YouTube` video).
     /// - `InlineQueryResultCachedVideo`. Content of the message to be sent instead of the video
     #[must_use]
     pub fn input_message_content(&self) -> Option<&crate::types::InputMessageContent> {

@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 /// This object describes paid media. Currently, it can be one of
-/// - [`PaidMediaPreview`]
-/// - [`PaidMediaPhoto`]
-/// - [`PaidMediaVideo`]
+/// - [`crate::types::PaidMediaPreview`]
+/// - [`crate::types::PaidMediaPhoto`]
+/// - [`crate::types::PaidMediaVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#paidmedia>
 #[derive(Clone, Debug, Serialize, Deserialize)]

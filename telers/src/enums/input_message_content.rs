@@ -1,11 +1,11 @@
 use crate::types::InputMessageContent;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following 5 types:
-/// - [`InputTextMessageContent`]
-/// - [`InputLocationMessageContent`]
-/// - [`InputVenueMessageContent`]
-/// - [`InputContactMessageContent`]
-/// - [`InputInvoiceMessageContent`]
+/// - [`crate::types::InputTextMessageContent`]
+/// - [`crate::types::InputLocationMessageContent`]
+/// - [`crate::types::InputVenueMessageContent`]
+/// - [`crate::types::InputContactMessageContent`]
+/// - [`crate::types::InputInvoiceMessageContent`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmessagecontent>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

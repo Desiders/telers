@@ -6,17 +6,17 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#encryptedpassportelement>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EncryptedPassportElementPersonalDetails {
-    /// Base64-encoded encrypted Telegram Passport element data provided by the user; available only for `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport` and `address` types. Can be decrypted and verified using the accompanying [`EncryptedCredentials`].
+    /// Base64-encoded encrypted Telegram Passport element data provided by the user; available only for `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport` and `address` types. Can be decrypted and verified using the accompanying [`crate::types::EncryptedCredentials`].
     pub data: Box<str>,
-    /// Base64-encoded element hash for using in [`PassportElementErrorUnspecified`]
+    /// Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
     pub hash: Box<str>,
 }
 impl EncryptedPassportElementPersonalDetails {
     /// Creates a new `EncryptedPassportElementPersonalDetails`.
     ///
     /// # Arguments
-    /// * `data` - Base64-encoded encrypted Telegram Passport element data provided by the user; available only for `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport` and `address` types. Can be decrypted and verified using the accompanying [`EncryptedCredentials`].
-    /// * `hash` - Base64-encoded element hash for using in [`PassportElementErrorUnspecified`]
+    /// * `data` - Base64-encoded encrypted Telegram Passport element data provided by the user; available only for `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport` and `address` types. Can be decrypted and verified using the accompanying [`crate::types::EncryptedCredentials`].
+    /// * `hash` - Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
     #[must_use]
     pub fn new<T0: Into<Box<str>>, T1: Into<Box<str>>>(data: T0, hash: T1) -> Self {
         Self {
@@ -25,7 +25,7 @@ impl EncryptedPassportElementPersonalDetails {
         }
     }
 
-    /// Base64-encoded encrypted Telegram Passport element data provided by the user; available only for `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport` and `address` types. Can be decrypted and verified using the accompanying [`EncryptedCredentials`].
+    /// Base64-encoded encrypted Telegram Passport element data provided by the user; available only for `personal_details`, `passport`, `driver_license`, `identity_card`, `internal_passport` and `address` types. Can be decrypted and verified using the accompanying [`crate::types::EncryptedCredentials`].
     #[must_use]
     pub fn data<T: Into<Box<str>>>(self, val: T) -> Self {
         let mut this = self;
@@ -33,7 +33,7 @@ impl EncryptedPassportElementPersonalDetails {
         this
     }
 
-    /// Base64-encoded element hash for using in [`PassportElementErrorUnspecified`]
+    /// Base64-encoded element hash for using in [`crate::types::PassportElementErrorUnspecified`]
     #[must_use]
     pub fn hash<T: Into<Box<str>>>(self, val: T) -> Self {
         let mut this = self;

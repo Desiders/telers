@@ -1,14 +1,14 @@
 use serde::{Deserialize, Serialize};
 /// This object represents an error in the Telegram Passport element which was submitted that should be resolved by the user. It should be one of:
-/// - [`PassportElementErrorDataField`]
-/// - [`PassportElementErrorFrontSide`]
-/// - [`PassportElementErrorReverseSide`]
-/// - [`PassportElementErrorSelfie`]
-/// - [`PassportElementErrorFile`]
-/// - [`PassportElementErrorFiles`]
-/// - [`PassportElementErrorTranslationFile`]
-/// - [`PassportElementErrorTranslationFiles`]
-/// - [`PassportElementErrorUnspecified`]
+/// - [`crate::types::PassportElementErrorDataField`]
+/// - [`crate::types::PassportElementErrorFrontSide`]
+/// - [`crate::types::PassportElementErrorReverseSide`]
+/// - [`crate::types::PassportElementErrorSelfie`]
+/// - [`crate::types::PassportElementErrorFile`]
+/// - [`crate::types::PassportElementErrorFiles`]
+/// - [`crate::types::PassportElementErrorTranslationFile`]
+/// - [`crate::types::PassportElementErrorTranslationFiles`]
+/// - [`crate::types::PassportElementErrorUnspecified`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerror>
 #[derive(Clone, Debug, Serialize, Deserialize)]

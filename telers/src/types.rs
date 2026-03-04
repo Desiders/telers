@@ -1,6 +1,6 @@
 //! Telegram Bot API data types and helper models.
 //!
-//! This module re-exports all generated types from [`crate::types::*`], including
+//! This module re-exports all generated types from the `crate::types` module, including
 //! shared helper types from `non_telegram`.
 //! Generated type builders follow the same conventions as method builders:
 //! - optional fields can be set with normal chainable builder methods

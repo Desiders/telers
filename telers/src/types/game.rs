@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-/// This object represents a game. Use [`BotFather`] to create and edit games, their short names will act as unique identifiers.
+/// This object represents a game. Use `BotFather` to create and edit games, their short names will act as unique identifiers.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#game>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -10,13 +10,13 @@ pub struct Game {
     pub description: Box<str>,
     /// Photo that will be displayed in the game message in chats.
     pub photo: Box<[crate::types::PhotoSize]>,
-    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls set[`GameScore`], or manually edited using edit[`MessageText`]. 0-4096 characters.
+    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls setGameScore, or manually edited using editMessageText. 0-4096 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<Box<str>>,
     /// Special entities that appear in text, such as usernames, URLs, bot commands, etc.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text_entities: Option<Box<[crate::types::MessageEntity]>>,
-    /// Animation that will be displayed in the game message in chats. Upload via [`BotFather`]
+    /// Animation that will be displayed in the game message in chats. Upload via `BotFather`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub animation: Option<Box<crate::types::Animation>>,
 }
@@ -99,7 +99,7 @@ impl Game {
         this
     }
 
-    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls set[`GameScore`], or manually edited using edit[`MessageText`]. 0-4096 characters.
+    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls setGameScore, or manually edited using editMessageText. 0-4096 characters.
     #[must_use]
     pub fn text<T: Into<Box<str>>>(self, val: T) -> Self {
         let mut this = self;
@@ -107,7 +107,7 @@ impl Game {
         this
     }
 
-    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls set[`GameScore`], or manually edited using edit[`MessageText`]. 0-4096 characters.
+    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls setGameScore, or manually edited using editMessageText. 0-4096 characters.
     #[must_use]
     pub fn text_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
         let mut this = self;
@@ -165,7 +165,7 @@ impl Game {
         this
     }
 
-    /// Animation that will be displayed in the game message in chats. Upload via [`BotFather`]
+    /// Animation that will be displayed in the game message in chats. Upload via `BotFather`
     #[must_use]
     pub fn animation<T: Into<crate::types::Animation>>(self, val: T) -> Self {
         let mut this = self;
@@ -173,7 +173,7 @@ impl Game {
         this
     }
 
-    /// Animation that will be displayed in the game message in chats. Upload via [`BotFather`]
+    /// Animation that will be displayed in the game message in chats. Upload via `BotFather`
     #[must_use]
     pub fn animation_option<T: Into<crate::types::Animation>>(self, val: Option<T>) -> Self {
         let mut this = self;

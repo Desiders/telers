@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to get up-to-date information about the chat. Returns a [`ChatFullInfo`] object on success.
+/// Use this method to get up-to-date information about the chat. Returns a [`crate::types::ChatFullInfo`] object on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getchat>
 /// # Returns

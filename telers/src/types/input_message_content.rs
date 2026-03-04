@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
 /// This object represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following 5 types:
-/// - [`InputTextMessageContent`]
-/// - [`InputLocationMessageContent`]
-/// - [`InputVenueMessageContent`]
-/// - [`InputContactMessageContent`]
-/// - [`InputInvoiceMessageContent`]
+/// - [`crate::types::InputTextMessageContent`]
+/// - [`crate::types::InputLocationMessageContent`]
+/// - [`crate::types::InputVenueMessageContent`]
+/// - [`crate::types::InputContactMessageContent`]
+/// - [`crate::types::InputInvoiceMessageContent`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmessagecontent>
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -377,7 +377,7 @@ impl InputMessageContent {
 
     /// Helper method for field `provider_token`.
     ///
-    /// Payment provider token, obtained via @[`BotFather`]. Pass an empty string for payments in Telegram Stars.
+    /// Payment provider token, obtained via @`BotFather`. Pass an empty string for payments in Telegram Stars.
     #[must_use]
     pub fn provider_token(&self) -> Option<&str> {
         match self {

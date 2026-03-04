@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-/// A placeholder, currently holds no information. Use [`BotFather`] to set up your game.
+/// A placeholder, currently holds no information. Use `BotFather` to set up your game.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#callbackgame>
 #[derive(Clone, Debug, Serialize, Deserialize)]

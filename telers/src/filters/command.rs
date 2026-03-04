@@ -13,11 +13,11 @@ use tracing::{event, instrument, Level};
 
 /// Represents a command pattern type for verification
 /// # Variants
-/// * [`PatternType::Text(Cow<str>)`] - A command pattern with text
-/// * [`PatternType::Object(BotCommand)`] -
+/// * `PatternType::Text(Cow<str>)` - A command pattern with text
+/// * `PatternType::Object(BotCommand)` -
 ///   A command pattern with [`BotCommand`] object. \
-///   Just a shortcut for [`PatternType::Text(command.command)`].
-/// * [`PatternType::Regex(Regex)`] -
+///   Just a shortcut for `PatternType::Text(command.command)`.
+/// * `PatternType::Regex(Regex)` -
 ///   A command pattern with regex, compiled with [`Regex`] struct. \
 ///   If filter used with `ignore_case` flag, then the regex will be compiled with `(?i)` flag (ignore case sensitive flag).
 #[derive(Debug, Clone)]
@@ -58,7 +58,7 @@ impl From<Regex> for PatternType {
 ///
 /// # Notes
 /// You can use parsed command using [`CommandObject`] struct in handler arguments,
-/// or get it from [`Context`] by `command` key.
+/// or get it from [`crate::context::Context`] by `command` key.
 #[derive(Debug, Clone)]
 pub struct Command {
     /// List of commands ([`Cow`], [`BotCommand`] or compiled [`Regex`] patterns)

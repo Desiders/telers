@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to get the current default administrator rights of the bot. Returns [`ChatAdministratorRights`] on success.
+/// Use this method to get the current default administrator rights of the bot. Returns [`crate::types::ChatAdministratorRights`] on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getmydefaultadministratorrights>
 /// # Returns

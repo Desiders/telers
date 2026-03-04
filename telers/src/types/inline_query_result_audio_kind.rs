@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 /// # Notes
-/// This object represents an inline query result kind as combine of [`InlineQueryResultCachedAudio`] and [`InlineQueryResultAudio`].
+/// This object represents an inline query result kind as combine of [`crate::types::InlineQueryResultCachedAudio`] and [`crate::types::InlineQueryResultAudio`].
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
 #[derive(Clone, Debug, Serialize, Deserialize)]

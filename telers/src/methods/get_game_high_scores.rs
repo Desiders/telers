@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of [`GameHighScore`] objects.
+/// Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of [`crate::types::GameHighScore`] objects.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getgamehighscores>
 /// # Returns

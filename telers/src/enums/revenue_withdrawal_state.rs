@@ -1,9 +1,9 @@
 use crate::types::RevenueWithdrawalState;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes the state of a revenue withdrawal operation. Currently, it can be one of
-/// - [`RevenueWithdrawalStatePending`]
-/// - [`RevenueWithdrawalStateSucceeded`]
-/// - [`RevenueWithdrawalStateFailed`]
+/// - [`crate::types::RevenueWithdrawalStatePending`]
+/// - [`crate::types::RevenueWithdrawalStateSucceeded`]
+/// - [`crate::types::RevenueWithdrawalStateFailed`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#revenuewithdrawalstate>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

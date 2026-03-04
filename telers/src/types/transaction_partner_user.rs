@@ -1,11 +1,11 @@
 use serde::{Deserialize, Serialize};
 /// Describes a transaction with a user.
 /// Currently, it can be one of
-/// - [`TransactionPartnerUserBusinessAccountTransfer`]
-/// - [`TransactionPartnerUserGiftPurchase`]
-/// - [`TransactionPartnerUserInvoicePayment`]
-/// - [`TransactionPartnerUserPaidMediaPayment`]
-/// - [`TransactionPartnerUserPremiumPurchase`]
+/// - [`crate::types::TransactionPartnerUserBusinessAccountTransfer`]
+/// - [`crate::types::TransactionPartnerUserGiftPurchase`]
+/// - [`crate::types::TransactionPartnerUserInvoicePayment`]
+/// - [`crate::types::TransactionPartnerUserPaidMediaPayment`]
+/// - [`crate::types::TransactionPartnerUserPremiumPurchase`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transactionpartneruser>
 #[derive(Clone, Debug, Serialize, Deserialize)]

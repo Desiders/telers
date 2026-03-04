@@ -1,11 +1,11 @@
 use serde::{Deserialize, Serialize};
 /// This object contains information about one member of a chat. Currently, the following 6 types of chat members are supported:
-/// - [`ChatMemberOwner`]
-/// - [`ChatMemberAdministrator`]
-/// - [`ChatMemberMember`]
-/// - [`ChatMemberRestricted`]
-/// - [`ChatMemberLeft`]
-/// - [`ChatMemberBanned`]
+/// - [`crate::types::ChatMemberOwner`]
+/// - [`crate::types::ChatMemberAdministrator`]
+/// - [`crate::types::ChatMemberMember`]
+/// - [`crate::types::ChatMemberRestricted`]
+/// - [`crate::types::ChatMemberLeft`]
+/// - [`crate::types::ChatMemberBanned`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmember>
 #[derive(Clone, Debug, Serialize, Deserialize)]

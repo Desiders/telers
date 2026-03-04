@@ -1,13 +1,13 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Use this method to get the current list of the bot's commands for the given scope and user language. Returns an Array of [`BotCommand`] objects. If commands aren't set, an empty list is returned.
+/// Use this method to get the current list of the bot's commands for the given scope and user language. Returns an Array of [`crate::types::BotCommand`] objects. If commands aren't set, an empty list is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getmycommands>
 /// # Returns
 /// - `Box<[crate::types::BotCommand]>`
 #[derive(Clone, Debug, Serialize)]
 pub struct GetMyCommands {
-    /// A JSON-serialized object, describing scope of users. Defaults to [`BotCommandScopeDefault`].
+    /// A JSON-serialized object, describing scope of users. Defaults to [`crate::types::BotCommandScopeDefault`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub scope: Option<crate::types::BotCommandScope>,
     /// A two-letter ISO 639-1 language code or an empty string
@@ -27,7 +27,7 @@ impl GetMyCommands {
         }
     }
 
-    /// A JSON-serialized object, describing scope of users. Defaults to [`BotCommandScopeDefault`].
+    /// A JSON-serialized object, describing scope of users. Defaults to [`crate::types::BotCommandScopeDefault`].
     #[must_use]
     pub fn scope<T: Into<crate::types::BotCommandScope>>(self, val: T) -> Self {
         let mut this = self;
@@ -35,7 +35,7 @@ impl GetMyCommands {
         this
     }
 
-    /// A JSON-serialized object, describing scope of users. Defaults to [`BotCommandScopeDefault`].
+    /// A JSON-serialized object, describing scope of users. Defaults to [`crate::types::BotCommandScopeDefault`].
     #[must_use]
     pub fn scope_option<T: Into<crate::types::BotCommandScope>>(self, val: Option<T>) -> Self {
         let mut this = self;

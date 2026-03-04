@@ -81,8 +81,13 @@ fn main() {
 
     let src_dir = args.generated_dir_path.join("src");
     let types_dir = src_dir.join("types");
+    let known_schema_type_names = schema
+        .types
+        .keys()
+        .cloned()
+        .collect::<std::collections::HashSet<_>>();
     for (name, ty) in &schema.types {
-        let tokens = generator::types::tokenize_type(ty, &schema);
+        let tokens = generator::types::tokenize_type(ty, &schema, &known_schema_type_names);
         let filename = camel_to_filename(name, Some("rs"));
         write_tokens_to_file(&tokens, &types_dir, &filename).unwrap_or_else(|err| {
             eprintln!("Failed to write file '{filename}' in dir types: {err}\nContent: {tokens}");
@@ -135,8 +140,24 @@ fn main() {
     println!("Enums generated");
 
     let methods_dir = src_dir.join("methods");
+    let known_api_method_names = schema
+        .methods
+        .values()
+        .map(|m| {
+            let mut chars = m.name.chars();
+            let api_name = match chars.next() {
+                Some(first) => first.to_lowercase().chain(chars).collect::<String>(),
+                None => String::new(),
+            };
+            (api_name, m.name.clone())
+        })
+        .collect::<std::collections::HashMap<_, _>>();
     for method in schema.methods.values() {
-        let tokens = generator::methods::tokenize_method(method);
+        let tokens = generator::methods::tokenize_method(
+            method,
+            &known_schema_type_names,
+            &known_api_method_names,
+        );
         let filename = camel_to_filename(&method.name, Some("rs"));
         write_tokens_to_file(&tokens, &methods_dir, &filename).unwrap_or_else(|err| {
             eprintln!("Failed to write file '{filename}' in dir methods: {err}\nContent: {tokens}");

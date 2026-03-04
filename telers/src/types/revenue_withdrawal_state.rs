@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 /// This object describes the state of a revenue withdrawal operation. Currently, it can be one of
-/// - [`RevenueWithdrawalStatePending`]
-/// - [`RevenueWithdrawalStateSucceeded`]
-/// - [`RevenueWithdrawalStateFailed`]
+/// - [`crate::types::RevenueWithdrawalStatePending`]
+/// - [`crate::types::RevenueWithdrawalStateSucceeded`]
+/// - [`crate::types::RevenueWithdrawalStateFailed`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#revenuewithdrawalstate>
 #[derive(Clone, Debug, Serialize, Deserialize)]

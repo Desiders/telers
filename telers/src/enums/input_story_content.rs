@@ -1,8 +1,8 @@
 use crate::types::InputStoryContent;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes the content of a story to post. Currently, it can be one of
-/// - [`InputStoryContentPhoto`]
-/// - [`InputStoryContentVideo`]
+/// - [`crate::types::InputStoryContentPhoto`]
+/// - [`crate::types::InputStoryContentVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputstorycontent>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

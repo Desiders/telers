@@ -1,9 +1,9 @@
 use crate::types::ChatBoostSource;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes the source of a chat boost. It can be one of
-/// - [`ChatBoostSourcePremium`]
-/// - [`ChatBoostSourceGiftCode`]
-/// - [`ChatBoostSourceGiveaway`]
+/// - [`crate::types::ChatBoostSourcePremium`]
+/// - [`crate::types::ChatBoostSourceGiftCode`]
+/// - [`crate::types::ChatBoostSourceGiveaway`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatboostsource>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

@@ -1,11 +1,11 @@
 use crate::types::InputMedia;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents the content of a media message to be sent. It should be one of
-/// - [`InputMediaAnimation`]
-/// - [`InputMediaDocument`]
-/// - [`InputMediaAudio`]
-/// - [`InputMediaPhoto`]
-/// - [`InputMediaVideo`]
+/// - [`crate::types::InputMediaAnimation`]
+/// - [`crate::types::InputMediaDocument`]
+/// - [`crate::types::InputMediaAudio`]
+/// - [`crate::types::InputMediaPhoto`]
+/// - [`crate::types::InputMediaVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmedia>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

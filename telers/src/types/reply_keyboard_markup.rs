@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#replykeyboardmarkup>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ReplyKeyboardMarkup {
-    /// Array of button rows, each represented by an Array of [`KeyboardButton`] objects
+    /// Array of button rows, each represented by an Array of [`crate::types::KeyboardButton`] objects
     pub keyboard: Box<[Box<[crate::types::KeyboardButton]>]>,
     /// Requests clients to always show the keyboard when the regular keyboard is hidden. Defaults to false, in which case the custom keyboard can be hidden and opened with a keyboard icon.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -26,7 +26,7 @@ impl ReplyKeyboardMarkup {
     /// Creates a new `ReplyKeyboardMarkup`.
     ///
     /// # Arguments
-    /// * `keyboard` - Array of button rows, each represented by an Array of [`KeyboardButton`] objects
+    /// * `keyboard` - Array of button rows, each represented by an Array of [`crate::types::KeyboardButton`] objects
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -47,7 +47,7 @@ impl ReplyKeyboardMarkup {
         }
     }
 
-    /// Array of button rows, each represented by an Array of [`KeyboardButton`] objects
+    /// Array of button rows, each represented by an Array of [`crate::types::KeyboardButton`] objects
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -63,7 +63,7 @@ impl ReplyKeyboardMarkup {
         this
     }
 
-    /// Array of button rows, each represented by an Array of [`KeyboardButton`] objects
+    /// Array of button rows, each represented by an Array of [`crate::types::KeyboardButton`] objects
     ///
     /// # Notes
     /// Adds a single element.

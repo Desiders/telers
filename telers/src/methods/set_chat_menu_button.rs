@@ -10,7 +10,7 @@ pub struct SetChatMenuButton {
     /// Unique identifier for the target private chat. If not specified, default bot's menu button will be changed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub chat_id: Option<i64>,
-    /// A JSON-serialized object for the bot's new menu button. Defaults to [`MenuButtonDefault`]
+    /// A JSON-serialized object for the bot's new menu button. Defaults to [`crate::types::MenuButtonDefault`]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub menu_button: Option<crate::types::MenuButton>,
 }
@@ -43,7 +43,7 @@ impl SetChatMenuButton {
         this
     }
 
-    /// A JSON-serialized object for the bot's new menu button. Defaults to [`MenuButtonDefault`]
+    /// A JSON-serialized object for the bot's new menu button. Defaults to [`crate::types::MenuButtonDefault`]
     #[must_use]
     pub fn menu_button<T: Into<crate::types::MenuButton>>(self, val: T) -> Self {
         let mut this = self;
@@ -51,7 +51,7 @@ impl SetChatMenuButton {
         this
     }
 
-    /// A JSON-serialized object for the bot's new menu button. Defaults to [`MenuButtonDefault`]
+    /// A JSON-serialized object for the bot's new menu button. Defaults to [`crate::types::MenuButtonDefault`]
     #[must_use]
     pub fn menu_button_option<T: Into<crate::types::MenuButton>>(self, val: Option<T>) -> Self {
         let mut this = self;

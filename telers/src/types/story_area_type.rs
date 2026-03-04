@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
 /// Describes the type of a clickable area on a story. Currently, it can be one of
-/// - [`StoryAreaTypeLocation`]
-/// - [`StoryAreaTypeSuggestedReaction`]
-/// - [`StoryAreaTypeLink`]
-/// - [`StoryAreaTypeWeather`]
-/// - [`StoryAreaTypeUniqueGift`]
+/// - [`crate::types::StoryAreaTypeLocation`]
+/// - [`crate::types::StoryAreaTypeSuggestedReaction`]
+/// - [`crate::types::StoryAreaTypeLink`]
+/// - [`crate::types::StoryAreaTypeWeather`]
+/// - [`crate::types::StoryAreaTypeUniqueGift`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#storyareatype>
 #[derive(Clone, Debug, Serialize, Deserialize)]

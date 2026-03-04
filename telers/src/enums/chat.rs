@@ -2,10 +2,10 @@ use crate::types::Chat;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents a chat.
 /// Currently, it can be one of
-/// - [`ChatChannel`]
-/// - [`ChatGroup`]
-/// - [`ChatPrivate`]
-/// - [`ChatSupergroup`]
+/// - [`crate::types::ChatChannel`]
+/// - [`crate::types::ChatGroup`]
+/// - [`crate::types::ChatPrivate`]
+/// - [`crate::types::ChatSupergroup`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chat>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

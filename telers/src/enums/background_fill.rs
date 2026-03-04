@@ -1,9 +1,9 @@
 use crate::types::BackgroundFill;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes the way a background is filled based on the selected colors. Currently, it can be one of
-/// - [`BackgroundFillSolid`]
-/// - [`BackgroundFillGradient`]
-/// - [`BackgroundFillFreeformGradient`]
+/// - [`crate::types::BackgroundFillSolid`]
+/// - [`crate::types::BackgroundFillGradient`]
+/// - [`crate::types::BackgroundFillFreeformGradient`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#backgroundfill>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

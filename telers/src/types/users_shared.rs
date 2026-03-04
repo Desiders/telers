@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-/// This object contains information about the users whose identifiers were shared with the bot using a [`KeyboardButtonRequestUsers`] button.
+/// This object contains information about the users whose identifiers were shared with the bot using a [`crate::types::KeyboardButtonRequestUsers`] button.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#usersshared>
 #[derive(Clone, Debug, Serialize, Deserialize)]

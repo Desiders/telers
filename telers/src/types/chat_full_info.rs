@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
 /// This object contains full information about a chat.
 /// Currently, it can be one of
-/// - [`ChatFullInfoChannel`]
-/// - [`ChatFullInfoGroup`]
-/// - [`ChatFullInfoPrivate`]
-/// - [`ChatFullInfoSupergroup`]
+/// - [`crate::types::ChatFullInfoChannel`]
+/// - [`crate::types::ChatFullInfoGroup`]
+/// - [`crate::types::ChatFullInfoPrivate`]
+/// - [`crate::types::ChatFullInfoSupergroup`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatfullinfo>
 #[derive(Clone, Debug, Serialize, Deserialize)]

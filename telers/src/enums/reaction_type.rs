@@ -1,9 +1,9 @@
 use crate::types::ReactionType;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes the type of a reaction. Currently, it can be one of
-/// - [`ReactionTypeEmoji`]
-/// - [`ReactionTypeCustomEmoji`]
-/// - [`ReactionTypePaid`]
+/// - [`crate::types::ReactionTypeEmoji`]
+/// - [`crate::types::ReactionTypeCustomEmoji`]
+/// - [`crate::types::ReactionTypePaid`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#reactiontype>
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]

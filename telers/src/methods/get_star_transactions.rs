@@ -1,6 +1,6 @@
 use crate::client::Bot;
 use serde::Serialize;
-/// Returns the bot's Telegram Star transactions in chronological order. On success, returns a [`StarTransactions`] object.
+/// Returns the bot's Telegram Star transactions in chronological order. On success, returns a [`crate::types::StarTransactions`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getstartransactions>
 /// # Returns
