@@ -1,3 +1,17 @@
+//! Enum helpers and discriminator types for Telegram objects.
+//!
+//! This module contains:
+//! - generated `*Type` enums for polymorphic Telegram objects (for example `MessageType`)
+//! - hand-authored enums like [`ParseMode`]
+//!
+//! # Examples
+//! ```rust
+//! use telers::{enums::ParseMode, methods::SendMessage};
+//!
+//! let request = SendMessage::new(1_i64, "*Hello world!*").parse_mode(ParseMode::Markdown);
+//!
+//! assert_eq!(request.parse_mode.as_deref(), Some("Markdown"));
+//! ```
 pub mod background_fill;
 pub mod background_type;
 pub mod bot_command_scope;

@@ -219,6 +219,22 @@ pub fn tokenize_kind_enums_mod(type_names: &[&str], own_type_names: &[&str]) -> 
     });
 
     quote! {
+        //! Enum helpers and discriminator types for Telegram objects.
+        //!
+        //! This module contains:
+        //! - generated `*Type` enums for polymorphic Telegram objects (for example `MessageType`)
+        //! - hand-authored enums like [`ParseMode`]
+        //!
+        //! # Examples
+        //! ```rust
+        //! use telers::{enums::ParseMode, methods::SendMessage};
+        //!
+        //! let request = SendMessage::new(1_i64, "*Hello world!*")
+        //!     .parse_mode(ParseMode::Markdown);
+        //!
+        //! assert_eq!(request.parse_mode.as_deref(), Some("Markdown"));
+        //! ```
+
         #( #mods_quote )*
         #( #uses_quote )*
         #( #own_uses_quote )*

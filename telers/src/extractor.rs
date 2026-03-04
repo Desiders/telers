@@ -15,9 +15,10 @@
 //!     errors::EventErrorKind,
 //!     event::{telegram::HandlerResult, EventReturn},
 //!     middlewares::outer::{Middleware, MiddlewareResponse},
-//!     Request,
+//!     Extension, Request,
 //! };
 //!
+//! #[derive(Clone)]
 //! struct ToExtensionsMiddleware<T> {
 //!     data: T,
 //! }
@@ -26,14 +27,17 @@
 //! where
 //!     T: Send + Sync + Clone + 'static,
 //! {
-//!     async fn call(&self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
+//!     async fn call(
+//!         &mut self,
+//!         mut request: Request,
+//!     ) -> Result<MiddlewareResponse, EventErrorKind> {
 //!         request.extensions.insert(self.data.clone());
 //!
 //!         Ok((request, EventReturn::default()))
 //!     }
 //! }
 //!
-//! async fn send_data_handler(Extension(data2): Extension<Data>) -> HandlerResult {
+//! async fn send_data_handler<T>(Extension(data2): Extension<T>) -> HandlerResult {
 //!     todo!();
 //! }
 //! ```
@@ -61,7 +65,7 @@
 //!     type Error = Infallible;
 //!
 //!     async fn extract(request: &Request) -> Result<Self, Self::Error> {
-//!         Ok(UpdateId(request.update.id))
+//!         Ok(UpdateId(request.update.update_id()))
 //!     }
 //! }
 //! ```
@@ -88,8 +92,8 @@
 //!     // you can use your own error type, this is just an example
 //!
 //!     async fn extract(request: &Request) -> Result<Self, Self::Error> {
-//!         match request.update.from_id() {
-//!             Some(from_id) => Ok(UpdateFromId(from_id)),
+//!         match request.update.from() {
+//!             Some(from) => Ok(UpdateFromId(from.id)),
 //!             None => Err(ConvertToTypeError::new("Update", "UpdateFromId")),
 //!         }
 //!     }
@@ -111,8 +115,8 @@
 //!     // you can use your own error type, this is just an example
 //!
 //!     async fn extract(request: &Request) -> Result<Self, Self::Error> {
-//!         match request.update.from_id() {
-//!             Some(from_id) => Ok(UpdateFromId(from_id)),
+//!         match request.update.from() {
+//!             Some(from) => Ok(UpdateFromId(from.id)),
 //!             None => Err(ConvertToTypeError::new("Update", "UpdateFromId")),
 //!         }
 //!     }
@@ -149,7 +153,7 @@
 //! // We need to implement `From<Update>` for `UpdateId` by ourselves (this is required by `FromEvent` macro)
 //! impl From<Update> for UpdateId {
 //!     fn from(update: Update) -> Self {
-//!         Self(update.id)
+//!         Self(update.update_id())
 //!     }
 //! }
 //! ```
@@ -169,8 +173,8 @@
 //!     type Error = ConvertToTypeError;
 //!
 //!     fn try_from(update: Update) -> Result<Self, Self::Error> {
-//!         match update.from_id() {
-//!             Some(id) => Ok(Self(id)),
+//!         match update.from() {
+//!             Some(from) => Ok(Self(from.id)),
 //!             None => Err(ConvertToTypeError::new("Update", "UpdateFromId")),
 //!         }
 //!     }
@@ -193,7 +197,7 @@
 //!     type Error = Infallible;
 //!
 //!     fn try_from(update: Update) -> Result<Self, Self::Error> {
-//!         Ok(Self(update.id))
+//!         Ok(Self(update.update_id()))
 //!     }
 //! }
 //! ```
