@@ -53,6 +53,7 @@ mod tests {
         client::Reqwest,
         context::Context,
         enums::UpdateType,
+        event::telegram::Handler,
         router::{PropagateEvent as _, Router},
         types::{Chat, ChatPrivate, Message, MessageText, Update, UpdateMessage, User},
         Bot, Extensions,
@@ -64,13 +65,15 @@ mod tests {
     async fn test_user_context() {
         let mut router = Router::new("main");
         router.update.outer_middlewares.register(UserContext);
-        router.message.register(|context: Context| async move {
-            context.get::<User>("event_user").unwrap();
-            context.get::<Chat>("event_chat").unwrap();
-            context.get::<i64>("event_message_thread_id").unwrap();
+        router
+            .message
+            .register(Handler::new(|context: Context| async move {
+                context.get::<User>("event_user").unwrap();
+                context.get::<Chat>("event_chat").unwrap();
+                context.get::<i64>("event_message_thread_id").unwrap();
 
-            Ok::<_, Infallible>(EventReturn::default())
-        });
+                Ok::<_, Infallible>(EventReturn::default())
+            }));
 
         let mut router_configured = router.configure_default();
 
@@ -98,17 +101,19 @@ mod tests {
     #[should_panic]
     async fn test_user_context_panic() {
         let mut router = Router::new("main");
-        router.update.outer_middlewares.register(UserContext);
-        router.message.register(|context: Context| async move {
-            // This should panic, because update doesn't contain user
-            context.get::<User>("event_user").unwrap();
-            // This should panic, because update doesn't contain chat
-            context.get::<Chat>("event_chat").unwrap();
-            // This should panic, because update doesn't contain message thread id
-            context.get::<i64>("event_message_thread_id").unwrap();
+        router
+            .message
+            .register(Handler::new(|context: Context| async move {
+                // This should panic, because update doesn't contain user
+                context.get::<User>("event_user").unwrap();
+                // This should panic, because update doesn't contain chat
+                context.get::<Chat>("event_chat").unwrap();
+                // This should panic, because update doesn't contain message thread id
+                context.get::<i64>("event_message_thread_id").unwrap();
 
-            Ok::<_, Infallible>(EventReturn::default())
-        });
+                Ok::<_, Infallible>(EventReturn::default())
+            }));
+        router.update.outer_middlewares.register(UserContext);
 
         let mut router_configured = router.configure_default();
 

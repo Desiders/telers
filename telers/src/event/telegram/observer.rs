@@ -3,9 +3,8 @@ use crate::{
     event::{
         bases::{EventReturn, PropagateEventResult},
         service::Service,
-        telegram::handler::{Handler, HandlerComposite},
+        telegram::handler::Handler,
     },
-    extractor::Extractor,
     filters::Filter,
     middlewares::{
         inner::{
@@ -44,8 +43,8 @@ impl<Client> Debug for Response<Client> {
 pub struct Observer<Client> {
     pub event_name: &'static str,
 
-    handlers: Vec<HandlerComposite<Client>>,
-    common: Box<HandlerComposite<Client>>,
+    handlers: Vec<Handler<Client>>,
+    common: Option<Handler<Client>>,
 
     pub inner_middlewares: InnerMiddlewareManager<Client>,
     pub outer_middlewares: OuterMiddlewareManager<Client>,
@@ -61,88 +60,42 @@ where
         Self {
             event_name,
             handlers: vec![],
-            common: Box::new(HandlerComposite::<Client>::new(|| async move {
-                // This handler never will be called, so we can use `unreachable!` macro
-                unreachable!("This handler never will be used");
-                Ok::<_, Infallible>(())
-            })),
+            common: None,
             inner_middlewares: InnerMiddlewareManager::<Client>::default(),
             outer_middlewares: OuterMiddlewareManager::<Client>::default(),
         }
     }
 
     /// Register event handler
-    #[allow(clippy::missing_panics_doc)]
-    pub fn register<H, Args>(&mut self, handler: H) -> &mut HandlerComposite<Client>
-    where
-        H: Handler<Args>,
-        Args: Extractor<Client> + Send,
-        Args::Error: Send,
-    {
-        self.handlers.push(HandlerComposite::new(handler));
-        // `unwrap` is safe, because we just added element to the vector
-        self.handlers.last_mut().unwrap()
-    }
-
-    /// Register service as event handler
-    #[allow(clippy::missing_panics_doc)]
-    pub fn register_service<S, Args>(&mut self, service: S) -> &mut HandlerComposite<Client>
-    where
-        S: Service<Args> + Clone + Send + Sync + 'static,
-        S::Response: Into<EventReturn>,
-        S::Error: Into<anyhow::Error> + Send + Sync + 'static,
-        S::Future: Send,
-        Args: Extractor<Client> + Send,
-        Args::Error: Send,
-    {
-        self.handlers.push(HandlerComposite::new_service(service));
-        // `unwrap` is safe, because we just added element to the vector
-        self.handlers.last_mut().unwrap()
-    }
-
-    /// Alias to [`Observer::register`] method
-    #[inline]
-    pub fn on<H, Args>(&mut self, handler: H) -> &mut HandlerComposite<Client>
-    where
-        H: Handler<Args>,
-        Args: Extractor<Client> + Send,
-        Args::Error: Send,
-    {
-        self.register(handler)
-    }
-
-    /// Alias to [`Observer::register`] method
-    #[inline]
-    pub fn on_service<S, Args>(&mut self, service: S) -> &mut HandlerComposite<Client>
-    where
-        S: Service<Args> + Clone + Send + Sync + 'static,
-        S::Response: Into<EventReturn>,
-        S::Error: Into<anyhow::Error> + Send + Sync + 'static,
-        S::Future: Send,
-        Args: Extractor<Client> + Send,
-        Args::Error: Send,
-    {
-        self.register_service(service)
-    }
-
-    /// Register filter for all handlers in the observer
-    #[inline]
-    pub fn filter<T>(&mut self, val: T) -> &mut Self
-    where
-        T: Filter<Client>,
-    {
-        self.common.filter(val);
+    pub fn register(&mut self, handler_fn: Handler<Client>) -> &mut Self {
+        self.handlers.push(handler_fn);
         self
     }
 
-    /// Register filters for all handlers in the observer
+    /// Register event handler
+    /// # Notes
+    /// Alias to [`Observer::register`] method
     #[inline]
-    pub fn filters<T, I>(&mut self, val: I) -> &mut Self
-    where
-        T: Filter<Client>,
-        I: IntoIterator<Item = T>,
-    {
-        self.common.filters(val);
+    pub fn on(&mut self, handler_fn: Handler<Client>) -> &mut Self {
+        self.register(handler_fn)
+    }
+
+    /// Register filter for all handlers in the observer
+    /// # Warning
+    /// This filter will be applied to all handlers in the observer,
+    /// if you want to apply filter to specific handler, use [`HandlerBuilder::filter`] method
+    pub fn filter(&mut self, val: impl Filter<Client>) -> &mut Self {
+        if let Some(common) = self.common.take() {
+            self.common = Some(common.filter(val));
+        } else {
+            let handler_fn = || async move {
+                // This handler never will be called, so we can use `unreachable!` macro
+                unreachable!("This handler never will be used");
+                #[allow(unreachable_code)]
+                Ok::<_, Infallible>(())
+            };
+            self.common = Some(Handler::new(handler_fn).filter(val));
+        }
         self
     }
 }
@@ -150,7 +103,7 @@ where
 impl<Client> Observer<Client> {
     #[inline]
     #[must_use]
-    pub fn handlers(&self) -> &[HandlerComposite<Client>] {
+    pub fn handlers(&self) -> &[Handler<Client>] {
         &self.handlers
     }
 
@@ -192,17 +145,22 @@ impl<Client> Observer<Client> {
     where
         Client: Send + Sync + Clone + 'static,
     {
-        let (result, mut request) = self.common.check(request).await;
-
         // Check observer filters
-        if !result {
-            event!(Level::TRACE, "Request are not pass observer filters");
+        let mut request = match self.common.as_mut() {
+            Some(common) => {
+                let (result, request) = common.check(request).await;
+                if !result {
+                    event!(Level::TRACE, "Request are not pass observer filters");
 
-            return Ok(Response {
-                request,
-                propagate_result: PropagateEventResult::Rejected,
-            });
-        }
+                    return Ok(Response {
+                        request,
+                        propagate_result: PropagateEventResult::Rejected,
+                    });
+                }
+                request
+            }
+            None => request,
+        };
 
         // Check handlers filters
         for handler in &mut self.handlers {
@@ -332,13 +290,16 @@ mod tests {
     async fn test_observer_trigger() {
         let mut observer = Observer::default();
         // Register common filter, which handlers can't pass
-        observer.filter(Command::one("start"));
-        observer.register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
-        observer.register(|| async {
-            unreachable!("It's shouldn't trigger because the first handler handles the event");
+        observer
+            .filter(Command::one("start"))
+            .register(Handler::new(|| async {
+                Ok::<_, Infallible>(EventReturn::Finish)
+            }))
+            .register(Handler::new(|| async {
+                unreachable!("It's shouldn't trigger because the first handler handles the event");
 
-            Ok::<_, Infallible>(EventReturn::Finish)
-        });
+                Ok::<_, Infallible>(EventReturn::Finish)
+            }));
 
         let mut request = Request::<Reqwest> {
             update: Arc::new(Update::Message(UpdateMessage::new(
@@ -375,12 +336,15 @@ mod tests {
     #[tokio::test]
     async fn test_observer_trigger_error() {
         let mut observer = Observer::<Reqwest>::default();
-        observer.register(|| async { Err::<(), _>(HandlerError::new(anyhow!("test"))) });
-        observer.register(|| async {
-            unreachable!("It's shouldn't trigger because the first handler handles the event");
+        observer
+            .register(Handler::new(|| async {
+                Err::<(), _>(HandlerError::new(anyhow!("test")))
+            }))
+            .register(Handler::new(|| async {
+                unreachable!("It's shouldn't trigger because the first handler handles the event");
 
-            Ok::<_, Infallible>(EventReturn::Finish)
-        });
+                Ok::<_, Infallible>(EventReturn::Finish)
+            }));
 
         let request = Request::<Reqwest> {
             update: Arc::new(Update::Message(UpdateMessage::new(
@@ -406,8 +370,13 @@ mod tests {
     #[tokio::test]
     async fn test_observer_event_return() {
         let mut observer = Observer::default();
-        observer.register(|| async { Ok::<_, Infallible>(EventReturn::Skip) });
-        observer.register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
+        observer
+            .register(Handler::new(|| async {
+                Ok::<_, Infallible>(EventReturn::Skip)
+            }))
+            .register(Handler::new(|| async {
+                Ok::<_, Infallible>(EventReturn::Finish)
+            }));
 
         let request = Request::<Reqwest> {
             update: Arc::new(Update::Message(UpdateMessage::new(
@@ -430,8 +399,13 @@ mod tests {
         }
 
         let mut observer = Observer::default();
-        observer.register(|| async { Ok::<_, Infallible>(EventReturn::Skip) });
-        observer.register(|| async { Ok::<_, Infallible>(EventReturn::Cancel) });
+        observer
+            .register(Handler::new(|| async {
+                Ok::<_, Infallible>(EventReturn::Skip)
+            }))
+            .register(Handler::new(|| async {
+                Ok::<_, Infallible>(EventReturn::Cancel)
+            }));
 
         let response = observer.trigger(request).await.unwrap();
 

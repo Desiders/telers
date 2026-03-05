@@ -6,7 +6,10 @@
 //! ```
 
 use telers::{
-    event::{telegram::HandlerResult, EventReturn},
+    event::{
+        telegram::{Handler, HandlerResult},
+        EventReturn,
+    },
     methods::SendMessage,
     types::{BusinessConnection, BusinessMessagesDeleted, Message},
     Bot, Dispatcher, Router,
@@ -58,10 +61,16 @@ async fn main() {
     let bot = Bot::from_env_by_key("BOT_TOKEN");
 
     let mut router = Router::new("main");
-    router.business_connection.register(connection);
-    router.business_message.register(message);
-    router.edited_business_message.register(message_edited);
-    router.deleted_business_messages.register(messages_deleted);
+    router
+        .business_connection
+        .register(Handler::new(connection));
+    router.business_message.register(Handler::new(message));
+    router
+        .edited_business_message
+        .register(Handler::new(message_edited));
+    router
+        .deleted_business_messages
+        .register(Handler::new(messages_deleted));
 
     let dispatcher = Dispatcher::builder()
         .allowed_updates(router.resolve_used_update_types())

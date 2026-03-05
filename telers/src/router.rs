@@ -11,18 +11,23 @@
 //!   When observer is trigger, it calls all handlers in order of registration and stops if one of them returns an error.
 //!
 //! Registration of handlers looks like this:
-//! ```ignore
+//! ```rust
+//! use telers::{Router, event::simple::{HandlerResult, Handler}}
+//!
 //! async fn on_startup(message: &str) -> HandlerResult {
-//!     ...
+//!     todo!()
 //! }
 //!
 //! async fn on_shutdown(message: &str) -> HandlerResult {
-//!     ...
+//!     todo!()
 //! }
 //!
-//! let mut router = Router::new("example");
-//! router.startup.register(on_startup, ("Hello, world!",));
-//! router.shutdown.register(on_shutdown, ("Goodbye, world!",));
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() {
+//!     let mut router = Router::new("example");
+//!     router.startup.register(Handler::new(on_startup, ("Hello, world!",)));
+//!     router.shutdown.register(Handler::new(on_shutdown, ("Goodbye, world!",)));
+//! }
 //! ```
 //!
 //! * Telegram observer:
@@ -38,18 +43,23 @@
 //!   but you can change this behaviour by specify another variant of [`EventReturn`]).
 //!
 //! Registration of handlers looks like this:
-//! ```ignore
+//! ```rust
+//! use telers::{Router, event::telegram::{HandlerResult, Handler}}
+//!
 //! async fn on_message(message: Message) -> HandlerResult {
-//!    ...
+//!    todo!()
 //! }
 //!
 //! async fn on_callback_query(callback_query: CallbackQuery) -> HandlerResult {
-//!   ...
+//!   todo!()
 //! }
 //!
-//! let mut router = Router::new("example");
-//! router.message.register(on_message);
-//! router.callback_query.register(on_callback_query);
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() {
+//!     let mut router = Router::new("example");
+//!     router.message.register(Handler::new(on_message));
+//!     router.callback_query.register(Handler::new(on_callback_query));
+//! }
 //! ```
 //!
 //! Routers can be nested, so you can create a tree of routers using [`Router::include_router`] method.
@@ -95,7 +105,9 @@
 
 use crate::{
     client::Reqwest,
-    enums::UpdateType,
+    enums::{
+        telegram_observer_type::with_telegram_observer_variants, TelegramObserverType, UpdateType,
+    },
     errors::EventErrorKind,
     event::{
         bases::{EventReturn, PropagateEventResult},
@@ -195,97 +207,115 @@ pub trait PropagateEvent<Client>: Clone + Send + Sync + 'static {
     fn shutdown_handlers_len(&self) -> usize;
 }
 
-/// Router combines all event observers.
-///
-/// Each event observer is a special unit that handles a specific event type.
-/// There are two types of event observers:
-///
-/// - Simple observer - [`SimpleObserver`]
-///
-/// Simple observer is used to handle simple events like startup and shutdown. \
-/// When you register a handler in this observer,
-/// you specify the arguments that pass to handler when the event is trigger. \
-/// Return type of handler is `Result<(), HandlerError>`. \
-/// When observer is trigger, it calls all handlers in order of registration and stops if one of them returns an error.
-///
-/// Registration of handlers looks like this:
-/// ```ignore
-/// async fn on_startup(message: &str) -> HandlerResult {
-///     ...
-/// }
-///
-/// async fn on_shutdown(message: &str) -> HandlerResult {
-///     ...
-/// }
-///
-/// let mut router = Router::new("example");
-/// router.startup.register(on_startup, ("Hello, world!",));
-/// router.shutdown.register(on_shutdown, ("Goodbye, world!",));
-/// ```
-///
-/// - Telegram observer - [`TelegramObserver`]
-///
-/// Telegram observer is used to handle telegram events like messages, callback queries, polls and all other event types. \
-/// You can register a handler with any arguments that implement [`crate::Extractor`] trait,
-/// see [`crate::extractor`] for more details. \
-/// Return type of handler is `Result<EventReturn, HandlerError>`,
-/// where [`EventReturn`] is a special enum that can be used to control the propagation of the event,
-/// see [`EventReturn`] for more details. \
-/// When observer is trigger, it calls outer middlewares and checks all handlers in order of registration.
-/// It calls all filters for each handler and skips handler if one of them returns `false`.
-/// If handler is pass the filters, observer calls inner middlewares and handler itself (in the middleware).
-/// By default, the first handler that pass the filters stop the propagation of the event, so other handlers aren't calls.
-/// (You can change this behaviour by specify another variant of [`EventReturn`]).
-///
-/// Registration of handlers looks like this:
-/// ```ignore
-/// async fn on_message(message: Message) -> HandlerResult {
-///    ...
-/// }
-///
-/// async fn on_callback_query(callback_query: CallbackQuery) -> HandlerResult {
-///   ...
-/// }
-///
-/// let mut router = Router::new("example");
-/// router.message.register(on_message);
-/// router.callback_query.register(on_callback_query);
-/// ```
-pub struct Router<Client = Reqwest> {
-    name: &'static str,
-    sub_routers: Vec<Router<Client>>,
+macro_rules! define_router_struct {
+    ($(($variant:ident, $observer:ident)),+ $(,)?) => {
+        /// Router combines all event observers.
+        ///
+        /// Each event observer is a special unit that handles a specific event type.
+        /// There are two types of event observers:
+        ///
+        /// * Simple observer:
+        ///   [`Simple observer`] is used to handle simple events like startup and shutdown.
+        ///   When you register a handler in this observer,
+        ///   you specify the arguments that pass to handler when the event is trigger.
+        ///   Return type of handler is [`Result<(), HandlerError>`].
+        ///   When observer is trigger, it calls all handlers in order of registration and stops if one of them returns an error.
+        ///
+        /// Registration of handlers looks like this:
+        /// ```rust
+        /// use telers::{Router, event::simple::{HandlerResult, Handler}}
+        ///
+        /// async fn on_startup(message: &str) -> HandlerResult {
+        ///     todo!()
+        /// }
+        ///
+        /// async fn on_shutdown(message: &str) -> HandlerResult {
+        ///     todo!()
+        /// }
+        ///
+        /// #[tokio::main(flavor = "current_thread")]
+        /// async fn main() {
+        ///     let mut router = Router::new("example");
+        ///     router.startup.register(Handler::new(on_startup, ("Hello, world!",)));
+        ///     router.shutdown.register(Handler::new(on_shutdown, ("Goodbye, world!",)));
+        /// }
+        /// ```
+        ///
+        /// * Telegram observer:
+        ///   [`Telegram observer`] is used to handle telegram events like messages, callback queries, polls and all other event types.
+        ///   You can register a handler with any arguments that implement [`Extractor`] trait, see [`extractors module`] for more details.
+        ///   Return type of handler is [`Result<EventReturn, HandlerError>`],
+        ///   where [`EventReturn`] is a special enum that can be used to control the propagation of the event,
+        ///   see [`EventReturn`] for more details.
+        ///   When observer is trigger, it calls outer middlewares and checks all handlers in order of registration.
+        ///   It calls all filters for each handler and skips handler if one of them returns `false`.
+        ///   If handler is pass the filters, observer calls inner middlewares and handler itself (in the middleware).
+        ///   By default, the first handler that pass the filters stop the propagation of the event, so other handlers aren't calls,
+        ///   but you can change this behaviour by specify another variant of [`EventReturn`]).
+        ///
+        /// Registration of handlers looks like this:
+        /// ```rust
+        /// use telers::{Router, event::telegram::{HandlerResult, Handler}}
+        ///
+        /// async fn on_message(message: Message) -> HandlerResult {
+        ///    todo!()
+        /// }
+        ///
+        /// async fn on_callback_query(callback_query: CallbackQuery) -> HandlerResult {
+        ///   todo!()
+        /// }
+        ///
+        /// #[tokio::main(flavor = "current_thread")]
+        /// async fn main() {
+        ///     let mut router = Router::new("example");
+        ///     router.message.register(Handler::new(on_message));
+        ///     router.callback_query.register(Handler::new(on_callback_query));
+        /// }
+        /// ```
+        pub struct Router<Client = Reqwest> {
+            name: &'static str,
+            sub_routers: Vec<Router<Client>>,
 
-    pub business_connection: TelegramObserver<Client>,
-    pub business_message: TelegramObserver<Client>,
-    pub callback_query: TelegramObserver<Client>,
-    pub channel_post: TelegramObserver<Client>,
-    pub chat_boost: TelegramObserver<Client>,
-    pub chat_join_request: TelegramObserver<Client>,
-    pub chat_member: TelegramObserver<Client>,
-    pub chosen_inline_result: TelegramObserver<Client>,
-    pub deleted_business_messages: TelegramObserver<Client>,
-    pub edited_business_message: TelegramObserver<Client>,
-    pub edited_channel_post: TelegramObserver<Client>,
-    pub edited_message: TelegramObserver<Client>,
-    pub inline_query: TelegramObserver<Client>,
-    pub message: TelegramObserver<Client>,
-    pub message_reaction: TelegramObserver<Client>,
-    pub message_reaction_count: TelegramObserver<Client>,
-    pub my_chat_member: TelegramObserver<Client>,
-    pub poll: TelegramObserver<Client>,
-    pub poll_answer: TelegramObserver<Client>,
-    pub pre_checkout_query: TelegramObserver<Client>,
-    pub purchased_paid_media: TelegramObserver<Client>,
-    pub removed_chat_boost: TelegramObserver<Client>,
-    pub shipping_query: TelegramObserver<Client>,
-    /// This special event observer is used to handle all telegram events.
-    /// It's called for router and its sub routers and before other telegram observers.
-    /// This observer is useful for register important middlewares (often libraries) like `FSMContext` and `UserContext`,
-    /// that set up context for other.
-    pub update: TelegramObserver<Client>,
+            $(
+                pub $observer: TelegramObserver<Client>,
+            )+
 
-    pub startup: SimpleObserver,
-    pub shutdown: SimpleObserver,
+            pub startup: SimpleObserver,
+            pub shutdown: SimpleObserver,
+        }
+    };
+}
+with_telegram_observer_variants!(define_router_struct);
+
+macro_rules! router_constructor {
+    ($name:expr, $(($variant:ident, $observer:ident)),+ $(,)?) => {
+        Self {
+            name: $name,
+            sub_routers: vec![],
+            $(
+                $observer: TelegramObserver::new(stringify!($observer)),
+            )+
+            startup: SimpleObserver::new("startup"),
+            shutdown: SimpleObserver::new("shutdown"),
+        }
+    };
+}
+
+macro_rules! router_telegram_observer_refs_array {
+    (ref, $router:ident, $(($variant:ident, $observer:ident)),+ $(,)?) => {
+        [
+            $(
+                &$router.$observer,
+            )+
+        ]
+    };
+    (mut, $router:ident, $(($variant:ident, $observer:ident)),+ $(,)?) => {
+        [
+            $(
+                &mut $router.$observer,
+            )+
+        ]
+    };
 }
 
 impl<Client> Router<Client>
@@ -293,40 +323,11 @@ where
     Client: Send + Sync + 'static,
 {
     /// # Arguments
-    /// * `router_name` - Name of the router. It can be used for logging and debugging and code clarity.
+    /// * `name` - Name of the router. It can be used for logging and debugging and code clarity.
     #[must_use]
     #[rustfmt::skip]
-    pub fn new(router_name: &'static str) -> Self {
-        Self {
-            name: router_name,
-            sub_routers: vec![],
-            message: TelegramObserver::new("message"),
-            edited_message: TelegramObserver::new("edited_message"),
-            channel_post: TelegramObserver::new("channel_post"),
-            edited_channel_post: TelegramObserver::new("edited_channel_post"),
-            business_connection: TelegramObserver::new("business_connection"),
-            business_message: TelegramObserver::new("business_message"),
-            edited_business_message: TelegramObserver::new("edited_business_message"),
-            deleted_business_messages: TelegramObserver::new("deleted_business_messages"),
-            message_reaction: TelegramObserver::new("message_reaction"),
-            message_reaction_count: TelegramObserver::new("message_reaction_count"),
-            inline_query: TelegramObserver::new("inline_query"),
-            chosen_inline_result: TelegramObserver::new("chosen_inline_result"),
-            callback_query: TelegramObserver::new("callback_query"),
-            shipping_query: TelegramObserver::new("shipping_query"),
-            pre_checkout_query: TelegramObserver::new("pre_checkout_query"),
-            purchased_paid_media: TelegramObserver::new("purchased_paid_media"),
-            poll: TelegramObserver::new("poll"),
-            poll_answer: TelegramObserver::new("poll_answer"),
-            my_chat_member: TelegramObserver::new("my_chat_member"),
-            chat_member: TelegramObserver::new("chat_member"),
-            chat_join_request: TelegramObserver::new("chat_join_request"),
-            chat_boost: TelegramObserver::new("chat_boost"),
-            removed_chat_boost: TelegramObserver::new("removed_chat_boost"),
-            update: TelegramObserver::new("update"),
-            startup: SimpleObserver::new("startup"),
-            shutdown: SimpleObserver::new("shutdown"),
-        }
+    pub fn new(name: &'static str) -> Self {
+        with_telegram_observer_variants!(router_constructor, name)
     }
 
     /// Include a router to the current router as sub router
@@ -355,69 +356,15 @@ impl<Client> Router<Client> {
     /// Get all telegram event observers
     #[must_use]
     pub const fn telegram_observers(&self) -> [&TelegramObserver<Client>; 24] {
-        [
-            &self.message,
-            &self.edited_message,
-            &self.channel_post,
-            &self.edited_channel_post,
-            &self.business_connection,
-            &self.business_message,
-            &self.edited_business_message,
-            &self.deleted_business_messages,
-            &self.message_reaction,
-            &self.message_reaction_count,
-            &self.inline_query,
-            &self.chosen_inline_result,
-            &self.callback_query,
-            &self.shipping_query,
-            &self.pre_checkout_query,
-            &self.purchased_paid_media,
-            &self.poll,
-            &self.poll_answer,
-            &self.my_chat_member,
-            &self.chat_member,
-            &self.chat_join_request,
-            &self.chat_boost,
-            &self.removed_chat_boost,
-            &self.update,
-        ]
+        with_telegram_observer_variants!(router_telegram_observer_refs_array, ref, self)
     }
 
     /// Get all telegram event observers as mutable references
     /// # Notes
     /// This method is useful for registering middlewares to the many observers without code duplication and macros
     #[must_use]
-    pub fn telegram_observers_mut(&mut self) -> Vec<&mut TelegramObserver<Client>> {
-        let mut observers = Vec::with_capacity(24);
-
-        observers.extend([
-            &mut self.message,
-            &mut self.edited_message,
-            &mut self.channel_post,
-            &mut self.edited_channel_post,
-            &mut self.business_connection,
-            &mut self.business_message,
-            &mut self.edited_business_message,
-            &mut self.deleted_business_messages,
-            &mut self.message_reaction,
-            &mut self.message_reaction_count,
-            &mut self.inline_query,
-            &mut self.chosen_inline_result,
-            &mut self.callback_query,
-            &mut self.shipping_query,
-            &mut self.pre_checkout_query,
-            &mut self.purchased_paid_media,
-            &mut self.poll,
-            &mut self.poll_answer,
-            &mut self.my_chat_member,
-            &mut self.chat_member,
-            &mut self.chat_join_request,
-            &mut self.chat_boost,
-            &mut self.removed_chat_boost,
-            &mut self.update,
-        ]);
-
-        observers
+    pub fn telegram_observers_mut(&mut self) -> [&mut TelegramObserver<Client>; 24] {
+        with_telegram_observer_variants!(router_telegram_observer_refs_array, mut, self)
     }
 
     /// Get all simple event observers
@@ -501,7 +448,7 @@ impl<Client> Router<Client> {
     #[allow(clippy::too_many_lines)]
     pub fn configure(mut self, mut config: Config<Client>) -> Configured<Client> {
         macro_rules! register_inner_middlewares_to_sub_routers {
-            ($($observer:ident),+ $(,)?) => {
+            ($(($variant:ident, $observer:ident)),+ $(,)?) => {
                 $(
                     for sub_router in self.sub_routers.iter_mut() {
                         for (index, middleware) in self.$observer.inner_middlewares.middlewares.clone().into_iter().enumerate() {
@@ -511,112 +458,43 @@ impl<Client> Router<Client> {
                 )+
             };
         }
-
-        register_inner_middlewares_to_sub_routers!(
-            message,
-            edited_message,
-            channel_post,
-            edited_channel_post,
-            business_connection,
-            business_message,
-            edited_business_message,
-            deleted_business_messages,
-            message_reaction,
-            message_reaction_count,
-            inline_query,
-            chosen_inline_result,
-            callback_query,
-            shipping_query,
-            pre_checkout_query,
-            purchased_paid_media,
-            poll,
-            poll_answer,
-            my_chat_member,
-            chat_member,
-            chat_join_request,
-            chat_boost,
-            removed_chat_boost,
-            update,
-        );
+        with_telegram_observer_variants!(register_inner_middlewares_to_sub_routers);
 
         macro_rules! register_middlewares_from_config {
-            ($($observer:ident),+ $(,)?) => {
+            ($(($variant:ident, $observer:ident)),+ $(,)?) => {
                 $(
                     for (index, middleware) in config.outer_middlewares.$observer.iter().enumerate() {
                         self.$observer.outer_middlewares.register_boxed_at_position(index, middleware.clone());
                     }
-                    // Регистрация inner middlewares
                     for (index, middleware) in config.inner_middlewares.$observer.iter().enumerate() {
                         self.$observer.inner_middlewares.register_boxed_at_position(index, middleware.clone());
                     }
                 )+
             };
         }
-
-        register_middlewares_from_config!(
-            message,
-            edited_message,
-            channel_post,
-            edited_channel_post,
-            business_connection,
-            business_message,
-            edited_business_message,
-            deleted_business_messages,
-            message_reaction,
-            message_reaction_count,
-            inline_query,
-            chosen_inline_result,
-            callback_query,
-            shipping_query,
-            pre_checkout_query,
-            purchased_paid_media,
-            poll,
-            poll_answer,
-            my_chat_member,
-            chat_member,
-            chat_join_request,
-            chat_boost,
-            removed_chat_boost,
-            update,
-        );
+        with_telegram_observer_variants!(register_middlewares_from_config);
 
         // We don't need to register config outer middlewares to sub routers
         config.outer_middlewares = OuterMiddlewaresConfig::new();
 
-        Configured {
-            name: self.name,
-            sub_routers: self
-                .sub_routers
-                .into_iter()
-                .map(|router| router.configure(config.clone()))
-                .collect(),
-            message: self.message,
-            edited_message: self.edited_message,
-            channel_post: self.channel_post,
-            edited_channel_post: self.edited_channel_post,
-            business_connection: self.business_connection,
-            business_message: self.business_message,
-            edited_business_message: self.edited_business_message,
-            deleted_business_messages: self.deleted_business_messages,
-            message_reaction: self.message_reaction,
-            message_reaction_count: self.message_reaction_count,
-            inline_query: self.inline_query,
-            chosen_inline_result: self.chosen_inline_result,
-            callback_query: self.callback_query,
-            shipping_query: self.shipping_query,
-            pre_checkout_query: self.pre_checkout_query,
-            purchased_paid_media: self.purchased_paid_media,
-            poll: self.poll,
-            poll_answer: self.poll_answer,
-            my_chat_member: self.my_chat_member,
-            chat_member: self.chat_member,
-            chat_join_request: self.chat_join_request,
-            chat_boost: self.chat_boost,
-            removed_chat_boost: self.removed_chat_boost,
-            update: self.update,
-            startup: self.startup,
-            shutdown: self.shutdown,
+        macro_rules! router_constructor {
+            ($(($variant:ident, $observer:ident)),+ $(,)?) => {
+                Configured {
+                    name: self.name,
+                    sub_routers: self
+                        .sub_routers
+                        .into_iter()
+                        .map(|router| router.configure(config.clone()))
+                        .collect(),
+                    $(
+                        $observer: self.$observer,
+                    )+
+                    startup: self.startup,
+                    shutdown: self.shutdown,
+                }
+            };
         }
+        with_telegram_observer_variants!(router_constructor)
     }
 
     /// Configures the current [`Router`] instance using default middlewares configuration
@@ -651,72 +529,39 @@ where
 
 impl<Client> Clone for Router<Client> {
     fn clone(&self) -> Self {
-        Self {
-            name: self.name,
-            sub_routers: self.sub_routers.clone(),
-            message: self.message.clone(),
-            edited_message: self.edited_message.clone(),
-            channel_post: self.channel_post.clone(),
-            edited_channel_post: self.edited_channel_post.clone(),
-            business_connection: self.business_connection.clone(),
-            business_message: self.business_message.clone(),
-            edited_business_message: self.edited_business_message.clone(),
-            deleted_business_messages: self.deleted_business_messages.clone(),
-            message_reaction: self.message_reaction.clone(),
-            message_reaction_count: self.message_reaction_count.clone(),
-            inline_query: self.inline_query.clone(),
-            chosen_inline_result: self.chosen_inline_result.clone(),
-            callback_query: self.callback_query.clone(),
-            shipping_query: self.shipping_query.clone(),
-            pre_checkout_query: self.pre_checkout_query.clone(),
-            purchased_paid_media: self.purchased_paid_media.clone(),
-            poll: self.poll.clone(),
-            poll_answer: self.poll_answer.clone(),
-            my_chat_member: self.my_chat_member.clone(),
-            chat_member: self.chat_member.clone(),
-            chat_join_request: self.chat_join_request.clone(),
-            chat_boost: self.chat_boost.clone(),
-            removed_chat_boost: self.removed_chat_boost.clone(),
-            update: self.update.clone(),
-            startup: self.startup.clone(),
-            shutdown: self.shutdown.clone(),
+        macro_rules! router_construct {
+            ($(($variant:ident, $observer:ident)),+ $(,)?) => {
+                Self {
+                    name: self.name,
+                    sub_routers: self.sub_routers.clone(),
+                    $(
+                        $observer: self.$observer.clone(),
+                    )+
+                    startup: self.startup.clone(),
+                    shutdown: self.shutdown.clone(),
+                }
+            };
         }
+        with_telegram_observer_variants!(router_construct)
     }
 }
 
-pub struct Configured<Client = Reqwest> {
-    name: &'static str,
-    sub_routers: Vec<Configured<Client>>,
+macro_rules! define_configured_struct {
+    ($(($variant:ident, $observer:ident)),+ $(,)?) => {
+        pub struct Configured<Client = Reqwest> {
+            name: &'static str,
+            sub_routers: Vec<Configured<Client>>,
 
-    message: TelegramObserver<Client>,
-    edited_message: TelegramObserver<Client>,
-    channel_post: TelegramObserver<Client>,
-    edited_channel_post: TelegramObserver<Client>,
-    business_connection: TelegramObserver<Client>,
-    business_message: TelegramObserver<Client>,
-    edited_business_message: TelegramObserver<Client>,
-    deleted_business_messages: TelegramObserver<Client>,
-    message_reaction: TelegramObserver<Client>,
-    message_reaction_count: TelegramObserver<Client>,
-    inline_query: TelegramObserver<Client>,
-    chosen_inline_result: TelegramObserver<Client>,
-    callback_query: TelegramObserver<Client>,
-    shipping_query: TelegramObserver<Client>,
-    pre_checkout_query: TelegramObserver<Client>,
-    purchased_paid_media: TelegramObserver<Client>,
-    poll: TelegramObserver<Client>,
-    poll_answer: TelegramObserver<Client>,
-    my_chat_member: TelegramObserver<Client>,
-    chat_member: TelegramObserver<Client>,
-    chat_join_request: TelegramObserver<Client>,
-    chat_boost: TelegramObserver<Client>,
-    removed_chat_boost: TelegramObserver<Client>,
+            $(
+                $observer: TelegramObserver<Client>,
+            )+
 
-    update: TelegramObserver<Client>,
-
-    startup: SimpleObserver,
-    shutdown: SimpleObserver,
+            pub startup: SimpleObserver,
+            pub shutdown: SimpleObserver,
+        }
+    };
 }
+with_telegram_observer_variants!(define_configured_struct);
 
 impl<Client> PropagateEvent<Client> for Configured<Client>
 where
@@ -964,32 +809,16 @@ where
 impl<Client> Configured<Client> {
     #[must_use]
     pub const fn telegram_observers(&self) -> [&TelegramObserver<Client>; 24] {
-        [
-            &self.message,
-            &self.edited_message,
-            &self.channel_post,
-            &self.edited_channel_post,
-            &self.business_connection,
-            &self.business_message,
-            &self.edited_business_message,
-            &self.deleted_business_messages,
-            &self.message_reaction,
-            &self.message_reaction_count,
-            &self.inline_query,
-            &self.chosen_inline_result,
-            &self.callback_query,
-            &self.shipping_query,
-            &self.pre_checkout_query,
-            &self.purchased_paid_media,
-            &self.poll,
-            &self.poll_answer,
-            &self.my_chat_member,
-            &self.chat_member,
-            &self.chat_join_request,
-            &self.chat_boost,
-            &self.removed_chat_boost,
-            &self.update,
-        ]
+        macro_rules! router_telegram_observer_refs_array {
+            ($(($variant:ident, $observer:ident)),+ $(,)?) => {
+                [
+                    $(
+                        &self.$observer,
+                    )+
+                ]
+            };
+        }
+        with_telegram_observer_variants!(router_telegram_observer_refs_array)
     }
 
     #[must_use]
@@ -1002,31 +831,16 @@ impl<Client> Configured<Client> {
         &mut self,
         update_type: UpdateType,
     ) -> &mut TelegramObserver<Client> {
-        match update_type {
-            UpdateType::Message => &mut self.message,
-            UpdateType::EditedMessage => &mut self.edited_message,
-            UpdateType::ChannelPost => &mut self.channel_post,
-            UpdateType::EditedChannelPost => &mut self.edited_channel_post,
-            UpdateType::BusinessConnection => &mut self.business_connection,
-            UpdateType::BusinessMessage => &mut self.business_message,
-            UpdateType::EditedBusinessMessage => &mut self.edited_business_message,
-            UpdateType::DeletedBusinessMessages => &mut self.deleted_business_messages,
-            UpdateType::MessageReaction => &mut self.message_reaction,
-            UpdateType::MessageReactionCount => &mut self.message_reaction_count,
-            UpdateType::InlineQuery => &mut self.inline_query,
-            UpdateType::ChosenInlineResult => &mut self.chosen_inline_result,
-            UpdateType::CallbackQuery => &mut self.callback_query,
-            UpdateType::ShippingQuery => &mut self.shipping_query,
-            UpdateType::PreCheckoutQuery => &mut self.pre_checkout_query,
-            UpdateType::PurchasedPaidMedia => &mut self.purchased_paid_media,
-            UpdateType::Poll => &mut self.poll,
-            UpdateType::PollAnswer => &mut self.poll_answer,
-            UpdateType::MyChatMember => &mut self.my_chat_member,
-            UpdateType::ChatMember => &mut self.chat_member,
-            UpdateType::ChatJoinRequest => &mut self.chat_join_request,
-            UpdateType::ChatBoost => &mut self.chat_boost,
-            UpdateType::RemovedChatBoost => &mut self.removed_chat_boost,
+        macro_rules! by_observer_type_match_arms {
+            ($(($variant:ident, $observer:ident)),+ $(,)?) => {
+                match TelegramObserverType::from(update_type) {
+                    $(
+                        TelegramObserverType::$variant => &mut self.$observer,
+                    )+
+                }
+            };
         }
+        with_telegram_observer_variants!(by_observer_type_match_arms)
     }
 }
 
@@ -1041,36 +855,20 @@ impl<Client> Debug for Configured<Client> {
 
 impl<Client> Clone for Configured<Client> {
     fn clone(&self) -> Self {
-        Self {
-            name: self.name,
-            sub_routers: self.sub_routers.clone(),
-            message: self.message.clone(),
-            edited_message: self.edited_message.clone(),
-            channel_post: self.channel_post.clone(),
-            edited_channel_post: self.edited_channel_post.clone(),
-            business_connection: self.business_connection.clone(),
-            business_message: self.business_message.clone(),
-            edited_business_message: self.edited_business_message.clone(),
-            deleted_business_messages: self.deleted_business_messages.clone(),
-            message_reaction: self.message_reaction.clone(),
-            message_reaction_count: self.message_reaction_count.clone(),
-            inline_query: self.inline_query.clone(),
-            chosen_inline_result: self.chosen_inline_result.clone(),
-            callback_query: self.callback_query.clone(),
-            shipping_query: self.shipping_query.clone(),
-            pre_checkout_query: self.pre_checkout_query.clone(),
-            purchased_paid_media: self.purchased_paid_media.clone(),
-            poll: self.poll.clone(),
-            poll_answer: self.poll_answer.clone(),
-            my_chat_member: self.my_chat_member.clone(),
-            chat_member: self.chat_member.clone(),
-            chat_join_request: self.chat_join_request.clone(),
-            chat_boost: self.chat_boost.clone(),
-            removed_chat_boost: self.removed_chat_boost.clone(),
-            update: self.update.clone(),
-            startup: self.startup.clone(),
-            shutdown: self.shutdown.clone(),
+        macro_rules! router_construct {
+            ($(($variant:ident, $observer:ident)),+ $(,)?) => {
+                Self {
+                    name: self.name,
+                    sub_routers: self.sub_routers.clone(),
+                    $(
+                        $observer: self.$observer.clone(),
+                    )+
+                    startup: self.startup.clone(),
+                    shutdown: self.shutdown.clone(),
+                }
+            };
         }
+        with_telegram_observer_variants!(router_construct)
     }
 }
 
@@ -1183,75 +981,35 @@ macro_rules! define_middleware_config {
     }
 }
 
-define_middleware_config!(
-    OuterMiddlewaresConfig,
-    OuterMiddlewaresConfigBuilder,
-    BoxedCloneOuterMiddlewareService<Client>,
-    OuterMiddleware,
-    boxed_outer_middleware_factory,
-    {
-        message,
-        edited_message,
-        channel_post,
-        edited_channel_post,
-        business_connection,
-        business_message,
-        edited_business_message,
-        deleted_business_messages,
-        message_reaction,
-        message_reaction_count,
-        inline_query,
-        chosen_inline_result,
-        callback_query,
-        shipping_query,
-        pre_checkout_query,
-        purchased_paid_media,
-        poll,
-        poll_answer,
-        my_chat_member,
-        chat_member,
-        chat_join_request,
-        chat_boost,
-        removed_chat_boost,
-        update,
-    },
-    default_builder: |builder: OuterMiddlewaresConfigBuilder<Client>| builder.update(UserContextMiddleware),
-);
+macro_rules! define_outer_middleware_config_for_observers {
+    ($(($variant:ident, $observer:ident)),+ $(,)?) => {
+        define_middleware_config!(
+            OuterMiddlewaresConfig,
+            OuterMiddlewaresConfigBuilder,
+            BoxedCloneOuterMiddlewareService<Client>,
+            OuterMiddleware,
+            boxed_outer_middleware_factory,
+            { $($observer,)+ },
+            default_builder: |builder: OuterMiddlewaresConfigBuilder<Client>| builder.update(UserContextMiddleware),
+        );
+    };
+}
+with_telegram_observer_variants!(define_outer_middleware_config_for_observers);
 
-define_middleware_config!(
-    InnerMiddlewaresConfig,
-    InnerMiddlewaresConfigBuilder,
-    BoxedCloneInnerMiddlewareService<Client>,
-    InnerMiddleware,
-    boxed_inner_middleware_factory,
-    {
-        message,
-        edited_message,
-        channel_post,
-        edited_channel_post,
-        business_connection,
-        business_message,
-        edited_business_message,
-        deleted_business_messages,
-        message_reaction,
-        message_reaction_count,
-        inline_query,
-        chosen_inline_result,
-        callback_query,
-        shipping_query,
-        pre_checkout_query,
-        purchased_paid_media,
-        poll,
-        poll_answer,
-        my_chat_member,
-        chat_member,
-        chat_join_request,
-        chat_boost,
-        removed_chat_boost,
-        update,
-    },
-    default_builder: |builder: InnerMiddlewaresConfigBuilder<Client>| builder.all(LoggingMiddleware),
-);
+macro_rules! define_inner_middleware_config_for_observers {
+    ($(($variant:ident, $observer:ident)),+ $(,)?) => {
+        define_middleware_config!(
+            InnerMiddlewaresConfig,
+            InnerMiddlewaresConfigBuilder,
+            BoxedCloneInnerMiddlewareService<Client>,
+            InnerMiddleware,
+            boxed_inner_middleware_factory,
+            { $($observer,)+ },
+            default_builder: |builder: InnerMiddlewaresConfigBuilder<Client>| builder.all(LoggingMiddleware),
+        );
+    };
+}
+with_telegram_observer_variants!(define_inner_middleware_config_for_observers);
 
 pub struct Config<Client> {
     outer_middlewares: OuterMiddlewaresConfig<Client>,
@@ -1297,7 +1055,11 @@ mod tests {
     use super::*;
     use crate::{
         client::Reqwest,
-        event::{telegram::HandlerResult as TelegramHandlerResult, EventReturn},
+        event::{
+            simple::Handler as SimpleHandler,
+            telegram::{Handler as TelegramHandler, HandlerResult as TelegramHandlerResult},
+            EventReturn,
+        },
         middlewares::Next,
         types::{ChatPrivate, MessageText, Update, UpdateMessage},
         Bot, Context, Extensions,
@@ -1403,33 +1165,33 @@ mod tests {
 
         let mut router = Router::<Reqwest>::new("main");
         // Telegram event observers
-        router.message.register(telegram_handler);
-        router.edited_message.register(telegram_handler);
-        router.channel_post.register(telegram_handler);
-        router.edited_channel_post.register(telegram_handler);
-        router.business_connection.register(telegram_handler);
-        router.business_message.register(telegram_handler);
-        router.edited_business_message.register(telegram_handler);
-        router.deleted_business_messages.register(telegram_handler);
-        router.message_reaction.register(telegram_handler);
-        router.message_reaction_count.register(telegram_handler);
-        router.inline_query.register(telegram_handler);
-        router.chosen_inline_result.register(telegram_handler);
-        router.callback_query.register(telegram_handler);
-        router.shipping_query.register(telegram_handler);
-        router.pre_checkout_query.register(telegram_handler);
-        router.purchased_paid_media.register(telegram_handler);
-        router.poll.register(telegram_handler);
-        router.poll_answer.register(telegram_handler);
-        router.my_chat_member.register(telegram_handler);
-        router.chat_member.register(telegram_handler);
-        router.chat_join_request.register(telegram_handler);
-        router.chat_boost.register(telegram_handler);
-        router.removed_chat_boost.register(telegram_handler);
-        router.update.register(telegram_handler);
+        router.message.register(TelegramHandler::new(telegram_handler));
+        router.edited_message.register(TelegramHandler::new(telegram_handler));
+        router.channel_post.register(TelegramHandler::new(telegram_handler));
+        router.edited_channel_post.register(TelegramHandler::new(telegram_handler));
+        router.business_connection.register(TelegramHandler::new(telegram_handler));
+        router.business_message.register(TelegramHandler::new(telegram_handler));
+        router.edited_business_message.register(TelegramHandler::new(telegram_handler));
+        router.deleted_business_messages.register(TelegramHandler::new(telegram_handler));
+        router.message_reaction.register(TelegramHandler::new(telegram_handler));
+        router.message_reaction_count.register(TelegramHandler::new(telegram_handler));
+        router.inline_query.register(TelegramHandler::new(telegram_handler));
+        router.chosen_inline_result.register(TelegramHandler::new(telegram_handler));
+        router.callback_query.register(TelegramHandler::new(telegram_handler));
+        router.shipping_query.register(TelegramHandler::new(telegram_handler));
+        router.pre_checkout_query.register(TelegramHandler::new(telegram_handler));
+        router.purchased_paid_media.register(TelegramHandler::new(telegram_handler));
+        router.poll.register(TelegramHandler::new(telegram_handler));
+        router.poll_answer.register(TelegramHandler::new(telegram_handler));
+        router.my_chat_member.register(TelegramHandler::new(telegram_handler));
+        router.chat_member.register(TelegramHandler::new(telegram_handler));
+        router.chat_join_request.register(TelegramHandler::new(telegram_handler));
+        router.chat_boost.register(TelegramHandler::new(telegram_handler));
+        router.removed_chat_boost.register(TelegramHandler::new(telegram_handler));
+        router.update.register(TelegramHandler::new(telegram_handler));
         // Event observers
-        router.startup.register(simple_handler, ());
-        router.shutdown.register(simple_handler, ());
+        router.startup.register(SimpleHandler::new(simple_handler, ()));
+        router.shutdown.register(SimpleHandler::new(simple_handler, ()));
 
         // Check telegram event observers
         router
@@ -1471,9 +1233,9 @@ mod tests {
         };
 
         let mut router = Router::new("test_handler");
-        router
-            .message
-            .register(|| async move { Ok::<_, Infallible>(EventReturn::Finish) });
+        router.message.register(TelegramHandler::new(|| async move {
+            Ok::<_, Infallible>(EventReturn::Finish)
+        }));
 
         let mut router_configured = router.configure_default();
         let response = router_configured
@@ -1510,14 +1272,16 @@ mod tests {
 
                 Ok((request, EventReturn::Finish))
             });
-        router.message.register(|context: Context| async move {
-            println!("{}", context.len());
+        router
+            .message
+            .register(TelegramHandler::new(|context: Context| async move {
+                println!("{}", context.len());
 
-            // Check that middleware was called and context was modified
-            assert_eq!(context.get::<&str>("test").unwrap(), &"test");
+                // Check that middleware was called and context was modified
+                assert_eq!(context.get::<&str>("test").unwrap(), &"test");
 
-            Ok::<_, Infallible>(EventReturn::Finish)
-        });
+                Ok::<_, Infallible>(EventReturn::Finish)
+            }));
 
         let mut router_configured = router.configure_default();
 
@@ -1536,12 +1300,12 @@ mod tests {
         }
 
         let mut router = Router::new("test_skip_handler");
-        router
-            .message
-            .register(|| async move { Ok::<_, Infallible>(EventReturn::Skip) });
-        router
-            .message
-            .register(|| async move { Ok::<_, Infallible>(EventReturn::Finish) });
+        router.message.register(TelegramHandler::new(|| async move {
+            Ok::<_, Infallible>(EventReturn::Skip)
+        }));
+        router.message.register(TelegramHandler::new(|| async move {
+            Ok::<_, Infallible>(EventReturn::Finish)
+        }));
 
         let mut router_configured = router.configure_default();
 
@@ -1561,9 +1325,9 @@ mod tests {
         }
 
         let mut router = Router::new("test_skip_handler_without_next");
-        router
-            .message
-            .register(|| async move { Ok::<_, Infallible>(EventReturn::Skip) });
+        router.message.register(TelegramHandler::new(|| async move {
+            Ok::<_, Infallible>(EventReturn::Skip)
+        }));
 
         let mut router_configured = router.configure_default();
 
@@ -1593,10 +1357,10 @@ mod tests {
         };
 
         let mut router = Router::new("test_handler_with_filter");
-        router
-            .message
-            .register(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
-            .filter(|_req: &mut Request| async move { true });
+        router.message.register(
+            TelegramHandler::new(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
+                .filter(|_req: &mut Request| async move { true }),
+        );
 
         let mut router_configured = router.configure_default();
         let response = router_configured
@@ -1614,10 +1378,10 @@ mod tests {
         }
 
         let mut router = Router::new("test_handler_with_fail_filter");
-        router
-            .message
-            .register(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
-            .filter(|_req: &mut Request| async move { false });
+        router.message.register(
+            TelegramHandler::new(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
+                .filter(|_req: &mut Request| async move { false }),
+        );
 
         let mut router_configured = router.configure_default();
         let response = router_configured
@@ -1632,12 +1396,12 @@ mod tests {
         }
 
         let mut router = Router::new("test_handler_with_filters_and_one_fail");
-        router
-            .message
-            .register(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
-            .filter(|_req: &mut Request| async move { true })
-            .filter(|_req: &mut Request| async move { true })
-            .filter(|_req: &mut Request| async move { false });
+        router.message.register(
+            TelegramHandler::new(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
+                .filter(|_req: &mut Request| async move { true })
+                .filter(|_req: &mut Request| async move { true })
+                .filter(|_req: &mut Request| async move { false }),
+        );
 
         let mut router_configured = router.configure_default();
         let response = router_configured
@@ -1656,12 +1420,14 @@ mod tests {
     fn test_resolve_used_update_types() {
         let mut router = Router::<Reqwest>::new("test");
 
-        router
-            .message
-            .register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
+        router.message.register(TelegramHandler::new(|| async {
+            Ok::<_, Infallible>(EventReturn::Finish)
+        }));
         router
             .edited_message
-            .register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
+            .register(TelegramHandler::new(|| async {
+                Ok::<_, Infallible>(EventReturn::Finish)
+            }));
 
         let update_types = router.resolve_used_update_types();
 
@@ -1671,12 +1437,14 @@ mod tests {
 
         let mut router2 = Router::<Reqwest>::new("test2");
 
-        router2
-            .message
-            .register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
+        router2.message.register(TelegramHandler::new(|| async {
+            Ok::<_, Infallible>(EventReturn::Finish)
+        }));
         router2
             .channel_post
-            .register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
+            .register(TelegramHandler::new(|| async {
+                Ok::<_, Infallible>(EventReturn::Finish)
+            }));
 
         assert_eq!(router2.resolve_used_update_types().len(), 2);
 

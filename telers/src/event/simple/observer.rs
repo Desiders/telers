@@ -1,6 +1,6 @@
 use crate::event::{
     service::Service,
-    simple::handler::{Handler, HandlerComposite, HandlerResult},
+    simple::handler::{Handler, HandlerResult},
 };
 
 use std::fmt::{self, Debug, Formatter};
@@ -10,7 +10,7 @@ use std::fmt::{self, Debug, Formatter};
 #[derive(Clone)]
 pub struct Observer {
     pub event_name: &'static str,
-    handlers: Vec<HandlerComposite>,
+    handlers: Vec<Handler>,
 }
 
 impl Observer {
@@ -23,53 +23,26 @@ impl Observer {
         }
     }
 
-    #[inline]
-    #[must_use]
-    pub fn handlers(&self) -> &[HandlerComposite] {
-        &self.handlers
+    /// Register event handler
+    pub fn register(&mut self, handler: Handler) -> &mut Self {
+        self.handlers.push(handler);
+        self
     }
 
     /// Register event handler
-    pub fn register<H, Args>(&mut self, handler: H, args: Args)
-    where
-        H: Handler<Args>,
-        Args: Clone + Send + Sync + 'static,
-    {
-        self.handlers.push(HandlerComposite::new(handler, args));
-    }
-
-    /// Register service as event handler
-    pub fn register_service<S, Args>(&mut self, service: S, args: Args)
-    where
-        S: Service<Args, Response = ()> + Clone + Send + Sync + 'static,
-        S::Error: Into<anyhow::Error> + Send + Sync + 'static,
-        S::Future: Send,
-        Args: Clone + Send + Sync + 'static,
-    {
-        self.handlers
-            .push(HandlerComposite::new_service(service, args));
-    }
-
+    /// # Notes
     /// Alias to [`Observer::register`] method
     #[inline]
-    pub fn on<H, Args>(&mut self, handler: H, args: Args)
-    where
-        H: Handler<Args>,
-        Args: Clone + Send + Sync + 'static,
-    {
-        self.register(handler, args);
+    pub fn on(&mut self, handler: Handler) -> &mut Self {
+        self.register(handler)
     }
+}
 
-    /// Alias to [`Observer::register_service`] method
+impl Observer {
     #[inline]
-    pub fn on_service<S, Args>(&mut self, service: S, args: Args)
-    where
-        S: Service<Args, Response = ()> + Clone + Send + Sync + 'static,
-        S::Error: Into<anyhow::Error> + Send + Sync + 'static,
-        S::Future: Send,
-        Args: Clone + Send + Sync + 'static,
-    {
-        self.register_service(service, args);
+    #[must_use]
+    pub fn handlers(&self) -> &[Handler] {
+        &self.handlers
     }
 }
 
@@ -120,10 +93,10 @@ mod tests {
         }
 
         let mut startup_observer = Observer::new("startup");
-        startup_observer.register(on_startup, ("Hello, world!",));
+        startup_observer.register(Handler::new(on_startup, ("Hello, world!",)));
 
         let mut shutdown_observer = Observer::new("shutdown");
-        shutdown_observer.register(on_shutdown, ("Goodbye, world!",));
+        shutdown_observer.register(Handler::new(on_shutdown, ("Goodbye, world!",)));
 
         startup_observer.trigger(()).await.unwrap();
         shutdown_observer.trigger(()).await.unwrap();
@@ -144,10 +117,10 @@ mod tests {
         }
 
         let mut startup_observer = Observer::new("startup");
-        startup_observer.register(on_startup, ("Hello, world!",));
+        startup_observer.register(Handler::new(on_startup, ("Hello, world!",)));
 
         let mut shutdown_observer = Observer::new("shutdown");
-        shutdown_observer.register(on_shutdown, ("Goodbye, world!",));
+        shutdown_observer.register(Handler::new(on_shutdown, ("Goodbye, world!",)));
 
         assert!(
             startup_observer.trigger(()).await.is_err()

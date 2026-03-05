@@ -16,7 +16,10 @@ use std::sync::{
 use telers::{
     enums::ChatType::Private,
     errors::EventErrorKind,
-    event::{telegram::HandlerResult, EventReturn},
+    event::{
+        telegram::{Handler, HandlerResult},
+        EventReturn,
+    },
     filters::{ChatType, Command},
     methods::{CopyMessage, SendMessage},
     middlewares::{outer::MiddlewareResponse, OuterMiddleware},
@@ -95,30 +98,28 @@ async fn main() {
 
     // This router will handle all private messages
     let mut private_router = Router::new("private");
-    // Register filter for all private messages
-    private_router.message.filter(ChatType::one(Private));
-    // Register handler for private messages, which will send a greeting message
     private_router
         .message
-        .register(start_private)
-        .filter(Command::one("start"));
+        // Register filter for all private messages
+        .filter(ChatType::one(Private))
+        // Register handler for private messages, which will send a greeting message
+        .register(Handler::new(start_private).filter(Command::one("start")));
 
     // Include private router into main router, so all updates, which are not handled by main router will be passed to private router
     main_router.include(private_router);
 
     let mut echo_router = Router::new("echo");
-    // Register stats middleware for echo router
     echo_router
+        // Register stats middleware for echo router
         .update
         .outer_middlewares
         .register(IncomingEchoRouterUpdates::default());
-    // Register handler for stats commands
+
     echo_router
         .message
-        .register(stats_echo_router)
-        .filter(Command::many(["stats", "statistics"]));
-
-    echo_router.message.register(echo_handler);
+        // Register handler for stats commands
+        .register(Handler::new(stats_echo_router).filter(Command::many(["stats", "statistics"])))
+        .register(Handler::new(echo_handler));
 
     // Include echo router into main router, so all updates, which are not handled by main router or private router will be passed to echo router
     main_router.include(echo_router);

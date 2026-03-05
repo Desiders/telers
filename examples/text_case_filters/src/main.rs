@@ -9,7 +9,10 @@
 use std::future::Future;
 use telers::{
     enums::UpdateType,
-    event::{telegram::HandlerResult, EventReturn},
+    event::{
+        telegram::{Handler, HandlerResult},
+        EventReturn,
+    },
     methods::SendMessage,
     types::Message,
     Bot, Dispatcher, Filter, Request, Router,
@@ -71,13 +74,9 @@ async fn main() {
     let mut router = Router::new("main");
     router
         .message
-        .register(uppercase_handler)
-        .filter(UppercaseFilter);
-    router
-        .message
-        .register(lowercase_handler)
-        .filter(lowercase_filter);
-    router.message.register(any_case_handler);
+        .register(Handler::new(uppercase_handler).filter(UppercaseFilter))
+        .register(Handler::new(lowercase_handler).filter(lowercase_filter))
+        .register(Handler::new(any_case_handler));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

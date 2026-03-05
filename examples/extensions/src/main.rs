@@ -14,7 +14,10 @@ use std::future::Future;
 use telers::{
     enums::UpdateType,
     errors::EventErrorKind,
-    event::{telegram::HandlerResult, EventReturn},
+    event::{
+        telegram::{Handler, HandlerResult},
+        EventReturn,
+    },
     filters::Command,
     methods::SendMessage,
     middlewares::outer::MiddlewareResponse,
@@ -79,19 +82,16 @@ async fn main() {
 
     let mut router = Router::new("main");
 
-    // Register middleware that adds data to extensions.
-    // Be aware, we register middleware for message observer, so it will be called only for messages.
-    // If you want to register middleware for any update, you should register it for update observer.
     router
         .message
         .filter(to_extensions_filter)
+        // Register handler that sends data from extensions to chat
+        .register(Handler::new(send_data_handler).filter(Command::one("data")))
         .outer_middlewares
+        // Register middleware that adds data to extensions.
+        // Be aware, we register middleware for message observer, so it will be called only for messages.
+        // If you want to register middleware for any update, you should register it for update observer.
         .register(to_extensions_middleware);
-    // Register handler that sends data from extensions to chat
-    router
-        .message
-        .register(send_data_handler)
-        .filter(Command::one("data"));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

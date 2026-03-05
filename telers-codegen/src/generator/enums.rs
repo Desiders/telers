@@ -180,7 +180,13 @@ pub fn tokenize_kind_enum_file(type_quote: &NormalizedType) -> Option<TokenStrea
 
 #[must_use]
 pub fn tokenize_own_enums() -> Vec<(&'static str, TokenStream)> {
-    vec![("ParseMode", tokenize_enum_parse_mode())]
+    vec![
+        ("ParseMode", tokenize_enum_parse_mode()),
+        (
+            "TelegramObserverType",
+            tokenize_enum_telegram_observer_type(),
+        ),
+    ]
 }
 
 #[must_use]
@@ -245,6 +251,149 @@ pub fn tokenize_enum_parse_mode() -> TokenStream {
         impl<'a> PartialEq<&'a str> for ParseMode {
             fn eq(&self, other: &&'a str) -> bool {
                 self.as_ref().to_lowercase() == other.to_lowercase()
+            }
+        }
+    }
+}
+
+#[must_use]
+#[allow(clippy::too_many_lines)]
+pub fn tokenize_enum_telegram_observer_type() -> TokenStream {
+    let variants = [
+        ("BusinessConnection", "business_connection"),
+        ("BusinessMessage", "business_message"),
+        ("CallbackQuery", "callback_query"),
+        ("ChannelPost", "channel_post"),
+        ("ChatBoost", "chat_boost"),
+        ("ChatJoinRequest", "chat_join_request"),
+        ("ChatMember", "chat_member"),
+        ("ChosenInlineResult", "chosen_inline_result"),
+        ("DeletedBusinessMessages", "deleted_business_messages"),
+        ("EditedBusinessMessage", "edited_business_message"),
+        ("EditedChannelPost", "edited_channel_post"),
+        ("EditedMessage", "edited_message"),
+        ("InlineQuery", "inline_query"),
+        ("Message", "message"),
+        ("MessageReaction", "message_reaction"),
+        ("MessageReactionCount", "message_reaction_count"),
+        ("MyChatMember", "my_chat_member"),
+        ("Poll", "poll"),
+        ("PollAnswer", "poll_answer"),
+        ("PreCheckoutQuery", "pre_checkout_query"),
+        ("PurchasedPaidMedia", "purchased_paid_media"),
+        ("RemovedChatBoost", "removed_chat_boost"),
+        ("ShippingQuery", "shipping_query"),
+        ("Update", "update"),
+    ];
+
+    let variant_count = variants.len();
+
+    let enum_variants: Box<[_]> = variants
+        .iter()
+        .map(|(name, serialize)| {
+            let variant = format_ident!("{name}");
+            quote! {
+                #[strum(serialize = #serialize)]
+                #variant,
+            }
+        })
+        .collect();
+
+    let all_variants: Box<[_]> = variants
+        .iter()
+        .map(|(name, _)| {
+            let variant = format_ident!("{name}");
+            quote! { TelegramObserverType::#variant }
+        })
+        .collect();
+
+    let observer_mappings: Box<[_]> = variants
+        .iter()
+        .map(|(name, serialize)| {
+            let variant = format_ident!("{name}");
+            let observer = format_ident!("{serialize}");
+            quote! { (#variant, #observer), }
+        })
+        .collect();
+
+    let from_update_type_arms: Box<[_]> = variants
+        .iter()
+        .filter(|(name, _)| *name != "Update")
+        .map(|(name, _)| {
+            let variant = format_ident!("{name}");
+            quote! { UpdateType::#variant => TelegramObserverType::#variant }
+        })
+        .collect();
+
+    quote! {
+        use crate::{enums::UpdateType, types::Update};
+        use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
+
+        /// This enum represents all possible telegram observer types.
+        /// It contains all [`UpdateType`] variants plus `Update`.
+        #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+        pub enum TelegramObserverType {
+            #( #enum_variants )*
+        }
+
+        macro_rules! with_telegram_observer_variants {
+            ($callback:ident $(, $args:tt)*) => {
+                $callback! {
+                    $($args,)*
+                    #( #observer_mappings )*
+                }
+            };
+        }
+        pub(crate) use with_telegram_observer_variants;
+
+        impl TelegramObserverType {
+            #[must_use]
+            pub const fn all() -> [TelegramObserverType; #variant_count] {
+                [ #( #all_variants, )* ]
+            }
+        }
+
+        impl From<TelegramObserverType> for Box<str> {
+            fn from(val: TelegramObserverType) -> Self {
+                Into::<&'static str>::into(val).into()
+            }
+        }
+
+        impl From<TelegramObserverType> for String {
+            fn from(val: TelegramObserverType) -> Self {
+                val.as_ref().to_owned()
+            }
+        }
+
+        impl<'a> PartialEq<&'a str> for TelegramObserverType {
+            fn eq(&self, other: &&'a str) -> bool {
+                self.as_ref() == *other
+            }
+        }
+
+        impl From<UpdateType> for TelegramObserverType {
+            fn from(val: UpdateType) -> Self {
+                match val {
+                    #( #from_update_type_arms, )*
+                }
+            }
+        }
+
+        impl<'a> From<&'a UpdateType> for TelegramObserverType {
+            fn from(val: &'a UpdateType) -> Self {
+                TelegramObserverType::from(*val)
+            }
+        }
+
+        impl<'a> From<&'a Update> for TelegramObserverType {
+            fn from(val: &'a Update) -> Self {
+                TelegramObserverType::from(UpdateType::from(val))
+            }
+        }
+
+        impl From<Update> for TelegramObserverType {
+            fn from(val: Update) -> Self {
+                TelegramObserverType::from(&val)
             }
         }
     }

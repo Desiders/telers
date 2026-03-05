@@ -704,7 +704,10 @@ mod tests {
     use super::*;
     use crate::{
         client::Reqwest,
-        event::bases::{EventReturn, PropagateEventResult},
+        event::{
+            bases::{EventReturn, PropagateEventResult},
+            telegram::Handler,
+        },
         router::Router,
         types::{ChatPrivate, MessageText, UpdateMessage},
     };
@@ -737,9 +740,9 @@ mod tests {
         }
 
         let mut router = Router::new("main");
-        router
-            .message
-            .register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
+        router.message.register(Handler::new(|| async {
+            Ok::<_, Infallible>(EventReturn::Finish)
+        }));
 
         let mut dispatcher = Dispatcher::builder()
             .main_router(router.configure_default())
