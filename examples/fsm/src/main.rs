@@ -19,7 +19,10 @@
 
 use telers::{
     enums::{MessageType::Text, UpdateType},
-    event::{telegram::HandlerResult, EventReturn},
+    event::{
+        telegram::{Handler, HandlerResult},
+        EventReturn,
+    },
     filters::{Command, MessageType, State as StateFilter},
     fsm::{Context as FSMContext, MemoryStorage, Storage, Strategy::UserInChat},
     methods::SendMessage,
@@ -168,19 +171,21 @@ async fn main() {
 
     router
         .message
-        .register(start_handler::<MemoryStorage>)
-        .filter(Command::one("start"))
-        .filter(StateFilter::none());
-    router
-        .message
-        .register(name_handler::<MemoryStorage>)
-        .filter(MessageType::one(Text))
-        .filter(StateFilter::one(State::Name));
-    router
-        .message
-        .register(language_handler::<MemoryStorage>)
-        .filter(MessageType::one(Text))
-        .filter(StateFilter::one(State::Language));
+        .register(
+            Handler::new(start_handler::<MemoryStorage>)
+                .filter(Command::one("start"))
+                .filter(StateFilter::none()),
+        )
+        .register(
+            Handler::new(name_handler::<MemoryStorage>)
+                .filter(MessageType::one(Text))
+                .filter(StateFilter::one(State::Name)),
+        )
+        .register(
+            Handler::new(language_handler::<MemoryStorage>)
+                .filter(MessageType::one(Text))
+                .filter(StateFilter::one(State::Language)),
+        );
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

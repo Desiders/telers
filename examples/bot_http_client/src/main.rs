@@ -27,7 +27,10 @@ use std::borrow::Cow;
 use telers::{
     client::{session::ClientResponse, telegram, Session},
     enums::UpdateType,
-    event::{telegram::HandlerResult, EventReturn},
+    event::{
+        telegram::{Handler, HandlerResult},
+        EventReturn,
+    },
     methods::{CopyMessage, TelegramMethod},
     types::Message,
     Bot, Dispatcher, Router,
@@ -93,7 +96,7 @@ async fn main() {
     let bot = Bot::with_client(token, CustomClient::default());
 
     let mut router = Router::new("main");
-    router.message.register(echo_handler);
+    router.message.register(Handler::new(echo_handler));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

@@ -16,7 +16,10 @@ use std::sync::{
 use telers::{
     enums::ChatType::Private,
     errors::EventErrorKind,
-    event::{telegram::HandlerResult, EventReturn},
+    event::{
+        telegram::{Handler, HandlerResult},
+        EventReturn,
+    },
     filters::{ChatType, Command},
     methods::{CopyMessage, SendMessage},
     middlewares::{outer::MiddlewareResponse, OuterMiddleware},
@@ -100,8 +103,7 @@ async fn main() {
     // Register handler for private messages, which will send a greeting message
     private_router
         .message
-        .register(start_private)
-        .filter(Command::one("start"));
+        .register(Handler::new(start_private).filter(Command::one("start")));
 
     // Include private router into main router, so all updates, which are not handled by main router will be passed to private router
     main_router.include(private_router);
@@ -112,13 +114,11 @@ async fn main() {
         .update
         .outer_middlewares
         .register(IncomingEchoRouterUpdates::default());
-    // Register handler for stats commands
     echo_router
         .message
-        .register(stats_echo_router)
-        .filter(Command::many(["stats", "statistics"]));
-
-    echo_router.message.register(echo_handler);
+        // Register handler for stats commands
+        .register(Handler::new(stats_echo_router).filter(Command::many(["stats", "statistics"])))
+        .register(Handler::new(echo_handler));
 
     // Include echo router into main router, so all updates, which are not handled by main router or private router will be passed to echo router
     main_router.include(echo_router);

@@ -8,7 +8,10 @@
 use telers::{
     enums::{ParseMode, UpdateType},
     errors::HandlerError,
-    event::{telegram::HandlerResult, EventReturn},
+    event::{
+        telegram::{Handler, HandlerResult},
+        EventReturn,
+    },
     methods::SendMessage,
     types::Update,
     utils::text::{html_pre_language, html_quote},
@@ -53,7 +56,7 @@ async fn main() {
     let bot = Bot::from_env_by_key("BOT_TOKEN");
 
     let mut router = Router::new("main");
-    router.update.register(serialize_handler);
+    router.update.register(Handler::new(serialize_handler));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

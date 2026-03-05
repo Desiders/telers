@@ -11,18 +11,23 @@
 //!   When observer is trigger, it calls all handlers in order of registration and stops if one of them returns an error.
 //!
 //! Registration of handlers looks like this:
-//! ```ignore
+//! ```rust
+//! use telers::{Router, event::simple::{HandlerResult, Handler}}
+//!
 //! async fn on_startup(message: &str) -> HandlerResult {
-//!     ...
+//!     todo!()
 //! }
 //!
 //! async fn on_shutdown(message: &str) -> HandlerResult {
-//!     ...
+//!     todo!()
 //! }
 //!
-//! let mut router = Router::new("example");
-//! router.startup.register(on_startup, ("Hello, world!",));
-//! router.shutdown.register(on_shutdown, ("Goodbye, world!",));
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() {
+//!     let mut router = Router::new("example");
+//!     router.startup.register(simple::Handler::new(on_startup, ("Hello, world!",)));
+//!     router.shutdown.register(simple::Handler::new(on_shutdown, ("Goodbye, world!",)));
+//! }
 //! ```
 //!
 //! * Telegram observer:
@@ -39,17 +44,22 @@
 //!
 //! Registration of handlers looks like this:
 //! ```ignore
+//! use telers::{Router, event::telegram::{HandlerResult, Handler}}
+//!
 //! async fn on_message(message: Message) -> HandlerResult {
-//!    ...
+//!    todo!()
 //! }
 //!
 //! async fn on_callback_query(callback_query: CallbackQuery) -> HandlerResult {
-//!   ...
+//!   todo!()
 //! }
 //!
-//! let mut router = Router::new("example");
-//! router.message.register(on_message);
-//! router.callback_query.register(on_callback_query);
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() {
+//!     let mut router = Router::new("example");
+//!     router.message.register(on_message);
+//!     router.callback_query.register(on_callback_query);
+//! }
 //! ```
 //!
 //! Routers can be nested, so you can create a tree of routers using [`Router::include_router`] method.
@@ -1297,7 +1307,11 @@ mod tests {
     use super::*;
     use crate::{
         client::Reqwest,
-        event::{telegram::HandlerResult as TelegramHandlerResult, EventReturn},
+        event::{
+            simple::Handler as SimpleHandler,
+            telegram::{Handler as TelegramHandler, HandlerResult as TelegramHandlerResult},
+            EventReturn,
+        },
         middlewares::Next,
         types::{ChatPrivate, MessageText, Update, UpdateMessage},
         Bot, Context, Extensions,
@@ -1403,33 +1417,33 @@ mod tests {
 
         let mut router = Router::<Reqwest>::new("main");
         // Telegram event observers
-        router.message.register(telegram_handler);
-        router.edited_message.register(telegram_handler);
-        router.channel_post.register(telegram_handler);
-        router.edited_channel_post.register(telegram_handler);
-        router.business_connection.register(telegram_handler);
-        router.business_message.register(telegram_handler);
-        router.edited_business_message.register(telegram_handler);
-        router.deleted_business_messages.register(telegram_handler);
-        router.message_reaction.register(telegram_handler);
-        router.message_reaction_count.register(telegram_handler);
-        router.inline_query.register(telegram_handler);
-        router.chosen_inline_result.register(telegram_handler);
-        router.callback_query.register(telegram_handler);
-        router.shipping_query.register(telegram_handler);
-        router.pre_checkout_query.register(telegram_handler);
-        router.purchased_paid_media.register(telegram_handler);
-        router.poll.register(telegram_handler);
-        router.poll_answer.register(telegram_handler);
-        router.my_chat_member.register(telegram_handler);
-        router.chat_member.register(telegram_handler);
-        router.chat_join_request.register(telegram_handler);
-        router.chat_boost.register(telegram_handler);
-        router.removed_chat_boost.register(telegram_handler);
-        router.update.register(telegram_handler);
+        router.message.register(TelegramHandler::new(telegram_handler));
+        router.edited_message.register(TelegramHandler::new(telegram_handler));
+        router.channel_post.register(TelegramHandler::new(telegram_handler));
+        router.edited_channel_post.register(TelegramHandler::new(telegram_handler));
+        router.business_connection.register(TelegramHandler::new(telegram_handler));
+        router.business_message.register(TelegramHandler::new(telegram_handler));
+        router.edited_business_message.register(TelegramHandler::new(telegram_handler));
+        router.deleted_business_messages.register(TelegramHandler::new(telegram_handler));
+        router.message_reaction.register(TelegramHandler::new(telegram_handler));
+        router.message_reaction_count.register(TelegramHandler::new(telegram_handler));
+        router.inline_query.register(TelegramHandler::new(telegram_handler));
+        router.chosen_inline_result.register(TelegramHandler::new(telegram_handler));
+        router.callback_query.register(TelegramHandler::new(telegram_handler));
+        router.shipping_query.register(TelegramHandler::new(telegram_handler));
+        router.pre_checkout_query.register(TelegramHandler::new(telegram_handler));
+        router.purchased_paid_media.register(TelegramHandler::new(telegram_handler));
+        router.poll.register(TelegramHandler::new(telegram_handler));
+        router.poll_answer.register(TelegramHandler::new(telegram_handler));
+        router.my_chat_member.register(TelegramHandler::new(telegram_handler));
+        router.chat_member.register(TelegramHandler::new(telegram_handler));
+        router.chat_join_request.register(TelegramHandler::new(telegram_handler));
+        router.chat_boost.register(TelegramHandler::new(telegram_handler));
+        router.removed_chat_boost.register(TelegramHandler::new(telegram_handler));
+        router.update.register(TelegramHandler::new(telegram_handler));
         // Event observers
-        router.startup.register(simple_handler, ());
-        router.shutdown.register(simple_handler, ());
+        router.startup.register(SimpleHandler::new(simple_handler, ()));
+        router.shutdown.register(SimpleHandler::new(simple_handler, ()));
 
         // Check telegram event observers
         router
@@ -1471,9 +1485,9 @@ mod tests {
         };
 
         let mut router = Router::new("test_handler");
-        router
-            .message
-            .register(|| async move { Ok::<_, Infallible>(EventReturn::Finish) });
+        router.message.register(TelegramHandler::new(|| async move {
+            Ok::<_, Infallible>(EventReturn::Finish)
+        }));
 
         let mut router_configured = router.configure_default();
         let response = router_configured
@@ -1510,14 +1524,16 @@ mod tests {
 
                 Ok((request, EventReturn::Finish))
             });
-        router.message.register(|context: Context| async move {
-            println!("{}", context.len());
+        router
+            .message
+            .register(TelegramHandler::new(|context: Context| async move {
+                println!("{}", context.len());
 
-            // Check that middleware was called and context was modified
-            assert_eq!(context.get::<&str>("test").unwrap(), &"test");
+                // Check that middleware was called and context was modified
+                assert_eq!(context.get::<&str>("test").unwrap(), &"test");
 
-            Ok::<_, Infallible>(EventReturn::Finish)
-        });
+                Ok::<_, Infallible>(EventReturn::Finish)
+            }));
 
         let mut router_configured = router.configure_default();
 
@@ -1536,12 +1552,12 @@ mod tests {
         }
 
         let mut router = Router::new("test_skip_handler");
-        router
-            .message
-            .register(|| async move { Ok::<_, Infallible>(EventReturn::Skip) });
-        router
-            .message
-            .register(|| async move { Ok::<_, Infallible>(EventReturn::Finish) });
+        router.message.register(TelegramHandler::new(|| async move {
+            Ok::<_, Infallible>(EventReturn::Skip)
+        }));
+        router.message.register(TelegramHandler::new(|| async move {
+            Ok::<_, Infallible>(EventReturn::Finish)
+        }));
 
         let mut router_configured = router.configure_default();
 
@@ -1561,9 +1577,9 @@ mod tests {
         }
 
         let mut router = Router::new("test_skip_handler_without_next");
-        router
-            .message
-            .register(|| async move { Ok::<_, Infallible>(EventReturn::Skip) });
+        router.message.register(TelegramHandler::new(|| async move {
+            Ok::<_, Infallible>(EventReturn::Skip)
+        }));
 
         let mut router_configured = router.configure_default();
 
@@ -1593,10 +1609,10 @@ mod tests {
         };
 
         let mut router = Router::new("test_handler_with_filter");
-        router
-            .message
-            .register(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
-            .filter(|_req: &mut Request| async move { true });
+        router.message.register(
+            TelegramHandler::new(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
+                .filter(|_req: &mut Request| async move { true }),
+        );
 
         let mut router_configured = router.configure_default();
         let response = router_configured
@@ -1614,10 +1630,10 @@ mod tests {
         }
 
         let mut router = Router::new("test_handler_with_fail_filter");
-        router
-            .message
-            .register(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
-            .filter(|_req: &mut Request| async move { false });
+        router.message.register(
+            TelegramHandler::new(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
+                .filter(|_req: &mut Request| async move { false }),
+        );
 
         let mut router_configured = router.configure_default();
         let response = router_configured
@@ -1632,12 +1648,12 @@ mod tests {
         }
 
         let mut router = Router::new("test_handler_with_filters_and_one_fail");
-        router
-            .message
-            .register(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
-            .filter(|_req: &mut Request| async move { true })
-            .filter(|_req: &mut Request| async move { true })
-            .filter(|_req: &mut Request| async move { false });
+        router.message.register(
+            TelegramHandler::new(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
+                .filter(|_req: &mut Request| async move { true })
+                .filter(|_req: &mut Request| async move { true })
+                .filter(|_req: &mut Request| async move { false }),
+        );
 
         let mut router_configured = router.configure_default();
         let response = router_configured
@@ -1656,12 +1672,14 @@ mod tests {
     fn test_resolve_used_update_types() {
         let mut router = Router::<Reqwest>::new("test");
 
-        router
-            .message
-            .register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
+        router.message.register(TelegramHandler::new(|| async {
+            Ok::<_, Infallible>(EventReturn::Finish)
+        }));
         router
             .edited_message
-            .register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
+            .register(TelegramHandler::new(|| async {
+                Ok::<_, Infallible>(EventReturn::Finish)
+            }));
 
         let update_types = router.resolve_used_update_types();
 
@@ -1671,12 +1689,14 @@ mod tests {
 
         let mut router2 = Router::<Reqwest>::new("test2");
 
-        router2
-            .message
-            .register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
+        router2.message.register(TelegramHandler::new(|| async {
+            Ok::<_, Infallible>(EventReturn::Finish)
+        }));
         router2
             .channel_post
-            .register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
+            .register(TelegramHandler::new(|| async {
+                Ok::<_, Infallible>(EventReturn::Finish)
+            }));
 
         assert_eq!(router2.resolve_used_update_types().len(), 2);
 

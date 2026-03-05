@@ -10,7 +10,11 @@ use std::fmt::Display;
 use axum::Router as AxumRouter;
 use telers::{
     enums::UpdateType,
-    event::{simple, telegram::HandlerResult, EventReturn},
+    event::{
+        simple,
+        telegram::{self, HandlerResult},
+        EventReturn,
+    },
     methods::{CopyMessage, SetWebhook},
     types::Message,
     utils::shutdown_signal,
@@ -67,12 +71,14 @@ async fn main() {
     let bot = Bot::from_env_by_key("BOT_TOKEN");
 
     let mut router = TelersRouter::new("main");
-    router.message.register(echo_handler);
+    router
+        .message
+        .register(telegram::Handler::new(echo_handler));
 
-    router.startup.register(
+    router.startup.register(simple::Handler::new(
         set_webhook,
         (bot.clone(), WEBHOOK_URL, HANDLER_PATH, Some(SECRET_TOKEN)),
-    );
+    ));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

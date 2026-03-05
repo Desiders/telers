@@ -9,8 +9,14 @@
 use rand::Rng;
 
 use telers::{
-    enums::{self, UpdateType},
-    event::{telegram::HandlerResult, EventReturn},
+    enums::{
+        MessageType::{Sticker, Text},
+        UpdateType,
+    },
+    event::{
+        telegram::{Handler, HandlerResult},
+        EventReturn,
+    },
     filters::{Command, MessageType},
     methods::{GetStickerSet, SendMessage, SendSticker},
     types::{InputFile, Message, MessageSticker, MessageText},
@@ -87,24 +93,18 @@ async fn main() {
 
     let mut router = Router::new("main");
 
-    // register handler that sends a greeting message when you use commands `/start` and `/help`
     router
         .message
-        .register(start_handler)
-        .filter(MessageType::one(enums::MessageType::Text))
-        .filter(Command::many(["help", "start"]));
-
-    // register handler that process sent sticker and send random sticker from this sticker set
-    router
-        .message
-        .register(sticker_handler)
-        .filter(MessageType::one(enums::MessageType::Sticker));
-
-    // register handler that handles all non-sticker messages
-    router
-        .message
-        .register(wrong_message_handler)
-        .filter(MessageType::one(enums::MessageType::Sticker).invert());
+        // register handler that sends a greeting message when you use commands `/start` and `/help`
+        .register(
+            Handler::new(start_handler)
+                .filter(MessageType::one(Text))
+                .filter(Command::many(["help", "start"])),
+        )
+        // register handler that process sent sticker and send random sticker from this sticker set
+        .register(Handler::new(sticker_handler).filter(MessageType::one(Sticker)))
+        // register handler that handles all non-sticker messages
+        .register(Handler::new(wrong_message_handler).filter(MessageType::one(Sticker).invert()));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

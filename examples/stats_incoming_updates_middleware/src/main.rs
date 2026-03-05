@@ -16,7 +16,7 @@ use telers::{
     enums::UpdateType,
     errors::EventErrorKind,
     event::{
-        telegram::{HandlerResponse, HandlerResult},
+        telegram::{Handler, HandlerResponse, HandlerResult},
         EventReturn,
     },
     methods::SendMessage,
@@ -109,7 +109,7 @@ async fn main() {
                 .inner_middlewares
                 .register(ProcessedHandlers::default());
         });
-    router.message.register(handler);
+    router.message.register(Handler::new(handler));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

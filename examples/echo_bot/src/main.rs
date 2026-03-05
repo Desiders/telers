@@ -7,7 +7,10 @@
 
 use telers::{
     enums::UpdateType,
-    event::{telegram::HandlerResult, EventReturn},
+    event::{
+        telegram::{Handler, HandlerResult},
+        EventReturn,
+    },
     methods::CopyMessage,
     types::Message,
     Bot, Dispatcher, Router,
@@ -36,7 +39,7 @@ async fn main() {
     let bot = Bot::from_env_by_key("BOT_TOKEN");
 
     let mut router = Router::new("main");
-    router.message.register(echo_handler);
+    router.message.register(Handler::new(echo_handler));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

@@ -14,7 +14,10 @@ use std::future::Future;
 use telers::{
     enums::UpdateType,
     errors::EventErrorKind,
-    event::{telegram::HandlerResult, EventReturn},
+    event::{
+        telegram::{Handler, HandlerResult},
+        EventReturn,
+    },
     filters::Command,
     methods::SendMessage,
     middlewares::outer::MiddlewareResponse,
@@ -90,8 +93,7 @@ async fn main() {
     // Register handler that sends data from extensions to chat
     router
         .message
-        .register(send_data_handler)
-        .filter(Command::one("data"));
+        .register(Handler::new(send_data_handler).filter(Command::one("data")));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

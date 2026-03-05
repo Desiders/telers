@@ -15,7 +15,10 @@ use std::convert::Infallible;
 use telers::{
     enums::UpdateType,
     errors::{ConvertToTypeError, ExtractionError},
-    event::{telegram::HandlerResult, EventReturn},
+    event::{
+        telegram::{Handler, HandlerResult},
+        EventReturn,
+    },
     filters::Command,
     methods::SendMessage,
     types::{Message, Update},
@@ -159,12 +162,8 @@ async fn main() {
     // Register handler that sends extracted data to chat
     router
         .message
-        .register(send_data_handler)
-        .filter(Command::one("data"));
-    router
-        .message
-        .register(update_id_handler)
-        .filter(Command::one("update_id"));
+        .register(Handler::new(send_data_handler).filter(Command::one("data")))
+        .register(Handler::new(update_id_handler).filter(Command::one("update_id")));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

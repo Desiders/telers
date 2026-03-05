@@ -7,7 +7,10 @@
 
 use telers::{
     enums::UpdateType,
-    event::{telegram::HandlerResult, EventReturn},
+    event::{
+        telegram::{Handler, HandlerResult},
+        EventReturn,
+    },
     methods::DeleteWebhook,
     types::Update,
     Bot, Dispatcher, Router,
@@ -30,7 +33,7 @@ async fn main() {
     let bot = Bot::from_env_by_key("BOT_TOKEN");
 
     let mut router = Router::new("main");
-    router.update.register(handler);
+    router.update.register(Handler::new(handler));
 
     bot.send(DeleteWebhook::new().drop_pending_updates(true))
         .await
