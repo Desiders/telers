@@ -108,6 +108,7 @@ where
 {
     /// Check if the handler pass the filters.
     /// If the handler pass all them, it will be called.
+    #[allow(clippy::missing_panics_doc)]
     #[instrument(skip(self, request))]
     pub async fn check(&mut self, mut request: Request<Client>) -> (bool, Request<Client>) {
         for filter in &mut self.filters {

@@ -1546,12 +1546,10 @@ impl NormalizedSchema {
             }
             if applicable.is_empty() {
                 applicable.extend(entity_types);
-            } else {
-                if !field.required {
-                    if !["language", "date_time_format"].contains(&field.name.as_str()) {
-                        field.required = true;
-                    }
-                }
+            } else if !field.required
+                && !["language", "date_time_format"].contains(&field.name.as_str())
+            {
+                field.required = true;
             }
 
             for &entity_type in &applicable {

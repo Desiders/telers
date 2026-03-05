@@ -46,9 +46,9 @@ fn collect_telegram_type_names(kind: &TypeKindInField, out: &mut HashSet<String>
 }
 
 #[must_use]
-fn link_known_type_mentions(doc: String, names: &HashSet<String>) -> String {
+fn link_known_type_mentions(doc: &str, names: &HashSet<String>) -> String {
     let mut out = String::with_capacity(doc.len() + 32);
-    let mut rest = doc.as_str();
+    let mut rest = doc;
 
     while let Some(pos) = rest.find('`') {
         out.push_str(&rest[..pos]);
@@ -111,8 +111,8 @@ fn format_field_doc(description: &str, kind: &TypeKindInField, ctx: &TypeDocCont
     let mut names = HashSet::new();
     collect_telegram_type_names(kind, &mut names);
     let doc = format_attr_description(description);
-    let doc = link_known_type_mentions(doc, &names);
-    normalize_doc_line_prefix(link_schema_type_mentions(doc, ctx))
+    let doc = link_known_type_mentions(&doc, &names);
+    normalize_doc_line_prefix(&link_schema_type_mentions(&doc, ctx))
 }
 
 #[must_use]
@@ -120,17 +120,17 @@ fn format_field_arg_doc(field: &NormalizedField, ctx: &TypeDocContext<'_>) -> St
     let doc = format_attr_description(&format!("* `{}` - {}", field.name, field.description));
     let mut names = HashSet::new();
     collect_telegram_type_names(&field.r#type, &mut names);
-    let doc = link_known_type_mentions(doc, &names);
-    normalize_doc_line_prefix(link_schema_type_mentions(doc, ctx))
+    let doc = link_known_type_mentions(&doc, &names);
+    normalize_doc_line_prefix(&link_schema_type_mentions(&doc, ctx))
 }
 
 #[must_use]
-fn link_schema_type_mentions(doc: String, ctx: &TypeDocContext<'_>) -> String {
+fn link_schema_type_mentions(doc: &str, ctx: &TypeDocContext<'_>) -> String {
     link_known_type_mentions(doc, ctx.schema_type_names)
 }
 
 #[must_use]
-fn normalize_doc_line_prefix(doc: String) -> String {
+fn normalize_doc_line_prefix(doc: &str) -> String {
     format!(" {}", doc.trim_start())
 }
 
@@ -198,7 +198,7 @@ fn tokenize_type_definition(type_quote: &NormalizedType, ctx: &TypeDocContext<'_
     let mut doc_lines = format_description(&type_quote.description, &type_quote.href);
     doc_lines = doc_lines
         .into_iter()
-        .map(|line| link_schema_type_mentions(line, ctx))
+        .map(|line| link_schema_type_mentions(&line, ctx))
         .collect();
     doc_lines = link_prefixed_type_mentions(doc_lines, &type_quote.name);
     for subtype in &type_quote.subtypes {
@@ -1410,6 +1410,7 @@ fn get_helper_impls_for_type(
 }
 
 #[must_use]
+#[allow(clippy::implicit_hasher)]
 pub fn tokenize_type(
     type_quote: &NormalizedType,
     schema: &NormalizedSchema,
@@ -1493,6 +1494,10 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
         //!     let _maybe_text = message.text();
         //! }
         //! ```
+
+        #![allow(clippy::too_many_arguments)]
+        #![allow(clippy::struct_excessive_bools)]
+        #![allow(clippy::large_enum_variant)]
 
         pub(crate) mod non_telegram;
         pub use non_telegram::*;
