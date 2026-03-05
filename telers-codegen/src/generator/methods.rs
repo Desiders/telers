@@ -179,9 +179,9 @@ fn collect_telegram_type_names(kind: &TypeKindInField, out: &mut HashSet<String>
 }
 
 #[must_use]
-fn link_known_type_mentions(doc: String, names: &HashSet<String>) -> String {
+fn link_known_type_mentions(doc: &str, names: &HashSet<String>) -> String {
     let mut out = String::with_capacity(doc.len() + 32);
-    let mut rest = doc.as_str();
+    let mut rest = doc;
 
     while let Some(pos) = rest.find('`') {
         out.push_str(&rest[..pos]);
@@ -246,9 +246,9 @@ fn format_field_doc(
     let mut names = HashSet::new();
     collect_telegram_type_names(kind, &mut names);
     let doc = format_attr_description(description);
-    let doc = link_known_type_mentions(doc, &names);
-    let doc = link_known_method_mentions(doc, ctx);
-    normalize_doc_line_prefix(link_schema_type_mentions(doc, ctx))
+    let doc = link_known_type_mentions(&doc, &names);
+    let doc = link_known_method_mentions(&doc, ctx);
+    normalize_doc_line_prefix(&link_schema_type_mentions(&doc, ctx))
 }
 
 #[must_use]
@@ -261,13 +261,13 @@ fn format_field_arg_doc(
     let doc = format_attr_description(&format!("* `{field_name}` - {description}"));
     let mut names = HashSet::new();
     collect_telegram_type_names(kind, &mut names);
-    let doc = link_known_type_mentions(doc, &names);
-    let doc = link_known_method_mentions(doc, ctx);
-    normalize_doc_line_prefix(link_schema_type_mentions(doc, ctx))
+    let doc = link_known_type_mentions(&doc, &names);
+    let doc = link_known_method_mentions(&doc, ctx);
+    normalize_doc_line_prefix(&link_schema_type_mentions(&doc, ctx))
 }
 
 #[must_use]
-fn link_known_method_mentions(doc: String, ctx: &MethodDocContext<'_>) -> String {
+fn link_known_method_mentions(doc: &str, ctx: &MethodDocContext<'_>) -> String {
     doc.split_whitespace()
         .map(|token| {
             if token.contains("](") || token.starts_with("[`crate::methods::") {
@@ -295,12 +295,12 @@ fn link_known_method_mentions(doc: String, ctx: &MethodDocContext<'_>) -> String
 }
 
 #[must_use]
-fn normalize_doc_line_prefix(doc: String) -> String {
+fn normalize_doc_line_prefix(doc: &str) -> String {
     format!(" {}", doc.trim_start())
 }
 
 #[must_use]
-fn link_schema_type_mentions(doc: String, ctx: &MethodDocContext<'_>) -> String {
+fn link_schema_type_mentions(doc: &str, ctx: &MethodDocContext<'_>) -> String {
     link_known_type_mentions(doc, ctx.schema_type_names)
 }
 
@@ -602,6 +602,7 @@ fn tokenize_telegram_method_impl(method_quote: &NormalizedMethod) -> TokenStream
 }
 
 #[must_use]
+#[allow(clippy::implicit_hasher)]
 pub fn tokenize_method(
     method_quote: &NormalizedMethod,
     known_schema_type_names: &HashSet<String>,
@@ -627,8 +628,8 @@ pub fn tokenize_method(
     doc_lines = doc_lines
         .into_iter()
         .map(|line| {
-            let line = link_known_type_mentions(line, &known_type_names);
-            link_schema_type_mentions(line, &ctx)
+            let line = link_known_type_mentions(&line, &known_type_names);
+            link_schema_type_mentions(&line, &ctx)
         })
         .collect();
     let returns_doc: Vec<_> = if method_quote.returns.is_empty() {

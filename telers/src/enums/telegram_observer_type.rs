@@ -53,6 +53,23 @@ pub enum TelegramObserverType {
     #[strum(serialize = "update")]
     Update,
 }
+macro_rules! with_telegram_observer_variants {
+    ($callback:ident $(, $args:tt)*) => {
+        $callback ! { $($args,)* (BusinessConnection, business_connection),
+        (BusinessMessage, business_message), (CallbackQuery, callback_query),
+        (ChannelPost, channel_post), (ChatBoost, chat_boost), (ChatJoinRequest,
+        chat_join_request), (ChatMember, chat_member), (ChosenInlineResult,
+        chosen_inline_result), (DeletedBusinessMessages, deleted_business_messages),
+        (EditedBusinessMessage, edited_business_message), (EditedChannelPost,
+        edited_channel_post), (EditedMessage, edited_message), (InlineQuery,
+        inline_query), (Message, message), (MessageReaction, message_reaction),
+        (MessageReactionCount, message_reaction_count), (MyChatMember, my_chat_member),
+        (Poll, poll), (PollAnswer, poll_answer), (PreCheckoutQuery, pre_checkout_query),
+        (PurchasedPaidMedia, purchased_paid_media), (RemovedChatBoost,
+        removed_chat_boost), (ShippingQuery, shipping_query), (Update, update), }
+    };
+}
+pub(crate) use with_telegram_observer_variants;
 impl TelegramObserverType {
     #[must_use]
     pub const fn all() -> [TelegramObserverType; 24usize] {

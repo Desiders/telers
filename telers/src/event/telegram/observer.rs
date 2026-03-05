@@ -67,11 +67,8 @@ where
     }
 
     /// Register event handler
-    pub fn register<H>(&mut self, handler: H) -> &mut Self
-    where
-        H: Into<Handler<Client>>,
-    {
-        self.handlers.push(handler.into());
+    pub fn register(&mut self, handler_fn: Handler<Client>) -> &mut Self {
+        self.handlers.push(handler_fn);
         self
     }
 
@@ -79,35 +76,25 @@ where
     /// # Notes
     /// Alias to [`Observer::register`] method
     #[inline]
-    pub fn on<H>(&mut self, handler: H) -> &mut Self
-    where
-        H: Into<Handler<Client>>,
-    {
-        self.register(handler)
+    pub fn on(&mut self, handler_fn: Handler<Client>) -> &mut Self {
+        self.register(handler_fn)
     }
 
     /// Register filter for all handlers in the observer
     /// # Warning
     /// This filter will be applied to all handlers in the observer,
     /// if you want to apply filter to specific handler, use [`HandlerBuilder::filter`] method
-    #[inline]
-    pub fn filter<T>(&mut self, val: T) -> &mut Self
-    where
-        T: Filter<Client>,
-    {
-        let handler = || async move {
-            // This handler never will be called, so we can use `unreachable!` macro
-            unreachable!("This handler never will be used");
-            #[allow(unreachable_code)]
-            Ok::<_, Infallible>(())
-        };
-        match self.common.take() {
-            Some(common) => {
-                self.common = Some(common.filter(val));
-            }
-            None => {
-                self.common = Some(Handler::new(handler).filter(val));
-            }
+    pub fn filter(&mut self, val: impl Filter<Client>) -> &mut Self {
+        if let Some(common) = self.common.take() {
+            self.common = Some(common.filter(val));
+        } else {
+            let handler_fn = || async move {
+                // This handler never will be called, so we can use `unreachable!` macro
+                unreachable!("This handler never will be used");
+                #[allow(unreachable_code)]
+                Ok::<_, Infallible>(())
+            };
+            self.common = Some(Handler::new(handler_fn).filter(val));
         }
         self
     }

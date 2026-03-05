@@ -257,6 +257,7 @@ pub fn tokenize_enum_parse_mode() -> TokenStream {
 }
 
 #[must_use]
+#[allow(clippy::too_many_lines)]
 pub fn tokenize_enum_telegram_observer_type() -> TokenStream {
     let variants = [
         ("BusinessConnection", "business_connection"),
@@ -306,6 +307,15 @@ pub fn tokenize_enum_telegram_observer_type() -> TokenStream {
         })
         .collect();
 
+    let observer_mappings: Box<[_]> = variants
+        .iter()
+        .map(|(name, serialize)| {
+            let variant = format_ident!("{name}");
+            let observer = format_ident!("{serialize}");
+            quote! { (#variant, #observer), }
+        })
+        .collect();
+
     let from_update_type_arms: Box<[_]> = variants
         .iter()
         .filter(|(name, _)| *name != "Update")
@@ -325,6 +335,16 @@ pub fn tokenize_enum_telegram_observer_type() -> TokenStream {
         pub enum TelegramObserverType {
             #( #enum_variants )*
         }
+
+        macro_rules! with_telegram_observer_variants {
+            ($callback:ident $(, $args:tt)*) => {
+                $callback! {
+                    $($args,)*
+                    #( #observer_mappings )*
+                }
+            };
+        }
+        pub(crate) use with_telegram_observer_variants;
 
         impl TelegramObserverType {
             #[must_use]

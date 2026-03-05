@@ -95,11 +95,6 @@ async fn main() {
     let bot = Bot::from_env_by_key("BOT_TOKEN");
 
     let mut router = Router::new("main");
-    // Register outer middleware for update
-    router
-        .update
-        .outer_middlewares
-        .register(IncomingUpdates::default());
     // Register inner middleware for all telegram observers
     router
         .telegram_observers_mut()
@@ -109,6 +104,12 @@ async fn main() {
                 .inner_middlewares
                 .register(ProcessedHandlers::default());
         });
+    // Register outer middleware for update
+    router
+        .update
+        .outer_middlewares
+        .register(IncomingUpdates::default());
+
     router.message.register(Handler::new(handler));
 
     let dispatcher = Dispatcher::builder()

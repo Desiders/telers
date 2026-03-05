@@ -37,6 +37,9 @@
 //!     let _maybe_text = message.text();
 //! }
 //! ```
+#![allow(clippy::too_many_arguments)]
+#![allow(clippy::struct_excessive_bools)]
+#![allow(clippy::large_enum_variant)]
 pub(crate) mod non_telegram;
 pub use non_telegram::*;
 pub mod accepted_gift_types;

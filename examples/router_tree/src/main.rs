@@ -98,22 +98,23 @@ async fn main() {
 
     // This router will handle all private messages
     let mut private_router = Router::new("private");
-    // Register filter for all private messages
-    private_router.message.filter(ChatType::one(Private));
-    // Register handler for private messages, which will send a greeting message
     private_router
         .message
+        // Register filter for all private messages
+        .filter(ChatType::one(Private))
+        // Register handler for private messages, which will send a greeting message
         .register(Handler::new(start_private).filter(Command::one("start")));
 
     // Include private router into main router, so all updates, which are not handled by main router will be passed to private router
     main_router.include(private_router);
 
     let mut echo_router = Router::new("echo");
-    // Register stats middleware for echo router
     echo_router
+        // Register stats middleware for echo router
         .update
         .outer_middlewares
         .register(IncomingEchoRouterUpdates::default());
+
     echo_router
         .message
         // Register handler for stats commands

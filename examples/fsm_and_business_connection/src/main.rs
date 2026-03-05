@@ -186,10 +186,10 @@ async fn main() {
     let mut router = Router::new("main");
 
     // Register fsm middleware for possible managing states and fsm data (e.g. user's name and language for this example)
+    // We use here `Strategy::UserInChatAndConnection` to have different states for business connections and other chats
     router
         .update
         .outer_middlewares
-        // We use here `Strategy::UserInChatAndConnection` to have different states for business connections and other chats
         .register(FSMContextMiddleware::new(storage).strategy(UserInChatAndConnection));
 
     router

@@ -55,7 +55,7 @@ pub struct Handler<Client> {
 
 impl<Client> Handler<Client> {
     #[must_use]
-    pub fn new<H, Args>(handler: H) -> Self
+    pub fn new<H, Args>(handler_fn: H) -> Self
     where
         H: HandlerFn<Args>,
         Args: Extractor<Client> + Send,
@@ -63,7 +63,7 @@ impl<Client> Handler<Client> {
         Client: Send + Sync + 'static,
     {
         Self {
-            service: boxed_handler_factory(handler),
+            service: boxed_handler_factory(handler_fn),
             filters: vec![],
         }
     }

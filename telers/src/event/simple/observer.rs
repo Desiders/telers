@@ -24,11 +24,8 @@ impl Observer {
     }
 
     /// Register event handler
-    pub fn register<H>(&mut self, handler: H) -> &mut Self
-    where
-        H: Into<Handler>,
-    {
-        self.handlers.push(handler.into());
+    pub fn register(&mut self, handler: Handler) -> &mut Self {
+        self.handlers.push(handler);
         self
     }
 
@@ -36,10 +33,7 @@ impl Observer {
     /// # Notes
     /// Alias to [`Observer::register`] method
     #[inline]
-    pub fn on<H>(&mut self, handler: H) -> &mut Self
-    where
-        H: Into<Handler>,
-    {
+    pub fn on(&mut self, handler: Handler) -> &mut Self {
         self.register(handler)
     }
 }
