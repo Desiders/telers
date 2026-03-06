@@ -16,9 +16,9 @@
 //! }
 //! ```
 //!
-//! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
+//! You can run this example by setting `BOT_TOKEN` and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package bot_http_client
+//! BOT_TOKEN={your_bot_token} cargo run --package bot_http_client
 //! ```
 //!
 //! [`Bot::with_client`]: telers::Bot#method.with_client
@@ -35,8 +35,6 @@ use telers::{
     types::Message,
     Bot, Dispatcher, Router,
 };
-use tracing::{event, Level};
-use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 #[derive(Clone)]
 struct CustomClient {
@@ -87,10 +85,7 @@ async fn echo_handler(bot: Bot<impl Session>, message: Message) -> HandlerResult
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    tracing_subscriber::registry()
-        .with(fmt::layer())
-        .with(EnvFilter::from_env("RUST_LOG"))
-        .init();
+    tracing_subscriber::fmt().init();
 
     let token = std::env::var("BOT_TOKEN").expect("BOT_TOKEN env variable is not set!");
     let bot = Bot::with_client(token, CustomClient::default());
@@ -105,7 +100,7 @@ async fn main() {
         .build();
 
     match dispatcher.run_polling().await {
-        Ok(()) => event!(Level::INFO, "Bot stopped"),
-        Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
+        Ok(()) => tracing::info!("Bot stopped"),
+        Err(err) => tracing::error!(error = %err, "Bot stopped"),
     }
 }
