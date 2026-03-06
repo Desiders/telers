@@ -169,23 +169,17 @@ async fn main() {
         .outer_middlewares
         .register(FSMContextMiddleware::new(storage).strategy(UserInChat));
 
-    router
-        .message
-        .register(
-            Handler::new(start_handler::<MemoryStorage>)
-                .filter(Command::one("start"))
-                .filter(StateFilter::none()),
-        )
-        .register(
-            Handler::new(name_handler::<MemoryStorage>)
-                .filter(MessageType::one(Text))
-                .filter(StateFilter::one(State::Name)),
-        )
-        .register(
-            Handler::new(language_handler::<MemoryStorage>)
-                .filter(MessageType::one(Text))
-                .filter(StateFilter::one(State::Language)),
-        );
+    router.message.registers([
+        Handler::new(start_handler::<MemoryStorage>)
+            .filter(Command::one("start"))
+            .filter(StateFilter::none()),
+        Handler::new(name_handler::<MemoryStorage>)
+            .filter(MessageType::one(Text))
+            .filter(StateFilter::one(State::Name)),
+        Handler::new(language_handler::<MemoryStorage>)
+            .filter(MessageType::one(Text))
+            .filter(StateFilter::one(State::Language)),
+    ]);
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

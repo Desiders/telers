@@ -118,8 +118,10 @@ async fn main() {
     echo_router
         .message
         // Register handler for stats commands
-        .register(Handler::new(stats_echo_router).filter(Command::many(["stats", "statistics"])))
-        .register(Handler::new(echo_handler));
+        .registers([
+            Handler::new(stats_echo_router).filter(Command::many(["stats", "statistics"])),
+            Handler::new(echo_handler),
+        ]);
 
     // Include echo router into main router, so all updates, which are not handled by main router or private router will be passed to echo router
     main_router.include(echo_router);

@@ -160,10 +160,10 @@ async fn main() {
     let mut router = Router::new("main");
 
     // Register handler that sends extracted data to chat
-    router
-        .message
-        .register(Handler::new(send_data_handler).filter(Command::one("data")))
-        .register(Handler::new(update_id_handler).filter(Command::one("update_id")));
+    router.message.registers([
+        Handler::new(send_data_handler).filter(Command::one("data")),
+        Handler::new(update_id_handler).filter(Command::one("update_id")),
+    ]);
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

@@ -80,10 +80,18 @@ where
         self.register(handler_fn)
     }
 
+    /// Register multiple event handlers
+    /// # Notes
+    /// If you want to register single handler, use [`Observer::register`] method
+    pub fn registers(&mut self, handlers: impl IntoIterator<Item = Handler<Client>>) -> &mut Self {
+        self.handlers.extend(handlers);
+        self
+    }
+
     /// Register filter for all handlers in the observer
     /// # Warning
     /// This filter will be applied to all handlers in the observer,
-    /// if you want to apply filter to specific handler, use [`HandlerBuilder::filter`] method
+    /// if you want to apply filter to specific handler, use [`Handler::filter`] method
     pub fn filter(&mut self, val: impl Filter<Client>) -> &mut Self {
         if let Some(common) = self.common.take() {
             self.common = Some(common.filter(val));

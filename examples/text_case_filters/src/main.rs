@@ -72,11 +72,11 @@ async fn main() {
     let bot = Bot::from_env_by_key("BOT_TOKEN");
 
     let mut router = Router::new("main");
-    router
-        .message
-        .register(Handler::new(uppercase_handler).filter(UppercaseFilter))
-        .register(Handler::new(lowercase_handler).filter(lowercase_filter))
-        .register(Handler::new(any_case_handler));
+    router.message.registers([
+        Handler::new(uppercase_handler).filter(UppercaseFilter),
+        Handler::new(lowercase_handler).filter(lowercase_filter),
+        Handler::new(any_case_handler),
+    ]);
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

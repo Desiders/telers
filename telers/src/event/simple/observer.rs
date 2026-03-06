@@ -36,6 +36,14 @@ impl Observer {
     pub fn on(&mut self, handler: Handler) -> &mut Self {
         self.register(handler)
     }
+
+    /// Register multiple event handlers
+    /// # Notes
+    /// If you want to register single handler, use [`Observer::register`] method
+    pub fn registers(&mut self, handlers: impl IntoIterator<Item = Handler>) -> &mut Self {
+        self.handlers.extend(handlers);
+        self
+    }
 }
 
 impl Observer {

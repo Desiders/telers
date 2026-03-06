@@ -93,18 +93,16 @@ async fn main() {
 
     let mut router = Router::new("main");
 
-    router
-        .message
+    router.message.registers([
         // register handler that sends a greeting message when you use commands `/start` and `/help`
-        .register(
-            Handler::new(start_handler)
-                .filter(MessageType::one(Text))
-                .filter(Command::many(["help", "start"])),
-        )
+        Handler::new(start_handler)
+            .filter(MessageType::one(Text))
+            .filter(Command::many(["help", "start"])),
         // register handler that process sent sticker and send random sticker from this sticker set
-        .register(Handler::new(sticker_handler).filter(MessageType::one(Sticker)))
+        Handler::new(sticker_handler).filter(MessageType::one(Sticker)),
         // register handler that handles all non-sticker messages
-        .register(Handler::new(wrong_message_handler).filter(MessageType::one(Sticker).invert()));
+        Handler::new(wrong_message_handler).filter(MessageType::one(Sticker).invert()),
+    ]);
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
