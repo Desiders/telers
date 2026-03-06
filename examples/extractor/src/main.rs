@@ -15,10 +15,7 @@ use std::convert::Infallible;
 use telers::{
     enums::UpdateType,
     errors::{ConvertToTypeError, ExtractionError},
-    event::{
-        telegram::{Handler, HandlerResult},
-        EventReturn,
-    },
+    event::telegram::{Handler, HandlerResult},
     filters::Command,
     methods::SendMessage,
     types::{Message, Update},
@@ -70,7 +67,7 @@ async fn update_id_handler(
     bot: Bot,
     UpdateId(update_id): UpdateId,
     update_chat_id: Option<UpdateChatId>,
-) -> HandlerResult {
+) -> HandlerResult<()> {
     match update_chat_id {
         Some(UpdateChatId(chat_id)) => {
             bot.send(SendMessage::new(chat_id, format!("Update id: {update_id}")))
@@ -81,7 +78,7 @@ async fn update_id_handler(
         }
     }
 
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, FromContext)]
@@ -132,7 +129,7 @@ async fn send_data_handler(
     // but we can still use it because extractor is implemented for all extensions
     Extension(BoolData(bool_data)): Extension<BoolData>,
     BotId(bot_id): BotId,
-) -> HandlerResult {
+) -> HandlerResult<()> {
     assert_eq!(num_data1, num_data2);
     assert_eq!(str_data1, str_data2);
 
@@ -144,8 +141,7 @@ async fn send_data_handler(
         ),
     ))
     .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[tokio::main(flavor = "current_thread")]

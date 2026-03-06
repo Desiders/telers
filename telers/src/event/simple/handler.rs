@@ -14,7 +14,7 @@ pub type BoxedCloneHandlerService = BoxCloneService<(), (), HandlerError>;
 pub type HandlerResult = Result<(), HandlerError>;
 
 pub trait HandlerFn<Args>: Clone + Send + Sync + 'static {
-    type Error: Into<anyhow::Error> + Send + Sync + 'static;
+    type Error: Into<anyhow::Error>;
     type Future: Future<Output = Result<(), Self::Error>> + Send;
 
     fn call(&mut self, args: Args) -> Self::Future;
@@ -41,7 +41,7 @@ impl Handler {
     pub fn new_service<S, Args>(service: S, args: Args) -> Self
     where
         S: Service<Args, Response = ()> + Clone + Send + Sync + 'static,
-        S::Error: Into<anyhow::Error> + Send + Sync + 'static,
+        S::Error: Into<anyhow::Error>,
         S::Future: Send,
         Args: Clone + Send + Sync + 'static,
     {
@@ -100,7 +100,7 @@ macro_rules! impl_handlers {
         impl<F, Fut, Err, $($ty,)*> HandlerFn<($($ty,)*)> for F
         where
             F: FnMut($($ty),*) -> Fut + Clone + Send + Sync + 'static,
-            Err: Into<anyhow::Error> + Send + Sync + 'static,
+            Err: Into<anyhow::Error>,
             Fut: Future<Output = Result<(), Err>> + Send,
         {
             type Error = Err;

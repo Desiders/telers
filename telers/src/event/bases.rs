@@ -1,5 +1,4 @@
-use super::telegram::handler::Response;
-
+use super::telegram::response::Response;
 use crate::errors::HandlerError;
 
 use std::fmt::{self, Debug, Display, Formatter};

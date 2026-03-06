@@ -67,7 +67,7 @@ pub mod state;
 pub mod text;
 pub mod user;
 
-pub use base::Filter;
+pub use base::{Filter, FilterResult};
 pub use chat_type::ChatType;
 pub use command::{Builder as CommandBuilder, Command, CommandObject};
 pub use logical::{And, Invert, Or};

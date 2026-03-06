@@ -1,7 +1,7 @@
 use super::base::Filter;
 use crate::{enums, Request};
 
-use std::future::Future;
+use std::{convert::Infallible, future::Future};
 
 #[derive(Debug, Clone)]
 pub struct MessageType<const N: usize> {
@@ -35,12 +35,17 @@ impl<Client, const N: usize> Filter<Client> for MessageType<N>
 where
     Client: Send,
 {
-    fn check(&mut self, request: &mut Request<Client>) -> impl Future<Output = bool> {
+    type Error = Infallible;
+
+    fn check(
+        &mut self,
+        request: &mut Request<Client>,
+    ) -> impl Future<Output = Result<bool, Self::Error>> {
         let res = match request.update.message() {
             Some(message) => self.validate(enums::MessageType::from(message)),
             None => false,
         };
-        async move { res }
+        async move { Ok(res) }
     }
 }
 

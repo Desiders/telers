@@ -19,10 +19,7 @@
 
 use telers::{
     enums::{MessageType::Text, UpdateType},
-    event::{
-        telegram::{Handler, HandlerResult},
-        EventReturn,
-    },
+    event::telegram::{Handler, HandlerResult},
     filters::{Command, MessageType, State as StateFilter},
     fsm::{Context as FSMContext, MemoryStorage, Storage, Strategy::UserInChat},
     methods::SendMessage,
@@ -65,7 +62,7 @@ async fn start_handler<S: Storage>(
     bot: Bot,
     message: Message,
     fsm: FSMContext<S>,
-) -> HandlerResult {
+) -> HandlerResult<()> {
     bot.send(SendMessage::new(
         message.chat().id(),
         "Hello! What's your name?",
@@ -76,15 +73,14 @@ async fn start_handler<S: Storage>(
     // `name_handler` will be called when user will send message,
     // because we set `State::Name` as state and this handler is registered for this state
     fsm.set_state(State::Name).await.map_err(Into::into)?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 async fn name_handler<S: Storage>(
     bot: Bot,
     message: MessageText,
     fsm: FSMContext<S>,
-) -> HandlerResult {
+) -> HandlerResult<()> {
     let name = message.text;
 
     // Save name to FSM storage, because we will need it in `language_handler`
@@ -103,15 +99,14 @@ async fn name_handler<S: Storage>(
         format!("Nice to meet you, {name}! What's your native language?"),
     ))
     .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 async fn language_handler<S: Storage>(
     bot: Bot,
     message: MessageText,
     fsm: FSMContext<S>,
-) -> HandlerResult {
+) -> HandlerResult<()> {
     let language = message.text;
 
     // Get user's name from FSM storage
@@ -145,8 +140,7 @@ async fn language_handler<S: Storage>(
             // fsm.set_state(State::Language).await.map_err(Into::into)?;
         }
     }
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[tokio::main(flavor = "current_thread")]

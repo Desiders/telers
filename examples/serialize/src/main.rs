@@ -8,10 +8,7 @@
 use telers::{
     enums::{ParseMode, UpdateType},
     errors::HandlerError,
-    event::{
-        telegram::{Handler, HandlerResult},
-        EventReturn,
-    },
+    event::telegram::{Handler, HandlerResult},
     methods::SendMessage,
     types::Update,
     utils::text::{html_pre_language, html_quote},
@@ -21,7 +18,7 @@ use telers::{
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
-async fn serialize_handler(bot: Bot, update: Update) -> HandlerResult {
+async fn serialize_handler(bot: Bot, update: Update) -> HandlerResult<()> {
     if let Some(chat) = update.chat() {
         match serde_json::to_string_pretty(&update) {
             Ok(text) => {
@@ -42,8 +39,7 @@ async fn serialize_handler(bot: Bot, update: Update) -> HandlerResult {
             }
         }
     }
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[tokio::main(flavor = "current_thread")]

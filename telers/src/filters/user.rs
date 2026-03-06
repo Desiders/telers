@@ -1,7 +1,7 @@
 use super::base::Filter;
 use crate::{types::User as UserType, Request};
 
-use std::borrow::Cow;
+use std::{borrow::Cow, convert::Infallible};
 
 /// Filter for checking the user.
 /// This filter checks if the user username, first name, last name, language code or ID is equal to one of the specified.
@@ -364,11 +364,13 @@ impl<Client> Filter<Client> for User
 where
     Client: Send + Sync + 'static,
 {
-    async fn check(&mut self, request: &mut Request<Client>) -> bool {
-        match request.update.from() {
+    type Error = Infallible;
+
+    async fn check(&mut self, request: &mut Request<Client>) -> Result<bool, Self::Error> {
+        Ok(match request.update.from() {
             Some(user) => self.validate(user),
             None => false,
-        }
+        })
     }
 }
 

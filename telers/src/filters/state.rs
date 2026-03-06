@@ -1,7 +1,7 @@
 use super::base::Filter;
 use crate::Request;
 
-use std::future::Future;
+use std::{convert::Infallible, future::Future};
 
 #[derive(Clone)]
 pub enum Dummy {}
@@ -84,9 +84,14 @@ impl<Client> Filter<Client> for State<Dummy, 0>
 where
     Client: Send,
 {
-    fn check(&mut self, request: &mut Request<Client>) -> impl Future<Output = bool> + Send {
+    type Error = Infallible;
+
+    fn check(
+        &mut self,
+        request: &mut Request<Client>,
+    ) -> impl Future<Output = Result<bool, Self::Error>> + Send {
         let res = self.validate(request.context.contains_key("fsm_state"));
-        async move { res }
+        async move { Ok(res) }
     }
 }
 
@@ -95,14 +100,19 @@ where
     Client: Send,
     for<'a> S: PartialEq<&'a str> + Clone + Send + Sync + 'static,
 {
-    fn check(&mut self, request: &mut Request<Client>) -> impl Future<Output = bool> + Send {
+    type Error = Infallible;
+
+    fn check(
+        &mut self,
+        request: &mut Request<Client>,
+    ) -> impl Future<Output = Result<bool, Self::Error>> + Send {
         let res = self.validate_eq(
             request
                 .context
                 .get::<Box<str>>("fsm_state")
                 .map(|val| &**val),
         );
-        async move { res }
+        async move { Ok(res) }
     }
 }
 

@@ -156,7 +156,7 @@ impl<Client> Observer<Client> {
         // Check observer filters
         let mut request = match self.common.as_mut() {
             Some(common) => {
-                let (result, request) = common.check(request).await;
+                let (result, request) = common.check(request).await?;
                 if !result {
                     event!(Level::TRACE, "Request are not pass observer filters");
 
@@ -172,7 +172,7 @@ impl<Client> Observer<Client> {
 
         // Check handlers filters
         for handler in &mut self.handlers {
-            let (result, new_request) = handler.check(request).await;
+            let (result, new_request) = handler.check(request).await?;
             request = new_request;
             if !result {
                 continue;
@@ -194,7 +194,7 @@ impl<Client> Observer<Client> {
                     .map_err(EventErrorKind::Extraction),
             }?;
 
-            return match response.handler_result {
+            return match response.result {
                 // If the handler or middleware returns skip, then we should skip it
                 Ok(EventReturn::Skip) => {
                     event!(Level::TRACE, "Handler returns skip");
@@ -367,7 +367,7 @@ mod tests {
 
         // First handler returns error, second handler shouldn't be called
         match response.propagate_result {
-            PropagateEventResult::Handled(response) => match response.handler_result {
+            PropagateEventResult::Handled(response) => match response.result {
                 Err(_) => {}
                 _ => panic!("Unexpected result"),
             },
@@ -399,7 +399,7 @@ mod tests {
 
         // First handler returns `EventReturn::Skip`, so second handler should be called
         match response.propagate_result {
-            PropagateEventResult::Handled(response) => match response.handler_result {
+            PropagateEventResult::Handled(response) => match response.result {
                 Ok(EventReturn::Finish) => {}
                 _ => panic!("Unexpected result"),
             },

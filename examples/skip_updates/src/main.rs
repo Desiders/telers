@@ -7,10 +7,7 @@
 
 use telers::{
     enums::UpdateType,
-    event::{
-        telegram::{Handler, HandlerResult},
-        EventReturn,
-    },
+    event::telegram::{Handler, HandlerResult},
     methods::DeleteWebhook,
     types::Update,
     Bot, Dispatcher, Router,
@@ -18,9 +15,9 @@ use telers::{
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
-async fn handler(update: Update) -> HandlerResult {
+async fn handler(update: Update) -> HandlerResult<()> {
     event!(Level::INFO, ?update, "Received update");
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[tokio::main(flavor = "current_thread")]

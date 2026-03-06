@@ -8,10 +8,7 @@
 
 use telers::{
     enums::{ParseMode, UpdateType},
-    event::{
-        telegram::{Handler, HandlerResult},
-        EventReturn,
-    },
+    event::telegram::{Handler, HandlerResult},
     methods::SendMessage,
     types::Message,
     utils::text::{html_text_link, Builder as TextBuilder, Formatter as _, HTMLFormatter},
@@ -20,7 +17,7 @@ use telers::{
 use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
-async fn handler(bot: Bot, message: Message) -> HandlerResult {
+async fn handler(bot: Bot, message: Message) -> HandlerResult<()> {
     // First way to format text by using formatting directly in the text.
     let text =
         "This is <b>bold</b> text.\nThis is <i>italic</i> text.\nThis is <a href=\"https://example.com\">link</a>.";
@@ -56,8 +53,7 @@ async fn handler(bot: Bot, message: Message) -> HandlerResult {
 
     bot.send(SendMessage::new(message.chat().id(), text).parse_mode(ParseMode::HTML))
         .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[tokio::main(flavor = "current_thread")]

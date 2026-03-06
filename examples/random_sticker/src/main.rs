@@ -7,16 +7,12 @@
 //! ```
 
 use rand::Rng;
-
 use telers::{
     enums::{
         MessageType::{Sticker, Text},
         UpdateType,
     },
-    event::{
-        telegram::{Handler, HandlerResult},
-        EventReturn,
-    },
+    event::telegram::{Handler, HandlerResult},
     filters::{Command, MessageType},
     methods::{GetStickerSet, SendMessage, SendSticker},
     types::{InputFile, Message, MessageSticker, MessageText},
@@ -26,19 +22,18 @@ use tracing::{event, Level};
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 /// This handler send greeting message to chat.
-async fn start_handler(bot: Bot, message: MessageText) -> HandlerResult {
+async fn start_handler(bot: Bot, message: MessageText) -> HandlerResult<()> {
     bot.send(SendMessage::new(
         message.chat.id(),
         "Hello! Send me a sticker, and I'll send you a random sticker from this sticker pack!",
     ))
     .await?;
 
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
-/// This handler get sticker set from sent sticker and send random sticker
-/// from this sticker set.
-async fn sticker_handler(bot: Bot, message: MessageSticker) -> HandlerResult {
+/// This handler get sticker set from sent sticker and send random sticker from this sticker set.
+async fn sticker_handler(bot: Bot, message: MessageSticker) -> HandlerResult<()> {
     // get the the sticker set name of the sent sticker
     let Some(sticker_set_name) = message.sticker.set_name() else {
         // if the sticker does not have the name of the sticker set to which it belongs,
@@ -48,16 +43,13 @@ async fn sticker_handler(bot: Bot, message: MessageSticker) -> HandlerResult {
             "Sorry, but this sticker without sticker set. Try send another sticker.",
         ))
         .await?;
-
-        return Ok(EventReturn::Finish);
+        return Ok(());
     };
 
     // get sticker set using sent sticker set name
     let sticker_set = bot.send(GetStickerSet::new(sticker_set_name)).await?;
-
     // generate a random number no longer than the number of stickers in the sticker set
     let rand_index_of_sticker_set = rand::rng().random_range(0..sticker_set.stickers.len());
-
     // get a sticker by random index in a sticker pack
     let sticker_to_send = &sticker_set.stickers[rand_index_of_sticker_set];
 
@@ -67,19 +59,17 @@ async fn sticker_handler(bot: Bot, message: MessageSticker) -> HandlerResult {
         InputFile::id(sticker_to_send.file_id()),
     ))
     .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 /// This handler process all non-sticker messages
-async fn wrong_message_handler(bot: Bot, message: Message) -> HandlerResult {
+async fn wrong_message_handler(bot: Bot, message: Message) -> HandlerResult<()> {
     bot.send(SendMessage::new(
         message.chat().id(),
         "Please, send me any sticker.",
     ))
     .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[tokio::main(flavor = "current_thread")]

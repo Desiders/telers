@@ -1245,7 +1245,7 @@ mod tests {
 
         // Handler should be called, because it's registered for this event
         match response.propagate_result {
-            PropagateEventResult::Handled(response) => match response.handler_result {
+            PropagateEventResult::Handled(response) => match response.result {
                 Ok(EventReturn::Finish) => {}
                 _ => panic!("Unexpected result"),
             },
@@ -1292,7 +1292,7 @@ mod tests {
 
         // Handler should be called, because it's registered for this event
         match response.propagate_result {
-            PropagateEventResult::Handled(response) => match response.handler_result {
+            PropagateEventResult::Handled(response) => match response.result {
                 Ok(EventReturn::Finish) => {}
                 _ => panic!("Unexpected result"),
             },
@@ -1317,7 +1317,7 @@ mod tests {
         // Handler should be called, because it's registered for this event.
         // First handler skipped, so second handler should be called.
         match response.propagate_result {
-            PropagateEventResult::Handled(response) => match response.handler_result {
+            PropagateEventResult::Handled(response) => match response.result {
                 Ok(EventReturn::Finish) => {}
                 _ => panic!("Unexpected result"),
             },
@@ -1359,7 +1359,7 @@ mod tests {
         let mut router = Router::new("test_handler_with_filter");
         router.message.register(
             TelegramHandler::new(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
-                .filter(|_req: &mut Request| async move { true }),
+                .filter(|_req: &mut Request| async move { Ok::<_, Infallible>(true) }),
         );
 
         let mut router_configured = router.configure_default();
@@ -1370,7 +1370,7 @@ mod tests {
 
         // Handler should be called, because filter returns `true`
         match response.propagate_result {
-            PropagateEventResult::Handled(response) => match response.handler_result {
+            PropagateEventResult::Handled(response) => match response.result {
                 Ok(EventReturn::Finish) => {}
                 _ => panic!("Unexpected result"),
             },
@@ -1380,7 +1380,7 @@ mod tests {
         let mut router = Router::new("test_handler_with_fail_filter");
         router.message.register(
             TelegramHandler::new(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
-                .filter(|_req: &mut Request| async move { false }),
+                .filter(|_req: &mut Request| async move { Ok::<_, Infallible>(false) }),
         );
 
         let mut router_configured = router.configure_default();
@@ -1398,9 +1398,9 @@ mod tests {
         let mut router = Router::new("test_handler_with_filters_and_one_fail");
         router.message.register(
             TelegramHandler::new(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
-                .filter(|_req: &mut Request| async move { true })
-                .filter(|_req: &mut Request| async move { true })
-                .filter(|_req: &mut Request| async move { false }),
+                .filter(|_req: &mut Request| async move { Ok::<_, Infallible>(true) })
+                .filter(|_req: &mut Request| async move { Ok::<_, Infallible>(true) })
+                .filter(|_req: &mut Request| async move { Ok::<_, Infallible>(false) }),
         );
 
         let mut router_configured = router.configure_default();

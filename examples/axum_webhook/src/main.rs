@@ -13,7 +13,6 @@ use telers::{
     event::{
         simple,
         telegram::{self, HandlerResult},
-        EventReturn,
     },
     methods::{CopyMessage, SetWebhook},
     types::Message,
@@ -34,15 +33,14 @@ const WEBHOOK_URL: &str = "https://example.com";
 const HANDLER_PATH: &str = "/";
 const SECRET_TOKEN: &str = "123";
 
-async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
+async fn echo_handler(bot: Bot, message: Message) -> HandlerResult<()> {
     bot.send(CopyMessage::new(
         message.chat().id(),
         message.chat().id(),
         message.message_id(),
     ))
     .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 async fn set_webhook(
@@ -57,7 +55,6 @@ async fn set_webhook(
             .secret_token_option(secret_token),
     )
     .await?;
-
     Ok(())
 }
 

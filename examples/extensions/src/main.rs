@@ -10,7 +10,7 @@
 //! [`Extensions`]: telers::Extensions
 //! [`extensions module`]: telers::extensions
 
-use std::future::Future;
+use std::{convert::Infallible, future::Future};
 use telers::{
     enums::UpdateType,
     errors::EventErrorKind,
@@ -44,9 +44,9 @@ async fn to_extensions_middleware(
     Ok((request, EventReturn::default()))
 }
 
-fn to_extensions_filter(request: &mut Request) -> impl Future<Output = bool> {
+fn to_extensions_filter(request: &mut Request) -> impl Future<Output = Result<bool, Infallible>> {
     request.extensions.insert(StrData("1"));
-    async move { true }
+    async move { Ok(true) }
 }
 
 async fn send_data_handler(
@@ -58,7 +58,7 @@ async fn send_data_handler(
     Extension(_): Extension<EmptyData>,
     // You can use extensions by yourself to extract data
     extensions: Extensions,
-) -> HandlerResult {
+) -> HandlerResult<()> {
     assert_eq!(num_data, extensions.get::<NumData>().unwrap().clone());
     assert_eq!(str_data, extensions.get::<StrData>().unwrap().clone());
 
@@ -67,8 +67,7 @@ async fn send_data_handler(
         format!("NumData: {:?}. StrData: {:?}", num_data.0, str_data.0),
     ))
     .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[tokio::main(flavor = "current_thread")]
