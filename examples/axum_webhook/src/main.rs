@@ -1,8 +1,8 @@
 //! This example shows how to setup webhooks for a bot using `axum` server.
 //!
-//! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
+//! You can run this example by setting `BOT_TOKEN` and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package axum_webhook
+//! BOT_TOKEN={your_bot_token} cargo run --package axum_webhook
 //! ```
 
 use std::fmt::Display;
@@ -25,7 +25,6 @@ use tokio::{
     net::TcpListener,
     sync::broadcast::{channel, Receiver, Sender},
 };
-use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 const SERVER_HOST: &str = "0.0.0.0";
 const SERVER_PORT: u16 = 3000;
@@ -63,14 +62,12 @@ async fn set_webhook(
 
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {
-    tracing_subscriber::registry()
-        .with(fmt::layer())
-        .with(EnvFilter::from_env("RUST_LOG"))
-        .init();
+    tracing_subscriber::fmt().init();
 
-    let bot = Bot::from_env_by_key("BOT_TOKEN");
+    let bot = Bot::from_env();
 
     let mut router = TelersRouter::new("main");
+
     router
         .message
         .register(telegram::Handler::new(echo_handler));
@@ -103,6 +100,7 @@ async fn run_server(app: AxumRouter, mut shutdown_rx: Receiver<()>) {
     let listener = TcpListener::bind(format!("{SERVER_HOST}:{SERVER_PORT}"))
         .await
         .unwrap();
+
     axum::serve(listener, app)
         .with_graceful_shutdown(async move {
             let _ = shutdown_rx.recv().await;

@@ -4,9 +4,9 @@
 //! When update is received, it is passed to the main router, which will pass it to the first child router, which can handle this update.
 //! If child router can't handle this update, it will pass it to the next child router, and so on.
 //!
-//! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
+//! You can run this example by setting `BOT_TOKEN` and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package router_tree
+//! BOT_TOKEN={your_bot_token} cargo run --package router_tree
 //! ```
 
 use std::sync::{
@@ -26,8 +26,6 @@ use telers::{
     types::Message,
     Bot, Context, Dispatcher, Request, Router,
 };
-use tracing::{event, Level};
-use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 /// This middleware will count all incoming updates, which are handled by echo router.
 #[derive(Default, Clone)]
@@ -37,7 +35,7 @@ struct IncomingEchoRouterUpdates {
 
 impl OuterMiddleware for IncomingEchoRouterUpdates {
     async fn call(&mut self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
-        event!(Level::INFO, "Incoming echo router update");
+        tracing::info!("Incoming echo router update");
 
         self.counter.fetch_add(1, Ordering::SeqCst);
 
@@ -87,12 +85,9 @@ async fn stats_echo_router(bot: Bot, message: Message, context: Context) -> Hand
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    tracing_subscriber::registry()
-        .with(fmt::layer())
-        .with(EnvFilter::from_env("RUST_LOG"))
-        .init();
+    tracing_subscriber::fmt().init();
 
-    let bot = Bot::from_env_by_key("BOT_TOKEN");
+    let bot = Bot::from_env();
 
     let mut main_router = Router::new("main");
 
@@ -133,7 +128,7 @@ async fn main() {
         .build();
 
     match dispatcher.run_polling().await {
-        Ok(()) => event!(Level::INFO, "Bot stopped"),
-        Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
+        Ok(()) => tracing::info!("Bot stopped"),
+        Err(err) => tracing::error!(error = %err, "Bot stopped"),
     }
 }
