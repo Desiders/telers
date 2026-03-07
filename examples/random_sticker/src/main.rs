@@ -1,9 +1,9 @@
 //! This example shows how to use the `Stickers` and `StickerSet`
 //! types and how to use the Telegram bot API methods for processing stickers.
 //!
-//! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
+//! You can run this example by setting `BOT_TOKEN` and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package random_sticker
+//! BOT_TOKEN={your_bot_token} cargo run --package random_sticker
 //! ```
 
 use rand::Rng;
@@ -18,8 +18,6 @@ use telers::{
     types::{InputFile, Message, MessageSticker, MessageText},
     Bot, Dispatcher, Filter, Router,
 };
-use tracing::{event, Level};
-use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 /// This handler send greeting message to chat.
 async fn start_handler(bot: Bot, message: MessageText) -> HandlerResult<()> {
@@ -74,12 +72,9 @@ async fn wrong_message_handler(bot: Bot, message: Message) -> HandlerResult<()> 
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    tracing_subscriber::registry()
-        .with(fmt::layer())
-        .with(EnvFilter::from_env("RUST_LOG"))
-        .init();
+    tracing_subscriber::fmt().init();
 
-    let bot = Bot::from_env_by_key("BOT_TOKEN");
+    let bot = Bot::from_env();
 
     let mut router = Router::new("main");
 
@@ -101,7 +96,7 @@ async fn main() {
         .build();
 
     match dispatcher.run_polling().await {
-        Ok(()) => event!(Level::INFO, "Bot stopped"),
-        Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
+        Ok(()) => tracing::info!("Bot stopped"),
+        Err(err) => tracing::error!(error = %err, "Bot stopped"),
     }
 }

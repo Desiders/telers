@@ -1,9 +1,9 @@
 //! This example shows how to create text case filters.
 //! First filter checks if the message is uppercase, second filter checks if the message is lowercase.
 //!
-//! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
+//! You can run this example by setting `BOT_TOKEN` and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package text_case_filters
+//! BOT_TOKEN={your_bot_token} cargo run --package text_case_filters
 //! ```
 
 use std::{convert::Infallible, future::Future};
@@ -14,8 +14,6 @@ use telers::{
     types::MessageText,
     Bot, Dispatcher, Filter, Request, Router,
 };
-use tracing::{event, Level};
-use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 #[derive(Clone)]
 struct UppercaseFilter;
@@ -59,12 +57,9 @@ async fn any_case_handler(bot: Bot, message: MessageText) -> HandlerResult<()> {
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    tracing_subscriber::registry()
-        .with(fmt::layer())
-        .with(EnvFilter::from_env("RUST_LOG"))
-        .init();
+    tracing_subscriber::fmt().init();
 
-    let bot = Bot::from_env_by_key("BOT_TOKEN");
+    let bot = Bot::from_env();
 
     let mut router = Router::new("main");
     router.message.registers([
@@ -80,7 +75,7 @@ async fn main() {
         .build();
 
     match dispatcher.run_polling().await {
-        Ok(()) => event!(Level::INFO, "Bot stopped"),
-        Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
+        Ok(()) => tracing::info!("Bot stopped"),
+        Err(err) => tracing::error!(error = %err, "Bot stopped"),
     }
 }

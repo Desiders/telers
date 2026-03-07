@@ -1,9 +1,9 @@
 //! This example shows how to format text sending by the bot.
 //! In this example we use HTML formatting, but you can use Markdown formatting too, but you can't use both formatting in one message.
 //!
-//! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
+//! You can run this example by setting `BOT_TOKEN` and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package text_formatting
+//! BOT_TOKEN={your_bot_token} cargo run --package text_formatting
 //! ```
 
 use telers::{
@@ -14,8 +14,6 @@ use telers::{
     utils::text::{html_text_link, Builder as TextBuilder, Formatter as _, HTMLFormatter},
     Bot, Dispatcher, Router,
 };
-use tracing::{event, Level};
-use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 async fn handler(bot: Bot, message: Message) -> HandlerResult<()> {
     // First way to format text by using formatting directly in the text.
@@ -35,6 +33,7 @@ async fn handler(bot: Bot, message: Message) -> HandlerResult<()> {
         .text(" text.\nThis is ")
         .text_link("link", "https://example.com")
         .text(".");
+
     let text = text_builder.get_text();
 
     bot.send(SendMessage::new(message.chat().id(), text).parse_mode(ParseMode::HTML))
@@ -58,12 +57,9 @@ async fn handler(bot: Bot, message: Message) -> HandlerResult<()> {
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    tracing_subscriber::registry()
-        .with(fmt::layer())
-        .with(EnvFilter::from_env("RUST_LOG"))
-        .init();
+    tracing_subscriber::fmt().init();
 
-    let bot = Bot::from_env_by_key("BOT_TOKEN");
+    let bot = Bot::from_env();
 
     let mut router = Router::new("main");
     router.message.register(Handler::new(handler));
@@ -75,7 +71,7 @@ async fn main() {
         .build();
 
     match dispatcher.run_polling().await {
-        Ok(()) => event!(Level::INFO, "Bot stopped"),
-        Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
+        Ok(()) => tracing::info!("Bot stopped"),
+        Err(err) => tracing::error!(error = %err, "Bot stopped"),
     }
 }

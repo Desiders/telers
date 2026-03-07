@@ -1,9 +1,9 @@
 //! This example shows how to use [`Extractor`] to extract data and use it in handlers.
 //! Check out the documentation of the [`extractor module`] for more information
 //!
-//! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
+//! You can run this example by setting `BOT_TOKEN` and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package extractor
+//! BOT_TOKEN={your_bot_token} cargo run --package extractor
 //! ```
 //!
 //! [`Extractor`]: telers::Extractor
@@ -21,8 +21,6 @@ use telers::{
     types::{Message, Update},
     Bot, Context, Dispatcher, Extension, Extractor, FromContext, FromEvent, Request, Router,
 };
-use tracing::{event, Level};
-use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 /// Implementing [`Extractor`] by [`FromEvent`] macros to use struct in handlers.
 /// # Notes
@@ -51,9 +49,8 @@ impl From<Update> for UpdateId {
 struct UpdateChatId(i64);
 
 impl TryFrom<Update> for UpdateChatId {
-    type Error = ConvertToTypeError;
-
     // You can use your own error type here
+    type Error = ConvertToTypeError;
 
     fn try_from(update: Update) -> Result<Self, Self::Error> {
         match update.chat() {
@@ -74,7 +71,7 @@ async fn update_id_handler(
                 .await?;
         }
         None => {
-            event!(Level::WARN, "Update doesn't contain chat id");
+            tracing::warn!("Update doesn't contain chat id");
         }
     }
 
@@ -146,12 +143,9 @@ async fn send_data_handler(
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    tracing_subscriber::registry()
-        .with(fmt::layer())
-        .with(EnvFilter::from_env("RUST_LOG"))
-        .init();
+    tracing_subscriber::fmt().init();
 
-    let bot = Bot::from_env_by_key("BOT_TOKEN");
+    let bot = Bot::from_env();
 
     let mut router = Router::new("main");
 
@@ -175,7 +169,7 @@ async fn main() {
         .build();
 
     match dispatcher.run_polling().await {
-        Ok(()) => event!(Level::INFO, "Bot stopped"),
-        Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
+        Ok(()) => tracing::info!("Bot stopped"),
+        Err(err) => tracing::error!(error = %err, "Bot stopped"),
     }
 }

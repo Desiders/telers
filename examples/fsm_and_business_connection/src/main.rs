@@ -12,23 +12,24 @@
 //!
 //! More information about FSM you can find in [`telers::fsm`] and [`FSMContextMiddleware`] documentation.
 //!
-//! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
+//! You can run this example by setting `BOT_TOKEN` and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package fsm_and_business_connection
+//! BOT_TOKEN={your_bot_token} cargo run --package fsm_and_business_connection
 //! ```
 
 use telers::{
     enums::{MessageType::Text, UpdateType},
     event::telegram::{Handler, HandlerResult},
     filters::{Command, MessageType, State as StateFilter},
-    fsm::{Context as FSMContext, MemoryStorage, Storage, Strategy::UserInChatAndConnection},
+    fsm::{Context as FSMContext, MemoryStorage, Strategy::UserInChatAndConnection},
     methods::SendMessage,
     middlewares::outer::FSMContext as FSMContextMiddleware,
     types::{Message, MessageText},
     Bot, Dispatcher, Router,
 };
-use tracing::{event, Level};
-use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
+
+/// Shorthand for the FSM context with in-memory storage. Replace `MemoryStorage` with your own `Storage` impl if needed.
+type FSM = FSMContext<MemoryStorage>;
 
 /// State of conversation.
 ///
@@ -61,11 +62,7 @@ impl PartialEq<&str> for State {
     }
 }
 
-async fn start_handler<S: Storage>(
-    bot: Bot,
-    message: Message,
-    fsm: FSMContext<S>,
-) -> HandlerResult<()> {
+async fn start_handler(bot: Bot, message: Message, fsm: FSM) -> HandlerResult<()> {
     bot.send(
         SendMessage::new(message.chat().id(), "Hello! What's your name?").business_connection_id(
             message.business_connection_id().expect(
@@ -79,23 +76,17 @@ async fn start_handler<S: Storage>(
     // We set state to `State::Name` to point that we are waiting for user's name.
     // `name_handler` will be called when user will send message,
     // because we set `State::Name` as state and this handler is registered for this state
-    fsm.set_state(State::Name).await.map_err(Into::into)?;
+    fsm.set_state(State::Name).await?;
     Ok(())
 }
 
-async fn name_handler<S: Storage>(
-    bot: Bot,
-    message: MessageText,
-    fsm: FSMContext<S>,
-) -> HandlerResult<()> {
+async fn name_handler(bot: Bot, message: MessageText, fsm: FSM) -> HandlerResult<()> {
     let name = message.text;
 
     // Save name to FSM storage, because we will need it in `language_handler`
-    fsm.set_value("name", name.clone())
-        .await
-        .map_err(Into::into)?;
+    fsm.set_value("name", name.clone()).await?;
     // Set state to `State::Language` to point that we are waiting for user's language
-    fsm.set_state(State::Language).await.map_err(Into::into)?;
+    fsm.set_state(State::Language).await?;
 
     // Usually state and data set to FSM storage before sending message to user,
     // because we want to be sure that we will receive message from user in the same state
@@ -115,20 +106,12 @@ async fn name_handler<S: Storage>(
     Ok(())
 }
 
-async fn language_handler<S: Storage>(
-    bot: Bot,
-    message: MessageText,
-    fsm: FSMContext<S>,
-) -> HandlerResult<()> {
+async fn language_handler(bot: Bot, message: MessageText, fsm: FSM) -> HandlerResult<()> {
     let language = message.text;
 
     // Get user's name from FSM storage
     // TODO: Add validation, e.g. check that name isn't empty
-    let name: Box<str> = fsm
-        .get_value("name")
-        .await
-        .map_err(Into::into)?
-        .expect("Name should be set");
+    let name: Box<str> = fsm.get_value("name").await?.expect("Name should be set");
 
     // Check if user's language is acceptable
     match language.to_lowercase().as_str() {
@@ -143,7 +126,7 @@ async fn language_handler<S: Storage>(
             .await?;
 
             // Remove state and data from FSM storage, because we don't need them anymore
-            fsm.finish().await.map_err(Into::into)?;
+            fsm.finish().await?;
         }
         _ => {
             bot.send(
@@ -159,7 +142,7 @@ async fn language_handler<S: Storage>(
             .await?;
 
             // We don't need this, because `State::Language` is already set and doesn't change automatically
-            // fsm.set_state(State::Language).await.map_err(Into::into)?;
+            // fsm.set_state(State::Language).await?;
         }
     }
     Ok(())
@@ -167,12 +150,9 @@ async fn language_handler<S: Storage>(
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    tracing_subscriber::registry()
-        .with(fmt::layer())
-        .with(EnvFilter::from_env("RUST_LOG"))
-        .init();
+    tracing_subscriber::fmt().init();
 
-    let bot = Bot::from_env_by_key("BOT_TOKEN");
+    let bot = Bot::from_env();
 
     // You can use any storage, which implements `Storage` trait
     let storage = MemoryStorage::new();
@@ -187,13 +167,13 @@ async fn main() {
         .register(FSMContextMiddleware::new(storage).strategy(UserInChatAndConnection));
 
     router.business_message.registers([
-        Handler::new(start_handler::<MemoryStorage>)
+        Handler::new(start_handler)
             .filter(Command::one("start"))
             .filter(StateFilter::none()),
-        Handler::new(name_handler::<MemoryStorage>)
+        Handler::new(name_handler)
             .filter(MessageType::one(Text))
             .filter(StateFilter::one(State::Name)),
-        Handler::new(language_handler::<MemoryStorage>)
+        Handler::new(language_handler)
             .filter(MessageType::one(Text))
             .filter(StateFilter::one(State::Language)),
     ]);
@@ -205,7 +185,7 @@ async fn main() {
         .build();
 
     match dispatcher.run_polling().await {
-        Ok(()) => event!(Level::INFO, "Bot stopped"),
-        Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
+        Ok(()) => tracing::info!("Bot stopped"),
+        Err(err) => tracing::error!(error = %err, "Bot stopped"),
     }
 }
