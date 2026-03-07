@@ -43,20 +43,11 @@ async fn main() {
 
     let bot = Bot::from_env();
 
-    let mut router = Router::new("main");
-    router
-        .business_connection
-        .register(Handler::new(connection));
-
-    router.business_message.register(Handler::new(message));
-
-    router
-        .edited_business_message
-        .register(Handler::new(message_edited));
-
-    router
-        .deleted_business_messages
-        .register(Handler::new(messages_deleted));
+    let router = Router::new("main")
+        .on_business_connection(|observer| observer.register(Handler::new(connection)))
+        .on_business_message(|observer| observer.register(Handler::new(message)))
+        .on_edited_business_message(|observer| observer.register(Handler::new(message_edited)))
+        .on_deleted_business_messages(|observer| observer.register(Handler::new(messages_deleted)));
 
     let dispatcher = Dispatcher::builder()
         .allowed_updates(router.resolve_used_update_types())

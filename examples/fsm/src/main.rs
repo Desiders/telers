@@ -5,7 +5,7 @@
 //! finish conversation.
 //!
 //! In this example we will use [`MemoryStorage`] as storage for [`FSMContextMiddleware`], but you can use any storage,
-//! which implements [`Storage`] trait.
+//! which implements `Storage` trait.
 //! This storage isn't recommended for production use, because it doesn't persist data between restarts, but it's
 //! useful for testing and example purposes and easy to use.
 //! We the same use [`StateFilter`] to filter states and call handlers only when state is equal to some value.
@@ -29,12 +29,12 @@ use telers::{
 };
 
 /// Shorthand for the FSM context with in-memory storage. Replace `MemoryStorage` with your own `Storage` impl if needed.
-type FSM = FSMContext<MemoryStorage>;
+type Fsm = FSMContext<MemoryStorage>;
 
 /// State of conversation.
 ///
-/// We use it to determine what we should ask user next and implement [`From<State>`] for [`Cow<'static, str>`]
-/// for possible save this state in [`Storage`].
+/// We use it to determine what we should ask user next and implement [`From<State>`] for [`str`]
+/// for possible save this state in `Storage`.
 /// We also implement [`PartialEq<&str>`] for comparing states with other in [`StateFilter`].
 #[derive(Clone)]
 enum State {
@@ -59,7 +59,7 @@ impl PartialEq<&str> for State {
     }
 }
 
-async fn start_handler(bot: Bot, message: Message, fsm: FSM) -> HandlerResult<()> {
+async fn start_handler(bot: Bot, message: Message, fsm: Fsm) -> HandlerResult<()> {
     bot.send(SendMessage::new(
         message.chat().id(),
         "Hello! What's your name?",
@@ -74,7 +74,7 @@ async fn start_handler(bot: Bot, message: Message, fsm: FSM) -> HandlerResult<()
     Ok(())
 }
 
-async fn name_handler(bot: Bot, message: MessageText, fsm: FSM) -> HandlerResult<()> {
+async fn name_handler(bot: Bot, message: MessageText, fsm: Fsm) -> HandlerResult<()> {
     let name = message.text;
 
     // Save name to FSM storage, because we will need it in `language_handler`
@@ -95,7 +95,7 @@ async fn name_handler(bot: Bot, message: MessageText, fsm: FSM) -> HandlerResult
     Ok(())
 }
 
-async fn language_handler(bot: Bot, message: MessageText, fsm: FSM) -> HandlerResult<()> {
+async fn language_handler(bot: Bot, message: MessageText, fsm: Fsm) -> HandlerResult<()> {
     let language = message.text;
 
     // Get user's name from FSM storage
@@ -137,25 +137,25 @@ async fn main() {
     // You can use any storage, which implements `Storage` trait
     let storage = MemoryStorage::new();
 
-    let mut router = Router::new("main");
-
-    // Register fsm middleware for possible managing states and fsm data (e.g. user's name and language for this example)
-    router
-        .update
-        .outer_middlewares
-        .register(FSMContextMiddleware::new(storage).strategy(UserInChat));
-
-    router.message.registers([
-        Handler::new(start_handler)
-            .filter(Command::one("start"))
-            .filter(StateFilter::none()),
-        Handler::new(name_handler)
-            .filter(MessageType::one(Text))
-            .filter(StateFilter::one(State::Name)),
-        Handler::new(language_handler)
-            .filter(MessageType::one(Text))
-            .filter(StateFilter::one(State::Language)),
-    ]);
+    let router = Router::new("main")
+        // Register fsm middleware for possible managing states and fsm data (e.g. user's name and language for this example)
+        .on_update(|observer| {
+            observer
+                .register_outer_middleware(FSMContextMiddleware::new(storage).strategy(UserInChat))
+        })
+        .on_message(|observer| {
+            observer.registers([
+                Handler::new(start_handler)
+                    .filter(Command::one("start"))
+                    .filter(StateFilter::none()),
+                Handler::new(name_handler)
+                    .filter(MessageType::one(Text))
+                    .filter(StateFilter::one(State::Name)),
+                Handler::new(language_handler)
+                    .filter(MessageType::one(Text))
+                    .filter(StateFilter::one(State::Language)),
+            ])
+        });
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

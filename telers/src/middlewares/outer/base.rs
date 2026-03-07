@@ -54,12 +54,11 @@ where
     }
 }
 
-pub(crate) fn boxed_middleware_factory<Client, M>(
-    middleware: M,
+pub(crate) fn boxed_middleware_factory<Client>(
+    middleware: impl Middleware<Client>,
 ) -> BoxedCloneMiddlewareService<Client>
 where
     Client: Send + Sync + 'static,
-    M: Middleware<Client>,
 {
     BoxCloneService::new(service_fn(move |request| {
         let mut middleware = middleware.clone();

@@ -66,6 +66,7 @@ bytes = { version = "1.5", default-features = false }
 takecell = { version = "0.1", default-features = false }
 pathdiff = { version = "0.2", default-features = false }
 uuid = { version = "1.7", default-features = false, features = ["v4"] }
+paste = { version = "1.0", default-features = false }
 
 redis = { version = "1.0", default-features = false, features = ["tokio-comp"], optional = true }
 deadpool-redis = { version = "0.23", default-features = false, features = ["rt_tokio_1"], optional = true }

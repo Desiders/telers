@@ -114,18 +114,10 @@ async fn main() {
 
     let bot = Bot::from_env();
 
-    let mut router = Router::new("main");
-    router
-        .message
-        .register(telegram::Handler::new(input_file_handler));
-
-    router
-        .startup
-        .register(simple::Handler::new(on_startup, ()));
-
-    router
-        .shutdown
-        .register(simple::Handler::new(on_shutdown, ()));
+    let router = Router::new("main")
+        .on_message(|observer| observer.register(telegram::Handler::new(input_file_handler)))
+        .on_startup(|observer| observer.register(simple::Handler::new(on_startup, ())))
+        .on_shutdown(|observer| observer.register(simple::Handler::new(on_shutdown, ())));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

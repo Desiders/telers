@@ -9,12 +9,11 @@ use std::fmt::{self, Debug, Formatter};
 /// Is used for managing events isn't related with Telegram (For example startup/shutdown events)
 #[derive(Clone)]
 pub struct Observer {
-    pub event_name: &'static str,
-    handlers: Vec<Handler>,
+    pub(crate) event_name: &'static str,
+    pub(crate) handlers: Vec<Handler>,
 }
 
 impl Observer {
-    #[inline]
     #[must_use]
     pub const fn new(event_name: &'static str) -> Self {
         Self {
@@ -24,7 +23,8 @@ impl Observer {
     }
 
     /// Register event handler
-    pub fn register(&mut self, handler: Handler) -> &mut Self {
+    #[must_use]
+    pub fn register(mut self, handler: Handler) -> Self {
         self.handlers.push(handler);
         self
     }
@@ -33,14 +33,16 @@ impl Observer {
     /// # Notes
     /// Alias to [`Observer::register`] method
     #[inline]
-    pub fn on(&mut self, handler: Handler) -> &mut Self {
+    #[must_use]
+    pub fn on(self, handler: Handler) -> Self {
         self.register(handler)
     }
 
     /// Register multiple event handlers
     /// # Notes
     /// If you want to register single handler, use [`Observer::register`] method
-    pub fn registers(&mut self, handlers: impl IntoIterator<Item = Handler>) -> &mut Self {
+    #[must_use]
+    pub fn registers(mut self, handlers: impl IntoIterator<Item = Handler>) -> Self {
         self.handlers.extend(handlers);
         self
     }
@@ -49,8 +51,8 @@ impl Observer {
 impl Observer {
     #[inline]
     #[must_use]
-    pub fn handlers(&self) -> &[Handler] {
-        &self.handlers
+    pub fn handlers_len(&self) -> usize {
+        self.handlers.len()
     }
 }
 
@@ -68,13 +70,8 @@ impl Debug for Observer {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Observer")
             .field("event_name", &self.event_name)
+            .field("handlers", &self.handlers.len())
             .finish_non_exhaustive()
-    }
-}
-
-impl AsRef<Observer> for Observer {
-    fn as_ref(&self) -> &Self {
-        self
     }
 }
 
@@ -101,10 +98,11 @@ mod tests {
         }
 
         let mut startup_observer = Observer::new("startup");
-        startup_observer.register(Handler::new(on_startup, ("Hello, world!",)));
+        startup_observer = startup_observer.register(Handler::new(on_startup, ("Hello, world!",)));
 
         let mut shutdown_observer = Observer::new("shutdown");
-        shutdown_observer.register(Handler::new(on_shutdown, ("Goodbye, world!",)));
+        shutdown_observer =
+            shutdown_observer.register(Handler::new(on_shutdown, ("Goodbye, world!",)));
 
         startup_observer.trigger(()).await.unwrap();
         shutdown_observer.trigger(()).await.unwrap();
@@ -125,10 +123,11 @@ mod tests {
         }
 
         let mut startup_observer = Observer::new("startup");
-        startup_observer.register(Handler::new(on_startup, ("Hello, world!",)));
+        startup_observer = startup_observer.register(Handler::new(on_startup, ("Hello, world!",)));
 
         let mut shutdown_observer = Observer::new("shutdown");
-        shutdown_observer.register(Handler::new(on_shutdown, ("Goodbye, world!",)));
+        shutdown_observer =
+            shutdown_observer.register(Handler::new(on_shutdown, ("Goodbye, world!",)));
 
         assert!(
             startup_observer.trigger(()).await.is_err()

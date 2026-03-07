@@ -74,18 +74,16 @@ async fn main() {
 
     let bot = Bot::from_env();
 
-    let mut router = Router::new("main");
-
-    router
-        .message
-        .filter(to_extensions_filter)
-        // Register handler that sends data from extensions to chat
-        .register(Handler::new(send_data_handler).filter(Command::one("data")))
-        .outer_middlewares
-        // Register middleware that adds data to extensions.
-        // Be aware, we register middleware for message observer, so it will be called only for messages.
-        // If you want to register middleware for any update, you should register it for update observer.
-        .register(to_extensions_middleware);
+    let router = Router::new("main").on_message(|observer| {
+        observer
+            .filter(to_extensions_filter)
+            // Register middleware that adds data to extensions.
+            // Be aware, we register middleware for message observer, so it will be called only for messages.
+            // If you want to register middleware for any update, you should register it for update observer.
+            .register_outer_middleware(to_extensions_middleware)
+            // Register handler that sends data from extensions to chat
+            .register(Handler::new(send_data_handler).filter(Command::one("data")))
+    });
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
