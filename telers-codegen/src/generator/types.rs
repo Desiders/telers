@@ -1502,6 +1502,7 @@ pub fn tokenize_types_mod(type_names: &[&String]) -> TokenStream {
         #![allow(clippy::large_enum_variant)]
 
         pub(crate) mod non_telegram;
+        pub(crate) mod to_methods;
         pub use non_telegram::*;
         #( #mods_quote )*
         #( #uses_quote )*

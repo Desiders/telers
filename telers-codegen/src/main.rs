@@ -1,5 +1,5 @@
 use clap::Parser;
-use std::{fs, path::PathBuf, process};
+use std::{collections::HashSet, fs, path::PathBuf, process};
 use telers_codegen::{
     file::{camel_to_filename, write_tokens_to_file},
     generator,
@@ -81,11 +81,7 @@ fn main() {
 
     let src_dir = args.generated_dir_path.join("src");
     let types_dir = src_dir.join("types");
-    let known_schema_type_names = schema
-        .types
-        .keys()
-        .cloned()
-        .collect::<std::collections::HashSet<_>>();
+    let known_schema_type_names = schema.types.keys().cloned().collect::<HashSet<_>>();
     for (name, ty) in &schema.types {
         let tokens = generator::types::tokenize_type(ty, &schema, &known_schema_type_names);
         let filename = camel_to_filename(name, Some("rs"));
@@ -165,6 +161,29 @@ fn main() {
         });
     }
     println!("Methods generated");
+
+    let to_methods_dir = types_dir.join("to_methods");
+    let tokens_with_names =
+        generator::types_helpers::to_methods::tokenize_to_methods_files(&schema);
+    let mut to_methods_type_names = vec![];
+    for (name, tokens) in &tokens_with_names {
+        let filename = camel_to_filename(name, Some("rs"));
+        write_tokens_to_file(tokens, &to_methods_dir, &filename).unwrap_or_else(|err| {
+            eprintln!(
+                "Failed to write file '{filename}' in dir types/to_methods: {err}\nContent: \
+                 {tokens}"
+            );
+            process::exit(1);
+        });
+        to_methods_type_names.push(*name);
+    }
+    let tokens =
+        generator::types_helpers::to_methods::tokenize_to_methods_mod(&to_methods_type_names);
+    write_tokens_to_file(&tokens, &types_dir, "to_methods.rs").unwrap_or_else(|err| {
+        eprintln!("Failed to write file 'to_methods.rs' in dir types: {err}\nContent: {tokens}");
+        process::exit(1);
+    });
+    println!("Type-to-methods helpers generated");
 
     let method_names = schema.methods.values().map(|m| &m.name).collect::<Vec<_>>();
     let tokens = generator::methods::tokenize_methods_mod(method_names.as_slice());

@@ -8,18 +8,13 @@
 use telers::{
     enums::UpdateType,
     event::telegram::{Handler, HandlerResult},
-    methods::CopyMessage,
     types::Message,
     Bot, Dispatcher, Router,
 };
 
 async fn echo_handler(bot: Bot, message: Message) -> HandlerResult<()> {
-    bot.send(CopyMessage::new(
-        message.chat().id(),
-        message.chat().id(),
-        message.message_id(),
-    ))
-    .await?;
+    bot.send(message.to_copy_message(message.chat().id()))
+        .await?;
     Ok(())
 }
 
