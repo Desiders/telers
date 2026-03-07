@@ -7,14 +7,9 @@ use crate::{
     },
     filters::Filter,
     middlewares::{
-        inner::{
-            wrap_to_next, BoxedCloneMiddlewareService as BoxedCloneInnerMiddlewareService,
-            Manager as InnerMiddlewareManager,
-        },
-        outer::{
-            BoxedCloneMiddlewareService as BoxedCloneOuterMiddlewareService,
-            Manager as OuterMiddlewareManager,
-        },
+        inner::{wrap_to_next, Manager as InnerMiddlewareManager},
+        outer::Manager as OuterMiddlewareManager,
+        InnerMiddleware, OuterMiddleware,
     },
     Request,
 };
@@ -41,10 +36,9 @@ impl<Client> Debug for Response<Client> {
 
 /// Event observer for telegram events
 pub struct Observer<Client> {
-    pub event_name: &'static str,
-
-    handlers: Vec<Handler<Client>>,
-    common: Option<Handler<Client>>,
+    pub(crate) event_name: &'static str,
+    pub(crate) handlers: Vec<Handler<Client>>,
+    pub(crate) common: Option<Handler<Client>>,
 
     pub inner_middlewares: InnerMiddlewareManager<Client>,
     pub outer_middlewares: OuterMiddlewareManager<Client>,
@@ -54,7 +48,6 @@ impl<Client> Observer<Client>
 where
     Client: Send + Sync + 'static,
 {
-    #[allow(unreachable_code)]
     #[must_use]
     pub fn new(event_name: &'static str) -> Self {
         Self {
@@ -67,8 +60,9 @@ where
     }
 
     /// Register event handler
-    pub fn register(&mut self, handler_fn: Handler<Client>) -> &mut Self {
-        self.handlers.push(handler_fn);
+    #[must_use]
+    pub fn register(mut self, handler: Handler<Client>) -> Self {
+        self.handlers.push(handler);
         self
     }
 
@@ -76,14 +70,16 @@ where
     /// # Notes
     /// Alias to [`Observer::register`] method
     #[inline]
-    pub fn on(&mut self, handler_fn: Handler<Client>) -> &mut Self {
-        self.register(handler_fn)
+    #[must_use]
+    pub fn on(self, handler: Handler<Client>) -> Self {
+        self.register(handler)
     }
 
     /// Register multiple event handlers
     /// # Notes
     /// If you want to register single handler, use [`Observer::register`] method
-    pub fn registers(&mut self, handlers: impl IntoIterator<Item = Handler<Client>>) -> &mut Self {
+    #[must_use]
+    pub fn registers(mut self, handlers: impl IntoIterator<Item = Handler<Client>>) -> Self {
         self.handlers.extend(handlers);
         self
     }
@@ -92,7 +88,8 @@ where
     /// # Warning
     /// This filter will be applied to all handlers in the observer,
     /// if you want to apply filter to specific handler, use [`Handler::filter`] method
-    pub fn filter(&mut self, val: impl Filter<Client>) -> &mut Self {
+    #[must_use]
+    pub fn filter(mut self, val: impl Filter<Client>) -> Self {
         if let Some(common) = self.common.take() {
             self.common = Some(common.filter(val));
         } else {
@@ -106,37 +103,19 @@ where
         }
         self
     }
-}
 
-impl<Client> Observer<Client> {
-    #[inline]
+    /// Register inner middleware to observer
     #[must_use]
-    pub fn handlers(&self) -> &[Handler<Client>] {
-        &self.handlers
+    pub fn register_inner_middleware(mut self, middleware: impl InnerMiddleware<Client>) -> Self {
+        self.inner_middlewares.register(middleware);
+        self
     }
 
-    #[inline]
+    /// Register outer middleware to observer
     #[must_use]
-    pub fn inner_middlewares(&self) -> &[BoxedCloneInnerMiddlewareService<Client>] {
-        &self.inner_middlewares.middlewares
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn inner_middlewares_mut(&mut self) -> &mut [BoxedCloneInnerMiddlewareService<Client>] {
-        &mut self.inner_middlewares.middlewares
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn outer_middlewares(&self) -> &[BoxedCloneOuterMiddlewareService<Client>] {
-        &self.outer_middlewares.middlewares
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn outer_middlewares_mut(&mut self) -> &mut [BoxedCloneOuterMiddlewareService<Client>] {
-        &mut self.outer_middlewares.middlewares
+    pub fn register_outer_middleware(mut self, middleware: impl OuterMiddleware<Client>) -> Self {
+        self.outer_middlewares.register(middleware);
+        self
     }
 }
 
@@ -247,6 +226,7 @@ impl<Client> Debug for Observer<Client> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Observer")
             .field("event_name", &self.event_name)
+            .field("handlers", &self.handlers.len())
             .finish_non_exhaustive()
     }
 }
@@ -257,12 +237,6 @@ where
 {
     fn default() -> Self {
         Self::new("message")
-    }
-}
-
-impl<Client> AsRef<Observer<Client>> for Observer<Client> {
-    fn as_ref(&self) -> &Self {
-        self
     }
 }
 
@@ -296,9 +270,8 @@ mod tests {
     #[allow(unreachable_code)]
     #[tokio::test]
     async fn test_observer_trigger() {
-        let mut observer = Observer::default();
-        // Register common filter, which handlers can't pass
-        observer
+        let mut observer = Observer::default()
+            // Register common filter, which handlers can't pass
             .filter(Command::one("start"))
             .register(Handler::new(|| async {
                 Ok::<_, Infallible>(EventReturn::Finish)
@@ -343,8 +316,7 @@ mod tests {
     #[allow(unreachable_code)]
     #[tokio::test]
     async fn test_observer_trigger_error() {
-        let mut observer = Observer::<Reqwest>::default();
-        observer
+        let mut observer = Observer::<Reqwest>::default()
             .register(Handler::new(|| async {
                 Err::<(), _>(HandlerError::new(anyhow!("test")))
             }))
@@ -377,8 +349,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_observer_event_return() {
-        let mut observer = Observer::default();
-        observer
+        let mut observer = Observer::default()
             .register(Handler::new(|| async {
                 Ok::<_, Infallible>(EventReturn::Skip)
             }))
@@ -406,8 +377,7 @@ mod tests {
             _ => panic!("Unexpected result"),
         }
 
-        let mut observer = Observer::default();
-        observer
+        let mut observer = Observer::default()
             .register(Handler::new(|| async {
                 Ok::<_, Infallible>(EventReturn::Skip)
             }))

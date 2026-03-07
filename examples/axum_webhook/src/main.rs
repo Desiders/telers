@@ -63,16 +63,14 @@ async fn main() {
 
     let bot = Bot::from_env();
 
-    let mut router = TelersRouter::new("main");
-
-    router
-        .message
-        .register(telegram::Handler::new(echo_handler));
-
-    router.startup.register(simple::Handler::new(
-        set_webhook,
-        (bot.clone(), WEBHOOK_URL, HANDLER_PATH, Some(SECRET_TOKEN)),
-    ));
+    let router = TelersRouter::new("main")
+        .on_message(|observer| observer.register(telegram::Handler::new(echo_handler)))
+        .on_startup(|observer| {
+            observer.register(simple::Handler::new(
+                set_webhook,
+                (bot.clone(), WEBHOOK_URL, HANDLER_PATH, Some(SECRET_TOKEN)),
+            ))
+        });
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

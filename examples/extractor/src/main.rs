@@ -147,13 +147,13 @@ async fn main() {
 
     let bot = Bot::from_env();
 
-    let mut router = Router::new("main");
-
     // Register handler that sends extracted data to chat
-    router.message.registers([
-        Handler::new(send_data_handler).filter(Command::one("data")),
-        Handler::new(update_id_handler).filter(Command::one("update_id")),
-    ]);
+    let router = Router::new("main").on_message(|observer| {
+        observer.registers([
+            Handler::new(send_data_handler).filter(Command::one("data")),
+            Handler::new(update_id_handler).filter(Command::one("update_id")),
+        ])
+    });
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

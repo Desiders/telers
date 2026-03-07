@@ -24,8 +24,7 @@ async fn main() {
 
     let bot = Bot::from_env();
 
-    let mut router = Router::new("main");
-    router.update.register(Handler::new(handler));
+    let router = Router::new("main").on_update(|observer| observer.register(Handler::new(handler)));
 
     bot.send(DeleteWebhook::new().drop_pending_updates(true))
         .await

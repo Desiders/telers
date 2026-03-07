@@ -24,9 +24,9 @@
 //!
 //! #[tokio::main(flavor = "current_thread")]
 //! async fn main() {
-//!     let mut router = Router::new("example");
-//!     router.startup.register(Handler::new(on_startup, ("Hello, world!",)));
-//!     router.shutdown.register(Handler::new(on_shutdown, ("Goodbye, world!",)));
+//!     let router = Router::new("example")
+//!         .on_startup(|observer| observer.register(Handler::new(on_startup, ("Hello, world!",))))
+//!         .on_shutdown(|observer| observer.register(Handler::new(on_shutdown, ("Goodbye, world!",))));
 //! }
 //! ```
 //!
@@ -56,9 +56,9 @@
 //!
 //! #[tokio::main(flavor = "current_thread")]
 //! async fn main() {
-//!     let mut router = Router::new("example");
-//!     router.message.register(Handler::new(on_message));
-//!     router.callback_query.register(Handler::new(on_callback_query));
+//!     let router = Router::new("example")
+//!         .on_message(|observer| observer.register(Handler::new(on_message)))
+//!         .on_callback_query(|observer| observer.register(Handler::new(on_callback_query)));
 //! }
 //! ```
 //!
@@ -131,6 +131,7 @@ use crate::{
     Request,
 };
 
+use paste::paste;
 use std::{
     collections::HashSet,
     fmt::{self, Debug, Formatter},
@@ -235,15 +236,15 @@ macro_rules! define_router_struct {
         ///
         /// #[tokio::main(flavor = "current_thread")]
         /// async fn main() {
-        ///     let mut router = Router::new("example");
-        ///     router.startup.register(Handler::new(on_startup, ("Hello, world!",)));
-        ///     router.shutdown.register(Handler::new(on_shutdown, ("Goodbye, world!",)));
+        ///     let router = Router::new("example")
+        ///         .on_startup(|observer| observer.register(Handler::new(on_startup, ("Hello, world!",))))
+        ///         .on_shutdown(|observer| observer.register(Handler::new(on_shutdown, ("Goodbye, world!",))));
         /// }
         /// ```
         ///
         /// * Telegram observer:
         ///   [`Telegram observer`] is used to handle telegram events like messages, callback queries, polls and all other event types.
-        ///   You can register a handler with any arguments that implement [`Extractor`] trait, see [`extractors module`] for more details.
+        ///   You can register a handler with any arguments that implement `Extractor` trait, see [`extractors module`] for more details.
         ///   Return type of handler is [`Result<EventReturn, HandlerError>`],
         ///   where [`EventReturn`] is a special enum that can be used to control the propagation of the event,
         ///   see [`EventReturn`] for more details.
@@ -267,9 +268,9 @@ macro_rules! define_router_struct {
         ///
         /// #[tokio::main(flavor = "current_thread")]
         /// async fn main() {
-        ///     let mut router = Router::new("example");
-        ///     router.message.register(Handler::new(on_message));
-        ///     router.callback_query.register(Handler::new(on_callback_query));
+        ///     let router = Router::new("example")
+        ///         .on_message(|observer| observer.register(Handler::new(on_message)))
+        ///         .on_callback_query(|observer| observer.register(Handler::new(on_callback_query)));
         /// }
         /// ```
         pub struct Router<Client = Reqwest> {
@@ -277,11 +278,11 @@ macro_rules! define_router_struct {
             sub_routers: Vec<Router<Client>>,
 
             $(
-                pub $observer: TelegramObserver<Client>,
+                $observer: TelegramObserver<Client>,
             )+
 
-            pub startup: SimpleObserver,
-            pub shutdown: SimpleObserver,
+            startup: SimpleObserver,
+            shutdown: SimpleObserver,
         }
     };
 }
@@ -301,18 +302,68 @@ macro_rules! router_constructor {
     };
 }
 
-macro_rules! router_telegram_observer_refs_array {
-    (ref, $router:ident, $(($variant:ident, $observer:ident)),+ $(,)?) => {
+macro_rules! impl_router_on_methods {
+    ($(($variant:ident, $observer:ident)),+ $(,)?) => {
+        $(
+            paste! {
+                #[doc = concat!("Configure `", stringify!($observer), "` observer in builder style")]
+                #[must_use]
+                pub fn [<on_ $observer>]<F>(mut self, configure: F) -> Self
+                where
+                    F: FnOnce(TelegramObserver<Client>) -> TelegramObserver<Client>,
+                {
+                    self.$observer = configure(self.$observer);
+                    self
+                }
+            }
+        )+
+
+        /// Apply the same observer configurator for every Telegram observer (including `update`).
+        #[must_use]
+        pub fn on_all<F>(mut self, mut configure: F) -> Self
+        where
+            F: FnMut(TelegramObserver<Client>) -> TelegramObserver<Client>,
+        {
+            $(
+                self.$observer = configure(self.$observer);
+            )+
+            self
+        }
+
+        /// Configure startup observer in builder style.
+        #[must_use]
+        pub fn on_startup<F>(mut self, configure: F) -> Self
+        where
+            F: FnOnce(SimpleObserver) -> SimpleObserver,
+        {
+            self.startup = configure(self.startup);
+            self
+        }
+
+        /// Configure shutdown observer in builder style.
+        #[must_use]
+        pub fn on_shutdown<F>(mut self, configure: F) -> Self
+        where
+            F: FnOnce(SimpleObserver) -> SimpleObserver,
+        {
+            self.shutdown = configure(self.shutdown);
+            self
+        }
+    };
+}
+
+macro_rules! observer_refs_array {
+    (ref, $ty:ident, $(($variant:ident, $observer:ident)),+ $(,)?) => {
         [
             $(
-                &$router.$observer,
+                &$ty.$observer,
             )+
         ]
     };
-    (mut, $router:ident, $(($variant:ident, $observer:ident)),+ $(,)?) => {
+    (mut, $ty:ident, $(($variant:ident, $observer:ident)),+ $(,)?) => {
         [
             $(
-                &mut $router.$observer,
+                &mut $ty.$observer,
             )+
         ]
     };
@@ -322,6 +373,8 @@ impl<Client> Router<Client>
 where
     Client: Send + Sync + 'static,
 {
+    with_telegram_observer_variants!(impl_router_on_methods);
+
     /// # Arguments
     /// * `name` - Name of the router. It can be used for logging and debugging and code clarity.
     #[must_use]
@@ -335,7 +388,8 @@ where
     /// Inner middlewares of this router will be registered to the sub router and its sub routers
     /// in the order of registration. Parent middlewares registers on the top of the stack,
     /// so parent middlewares calls before.
-    pub fn include_router(&mut self, router: impl Into<Router<Client>>) -> &mut Self {
+    #[must_use]
+    pub fn include_router(mut self, router: impl Into<Router<Client>>) -> Self {
         self.sub_routers.push(router.into());
         self
     }
@@ -347,29 +401,22 @@ where
     /// so parent middlewares calls before.
     ///
     /// Alias to [`Router::include_router`] method
-    pub fn include(&mut self, router: impl Into<Router<Client>>) -> &mut Self {
+    #[inline]
+    #[must_use]
+    pub fn include(self, router: impl Into<Router<Client>>) -> Self {
         self.include_router(router)
     }
 }
 
 impl<Client> Router<Client> {
-    /// Get all telegram event observers
     #[must_use]
-    pub const fn telegram_observers(&self) -> [&TelegramObserver<Client>; 24] {
-        with_telegram_observer_variants!(router_telegram_observer_refs_array, ref, self)
+    const fn telegram_observers(&self) -> [&TelegramObserver<Client>; 24] {
+        with_telegram_observer_variants!(observer_refs_array, ref, self)
     }
 
-    /// Get all telegram event observers as mutable references
-    /// # Notes
-    /// This method is useful for registering middlewares to the many observers without code duplication and macros
     #[must_use]
-    pub fn telegram_observers_mut(&mut self) -> [&mut TelegramObserver<Client>; 24] {
-        with_telegram_observer_variants!(router_telegram_observer_refs_array, mut, self)
-    }
-
-    /// Get all simple event observers
-    #[must_use]
-    pub const fn event_observers(&self) -> [&SimpleObserver; 2] {
+    #[cfg(test)]
+    const fn event_observers(&self) -> [&SimpleObserver; 2] {
         [&self.startup, &self.shutdown]
     }
 
@@ -386,7 +433,7 @@ impl<Client> Router<Client> {
         let mut used_update_types = HashSet::new();
 
         for observer in self.telegram_observers() {
-            if observer.handlers().is_empty() {
+            if observer.handlers.is_empty() {
                 continue;
             }
             if skip_update_types.contains(observer.event_name) {
@@ -611,7 +658,7 @@ where
 
             let observer = self.telegram_observer_by_update_type(update_type);
 
-            for middleware in observer.outer_middlewares_mut() {
+            for middleware in &mut observer.outer_middlewares.middlewares {
                 let (updated_request, event_return) = middleware.call(request.clone()).await?;
                 match event_return {
                     // If middleware returns finish then update request because the middleware could have changed it
@@ -700,7 +747,7 @@ where
     {
         event!(Level::TRACE, "Propagate update event to router");
 
-        for middleware in self.update.outer_middlewares_mut() {
+        for middleware in &mut self.update.outer_middlewares.middlewares {
             let (updated_request, event_return) = middleware.call(request.clone()).await?;
             match event_return {
                 // If middleware returns finish, then update request because the middleware could have changed it
@@ -757,7 +804,7 @@ where
 
     #[instrument(skip_all, fields(router = self.name))]
     async fn emit_startup(&mut self) -> SimpleHandlerResult {
-        if self.startup_handlers_len() == 0 {
+        if self.startup.handlers.is_empty() {
             event!(Level::TRACE, "Observers empty");
             return Ok(());
         }
@@ -776,13 +823,9 @@ where
         Ok(())
     }
 
-    fn startup_handlers_len(&self) -> usize {
-        self.startup.handlers().len()
-    }
-
     #[instrument(skip_all, fields(router = self.name))]
     async fn emit_shutdown(&mut self) -> SimpleHandlerResult {
-        if self.shutdown_handlers_len() == 0 {
+        if self.shutdown.handlers.is_empty() {
             event!(Level::TRACE, "Observers empty");
             return Ok(());
         }
@@ -801,33 +844,26 @@ where
         Ok(())
     }
 
+    #[inline]
+    fn startup_handlers_len(&self) -> usize {
+        self.startup.handlers_len()
+    }
+
+    #[inline]
     fn shutdown_handlers_len(&self) -> usize {
-        self.shutdown.handlers().len()
+        self.startup.handlers_len()
     }
 }
 
 impl<Client> Configured<Client> {
     #[must_use]
-    pub const fn telegram_observers(&self) -> [&TelegramObserver<Client>; 24] {
-        macro_rules! router_telegram_observer_refs_array {
-            ($(($variant:ident, $observer:ident)),+ $(,)?) => {
-                [
-                    $(
-                        &self.$observer,
-                    )+
-                ]
-            };
-        }
-        with_telegram_observer_variants!(router_telegram_observer_refs_array)
+    #[cfg(test)]
+    const fn telegram_observers(&self) -> [&TelegramObserver<Client>; 24] {
+        with_telegram_observer_variants!(observer_refs_array, ref, self)
     }
 
     #[must_use]
-    pub const fn event_observers(&self) -> [&SimpleObserver; 2] {
-        [&self.startup, &self.shutdown]
-    }
-
-    #[must_use]
-    pub fn telegram_observer_by_update_type(
+    fn telegram_observer_by_update_type(
         &mut self,
         update_type: UpdateType,
     ) -> &mut TelegramObserver<Client> {
@@ -1070,36 +1106,30 @@ mod tests {
 
     #[test]
     fn test_include_router() {
-        let mut router = Router::<Reqwest>::new("main");
-
         let inner_middleware = |request, next: Next<_>| next(request);
         let outer_middleware = |request| async move { Ok((request, EventReturn::default())) };
 
-        router.message.inner_middlewares.register(inner_middleware);
-        router.message.outer_middlewares.register(outer_middleware);
-
-        router
-            .include({
-                let mut router = Router::new("sub1");
-                router
+        let router = Router::<Reqwest>::new("main")
+            .on_message(|observer| {
+                observer
+                    .register_inner_middleware(inner_middleware)
+                    .register_outer_middleware(outer_middleware)
+            })
+            .include(
+                Router::new("sub1")
                     .include(Router::new("sub1.1"))
-                    .include(Router::new("sub1.2"));
-                router
-            })
-            .include({
-                let mut router = Router::new("sub2");
-                router
+                    .include(Router::new("sub1.2")),
+            )
+            .include(
+                Router::new("sub2")
                     .include(Router::new("sub2.1"))
-                    .include(Router::new("sub2.2"));
-                router
-            })
-            .include({
-                let mut router = Router::new("sub3");
-                router
+                    .include(Router::new("sub2.2")),
+            )
+            .include(
+                Router::new("sub3")
                     .include(Router::new("sub3.1"))
-                    .include(Router::new("sub3.2"));
-                router
-            });
+                    .include(Router::new("sub3.2")),
+            );
 
         let router_configured = router.configure(Config::new(
             OuterMiddlewaresConfig::new(),
@@ -1122,12 +1152,12 @@ mod tests {
                     .into_iter()
                     .for_each(|observer| {
                         if observer.event_name == message_observer_name {
-                            assert_eq!(observer.inner_middlewares().len(), 1);
+                            assert_eq!(observer.inner_middlewares.middlewares.len(), 1);
                         } else {
-                            assert_eq!(observer.inner_middlewares().len(), 0);
+                            assert_eq!(observer.inner_middlewares.middlewares.len(), 0);
                         }
                         // Router outer middlewares don't clone to children routers
-                        assert_eq!(observer.outer_middlewares().len(), 0);
+                        assert_eq!(observer.outer_middlewares.middlewares.len(), 0);
                     });
 
                 router_configured
@@ -1141,12 +1171,12 @@ mod tests {
                             .into_iter()
                             .for_each(|observer| {
                                 if observer.event_name == message_observer_name {
-                                    assert_eq!(observer.inner_middlewares().len(), 1);
+                                    assert_eq!(observer.inner_middlewares.middlewares.len(), 1);
                                 } else {
-                                    assert_eq!(observer.inner_middlewares().len(), 0);
+                                    assert_eq!(observer.inner_middlewares.middlewares.len(), 0);
                                 }
                                 // Router outer middlewares don't clone to children routers
-                                assert_eq!(observer.outer_middlewares().len(), 0);
+                                assert_eq!(observer.outer_middlewares.middlewares.len(), 0);
                             });
                     });
             });
@@ -1163,61 +1193,45 @@ mod tests {
             Ok(())
         }
 
-        let mut router = Router::<Reqwest>::new("main");
-        // Telegram event observers
-        router.message.register(TelegramHandler::new(telegram_handler));
-        router.edited_message.register(TelegramHandler::new(telegram_handler));
-        router.channel_post.register(TelegramHandler::new(telegram_handler));
-        router.edited_channel_post.register(TelegramHandler::new(telegram_handler));
-        router.business_connection.register(TelegramHandler::new(telegram_handler));
-        router.business_message.register(TelegramHandler::new(telegram_handler));
-        router.edited_business_message.register(TelegramHandler::new(telegram_handler));
-        router.deleted_business_messages.register(TelegramHandler::new(telegram_handler));
-        router.message_reaction.register(TelegramHandler::new(telegram_handler));
-        router.message_reaction_count.register(TelegramHandler::new(telegram_handler));
-        router.inline_query.register(TelegramHandler::new(telegram_handler));
-        router.chosen_inline_result.register(TelegramHandler::new(telegram_handler));
-        router.callback_query.register(TelegramHandler::new(telegram_handler));
-        router.shipping_query.register(TelegramHandler::new(telegram_handler));
-        router.pre_checkout_query.register(TelegramHandler::new(telegram_handler));
-        router.purchased_paid_media.register(TelegramHandler::new(telegram_handler));
-        router.poll.register(TelegramHandler::new(telegram_handler));
-        router.poll_answer.register(TelegramHandler::new(telegram_handler));
-        router.my_chat_member.register(TelegramHandler::new(telegram_handler));
-        router.chat_member.register(TelegramHandler::new(telegram_handler));
-        router.chat_join_request.register(TelegramHandler::new(telegram_handler));
-        router.chat_boost.register(TelegramHandler::new(telegram_handler));
-        router.removed_chat_boost.register(TelegramHandler::new(telegram_handler));
-        router.update.register(TelegramHandler::new(telegram_handler));
-        // Event observers
-        router.startup.register(SimpleHandler::new(simple_handler, ()));
-        router.shutdown.register(SimpleHandler::new(simple_handler, ()));
+        let mut router = Router::<Reqwest>::new("main")
+            .on_all(|observer| observer.register(TelegramHandler::new(telegram_handler)))
+            .on_startup(|observer| observer.register(SimpleHandler::new(simple_handler, ())))
+            .on_shutdown(|observer| observer.register(SimpleHandler::new(simple_handler, ())));
 
         // Check telegram event observers
         router
             .telegram_observers()
             .into_iter()
             .for_each(|observer| {
-                assert_eq!(observer.handlers().len(), 1);
+                assert_eq!(observer.handlers.len(), 1);
 
-                observer.handlers().iter().for_each(|handler| {
+                observer.handlers.iter().for_each(|handler| {
                     assert!(handler.filters.is_empty());
                 });
             });
 
         // Check event observers
         router.event_observers().into_iter().for_each(|observer| {
-            assert_eq!(observer.handlers().len(), 1);
+            assert_eq!(observer.handlers.len(), 1);
         });
 
         let inner_middleware = |request, next: Next| next(request);
         let outer_middleware = |request| async move { Ok((request, EventReturn::Finish)) };
 
-        router.message.inner_middlewares.register(inner_middleware);
-        router.message.outer_middlewares.register(outer_middleware);
+        router = router.on_message(|observer| {
+            observer
+                .register_inner_middleware(inner_middleware)
+                .register_outer_middleware(outer_middleware)
+        });
 
-        assert_eq!(router.message.inner_middlewares.middlewares.len(), 1);
-        assert_eq!(router.message.outer_middlewares.middlewares.len(), 1);
+        let message_observer = router
+            .telegram_observers()
+            .into_iter()
+            .find(|observer| observer.event_name == UpdateType::Message.as_ref())
+            .unwrap();
+
+        assert_eq!(message_observer.inner_middlewares.middlewares.len(), 1);
+        assert_eq!(message_observer.outer_middlewares.middlewares.len(), 1);
     }
 
     #[tokio::test]
@@ -1232,10 +1246,11 @@ mod tests {
             extensions: Extensions::default(),
         };
 
-        let mut router = Router::new("test_handler");
-        router.message.register(TelegramHandler::new(|| async move {
-            Ok::<_, Infallible>(EventReturn::Finish)
-        }));
+        let router = Router::new("test_handler").on_message(|observer| {
+            observer.register(TelegramHandler::new(|| async move {
+                Ok::<_, Infallible>(EventReturn::Finish)
+            }))
+        });
 
         let mut router_configured = router.configure_default();
         let response = router_configured
@@ -1263,25 +1278,24 @@ mod tests {
             _ => panic!("Unexpected result"),
         }
 
-        let mut router = Router::new("test_middleware_and_handler");
-        router
-            .update
-            .outer_middlewares
-            .register(|mut request: Request<Reqwest>| async move {
-                request.context.insert("test", "test");
+        let router = Router::new("test_middleware_and_handler")
+            .on_update(|observer| {
+                observer.register_outer_middleware(|mut request: Request<Reqwest>| async move {
+                    request.context.insert("test", "test");
 
-                Ok((request, EventReturn::Finish))
+                    Ok((request, EventReturn::Finish))
+                })
+            })
+            .on_message(|observer| {
+                observer.register(TelegramHandler::new(|context: Context| async move {
+                    println!("{}", context.len());
+
+                    // Check that middleware was called and context was modified
+                    assert_eq!(context.get::<&str>("test").unwrap(), &"test");
+
+                    Ok::<_, Infallible>(EventReturn::Finish)
+                }))
             });
-        router
-            .message
-            .register(TelegramHandler::new(|context: Context| async move {
-                println!("{}", context.len());
-
-                // Check that middleware was called and context was modified
-                assert_eq!(context.get::<&str>("test").unwrap(), &"test");
-
-                Ok::<_, Infallible>(EventReturn::Finish)
-            }));
 
         let mut router_configured = router.configure_default();
 
@@ -1299,13 +1313,17 @@ mod tests {
             _ => panic!("Unexpected result"),
         }
 
-        let mut router = Router::new("test_skip_handler");
-        router.message.register(TelegramHandler::new(|| async move {
-            Ok::<_, Infallible>(EventReturn::Skip)
-        }));
-        router.message.register(TelegramHandler::new(|| async move {
-            Ok::<_, Infallible>(EventReturn::Finish)
-        }));
+        let router = Router::new("test_skip_handler")
+            .on_message(|observer| {
+                observer.register(TelegramHandler::new(|| async move {
+                    Ok::<_, Infallible>(EventReturn::Skip)
+                }))
+            })
+            .on_message(|observer| {
+                observer.register(TelegramHandler::new(|| async move {
+                    Ok::<_, Infallible>(EventReturn::Finish)
+                }))
+            });
 
         let mut router_configured = router.configure_default();
 
@@ -1324,10 +1342,11 @@ mod tests {
             _ => panic!("Unexpected result"),
         }
 
-        let mut router = Router::new("test_skip_handler_without_next");
-        router.message.register(TelegramHandler::new(|| async move {
-            Ok::<_, Infallible>(EventReturn::Skip)
-        }));
+        let router = Router::new("test_skip_handler_without_next").on_message(|observer| {
+            observer.register(TelegramHandler::new(|| async move {
+                Ok::<_, Infallible>(EventReturn::Skip)
+            }))
+        });
 
         let mut router_configured = router.configure_default();
 
@@ -1356,11 +1375,12 @@ mod tests {
             extensions: Extensions::default(),
         };
 
-        let mut router = Router::new("test_handler_with_filter");
-        router.message.register(
-            TelegramHandler::new(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
-                .filter(|_req: &mut Request| async move { Ok::<_, Infallible>(true) }),
-        );
+        let router = Router::new("test_handler_with_filter").on_message(|observer| {
+            observer.register(
+                TelegramHandler::new(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
+                    .filter(|_req: &mut Request| async move { Ok::<_, Infallible>(true) }),
+            )
+        });
 
         let mut router_configured = router.configure_default();
         let response = router_configured
@@ -1377,11 +1397,12 @@ mod tests {
             _ => panic!("Unexpected result"),
         }
 
-        let mut router = Router::new("test_handler_with_fail_filter");
-        router.message.register(
-            TelegramHandler::new(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
-                .filter(|_req: &mut Request| async move { Ok::<_, Infallible>(false) }),
-        );
+        let router = Router::new("test_handler_with_fail_filter").on_message(|observer| {
+            observer.register(
+                TelegramHandler::new(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
+                    .filter(|_req: &mut Request| async move { Ok::<_, Infallible>(false) }),
+            )
+        });
 
         let mut router_configured = router.configure_default();
         let response = router_configured
@@ -1395,13 +1416,14 @@ mod tests {
             _ => panic!("Unexpected result"),
         }
 
-        let mut router = Router::new("test_handler_with_filters_and_one_fail");
-        router.message.register(
-            TelegramHandler::new(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
-                .filter(|_req: &mut Request| async move { Ok::<_, Infallible>(true) })
-                .filter(|_req: &mut Request| async move { Ok::<_, Infallible>(true) })
-                .filter(|_req: &mut Request| async move { Ok::<_, Infallible>(false) }),
-        );
+        let router = Router::new("test_handler_with_filters_and_one_fail").on_message(|observer| {
+            observer.register(
+                TelegramHandler::new(|| async move { Ok::<_, Infallible>(EventReturn::Finish) })
+                    .filter(|_req: &mut Request| async move { Ok::<_, Infallible>(true) })
+                    .filter(|_req: &mut Request| async move { Ok::<_, Infallible>(true) })
+                    .filter(|_req: &mut Request| async move { Ok::<_, Infallible>(false) }),
+            )
+        });
 
         let mut router_configured = router.configure_default();
         let response = router_configured
@@ -1418,16 +1440,17 @@ mod tests {
 
     #[test]
     fn test_resolve_used_update_types() {
-        let mut router = Router::<Reqwest>::new("test");
-
-        router.message.register(TelegramHandler::new(|| async {
-            Ok::<_, Infallible>(EventReturn::Finish)
-        }));
-        router
-            .edited_message
-            .register(TelegramHandler::new(|| async {
-                Ok::<_, Infallible>(EventReturn::Finish)
-            }));
+        let router = Router::<Reqwest>::new("test")
+            .on_message(|observer| {
+                observer.register(TelegramHandler::new(|| async {
+                    Ok::<_, Infallible>(EventReturn::Finish)
+                }))
+            })
+            .on_edited_message(|observer| {
+                observer.register(TelegramHandler::new(|| async {
+                    Ok::<_, Infallible>(EventReturn::Finish)
+                }))
+            });
 
         let update_types = router.resolve_used_update_types();
 
@@ -1435,20 +1458,21 @@ mod tests {
         assert!(update_types.contains(UpdateType::Message.as_ref()));
         assert!(update_types.contains(UpdateType::EditedMessage.as_ref()));
 
-        let mut router2 = Router::<Reqwest>::new("test2");
-
-        router2.message.register(TelegramHandler::new(|| async {
-            Ok::<_, Infallible>(EventReturn::Finish)
-        }));
-        router2
-            .channel_post
-            .register(TelegramHandler::new(|| async {
-                Ok::<_, Infallible>(EventReturn::Finish)
-            }));
+        let router2 = Router::<Reqwest>::new("test2")
+            .on_message(|observer| {
+                observer.register(TelegramHandler::new(|| async {
+                    Ok::<_, Infallible>(EventReturn::Finish)
+                }))
+            })
+            .on_channel_post(|observer| {
+                observer.register(TelegramHandler::new(|| async {
+                    Ok::<_, Infallible>(EventReturn::Finish)
+                }))
+            });
 
         assert_eq!(router2.resolve_used_update_types().len(), 2);
 
-        router.include(router2);
+        let router = router.include(router2);
 
         let update_types = router.resolve_used_update_types();
 

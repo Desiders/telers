@@ -42,8 +42,8 @@ async fn main() {
 
     let bot = Bot::from_env();
 
-    let mut router = TelersRouter::new("main");
-    router.message.register(Handler::new(echo_handler));
+    let router = TelersRouter::new("main")
+        .on_message(|observer| observer.register(Handler::new(echo_handler)));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

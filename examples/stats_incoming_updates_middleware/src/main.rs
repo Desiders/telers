@@ -87,25 +87,12 @@ async fn main() {
 
     let bot = Bot::from_env();
 
-    let mut router = Router::new("main");
-
-    // Register inner middleware for all telegram observers
-    router
-        .telegram_observers_mut()
-        .iter_mut()
-        .for_each(|observer| {
-            observer
-                .inner_middlewares
-                .register(ProcessedHandlers::default());
-        });
-
-    // Register outer middleware for update
-    router
-        .update
-        .outer_middlewares
-        .register(IncomingUpdates::default());
-
-    router.message.register(Handler::new(handler));
+    let router = Router::new("main")
+        // Register inner middleware for all telegram observers
+        .on_all(|observer| observer.register_inner_middleware(ProcessedHandlers::default()))
+        // Register outer middleware for update
+        .on_update(|observer| observer.register_outer_middleware(IncomingUpdates::default()))
+        .on_message(|observer| observer.register(Handler::new(handler)));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

@@ -158,7 +158,9 @@ impl ToTokens for TypeKindInField {
             TypeKindInField::InputFile => quote! { crate::types::InputFile },
             TypeKindInField::ChatId => quote! { crate::types::ChatIdKind },
             TypeKindInField::Array(inner) => quote! { Box<[#inner]> },
-            TypeKindInField::Either(left, right) => quote! { crate::Either<#left, #right> },
+            TypeKindInField::Either(left, right) => {
+                quote! { crate::Either<#left, #right> }
+            }
         };
         tokens.extend(ts);
     }

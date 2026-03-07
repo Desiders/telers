@@ -1,12 +1,8 @@
 [package]
 name = "telers-codegen"
-version = "0.0.1"
+version = "1.0.0"
 edition = "2021"
-description = "Codegen for telers"
-repository = "https://github.com/Desiders/telers"
-license = "MIT OR Apache-2.0"
-keywords = ["telegram", "telegram-bot-api", "telers"]
-categories = ["web-programming"]
+publish = false
 
 [dependencies]
 proc-macro2 = "1.0"
@@ -26,7 +22,3 @@ serde = { version = "1.0", features = ["derive"] }
 
 [dev-dependencies]
 telers = { path = "../telers", features = ["default"] }
-
-[package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--cfg", "docsrs"]

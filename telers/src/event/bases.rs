@@ -65,7 +65,9 @@ impl<Client> Debug for PropagateEventResult<Client> {
         match self {
             Self::Rejected => write!(f, "PropagateEventResult::Rejected"),
             Self::Unhandled => write!(f, "PropagateEventResult::Unhandled"),
-            Self::Handled(response) => write!(f, "PropagateEventResult::Handled({response:?})"),
+            Self::Handled(response) => {
+                write!(f, "PropagateEventResult::Handled({response:?})")
+            }
         }
     }
 }

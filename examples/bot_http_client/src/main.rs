@@ -86,8 +86,8 @@ async fn main() {
     let token = std::env::var("BOT_TOKEN").expect("BOT_TOKEN env variable is not set!");
     let bot = Bot::with_client(token, CustomClient::default());
 
-    let mut router = Router::new("main");
-    router.message.register(Handler::new(echo_handler));
+    let router =
+        Router::new("main").on_message(|observer| observer.register(Handler::new(echo_handler)));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

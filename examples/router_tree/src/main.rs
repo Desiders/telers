@@ -85,37 +85,33 @@ async fn main() {
 
     let bot = Bot::from_env();
 
-    let mut main_router = Router::new("main");
-
     // This router will handle all private messages
-    let mut private_router = Router::new("private");
-    private_router
-        .message
-        // Register filter for all private messages
-        .filter(ChatType::one(Private))
-        // Register handler for private messages, which will send a greeting message
-        .register(Handler::new(start_private).filter(Command::one("start")));
+    let private_router = Router::new("private").on_message(|observer| {
+        observer
+            // Register filter for all private messages
+            .filter(ChatType::one(Private))
+            // Register handler for private messages, which will send a greeting message
+            .register(Handler::new(start_private).filter(Command::one("start")))
+    });
 
-    // Include private router into main router, so all updates, which are not handled by main router will be passed to private router
-    main_router.include(private_router);
+    let echo_router = Router::new("echo")
+        .on_update(|observer| {
+            // Register stats middleware for echo router
+            observer.register_outer_middleware(IncomingEchoRouterUpdates::default())
+        })
+        .on_message(|observer| {
+            // Register handler for stats commands
+            observer.registers([
+                Handler::new(stats_echo_router).filter(Command::many(["stats", "statistics"])),
+                Handler::new(echo_handler),
+            ])
+        });
 
-    let mut echo_router = Router::new("echo");
-    echo_router
-        // Register stats middleware for echo router
-        .update
-        .outer_middlewares
-        .register(IncomingEchoRouterUpdates::default());
-
-    echo_router
-        .message
-        // Register handler for stats commands
-        .registers([
-            Handler::new(stats_echo_router).filter(Command::many(["stats", "statistics"])),
-            Handler::new(echo_handler),
-        ]);
-
-    // Include echo router into main router, so all updates, which are not handled by main router or private router will be passed to echo router
-    main_router.include(echo_router);
+    let main_router = Router::new("main")
+        // Include private router into main router, so all updates, which are not handled by main router will be passed to private router
+        .include(private_router)
+        // Include echo router into main router, so all updates, which are not handled by main router or private router will be passed to echo router
+        .include(echo_router);
 
     let dispatcher = Dispatcher::builder()
         .allowed_updates(main_router.resolve_used_update_types())

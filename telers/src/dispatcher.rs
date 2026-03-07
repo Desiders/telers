@@ -739,10 +739,11 @@ mod tests {
             _ => panic!("Unexpected result"),
         }
 
-        let mut router = Router::new("main");
-        router.message.register(Handler::new(|| async {
-            Ok::<_, Infallible>(EventReturn::Finish)
-        }));
+        let router = Router::new("main").on_message(|observer| {
+            observer.register(Handler::new(|| async {
+                Ok::<_, Infallible>(EventReturn::Finish)
+            }))
+        });
 
         let mut dispatcher = Dispatcher::builder()
             .main_router(router.configure_default())
