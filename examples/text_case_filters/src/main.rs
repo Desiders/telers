@@ -6,15 +6,12 @@
 //! BOT_TOKEN={your_bot_token} cargo run --package text_case_filters
 //! ```
 
-use std::future::Future;
+use std::{convert::Infallible, future::Future};
 use telers::{
     enums::UpdateType,
-    event::{
-        telegram::{Handler, HandlerResult},
-        EventReturn,
-    },
+    event::telegram::{Handler, HandlerResult},
     methods::SendMessage,
-    types::Message,
+    types::MessageText,
     Bot, Dispatcher, Filter, Request, Router,
 };
 
@@ -22,42 +19,40 @@ use telers::{
 struct UppercaseFilter;
 
 impl Filter for UppercaseFilter {
-    async fn check(&mut self, request: &mut Request) -> bool {
-        request
+    type Error = Infallible;
+
+    async fn check(&mut self, request: &mut Request) -> Result<bool, Infallible> {
+        Ok(request
             .update
             .text()
-            .is_some_and(|text| text.to_uppercase() == text)
+            .is_some_and(|text| text.to_uppercase() == text))
     }
 }
 
-fn lowercase_filter(request: &mut Request) -> impl Future<Output = bool> {
+fn lowercase_filter(request: &mut Request) -> impl Future<Output = Result<bool, Infallible>> {
     let result = request
         .update
         .text()
         .is_some_and(|text| text.to_lowercase() == text);
-
-    async move { result }
+    async move { Ok(result) }
 }
 
-async fn uppercase_handler(bot: Bot, message: Message) -> HandlerResult {
-    bot.send(SendMessage::new(message.chat().id(), "Uppercase message!"))
+async fn uppercase_handler(bot: Bot, message: MessageText) -> HandlerResult<()> {
+    bot.send(SendMessage::new(message.chat.id(), "Uppercase message!"))
         .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
-async fn lowercase_handler(bot: Bot, message: Message) -> HandlerResult {
-    bot.send(SendMessage::new(message.chat().id(), "Lowercase message!"))
+async fn lowercase_handler(bot: Bot, message: MessageText) -> HandlerResult<()> {
+    bot.send(SendMessage::new(message.chat.id(), "Lowercase message!"))
         .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
-async fn any_case_handler(bot: Bot, message: Message) -> HandlerResult {
-    bot.send(SendMessage::new(message.chat().id(), "Any case message!"))
+async fn any_case_handler(bot: Bot, message: MessageText) -> HandlerResult<()> {
+    bot.send(SendMessage::new(message.chat.id(), "Any case message!"))
         .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[tokio::main(flavor = "current_thread")]

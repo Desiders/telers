@@ -7,18 +7,15 @@
 
 use telers::{
     enums::UpdateType,
-    event::{
-        telegram::{Handler, HandlerResult},
-        EventReturn,
-    },
+    event::telegram::{Handler, HandlerResult},
     methods::DeleteWebhook,
     types::Update,
     Bot, Dispatcher, Router,
 };
 
-async fn handler(update: Update) -> HandlerResult {
+async fn handler(update: Update) -> HandlerResult<()> {
     tracing::info!(?update, "Received update");
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[tokio::main(flavor = "current_thread")]

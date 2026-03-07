@@ -1,14 +1,17 @@
 use super::{And, Invert, Or};
 use crate::{
     client::Reqwest,
+    errors::FilterError,
     event::service::{service_fn, BoxCloneService},
     Request,
 };
 
-use std::{convert::Infallible, future::Future};
+use std::future::Future;
 
 pub type BoxedCloneFilterService<Client> =
-    BoxCloneService<Request<Client>, (bool, Request<Client>), Infallible>;
+    BoxCloneService<Request<Client>, (bool, Request<Client>), FilterError>;
+
+pub type FilterResult = Result<(), FilterError>;
 
 /// Filters are used to filter updates before processing handlers and inner middlewares.
 /// You can use filters to check if the update meets the necessary conditions,
@@ -17,10 +20,15 @@ pub type BoxedCloneFilterService<Client> =
 /// Check out the examples to see how to create your own filters and check ready-made implementations of filters
 /// to avoid writing your own filters which are already implemented.
 pub trait Filter<Client = Reqwest>: Clone + Send + Sync + 'static {
+    type Error: Into<anyhow::Error>;
+
     /// Check if the filter passes
     /// # Returns
     /// `true` if the filter passes, otherwise `false`
-    fn check(&mut self, request: &mut Request<Client>) -> impl Future<Output = bool> + Send;
+    fn check(
+        &mut self,
+        request: &mut Request<Client>,
+    ) -> impl Future<Output = Result<bool, Self::Error>> + Send;
 
     /// Invert result of the filter
     /// # Notes
@@ -55,13 +63,19 @@ pub trait Filter<Client = Reqwest>: Clone + Send + Sync + 'static {
     }
 }
 
-impl<Client, F, Fut> Filter<Client> for F
+impl<Client, F, Fut, Err> Filter<Client> for F
 where
     Client: Send + Sync + 'static,
     F: FnMut(&mut Request<Client>) -> Fut + Clone + Send + Sync + 'static,
-    Fut: Future<Output = bool> + Send,
+    Err: Into<anyhow::Error>,
+    Fut: Future<Output = Result<bool, Err>> + Send,
 {
-    fn check(&mut self, request: &mut Request<Client>) -> impl Future<Output = bool> + Send {
+    type Error = Err;
+
+    fn check(
+        &mut self,
+        request: &mut Request<Client>,
+    ) -> impl Future<Output = Result<bool, Self::Error>> + Send {
         self(request)
     }
 }
@@ -75,8 +89,10 @@ where
         let mut filter = filter.clone();
 
         async move {
-            let result = filter.check(&mut request).await;
-            Ok((result, request))
+            match filter.check(&mut request).await {
+                Ok(result) => Ok((result, request)),
+                Err(err) => Err(FilterError::new(err)),
+            }
         }
     }))
 }

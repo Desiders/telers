@@ -27,10 +27,7 @@ use std::borrow::Cow;
 use telers::{
     client::{session::ClientResponse, telegram, Session},
     enums::UpdateType,
-    event::{
-        telegram::{Handler, HandlerResult},
-        EventReturn,
-    },
+    event::telegram::{Handler, HandlerResult},
     methods::{CopyMessage, TelegramMethod},
     types::Message,
     Bot, Dispatcher, Router,
@@ -72,15 +69,14 @@ impl Session for CustomClient {
     }
 }
 
-async fn echo_handler(bot: Bot<impl Session>, message: Message) -> HandlerResult {
+async fn echo_handler(bot: Bot<impl Session>, message: Message) -> HandlerResult<()> {
     bot.send(CopyMessage::new(
         message.chat().id(),
         message.chat().id(),
         message.message_id(),
     ))
     .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[tokio::main(flavor = "current_thread")]

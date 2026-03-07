@@ -1,6 +1,6 @@
+use super::response::{IntoHandlerResult, Response};
 use crate::{
-    client::Reqwest,
-    errors::{ExtractionError, HandlerError},
+    errors::{ExtractionError, FilterError, HandlerError},
     event::{
         service::{service_fn, BoxCloneService, Service},
         EventReturn,
@@ -15,7 +15,6 @@ use crate::{
 
 use futures_util::future::{poll_fn, BoxFuture};
 use std::{
-    fmt::{self, Debug, Formatter},
     future::Future,
     task::{Context, Poll},
 };
@@ -24,26 +23,9 @@ use tracing::{event, instrument, Level};
 pub(crate) type BoxedCloneHandlerService<Client> =
     BoxCloneService<Request<Client>, Response<Client>, ExtractionError>;
 
-pub type HandlerResult = Result<EventReturn, HandlerError>;
-
-pub struct Response<Client = Reqwest> {
-    pub request: Request<Client>,
-    pub handler_result: HandlerResult,
-}
-
-impl<Client> Debug for Response<Client> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Response")
-            .field("request", &self.request)
-            .field("handler_result", &self.handler_result)
-            .finish()
-    }
-}
-
 pub trait HandlerFn<Args>: Clone + Send + Sync + 'static {
-    type Response: Into<EventReturn>;
-    type Error: Into<anyhow::Error>;
-    type Future: Future<Output = Result<Self::Response, Self::Error>> + Send;
+    type Response: IntoHandlerResult;
+    type Future: Future<Output = Self::Response> + Send;
 
     fn call(&mut self, args: Args) -> Self::Future;
 }
@@ -73,7 +55,7 @@ impl<Client> Handler<Client> {
     where
         S: Service<Args> + Clone + Send + Sync + 'static,
         S::Response: Into<EventReturn>,
-        S::Error: Into<anyhow::Error> + Send + Sync + 'static,
+        S::Error: Into<anyhow::Error> + Send,
         S::Future: Send,
         Args: Extractor<Client> + Send,
         Args::Error: Send,
@@ -86,9 +68,8 @@ impl<Client> Handler<Client> {
     }
 
     #[must_use]
-    pub fn filter<F>(self, val: F) -> Self
+    pub fn filter(self, val: impl Filter<Client>) -> Self
     where
-        F: Filter<Client>,
         Client: Send + Sync + 'static,
     {
         Self {
@@ -108,17 +89,22 @@ where
 {
     /// Check if the handler pass the filters.
     /// If the handler pass all them, it will be called.
+    /// # Errors
+    /// If any filter returns error, it will be wrapped into [`FilterError`] and returned
     #[allow(clippy::missing_panics_doc)]
     #[instrument(skip(self, request))]
-    pub async fn check(&mut self, mut request: Request<Client>) -> (bool, Request<Client>) {
+    pub async fn check(
+        &mut self,
+        mut request: Request<Client>,
+    ) -> Result<(bool, Request<Client>), FilterError> {
         for filter in &mut self.filters {
-            let (result, new_request) = filter.call(request).await.unwrap();
+            let (result, new_request) = filter.call(request).await.map_err(FilterError::new)?;
             if !result {
-                return (false, new_request);
+                return Ok((false, new_request));
             }
             request = new_request;
         }
-        (true, request)
+        Ok((true, request))
     }
 }
 
@@ -159,8 +145,8 @@ where
             match Args::extract(&request).await {
                 Ok(args) => Ok(Response {
                     request,
-                    handler_result: match handler.call(args).await {
-                        Ok(response) => Ok(response.into()),
+                    result: match handler.call(args).await.into_handler_result() {
+                        Ok(response) => Ok(response),
                         Err(err) => Err(HandlerError::new(err)),
                     },
                 }),
@@ -186,7 +172,7 @@ where
     Client: Send + Sync + 'static,
     S: Service<Args> + Clone + Send + Sync + 'static,
     S::Response: Into<EventReturn>,
-    S::Error: Into<anyhow::Error> + Send + Sync + 'static,
+    S::Error: Into<anyhow::Error> + Send,
     S::Future: Send,
     Args: Extractor<Client> + Send,
     Args::Error: Send,
@@ -198,12 +184,12 @@ where
             match Args::extract(&request).await {
                 Ok(args) => Ok(Response {
                     request,
-                    handler_result: {
+                    result: {
                         if let Err(err) = poll_fn(|cx| service.poll_ready(cx)).await {
                             Err(HandlerError::new(err))
                         } else {
                             match service.call(args).await {
-                                Ok(response) => Ok(response.into()),
+                                Ok(val) => Ok(val.into()),
                                 Err(err) => Err(HandlerError::new(err)),
                             }
                         }
@@ -230,15 +216,13 @@ macro_rules! impl_handlers {
     (
         [$($ty:ident),*]
     ) => {
-        impl<F, Fut, Response, Err, $($ty,)*> HandlerFn<($($ty,)*)> for F
+        impl<F, Fut, Response, $($ty,)*> HandlerFn<($($ty,)*)> for F
         where
             F: FnMut($($ty),*) -> Fut + Clone + Send + Sync + 'static,
-            Response: Into<EventReturn>,
-            Err: Into<anyhow::Error>,
-            Fut: Future<Output = Result<Response, Err>> + Send,
+            Response: IntoHandlerResult,
+            Fut: Future<Output = Response> + Send,
         {
             type Response = Response;
-            type Error = Err;
             type Future = Fut;
 
             #[inline]
@@ -299,7 +283,7 @@ mod tests {
 
         let response = handler.call(request).await.unwrap();
 
-        match response.handler_result {
+        match response.result {
             Ok(EventReturn::Finish) => {}
             _ => panic!("Unexpected result"),
         }
@@ -323,7 +307,7 @@ mod tests {
 
         let response = handler.call(request).await.unwrap();
 
-        match response.handler_result {
+        match response.result {
             Ok(EventReturn::Finish) => {}
             _ => panic!("Unexpected result"),
         }

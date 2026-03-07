@@ -48,39 +48,35 @@ impl OuterMiddleware for IncomingEchoRouterUpdates {
     }
 }
 
-async fn start_private(bot: Bot, message: Message) -> HandlerResult {
+async fn start_private(bot: Bot, message: Message) -> HandlerResult<()> {
     bot.send(SendMessage::new(
         message.chat().id(),
         "Hello! I'm echo bot that will repeat all your messages!",
     ))
     .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
-async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
+async fn echo_handler(bot: Bot, message: Message) -> HandlerResult<()> {
     bot.send(CopyMessage::new(
         message.chat().id(),
         message.chat().id(),
         message.message_id(),
     ))
     .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
-async fn stats_echo_router(bot: Bot, message: Message, context: Context) -> HandlerResult {
+async fn stats_echo_router(bot: Bot, message: Message, context: Context) -> HandlerResult<()> {
     let text = format!(
         "Echo router updates stats\n\nIncoming updates: {}",
         context
             .get::<usize>("incoming_echo_router_updates_counter")
             .unwrap()
     );
-
     bot.send(SendMessage::new(message.chat().id(), text))
         .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[tokio::main(flavor = "current_thread")]

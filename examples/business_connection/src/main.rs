@@ -6,43 +6,35 @@
 //! ```
 
 use telers::{
-    event::{
-        telegram::{Handler, HandlerResult},
-        EventReturn,
-    },
+    event::telegram::{Handler, HandlerResult},
     methods::SendMessage,
     types::{BusinessConnection, BusinessMessagesDeleted, Message},
     Bot, Dispatcher, Router,
 };
 
-async fn connection(business_connection: BusinessConnection) -> HandlerResult {
+async fn connection(business_connection: BusinessConnection) -> HandlerResult<()> {
     tracing::debug!(?business_connection, "Received business connection");
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
-async fn message(bot: Bot, message: Message) -> HandlerResult {
+async fn message(bot: Bot, message: Message) -> HandlerResult<()> {
     tracing::debug!(?message, "Received message");
-
     bot.send(
         SendMessage::new(message.chat().id(), "Hello world!")
             .business_connection_id(message.business_connection_id().unwrap()),
     )
     .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
-async fn message_edited(message: Message) -> HandlerResult {
+async fn message_edited(message: Message) -> HandlerResult<()> {
     tracing::debug!(?message, "Received edited message");
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
-async fn messages_deleted(messages_deleted: BusinessMessagesDeleted) -> HandlerResult {
+async fn messages_deleted(messages_deleted: BusinessMessagesDeleted) -> HandlerResult<()> {
     tracing::debug!(?messages_deleted, "Received deleted messages");
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[tokio::main(flavor = "current_thread")]

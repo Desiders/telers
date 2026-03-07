@@ -8,10 +8,7 @@
 use axum::{routing, Router as AxumRouter};
 use telers::{
     enums::UpdateType,
-    event::{
-        telegram::{Handler, HandlerResult},
-        EventReturn,
-    },
+    event::telegram::{Handler, HandlerResult},
     methods::CopyMessage,
     types::Message,
     utils::shutdown_signal,
@@ -25,15 +22,14 @@ use tokio::{
 const SERVER_HOST: &str = "0.0.0.0";
 const SERVER_PORT: u16 = 3000;
 
-async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
+async fn echo_handler(bot: Bot, message: Message) -> HandlerResult<()> {
     bot.send(CopyMessage::new(
         message.chat().id(),
         message.chat().id(),
         message.message_id(),
     ))
     .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 async fn hello_world_handler() -> &'static str {

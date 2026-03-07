@@ -424,30 +424,32 @@ impl<Client> Filter<Client> for Command
 where
     Client: Session + 'static,
 {
+    type Error = SessionErrorKind;
+
     #[instrument]
-    async fn check(&mut self, request: &mut Request<Client>) -> bool {
+    async fn check(&mut self, request: &mut Request<Client>) -> Result<bool, Self::Error> {
         let Some(message) = request.update.message() else {
-            return false;
+            return Ok(false);
         };
         let Some(text) = message.text().or(message.caption()) else {
-            return false;
+            return Ok(false);
         };
         let Some(command) = CommandObject::extract(text) else {
-            return false;
+            return Ok(false);
         };
 
         match self.validate_command_object(&command, &request.bot).await {
             Ok(result) => {
                 if result {
                     request.context.insert("command", command);
-                    true
+                    Ok(true)
                 } else {
-                    false
+                    Ok(false)
                 }
             }
             Err(err) => {
                 event!(Level::ERROR, error = %err, "Failed to validate command object");
-                false
+                Err(err)
             }
         }
     }

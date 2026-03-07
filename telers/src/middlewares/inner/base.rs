@@ -83,7 +83,7 @@ where
         Box::pin(async move {
             let Some((middleware, middlewares)) = middlewares.split_first_mut() else {
                 return match handler.call(request).await {
-                    Ok(response) => match response.handler_result {
+                    Ok(response) => match response.result {
                         Ok(_) => Ok(response),
                         // If handler returns an error, then wrap it to event error
                         Err(err) => Err(EventErrorKind::Handler(err)),
@@ -158,7 +158,7 @@ mod tests {
         .await
         .unwrap();
 
-        match response.handler_result {
+        match response.result {
             Ok(EventReturn::Finish) => {}
             _ => panic!("Unexpected response"),
         }

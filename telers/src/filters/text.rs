@@ -2,7 +2,7 @@ use super::base::Filter;
 use crate::Request;
 
 use regex::Regex;
-use std::borrow::Cow;
+use std::{borrow::Cow, convert::Infallible};
 
 /// Represents a command pattern type for verification
 /// # Variants
@@ -384,12 +384,14 @@ impl<Client> Filter<Client> for Text
 where
     Client: Send + Sync + 'static,
 {
-    async fn check(&mut self, request: &mut Request<Client>) -> bool {
-        request
+    type Error = Infallible;
+
+    async fn check(&mut self, request: &mut Request<Client>) -> Result<bool, Self::Error> {
+        Ok(request
             .update
             .text()
             .or(request.update.caption())
-            .is_some_and(|text| self.validate_text(text))
+            .is_some_and(|text| self.validate_text(text)))
     }
 }
 

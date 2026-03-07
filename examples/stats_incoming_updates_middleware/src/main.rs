@@ -69,18 +69,16 @@ impl InnerMiddleware for ProcessedHandlers {
     }
 }
 
-async fn handler(bot: Bot, update: Update, context: Context) -> HandlerResult {
+async fn handler(bot: Bot, update: Update, context: Context) -> HandlerResult<()> {
     let text = format!(
         "Hello! Users sent me {} updates and I processed {} handlers successfully for them.",
         context.get::<usize>("incoming_updates_counter").unwrap(),
         context.get::<usize>("processed_handlers_counter").unwrap()
     );
-
     if let Some(chat) = update.chat() {
         bot.send(SendMessage::new(chat.id(), text)).await?;
     }
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[tokio::main(flavor = "current_thread")]
