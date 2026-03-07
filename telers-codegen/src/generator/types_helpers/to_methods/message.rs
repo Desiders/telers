@@ -38,18 +38,18 @@ pub fn tokenize_message_to_methods(type_quote: &NormalizedType) -> TokenStream {
             impl #subtype_names {
                 /// Creates [`CopyMessage`] for this message.
                 #[must_use]
-                pub fn to_copy_message<T: Into<ChatIdKind>>(self, chat_id: T) -> CopyMessage {
-                    <#type_name as From<#subtype_names>>::from(self).to_copy_message(chat_id)
+                pub fn to_copy_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> CopyMessage {
+                    CopyMessage::new(chat_id, self.chat.id(), self.message_id)
                 }
                 /// Creates [`ForwardMessage`] for this message.
                 #[must_use]
-                pub fn to_forward_message<T: Into<ChatIdKind>>(self, chat_id: T) -> ForwardMessage {
-                    <#type_name as From<#subtype_names>>::from(self).to_forward_message(chat_id)
+                pub fn to_forward_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> ForwardMessage {
+                    ForwardMessage::new(chat_id, self.chat.id(), self.message_id)
                 }
                 /// Creates [`DeleteMessage`] for this message.
                 #[must_use]
-                pub fn delete_message(self) -> DeleteMessage {
-                    <#type_name as From<#subtype_names>>::from(self).delete_message()
+                pub fn delete_message(&self) -> DeleteMessage {
+                    DeleteMessage::new(self.chat.id(), self.message_id)
                 }
             }
         )*
