@@ -41,6 +41,7 @@
 #![allow(clippy::struct_excessive_bools)]
 #![allow(clippy::large_enum_variant)]
 pub(crate) mod non_telegram;
+pub(crate) mod to_methods;
 pub use non_telegram::*;
 pub mod accepted_gift_types;
 pub mod affiliate_info;
