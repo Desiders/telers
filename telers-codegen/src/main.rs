@@ -185,6 +185,14 @@ fn main() {
     });
     println!("Type-to-methods helpers generated");
 
+    let filters_dir = src_dir.join("filters");
+    let tokens = generator::types_helpers::smart_filter::tokenize_smart_filter(&schema);
+    write_tokens_to_file(&tokens, &filters_dir, "smart.rs").unwrap_or_else(|err| {
+        eprintln!("Failed to write file 'smart.rs' in dir filters: {err}\nContent: {tokens}");
+        process::exit(1);
+    });
+    println!("Smart filters generated");
+
     let method_names = schema.methods.values().map(|m| &m.name).collect::<Vec<_>>();
     let tokens = generator::methods::tokenize_methods_mod(method_names.as_slice());
     write_tokens_to_file(&tokens, &src_dir, "methods.rs").unwrap_or_else(|err| {

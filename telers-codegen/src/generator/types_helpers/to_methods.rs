@@ -5,6 +5,7 @@ use crate::parser::api::NormalizedSchema;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
+#[allow(clippy::missing_panics_doc)]
 #[must_use]
 pub fn tokenize_to_methods_files(schema: &NormalizedSchema) -> Vec<(&'static str, TokenStream)> {
     vec![(

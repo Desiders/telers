@@ -10,6 +10,9 @@
 //! Each filter has a method [`Filter::invert`], [`Filter::and`] and [`Filter::or`] to create [`Invert`], [`And`] and [`Or`] filters respectively.
 //!
 //! Ready-made implementations:
+//! * [`SmartFilter`]:
+//!   Filter for most common cases.
+//!   Used to check if the update meets the necessary conditions.
 //! * [`ChatType`]:
 //!   Filter for checking the type of chat.
 //!   Usually used with [`ChatTypeEnum`] (or its string representation) to check the type of chat.
@@ -63,6 +66,7 @@ pub mod chat_type;
 pub mod command;
 pub mod logical;
 pub mod message_type;
+pub mod smart;
 pub mod state;
 pub mod text;
 pub mod user;
@@ -72,6 +76,7 @@ pub use chat_type::ChatType;
 pub use command::{Builder as CommandBuilder, Command, CommandObject};
 pub use logical::{And, Invert, Or};
 pub use message_type::MessageType;
+pub use smart::SmartFilter;
 pub use state::State;
 pub use text::{Builder as TextBuilder, Text};
 pub use user::{Builder as UserBuilder, User};
