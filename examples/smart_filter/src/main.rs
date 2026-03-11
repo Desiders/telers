@@ -2,7 +2,7 @@
 //!
 //! You can run this example by setting `BOT_TOKEN` and running:
 //! ```bash
-//! BOT_TOKEN={your_bot_token} cargo run --package text_case_smart_filters
+//! BOT_TOKEN={your_bot_token} cargo run --package smart_filter
 //! ```
 
 use telers::{
