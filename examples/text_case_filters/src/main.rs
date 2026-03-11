@@ -1,5 +1,5 @@
 //! This example shows how to create text case filters.
-//! First filter checks if the message is uppercase, second filter checks if the message is lowercase.
+//! First filter checks if the message is uppercase, second filter checks if the message is lowercase, third filter checks if the message is any case.
 //!
 //! You can run this example by setting `BOT_TOKEN` and running:
 //! ```bash
@@ -11,7 +11,7 @@ use telers::{
     enums::UpdateType,
     event::telegram::{Handler, HandlerResult},
     methods::SendMessage,
-    types::MessageText,
+    types::Message,
     Bot, Dispatcher, Filter, Request, Router,
 };
 
@@ -37,20 +37,20 @@ fn lowercase_filter(request: &mut Request) -> impl Future<Output = Result<bool, 
     async move { Ok(result) }
 }
 
-async fn uppercase_handler(bot: Bot, message: MessageText) -> HandlerResult<()> {
-    bot.send(SendMessage::new(message.chat.id(), "Uppercase message!"))
+async fn uppercase_handler(bot: Bot, message: Message) -> HandlerResult<()> {
+    bot.send(SendMessage::new(message.chat().id(), "Uppercase message!"))
         .await?;
     Ok(())
 }
 
-async fn lowercase_handler(bot: Bot, message: MessageText) -> HandlerResult<()> {
-    bot.send(SendMessage::new(message.chat.id(), "Lowercase message!"))
+async fn lowercase_handler(bot: Bot, message: Message) -> HandlerResult<()> {
+    bot.send(SendMessage::new(message.chat().id(), "Lowercase message!"))
         .await?;
     Ok(())
 }
 
-async fn any_case_handler(bot: Bot, message: MessageText) -> HandlerResult<()> {
-    bot.send(SendMessage::new(message.chat.id(), "Any case message!"))
+async fn any_case_handler(bot: Bot, message: Message) -> HandlerResult<()> {
+    bot.send(SendMessage::new(message.chat().id(), "Any case message!"))
         .await?;
     Ok(())
 }
@@ -65,7 +65,9 @@ async fn main() {
         observer.registers([
             Handler::new(uppercase_handler).filter(UppercaseFilter),
             Handler::new(lowercase_handler).filter(lowercase_filter),
-            Handler::new(any_case_handler),
+            Handler::new(any_case_handler)
+                .filter(UppercaseFilter.invert())
+                .filter(lowercase_filter.invert()),
         ])
     });
 
