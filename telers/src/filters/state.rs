@@ -1,4 +1,4 @@
-use super::base::Filter;
+use super::{Filter, FilterResult};
 use crate::Request;
 
 use std::{convert::Infallible, future::Future};
@@ -89,7 +89,7 @@ where
     fn check(
         &mut self,
         request: &mut Request<Client>,
-    ) -> impl Future<Output = Result<bool, Self::Error>> + Send {
+    ) -> impl Future<Output = FilterResult<Self::Error>> + Send {
         let res = self.validate(request.context.contains_key("fsm_state"));
         async move { Ok(res) }
     }
@@ -105,7 +105,7 @@ where
     fn check(
         &mut self,
         request: &mut Request<Client>,
-    ) -> impl Future<Output = Result<bool, Self::Error>> + Send {
+    ) -> impl Future<Output = FilterResult<Self::Error>> + Send {
         let res = self.validate_eq(
             request
                 .context

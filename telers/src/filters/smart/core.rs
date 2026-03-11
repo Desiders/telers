@@ -1,6 +1,6 @@
 #![allow(clippy::type_complexity)]
 
-use crate::{types::Update, Filter, Request};
+use crate::{types::Update, Filter, FilterResult, Request};
 
 use std::{convert::Infallible, future::Future, pin::Pin, sync::Arc};
 
@@ -69,7 +69,7 @@ where
     fn check(
         &mut self,
         request: &mut Request<Client>,
-    ) -> impl Future<Output = Result<bool, Self::Error>> + Send {
+    ) -> impl Future<Output = FilterResult<Self::Error>> + Send {
         let val = (self.accessor)(request.update.as_ref());
         let mode = self.mode.clone();
 
@@ -116,7 +116,7 @@ where
     fn check(
         &mut self,
         request: &mut Request<Client>,
-    ) -> impl Future<Output = Result<bool, Self::Error>> + Send {
+    ) -> impl Future<Output = FilterResult<Self::Error>> + Send {
         let val = (self.accessor)(request.update.as_ref());
         let mode = self.mode.clone();
 
@@ -215,7 +215,7 @@ macro_rules! define_branch {
             fn check(
                 &mut self,
                 request: &mut Request<Client>,
-            ) -> impl Future<Output = Result<bool, Self::Error>> + Send {
+            ) -> impl Future<Output = FilterResult<Self::Error>> + Send {
                 let val = (self.accessor)(request.update.as_ref());
                 let conditions = self.conditions.clone();
                 let operator = self.operator;

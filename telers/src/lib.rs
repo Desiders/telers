@@ -36,7 +36,7 @@ pub use dispatcher::{Builder as DispatcherBuilder, Dispatcher};
 pub use either::Either;
 pub use extensions::{Extension, Extensions};
 pub use extractor::Extractor;
-pub use filters::Filter;
+pub use filters::{Filter, FilterResult};
 pub use fsm::Context as FSMContext;
 pub use request::Request;
 pub use router::{Configured as RouterConfigured, Router};

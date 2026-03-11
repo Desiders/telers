@@ -11,7 +11,8 @@ use std::future::Future;
 pub type BoxedCloneFilterService<Client> =
     BoxCloneService<Request<Client>, (bool, Request<Client>), FilterError>;
 
-pub type FilterResult = Result<(), FilterError>;
+#[allow(type_alias_bounds)]
+pub type FilterResult<E: Into<anyhow::Error> = FilterError> = Result<bool, E>;
 
 /// Filters are used to filter updates before processing handlers and inner middlewares.
 /// You can use filters to check if the update meets the necessary conditions,
@@ -28,7 +29,7 @@ pub trait Filter<Client = Reqwest>: Clone + Send + Sync + 'static {
     fn check(
         &mut self,
         request: &mut Request<Client>,
-    ) -> impl Future<Output = Result<bool, Self::Error>> + Send;
+    ) -> impl Future<Output = FilterResult<Self::Error>> + Send;
 
     /// Invert result of the filter
     /// # Notes
@@ -68,14 +69,14 @@ where
     Client: Send + Sync + 'static,
     F: FnMut(&mut Request<Client>) -> Fut + Clone + Send + Sync + 'static,
     Err: Into<anyhow::Error>,
-    Fut: Future<Output = Result<bool, Err>> + Send,
+    Fut: Future<Output = FilterResult<Err>> + Send,
 {
     type Error = Err;
 
     fn check(
         &mut self,
         request: &mut Request<Client>,
-    ) -> impl Future<Output = Result<bool, Self::Error>> + Send {
+    ) -> impl Future<Output = FilterResult<Self::Error>> + Send {
         self(request)
     }
 }

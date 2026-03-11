@@ -1,4 +1,4 @@
-use super::base::Filter;
+use super::{Filter, FilterResult};
 use crate::{enums, Request};
 
 use std::{convert::Infallible, future::Future};
@@ -40,7 +40,7 @@ where
     fn check(
         &mut self,
         request: &mut Request<Client>,
-    ) -> impl Future<Output = Result<bool, Self::Error>> {
+    ) -> impl Future<Output = FilterResult<Self::Error>> {
         let res = match request.update.message() {
             Some(message) => self.validate(enums::MessageType::from(message)),
             None => false,

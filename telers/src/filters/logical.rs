@@ -9,7 +9,7 @@
 //! [`Filter`] trait has methods that allow you to combine filters in a more convenient way,
 //! see [`Filter::and`], [`Filter::or`] and [`Filter::invert`] methods.
 
-use super::base::Filter;
+use super::{Filter, FilterResult};
 use crate::{Either, Request};
 
 #[derive(Clone)]
@@ -40,7 +40,7 @@ where
 {
     type Error = Either<F::Error, S::Error>;
 
-    async fn check(&mut self, request: &mut Request<Client>) -> Result<bool, Self::Error> {
+    async fn check(&mut self, request: &mut Request<Client>) -> FilterResult<Self::Error> {
         Ok(self.0.check(request).await.map_err(Self::Error::Left)?
             || self.1.check(request).await.map_err(Self::Error::Right)?)
     }
@@ -56,7 +56,7 @@ where
 {
     type Error = F::Error;
 
-    async fn check(&mut self, request: &mut Request<Client>) -> Result<bool, Self::Error> {
+    async fn check(&mut self, request: &mut Request<Client>) -> FilterResult<Self::Error> {
         Ok(!self.0.check(request).await?)
     }
 }

@@ -12,7 +12,7 @@ use telers::{
     event::telegram::{Handler, HandlerResult},
     methods::SendMessage,
     types::Message,
-    Bot, Dispatcher, Filter, Request, Router,
+    Bot, Dispatcher, Filter, FilterResult, Request, Router,
 };
 
 #[derive(Clone)]
@@ -21,7 +21,7 @@ struct UppercaseFilter;
 impl Filter for UppercaseFilter {
     type Error = Infallible;
 
-    async fn check(&mut self, request: &mut Request) -> Result<bool, Infallible> {
+    async fn check(&mut self, request: &mut Request) -> FilterResult<Infallible> {
         Ok(request
             .update
             .text()
@@ -29,7 +29,7 @@ impl Filter for UppercaseFilter {
     }
 }
 
-fn lowercase_filter(request: &mut Request) -> impl Future<Output = Result<bool, Infallible>> {
+fn lowercase_filter(request: &mut Request) -> impl Future<Output = FilterResult<Infallible>> {
     let result = request
         .update
         .text()

@@ -1,4 +1,4 @@
-use super::base::Filter;
+use super::{Filter, FilterResult};
 use crate::{
     client::{Bot, Session},
     errors::SessionErrorKind,
@@ -427,7 +427,7 @@ where
     type Error = SessionErrorKind;
 
     #[instrument]
-    async fn check(&mut self, request: &mut Request<Client>) -> Result<bool, Self::Error> {
+    async fn check(&mut self, request: &mut Request<Client>) -> FilterResult<Self::Error> {
         let Some(message) = request.update.message() else {
             return Ok(false);
         };

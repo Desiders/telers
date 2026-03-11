@@ -1,4 +1,4 @@
-use super::base::Filter;
+use super::{Filter, FilterResult};
 use crate::Request;
 
 use regex::Regex;
@@ -386,7 +386,7 @@ where
 {
     type Error = Infallible;
 
-    async fn check(&mut self, request: &mut Request<Client>) -> Result<bool, Self::Error> {
+    async fn check(&mut self, request: &mut Request<Client>) -> FilterResult<Self::Error> {
         Ok(request
             .update
             .text()

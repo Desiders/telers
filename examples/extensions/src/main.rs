@@ -22,7 +22,7 @@ use telers::{
     methods::SendMessage,
     middlewares::outer::MiddlewareResponse,
     types::Message,
-    Bot, Dispatcher, Extension, Extensions, Request, Router,
+    Bot, Dispatcher, Extension, Extensions, FilterResult, Request, Router,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -42,7 +42,7 @@ async fn to_extensions_middleware(
     Ok((request, EventReturn::default()))
 }
 
-fn to_extensions_filter(request: &mut Request) -> impl Future<Output = Result<bool, Infallible>> {
+fn to_extensions_filter(request: &mut Request) -> impl Future<Output = FilterResult<Infallible>> {
     request.extensions.insert(StrData("1"));
     async move { Ok(true) }
 }

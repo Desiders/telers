@@ -1,4 +1,4 @@
-use super::base::Filter;
+use super::{Filter, FilterResult};
 use crate::{types::User as UserType, Request};
 
 use std::{borrow::Cow, convert::Infallible};
@@ -366,7 +366,7 @@ where
 {
     type Error = Infallible;
 
-    async fn check(&mut self, request: &mut Request<Client>) -> Result<bool, Self::Error> {
+    async fn check(&mut self, request: &mut Request<Client>) -> FilterResult<Self::Error> {
         Ok(match request.update.from() {
             Some(user) => self.validate(user),
             None => false,
