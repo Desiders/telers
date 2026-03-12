@@ -18,6 +18,7 @@ pub struct Formatter;
 
 impl Formatter {
     /// Create a new instance of [`Formatter`]
+    #[inline]
     #[must_use]
     pub const fn new() -> Self {
         Self {}
@@ -25,6 +26,7 @@ impl Formatter {
 }
 
 impl Default for Formatter {
+    #[inline]
     fn default() -> Self {
         Self::new()
     }
@@ -213,18 +215,16 @@ impl TextFormatter for Formatter {
             MessageEntity::Blockquote(_) => self.blockquote(editable_text),
             MessageEntity::ExpandableBlockquote(_) => self.expandable_blockquote(editable_text),
             MessageEntity::Code(_) => self.code(editable_text),
-            MessageEntity::Pre(MessageEntityPre {
-                language, ..
-            }) => match language {
+            MessageEntity::Pre(MessageEntityPre { language, .. }) => match language {
                 Some(language) => self.pre_language(editable_text, language),
                 None => self.pre(editable_text),
             },
-            MessageEntity::TextLink(MessageEntityTextLink {
-                url, ..
-            }) => self.text_link(editable_text, url),
-            MessageEntity::TextMention(MessageEntityTextMention {
-                user, ..
-            }) => self.text_mention(editable_text, user.id),
+            MessageEntity::TextLink(MessageEntityTextLink { url, .. }) => {
+                self.text_link(editable_text, url)
+            }
+            MessageEntity::TextMention(MessageEntityTextMention { user, .. }) => {
+                self.text_mention(editable_text, user.id)
+            }
             MessageEntity::CustomEmoji(MessageEntityCustomEmoji {
                 custom_emoji_id, ..
             }) => self.custom_emoji(editable_text, custom_emoji_id),
@@ -246,62 +246,77 @@ impl TextFormatter for Formatter {
 
 pub const FORMATTER: Formatter = Formatter::new();
 
+#[inline]
 pub fn bold(text: impl Display) -> String {
     FORMATTER.bold(text)
 }
 
+#[inline]
 pub fn italic(text: impl Display) -> String {
     FORMATTER.italic(text)
 }
 
+#[inline]
 pub fn underline(text: impl Display) -> String {
     FORMATTER.underline(text)
 }
 
+#[inline]
 pub fn strikethrough(text: impl Display) -> String {
     FORMATTER.strikethrough(text)
 }
 
+#[inline]
 pub fn spoiler(text: impl Display) -> String {
     FORMATTER.spoiler(text)
 }
 
+#[inline]
 pub fn blockquote(text: impl Display) -> String {
     FORMATTER.blockquote(text)
 }
 
+#[inline]
 pub fn expandable_blockquote(text: impl Display) -> String {
     FORMATTER.expandable_blockquote(text)
 }
 
+#[inline]
 pub fn text_link(text: impl Display, url: &str) -> String {
     FORMATTER.text_link(text, url)
 }
 
+#[inline]
 pub fn text_mention(text: impl Display, user_id: i64) -> String {
     FORMATTER.text_mention(text, user_id)
 }
 
+#[inline]
 pub fn custom_emoji(text: impl Display, emoji_id: &str) -> String {
     FORMATTER.custom_emoji(text, emoji_id)
 }
 
+#[inline]
 pub fn code(text: impl Display) -> String {
     FORMATTER.code(text)
 }
 
+#[inline]
 pub fn pre(text: impl Display) -> String {
     FORMATTER.pre(text)
 }
 
+#[inline]
 pub fn pre_language(text: impl Display, language: &str) -> String {
     FORMATTER.pre_language(text, language)
 }
 
+#[inline]
 pub fn date_time(text: impl Display, unix_time: i64) -> String {
     FORMATTER.date_time(text, unix_time)
 }
 
+#[inline]
 pub fn date_time_with_format(
     text: impl Display,
     unix_time: i64,
@@ -310,6 +325,7 @@ pub fn date_time_with_format(
     FORMATTER.date_time_with_format(text, unix_time, date_time_format)
 }
 
+#[inline]
 pub fn quote(text: impl Display) -> String {
     FORMATTER.quote(text)
 }

@@ -20,6 +20,7 @@ pub struct StorageKey {
 }
 
 impl StorageKey {
+    #[inline]
     #[must_use]
     pub fn new(
         bot_id: i64,
@@ -38,12 +39,10 @@ impl StorageKey {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn destiny(self, destiny: &'static str) -> Self {
-        Self {
-            destiny,
-            ..self
-        }
+        Self { destiny, ..self }
     }
 }
 

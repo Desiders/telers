@@ -9,6 +9,8 @@ pub struct MessageType<const N: usize> {
 }
 
 impl MessageType<1> {
+    #[inline]
+    #[must_use]
     pub fn one(content_type: impl Into<enums::MessageType>) -> Self {
         Self {
             types: [content_type.into(); 1],
@@ -17,6 +19,8 @@ impl MessageType<1> {
 }
 
 impl<const N: usize> MessageType<N> {
+    #[inline]
+    #[must_use]
     pub fn many(types: impl Into<[enums::MessageType; N]>) -> Self {
         Self {
             types: types.into(),
@@ -25,6 +29,7 @@ impl<const N: usize> MessageType<N> {
 }
 
 impl<const N: usize> MessageType<N> {
+    #[inline]
     #[must_use]
     pub fn validate(&self, content_type: enums::MessageType) -> bool {
         self.types.contains(&content_type)

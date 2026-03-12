@@ -14,6 +14,7 @@ pub struct Observer {
 }
 
 impl Observer {
+    #[inline]
     #[must_use]
     pub const fn new(event_name: &'static str) -> Self {
         Self {
@@ -23,6 +24,7 @@ impl Observer {
     }
 
     /// Register event handler
+    #[inline]
     #[must_use]
     pub fn register(mut self, handler: Handler) -> Self {
         self.handlers.push(handler);

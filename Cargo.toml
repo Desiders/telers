@@ -8,9 +8,7 @@ resolver = "2"
 debug = 0
 
 [profile.release]
-lto = true
-opt-level = 3
-codegen-units = 1
+lto = "thin"
 
 [patch.crates-io]
 telers = { path = "telers" }

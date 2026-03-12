@@ -19,11 +19,10 @@ pub struct Context<S> {
 }
 
 impl<S> Context<S> {
+    #[inline]
+    #[must_use]
     pub fn new(storage: S, key: StorageKey) -> Self {
-        Self {
-            storage,
-            key,
-        }
+        Self { storage, key }
     }
 }
 
@@ -31,6 +30,7 @@ impl<S> Clone for Context<S>
 where
     S: Clone,
 {
+    #[inline]
     fn clone(&self) -> Self {
         Self {
             storage: self.storage.clone(),

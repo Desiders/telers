@@ -60,6 +60,7 @@ where
     }
 
     /// Register event handler
+    #[inline]
     #[must_use]
     pub fn register(mut self, handler: Handler<Client>) -> Self {
         self.handlers.push(handler);
@@ -105,6 +106,7 @@ where
     }
 
     /// Register inner middleware to observer
+    #[inline]
     #[must_use]
     pub fn register_inner_middleware(mut self, middleware: impl InnerMiddleware<Client>) -> Self {
         self.inner_middlewares.register(middleware);
@@ -112,6 +114,7 @@ where
     }
 
     /// Register outer middleware to observer
+    #[inline]
     #[must_use]
     pub fn register_outer_middleware(mut self, middleware: impl OuterMiddleware<Client>) -> Self {
         self.outer_middlewares.register(middleware);

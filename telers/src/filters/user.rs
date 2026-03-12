@@ -63,6 +63,7 @@ impl User {
     /// Creates a new [`User`] filter with a single username
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
+    #[inline]
     #[must_use]
     pub fn username(val: impl Into<Cow<'static, str>>) -> Self {
         Self::builder().username(val).build()
@@ -71,6 +72,7 @@ impl User {
     /// Creates a new [`User`] filter with a list of usernames
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
+    #[inline]
     #[must_use]
     pub fn usernames<T, I>(val: I) -> Self
     where
@@ -83,6 +85,7 @@ impl User {
     /// Creates a new [`User`] filter with a single first name
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
+    #[inline]
     #[must_use]
     pub fn first_name(val: impl Into<Cow<'static, str>>) -> Self {
         Self::builder().first_name(val).build()
@@ -91,6 +94,7 @@ impl User {
     /// Creates a new [`User`] filter with a list of first names
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
+    #[inline]
     #[must_use]
     pub fn first_names<T, I>(val: I) -> Self
     where
@@ -103,6 +107,7 @@ impl User {
     /// Creates a new [`User`] filter with a single last name
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
+    #[inline]
     #[must_use]
     pub fn last_name(val: impl Into<Cow<'static, str>>) -> Self {
         Self::builder().last_name(val).build()
@@ -111,6 +116,7 @@ impl User {
     /// Creates a new [`User`] filter with a list of last names
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
+    #[inline]
     #[must_use]
     pub fn last_names<T, I>(val: I) -> Self
     where
@@ -123,6 +129,7 @@ impl User {
     /// Creates a new [`User`] filter with a single language code
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
+    #[inline]
     #[must_use]
     pub fn language_code(val: impl Into<Cow<'static, str>>) -> Self {
         Self::builder().language_code(val).build()
@@ -131,6 +138,7 @@ impl User {
     /// Creates a new [`User`] filter with a list of language codes
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
+    #[inline]
     #[must_use]
     pub fn language_codes<T, I>(val: I) -> Self
     where
@@ -143,6 +151,7 @@ impl User {
     /// Creates a new [`User`] filter with a single user ID
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
+    #[inline]
     #[must_use]
     pub fn id(val: i64) -> Self {
         Self::builder().id(val).build()
@@ -151,11 +160,13 @@ impl User {
     /// Creates a new [`User`] filter with a list of user IDs
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
+    #[inline]
     #[must_use]
     pub fn ids(val: impl IntoIterator<Item = i64>) -> Self {
         Self::builder().ids(val).build()
     }
 
+    #[inline]
     #[must_use]
     pub fn builder() -> Builder {
         Builder::default()
@@ -296,6 +307,7 @@ impl Builder {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn build(self) -> User {
         User::new(

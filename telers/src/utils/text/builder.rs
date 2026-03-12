@@ -24,6 +24,7 @@ impl<F> Builder<F>
 where
     F: Formatter,
 {
+    #[inline]
     #[must_use]
     pub const fn new(formatter: F) -> Self {
         Self {

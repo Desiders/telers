@@ -29,18 +29,21 @@ pub trait IntoHandlerResult {
 }
 
 impl IntoHandlerResult for EventReturn {
+    #[inline]
     fn into_handler_result(self) -> HandlerResult {
         Ok(self)
     }
 }
 
 impl IntoHandlerResult for () {
+    #[inline]
     fn into_handler_result(self) -> HandlerResult {
         Ok(EventReturn::Finish)
     }
 }
 
 impl IntoHandlerResult for Infallible {
+    #[inline(never)]
     fn into_handler_result(self) -> HandlerResult {
         match self {}
     }

@@ -18,18 +18,21 @@ pub enum PatternType {
 }
 
 impl From<Cow<'static, str>> for PatternType {
+    #[inline]
     fn from(text: Cow<'static, str>) -> Self {
         Self::Text(text)
     }
 }
 
 impl From<&'static str> for PatternType {
+    #[inline]
     fn from(text: &'static str) -> Self {
         Self::Text(Cow::Borrowed(text))
     }
 }
 
 impl From<Regex> for PatternType {
+    #[inline]
     fn from(regex: Regex) -> Self {
         Self::Regex(regex)
     }
@@ -122,6 +125,7 @@ impl Text {
     /// Creates a new [`Text`] filter with pass text or compiled [`Regex`] pattern that must be equal to the text
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
+    #[inline]
     #[must_use]
     pub fn one(text: impl Into<PatternType>) -> Self {
         Self::builder().text(text).build()
@@ -130,6 +134,7 @@ impl Text {
     /// Creates a new [`Text`] filter with pass texts or compiled [`Regex`] patterns that must be equal to the text
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
+    #[inline]
     #[must_use]
     pub fn many(texts: impl IntoIterator<Item = impl Into<PatternType>>) -> Self {
         Self::builder().texts(texts).build()
@@ -138,6 +143,7 @@ impl Text {
     /// Creates a new [`Text`] filter with pass text that must be contained in the text
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
+    #[inline]
     #[must_use]
     pub fn contains_single(val: impl Into<Cow<'static, str>>) -> Self {
         Self::builder().contains_single(val).build()
@@ -146,6 +152,7 @@ impl Text {
     /// Creates a new [`Text`] filter with pass texts that must be contained in the text
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
+    #[inline]
     #[must_use]
     pub fn contains(val: impl IntoIterator<Item = impl Into<Cow<'static, str>>>) -> Self {
         Self::builder().contains(val).build()
@@ -154,6 +161,7 @@ impl Text {
     /// Creates a new [`Text`] filter with pass text that must be at the beginning of the text
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
+    #[inline]
     #[must_use]
     pub fn starts_with_single(val: impl Into<Cow<'static, str>>) -> Self {
         Self::builder().starts_with_single(val).build()
@@ -162,6 +170,7 @@ impl Text {
     /// Creates a new [`Text`] filter with pass texts that must be at the beginning of the text
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
+    #[inline]
     #[must_use]
     pub fn starts_with(val: impl IntoIterator<Item = impl Into<Cow<'static, str>>>) -> Self {
         Self::builder().starts_with(val).build()
@@ -170,6 +179,7 @@ impl Text {
     /// Creates a new [`Text`] filter with pass text that must be at the end of the text
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
+    #[inline]
     #[must_use]
     pub fn ends_with_single(val: impl Into<Cow<'static, str>>) -> Self {
         Self::builder().ends_with_single(val).build()
@@ -178,6 +188,7 @@ impl Text {
     /// Creates a new [`Text`] filter with pass texts that must be at the end of the text
     /// # Notes
     /// This method is just a shortcut to create a filter using the builder
+    #[inline]
     #[must_use]
     pub fn ends_with(val: impl IntoIterator<Item = impl Into<Cow<'static, str>>>) -> Self {
         Self::builder().ends_with(val).build()
@@ -186,6 +197,7 @@ impl Text {
     /// # Panics
     /// If `ignore_case` is `true` and [`Regex`],
     /// can't be compiled with `(?i)` flag (ignore case sensitive flag)
+    #[inline]
     #[must_use]
     pub fn builder() -> Builder {
         Builder::default()
@@ -302,6 +314,7 @@ impl Builder {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn ignore_case(self, ignore_case: bool) -> Self {
         Self {
@@ -310,6 +323,7 @@ impl Builder {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn build(self) -> Text {
         Text::new(

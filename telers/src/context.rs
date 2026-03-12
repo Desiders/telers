@@ -44,9 +44,7 @@ impl Context {
     #[inline]
     #[must_use]
     pub const fn new() -> Self {
-        Self {
-            map: None,
-        }
+        Self { map: None }
     }
 
     pub fn insert<T: Clone + Send + Sync + 'static>(
@@ -111,26 +109,22 @@ impl Context {
             .and_then(|boxed| boxed.into_any().downcast().ok().map(|boxed| *boxed))
     }
 
-    #[inline]
     pub fn clear(&mut self) {
         if let Some(ref mut map) = self.map {
             map.clear();
         }
     }
 
-    #[inline]
     #[must_use]
     pub fn contains_key(&self, key: &'static str) -> bool {
         self.map.as_ref().is_some_and(|map| map.contains_key(key))
     }
 
-    #[inline]
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.map.as_ref().map_or(true, |map| map.is_empty())
     }
 
-    #[inline]
     #[must_use]
     pub fn len(&self) -> usize {
         self.map.as_ref().map_or(0, |map| map.len())

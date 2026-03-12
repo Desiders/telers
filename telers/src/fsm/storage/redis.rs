@@ -19,6 +19,7 @@ pub enum Part {
 }
 
 impl Part {
+    #[inline]
     #[must_use]
     pub fn as_str(&self) -> &'static str {
         match self {
@@ -59,6 +60,7 @@ pub struct KeyBuilderImpl {
 }
 
 impl KeyBuilderImpl {
+    #[inline]
     #[must_use]
     pub fn new(
         prefix: &'static str,
@@ -74,22 +76,19 @@ impl KeyBuilderImpl {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn with_prefix(self, prefix: &'static str) -> Self {
-        Self {
-            prefix,
-            ..self
-        }
+        Self { prefix, ..self }
     }
 
+    #[inline]
     #[must_use]
     pub fn with_separator(self, separator: &'static str) -> Self {
-        Self {
-            separator,
-            ..self
-        }
+        Self { separator, ..self }
     }
 
+    #[inline]
     #[must_use]
     pub fn with_bot_id(self, with_bot_id: bool) -> Self {
         Self {
@@ -98,6 +97,7 @@ impl KeyBuilderImpl {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn with_destiny(self, with_destiny: bool) -> Self {
         Self {
@@ -108,6 +108,7 @@ impl KeyBuilderImpl {
 }
 
 impl Default for KeyBuilderImpl {
+    #[inline]
     fn default() -> Self {
         Self::new(DEFAULT_PREFIX, DEFAULT_SEPARATOR, true, true)
     }
@@ -184,12 +185,10 @@ impl<K: KeyBuilder> Redis<K> {
             },
         };
 
-        Ok(Self {
-            pool,
-            key_builder,
-        })
+        Ok(Self { pool, key_builder })
     }
 
+    #[inline]
     #[must_use]
     pub fn key_builder(self, key_builder: K) -> Self {
         Self {

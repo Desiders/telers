@@ -146,6 +146,7 @@ pub struct Response<Client> {
 }
 
 impl<Client> Response<Client> {
+    #[inline]
     #[must_use]
     pub fn new(request: Request<Client>, propagate_result: PropagateEventResult<Client>) -> Self {
         Self {
@@ -414,6 +415,7 @@ impl<Client> Router<Client> {
         with_telegram_observer_variants!(observer_refs_array, ref, self)
     }
 
+    #[inline]
     #[must_use]
     #[cfg(test)]
     const fn event_observers(&self) -> [&SimpleObserver; 2] {
@@ -452,6 +454,7 @@ impl<Client> Router<Client> {
     /// Resolve used update types from the current router and its sub routers.
     /// If observer has no handlers, then it will be skipped.
     /// This method is useful for getting updates only for registered update types.
+    #[inline]
     #[must_use]
     pub fn resolve_used_update_types(&self) -> HashSet<&'static str> {
         self.resolve_used_update_types_with_skip([])

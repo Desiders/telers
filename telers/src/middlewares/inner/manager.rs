@@ -54,6 +54,7 @@ impl<Client> Manager<Client> {
 }
 
 impl<Client> Default for Manager<Client> {
+    #[inline]
     fn default() -> Self {
         Self {
             middlewares: vec![],
@@ -62,6 +63,7 @@ impl<Client> Default for Manager<Client> {
 }
 
 impl<Client> Clone for Manager<Client> {
+    #[inline]
     fn clone(&self) -> Self {
         Self {
             middlewares: self.middlewares.clone(),

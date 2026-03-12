@@ -66,6 +66,7 @@ impl Display for Strategy {
 }
 
 impl Strategy {
+    #[inline]
     #[must_use]
     pub const fn as_str(&self) -> &'static str {
         match self {
@@ -92,6 +93,7 @@ pub struct IdPair {
 
 impl Strategy {
     /// Apply strategy to `chat_id`, `user_id` and `message_thread_id`
+    #[inline]
     #[must_use]
     pub fn apply(
         &self,

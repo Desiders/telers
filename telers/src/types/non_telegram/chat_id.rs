@@ -9,11 +9,13 @@ pub enum ChatIdKind {
 }
 
 impl ChatIdKind {
+    #[inline]
     #[must_use]
     pub fn id(val: i64) -> Self {
         Self::Id(val)
     }
 
+    #[inline]
     #[must_use]
     pub fn username(val: impl Into<Box<str>>) -> Self {
         Self::Username(val.into())
@@ -21,24 +23,28 @@ impl ChatIdKind {
 }
 
 impl From<i64> for ChatIdKind {
+    #[inline]
     fn from(val: i64) -> Self {
         Self::id(val)
     }
 }
 
 impl From<Box<str>> for ChatIdKind {
+    #[inline]
     fn from(val: Box<str>) -> Self {
         Self::username(val)
     }
 }
 
 impl From<&str> for ChatIdKind {
+    #[inline]
     fn from(val: &str) -> Self {
         Self::username(val)
     }
 }
 
 impl From<String> for ChatIdKind {
+    #[inline]
     fn from(val: String) -> Self {
         Self::username(val)
     }

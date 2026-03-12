@@ -15,6 +15,7 @@ use tracing::{event, instrument, Level};
 pub struct Logging;
 
 impl Logging {
+    #[inline]
     #[must_use]
     pub const fn new() -> Self {
         Self {}

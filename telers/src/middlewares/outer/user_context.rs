@@ -9,6 +9,7 @@ use tracing::instrument;
 pub struct UserContext;
 
 impl UserContext {
+    #[inline]
     #[must_use]
     pub const fn new() -> Self {
         Self {}

@@ -56,10 +56,12 @@ impl Service<()> for Handler {
     type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
     type Response = ();
 
+    #[inline]
     fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
         Poll::Ready(Ok(()))
     }
 
+    #[inline]
     fn call(&mut self, req: ()) -> Self::Future {
         self.service.call(req)
     }
@@ -106,7 +108,6 @@ macro_rules! impl_handlers {
             type Error = Err;
             type Future = Fut;
 
-            #[inline]
             #[allow(non_snake_case)]
             fn call(&mut self, ($($ty,)*): ($($ty,)*)) -> Self::Future {
                 (self)($($ty,)*)

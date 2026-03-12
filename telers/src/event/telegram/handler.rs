@@ -122,10 +122,12 @@ impl<Client> Service<Request<Client>> for Handler<Client> {
     type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
     type Response = Response<Client>;
 
+    #[inline]
     fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
         Poll::Ready(Ok(()))
     }
 
+    #[inline]
     fn call(&mut self, req: Request<Client>) -> Self::Future {
         self.service.call(req)
     }
@@ -225,7 +227,6 @@ macro_rules! impl_handlers {
             type Response = Response;
             type Future = Fut;
 
-            #[inline]
             #[allow(non_snake_case)]
             fn call(&mut self, ($($ty,)*): ($($ty,)*)) -> Self::Future {
                 (self)($($ty,)*)

@@ -19,17 +19,20 @@ pub enum State<S = Dummy, const N: usize = 0> {
 
 impl State {
     /// Creates a state filter that allows any state
+    #[inline]
     #[must_use]
     pub const fn any() -> Self {
         Self::Any
     }
 
     /// Creates a state filter that allows only the absence of state
+    #[inline]
     #[must_use]
     pub const fn none() -> Self {
         Self::None
     }
 
+    #[inline]
     #[must_use]
     const fn validate(&self, is_some: bool) -> bool {
         if is_some {
@@ -45,6 +48,7 @@ where
     for<'a> S: PartialEq<&'a str>,
 {
     /// Creates a state filter with a single allowed state
+    #[inline]
     #[must_use]
     pub const fn one(state: S) -> Self {
         Self::Eq([state; 1])
@@ -56,6 +60,7 @@ where
     for<'a> S: PartialEq<&'a str>,
 {
     /// Creates a state filter with multiple allowed states
+    #[inline]
     #[must_use]
     pub fn many(states: impl Into<[S; N]>) -> Self {
         Self::Eq(states.into())

@@ -28,24 +28,28 @@ pub enum PatternType {
 }
 
 impl From<Cow<'static, str>> for PatternType {
+    #[inline]
     fn from(text: Cow<'static, str>) -> Self {
         Self::Text(text)
     }
 }
 
 impl From<&'static str> for PatternType {
+    #[inline]
     fn from(text: &'static str) -> Self {
         Self::Text(Cow::Borrowed(text))
     }
 }
 
 impl From<BotCommand> for PatternType {
+    #[inline]
     fn from(command: BotCommand) -> Self {
         Self::Object(command)
     }
 }
 
 impl From<Regex> for PatternType {
+    #[inline]
     fn from(regex: Regex) -> Self {
         Self::Regex(regex)
     }
@@ -140,6 +144,7 @@ impl Command {
     /// # Notes
     /// - This method is just a shortcut to create a filter using the builder
     /// - By default, the prefix is `/`. If you want to change it, use [`Command::one_with_prefix`] instead.
+    #[inline]
     #[must_use]
     pub fn one(command: impl Into<PatternType>) -> Self {
         Self::builder().command(command).build()
@@ -149,6 +154,7 @@ impl Command {
     /// # Notes
     /// - This method is just a shortcut to create a filter using the builder.
     /// - By default, the prefix is `/`, so you can use [`Command::one`] instead. Use this method if you want to change the it.
+    #[inline]
     #[must_use]
     pub fn one_with_prefix(command: impl Into<PatternType>, prefix: char) -> Self {
         Self::builder().command(command).prefix(prefix).build()
@@ -158,6 +164,7 @@ impl Command {
     /// # Notes
     /// - This method is just a shortcut to create a filter using the builder
     /// - By default, the prefix is `/`. If you want to change it, use [`Command::many_with_prefix`] instead.
+    #[inline]
     #[must_use]
     pub fn many<T, I>(commands: I) -> Self
     where
@@ -171,6 +178,7 @@ impl Command {
     /// # Notes
     /// - This method is just a shortcut to create a filter using the builder
     /// - By default, the prefix is `/`, so you can use [`Command::many`] instead. Use this method if you want to change the it.
+    #[inline]
     #[must_use]
     pub fn many_with_prefix<T, I>(commands: I, prefix: char) -> Self
     where
@@ -180,6 +188,7 @@ impl Command {
         Self::builder().commands(commands).prefix(prefix).build()
     }
 
+    #[inline]
     #[must_use]
     pub fn builder() -> Builder {
         Builder::new()
@@ -187,6 +196,7 @@ impl Command {
 }
 
 impl Default for Command {
+    #[inline]
     fn default() -> Self {
         Self {
             commands: vec![],
@@ -206,6 +216,7 @@ pub struct Builder {
 }
 
 impl Builder {
+    #[inline]
     #[must_use]
     pub fn new() -> Builder {
         Self::default()
@@ -235,6 +246,7 @@ impl Builder {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn prefix(self, val: char) -> Self {
         Self {
@@ -243,6 +255,7 @@ impl Builder {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn ignore_case(self, val: bool) -> Self {
         Self {
@@ -251,6 +264,7 @@ impl Builder {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn ignore_mention(self, val: bool) -> Self {
         Self {
@@ -259,6 +273,7 @@ impl Builder {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn build(self) -> Command {
         Command::new(
@@ -271,6 +286,7 @@ impl Builder {
 }
 
 impl Default for Builder {
+    #[inline]
     fn default() -> Self {
         Self {
             commands: vec![],
@@ -282,6 +298,7 @@ impl Default for Builder {
 }
 
 impl Command {
+    #[inline]
     #[must_use]
     pub fn validate_prefix(&self, command: &CommandObject) -> bool {
         command.prefix == self.prefix

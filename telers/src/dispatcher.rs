@@ -101,6 +101,7 @@ impl<Client, Propagator> Dispatcher<Client, Propagator>
 where
     Propagator: Default,
 {
+    #[inline]
     #[must_use]
     pub fn builder() -> Builder<Client, Propagator> {
         Builder::default()
@@ -136,6 +137,7 @@ where
 }
 
 impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
+    #[inline]
     #[must_use]
     pub fn with_backoff(mut self, backoff: BackoffType) -> Self {
         self.backoff = backoff;
@@ -145,6 +147,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
 
 impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     /// Main router, whose service will propagate updates to the other routers and its observers
+    #[inline]
     #[must_use]
     pub fn main_router(self, val: Propagator) -> Self
     where
@@ -159,6 +162,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     /// Main router, whose service will propagate updates to the other routers and its observers
     /// # Notes
     /// Alias to [`Builder::main_router`] method
+    #[inline]
     #[must_use]
     pub fn router(self, val: Propagator) -> Self
     where
@@ -230,6 +234,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     /// Timeout in seconds for long polling
     /// # Default
     /// [`DEFAULT_POLLING_TIMEOUT`]
+    #[inline]
     #[must_use]
     pub fn polling_timeout(self, val: i64) -> Self {
         Self {
@@ -240,6 +245,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
 
     /// Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
     /// and set timeout between requests to telegram server
+    #[inline]
     #[must_use]
     pub fn backoff(self, val: BackoffType) -> Self {
         Self {
@@ -285,6 +291,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn build(self) -> Dispatcher<Client, Propagator, BackoffType> {
         Dispatcher {
@@ -468,6 +475,8 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
     /// # Panics
     /// - If failed to register exit signal handlers
     /// - If bots is empty
+    #[inline]
+    #[must_use]
     pub fn run_polling(self) -> ServePolling<Client, Propagator, Backoff>
     where
         Client: Session + Clone + 'static,
@@ -492,6 +501,8 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
     /// - If any shutdown observer returns error
     /// # Panics
     /// - If failed to register exit signal handlers
+    #[inline]
+    #[must_use]
     pub fn run_no_polling(self) -> Serve<Client, Propagator, Backoff>
     where
         Propagator: PropagateEvent<Client> + 'static,
@@ -505,12 +516,14 @@ pub struct ServePolling<Client, Propagator, BackoffType> {
 }
 
 impl<Client, Propagator, BackoffType> ServePolling<Client, Propagator, BackoffType> {
+    #[inline]
+    #[must_use]
     pub const fn new(dispatcher: Dispatcher<Client, Propagator, BackoffType>) -> Self {
-        Self {
-            dispatcher,
-        }
+        Self { dispatcher }
     }
 
+    #[inline]
+    #[must_use]
     pub fn with_graceful_shutdown<Signal>(
         self,
         signal: Signal,
@@ -564,14 +577,13 @@ pub struct ServePollingWithGracefulShutdown<Client, Propagator, BackoffType, Sig
 impl<Client, Propagator, BackoffType, Signal>
     ServePollingWithGracefulShutdown<Client, Propagator, BackoffType, Signal>
 {
+    #[inline]
+    #[must_use]
     pub const fn new(
         dispatcher: Dispatcher<Client, Propagator, BackoffType>,
         signal: Signal,
     ) -> Self {
-        Self {
-            dispatcher,
-            signal,
-        }
+        Self { dispatcher, signal }
     }
 }
 
@@ -609,12 +621,14 @@ pub struct Serve<Client, Propagator, BackoffType> {
 }
 
 impl<Client, Propagator, BackoffType> Serve<Client, Propagator, BackoffType> {
+    #[inline]
+    #[must_use]
     pub const fn new(dispatcher: Dispatcher<Client, Propagator, BackoffType>) -> Self {
-        Self {
-            dispatcher,
-        }
+        Self { dispatcher }
     }
 
+    #[inline]
+    #[must_use]
     pub fn with_graceful_shutdown<Signal>(
         self,
         signal: Signal,
@@ -666,14 +680,13 @@ pub struct ServeWithGracefulShutdown<Client, Propagator, BackoffType, Signal> {
 impl<Client, Propagator, BackoffType, Signal>
     ServeWithGracefulShutdown<Client, Propagator, BackoffType, Signal>
 {
+    #[inline]
+    #[must_use]
     pub const fn new(
         dispatcher: Dispatcher<Client, Propagator, BackoffType>,
         signal: Signal,
     ) -> Self {
-        Self {
-            dispatcher,
-            signal,
-        }
+        Self { dispatcher, signal }
     }
 }
 

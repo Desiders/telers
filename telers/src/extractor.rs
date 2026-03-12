@@ -408,7 +408,6 @@ where
 {
     type Error = ExtractionError;
 
-    #[inline]
     fn extract(
         request: &Request<Client>,
     ) -> impl Future<Output = Result<Self, Self::Error>> + Send {
@@ -443,7 +442,6 @@ mod factory_extractor {
         impl<Client: Sync, $($param: Extractor<Client> + Send,)*> Extractor<Client> for ($($param,)*) {
             type Error = ExtractionError;
 
-            #[inline]
             async fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
                 Ok(($($param::extract(request).await.map_err(Into::into)?,)*))
             }
