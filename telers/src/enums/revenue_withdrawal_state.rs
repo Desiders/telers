@@ -1,4 +1,5 @@
 use crate::types::RevenueWithdrawalState;
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes the state of a revenue withdrawal operation. Currently, it can be one of
 /// - [`crate::types::RevenueWithdrawalStatePending`]
@@ -6,7 +7,20 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::RevenueWithdrawalStateFailed`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#revenuewithdrawalstate>
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum RevenueWithdrawalStateType {
     #[strum(serialize = "pending")]
     Pending,

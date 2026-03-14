@@ -1,4 +1,5 @@
 use crate::types::ChatMember;
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object contains information about one member of a chat. Currently, the following 6 types of chat members are supported:
 /// - [`crate::types::ChatMemberOwner`]
@@ -9,7 +10,20 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::ChatMemberBanned`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatmember>
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum ChatMemberType {
     #[strum(serialize = "creator")]
     Creator,

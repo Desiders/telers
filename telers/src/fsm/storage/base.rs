@@ -42,7 +42,10 @@ impl StorageKey {
     #[inline]
     #[must_use]
     pub fn destiny(self, destiny: &'static str) -> Self {
-        Self { destiny, ..self }
+        Self {
+            destiny,
+            ..self
+        }
     }
 }
 

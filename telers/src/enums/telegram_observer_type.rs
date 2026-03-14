@@ -1,8 +1,22 @@
 use crate::{enums::UpdateType, types::Update};
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This enum represents all possible telegram observer types.
 /// It contains all [`UpdateType`] variants plus `Update`.
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum TelegramObserverType {
     #[strum(serialize = "business_connection")]
     BusinessConnection,

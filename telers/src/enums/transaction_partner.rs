@@ -1,4 +1,5 @@
 use crate::types::TransactionPartner;
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes the source of a transaction, or its recipient for outgoing transactions. Currently, it can be one of
 /// - [`crate::types::TransactionPartnerUser`]
@@ -10,7 +11,20 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::TransactionPartnerOther`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transactionpartner>
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum TransactionPartnerType {
     #[strum(serialize = "user")]
     User,

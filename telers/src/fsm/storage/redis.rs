@@ -79,13 +79,19 @@ impl KeyBuilderImpl {
     #[inline]
     #[must_use]
     pub fn with_prefix(self, prefix: &'static str) -> Self {
-        Self { prefix, ..self }
+        Self {
+            prefix,
+            ..self
+        }
     }
 
     #[inline]
     #[must_use]
     pub fn with_separator(self, separator: &'static str) -> Self {
-        Self { separator, ..self }
+        Self {
+            separator,
+            ..self
+        }
     }
 
     #[inline]
@@ -185,7 +191,10 @@ impl<K: KeyBuilder> Redis<K> {
             },
         };
 
-        Ok(Self { pool, key_builder })
+        Ok(Self {
+            pool,
+            key_builder,
+        })
     }
 
     #[inline]

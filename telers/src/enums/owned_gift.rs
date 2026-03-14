@@ -1,11 +1,25 @@
 use crate::types::OwnedGift;
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes a gift received and owned by a user or a chat. Currently, it can be one of
 /// - [`crate::types::OwnedGiftRegular`]
 /// - [`crate::types::OwnedGiftUnique`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#ownedgift>
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum OwnedGiftType {
     #[strum(serialize = "regular")]
     Regular,

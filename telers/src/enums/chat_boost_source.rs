@@ -1,4 +1,5 @@
 use crate::types::ChatBoostSource;
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes the source of a chat boost. It can be one of
 /// - [`crate::types::ChatBoostSourcePremium`]
@@ -6,7 +7,20 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::ChatBoostSourceGiveaway`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatboostsource>
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum ChatBoostSourceType {
     #[strum(serialize = "premium")]
     Premium,

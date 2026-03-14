@@ -1,11 +1,25 @@
 use crate::types::InputPaidMedia;
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object describes the paid media to be sent. Currently, it can be one of
 /// - [`crate::types::InputPaidMediaPhoto`]
 /// - [`crate::types::InputPaidMediaVideo`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputpaidmedia>
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum InputPaidMediaType {
     #[strum(serialize = "photo")]
     Photo,

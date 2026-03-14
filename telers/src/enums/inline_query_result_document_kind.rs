@@ -1,10 +1,24 @@
 use crate::types::InlineQueryResultDocumentKind;
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// # Notes
 /// This object represents an inline query result kind as combine of [`crate::types::InlineQueryResultCachedDocument`] and [`crate::types::InlineQueryResultDocument`].
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresult>
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum InlineQueryResultDocumentKindType {
     #[strum(serialize = "uncached")]
     Uncached,

@@ -1,4 +1,5 @@
 use crate::types::TransactionPartnerUser;
+use serde::{Deserialize, Serialize};
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// Describes a transaction with a user.
 /// Currently, it can be one of
@@ -9,7 +10,20 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::TransactionPartnerUserPremiumPurchase`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#transactionpartneruser>
-#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+#[derive(
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    AsRefStr,
+    IntoStaticStr,
+    Deserialize,
+    Serialize,
+)]
 pub enum TransactionPartnerUserType {
     #[strum(serialize = "invoice_payment")]
     InvoicePayment,

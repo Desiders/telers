@@ -80,9 +80,8 @@ pub fn tokenize_kind_enum(type_quote: &NormalizedType) -> Option<TokenStream> {
         }
     };
 
-    let (strum_import, strum_derives, string_impls) = (
-        quote! { use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr}; },
-        quote! { #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)] },
+    let (strum_derives, string_impls) = (
+        quote! { #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr, Deserialize, Serialize)] },
         quote! {
             impl From<#kind_name> for Box<str> {
                 fn from(val: #kind_name) -> Self {
@@ -105,7 +104,8 @@ pub fn tokenize_kind_enum(type_quote: &NormalizedType) -> Option<TokenStream> {
     );
 
     Some(quote! {
-        #strum_import
+        use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
+        use serde::{Deserialize, Serialize};
 
         #( #[doc = #doc_lines] )*
         #strum_derives
@@ -220,11 +220,12 @@ pub fn tokenize_enum_parse_mode() -> TokenStream {
 
     quote! {
         use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
+        use serde::{Deserialize, Serialize};
 
         /// This enum represents all possible types of the parse mode
         /// # Documentation
         /// <https://core.telegram.org/bots/api#formatting-options>
-        #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+        #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr, Deserialize, Serialize)]
         pub enum ParseMode {
             #( #enum_variants )*
         }
@@ -327,11 +328,12 @@ pub fn tokenize_enum_telegram_observer_type() -> TokenStream {
 
     quote! {
         use crate::{enums::UpdateType, types::Update};
+        use serde::{Deserialize, Serialize};
         use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 
         /// This enum represents all possible telegram observer types.
         /// It contains all [`UpdateType`] variants plus `Update`.
-        #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr)]
+        #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, EnumString, AsRefStr, IntoStaticStr, Deserialize, Serialize)]
         pub enum TelegramObserverType {
             #( #enum_variants )*
         }
