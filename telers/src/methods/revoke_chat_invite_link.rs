@@ -1,62 +1,55 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{
-    client::Bot,
-    types::{ChatIdKind, ChatInviteLink},
-};
-
+use crate::client::Bot;
 use serde::Serialize;
-
-/// Use this method to revoke an invite link created by the bot. If the primary link is revoked, a new link is automatically generated. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
+/// Use this method to revoke an invite link created by the bot. If the primary link is revoked, a new link is automatically generated. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the revoked invite link as [`crate::types::ChatInviteLink`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#revokechatinvitelink>
 /// # Returns
-/// Returns the revoked invite link as [`ChatInviteLink`] object
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `crate::types::ChatInviteLink`
+#[derive(Clone, Debug, Serialize)]
 pub struct RevokeChatInviteLink {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
-    pub chat_id: ChatIdKind,
+    /// Unique identifier of the target chat or username of the target channel (in the format @channelusername)
+    pub chat_id: crate::types::ChatIdKind,
     /// The invite link to revoke
-    pub invite_link: String,
+    pub invite_link: Box<str>,
 }
-
 impl RevokeChatInviteLink {
+    /// Creates a new `RevokeChatInviteLink`.
+    ///
+    /// # Arguments
+    /// * `chat_id` - Unique identifier of the target chat or username of the target channel (in the format @channelusername)
+    /// * `invite_link` - The invite link to revoke
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>, invite_link: impl Into<String>) -> Self {
+    pub fn new<T0: Into<crate::types::ChatIdKind>, T1: Into<Box<str>>>(
+        chat_id: T0,
+        invite_link: T1,
+    ) -> Self {
         Self {
             chat_id: chat_id.into(),
             invite_link: invite_link.into(),
         }
     }
 
+    /// Unique identifier of the target chat or username of the target channel (in the format @channelusername)
     #[must_use]
-    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
-        Self {
-            chat_id: val.into(),
-            ..self
-        }
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
+        let mut this = self;
+        this.chat_id = val.into();
+        this
     }
 
+    /// The invite link to revoke
     #[must_use]
-    pub fn invite_link(self, val: impl Into<String>) -> Self {
-        Self {
-            invite_link: val.into(),
-            ..self
-        }
+    pub fn invite_link<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.invite_link = val.into();
+        this
     }
 }
-
-impl TelegramMethod for RevokeChatInviteLink {
+impl super::TelegramMethod for RevokeChatInviteLink {
     type Method = Self;
-    type Return = ChatInviteLink;
+    type Return = crate::types::ChatInviteLink;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("revokeChatInviteLink", self, None)
-    }
-}
-
-impl AsRef<RevokeChatInviteLink> for RevokeChatInviteLink {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("revokeChatInviteLink", self, None)
     }
 }

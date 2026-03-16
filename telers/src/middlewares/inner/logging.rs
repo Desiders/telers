@@ -15,6 +15,7 @@ use tracing::{event, instrument, Level};
 pub struct Logging;
 
 impl Logging {
+    #[inline]
     #[must_use]
     pub const fn new() -> Self {
         Self {}
@@ -43,7 +44,7 @@ where
 
         match result {
             // `unwrap` is safe because handler error is wrapped to event error by next function
-            Ok(ref response) => match response.handler_result.as_ref().unwrap() {
+            Ok(ref response) => match response.result.as_ref().unwrap() {
                 EventReturn::Finish => {
                     event!(
                         Level::DEBUG,
@@ -86,6 +87,9 @@ where
                         "Middleware returns error. Execution time: {elapsed:.2?}",
                     );
                 }
+                EventErrorKind::Filter(_) => unreachable!(
+                    "Inner middleware processes after filters, so it can't return filter error"
+                ),
             },
         }
 
@@ -100,7 +104,8 @@ mod tests {
         client::Reqwest,
         event::telegram::handler::boxed_handler_factory,
         middlewares::inner::wrap_to_next,
-        types::{Message, Update, UpdateKind},
+        types::{ChatPrivate, MessageText, Update, UpdateMessage},
+        Bot, Extensions,
     };
 
     use std::{convert::Infallible, sync::Arc};
@@ -111,13 +116,14 @@ mod tests {
             boxed_handler_factory(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
 
         let request = Request::<Reqwest> {
-            update: Arc::new(Update {
-                id: 0,
-                kind: UpdateKind::Message(Message::default()),
-            }),
-            ..Default::default()
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                0,
+                MessageText::new(0, 0, ChatPrivate::new(0), ""),
+            ))),
+            bot: Bot::default(),
+            context: crate::Context::default(),
+            extensions: Extensions::default(),
         };
-
         let response = Logging
             .call(request, wrap_to_next(handler_service, [].into()))
             .await;

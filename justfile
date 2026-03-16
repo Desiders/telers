@@ -14,7 +14,7 @@ clippy:
 
 # Run the cargo format tool
 fmt:
-    cargo fmt --all -- --check
+    cargo +nightly fmt --all
 
 # Run the cargo build tool
 build:

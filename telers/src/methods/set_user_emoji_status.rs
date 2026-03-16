@@ -1,90 +1,83 @@
-use super::base::{Request, TelegramMethod};
-
 use crate::client::Bot;
-
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Changes the emoji status for a given user that previously allowed the bot to manage their emoji status via the Mini App method [`requestEmojiStatusAccess`](https://core.telegram.org/bots/webapps#initializing-mini-apps)
+/// Changes the emoji status for a given user that previously allowed the bot to manage their emoji status via the Mini App method requestEmojiStatusAccess. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setuseremojistatus>
 /// # Returns
-/// On success, `true` is returned
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct SetUserEmojiStatus {
     /// Unique identifier of the target user
     pub user_id: i64,
     /// Custom emoji identifier of the emoji status to set. Pass an empty string to remove the status.
-    pub emoji_status_custom_emoji_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub emoji_status_custom_emoji_id: Option<Box<str>>,
     /// Expiration date of the emoji status, if any
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub emoji_status_expiration_date: Option<i64>,
 }
-
 impl SetUserEmojiStatus {
+    /// Creates a new `SetUserEmojiStatus`.
+    ///
+    /// # Arguments
+    /// * `user_id` - Unique identifier of the target user
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(user_id: i64) -> Self {
+    pub fn new<T0: Into<i64>>(user_id: T0) -> Self {
         Self {
-            user_id,
+            user_id: user_id.into(),
             emoji_status_custom_emoji_id: None,
             emoji_status_expiration_date: None,
         }
     }
 
+    /// Unique identifier of the target user
     #[must_use]
-    pub fn user_id(self, val: i64) -> Self {
-        Self {
-            user_id: val,
-            ..self
-        }
+    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.user_id = val.into();
+        this
     }
 
+    /// Custom emoji identifier of the emoji status to set. Pass an empty string to remove the status.
     #[must_use]
-    pub fn emoji_status_custom_emoji_id(self, val: impl Into<String>) -> Self {
-        Self {
-            emoji_status_custom_emoji_id: Some(val.into()),
-            ..self
-        }
+    pub fn emoji_status_custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.emoji_status_custom_emoji_id = Some(val.into());
+        this
     }
 
+    /// Custom emoji identifier of the emoji status to set. Pass an empty string to remove the status.
     #[must_use]
-    pub fn emoji_status_expiration_date(self, val: i64) -> Self {
-        Self {
-            emoji_status_expiration_date: Some(val),
-            ..self
-        }
-    }
-}
-
-impl SetUserEmojiStatus {
-    #[must_use]
-    pub fn emoji_status_custom_emoji_id_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            emoji_status_custom_emoji_id: val.map(Into::into),
-            ..self
-        }
+    pub fn emoji_status_custom_emoji_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.emoji_status_custom_emoji_id = val.map(Into::into);
+        this
     }
 
+    /// Expiration date of the emoji status, if any
     #[must_use]
-    pub fn emoji_status_expiration_date_option(self, val: Option<i64>) -> Self {
-        Self {
-            emoji_status_expiration_date: val,
-            ..self
-        }
+    pub fn emoji_status_expiration_date<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.emoji_status_expiration_date = Some(val.into());
+        this
+    }
+
+    /// Expiration date of the emoji status, if any
+    #[must_use]
+    pub fn emoji_status_expiration_date_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.emoji_status_expiration_date = val.map(Into::into);
+        this
     }
 }
-
-impl TelegramMethod for SetUserEmojiStatus {
+impl super::TelegramMethod for SetUserEmojiStatus {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("setUserEmojiStatus", self, None)
-    }
-}
-
-impl AsRef<SetUserEmojiStatus> for SetUserEmojiStatus {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("setUserEmojiStatus", self, None)
     }
 }

@@ -1,59 +1,55 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::ChatIdKind};
-
+use crate::client::Bot;
 use serde::Serialize;
-
-/// Use this method to unban a previously banned channel chat in a supergroup or channel. The bot must be an administrator for this to work and must have the appropriate administrator rights.
+/// Use this method to unban a previously banned channel chat in a supergroup or channel. The bot must be an administrator for this to work and must have the appropriate administrator rights. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#unbanchatsenderchat>
 /// # Returns
-/// On success, `true` is returned
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct UnbanChatSenderChat {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
-    pub chat_id: ChatIdKind,
+    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier of the target sender chat
     pub sender_chat_id: i64,
 }
-
 impl UnbanChatSenderChat {
+    /// Creates a new `UnbanChatSenderChat`.
+    ///
+    /// # Arguments
+    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// * `sender_chat_id` - Unique identifier of the target sender chat
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>, sender_chat_id: i64) -> Self {
+    pub fn new<T0: Into<crate::types::ChatIdKind>, T1: Into<i64>>(
+        chat_id: T0,
+        sender_chat_id: T1,
+    ) -> Self {
         Self {
             chat_id: chat_id.into(),
-            sender_chat_id,
+            sender_chat_id: sender_chat_id.into(),
         }
     }
 
+    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
     #[must_use]
-    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
-        Self {
-            chat_id: val.into(),
-            ..self
-        }
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
+        let mut this = self;
+        this.chat_id = val.into();
+        this
     }
 
+    /// Unique identifier of the target sender chat
     #[must_use]
-    pub fn sender_chat_id(self, val: i64) -> Self {
-        Self {
-            sender_chat_id: val,
-            ..self
-        }
+    pub fn sender_chat_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.sender_chat_id = val.into();
+        this
     }
 }
-
-impl TelegramMethod for UnbanChatSenderChat {
+impl super::TelegramMethod for UnbanChatSenderChat {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("unbanChatSenderChat", self, None)
-    }
-}
-
-impl AsRef<UnbanChatSenderChat> for UnbanChatSenderChat {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("unbanChatSenderChat", self, None)
     }
 }

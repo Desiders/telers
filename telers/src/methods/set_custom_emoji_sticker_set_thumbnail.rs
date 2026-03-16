@@ -1,71 +1,63 @@
-use super::base::{Request, TelegramMethod};
-
 use crate::client::Bot;
-
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Use this method to set the thumbnail of a custom emoji sticker set.
+/// Use this method to set the thumbnail of a custom emoji sticker set. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setcustomemojistickersetthumbnail>
 /// # Returns
-/// On success, `true` is returned
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct SetCustomEmojiStickerSetThumbnail {
     /// Sticker set name
-    pub name: String,
+    pub name: Box<str>,
     /// Custom emoji identifier of a sticker from the sticker set; pass an empty string to drop the thumbnail and use the first sticker as the thumbnail.
-    pub custom_emoji_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub custom_emoji_id: Option<Box<str>>,
 }
-
 impl SetCustomEmojiStickerSetThumbnail {
+    /// Creates a new `SetCustomEmojiStickerSetThumbnail`.
+    ///
+    /// # Arguments
+    /// * `name` - Sticker set name
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(name: impl Into<String>) -> Self {
+    pub fn new<T0: Into<Box<str>>>(name: T0) -> Self {
         Self {
             name: name.into(),
             custom_emoji_id: None,
         }
     }
 
+    /// Sticker set name
     #[must_use]
-    pub fn name(self, val: impl Into<String>) -> Self {
-        Self {
-            name: val.into(),
-            ..self
-        }
+    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.name = val.into();
+        this
     }
 
+    /// Custom emoji identifier of a sticker from the sticker set; pass an empty string to drop the thumbnail and use the first sticker as the thumbnail.
     #[must_use]
-    pub fn custom_emoji_id(self, val: impl Into<String>) -> Self {
-        Self {
-            custom_emoji_id: Some(val.into()),
-            ..self
-        }
+    pub fn custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.custom_emoji_id = Some(val.into());
+        this
     }
-}
 
-impl SetCustomEmojiStickerSetThumbnail {
+    /// Custom emoji identifier of a sticker from the sticker set; pass an empty string to drop the thumbnail and use the first sticker as the thumbnail.
     #[must_use]
-    pub fn custom_emoji_id_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            custom_emoji_id: val.map(Into::into),
-            ..self
-        }
+    pub fn custom_emoji_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.custom_emoji_id = val.map(Into::into);
+        this
     }
 }
-
-impl TelegramMethod for SetCustomEmojiStickerSetThumbnail {
+impl super::TelegramMethod for SetCustomEmojiStickerSetThumbnail {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("setCustomEmojiStickerSetThumbnail", self, None)
-    }
-}
-
-impl AsRef<SetCustomEmojiStickerSetThumbnail> for SetCustomEmojiStickerSetThumbnail {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("setCustomEmojiStickerSetThumbnail", self, None)
     }
 }

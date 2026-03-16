@@ -1,81 +1,70 @@
-use super::base::{prepare_input_sticker, Request, TelegramMethod};
-
-use crate::{client::Bot, types::InputSticker};
-
+use crate::client::Bot;
 use serde::Serialize;
-
-/// Use this method to add a new sticker to a set created by the bot.
-/// The format of the added sticker must match the format of the other stickers in the set.
-/// Emoji sticker sets can have up to 200 stickers.
-/// Animated and video sticker sets can have up to 50 stickers.
-/// Static sticker sets can have up to 120 stickers.
+/// Use this method to add a new sticker to a set created by the bot. Emoji sticker sets can have up to 200 stickers. Other sticker sets can have up to 120 stickers. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#addstickertoset>
 /// # Returns
-/// On success, `true` is returned
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct AddStickerToSet<'a> {
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
+pub struct AddStickerToSet {
     /// User identifier of sticker set owner
     pub user_id: i64,
     /// Sticker set name
-    pub name: String,
+    pub name: Box<str>,
     /// A JSON-serialized object with information about the added sticker. If exactly the same sticker had already been added to the set, then the set isn't changed.
-    pub sticker: InputSticker<'a>,
+    pub sticker: crate::types::InputSticker,
 }
-
-impl<'a> AddStickerToSet<'a> {
+impl AddStickerToSet {
+    /// Creates a new `AddStickerToSet`.
+    ///
+    /// # Arguments
+    /// * `user_id` - User identifier of sticker set owner
+    /// * `name` - Sticker set name
+    /// * `sticker` - A JSON-serialized object with information about the added sticker. If exactly the same sticker had already been added to the set, then the set isn't changed.
     #[must_use]
-    pub fn new(
-        user_id: i64,
-        name: impl Into<String>,
-        sticker: impl Into<InputSticker<'a>>,
+    pub fn new<T0: Into<i64>, T1: Into<Box<str>>, T2: Into<crate::types::InputSticker>>(
+        user_id: T0,
+        name: T1,
+        sticker: T2,
     ) -> Self {
         Self {
-            user_id,
+            user_id: user_id.into(),
             name: name.into(),
             sticker: sticker.into(),
         }
     }
 
+    /// User identifier of sticker set owner
     #[must_use]
-    pub fn user_id(self, val: i64) -> Self {
-        Self {
-            user_id: val,
-            ..self
-        }
+    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.user_id = val.into();
+        this
     }
 
+    /// Sticker set name
     #[must_use]
-    pub fn name(self, val: impl Into<String>) -> Self {
-        Self {
-            name: val.into(),
-            ..self
-        }
+    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.name = val.into();
+        this
     }
 
+    /// A JSON-serialized object with information about the added sticker. If exactly the same sticker had already been added to the set, then the set isn't changed.
     #[must_use]
-    pub fn sticker(self, val: impl Into<InputSticker<'a>>) -> Self {
-        Self {
-            sticker: val.into(),
-            ..self
-        }
+    pub fn sticker<T: Into<crate::types::InputSticker>>(self, val: T) -> Self {
+        let mut this = self;
+        this.sticker = val.into();
+        this
     }
 }
-
-impl TelegramMethod for AddStickerToSet<'_> {
+impl super::TelegramMethod for AddStickerToSet {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
-        prepare_input_sticker(&mut files, &self.sticker);
-
-        Request::new("addStickerToSet", self, Some(files.into()))
-    }
-}
-
-impl<'a> AsRef<AddStickerToSet<'a>> for AddStickerToSet<'a> {
-    fn as_ref(&self) -> &Self {
-        self
+        super::prepare_input_sticker(&mut files, &mut self.sticker);
+        super::Request::new("addStickerToSet", self, Some(files))
     }
 }

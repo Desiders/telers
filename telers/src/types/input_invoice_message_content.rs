@@ -1,73 +1,99 @@
-use super::LabeledPrice;
-
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-
-/// Represents the [`content`](https://core.telegram.org/bots/api#inputmessagecontent) of an invoice message to be sent as the result of an inline query.
+/// Represents the content of an invoice message to be sent as the result of an inline query.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputinvoicemessagecontent>
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct InputInvoiceMessageContent {
     /// Product name, 1-32 characters
-    pub title: String,
+    pub title: Box<str>,
     /// Product description, 1-255 characters
-    pub description: String,
-    /// Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use for your internal processes.
-    pub payload: String,
-    /// Payments provider token, obtained via [`Botfather`](https://t.me/botfather). Pass an empty string for payments in [`Telegram Stars`](https://t.me/BotNews/90).
-    pub provider_token: String,
-    /// Three-letter ISO 4217 currency code, see [`more on currencies`](https://core.telegram.org/bots/payments#supported-currencies). Pass `XTR` for payments in [`Telegram Stars`](https://t.me/BotNews/90).
-    pub currency: String,
-    /// Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.)
-    pub prices: Vec<LabeledPrice>,
-    /// The maximum accepted amount for tips in the *smallest units* of the currency (integer, **not** float/double). For example, for a maximum tip of `US$ 1.45` pass `max_tip_amount = 145`. See the *exp* parameter in [`currencies.json`](https://core.telegram.org/bots/payments/currencies.json), it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0
+    pub description: Box<str>,
+    /// Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
+    pub payload: Box<str>,
+    /// Payment provider token, obtained via @`BotFather`. Pass an empty string for payments in Telegram Stars.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub provider_token: Option<Box<str>>,
+    /// Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR` for payments in Telegram Stars.
+    pub currency: Box<str>,
+    /// Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
+    pub prices: Box<[crate::types::LabeledPrice]>,
+    /// The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass `max_tip_amount` = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_tip_amount: Option<i64>,
-    /// A JSON-serialized array of suggested amounts of tip in the *smallest units* of the currency (integer, **not** float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed *`max_tip_amount`*.
-    pub suggested_tip_amounts: Option<Vec<i64>>,
+    /// A JSON-serialized array of suggested amounts of tip in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub suggested_tip_amounts: Option<Box<[i64]>>,
     /// A JSON-serialized object for data about the invoice, which will be shared with the payment provider. A detailed description of the required fields should be provided by the payment provider.
-    pub provider_data: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub provider_data: Option<Box<str>>,
     /// URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service.
-    pub photo_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub photo_url: Option<Box<str>>,
     /// Photo size in bytes
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub photo_size: Option<i64>,
     /// Photo width
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub photo_width: Option<i64>,
     /// Photo height
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub photo_height: Option<i64>,
-    /// Pass `true` if you require the user's full name to complete the order
+    /// Pass `true` if you require the user's full name to complete the order. Ignored for payments in Telegram Stars.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub need_name: Option<bool>,
-    /// Pass `true` if you require the user's phone number to complete the order
+    /// Pass `true` if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub need_phone_number: Option<bool>,
-    /// Pass `true` if you require the user's email address to complete the order
+    /// Pass `true` if you require the user's email address to complete the order. Ignored for payments in Telegram Stars.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub need_email: Option<bool>,
-    /// Pass `true` if you require the user's shipping address to complete the order
+    /// Pass `true` if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub need_shipping_address: Option<bool>,
-    /// Pass `true` if the user's phone number should be sent to provider
+    /// Pass `true` if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub send_phone_number_to_provider: Option<bool>,
-    /// Pass `true` if the user's email address should be sent to provider
+    /// Pass `true` if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub send_email_to_provider: Option<bool>,
-    /// Pass `true` if the final price depends on the shipping method
+    /// Pass `true` if the final price depends on the shipping method. Ignored for payments in Telegram Stars.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub is_flexible: Option<bool>,
 }
-
 impl InputInvoiceMessageContent {
+    /// Creates a new `InputInvoiceMessageContent`.
+    ///
+    /// # Arguments
+    /// * `title` - Product name, 1-32 characters
+    /// * `description` - Product description, 1-255 characters
+    /// * `payload` - Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
+    /// * `currency` - Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR` for payments in Telegram Stars.
+    /// * `prices` - Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(
-        title: impl Into<String>,
-        description: impl Into<String>,
-        payload: impl Into<String>,
-        provider_token: impl Into<String>,
-        currency: impl Into<String>,
-        prices: impl IntoIterator<Item = LabeledPrice>,
+    pub fn new<
+        T0: Into<Box<str>>,
+        T1: Into<Box<str>>,
+        T2: Into<Box<str>>,
+        T3: Into<Box<str>>,
+        T4Item: Into<crate::types::LabeledPrice>,
+        T4: IntoIterator<Item = T4Item>,
+    >(
+        title: T0,
+        description: T1,
+        payload: T2,
+        currency: T3,
+        prices: T4,
     ) -> Self {
         Self {
             title: title.into(),
             description: description.into(),
             payload: payload.into(),
-            provider_token: provider_token.into(),
+            provider_token: None,
             currency: currency.into(),
-            prices: prices.into_iter().collect(),
+            prices: prices.into_iter().map(Into::into).collect(),
             max_tip_amount: None,
             suggested_tip_amounts: None,
             provider_data: None,
@@ -85,303 +111,338 @@ impl InputInvoiceMessageContent {
         }
     }
 
+    /// Product name, 1-32 characters
     #[must_use]
-    pub fn title(self, val: impl Into<String>) -> Self {
-        Self {
-            title: val.into(),
-            ..self
-        }
+    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.title = val.into();
+        this
     }
 
+    /// Product description, 1-255 characters
     #[must_use]
-    pub fn description(self, val: impl Into<String>) -> Self {
-        Self {
-            description: val.into(),
-            ..self
-        }
+    pub fn description<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.description = val.into();
+        this
     }
 
+    /// Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
     #[must_use]
-    pub fn payload(self, val: impl Into<String>) -> Self {
-        Self {
-            payload: val.into(),
-            ..self
-        }
+    pub fn payload<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.payload = val.into();
+        this
     }
 
+    /// Payment provider token, obtained via @`BotFather`. Pass an empty string for payments in Telegram Stars.
     #[must_use]
-    pub fn provider_token(self, val: impl Into<String>) -> Self {
-        Self {
-            provider_token: val.into(),
-            ..self
-        }
+    pub fn provider_token<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.provider_token = Some(val.into());
+        this
     }
 
+    /// Payment provider token, obtained via @`BotFather`. Pass an empty string for payments in Telegram Stars.
     #[must_use]
-    pub fn currency(self, val: impl Into<String>) -> Self {
-        Self {
-            currency: val.into(),
-            ..self
-        }
+    pub fn provider_token_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.provider_token = val.map(Into::into);
+        this
     }
 
+    /// Three-letter ISO 4217 currency code, see more on currencies. Pass `XTR` for payments in Telegram Stars.
     #[must_use]
-    pub fn price(self, val: LabeledPrice) -> Self {
-        Self {
-            prices: self.prices.into_iter().chain(Some(val)).collect(),
-            ..self
-        }
+    pub fn currency<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.currency = val.into();
+        this
     }
 
+    /// Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
+    ///
+    /// # Notes
+    /// Adds multiple elements.
     #[must_use]
-    pub fn prices(self, val: impl IntoIterator<Item = LabeledPrice>) -> Self {
-        Self {
-            prices: self.prices.into_iter().chain(val).collect(),
-            ..self
-        }
+    pub fn prices<T: Into<Box<[crate::types::LabeledPrice]>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.prices = this
+            .prices
+            .into_vec()
+            .into_iter()
+            .chain(val.into())
+            .collect();
+        this
     }
 
+    /// Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
+    ///
+    /// # Notes
+    /// Adds a single element.
     #[must_use]
-    pub fn suggested_tip_amount(self, val: i64) -> Self {
-        Self {
-            suggested_tip_amounts: Some(
-                self.suggested_tip_amounts
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(Some(val))
-                    .collect(),
-            ),
-            ..self
-        }
+    pub fn price<T: Into<crate::types::LabeledPrice>>(self, val: T) -> Self {
+        let mut this = self;
+        this.prices = this
+            .prices
+            .into_vec()
+            .into_iter()
+            .chain(Some(val.into()))
+            .collect();
+        this
     }
 
+    /// The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass `max_tip_amount` = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
     #[must_use]
-    pub fn suggested_tip_amounts(self, val: impl IntoIterator<Item = i64>) -> Self {
-        Self {
-            suggested_tip_amounts: Some(
-                self.suggested_tip_amounts
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(val)
-                    .collect(),
-            ),
-            ..self
-        }
+    pub fn max_tip_amount<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.max_tip_amount = Some(val.into());
+        this
     }
 
+    /// The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass `max_tip_amount` = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
     #[must_use]
-    pub fn provider_data(self, val: impl Into<String>) -> Self {
-        Self {
-            provider_data: Some(val.into()),
-            ..self
-        }
+    pub fn max_tip_amount_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.max_tip_amount = val.map(Into::into);
+        this
     }
 
+    /// A JSON-serialized array of suggested amounts of tip in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
+    ///
+    /// # Notes
+    /// Adds multiple elements.
     #[must_use]
-    pub fn photo_url(self, val: impl Into<String>) -> Self {
-        Self {
-            photo_url: Some(val.into()),
-            ..self
-        }
+    pub fn suggested_tip_amounts<T: Into<Box<[i64]>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.suggested_tip_amounts = Some(
+            this.suggested_tip_amounts
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into())
+                .collect(),
+        );
+        this
     }
 
+    /// A JSON-serialized array of suggested amounts of tip in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
+    ///
+    /// # Notes
+    /// Adds a single element.
     #[must_use]
-    pub fn photo_size(self, val: i64) -> Self {
-        Self {
-            photo_size: Some(val),
-            ..self
-        }
+    pub fn suggested_tip_amount<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.suggested_tip_amounts = Some(
+            this.suggested_tip_amounts
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        this
     }
 
+    /// A JSON-serialized array of suggested amounts of tip in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed `max_tip_amount`.
+    ///
+    /// # Notes
+    /// Adds a single element.
     #[must_use]
-    pub fn photo_width(self, val: i64) -> Self {
-        Self {
-            photo_width: Some(val),
-            ..self
-        }
+    pub fn suggested_tip_amounts_option<T: Into<Box<[i64]>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.suggested_tip_amounts = val.map(Into::into);
+        this
     }
 
+    /// A JSON-serialized object for data about the invoice, which will be shared with the payment provider. A detailed description of the required fields should be provided by the payment provider.
     #[must_use]
-    pub fn photo_height(self, val: i64) -> Self {
-        Self {
-            photo_height: Some(val),
-            ..self
-        }
+    pub fn provider_data<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.provider_data = Some(val.into());
+        this
     }
 
+    /// A JSON-serialized object for data about the invoice, which will be shared with the payment provider. A detailed description of the required fields should be provided by the payment provider.
     #[must_use]
-    pub fn need_name(self, val: bool) -> Self {
-        Self {
-            need_name: Some(val),
-            ..self
-        }
+    pub fn provider_data_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.provider_data = val.map(Into::into);
+        this
     }
 
+    /// URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service.
     #[must_use]
-    pub fn need_phone_number(self, val: bool) -> Self {
-        Self {
-            need_phone_number: Some(val),
-            ..self
-        }
+    pub fn photo_url<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.photo_url = Some(val.into());
+        this
     }
 
+    /// URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service.
     #[must_use]
-    pub fn need_email(self, val: bool) -> Self {
-        Self {
-            need_email: Some(val),
-            ..self
-        }
+    pub fn photo_url_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.photo_url = val.map(Into::into);
+        this
     }
 
+    /// Photo size in bytes
     #[must_use]
-    pub fn need_shipping_address(self, val: bool) -> Self {
-        Self {
-            need_shipping_address: Some(val),
-            ..self
-        }
+    pub fn photo_size<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.photo_size = Some(val.into());
+        this
     }
 
+    /// Photo size in bytes
     #[must_use]
-    pub fn send_phone_number_to_provider(self, val: bool) -> Self {
-        Self {
-            send_phone_number_to_provider: Some(val),
-            ..self
-        }
+    pub fn photo_size_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.photo_size = val.map(Into::into);
+        this
     }
 
+    /// Photo width
     #[must_use]
-    pub fn send_email_to_provider(self, val: bool) -> Self {
-        Self {
-            send_email_to_provider: Some(val),
-            ..self
-        }
+    pub fn photo_width<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.photo_width = Some(val.into());
+        this
     }
 
+    /// Photo width
     #[must_use]
-    pub fn is_flexible(self, val: bool) -> Self {
-        Self {
-            is_flexible: Some(val),
-            ..self
-        }
-    }
-}
-
-impl InputInvoiceMessageContent {
-    #[must_use]
-    pub fn max_tip_amount_option(self, val: Option<i64>) -> Self {
-        Self {
-            max_tip_amount: val,
-            ..self
-        }
+    pub fn photo_width_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.photo_width = val.map(Into::into);
+        this
     }
 
+    /// Photo height
     #[must_use]
-    pub fn suggested_tip_amounts_option(self, val: Option<impl IntoIterator<Item = i64>>) -> Self {
-        Self {
-            suggested_tip_amounts: val.map(|val| {
-                self.suggested_tip_amounts
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(val)
-                    .collect()
-            }),
-            ..self
-        }
+    pub fn photo_height<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.photo_height = Some(val.into());
+        this
     }
 
+    /// Photo height
     #[must_use]
-    pub fn provider_data_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            provider_data: val.map(Into::into),
-            ..self
-        }
+    pub fn photo_height_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.photo_height = val.map(Into::into);
+        this
     }
 
+    /// Pass `true` if you require the user's full name to complete the order. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn photo_url_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            photo_url: val.map(Into::into),
-            ..self
-        }
+    pub fn need_name<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.need_name = Some(val.into());
+        this
     }
 
+    /// Pass `true` if you require the user's full name to complete the order. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn photo_size_option(self, val: Option<i64>) -> Self {
-        Self {
-            photo_size: val,
-            ..self
-        }
+    pub fn need_name_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.need_name = val.map(Into::into);
+        this
     }
 
+    /// Pass `true` if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn photo_width_option(self, val: Option<i64>) -> Self {
-        Self {
-            photo_width: val,
-            ..self
-        }
+    pub fn need_phone_number<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.need_phone_number = Some(val.into());
+        this
     }
 
+    /// Pass `true` if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn photo_height_option(self, val: Option<i64>) -> Self {
-        Self {
-            photo_height: val,
-            ..self
-        }
+    pub fn need_phone_number_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.need_phone_number = val.map(Into::into);
+        this
     }
 
+    /// Pass `true` if you require the user's email address to complete the order. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn need_name_option(self, val: Option<bool>) -> Self {
-        Self {
-            need_name: val,
-            ..self
-        }
+    pub fn need_email<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.need_email = Some(val.into());
+        this
     }
 
+    /// Pass `true` if you require the user's email address to complete the order. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn need_phone_number_option(self, val: Option<bool>) -> Self {
-        Self {
-            need_phone_number: val,
-            ..self
-        }
+    pub fn need_email_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.need_email = val.map(Into::into);
+        this
     }
 
+    /// Pass `true` if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn need_email_option(self, val: Option<bool>) -> Self {
-        Self {
-            need_email: val,
-            ..self
-        }
+    pub fn need_shipping_address<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.need_shipping_address = Some(val.into());
+        this
     }
 
+    /// Pass `true` if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn need_shipping_address_option(self, val: Option<bool>) -> Self {
-        Self {
-            need_shipping_address: val,
-            ..self
-        }
+    pub fn need_shipping_address_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.need_shipping_address = val.map(Into::into);
+        this
     }
 
+    /// Pass `true` if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn send_phone_number_to_provider_option(self, val: Option<bool>) -> Self {
-        Self {
-            send_phone_number_to_provider: val,
-            ..self
-        }
+    pub fn send_phone_number_to_provider<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.send_phone_number_to_provider = Some(val.into());
+        this
     }
 
+    /// Pass `true` if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn send_email_to_provider_option(self, val: Option<bool>) -> Self {
-        Self {
-            send_email_to_provider: val,
-            ..self
-        }
+    pub fn send_phone_number_to_provider_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.send_phone_number_to_provider = val.map(Into::into);
+        this
     }
 
+    /// Pass `true` if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars.
     #[must_use]
-    pub fn is_flexible_option(self, val: Option<bool>) -> Self {
-        Self {
-            is_flexible: val,
-            ..self
-        }
+    pub fn send_email_to_provider<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.send_email_to_provider = Some(val.into());
+        this
+    }
+
+    /// Pass `true` if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars.
+    #[must_use]
+    pub fn send_email_to_provider_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.send_email_to_provider = val.map(Into::into);
+        this
+    }
+
+    /// Pass `true` if the final price depends on the shipping method. Ignored for payments in Telegram Stars.
+    #[must_use]
+    pub fn is_flexible<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.is_flexible = Some(val.into());
+        this
+    }
+
+    /// Pass `true` if the final price depends on the shipping method. Ignored for payments in Telegram Stars.
+    #[must_use]
+    pub fn is_flexible_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.is_flexible = val.map(Into::into);
+        this
     }
 }

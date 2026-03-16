@@ -1,41 +1,44 @@
-use super::KeyboardButton;
-
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-
-/// This object represents a [`custom keyboard`](https://core.telegram.org/bots#keyboards) with reply options (see [`Introduction to bots`](https://core.telegram.org/bots#keyboards) for details and examples).
+/// This object represents a custom keyboard with reply options (see Introduction to bots for details and examples). Not supported in channels and for messages sent on behalf of a Telegram Business account.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#replykeyboardmarkup>
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ReplyKeyboardMarkup {
-    // Array of button rows, each represented by an Array of [`KeyboardButton`] objects
-    pub keyboard: Vec<Vec<KeyboardButton>>,
+    /// Array of button rows, each represented by an Array of [`crate::types::KeyboardButton`] objects
+    pub keyboard: Box<[Box<[crate::types::KeyboardButton]>]>,
     /// Requests clients to always show the keyboard when the regular keyboard is hidden. Defaults to false, in which case the custom keyboard can be hidden and opened with a keyboard icon.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub is_persistent: Option<bool>,
-    /// Requests clients to resize the keyboard vertically for optimal fit (e.g., make the keyboard smaller if there are just two rows of buttons). Defaults to *false*, in which case the custom keyboard is always of the same height as the app's standard keyboard.
+    /// Requests clients to resize the keyboard vertically for optimal fit (e.g., make the keyboard smaller if there are just two rows of buttons). Defaults to false, in which case the custom keyboard is always of the same height as the app's standard keyboard.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub resize_keyboard: Option<bool>,
-    /// Requests clients to hide the keyboard as soon as it's been used. The keyboard will still be available, but clients will automatically display the usual letter-keyboard in the chat - the user can press a special button in the input field to see the custom keyboard again. Defaults to *false*.
+    /// Requests clients to hide the keyboard as soon as it's been used. The keyboard will still be available, but clients will automatically display the usual letter-keyboard in the chat - the user can press a special button in the input field to see the custom keyboard again. Defaults to false.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub one_time_keyboard: Option<bool>,
     /// The placeholder to be shown in the input field when the keyboard is active; 1-64 characters
-    pub input_field_placeholder: Option<String>,
-    /// Use this parameter if you want to show the keyboard to specific users only. Targets: 1) users that are @mentioned in the text of the [`Message`](crate::types::Message) object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message.
-    /// Example: A user requests to change the bot's language, bot replies to the request with a keyboard to select the new language. Other users in the group don't see the keyboard.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_field_placeholder: Option<Box<str>>,
+    /// Use this parameter if you want to show the keyboard to specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message. Example: A user requests to change the bot's language, bot replies to the request with a keyboard to select the new language. Other users in the group don't see the keyboard.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub selective: Option<bool>,
 }
-
 impl ReplyKeyboardMarkup {
+    /// Creates a new `ReplyKeyboardMarkup`.
+    ///
+    /// # Arguments
+    /// * `keyboard` - Array of button rows, each represented by an Array of [`crate::types::KeyboardButton`] objects
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new<T, I>(keyboard: I) -> Self
-    where
-        T: IntoIterator<Item = KeyboardButton>,
-        I: IntoIterator<Item = T>,
-    {
+    pub fn new<
+        T0Item: Into<Box<[crate::types::KeyboardButton]>>,
+        T0: IntoIterator<Item = T0Item>,
+    >(
+        keyboard: T0,
+    ) -> Self {
         Self {
-            keyboard: keyboard
-                .into_iter()
-                .map(|val| val.into_iter().collect())
-                .collect(),
+            keyboard: keyboard.into_iter().map(Into::into).collect(),
             is_persistent: None,
             resize_keyboard: None,
             one_time_keyboard: None,
@@ -44,100 +47,115 @@ impl ReplyKeyboardMarkup {
         }
     }
 
+    /// Array of button rows, each represented by an Array of [`crate::types::KeyboardButton`] objects
+    ///
+    /// # Notes
+    /// Adds multiple elements.
     #[must_use]
-    pub fn is_persistent(self, val: bool) -> Self {
-        Self {
-            is_persistent: Some(val),
-            ..self
-        }
+    pub fn keyboards<T: Into<Box<[Box<[crate::types::KeyboardButton]>]>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.keyboard = this
+            .keyboard
+            .into_vec()
+            .into_iter()
+            .chain(val.into())
+            .collect();
+        this
     }
 
+    /// Array of button rows, each represented by an Array of [`crate::types::KeyboardButton`] objects
+    ///
+    /// # Notes
+    /// Adds a single element.
     #[must_use]
-    pub fn keyboard<T, I>(self, val: I) -> Self
-    where
-        T: IntoIterator<Item = KeyboardButton>,
-        I: IntoIterator<Item = T>,
-    {
-        Self {
-            keyboard: val
-                .into_iter()
-                .map(|val| val.into_iter().collect())
-                .collect(),
-            ..self
-        }
+    pub fn keyboard<T: Into<Box<[crate::types::KeyboardButton]>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.keyboard = this
+            .keyboard
+            .into_vec()
+            .into_iter()
+            .chain(Some(val.into()))
+            .collect();
+        this
     }
 
+    /// Requests clients to always show the keyboard when the regular keyboard is hidden. Defaults to false, in which case the custom keyboard can be hidden and opened with a keyboard icon.
     #[must_use]
-    pub fn resize_keyboard(self, val: bool) -> Self {
-        Self {
-            resize_keyboard: Some(val),
-            ..self
-        }
+    pub fn is_persistent<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.is_persistent = Some(val.into());
+        this
     }
 
+    /// Requests clients to always show the keyboard when the regular keyboard is hidden. Defaults to false, in which case the custom keyboard can be hidden and opened with a keyboard icon.
     #[must_use]
-    pub fn one_time_keyboard(self, val: bool) -> Self {
-        Self {
-            one_time_keyboard: Some(val),
-            ..self
-        }
+    pub fn is_persistent_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.is_persistent = val.map(Into::into);
+        this
     }
 
+    /// Requests clients to resize the keyboard vertically for optimal fit (e.g., make the keyboard smaller if there are just two rows of buttons). Defaults to false, in which case the custom keyboard is always of the same height as the app's standard keyboard.
     #[must_use]
-    pub fn input_field_placeholder(self, val: impl Into<String>) -> Self {
-        Self {
-            input_field_placeholder: Some(val.into()),
-            ..self
-        }
+    pub fn resize_keyboard<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.resize_keyboard = Some(val.into());
+        this
     }
 
+    /// Requests clients to resize the keyboard vertically for optimal fit (e.g., make the keyboard smaller if there are just two rows of buttons). Defaults to false, in which case the custom keyboard is always of the same height as the app's standard keyboard.
     #[must_use]
-    pub fn selective(self, val: bool) -> Self {
-        Self {
-            selective: Some(val),
-            ..self
-        }
-    }
-}
-
-impl ReplyKeyboardMarkup {
-    #[must_use]
-    pub fn is_persistent_option(self, val: Option<bool>) -> Self {
-        Self {
-            is_persistent: val,
-            ..self
-        }
+    pub fn resize_keyboard_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.resize_keyboard = val.map(Into::into);
+        this
     }
 
+    /// Requests clients to hide the keyboard as soon as it's been used. The keyboard will still be available, but clients will automatically display the usual letter-keyboard in the chat - the user can press a special button in the input field to see the custom keyboard again. Defaults to false.
     #[must_use]
-    pub fn resize_keyboard_option(self, val: Option<bool>) -> Self {
-        Self {
-            resize_keyboard: val,
-            ..self
-        }
+    pub fn one_time_keyboard<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.one_time_keyboard = Some(val.into());
+        this
     }
 
+    /// Requests clients to hide the keyboard as soon as it's been used. The keyboard will still be available, but clients will automatically display the usual letter-keyboard in the chat - the user can press a special button in the input field to see the custom keyboard again. Defaults to false.
     #[must_use]
-    pub fn one_time_keyboard_option(self, val: Option<bool>) -> Self {
-        Self {
-            one_time_keyboard: val,
-            ..self
-        }
+    pub fn one_time_keyboard_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.one_time_keyboard = val.map(Into::into);
+        this
     }
 
+    /// The placeholder to be shown in the input field when the keyboard is active; 1-64 characters
     #[must_use]
-    pub fn input_field_placeholder_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            input_field_placeholder: val.map(Into::into),
-            ..self
-        }
+    pub fn input_field_placeholder<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.input_field_placeholder = Some(val.into());
+        this
     }
 
+    /// The placeholder to be shown in the input field when the keyboard is active; 1-64 characters
     #[must_use]
-    pub fn selective_option(self, val: Option<bool>) -> Self {
-        Self {
-            selective: val,
-            ..self
-        }
+    pub fn input_field_placeholder_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.input_field_placeholder = val.map(Into::into);
+        this
+    }
+
+    /// Use this parameter if you want to show the keyboard to specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message. Example: A user requests to change the bot's language, bot replies to the request with a keyboard to select the new language. Other users in the group don't see the keyboard.
+    #[must_use]
+    pub fn selective<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.selective = Some(val.into());
+        this
+    }
+
+    /// Use this parameter if you want to show the keyboard to specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message. Example: A user requests to change the bot's language, bot replies to the request with a keyboard to select the new language. Other users in the group don't see the keyboard.
+    #[must_use]
+    pub fn selective_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.selective = val.map(Into::into);
+        this
     }
 }

@@ -40,7 +40,7 @@ use syn::parse::Parse;
 /// }
 ///
 /// async fn handler(my_struct: MyStruct) {
-///  // ...
+///     // ...
 /// }
 /// ```
 ///
@@ -57,7 +57,7 @@ use syn::parse::Parse;
 /// }
 ///
 /// async fn handler(my_enum: MyEnum) {
-///  // ...
+///     // ...
 /// }
 /// ```
 ///
@@ -180,8 +180,8 @@ pub fn derive_from_context(item: TokenStream) -> TokenStream {
 /// This can be useful when you want to use some type from the `Update` in your handler in a more convenient way.
 ///
 /// ```rust
-/// use telers_macros::FromEvent;
 /// use telers::types::Update;
+/// use telers_macros::FromEvent;
 ///
 /// #[derive(FromEvent)]
 /// #[event(from = Update)]

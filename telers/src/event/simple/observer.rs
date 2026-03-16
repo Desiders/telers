@@ -1,9 +1,6 @@
-use crate::{
-    enums::SimpleObserverName,
-    event::{
-        service::Service,
-        simple::handler::{Handler, HandlerComposite, HandlerResult},
-    },
+use crate::event::{
+    service::Service,
+    simple::handler::{Handler, HandlerResult},
 };
 
 use std::fmt::{self, Debug, Formatter};
@@ -12,67 +9,52 @@ use std::fmt::{self, Debug, Formatter};
 /// Is used for managing events isn't related with Telegram (For example startup/shutdown events)
 #[derive(Clone)]
 pub struct Observer {
-    pub event_name: SimpleObserverName,
-    handlers: Vec<HandlerComposite>,
+    pub(crate) event_name: &'static str,
+    pub(crate) handlers: Vec<Handler>,
 }
 
 impl Observer {
     #[inline]
     #[must_use]
-    pub const fn new(event_name: SimpleObserverName) -> Self {
+    pub const fn new(event_name: &'static str) -> Self {
         Self {
             event_name,
             handlers: vec![],
         }
     }
 
+    /// Register event handler
     #[inline]
     #[must_use]
-    pub fn handlers(&self) -> &[HandlerComposite] {
-        &self.handlers
+    pub fn register(mut self, handler: Handler) -> Self {
+        self.handlers.push(handler);
+        self
     }
 
     /// Register event handler
-    pub fn register<H, Args>(&mut self, handler: H, args: Args)
-    where
-        H: Handler<Args>,
-        Args: Clone + Send + Sync + 'static,
-    {
-        self.handlers.push(HandlerComposite::new(handler, args));
-    }
-
-    /// Register service as event handler
-    pub fn register_service<S, Args>(&mut self, service: S, args: Args)
-    where
-        S: Service<Args, Response = ()> + Clone + Send + Sync + 'static,
-        S::Error: Into<anyhow::Error> + Send + Sync + 'static,
-        S::Future: Send,
-        Args: Clone + Send + Sync + 'static,
-    {
-        self.handlers
-            .push(HandlerComposite::new_service(service, args));
-    }
-
+    /// # Notes
     /// Alias to [`Observer::register`] method
     #[inline]
-    pub fn on<H, Args>(&mut self, handler: H, args: Args)
-    where
-        H: Handler<Args>,
-        Args: Clone + Send + Sync + 'static,
-    {
-        self.register(handler, args);
+    #[must_use]
+    pub fn on(self, handler: Handler) -> Self {
+        self.register(handler)
     }
 
-    /// Alias to [`Observer::register_service`] method
+    /// Register multiple event handlers
+    /// # Notes
+    /// If you want to register single handler, use [`Observer::register`] method
+    #[must_use]
+    pub fn registers(mut self, handlers: impl IntoIterator<Item = Handler>) -> Self {
+        self.handlers.extend(handlers);
+        self
+    }
+}
+
+impl Observer {
     #[inline]
-    pub fn on_service<S, Args>(&mut self, service: S, args: Args)
-    where
-        S: Service<Args, Response = ()> + Clone + Send + Sync + 'static,
-        S::Error: Into<anyhow::Error> + Send + Sync + 'static,
-        S::Future: Send,
-        Args: Clone + Send + Sync + 'static,
-    {
-        self.register_service(service, args);
+    #[must_use]
+    pub fn handlers_len(&self) -> usize {
+        self.handlers.len()
     }
 }
 
@@ -90,13 +72,8 @@ impl Debug for Observer {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("Observer")
             .field("event_name", &self.event_name)
+            .field("handlers", &self.handlers.len())
             .finish_non_exhaustive()
-    }
-}
-
-impl AsRef<Observer> for Observer {
-    fn as_ref(&self) -> &Self {
-        self
     }
 }
 
@@ -122,11 +99,12 @@ mod tests {
             Ok(())
         }
 
-        let mut startup_observer = Observer::new(SimpleObserverName::Startup);
-        startup_observer.register(on_startup, ("Hello, world!",));
+        let mut startup_observer = Observer::new("startup");
+        startup_observer = startup_observer.register(Handler::new(on_startup, ("Hello, world!",)));
 
-        let mut shutdown_observer = Observer::new(SimpleObserverName::Shutdown);
-        shutdown_observer.register(on_shutdown, ("Goodbye, world!",));
+        let mut shutdown_observer = Observer::new("shutdown");
+        shutdown_observer =
+            shutdown_observer.register(Handler::new(on_shutdown, ("Goodbye, world!",)));
 
         startup_observer.trigger(()).await.unwrap();
         shutdown_observer.trigger(()).await.unwrap();
@@ -146,11 +124,12 @@ mod tests {
             Err(HandlerError::new(anyhow!("test")))
         }
 
-        let mut startup_observer = Observer::new(SimpleObserverName::Startup);
-        startup_observer.register(on_startup, ("Hello, world!",));
+        let mut startup_observer = Observer::new("startup");
+        startup_observer = startup_observer.register(Handler::new(on_startup, ("Hello, world!",)));
 
-        let mut shutdown_observer = Observer::new(SimpleObserverName::Shutdown);
-        shutdown_observer.register(on_shutdown, ("Goodbye, world!",));
+        let mut shutdown_observer = Observer::new("shutdown");
+        shutdown_observer =
+            shutdown_observer.register(Handler::new(on_shutdown, ("Goodbye, world!",)));
 
         assert!(
             startup_observer.trigger(()).await.is_err()

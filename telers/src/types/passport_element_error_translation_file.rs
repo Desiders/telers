@@ -1,72 +1,57 @@
-use serde::Serialize;
-use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
-
+use serde::{Deserialize, Serialize};
 /// Represents an issue with one of the files that constitute the translation of a document. The error is considered resolved when the file changes.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#passportelementerrortranslationfile>
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PassportElementErrorTranslationFile {
-    /// Type of element of the user's Telegram Passport which has the issue
-    #[serde(rename = "type")]
-    pub element_type: ElementType,
+    /// Type of element of the user's Telegram Passport which has the issue, one of `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`, `temporary_registration`
+    pub r#type: Box<str>,
     /// Base64-encoded file hash
-    pub file_hash: String,
+    pub file_hash: Box<str>,
     /// Error message
-    pub message: String,
+    pub message: Box<str>,
 }
-
 impl PassportElementErrorTranslationFile {
+    /// Creates a new `PassportElementErrorTranslationFile`.
+    ///
+    /// # Arguments
+    /// * `type` - Type of element of the user's Telegram Passport which has the issue, one of `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`, `temporary_registration`
+    /// * `file_hash` - Base64-encoded file hash
+    /// * `message` - Error message
     #[must_use]
-    pub fn new(
-        element_type: ElementType,
-        file_hash: impl Into<String>,
-        message: impl Into<String>,
+    pub fn new<T0: Into<Box<str>>, T1: Into<Box<str>>, T2: Into<Box<str>>>(
+        r#type: T0,
+        file_hash: T1,
+        message: T2,
     ) -> Self {
         Self {
-            element_type,
+            r#type: r#type.into(),
             file_hash: file_hash.into(),
             message: message.into(),
         }
     }
 
+    /// Type of element of the user's Telegram Passport which has the issue, one of `passport`, `driver_license`, `identity_card`, `internal_passport`, `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`, `temporary_registration`
     #[must_use]
-    pub fn file_hash(self, val: impl Into<String>) -> Self {
-        Self {
-            file_hash: val.into(),
-            ..self
-        }
+    pub fn r#type<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.r#type = val.into();
+        this
     }
 
+    /// Base64-encoded file hash
     #[must_use]
-    pub fn message(self, val: impl Into<String>) -> Self {
-        Self {
-            message: val.into(),
-            ..self
-        }
+    pub fn file_hash<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.file_hash = val.into();
+        this
     }
-}
 
-#[derive(
-    Debug, Display, Clone, Copy, PartialEq, Eq, Hash, Serialize, EnumString, AsRefStr, IntoStaticStr,
-)]
-#[serde(rename_all = "snake_case")]
-pub enum ElementType {
-    #[strum(serialize = "passport")]
-    Passport,
-    #[strum(serialize = "driver_license")]
-    DriverLicense,
-    #[strum(serialize = "identity_card")]
-    IdentityCard,
-    #[strum(serialize = "internal_passport")]
-    InternalPassport,
-    #[strum(serialize = "utility_bill")]
-    UtilityBill,
-    #[strum(serialize = "bank_statement")]
-    BankStatement,
-    #[strum(serialize = "rental_agreement")]
-    RentalAgreement,
-    #[strum(serialize = "passport_registration")]
-    PassportRegistration,
-    #[strum(serialize = "temporary_registration")]
-    TemporaryRegistration,
+    /// Error message
+    #[must_use]
+    pub fn message<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.message = val.into();
+        this
+    }
 }

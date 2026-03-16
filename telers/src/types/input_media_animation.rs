@@ -1,39 +1,49 @@
-use super::{InputFile, MessageEntity};
-
-use serde::Serialize;
-use serde_with::skip_serializing_none;
-
+use serde::{Deserialize, Serialize};
 /// Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputmediaanimation>
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Serialize)]
-pub struct InputMediaAnimation<'a> {
-    /// File to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new one using `multipart/form-data` under `<file_attach_name>` name. [`More information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
-    pub media: InputFile<'a>,
-    /// Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using `multipart/form-data`. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the thumbnail was uploaded using `multipart/form-data` under `<file_attach_name>`. [`More information on Sending Files`](https://core.telegram.org/bots/api#sending-files).
-    pub thumbnail: Option<InputFile<'a>>,
-    /// Caption of the video to be sent, 0-1024 characters after entities parsing
-    pub caption: Option<String>,
-    /// Caption of the animation to be sent, 0-1024 characters after entities parsing"""
-    pub parse_mode: Option<String>,
-    /// Mode for parsing entities in the animation caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
-    pub caption_entities: Option<Vec<MessageEntity>>,
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct InputMediaAnimation {
+    /// File to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
+    pub media: crate::types::InputFile,
+    /// Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the thumbnail was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub thumbnail: Option<crate::types::InputFile>,
+    /// Caption of the animation to be sent, 0-1024 characters after entities parsing
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caption: Option<Box<str>>,
+    /// Mode for parsing entities in the animation caption. See formatting options for more details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parse_mode: Option<Box<str>>,
+    /// List of special entities that appear in the caption, which can be specified instead of `parse_mode`
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caption_entities: Option<Box<[crate::types::MessageEntity]>>,
     /// Pass `true`, if the caption must be shown above the message media
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub show_caption_above_media: Option<bool>,
-    /// Video width
+    /// Animation width
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub width: Option<i64>,
     /// Animation height
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub height: Option<i64>,
     /// Animation duration in seconds
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub duration: Option<i64>,
     /// Pass `true` if the animation needs to be covered with a spoiler animation
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub has_spoiler: Option<bool>,
 }
-
-impl<'a> InputMediaAnimation<'a> {
+impl InputMediaAnimation {
+    /// Creates a new `InputMediaAnimation`.
+    ///
+    /// # Arguments
+    /// * `media` - File to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(media: impl Into<InputFile<'a>>) -> Self {
+    pub fn new<T0: Into<crate::types::InputFile>>(media: T0) -> Self {
         Self {
             media: media.into(),
             thumbnail: None,
@@ -48,183 +58,189 @@ impl<'a> InputMediaAnimation<'a> {
         }
     }
 
+    /// File to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
-    pub fn media(self, val: impl Into<InputFile<'a>>) -> Self {
-        Self {
-            media: val.into(),
-            ..self
-        }
+    pub fn media<T: Into<crate::types::InputFile>>(self, val: T) -> Self {
+        let mut this = self;
+        this.media = val.into();
+        this
     }
 
+    /// Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the thumbnail was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
-    pub fn thumbnail(self, val: impl Into<InputFile<'a>>) -> Self {
-        Self {
-            thumbnail: Some(val.into()),
-            ..self
-        }
+    pub fn thumbnail<T: Into<crate::types::InputFile>>(self, val: T) -> Self {
+        let mut this = self;
+        this.thumbnail = Some(val.into());
+        this
     }
 
+    /// Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the thumbnail was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
-    pub fn caption(self, val: impl Into<String>) -> Self {
-        Self {
-            caption: Some(val.into()),
-            ..self
-        }
+    pub fn thumbnail_option<T: Into<crate::types::InputFile>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.thumbnail = val.map(Into::into);
+        this
     }
 
+    /// Caption of the animation to be sent, 0-1024 characters after entities parsing
     #[must_use]
-    pub fn parse_mode(self, val: impl Into<String>) -> Self {
-        Self {
-            parse_mode: Some(val.into()),
-            ..self
-        }
+    pub fn caption<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.caption = Some(val.into());
+        this
     }
 
+    /// Caption of the animation to be sent, 0-1024 characters after entities parsing
     #[must_use]
-    pub fn caption_entity(self, val: MessageEntity) -> Self {
-        Self {
-            caption_entities: Some(
-                self.caption_entities
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(Some(val))
-                    .collect(),
-            ),
-            ..self
-        }
+    pub fn caption_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.caption = val.map(Into::into);
+        this
     }
 
+    /// Mode for parsing entities in the animation caption. See formatting options for more details.
     #[must_use]
-    pub fn caption_entities(self, val: impl IntoIterator<Item = MessageEntity>) -> Self {
-        Self {
-            caption_entities: Some(
-                self.caption_entities
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(val)
-                    .collect(),
-            ),
-            ..self
-        }
+    pub fn parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.parse_mode = Some(val.into());
+        this
     }
 
+    /// Mode for parsing entities in the animation caption. See formatting options for more details.
     #[must_use]
-    pub fn show_caption_above_media(self, val: bool) -> Self {
-        Self {
-            show_caption_above_media: Some(val),
-            ..self
-        }
+    pub fn parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.parse_mode = val.map(Into::into);
+        this
     }
 
+    /// List of special entities that appear in the caption, which can be specified instead of `parse_mode`
+    ///
+    /// # Notes
+    /// Adds multiple elements.
     #[must_use]
-    pub fn width(self, val: i64) -> Self {
-        Self {
-            width: Some(val),
-            ..self
-        }
+    pub fn caption_entities<T: Into<Box<[crate::types::MessageEntity]>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.caption_entities = Some(
+            this.caption_entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into())
+                .collect(),
+        );
+        this
     }
 
+    /// List of special entities that appear in the caption, which can be specified instead of `parse_mode`
+    ///
+    /// # Notes
+    /// Adds a single element.
     #[must_use]
-    pub fn height(self, val: i64) -> Self {
-        Self {
-            height: Some(val),
-            ..self
-        }
+    pub fn caption_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
+        let mut this = self;
+        this.caption_entities = Some(
+            this.caption_entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        this
     }
 
+    /// List of special entities that appear in the caption, which can be specified instead of `parse_mode`
+    ///
+    /// # Notes
+    /// Adds a single element.
     #[must_use]
-    pub fn duration(self, val: i64) -> Self {
-        Self {
-            duration: Some(val),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn has_spoiler(self, val: bool) -> Self {
-        Self {
-            has_spoiler: Some(val),
-            ..self
-        }
-    }
-}
-
-impl<'a> InputMediaAnimation<'a> {
-    #[must_use]
-    pub fn thumbnail_option(self, val: Option<impl Into<InputFile<'a>>>) -> Self {
-        Self {
-            thumbnail: val.map(Into::into),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn caption_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            caption: val.map(Into::into),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            parse_mode: val.map(Into::into),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn caption_entities_option(
+    pub fn caption_entities_option<T: Into<Box<[crate::types::MessageEntity]>>>(
         self,
-        val: Option<impl IntoIterator<Item = MessageEntity>>,
+        val: Option<T>,
     ) -> Self {
-        Self {
-            caption_entities: val.map(|val| {
-                self.caption_entities
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(val)
-                    .collect()
-            }),
-            ..self
-        }
+        let mut this = self;
+        this.caption_entities = val.map(Into::into);
+        this
     }
 
+    /// Pass `true`, if the caption must be shown above the message media
     #[must_use]
-    pub fn show_caption_above_media_option(self, val: Option<bool>) -> Self {
-        Self {
-            show_caption_above_media: val,
-            ..self
-        }
+    pub fn show_caption_above_media<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.show_caption_above_media = Some(val.into());
+        this
     }
 
+    /// Pass `true`, if the caption must be shown above the message media
     #[must_use]
-    pub fn width_option(self, val: Option<i64>) -> Self {
-        Self { width: val, ..self }
+    pub fn show_caption_above_media_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.show_caption_above_media = val.map(Into::into);
+        this
     }
 
+    /// Animation width
     #[must_use]
-    pub fn height_option(self, val: Option<i64>) -> Self {
-        Self {
-            height: val,
-            ..self
-        }
+    pub fn width<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.width = Some(val.into());
+        this
     }
 
+    /// Animation width
     #[must_use]
-    pub fn duration_option(self, val: Option<i64>) -> Self {
-        Self {
-            duration: val,
-            ..self
-        }
+    pub fn width_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.width = val.map(Into::into);
+        this
     }
 
+    /// Animation height
     #[must_use]
-    pub fn has_spoiler_option(self, val: Option<bool>) -> Self {
-        Self {
-            has_spoiler: val,
-            ..self
-        }
+    pub fn height<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.height = Some(val.into());
+        this
+    }
+
+    /// Animation height
+    #[must_use]
+    pub fn height_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.height = val.map(Into::into);
+        this
+    }
+
+    /// Animation duration in seconds
+    #[must_use]
+    pub fn duration<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.duration = Some(val.into());
+        this
+    }
+
+    /// Animation duration in seconds
+    #[must_use]
+    pub fn duration_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.duration = val.map(Into::into);
+        this
+    }
+
+    /// Pass `true` if the animation needs to be covered with a spoiler animation
+    #[must_use]
+    pub fn has_spoiler<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.has_spoiler = Some(val.into());
+        this
+    }
+
+    /// Pass `true` if the animation needs to be covered with a spoiler animation
+    #[must_use]
+    pub fn has_spoiler_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.has_spoiler = val.map(Into::into);
+        this
     }
 }

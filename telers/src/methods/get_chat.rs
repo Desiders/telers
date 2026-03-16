@@ -1,50 +1,40 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{
-    client::Bot,
-    types::{ChatFullInfo, ChatIdKind},
-};
-
+use crate::client::Bot;
 use serde::Serialize;
-
-/// Use this method to get up-to-date information about the chat
+/// Use this method to get up-to-date information about the chat. Returns a [`crate::types::ChatFullInfo`] object on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getchat>
 /// # Returns
-/// Returns a [`ChatFullInfo`] object on success
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `crate::types::ChatFullInfo`
+#[derive(Clone, Debug, Serialize)]
 pub struct GetChat {
-    /// Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`)
-    pub chat_id: ChatIdKind,
+    /// Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
+    pub chat_id: crate::types::ChatIdKind,
 }
-
 impl GetChat {
+    /// Creates a new `GetChat`.
+    ///
+    /// # Arguments
+    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>) -> Self {
+    pub fn new<T0: Into<crate::types::ChatIdKind>>(chat_id: T0) -> Self {
         Self {
             chat_id: chat_id.into(),
         }
     }
 
+    /// Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
     #[must_use]
-    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
-        Self {
-            chat_id: val.into(),
-        }
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
+        let mut this = self;
+        this.chat_id = val.into();
+        this
     }
 }
-
-impl TelegramMethod for GetChat {
+impl super::TelegramMethod for GetChat {
     type Method = Self;
-    type Return = ChatFullInfo;
+    type Return = crate::types::ChatFullInfo;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("getChat", self, None)
-    }
-}
-
-impl AsRef<GetChat> for GetChat {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("getChat", self, None)
     }
 }

@@ -1,37 +1,50 @@
-use super::{
-    KeyboardButtonPollType, KeyboardButtonRequestChat, KeyboardButtonRequestUsers, WebAppInfo,
-};
-
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-
-/// This object represents one button of the reply keyboard. For simple text buttons *String* can be used instead of this object to specify text of the button. Optional fields `web_app`, `request_users`, `request_chat`, `request_contact`, `request_location`, and `request_poll` are mutually exclusive.
+/// This object represents one button of the reply keyboard. At most one of the fields other than text, `icon_custom_emoji_id`, and style must be used to specify the type of the button. For simple text buttons, String can be used instead of this object to specify the button text.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#keyboardbutton>
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct KeyboardButton {
-    /// Text of the button. If none of the optional fields are used, it will be sent as a message when the button is pressed
-    pub text: String,
+    /// Text of the button. If none of the fields other than text, `icon_custom_emoji_id`, and style are used, it will be sent as a message when the button is pressed
+    pub text: Box<str>,
+    /// Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub icon_custom_emoji_id: Option<Box<str>>,
+    /// Style of the button. Must be one of `danger` (red), `success` (green) or `primary` (blue). If omitted, then an app-specific style is used.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub style: Option<Box<str>>,
     /// If specified, pressing the button will open a list of suitable users. Identifiers of selected users will be sent to the bot in a `users_shared` service message. Available in private chats only.
-    pub request_users: Option<KeyboardButtonRequestUsers>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub request_users: Option<crate::types::KeyboardButtonRequestUsers>,
     /// If specified, pressing the button will open a list of suitable chats. Tapping on a chat will send its identifier to the bot in a `chat_shared` service message. Available in private chats only.
-    pub request_chat: Option<KeyboardButtonRequestChat>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub request_chat: Option<crate::types::KeyboardButtonRequestChat>,
     /// If `true`, the user's phone number will be sent as a contact when the button is pressed. Available in private chats only.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub request_contact: Option<bool>,
     /// If `true`, the user's current location will be sent when the button is pressed. Available in private chats only.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub request_location: Option<bool>,
     /// If specified, the user will be asked to create a poll and send it to the bot when the button is pressed. Available in private chats only.
-    pub request_poll: Option<KeyboardButtonPollType>,
-    /// If specified, the described [`Web App`](https://core.telegram.org/bots/webapps) will be launched when the button is pressed. The Web App will be able to send a `web_app_data` service message. Available in private chats only.
-    pub web_app: Option<WebAppInfo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub request_poll: Option<crate::types::KeyboardButtonPollType>,
+    /// If specified, the described Web App will be launched when the button is pressed. The Web App will be able to send a `web_app_data` service message. Available in private chats only.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub web_app: Option<crate::types::WebAppInfo>,
 }
-
 impl KeyboardButton {
+    /// Creates a new `KeyboardButton`.
+    ///
+    /// # Arguments
+    /// * `text` - Text of the button. If none of the fields other than text, `icon_custom_emoji_id`, and style are used, it will be sent as a message when the button is pressed
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(text: impl Into<String>) -> Self {
+    pub fn new<T0: Into<Box<str>>>(text: T0) -> Self {
         Self {
             text: text.into(),
+            icon_custom_emoji_id: None,
+            style: None,
             request_users: None,
             request_chat: None,
             request_contact: None,
@@ -41,109 +54,148 @@ impl KeyboardButton {
         }
     }
 
+    /// Text of the button. If none of the fields other than text, `icon_custom_emoji_id`, and style are used, it will be sent as a message when the button is pressed
     #[must_use]
-    pub fn text(self, val: impl Into<String>) -> Self {
-        Self {
-            text: val.into(),
-            ..self
-        }
+    pub fn text<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.text = val.into();
+        this
     }
 
+    /// Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription.
     #[must_use]
-    pub fn request_users(self, val: KeyboardButtonRequestUsers) -> Self {
-        Self {
-            request_users: Some(val),
-            ..self
-        }
+    pub fn icon_custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.icon_custom_emoji_id = Some(val.into());
+        this
     }
 
+    /// Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription.
     #[must_use]
-    pub fn request_chat(self, val: KeyboardButtonRequestChat) -> Self {
-        Self {
-            request_chat: Some(val),
-            ..self
-        }
+    pub fn icon_custom_emoji_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.icon_custom_emoji_id = val.map(Into::into);
+        this
     }
 
+    /// Style of the button. Must be one of `danger` (red), `success` (green) or `primary` (blue). If omitted, then an app-specific style is used.
     #[must_use]
-    pub fn request_contact(self, val: bool) -> Self {
-        Self {
-            request_contact: Some(val),
-            ..self
-        }
+    pub fn style<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.style = Some(val.into());
+        this
     }
 
+    /// Style of the button. Must be one of `danger` (red), `success` (green) or `primary` (blue). If omitted, then an app-specific style is used.
     #[must_use]
-    pub fn request_location(self, val: bool) -> Self {
-        Self {
-            request_location: Some(val),
-            ..self
-        }
+    pub fn style_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.style = val.map(Into::into);
+        this
     }
 
+    /// If specified, pressing the button will open a list of suitable users. Identifiers of selected users will be sent to the bot in a `users_shared` service message. Available in private chats only.
     #[must_use]
-    pub fn request_poll(self, val: KeyboardButtonPollType) -> Self {
-        Self {
-            request_poll: Some(val),
-            ..self
-        }
+    pub fn request_users<T: Into<crate::types::KeyboardButtonRequestUsers>>(self, val: T) -> Self {
+        let mut this = self;
+        this.request_users = Some(val.into());
+        this
     }
 
+    /// If specified, pressing the button will open a list of suitable users. Identifiers of selected users will be sent to the bot in a `users_shared` service message. Available in private chats only.
     #[must_use]
-    pub fn web_app(self, val: WebAppInfo) -> Self {
-        Self {
-            web_app: Some(val),
-            ..self
-        }
-    }
-}
-
-impl KeyboardButton {
-    #[must_use]
-    pub fn request_users_option(self, val: Option<KeyboardButtonRequestUsers>) -> Self {
-        Self {
-            request_users: val,
-            ..self
-        }
+    pub fn request_users_option<T: Into<crate::types::KeyboardButtonRequestUsers>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.request_users = val.map(Into::into);
+        this
     }
 
+    /// If specified, pressing the button will open a list of suitable chats. Tapping on a chat will send its identifier to the bot in a `chat_shared` service message. Available in private chats only.
     #[must_use]
-    pub fn request_chat_option(self, val: Option<KeyboardButtonRequestChat>) -> Self {
-        Self {
-            request_chat: val,
-            ..self
-        }
+    pub fn request_chat<T: Into<crate::types::KeyboardButtonRequestChat>>(self, val: T) -> Self {
+        let mut this = self;
+        this.request_chat = Some(val.into());
+        this
     }
 
+    /// If specified, pressing the button will open a list of suitable chats. Tapping on a chat will send its identifier to the bot in a `chat_shared` service message. Available in private chats only.
     #[must_use]
-    pub fn request_contact_option(self, val: Option<bool>) -> Self {
-        Self {
-            request_contact: val,
-            ..self
-        }
+    pub fn request_chat_option<T: Into<crate::types::KeyboardButtonRequestChat>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.request_chat = val.map(Into::into);
+        this
     }
 
+    /// If `true`, the user's phone number will be sent as a contact when the button is pressed. Available in private chats only.
     #[must_use]
-    pub fn request_location_option(self, val: Option<bool>) -> Self {
-        Self {
-            request_location: val,
-            ..self
-        }
+    pub fn request_contact<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.request_contact = Some(val.into());
+        this
     }
 
+    /// If `true`, the user's phone number will be sent as a contact when the button is pressed. Available in private chats only.
     #[must_use]
-    pub fn request_poll_option(self, val: Option<KeyboardButtonPollType>) -> Self {
-        Self {
-            request_poll: val,
-            ..self
-        }
+    pub fn request_contact_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.request_contact = val.map(Into::into);
+        this
     }
 
+    /// If `true`, the user's current location will be sent when the button is pressed. Available in private chats only.
     #[must_use]
-    pub fn web_app_option(self, val: Option<WebAppInfo>) -> Self {
-        Self {
-            web_app: val,
-            ..self
-        }
+    pub fn request_location<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.request_location = Some(val.into());
+        this
+    }
+
+    /// If `true`, the user's current location will be sent when the button is pressed. Available in private chats only.
+    #[must_use]
+    pub fn request_location_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.request_location = val.map(Into::into);
+        this
+    }
+
+    /// If specified, the user will be asked to create a poll and send it to the bot when the button is pressed. Available in private chats only.
+    #[must_use]
+    pub fn request_poll<T: Into<crate::types::KeyboardButtonPollType>>(self, val: T) -> Self {
+        let mut this = self;
+        this.request_poll = Some(val.into());
+        this
+    }
+
+    /// If specified, the user will be asked to create a poll and send it to the bot when the button is pressed. Available in private chats only.
+    #[must_use]
+    pub fn request_poll_option<T: Into<crate::types::KeyboardButtonPollType>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.request_poll = val.map(Into::into);
+        this
+    }
+
+    /// If specified, the described Web App will be launched when the button is pressed. The Web App will be able to send a `web_app_data` service message. Available in private chats only.
+    #[must_use]
+    pub fn web_app<T: Into<crate::types::WebAppInfo>>(self, val: T) -> Self {
+        let mut this = self;
+        this.web_app = Some(val.into());
+        this
+    }
+
+    /// If specified, the described Web App will be launched when the button is pressed. The Web App will be able to send a `web_app_data` service message. Available in private chats only.
+    #[must_use]
+    pub fn web_app_option<T: Into<crate::types::WebAppInfo>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.web_app = val.map(Into::into);
+        this
     }
 }

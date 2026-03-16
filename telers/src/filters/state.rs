@@ -1,7 +1,7 @@
-use super::base::Filter;
+use super::{Filter, FilterResult};
 use crate::Request;
 
-use std::future::Future;
+use std::{convert::Infallible, future::Future};
 
 #[derive(Clone)]
 pub enum Dummy {}
@@ -19,17 +19,20 @@ pub enum State<S = Dummy, const N: usize = 0> {
 
 impl State {
     /// Creates a state filter that allows any state
+    #[inline]
     #[must_use]
     pub const fn any() -> Self {
         Self::Any
     }
 
     /// Creates a state filter that allows only the absence of state
+    #[inline]
     #[must_use]
     pub const fn none() -> Self {
         Self::None
     }
 
+    #[inline]
     #[must_use]
     const fn validate(&self, is_some: bool) -> bool {
         if is_some {
@@ -45,6 +48,7 @@ where
     for<'a> S: PartialEq<&'a str>,
 {
     /// Creates a state filter with a single allowed state
+    #[inline]
     #[must_use]
     pub const fn one(state: S) -> Self {
         Self::Eq([state; 1])
@@ -56,6 +60,7 @@ where
     for<'a> S: PartialEq<&'a str>,
 {
     /// Creates a state filter with multiple allowed states
+    #[inline]
     #[must_use]
     pub fn many(states: impl Into<[S; N]>) -> Self {
         Self::Eq(states.into())
@@ -84,9 +89,14 @@ impl<Client> Filter<Client> for State<Dummy, 0>
 where
     Client: Send,
 {
-    fn check(&mut self, request: &mut Request<Client>) -> impl Future<Output = bool> + Send {
+    type Error = Infallible;
+
+    fn check(
+        &mut self,
+        request: &mut Request<Client>,
+    ) -> impl Future<Output = FilterResult<Self::Error>> + Send {
         let res = self.validate(request.context.contains_key("fsm_state"));
-        async move { res }
+        async move { Ok(res) }
     }
 }
 
@@ -95,14 +105,19 @@ where
     Client: Send,
     for<'a> S: PartialEq<&'a str> + Clone + Send + Sync + 'static,
 {
-    fn check(&mut self, request: &mut Request<Client>) -> impl Future<Output = bool> + Send {
+    type Error = Infallible;
+
+    fn check(
+        &mut self,
+        request: &mut Request<Client>,
+    ) -> impl Future<Output = FilterResult<Self::Error>> + Send {
         let res = self.validate_eq(
             request
                 .context
                 .get::<Box<str>>("fsm_state")
                 .map(|val| &**val),
         );
-        async move { res }
+        async move { Ok(res) }
     }
 }
 

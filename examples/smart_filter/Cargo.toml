@@ -1,0 +1,12 @@
+[package]
+name = "smart_filter"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+async-trait = "0.1"
+telers = { path = "../../telers", features = ["default_signal"] }
+tokio = { version = "1.36", features = ["macros"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

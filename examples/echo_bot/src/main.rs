@@ -2,41 +2,30 @@
 //!
 //! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package echo_bot
+//! BOT_TOKEN={your_bot_token} cargo run --package echo_bot
 //! ```
 
 use telers::{
     enums::UpdateType,
-    event::{telegram::HandlerResult, EventReturn},
-    methods::CopyMessage,
+    event::telegram::{Handler, HandlerResult},
     types::Message,
     Bot, Dispatcher, Router,
 };
-use tracing::{event, Level};
-use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
-async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
-    bot.send(CopyMessage::new(
-        message.chat().id(),
-        message.chat().id(),
-        message.id(),
-    ))
-    .await?;
-
-    Ok(EventReturn::Finish)
+async fn echo_handler(bot: Bot, message: Message) -> HandlerResult<()> {
+    bot.send(message.to_copy_message(message.chat().id()))
+        .await?;
+    Ok(())
 }
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    tracing_subscriber::registry()
-        .with(fmt::layer())
-        .with(EnvFilter::from_env("RUST_LOG"))
-        .init();
+    tracing_subscriber::fmt().init();
 
-    let bot = Bot::from_env_by_key("BOT_TOKEN");
+    let bot = Bot::from_env();
 
-    let mut router = Router::new("main");
-    router.message.register(echo_handler);
+    let router =
+        Router::new("main").on_message(|observer| observer.register(Handler::new(echo_handler)));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
@@ -45,7 +34,7 @@ async fn main() {
         .build();
 
     match dispatcher.run_polling().await {
-        Ok(()) => event!(Level::INFO, "Bot stopped"),
-        Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
+        Ok(()) => tracing::info!("Bot stopped"),
+        Err(err) => tracing::error!( error = %err, "Bot stopped"),
     }
 }

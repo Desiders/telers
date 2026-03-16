@@ -1,9 +1,9 @@
 //! This example shows how to use [`Extractor`] to extract data and use it in handlers.
 //! Check out the documentation of the [`extractor module`] for more information
 //!
-//! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
+//! You can run this example by setting `BOT_TOKEN` and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package extractor
+//! BOT_TOKEN={your_bot_token} cargo run --package extractor
 //! ```
 //!
 //! [`Extractor`]: telers::Extractor
@@ -15,14 +15,12 @@ use std::convert::Infallible;
 use telers::{
     enums::UpdateType,
     errors::{ConvertToTypeError, ExtractionError},
-    event::{telegram::HandlerResult, EventReturn},
+    event::telegram::{Handler, HandlerResult},
     filters::Command,
     methods::SendMessage,
     types::{Message, Update},
     Bot, Context, Dispatcher, Extension, Extractor, FromContext, FromEvent, Request, Router,
 };
-use tracing::{event, Level};
-use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 /// Implementing [`Extractor`] by [`FromEvent`] macros to use struct in handlers.
 /// # Notes
@@ -33,7 +31,7 @@ struct UpdateId(i64);
 
 impl From<Update> for UpdateId {
     fn from(update: Update) -> Self {
-        Self(update.id)
+        Self(update.update_id())
     }
 }
 
@@ -51,11 +49,12 @@ impl From<Update> for UpdateId {
 struct UpdateChatId(i64);
 
 impl TryFrom<Update> for UpdateChatId {
-    type Error = ConvertToTypeError; // You can use your own error type here
+    // You can use your own error type here
+    type Error = ConvertToTypeError;
 
     fn try_from(update: Update) -> Result<Self, Self::Error> {
-        match update.chat_id() {
-            Some(chat_id) => Ok(Self(chat_id)),
+        match update.chat() {
+            Some(chat) => Ok(Self(chat.id())),
             None => Err(ConvertToTypeError::new("Update", "UpdateChatId")),
         }
     }
@@ -65,18 +64,18 @@ async fn update_id_handler(
     bot: Bot,
     UpdateId(update_id): UpdateId,
     update_chat_id: Option<UpdateChatId>,
-) -> HandlerResult {
+) -> HandlerResult<()> {
     match update_chat_id {
         Some(UpdateChatId(chat_id)) => {
             bot.send(SendMessage::new(chat_id, format!("Update id: {update_id}")))
                 .await?;
         }
         None => {
-            event!(Level::WARN, "Update doesn't contain chat id");
+            tracing::warn!("Update doesn't contain chat id");
         }
     }
 
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, FromContext)]
@@ -127,7 +126,7 @@ async fn send_data_handler(
     // but we can still use it because extractor is implemented for all extensions
     Extension(BoolData(bool_data)): Extension<BoolData>,
     BotId(bot_id): BotId,
-) -> HandlerResult {
+) -> HandlerResult<()> {
     assert_eq!(num_data1, num_data2);
     assert_eq!(str_data1, str_data2);
 
@@ -139,30 +138,22 @@ async fn send_data_handler(
         ),
     ))
     .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    tracing_subscriber::registry()
-        .with(fmt::layer())
-        .with(EnvFilter::from_env("RUST_LOG"))
-        .init();
+    tracing_subscriber::fmt().init();
 
-    let bot = Bot::from_env_by_key("BOT_TOKEN");
-
-    let mut router = Router::new("main");
+    let bot = Bot::from_env();
 
     // Register handler that sends extracted data to chat
-    router
-        .message
-        .register(send_data_handler)
-        .filter(Command::one("data"));
-    router
-        .message
-        .register(update_id_handler)
-        .filter(Command::one("update_id"));
+    let router = Router::new("main").on_message(|observer| {
+        observer.registers([
+            Handler::new(send_data_handler).filter(Command::one("data")),
+            Handler::new(update_id_handler).filter(Command::one("update_id")),
+        ])
+    });
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
@@ -178,7 +169,7 @@ async fn main() {
         .build();
 
     match dispatcher.run_polling().await {
-        Ok(()) => event!(Level::INFO, "Bot stopped"),
-        Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
+        Ok(()) => tracing::info!("Bot stopped"),
+        Err(err) => tracing::error!(error = %err, "Bot stopped"),
     }
 }

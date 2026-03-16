@@ -1,76 +1,74 @@
-use super::base::{Request, TelegramMethod};
-
 use crate::client::Bot;
-
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Use this method to change the bot's short description, which is shown on the bot's profile page and is sent together with the link when users share the bot.
+/// Use this method to change the bot's short description, which is shown on the bot's profile page and is sent together with the link when users share the bot. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setmyshortdescription>
 /// # Returns
-/// On success, `true` is returned
-#[skip_serializing_none]
-#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct SetMyShortDescription {
     /// New short description for the bot; 0-120 characters. Pass an empty string to remove the dedicated short description for the given language.
-    pub short_description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub short_description: Option<Box<str>>,
     /// A two-letter ISO 639-1 language code. If empty, the short description will be applied to all users for whose language there is no dedicated short description.
-    pub language_code: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub language_code: Option<Box<str>>,
 }
-
 impl SetMyShortDescription {
+    /// Creates a new `SetMyShortDescription`.
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
     pub fn new() -> Self {
-        Self::default()
-    }
-
-    #[must_use]
-    pub fn short_description(self, val: impl Into<String>) -> Self {
         Self {
-            short_description: Some(val.into()),
-            ..self
+            short_description: None,
+            language_code: None,
         }
     }
 
+    /// New short description for the bot; 0-120 characters. Pass an empty string to remove the dedicated short description for the given language.
     #[must_use]
-    pub fn language_code(self, val: impl Into<String>) -> Self {
-        Self {
-            language_code: Some(val.into()),
-            ..self
-        }
+    pub fn short_description<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.short_description = Some(val.into());
+        this
+    }
+
+    /// New short description for the bot; 0-120 characters. Pass an empty string to remove the dedicated short description for the given language.
+    #[must_use]
+    pub fn short_description_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.short_description = val.map(Into::into);
+        this
+    }
+
+    /// A two-letter ISO 639-1 language code. If empty, the short description will be applied to all users for whose language there is no dedicated short description.
+    #[must_use]
+    pub fn language_code<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.language_code = Some(val.into());
+        this
+    }
+
+    /// A two-letter ISO 639-1 language code. If empty, the short description will be applied to all users for whose language there is no dedicated short description.
+    #[must_use]
+    pub fn language_code_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.language_code = val.map(Into::into);
+        this
     }
 }
-
-impl SetMyShortDescription {
-    #[must_use]
-    pub fn short_description_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            short_description: val.map(Into::into),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn language_code_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            language_code: val.map(Into::into),
-            ..self
-        }
+impl Default for SetMyShortDescription {
+    fn default() -> Self {
+        Self::new()
     }
 }
-
-impl TelegramMethod for SetMyShortDescription {
+impl super::TelegramMethod for SetMyShortDescription {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("setMyShortDescription", self, None)
-    }
-}
-
-impl AsRef<SetMyShortDescription> for SetMyShortDescription {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("setMyShortDescription", self, None)
     }
 }

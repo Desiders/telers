@@ -1,10 +1,9 @@
-use futures_util::future::BoxFuture;
-
 use crate::{
     errors::HandlerError,
     event::service::{service_fn, BoxCloneService, Service},
 };
 
+use futures_util::future::BoxFuture;
 use std::{
     future::Future,
     task::{Context, Poll},
@@ -14,23 +13,23 @@ pub type BoxedCloneHandlerService = BoxCloneService<(), (), HandlerError>;
 
 pub type HandlerResult = Result<(), HandlerError>;
 
-pub trait Handler<Args>: Clone + Send + Sync + 'static {
-    type Error: Into<anyhow::Error> + Send + Sync + 'static;
+pub trait HandlerFn<Args>: Clone + Send + Sync + 'static {
+    type Error: Into<anyhow::Error>;
     type Future: Future<Output = Result<(), Self::Error>> + Send;
 
     fn call(&mut self, args: Args) -> Self::Future;
 }
 
 #[derive(Clone)]
-pub struct HandlerComposite {
+pub struct Handler {
     service: BoxedCloneHandlerService,
 }
 
-impl HandlerComposite {
+impl Handler {
     #[must_use]
     pub fn new<H, Args>(handler: H, args: Args) -> Self
     where
-        H: Handler<Args>,
+        H: HandlerFn<Args>,
         Args: Clone + Send + Sync + 'static,
     {
         Self {
@@ -38,10 +37,11 @@ impl HandlerComposite {
         }
     }
 
+    #[must_use]
     pub fn new_service<S, Args>(service: S, args: Args) -> Self
     where
         S: Service<Args, Response = ()> + Clone + Send + Sync + 'static,
-        S::Error: Into<anyhow::Error> + Send + Sync + 'static,
+        S::Error: Into<anyhow::Error>,
         S::Future: Send,
         Args: Clone + Send + Sync + 'static,
     {
@@ -51,15 +51,17 @@ impl HandlerComposite {
     }
 }
 
-impl Service<()> for HandlerComposite {
-    type Response = ();
+impl Service<()> for Handler {
     type Error = HandlerError;
     type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
+    type Response = ();
 
+    #[inline]
     fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
         Poll::Ready(Ok(()))
     }
 
+    #[inline]
     fn call(&mut self, req: ()) -> Self::Future {
         self.service.call(req)
     }
@@ -67,7 +69,7 @@ impl Service<()> for HandlerComposite {
 
 pub fn boxed_handler_factory<H, Args>(handler: H, args: Args) -> BoxedCloneHandlerService
 where
-    H: Handler<Args>,
+    H: HandlerFn<Args>,
     Args: Clone + Send + Sync + 'static,
 {
     BoxCloneService::new(service_fn(move |()| {
@@ -97,16 +99,15 @@ macro_rules! impl_handlers {
     (
         [$($ty:ident),*]
     ) => {
-        impl<F, Fut, Err, $($ty,)*> Handler<($($ty,)*)> for F
+        impl<F, Fut, Err, $($ty,)*> HandlerFn<($($ty,)*)> for F
         where
             F: FnMut($($ty),*) -> Fut + Clone + Send + Sync + 'static,
-            Err: Into<anyhow::Error> + Send + Sync + 'static,
+            Err: Into<anyhow::Error>,
             Fut: Future<Output = Result<(), Err>> + Send,
         {
             type Error = Err;
             type Future = Fut;
 
-            #[inline]
             #[allow(non_snake_case)]
             fn call(&mut self, ($($ty,)*): ($($ty,)*)) -> Self::Future {
                 (self)($($ty,)*)
@@ -126,15 +127,14 @@ mod tests {
 
     #[tokio::test]
     async fn test_handler() {
-        let mut handler =
-            HandlerComposite::new(|(), ()| async { Ok::<_, Infallible>(()) }, ((), ()));
+        let mut handler = Handler::new(|(), ()| async { Ok::<_, Infallible>(()) }, ((), ()));
 
         handler.call(()).await.unwrap();
     }
 
     #[tokio::test]
     async fn test_service() {
-        let mut handler = HandlerComposite::new_service(
+        let mut handler = Handler::new_service(
             service_fn(|((), ())| async { Ok::<_, Infallible>(()) }),
             ((), ()),
         );

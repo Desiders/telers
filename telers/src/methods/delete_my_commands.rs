@@ -1,58 +1,74 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::BotCommandScope};
-
+use crate::client::Bot;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Use this method to delete the list of the bot's commands for the given scope and user language. After deletion, [higher level commands](https://core.telegram.org/bots/api#determining-list-of-commands) will be shown to affected users.
+/// Use this method to delete the list of the bot's commands for the given scope and user language. After deletion, higher level commands will be shown to affected users. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#deletemycommands>
 /// # Returns
-/// On success, `true` is returned
-#[skip_serializing_none]
-#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct DeleteMyCommands {
-    /// A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to [`BotCommandScopeDefault`](crate::types::BotCommandScopeDefault).
-    pub scope: Option<BotCommandScope>,
-    /// A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands.
-    pub language_code: Option<String>,
+    /// A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to [`crate::types::BotCommandScopeDefault`].
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub scope: Option<crate::types::BotCommandScope>,
+    /// A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub language_code: Option<Box<str>>,
 }
-
 impl DeleteMyCommands {
+    /// Creates a new `DeleteMyCommands`.
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
     pub fn new() -> Self {
-        Self::default()
-    }
-
-    #[must_use]
-    pub fn scope(self, val: impl Into<BotCommandScope>) -> Self {
         Self {
-            scope: Some(val.into()),
-            ..self
+            scope: None,
+            language_code: None,
         }
     }
 
+    /// A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to [`crate::types::BotCommandScopeDefault`].
     #[must_use]
-    pub fn language_code(self, val: impl Into<String>) -> Self {
-        Self {
-            language_code: Some(val.into()),
-            ..self
-        }
+    pub fn scope<T: Into<crate::types::BotCommandScope>>(self, val: T) -> Self {
+        let mut this = self;
+        this.scope = Some(val.into());
+        this
+    }
+
+    /// A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to [`crate::types::BotCommandScopeDefault`].
+    #[must_use]
+    pub fn scope_option<T: Into<crate::types::BotCommandScope>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.scope = val.map(Into::into);
+        this
+    }
+
+    /// A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
+    #[must_use]
+    pub fn language_code<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.language_code = Some(val.into());
+        this
+    }
+
+    /// A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
+    #[must_use]
+    pub fn language_code_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.language_code = val.map(Into::into);
+        this
     }
 }
-
-impl TelegramMethod for DeleteMyCommands {
+impl Default for DeleteMyCommands {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+impl super::TelegramMethod for DeleteMyCommands {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("deleteMyCommands", self, None)
-    }
-}
-
-impl AsRef<DeleteMyCommands> for DeleteMyCommands {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("deleteMyCommands", self, None)
     }
 }

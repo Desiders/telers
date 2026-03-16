@@ -1,59 +1,55 @@
-use super::base::{Request, TelegramMethod};
-
 use crate::client::Bot;
-
 use serde::Serialize;
-
-/// Deletes a story previously posted by the bot on behalf of a managed business account. Requires the `can_manage_stories` business bot right.
+/// Deletes a story previously posted by the bot on behalf of a managed business account. Requires the `can_manage_stories` business bot right. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#deletestory>
 /// # Returns
-/// On success, `true` is returned
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct DeleteStory {
     /// Unique identifier of the business connection
-    pub business_connection_id: String,
+    pub business_connection_id: Box<str>,
     /// Unique identifier of the story to delete
     pub story_id: i64,
 }
-
 impl DeleteStory {
+    /// Creates a new `DeleteStory`.
+    ///
+    /// # Arguments
+    /// * `business_connection_id` - Unique identifier of the business connection
+    /// * `story_id` - Unique identifier of the story to delete
     #[must_use]
-    pub fn new(business_connection_id: impl Into<String>, story_id: i64) -> Self {
+    pub fn new<T0: Into<Box<str>>, T1: Into<i64>>(
+        business_connection_id: T0,
+        story_id: T1,
+    ) -> Self {
         Self {
             business_connection_id: business_connection_id.into(),
-            story_id,
+            story_id: story_id.into(),
         }
     }
 
+    /// Unique identifier of the business connection
     #[must_use]
-    pub fn business_connection_id(self, val: impl Into<String>) -> Self {
-        Self {
-            business_connection_id: val.into(),
-            ..self
-        }
+    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.business_connection_id = val.into();
+        this
     }
 
+    /// Unique identifier of the story to delete
     #[must_use]
-    pub fn story_id(self, val: i64) -> Self {
-        Self {
-            story_id: val,
-            ..self
-        }
+    pub fn story_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.story_id = val.into();
+        this
     }
 }
-
-impl TelegramMethod for DeleteStory {
+impl super::TelegramMethod for DeleteStory {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("deleteStory", self, None)
-    }
-}
-
-impl AsRef<DeleteStory> for DeleteStory {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("deleteStory", self, None)
     }
 }

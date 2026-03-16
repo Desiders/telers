@@ -1,22 +1,135 @@
-use super::PhotoSize;
-
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-
-/// This object contains information about a chat that was shared with the bot using a [`KeyboardButtonRequestChat`](crate::types::KeyboardButtonRequestChat) button.
+/// This object contains information about a chat that was shared with the bot using a [`crate::types::KeyboardButtonRequestChat`] button.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#chatshared>
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ChatShared {
     /// Identifier of the request
     pub request_id: i64,
     /// Identifier of the shared chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier. The bot may not have access to the chat and could be unable to use this identifier, unless the chat is already known to the bot by some other means.
     pub chat_id: i64,
     /// Title of the chat, if the title was requested by the bot.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<Box<str>>,
     /// Username of the chat, if the username was requested by the bot and available.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub username: Option<Box<str>>,
     /// Available sizes of the chat photo, if the photo was requested by the bot
-    pub photo: Option<Box<[PhotoSize]>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub photo: Option<Box<[crate::types::PhotoSize]>>,
+}
+impl ChatShared {
+    /// Creates a new `ChatShared`.
+    ///
+    /// # Arguments
+    /// * `request_id` - Identifier of the request
+    /// * `chat_id` - Identifier of the shared chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier. The bot may not have access to the chat and could be unable to use this identifier, unless the chat is already known to the bot by some other means.
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
+    #[must_use]
+    pub fn new<T0: Into<i64>, T1: Into<i64>>(request_id: T0, chat_id: T1) -> Self {
+        Self {
+            request_id: request_id.into(),
+            chat_id: chat_id.into(),
+            title: None,
+            username: None,
+            photo: None,
+        }
+    }
+
+    /// Identifier of the request
+    #[must_use]
+    pub fn request_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.request_id = val.into();
+        this
+    }
+
+    /// Identifier of the shared chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier. The bot may not have access to the chat and could be unable to use this identifier, unless the chat is already known to the bot by some other means.
+    #[must_use]
+    pub fn chat_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.chat_id = val.into();
+        this
+    }
+
+    /// Title of the chat, if the title was requested by the bot.
+    #[must_use]
+    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.title = Some(val.into());
+        this
+    }
+
+    /// Title of the chat, if the title was requested by the bot.
+    #[must_use]
+    pub fn title_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.title = val.map(Into::into);
+        this
+    }
+
+    /// Username of the chat, if the username was requested by the bot and available.
+    #[must_use]
+    pub fn username<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.username = Some(val.into());
+        this
+    }
+
+    /// Username of the chat, if the username was requested by the bot and available.
+    #[must_use]
+    pub fn username_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.username = val.map(Into::into);
+        this
+    }
+
+    /// Available sizes of the chat photo, if the photo was requested by the bot
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn photos<T: Into<Box<[crate::types::PhotoSize]>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.photo = Some(
+            this.photo
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into())
+                .collect(),
+        );
+        this
+    }
+
+    /// Available sizes of the chat photo, if the photo was requested by the bot
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn photo<T: Into<crate::types::PhotoSize>>(self, val: T) -> Self {
+        let mut this = self;
+        this.photo = Some(
+            this.photo
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        this
+    }
+
+    /// Available sizes of the chat photo, if the photo was requested by the bot
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn photo_option<T: Into<Box<[crate::types::PhotoSize]>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.photo = val.map(Into::into);
+        this
+    }
 }

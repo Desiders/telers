@@ -1,47 +1,40 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::ChatIdKind};
-
+use crate::client::Bot;
 use serde::Serialize;
-
-/// Use this method for your bot to leave a group, supergroup or channel.
+/// Use this method for your bot to leave a group, supergroup or channel. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#leavechat>
 /// # Returns
-/// On success, `true` is returned
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct LeaveChat {
-    /// Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`)
-    pub chat_id: ChatIdKind,
+    /// Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername). Channel direct messages chats aren't supported; leave the corresponding channel instead.
+    pub chat_id: crate::types::ChatIdKind,
 }
-
 impl LeaveChat {
+    /// Creates a new `LeaveChat`.
+    ///
+    /// # Arguments
+    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername). Channel direct messages chats aren't supported; leave the corresponding channel instead.
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>) -> Self {
+    pub fn new<T0: Into<crate::types::ChatIdKind>>(chat_id: T0) -> Self {
         Self {
             chat_id: chat_id.into(),
         }
     }
 
+    /// Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername). Channel direct messages chats aren't supported; leave the corresponding channel instead.
     #[must_use]
-    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
-        Self {
-            chat_id: val.into(),
-        }
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
+        let mut this = self;
+        this.chat_id = val.into();
+        this
     }
 }
-
-impl TelegramMethod for LeaveChat {
+impl super::TelegramMethod for LeaveChat {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("leaveChat", self, None)
-    }
-}
-
-impl AsRef<LeaveChat> for LeaveChat {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("leaveChat", self, None)
     }
 }

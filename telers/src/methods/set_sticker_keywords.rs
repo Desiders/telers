@@ -1,75 +1,97 @@
-use super::base::{Request, TelegramMethod};
-
 use crate::client::Bot;
-
 use serde::Serialize;
-
-/// Use this method to change search keywords assigned to a regular or custom emoji sticker. The sticker must belong to a sticker set created by the bot.
+/// Use this method to change search keywords assigned to a regular or custom emoji sticker. The sticker must belong to a sticker set created by the bot. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setstickerkeywords>
 /// # Returns
-/// On success, `true` is returned
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct SetStickerKeywords {
     /// File identifier of the sticker
-    pub sticker: String,
+    pub sticker: Box<str>,
     /// A JSON-serialized list of 0-20 search keywords for the sticker with total length of up to 64 characters
-    pub keywords: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub keywords: Option<Box<[Box<str>]>>,
 }
-
 impl SetStickerKeywords {
+    /// Creates a new `SetStickerKeywords`.
+    ///
+    /// # Arguments
+    /// * `sticker` - File identifier of the sticker
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(sticker: impl Into<String>) -> Self {
+    pub fn new<T0: Into<Box<str>>>(sticker: T0) -> Self {
         Self {
             sticker: sticker.into(),
-            keywords: vec![],
+            keywords: None,
         }
     }
 
+    /// File identifier of the sticker
     #[must_use]
-    pub fn sticker(self, val: impl Into<String>) -> Self {
-        Self {
-            sticker: val.into(),
-            ..self
-        }
+    pub fn sticker<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.sticker = val.into();
+        this
     }
 
+    /// A JSON-serialized list of 0-20 search keywords for the sticker with total length of up to 64 characters
+    ///
+    /// # Notes
+    /// Adds multiple elements.
     #[must_use]
-    pub fn keyword(self, val: impl Into<String>) -> Self {
-        Self {
-            keywords: self.keywords.into_iter().chain(Some(val.into())).collect(),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn keywords<T, I>(self, val: I) -> Self
-    where
-        T: Into<String>,
-        I: IntoIterator<Item = T>,
-    {
-        Self {
-            keywords: self
-                .keywords
+    pub fn keywords<TItem: Into<Box<str>>, T: IntoIterator<Item = TItem>>(self, val: T) -> Self {
+        let mut this = self;
+        this.keywords = Some(
+            this.keywords
+                .unwrap_or_default()
+                .into_vec()
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
-            ..self
-        }
+        );
+        this
+    }
+
+    /// A JSON-serialized list of 0-20 search keywords for the sticker with total length of up to 64 characters
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn keyword<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.keywords = Some(
+            this.keywords
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        this
+    }
+
+    /// A JSON-serialized list of 0-20 search keywords for the sticker with total length of up to 64 characters
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn keywords_option<TItem: Into<Box<str>>, T: IntoIterator<Item = TItem>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.keywords = val.map(|v| v.into_iter().map(Into::into).collect());
+        this
     }
 }
-
-impl TelegramMethod for SetStickerKeywords {
+impl super::TelegramMethod for SetStickerKeywords {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("setStickerKeywords", self, None)
-    }
-}
-
-impl AsRef<SetStickerKeywords> for SetStickerKeywords {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("setStickerKeywords", self, None)
     }
 }

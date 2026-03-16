@@ -1,31 +1,33 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::InputProfilePhoto};
-
+use crate::client::Bot;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Changes the profile photo of a managed business account. Requires the `can_edit_profile_photo` business bot right.
+/// Changes the profile photo of a managed business account. Requires the `can_edit_profile_photo` business bot right. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setbusinessaccountprofilephoto>
 /// # Returns
-/// On success, `true` is returned
-#[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct SetBusinessAccountProfilePhoto<'a> {
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
+pub struct SetBusinessAccountProfilePhoto {
     /// Unique identifier of the business connection
-    pub business_connection_id: String,
+    pub business_connection_id: Box<str>,
     /// The new profile photo to set
-    pub photo: InputProfilePhoto<'a>,
+    pub photo: crate::types::InputProfilePhoto,
     /// Pass `true` to set the public photo, which will be visible even if the main photo is hidden by the business account's privacy settings. An account can have only one public photo.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub is_public: Option<bool>,
 }
-
-impl<'a> SetBusinessAccountProfilePhoto<'a> {
+impl SetBusinessAccountProfilePhoto {
+    /// Creates a new `SetBusinessAccountProfilePhoto`.
+    ///
+    /// # Arguments
+    /// * `business_connection_id` - Unique identifier of the business connection
+    /// * `photo` - The new profile photo to set
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(
-        business_connection_id: impl Into<String>,
-        photo: impl Into<InputProfilePhoto<'a>>,
+    pub fn new<T0: Into<Box<str>>, T1: Into<crate::types::InputProfilePhoto>>(
+        business_connection_id: T0,
+        photo: T1,
     ) -> Self {
         Self {
             business_connection_id: business_connection_id.into(),
@@ -34,52 +36,43 @@ impl<'a> SetBusinessAccountProfilePhoto<'a> {
         }
     }
 
+    /// Unique identifier of the business connection
     #[must_use]
-    pub fn business_connection_id(self, val: impl Into<String>) -> Self {
-        Self {
-            business_connection_id: val.into(),
-            ..self
-        }
+    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.business_connection_id = val.into();
+        this
     }
 
+    /// The new profile photo to set
     #[must_use]
-    pub fn photo(self, val: impl Into<InputProfilePhoto<'a>>) -> Self {
-        Self {
-            photo: val.into(),
-            ..self
-        }
+    pub fn photo<T: Into<crate::types::InputProfilePhoto>>(self, val: T) -> Self {
+        let mut this = self;
+        this.photo = val.into();
+        this
     }
 
+    /// Pass `true` to set the public photo, which will be visible even if the main photo is hidden by the business account's privacy settings. An account can have only one public photo.
     #[must_use]
-    pub fn is_public(self, val: bool) -> Self {
-        Self {
-            is_public: Some(val),
-            ..self
-        }
+    pub fn is_public<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.is_public = Some(val.into());
+        this
     }
-}
 
-impl SetBusinessAccountProfilePhoto<'_> {
+    /// Pass `true` to set the public photo, which will be visible even if the main photo is hidden by the business account's privacy settings. An account can have only one public photo.
     #[must_use]
-    pub fn is_public_option(self, val: Option<bool>) -> Self {
-        Self {
-            is_public: val,
-            ..self
-        }
+    pub fn is_public_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.is_public = val.map(Into::into);
+        this
     }
 }
-
-impl TelegramMethod for SetBusinessAccountProfilePhoto<'_> {
+impl super::TelegramMethod for SetBusinessAccountProfilePhoto {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("setBusinessAccountProfilePhoto", self, None)
-    }
-}
-
-impl<'a> AsRef<SetBusinessAccountProfilePhoto<'a>> for SetBusinessAccountProfilePhoto<'a> {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("setBusinessAccountProfilePhoto", self, None)
     }
 }

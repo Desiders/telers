@@ -10,7 +10,8 @@ use std::collections::HashMap;
 #[context(
     key = "fsm_context",
     description = "Context is used to manage state and data of the user in specified storage. \
-    This context is available only if `FSMContext` middleware is used and `user_id` in context is not empty."
+                   This context is available only if `FSMContext` middleware is used and \
+                   `user_id` in context is not empty."
 )]
 pub struct Context<S> {
     storage: S,
@@ -18,8 +19,13 @@ pub struct Context<S> {
 }
 
 impl<S> Context<S> {
+    #[inline]
+    #[must_use]
     pub fn new(storage: S, key: StorageKey) -> Self {
-        Self { storage, key }
+        Self {
+            storage,
+            key,
+        }
     }
 }
 
@@ -27,6 +33,7 @@ impl<S> Clone for Context<S>
 where
     S: Clone,
 {
+    #[inline]
     fn clone(&self) -> Self {
         Self {
             storage: self.storage.clone(),

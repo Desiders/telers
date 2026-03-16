@@ -54,12 +54,11 @@ where
     }
 }
 
-pub(crate) fn boxed_middleware_factory<Client, M>(
-    middleware: M,
+pub(crate) fn boxed_middleware_factory<Client>(
+    middleware: impl Middleware<Client>,
 ) -> BoxedCloneMiddlewareService<Client>
 where
     Client: Send + Sync + 'static,
-    M: Middleware<Client>,
 {
     BoxCloneService::new(service_fn(move |request| {
         let mut middleware = middleware.clone();
@@ -72,10 +71,10 @@ where
 mod tests {
     use super::*;
     use crate::{
-        client::{Bot, Reqwest},
+        client::Reqwest,
         context::Context,
-        types::{Message, Update, UpdateKind},
-        Extensions,
+        types::{ChatPrivate, MessageText, Update, UpdateMessage},
+        Bot, Extensions,
     };
 
     use std::sync::Arc;
@@ -86,12 +85,12 @@ mod tests {
         let mut middleware =
             |request: Request<Reqwest>| async move { Ok((request, EventReturn::default())) };
 
-        let request = Request {
-            bot: Bot::<Reqwest>::default(),
-            update: Arc::new(Update {
-                id: 0,
-                kind: UpdateKind::Message(Message::default()),
-            }),
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                0,
+                MessageText::new(0, 0, ChatPrivate::new(0), ""),
+            ))),
+            bot: Bot::default(),
             context: Context::default(),
             extensions: Extensions::default(),
         };

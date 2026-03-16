@@ -19,6 +19,7 @@ pub enum Part {
 }
 
 impl Part {
+    #[inline]
     #[must_use]
     pub fn as_str(&self) -> &'static str {
         match self {
@@ -59,6 +60,7 @@ pub struct KeyBuilderImpl {
 }
 
 impl KeyBuilderImpl {
+    #[inline]
     #[must_use]
     pub fn new(
         prefix: &'static str,
@@ -74,16 +76,25 @@ impl KeyBuilderImpl {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn with_prefix(self, prefix: &'static str) -> Self {
-        Self { prefix, ..self }
+        Self {
+            prefix,
+            ..self
+        }
     }
 
+    #[inline]
     #[must_use]
     pub fn with_separator(self, separator: &'static str) -> Self {
-        Self { separator, ..self }
+        Self {
+            separator,
+            ..self
+        }
     }
 
+    #[inline]
     #[must_use]
     pub fn with_bot_id(self, with_bot_id: bool) -> Self {
         Self {
@@ -92,6 +103,7 @@ impl KeyBuilderImpl {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn with_destiny(self, with_destiny: bool) -> Self {
         Self {
@@ -102,6 +114,7 @@ impl KeyBuilderImpl {
 }
 
 impl Default for KeyBuilderImpl {
+    #[inline]
     fn default() -> Self {
         Self::new(DEFAULT_PREFIX, DEFAULT_SEPARATOR, true, true)
     }
@@ -164,21 +177,27 @@ impl<K: KeyBuilder> Redis<K> {
             Err(err) => match err {
                 CreatePoolError::Config(err) => match err {
                     ConfigError::UrlAndConnectionSpecified => unreachable!(
-                        "This error should not be occurred because we use `IntoConnectionInfo` where it will use only one of them.\
-                        If you see this error, then report it to the library maintainer."
+                        "This error should not be occurred because we use `IntoConnectionInfo` \
+                         where it will use only one of them.If you see this error, then report it \
+                         to the library maintainer."
                     ),
                     ConfigError::Redis(err) => return Err(err),
                 },
                 CreatePoolError::Build(_) => unreachable!(
-                    "This error should not be occurred because we specify runtime in `create_pool` method.\
-                    If you see this error, then report it to the library maintainer."
+                    "This error should not be occurred because we specify runtime in \
+                     `create_pool` method.If you see this error, then report it to the library \
+                     maintainer."
                 ),
             },
         };
 
-        Ok(Self { pool, key_builder })
+        Ok(Self {
+            pool,
+            key_builder,
+        })
     }
 
+    #[inline]
     #[must_use]
     pub fn key_builder(self, key_builder: K) -> Self {
         Self {
@@ -498,7 +517,10 @@ impl<K: KeyBuilder + Clone> Storage for Redis<K> {
             serde_json::to_value(value).map_err(|err| {
                 event!(Level::ERROR, error = %err, "Failed to convert value to `serde_json::Value`");
 
-                Error::new(format!("Failed to convert value to `serde_json::Value`. Storage key: {key}"), err)
+                Error::new(
+                    format!("Failed to convert value to `serde_json::Value`. Storage key: {key}"),
+                    err,
+                )
             })?,
         );
 
@@ -636,17 +658,23 @@ impl<K: KeyBuilder + Clone> Storage for Redis<K> {
                     Some(value) => {
                         let value_str = value.to_string();
                         let res = serde_json::from_value(value)
-                        .map_err(|err| {
-                            event!(
-                                Level::ERROR,
-                                error = %err,
-                                value = %value_str,
-                                "Failed to convert `serde_json::Value` to value",
-                            );
+                            .map_err(|err| {
+                                event!(
+                                    Level::ERROR,
+                                    error = %err,
+                                    value = %value_str,
+                                    "Failed to convert `serde_json::Value` to value",
+                                );
 
-                            Error::new(format!("Failed to convert `serde_json::Value` to value. Storage key: {key}"), err)
-                        })
-                        .map(Some);
+                                Error::new(
+                                    format!(
+                                        "Failed to convert `serde_json::Value` to value. Storage \
+                                         key: {key}"
+                                    ),
+                                    err,
+                                )
+                            })
+                            .map(Some);
                         res
                     }
                     None => Ok(None),

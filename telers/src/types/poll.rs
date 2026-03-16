@@ -1,132 +1,187 @@
-use super::{MessageEntity, PollOption, Update, UpdateKind};
-
-use crate::{errors::ConvertToTypeError, FromEvent};
-
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-
 /// This object contains information about a poll.
+/// Currently, it can be one of
+/// - [`crate::types::PollQuiz`]
+/// - [`crate::types::PollRegular`]
 /// # Documentation
 /// <https://core.telegram.org/bots/api#poll>
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize, FromEvent)]
-#[event(try_from = Update)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum Poll {
-    Regular(Regular),
-    Quiz(Quiz),
+    Regular(crate::types::PollRegular),
+    Quiz(crate::types::PollQuiz),
 }
-
-#[skip_serializing_none]
-#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize, Serialize, FromEvent)]
-#[event(try_from = Update)]
-pub struct Regular {
-    /// Unique poll identifier
-    pub id: Box<str>,
-    /// Poll question, 1-300 characters
-    pub question: Box<str>,
-    /// Special entities that appear in the question. Currently, only custom emoji entities are allowed in poll questions
-    pub question_entities: Option<Box<[MessageEntity]>>,
-    /// List of poll options
-    pub options: Box<[PollOption]>,
-    /// Total number of users that voted in the poll
-    pub total_voter_count: i64,
-    /// `true`, if the poll is closed
-    pub is_closed: bool,
-    /// `true`, if the poll is anonymous
-    pub is_anonymous: bool,
+impl Poll {
+    /// Helper method for field `allows_multiple_answers`.
+    ///
     /// `true`, if the poll allows multiple answers
-    pub allows_multiple_answers: bool,
-    /// Amount of time in seconds the poll will be active after creation
-    pub open_period: Option<i64>,
+    #[must_use]
+    pub fn allows_multiple_answers(&self) -> bool {
+        match self {
+            Self::Regular(val) => val.allows_multiple_answers,
+            Self::Quiz(val) => val.allows_multiple_answers,
+        }
+    }
+
+    /// Helper method for field `close_date`.
+    ///
     /// Point in time (Unix timestamp) when the poll will be automatically closed
-    pub close_date: Option<i64>,
-}
+    #[must_use]
+    pub fn close_date(&self) -> Option<i64> {
+        match self {
+            Self::Regular(val) => val.close_date,
+            Self::Quiz(val) => val.close_date,
+        }
+    }
 
-#[skip_serializing_none]
-#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize, Serialize, FromEvent)]
-#[event(try_from = Update)]
-pub struct Quiz {
-    /// Unique poll identifier
-    pub id: Box<str>,
-    /// Poll question, 1-300 characters
-    pub question: Box<str>,
-    /// Special entities that appear in the question. Currently, only custom emoji entities are allowed in poll questions
-    pub question_entities: Option<Box<[MessageEntity]>>,
-    /// List of poll options
-    pub options: Box<[PollOption]>,
-    /// Total number of users that voted in the poll
-    pub total_voter_count: i64,
-    /// `true`, if the poll is closed
-    pub is_closed: bool,
-    /// `true`, if the poll is anonymous
-    pub is_anonymous: bool,
-    /// `true`, if the poll allows multiple answers
-    pub allows_multiple_answers: bool,
+    /// Helper method for field `correct_option_id`.
+    ///
     /// 0-based identifier of the correct answer option. Available only for polls in the quiz mode, which are closed, or was sent (not forwarded) by the bot or to the private chat with the bot.
-    pub correct_option_id: Option<i64>,
+    #[must_use]
+    pub fn correct_option_id(&self) -> Option<i64> {
+        match self {
+            Self::Quiz(val) => val.correct_option_id,
+            Self::Regular(_) => None,
+        }
+    }
+
+    /// Helper method for field `explanation`.
+    ///
     /// Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters
-    pub explanation: Option<Box<str>>,
+    #[must_use]
+    pub fn explanation(&self) -> Option<&str> {
+        match self {
+            Self::Quiz(val) => val.explanation.as_deref(),
+            Self::Regular(_) => None,
+        }
+    }
+
+    /// Helper method for field `explanation_entities`.
+    ///
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the explanation
-    pub explanation_entities: Option<Box<[MessageEntity]>>,
+    #[must_use]
+    pub fn explanation_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        match self {
+            Self::Regular(val) => val.explanation_entities.as_deref(),
+            Self::Quiz(val) => val.explanation_entities.as_deref(),
+        }
+    }
+
+    /// Helper method for field `id`.
+    ///
+    /// Unique poll identifier
+    #[must_use]
+    pub fn id(&self) -> &str {
+        match self {
+            Self::Regular(val) => val.id.as_ref(),
+            Self::Quiz(val) => val.id.as_ref(),
+        }
+    }
+
+    /// Helper method for field `is_anonymous`.
+    ///
+    /// `true`, if the poll is anonymous
+    #[must_use]
+    pub fn is_anonymous(&self) -> bool {
+        match self {
+            Self::Regular(val) => val.is_anonymous,
+            Self::Quiz(val) => val.is_anonymous,
+        }
+    }
+
+    /// Helper method for field `is_closed`.
+    ///
+    /// `true`, if the poll is closed
+    #[must_use]
+    pub fn is_closed(&self) -> bool {
+        match self {
+            Self::Regular(val) => val.is_closed,
+            Self::Quiz(val) => val.is_closed,
+        }
+    }
+
+    /// Helper method for field `open_period`.
+    ///
     /// Amount of time in seconds the poll will be active after creation
-    pub open_period: Option<i64>,
-    /// Point in time (Unix timestamp) when the poll will be automatically closed
-    pub close_date: Option<i64>,
-}
-
-impl Default for Poll {
-    fn default() -> Self {
-        Self::Regular(Regular::default())
+    #[must_use]
+    pub fn open_period(&self) -> Option<i64> {
+        match self {
+            Self::Regular(val) => val.open_period,
+            Self::Quiz(val) => val.open_period,
+        }
     }
-}
 
-impl TryFrom<Poll> for Regular {
-    type Error = ConvertToTypeError;
+    /// Helper method for field `options`.
+    ///
+    /// List of poll options
+    #[must_use]
+    pub fn options(&self) -> &[crate::types::PollOption] {
+        match self {
+            Self::Regular(val) => val.options.as_ref(),
+            Self::Quiz(val) => val.options.as_ref(),
+        }
+    }
 
-    fn try_from(poll: Poll) -> Result<Self, Self::Error> {
-        if let Poll::Regular(val) = poll {
-            Ok(val)
-        } else {
-            Err(ConvertToTypeError::new("Poll", "Regular"))
+    /// Helper method for field `question`.
+    ///
+    /// Poll question, 1-300 characters
+    #[must_use]
+    pub fn question(&self) -> &str {
+        match self {
+            Self::Regular(val) => val.question.as_ref(),
+            Self::Quiz(val) => val.question.as_ref(),
+        }
+    }
+
+    /// Helper method for field `question_entities`.
+    ///
+    /// Special entities that appear in the question. Currently, only custom emoji entities are allowed in poll questions
+    #[must_use]
+    pub fn question_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        match self {
+            Self::Regular(val) => val.question_entities.as_deref(),
+            Self::Quiz(val) => val.question_entities.as_deref(),
+        }
+    }
+
+    /// Helper method for field `total_voter_count`.
+    ///
+    /// Total number of users that voted in the poll
+    #[must_use]
+    pub fn total_voter_count(&self) -> i64 {
+        match self {
+            Self::Regular(val) => val.total_voter_count,
+            Self::Quiz(val) => val.total_voter_count,
         }
     }
 }
+impl From<crate::types::PollRegular> for Poll {
+    fn from(val: crate::types::PollRegular) -> Self {
+        Self::Regular(val)
+    }
+}
+impl TryFrom<Poll> for crate::types::PollRegular {
+    type Error = crate::errors::ConvertToTypeError;
 
-impl TryFrom<Poll> for Quiz {
-    type Error = ConvertToTypeError;
-
-    fn try_from(poll: Poll) -> Result<Self, Self::Error> {
-        if let Poll::Quiz(val) = poll {
-            Ok(val)
-        } else {
-            Err(ConvertToTypeError::new("Poll", "Quiz"))
+    fn try_from(val: Poll) -> Result<Self, Self::Error> {
+        match val {
+            Poll::Regular(inner) => Ok(inner),
+            Poll::Quiz(_) => Err(Self::Error::new(stringify!(Poll), stringify!(PollRegular))),
         }
     }
 }
+impl From<crate::types::PollQuiz> for Poll {
+    fn from(val: crate::types::PollQuiz) -> Self {
+        Self::Quiz(val)
+    }
+}
+impl TryFrom<Poll> for crate::types::PollQuiz {
+    type Error = crate::errors::ConvertToTypeError;
 
-impl TryFrom<Update> for Poll {
-    type Error = ConvertToTypeError;
-
-    fn try_from(update: Update) -> Result<Self, Self::Error> {
-        match update.kind {
-            UpdateKind::Poll(val) => Ok(val),
-            _ => Err(ConvertToTypeError::new("Update", "Poll")),
+    fn try_from(val: Poll) -> Result<Self, Self::Error> {
+        match val {
+            Poll::Quiz(inner) => Ok(inner),
+            Poll::Regular(_) => Err(Self::Error::new(stringify!(Poll), stringify!(PollQuiz))),
         }
-    }
-}
-
-impl TryFrom<Update> for Regular {
-    type Error = ConvertToTypeError;
-
-    fn try_from(update: Update) -> Result<Self, Self::Error> {
-        Poll::try_from(update)?.try_into()
-    }
-}
-
-impl TryFrom<Update> for Quiz {
-    type Error = ConvertToTypeError;
-
-    fn try_from(update: Update) -> Result<Self, Self::Error> {
-        Poll::try_from(update)?.try_into()
     }
 }

@@ -99,7 +99,7 @@ pub trait Session: Send + Sync {
     fn send_request<Client, T>(
         &self,
         bot: &Bot<Client>,
-        method: &T,
+        method: T,
         timeout: Option<f32>,
     ) -> impl Future<Output = Result<ClientResponse, anyhow::Error>> + Send
     where
@@ -184,20 +184,34 @@ pub trait Session: Send + Sync {
         }
 
         let err = match status_code.as_u16() {
-            400 => TelegramErrorKind::BadRequest { message },
-            401 => TelegramErrorKind::Unauthorized { message },
-            403 => TelegramErrorKind::Forbidden { message },
-            404 => TelegramErrorKind::NotFound { message },
-            409 => TelegramErrorKind::ConflictError { message },
+            400 => TelegramErrorKind::BadRequest {
+                message,
+            },
+            401 => TelegramErrorKind::Unauthorized {
+                message,
+            },
+            403 => TelegramErrorKind::Forbidden {
+                message,
+            },
+            404 => TelegramErrorKind::NotFound {
+                message,
+            },
+            409 => TelegramErrorKind::ConflictError {
+                message,
+            },
             413 => TelegramErrorKind::EntityTooLarge {
                 url: "https://core.telegram.org/bots/api#sending-files",
                 message,
             },
             500 => {
                 if message.contains("restart") {
-                    TelegramErrorKind::RestartingTelegram { message }
+                    TelegramErrorKind::RestartingTelegram {
+                        message,
+                    }
                 } else {
-                    TelegramErrorKind::ServerError { message }
+                    TelegramErrorKind::ServerError {
+                        message,
+                    }
                 }
             }
             _ => {
@@ -230,7 +244,7 @@ pub trait Session: Send + Sync {
     fn make_request<Client, T>(
         &self,
         bot: &Bot<Client>,
-        method: &T,
+        method: T,
         timeout: Option<f32>,
     ) -> impl Future<Output = Result<Response<T::Return>, SessionErrorKind>> + Send
     where
@@ -242,9 +256,8 @@ pub trait Session: Send + Sync {
             let response = self.send_request(bot, method, timeout).await?;
 
             debug_span!("response", status_code = response.status_code.as_u16()).in_scope(|| {
-                let resp = method.build_response(&response.content)?;
+                let resp = T::build_response(&response.content)?;
                 self.check_response(&resp, response.status_code)?;
-
                 Ok(resp)
             })
         }
@@ -263,7 +276,7 @@ pub trait Session: Send + Sync {
     fn make_request_and_get_result<Client, T>(
         &self,
         bot: &Bot<Client>,
-        method: &T,
+        method: T,
         timeout: Option<f32>,
     ) -> impl Future<Output = Result<T::Return, SessionErrorKind>> + Send
     where
@@ -294,44 +307,44 @@ mod tests {
 
     #[test]
     fn build_response() {
-        let method = SendMessage::new(810646651, "Hello, abc!");
-
         let content = json!(
         {
             "ok": true,
             "result": {
-                "message_id": 423,
+                "date": 1,
+                "message_id": 1,
+                "text": "test",
                 "from": {
                     "id": 1i64,
                     "is_bot": true,
                     "first_name": "test",
                     "username": "test"
                 },
-                "chat": {
+                "chat":{
                     "id": 1,
                     "first_name": "test",
+                    "last_name": "test",
                     "username": "test",
                     "type": "private",
                 },
-                "date": 1706267365,
+                "date": 1,
                 "reply_to_message": {
-                    "message_id": 422,
+                    "message_id": 2,
+                    "text": "/start",
                     "from": {
                         "id": 1,
                         "is_bot": false,
                         "first_name": "test",
                         "username": "test",
-                        "language_code": "ru",
-                        "is_premium": true,
                     },
                     "chat":{
                         "id": 1,
                         "first_name": "test",
+                        "last_name": "test",
                         "username": "test",
                         "type": "private",
                     },
                     "date": 1,
-                    "text": "/start",
                     "entities":[
                         {
                             "offset": 0,
@@ -340,17 +353,15 @@ mod tests {
                         },
                     ],
                 },
-                "text": "test",
             },
             "statud_code": 200,
         });
 
-        let result = method
-            .build_response(&content.to_string())
+        let result = SendMessage::build_response(&content.to_string())
             .unwrap()
             .result
             .unwrap();
 
-        assert_eq!(result.id(), 423);
+        assert_eq!(result.message_id(), 1);
     }
 }

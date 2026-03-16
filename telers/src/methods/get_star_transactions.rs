@@ -1,73 +1,74 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::StarTransactions};
-
+use crate::client::Bot;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Returns the bot's Telegram Star transactions in chronological order.
+/// Returns the bot's Telegram Star transactions in chronological order. On success, returns a [`crate::types::StarTransactions`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getstartransactions>
 /// # Returns
-/// On success, returns a [`StarTransactions`] object.
-#[skip_serializing_none]
-#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `crate::types::StarTransactions`
+#[derive(Clone, Debug, Serialize)]
 pub struct GetStarTransactions {
     /// Number of transactions to skip in the response
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub offset: Option<i64>,
     /// The maximum number of transactions to be retrieved. Values between 1-100 are accepted. Defaults to 100.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<u8>,
 }
-
 impl GetStarTransactions {
+    /// Creates a new `GetStarTransactions`.
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
     pub fn new() -> Self {
-        Self::default()
-    }
-
-    #[must_use]
-    pub fn offset(self, val: i64) -> Self {
         Self {
-            offset: Some(val),
-            ..self
+            offset: None,
+            limit: None,
         }
     }
 
+    /// Number of transactions to skip in the response
     #[must_use]
-    pub fn limit(self, val: u8) -> Self {
-        Self {
-            limit: Some(val),
-            ..self
-        }
+    pub fn offset<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.offset = Some(val.into());
+        this
+    }
+
+    /// Number of transactions to skip in the response
+    #[must_use]
+    pub fn offset_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.offset = val.map(Into::into);
+        this
+    }
+
+    /// The maximum number of transactions to be retrieved. Values between 1-100 are accepted. Defaults to 100.
+    #[must_use]
+    pub fn limit<T: Into<u8>>(self, val: T) -> Self {
+        let mut this = self;
+        this.limit = Some(val.into());
+        this
+    }
+
+    /// The maximum number of transactions to be retrieved. Values between 1-100 are accepted. Defaults to 100.
+    #[must_use]
+    pub fn limit_option<T: Into<u8>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.limit = val.map(Into::into);
+        this
     }
 }
-
-impl GetStarTransactions {
-    #[must_use]
-    pub fn offset_option(self, val: Option<i64>) -> Self {
-        Self {
-            offset: val,
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn limit_option(self, val: Option<u8>) -> Self {
-        Self { limit: val, ..self }
+impl Default for GetStarTransactions {
+    fn default() -> Self {
+        Self::new()
     }
 }
-
-impl TelegramMethod for GetStarTransactions {
+impl super::TelegramMethod for GetStarTransactions {
     type Method = Self;
-    type Return = StarTransactions;
+    type Return = crate::types::StarTransactions;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("getStarTransactions", self, None)
-    }
-}
-
-impl AsRef<GetStarTransactions> for GetStarTransactions {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("getStarTransactions", self, None)
     }
 }

@@ -16,9 +16,9 @@
 //! }
 //! ```
 //!
-//! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
+//! You can run this example by setting `BOT_TOKEN` and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package bot_http_client
+//! BOT_TOKEN={your_bot_token} cargo run --package bot_http_client
 //! ```
 //!
 //! [`Bot::with_client`]: telers::Bot#method.with_client
@@ -27,13 +27,11 @@ use std::borrow::Cow;
 use telers::{
     client::{session::ClientResponse, telegram, Session},
     enums::UpdateType,
-    event::{telegram::HandlerResult, EventReturn},
+    event::telegram::{Handler, HandlerResult},
     methods::{CopyMessage, TelegramMethod},
     types::Message,
     Bot, Dispatcher, Router,
 };
-use tracing::{event, Level};
-use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 #[derive(Clone)]
 struct CustomClient {
@@ -56,7 +54,7 @@ impl Session for CustomClient {
     async fn send_request<Client, T>(
         &self,
         _bot: &Bot<Client>,
-        _method: &T,
+        _method: T,
         _timeout: Option<f32>,
     ) -> Result<ClientResponse, anyhow::Error>
     where
@@ -65,35 +63,31 @@ impl Session for CustomClient {
         T::Method: Send + Sync,
     {
         unimplemented!(
-            "Send request is not implemented for custom client. \
-            You can use default client or implement it for your custom client."
+            "Send request is not implemented for custom client. You can use default client or \
+             implement it for your custom client."
         )
     }
 }
 
-async fn echo_handler(bot: Bot<impl Session>, message: Message) -> HandlerResult {
+async fn echo_handler(bot: Bot<impl Session>, message: Message) -> HandlerResult<()> {
     bot.send(CopyMessage::new(
         message.chat().id(),
         message.chat().id(),
-        message.id(),
+        message.message_id(),
     ))
     .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    tracing_subscriber::registry()
-        .with(fmt::layer())
-        .with(EnvFilter::from_env("RUST_LOG"))
-        .init();
+    tracing_subscriber::fmt().init();
 
     let token = std::env::var("BOT_TOKEN").expect("BOT_TOKEN env variable is not set!");
     let bot = Bot::with_client(token, CustomClient::default());
 
-    let mut router = Router::new("main");
-    router.message.register(echo_handler);
+    let router =
+        Router::new("main").on_message(|observer| observer.register(Handler::new(echo_handler)));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
@@ -102,7 +96,7 @@ async fn main() {
         .build();
 
     match dispatcher.run_polling().await {
-        Ok(()) => event!(Level::INFO, "Bot stopped"),
-        Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
+        Ok(()) => tracing::info!("Bot stopped"),
+        Err(err) => tracing::error!(error = %err, "Bot stopped"),
     }
 }

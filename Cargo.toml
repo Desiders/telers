@@ -1,5 +1,5 @@
 [workspace]
-members = ["telers", "telers-*", "examples/*"]
+members = ["examples/*", "telers", "telers-*"]
 default-members = ["telers", "telers-*", "examples/*"]
 resolver = "2"
 
@@ -8,10 +8,9 @@ resolver = "2"
 debug = 0
 
 [profile.release]
-lto = true
-opt-level = 3
-codegen-units = 1
+lto = "thin"
 
 [patch.crates-io]
 telers = { path = "telers" }
 telers-macros = { path = "telers-macros" }
+telers-codegen = { path = "telers-codegen" }

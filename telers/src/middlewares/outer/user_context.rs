@@ -9,6 +9,7 @@ use tracing::instrument;
 pub struct UserContext;
 
 impl UserContext {
+    #[inline]
     #[must_use]
     pub const fn new() -> Self {
         Self {}
@@ -53,36 +54,42 @@ mod tests {
         client::Reqwest,
         context::Context,
         enums::UpdateType,
+        event::telegram::Handler,
         router::{PropagateEvent as _, Router},
-        types::{Chat, Message, MessageText, Update, UpdateKind, User},
+        types::{Chat, ChatPrivate, Message, MessageText, Update, UpdateMessage, User},
+        Bot, Extensions,
     };
 
     use std::{convert::Infallible, sync::Arc};
 
     #[tokio::test]
     async fn test_user_context() {
-        let mut router = Router::new("main");
-        router.update.outer_middlewares.register(UserContext);
-        router.message.register(|context: Context| async move {
-            context.get::<User>("event_user").unwrap();
-            context.get::<Chat>("event_chat").unwrap();
-            context.get::<i64>("event_message_thread_id").unwrap();
+        let router = Router::new("main")
+            .on_update(|observer| observer.register_outer_middleware(UserContext))
+            .on_message(|observer| {
+                observer.register(Handler::new(|context: Context| async move {
+                    context.get::<User>("event_user").unwrap();
+                    context.get::<Chat>("event_chat").unwrap();
+                    context.get::<i64>("event_message_thread_id").unwrap();
 
-            Ok::<_, Infallible>(EventReturn::default())
-        });
+                    Ok::<_, Infallible>(EventReturn::default())
+                }))
+            });
 
         let mut router_configured = router.configure_default();
 
         let request = Request::<Reqwest> {
-            update: Arc::new(Update {
-                kind: UpdateKind::Message(Message::Text(Box::new(MessageText {
-                    from: Some(Default::default()),
-                    thread_id: Some(1),
-                    ..Default::default()
-                }))),
-                ..Default::default()
-            }),
-            ..Default::default()
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                0,
+                Message::Text(
+                    MessageText::new(0, 0, ChatPrivate::new(0), "")
+                        .from(User::new(0, true, ""))
+                        .message_thread_id(0),
+                ),
+            ))),
+            bot: Bot::default(),
+            context: Context::default(),
+            extensions: Extensions::default(),
         };
 
         router_configured
@@ -94,22 +101,32 @@ mod tests {
     #[tokio::test]
     #[should_panic]
     async fn test_user_context_panic() {
-        let mut router = Router::new("main");
-        router.update.outer_middlewares.register(UserContext);
-        router.message.register(|context: Context| async move {
-            // This should panic, because update doesn't contain user
-            context.get::<User>("event_user").unwrap();
-            // This should panic, because update doesn't contain chat
-            context.get::<Chat>("event_chat").unwrap();
-            // This should panic, because update doesn't contain message thread id
-            context.get::<i64>("event_message_thread_id").unwrap();
+        let router = Router::new("main")
+            .on_message(|observer| {
+                observer.register(Handler::new(|context: Context| async move {
+                    // This should panic, because update doesn't contain user
+                    context.get::<User>("event_user").unwrap();
+                    // This should panic, because update doesn't contain chat
+                    context.get::<Chat>("event_chat").unwrap();
+                    // This should panic, because update doesn't contain message thread id
+                    context.get::<i64>("event_message_thread_id").unwrap();
 
-            Ok::<_, Infallible>(EventReturn::default())
-        });
+                    Ok::<_, Infallible>(EventReturn::default())
+                }))
+            })
+            .on_update(|observer| observer.register_outer_middleware(UserContext));
 
         let mut router_configured = router.configure_default();
 
-        let request = Request::<Reqwest>::default();
+        let request = Request::<Reqwest> {
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                0,
+                MessageText::new(0, 0, ChatPrivate::new(0), ""),
+            ))),
+            bot: Bot::default(),
+            context: crate::Context::default(),
+            extensions: Extensions::default(),
+        };
         router_configured
             .propagate_event(UpdateType::Message, request)
             .await

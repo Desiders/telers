@@ -1,47 +1,52 @@
-use super::base::{prepare_input_story_content, Request, TelegramMethod};
-
-use crate::{
-    client::Bot,
-    types::{InputStoryContent, MessageEntity, Story, StoryArea},
-};
-
+use crate::client::Bot;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Posts a story on behalf of a managed business account. Requires the `can_manage_stories` business bot right.
+/// Posts a story on behalf of a managed business account. Requires the `can_manage_stories` business bot right. Returns Story on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#poststory>
 /// # Returns
-/// Returns [`Story`] on success
-#[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct PostStory<'a> {
+/// - `crate::types::Story`
+#[derive(Clone, Debug, Serialize)]
+pub struct PostStory {
     /// Unique identifier of the business connection
-    pub business_connection_id: String,
+    pub business_connection_id: Box<str>,
     /// Content of the story
-    pub content: InputStoryContent<'a>,
-    /// Period after which the story is moved to the archive, in seconds; must be one of `6 * 3600`, `12 * 3600`, `86400`, or `2 * 86400`
-    pub active_period: u32,
+    pub content: crate::types::InputStoryContent,
+    /// Period after which the story is moved to the archive, in seconds; must be one of 6 * 3600, 12 * 3600, 86400, or 2 * 86400
+    pub active_period: i64,
     /// Caption of the story, 0-2048 characters after entities parsing
-    pub caption: Option<String>,
-    /// Mode for parsing entities in the story caption. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
-    pub parse_mode: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caption: Option<Box<str>>,
+    /// Mode for parsing entities in the story caption. See formatting options for more details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parse_mode: Option<Box<str>>,
     /// A JSON-serialized list of special entities that appear in the caption, which can be specified instead of `parse_mode`
-    pub caption_entities: Option<Vec<MessageEntity>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caption_entities: Option<Box<[crate::types::MessageEntity]>>,
     /// A JSON-serialized list of clickable areas to be shown on the story
-    pub areas: Option<Vec<StoryArea>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub areas: Option<Box<[crate::types::StoryArea]>>,
     /// Pass `true` to keep the story accessible after it expires
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub post_to_chat_page: Option<bool>,
     /// Pass `true` if the content of the story must be protected from forwarding and screenshotting
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub protect_content: Option<bool>,
 }
-
-impl<'a> PostStory<'a> {
+impl PostStory {
+    /// Creates a new `PostStory`.
+    ///
+    /// # Arguments
+    /// * `business_connection_id` - Unique identifier of the business connection
+    /// * `content` - Content of the story
+    /// * `active_period` - Period after which the story is moved to the archive, in seconds; must be one of 6 * 3600, 12 * 3600, 86400, or 2 * 86400
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(
-        business_connection_id: impl Into<String>,
-        content: impl Into<InputStoryContent<'a>>,
-        active_period: impl Into<u32>,
+    pub fn new<T0: Into<Box<str>>, T1: Into<crate::types::InputStoryContent>, T2: Into<i64>>(
+        business_connection_id: T0,
+        content: T1,
+        active_period: T2,
     ) -> Self {
         Self {
             business_connection_id: business_connection_id.into(),
@@ -56,198 +61,213 @@ impl<'a> PostStory<'a> {
         }
     }
 
+    /// Unique identifier of the business connection
     #[must_use]
-    pub fn business_connection_id(self, val: impl Into<String>) -> Self {
-        Self {
-            business_connection_id: val.into(),
-            ..self
-        }
+    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.business_connection_id = val.into();
+        this
     }
 
+    /// Content of the story
     #[must_use]
-    pub fn content(self, val: impl Into<InputStoryContent<'a>>) -> Self {
-        Self {
-            content: val.into(),
-            ..self
-        }
+    pub fn content<T: Into<crate::types::InputStoryContent>>(self, val: T) -> Self {
+        let mut this = self;
+        this.content = val.into();
+        this
     }
 
+    /// Period after which the story is moved to the archive, in seconds; must be one of 6 * 3600, 12 * 3600, 86400, or 2 * 86400
     #[must_use]
-    pub fn active_period(self, val: impl Into<u32>) -> Self {
-        Self {
-            active_period: val.into(),
-            ..self
-        }
+    pub fn active_period<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.active_period = val.into();
+        this
     }
 
+    /// Caption of the story, 0-2048 characters after entities parsing
     #[must_use]
-    pub fn caption(self, val: impl Into<String>) -> Self {
-        Self {
-            caption: Some(val.into()),
-            ..self
-        }
+    pub fn caption<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.caption = Some(val.into());
+        this
     }
 
+    /// Caption of the story, 0-2048 characters after entities parsing
     #[must_use]
-    pub fn parse_mode(self, val: impl Into<String>) -> Self {
-        Self {
-            parse_mode: Some(val.into()),
-            ..self
-        }
+    pub fn caption_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.caption = val.map(Into::into);
+        this
     }
 
+    /// Mode for parsing entities in the story caption. See formatting options for more details.
     #[must_use]
-    pub fn caption_entity(self, val: MessageEntity) -> Self {
-        Self {
-            caption_entities: Some(
-                self.caption_entities
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(Some(val))
-                    .collect(),
-            ),
-            ..self
-        }
+    pub fn parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.parse_mode = Some(val.into());
+        this
     }
 
+    /// Mode for parsing entities in the story caption. See formatting options for more details.
     #[must_use]
-    pub fn caption_entities(self, val: impl IntoIterator<Item = MessageEntity>) -> Self {
-        Self {
-            caption_entities: Some(
-                self.caption_entities
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(val)
-                    .collect(),
-            ),
-            ..self
-        }
+    pub fn parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.parse_mode = val.map(Into::into);
+        this
     }
 
+    /// A JSON-serialized list of special entities that appear in the caption, which can be specified instead of `parse_mode`
+    ///
+    /// # Notes
+    /// Adds multiple elements.
     #[must_use]
-    pub fn area(self, val: StoryArea) -> Self {
-        Self {
-            areas: Some(
-                self.areas
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(Some(val))
-                    .collect(),
-            ),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn areas(self, val: impl IntoIterator<Item = StoryArea>) -> Self {
-        Self {
-            areas: Some(
-                self.areas
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(val)
-                    .collect(),
-            ),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn post_to_chat_page(self, val: bool) -> Self {
-        Self {
-            post_to_chat_page: Some(val),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn protect_content(self, val: bool) -> Self {
-        Self {
-            protect_content: Some(val),
-            ..self
-        }
-    }
-}
-
-impl PostStory<'_> {
-    #[must_use]
-    pub fn caption_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            caption: val.map(Into::into),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            parse_mode: val.map(Into::into),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn caption_entities_option(
+    pub fn caption_entities<
+        TItem: Into<crate::types::MessageEntity>,
+        T: IntoIterator<Item = TItem>,
+    >(
         self,
-        val: Option<impl IntoIterator<Item = MessageEntity>>,
+        val: T,
     ) -> Self {
-        Self {
-            caption_entities: val.map(|val| {
-                self.caption_entities
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(val)
-                    .collect()
-            }),
-            ..self
-        }
+        let mut this = self;
+        this.caption_entities = Some(
+            this.caption_entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into_iter().map(Into::into))
+                .collect(),
+        );
+        this
     }
 
+    /// A JSON-serialized list of special entities that appear in the caption, which can be specified instead of `parse_mode`
+    ///
+    /// # Notes
+    /// Adds a single element.
     #[must_use]
-    pub fn areas_option(self, val: Option<impl IntoIterator<Item = StoryArea>>) -> Self {
-        Self {
-            areas: val.map(|val| {
-                self.areas
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(val)
-                    .collect()
-            }),
-            ..self
-        }
+    pub fn caption_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
+        let mut this = self;
+        this.caption_entities = Some(
+            this.caption_entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        this
     }
 
+    /// A JSON-serialized list of special entities that appear in the caption, which can be specified instead of `parse_mode`
+    ///
+    /// # Notes
+    /// Adds multiple elements.
     #[must_use]
-    pub fn post_to_chat_page_option(self, val: Option<bool>) -> Self {
-        Self {
-            post_to_chat_page: val,
-            ..self
-        }
+    pub fn caption_entities_option<
+        TItem: Into<crate::types::MessageEntity>,
+        T: IntoIterator<Item = TItem>,
+    >(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.caption_entities = val.map(|v| v.into_iter().map(Into::into).collect());
+        this
     }
 
+    /// A JSON-serialized list of clickable areas to be shown on the story
+    ///
+    /// # Notes
+    /// Adds multiple elements.
     #[must_use]
-    pub fn protect_content_option(self, val: Option<bool>) -> Self {
-        Self {
-            protect_content: val,
-            ..self
-        }
+    pub fn areas<TItem: Into<crate::types::StoryArea>, T: IntoIterator<Item = TItem>>(
+        self,
+        val: T,
+    ) -> Self {
+        let mut this = self;
+        this.areas = Some(
+            this.areas
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into_iter().map(Into::into))
+                .collect(),
+        );
+        this
+    }
+
+    /// A JSON-serialized list of clickable areas to be shown on the story
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn area<T: Into<crate::types::StoryArea>>(self, val: T) -> Self {
+        let mut this = self;
+        this.areas = Some(
+            this.areas
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        this
+    }
+
+    /// A JSON-serialized list of clickable areas to be shown on the story
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn areas_option<TItem: Into<crate::types::StoryArea>, T: IntoIterator<Item = TItem>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.areas = val.map(|v| v.into_iter().map(Into::into).collect());
+        this
+    }
+
+    /// Pass `true` to keep the story accessible after it expires
+    #[must_use]
+    pub fn post_to_chat_page<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.post_to_chat_page = Some(val.into());
+        this
+    }
+
+    /// Pass `true` to keep the story accessible after it expires
+    #[must_use]
+    pub fn post_to_chat_page_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.post_to_chat_page = val.map(Into::into);
+        this
+    }
+
+    /// Pass `true` if the content of the story must be protected from forwarding and screenshotting
+    #[must_use]
+    pub fn protect_content<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.protect_content = Some(val.into());
+        this
+    }
+
+    /// Pass `true` if the content of the story must be protected from forwarding and screenshotting
+    #[must_use]
+    pub fn protect_content_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.protect_content = val.map(Into::into);
+        this
     }
 }
-
-impl TelegramMethod for PostStory<'_> {
+impl super::TelegramMethod for PostStory {
     type Method = Self;
-    type Return = Story;
+    type Return = crate::types::Story;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
+    fn build_request<Client>(mut self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
         let mut files = vec![];
-        prepare_input_story_content(&mut files, &self.content);
-
-        Request::new("postStory", self, Some(files.into()))
-    }
-}
-
-impl<'a> AsRef<PostStory<'a>> for PostStory<'a> {
-    fn as_ref(&self) -> &Self {
-        self
+        super::prepare_input_story_content(&mut files, &mut self.content);
+        super::Request::new("postStory", self, Some(files))
     }
 }

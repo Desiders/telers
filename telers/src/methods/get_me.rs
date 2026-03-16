@@ -1,35 +1,29 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::User};
-
+use crate::client::Bot;
 use serde::Serialize;
-
-/// A simple method for testing your bot's authentication token. Requires no parameters.
+/// A simple method for testing your bot's authentication token. Requires no parameters. Returns basic information about the bot in form of a User object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getme>
 /// # Returns
-/// Returns basic information about the bot in form of a [`User`] object
-#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `crate::types::User`
+#[derive(Clone, Debug, Serialize)]
 pub struct GetMe {}
-
 impl GetMe {
+    /// Creates a new `GetMe`.
     #[must_use]
     pub const fn new() -> Self {
         Self {}
     }
 }
-
-impl TelegramMethod for GetMe {
-    type Method = Self;
-    type Return = User;
-
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("getMe", self, None)
+impl Default for GetMe {
+    fn default() -> Self {
+        Self::new()
     }
 }
+impl super::TelegramMethod for GetMe {
+    type Method = Self;
+    type Return = crate::types::User;
 
-impl AsRef<GetMe> for GetMe {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("getMe", self, None)
     }
 }

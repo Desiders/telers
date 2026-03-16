@@ -1,24 +1,183 @@
-use super::{Animation, MessageEntity, PhotoSize};
-
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-
 /// This object represents a game. Use `BotFather` to create and edit games, their short names will act as unique identifiers.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#game>
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Game {
     /// Title of the game
     pub title: Box<str>,
     /// Description of the game
     pub description: Box<str>,
     /// Photo that will be displayed in the game message in chats.
-    pub photo: Box<[PhotoSize]>,
-    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls [`SetGameScore`](crate::methods::SetGameScore), or manually edited using [`EditMessageText`](crate::methods::EditMessageText). 0-4096 characters.
+    pub photo: Box<[crate::types::PhotoSize]>,
+    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls setGameScore, or manually edited using editMessageText. 0-4096 characters.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<Box<str>>,
     /// Special entities that appear in text, such as usernames, URLs, bot commands, etc.
-    pub text_entities: Option<Box<[MessageEntity]>>,
-    /// Animation that will be displayed in the game message in chats. Upload via [`BotFather`](https://t.me/botfather)
-    pub animation: Option<Animation>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text_entities: Option<Box<[crate::types::MessageEntity]>>,
+    /// Animation that will be displayed in the game message in chats. Upload via `BotFather`
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub animation: Option<Box<crate::types::Animation>>,
+}
+impl Game {
+    /// Creates a new `Game`.
+    ///
+    /// # Arguments
+    /// * `title` - Title of the game
+    /// * `description` - Description of the game
+    /// * `photo` - Photo that will be displayed in the game message in chats.
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
+    #[must_use]
+    pub fn new<
+        T0: Into<Box<str>>,
+        T1: Into<Box<str>>,
+        T2Item: Into<crate::types::PhotoSize>,
+        T2: IntoIterator<Item = T2Item>,
+    >(
+        title: T0,
+        description: T1,
+        photo: T2,
+    ) -> Self {
+        Self {
+            title: title.into(),
+            description: description.into(),
+            photo: photo.into_iter().map(Into::into).collect(),
+            text: None,
+            text_entities: None,
+            animation: None,
+        }
+    }
+
+    /// Title of the game
+    #[must_use]
+    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.title = val.into();
+        this
+    }
+
+    /// Description of the game
+    #[must_use]
+    pub fn description<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.description = val.into();
+        this
+    }
+
+    /// Photo that will be displayed in the game message in chats.
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn photos<T: Into<Box<[crate::types::PhotoSize]>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.photo = this
+            .photo
+            .into_vec()
+            .into_iter()
+            .chain(val.into())
+            .collect();
+        this
+    }
+
+    /// Photo that will be displayed in the game message in chats.
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn photo<T: Into<crate::types::PhotoSize>>(self, val: T) -> Self {
+        let mut this = self;
+        this.photo = this
+            .photo
+            .into_vec()
+            .into_iter()
+            .chain(Some(val.into()))
+            .collect();
+        this
+    }
+
+    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls setGameScore, or manually edited using editMessageText. 0-4096 characters.
+    #[must_use]
+    pub fn text<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.text = Some(val.into());
+        this
+    }
+
+    /// Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls setGameScore, or manually edited using editMessageText. 0-4096 characters.
+    #[must_use]
+    pub fn text_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.text = val.map(Into::into);
+        this
+    }
+
+    /// Special entities that appear in text, such as usernames, URLs, bot commands, etc.
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn text_entities<T: Into<Box<[crate::types::MessageEntity]>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.text_entities = Some(
+            this.text_entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into())
+                .collect(),
+        );
+        this
+    }
+
+    /// Special entities that appear in text, such as usernames, URLs, bot commands, etc.
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn text_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
+        let mut this = self;
+        this.text_entities = Some(
+            this.text_entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        this
+    }
+
+    /// Special entities that appear in text, such as usernames, URLs, bot commands, etc.
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn text_entities_option<T: Into<Box<[crate::types::MessageEntity]>>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.text_entities = val.map(Into::into);
+        this
+    }
+
+    /// Animation that will be displayed in the game message in chats. Upload via `BotFather`
+    #[must_use]
+    pub fn animation<T: Into<crate::types::Animation>>(self, val: T) -> Self {
+        let mut this = self;
+        this.animation = Some(Box::new(val.into()));
+        this
+    }
+
+    /// Animation that will be displayed in the game message in chats. Upload via `BotFather`
+    #[must_use]
+    pub fn animation_option<T: Into<crate::types::Animation>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.animation = val.map(|val| Box::new(val.into()));
+        this
+    }
 }

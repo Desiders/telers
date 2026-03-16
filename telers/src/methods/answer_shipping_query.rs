@@ -1,127 +1,138 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::ShippingOption};
-
+use crate::client::Bot;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// If you sent an invoice requesting a shipping address and the parameter `is_flexible` was specified, the Bot API will send an [`Update`](crate::types::Update) with a `shipping_query` field to the bot. Use this method to reply to shipping queries.
+/// If you sent an invoice requesting a shipping address and the parameter `is_flexible` was specified, the Bot API will send an Update with a `shipping_query` field to the bot. Use this method to reply to shipping queries. On success, `true` is returned.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#answershippingquery>
 /// # Returns
-/// On success, `true` is returned
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct AnswerShippingQuery {
     /// Unique identifier for the query to be answered
-    pub shipping_query_id: String,
+    pub shipping_query_id: Box<str>,
     /// Pass `true` if delivery to the specified address is possible and `false` if there are any problems (for example, if delivery to the specified address is not possible)
     pub ok: bool,
-    /// Required if `ok` is `true`. A JSON-serialized array of available shipping options.
-    pub shipping_options: Option<Vec<ShippingOption>>,
-    /// Required if `ok` is `false`. Error message in human readable form that explains why it is impossible to complete the order (e.g. "Sorry, delivery to your desired address is unavailable'). Telegram will display this message to the user.
-    pub error_message: Option<String>,
+    /// Required if ok is `true`. A JSON-serialized array of available shipping options.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub shipping_options: Option<Box<[crate::types::ShippingOption]>>,
+    /// Required if ok is `false`. Error message in human readable form that explains why it is impossible to complete the order (e.g. `Sorry, delivery to your desired address is unavailable`). Telegram will display this message to the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error_message: Option<Box<str>>,
 }
-
 impl AnswerShippingQuery {
+    /// Creates a new `AnswerShippingQuery`.
+    ///
+    /// # Arguments
+    /// * `shipping_query_id` - Unique identifier for the query to be answered
+    /// * `ok` - Pass `true` if delivery to the specified address is possible and `false` if there are any problems (for example, if delivery to the specified address is not possible)
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(shipping_query_id: impl Into<String>, ok: bool) -> Self {
+    pub fn new<T0: Into<Box<str>>, T1: Into<bool>>(shipping_query_id: T0, ok: T1) -> Self {
         Self {
             shipping_query_id: shipping_query_id.into(),
-            ok,
+            ok: ok.into(),
             shipping_options: None,
             error_message: None,
         }
     }
 
+    /// Unique identifier for the query to be answered
     #[must_use]
-    pub fn shipping_query_id(self, val: impl Into<String>) -> Self {
-        Self {
-            shipping_query_id: val.into(),
-            ..self
-        }
+    pub fn shipping_query_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.shipping_query_id = val.into();
+        this
     }
 
+    /// Pass `true` if delivery to the specified address is possible and `false` if there are any problems (for example, if delivery to the specified address is not possible)
     #[must_use]
-    pub fn ok(self, val: bool) -> Self {
-        Self { ok: val, ..self }
+    pub fn ok<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.ok = val.into();
+        this
     }
 
+    /// Required if ok is `true`. A JSON-serialized array of available shipping options.
+    ///
+    /// # Notes
+    /// Adds multiple elements.
     #[must_use]
-    pub fn shipping_option(self, val: ShippingOption) -> Self {
-        Self {
-            shipping_options: Some(
-                self.shipping_options
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(Some(val))
-                    .collect(),
-            ),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn shipping_options(self, val: impl IntoIterator<Item = ShippingOption>) -> Self {
-        Self {
-            shipping_options: Some(
-                self.shipping_options
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(val)
-                    .collect(),
-            ),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn error_message(self, val: impl Into<String>) -> Self {
-        Self {
-            error_message: Some(val.into()),
-            ..self
-        }
-    }
-}
-
-impl AnswerShippingQuery {
-    #[must_use]
-    pub fn shipping_options_option(
+    pub fn shipping_options<
+        TItem: Into<crate::types::ShippingOption>,
+        T: IntoIterator<Item = TItem>,
+    >(
         self,
-        val: Option<impl IntoIterator<Item = ShippingOption>>,
+        val: T,
     ) -> Self {
-        Self {
-            shipping_options: val.map(|val| {
-                self.shipping_options
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(val)
-                    .collect()
-            }),
-            ..self
-        }
+        let mut this = self;
+        this.shipping_options = Some(
+            this.shipping_options
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into_iter().map(Into::into))
+                .collect(),
+        );
+        this
     }
 
+    /// Required if ok is `true`. A JSON-serialized array of available shipping options.
+    ///
+    /// # Notes
+    /// Adds a single element.
     #[must_use]
-    pub fn error_message_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            error_message: val.map(Into::into),
-            ..self
-        }
+    pub fn shipping_option<T: Into<crate::types::ShippingOption>>(self, val: T) -> Self {
+        let mut this = self;
+        this.shipping_options = Some(
+            this.shipping_options
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        this
+    }
+
+    /// Required if ok is `true`. A JSON-serialized array of available shipping options.
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn shipping_options_option<
+        TItem: Into<crate::types::ShippingOption>,
+        T: IntoIterator<Item = TItem>,
+    >(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.shipping_options = val.map(|v| v.into_iter().map(Into::into).collect());
+        this
+    }
+
+    /// Required if ok is `false`. Error message in human readable form that explains why it is impossible to complete the order (e.g. `Sorry, delivery to your desired address is unavailable`). Telegram will display this message to the user.
+    #[must_use]
+    pub fn error_message<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.error_message = Some(val.into());
+        this
+    }
+
+    /// Required if ok is `false`. Error message in human readable form that explains why it is impossible to complete the order (e.g. `Sorry, delivery to your desired address is unavailable`). Telegram will display this message to the user.
+    #[must_use]
+    pub fn error_message_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.error_message = val.map(Into::into);
+        this
     }
 }
-
-impl TelegramMethod for AnswerShippingQuery {
+impl super::TelegramMethod for AnswerShippingQuery {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("answerShippingQuery", self, None)
-    }
-}
-
-impl AsRef<AnswerShippingQuery> for AnswerShippingQuery {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("answerShippingQuery", self, None)
     }
 }

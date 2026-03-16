@@ -1,13 +1,10 @@
-use std::fmt::Display;
-
 use super::{Formatter as TextFormatter, FormatterErrorKind};
-
 use crate::types::{
-    CustomEmojiMessageEntity, MessageEntity, MessageEntityKind, PreMessageEntity,
-    TextLinkMessageEntity, TextMentionMessageEntity, User,
+    MessageEntity, MessageEntityCustomEmoji, MessageEntityDateTime, MessageEntityPre,
+    MessageEntityTextLink, MessageEntityTextMention,
 };
 
-use tracing::{event, Level};
+use std::fmt::Display;
 
 const BOLD_TAG: &str = "b";
 const ITALIC_TAG: &str = "i";
@@ -33,6 +30,7 @@ impl Formatter {
     /// Create a new instance of [`Formatter`] with custom tags
     /// # Notes
     /// If you want to use the default tags, use `Formatter::default` instead.
+    #[inline]
     #[must_use]
     pub const fn new_with_tags(
         bold: &'static str,
@@ -53,6 +51,7 @@ impl Formatter {
     }
 
     /// Create a new instance of [`Formatter`]
+    #[inline]
     #[must_use]
     pub const fn new() -> Self {
         Self::new_with_tags(
@@ -67,6 +66,7 @@ impl Formatter {
 }
 
 impl Default for Formatter {
+    #[inline]
     fn default() -> Self {
         Self::new()
     }
@@ -170,6 +170,21 @@ impl TextFormatter for Formatter {
         format!("<pre><code class=\"language-{language}\">{text}</code></pre>")
     }
 
+    fn date_time<T>(&self, text: T, unix_time: i64) -> String
+    where
+        T: Display,
+    {
+        format!("<tg-time unix=\"{unix_time}\">{text}</tg-time>")
+    }
+
+    fn date_time_with_format<T, F>(&self, text: T, unix_time: i64, date_time_format: F) -> String
+    where
+        T: Display,
+        F: Display,
+    {
+        format!("<tg-time unix=\"{unix_time}\" format=\"{date_time_format}\">{text}</tg-time>")
+    }
+
     fn quote<T>(&self, text: T) -> String
     where
         T: Display,
@@ -199,8 +214,8 @@ impl TextFormatter for Formatter {
             return Err(FormatterErrorKind::EmptyText);
         }
 
-        let offset = entity.offset as usize;
-        let length = entity.length as usize;
+        let offset = usize::try_from(entity.offset()).unwrap();
+        let length = usize::try_from(entity.length()).unwrap();
 
         if offset + length > text_len {
             return Err(FormatterErrorKind::IndexOutOfBounds);
@@ -210,44 +225,47 @@ impl TextFormatter for Formatter {
         let editable_text = &text[offset..offset + length];
         let next_text = &text[offset + length..];
 
-        let edited_text = match entity.kind() {
-            MessageEntityKind::Mention => format!("@{editable_text}"),
-            MessageEntityKind::Hashtag => format!("#{editable_text}"),
-            MessageEntityKind::Cashtag => format!("${editable_text}"),
-            MessageEntityKind::BotCommand => format!("/{editable_text}"),
-            MessageEntityKind::Url | MessageEntityKind::Email | MessageEntityKind::PhoneNumber => {
+        let edited_text = match entity {
+            MessageEntity::Mention(_) => format!("@{editable_text}"),
+            MessageEntity::Hashtag(_) => format!("#{editable_text}"),
+            MessageEntity::Cashtag(_) => format!("${editable_text}"),
+            MessageEntity::BotCommand(_) => format!("/{editable_text}"),
+            MessageEntity::Url(_) | MessageEntity::Email(_) | MessageEntity::PhoneNumber(_) => {
                 editable_text.to_owned()
             }
-            MessageEntityKind::Bold => self.bold(editable_text),
-            MessageEntityKind::Italic => self.italic(editable_text),
-            MessageEntityKind::Underline => self.underline(editable_text),
-            MessageEntityKind::Strikethrough => self.strikethrough(editable_text),
-            MessageEntityKind::Spoiler => self.spoiler(editable_text),
-            MessageEntityKind::Blockquote => self.blockquote(editable_text),
-            MessageEntityKind::ExpandableBlockquote => self.expandable_blockquote(editable_text),
-            MessageEntityKind::Code => self.code(editable_text),
-            MessageEntityKind::Pre(PreMessageEntity { language }) => match language {
+            MessageEntity::Bold(_) => self.bold(editable_text),
+            MessageEntity::Italic(_) => self.italic(editable_text),
+            MessageEntity::Underline(_) => self.underline(editable_text),
+            MessageEntity::Strikethrough(_) => self.strikethrough(editable_text),
+            MessageEntity::Spoiler(_) => self.spoiler(editable_text),
+            MessageEntity::Blockquote(_) => self.blockquote(editable_text),
+            MessageEntity::ExpandableBlockquote(_) => self.expandable_blockquote(editable_text),
+            MessageEntity::Code(_) => self.code(editable_text),
+            MessageEntity::Pre(MessageEntityPre {
+                language, ..
+            }) => match language {
                 Some(language) => self.pre_language(editable_text, language),
                 None => self.pre(editable_text),
             },
-            MessageEntityKind::TextLink(TextLinkMessageEntity { url }) => {
-                self.text_link(editable_text, url)
-            }
-            MessageEntityKind::TextMention(TextMentionMessageEntity {
-                user: User { id: user_id, .. },
-            }) => self.text_mention(editable_text, *user_id),
-            MessageEntityKind::CustomEmoji(CustomEmojiMessageEntity { custom_emoji_id }) => {
-                self.custom_emoji(editable_text, custom_emoji_id)
-            }
-            MessageEntityKind::Unknown => {
-                event!(
-                    Level::WARN,
-                    "Unknown entity kind: {:?}. Using the original text.",
-                    entity.kind()
-                );
-
-                editable_text.to_owned()
-            }
+            MessageEntity::TextLink(MessageEntityTextLink {
+                url, ..
+            }) => self.text_link(editable_text, url),
+            MessageEntity::TextMention(MessageEntityTextMention {
+                user, ..
+            }) => self.text_mention(editable_text, user.id),
+            MessageEntity::CustomEmoji(MessageEntityCustomEmoji {
+                custom_emoji_id, ..
+            }) => self.custom_emoji(editable_text, custom_emoji_id),
+            MessageEntity::DateTime(MessageEntityDateTime {
+                unix_time,
+                date_time_format,
+                ..
+            }) => match date_time_format {
+                Some(date_time_format) => {
+                    self.date_time_with_format(editable_text, *unix_time, date_time_format)
+                }
+                None => self.date_time(editable_text, *unix_time),
+            },
         };
 
         Ok(format!("{previous_text}{edited_text}{next_text}"))
@@ -256,58 +274,72 @@ impl TextFormatter for Formatter {
 
 pub const FORMATTER: Formatter = Formatter::new();
 
+#[inline]
 pub fn bold(text: impl Display) -> String {
     FORMATTER.bold(text)
 }
 
+#[inline]
 pub fn italic(text: impl Display) -> String {
     FORMATTER.italic(text)
 }
 
+#[inline]
 pub fn underline(text: impl Display) -> String {
     FORMATTER.underline(text)
 }
 
+#[inline]
 pub fn strikethrough(text: impl Display) -> String {
     FORMATTER.strikethrough(text)
 }
 
+#[inline]
 pub fn spoiler(text: impl Display) -> String {
     FORMATTER.spoiler(text)
 }
 
+#[inline]
 pub fn blockquote(text: impl Display) -> String {
     FORMATTER.blockquote(text)
 }
 
+#[inline]
 pub fn expandable_blockquote(text: impl Display) -> String {
     FORMATTER.expandable_blockquote(text)
 }
 
+#[inline]
 pub fn text_link(text: impl Display, url: impl Display) -> String {
     FORMATTER.text_link(text, url)
 }
 
+#[inline]
 pub fn text_mention(text: impl Display, user_id: i64) -> String {
     FORMATTER.text_mention(text, user_id)
 }
 
+#[inline]
 pub fn custom_emoji(text: impl Display, emoji_id: impl Display) -> String {
     FORMATTER.custom_emoji(text, emoji_id)
 }
 
+#[inline]
 pub fn code(text: impl Display) -> String {
     FORMATTER.code(text)
 }
 
+#[inline]
 pub fn pre(text: impl Display) -> String {
     FORMATTER.pre(text)
 }
 
+#[inline]
 pub fn pre_language(text: impl Display, language: impl Display) -> String {
     FORMATTER.pre_language(text, language)
 }
 
+#[inline]
 pub fn quote(text: impl Display) -> String {
     FORMATTER.quote(text)
 }
@@ -409,6 +441,19 @@ mod tests {
         assert_eq!(
             formatter.custom_emoji("text", "emoji_id"),
             "<tg-emoji data-emoji-id=\"emoji_id\">text</tg-emoji>"
+        );
+    }
+
+    #[test]
+    fn test_date_time() {
+        let formatter = Formatter::default();
+        assert_eq!(
+            formatter.date_time("text", 1),
+            "<tg-time unix=\"1\">text</tg-time>"
+        );
+        assert_eq!(
+            formatter.date_time_with_format("text", 1, "test"),
+            "<tg-time unix=\"1\" format=\"test\">text</tg-time>"
         );
     }
 

@@ -2,7 +2,14 @@ use std::fmt::Display;
 
 use super::{Formatter, FormatterErrorKind};
 
-use crate::types::{MessageEntity, User};
+use crate::types::{
+    MessageEntity, MessageEntityBlockquote, MessageEntityBold, MessageEntityBotCommand,
+    MessageEntityCashtag, MessageEntityCode, MessageEntityCustomEmoji, MessageEntityEmail,
+    MessageEntityExpandableBlockquote, MessageEntityHashtag, MessageEntityItalic,
+    MessageEntityMention, MessageEntityPhoneNumber, MessageEntityPre, MessageEntitySpoiler,
+    MessageEntityStrikethrough, MessageEntityTextLink, MessageEntityTextMention,
+    MessageEntityUnderline, MessageEntityUrl, User,
+};
 
 use tracing::{event, Level};
 
@@ -17,6 +24,7 @@ impl<F> Builder<F>
 where
     F: Formatter,
 {
+    #[inline]
     #[must_use]
     pub const fn new(formatter: F) -> Self {
         Self {
@@ -101,9 +109,12 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn mention(self, username: impl AsRef<str>) -> Self {
-        let username = username.as_ref();
-        let entity = MessageEntity::new_mention(self.text.len() as u16, username.len() as u16);
+    pub fn mention(self, username: impl Into<Box<str>>) -> Self {
+        let username = username.into();
+        let entity = MessageEntity::Mention(MessageEntityMention::new(
+            self.text.len() as u16,
+            username.len() as u16,
+        ));
 
         self.text(username)
             .entity(&entity)
@@ -113,9 +124,12 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn hashtag(self, tag: impl AsRef<str>) -> Self {
-        let tag = tag.as_ref();
-        let entity = MessageEntity::new_hashtag(self.text.len() as u16, tag.len() as u16);
+    pub fn hashtag(self, tag: impl Into<Box<str>>) -> Self {
+        let tag = tag.into();
+        let entity = MessageEntity::Hashtag(MessageEntityHashtag::new(
+            self.text.len() as u16,
+            tag.len() as u16,
+        ));
 
         self.text(tag)
             .entity(&entity)
@@ -125,9 +139,12 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn cashtag(self, tag: impl AsRef<str>) -> Self {
-        let tag = tag.as_ref();
-        let entity = MessageEntity::new_cashtag(self.text.len() as u16, tag.len() as u16);
+    pub fn cashtag(self, tag: impl Into<Box<str>>) -> Self {
+        let tag = tag.into();
+        let entity = MessageEntity::Cashtag(MessageEntityCashtag::new(
+            self.text.len() as u16,
+            tag.len() as u16,
+        ));
 
         self.text(tag)
             .entity(&entity)
@@ -137,9 +154,12 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn bot_command(self, command: impl AsRef<str>) -> Self {
-        let command = command.as_ref();
-        let entity = MessageEntity::new_bot_command(self.text.len() as u16, command.len() as u16);
+    pub fn bot_command(self, command: impl Into<Box<str>>) -> Self {
+        let command = command.into();
+        let entity = MessageEntity::BotCommand(MessageEntityBotCommand::new(
+            self.text.len() as u16,
+            command.len() as u16,
+        ));
 
         self.text(command)
             .entity(&entity)
@@ -149,9 +169,12 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn url(self, url: impl AsRef<str>) -> Self {
-        let url = url.as_ref();
-        let entity = MessageEntity::new_url(self.text.len() as u16, url.len() as u16);
+    pub fn url(self, url: impl Into<Box<str>>) -> Self {
+        let url = url.into();
+        let entity = MessageEntity::Url(MessageEntityUrl::new(
+            self.text.len() as u16,
+            url.len() as u16,
+        ));
 
         self.text(url)
             .entity(&entity)
@@ -161,9 +184,12 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn email(self, email: impl AsRef<str>) -> Self {
-        let email = email.as_ref();
-        let entity = MessageEntity::new_email(self.text.len() as u16, email.len() as u16);
+    pub fn email(self, email: impl Into<Box<str>>) -> Self {
+        let email = email.into();
+        let entity = MessageEntity::Email(MessageEntityEmail::new(
+            self.text.len() as u16,
+            email.len() as u16,
+        ));
 
         self.text(email)
             .entity(&entity)
@@ -173,10 +199,12 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn phone_number(self, phone_number: impl AsRef<str>) -> Self {
-        let phone_number = phone_number.as_ref();
-        let entity =
-            MessageEntity::new_phone_number(self.text.len() as u16, phone_number.len() as u16);
+    pub fn phone_number(self, phone_number: impl Into<Box<str>>) -> Self {
+        let phone_number = phone_number.into();
+        let entity = MessageEntity::PhoneNumber(MessageEntityPhoneNumber::new(
+            self.text.len() as u16,
+            phone_number.len() as u16,
+        ));
 
         self.text(phone_number)
             .entity(&entity)
@@ -186,9 +214,12 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn bold(self, text: impl AsRef<str>) -> Self {
-        let text = text.as_ref();
-        let entity = MessageEntity::new_bold(self.text.len() as u16, text.len() as u16);
+    pub fn bold(self, text: impl Into<Box<str>>) -> Self {
+        let text = text.into();
+        let entity = MessageEntity::Bold(MessageEntityBold::new(
+            self.text.len() as u16,
+            text.len() as u16,
+        ));
 
         self.text(text)
             .entity(&entity)
@@ -198,9 +229,12 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn italic(self, text: impl AsRef<str>) -> Self {
-        let text = text.as_ref();
-        let entity = MessageEntity::new_italic(self.text.len() as u16, text.len() as u16);
+    pub fn italic(self, text: impl Into<Box<str>>) -> Self {
+        let text = text.into();
+        let entity = MessageEntity::Italic(MessageEntityItalic::new(
+            self.text.len() as u16,
+            text.len() as u16,
+        ));
 
         self.text(text)
             .entity(&entity)
@@ -210,9 +244,12 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn underline(self, text: impl AsRef<str>) -> Self {
-        let text = text.as_ref();
-        let entity = MessageEntity::new_underline(self.text.len() as u16, text.len() as u16);
+    pub fn underline(self, text: impl Into<Box<str>>) -> Self {
+        let text = text.into();
+        let entity = MessageEntity::Underline(MessageEntityUnderline::new(
+            self.text.len() as u16,
+            text.len() as u16,
+        ));
 
         self.text(text)
             .entity(&entity)
@@ -222,9 +259,12 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn strikethrough(self, text: impl AsRef<str>) -> Self {
-        let text = text.as_ref();
-        let entity = MessageEntity::new_strikethrough(self.text.len() as u16, text.len() as u16);
+    pub fn strikethrough(self, text: impl Into<Box<str>>) -> Self {
+        let text = text.into();
+        let entity = MessageEntity::Strikethrough(MessageEntityStrikethrough::new(
+            self.text.len() as u16,
+            text.len() as u16,
+        ));
 
         self.text(text)
             .entity(&entity)
@@ -234,9 +274,12 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn spoiler(self, text: impl AsRef<str>) -> Self {
-        let text = text.as_ref();
-        let entity = MessageEntity::new_spoiler(self.text.len() as u16, text.len() as u16);
+    pub fn spoiler(self, text: impl Into<Box<str>>) -> Self {
+        let text = text.into();
+        let entity = MessageEntity::Spoiler(MessageEntitySpoiler::new(
+            self.text.len() as u16,
+            text.len() as u16,
+        ));
 
         self.text(text)
             .entity(&entity)
@@ -246,9 +289,12 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn blockquote(self, text: impl AsRef<str>) -> Self {
-        let text = text.as_ref();
-        let entity = MessageEntity::new_blockquote(self.text.len() as u16, text.len() as u16);
+    pub fn blockquote(self, text: impl Into<Box<str>>) -> Self {
+        let text = text.into();
+        let entity = MessageEntity::Blockquote(MessageEntityBlockquote::new(
+            self.text.len() as u16,
+            text.len() as u16,
+        ));
 
         self.text(text)
             .entity(&entity)
@@ -258,10 +304,12 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn expandable_blockquote(self, text: impl AsRef<str>) -> Self {
-        let text = text.as_ref();
-        let entity =
-            MessageEntity::new_expandable_blockquote(self.text.len() as u16, text.len() as u16);
+    pub fn expandable_blockquote(self, text: impl Into<Box<str>>) -> Self {
+        let text = text.into();
+        let entity = MessageEntity::ExpandableBlockquote(MessageEntityExpandableBlockquote::new(
+            self.text.len() as u16,
+            text.len() as u16,
+        ));
 
         self.text(text)
             .entity(&entity)
@@ -276,9 +324,12 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn code(self, code: impl AsRef<str>) -> Self {
-        let code = code.as_ref();
-        let entity = MessageEntity::new_code(self.text.len() as u16, code.len() as u16);
+    pub fn code(self, code: impl Into<Box<str>>) -> Self {
+        let code = code.into();
+        let entity = MessageEntity::Code(MessageEntityCode::new(
+            self.text.len() as u16,
+            code.len() as u16,
+        ));
 
         self.text(code)
             .entity(&entity)
@@ -296,7 +347,7 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn monowidth(self, text: impl AsRef<str>) -> Self {
+    pub fn monowidth(self, text: impl Into<Box<str>>) -> Self {
         self.code(text)
     }
 
@@ -308,9 +359,12 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn pre(self, code: impl AsRef<str>) -> Self {
-        let code = code.as_ref();
-        let entity = MessageEntity::new_pre(self.text.len() as u16, code.len() as u16);
+    pub fn pre(self, code: impl Into<Box<str>>) -> Self {
+        let code = code.into();
+        let entity = MessageEntity::Pre(MessageEntityPre::new(
+            self.text.len() as u16,
+            code.len() as u16,
+        ));
 
         self.text(code)
             .entity(&entity)
@@ -326,12 +380,10 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn pre_language(self, code: impl AsRef<str>, language: impl AsRef<str>) -> Self {
-        let code = code.as_ref();
-        let entity = MessageEntity::new_pre_language(
-            self.text.len() as u16,
-            code.len() as u16,
-            language.as_ref(),
+    pub fn pre_language(self, code: impl Into<Box<str>>, language: impl Into<Box<str>>) -> Self {
+        let code = code.into();
+        let entity = MessageEntity::Pre(
+            MessageEntityPre::new(self.text.len() as u16, code.len() as u16).language(language),
         );
 
         self.text(code).entity(&entity).expect(
@@ -348,10 +400,13 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn text_link(self, text: impl AsRef<str>, url: impl AsRef<str>) -> Self {
-        let text = text.as_ref();
-        let entity =
-            MessageEntity::new_text_link(self.text.len() as u16, text.len() as u16, url.as_ref());
+    pub fn text_link(self, text: impl Into<Box<str>>, url: impl Into<Box<str>>) -> Self {
+        let text = text.into();
+        let entity = MessageEntity::TextLink(MessageEntityTextLink::new(
+            self.text.len() as u16,
+            text.len() as u16,
+            url,
+        ));
 
         self.text(text)
             .entity(&entity)
@@ -365,13 +420,18 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn text_mention(self, text: impl AsRef<str>, user: User) -> Self {
-        let text = text.as_ref();
-        let entity =
-            MessageEntity::new_text_mention(self.text.len() as u16, text.len() as u16, user);
+    pub fn text_mention(self, text: impl Into<Box<str>>, user: User) -> Self {
+        let text = text.into();
+        let entity = MessageEntity::TextMention(MessageEntityTextMention::new(
+            self.text.len() as u16,
+            text.len() as u16,
+            user,
+        ));
 
         self.text(text).entity(&entity).expect(
-            "Failed to add mention for the user without username. Report this issue to the developers",)
+            "Failed to add mention for the user without username. Report this issue to the \
+             developers",
+        )
     }
 
     /// Add custom emoji to the text instead of unicode emoji.
@@ -383,13 +443,17 @@ where
     /// # Warning
     /// If the given text length is greater than [`u16::MAX`], then the text will be truncated.
     #[must_use]
-    pub fn custom_emoji(self, emoji: impl AsRef<str>, custom_emoji_id: impl AsRef<str>) -> Self {
-        let emoji = emoji.as_ref();
-        let entity = MessageEntity::new_custom_emoji(
+    pub fn custom_emoji(
+        self,
+        emoji: impl Into<Box<str>>,
+        custom_emoji_id: impl Into<Box<str>>,
+    ) -> Self {
+        let emoji = emoji.into();
+        let entity = MessageEntity::CustomEmoji(MessageEntityCustomEmoji::new(
             self.text.len() as u16,
             emoji.len() as u16,
-            custom_emoji_id.as_ref(),
-        );
+            custom_emoji_id,
+        ));
 
         self.text(emoji)
             .entity(&entity)
@@ -458,7 +522,7 @@ mod tests {
             .text(" ")
             .text_link("text_link", "https://example.com")
             .text(" ")
-            .text_mention("text_mention", User::default())
+            .text_mention("text_mention", User::new(0, true, ""))
             .text(" ")
             .custom_emoji("custom_emoji", "emoji_id")
             .text(" ")

@@ -1,46 +1,40 @@
-use super::base::{Request, TelegramMethod};
-use crate::{client::Bot, types::StarAmount};
-
+use crate::client::Bot;
 use serde::Serialize;
-
-/// Returns the amount of Telegram Stars owned by a managed business account. Requires the `can_view_gifts_and_stars` business bot right.
+/// Returns the amount of Telegram Stars owned by a managed business account. Requires the `can_view_gifts_and_stars` business bot right. Returns [`crate::types::StarAmount`] on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getbusinessaccountstarbalance>
 /// # Returns
-/// On success, [`StarAmount`] is returned
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `crate::types::StarAmount`
+#[derive(Clone, Debug, Serialize)]
 pub struct GetBusinessAccountStarBalance {
     /// Unique identifier of the business connection
-    pub business_connection_id: String,
+    pub business_connection_id: Box<str>,
 }
-
 impl GetBusinessAccountStarBalance {
+    /// Creates a new `GetBusinessAccountStarBalance`.
+    ///
+    /// # Arguments
+    /// * `business_connection_id` - Unique identifier of the business connection
     #[must_use]
-    pub fn new(business_connection_id: impl Into<String>) -> Self {
+    pub fn new<T0: Into<Box<str>>>(business_connection_id: T0) -> Self {
         Self {
             business_connection_id: business_connection_id.into(),
         }
     }
 
+    /// Unique identifier of the business connection
     #[must_use]
-    pub fn business_connection_id(self, val: impl Into<String>) -> Self {
-        Self {
-            business_connection_id: val.into(),
-        }
+    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.business_connection_id = val.into();
+        this
     }
 }
-
-impl TelegramMethod for GetBusinessAccountStarBalance {
+impl super::TelegramMethod for GetBusinessAccountStarBalance {
     type Method = Self;
-    type Return = StarAmount;
+    type Return = crate::types::StarAmount;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("getBusinessAccountStarBalance", self, None)
-    }
-}
-
-impl AsRef<GetBusinessAccountStarBalance> for GetBusinessAccountStarBalance {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("getBusinessAccountStarBalance", self, None)
     }
 }

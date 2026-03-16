@@ -1,56 +1,54 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::BotDescription};
-
+use crate::client::Bot;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Use this method to get the current bot description for the given user language.
+/// Use this method to get the current bot description for the given user language. Returns [`crate::types::BotDescription`] on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getmydescription>
 /// # Returns
-/// Returns [`BotDescription`] on success
-#[skip_serializing_none]
-#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `crate::types::BotDescription`
+#[derive(Clone, Debug, Serialize)]
 pub struct GetMyDescription {
     /// A two-letter ISO 639-1 language code or an empty string
-    pub language_code: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub language_code: Option<Box<str>>,
 }
-
 impl GetMyDescription {
+    /// Creates a new `GetMyDescription`.
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
     pub fn new() -> Self {
-        Self::default()
-    }
-
-    #[must_use]
-    pub fn language_code(self, val: impl Into<String>) -> Self {
         Self {
-            language_code: Some(val.into()),
+            language_code: None,
         }
     }
-}
 
-impl GetMyDescription {
+    /// A two-letter ISO 639-1 language code or an empty string
     #[must_use]
-    pub fn language_code_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            language_code: val.map(Into::into),
-        }
+    pub fn language_code<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.language_code = Some(val.into());
+        this
+    }
+
+    /// A two-letter ISO 639-1 language code or an empty string
+    #[must_use]
+    pub fn language_code_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.language_code = val.map(Into::into);
+        this
     }
 }
-
-impl TelegramMethod for GetMyDescription {
+impl Default for GetMyDescription {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+impl super::TelegramMethod for GetMyDescription {
     type Method = Self;
-    type Return = BotDescription;
+    type Return = crate::types::BotDescription;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("getMyDescription", self, None)
-    }
-}
-
-impl AsRef<GetMyDescription> for GetMyDescription {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("getMyDescription", self, None)
     }
 }

@@ -1,8 +1,8 @@
 //! This example shows how to setup webhooks for a bot using `axum` server.
 //!
-//! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
+//! You can run this example by setting `BOT_TOKEN` and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package axum_webhook
+//! BOT_TOKEN={your_bot_token} cargo run --package axum_webhook
 //! ```
 
 use std::fmt::Display;
@@ -10,7 +10,10 @@ use std::fmt::Display;
 use axum::Router as AxumRouter;
 use telers::{
     enums::UpdateType,
-    event::{simple, telegram::HandlerResult, EventReturn},
+    event::{
+        simple,
+        telegram::{self, HandlerResult},
+    },
     methods::{CopyMessage, SetWebhook},
     types::Message,
     utils::shutdown_signal,
@@ -21,7 +24,6 @@ use tokio::{
     net::TcpListener,
     sync::broadcast::{channel, Receiver, Sender},
 };
-use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 const SERVER_HOST: &str = "0.0.0.0";
 const SERVER_PORT: u16 = 3000;
@@ -30,22 +32,21 @@ const WEBHOOK_URL: &str = "https://example.com";
 const HANDLER_PATH: &str = "/";
 const SECRET_TOKEN: &str = "123";
 
-async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
+async fn echo_handler(bot: Bot, message: Message) -> HandlerResult<()> {
     bot.send(CopyMessage::new(
         message.chat().id(),
         message.chat().id(),
-        message.id(),
+        message.message_id(),
     ))
     .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 async fn set_webhook(
     bot: Bot,
     webhook_url: impl Display,
     handler_path: impl Display,
-    secret_token: Option<impl Into<String>>,
+    secret_token: Option<impl Into<Box<str>>>,
 ) -> simple::HandlerResult {
     bot.send(
         SetWebhook::new(format!("{webhook_url}{handler_path}"))
@@ -53,26 +54,23 @@ async fn set_webhook(
             .secret_token_option(secret_token),
     )
     .await?;
-
     Ok(())
 }
 
 #[tokio::main(flavor = "multi_thread")]
 async fn main() {
-    tracing_subscriber::registry()
-        .with(fmt::layer())
-        .with(EnvFilter::from_env("RUST_LOG"))
-        .init();
+    tracing_subscriber::fmt().init();
 
-    let bot = Bot::from_env_by_key("BOT_TOKEN");
+    let bot = Bot::from_env();
 
-    let mut router = TelersRouter::new("main");
-    router.message.register(echo_handler);
-
-    router.startup.register(
-        set_webhook,
-        (bot.clone(), WEBHOOK_URL, HANDLER_PATH, Some(SECRET_TOKEN)),
-    );
+    let router = TelersRouter::new("main")
+        .on_message(|observer| observer.register(telegram::Handler::new(echo_handler)))
+        .on_startup(|observer| {
+            observer.register(simple::Handler::new(
+                set_webhook,
+                (bot.clone(), WEBHOOK_URL, HANDLER_PATH, Some(SECRET_TOKEN)),
+            ))
+        });
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
@@ -97,6 +95,7 @@ async fn run_server(app: AxumRouter, mut shutdown_rx: Receiver<()>) {
     let listener = TcpListener::bind(format!("{SERVER_HOST}:{SERVER_PORT}"))
         .await
         .unwrap();
+
     axum::serve(listener, app)
         .with_graceful_shutdown(async move {
             let _ = shutdown_rx.recv().await;

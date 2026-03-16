@@ -1,38 +1,45 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{
-    client::Bot,
-    types::{InlineQueryResult, PreparedInlineMessage},
-};
-
+use crate::client::Bot;
 use serde::Serialize;
-
-/// Stores a message that can be sent by a user of a Mini App
+/// Stores a message that can be sent by a user of a Mini App. Returns a [`crate::types::PreparedInlineMessage`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#savepreparedinlinemessage>
 /// # Returns
-/// On success, a [`PreparedInlineMessage`] object is returned
-#[derive(Debug, Clone, PartialEq, Serialize)]
+/// - `crate::types::PreparedInlineMessage`
+#[derive(Clone, Debug, Serialize)]
 pub struct SavePreparedInlineMessage {
     /// Unique identifier of the target user that can use the prepared message
     pub user_id: i64,
     /// A JSON-serialized object describing the message to be sent
-    pub result: InlineQueryResult,
-    /// `true`, if the message can be sent to private chats with users
+    pub result: crate::types::InlineQueryResult,
+    /// Pass `true` if the message can be sent to private chats with users
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_user_chats: Option<bool>,
-    /// `true`, if the message can be sent to private chats with bots
+    /// Pass `true` if the message can be sent to private chats with bots
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_bot_chats: Option<bool>,
-    /// `true`, if the message can be sent to group and supergroup chats
+    /// Pass `true` if the message can be sent to group and supergroup chats
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_group_chats: Option<bool>,
-    /// `true`, if the message can be sent to channel chats
+    /// Pass `true` if the message can be sent to channel chats
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_channel_chats: Option<bool>,
 }
-
 impl SavePreparedInlineMessage {
+    /// Creates a new `SavePreparedInlineMessage`.
+    ///
+    /// # Arguments
+    /// * `user_id` - Unique identifier of the target user that can use the prepared message
+    /// * `result` - A JSON-serialized object describing the message to be sent
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(user_id: i64, result: impl Into<InlineQueryResult>) -> Self {
+    pub fn new<T0: Into<i64>, T1: Into<crate::types::InlineQueryResult>>(
+        user_id: T0,
+        result: T1,
+    ) -> Self {
         Self {
-            user_id,
+            user_id: user_id.into(),
             result: result.into(),
             allow_user_chats: None,
             allow_bot_chats: None,
@@ -41,100 +48,91 @@ impl SavePreparedInlineMessage {
         }
     }
 
+    /// Unique identifier of the target user that can use the prepared message
     #[must_use]
-    pub fn user_id(self, val: i64) -> Self {
-        Self {
-            user_id: val,
-            ..self
-        }
+    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.user_id = val.into();
+        this
     }
 
+    /// A JSON-serialized object describing the message to be sent
     #[must_use]
-    pub fn result(self, val: impl Into<InlineQueryResult>) -> Self {
-        Self {
-            result: val.into(),
-            ..self
-        }
+    pub fn result<T: Into<crate::types::InlineQueryResult>>(self, val: T) -> Self {
+        let mut this = self;
+        this.result = val.into();
+        this
     }
 
+    /// Pass `true` if the message can be sent to private chats with users
     #[must_use]
-    pub fn allow_user_chats(self, val: bool) -> Self {
-        Self {
-            allow_user_chats: Some(val),
-            ..self
-        }
+    pub fn allow_user_chats<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.allow_user_chats = Some(val.into());
+        this
     }
 
+    /// Pass `true` if the message can be sent to private chats with users
     #[must_use]
-    pub fn allow_bot_chats(self, val: bool) -> Self {
-        Self {
-            allow_bot_chats: Some(val),
-            ..self
-        }
+    pub fn allow_user_chats_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.allow_user_chats = val.map(Into::into);
+        this
     }
 
+    /// Pass `true` if the message can be sent to private chats with bots
     #[must_use]
-    pub fn allow_group_chats(self, val: bool) -> Self {
-        Self {
-            allow_group_chats: Some(val),
-            ..self
-        }
+    pub fn allow_bot_chats<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.allow_bot_chats = Some(val.into());
+        this
     }
 
+    /// Pass `true` if the message can be sent to private chats with bots
     #[must_use]
-    pub fn allow_channel_chats(self, val: bool) -> Self {
-        Self {
-            allow_channel_chats: Some(val),
-            ..self
-        }
-    }
-}
-
-impl SavePreparedInlineMessage {
-    #[must_use]
-    pub fn allow_user_chats_option(self, val: Option<bool>) -> Self {
-        Self {
-            allow_user_chats: val,
-            ..self
-        }
+    pub fn allow_bot_chats_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.allow_bot_chats = val.map(Into::into);
+        this
     }
 
+    /// Pass `true` if the message can be sent to group and supergroup chats
     #[must_use]
-    pub fn allow_bot_chats_option(self, val: Option<bool>) -> Self {
-        Self {
-            allow_bot_chats: val,
-            ..self
-        }
+    pub fn allow_group_chats<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.allow_group_chats = Some(val.into());
+        this
     }
 
+    /// Pass `true` if the message can be sent to group and supergroup chats
     #[must_use]
-    pub fn allow_group_chats_option(self, val: Option<bool>) -> Self {
-        Self {
-            allow_group_chats: val,
-            ..self
-        }
+    pub fn allow_group_chats_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.allow_group_chats = val.map(Into::into);
+        this
     }
 
+    /// Pass `true` if the message can be sent to channel chats
     #[must_use]
-    pub fn allow_channel_chats_option(self, val: Option<bool>) -> Self {
-        Self {
-            allow_channel_chats: val,
-            ..self
-        }
+    pub fn allow_channel_chats<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.allow_channel_chats = Some(val.into());
+        this
+    }
+
+    /// Pass `true` if the message can be sent to channel chats
+    #[must_use]
+    pub fn allow_channel_chats_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.allow_channel_chats = val.map(Into::into);
+        this
     }
 }
-
-impl TelegramMethod for SavePreparedInlineMessage {
+impl super::TelegramMethod for SavePreparedInlineMessage {
     type Method = Self;
-    type Return = PreparedInlineMessage;
+    type Return = crate::types::PreparedInlineMessage;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("savePreparedInlineMessage", self, None)
-    }
-}
-
-impl AsRef<SavePreparedInlineMessage> for SavePreparedInlineMessage {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("savePreparedInlineMessage", self, None)
     }
 }

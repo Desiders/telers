@@ -1,47 +1,40 @@
-use super::base::{Request, TelegramMethod};
-
 use crate::client::Bot;
-
 use serde::Serialize;
-
-/// Use this method to delete a sticker from a set created by the bot
+/// Use this method to delete a sticker from a set created by the bot. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#deletestickerfromset>
 /// # Returns
-/// On success, `true` is returned
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct DeleteStickerFromSet {
     /// File identifier of the sticker
-    pub sticker: String,
+    pub sticker: Box<str>,
 }
-
 impl DeleteStickerFromSet {
+    /// Creates a new `DeleteStickerFromSet`.
+    ///
+    /// # Arguments
+    /// * `sticker` - File identifier of the sticker
     #[must_use]
-    pub fn new(sticker: impl Into<String>) -> Self {
+    pub fn new<T0: Into<Box<str>>>(sticker: T0) -> Self {
         Self {
             sticker: sticker.into(),
         }
     }
 
+    /// File identifier of the sticker
     #[must_use]
-    pub fn sticker(self, val: impl Into<String>) -> Self {
-        Self {
-            sticker: val.into(),
-        }
+    pub fn sticker<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.sticker = val.into();
+        this
     }
 }
-
-impl TelegramMethod for DeleteStickerFromSet {
+impl super::TelegramMethod for DeleteStickerFromSet {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("deleteStickerFromSet", self, None)
-    }
-}
-
-impl AsRef<DeleteStickerFromSet> for DeleteStickerFromSet {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("deleteStickerFromSet", self, None)
     }
 }

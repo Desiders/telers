@@ -1,14 +1,14 @@
 //! This example shows how to create an echo bot and how to run it concurrently with polling `axum` server.
 //!
-//! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
+//! You can run this example by setting `BOT_TOKEN` and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package axum_and_echo_bot
+//! BOT_TOKEN={your_bot_token} cargo run --package axum_and_echo_bot
 //! ```
 
 use axum::{routing, Router as AxumRouter};
 use telers::{
     enums::UpdateType,
-    event::{telegram::HandlerResult, EventReturn},
+    event::telegram::{Handler, HandlerResult},
     methods::CopyMessage,
     types::Message,
     utils::shutdown_signal,
@@ -18,38 +18,32 @@ use tokio::{
     net::TcpListener,
     sync::broadcast::{channel, Receiver, Sender},
 };
-use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 const SERVER_HOST: &str = "0.0.0.0";
 const SERVER_PORT: u16 = 3000;
 
-async fn echo_handler(bot: Bot, message: Message) -> HandlerResult {
+async fn echo_handler(bot: Bot, message: Message) -> HandlerResult<()> {
     bot.send(CopyMessage::new(
         message.chat().id(),
         message.chat().id(),
-        message.id(),
+        message.message_id(),
     ))
     .await?;
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
-#[allow(clippy::unused_async)]
 async fn hello_world_handler() -> &'static str {
     "Hello, World!"
 }
 
-#[tokio::main(flavor = "multi_thread")]
+#[tokio::main]
 async fn main() {
-    tracing_subscriber::registry()
-        .with(fmt::layer())
-        .with(EnvFilter::from_env("RUST_LOG"))
-        .init();
+    tracing_subscriber::fmt().init();
 
-    let bot = Bot::from_env_by_key("BOT_TOKEN");
+    let bot = Bot::from_env();
 
-    let mut router = TelersRouter::new("main");
-    router.message.register(echo_handler);
+    let router = TelersRouter::new("main")
+        .on_message(|observer| observer.register(Handler::new(echo_handler)));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
@@ -72,6 +66,7 @@ async fn run_server(app: AxumRouter, mut shutdown_rx: Receiver<()>) {
     let listener = TcpListener::bind(format!("{SERVER_HOST}:{SERVER_PORT}"))
         .await
         .unwrap();
+
     axum::serve(listener, app)
         .with_graceful_shutdown(async move {
             let _ = shutdown_rx.recv().await;

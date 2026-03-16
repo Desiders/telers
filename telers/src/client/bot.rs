@@ -14,7 +14,7 @@
 //!
 //! # Examples
 //! ```rust
-//! use telers::{Bot, methods::SendMessage};
+//! use telers::{methods::SendMessage, Bot};
 //!
 //! async fn call_method(bot: Bot) {
 //!     let chat_id = 1;
@@ -27,14 +27,16 @@
 //! You also can use [`Bot::send_with_timeout`] method to send requests with timeout:
 //!
 //! ```rust
-//! use telers::{Bot, methods::SendMessage};
+//! use telers::{methods::SendMessage, Bot};
 //!
 //! async fn call_method(bot: Bot) {
 //!     let chat_id = 1;
 //!     let text = "Hello, world!";
 //!     let timeout = 10.0; // 10 seconds
 //!
-//!     let _ = bot.send_with_timeout(SendMessage::new(chat_id, text), timeout).await;
+//!     let _ = bot
+//!         .send_with_timeout(SendMessage::new(chat_id, text), timeout)
+//!         .await;
 //! }
 //! ```
 //!
@@ -80,8 +82,8 @@ impl<Client> Bot<Client> {
     pub fn with_client(token: impl Into<String>, client: Client) -> Self {
         let token = token.into();
         let id = token::extract_bot_id(&token).expect(
-            "This bot token is invalid, please check it. \
-                If you test your bot, and you don't have a token, use `Bot::default` method instead of `Bot::new`.",
+            "This bot token is invalid, please check it. If you test your bot, and you don't have \
+             a token, use `Bot::default` method instead of `Bot::new`.",
         );
         let hidden_token = token::hide(&token);
 
@@ -156,14 +158,13 @@ impl<Client: Session> Bot<Client> {
     /// # Notes
     /// This method uses default timeout for requests, which is 30 seconds.
     /// If you want to use custom timeout, use [`Bot::send_with_timeout`] method.
-    pub async fn send<T, TRef>(&self, method: TRef) -> Result<T::Return, SessionErrorKind>
+    pub async fn send<T>(&self, method: T) -> Result<T::Return, SessionErrorKind>
     where
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync,
-        TRef: AsRef<T>,
     {
         self.client
-            .make_request_and_get_result(self, method.as_ref(), None)
+            .make_request_and_get_result(self, method, None)
             .await
     }
 
@@ -178,18 +179,17 @@ impl<Client: Session> Bot<Client> {
     /// # Notes
     /// This method uses passed timeout for requests.
     /// If you want to use default timeout, use [`Bot::send`] method.
-    pub async fn send_with_timeout<T, TRef>(
+    pub async fn send_with_timeout<T>(
         &self,
-        method: TRef,
+        method: T,
         request_timeout: f32,
     ) -> Result<T::Return, SessionErrorKind>
     where
         T: TelegramMethod + Send + Sync,
         T::Method: Send + Sync,
-        TRef: AsRef<T>,
     {
         self.client
-            .make_request_and_get_result(self, method.as_ref(), Some(request_timeout))
+            .make_request_and_get_result(self, method, Some(request_timeout))
             .await
     }
 }

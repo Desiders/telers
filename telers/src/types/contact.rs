@@ -1,20 +1,104 @@
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-
 /// This object represents a phone contact.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#contact>
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Contact {
     /// Contact's phone number
     pub phone_number: Box<str>,
     /// Contact's first name
     pub first_name: Box<str>,
     /// Contact's last name
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub last_name: Option<Box<str>>,
     /// Contact's user identifier in Telegram. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub user_id: Option<i64>,
-    /// Additional data about the contact in the form of a [`vCard`](https://en.wikipedia.org/wiki/VCard)
+    /// Additional data about the contact in the form of a vCard
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub vcard: Option<Box<str>>,
+}
+impl Contact {
+    /// Creates a new `Contact`.
+    ///
+    /// # Arguments
+    /// * `phone_number` - Contact's phone number
+    /// * `first_name` - Contact's first name
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
+    #[must_use]
+    pub fn new<T0: Into<Box<str>>, T1: Into<Box<str>>>(phone_number: T0, first_name: T1) -> Self {
+        Self {
+            phone_number: phone_number.into(),
+            first_name: first_name.into(),
+            last_name: None,
+            user_id: None,
+            vcard: None,
+        }
+    }
+
+    /// Contact's phone number
+    #[must_use]
+    pub fn phone_number<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.phone_number = val.into();
+        this
+    }
+
+    /// Contact's first name
+    #[must_use]
+    pub fn first_name<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.first_name = val.into();
+        this
+    }
+
+    /// Contact's last name
+    #[must_use]
+    pub fn last_name<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.last_name = Some(val.into());
+        this
+    }
+
+    /// Contact's last name
+    #[must_use]
+    pub fn last_name_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.last_name = val.map(Into::into);
+        this
+    }
+
+    /// Contact's user identifier in Telegram. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
+    #[must_use]
+    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.user_id = Some(val.into());
+        this
+    }
+
+    /// Contact's user identifier in Telegram. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
+    #[must_use]
+    pub fn user_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.user_id = val.map(Into::into);
+        this
+    }
+
+    /// Additional data about the contact in the form of a vCard
+    #[must_use]
+    pub fn vcard<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.vcard = Some(val.into());
+        this
+    }
+
+    /// Additional data about the contact in the form of a vCard
+    #[must_use]
+    pub fn vcard_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.vcard = val.map(Into::into);
+        this
+    }
 }

@@ -1,33 +1,36 @@
-use super::base::{Request, TelegramMethod};
-
 use crate::client::Bot;
-
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Upgrades a given regular gift to a unique gift. Requires the `can_transfer_and_upgrade_gifts` business bot right. Additionally requires the `can_transfer_stars` business bot right if the upgrade is paid.
+/// Upgrades a given regular gift to a unique gift. Requires the `can_transfer_and_upgrade_gifts` business bot right. Additionally requires the `can_transfer_stars` business bot right if the upgrade is paid. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#upgradegift>
 /// # Returns
-/// On success, `true` is returned
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct UpgradeGift {
     /// Unique identifier of the business connection
-    pub business_connection_id: String,
+    pub business_connection_id: Box<str>,
     /// Unique identifier of the regular gift that should be upgraded to a unique one
-    pub owned_gift_id: String,
+    pub owned_gift_id: Box<str>,
     /// Pass `true` to keep the original gift text, sender and receiver in the upgraded gift
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub keep_original_details: Option<bool>,
-    /// The amount of Telegram Stars that will be paid for the upgrade from the business account balance. If `gift.prepaid_upgrade_star_count > 0`, then pass `0`, otherwise, the `can_transfer_stars` business bot right is required and `gift.upgrade_star_count` must be passed.
+    /// The amount of Telegram Stars that will be paid for the upgrade from the business account balance. If `gift.prepaid_upgrade_star_count` > 0, then pass 0, otherwise, the `can_transfer_stars` business bot right is required and `gift.upgrade_star_count` must be passed.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub star_count: Option<i64>,
 }
-
 impl UpgradeGift {
+    /// Creates a new `UpgradeGift`.
+    ///
+    /// # Arguments
+    /// * `business_connection_id` - Unique identifier of the business connection
+    /// * `owned_gift_id` - Unique identifier of the regular gift that should be upgraded to a unique one
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(
-        business_connection_id: impl Into<String>,
-        owned_gift_id: impl Into<String>,
+    pub fn new<T0: Into<Box<str>>, T1: Into<Box<str>>>(
+        business_connection_id: T0,
+        owned_gift_id: T1,
     ) -> Self {
         Self {
             business_connection_id: business_connection_id.into(),
@@ -37,68 +40,59 @@ impl UpgradeGift {
         }
     }
 
+    /// Unique identifier of the business connection
     #[must_use]
-    pub fn business_connection_id(self, val: impl Into<String>) -> Self {
-        Self {
-            business_connection_id: val.into(),
-            ..self
-        }
+    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.business_connection_id = val.into();
+        this
     }
 
+    /// Unique identifier of the regular gift that should be upgraded to a unique one
     #[must_use]
-    pub fn owned_gift_id(self, val: impl Into<String>) -> Self {
-        Self {
-            owned_gift_id: val.into(),
-            ..self
-        }
+    pub fn owned_gift_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.owned_gift_id = val.into();
+        this
     }
 
+    /// Pass `true` to keep the original gift text, sender and receiver in the upgraded gift
     #[must_use]
-    pub fn keep_original_details(self, val: bool) -> Self {
-        Self {
-            keep_original_details: Some(val),
-            ..self
-        }
+    pub fn keep_original_details<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.keep_original_details = Some(val.into());
+        this
     }
 
+    /// Pass `true` to keep the original gift text, sender and receiver in the upgraded gift
     #[must_use]
-    pub fn star_count(self, val: i64) -> Self {
-        Self {
-            star_count: Some(val),
-            ..self
-        }
-    }
-}
-
-impl UpgradeGift {
-    #[must_use]
-    pub fn keep_original_details_option(self, val: Option<bool>) -> Self {
-        Self {
-            keep_original_details: val,
-            ..self
-        }
+    pub fn keep_original_details_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.keep_original_details = val.map(Into::into);
+        this
     }
 
+    /// The amount of Telegram Stars that will be paid for the upgrade from the business account balance. If `gift.prepaid_upgrade_star_count` > 0, then pass 0, otherwise, the `can_transfer_stars` business bot right is required and `gift.upgrade_star_count` must be passed.
     #[must_use]
-    pub fn star_count_option(self, val: Option<i64>) -> Self {
-        Self {
-            star_count: val,
-            ..self
-        }
+    pub fn star_count<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.star_count = Some(val.into());
+        this
+    }
+
+    /// The amount of Telegram Stars that will be paid for the upgrade from the business account balance. If `gift.prepaid_upgrade_star_count` > 0, then pass 0, otherwise, the `can_transfer_stars` business bot right is required and `gift.upgrade_star_count` must be passed.
+    #[must_use]
+    pub fn star_count_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.star_count = val.map(Into::into);
+        this
     }
 }
-
-impl TelegramMethod for UpgradeGift {
+impl super::TelegramMethod for UpgradeGift {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("upgradeGift", self, None)
-    }
-}
-
-impl AsRef<UpgradeGift> for UpgradeGift {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("upgradeGift", self, None)
     }
 }

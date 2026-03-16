@@ -1,87 +1,83 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::UserProfilePhotos};
-
+use crate::client::Bot;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Use this method to get a list of profile pictures for a user.
+/// Use this method to get a list of profile pictures for a user. Returns a [`crate::types::UserProfilePhotos`] object.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getuserprofilephotos>
 /// # Returns
-/// Returns a [`UserProfilePhotos`] object
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `crate::types::UserProfilePhotos`
+#[derive(Clone, Debug, Serialize)]
 pub struct GetUserProfilePhotos {
     /// Unique identifier of the target user
     pub user_id: i64,
     /// Sequential number of the first photo to be returned. By default, all photos are returned.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub offset: Option<i64>,
-    /// Limits the number of photos to be retrieved. Values between 1—100 are accepted. Defaults to 100.
-    pub limit: Option<i64>,
+    /// Limits the number of photos to be retrieved. Values between 1-100 are accepted. Defaults to 100.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit: Option<u8>,
 }
-
 impl GetUserProfilePhotos {
+    /// Creates a new `GetUserProfilePhotos`.
+    ///
+    /// # Arguments
+    /// * `user_id` - Unique identifier of the target user
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(user_id: i64) -> Self {
+    pub fn new<T0: Into<i64>>(user_id: T0) -> Self {
         Self {
-            user_id,
+            user_id: user_id.into(),
             offset: None,
             limit: None,
         }
     }
 
+    /// Unique identifier of the target user
     #[must_use]
-    pub fn user_id(self, val: i64) -> Self {
-        Self {
-            user_id: val,
-            ..self
-        }
+    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.user_id = val.into();
+        this
     }
 
+    /// Sequential number of the first photo to be returned. By default, all photos are returned.
     #[must_use]
-    pub fn offset(self, val: i64) -> Self {
-        Self {
-            offset: Some(val),
-            ..self
-        }
+    pub fn offset<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.offset = Some(val.into());
+        this
     }
 
+    /// Sequential number of the first photo to be returned. By default, all photos are returned.
     #[must_use]
-    pub fn limit(self, val: i64) -> Self {
-        Self {
-            limit: Some(val),
-            ..self
-        }
+    pub fn offset_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.offset = val.map(Into::into);
+        this
+    }
+
+    /// Limits the number of photos to be retrieved. Values between 1-100 are accepted. Defaults to 100.
+    #[must_use]
+    pub fn limit<T: Into<u8>>(self, val: T) -> Self {
+        let mut this = self;
+        this.limit = Some(val.into());
+        this
+    }
+
+    /// Limits the number of photos to be retrieved. Values between 1-100 are accepted. Defaults to 100.
+    #[must_use]
+    pub fn limit_option<T: Into<u8>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.limit = val.map(Into::into);
+        this
     }
 }
-
-impl GetUserProfilePhotos {
-    #[must_use]
-    pub fn offset_option(self, val: Option<i64>) -> Self {
-        Self {
-            offset: val,
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn limit_option(self, val: Option<i64>) -> Self {
-        Self { limit: val, ..self }
-    }
-}
-
-impl TelegramMethod for GetUserProfilePhotos {
+impl super::TelegramMethod for GetUserProfilePhotos {
     type Method = Self;
-    type Return = UserProfilePhotos;
+    type Return = crate::types::UserProfilePhotos;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("getUserProfilePhotos", self, None)
-    }
-}
-
-impl AsRef<GetUserProfilePhotos> for GetUserProfilePhotos {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("getUserProfilePhotos", self, None)
     }
 }

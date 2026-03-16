@@ -30,6 +30,7 @@ impl PartialEq for Memory {
 }
 
 impl Memory {
+    #[inline]
     #[must_use]
     pub fn new() -> Self {
         Self::default()
@@ -566,11 +567,15 @@ mod tests {
         let value1 = AOption {
             a: Some("a".to_owned()),
         };
-        let value2 = AOption { a: None };
+        let value2 = AOption {
+            a: None,
+        };
         let value3 = AOptionSkip {
             a: Some("a".to_owned()),
         };
-        let value4 = AOptionSkip { a: None };
+        let value4 = AOptionSkip {
+            a: None,
+        };
 
         storage
             .set_value(&key1, "key1", value1.clone())

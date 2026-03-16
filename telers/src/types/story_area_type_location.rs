@@ -1,63 +1,64 @@
-use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-use crate::types::LocationAddress;
-
+use serde::{Deserialize, Serialize};
 /// Describes a story area pointing to a location. Currently, a story can have up to 10 location areas.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#storyareatypelocation>
-#[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct StoryAreaTypeLocation {
     /// Location latitude in degrees
     pub latitude: f64,
     /// Location longitude in degrees
     pub longitude: f64,
     /// Address of the location
-    pub address: Option<LocationAddress>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub address: Option<crate::types::LocationAddress>,
 }
-
 impl StoryAreaTypeLocation {
+    /// Creates a new `StoryAreaTypeLocation`.
+    ///
+    /// # Arguments
+    /// * `latitude` - Location latitude in degrees
+    /// * `longitude` - Location longitude in degrees
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(latitude: f64, longitude: f64) -> Self {
+    pub fn new<T0: Into<f64>, T1: Into<f64>>(latitude: T0, longitude: T1) -> Self {
         Self {
-            latitude,
-            longitude,
+            latitude: latitude.into(),
+            longitude: longitude.into(),
             address: None,
         }
     }
 
+    /// Location latitude in degrees
     #[must_use]
-    pub fn latitude(self, val: f64) -> Self {
-        Self {
-            latitude: val,
-            ..self
-        }
+    pub fn latitude<T: Into<f64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.latitude = val.into();
+        this
     }
 
+    /// Location longitude in degrees
     #[must_use]
-    pub fn longitude(self, val: f64) -> Self {
-        Self {
-            longitude: val,
-            ..self
-        }
+    pub fn longitude<T: Into<f64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.longitude = val.into();
+        this
     }
 
+    /// Address of the location
     #[must_use]
-    pub fn address(self, val: LocationAddress) -> Self {
-        Self {
-            address: Some(val),
-            ..self
-        }
+    pub fn address<T: Into<crate::types::LocationAddress>>(self, val: T) -> Self {
+        let mut this = self;
+        this.address = Some(val.into());
+        this
     }
-}
 
-impl StoryAreaTypeLocation {
+    /// Address of the location
     #[must_use]
-    pub fn address_optional(self, val: Option<LocationAddress>) -> Self {
-        Self {
-            address: val,
-            ..self
-        }
+    pub fn address_option<T: Into<crate::types::LocationAddress>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.address = val.map(Into::into);
+        this
     }
 }

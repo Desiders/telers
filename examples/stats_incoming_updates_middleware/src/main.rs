@@ -3,9 +3,9 @@
 //! [`ProcessedHandlers`] middleware counter increments when a handler successfully processed.
 //! Every counterer is passes to the handler in the context.
 //!
-//! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
+//! You can run this example by setting `BOT_TOKEN` and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package stats_incoming_updates_middleware
+//! BOT_TOKEN={your_bot_token} cargo run --package stats_incoming_updates_middleware
 //! ```
 
 use std::sync::{
@@ -16,7 +16,7 @@ use telers::{
     enums::UpdateType,
     errors::EventErrorKind,
     event::{
-        telegram::{HandlerResponse, HandlerResult},
+        telegram::{Handler, HandlerResponse, HandlerResult},
         EventReturn,
     },
     methods::SendMessage,
@@ -24,8 +24,6 @@ use telers::{
     types::Update,
     Bot, Context, Dispatcher, Request, Router,
 };
-use tracing::{event, Level};
-use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
 #[derive(Default, Clone)]
 struct IncomingUpdates {
@@ -71,45 +69,30 @@ impl InnerMiddleware for ProcessedHandlers {
     }
 }
 
-async fn handler(bot: Bot, update: Update, context: Context) -> HandlerResult {
+async fn handler(bot: Bot, update: Update, context: Context) -> HandlerResult<()> {
     let text = format!(
         "Hello! Users sent me {} updates and I processed {} handlers successfully for them.",
         context.get::<usize>("incoming_updates_counter").unwrap(),
         context.get::<usize>("processed_handlers_counter").unwrap()
     );
-
     if let Some(chat) = update.chat() {
         bot.send(SendMessage::new(chat.id(), text)).await?;
     }
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    tracing_subscriber::registry()
-        .with(fmt::layer())
-        .with(EnvFilter::from_env("RUST_LOG"))
-        .init();
+    tracing_subscriber::fmt().init();
 
-    let bot = Bot::from_env_by_key("BOT_TOKEN");
+    let bot = Bot::from_env();
 
-    let mut router = Router::new("main");
-    // Register outer middleware for update
-    router
-        .update
-        .outer_middlewares
-        .register(IncomingUpdates::default());
-    // Register inner middleware for all telegram observers
-    router
-        .telegram_observers_mut()
-        .iter_mut()
-        .for_each(|observer| {
-            observer
-                .inner_middlewares
-                .register(ProcessedHandlers::default());
-        });
-    router.message.register(handler);
+    let router = Router::new("main")
+        // Register inner middleware for all telegram observers
+        .on_all(|observer| observer.register_inner_middleware(ProcessedHandlers::default()))
+        // Register outer middleware for update
+        .on_update(|observer| observer.register_outer_middleware(IncomingUpdates::default()))
+        .on_message(|observer| observer.register(Handler::new(handler)));
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
@@ -118,7 +101,7 @@ async fn main() {
         .build();
 
     match dispatcher.run_polling().await {
-        Ok(()) => event!(Level::INFO, "Bot stopped"),
-        Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
+        Ok(()) => tracing::info!("Bot stopped"),
+        Err(err) => tracing::error!(error = %err, "Bot stopped"),
     }
 }

@@ -116,11 +116,14 @@ where
             };
             let update = match serde_json::from_str::<Either<Update, UpdateUnparsed>>(&update_raw) {
                 Ok(Left(update)) => update,
-                Ok(Right(UpdateUnparsed { id, value })) => {
+                Ok(Right(UpdateUnparsed {
+                    update_id,
+                    extra,
+                })) => {
                     event!(
                         Level::ERROR,
-                        update_id = id,
-                        update = ?value,
+                        update_id,
+                        ?extra,
                         "Failed to parse update kind",
                     );
                     return StatusCode::OK.into_response();
@@ -130,7 +133,11 @@ where
                     return StatusCode::UNPROCESSABLE_ENTITY.into_response();
                 }
             };
-            event!(Level::DEBUG, update_id = update.id, "Received update",);
+            event!(
+                Level::DEBUG,
+                update_id = update.update_id(),
+                "Received update",
+            );
 
             let update = Arc::new(update);
 

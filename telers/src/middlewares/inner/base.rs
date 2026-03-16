@@ -83,7 +83,7 @@ where
         Box::pin(async move {
             let Some((middleware, middlewares)) = middlewares.split_first_mut() else {
                 return match handler.call(request).await {
-                    Ok(response) => match response.handler_result {
+                    Ok(response) => match response.result {
                         Ok(_) => Ok(response),
                         // If handler returns an error, then wrap it to event error
                         Err(err) => Err(EventErrorKind::Handler(err)),
@@ -103,12 +103,11 @@ where
     })
 }
 
-pub(crate) fn boxed_middleware_factory<Client, M>(
-    middleware: M,
+pub(crate) fn boxed_middleware_factory<Client>(
+    middleware: impl Middleware<Client>,
 ) -> BoxedCloneMiddlewareService<Client>
 where
     Client: Send + Sync + 'static,
-    M: Middleware<Client>,
 {
     BoxCloneService::new(service_fn(move |(request, next)| {
         let mut middleware = middleware.clone();
@@ -123,7 +122,8 @@ mod tests {
     use crate::{
         client::Reqwest,
         event::{telegram::handler::boxed_handler_factory, EventReturn},
-        types::{Message, Update, UpdateKind},
+        types::{ChatPrivate, MessageText, Update, UpdateMessage},
+        Bot, Extensions,
     };
 
     use std::{convert::Infallible, sync::Arc};
@@ -141,11 +141,13 @@ mod tests {
             boxed_handler_factory(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
 
         let request = Request::<Reqwest> {
-            update: Arc::new(Update {
-                id: 0,
-                kind: UpdateKind::Message(Message::default()),
-            }),
-            ..Default::default()
+            update: Arc::new(Update::Message(UpdateMessage::new(
+                0,
+                MessageText::new(0, 0, ChatPrivate::new(0), ""),
+            ))),
+            bot: Bot::default(),
+            context: crate::Context::default(),
+            extensions: Extensions::default(),
         };
         let response = Middleware::call(
             &mut test_middleware,
@@ -155,7 +157,7 @@ mod tests {
         .await
         .unwrap();
 
-        match response.handler_result {
+        match response.result {
             Ok(EventReturn::Finish) => {}
             _ => panic!("Unexpected response"),
         }

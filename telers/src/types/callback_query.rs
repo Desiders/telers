@@ -1,107 +1,143 @@
-use super::{InaccessibleMessage, MaybeInaccessibleMessage, Update, UpdateKind, User};
-
-use crate::{errors::ConvertToTypeError, FromEvent};
-
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-
-/// This object represents an incoming callback query from a callback button in an [`inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards). If the button that originated the query was attached to a message sent by the bot, the field `message` will be present. If the button was attached to a message sent via the bot (in [`inline mode`](https://core.telegram.org/bots/api#inline-mode)), the field `inline_message_id` will be present. Exactly one of the fields *data* or `game_short_name` will be present.
-/// **NOTE:** After the user presses a callback button, Telegram clients will display a progress bar until you call [`AnswerCallbackQuery`](crate::methods::AnswerCallbackQuery). It is, therefore, necessary to react by calling [`AnswerCallbackQuery`](crate::methods::AnswerCallbackQuery) even if no notification to the user is needed (e.g., without specifying any of the optional parameters).
+/// This object represents an incoming callback query from a callback button in an inline keyboard. If the button that originated the query was attached to a message sent by the bot, the field message will be present. If the button was attached to a message sent via the bot (in inline mode), the field `inline_message_id` will be present. Exactly one of the fields data or `game_short_name` will be present.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#callbackquery>
-#[skip_serializing_none]
-#[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize, FromEvent)]
-#[event(try_from = Update)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CallbackQuery {
     /// Unique identifier for this query
     pub id: Box<str>,
     /// Sender
-    pub from: User,
-    /// Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent. Useful for high scores in [`games`](https://core.telegram.org/bots/api#games).
-    pub chat_instance: Box<str>,
+    pub from: Box<crate::types::User>,
     /// Message sent by the bot with the callback button that originated the query
-    pub message: Option<MaybeInaccessibleMessage>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<Box<crate::types::MaybeInaccessibleMessage>>,
     /// Identifier of the message sent via the bot in inline mode, that originated the query.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub inline_message_id: Option<Box<str>>,
+    /// Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent. Useful for high scores in games.
+    pub chat_instance: Box<str>,
     /// Data associated with the callback button. Be aware that the message originated the query can contain no callback buttons with this data.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub data: Option<Box<str>>,
-    /// Short name of a [`Game`](https://core.telegram.org/bots/api#games) to be returned, serves as the unique identifier for the game
+    /// Short name of a Game to be returned, serves as the unique identifier for the game
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub game_short_name: Option<Box<str>>,
 }
-
 impl CallbackQuery {
+    /// Creates a new `CallbackQuery`.
+    ///
+    /// # Arguments
+    /// * `id` - Unique identifier for this query
+    /// * `from` - Sender
+    /// * `chat_instance` - Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent. Useful for high scores in games.
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub const fn chat_id(&self) -> Option<i64> {
-        if let Some(message) = &self.message {
-            match message {
-                MaybeInaccessibleMessage::Message(message) => Some(message.chat().id()),
-                MaybeInaccessibleMessage::InaccessibleMessage(InaccessibleMessage {
-                    chat, ..
-                }) => Some(chat.id()),
-            }
-        } else {
-            None
+    pub fn new<T0: Into<Box<str>>, T1: Into<crate::types::User>, T2: Into<Box<str>>>(
+        id: T0,
+        from: T1,
+        chat_instance: T2,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            from: Box::new(from.into()),
+            message: None,
+            inline_message_id: None,
+            chat_instance: chat_instance.into(),
+            data: None,
+            game_short_name: None,
         }
     }
 
+    /// Unique identifier for this query
     #[must_use]
-    pub const fn message_id(&self) -> Option<i64> {
-        if let Some(message) = &self.message {
-            match message {
-                MaybeInaccessibleMessage::Message(message) => Some(message.id()),
-                MaybeInaccessibleMessage::InaccessibleMessage(InaccessibleMessage {
-                    id, ..
-                }) => Some(*id),
-            }
-        } else {
-            None
-        }
+    pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.id = val.into();
+        this
     }
 
+    /// Sender
     #[must_use]
-    pub fn message_text(&self) -> Option<&str> {
-        if let Some(message) = &self.message {
-            match message {
-                MaybeInaccessibleMessage::Message(message) => message.text(),
-                MaybeInaccessibleMessage::InaccessibleMessage(_) => None,
-            }
-        } else {
-            None
-        }
+    pub fn from<T: Into<crate::types::User>>(self, val: T) -> Self {
+        let mut this = self;
+        this.from = Box::new(val.into());
+        this
     }
 
+    /// Message sent by the bot with the callback button that originated the query
     #[must_use]
-    pub fn message_caption(&self) -> Option<&str> {
-        if let Some(message) = &self.message {
-            match message {
-                MaybeInaccessibleMessage::Message(message) => message.caption(),
-                MaybeInaccessibleMessage::InaccessibleMessage(_) => None,
-            }
-        } else {
-            None
-        }
+    pub fn message<T: Into<crate::types::MaybeInaccessibleMessage>>(self, val: T) -> Self {
+        let mut this = self;
+        this.message = Some(Box::new(val.into()));
+        this
     }
 
+    /// Message sent by the bot with the callback button that originated the query
     #[must_use]
-    pub fn message_text_or_caption(&self) -> Option<&str> {
-        if let Some(message) = &self.message {
-            match message {
-                MaybeInaccessibleMessage::Message(message) => message.text_or_caption(),
-                MaybeInaccessibleMessage::InaccessibleMessage(_) => None,
-            }
-        } else {
-            None
-        }
+    pub fn message_option<T: Into<crate::types::MaybeInaccessibleMessage>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.message = val.map(|val| Box::new(val.into()));
+        this
     }
-}
 
-impl TryFrom<Update> for CallbackQuery {
-    type Error = ConvertToTypeError;
+    /// Identifier of the message sent via the bot in inline mode, that originated the query.
+    #[must_use]
+    pub fn inline_message_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.inline_message_id = Some(val.into());
+        this
+    }
 
-    fn try_from(update: Update) -> Result<Self, Self::Error> {
-        match update.kind {
-            UpdateKind::CallbackQuery(val) => Ok(val),
-            _ => Err(ConvertToTypeError::new("Update", "CallbackQuery")),
-        }
+    /// Identifier of the message sent via the bot in inline mode, that originated the query.
+    #[must_use]
+    pub fn inline_message_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.inline_message_id = val.map(Into::into);
+        this
+    }
+
+    /// Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent. Useful for high scores in games.
+    #[must_use]
+    pub fn chat_instance<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.chat_instance = val.into();
+        this
+    }
+
+    /// Data associated with the callback button. Be aware that the message originated the query can contain no callback buttons with this data.
+    #[must_use]
+    pub fn data<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.data = Some(val.into());
+        this
+    }
+
+    /// Data associated with the callback button. Be aware that the message originated the query can contain no callback buttons with this data.
+    #[must_use]
+    pub fn data_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.data = val.map(Into::into);
+        this
+    }
+
+    /// Short name of a Game to be returned, serves as the unique identifier for the game
+    #[must_use]
+    pub fn game_short_name<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.game_short_name = Some(val.into());
+        this
+    }
+
+    /// Short name of a Game to be returned, serves as the unique identifier for the game
+    #[must_use]
+    pub fn game_short_name_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.game_short_name = val.map(Into::into);
+        this
     }
 }

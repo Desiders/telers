@@ -1,59 +1,55 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::ChatIdKind};
-
+use crate::client::Bot;
 use serde::Serialize;
-
-/// Use this method to decline a chat join request. The bot must be an administrator in the chat for this to work and must have the `can_invite_users` administrator right.
+/// Use this method to decline a chat join request. The bot must be an administrator in the chat for this to work and must have the `can_invite_users` administrator right. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#declinechatjoinrequest>
 /// # Returns
-/// On success, `true` is returned
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct DeclineChatJoinRequest {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
-    pub chat_id: ChatIdKind,
+    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier of the target user
     pub user_id: i64,
 }
-
 impl DeclineChatJoinRequest {
+    /// Creates a new `DeclineChatJoinRequest`.
+    ///
+    /// # Arguments
+    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// * `user_id` - Unique identifier of the target user
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>, user_id: i64) -> Self {
+    pub fn new<T0: Into<crate::types::ChatIdKind>, T1: Into<i64>>(
+        chat_id: T0,
+        user_id: T1,
+    ) -> Self {
         Self {
             chat_id: chat_id.into(),
-            user_id,
+            user_id: user_id.into(),
         }
     }
 
+    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
     #[must_use]
-    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
-        Self {
-            chat_id: val.into(),
-            ..self
-        }
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
+        let mut this = self;
+        this.chat_id = val.into();
+        this
     }
 
+    /// Unique identifier of the target user
     #[must_use]
-    pub fn user_id(self, val: i64) -> Self {
-        Self {
-            user_id: val,
-            ..self
-        }
+    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.user_id = val.into();
+        this
     }
 }
-
-impl TelegramMethod for DeclineChatJoinRequest {
+impl super::TelegramMethod for DeclineChatJoinRequest {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("declineChatJoinRequest", self, None)
-    }
-}
-
-impl AsRef<DeclineChatJoinRequest> for DeclineChatJoinRequest {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("declineChatJoinRequest", self, None)
     }
 }

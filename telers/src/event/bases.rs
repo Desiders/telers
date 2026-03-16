@@ -1,5 +1,4 @@
-use super::telegram::handler::Response;
-
+use super::telegram::response::Response;
 use crate::errors::HandlerError;
 
 use std::fmt::{self, Debug, Display, Formatter};
@@ -26,25 +25,29 @@ impl Display for EventReturn {
     }
 }
 
-/// Shortcut for [`Ok(EventReturn::Skip)`]
+/// Shortcut for `Ok(EventReturn::Skip)`
+#[inline]
 #[allow(clippy::missing_errors_doc)]
 pub const fn skip_event() -> Result<EventReturn, HandlerError> {
     Ok(EventReturn::Skip)
 }
 
-/// Shortcut for [`Ok(EventReturn::Cancel)`]
+/// Shortcut for `Ok(EventReturn::Cancel)`
+#[inline]
 #[allow(clippy::missing_errors_doc)]
 pub const fn cancel_event() -> Result<EventReturn, HandlerError> {
     Ok(EventReturn::Cancel)
 }
 
-/// Shortcut for [`Ok(EventReturn::Finish)`]
+/// Shortcut for `Ok(EventReturn::Finish)`
+#[inline]
 #[allow(clippy::missing_errors_doc)]
 pub const fn finish_event() -> Result<EventReturn, HandlerError> {
     Ok(EventReturn::Finish)
 }
 
 impl From<()> for EventReturn {
+    #[inline]
     fn from(_value: ()) -> Self {
         EventReturn::default()
     }
@@ -66,7 +69,9 @@ impl<Client> Debug for PropagateEventResult<Client> {
         match self {
             Self::Rejected => write!(f, "PropagateEventResult::Rejected"),
             Self::Unhandled => write!(f, "PropagateEventResult::Unhandled"),
-            Self::Handled(response) => write!(f, "PropagateEventResult::Handled({response:?})"),
+            Self::Handled(response) => {
+                write!(f, "PropagateEventResult::Handled({response:?})")
+            }
         }
     }
 }

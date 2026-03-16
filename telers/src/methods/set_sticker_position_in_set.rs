@@ -1,59 +1,52 @@
-use super::base::{Request, TelegramMethod};
-
 use crate::client::Bot;
-
 use serde::Serialize;
-
-/// Use this method to move a sticker in a set created by the bot to a specific position
+/// Use this method to move a sticker in a set created by the bot to a specific position. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setstickerpositioninset>
 /// # Returns
-/// On success, `true` is returned
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct SetStickerPositionInSet {
     /// File identifier of the sticker
-    pub sticker: String,
+    pub sticker: Box<str>,
     /// New sticker position in the set, zero-based
     pub position: i64,
 }
-
 impl SetStickerPositionInSet {
+    /// Creates a new `SetStickerPositionInSet`.
+    ///
+    /// # Arguments
+    /// * `sticker` - File identifier of the sticker
+    /// * `position` - New sticker position in the set, zero-based
     #[must_use]
-    pub fn new(sticker: impl Into<String>, position: i64) -> Self {
+    pub fn new<T0: Into<Box<str>>, T1: Into<i64>>(sticker: T0, position: T1) -> Self {
         Self {
             sticker: sticker.into(),
-            position,
+            position: position.into(),
         }
     }
 
+    /// File identifier of the sticker
     #[must_use]
-    pub fn sticker(self, val: impl Into<String>) -> Self {
-        Self {
-            sticker: val.into(),
-            ..self
-        }
+    pub fn sticker<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.sticker = val.into();
+        this
     }
 
+    /// New sticker position in the set, zero-based
     #[must_use]
-    pub fn position(self, val: i64) -> Self {
-        Self {
-            position: val,
-            ..self
-        }
+    pub fn position<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.position = val.into();
+        this
     }
 }
-
-impl TelegramMethod for SetStickerPositionInSet {
+impl super::TelegramMethod for SetStickerPositionInSet {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("setStickerPositionInSet", self, None)
-    }
-}
-
-impl AsRef<SetStickerPositionInSet> for SetStickerPositionInSet {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("setStickerPositionInSet", self, None)
     }
 }

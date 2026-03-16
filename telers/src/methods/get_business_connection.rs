@@ -1,49 +1,40 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::BusinessConnection};
-
+use crate::client::Bot;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Use this method to get information about the connection of the bot with a business account
+/// Use this method to get information about the connection of the bot with a business account. Returns a [`crate::types::BusinessConnection`] object on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#getbusinessconnection>
 /// # Returns
-/// Returns [`BusinessConnection`] on success
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `crate::types::BusinessConnection`
+#[derive(Clone, Debug, Serialize)]
 pub struct GetBusinessConnection {
     /// Unique identifier of the business connection
-    pub business_connection_id: String,
+    pub business_connection_id: Box<str>,
 }
-
 impl GetBusinessConnection {
+    /// Creates a new `GetBusinessConnection`.
+    ///
+    /// # Arguments
+    /// * `business_connection_id` - Unique identifier of the business connection
     #[must_use]
-    pub fn new(business_connection_id: impl Into<String>) -> Self {
+    pub fn new<T0: Into<Box<str>>>(business_connection_id: T0) -> Self {
         Self {
             business_connection_id: business_connection_id.into(),
         }
     }
 
+    /// Unique identifier of the business connection
     #[must_use]
-    pub fn business_connection_id(self, val: impl Into<String>) -> Self {
-        Self {
-            business_connection_id: val.into(),
-        }
+    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.business_connection_id = val.into();
+        this
     }
 }
-
-impl TelegramMethod for GetBusinessConnection {
+impl super::TelegramMethod for GetBusinessConnection {
     type Method = Self;
-    type Return = BusinessConnection;
+    type Return = crate::types::BusinessConnection;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("getBusinessConnection", self, None)
-    }
-}
-
-impl AsRef<GetBusinessConnection> for GetBusinessConnection {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("getBusinessConnection", self, None)
     }
 }

@@ -24,6 +24,7 @@ pub struct FSMContext<S> {
 }
 
 impl<S> FSMContext<S> {
+    #[inline]
     #[must_use]
     pub fn new(storage: S) -> Self {
         Self {
@@ -33,6 +34,7 @@ impl<S> FSMContext<S> {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn strategy(self, val: Strategy) -> Self {
         Self {
@@ -41,6 +43,7 @@ impl<S> FSMContext<S> {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn destiny(self, val: &'static str) -> Self {
         Self {
@@ -54,6 +57,7 @@ impl<S> Default for FSMContext<S>
 where
     S: Default,
 {
+    #[inline]
     fn default() -> Self {
         Self {
             storage: S::default(),

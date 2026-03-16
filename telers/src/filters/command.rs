@@ -1,4 +1,4 @@
-use super::base::Filter;
+use super::{Filter, FilterResult};
 use crate::{
     client::{Bot, Session},
     errors::SessionErrorKind,
@@ -13,11 +13,11 @@ use tracing::{event, instrument, Level};
 
 /// Represents a command pattern type for verification
 /// # Variants
-/// * [`PatternType::Text(Cow<str>)`] - A command pattern with text
-/// * [`PatternType::Object(BotCommand)`] -
+/// * `PatternType::Text(Cow<str>)` - A command pattern with text
+/// * `PatternType::Object(BotCommand)` -
 ///   A command pattern with [`BotCommand`] object. \
-///   Just a shortcut for [`PatternType::Text(command.command)`].
-/// * [`PatternType::Regex(Regex)`] -
+///   Just a shortcut for `PatternType::Text(command.command)`.
+/// * `PatternType::Regex(Regex)` -
 ///   A command pattern with regex, compiled with [`Regex`] struct. \
 ///   If filter used with `ignore_case` flag, then the regex will be compiled with `(?i)` flag (ignore case sensitive flag).
 #[derive(Debug, Clone)]
@@ -28,24 +28,28 @@ pub enum PatternType {
 }
 
 impl From<Cow<'static, str>> for PatternType {
+    #[inline]
     fn from(text: Cow<'static, str>) -> Self {
         Self::Text(text)
     }
 }
 
 impl From<&'static str> for PatternType {
+    #[inline]
     fn from(text: &'static str) -> Self {
         Self::Text(Cow::Borrowed(text))
     }
 }
 
 impl From<BotCommand> for PatternType {
+    #[inline]
     fn from(command: BotCommand) -> Self {
         Self::Object(command)
     }
 }
 
 impl From<Regex> for PatternType {
+    #[inline]
     fn from(regex: Regex) -> Self {
         Self::Regex(regex)
     }
@@ -58,7 +62,7 @@ impl From<Regex> for PatternType {
 ///
 /// # Notes
 /// You can use parsed command using [`CommandObject`] struct in handler arguments,
-/// or get it from [`Context`] by `command` key.
+/// or get it from [`crate::context::Context`] by `command` key.
 #[derive(Debug, Clone)]
 pub struct Command {
     /// List of commands ([`Cow`], [`BotCommand`] or compiled [`Regex`] patterns)
@@ -114,7 +118,9 @@ impl Command {
                 .map(|command| match command.into() {
                     PatternType::Text(text) => PatternType::Text(text),
                     // We convert object to text, because this pattern type is just a shortcut for text
-                    PatternType::Object(command) => PatternType::Text(command.command.into()),
+                    PatternType::Object(command) => {
+                        PatternType::Text(Cow::Owned(command.command.into_string()))
+                    }
                     PatternType::Regex(regex) => {
                         if ignore_mention {
                             event!(Level::WARN, "Ignore mention flag doesn't work with regexes");
@@ -138,6 +144,7 @@ impl Command {
     /// # Notes
     /// - This method is just a shortcut to create a filter using the builder
     /// - By default, the prefix is `/`. If you want to change it, use [`Command::one_with_prefix`] instead.
+    #[inline]
     #[must_use]
     pub fn one(command: impl Into<PatternType>) -> Self {
         Self::builder().command(command).build()
@@ -147,6 +154,7 @@ impl Command {
     /// # Notes
     /// - This method is just a shortcut to create a filter using the builder.
     /// - By default, the prefix is `/`, so you can use [`Command::one`] instead. Use this method if you want to change the it.
+    #[inline]
     #[must_use]
     pub fn one_with_prefix(command: impl Into<PatternType>, prefix: char) -> Self {
         Self::builder().command(command).prefix(prefix).build()
@@ -156,6 +164,7 @@ impl Command {
     /// # Notes
     /// - This method is just a shortcut to create a filter using the builder
     /// - By default, the prefix is `/`. If you want to change it, use [`Command::many_with_prefix`] instead.
+    #[inline]
     #[must_use]
     pub fn many<T, I>(commands: I) -> Self
     where
@@ -169,6 +178,7 @@ impl Command {
     /// # Notes
     /// - This method is just a shortcut to create a filter using the builder
     /// - By default, the prefix is `/`, so you can use [`Command::many`] instead. Use this method if you want to change the it.
+    #[inline]
     #[must_use]
     pub fn many_with_prefix<T, I>(commands: I, prefix: char) -> Self
     where
@@ -178,6 +188,7 @@ impl Command {
         Self::builder().commands(commands).prefix(prefix).build()
     }
 
+    #[inline]
     #[must_use]
     pub fn builder() -> Builder {
         Builder::new()
@@ -185,6 +196,7 @@ impl Command {
 }
 
 impl Default for Command {
+    #[inline]
     fn default() -> Self {
         Self {
             commands: vec![],
@@ -204,6 +216,7 @@ pub struct Builder {
 }
 
 impl Builder {
+    #[inline]
     #[must_use]
     pub fn new() -> Builder {
         Self::default()
@@ -233,6 +246,7 @@ impl Builder {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn prefix(self, val: char) -> Self {
         Self {
@@ -241,6 +255,7 @@ impl Builder {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn ignore_case(self, val: bool) -> Self {
         Self {
@@ -249,6 +264,7 @@ impl Builder {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn ignore_mention(self, val: bool) -> Self {
         Self {
@@ -257,6 +273,7 @@ impl Builder {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn build(self) -> Command {
         Command::new(
@@ -269,6 +286,7 @@ impl Builder {
 }
 
 impl Default for Builder {
+    #[inline]
     fn default() -> Self {
         Self {
             commands: vec![],
@@ -280,6 +298,7 @@ impl Default for Builder {
 }
 
 impl Command {
+    #[inline]
     #[must_use]
     pub fn validate_prefix(&self, command: &CommandObject) -> bool {
         command.prefix == self.prefix
@@ -327,7 +346,10 @@ impl Command {
                     }
                 }
                 PatternType::Object(_) => {
-                    unreachable!("`PatternType::Object` should be converted to `PatternType::Text` before validation")
+                    unreachable!(
+                        "`PatternType::Object` should be converted to `PatternType::Text` before \
+                         validation"
+                    )
                 }
             }
         }
@@ -353,7 +375,8 @@ impl Command {
 #[derive(Debug, Clone, Hash, PartialEq, Eq, FromContext)]
 #[context(
     key = "command",
-    description = "Parsed command object. This type is available only if the command filter is used and filer is passed."
+    description = "Parsed command object. This type is available only if the command filter is \
+                   used and filer is passed."
 )]
 pub struct CommandObject {
     /// Command without prefix and mention
@@ -418,30 +441,32 @@ impl<Client> Filter<Client> for Command
 where
     Client: Session + 'static,
 {
+    type Error = SessionErrorKind;
+
     #[instrument]
-    async fn check(&mut self, request: &mut Request<Client>) -> bool {
+    async fn check(&mut self, request: &mut Request<Client>) -> FilterResult<Self::Error> {
         let Some(message) = request.update.message() else {
-            return false;
+            return Ok(false);
         };
-        let Some(text) = message.text_or_caption() else {
-            return false;
+        let Some(text) = message.text().or(message.caption()) else {
+            return Ok(false);
         };
         let Some(command) = CommandObject::extract(text) else {
-            return false;
+            return Ok(false);
         };
 
         match self.validate_command_object(&command, &request.bot).await {
             Ok(result) => {
                 if result {
                     request.context.insert("command", command);
-                    true
+                    Ok(true)
                 } else {
-                    false
+                    Ok(false)
                 }
             }
             Err(err) => {
                 event!(Level::ERROR, error = %err, "Failed to validate command object");
-                false
+                Err(err)
             }
         }
     }

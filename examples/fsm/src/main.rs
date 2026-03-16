@@ -5,36 +5,36 @@
 //! finish conversation.
 //!
 //! In this example we will use [`MemoryStorage`] as storage for [`FSMContextMiddleware`], but you can use any storage,
-//! which implements [`Storage`] trait.
+//! which implements `Storage` trait.
 //! This storage isn't recommended for production use, because it doesn't persist data between restarts, but it's
 //! useful for testing and example purposes and easy to use.
 //! We the same use [`StateFilter`] to filter states and call handlers only when state is equal to some value.
 //!
 //! More information about FSM you can find in [`telers::fsm`] and [`FSMContextMiddleware`] documentation.
 //!
-//! You can run this example by setting `BOT_TOKEN` and optional `RUST_LOG` environment variable and running:
+//! You can run this example by setting `BOT_TOKEN` and running:
 //! ```bash
-//! RUST_LOG={log_level} BOT_TOKEN={your_bot_token} cargo run --package fsm
+//! BOT_TOKEN={your_bot_token} cargo run --package fsm
 //! ```
 
 use telers::{
-    enums::ContentType::Text,
-    enums::UpdateType,
-    event::{telegram::HandlerResult, EventReturn},
-    filters::{Command, ContentType, State as StateFilter},
-    fsm::{Context as FSMContext, MemoryStorage, Storage, Strategy::UserInChat},
+    enums::{MessageType::Text, UpdateType},
+    event::telegram::{Handler, HandlerResult},
+    filters::{Command, MessageType, State as StateFilter},
+    fsm::{Context as FSMContext, MemoryStorage, Strategy::UserInChat},
     methods::SendMessage,
     middlewares::outer::FSMContext as FSMContextMiddleware,
     types::{Message, MessageText},
     Bot, Dispatcher, Router,
 };
-use tracing::{event, Level};
-use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
+
+/// Shorthand for the FSM context with in-memory storage. Replace `MemoryStorage` with your own `Storage` impl if needed.
+type Fsm = FSMContext<MemoryStorage>;
 
 /// State of conversation.
 ///
-/// We use it to determine what we should ask user next and implement [`From<State>`] for [`Cow<'static, str>`]
-/// for possible save this state in [`Storage`].
+/// We use it to determine what we should ask user next and implement [`From<State>`] for [`str`]
+/// for possible save this state in `Storage`.
 /// We also implement [`PartialEq<&str>`] for comparing states with other in [`StateFilter`].
 #[derive(Clone)]
 enum State {
@@ -59,11 +59,7 @@ impl PartialEq<&str> for State {
     }
 }
 
-async fn start_handler<S: Storage>(
-    bot: Bot,
-    message: Message,
-    fsm: FSMContext<S>,
-) -> HandlerResult {
+async fn start_handler(bot: Bot, message: Message, fsm: Fsm) -> HandlerResult<()> {
     bot.send(SendMessage::new(
         message.chat().id(),
         "Hello! What's your name?",
@@ -73,24 +69,18 @@ async fn start_handler<S: Storage>(
     // We set state to `State::Name` to point that we are waiting for user's name.
     // `name_handler` will be called when user will send message,
     // because we set `State::Name` as state and this handler is registered for this state
-    fsm.set_state(State::Name).await.map_err(Into::into)?;
+    fsm.set_state(State::Name).await?;
 
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
-async fn name_handler<S: Storage>(
-    bot: Bot,
-    message: MessageText,
-    fsm: FSMContext<S>,
-) -> HandlerResult {
+async fn name_handler(bot: Bot, message: MessageText, fsm: Fsm) -> HandlerResult<()> {
     let name = message.text;
 
     // Save name to FSM storage, because we will need it in `language_handler`
-    fsm.set_value("name", name.clone())
-        .await
-        .map_err(Into::into)?;
+    fsm.set_value("name", name.clone()).await?;
     // Set state to `State::Language` to point that we are waiting for user's language
-    fsm.set_state(State::Language).await.map_err(Into::into)?;
+    fsm.set_state(State::Language).await?;
 
     // Usually state and data set to FSM storage before sending message to user,
     // because we want to be sure that we will receive message from user in the same state
@@ -102,23 +92,15 @@ async fn name_handler<S: Storage>(
     ))
     .await?;
 
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
-async fn language_handler<S: Storage>(
-    bot: Bot,
-    message: MessageText,
-    fsm: FSMContext<S>,
-) -> HandlerResult {
+async fn language_handler(bot: Bot, message: MessageText, fsm: Fsm) -> HandlerResult<()> {
     let language = message.text;
 
     // Get user's name from FSM storage
     // TODO: Add validation, e.g. check that name isn't empty
-    let name: Box<str> = fsm
-        .get_value("name")
-        .await
-        .map_err(Into::into)?
-        .expect("Name should be set");
+    let name: Box<str> = fsm.get_value("name").await?.expect("Name should be set");
 
     // Check if user's language is acceptable
     match language.to_lowercase().as_str() {
@@ -130,7 +112,7 @@ async fn language_handler<S: Storage>(
             .await?;
 
             // Remove state and data from FSM storage, because we don't need them anymore
-            fsm.finish().await.map_err(Into::into)?;
+            fsm.finish().await?;
         }
         _ => {
             bot.send(SendMessage::new(
@@ -140,48 +122,40 @@ async fn language_handler<S: Storage>(
             .await?;
 
             // We don't need this, because `State::Language` is already set and doesn't change automatically
-            // fsm.set_state(State::Language).await.map_err(Into::into)?;
+            // fsm.set_state(State::Language).await?;
         }
     }
-
-    Ok(EventReturn::Finish)
+    Ok(())
 }
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    tracing_subscriber::registry()
-        .with(fmt::layer())
-        .with(EnvFilter::from_env("RUST_LOG"))
-        .init();
+    tracing_subscriber::fmt().init();
 
-    let bot = Bot::from_env_by_key("BOT_TOKEN");
+    let bot = Bot::from_env();
 
     // You can use any storage, which implements `Storage` trait
     let storage = MemoryStorage::new();
 
-    let mut router = Router::new("main");
-
-    // Register fsm middleware for possible managing states and fsm data (e.g. user's name and language for this example)
-    router
-        .update
-        .outer_middlewares
-        .register(FSMContextMiddleware::new(storage).strategy(UserInChat));
-
-    router
-        .message
-        .register(start_handler::<MemoryStorage>)
-        .filter(Command::one("start"))
-        .filter(StateFilter::none());
-    router
-        .message
-        .register(name_handler::<MemoryStorage>)
-        .filter(ContentType::one(Text))
-        .filter(StateFilter::one(State::Name));
-    router
-        .message
-        .register(language_handler::<MemoryStorage>)
-        .filter(ContentType::one(Text))
-        .filter(StateFilter::one(State::Language));
+    let router = Router::new("main")
+        // Register fsm middleware for possible managing states and fsm data (e.g. user's name and language for this example)
+        .on_update(|observer| {
+            observer
+                .register_outer_middleware(FSMContextMiddleware::new(storage).strategy(UserInChat))
+        })
+        .on_message(|observer| {
+            observer.registers([
+                Handler::new(start_handler)
+                    .filter(Command::one("start"))
+                    .filter(StateFilter::none()),
+                Handler::new(name_handler)
+                    .filter(MessageType::one(Text))
+                    .filter(StateFilter::one(State::Name)),
+                Handler::new(language_handler)
+                    .filter(MessageType::one(Text))
+                    .filter(StateFilter::one(State::Language)),
+            ])
+        });
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
@@ -190,7 +164,7 @@ async fn main() {
         .build();
 
     match dispatcher.run_polling().await {
-        Ok(()) => event!(Level::INFO, "Bot stopped"),
-        Err(err) => event!(Level::ERROR, error = %err, "Bot stopped"),
+        Ok(()) => tracing::info!("Bot stopped"),
+        Err(err) => tracing::error!(error = %err, "Bot stopped"),
     }
 }

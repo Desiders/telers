@@ -1,71 +1,63 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::ChatIdKind};
-
+use crate::client::Bot;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
-
-/// Verifies a chat [on behalf of the organization](https://telegram.org/verify#third-party-verification) which is represented by the bot
+/// Verifies a chat on behalf of the organization which is represented by the bot. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#verifychat>
 /// # Returns
-/// On success, `true` is returned
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct VerifyChat {
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-    pub chat_id: ChatIdKind,
+    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername). Channel direct messages chats can't be verified.
+    pub chat_id: crate::types::ChatIdKind,
     /// Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description.
-    pub custom_description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub custom_description: Option<Box<str>>,
 }
-
 impl VerifyChat {
+    /// Creates a new `VerifyChat`.
+    ///
+    /// # Arguments
+    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername). Channel direct messages chats can't be verified.
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(chat_id: impl Into<ChatIdKind>) -> Self {
+    pub fn new<T0: Into<crate::types::ChatIdKind>>(chat_id: T0) -> Self {
         Self {
             chat_id: chat_id.into(),
             custom_description: None,
         }
     }
 
+    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername). Channel direct messages chats can't be verified.
     #[must_use]
-    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
-        Self {
-            chat_id: val.into(),
-            ..self
-        }
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
+        let mut this = self;
+        this.chat_id = val.into();
+        this
     }
 
+    /// Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description.
     #[must_use]
-    pub fn custom_description(self, val: impl Into<String>) -> Self {
-        Self {
-            custom_description: Some(val.into()),
-            ..self
-        }
+    pub fn custom_description<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.custom_description = Some(val.into());
+        this
     }
-}
 
-impl VerifyChat {
+    /// Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description.
     #[must_use]
-    pub fn custom_description_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            custom_description: val.map(Into::into),
-            ..self
-        }
+    pub fn custom_description_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.custom_description = val.map(Into::into);
+        this
     }
 }
-
-impl TelegramMethod for VerifyChat {
+impl super::TelegramMethod for VerifyChat {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("verifyChat", self, None)
-    }
-}
-
-impl AsRef<VerifyChat> for VerifyChat {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("verifyChat", self, None)
     }
 }

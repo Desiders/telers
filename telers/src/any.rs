@@ -13,14 +13,17 @@ impl<T: Clone + Send + Sync + 'static> AnyClone for T {
         Box::new(self.clone())
     }
 
+    #[inline]
     fn as_any(&self) -> &dyn Any {
         self
     }
 
+    #[inline]
     fn as_any_mut(&mut self) -> &mut dyn Any {
         self
     }
 
+    #[inline]
     fn into_any(self: Box<Self>) -> Box<dyn Any> {
         self
     }

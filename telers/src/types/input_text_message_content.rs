@@ -1,27 +1,31 @@
-use super::{LinkPreviewOptions, MessageEntity};
-
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-
-/// Represents the [`content`](https://core.telegram.org/bots/api#inputmessagecontent) of a text message to be sent as the result of an inline query.
+/// Represents the content of a text message to be sent as the result of an inline query.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inputtextmessagecontent>
-#[skip_serializing_none]
-#[derive(Debug, Default, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct InputTextMessageContent {
     /// Text of the message to be sent, 1-4096 characters
-    pub message_text: String,
-    /// Mode for parsing entities in the message text. See [`formatting options`](https://core.telegram.org/bots/api#formatting-options) for more details.
-    pub parse_mode: Option<String>,
-    /// List of special entities that appear in message text, which can be specified instead of *`parse_mode`*
-    pub entities: Option<Vec<MessageEntity>>,
+    pub message_text: Box<str>,
+    /// Mode for parsing entities in the message text. See formatting options for more details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parse_mode: Option<Box<str>>,
+    /// List of special entities that appear in message text, which can be specified instead of `parse_mode`
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub entities: Option<Box<[crate::types::MessageEntity]>>,
     /// Link preview generation options for the message
-    pub link_preview_options: Option<LinkPreviewOptions>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub link_preview_options: Option<crate::types::LinkPreviewOptions>,
 }
-
 impl InputTextMessageContent {
+    /// Creates a new `InputTextMessageContent`.
+    ///
+    /// # Arguments
+    /// * `message_text` - Text of the message to be sent, 1-4096 characters
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(message_text: impl Into<String>) -> Self {
+    pub fn new<T0: Into<Box<str>>>(message_text: T0) -> Self {
         Self {
             message_text: message_text.into(),
             parse_mode: None,
@@ -30,87 +34,96 @@ impl InputTextMessageContent {
         }
     }
 
+    /// Text of the message to be sent, 1-4096 characters
     #[must_use]
-    pub fn message_text(self, val: impl Into<String>) -> Self {
-        Self {
-            message_text: val.into(),
-            ..self
-        }
+    pub fn message_text<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.message_text = val.into();
+        this
     }
 
+    /// Mode for parsing entities in the message text. See formatting options for more details.
     #[must_use]
-    pub fn parse_mode(self, val: impl Into<String>) -> Self {
-        Self {
-            parse_mode: Some(val.into()),
-            ..self
-        }
+    pub fn parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.parse_mode = Some(val.into());
+        this
     }
 
+    /// Mode for parsing entities in the message text. See formatting options for more details.
     #[must_use]
-    pub fn entity(self, val: MessageEntity) -> Self {
-        Self {
-            entities: Some(
-                self.entities
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(Some(val))
-                    .collect(),
-            ),
-            ..self
-        }
+    pub fn parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.parse_mode = val.map(Into::into);
+        this
     }
 
+    /// List of special entities that appear in message text, which can be specified instead of `parse_mode`
+    ///
+    /// # Notes
+    /// Adds multiple elements.
     #[must_use]
-    pub fn entities(self, val: impl IntoIterator<Item = MessageEntity>) -> Self {
-        Self {
-            entities: Some(
-                self.entities
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(val)
-                    .collect(),
-            ),
-            ..self
-        }
+    pub fn entities<T: Into<Box<[crate::types::MessageEntity]>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.entities = Some(
+            this.entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into())
+                .collect(),
+        );
+        this
     }
 
+    /// List of special entities that appear in message text, which can be specified instead of `parse_mode`
+    ///
+    /// # Notes
+    /// Adds a single element.
     #[must_use]
-    pub fn link_preview_options(self, val: LinkPreviewOptions) -> Self {
-        Self {
-            link_preview_options: Some(val),
-            ..self
-        }
-    }
-}
-
-impl InputTextMessageContent {
-    #[must_use]
-    pub fn parse_mode_option(self, val: Option<impl Into<String>>) -> Self {
-        Self {
-            parse_mode: val.map(Into::into),
-            ..self
-        }
-    }
-
-    #[must_use]
-    pub fn entities_option(self, val: Option<impl IntoIterator<Item = MessageEntity>>) -> Self {
-        Self {
-            entities: val.map(|val| {
-                self.entities
-                    .unwrap_or_default()
-                    .into_iter()
-                    .chain(val)
-                    .collect()
-            }),
-            ..self
-        }
+    pub fn entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
+        let mut this = self;
+        this.entities = Some(
+            this.entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        this
     }
 
+    /// List of special entities that appear in message text, which can be specified instead of `parse_mode`
+    ///
+    /// # Notes
+    /// Adds a single element.
     #[must_use]
-    pub fn link_preview_options_option(self, val: Option<LinkPreviewOptions>) -> Self {
-        Self {
-            link_preview_options: val,
-            ..self
-        }
+    pub fn entities_option<T: Into<Box<[crate::types::MessageEntity]>>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.entities = val.map(Into::into);
+        this
+    }
+
+    /// Link preview generation options for the message
+    #[must_use]
+    pub fn link_preview_options<T: Into<crate::types::LinkPreviewOptions>>(self, val: T) -> Self {
+        let mut this = self;
+        this.link_preview_options = Some(val.into());
+        this
+    }
+
+    /// Link preview generation options for the message
+    #[must_use]
+    pub fn link_preview_options_option<T: Into<crate::types::LinkPreviewOptions>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.link_preview_options = val.map(Into::into);
+        this
     }
 }

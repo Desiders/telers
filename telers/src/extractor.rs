@@ -14,10 +14,11 @@
 //! use telers::{
 //!     errors::EventErrorKind,
 //!     event::{telegram::HandlerResult, EventReturn},
-//!     middlewares::{outer::{MiddlewareResponse, Middleware}},
-//!     Request,
+//!     middlewares::outer::{Middleware, MiddlewareResponse},
+//!     Extension, Request,
 //! };
 //!
+//! #[derive(Clone)]
 //! struct ToExtensionsMiddleware<T> {
 //!     data: T,
 //! }
@@ -26,14 +27,17 @@
 //! where
 //!     T: Send + Sync + Clone + 'static,
 //! {
-//!     async fn call(&self, mut request: Request) -> Result<MiddlewareResponse, EventErrorKind> {
+//!     async fn call(
+//!         &mut self,
+//!         mut request: Request,
+//!     ) -> Result<MiddlewareResponse, EventErrorKind> {
 //!         request.extensions.insert(self.data.clone());
 //!
 //!         Ok((request, EventReturn::default()))
 //!     }
 //! }
 //!
-//! async fn send_data_handler(Extension(data2): Extension<Data>) -> HandlerResult {
+//! async fn send_data_handler<T>(Extension(data2): Extension<T>) -> HandlerResult {
 //!     todo!();
 //! }
 //! ```
@@ -45,15 +49,15 @@
 //! Ways to implement [`Extractor`] for your own types:
 //! * Implement it directly (much boilerplate code, but it's needed for complex types)
 //! * Use the [`FromContext`] macro (simple way to implement this for types in a [`Context`] by its key)
-//! * Use the [`FromEvent`] macro (simple way to implement this for types in an event, for example, [`Update`])
+//! * Use the [`FromEvent`] macro (simple way to implement this for types in an event, for example, [`crate::types::Update`])
 //!
 //! ## Implementing directly
 //!
-//! Simple example with extracting id from [`Update`]:
+//! Simple example with extracting id from [`crate::types::Update`]:
 //!
 //! ```rust
-//! use telers::{Extractor, Request};
 //! use std::convert::Infallible;
+//! use telers::{Extractor, Request};
 //!
 //! struct UpdateId(i64);
 //!
@@ -61,12 +65,12 @@
 //!     type Error = Infallible;
 //!
 //!     async fn extract(request: &Request) -> Result<Self, Self::Error> {
-//!         Ok(UpdateId(request.update.id))
+//!         Ok(UpdateId(request.update.update_id()))
 //!     }
 //! }
 //! ```
 //!
-//! This example will extract the [`Update`] id to the handler argument.
+//! This example will extract the [`crate::types::Update`] id to the handler argument.
 //! After that, you can use this argument in the handler:
 //!
 //! ```ignore
@@ -75,19 +79,21 @@
 //! }
 //! ```
 //!
-//! Another example with extracting id of the user who sent the message from [`Update`]:
+//! Another example with extracting id of the user who sent the message from [`crate::types::Update`]:
 //!
 //! ```rust
-//! use telers::{Extractor, errors::ConvertToTypeError, Request};
+//! use telers::{errors::ConvertToTypeError, Extractor, Request};
 //!
 //! struct UpdateFromId(i64);
 //!
 //! impl Extractor for UpdateFromId {
-//!     type Error = ConvertToTypeError; // you can use your own error type, this is just an example
+//!     type Error = ConvertToTypeError;
+//!
+//!     // you can use your own error type, this is just an example
 //!
 //!     async fn extract(request: &Request) -> Result<Self, Self::Error> {
-//!         match request.update.from_id() {
-//!             Some(from_id) => Ok(UpdateFromId(from_id)),
+//!         match request.update.from() {
+//!             Some(from) => Ok(UpdateFromId(from.id)),
 //!             None => Err(ConvertToTypeError::new("Update", "UpdateFromId")),
 //!         }
 //!     }
@@ -99,16 +105,18 @@
 //! because the trait is implemented for `Option<T>` and `Result<T, E>` where `T: Extractor`:
 //!
 //! ```rust
-//! use telers::{Extractor, errors::ConvertToTypeError, Request};
+//! use telers::{errors::ConvertToTypeError, Extractor, Request};
 //!
 //! struct UpdateFromId(i64);
 //!
 //! impl Extractor for UpdateFromId {
-//!     type Error = ConvertToTypeError; // you can use your own error type, this is just an example
+//!     type Error = ConvertToTypeError;
+//!
+//!     // you can use your own error type, this is just an example
 //!
 //!     async fn extract(request: &Request) -> Result<Self, Self::Error> {
-//!         match request.update.from_id() {
-//!             Some(from_id) => Ok(UpdateFromId(from_id)),
+//!         match request.update.from() {
+//!             Some(from) => Ok(UpdateFromId(from.id)),
 //!             None => Err(ConvertToTypeError::new("Update", "UpdateFromId")),
 //!         }
 //!     }
@@ -133,7 +141,7 @@
 //!
 //! ## Implementing with [`FromEvent`] macro
 //!
-//! Simple example with extracting id from [`Update`]:
+//! Simple example with extracting id from [`crate::types::Update`]:
 //!
 //! ```rust
 //! use telers::{types::Update, FromEvent};
@@ -145,7 +153,7 @@
 //! // We need to implement `From<Update>` for `UpdateId` by ourselves (this is required by `FromEvent` macro)
 //! impl From<Update> for UpdateId {
 //!     fn from(update: Update) -> Self {
-//!         Self(update.id)
+//!         Self(update.update_id())
 //!     }
 //! }
 //! ```
@@ -165,8 +173,8 @@
 //!     type Error = ConvertToTypeError;
 //!
 //!     fn try_from(update: Update) -> Result<Self, Self::Error> {
-//!         match update.from_id() {
-//!             Some(id) => Ok(Self(id)),
+//!         match update.from() {
+//!             Some(from) => Ok(Self(from.id)),
 //!             None => Err(ConvertToTypeError::new("Update", "UpdateFromId")),
 //!         }
 //!     }
@@ -177,18 +185,19 @@
 //! but you can specify your own error type with `#[event(error = "...")]` attribute:
 //!
 //! ```rust
-//! use telers::{types::Update, FromEvent};
 //! use std::convert::Infallible;
+//! use telers::{types::Update, FromEvent};
 //!
 //! #[derive(FromEvent)]
 //! #[event(try_from = Update, error = Infallible)]
 //! struct UpdateId(i64);
 //!
-//! impl TryFrom<Update> for UpdateId { // we use `TryFrom` here just for example, you need to use `From` if error is impossible
+//! impl TryFrom<Update> for UpdateId {
+//!     // we use `TryFrom` here just for example, you need to use `From` if error is impossible
 //!     type Error = Infallible;
 //!
 //!     fn try_from(update: Update) -> Result<Self, Self::Error> {
-//!         Ok(Self(update.id))
+//!         Ok(Self(update.update_id()))
 //!     }
 //! }
 //! ```
@@ -217,8 +226,9 @@
 //!
 //! #[derive(Clone, FromContext)]
 //! #[context(
-//!  key = "my_struct",
-//!  description = "This struct is set in the `MyMiddleware` middleware. If it is not set, then the `MyMiddleware` middleware is not used.",
+//!     key = "my_struct",
+//!     description = "This struct is set in the `MyMiddleware` middleware. If it is not set, \
+//!                    then the `MyMiddleware` middleware is not used."
 //! )]
 //! struct MyStruct {
 //!     field: i32,
@@ -284,13 +294,12 @@ use crate::{
     context::Context,
     errors::ExtractionError,
     extensions::Extension,
-    types::Update,
     Extensions, Request,
 };
 
-use std::{any::type_name, convert::Infallible, future::Future, sync::Arc};
+use std::{any::type_name, convert::Infallible, future::Future};
 
-/// Trait for extracting data from [`Update`] and [`Context`] to handlers arguments
+/// Trait for extracting data from [`crate::types::Update`] and [`Context`] to handlers arguments
 pub trait Extractor<Client = Reqwest>: Sized {
     type Error: Into<ExtractionError>;
 
@@ -307,7 +316,7 @@ pub trait Extractor<Client = Reqwest>: Sized {
 }
 
 /// To be able to use [`Option`] as handler argument
-/// This implementation will return `None` if extraction was unsuccessful, and [`Some(value)`] otherwise
+/// This implementation will return `None` if extraction was unsuccessful, and `Some(value)` otherwise
 impl<Client, T: Extractor<Client>> Extractor<Client> for Option<T>
 where
     Client: Sync,
@@ -324,7 +333,7 @@ where
 }
 
 /// To be able to use [`Result`] as handler argument
-/// This implementation will return [`Ok(value)`] if extraction was successful, and [`Err(error)`] otherwise,
+/// This implementation will return `Ok(value)` if extraction was successful, and `Err(error)` otherwise,
 /// where `error` is `T::Error` converted to `E`
 impl<Client, T, E> Extractor<Client> for Result<T, E>
 where
@@ -341,7 +350,7 @@ where
 }
 
 /// To be able to use handler without arguments
-/// Handler without arguments will be called with [`()`] argument (unit type)
+/// Handler without arguments will be called with `()` argument (unit type)
 impl<Client> Extractor<Client> for () {
     type Error = Infallible;
 
@@ -366,30 +375,6 @@ where
     ) -> impl Future<Output = Result<Self, Self::Error>> + Send {
         let bot = request.bot.clone();
         async move { Ok(bot) }
-    }
-}
-
-impl<Client> Extractor<Client> for Update {
-    type Error = Infallible;
-
-    #[inline]
-    fn extract(
-        request: &Request<Client>,
-    ) -> impl Future<Output = Result<Self, Self::Error>> + Send {
-        let update = (*request.update).clone();
-        async move { Ok(update) }
-    }
-}
-
-impl<Client> Extractor<Client> for Arc<Update> {
-    type Error = Infallible;
-
-    #[inline]
-    fn extract(
-        request: &Request<Client>,
-    ) -> impl Future<Output = Result<Self, Self::Error>> + Send {
-        let update = request.update.clone();
-        async move { Ok(update) }
     }
 }
 
@@ -423,17 +408,21 @@ where
 {
     type Error = ExtractionError;
 
-    #[inline]
     fn extract(
         request: &Request<Client>,
     ) -> impl Future<Output = Result<Self, Self::Error>> + Send {
         let res = match request.extensions.get::<Value>() {
             Some(value) => Ok(Self(value.clone())),
             None => Err(ExtractionError::new(if request.extensions.is_empty() {
-                format!("Failed to extract data with type {}. Extensions are empty, it looks like you forgot to add a value.", type_name::<Value>())
+                format!(
+                    "Failed to extract data with type {}. Extensions are empty, it looks like you \
+                     forgot to add a value.",
+                    type_name::<Value>()
+                )
             } else {
                 format!(
-                    "Failed to extract data with type {}. It looks like you forgot to add a value of this type.",
+                    "Failed to extract data with type {}. It looks like you forgot to add a value \
+                     of this type.",
                     type_name::<Value>()
                 )
             })),
@@ -453,7 +442,6 @@ mod factory_extractor {
         impl<Client: Sync, $($param: Extractor<Client> + Send,)*> Extractor<Client> for ($($param,)*) {
             type Error = ExtractionError;
 
-            #[inline]
             async fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
                 Ok(($($param::extract(request).await.map_err(Into::into)?,)*))
             }
@@ -500,27 +488,10 @@ mod tests {
     use super::*;
     use crate::{
         errors::ConvertToTypeError,
-        types::{
-            CallbackQuery, ChatBoostRemoved, ChatBoostUpdated, ChatJoinRequest, ChatMemberUpdated,
-            ChosenInlineResult, InlineQuery, Message, MessageAnimation, MessageAudio,
-            MessageChannelChatCreated, MessageChatShared, MessageConnectedWebsite, MessageContact,
-            MessageDeleteChatPhoto, MessageDice, MessageDocument, MessageForumTopicClosed,
-            MessageForumTopicCreated, MessageForumTopicEdited, MessageForumTopicReopened,
-            MessageGame, MessageGeneralForumTopicHidden, MessageGeneralForumTopicUnhidden,
-            MessageGiveaway, MessageGiveawayCompleted, MessageGiveawayCreated,
-            MessageGiveawayWinners, MessageGroupChatCreated, MessageInvoice, MessageLeftChatMember,
-            MessageLocation, MessageMessageAutoDeleteTimerChanged, MessageMigrateFromChat,
-            MessageMigrateToChat, MessageNewChatMembers, MessageNewChatPhoto, MessageNewChatTitle,
-            MessagePassportData, MessagePhoto, MessagePinned, MessagePoll,
-            MessageProximityAlertTriggered, MessageReactionCountUpdated, MessageReactionUpdated,
-            MessageSticker, MessageStory, MessageSuccessfulPayment, MessageSupergroupChatCreated,
-            MessageText, MessageUsersShared, MessageVenue, MessageVideo, MessageVideoChatEnded,
-            MessageVideoChatParticipantsInvited, MessageVideoChatScheduled,
-            MessageVideoChatStarted, MessageVideoNote, MessageVoice, MessageWebAppData,
-            MessageWriteAccessAllowed, Poll, PollAnswer, PollQuiz, PollRegular, PreCheckoutQuery,
-            ShippingQuery, UpdateKind,
-        },
+        types::{Message, MessageText, Update},
     };
+
+    use std::sync::Arc;
 
     #[test]
     fn test_arg_number() {
@@ -557,81 +528,9 @@ mod tests {
         _check_bounds::<Client, Arc<Update>>();
         _check_bounds::<Client, Context>();
         _check_bounds::<Client, Extensions>();
-        _check_bounds::<Client, UpdateKind>();
 
-        // Message-related bounds
         _check_bounds::<Client, Message>();
         _check_bounds::<Client, MessageText>();
-        _check_bounds::<Client, MessageAnimation>();
-        _check_bounds::<Client, MessageAudio>();
-        _check_bounds::<Client, MessageChannelChatCreated>();
-        _check_bounds::<Client, MessageUsersShared>();
-        _check_bounds::<Client, MessageChatShared>();
-        _check_bounds::<Client, MessageConnectedWebsite>();
-        _check_bounds::<Client, MessageContact>();
-        _check_bounds::<Client, MessageDeleteChatPhoto>();
-        _check_bounds::<Client, MessageDice>();
-        _check_bounds::<Client, MessageDocument>();
-        _check_bounds::<Client, MessageForumTopicClosed>();
-        _check_bounds::<Client, MessageForumTopicCreated>();
-        _check_bounds::<Client, MessageForumTopicEdited>();
-        _check_bounds::<Client, MessageForumTopicReopened>();
-        _check_bounds::<Client, MessageGame>();
-        _check_bounds::<Client, MessageGeneralForumTopicHidden>();
-        _check_bounds::<Client, MessageGeneralForumTopicUnhidden>();
-        _check_bounds::<Client, MessageGroupChatCreated>();
-        _check_bounds::<Client, MessageInvoice>();
-        _check_bounds::<Client, MessageLeftChatMember>();
-        _check_bounds::<Client, MessageLocation>();
-        _check_bounds::<Client, MessageMessageAutoDeleteTimerChanged>();
-        _check_bounds::<Client, MessageMigrateFromChat>();
-        _check_bounds::<Client, MessageMigrateToChat>();
-        _check_bounds::<Client, MessageNewChatMembers>();
-        _check_bounds::<Client, MessageNewChatPhoto>();
-        _check_bounds::<Client, MessageNewChatTitle>();
-        _check_bounds::<Client, MessagePassportData>();
-        _check_bounds::<Client, MessagePhoto>();
-        _check_bounds::<Client, MessagePinned>();
-        _check_bounds::<Client, MessagePoll>();
-        _check_bounds::<Client, MessageProximityAlertTriggered>();
-        _check_bounds::<Client, MessageSticker>();
-        _check_bounds::<Client, MessageStory>();
-        _check_bounds::<Client, MessageSuccessfulPayment>();
-        _check_bounds::<Client, MessageSupergroupChatCreated>();
-        _check_bounds::<Client, MessageVenue>();
-        _check_bounds::<Client, MessageVideo>();
-        _check_bounds::<Client, MessageVideoChatEnded>();
-        _check_bounds::<Client, MessageVideoChatParticipantsInvited>();
-        _check_bounds::<Client, MessageVideoChatScheduled>();
-        _check_bounds::<Client, MessageVideoChatStarted>();
-        _check_bounds::<Client, MessageVideoNote>();
-        _check_bounds::<Client, MessageVoice>();
-        _check_bounds::<Client, MessageWebAppData>();
-        _check_bounds::<Client, MessageWriteAccessAllowed>();
-        _check_bounds::<Client, MessageGiveawayCreated>();
-        _check_bounds::<Client, MessageGiveaway>();
-        _check_bounds::<Client, MessageGiveawayCompleted>();
-        _check_bounds::<Client, MessageGiveawayWinners>();
-        _check_bounds::<Client, MessageUsersShared>();
-
-        _check_bounds::<Client, MessageReactionUpdated>();
-        _check_bounds::<Client, MessageReactionCountUpdated>();
-        _check_bounds::<Client, CallbackQuery>();
-        _check_bounds::<Client, ChosenInlineResult>();
-        _check_bounds::<Client, ShippingQuery>();
-        _check_bounds::<Client, PreCheckoutQuery>();
-        _check_bounds::<Client, PollAnswer>();
-        _check_bounds::<Client, ChatMemberUpdated>();
-        _check_bounds::<Client, ChatJoinRequest>();
-        _check_bounds::<Client, InlineQuery>();
-
-        // Poll-related bounds
-        _check_bounds::<Client, Poll>();
-        _check_bounds::<Client, PollRegular>();
-        _check_bounds::<Client, PollQuiz>();
-
-        _check_bounds::<Client, ChatBoostUpdated>();
-        _check_bounds::<Client, ChatBoostRemoved>();
     }
 
     fn _check_bounds_option<Client: Sync, T: Extractor<Client>>() {
@@ -644,82 +543,9 @@ mod tests {
         _check_bounds::<Client, Option<Arc<Update>>>();
         _check_bounds::<Client, Option<Context>>();
         _check_bounds::<Client, Option<Extensions>>();
-        _check_bounds::<Client, Option<UpdateKind>>();
 
-        // Message-related bounds
         _check_bounds::<Client, Option<Message>>();
         _check_bounds::<Client, Option<MessageText>>();
-        _check_bounds::<Client, Option<MessageAnimation>>();
-        _check_bounds::<Client, Option<MessageAudio>>();
-        _check_bounds::<Client, Option<MessageChannelChatCreated>>();
-        _check_bounds::<Client, Option<MessageUsersShared>>();
-        _check_bounds::<Client, Option<MessageChatShared>>();
-        _check_bounds::<Client, Option<MessageConnectedWebsite>>();
-        _check_bounds::<Client, Option<MessageContact>>();
-        _check_bounds::<Client, Option<MessageDeleteChatPhoto>>();
-        _check_bounds::<Client, Option<MessageDice>>();
-        _check_bounds::<Client, Option<MessageDocument>>();
-        _check_bounds::<Client, Option<MessageForumTopicClosed>>();
-        _check_bounds::<Client, Option<MessageForumTopicCreated>>();
-        _check_bounds::<Client, Option<MessageForumTopicEdited>>();
-        _check_bounds::<Client, Option<MessageForumTopicReopened>>();
-        _check_bounds::<Client, Option<MessageGame>>();
-        _check_bounds::<Client, Option<MessageGeneralForumTopicHidden>>();
-        _check_bounds::<Client, Option<MessageGeneralForumTopicUnhidden>>();
-        _check_bounds::<Client, Option<MessageGroupChatCreated>>();
-        _check_bounds::<Client, Option<MessageInvoice>>();
-        _check_bounds::<Client, Option<MessageLeftChatMember>>();
-        _check_bounds::<Client, Option<MessageLocation>>();
-        _check_bounds::<Client, Option<MessageMessageAutoDeleteTimerChanged>>();
-        _check_bounds::<Client, Option<MessageMigrateFromChat>>();
-        _check_bounds::<Client, Option<MessageMigrateToChat>>();
-        _check_bounds::<Client, Option<MessageNewChatMembers>>();
-        _check_bounds::<Client, Option<MessageNewChatPhoto>>();
-        _check_bounds::<Client, Option<MessageNewChatTitle>>();
-        _check_bounds::<Client, Option<MessagePassportData>>();
-        _check_bounds::<Client, Option<MessagePhoto>>();
-        _check_bounds::<Client, Option<MessagePinned>>();
-        _check_bounds::<Client, Option<MessagePoll>>();
-        _check_bounds::<Client, Option<MessageProximityAlertTriggered>>();
-        _check_bounds::<Client, Option<MessageSticker>>();
-        _check_bounds::<Client, Option<MessageStory>>();
-        _check_bounds::<Client, Option<MessageSuccessfulPayment>>();
-        _check_bounds::<Client, Option<MessageSupergroupChatCreated>>();
-        _check_bounds::<Client, Option<MessageVenue>>();
-        _check_bounds::<Client, Option<MessageVideo>>();
-        _check_bounds::<Client, Option<MessageVideoChatEnded>>();
-        _check_bounds::<Client, Option<MessageVideoChatParticipantsInvited>>();
-        _check_bounds::<Client, Option<MessageVideoChatScheduled>>();
-        _check_bounds::<Client, Option<MessageVideoChatStarted>>();
-        _check_bounds::<Client, Option<MessageVideoNote>>();
-        _check_bounds::<Client, Option<MessageVoice>>();
-        _check_bounds::<Client, Option<MessageWebAppData>>();
-        _check_bounds::<Client, Option<MessageWriteAccessAllowed>>();
-        _check_bounds::<Client, Option<MessageGiveawayCreated>>();
-        _check_bounds::<Client, Option<MessageGiveaway>>();
-        _check_bounds::<Client, Option<MessageGiveawayCompleted>>();
-        _check_bounds::<Client, Option<MessageGiveawayWinners>>();
-        _check_bounds::<Client, Option<MessageUsersShared>>();
-
-        _check_bounds::<Client, Option<MessageReactionUpdated>>();
-        _check_bounds::<Client, Option<MessageReactionCountUpdated>>();
-
-        _check_bounds::<Client, Option<CallbackQuery>>();
-        _check_bounds::<Client, Option<ChosenInlineResult>>();
-        _check_bounds::<Client, Option<ShippingQuery>>();
-        _check_bounds::<Client, Option<PreCheckoutQuery>>();
-        _check_bounds::<Client, Option<PollAnswer>>();
-        _check_bounds::<Client, Option<ChatMemberUpdated>>();
-        _check_bounds::<Client, Option<ChatJoinRequest>>();
-        _check_bounds::<Client, Option<InlineQuery>>();
-
-        // Poll-related bounds
-        _check_bounds::<Client, Option<Poll>>();
-        _check_bounds::<Client, Option<PollRegular>>();
-        _check_bounds::<Client, Option<PollQuiz>>();
-
-        _check_bounds::<Client, Option<ChatBoostUpdated>>();
-        _check_bounds::<Client, Option<ChatBoostRemoved>>();
     }
 
     fn _check_bounds_result<Client: Sync, T: Extractor<Client>, Err: Into<ExtractionError>>() {
@@ -733,78 +559,7 @@ mod tests {
         _check_bounds::<Client, Result<Context, Infallible>>();
         _check_bounds::<Client, Result<Extensions, Infallible>>();
 
-        // Message-related bounds
         _check_bounds::<Client, Result<Message, ConvertToTypeError>>();
         _check_bounds::<Client, Result<MessageText, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageAnimation, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageAudio, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageChannelChatCreated, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageUsersShared, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageChatShared, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageConnectedWebsite, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageContact, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageDeleteChatPhoto, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageDice, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageDocument, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageForumTopicClosed, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageForumTopicCreated, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageForumTopicEdited, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageForumTopicReopened, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageGame, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageGeneralForumTopicHidden, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageGeneralForumTopicUnhidden, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageGroupChatCreated, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageInvoice, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageLeftChatMember, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageLocation, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageMessageAutoDeleteTimerChanged, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageMigrateFromChat, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageMigrateToChat, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageNewChatMembers, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageNewChatPhoto, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageNewChatTitle, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessagePassportData, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessagePhoto, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessagePinned, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessagePoll, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageProximityAlertTriggered, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageSticker, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageStory, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageSuccessfulPayment, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageSupergroupChatCreated, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageVenue, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageVideo, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageVideoChatEnded, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageVideoChatParticipantsInvited, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageVideoChatScheduled, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageVideoChatStarted, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageVideoNote, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageVoice, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageWebAppData, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageWriteAccessAllowed, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageGiveawayCreated, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageGiveaway, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageGiveawayCompleted, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageGiveawayWinners, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageUsersShared, ConvertToTypeError>>();
-
-        _check_bounds::<Client, Result<MessageReactionUpdated, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<MessageReactionCountUpdated, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<CallbackQuery, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<ChosenInlineResult, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<ShippingQuery, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<PreCheckoutQuery, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<PollAnswer, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<ChatMemberUpdated, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<ChatJoinRequest, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<InlineQuery, ConvertToTypeError>>();
-
-        // Poll-related bounds
-        _check_bounds::<Client, Result<Poll, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<PollRegular, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<PollQuiz, ConvertToTypeError>>();
-
-        _check_bounds::<Client, Result<ChatBoostUpdated, ConvertToTypeError>>();
-        _check_bounds::<Client, Result<ChatBoostRemoved, ConvertToTypeError>>();
     }
 }

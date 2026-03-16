@@ -1,74 +1,68 @@
-use super::base::{Request, TelegramMethod};
-
-use crate::{client::Bot, types::ChatIdKind};
-
+use crate::client::Bot;
 use serde::Serialize;
-
-/// Use this method to set a custom title for an administrator in a supergroup promoted by the bot.
+/// Use this method to set a custom title for an administrator in a supergroup promoted by the bot. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#setchatadministratorcustomtitle>
 /// # Returns
-/// On success, `true` is returned
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct SetChatAdministratorCustomTitle {
-    /// Unique identifier for the target group or username of the target supergroup (in the format `@channelusername`)
-    pub chat_id: ChatIdKind,
+    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier of the target user
     pub user_id: i64,
     /// New custom title for the administrator; 0-16 characters, emoji are not allowed
-    pub custom_title: String,
+    pub custom_title: Box<str>,
 }
-
 impl SetChatAdministratorCustomTitle {
+    /// Creates a new `SetChatAdministratorCustomTitle`.
+    ///
+    /// # Arguments
+    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// * `user_id` - Unique identifier of the target user
+    /// * `custom_title` - New custom title for the administrator; 0-16 characters, emoji are not allowed
     #[must_use]
-    pub fn new(
-        chat_id: impl Into<ChatIdKind>,
-        user_id: i64,
-        custom_title: impl Into<String>,
+    pub fn new<T0: Into<crate::types::ChatIdKind>, T1: Into<i64>, T2: Into<Box<str>>>(
+        chat_id: T0,
+        user_id: T1,
+        custom_title: T2,
     ) -> Self {
         Self {
             chat_id: chat_id.into(),
-            user_id,
+            user_id: user_id.into(),
             custom_title: custom_title.into(),
         }
     }
 
+    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
     #[must_use]
-    pub fn chat_id(self, val: impl Into<ChatIdKind>) -> Self {
-        Self {
-            chat_id: val.into(),
-            ..self
-        }
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
+        let mut this = self;
+        this.chat_id = val.into();
+        this
     }
 
+    /// Unique identifier of the target user
     #[must_use]
-    pub fn user_id(self, val: i64) -> Self {
-        Self {
-            user_id: val,
-            ..self
-        }
+    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.user_id = val.into();
+        this
     }
 
+    /// New custom title for the administrator; 0-16 characters, emoji are not allowed
     #[must_use]
-    pub fn custom_title(self, val: impl Into<String>) -> Self {
-        Self {
-            custom_title: val.into(),
-            ..self
-        }
+    pub fn custom_title<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.custom_title = val.into();
+        this
     }
 }
-
-impl TelegramMethod for SetChatAdministratorCustomTitle {
+impl super::TelegramMethod for SetChatAdministratorCustomTitle {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("SetChatAdministratorCustomTitle", self, None)
-    }
-}
-
-impl AsRef<SetChatAdministratorCustomTitle> for SetChatAdministratorCustomTitle {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("setChatAdministratorCustomTitle", self, None)
     }
 }

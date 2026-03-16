@@ -45,12 +45,12 @@
 //! [`Dispatcher::new`]: Dispatcher#method.new
 //! [`Builder::polling_timeout`]: Builder#method.polling_timeout
 //! [`Builder::backoff`]: Builder#method.backoff
-//! [`Dispatcher::run_polling`]: Service#method.run_polling
-//! [`Dispatcher::emit_startup`]: Service#method.emit_startup
-//! [`Dispatcher::emit_shutdown`]: Service#method.emit_shutdown
-//! [`Dispatcher::run_polling_without_startup_and_shutdown`]: Service#method.run_polling_without_startup_and_shutdown
-//! [`Dispatcher::feed_update`]: Service#method.feed_update
-//! [`Dispatcher::feed_update_with_context`]: Service#method.feed_update_with_context
+//! [`Dispatcher::run_polling`]: Dispatcher#method.run_polling
+//! [`Dispatcher::emit_startup`]: Dispatcher#method.emit_startup
+//! [`Dispatcher::emit_shutdown`]: Dispatcher#method.emit_shutdown
+//! [`Dispatcher::run_polling_without_startup_and_shutdown`]: Dispatcher#method.run_polling_without_startup_and_shutdown
+//! [`Dispatcher::feed_update`]: Dispatcher#method.feed_update
+//! [`Dispatcher::feed_update_with_context`]: Dispatcher#method.feed_update_with_context
 
 use super::router::{PropagateEvent, Response};
 use crate::{
@@ -60,7 +60,7 @@ use crate::{
     enums::UpdateType,
     errors::{EventErrorKind, HandlerError},
     methods::GetUpdates,
-    types::{Update, UpdateUnparsed},
+    types::Update,
     Extensions, Request, RouterConfigured,
 };
 
@@ -76,7 +76,7 @@ use tokio::{
 };
 use tracing::{event, field, instrument, Level, Span};
 
-const GET_UPDATES_SIZE: i64 = 100;
+const GET_UPDATES_SIZE: u8 = 100;
 const CHANNEL_UPDATES_SIZE: usize = 100;
 
 pub const DEFAULT_POLLING_TIMEOUT: i64 = 30;
@@ -94,13 +94,14 @@ pub struct Dispatcher<
     context: Context,
     polling_timeout: Option<i64>,
     backoff: Backoff,
-    allowed_updates: Vec<UpdateType>,
+    allowed_updates: Vec<Box<str>>,
 }
 
 impl<Client, Propagator> Dispatcher<Client, Propagator>
 where
     Propagator: Default,
 {
+    #[inline]
     #[must_use]
     pub fn builder() -> Builder<Client, Propagator> {
         Builder::default()
@@ -114,7 +115,7 @@ pub struct Builder<Client, Propagator, BackoffType = ExponentialBackoff<SystemCl
     extensions: Extensions,
     polling_timeout: Option<i64>,
     backoff: BackoffType,
-    allowed_updates: Vec<UpdateType>,
+    allowed_updates: Vec<Box<str>>,
 }
 
 impl<Client, Propagator> Default for Builder<Client, Propagator>
@@ -136,6 +137,7 @@ where
 }
 
 impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
+    #[inline]
     #[must_use]
     pub fn with_backoff(mut self, backoff: BackoffType) -> Self {
         self.backoff = backoff;
@@ -145,6 +147,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
 
 impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     /// Main router, whose service will propagate updates to the other routers and its observers
+    #[inline]
     #[must_use]
     pub fn main_router(self, val: Propagator) -> Self
     where
@@ -159,6 +162,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     /// Main router, whose service will propagate updates to the other routers and its observers
     /// # Notes
     /// Alias to [`Builder::main_router`] method
+    #[inline]
     #[must_use]
     pub fn router(self, val: Propagator) -> Self
     where
@@ -230,6 +234,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     /// Timeout in seconds for long polling
     /// # Default
     /// [`DEFAULT_POLLING_TIMEOUT`]
+    #[inline]
     #[must_use]
     pub fn polling_timeout(self, val: i64) -> Self {
         Self {
@@ -240,6 +245,7 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
 
     /// Backoff used for handling server-side errors and network errors (like connection reset or telegram server is down, etc.)
     /// and set timeout between requests to telegram server
+    #[inline]
     #[must_use]
     pub fn backoff(self, val: BackoffType) -> Self {
         Self {
@@ -253,9 +259,13 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     /// # Notes
     /// You can add multiple update types using [`Builder::allowed_updates`] method
     #[must_use]
-    pub fn allowed_update(self, val: UpdateType) -> Self {
+    pub fn allowed_update(self, val: impl Into<Box<str>>) -> Self {
         Self {
-            allowed_updates: self.allowed_updates.into_iter().chain(Some(val)).collect(),
+            allowed_updates: self
+                .allowed_updates
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
             ..self
         }
     }
@@ -266,13 +276,22 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     /// # Notes
     /// You can add single update type using [`Builder::allowed_update`] method
     #[must_use]
-    pub fn allowed_updates(self, val: impl IntoIterator<Item = UpdateType>) -> Self {
+    pub fn allowed_updates<T, I>(self, val: I) -> Self
+    where
+        T: Into<Box<str>>,
+        I: IntoIterator<Item = T>,
+    {
         Self {
-            allowed_updates: self.allowed_updates.into_iter().chain(val).collect(),
+            allowed_updates: self
+                .allowed_updates
+                .into_iter()
+                .chain(val.into_iter().map(Into::into))
+                .collect(),
             ..self
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn build(self) -> Dispatcher<Client, Propagator, BackoffType> {
         Dispatcher {
@@ -290,7 +309,9 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
 impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
     /// Main entry point for incoming updates.
     /// This method will propagate update to the main router.
-    #[instrument(skip_all, fields(update_id = update.id, update_type))]
+    /// # Errors
+    /// Returns an error when event propagation fails.
+    #[instrument(skip_all, fields(update_id = update.update_id(), update_type))]
     pub async fn feed_update(
         &mut self,
         bot: Bot<Client>,
@@ -325,7 +346,7 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
     async fn listen_updates(
         bot: Bot<Client>,
         polling_timeout: Option<i64>,
-        allowed_updates: Vec<UpdateType>,
+        allowed_updates: Vec<Box<str>>,
         update_tx: mpsc::Sender<Update>,
         backoff: Backoff,
     ) -> mpsc::error::SendError<Update>
@@ -338,12 +359,12 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
         let mut method = GetUpdates::new()
             .limit(GET_UPDATES_SIZE)
             .timeout_option(polling_timeout)
-            .allowed_updates(allowed_updates.iter().map(AsRef::as_ref));
+            .allowed_updates(allowed_updates.clone());
 
         loop {
             let updates = retry(backoff.clone(), || {
                 let bot = &bot;
-                let method = &method;
+                let method = method.clone();
 
                 async move {
                     match bot.send(method).await {
@@ -358,11 +379,13 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
             .await
             .expect("Retry gave up due to permanent error");
 
-            let Some(Either::Left(Update { id, .. }) | Either::Right(UpdateUnparsed { id, .. })) =
-                updates.last()
-            else {
-                event!(Level::TRACE, "No updates received");
-                continue;
+            let id = match updates.last() {
+                Some(Either::Left(update)) => update.update_id(),
+                Some(Either::Right(update)) => update.update_id,
+                None => {
+                    event!(Level::TRACE, "No updates received");
+                    continue;
+                }
             };
 
             method.offset = Some(id + 1);
@@ -374,12 +397,12 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
                             return err;
                         }
                     }
-                    Either::Right(UpdateUnparsed { id, value }) => {
+                    Either::Right(update) => {
                         event!(
                             Level::ERROR,
-                            update_id = id,
-                            update = ?value,
-                            "Failed to parse update kind",
+                            update_id = update.update_id,
+                            update = ?update.extra,
+                            "Failed to parse update",
                         );
                     }
                 }
@@ -427,7 +450,7 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
                 while let Some(update) = update_rx.recv().await {
                     event!(
                         Level::TRACE,
-                        update_id = update.id,
+                        update_id = update.update_id(),
                         "Received update from the listener"
                     );
 
@@ -452,6 +475,8 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
     /// # Panics
     /// - If failed to register exit signal handlers
     /// - If bots is empty
+    #[inline]
+    #[must_use]
     pub fn run_polling(self) -> ServePolling<Client, Propagator, Backoff>
     where
         Client: Session + Clone + 'static,
@@ -476,6 +501,8 @@ impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
     /// - If any shutdown observer returns error
     /// # Panics
     /// - If failed to register exit signal handlers
+    #[inline]
+    #[must_use]
     pub fn run_no_polling(self) -> Serve<Client, Propagator, Backoff>
     where
         Propagator: PropagateEvent<Client> + 'static,
@@ -489,10 +516,16 @@ pub struct ServePolling<Client, Propagator, BackoffType> {
 }
 
 impl<Client, Propagator, BackoffType> ServePolling<Client, Propagator, BackoffType> {
+    #[inline]
+    #[must_use]
     pub const fn new(dispatcher: Dispatcher<Client, Propagator, BackoffType>) -> Self {
-        Self { dispatcher }
+        Self {
+            dispatcher,
+        }
     }
 
+    #[inline]
+    #[must_use]
     pub fn with_graceful_shutdown<Signal>(
         self,
         signal: Signal,
@@ -511,8 +544,8 @@ where
     Propagator: PropagateEvent<Client>,
     BackoffType: backoff::backoff::Backoff + Send + Sync + Clone + 'static,
 {
-    type Output = Result<(), HandlerError>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
+    type Output = Result<(), HandlerError>;
 
     #[cfg(feature = "default_signal")]
     fn into_future(self) -> Self::IntoFuture {
@@ -546,11 +579,16 @@ pub struct ServePollingWithGracefulShutdown<Client, Propagator, BackoffType, Sig
 impl<Client, Propagator, BackoffType, Signal>
     ServePollingWithGracefulShutdown<Client, Propagator, BackoffType, Signal>
 {
+    #[inline]
+    #[must_use]
     pub const fn new(
         dispatcher: Dispatcher<Client, Propagator, BackoffType>,
         signal: Signal,
     ) -> Self {
-        Self { dispatcher, signal }
+        Self {
+            dispatcher,
+            signal,
+        }
     }
 }
 
@@ -563,8 +601,8 @@ where
     Propagator: PropagateEvent<Client>,
     BackoffType: backoff::backoff::Backoff + Send + Sync + Clone + 'static,
 {
-    type Output = Result<(), HandlerError>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
+    type Output = Result<(), HandlerError>;
 
     fn into_future(mut self) -> Self::IntoFuture {
         Box::pin(async move {
@@ -588,10 +626,16 @@ pub struct Serve<Client, Propagator, BackoffType> {
 }
 
 impl<Client, Propagator, BackoffType> Serve<Client, Propagator, BackoffType> {
+    #[inline]
+    #[must_use]
     pub const fn new(dispatcher: Dispatcher<Client, Propagator, BackoffType>) -> Self {
-        Self { dispatcher }
+        Self {
+            dispatcher,
+        }
     }
 
+    #[inline]
+    #[must_use]
     pub fn with_graceful_shutdown<Signal>(
         self,
         signal: Signal,
@@ -608,8 +652,8 @@ impl<Client, Propagator, BackoffType> IntoFuture for Serve<Client, Propagator, B
 where
     Propagator: PropagateEvent<Client>,
 {
-    type Output = Result<(), HandlerError>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
+    type Output = Result<(), HandlerError>;
 
     #[cfg(feature = "default_signal")]
     fn into_future(self) -> Self::IntoFuture {
@@ -643,11 +687,16 @@ pub struct ServeWithGracefulShutdown<Client, Propagator, BackoffType, Signal> {
 impl<Client, Propagator, BackoffType, Signal>
     ServeWithGracefulShutdown<Client, Propagator, BackoffType, Signal>
 {
+    #[inline]
+    #[must_use]
     pub const fn new(
         dispatcher: Dispatcher<Client, Propagator, BackoffType>,
         signal: Signal,
     ) -> Self {
-        Self { dispatcher, signal }
+        Self {
+            dispatcher,
+            signal,
+        }
     }
 }
 
@@ -658,8 +707,8 @@ where
     Signal::Output: Send,
     Propagator: PropagateEvent<Client>,
 {
-    type Output = Result<(), HandlerError>;
     type IntoFuture = BoxFuture<'static, Self::Output>;
+    type Output = Result<(), HandlerError>;
 
     fn into_future(mut self) -> Self::IntoFuture {
         Box::pin(async move {
@@ -678,8 +727,12 @@ mod tests {
     use super::*;
     use crate::{
         client::Reqwest,
-        event::bases::{EventReturn, PropagateEventResult},
+        event::{
+            bases::{EventReturn, PropagateEventResult},
+            telegram::Handler,
+        },
         router::Router,
+        types::{ChatPrivate, MessageText, UpdateMessage},
     };
 
     use std::convert::Infallible;
@@ -688,7 +741,10 @@ mod tests {
     #[tokio::test]
     async fn test_feed_update() {
         let bot = Bot::<Reqwest>::default();
-        let update = Arc::new(Update::default());
+        let update = Arc::new(Update::Message(UpdateMessage::new(
+            0,
+            MessageText::new(0, 0, ChatPrivate::new(0), ""),
+        )));
 
         let router = Router::new("main");
         let mut dispatcher = Dispatcher::builder()
@@ -706,10 +762,11 @@ mod tests {
             _ => panic!("Unexpected result"),
         }
 
-        let mut router = Router::new("main");
-        router
-            .message
-            .register(|| async { Ok::<_, Infallible>(EventReturn::Finish) });
+        let router = Router::new("main").on_message(|observer| {
+            observer.register(Handler::new(|| async {
+                Ok::<_, Infallible>(EventReturn::Finish)
+            }))
+        });
 
         let mut dispatcher = Dispatcher::builder()
             .main_router(router.configure_default())

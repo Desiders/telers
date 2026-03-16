@@ -1,70 +1,79 @@
-use super::base::{Request, TelegramMethod};
-
 use crate::client::Bot;
-
 use serde::Serialize;
-
-/// Delete messages on behalf of a business account. Requires the `can_delete_sent_messages` business bot right to delete messages sent by the bot itself, or the `can_delete_all_messages` business bot right to delete any message.
+/// Delete messages on behalf of a business account. Requires the `can_delete_sent_messages` business bot right to delete messages sent by the bot itself, or the `can_delete_all_messages` business bot right to delete any message. Returns `true` on success.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#deletebusinessmessages>
 /// # Returns
-/// On success, `true` is returned
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize)]
+/// - `bool`
+#[derive(Clone, Debug, Serialize)]
 pub struct DeleteBusinessMessages {
     /// Unique identifier of the business connection on behalf of which to delete the messages
-    pub business_connection_id: String,
-    /// A JSON-serialized list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See [`DeleteMessage`] for limitations on which messages can be deleted
-    pub message_ids: Vec<i64>,
+    pub business_connection_id: Box<str>,
+    /// A JSON-serialized list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted
+    pub message_ids: Box<[u8]>,
 }
-
 impl DeleteBusinessMessages {
+    /// Creates a new `DeleteBusinessMessages`.
+    ///
+    /// # Arguments
+    /// * `business_connection_id` - Unique identifier of the business connection on behalf of which to delete the messages
+    /// * `message_ids` - A JSON-serialized list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted
     #[must_use]
-    pub fn new(
-        business_connection_id: impl Into<String>,
-        message_ids: impl IntoIterator<Item = i64>,
+    pub fn new<T0: Into<Box<str>>, T1Item: Into<u8>, T1: IntoIterator<Item = T1Item>>(
+        business_connection_id: T0,
+        message_ids: T1,
     ) -> Self {
         Self {
             business_connection_id: business_connection_id.into(),
-            message_ids: message_ids.into_iter().collect(),
+            message_ids: message_ids.into_iter().map(Into::into).collect(),
         }
     }
 
+    /// Unique identifier of the business connection on behalf of which to delete the messages
     #[must_use]
-    pub fn business_connection_id(self, val: impl Into<String>) -> Self {
-        Self {
-            business_connection_id: val.into(),
-            ..self
-        }
+    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.business_connection_id = val.into();
+        this
     }
 
+    /// A JSON-serialized list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted
+    ///
+    /// # Notes
+    /// Adds multiple elements.
     #[must_use]
-    pub fn message_id(self, val: i64) -> Self {
-        Self {
-            message_ids: self.message_ids.into_iter().chain(Some(val)).collect(),
-            ..self
-        }
+    pub fn message_ids<TItem: Into<u8>, T: IntoIterator<Item = TItem>>(self, val: T) -> Self {
+        let mut this = self;
+        this.message_ids = this
+            .message_ids
+            .into_vec()
+            .into_iter()
+            .chain(val.into_iter().map(Into::into))
+            .collect();
+        this
     }
 
+    /// A JSON-serialized list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See [`crate::methods::DeleteMessage`] for limitations on which messages can be deleted
+    ///
+    /// # Notes
+    /// Adds a single element.
     #[must_use]
-    pub fn message_ids(self, val: impl IntoIterator<Item = i64>) -> Self {
-        Self {
-            message_ids: self.message_ids.into_iter().chain(val).collect(),
-            ..self
-        }
+    pub fn message_id<T: Into<u8>>(self, val: T) -> Self {
+        let mut this = self;
+        this.message_ids = this
+            .message_ids
+            .into_vec()
+            .into_iter()
+            .chain(Some(val.into()))
+            .collect();
+        this
     }
 }
-
-impl TelegramMethod for DeleteBusinessMessages {
+impl super::TelegramMethod for DeleteBusinessMessages {
     type Method = Self;
     type Return = bool;
 
-    fn build_request<Client>(&self, _bot: &Bot<Client>) -> Request<'_, Self::Method> {
-        Request::new("deleteBusinessMessages", self, None)
-    }
-}
-
-impl AsRef<DeleteBusinessMessages> for DeleteBusinessMessages {
-    fn as_ref(&self) -> &Self {
-        self
+    fn build_request<Client>(self, _bot: &Bot<Client>) -> super::Request<Self::Method> {
+        super::Request::new("deleteBusinessMessages", self, None)
     }
 }

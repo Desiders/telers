@@ -1,27 +1,28 @@
-use super::InlineKeyboardMarkup;
-
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-
-/// Represents a [`Game`](https://core.telegram.org/bots/api#games).
-/// # Notes
-/// This will only work in Telegram versions released after October 1, 2016. Older clients will not display any inline results if a game result is among them.
+/// Represents a Game.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#inlinequeryresultgame>
-#[skip_serializing_none]
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct InlineQueryResultGame {
-    /// Unique identifier for this result, 1-64 Bytes
-    pub id: String,
+    /// Unique identifier for this result, 1-64 bytes
+    pub id: Box<str>,
     /// Short name of the game
-    pub game_short_name: String,
-    /// [`Inline keyboard`](https://core.telegram.org/bots/features#inline-keyboards) attached to the message
-    pub reply_markup: Option<InlineKeyboardMarkup>,
+    pub game_short_name: Box<str>,
+    /// Inline keyboard attached to the message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<crate::types::InlineKeyboardMarkup>,
 }
-
 impl InlineQueryResultGame {
+    /// Creates a new `InlineQueryResultGame`.
+    ///
+    /// # Arguments
+    /// * `id` - Unique identifier for this result, 1-64 bytes
+    /// * `game_short_name` - Short name of the game
+    ///
+    /// # Notes
+    /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new(id: impl Into<String>, game_short_name: impl Into<String>) -> Self {
+    pub fn new<T0: Into<Box<str>>, T1: Into<Box<str>>>(id: T0, game_short_name: T1) -> Self {
         Self {
             id: id.into(),
             game_short_name: game_short_name.into(),
@@ -29,37 +30,38 @@ impl InlineQueryResultGame {
         }
     }
 
+    /// Unique identifier for this result, 1-64 bytes
     #[must_use]
-    pub fn id(self, val: impl Into<String>) -> Self {
-        Self {
-            id: val.into(),
-            ..self
-        }
+    pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.id = val.into();
+        this
     }
 
+    /// Short name of the game
     #[must_use]
-    pub fn game_short_name(self, val: impl Into<String>) -> Self {
-        Self {
-            game_short_name: val.into(),
-            ..self
-        }
+    pub fn game_short_name<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.game_short_name = val.into();
+        this
     }
 
+    /// Inline keyboard attached to the message
     #[must_use]
-    pub fn reply_markup(self, val: impl Into<InlineKeyboardMarkup>) -> Self {
-        Self {
-            reply_markup: Some(val.into()),
-            ..self
-        }
+    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(self, val: T) -> Self {
+        let mut this = self;
+        this.reply_markup = Some(val.into());
+        this
     }
-}
 
-impl InlineQueryResultGame {
+    /// Inline keyboard attached to the message
     #[must_use]
-    pub fn reply_markup_option(self, val: Option<impl Into<InlineKeyboardMarkup>>) -> Self {
-        Self {
-            reply_markup: val.map(Into::into),
-            ..self
-        }
+    pub fn reply_markup_option<T: Into<crate::types::InlineKeyboardMarkup>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.reply_markup = val.map(Into::into);
+        this
     }
 }
