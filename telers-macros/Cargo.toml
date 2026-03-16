@@ -1,6 +1,6 @@
 [package]
 name = "telers-macros"
-version = "1.0.0-alpha.4"
+version = "1.0.0-beta.1"
 edition = "2021"
 description = "Macros for telers"
 repository = "https://github.com/Desiders/telers"
@@ -25,4 +25,4 @@ syn = { version = "2.0", features = ["full"] }
  
 [dev-dependencies]
 # This dependency is not necessarily the latest version
-telers = { path = "../telers", version = "1.0.0-alpha.22", features = ["default"] }
+telers = { path = "../telers", features = ["default"] }
