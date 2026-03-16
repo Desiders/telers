@@ -14,8 +14,8 @@ impl<'a> HelperFieldSource<'a> {
     #[must_use]
     pub fn field(self) -> &'a NormalizedField {
         match self {
-            HelperFieldSource::Direct(field) => field,
-            HelperFieldSource::EnumHelper {
+            HelperFieldSource::Direct(field)
+            | HelperFieldSource::EnumHelper {
                 field, ..
             } => field,
         }

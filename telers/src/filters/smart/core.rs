@@ -6,30 +6,24 @@
 //!
 //! # How to use smart filters
 //!
-//! You typically start from [`crate::filters::smart::SmartFilter`], then
+//! You typically start from [`crate::filters::SmartFilter`], then
 //! compose paths and checks:
 //!
 //! ```rust
-//! use telers::filters::smart::SmartFilter;
+//! use telers::filters::SmartFilter;
 //!
 //! // Match updates that contain a text message with "hello".
-//! let _filter = SmartFilter::update()
-//!     .message()
-//!     .text()
-//!     .contains("hello");
+//! let _filter = SmartFilter::update().message().text().contains("hello");
 //! ```
 //!
 //! Optional fields return a path that can be absent. Use `is_some`, `is_none`,
 //! or a predicate-based check to handle that case:
 //!
 //! ```rust
-//! use telers::filters::smart::SmartFilter;
+//! use telers::filters::SmartFilter;
 //!
 //! // Check that an optional field is present.
-//! let _filter = SmartFilter::update()
-//!     .message()
-//!     .reply_to_message()
-//!     .is_some();
+//! let _filter = SmartFilter::update().message().reply_to_message().is_some();
 //! ```
 //!
 //! # Path composition
@@ -47,7 +41,7 @@
 //! Use `.all()` or `.any()` to combine multiple checks on the same path:
 //!
 //! ```rust
-//! use telers::filters::smart::SmartFilter;
+//! use telers::filters::SmartFilter;
 //!
 //! let _filter = SmartFilter::update()
 //!     .message()

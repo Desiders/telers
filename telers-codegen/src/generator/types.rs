@@ -929,7 +929,7 @@ fn nested_outer_accessor_expr(
 
 #[must_use]
 fn nested_outer_accessor_expr_from_helper(
-    outer_access: TokenStream,
+    outer_access: &TokenStream,
     outer_fully_required: bool,
     outer_field_ty: &TypeKindInField,
     inner_access: AccessExpr,
@@ -1384,7 +1384,7 @@ fn get_helper_impls_for_type(
                     let outer_ty_ident = format_ident!("{}", subtype.ty_name);
                     let method_path = quote! { crate::types::#outer_ty_ident::#outer_ident };
                     nested_outer_accessor_expr_from_helper(
-                        quote! { #method_path(val) },
+                        &quote! { #method_path(val) },
                         *fully_required,
                         &field.r#type,
                         inner_access,

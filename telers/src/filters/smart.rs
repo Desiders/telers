@@ -1,6 +1,6 @@
 #![allow(clippy::wrong_self_convention)]
 #![allow(clippy::redundant_closure_for_method_calls)]
-mod core;
+pub mod core;
 use crate::types::Update;
 use core::SmartFilterPath;
 use std::sync::Arc;

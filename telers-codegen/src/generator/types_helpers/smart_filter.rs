@@ -386,7 +386,7 @@ pub fn tokenize_smart_filter(schema: &NormalizedSchema) -> TokenStream {
         #![allow(clippy::wrong_self_convention)]
         #![allow(clippy::redundant_closure_for_method_calls)]
 
-        mod core;
+        pub mod core;
 
         use crate::types::Update;
 

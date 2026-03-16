@@ -6,7 +6,7 @@
 //! BOT_TOKEN={your_bot_token} cargo run --package random_sticker
 //! ```
 
-use rand::Rng;
+use rand::RngExt as _;
 use telers::{
     enums::{
         MessageType::{Sticker, Text},
