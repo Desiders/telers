@@ -215,16 +215,18 @@ impl TextFormatter for Formatter {
             MessageEntity::Blockquote(_) => self.blockquote(editable_text),
             MessageEntity::ExpandableBlockquote(_) => self.expandable_blockquote(editable_text),
             MessageEntity::Code(_) => self.code(editable_text),
-            MessageEntity::Pre(MessageEntityPre { language, .. }) => match language {
+            MessageEntity::Pre(MessageEntityPre {
+                language, ..
+            }) => match language {
                 Some(language) => self.pre_language(editable_text, language),
                 None => self.pre(editable_text),
             },
-            MessageEntity::TextLink(MessageEntityTextLink { url, .. }) => {
-                self.text_link(editable_text, url)
-            }
-            MessageEntity::TextMention(MessageEntityTextMention { user, .. }) => {
-                self.text_mention(editable_text, user.id)
-            }
+            MessageEntity::TextLink(MessageEntityTextLink {
+                url, ..
+            }) => self.text_link(editable_text, url),
+            MessageEntity::TextMention(MessageEntityTextMention {
+                user, ..
+            }) => self.text_mention(editable_text, user.id),
             MessageEntity::CustomEmoji(MessageEntityCustomEmoji {
                 custom_emoji_id, ..
             }) => self.custom_emoji(editable_text, custom_emoji_id),

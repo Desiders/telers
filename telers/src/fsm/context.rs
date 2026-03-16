@@ -22,7 +22,10 @@ impl<S> Context<S> {
     #[inline]
     #[must_use]
     pub fn new(storage: S, key: StorageKey) -> Self {
-        Self { storage, key }
+        Self {
+            storage,
+            key,
+        }
     }
 }
 
