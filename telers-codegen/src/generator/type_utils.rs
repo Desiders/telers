@@ -1,6 +1,37 @@
 use crate::parser::api::{NormalizedField, NormalizedSchema, NormalizedType};
 use std::collections::BTreeMap;
 
+#[derive(Clone, Copy)]
+pub enum HelperFieldSource<'a> {
+    Direct(&'a NormalizedField),
+    EnumHelper {
+        field: &'a NormalizedField,
+        fully_required: bool,
+    },
+}
+
+impl<'a> HelperFieldSource<'a> {
+    #[must_use]
+    pub fn field(self) -> &'a NormalizedField {
+        match self {
+            HelperFieldSource::Direct(field) => field,
+            HelperFieldSource::EnumHelper {
+                field, ..
+            } => field,
+        }
+    }
+
+    #[must_use]
+    pub fn required(self) -> bool {
+        match self {
+            HelperFieldSource::Direct(field) => field.required,
+            HelperFieldSource::EnumHelper {
+                fully_required, ..
+            } => fully_required,
+        }
+    }
+}
+
 #[must_use]
 pub fn collect_common_fields<'a>(
     ty: &'a NormalizedType,

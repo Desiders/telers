@@ -10,7 +10,7 @@ use crate::{
             format_attr_description, format_description, get_singular_and_plural_forms,
             sanitize_field_name,
         },
-        type_utils::collect_common_fields,
+        type_utils::{collect_common_fields, HelperFieldSource},
     },
     parser::api::{
         IntegerKind, NormalizedField, NormalizedSchema, NormalizedSubtypeVariant, NormalizedType,
@@ -735,37 +735,6 @@ fn helper_method_return_type(field_ty: &TypeKindInField, fully_required: bool) -
         _ if field_ty.is_copy() => quote! { Option<#field_ty> },
         _ if fully_required => quote! { &#field_ty },
         _ => quote! { Option<&#field_ty> },
-    }
-}
-
-#[derive(Clone, Copy)]
-enum HelperFieldSource<'a> {
-    Direct(&'a NormalizedField),
-    EnumHelper {
-        field: &'a NormalizedField,
-        fully_required: bool,
-    },
-}
-
-impl<'a> HelperFieldSource<'a> {
-    #[must_use]
-    fn field(self) -> &'a NormalizedField {
-        match self {
-            HelperFieldSource::Direct(field) => field,
-            HelperFieldSource::EnumHelper {
-                field, ..
-            } => field,
-        }
-    }
-
-    #[must_use]
-    fn required(self) -> bool {
-        match self {
-            HelperFieldSource::Direct(field) => field.required,
-            HelperFieldSource::EnumHelper {
-                fully_required, ..
-            } => fully_required,
-        }
     }
 }
 

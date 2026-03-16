@@ -4766,8 +4766,38 @@ impl SmartFilterPath<crate::types::InlineQueryResult> {
     }
 
     #[must_use]
+    pub fn audio_file_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.audio_file_id())
+    }
+
+    #[must_use]
+    pub fn audio_url(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.audio_url())
+    }
+
+    #[must_use]
+    pub fn caption(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.caption())
+    }
+
+    #[must_use]
+    pub fn caption_entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.caption_entities())
+    }
+
+    #[must_use]
     pub fn description(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.description())
+    }
+
+    #[must_use]
+    pub fn document_file_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.document_file_id())
+    }
+
+    #[must_use]
+    pub fn document_url(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.document_url())
     }
 
     #[must_use]
@@ -4788,6 +4818,16 @@ impl SmartFilterPath<crate::types::InlineQueryResult> {
     #[must_use]
     pub fn game_short_name(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.game_short_name())
+    }
+
+    #[must_use]
+    pub fn gif_file_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.gif_file_id())
+    }
+
+    #[must_use]
+    pub fn gif_url(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.gif_url())
     }
 
     #[must_use]
@@ -4816,6 +4856,21 @@ impl SmartFilterPath<crate::types::InlineQueryResult> {
     }
 
     #[must_use]
+    pub fn mime_type(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.mime_type())
+    }
+
+    #[must_use]
+    pub fn parse_mode(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.parse_mode())
+    }
+
+    #[must_use]
+    pub fn performer(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.performer())
+    }
+
+    #[must_use]
     pub fn phone_number(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.phone_number())
     }
@@ -4828,6 +4883,11 @@ impl SmartFilterPath<crate::types::InlineQueryResult> {
     #[must_use]
     pub fn sticker_file_id(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.sticker_file_id())
+    }
+
+    #[must_use]
+    pub fn thumbnail_mime_type(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.thumbnail_mime_type())
     }
 
     #[must_use]
@@ -4848,6 +4908,26 @@ impl SmartFilterPath<crate::types::InlineQueryResult> {
     #[must_use]
     pub fn vcard(self) -> SmartFilterPath<str> {
         self.and_then(|value| value.vcard())
+    }
+
+    #[must_use]
+    pub fn video_file_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.video_file_id())
+    }
+
+    #[must_use]
+    pub fn video_url(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.video_url())
+    }
+
+    #[must_use]
+    pub fn voice_file_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.voice_file_id())
+    }
+
+    #[must_use]
+    pub fn voice_url(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.voice_url())
     }
 }
 impl SmartFilterPath<crate::types::InlineQueryResultArticle> {
@@ -7293,8 +7373,449 @@ impl SmartFilterPath<crate::types::MaskPosition> {
 }
 impl SmartFilterPath<crate::types::MaybeInaccessibleMessage> {
     #[must_use]
+    pub fn animation(self) -> SmartFilterPath<crate::types::Animation> {
+        self.and_then(|value| value.animation())
+    }
+
+    #[must_use]
+    pub fn audio(self) -> SmartFilterPath<crate::types::Audio> {
+        self.and_then(|value| value.audio())
+    }
+
+    #[must_use]
+    pub fn author_signature(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.author_signature())
+    }
+
+    #[must_use]
+    pub fn boost_added(self) -> SmartFilterPath<crate::types::ChatBoostAdded> {
+        self.and_then(|value| value.boost_added())
+    }
+
+    #[must_use]
+    pub fn business_connection_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.business_connection_id())
+    }
+
+    #[must_use]
+    pub fn caption(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.caption())
+    }
+
+    #[must_use]
+    pub fn caption_entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.caption_entities())
+    }
+
+    #[must_use]
     pub fn chat(self) -> SmartFilterPath<crate::types::Chat> {
         self.map(|value| value.chat())
+    }
+
+    #[must_use]
+    pub fn chat_background_set(self) -> SmartFilterPath<crate::types::ChatBackground> {
+        self.and_then(|value| value.chat_background_set())
+    }
+
+    #[must_use]
+    pub fn chat_owner_changed(self) -> SmartFilterPath<crate::types::ChatOwnerChanged> {
+        self.and_then(|value| value.chat_owner_changed())
+    }
+
+    #[must_use]
+    pub fn chat_owner_left(self) -> SmartFilterPath<crate::types::ChatOwnerLeft> {
+        self.and_then(|value| value.chat_owner_left())
+    }
+
+    #[must_use]
+    pub fn chat_shared(self) -> SmartFilterPath<crate::types::ChatShared> {
+        self.and_then(|value| value.chat_shared())
+    }
+
+    #[must_use]
+    pub fn checklist(self) -> SmartFilterPath<crate::types::Checklist> {
+        self.and_then(|value| value.checklist())
+    }
+
+    #[must_use]
+    pub fn checklist_tasks_added(self) -> SmartFilterPath<crate::types::ChecklistTasksAdded> {
+        self.and_then(|value| value.checklist_tasks_added())
+    }
+
+    #[must_use]
+    pub fn checklist_tasks_done(self) -> SmartFilterPath<crate::types::ChecklistTasksDone> {
+        self.and_then(|value| value.checklist_tasks_done())
+    }
+
+    #[must_use]
+    pub fn connected_website(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.connected_website())
+    }
+
+    #[must_use]
+    pub fn contact(self) -> SmartFilterPath<crate::types::Contact> {
+        self.and_then(|value| value.contact())
+    }
+
+    #[must_use]
+    pub fn dice(self) -> SmartFilterPath<crate::types::Dice> {
+        self.and_then(|value| value.dice())
+    }
+
+    #[must_use]
+    pub fn direct_message_price_changed(
+        self,
+    ) -> SmartFilterPath<crate::types::DirectMessagePriceChanged> {
+        self.and_then(|value| value.direct_message_price_changed())
+    }
+
+    #[must_use]
+    pub fn direct_messages_topic(self) -> SmartFilterPath<crate::types::DirectMessagesTopic> {
+        self.and_then(|value| value.direct_messages_topic())
+    }
+
+    #[must_use]
+    pub fn document(self) -> SmartFilterPath<crate::types::Document> {
+        self.and_then(|value| value.document())
+    }
+
+    #[must_use]
+    pub fn effect_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.effect_id())
+    }
+
+    #[must_use]
+    pub fn entities(self) -> SmartFilterPath<[crate::types::MessageEntity]> {
+        self.and_then(|value| value.entities())
+    }
+
+    #[must_use]
+    pub fn external_reply(self) -> SmartFilterPath<crate::types::ExternalReplyInfo> {
+        self.and_then(|value| value.external_reply())
+    }
+
+    #[must_use]
+    pub fn forum_topic_closed(self) -> SmartFilterPath<crate::types::ForumTopicClosed> {
+        self.and_then(|value| value.forum_topic_closed())
+    }
+
+    #[must_use]
+    pub fn forum_topic_created(self) -> SmartFilterPath<crate::types::ForumTopicCreated> {
+        self.and_then(|value| value.forum_topic_created())
+    }
+
+    #[must_use]
+    pub fn forum_topic_edited(self) -> SmartFilterPath<crate::types::ForumTopicEdited> {
+        self.and_then(|value| value.forum_topic_edited())
+    }
+
+    #[must_use]
+    pub fn forum_topic_reopened(self) -> SmartFilterPath<crate::types::ForumTopicReopened> {
+        self.and_then(|value| value.forum_topic_reopened())
+    }
+
+    #[must_use]
+    pub fn forward_origin(self) -> SmartFilterPath<crate::types::MessageOrigin> {
+        self.and_then(|value| value.forward_origin())
+    }
+
+    #[must_use]
+    pub fn from(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.from())
+    }
+
+    #[must_use]
+    pub fn game(self) -> SmartFilterPath<crate::types::Game> {
+        self.and_then(|value| value.game())
+    }
+
+    #[must_use]
+    pub fn general_forum_topic_hidden(
+        self,
+    ) -> SmartFilterPath<crate::types::GeneralForumTopicHidden> {
+        self.and_then(|value| value.general_forum_topic_hidden())
+    }
+
+    #[must_use]
+    pub fn general_forum_topic_unhidden(
+        self,
+    ) -> SmartFilterPath<crate::types::GeneralForumTopicUnhidden> {
+        self.and_then(|value| value.general_forum_topic_unhidden())
+    }
+
+    #[must_use]
+    pub fn gift(self) -> SmartFilterPath<crate::types::GiftInfo> {
+        self.and_then(|value| value.gift())
+    }
+
+    #[must_use]
+    pub fn gift_upgrade_sent(self) -> SmartFilterPath<crate::types::GiftInfo> {
+        self.and_then(|value| value.gift_upgrade_sent())
+    }
+
+    #[must_use]
+    pub fn giveaway(self) -> SmartFilterPath<crate::types::Giveaway> {
+        self.and_then(|value| value.giveaway())
+    }
+
+    #[must_use]
+    pub fn giveaway_completed(self) -> SmartFilterPath<crate::types::GiveawayCompleted> {
+        self.and_then(|value| value.giveaway_completed())
+    }
+
+    #[must_use]
+    pub fn giveaway_created(self) -> SmartFilterPath<crate::types::GiveawayCreated> {
+        self.and_then(|value| value.giveaway_created())
+    }
+
+    #[must_use]
+    pub fn giveaway_winners(self) -> SmartFilterPath<crate::types::GiveawayWinners> {
+        self.and_then(|value| value.giveaway_winners())
+    }
+
+    #[must_use]
+    pub fn invoice(self) -> SmartFilterPath<crate::types::Invoice> {
+        self.and_then(|value| value.invoice())
+    }
+
+    #[must_use]
+    pub fn left_chat_member(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.left_chat_member())
+    }
+
+    #[must_use]
+    pub fn link_preview_options(self) -> SmartFilterPath<crate::types::LinkPreviewOptions> {
+        self.and_then(|value| value.link_preview_options())
+    }
+
+    #[must_use]
+    pub fn location(self) -> SmartFilterPath<crate::types::Location> {
+        self.and_then(|value| value.location())
+    }
+
+    #[must_use]
+    pub fn media_group_id(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.media_group_id())
+    }
+
+    #[must_use]
+    pub fn message_auto_delete_timer_changed(
+        self,
+    ) -> SmartFilterPath<crate::types::MessageAutoDeleteTimerChanged> {
+        self.and_then(|value| value.message_auto_delete_timer_changed())
+    }
+
+    #[must_use]
+    pub fn new_chat_members(self) -> SmartFilterPath<[crate::types::User]> {
+        self.and_then(|value| value.new_chat_members())
+    }
+
+    #[must_use]
+    pub fn new_chat_photo(self) -> SmartFilterPath<[crate::types::PhotoSize]> {
+        self.and_then(|value| value.new_chat_photo())
+    }
+
+    #[must_use]
+    pub fn new_chat_title(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.new_chat_title())
+    }
+
+    #[must_use]
+    pub fn paid_media(self) -> SmartFilterPath<crate::types::PaidMediaInfo> {
+        self.and_then(|value| value.paid_media())
+    }
+
+    #[must_use]
+    pub fn paid_message_price_changed(
+        self,
+    ) -> SmartFilterPath<crate::types::PaidMessagePriceChanged> {
+        self.and_then(|value| value.paid_message_price_changed())
+    }
+
+    #[must_use]
+    pub fn passport_data(self) -> SmartFilterPath<crate::types::PassportData> {
+        self.and_then(|value| value.passport_data())
+    }
+
+    #[must_use]
+    pub fn photo(self) -> SmartFilterPath<[crate::types::PhotoSize]> {
+        self.and_then(|value| value.photo())
+    }
+
+    #[must_use]
+    pub fn pinned_message(self) -> SmartFilterPath<crate::types::MaybeInaccessibleMessage> {
+        self.and_then(|value| value.pinned_message())
+    }
+
+    #[must_use]
+    pub fn poll(self) -> SmartFilterPath<crate::types::Poll> {
+        self.and_then(|value| value.poll())
+    }
+
+    #[must_use]
+    pub fn proximity_alert_triggered(
+        self,
+    ) -> SmartFilterPath<crate::types::ProximityAlertTriggered> {
+        self.and_then(|value| value.proximity_alert_triggered())
+    }
+
+    #[must_use]
+    pub fn quote(self) -> SmartFilterPath<crate::types::TextQuote> {
+        self.and_then(|value| value.quote())
+    }
+
+    #[must_use]
+    pub fn refunded_payment(self) -> SmartFilterPath<crate::types::RefundedPayment> {
+        self.and_then(|value| value.refunded_payment())
+    }
+
+    #[must_use]
+    pub fn reply_markup(self) -> SmartFilterPath<crate::types::InlineKeyboardMarkup> {
+        self.and_then(|value| value.reply_markup())
+    }
+
+    #[must_use]
+    pub fn reply_to_message(self) -> SmartFilterPath<crate::types::Message> {
+        self.and_then(|value| value.reply_to_message())
+    }
+
+    #[must_use]
+    pub fn reply_to_story(self) -> SmartFilterPath<crate::types::Story> {
+        self.and_then(|value| value.reply_to_story())
+    }
+
+    #[must_use]
+    pub fn sender_business_bot(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.sender_business_bot())
+    }
+
+    #[must_use]
+    pub fn sender_chat(self) -> SmartFilterPath<crate::types::Chat> {
+        self.and_then(|value| value.sender_chat())
+    }
+
+    #[must_use]
+    pub fn sender_tag(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.sender_tag())
+    }
+
+    #[must_use]
+    pub fn sticker(self) -> SmartFilterPath<crate::types::Sticker> {
+        self.and_then(|value| value.sticker())
+    }
+
+    #[must_use]
+    pub fn story(self) -> SmartFilterPath<crate::types::Story> {
+        self.and_then(|value| value.story())
+    }
+
+    #[must_use]
+    pub fn successful_payment(self) -> SmartFilterPath<crate::types::SuccessfulPayment> {
+        self.and_then(|value| value.successful_payment())
+    }
+
+    #[must_use]
+    pub fn suggested_post_approval_failed(
+        self,
+    ) -> SmartFilterPath<crate::types::SuggestedPostApprovalFailed> {
+        self.and_then(|value| value.suggested_post_approval_failed())
+    }
+
+    #[must_use]
+    pub fn suggested_post_approved(self) -> SmartFilterPath<crate::types::SuggestedPostApproved> {
+        self.and_then(|value| value.suggested_post_approved())
+    }
+
+    #[must_use]
+    pub fn suggested_post_declined(self) -> SmartFilterPath<crate::types::SuggestedPostDeclined> {
+        self.and_then(|value| value.suggested_post_declined())
+    }
+
+    #[must_use]
+    pub fn suggested_post_info(self) -> SmartFilterPath<crate::types::SuggestedPostInfo> {
+        self.and_then(|value| value.suggested_post_info())
+    }
+
+    #[must_use]
+    pub fn suggested_post_paid(self) -> SmartFilterPath<crate::types::SuggestedPostPaid> {
+        self.and_then(|value| value.suggested_post_paid())
+    }
+
+    #[must_use]
+    pub fn suggested_post_refunded(self) -> SmartFilterPath<crate::types::SuggestedPostRefunded> {
+        self.and_then(|value| value.suggested_post_refunded())
+    }
+
+    #[must_use]
+    pub fn text(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.text())
+    }
+
+    #[must_use]
+    pub fn unique_gift(self) -> SmartFilterPath<crate::types::UniqueGiftInfo> {
+        self.and_then(|value| value.unique_gift())
+    }
+
+    #[must_use]
+    pub fn users_shared(self) -> SmartFilterPath<crate::types::UsersShared> {
+        self.and_then(|value| value.users_shared())
+    }
+
+    #[must_use]
+    pub fn venue(self) -> SmartFilterPath<crate::types::Venue> {
+        self.and_then(|value| value.venue())
+    }
+
+    #[must_use]
+    pub fn via_bot(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.via_bot())
+    }
+
+    #[must_use]
+    pub fn video(self) -> SmartFilterPath<crate::types::Video> {
+        self.and_then(|value| value.video())
+    }
+
+    #[must_use]
+    pub fn video_chat_ended(self) -> SmartFilterPath<crate::types::VideoChatEnded> {
+        self.and_then(|value| value.video_chat_ended())
+    }
+
+    #[must_use]
+    pub fn video_chat_participants_invited(
+        self,
+    ) -> SmartFilterPath<crate::types::VideoChatParticipantsInvited> {
+        self.and_then(|value| value.video_chat_participants_invited())
+    }
+
+    #[must_use]
+    pub fn video_chat_scheduled(self) -> SmartFilterPath<crate::types::VideoChatScheduled> {
+        self.and_then(|value| value.video_chat_scheduled())
+    }
+
+    #[must_use]
+    pub fn video_chat_started(self) -> SmartFilterPath<crate::types::VideoChatStarted> {
+        self.and_then(|value| value.video_chat_started())
+    }
+
+    #[must_use]
+    pub fn video_note(self) -> SmartFilterPath<crate::types::VideoNote> {
+        self.and_then(|value| value.video_note())
+    }
+
+    #[must_use]
+    pub fn voice(self) -> SmartFilterPath<crate::types::Voice> {
+        self.and_then(|value| value.voice())
+    }
+
+    #[must_use]
+    pub fn web_app_data(self) -> SmartFilterPath<crate::types::WebAppData> {
+        self.and_then(|value| value.web_app_data())
+    }
+
+    #[must_use]
+    pub fn write_access_allowed(self) -> SmartFilterPath<crate::types::WriteAccessAllowed> {
+        self.and_then(|value| value.write_access_allowed())
     }
 }
 impl SmartFilterPath<crate::types::MenuButton> {
@@ -22949,6 +23470,11 @@ impl SmartFilterPath<crate::types::TextQuote> {
 }
 impl SmartFilterPath<crate::types::TransactionPartner> {
     #[must_use]
+    pub fn affiliate(self) -> SmartFilterPath<crate::types::AffiliateInfo> {
+        self.and_then(|value| value.affiliate())
+    }
+
+    #[must_use]
     pub fn chat(self) -> SmartFilterPath<crate::types::Chat> {
         self.and_then(|value| value.chat())
     }
@@ -22959,8 +23485,28 @@ impl SmartFilterPath<crate::types::TransactionPartner> {
     }
 
     #[must_use]
+    pub fn invoice_payload(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.invoice_payload())
+    }
+
+    #[must_use]
+    pub fn paid_media(self) -> SmartFilterPath<[crate::types::PaidMedia]> {
+        self.and_then(|value| value.paid_media())
+    }
+
+    #[must_use]
+    pub fn paid_media_payload(self) -> SmartFilterPath<str> {
+        self.and_then(|value| value.paid_media_payload())
+    }
+
+    #[must_use]
     pub fn sponsor_user(self) -> SmartFilterPath<crate::types::User> {
         self.and_then(|value| value.sponsor_user())
+    }
+
+    #[must_use]
+    pub fn user(self) -> SmartFilterPath<crate::types::User> {
+        self.and_then(|value| value.user())
     }
 
     #[must_use]
