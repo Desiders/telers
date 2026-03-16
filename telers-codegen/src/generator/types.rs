@@ -10,7 +10,7 @@ use crate::{
             format_attr_description, format_description, get_singular_and_plural_forms,
             sanitize_field_name,
         },
-        type_utils::{collect_common_fields, HelperFieldSource},
+        type_utils::{HelperFieldSource, collect_common_fields},
     },
     parser::api::{
         IntegerKind, NormalizedField, NormalizedSchema, NormalizedSubtypeVariant, NormalizedType,
@@ -19,7 +19,7 @@ use crate::{
 };
 
 use proc_macro2::{Ident, TokenStream};
-use quote::{format_ident, quote, ToTokens};
+use quote::{ToTokens, format_ident, quote};
 use std::collections::{BTreeMap, HashSet};
 
 struct TypeDocContext<'a> {

@@ -27,7 +27,7 @@ full = ["storages", "default-signal"]
 # Include all possible storages
 storages = ["redis-storage", "memory-storage"]
 # For possible use redis FSM storage
-redis-storage = ["redis", "deadpool-redis"]
+redis-storage = ["redis", "deadpool-redis", "std"]
 # For possible use memory FSM storage.
 memory-storage = []
 
