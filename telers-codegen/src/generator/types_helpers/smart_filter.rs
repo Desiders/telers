@@ -1,7 +1,7 @@
 use crate::{
     generator::{
         helpers::sanitize_field_name,
-        type_utils::{collect_common_fields, HelperFieldSource},
+        type_utils::{HelperFieldSource, collect_common_fields},
     },
     parser::api::{
         NormalizedField, NormalizedSchema, NormalizedSubtypeVariant, NormalizedType,

@@ -12,7 +12,7 @@ use std::{
     collections::{HashMap, HashSet},
     mem,
 };
-use syn::{punctuated::Punctuated, Path, PathSegment};
+use syn::{Path, PathSegment, punctuated::Punctuated};
 use tracing::warn;
 
 use crate::generator::helpers::{capitalize, snake_to_upper_camel};
@@ -979,7 +979,7 @@ impl NormalizedSchema {
                 name: "UpdateUnparsed".to_owned(),
                 href: update.href.clone(),
                 description: vec![
-                    "This object represents an update that can't be parsed.".to_owned()
+                    "This object represents an update that can't be parsed.".to_owned(),
                 ],
                 fields: common_fields,
                 subtype_kind: None,
