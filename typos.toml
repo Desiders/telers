@@ -1,0 +1,4 @@
+[files]
+extend-exclude = [
+    "telers/src/filters/text.rs",
+]
