@@ -2,9 +2,15 @@
 
 use crate::{
     file::camel_to_filename,
-    generator::helpers::{
-        format_attr_description, format_description, get_singular_and_plural_forms,
-        sanitize_field_name,
+    generator::{
+        doc_utils::{
+            collect_telegram_type_names, link_known_type_mentions, normalize_doc_line_prefix,
+        },
+        helpers::{
+            format_attr_description, format_description, get_singular_and_plural_forms,
+            sanitize_field_name,
+        },
+        type_utils::collect_common_fields,
     },
     parser::api::{
         IntegerKind, NormalizedField, NormalizedSchema, NormalizedSubtypeVariant, NormalizedType,
@@ -31,81 +37,6 @@ enum AccessExpr {
     },
 }
 
-fn collect_telegram_type_names(kind: &TypeKindInField, out: &mut HashSet<String>) {
-    match kind {
-        TypeKindInField::Telegram(name) => {
-            out.insert(name.clone());
-        }
-        TypeKindInField::Array(inner) => collect_telegram_type_names(inner, out),
-        TypeKindInField::Either(left, right) => {
-            collect_telegram_type_names(left, out);
-            collect_telegram_type_names(right, out);
-        }
-        _ => {}
-    }
-}
-
-#[must_use]
-fn link_known_type_mentions(doc: &str, names: &HashSet<String>) -> String {
-    let mut out = String::with_capacity(doc.len() + 32);
-    let mut rest = doc;
-
-    while let Some(pos) = rest.find('`') {
-        out.push_str(&rest[..pos]);
-
-        // Handle bracketed form: [`Type`]
-        if pos > 0 && rest.as_bytes()[pos - 1] == b'[' {
-            out.pop(); // remove '[' that was already pushed
-            let after_tick = &rest[pos + 1..];
-            if let Some(end_tick) = after_tick.find('`') {
-                let token = &after_tick[..end_tick];
-                let after_end_tick = &after_tick[end_tick + 1..];
-                if let Some(after_bracket) = after_end_tick.strip_prefix(']') {
-                    if names.contains(token) {
-                        out.push_str("[`crate::types::");
-                        out.push_str(token);
-                        out.push_str("`]");
-                    } else {
-                        out.push_str("[`");
-                        out.push_str(token);
-                        out.push_str("`]");
-                    }
-                    rest = after_bracket;
-                    continue;
-                }
-            }
-            out.push('[');
-            out.push('`');
-            rest = &rest[pos + 1..];
-            continue;
-        }
-
-        // Handle plain backticked form: `Type`
-        let after_tick = &rest[pos + 1..];
-        if let Some(end_tick) = after_tick.find('`') {
-            let token = &after_tick[..end_tick];
-            if names.contains(token) {
-                out.push_str("[`crate::types::");
-                out.push_str(token);
-                out.push_str("`]");
-            } else {
-                out.push('`');
-                out.push_str(token);
-                out.push('`');
-            }
-            rest = &after_tick[end_tick + 1..];
-        } else {
-            out.push('`');
-            out.push_str(after_tick);
-            rest = "";
-            break;
-        }
-    }
-
-    out.push_str(rest);
-    out
-}
-
 #[must_use]
 fn format_field_doc(description: &str, kind: &TypeKindInField, ctx: &TypeDocContext<'_>) -> String {
     let mut names = HashSet::new();
@@ -127,11 +58,6 @@ fn format_field_arg_doc(field: &NormalizedField, ctx: &TypeDocContext<'_>) -> St
 #[must_use]
 fn link_schema_type_mentions(doc: &str, ctx: &TypeDocContext<'_>) -> String {
     link_known_type_mentions(doc, ctx.schema_type_names)
-}
-
-#[must_use]
-fn normalize_doc_line_prefix(doc: &str) -> String {
-    format!(" {}", doc.trim_start())
 }
 
 impl ToTokens for TypeKindInField {
@@ -795,55 +721,6 @@ fn builder_impl_for_type(type_quote: &NormalizedType, ctx: &TypeDocContext<'_>) 
             #( #builder_methods_ts )*
         }
         #default_impl_ts
-    }
-}
-
-#[must_use]
-fn collect_common_fields<'a>(
-    ty: &'a NormalizedType,
-    schema: &'a NormalizedSchema,
-) -> BTreeMap<&'a str, (&'a NormalizedField, bool, bool)> {
-    let (tag_field, parent_tag_field) = ty
-        .subtype_kind
-        .as_ref()
-        .map(|k| k.get_tags())
-        .unwrap_or_default();
-
-    if ty.subtypes.is_empty() {
-        ty.fields
-            .iter()
-            .filter(|f| !f.is_tagged(tag_field, parent_tag_field))
-            .map(|f| (f.name.as_str(), (f, f.required, true)))
-            .collect()
-    } else {
-        let mut map: BTreeMap<&str, Vec<&NormalizedField>> = BTreeMap::new();
-        for subtype in &ty.subtypes {
-            let sub_ty = schema.types.get(&subtype.ty_name).unwrap();
-            // ↓ use the subtype's own tag context, not the parent's
-            let (sub_tag, sub_parent_tag) = sub_ty
-                .subtype_kind
-                .as_ref()
-                .map(|k| k.get_tags())
-                .unwrap_or_default();
-            for field in &sub_ty.fields {
-                if !field.is_tagged(tag_field, parent_tag_field)
-                    && !field.is_tagged(sub_tag, sub_parent_tag)
-                {
-                    map.entry(field.name.as_str()).or_default().push(field);
-                }
-            }
-        }
-        map.into_iter()
-            .filter(|(_, fields)| {
-                let first_ty = &fields[0].r#type;
-                fields.iter().all(|f| &f.r#type == first_ty)
-            })
-            .map(|(name, fields)| {
-                let is_common = fields.len() == ty.subtypes.len();
-                let is_fully_required = is_common && fields.iter().all(|f| f.required);
-                (name, (fields[0], is_fully_required, is_common))
-            })
-            .collect()
     }
 }
 
