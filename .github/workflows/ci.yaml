@@ -37,7 +37,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
-    - uses: taiki-e/install-action@v2
     - uses: dtolnay/rust-toolchain@nightly
       with:
         components: clippy, rustfmt
@@ -57,4 +56,13 @@ jobs:
           tool: cargo-sort
     - name: Check that dependencies are sorted
       run: cargo sort --check --workspace --grouped
-    
+
+  check-hack:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@stable
+    - uses: Swatinem/rust-cache@v2
+    - uses: taiki-e/install-action@cargo-hack
+    - name: Check Hack
+      run: cargo hack check --each-feature --no-dev-deps --all
