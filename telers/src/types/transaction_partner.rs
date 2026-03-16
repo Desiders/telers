@@ -21,6 +21,17 @@ pub enum TransactionPartner {
     Other(crate::types::TransactionPartnerOther),
 }
 impl TransactionPartner {
+    /// Helper method for field `affiliate`.
+    ///
+    /// Information about the affiliate that received a commission via this transaction. Can be available only for `invoice_payment` and `paid_media_payment` transactions.
+    #[must_use]
+    pub fn affiliate(&self) -> Option<&crate::types::AffiliateInfo> {
+        match self {
+            Self::User(val) => crate::types::TransactionPartnerUser::affiliate(val),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `chat`.
     ///
     /// Information about the chat
@@ -45,11 +56,60 @@ impl TransactionPartner {
 
     /// Helper method for field `gift`.
     ///
-    /// The gift sent to the chat by the bot
+    /// # Variants
+    /// - `TransactionPartnerUser`. The gift sent to the user by the bot; for `gift_purchase` transactions only
+    /// - `TransactionPartnerChat`. The gift sent to the chat by the bot
     #[must_use]
     pub fn gift(&self) -> Option<&crate::types::Gift> {
         match self {
+            Self::User(val) => crate::types::TransactionPartnerUser::gift(val),
             Self::Chat(val) => val.gift.as_deref(),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `invoice_payload`.
+    ///
+    /// Bot-specified invoice payload. Can be available only for `invoice_payment` transactions.
+    #[must_use]
+    pub fn invoice_payload(&self) -> Option<&str> {
+        match self {
+            Self::User(val) => crate::types::TransactionPartnerUser::invoice_payload(val),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `paid_media`.
+    ///
+    /// Information about the paid media bought by the user; for `paid_media_payment` transactions only
+    #[must_use]
+    pub fn paid_media(&self) -> Option<&[crate::types::PaidMedia]> {
+        match self {
+            Self::User(val) => crate::types::TransactionPartnerUser::paid_media(val),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `paid_media_payload`.
+    ///
+    /// Bot-specified paid media payload. Can be available only for `paid_media_payment` transactions.
+    #[must_use]
+    pub fn paid_media_payload(&self) -> Option<&str> {
+        match self {
+            Self::User(val) => crate::types::TransactionPartnerUser::paid_media_payload(val),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `premium_subscription_duration`.
+    ///
+    /// Number of months the gifted Telegram Premium subscription will be active for; for `premium_purchase` transactions only
+    #[must_use]
+    pub fn premium_subscription_duration(&self) -> Option<i64> {
+        match self {
+            Self::User(val) => {
+                crate::types::TransactionPartnerUser::premium_subscription_duration(val)
+            }
             _ => None,
         }
     }
@@ -76,6 +136,28 @@ impl TransactionPartner {
         }
     }
 
+    /// Helper method for field `subscription_period`.
+    ///
+    /// The duration of the paid subscription. Can be available only for `invoice_payment` transactions.
+    #[must_use]
+    pub fn subscription_period(&self) -> Option<i64> {
+        match self {
+            Self::User(val) => crate::types::TransactionPartnerUser::subscription_period(val),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `user`.
+    ///
+    /// Information about the user
+    #[must_use]
+    pub fn user(&self) -> Option<&crate::types::User> {
+        match self {
+            Self::User(val) => Some(crate::types::TransactionPartnerUser::user(val)),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `withdrawal_state`.
     ///
     /// State of the transaction if the transaction is outgoing
@@ -95,6 +177,30 @@ impl TransactionPartner {
                 .sponsor_user
                 .as_deref()
                 .and_then(|inner| inner.added_to_attachment_menu),
+            Self::User(val) => {
+                let inner = crate::types::TransactionPartnerUser::user(val);
+                inner.added_to_attachment_menu
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `affiliate_chat`.
+    #[must_use]
+    pub fn affiliate_chat(&self) -> Option<&crate::types::Chat> {
+        match self {
+            Self::User(val) => crate::types::TransactionPartnerUser::affiliate(val)
+                .and_then(|inner| inner.affiliate_chat.as_deref()),
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `affiliate_user`.
+    #[must_use]
+    pub fn affiliate_user(&self) -> Option<&crate::types::User> {
+        match self {
+            Self::User(val) => crate::types::TransactionPartnerUser::affiliate(val)
+                .and_then(|inner| inner.affiliate_user.as_deref()),
             _ => None,
         }
     }
@@ -107,6 +213,21 @@ impl TransactionPartner {
                 .sponsor_user
                 .as_deref()
                 .and_then(|inner| inner.allows_users_to_create_topics),
+            Self::User(val) => {
+                let inner = crate::types::TransactionPartnerUser::user(val);
+                inner.allows_users_to_create_topics
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `amount`.
+    #[must_use]
+    pub fn amount(&self) -> Option<i64> {
+        match self {
+            Self::User(val) => {
+                crate::types::TransactionPartnerUser::affiliate(val).map(|inner| inner.amount)
+            }
             _ => None,
         }
     }
@@ -115,6 +236,8 @@ impl TransactionPartner {
     #[must_use]
     pub fn background(&self) -> Option<&crate::types::GiftBackground> {
         match self {
+            Self::User(val) => crate::types::TransactionPartnerUser::gift(val)
+                .and_then(|inner| inner.background.as_ref()),
             Self::Chat(val) => val
                 .gift
                 .as_deref()
@@ -131,6 +254,10 @@ impl TransactionPartner {
                 .sponsor_user
                 .as_deref()
                 .and_then(|inner| inner.can_connect_to_business),
+            Self::User(val) => {
+                let inner = crate::types::TransactionPartnerUser::user(val);
+                inner.can_connect_to_business
+            }
             _ => None,
         }
     }
@@ -143,6 +270,10 @@ impl TransactionPartner {
                 .sponsor_user
                 .as_deref()
                 .and_then(|inner| inner.can_join_groups),
+            Self::User(val) => {
+                let inner = crate::types::TransactionPartnerUser::user(val);
+                inner.can_join_groups
+            }
             _ => None,
         }
     }
@@ -155,6 +286,10 @@ impl TransactionPartner {
                 .sponsor_user
                 .as_deref()
                 .and_then(|inner| inner.can_read_all_group_messages),
+            Self::User(val) => {
+                let inner = crate::types::TransactionPartnerUser::user(val);
+                inner.can_read_all_group_messages
+            }
             _ => None,
         }
     }
@@ -183,6 +318,10 @@ impl TransactionPartner {
                 .sponsor_user
                 .as_deref()
                 .map(|inner| inner.first_name.as_ref()),
+            Self::User(val) => {
+                let inner = crate::types::TransactionPartnerUser::user(val);
+                Some(inner.first_name.as_ref())
+            }
             _ => None,
         }
     }
@@ -191,6 +330,9 @@ impl TransactionPartner {
     #[must_use]
     pub fn has_colors(&self) -> Option<bool> {
         match self {
+            Self::User(val) => {
+                crate::types::TransactionPartnerUser::gift(val).and_then(|inner| inner.has_colors)
+            }
             Self::Chat(val) => val.gift.as_deref().and_then(|inner| inner.has_colors),
             _ => None,
         }
@@ -204,6 +346,10 @@ impl TransactionPartner {
                 .sponsor_user
                 .as_deref()
                 .and_then(|inner| inner.has_main_web_app),
+            Self::User(val) => {
+                let inner = crate::types::TransactionPartnerUser::user(val);
+                inner.has_main_web_app
+            }
             _ => None,
         }
     }
@@ -216,6 +362,10 @@ impl TransactionPartner {
                 .sponsor_user
                 .as_deref()
                 .and_then(|inner| inner.has_topics_enabled),
+            Self::User(val) => {
+                let inner = crate::types::TransactionPartnerUser::user(val);
+                inner.has_topics_enabled
+            }
             _ => None,
         }
     }
@@ -225,6 +375,10 @@ impl TransactionPartner {
     pub fn is_bot(&self) -> Option<bool> {
         match self {
             Self::AffiliateProgram(val) => val.sponsor_user.as_deref().map(|inner| inner.is_bot),
+            Self::User(val) => {
+                let inner = crate::types::TransactionPartnerUser::user(val);
+                Some(inner.is_bot)
+            }
             _ => None,
         }
     }
@@ -253,19 +407,6 @@ impl TransactionPartner {
         }
     }
 
-    /// Helper method for nested field `is_premium`.
-    #[must_use]
-    pub fn is_premium(&self) -> Option<bool> {
-        match self {
-            Self::Chat(val) => val.gift.as_deref().and_then(|inner| inner.is_premium),
-            Self::AffiliateProgram(val) => val
-                .sponsor_user
-                .as_deref()
-                .and_then(|inner| inner.is_premium),
-            _ => None,
-        }
-    }
-
     /// Helper method for nested field `language_code`.
     #[must_use]
     pub fn language_code(&self) -> Option<&str> {
@@ -274,6 +415,10 @@ impl TransactionPartner {
                 .sponsor_user
                 .as_deref()
                 .and_then(|inner| inner.language_code.as_deref()),
+            Self::User(val) => {
+                let inner = crate::types::TransactionPartnerUser::user(val);
+                inner.language_code.as_deref()
+            }
             _ => None,
         }
     }
@@ -290,6 +435,20 @@ impl TransactionPartner {
                 .sponsor_user
                 .as_deref()
                 .and_then(|inner| inner.last_name.as_deref()),
+            Self::User(val) => {
+                let inner = crate::types::TransactionPartnerUser::user(val);
+                inner.last_name.as_deref()
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `nanostar_amount`.
+    #[must_use]
+    pub fn nanostar_amount(&self) -> Option<i32> {
+        match self {
+            Self::User(val) => crate::types::TransactionPartnerUser::affiliate(val)
+                .and_then(|inner| inner.nanostar_amount),
             _ => None,
         }
     }
@@ -298,6 +457,8 @@ impl TransactionPartner {
     #[must_use]
     pub fn personal_remaining_count(&self) -> Option<i64> {
         match self {
+            Self::User(val) => crate::types::TransactionPartnerUser::gift(val)
+                .and_then(|inner| inner.personal_remaining_count),
             Self::Chat(val) => val
                 .gift
                 .as_deref()
@@ -310,6 +471,8 @@ impl TransactionPartner {
     #[must_use]
     pub fn personal_total_count(&self) -> Option<i64> {
         match self {
+            Self::User(val) => crate::types::TransactionPartnerUser::gift(val)
+                .and_then(|inner| inner.personal_total_count),
             Self::Chat(val) => val
                 .gift
                 .as_deref()
@@ -322,6 +485,8 @@ impl TransactionPartner {
     #[must_use]
     pub fn publisher_chat(&self) -> Option<&crate::types::Chat> {
         match self {
+            Self::User(val) => crate::types::TransactionPartnerUser::gift(val)
+                .and_then(|inner| inner.publisher_chat.as_deref()),
             Self::Chat(val) => val
                 .gift
                 .as_deref()
@@ -334,6 +499,8 @@ impl TransactionPartner {
     #[must_use]
     pub fn remaining_count(&self) -> Option<i64> {
         match self {
+            Self::User(val) => crate::types::TransactionPartnerUser::gift(val)
+                .and_then(|inner| inner.remaining_count),
             Self::Chat(val) => val.gift.as_deref().and_then(|inner| inner.remaining_count),
             _ => None,
         }
@@ -343,6 +510,9 @@ impl TransactionPartner {
     #[must_use]
     pub fn star_count(&self) -> Option<i64> {
         match self {
+            Self::User(val) => {
+                crate::types::TransactionPartnerUser::gift(val).map(|inner| inner.star_count)
+            }
             Self::Chat(val) => val.gift.as_deref().map(|inner| inner.star_count),
             _ => None,
         }
@@ -352,6 +522,9 @@ impl TransactionPartner {
     #[must_use]
     pub fn sticker(&self) -> Option<&crate::types::Sticker> {
         match self {
+            Self::User(val) => {
+                crate::types::TransactionPartnerUser::gift(val).map(|inner| inner.sticker.as_ref())
+            }
             Self::Chat(val) => val.gift.as_deref().map(|inner| inner.sticker.as_ref()),
             _ => None,
         }
@@ -365,6 +538,10 @@ impl TransactionPartner {
                 .sponsor_user
                 .as_deref()
                 .and_then(|inner| inner.supports_inline_queries),
+            Self::User(val) => {
+                let inner = crate::types::TransactionPartnerUser::user(val);
+                inner.supports_inline_queries
+            }
             _ => None,
         }
     }
@@ -385,6 +562,9 @@ impl TransactionPartner {
     #[must_use]
     pub fn total_count(&self) -> Option<i64> {
         match self {
+            Self::User(val) => {
+                crate::types::TransactionPartnerUser::gift(val).and_then(|inner| inner.total_count)
+            }
             Self::Chat(val) => val.gift.as_deref().and_then(|inner| inner.total_count),
             _ => None,
         }
@@ -394,6 +574,8 @@ impl TransactionPartner {
     #[must_use]
     pub fn unique_gift_variant_count(&self) -> Option<i64> {
         match self {
+            Self::User(val) => crate::types::TransactionPartnerUser::gift(val)
+                .and_then(|inner| inner.unique_gift_variant_count),
             Self::Chat(val) => val
                 .gift
                 .as_deref()
@@ -406,6 +588,8 @@ impl TransactionPartner {
     #[must_use]
     pub fn upgrade_star_count(&self) -> Option<i64> {
         match self {
+            Self::User(val) => crate::types::TransactionPartnerUser::gift(val)
+                .and_then(|inner| inner.upgrade_star_count),
             Self::Chat(val) => val
                 .gift
                 .as_deref()
@@ -438,6 +622,10 @@ impl TransactionPartner {
                 .sponsor_user
                 .as_deref()
                 .and_then(|inner| inner.username.as_deref()),
+            Self::User(val) => {
+                let inner = crate::types::TransactionPartnerUser::user(val);
+                inner.username.as_deref()
+            }
             _ => None,
         }
     }

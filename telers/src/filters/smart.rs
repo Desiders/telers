@@ -4802,7 +4802,7 @@ impl SmartFilterPath<crate::types::InlineQueryResult> {
 
     #[must_use]
     pub fn id(self) -> SmartFilterPath<str> {
-        self.and_then(|value| value.id())
+        self.map(|value| value.id())
     }
 
     #[must_use]
@@ -7294,7 +7294,7 @@ impl SmartFilterPath<crate::types::MaskPosition> {
 impl SmartFilterPath<crate::types::MaybeInaccessibleMessage> {
     #[must_use]
     pub fn chat(self) -> SmartFilterPath<crate::types::Chat> {
-        self.and_then(|value| value.chat())
+        self.map(|value| value.chat())
     }
 }
 impl SmartFilterPath<crate::types::MenuButton> {
