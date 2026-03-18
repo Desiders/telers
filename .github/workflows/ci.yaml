@@ -17,33 +17,26 @@ jobs:
   test-windows:
     name: Test Windows
     runs-on: windows-latest
-    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: cargo test --lib --tests --all --all-features
   
-  build-and-test-linux:
-    name: Build and test Linux
+  test-linux:
+    name: Test Linux
     runs-on: ubuntu-latest
-    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - name: Build
-        run: cargo build --all --all-features
       - name: Test
         run: cargo test --lib --tests --all --all-features
 
   check:
-    name: Check formatting and clippy
     runs-on: ubuntu-latest
-    timeout-minutes: 45
     steps:
     - uses: actions/checkout@v6
-    - uses: taiki-e/install-action@protoc
     - uses: dtolnay/rust-toolchain@nightly
       with:
         components: clippy, rustfmt
@@ -52,3 +45,31 @@ jobs:
       run: cargo clippy --all --all-features -- -W clippy::pedantic
     - name: rustfmt
       run: cargo fmt --all --check
+
+  dependencies-are-sorted:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - name: Install cargo-sort
+      uses: taiki-e/install-action@v2
+      with:
+          tool: cargo-sort
+    - name: Check that dependencies are sorted
+      run: cargo sort --check --workspace --grouped
+
+  check-hack:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - uses: dtolnay/rust-toolchain@stable
+    - uses: Swatinem/rust-cache@v2
+    - uses: taiki-e/install-action@cargo-hack
+    - name: Check Hack
+      run: cargo hack check --each-feature --no-dev-deps --all
+  
+  typos:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - name: Check typos
+      uses: crate-ci/typos@v1.44.0

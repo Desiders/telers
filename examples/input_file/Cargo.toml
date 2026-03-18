@@ -5,11 +5,11 @@ edition = "2021"
 publish = false
 
 [dependencies]
+bytes = "1.3"
+futures = "0.3"
+reqwest = "0.13"
 telers = { path = "../../telers", features = ["default_signal"] }
 tokio = { version = "1.36", features = ["macros"] }
 tokio-util = { version = "0.7.9", features = ["codec"] }
-reqwest = "0.12"
-futures = "0.3"
-bytes = "1.3"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

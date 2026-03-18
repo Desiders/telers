@@ -1,16 +1,98 @@
+//! Smart filter core utilities.
+//!
+//! This module powers the generated smart filters in [`crate::filters::smart`].
+//! The idea is simple: build a *path* into an [`Update`], then attach a *check*
+//! (predicate) to that path.
+//!
+//! # How to use smart filters
+//!
+//! You typically start from [`crate::filters::SmartFilter`], then
+//! compose paths and checks:
+//!
+//! ```rust
+//! use telers::filters::SmartFilter;
+//!
+//! // Match updates that contain a text message with "hello".
+//! let _filter = SmartFilter::update().message().text().contains("hello");
+//! ```
+//!
+//! Optional fields return a path that can be absent. Use `is_some`, `is_none`,
+//! or a predicate-based check to handle that case:
+//!
+//! ```rust
+//! use telers::filters::SmartFilter;
+//!
+//! // Check that an optional field is present.
+//! let _filter = SmartFilter::update().message().reply_to_message().is_some();
+//! ```
+//!
+//! # Path composition
+//!
+//! - [`SmartFilterPath`] is for borrowed data (`&T`).
+//! - [`SmartFilterOwnedPath`] is for owned data (`T`), useful when you need to
+//!   move values into async work or closure captures.
+//!
+//! Use `map` for *non-optional* accessors and `and_then` for *optional*
+//! accessors. The generated code picks the correct one for you, but when
+//! writing custom paths this rule matters.
+//!
+//! # Combining checks
+//!
+//! Use `.all()` or `.any()` to combine multiple checks on the same path:
+//!
+//! ```rust
+//! use telers::filters::SmartFilter;
+//!
+//! let _filter = SmartFilter::update()
+//!     .message()
+//!     .all()
+//!     .branch(|m| m.text().contains("hello"))
+//!     .branch(|m| m.chat().is_some());
+//! ```
+//!
+//! If you only need a single predicate, call `matches` or `matches_async` directly.
+//!
+//! # Check methods cheat sheet
+//!
+//! These checks are available on smart filter paths (depending on the value type):
+//!
+//! Presence:
+//! - `is_some()` and `is_none()` for optional paths.
+//!
+//! Equality and ordering:
+//! - `eq(val)` and `ne(val)` for any `T: PartialEq`.
+//! - `gt/lt/gte/lte(val)` for any `T: PartialOrd`.
+//!
+//! Booleans:
+//! - `is_true()` and `is_false()` on `SmartFilterPath<bool>`.
+//!
+//! Strings and slices:
+//! - `len()` and `is_empty()` on `str`, `String`, `Box<str>`, `[T]`, `Vec<T>`, `Box<[T]>`.
+//! - `starts_with`, `ends_with`, `is_uppercase`, `is_lowercase`, `contains` on `str`/`String`/`Box<str>`.
+//! - `contains(val)` on slices (`[T]`, `Vec<T>`, `Box<[T]>`) where `T: PartialEq`.
+//!
+//! Custom predicates:
+//! - `matches(|v| ...)` and `matches_async(|v| async { ... })` for arbitrary logic.
 #![allow(clippy::type_complexity)]
 
 use crate::{types::Update, Filter, FilterResult, Request};
 
 use std::{convert::Infallible, future::Future, pin::Pin, sync::Arc};
 
+/// Accessor for borrowed smart filter paths.
 type Accessor<T> = Arc<dyn for<'a> Fn(&'a Update) -> Option<&'a T> + Send + Sync>;
+/// Accessor for owned smart filter paths.
 type OwnedAccessor<T> = Arc<dyn Fn(&Update) -> Option<T> + Send + Sync>;
 
+/// Matching strategy for borrowed smart filters.
 pub enum SmartFilterMode<T: ?Sized> {
+    /// Matches when the accessor returns `Some`.
     IsSome,
+    /// Matches when the accessor returns `None`.
     IsNone,
+    /// Matches when the predicate returns `true`.
     Predicate(Arc<dyn Fn(&T) -> bool + Send + Sync>),
+    /// Matches when the async predicate resolves to `true`.
     AsyncPredicate(
         Arc<dyn for<'a> Fn(&'a T) -> Pin<Box<dyn Future<Output = bool> + Send + 'a>> + Send + Sync>,
     ),
@@ -27,10 +109,15 @@ impl<T: ?Sized> Clone for SmartFilterMode<T> {
     }
 }
 
+/// Matching strategy for owned smart filters.
 pub enum SmartFilterOwnedMode<T> {
+    /// Matches when the accessor returns `Some`.
     IsSome,
+    /// Matches when the accessor returns `None`.
     IsNone,
+    /// Matches when the predicate returns `true`.
     Predicate(Arc<dyn Fn(T) -> bool + Send + Sync>),
+    /// Matches when the async predicate resolves to `true`.
     AsyncPredicate(Arc<dyn Fn(T) -> Pin<Box<dyn Future<Output = bool> + Send>> + Send + Sync>),
 }
 
@@ -45,6 +132,7 @@ impl<T> Clone for SmartFilterOwnedMode<T> {
     }
 }
 
+/// Filter wrapper for borrowed smart filters.
 pub struct SmartFilterCheck<T: ?Sized> {
     accessor: Accessor<T>,
     mode: SmartFilterMode<T>,
@@ -92,6 +180,7 @@ where
     }
 }
 
+/// Filter wrapper for owned smart filters.
 pub struct SmartFilterOwnedCheck<T> {
     accessor: OwnedAccessor<T>,
     mode: SmartFilterOwnedMode<T>,
@@ -139,6 +228,7 @@ where
     }
 }
 
+/// A borrowed smart filter path that can be composed into deeper accessors.
 pub struct SmartFilterPath<T: ?Sized> {
     pub(crate) accessor: Accessor<T>,
 }
@@ -151,6 +241,7 @@ impl<T: ?Sized> Clone for SmartFilterPath<T> {
     }
 }
 
+/// An owned smart filter path that can be composed into deeper accessors.
 pub struct SmartFilterOwnedPath<T> {
     accessor: OwnedAccessor<T>,
 }
@@ -163,9 +254,12 @@ impl<T> Clone for SmartFilterOwnedPath<T> {
     }
 }
 
+/// Branch evaluation mode for grouped filters.
 #[derive(Clone, Copy)]
 pub enum BranchOperator {
+    /// All conditions must match.
     All,
+    /// Any condition may match.
     Any,
 }
 
@@ -272,6 +366,7 @@ define_branch! {
 }
 
 impl<T: ?Sized + Send + Sync + 'static> SmartFilterPath<T> {
+    /// Maps a non-optional accessor to a deeper borrowed path.
     #[must_use]
     pub fn map<U: ?Sized + Send + Sync + 'static>(
         self,
@@ -283,6 +378,7 @@ impl<T: ?Sized + Send + Sync + 'static> SmartFilterPath<T> {
         }
     }
 
+    /// Maps a non-optional accessor to an owned path.
     #[must_use]
     pub fn map_owned<U: Send + Sync + 'static>(
         self,
@@ -294,6 +390,7 @@ impl<T: ?Sized + Send + Sync + 'static> SmartFilterPath<T> {
         }
     }
 
+    /// Chains an optional accessor to a deeper borrowed path.
     #[must_use]
     pub fn and_then<U: ?Sized + Send + Sync + 'static>(
         self,
@@ -307,6 +404,7 @@ impl<T: ?Sized + Send + Sync + 'static> SmartFilterPath<T> {
 }
 
 impl<T: Send + Sync + 'static> SmartFilterOwnedPath<T> {
+    /// Maps a non-optional accessor to a deeper owned path.
     #[must_use]
     pub fn map<U: Send + Sync + 'static>(
         self,
@@ -318,6 +416,7 @@ impl<T: Send + Sync + 'static> SmartFilterOwnedPath<T> {
         }
     }
 
+    /// Chains an optional accessor to a deeper owned path.
     #[must_use]
     pub fn and_then<U: Send + Sync + 'static>(
         self,

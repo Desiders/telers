@@ -2,9 +2,15 @@
 
 use crate::{
     file::camel_to_filename,
-    generator::helpers::{
-        format_attr_description, format_description, get_singular_and_plural_forms,
-        sanitize_field_name,
+    generator::{
+        doc_utils::{
+            collect_telegram_type_names, link_known_type_mentions, normalize_doc_line_prefix,
+        },
+        helpers::{
+            format_attr_description, format_description, get_singular_and_plural_forms,
+            sanitize_field_name,
+        },
+        type_utils::{HelperFieldSource, collect_common_fields},
     },
     parser::api::{
         IntegerKind, NormalizedField, NormalizedSchema, NormalizedSubtypeVariant, NormalizedType,
@@ -13,7 +19,7 @@ use crate::{
 };
 
 use proc_macro2::{Ident, TokenStream};
-use quote::{format_ident, quote, ToTokens};
+use quote::{ToTokens, format_ident, quote};
 use std::collections::{BTreeMap, HashSet};
 
 struct TypeDocContext<'a> {
@@ -29,81 +35,6 @@ enum AccessExpr {
         returns_option: bool,
         wrap_in_some: bool,
     },
-}
-
-fn collect_telegram_type_names(kind: &TypeKindInField, out: &mut HashSet<String>) {
-    match kind {
-        TypeKindInField::Telegram(name) => {
-            out.insert(name.clone());
-        }
-        TypeKindInField::Array(inner) => collect_telegram_type_names(inner, out),
-        TypeKindInField::Either(left, right) => {
-            collect_telegram_type_names(left, out);
-            collect_telegram_type_names(right, out);
-        }
-        _ => {}
-    }
-}
-
-#[must_use]
-fn link_known_type_mentions(doc: &str, names: &HashSet<String>) -> String {
-    let mut out = String::with_capacity(doc.len() + 32);
-    let mut rest = doc;
-
-    while let Some(pos) = rest.find('`') {
-        out.push_str(&rest[..pos]);
-
-        // Handle bracketed form: [`Type`]
-        if pos > 0 && rest.as_bytes()[pos - 1] == b'[' {
-            out.pop(); // remove '[' that was already pushed
-            let after_tick = &rest[pos + 1..];
-            if let Some(end_tick) = after_tick.find('`') {
-                let token = &after_tick[..end_tick];
-                let after_end_tick = &after_tick[end_tick + 1..];
-                if let Some(after_bracket) = after_end_tick.strip_prefix(']') {
-                    if names.contains(token) {
-                        out.push_str("[`crate::types::");
-                        out.push_str(token);
-                        out.push_str("`]");
-                    } else {
-                        out.push_str("[`");
-                        out.push_str(token);
-                        out.push_str("`]");
-                    }
-                    rest = after_bracket;
-                    continue;
-                }
-            }
-            out.push('[');
-            out.push('`');
-            rest = &rest[pos + 1..];
-            continue;
-        }
-
-        // Handle plain backticked form: `Type`
-        let after_tick = &rest[pos + 1..];
-        if let Some(end_tick) = after_tick.find('`') {
-            let token = &after_tick[..end_tick];
-            if names.contains(token) {
-                out.push_str("[`crate::types::");
-                out.push_str(token);
-                out.push_str("`]");
-            } else {
-                out.push('`');
-                out.push_str(token);
-                out.push('`');
-            }
-            rest = &after_tick[end_tick + 1..];
-        } else {
-            out.push('`');
-            out.push_str(after_tick);
-            rest = "";
-            break;
-        }
-    }
-
-    out.push_str(rest);
-    out
 }
 
 #[must_use]
@@ -127,11 +58,6 @@ fn format_field_arg_doc(field: &NormalizedField, ctx: &TypeDocContext<'_>) -> St
 #[must_use]
 fn link_schema_type_mentions(doc: &str, ctx: &TypeDocContext<'_>) -> String {
     link_known_type_mentions(doc, ctx.schema_type_names)
-}
-
-#[must_use]
-fn normalize_doc_line_prefix(doc: &str) -> String {
-    format!(" {}", doc.trim_start())
 }
 
 impl ToTokens for TypeKindInField {
@@ -799,55 +725,6 @@ fn builder_impl_for_type(type_quote: &NormalizedType, ctx: &TypeDocContext<'_>) 
 }
 
 #[must_use]
-fn collect_common_fields<'a>(
-    ty: &'a NormalizedType,
-    schema: &'a NormalizedSchema,
-) -> BTreeMap<&'a str, (&'a NormalizedField, bool, bool)> {
-    let (tag_field, parent_tag_field) = ty
-        .subtype_kind
-        .as_ref()
-        .map(|k| k.get_tags())
-        .unwrap_or_default();
-
-    if ty.subtypes.is_empty() {
-        ty.fields
-            .iter()
-            .filter(|f| !f.is_tagged(tag_field, parent_tag_field))
-            .map(|f| (f.name.as_str(), (f, f.required, true)))
-            .collect()
-    } else {
-        let mut map: BTreeMap<&str, Vec<&NormalizedField>> = BTreeMap::new();
-        for subtype in &ty.subtypes {
-            let sub_ty = schema.types.get(&subtype.ty_name).unwrap();
-            // ↓ use the subtype's own tag context, not the parent's
-            let (sub_tag, sub_parent_tag) = sub_ty
-                .subtype_kind
-                .as_ref()
-                .map(|k| k.get_tags())
-                .unwrap_or_default();
-            for field in &sub_ty.fields {
-                if !field.is_tagged(tag_field, parent_tag_field)
-                    && !field.is_tagged(sub_tag, sub_parent_tag)
-                {
-                    map.entry(field.name.as_str()).or_default().push(field);
-                }
-            }
-        }
-        map.into_iter()
-            .filter(|(_, fields)| {
-                let first_ty = &fields[0].r#type;
-                fields.iter().all(|f| &f.r#type == first_ty)
-            })
-            .map(|(name, fields)| {
-                let is_common = fields.len() == ty.subtypes.len();
-                let is_fully_required = is_common && fields.iter().all(|f| f.required);
-                (name, (fields[0], is_fully_required, is_common))
-            })
-            .collect()
-    }
-}
-
-#[must_use]
 fn helper_method_return_type(field_ty: &TypeKindInField, fully_required: bool) -> TokenStream {
     match field_ty {
         TypeKindInField::Array(inner) if fully_required => quote! { &[#inner] },
@@ -1051,6 +928,93 @@ fn nested_outer_accessor_expr(
 }
 
 #[must_use]
+fn nested_outer_accessor_expr_from_helper(
+    outer_access: &TokenStream,
+    outer_fully_required: bool,
+    outer_field_ty: &TypeKindInField,
+    inner_access: AccessExpr,
+) -> TokenStream {
+    let enum_method_path = |method: &Ident| {
+        let TypeKindInField::Telegram(outer_ty_name) = outer_field_ty else {
+            unreachable!("enum method access requires telegram outer field");
+        };
+        let outer_ty_ident = format_ident!("{outer_ty_name}");
+        quote! { crate::types::#outer_ty_ident::#method }
+    };
+    if outer_fully_required {
+        let body = match inner_access {
+            AccessExpr::Plain(tokens) | AccessExpr::Optional(tokens) => tokens,
+            AccessExpr::WrapInSome(tokens) => quote! { Some(#tokens) },
+            AccessExpr::EnumMethod {
+                method,
+                returns_option,
+                wrap_in_some,
+            } => {
+                let method_path = enum_method_path(&method);
+                if returns_option {
+                    quote! { #method_path(inner) }
+                } else if wrap_in_some {
+                    quote! { Some(#method_path(inner)) }
+                } else {
+                    quote! { #method_path(inner) }
+                }
+            }
+        };
+        quote! { { let inner = #outer_access; #body } }
+    } else {
+        let use_match = match &inner_access {
+            AccessExpr::Plain(tokens)
+            | AccessExpr::Optional(tokens)
+            | AccessExpr::WrapInSome(tokens) => {
+                let code = tokens.to_string();
+                code.contains("if let") || code.contains("match ")
+            }
+            AccessExpr::EnumMethod {
+                ..
+            } => false,
+        };
+        match inner_access {
+            AccessExpr::Plain(tokens) | AccessExpr::WrapInSome(tokens) => {
+                if use_match {
+                    quote! {
+                        match #outer_access {
+                            Some(inner) => Some(#tokens),
+                            None => None,
+                        }
+                    }
+                } else {
+                    quote! { #outer_access.map(|inner| #tokens) }
+                }
+            }
+            AccessExpr::Optional(tokens) => {
+                if use_match {
+                    quote! {
+                        match #outer_access {
+                            Some(inner) => #tokens,
+                            None => None,
+                        }
+                    }
+                } else {
+                    quote! { #outer_access.and_then(|inner| #tokens) }
+                }
+            }
+            AccessExpr::EnumMethod {
+                method,
+                returns_option,
+                ..
+            } => {
+                let method_path = enum_method_path(&method);
+                if returns_option {
+                    quote! { #outer_access.and_then(#method_path) }
+                } else {
+                    quote! { #outer_access.map(#method_path) }
+                }
+            }
+        }
+    }
+}
+
+#[must_use]
 fn get_helper_impls_for_type(
     type_quote: &NormalizedType,
     schema: &NormalizedSchema,
@@ -1070,32 +1034,48 @@ fn get_helper_impls_for_type(
         .unwrap_or_default();
     let mut fields_subtypes_map: BTreeMap<
         &str,
-        Vec<(&NormalizedSubtypeVariant, &NormalizedField)>,
+        Vec<(&NormalizedSubtypeVariant, HelperFieldSource<'_>)>,
     > = BTreeMap::new();
     for subtype in &type_quote.subtypes {
         let ty = schema.types.get(&subtype.ty_name).unwrap();
-        for field in &ty.fields {
-            if field.is_tagged(tag_field, parent_tag_field) {
-                continue;
+        if ty.subtypes.is_empty() {
+            for field in &ty.fields {
+                if field.is_tagged(tag_field, parent_tag_field) {
+                    continue;
+                }
+                fields_subtypes_map
+                    .entry(&field.name)
+                    .or_default()
+                    .push((subtype, HelperFieldSource::Direct(field)));
             }
-            fields_subtypes_map
-                .entry(&field.name)
-                .or_default()
-                .push((subtype, field));
+        } else {
+            let common = collect_common_fields(ty, schema);
+            for (name, (field, fully_required, _)) in common {
+                if field.is_tagged(tag_field, parent_tag_field) {
+                    continue;
+                }
+                fields_subtypes_map.entry(name).or_default().push((
+                    subtype,
+                    HelperFieldSource::EnumHelper {
+                        field,
+                        fully_required,
+                    },
+                ));
+            }
         }
     }
 
     for (&field_name, subtypes) in &fields_subtypes_map {
         let method_name = sanitize_field_name(field_name);
-        let field = &subtypes[0].1;
+        let field = subtypes[0].1.field();
         let field_ty = &field.r#type;
 
-        let is_identical_field_type = subtypes.iter().all(|(_, f)| f.r#type == *field_ty);
+        let is_identical_field_type = subtypes.iter().all(|(_, f)| f.field().r#type == *field_ty);
         if !is_identical_field_type {
             continue;
         }
         let is_common = subtypes.len() == type_quote.subtypes.len();
-        let is_required_for_all = is_common && subtypes.iter().all(|(_, f)| f.required);
+        let is_required_for_all = is_common && subtypes.iter().all(|(_, f)| f.required());
         let return_ty = helper_method_return_type(field_ty, is_required_for_all);
 
         let doc_helper =
@@ -1104,8 +1084,8 @@ fn get_helper_impls_for_type(
             vec![quote! { #[doc = #doc_helper] }, quote! { #[doc = ""] }];
 
         let mut desc_groups: Vec<(&str, Vec<&str>)> = vec![];
-        for (subtype, field) in subtypes {
-            let desc = field.description.as_str();
+        for (subtype, source) in subtypes {
+            let desc = source.field().description.as_str();
             if let Some(group) = desc_groups.iter_mut().find(|(d, _)| *d == desc) {
                 group.1.push(subtype.ty_name.as_str());
             } else {
@@ -1143,11 +1123,28 @@ fn get_helper_impls_for_type(
         for (subtype, field) in subtypes {
             let variant = format_ident!("{}", subtype.variant);
 
-            let body = helper_field_accessor_expr(field);
-            let body = if field.required && !is_required_for_all {
-                quote! { Some(#body) }
-            } else {
-                quote! { #body }
+            let body = match field {
+                HelperFieldSource::Direct(field) => {
+                    let body = helper_field_accessor_expr(field);
+                    if field.required && !is_required_for_all {
+                        quote! { Some(#body) }
+                    } else {
+                        quote! { #body }
+                    }
+                }
+                HelperFieldSource::EnumHelper {
+                    field,
+                    fully_required,
+                } => {
+                    let inner_ident = sanitize_field_name(&field.name);
+                    let inner_ty_ident = format_ident!("{}", subtype.ty_name);
+                    let method_path = quote! { crate::types::#inner_ty_ident::#inner_ident };
+                    if *fully_required && !is_required_for_all {
+                        quote! { Some(#method_path(val)) }
+                    } else {
+                        quote! { #method_path(val) }
+                    }
+                }
             };
 
             match_arms.push(quote! {
@@ -1185,21 +1182,24 @@ fn get_helper_impls_for_type(
         String,
         Vec<(
             &NormalizedSubtypeVariant,
-            &NormalizedField, // outer field
-            &NormalizedField, // inner field (representative)
-            bool,             // inner_is_enum
-            bool,             // inner_field_fully_required (within inner type)
+            HelperFieldSource<'_>, // outer field
+            &NormalizedField,      // inner field (representative)
+            bool,                  // inner_is_enum
+            bool,                  // inner_field_fully_required (within inner type)
         )>,
     > = BTreeMap::new();
 
     for outer_subtypes in fields_subtypes_map.values() {
-        let first_outer = outer_subtypes[0].1;
+        let first_outer = outer_subtypes[0].1.field();
         let outer_ty = &first_outer.r#type;
 
         let TypeKindInField::Telegram(inner_type_name) = outer_ty else {
             continue;
         };
-        if !outer_subtypes.iter().all(|(_, f)| &f.r#type == outer_ty) {
+        if !outer_subtypes
+            .iter()
+            .all(|(_, f)| &f.field().r#type == outer_ty)
+        {
             continue;
         }
 
@@ -1226,7 +1226,7 @@ fn get_helper_impls_for_type(
                     .or_default()
                     .push((
                         *subtype,
-                        outer_field,
+                        *outer_field,
                         inner_field,
                         inner_is_enum,
                         *inner_field_fully_required,
@@ -1268,15 +1268,15 @@ fn get_helper_impls_for_type(
                 });
         let fully_required = is_all_covered
             && is_inner_req_all
-            && entries.iter().all(|(_, outer, ..)| outer.required);
+            && entries.iter().all(|(_, outer, ..)| outer.required());
 
         let return_ty = helper_method_return_type(inner_ty, fully_required);
-        let outer_field_name = entries[0].1.name.as_str();
+        let outer_field_name = entries[0].1.field().name.as_str();
         let can_delegate_via_outer_helper = is_all_covered
             && entries
                 .iter()
-                .all(|(_, outer, ..)| outer.name == outer_field_name);
-        let outer_fully_required = entries.iter().all(|(_, outer, ..)| outer.required);
+                .all(|(_, outer, ..)| outer.field().name == outer_field_name);
+        let outer_fully_required = entries.iter().all(|(_, outer, ..)| outer.required());
 
         if can_delegate_via_outer_helper {
             let outer_ident = sanitize_field_name(outer_field_name);
@@ -1284,7 +1284,7 @@ fn get_helper_impls_for_type(
                 entries[0];
             let inner_ident = sanitize_field_name(&inner_field.name);
             let delegated = if inner_is_enum {
-                let TypeKindInField::Telegram(inner_ty_name) = &outer_field.r#type else {
+                let TypeKindInField::Telegram(inner_ty_name) = &outer_field.field().r#type else {
                     unreachable!("enum nested helper must have telegram type");
                 };
                 let inner_ty_ident = format_ident!("{inner_ty_name}");
@@ -1363,7 +1363,7 @@ fn get_helper_impls_for_type(
             &entries
         {
             let variant = format_ident!("{}", subtype.variant);
-            let outer_ident = sanitize_field_name(&outer_field.name);
+            let outer_ident = sanitize_field_name(&outer_field.field().name);
             let inner_ident = sanitize_field_name(&inner_field.name);
             let inner_access = nested_inner_accessor_expr(
                 &inner_ident,
@@ -1373,7 +1373,24 @@ fn get_helper_impls_for_type(
                 *inner_field_fully_required,
                 fully_required,
             );
-            let body = nested_outer_accessor_expr(&outer_ident, outer_field, inner_access);
+            let body = match outer_field {
+                HelperFieldSource::Direct(field) => {
+                    nested_outer_accessor_expr(&outer_ident, field, inner_access)
+                }
+                HelperFieldSource::EnumHelper {
+                    field,
+                    fully_required,
+                } => {
+                    let outer_ty_ident = format_ident!("{}", subtype.ty_name);
+                    let method_path = quote! { crate::types::#outer_ty_ident::#outer_ident };
+                    nested_outer_accessor_expr_from_helper(
+                        &quote! { #method_path(val) },
+                        *fully_required,
+                        &field.r#type,
+                        inner_access,
+                    )
+                }
+            };
 
             match_arms.push(quote! { Self::#variant(val) => #body });
         }

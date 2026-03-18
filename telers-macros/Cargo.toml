@@ -1,19 +1,22 @@
 [package]
 name = "telers-macros"
-version = "1.0.0-alpha.4"
+version = "1.0.0-beta.1"
 edition = "2021"
 description = "Macros for telers"
-rust-version = "1.61.0"
 repository = "https://github.com/Desiders/telers"
 license = "MIT OR Apache-2.0"
 keywords = ["bot", "telegram", "telegram-bot", "telegram-bot-api", "telers"]
 categories = ["web-programming", "api-bindings", "asynchronous"]
 
-[features]
-default = []
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
 
 [lib]
 proc-macro = true
+
+[features]
+default = []
 
 [dependencies]
 proc-macro2 = "1.0"
@@ -22,8 +25,4 @@ syn = { version = "2.0", features = ["full"] }
  
 [dev-dependencies]
 # This dependency is not necessarily the latest version
-telers = { path = "../telers", version = "1.0.0-alpha.22", features = ["default"] }
-
-[package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--cfg", "docsrs"]
+telers = { path = "../telers", features = ["default"] }

@@ -1,5 +1,8 @@
 use crate::{
-    generator::helpers::sanitize_field_name,
+    generator::{
+        helpers::sanitize_field_name,
+        type_utils::{HelperFieldSource, collect_common_fields},
+    },
     parser::api::{
         NormalizedField, NormalizedSchema, NormalizedSubtypeVariant, NormalizedType,
         TypeKindInField,
@@ -68,55 +71,6 @@ fn struct_field_access_expr(field: &NormalizedField) -> TokenStream {
     }
 }
 
-#[must_use]
-fn collect_common_fields<'a>(
-    ty: &'a NormalizedType,
-    schema: &'a NormalizedSchema,
-) -> BTreeMap<&'a str, (&'a NormalizedField, bool, bool)> {
-    let (tag_field, parent_tag_field) = ty
-        .subtype_kind
-        .as_ref()
-        .map(|k| k.get_tags())
-        .unwrap_or_default();
-
-    if ty.subtypes.is_empty() {
-        ty.fields
-            .iter()
-            .filter(|f| !f.is_tagged(tag_field, parent_tag_field))
-            .map(|f| (f.name.as_str(), (f, f.required, true)))
-            .collect()
-    } else {
-        let mut map: BTreeMap<&str, Vec<&NormalizedField>> = BTreeMap::new();
-        for subtype in &ty.subtypes {
-            let sub_ty = schema.types.get(&subtype.ty_name).unwrap();
-            let (sub_tag, sub_parent_tag) = sub_ty
-                .subtype_kind
-                .as_ref()
-                .map(|k| k.get_tags())
-                .unwrap_or_default();
-            for field in &sub_ty.fields {
-                if !field.is_tagged(tag_field, parent_tag_field)
-                    && !field.is_tagged(sub_tag, sub_parent_tag)
-                {
-                    map.entry(field.name.as_str()).or_default().push(field);
-                }
-            }
-        }
-
-        map.into_iter()
-            .filter(|(_, fields)| {
-                let first_ty = &fields[0].r#type;
-                fields.iter().all(|f| &f.r#type == first_ty)
-            })
-            .map(|(name, fields)| {
-                let is_common = fields.len() == ty.subtypes.len();
-                let is_fully_required = is_common && fields.iter().all(|f| f.required);
-                (name, (fields[0], is_fully_required, is_common))
-            })
-            .collect()
-    }
-}
-
 #[allow(clippy::too_many_lines)]
 #[must_use]
 fn enum_method_specs(
@@ -135,25 +89,41 @@ fn enum_method_specs(
     // First, collect direct fields from all subtypes
     let mut fields_subtypes_map: BTreeMap<
         &str,
-        Vec<(&NormalizedSubtypeVariant, &NormalizedField)>,
+        Vec<(&NormalizedSubtypeVariant, HelperFieldSource<'_>)>,
     > = BTreeMap::new();
 
     for subtype in &type_quote.subtypes {
         let ty = schema.types.get(&subtype.ty_name).unwrap();
-        for field in &ty.fields {
-            if field.is_tagged(tag_field, parent_tag_field) {
-                continue;
+        if ty.subtypes.is_empty() {
+            for field in &ty.fields {
+                if field.is_tagged(tag_field, parent_tag_field) {
+                    continue;
+                }
+                fields_subtypes_map
+                    .entry(&field.name)
+                    .or_default()
+                    .push((subtype, HelperFieldSource::Direct(field)));
             }
-            fields_subtypes_map
-                .entry(&field.name)
-                .or_default()
-                .push((subtype, field));
+        } else {
+            let common = collect_common_fields(ty, schema);
+            for (name, (field, fully_required, _)) in common {
+                if field.is_tagged(tag_field, parent_tag_field) {
+                    continue;
+                }
+                fields_subtypes_map.entry(name).or_default().push((
+                    subtype,
+                    HelperFieldSource::EnumHelper {
+                        field,
+                        fully_required,
+                    },
+                ));
+            }
         }
     }
 
     // Process direct fields
     for (&field_name, subtypes) in &fields_subtypes_map {
-        let field = &subtypes[0].1;
+        let field = subtypes[0].1.field();
 
         // Skip copy types as they're handled by eq/ne methods
         if field.r#type.is_copy() {
@@ -161,13 +131,15 @@ fn enum_method_specs(
         }
 
         // All subtypes must have the same field type
-        let is_identical_field_type = subtypes.iter().all(|(_, f)| f.r#type == field.r#type);
+        let is_identical_field_type = subtypes
+            .iter()
+            .all(|(_, f)| f.field().r#type == field.r#type);
         if !is_identical_field_type {
             continue;
         }
 
         let is_common = subtypes.len() == type_quote.subtypes.len();
-        let is_required_for_all = is_common && subtypes.iter().all(|(_, f)| f.required);
+        let is_required_for_all = is_common && subtypes.iter().all(|(_, f)| f.required());
         method_infos.insert(field_name.to_string(), (&field.r#type, is_required_for_all));
     }
 
@@ -176,7 +148,21 @@ fn enum_method_specs(
         let mut nested_map: BTreeMap<String, Vec<NestedEntry<'_>>> = BTreeMap::new();
 
         for outer_subtypes in fields_subtypes_map.values() {
-            let first_outer = outer_subtypes[0].1;
+            let direct_entries: Vec<_> = outer_subtypes
+                .iter()
+                .filter_map(|(subtype, field)| match field {
+                    HelperFieldSource::Direct(field) => Some((*subtype, *field)),
+                    HelperFieldSource::EnumHelper {
+                        ..
+                    } => None,
+                })
+                .collect();
+
+            if direct_entries.len() != outer_subtypes.len() || direct_entries.is_empty() {
+                continue;
+            }
+
+            let first_outer = direct_entries[0].1;
             let outer_ty = &first_outer.r#type;
 
             // Only process Telegram fields
@@ -185,7 +171,7 @@ fn enum_method_specs(
             };
 
             // All subtypes must have the same outer field type
-            if !outer_subtypes.iter().all(|(_, f)| &f.r#type == outer_ty) {
+            if !direct_entries.iter().all(|(_, f)| &f.r#type == outer_ty) {
                 continue;
             }
 
@@ -215,13 +201,13 @@ fn enum_method_specs(
                 }
 
                 // Record this nested field for each outer subtype
-                for (subtype, outer_field) in outer_subtypes {
+                for (subtype, outer_field) in &direct_entries {
                     nested_map
                         .entry((*inner_field_name).to_string())
                         .or_default()
                         .push((
                             *subtype,
-                            outer_field,
+                            *outer_field,
                             inner_field,
                             inner_is_enum,
                             *inner_field_fully_required,
@@ -400,7 +386,7 @@ pub fn tokenize_smart_filter(schema: &NormalizedSchema) -> TokenStream {
         #![allow(clippy::wrong_self_convention)]
         #![allow(clippy::redundant_closure_for_method_calls)]
 
-        mod core;
+        pub mod core;
 
         use crate::types::Update;
 
