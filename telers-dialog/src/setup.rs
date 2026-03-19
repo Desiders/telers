@@ -206,9 +206,10 @@ mod tests {
         DialogContextMiddleware, DialogManagerMiddleware, DialogObserverExt, DIALOG_MANAGER_KEY,
     };
     use crate::{
+        dialog,
         entities::{CHAT_EVENT_KEY, EVENT_CONTEXT_KEY},
-        widgets::WidgetKind,
-        DialogImpl, DialogManager, DialogRegistry, WindowImpl,
+        widgets::text,
+        window, DialogManager, DialogRegistry,
     };
     use std::{convert::Infallible, sync::Arc};
     use telers::{
@@ -268,10 +269,7 @@ mod tests {
             .insert("fsm_context", FSMContext::new(MemoryStorage::new(), key));
         request.extensions.insert(
             DialogRegistry::new()
-                .register(DialogImpl::new(vec![WindowImpl::new(
-                    "state",
-                    [WidgetKind::text("hello")],
-                )]))
+                .register(dialog([window("state", [text("hello")])]))
                 .expect("dialog registration"),
         );
 
@@ -306,10 +304,7 @@ mod tests {
             .insert("fsm_context", FSMContext::new(MemoryStorage::new(), key));
         request.extensions.insert(
             DialogRegistry::new()
-                .register(DialogImpl::new(vec![WindowImpl::new(
-                    "state",
-                    [WidgetKind::text("hello")],
-                )]))
+                .register(dialog([window("state", [text("hello")])]))
                 .expect("dialog registration"),
         );
 
@@ -354,10 +349,7 @@ mod tests {
         let mut extensions = Extensions::default();
         extensions.insert(
             DialogRegistry::new()
-                .register(DialogImpl::new(vec![WindowImpl::new(
-                    "state",
-                    [WidgetKind::text("hello")],
-                )]))
+                .register(dialog([window("state", [text("hello")])]))
                 .expect("dialog registration"),
         );
         let request = Request::<Reqwest> {

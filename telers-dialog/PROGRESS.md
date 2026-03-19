@@ -48,7 +48,7 @@
   - `Root` and `Exclusive` reset the current stack on start
   - starting a different dialog over an active `Exclusive` dialog returns an error
   - `SingleTop` replaces the top context when starting the same dialog again on the same stack
-- `WindowImpl` renders text plus optional keyboard and optional message input.
+- The built-in `window(...)` type renders text plus optional keyboard and optional message input.
 - Multiple text widgets in a single window are normalized into `MultiText`.
 - `MessageManager` now tracks enough message snapshot data to compare rendered output more reliably:
   - text

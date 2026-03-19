@@ -46,22 +46,16 @@ impl DialogRegistry {
 #[cfg(test)]
 mod tests {
     use super::DialogRegistry;
-    use crate::{widgets::WidgetKind, DialogError, DialogImpl, WindowImpl};
+    use crate::{dialog, widgets::text, window, DialogError};
 
     #[test]
     fn registry_rejects_duplicate_states() {
         let registry = DialogRegistry::new()
-            .register(DialogImpl::new(vec![WindowImpl::new(
-                "state",
-                [WidgetKind::text("one")],
-            )]))
+            .register(dialog([window("state", [text("one")])]))
             .expect("first dialog");
 
         let err = registry
-            .register(DialogImpl::new(vec![WindowImpl::new(
-                "state",
-                [WidgetKind::text("two")],
-            )]))
+            .register(dialog([window("state", [text("two")])]))
             .err()
             .expect("duplicate state must fail");
 

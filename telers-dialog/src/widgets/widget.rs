@@ -16,36 +16,22 @@ pub enum WidgetKind {
     Input(Box<dyn Input>),
 }
 
-impl WidgetKind {
-    pub fn text(t: impl Text) -> Self {
-        Self::Text(Box::new(t))
-    }
-
-    pub fn keyboard(k: impl Keyboard) -> Self {
-        Self::Keyboard(Box::new(k))
-    }
-
-    pub fn input(i: impl Input) -> Self {
-        Self::Input(Box::new(i))
-    }
-}
-
 #[inline]
 #[must_use]
 pub fn text(t: impl Text) -> WidgetKind {
-    WidgetKind::text(t)
+    WidgetKind::Text(Box::new(t))
 }
 
 #[inline]
 #[must_use]
 pub fn keyboard(k: impl Keyboard) -> WidgetKind {
-    WidgetKind::keyboard(k)
+    WidgetKind::Keyboard(Box::new(k))
 }
 
 #[inline]
 #[must_use]
 pub fn input(i: impl Input) -> WidgetKind {
-    WidgetKind::input(i)
+    WidgetKind::Input(Box::new(i))
 }
 
 /// Normalize a window widget list into the concrete slots used by `WindowImpl`.
