@@ -17,13 +17,16 @@ const BASE: u64 = ALPHABET.len() as u64;
 const EMPTY_ENCODED_ID: &str = "0";
 
 /// Generates a compact, URL-safe, roughly time-ordered ID.
-/// Format: base-62 encoding of (unix_ms XOR monotonic counter).
+/// Format: base-62 encoding of (`unix_ms` XOR monotonic counter).
 #[must_use]
 pub fn generate_id() -> String {
-    let millis = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_millis() as u64;
+    let millis = u64::try_from(
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_millis(),
+    )
+    .unwrap_or(u64::MAX);
 
     let counter = ID_COUNTER.fetch_add(1, Relaxed);
     encode_base62(millis ^ counter)

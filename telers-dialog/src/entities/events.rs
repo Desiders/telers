@@ -12,6 +12,11 @@ pub const EVENT_CONTEXT_KEY: &str = "td_event_context";
 pub const CHAT_EVENT_KEY: &str = "td_chat_event";
 
 #[derive(Clone, Debug)]
+#[expect(
+    clippy::large_enum_variant,
+    reason = "Chat events intentionally mirror telers update payloads without extra boxing at \
+              call sites."
+)]
 pub enum ChatEvent {
     CallbackQuery(CallbackQuery),
     ChatJoinRequest(ChatJoinRequest),
