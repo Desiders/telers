@@ -141,36 +141,41 @@ impl<S: Storage> DialogManager<S> {
     fn get_last_message(&self, stack: &Stack, event_ctx: &EventContext) -> Option<OldMessage> {
         if let ChatEvent::CallbackQuery(cb) = &self.event {
             if let Some(message) = cb.message.clone() {
-                let (chat, message_id, text, reply_markup_value, link_preview_options_value) =
-                    match *message {
-                        MaybeInaccessibleMessage::InaccessibleMessage(m) => (
-                            *m.chat,
-                            m.message_id,
-                            stack.last_text.clone(),
-                            stack.last_reply_markup.clone(),
-                            stack.last_link_preview_options.clone(),
-                        ),
-                        MaybeInaccessibleMessage::Message(m) => (
-                            m.chat().clone(),
-                            m.message_id(),
-                            m.text().map(Into::into),
-                            m.reply_markup()
-                                .cloned()
-                                .map(ReplyMarkup::InlineKeyboardMarkup)
-                                .and_then(|markup| serde_json::to_value(markup).ok()),
-                            None,
-                        ),
-                    };
+                let (
+                    chat,
+                    message_id,
+                    text,
+                    reply_markup_type,
+                    reply_markup_value,
+                    link_preview_options_value,
+                ) = match *message {
+                    MaybeInaccessibleMessage::InaccessibleMessage(m) => (
+                        *m.chat,
+                        m.message_id,
+                        stack.last_text.clone(),
+                        Self::stored_reply_markup_type(stack),
+                        stack.last_reply_markup.clone(),
+                        stack.last_link_preview_options.clone(),
+                    ),
+                    MaybeInaccessibleMessage::Message(m) => (
+                        m.chat().clone(),
+                        m.message_id(),
+                        m.text().map(Into::into),
+                        m.reply_markup()
+                            .map(|_| ReplyMarkupType::InlineKeyboardMarkup),
+                        m.reply_markup()
+                            .cloned()
+                            .map(ReplyMarkup::InlineKeyboardMarkup)
+                            .and_then(|markup| serde_json::to_value(markup).ok()),
+                        None,
+                    ),
+                };
                 return Some(OldMessage::new(
                     chat,
                     message_id,
                     text,
                     stack.has_protected_content,
-                    if stack.last_reply_keyboard {
-                        Some(ReplyMarkupType::ReplyKeyboardMarkup)
-                    } else {
-                        None
-                    },
+                    reply_markup_type,
                     reply_markup_value,
                     event_ctx.business_connection_id.clone(),
                     stack.message_type,
@@ -184,16 +189,22 @@ impl<S: Storage> DialogManager<S> {
             id,
             stack.last_text.clone(),
             stack.has_protected_content,
-            if stack.last_reply_keyboard {
-                Some(ReplyMarkupType::ReplyKeyboardMarkup)
-            } else {
-                None
-            },
+            Self::stored_reply_markup_type(stack),
             stack.last_reply_markup.clone(),
             event_ctx.business_connection_id.clone(),
             stack.message_type,
             stack.last_link_preview_options.clone(),
         ))
+    }
+
+    fn stored_reply_markup_type(stack: &Stack) -> Option<ReplyMarkupType> {
+        if stack.last_reply_keyboard {
+            Some(ReplyMarkupType::ReplyKeyboardMarkup)
+        } else if stack.last_reply_markup.is_some() {
+            Some(ReplyMarkupType::InlineKeyboardMarkup)
+        } else {
+            None
+        }
     }
 
     /// Calculate show mode based on chat type, stack state and current event.
@@ -339,6 +350,19 @@ impl<S: Storage> DialogManager<S> {
                     value,
                 } => {
                     self.set_dialog_value(key, value).await?;
+                    needs_show = true;
+                    handled = true;
+                }
+                ButtonAction::SetWidgetData(data) => {
+                    self.set_widget_data(data).await?;
+                    needs_show = true;
+                    handled = true;
+                }
+                ButtonAction::SetWidgetValue {
+                    key,
+                    value,
+                } => {
+                    self.set_widget_value(key, value).await?;
                     needs_show = true;
                     handled = true;
                 }
@@ -655,6 +679,15 @@ impl<S: Storage> DialogManager<S> {
         Ok(self.current_context().await?.dialog_data)
     }
 
+    /// Get widget data for current context.
+    ///
+    /// # Errors
+    /// - If there is no current context.
+    /// - If storage error occurs.
+    pub async fn widget_data(&self) -> Result<DataMap, DialogError> {
+        Ok(self.current_context().await?.widget_data)
+    }
+
     /// Replace dialog data for current context.
     ///
     /// # Errors
@@ -673,6 +706,28 @@ impl<S: Storage> DialogManager<S> {
             .get_mut(&id)
             .ok_or(DialogError::NoContext)?;
         ctx.dialog_data = data;
+        self.save_storage(storage).await?;
+        Ok(())
+    }
+
+    /// Replace widget data for current context.
+    ///
+    /// # Errors
+    /// - If there is no current context.
+    /// - If storage error occurs.
+    pub async fn set_widget_data(&self, data: DataMap) -> Result<(), DialogError> {
+        debug!(keys = data.len(), "Replace widget data");
+        let mut storage = self.load_storage().await?;
+        let stack = storage.current_stack_mut();
+        let id = stack
+            .last_intent_id()
+            .ok_or(DialogError::NoContext)?
+            .to_string();
+        let ctx = storage
+            .contexts
+            .get_mut(&id)
+            .ok_or(DialogError::NoContext)?;
+        ctx.widget_data = data;
         self.save_storage(storage).await?;
         Ok(())
     }
@@ -700,6 +755,33 @@ impl<S: Storage> DialogManager<S> {
             .get_mut(&id)
             .ok_or(DialogError::NoContext)?;
         ctx.dialog_data.insert(key, value);
+        self.save_storage(storage).await?;
+        Ok(())
+    }
+
+    /// Set single value in widget data for current context.
+    ///
+    /// # Errors
+    /// - If there is no current context.
+    /// - If storage error occurs.
+    pub async fn set_widget_value(
+        &self,
+        key: impl Into<String>,
+        value: Data,
+    ) -> Result<(), DialogError> {
+        let key = key.into();
+        debug!(key = %key, value = %value, "Set widget value");
+        let mut storage = self.load_storage().await?;
+        let stack = storage.current_stack_mut();
+        let id = stack
+            .last_intent_id()
+            .ok_or(DialogError::NoContext)?
+            .to_string();
+        let ctx = storage
+            .contexts
+            .get_mut(&id)
+            .ok_or(DialogError::NoContext)?;
+        ctx.widget_data.insert(key, value);
         self.save_storage(storage).await?;
         Ok(())
     }
@@ -781,7 +863,7 @@ mod tests {
     use crate::{
         dialog,
         entities::{
-            AccessSettings, ChatEvent, EventContext, LaunchMode, ShowMode, StartMode,
+            AccessSettings, ChatEvent, EventContext, LaunchMode, ShowMode, Stack, StartMode,
             EVENT_CONTEXT_KEY,
         },
         widgets::{input, text, ButtonAction, FnText, MessageInput},
@@ -794,6 +876,7 @@ mod tests {
     };
     use telers::{
         client::Reqwest,
+        enums::ReplyMarkupType,
         fsm::{Context as FSMContext, MemoryStorage, StorageKey},
         types::{ChatPrivate, Message, MessageText, User},
         Bot, Context as RuntimeContext,
@@ -1026,6 +1109,7 @@ mod tests {
                     text("Send your name"),
                     input(MessageInput::text(|name| {
                         ButtonAction::chain([
+                            ButtonAction::set_widget_value("input.name", name.clone()),
                             ButtonAction::set_dialog_value("name", name),
                             ButtonAction::next(),
                         ])
@@ -1059,6 +1143,7 @@ mod tests {
         let current = input_manager.current_context().await.expect("context");
         assert_eq!(current.state, "done");
         assert_eq!(current.dialog_data.get("name"), Some(&json!("Alice")));
+        assert_eq!(current.widget_data.get("input.name"), Some(&json!("Alice")));
     }
 
     #[tokio::test]
@@ -1144,5 +1229,31 @@ mod tests {
         assert!(stack.last_text.is_none());
         assert!(stack.last_reply_markup.is_none());
         assert!(!stack.last_reply_keyboard);
+    }
+
+    #[test]
+    fn get_last_message_restores_inline_keyboard_type_from_stored_snapshot() {
+        let event = message_event("/start");
+        let manager = manager_for_event(
+            test_fsm(test_bot().id),
+            DialogRegistry::new(),
+            event.clone(),
+        );
+        let event_ctx = manager.event_context().clone();
+        let mut stack = Stack::new();
+        stack.last_message_id = Some(42);
+        stack.last_text = Some("summary".into());
+        stack.last_reply_markup = Some(serde_json::json!({
+            "inline_keyboard": [[{"text": "Close", "callback_data": "td:intent:done"}]]
+        }));
+
+        let old = manager
+            .get_last_message(&stack, &event_ctx)
+            .expect("old message");
+
+        assert_eq!(
+            old.reply_markup_type,
+            Some(ReplyMarkupType::InlineKeyboardMarkup)
+        );
     }
 }

@@ -4,7 +4,7 @@ mod list;
 mod text;
 mod widget;
 
-pub use input::{Input, MessageInput};
+pub use input::{Input, MessageInput, TextInput};
 pub use kbd::{Button, ButtonAction, CallbackPayload, InlineKeyboard, Keyboard, Select};
 pub use list::ListText;
 pub use text::{FnText, FormatText, MultiText, Text};

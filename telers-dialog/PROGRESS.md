@@ -44,6 +44,15 @@
   - `handle_message`
   - `answer_callback`
   - iterative `ButtonAction::Chain` processing without recursive async calls
+- `Context` now provides helper reads for both state maps:
+  - `dialog_value(...)`
+  - `dialog_value_as::<T>(...)`
+  - `widget_value(...)`
+  - `widget_value_as::<T>(...)`
+- `DialogManager` now mirrors `dialog_data` with widget-local state helpers:
+  - `widget_data()`
+  - `set_widget_data(...)`
+  - `set_widget_value(...)`
 - `LaunchMode` is partially enforced:
   - `Root` and `Exclusive` reset the current stack on start
   - starting a different dialog over an active `Exclusive` dialog returns an error
@@ -66,6 +75,7 @@
   - `SingleTop` top-context reuse
   - `Exclusive` reset and blocking semantics
   - `next()` / `back()` transitions and boundary errors
+  - message-input chains that write to both `dialog_data` and `widget_data`
 
 ## Main Widgets Available
 - Text widgets:
@@ -87,6 +97,7 @@
   - `Select`
 - Input widgets:
   - `MessageInput`
+  - `TextInput`
 - Typed callback payload helpers:
   - `CallbackPayload` for compact typed select payloads
 - Button actions:
@@ -98,6 +109,8 @@
   - `Done`
   - `SetDialogData`
   - `SetDialogValue`
+  - `SetWidgetData`
+  - `SetWidgetValue`
   - `Chain`
 
 ## Integration Pattern
@@ -182,14 +195,16 @@ fn router() -> Router {
 ## Open Decisions
 - Whether to add a small builder helper for common router wiring, or keep setup fully manual.
 - How much typed callback payload support should exist beyond `ButtonAction`.
-- Whether widget-local state should stay as raw `serde_json::Value` maps or gain typed helpers.
+- Whether widget-local state should stay as raw `serde_json::Value` maps internally or gain higher-level managed/widget-specific APIs.
 - How result propagation between stacked dialogs should look in idiomatic Rust.
 
 ## Known Gaps
 - More widgets:
   - richer text composition
   - scrolling and paging widgets
-- Widget-local state helpers built on top of `widget_data`.
+- Higher-level widget-local widgets on top of the new `widget_data` helpers:
+  - stateful select/radio behavior
+  - more `TextInput` parity such as richer validation/error flows
 - Result propagation between stacked dialogs.
 - Access control enforcement using `AccessSettings`.
 - Media rendering support.
@@ -199,11 +214,10 @@ fn router() -> Router {
 ## Validation Status
 - `cargo check -p telers-dialog` passes.
 - `cargo test -p telers-dialog` passes.
-- `cargo check -p dialogs_text_widgets -p dialogs_button_actions -p dialogs_select_widget -p dialogs_message_input` passes.
+- `cargo check -p dialogs_message_input` passes.
 - `just fmt` passes.
-- `just clippy` passes with existing workspace and crate warnings.
 
 ## Recommended Next Slice
-1. Add widget-local state helpers built on top of `widget_data`, especially for select/input widgets.
+1. Build the first stateful widgets on top of the new `widget_data` helpers, especially select/radio-style widgets and richer `TextInput` flows.
 2. Add scrolling and paging widgets on top of the new callback payload plumbing.
 3. Decide whether to keep setup fully manual or add a very small router/helper layer on top of `DialogObserverExt::setup_dialogs::<S>()`.

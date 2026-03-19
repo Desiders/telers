@@ -24,6 +24,11 @@ pub enum ButtonAction {
         key: Box<str>,
         value: Data,
     },
+    SetWidgetData(DataMap),
+    SetWidgetValue {
+        key: Box<str>,
+        value: Data,
+    },
     Chain(Box<[ButtonAction]>),
 }
 
@@ -74,6 +79,19 @@ impl ButtonAction {
     #[must_use]
     pub fn set_dialog_value(key: impl Into<Box<str>>, value: impl Into<Data>) -> Self {
         Self::SetDialogValue {
+            key: key.into(),
+            value: value.into(),
+        }
+    }
+
+    #[must_use]
+    pub fn set_widget_data(data: DataMap) -> Self {
+        Self::SetWidgetData(data)
+    }
+
+    #[must_use]
+    pub fn set_widget_value(key: impl Into<Box<str>>, value: impl Into<Data>) -> Self {
+        Self::SetWidgetValue {
             key: key.into(),
             value: value.into(),
         }
