@@ -1,7 +1,7 @@
 use crate::{
     entities::{Context, DataMap, EventContext, LaunchMode, NewMessage},
     widgets::ButtonAction,
-    window::Window,
+    IntoWindow, Window,
 };
 use std::{collections::BTreeMap, sync::Arc};
 use tracing::warn;
@@ -52,6 +52,14 @@ pub trait Dialog: Send + Sync {
         ctx: &Context,
         callback_data: &str,
     ) -> Option<ButtonAction>;
+
+    #[must_use]
+    fn handle_message(
+        &self,
+        state: &str,
+        ctx: &Context,
+        message: &telers::types::Message,
+    ) -> Option<ButtonAction>;
 }
 
 pub trait IntoDialog {
@@ -82,6 +90,14 @@ impl IntoDialog for Arc<dyn Dialog> {
     }
 }
 
+#[must_use]
+pub fn dialog<W>(windows: impl IntoIterator<Item = W>) -> DialogImpl
+where
+    W: IntoWindow,
+{
+    DialogImpl::new(windows)
+}
+
 pub struct DialogImpl {
     states: Vec<String>,
     windows: BTreeMap<String, Arc<dyn Window>>,
@@ -92,7 +108,7 @@ impl DialogImpl {
     #[must_use]
     pub fn new<W>(windows: impl IntoIterator<Item = W>) -> Self
     where
-        W: crate::window::IntoWindow,
+        W: IntoWindow,
     {
         let windows = windows.into_iter().map(W::into_window);
         let mut states = Vec::new();
@@ -158,19 +174,29 @@ impl Dialog for DialogImpl {
         self.get_window(state)
             .and_then(|window| window.handle_callback(ctx, callback_data))
     }
+
+    fn handle_message(
+        &self,
+        state: &str,
+        ctx: &Context,
+        message: &telers::types::Message,
+    ) -> Option<ButtonAction> {
+        self.get_window(state)
+            .and_then(|window| window.handle_message(ctx, message))
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{Dialog, DialogImpl};
-    use crate::{widgets::WidgetKind, WindowImpl};
+    use super::{dialog, Dialog};
+    use crate::{widgets::text, window};
 
     #[test]
     fn dialog_knows_next_and_previous_states() {
-        let dialog = DialogImpl::new(vec![
-            WindowImpl::new("first", [WidgetKind::text("one")]),
-            WindowImpl::new("second", [WidgetKind::text("two")]),
-            WindowImpl::new("third", [WidgetKind::text("three")]),
+        let dialog = dialog([
+            window("first", [text("one")]),
+            window("second", [text("two")]),
+            window("third", [text("three")]),
         ]);
 
         assert_eq!(dialog.next_state("first"), Some("second"));

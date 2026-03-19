@@ -46,15 +46,18 @@ impl MessageManager {
             trace!("Skip message update");
             return old_message.ok_or(DialogError::DialogNotFound);
         }
-        if old_message.is_none() || new_message.show_mode == ShowMode::Send {
+        if new_message.show_mode == ShowMode::Send {
             trace!("Sending new dialog message");
             Self::remove_kbd(bot, new_message.show_mode, old_message.as_ref()).await?;
-            return Self::combine(
-                &new_message,
-                Self::send_message(bot, new_message.clone()).await?,
-            );
+            let sent = Self::send_message(bot, new_message.clone()).await?;
+            return Ok(Self::combine(&new_message, &sent));
         }
-        let old = old_message.as_ref().unwrap();
+        let Some(old) = old_message.as_ref() else {
+            trace!("Sending new dialog message");
+            Self::remove_kbd(bot, new_message.show_mode, None).await?;
+            let sent = Self::send_message(bot, new_message.clone()).await?;
+            return Ok(Self::combine(&new_message, &sent));
+        };
         if new_message.show_mode == ShowMode::DeleteAndSend {
             trace!(
                 message_id = old.message_id,
@@ -63,13 +66,11 @@ impl MessageManager {
             if Self::need_reply_keyboard(&new_message) {
                 let sent = Self::send_message(bot, new_message.clone()).await?;
                 Self::remove_message_safe(bot, old).await?;
-                return Self::combine(&new_message, sent);
+                return Ok(Self::combine(&new_message, &sent));
             }
             Self::remove_message_safe(bot, old).await?;
-            return Self::combine(
-                &new_message,
-                Self::send_message(bot, new_message.clone()).await?,
-            );
+            let sent = Self::send_message(bot, new_message.clone()).await?;
+            return Ok(Self::combine(&new_message, &sent));
         }
         if !Self::message_changed(&new_message, old) {
             trace!(message_id = old.message_id, "Dialog message did not change");
@@ -81,31 +82,25 @@ impl MessageManager {
                 "Dialog message cannot be edited, recreating"
             );
             Self::remove_message_safe(bot, old).await?;
-            return Self::combine(
-                &new_message,
-                Self::send_message(bot, new_message.clone()).await?,
-            );
+            let sent = Self::send_message(bot, new_message.clone()).await?;
+            return Ok(Self::combine(&new_message, &sent));
         }
         trace!(
             message_id = old.message_id,
             "Editing existing dialog message"
         );
-        Self::combine(
-            &new_message,
-            Self::edit_message(bot, new_message.clone(), old).await?,
-        )
+        let edited = Self::edit_message(bot, new_message.clone(), old).await?;
+        Ok(Self::combine(&new_message, &edited))
     }
 
     /// Combine sent result with metadata to build `OldMessage`.
-    fn combine(
-        sent_message: &NewMessage,
-        message_result: telers::types::Message,
-    ) -> Result<OldMessage, DialogError> {
+    #[must_use]
+    fn combine(sent_message: &NewMessage, message_result: &telers::types::Message) -> OldMessage {
         let reply_markup_type = sent_message
             .reply_markup
             .as_ref()
             .map(ReplyMarkupType::from);
-        Ok(OldMessage::new(
+        OldMessage::new(
             message_result.chat().clone(),
             message_result.message_id(),
             Some(sent_message.text.clone()),
@@ -117,7 +112,7 @@ impl MessageManager {
                 .map(ToOwned::to_owned),
             None,
             serialize_option(sent_message.link_preview_options.as_ref()),
-        ))
+        )
     }
 
     /// Returns true if old message had reply keyboard.
@@ -135,15 +130,11 @@ impl MessageManager {
 
     /// Check if message content or protection flags changed.
     fn message_changed(new: &NewMessage, old: &OldMessage) -> bool {
-        let changed = if new.text.as_ref() != old.text.as_deref().unwrap_or("") {
-            true
-        } else if serialize_option(new.reply_markup.as_ref()) != old.reply_markup_value {
-            true
-        } else if new.protect_content != old.has_protected_content {
-            true
-        } else {
-            serialize_option(new.link_preview_options.as_ref()) != old.link_preview_options_value
-        };
+        let changed = new.text.as_ref() != old.text.as_deref().unwrap_or("")
+            || serialize_option(new.reply_markup.as_ref()) != old.reply_markup_value
+            || new.protect_content != old.has_protected_content
+            || serialize_option(new.link_preview_options.as_ref())
+                != old.link_preview_options_value;
         trace!(
             message_id = old.message_id,
             changed,
@@ -182,13 +173,13 @@ impl MessageManager {
                     message_id = old.message_id,
                     "Remove reply keyboard from old message"
                 );
-                let _ = Self::remove_reply_kbd(bot, old).await?;
+                Self::remove_reply_kbd(bot, old).await?;
             } else {
                 trace!(
                     message_id = old.message_id,
                     "Remove inline keyboard from old message"
                 );
-                let _ = Self::remove_inline_kbd(bot, old).await?;
+                Self::remove_inline_kbd(bot, old).await?;
             }
         }
         Ok(())
