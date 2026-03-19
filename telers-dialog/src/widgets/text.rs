@@ -20,7 +20,9 @@ pub struct FnText<F> {
 impl<F> FnText<F> {
     #[must_use]
     pub const fn new(renderer: F) -> Self {
-        Self { renderer }
+        Self {
+            renderer,
+        }
     }
 }
 
