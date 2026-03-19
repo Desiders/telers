@@ -1,89 +1,26 @@
 use crate::{
-    dialog::IntoDialog,
     entities::{
         chat_event_from_update, ChatEvent, EventContext, CHAT_EVENT_KEY, EVENT_CONTEXT_KEY,
     },
-    errors::DialogError,
     manager::DialogManager,
     registry::DialogRegistry,
 };
 use std::{future::Future, marker::PhantomData};
 use telers::{
-    errors::{EventErrorKind, ExtractionError},
-    event::telegram::Observer as TelegramObserver,
-    event::EventReturn,
+    client::Session,
+    errors::{EventErrorKind, ExtractionError, HandlerError},
+    event::{
+        telegram::{Handler as TelegramHandler, HandlerResult, Observer as TelegramObserver},
+        EventReturn,
+    },
     extractor::Extractor,
     fsm::{self, Storage},
     middlewares::outer::{Middleware, MiddlewareResponse},
-    Request,
+    types::{CallbackQuery, Message},
+    Bot, Request,
 };
 
 pub const DIALOG_MANAGER_KEY: &str = "td_dialog_manager";
-
-/// Shared dialog registry stored in `telers::Extensions`.
-///
-/// This is the only global setup state required by the current core.
-#[derive(Clone, Default)]
-pub struct Dialogs {
-    registry: DialogRegistry,
-}
-
-impl Dialogs {
-    #[inline]
-    #[must_use]
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn from_registry(registry: DialogRegistry) -> Self {
-        Self { registry }
-    }
-
-    #[must_use]
-    pub fn add(mut self, dialog: impl IntoDialog) -> Result<Self, DialogError> {
-        self.registry = self.registry.register(dialog)?;
-        Ok(self)
-    }
-
-    #[must_use]
-    pub fn register(mut self, dialog: impl IntoDialog) -> Result<Self, DialogError> {
-        self.registry = self.registry.register(dialog)?;
-        Ok(self)
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn registry(&self) -> &DialogRegistry {
-        &self.registry
-    }
-
-    #[must_use]
-    pub fn clone_registry(&self) -> DialogRegistry {
-        self.registry.clone()
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn into_registry(self) -> DialogRegistry {
-        self.registry
-    }
-}
-
-impl From<DialogRegistry> for Dialogs {
-    #[inline]
-    fn from(value: DialogRegistry) -> Self {
-        Self::from_registry(value)
-    }
-}
-
-impl From<Dialogs> for DialogRegistry {
-    #[inline]
-    fn from(value: Dialogs) -> Self {
-        value.into_registry()
-    }
-}
 
 /// Outer middleware that derives dialog-specific event data from `telers::Request`.
 ///
@@ -160,13 +97,13 @@ where
         mut request: Request<Client>,
     ) -> impl Future<Output = Result<MiddlewareResponse<Client>, EventErrorKind>> + Send {
         let fsm = request.context.get::<fsm::Context<S>>("fsm_context");
-        let dialogs = request.extensions.get::<Dialogs>();
+        let registry = request.extensions.get::<DialogRegistry>();
         let event = request.context.get::<ChatEvent>(CHAT_EVENT_KEY);
 
-        if let (Some(fsm), Some(dialogs), Some(event)) = (fsm, dialogs, event) {
+        if let (Some(fsm), Some(registry), Some(event)) = (fsm, registry, event) {
             let manager = DialogManager::new(
                 fsm.clone(),
-                dialogs.clone_registry(),
+                registry.clone(),
                 request.context.clone(),
                 event.clone(),
             );
@@ -186,13 +123,59 @@ where
     async fn extract(request: &Request<Client>) -> Result<Self, Self::Error> {
         let Some(manager) = request.context.get::<DialogManager<S>>(DIALOG_MANAGER_KEY) else {
             return Err(ExtractionError::new(
-                "`DialogManager` is missing in request context. \
-                Make sure to register `DialogManagerMiddleware` after `DialogContextMiddleware` in your middleware stack. \
-                Also ensure that `Dialogs` is properly registered in `telers::Extensions`.",
+                "`DialogManager` is missing in request context. Make sure to register \
+                 `DialogManagerMiddleware` after `DialogContextMiddleware` in your middleware \
+                 stack. Also ensure that `DialogRegistry` is properly registered in \
+                 `telers::Extensions`.",
             ));
         };
         Ok(manager.clone())
     }
+}
+
+async fn dispatch_dialog_event<Client, S>(
+    bot: Bot<Client>,
+    message: Option<Message>,
+    callback_query: Option<CallbackQuery>,
+    manager: Option<DialogManager<S>>,
+) -> HandlerResult<EventReturn>
+where
+    Client: Session + Clone + Send + Sync + 'static,
+    S: Storage + Send + Sync + 'static,
+{
+    let Some(manager) = manager else {
+        return Ok(EventReturn::Skip);
+    };
+
+    if let Some(callback_query) = callback_query {
+        return manager
+            .handle_callback_query(&bot, &callback_query)
+            .await
+            .map(|handled| {
+                if handled {
+                    EventReturn::Finish
+                } else {
+                    EventReturn::Skip
+                }
+            })
+            .map_err(HandlerError::new);
+    }
+
+    if let Some(message) = message {
+        return manager
+            .handle_message(&bot, &message)
+            .await
+            .map(|handled| {
+                if handled {
+                    EventReturn::Finish
+                } else {
+                    EventReturn::Skip
+                }
+            })
+            .map_err(HandlerError::new);
+    }
+
+    Ok(EventReturn::Skip)
 }
 
 pub trait DialogObserverExt<Client>: Sized {
@@ -204,7 +187,7 @@ pub trait DialogObserverExt<Client>: Sized {
 
 impl<Client> DialogObserverExt<Client> for TelegramObserver<Client>
 where
-    Client: Clone + Send + Sync + 'static,
+    Client: Session + Clone + Send + Sync + 'static,
 {
     #[inline]
     fn setup_dialogs<S>(self) -> Self
@@ -213,22 +196,21 @@ where
     {
         self.register_outer_middleware(DialogContextMiddleware::new())
             .register_outer_middleware(DialogManagerMiddleware::<S>::new())
+            .register(TelegramHandler::new(dispatch_dialog_event::<Client, S>))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::{
-        DialogContextMiddleware, DialogManagerMiddleware, DialogObserverExt, Dialogs,
-        DIALOG_MANAGER_KEY,
+        DialogContextMiddleware, DialogManagerMiddleware, DialogObserverExt, DIALOG_MANAGER_KEY,
     };
     use crate::{
         entities::{CHAT_EVENT_KEY, EVENT_CONTEXT_KEY},
         widgets::WidgetKind,
-        DialogImpl, DialogManager, WindowImpl,
+        DialogImpl, DialogManager, DialogRegistry, WindowImpl,
     };
-    use std::convert::Infallible;
-    use std::sync::Arc;
+    use std::{convert::Infallible, sync::Arc};
     use telers::{
         client::Reqwest,
         context::Context,
@@ -285,7 +267,7 @@ mod tests {
             .context
             .insert("fsm_context", FSMContext::new(MemoryStorage::new(), key));
         request.extensions.insert(
-            Dialogs::new()
+            DialogRegistry::new()
                 .register(DialogImpl::new(vec![WindowImpl::new(
                     "state",
                     [WidgetKind::text("hello")],
@@ -323,7 +305,7 @@ mod tests {
             .context
             .insert("fsm_context", FSMContext::new(MemoryStorage::new(), key));
         request.extensions.insert(
-            Dialogs::new()
+            DialogRegistry::new()
                 .register(DialogImpl::new(vec![WindowImpl::new(
                     "state",
                     [WidgetKind::text("hello")],
@@ -371,7 +353,7 @@ mod tests {
         context.insert("fsm_context", FSMContext::new(MemoryStorage::new(), key));
         let mut extensions = Extensions::default();
         extensions.insert(
-            Dialogs::new()
+            DialogRegistry::new()
                 .register(DialogImpl::new(vec![WindowImpl::new(
                     "state",
                     [WidgetKind::text("hello")],
@@ -396,5 +378,17 @@ mod tests {
             }
             other => panic!("unexpected propagation result: {other:?}"),
         }
+    }
+
+    #[test]
+    fn dialog_observer_ext_marks_message_and_callback_observers_as_used() {
+        let router = Router::<Reqwest>::new("dialogs")
+            .on_message(|observer| observer.setup_dialogs::<MemoryStorage>())
+            .on_callback_query(|observer| observer.setup_dialogs::<MemoryStorage>());
+
+        let update_types = router.resolve_used_update_types();
+
+        assert!(update_types.contains(UpdateType::Message.as_ref()));
+        assert!(update_types.contains(UpdateType::CallbackQuery.as_ref()));
     }
 }
