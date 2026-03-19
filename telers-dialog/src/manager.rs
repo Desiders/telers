@@ -15,7 +15,7 @@ use telers::{
     enums::ReplyMarkupType,
     fsm::Storage,
     methods::AnswerCallbackQuery,
-    types::{CallbackQuery, MaybeInaccessibleMessage, ReplyMarkup},
+    types::{CallbackQuery, MaybeInaccessibleMessage, Message, ReplyMarkup},
     Bot,
 };
 use tracing::{debug, error, trace};
@@ -243,9 +243,9 @@ impl<S: Storage> DialogManager<S> {
         Ok(())
     }
 
-    fn resolve_dialog<'a>(
+    fn resolve_dialog(
         &self,
-        state: &'a str,
+        state: &str,
     ) -> Result<std::sync::Arc<dyn crate::dialog::Dialog>, DialogError> {
         self.registry
             .find_by_state(state)
@@ -317,7 +317,11 @@ impl<S: Storage> DialogManager<S> {
                     needs_show = true;
                     handled = true;
                 }
-                ButtonAction::Start { state, data, mode } => {
+                ButtonAction::Start {
+                    state,
+                    data,
+                    mode,
+                } => {
                     let _ = self.start(bot, state, data, mode).await?;
                     handled = true;
                 }
@@ -330,7 +334,10 @@ impl<S: Storage> DialogManager<S> {
                     needs_show = true;
                     handled = true;
                 }
-                ButtonAction::SetDialogValue { key, value } => {
+                ButtonAction::SetDialogValue {
+                    key,
+                    value,
+                } => {
                     self.set_dialog_value(key, value).await?;
                     needs_show = true;
                     handled = true;
@@ -423,13 +430,18 @@ impl<S: Storage> DialogManager<S> {
             StartMode::Normal => {}
             StartMode::ResetStack => {
                 debug!("Reset current dialog stack before start");
-                Self::clear_current_stack(&mut storage)
+                Self::clear_current_stack(&mut storage);
             }
             StartMode::NewStack => {
-                let mut stack = Stack::default();
-                stack.id = generate_id();
-                storage.current_stack = stack.id.clone();
-                storage.stacks.insert(stack.id.clone(), stack);
+                let stack_id = generate_id();
+                storage.current_stack.clone_from(&stack_id);
+                storage.stacks.insert(
+                    stack_id.clone(),
+                    Stack {
+                        id: stack_id,
+                        ..Stack::default()
+                    },
+                );
                 debug!(stack_id = %storage.current_stack, "Created new dialog stack");
             }
         }
@@ -509,6 +521,9 @@ impl<S: Storage> DialogManager<S> {
     /// Try to handle a callback query with the current dialog keyboard.
     ///
     /// Returns `true` when callback data belongs to the current dialog and was handled.
+    ///
+    /// # Errors
+    /// Returns storage, callback answering, or action-application errors.
     pub async fn handle_callback_query<Client: Session>(
         &self,
         bot: &Bot<Client>,
@@ -536,7 +551,38 @@ impl<S: Storage> DialogManager<S> {
         self.apply_button_action(bot, action).await
     }
 
+    /// Try to handle a message with the current dialog message input.
+    ///
+    /// Returns `true` when the current window accepted the message and produced an action.
+    ///
+    /// # Errors
+    /// Returns storage, rendering, or action-application errors.
+    pub async fn handle_message<Client: Session>(
+        &self,
+        bot: &Bot<Client>,
+        message: &Message,
+    ) -> Result<bool, DialogError> {
+        debug!(message_id = message.message_id(), "Handle dialog message");
+        let ctx = match self.current_context().await {
+            Ok(ctx) => ctx,
+            Err(DialogError::NoContext) => {
+                trace!("Ignoring message because no active dialog context exists");
+                return Ok(false);
+            }
+            Err(err) => return Err(err),
+        };
+        let dialog = self.resolve_dialog(&ctx.state)?;
+        let Some(action) = dialog.handle_message(&ctx.state, &ctx, message) else {
+            trace!(state = %ctx.state, "Message does not belong to current dialog");
+            return Ok(false);
+        };
+        self.apply_button_action(bot, action).await
+    }
+
     /// Answer a callback query without notification text.
+    ///
+    /// # Errors
+    /// Returns telegram request errors as `DialogError`.
     pub async fn answer_callback<Client: Session>(
         &self,
         bot: &Bot<Client>,
@@ -569,17 +615,14 @@ impl<S: Storage> DialogManager<S> {
         let old_message = storage
             .current_stack()
             .and_then(|stack| self.get_last_message(stack, event_ctx));
-        let close_show_mode = storage
-            .current_stack()
-            .map(|stack| {
-                let show_mode = show_mode.unwrap_or(self.show_mode);
-                if show_mode == ShowMode::Auto {
-                    self.calc_show_mode(stack, event_ctx)
-                } else {
-                    show_mode
-                }
-            })
-            .unwrap_or(ShowMode::Auto);
+        let close_show_mode = storage.current_stack().map_or(ShowMode::Auto, |stack| {
+            let show_mode = show_mode.unwrap_or(self.show_mode);
+            if show_mode == ShowMode::Auto {
+                self.calc_show_mode(stack, event_ctx)
+            } else {
+                show_mode
+            }
+        });
         let id = {
             let stack = storage.current_stack_mut();
             stack.pop().ok_or(DialogError::NoContext)?
@@ -707,13 +750,17 @@ impl<S: Storage> DialogManager<S> {
         let new_old = MessageManager::show_message(bot, msg, old_message).await?;
         let stack = storage.current_stack_mut();
         stack.last_message_id = Some(new_old.message_id);
-        stack.last_text = new_old.text.clone();
+        stack.last_text.clone_from(&new_old.text);
         stack.last_reply_keyboard = matches!(
             new_old.reply_markup_type,
             Some(ReplyMarkupType::ReplyKeyboardMarkup)
         );
-        stack.last_reply_markup = new_old.reply_markup_value.clone();
-        stack.last_link_preview_options = new_old.link_preview_options_value.clone();
+        stack
+            .last_reply_markup
+            .clone_from(&new_old.reply_markup_value);
+        stack
+            .last_link_preview_options
+            .clone_from(&new_old.link_preview_options_value);
         stack.has_protected_content = new_old.has_protected_content;
         stack.message_type = new_old.message_type;
         if let ChatEvent::Message(message) = &self.event {
@@ -725,5 +772,374 @@ impl<S: Storage> DialogManager<S> {
         );
         self.save_storage(storage).await?;
         Ok(Some(new_old.message_id))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::DialogManager;
+    use crate::{
+        entities::{
+            AccessSettings, ChatEvent, EventContext, LaunchMode, ShowMode, StartMode,
+            EVENT_CONTEXT_KEY,
+        },
+        widgets::{ButtonAction, FnText, MessageInput, WidgetKind},
+        DialogError, DialogImpl, DialogRegistry, WindowImpl,
+    };
+    use serde_json::{json, Value};
+    use std::sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc,
+    };
+    use telers::{
+        client::Reqwest,
+        fsm::{Context as FSMContext, MemoryStorage, StorageKey},
+        types::{ChatPrivate, Message, MessageText, User},
+        Bot, Context as RuntimeContext,
+    };
+
+    const TEST_CHAT_ID: i64 = 10;
+    const TEST_USER_ID: i64 = 10;
+
+    fn test_bot() -> Bot<Reqwest> {
+        Bot::default()
+    }
+
+    fn test_user() -> User {
+        User::new(TEST_USER_ID, false, "tester")
+    }
+
+    fn message_event(text: &str) -> ChatEvent {
+        let message: Message = MessageText::new(1, 1, ChatPrivate::new(TEST_CHAT_ID), text)
+            .from(test_user())
+            .into();
+        ChatEvent::Message(message)
+    }
+
+    fn runtime_context(event: &ChatEvent) -> RuntimeContext {
+        let mut context = RuntimeContext::default();
+        context.insert(
+            EVENT_CONTEXT_KEY,
+            EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone()),
+        );
+        context
+    }
+
+    fn manager_for_event(
+        fsm: FSMContext<MemoryStorage>,
+        registry: DialogRegistry,
+        event: ChatEvent,
+    ) -> DialogManager<MemoryStorage> {
+        let mut manager = DialogManager::new(fsm, registry, runtime_context(&event), event);
+        manager.set_show_mode(ShowMode::NoUpdate);
+        manager
+    }
+
+    fn test_fsm(bot_id: i64) -> FSMContext<MemoryStorage> {
+        let key = StorageKey::new(bot_id, TEST_CHAT_ID, TEST_USER_ID, None, None);
+        FSMContext::new(MemoryStorage::new(), key)
+    }
+
+    fn registry_with(dialogs: impl IntoIterator<Item = DialogImpl>) -> DialogRegistry {
+        let mut registry = DialogRegistry::new();
+        for dialog in dialogs {
+            registry = registry.register(dialog).expect("dialog registration");
+        }
+        registry
+    }
+
+    fn text_dialog(state: &str, text: &str) -> DialogImpl {
+        DialogImpl::new(vec![WindowImpl::new(
+            state,
+            [WidgetKind::text(text.to_owned())],
+        )])
+    }
+
+    fn counting_window(state: &str, text: &'static str, counter: Arc<AtomicUsize>) -> WindowImpl {
+        WindowImpl::new(
+            state,
+            [WidgetKind::Text(Box::new(FnText::new(
+                move |_: &crate::entities::DataMap| {
+                    counter.fetch_add(1, Ordering::SeqCst);
+                    text.to_owned()
+                },
+            )))],
+        )
+    }
+
+    async fn prime_last_message(manager: &DialogManager<MemoryStorage>, message_id: i64) {
+        let mut storage = manager.load_storage().await.expect("load storage");
+        let stack = storage.current_stack_mut();
+        stack.last_message_id = Some(message_id);
+        stack.last_text = Some("seed".into());
+        stack.last_reply_keyboard = false;
+        stack.last_reply_markup = None;
+        stack.last_link_preview_options = None;
+        stack.has_protected_content = None;
+        manager.save_storage(storage).await.expect("save storage");
+    }
+
+    #[tokio::test]
+    async fn next_and_back_follow_dialog_transitions() {
+        let bot = test_bot();
+        let registry = registry_with([DialogImpl::new(vec![
+            WindowImpl::new("first", [WidgetKind::text("First")]),
+            WindowImpl::new("second", [WidgetKind::text("Second")]),
+            WindowImpl::new("third", [WidgetKind::text("Third")]),
+        ])]);
+        let manager = manager_for_event(test_fsm(bot.id), registry, message_event("/start"));
+        prime_last_message(&manager, 50).await;
+
+        let _ = manager
+            .start(&bot, "first", Value::Null, StartMode::Normal)
+            .await
+            .expect("start first");
+        assert_eq!(
+            manager.current_context().await.expect("context").state,
+            "first"
+        );
+
+        manager.next().await.expect("next to second");
+        assert_eq!(
+            manager.current_context().await.expect("context").state,
+            "second"
+        );
+
+        manager.next().await.expect("next to third");
+        assert_eq!(
+            manager.current_context().await.expect("context").state,
+            "third"
+        );
+
+        let err = manager.next().await.expect_err("next past third must fail");
+        assert!(matches!(
+            err,
+            DialogError::TransitionNotFound(state) if state == "third"
+        ));
+
+        manager.back().await.expect("back to second");
+        assert_eq!(
+            manager.current_context().await.expect("context").state,
+            "second"
+        );
+
+        manager.back().await.expect("back to first");
+        assert_eq!(
+            manager.current_context().await.expect("context").state,
+            "first"
+        );
+
+        let err = manager.back().await.expect_err("back past first must fail");
+        assert!(matches!(
+            err,
+            DialogError::TransitionNotFound(state) if state == "first"
+        ));
+    }
+
+    #[tokio::test]
+    async fn single_top_reuses_top_context_and_resets_context_data() {
+        let bot = test_bot();
+        let registry = registry_with([DialogImpl::new(vec![
+            WindowImpl::new("main", [WidgetKind::text("Main")]),
+            WindowImpl::new("other", [WidgetKind::text("Other")]),
+        ])
+        .with_launch_mode(LaunchMode::SingleTop)]);
+        let manager = manager_for_event(test_fsm(bot.id), registry, message_event("/start"));
+        prime_last_message(&manager, 60).await;
+
+        let first = manager
+            .start(&bot, "main", json!({ "step": 1 }), StartMode::Normal)
+            .await
+            .expect("start main");
+
+        let mut storage = manager.load_storage().await.expect("load storage");
+        let ctx = storage.contexts.get_mut(&first.id).expect("context");
+        ctx.dialog_data.insert("dialog".into(), json!(1));
+        ctx.widget_data.insert("widget".into(), json!(2));
+        ctx.access_settings = Some(AccessSettings {
+            user_ids: vec![TEST_USER_ID],
+            custom: Some(json!({ "role": "admin" })),
+        });
+        manager.save_storage(storage).await.expect("save storage");
+
+        let second = manager
+            .start(&bot, "other", json!({ "step": 2 }), StartMode::Normal)
+            .await
+            .expect("start other");
+
+        assert_eq!(second.id, first.id);
+
+        let current = manager.current_context().await.expect("current context");
+        assert_eq!(current.id, first.id);
+        assert_eq!(current.state, "other");
+        assert_eq!(current.start_data, json!({ "step": 2 }));
+        assert!(current.dialog_data.is_empty());
+        assert!(current.widget_data.is_empty());
+        assert!(current.access_settings.is_none());
+    }
+
+    #[tokio::test]
+    async fn exclusive_dialog_resets_stack_and_blocks_other_dialogs() {
+        let bot = test_bot();
+        let registry = registry_with([
+            text_dialog("before", "Before"),
+            text_dialog("locked", "Locked").with_launch_mode(LaunchMode::Exclusive),
+            text_dialog("other", "Other"),
+        ]);
+        let manager = manager_for_event(test_fsm(bot.id), registry, message_event("/start"));
+        prime_last_message(&manager, 70).await;
+
+        let _ = manager
+            .start(&bot, "before", Value::Null, StartMode::Normal)
+            .await
+            .expect("start before");
+        let _ = manager
+            .start(&bot, "locked", Value::Null, StartMode::Normal)
+            .await
+            .expect("start locked");
+
+        let storage = manager.load_storage().await.expect("load storage");
+        assert_eq!(storage.contexts.len(), 1);
+        assert_eq!(
+            manager.current_context().await.expect("context").state,
+            "locked"
+        );
+
+        let err = manager
+            .start(&bot, "other", Value::Null, StartMode::Normal)
+            .await
+            .expect_err("exclusive dialog must block other dialogs");
+        assert!(matches!(err, DialogError::ExclusiveDialogActive));
+    }
+
+    #[tokio::test]
+    async fn handle_message_applies_message_input_actions() {
+        let bot = test_bot();
+        let fsm = test_fsm(bot.id);
+        let registry = registry_with([DialogImpl::new(vec![
+            WindowImpl::new(
+                "ask_name",
+                [
+                    WidgetKind::text("Send your name"),
+                    WidgetKind::input(MessageInput::text(|name| {
+                        ButtonAction::chain([
+                            ButtonAction::set_dialog_value("name", name),
+                            ButtonAction::next(),
+                        ])
+                    })),
+                ],
+            ),
+            WindowImpl::new("done", [WidgetKind::text("Done")]),
+        ])]);
+
+        let start_manager =
+            manager_for_event(fsm.clone(), registry.clone(), message_event("/start"));
+        prime_last_message(&start_manager, 75).await;
+        let _ = start_manager
+            .start(&bot, "ask_name", Value::Null, StartMode::Normal)
+            .await
+            .expect("start ask_name");
+
+        let input_message: Message =
+            MessageText::new(2, 1, ChatPrivate::new(TEST_CHAT_ID), "Alice")
+                .from(test_user())
+                .into();
+        let input_manager =
+            manager_for_event(fsm, registry, ChatEvent::Message(input_message.clone()));
+
+        let handled = input_manager
+            .handle_message(&bot, &input_message)
+            .await
+            .expect("handle message");
+
+        assert!(handled);
+        let current = input_manager.current_context().await.expect("context");
+        assert_eq!(current.state, "done");
+        assert_eq!(current.dialog_data.get("name"), Some(&json!("Alice")));
+    }
+
+    #[tokio::test]
+    async fn done_rerenders_previous_context_after_pop() {
+        let bot = test_bot();
+        let root_renders = Arc::new(AtomicUsize::new(0));
+        let child_renders = Arc::new(AtomicUsize::new(0));
+        let registry = registry_with([DialogImpl::new(vec![
+            counting_window("root", "Root", root_renders.clone()),
+            counting_window("child", "Child", child_renders.clone()),
+        ])]);
+        let manager = manager_for_event(test_fsm(bot.id), registry, message_event("/start"));
+        prime_last_message(&manager, 80).await;
+
+        let _ = manager
+            .start(&bot, "root", Value::Null, StartMode::Normal)
+            .await
+            .expect("start root");
+        let _ = manager
+            .start(&bot, "child", Value::Null, StartMode::Normal)
+            .await
+            .expect("start child");
+        assert_eq!(root_renders.load(Ordering::SeqCst), 1);
+        assert_eq!(child_renders.load(Ordering::SeqCst), 1);
+
+        let closed = manager
+            .done(&bot, None)
+            .await
+            .expect("done")
+            .expect("closed context");
+
+        assert_eq!(closed.state, "child");
+        assert_eq!(
+            manager
+                .current_context()
+                .await
+                .expect("current context")
+                .state,
+            "root"
+        );
+        assert_eq!(root_renders.load(Ordering::SeqCst), 2);
+        assert_eq!(child_renders.load(Ordering::SeqCst), 1);
+
+        let storage = manager.load_storage().await.expect("load storage");
+        assert_eq!(
+            storage
+                .current_stack()
+                .and_then(|stack| stack.last_message_id),
+            Some(80)
+        );
+    }
+
+    #[tokio::test]
+    async fn done_cleans_up_last_dialog_message_when_stack_becomes_empty() {
+        let bot = test_bot();
+        let only_renders = Arc::new(AtomicUsize::new(0));
+        let registry = registry_with([DialogImpl::new(vec![counting_window(
+            "only",
+            "Only",
+            only_renders.clone(),
+        )])]);
+        let manager = manager_for_event(test_fsm(bot.id), registry, message_event("/start"));
+        prime_last_message(&manager, 90).await;
+
+        let _ = manager
+            .start(&bot, "only", Value::Null, StartMode::Normal)
+            .await
+            .expect("start only");
+        assert_eq!(only_renders.load(Ordering::SeqCst), 1);
+
+        let closed = manager.done(&bot, None).await.expect("done");
+        assert!(closed.is_some());
+        assert_eq!(only_renders.load(Ordering::SeqCst), 1);
+        assert!(matches!(
+            manager.current_context().await,
+            Err(DialogError::NoContext)
+        ));
+
+        let storage = manager.load_storage().await.expect("load storage");
+        let stack = storage.current_stack().expect("stack");
+        assert!(storage.contexts.is_empty());
+        assert!(stack.last_message_id.is_none());
+        assert!(stack.last_text.is_none());
+        assert!(stack.last_reply_markup.is_none());
+        assert!(!stack.last_reply_keyboard);
     }
 }
