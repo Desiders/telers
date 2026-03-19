@@ -19,6 +19,7 @@ use telers_dialog::{
     dialog,
     widgets::{
         input, keyboard, text, Button, ButtonAction, FormatText, InlineKeyboard, MessageInput,
+        TextInput,
     },
     window, DialogManager, DialogObserverExt, DialogRegistry, StartMode,
 };
@@ -46,12 +47,14 @@ fn registry() -> DialogRegistry {
         window(
             "name",
             [
-                text("Send your name. This window uses `MessageInput::text`."),
+                text("Send your name. This window uses `TextInput` and continues on success."),
                 text(FormatText::new("Stored name: {name}")),
-                input(MessageInput::text(|name| {
-                    ButtonAction::set_dialog_value("name", name)
+                input(TextInput::new("name_input", |name| {
+                    ButtonAction::chain([
+                        ButtonAction::set_dialog_value("name", name),
+                        ButtonAction::next(),
+                    ])
                 })),
-                keyboard(InlineKeyboard::new([[Button::next("next", "Continue")]])),
             ],
         ),
         window(

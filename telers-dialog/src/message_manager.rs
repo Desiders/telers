@@ -123,6 +123,14 @@ impl MessageManager {
         )
     }
 
+    /// Returns true if old message had inline keyboard.
+    fn had_inline_keyboard(old: &OldMessage) -> bool {
+        matches!(
+            old.reply_markup_type,
+            Some(ReplyMarkupType::InlineKeyboardMarkup)
+        )
+    }
+
     /// Returns true if new message requires reply keyboard.
     fn need_reply_keyboard(new: &NewMessage) -> bool {
         matches!(new.reply_markup, Some(ReplyMarkup::ReplyKeyboardMarkup(_)))
@@ -174,7 +182,7 @@ impl MessageManager {
                     "Remove reply keyboard from old message"
                 );
                 Self::remove_reply_kbd(bot, old).await?;
-            } else {
+            } else if Self::had_inline_keyboard(old) {
                 trace!(
                     message_id = old.message_id,
                     "Remove inline keyboard from old message"
@@ -291,4 +299,41 @@ where
     T: Serialize,
 {
     value.and_then(|value| serde_json::to_value(value).ok())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::MessageManager;
+    use crate::entities::OldMessage;
+    use telers::{enums::ReplyMarkupType, types::ChatPrivate};
+
+    fn old_message(reply_markup_type: Option<ReplyMarkupType>) -> OldMessage {
+        OldMessage::new(
+            ChatPrivate::new(1),
+            10,
+            Some("hello"),
+            None::<bool>,
+            reply_markup_type,
+            None,
+            None::<Box<str>>,
+            None,
+            None,
+        )
+    }
+
+    #[test]
+    fn detects_reply_and_inline_keyboards_separately() {
+        let no_markup = old_message(None);
+        let reply_keyboard = old_message(Some(ReplyMarkupType::ReplyKeyboardMarkup));
+        let inline_keyboard = old_message(Some(ReplyMarkupType::InlineKeyboardMarkup));
+
+        assert!(!MessageManager::had_reply_keyboard(&no_markup));
+        assert!(!MessageManager::had_inline_keyboard(&no_markup));
+
+        assert!(MessageManager::had_reply_keyboard(&reply_keyboard));
+        assert!(!MessageManager::had_inline_keyboard(&reply_keyboard));
+
+        assert!(!MessageManager::had_reply_keyboard(&inline_keyboard));
+        assert!(MessageManager::had_inline_keyboard(&inline_keyboard));
+    }
 }

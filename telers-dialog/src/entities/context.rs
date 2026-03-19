@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::{
     collections::BTreeMap,
     sync::atomic::{AtomicU64, Ordering::Relaxed},
@@ -75,5 +75,58 @@ impl Context {
             widget_data: DataMap::new(),
             access_settings: None,
         }
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn dialog_value(&self, key: &str) -> Option<&Data> {
+        self.dialog_data.get(key)
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn widget_value(&self, key: &str) -> Option<&Data> {
+        self.widget_data.get(key)
+    }
+
+    #[must_use]
+    pub fn dialog_value_as<T>(&self, key: &str) -> Option<T>
+    where
+        T: DeserializeOwned,
+    {
+        self.dialog_value(key)
+            .cloned()
+            .and_then(|value| serde_json::from_value(value).ok())
+    }
+
+    #[must_use]
+    pub fn widget_value_as<T>(&self, key: &str) -> Option<T>
+    where
+        T: DeserializeOwned,
+    {
+        self.widget_value(key)
+            .cloned()
+            .and_then(|value| serde_json::from_value(value).ok())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Context;
+    use serde_json::json;
+
+    #[test]
+    fn context_reads_dialog_and_widget_values() {
+        let mut ctx = Context::new("stack", "state", serde_json::Value::Null);
+        ctx.dialog_data.insert("count".into(), json!(3));
+        ctx.widget_data.insert("selected".into(), json!("pear"));
+
+        assert_eq!(ctx.dialog_value("count"), Some(&json!(3)));
+        assert_eq!(ctx.widget_value("selected"), Some(&json!("pear")));
+        assert_eq!(ctx.dialog_value_as::<u64>("count"), Some(3));
+        assert_eq!(
+            ctx.widget_value_as::<String>("selected"),
+            Some("pear".to_owned())
+        );
     }
 }
