@@ -17,7 +17,10 @@ impl DialogRegistry {
         Self::default()
     }
 
-    #[must_use]
+    /// Register a dialog and index all of its states.
+    ///
+    /// # Errors
+    /// Returns `DialogError::DuplicateState` when any state is already registered.
     pub fn register(mut self, dialog: impl IntoDialog) -> Result<Self, DialogError> {
         let dialog = dialog.into_dialog();
         let idx = self.dialogs.len();

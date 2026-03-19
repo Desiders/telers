@@ -1,11 +1,12 @@
+use telers::{errors::SessionErrorKind, fsm};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum DialogError {
     #[error(transparent)]
-    Storage(#[from] telers::fsm::storage::Error),
+    Storage(#[from] fsm::storage::Error),
     #[error(transparent)]
-    SessionErrorKind(#[from] telers::errors::SessionErrorKind),
+    SessionErrorKind(#[from] SessionErrorKind),
     #[error("No active dialog context")]
     NoContext,
     #[error("Dialog not found for state")]

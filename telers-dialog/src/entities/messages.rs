@@ -19,6 +19,11 @@ pub struct OldMessage {
 }
 
 impl OldMessage {
+    #[expect(
+        clippy::too_many_arguments,
+        reason = "This constructor intentionally mirrors the persisted old-message snapshot \
+                  fields."
+    )]
     #[must_use]
     pub fn new(
         chat: impl Into<Chat>,
@@ -60,6 +65,10 @@ pub struct NewMessage {
 }
 
 impl NewMessage {
+    #[expect(
+        clippy::too_many_arguments,
+        reason = "This constructor intentionally mirrors the rendered telegram message fields."
+    )]
     #[must_use]
     pub fn new(
         chat: impl Into<Chat>,
