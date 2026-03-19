@@ -46,12 +46,6 @@ impl MessageInput {
     pub fn text(handler: impl Fn(String) -> ButtonAction + Send + Sync + 'static) -> Self {
         Self::new(move |_ctx, message| message.text().map(|text| handler(text.to_owned())))
     }
-
-    #[must_use]
-    pub fn store_text(key: impl Into<Box<str>>) -> Self {
-        let key = key.into();
-        Self::text(move |text| ButtonAction::set_dialog_value(key.clone(), text))
-    }
 }
 
 impl Input for MessageInput {
@@ -89,8 +83,8 @@ mod tests {
     }
 
     #[test]
-    fn message_input_store_text_uses_dialog_value_action() {
-        let input = MessageInput::store_text("name");
+    fn message_input_text_can_store_dialog_value() {
+        let input = MessageInput::text(|value| ButtonAction::set_dialog_value("name", value));
         let ctx = Context::new("", "state", serde_json::Value::Null);
 
         let action = input

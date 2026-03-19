@@ -46,9 +46,11 @@ fn registry() -> DialogRegistry {
         window(
             "name",
             [
-                text("Send your name. This window uses `MessageInput::store_text`."),
+                text("Send your name. This window uses `MessageInput::text`."),
                 text(FormatText::new("Stored name: {name}")),
-                input(MessageInput::store_text("name")),
+                input(MessageInput::text(|name| {
+                    ButtonAction::set_dialog_value("name", name)
+                })),
                 keyboard(InlineKeyboard::new([[Button::next("next", "Continue")]])),
             ],
         ),
