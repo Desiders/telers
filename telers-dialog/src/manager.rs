@@ -779,12 +779,13 @@ impl<S: Storage> DialogManager<S> {
 mod tests {
     use super::DialogManager;
     use crate::{
+        dialog,
         entities::{
             AccessSettings, ChatEvent, EventContext, LaunchMode, ShowMode, StartMode,
             EVENT_CONTEXT_KEY,
         },
-        widgets::{ButtonAction, FnText, MessageInput, WidgetKind},
-        DialogError, DialogImpl, DialogRegistry, WindowImpl,
+        widgets::{input, text, ButtonAction, FnText, MessageInput},
+        window, DialogError, DialogRegistry, IntoDialog, IntoWindow,
     };
     use serde_json::{json, Value};
     use std::sync::{
@@ -840,7 +841,10 @@ mod tests {
         FSMContext::new(MemoryStorage::new(), key)
     }
 
-    fn registry_with(dialogs: impl IntoIterator<Item = DialogImpl>) -> DialogRegistry {
+    fn registry_with<D>(dialogs: impl IntoIterator<Item = D>) -> DialogRegistry
+    where
+        D: IntoDialog,
+    {
         let mut registry = DialogRegistry::new();
         for dialog in dialogs {
             registry = registry.register(dialog).expect("dialog registration");
@@ -848,22 +852,21 @@ mod tests {
         registry
     }
 
-    fn text_dialog(state: &str, text: &str) -> DialogImpl {
-        DialogImpl::new(vec![WindowImpl::new(
-            state,
-            [WidgetKind::text(text.to_owned())],
-        )])
+    fn text_dialog(state: &str, label: &str) -> crate::dialog::DialogImpl {
+        dialog([window(state, [text(label.to_owned())])])
     }
 
-    fn counting_window(state: &str, text: &'static str, counter: Arc<AtomicUsize>) -> WindowImpl {
-        WindowImpl::new(
+    fn counting_window(
+        state: &str,
+        label: &'static str,
+        counter: Arc<AtomicUsize>,
+    ) -> impl IntoWindow {
+        window(
             state,
-            [WidgetKind::Text(Box::new(FnText::new(
-                move |_: &crate::entities::DataMap| {
-                    counter.fetch_add(1, Ordering::SeqCst);
-                    text.to_owned()
-                },
-            )))],
+            [text(FnText::new(move |_: &crate::entities::DataMap| {
+                counter.fetch_add(1, Ordering::SeqCst);
+                label.to_owned()
+            }))],
         )
     }
 
@@ -882,10 +885,10 @@ mod tests {
     #[tokio::test]
     async fn next_and_back_follow_dialog_transitions() {
         let bot = test_bot();
-        let registry = registry_with([DialogImpl::new(vec![
-            WindowImpl::new("first", [WidgetKind::text("First")]),
-            WindowImpl::new("second", [WidgetKind::text("Second")]),
-            WindowImpl::new("third", [WidgetKind::text("Third")]),
+        let registry = registry_with([dialog([
+            window("first", [text("First")]),
+            window("second", [text("Second")]),
+            window("third", [text("Third")]),
         ])]);
         let manager = manager_for_event(test_fsm(bot.id), registry, message_event("/start"));
         prime_last_message(&manager, 50).await;
@@ -939,9 +942,9 @@ mod tests {
     #[tokio::test]
     async fn single_top_reuses_top_context_and_resets_context_data() {
         let bot = test_bot();
-        let registry = registry_with([DialogImpl::new(vec![
-            WindowImpl::new("main", [WidgetKind::text("Main")]),
-            WindowImpl::new("other", [WidgetKind::text("Other")]),
+        let registry = registry_with([dialog([
+            window("main", [text("Main")]),
+            window("other", [text("Other")]),
         ])
         .with_launch_mode(LaunchMode::SingleTop)]);
         let manager = manager_for_event(test_fsm(bot.id), registry, message_event("/start"));
@@ -983,7 +986,7 @@ mod tests {
         let bot = test_bot();
         let registry = registry_with([
             text_dialog("before", "Before"),
-            text_dialog("locked", "Locked").with_launch_mode(LaunchMode::Exclusive),
+            dialog([window("locked", [text("Locked")])]).with_launch_mode(LaunchMode::Exclusive),
             text_dialog("other", "Other"),
         ]);
         let manager = manager_for_event(test_fsm(bot.id), registry, message_event("/start"));
@@ -1016,12 +1019,12 @@ mod tests {
     async fn handle_message_applies_message_input_actions() {
         let bot = test_bot();
         let fsm = test_fsm(bot.id);
-        let registry = registry_with([DialogImpl::new(vec![
-            WindowImpl::new(
+        let registry = registry_with([dialog([
+            window(
                 "ask_name",
                 [
-                    WidgetKind::text("Send your name"),
-                    WidgetKind::input(MessageInput::text(|name| {
+                    text("Send your name"),
+                    input(MessageInput::text(|name| {
                         ButtonAction::chain([
                             ButtonAction::set_dialog_value("name", name),
                             ButtonAction::next(),
@@ -1029,7 +1032,7 @@ mod tests {
                     })),
                 ],
             ),
-            WindowImpl::new("done", [WidgetKind::text("Done")]),
+            window("done", [text("Done")]),
         ])]);
 
         let start_manager =
@@ -1063,7 +1066,7 @@ mod tests {
         let bot = test_bot();
         let root_renders = Arc::new(AtomicUsize::new(0));
         let child_renders = Arc::new(AtomicUsize::new(0));
-        let registry = registry_with([DialogImpl::new(vec![
+        let registry = registry_with([dialog([
             counting_window("root", "Root", root_renders.clone()),
             counting_window("child", "Child", child_renders.clone()),
         ])]);
@@ -1112,7 +1115,7 @@ mod tests {
     async fn done_cleans_up_last_dialog_message_when_stack_becomes_empty() {
         let bot = test_bot();
         let only_renders = Arc::new(AtomicUsize::new(0));
-        let registry = registry_with([DialogImpl::new(vec![counting_window(
+        let registry = registry_with([dialog([counting_window(
             "only",
             "Only",
             only_renders.clone(),
