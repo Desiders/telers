@@ -1,6 +1,7 @@
 use crate::entities::{Data, DataMap};
 
 pub trait Text: Send + Sync + 'static {
+    #[must_use]
     fn render_text(&self, data: &DataMap) -> Box<str>;
 }
 
@@ -18,11 +19,10 @@ pub struct FnText<F> {
 }
 
 impl<F> FnText<F> {
+    #[inline]
     #[must_use]
     pub const fn new(renderer: F) -> Self {
-        Self {
-            renderer,
-        }
+        Self { renderer }
     }
 }
 
@@ -56,17 +56,29 @@ impl Text for FormatText {
 }
 
 pub struct MultiText {
-    items: Vec<Box<dyn Text>>,
+    texts: Vec<Box<dyn Text>>,
     separator: Box<str>,
 }
 
 impl MultiText {
     #[must_use]
-    pub fn new(items: Vec<Box<dyn Text>>) -> Self {
+    pub fn new() -> Self {
         Self {
-            items,
+            texts: Vec::new(),
             separator: "\n".into(),
         }
+    }
+
+    #[must_use]
+    pub fn text(mut self, item: impl Text) -> Self {
+        self.texts.push(Box::new(item));
+        self
+    }
+
+    #[must_use]
+    pub(crate) fn text_boxed(mut self, item: Box<dyn Text>) -> Self {
+        self.texts.push(item);
+        self
     }
 
     #[must_use]
@@ -74,17 +86,11 @@ impl MultiText {
         self.separator = separator.into();
         self
     }
-
-    #[must_use]
-    pub fn push(mut self, item: impl Text) -> Self {
-        self.items.push(Box::new(item));
-        self
-    }
 }
 
 impl Text for MultiText {
     fn render_text(&self, data: &DataMap) -> Box<str> {
-        self.items
+        self.texts
             .iter()
             .map(|item| item.render_text(data).into_string())
             .collect::<Vec<_>>()
@@ -156,7 +162,10 @@ mod tests {
 
     #[test]
     fn multi_text_joins_items() {
-        let text = MultiText::new(vec![Box::new("one"), Box::new("two")]).with_separator(" | ");
+        let text = MultiText::new()
+            .text("one")
+            .text("two")
+            .with_separator(" | ");
 
         assert_eq!(&*text.render_text(&DataMap::new()), "one | two");
     }

@@ -55,7 +55,7 @@ fn registry() -> DialogRegistry {
                         "size",
                         |_data: &DataMap| sizes(),
                         |item: &u32, _data: &DataMap| format!("{item} cm"),
-                        |item: &u32| *item,
+                        |item| item,
                         |size| {
                             ButtonAction::chain([
                                 ButtonAction::set_dialog_value("size", size),
@@ -72,10 +72,11 @@ fn registry() -> DialogRegistry {
             "summary",
             [
                 text(FormatText::new("Selected size: {size} cm")),
-                keyboard(InlineKeyboard::new([[
-                    Button::back("back", "Back"),
-                    Button::done("done", "Close"),
-                ]])),
+                keyboard(
+                    InlineKeyboard::new()
+                        .push(Button::back("back", "Back"))
+                        .push(Button::done("done", "Close")),
+                ),
             ],
         ),
     ]);

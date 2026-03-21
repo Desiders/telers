@@ -45,34 +45,36 @@ fn registry() -> DialogRegistry {
             "home",
             [
                 text("Button helpers: `next`, `switch_to`, and `start`."),
-                keyboard(InlineKeyboard::new([
-                    [Button::next("next", "Next helper")],
-                    [Button::switch_to("details", "SwitchTo details", "details")],
-                    [Button::start(
-                        "modal",
-                        "Start subdialog",
-                        "modal",
-                        Value::Null,
-                        StartMode::Normal,
-                    )],
-                ])),
+                keyboard(
+                    InlineKeyboard::new()
+                        .row([Button::next("next", "Next helper")])
+                        .row([Button::switch_to("details", "SwitchTo details", "details")])
+                        .row([Button::start(
+                            "modal",
+                            "Start subdialog",
+                            "modal",
+                            Value::Null,
+                            StartMode::Normal,
+                        )]),
+                ),
             ],
         ),
         window(
             "step",
             [
                 text("This state demonstrates `back` and a custom `action` chain."),
-                keyboard(InlineKeyboard::new([
-                    [Button::back("back", "Back helper")],
-                    [Button::action(
-                        "remember",
-                        "Remember source and open details",
-                        ButtonAction::chain([
-                            ButtonAction::set_dialog_value("source", "custom action"),
-                            ButtonAction::switch_to("details"),
-                        ]),
-                    )],
-                ])),
+                keyboard(
+                    InlineKeyboard::new()
+                        .row([Button::back("back", "Back helper")])
+                        .row([Button::action(
+                            "remember",
+                            "Remember source and open details",
+                            ButtonAction::chain([
+                                ButtonAction::set_dialog_value("source", "custom action"),
+                                ButtonAction::switch_to("details"),
+                            ]),
+                        )]),
+                ),
             ],
         ),
         window(
@@ -81,16 +83,17 @@ fn registry() -> DialogRegistry {
                 text(FormatText::new(
                     "Details window.\nsource = {source}\nnote = {note}",
                 )),
-                keyboard(InlineKeyboard::new([
-                    [Button::set_dialog_value(
-                        "note",
-                        "Set dialog value",
-                        "note",
-                        "saved from helper",
-                    )],
-                    [Button::done("done", "Done helper")],
-                    [Button::url("Open docs", "https://docs.rs/telers-dialog")],
-                ])),
+                keyboard(
+                    InlineKeyboard::new()
+                        .row([Button::set_dialog_value(
+                            "note",
+                            "Set dialog value",
+                            "note",
+                            "saved from helper",
+                        )])
+                        .row([Button::done("done", "Done helper")])
+                        .row([Button::url("Open docs", "https://docs.rs/telers-dialog")]),
+                ),
             ],
         ),
     ]);
@@ -99,10 +102,7 @@ fn registry() -> DialogRegistry {
         "modal",
         [
             text("This dialog was opened with `Button::start`."),
-            keyboard(InlineKeyboard::new([[Button::done(
-                "close",
-                "Close modal",
-            )]])),
+            keyboard(InlineKeyboard::new().push(Button::done("close", "Close modal"))),
         ],
     )]);
 

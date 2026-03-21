@@ -1,5 +1,5 @@
 use crate::entities::{Context, Data, DataMap, StartMode};
-use std::{fmt::Write, marker::PhantomData};
+use std::{fmt::Display, marker::PhantomData};
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::{debug, warn};
 
@@ -103,59 +103,6 @@ impl ButtonAction {
     }
 }
 
-pub trait CallbackPayload: Clone + Send + Sync + 'static {
-    fn encode_payload(&self) -> String;
-    fn decode_payload(payload: &str) -> Option<Self>;
-}
-
-impl CallbackPayload for String {
-    fn encode_payload(&self) -> String {
-        encode_string_payload(self)
-    }
-
-    fn decode_payload(payload: &str) -> Option<Self> {
-        decode_string_payload(payload)
-    }
-}
-
-impl CallbackPayload for Box<str> {
-    fn encode_payload(&self) -> String {
-        encode_string_payload(self)
-    }
-
-    fn decode_payload(payload: &str) -> Option<Self> {
-        String::decode_payload(payload).map(String::into_boxed_str)
-    }
-}
-
-macro_rules! impl_callback_payload_from_parse {
-    ($($ty:ty),+ $(,)?) => {
-        $(
-            impl CallbackPayload for $ty {
-                fn encode_payload(&self) -> String {
-                    self.to_string()
-                }
-
-                fn decode_payload(payload: &str) -> Option<Self> {
-                    payload.parse().ok()
-                }
-            }
-        )+
-    };
-}
-
-impl_callback_payload_from_parse!(bool, i8, i16, i32, i64, isize, u8, u16, u32, u64, usize);
-
-impl CallbackPayload for serde_json::Value {
-    fn encode_payload(&self) -> String {
-        encode_string_payload(&self.to_string())
-    }
-
-    fn decode_payload(payload: &str) -> Option<Self> {
-        serde_json::from_str(&decode_string_payload(payload)?).ok()
-    }
-}
-
 pub trait Keyboard: Send + Sync + 'static {
     fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup>;
 
@@ -167,17 +114,25 @@ pub(super) struct MultiKeyboard {
 }
 
 impl MultiKeyboard {
-    pub(super) fn new(keyboards: Vec<Box<dyn Keyboard>>) -> Self {
+    #[inline]
+    #[must_use]
+    pub(crate) const fn new() -> Self {
         Self {
-            keyboards,
+            keyboards: Vec::new(),
         }
+    }
+
+    #[must_use]
+    pub(crate) fn kbd_boxed(mut self, keyboard: Box<dyn Keyboard>) -> Self {
+        self.keyboards.push(keyboard);
+        self
     }
 }
 
 impl Keyboard for MultiKeyboard {
     fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
-        let mut inline_rows: Vec<Box<[InlineKeyboardButton]>> = Vec::new();
-        let mut non_inline_markup: Option<ReplyMarkup> = None;
+        let mut inline_rows = Vec::new();
+        let mut non_inline_markup = None;
 
         for keyboard in &self.keyboards {
             let Some(markup) = keyboard.render_keyboard(ctx, data) else {
@@ -322,18 +277,31 @@ pub struct InlineKeyboard {
 }
 
 impl InlineKeyboard {
+    #[inline]
     #[must_use]
-    pub fn new<Row, Rows>(rows: Rows) -> Self
+    pub const fn new() -> Self {
+        Self { rows: Vec::new() }
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn row<T, I>(mut self, row: I) -> Self
     where
-        Row: IntoIterator<Item = Button>,
-        Rows: IntoIterator<Item = Row>,
+        I: IntoIterator<Item = T>,
+        T: Into<Button>,
     {
-        Self {
-            rows: rows
-                .into_iter()
-                .map(|row| row.into_iter().collect())
-                .collect(),
+        self.rows.push(row.into_iter().map(Into::into).collect());
+        self
+    }
+
+    /// Add a button to the last row or create a new row if the last row not found
+    #[must_use]
+    pub fn push(mut self, button: impl Into<Button>) -> Self {
+        match self.rows.last_mut() {
+            Some(row) => row.push(button.into()),
+            None => self.rows.push(vec![button.into()]),
         }
+        self
     }
 }
 
@@ -362,32 +330,44 @@ impl Keyboard for InlineKeyboard {
     }
 }
 
-pub struct Select<T, V, I, R, P, A> {
-    id: Box<str>,
-    items: I,
-    render_item: R,
-    item_value: P,
-    action: A,
+pub struct Select<
+    WidgetId,
+    ItemsGetter,
+    ItemsIter,
+    Item,
+    ItemRenderer,
+    ItemStr,
+    IdGetter,
+    Id,
+    Action,
+> {
+    id: WidgetId,
+    items_getter: ItemsGetter,
+    item_renderer: ItemRenderer,
+    id_getter: IdGetter,
+    action: Action,
     items_per_row: usize,
     header_rows: Vec<Vec<Button>>,
     footer_rows: Vec<Vec<Button>>,
-    marker: PhantomData<fn() -> (T, V)>,
+    marker: PhantomData<fn() -> (ItemsIter, Item, ItemStr, Id)>,
 }
 
-impl<T, V, I, R, P, A> Select<T, V, I, R, P, A> {
+impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id, Action>
+    Select<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id, Action>
+{
     #[must_use]
     pub fn new(
-        id: impl Into<Box<str>>,
-        items: I,
-        render_item: R,
-        item_value: P,
-        action: A,
+        id: WidgetId,
+        items_getter: ItemsGetter,
+        item_renderer: ItemRenderer,
+        id_getter: IdGetter,
+        action: Action,
     ) -> Self {
         Self {
             id: id.into(),
-            items,
-            render_item,
-            item_value,
+            items_getter,
+            item_renderer,
+            id_getter,
             action,
             items_per_row: 1,
             header_rows: Vec::new(),
@@ -415,29 +395,36 @@ impl<T, V, I, R, P, A> Select<T, V, I, R, P, A> {
     }
 }
 
-impl<T, V, I, R, P, A, S> Keyboard for Select<T, V, I, R, P, A>
+impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id, Action> Keyboard
+    for Select<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id, Action>
 where
-    T: Send + Sync + 'static,
-    V: CallbackPayload,
-    I: Fn(&DataMap) -> Vec<T> + Send + Sync + 'static,
-    R: Fn(&T, &DataMap) -> S + Send + Sync + 'static,
-    P: Fn(&T) -> V + Send + Sync + 'static,
-    A: Fn(V) -> ButtonAction + Send + Sync + 'static,
-    S: Into<Box<str>>,
+    WidgetId: Display + Send + Sync + 'static,
+    ItemsGetter: Fn(&DataMap) -> ItemsIter + Send + Sync + 'static,
+    ItemsIter: IntoIterator<Item = Item> + 'static,
+    Item: 'static,
+    ItemRenderer: Fn(&Item, &DataMap) -> ItemStr + Send + Sync + 'static,
+    ItemStr: Into<Box<str>> + 'static,
+    IdGetter: Fn(Item) -> Id + Send + Sync + 'static,
+    Id: Display + Send + Sync + 'static,
+    Action: Fn(String) -> ButtonAction + Send + Sync + 'static,
 {
     fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
-        let mut rows: Vec<Box<[InlineKeyboardButton]>> = self
+        let mut rows: Vec<_> = self
             .header_rows
             .iter()
             .map(|row| render_button_row(row, ctx, data))
             .collect();
 
         let mut current_row = Vec::with_capacity(self.items_per_row);
-        for item in (self.items)(data) {
-            let payload = (self.item_value)(&item).encode_payload();
+        for item in (self.items_getter)(data) {
+            let text = (self.item_renderer)(&item, data);
+            let payload = (self.id_getter)(item).to_string();
             current_row.push(
-                InlineKeyboardButton::new((self.render_item)(&item, data))
-                    .callback_data(format_callback_data(ctx, &self.id, Some(&payload))),
+                InlineKeyboardButton::new(text).callback_data(format_callback_data(
+                    ctx,
+                    &self.id,
+                    Some(&payload),
+                )),
             );
             if current_row.len() == self.items_per_row {
                 rows.push(current_row.into_boxed_slice());
@@ -457,9 +444,7 @@ where
         if rows.is_empty() {
             None
         } else {
-            Some(ReplyMarkup::InlineKeyboardMarkup(
-                InlineKeyboardMarkup::new(rows),
-            ))
+            Some(InlineKeyboardMarkup::new(rows).into())
         }
     }
 
@@ -475,23 +460,20 @@ where
         }
 
         let parsed = parse_callback_data(ctx, callback_data)?;
-        if parsed.target_id != self.id.as_ref() {
+        if parsed.target_id != self.id.to_string() {
             return None;
         }
-        let payload = parsed.payload?;
-        let value = V::decode_payload(payload)?;
+        let payload = parsed.payload?.to_owned();
         debug!(context_id = %ctx.id, widget_id = %self.id, "Resolved select callback");
-        Some((self.action)(value))
+        Some((self.action)(payload))
     }
 }
 
 fn render_button_row(row: &[Button], ctx: &Context, data: &DataMap) -> Box<[InlineKeyboardButton]> {
-    row.iter()
-        .map(|button| button.render(ctx, data))
-        .collect::<Box<[_]>>()
+    row.iter().map(|button| button.render(ctx, data)).collect()
 }
 
-fn format_callback_data(ctx: &Context, target_id: &str, payload: Option<&str>) -> String {
+fn format_callback_data(ctx: &Context, target_id: impl Display, payload: Option<&str>) -> String {
     match payload {
         Some(payload) => format!("{CALLBACK_PREFIX}:{}:{target_id}:{payload}", ctx.id),
         None => format!("{CALLBACK_PREFIX}:{}:{target_id}", ctx.id),
@@ -520,35 +502,6 @@ fn parse_callback_data<'a>(
     })
 }
 
-fn encode_string_payload(value: &str) -> String {
-    let mut encoded = String::with_capacity(value.len());
-    for &byte in value.as_bytes() {
-        if byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b'.' | b'~') {
-            encoded.push(byte as char);
-        } else {
-            let _ = write!(&mut encoded, "%{byte:02X}");
-        }
-    }
-    encoded
-}
-
-fn decode_string_payload(value: &str) -> Option<String> {
-    let bytes = value.as_bytes();
-    let mut decoded = Vec::with_capacity(bytes.len());
-    let mut idx = 0;
-    while idx < bytes.len() {
-        if bytes[idx] == b'%' {
-            let hex = std::str::from_utf8(bytes.get(idx + 1..idx + 3)?).ok()?;
-            decoded.push(u8::from_str_radix(hex, 16).ok()?);
-            idx += 3;
-        } else {
-            decoded.push(bytes[idx]);
-            idx += 1;
-        }
-    }
-    String::from_utf8(decoded).ok()
-}
-
 #[cfg(test)]
 mod tests {
     use super::{Button, ButtonAction, InlineKeyboard, Keyboard, Select};
@@ -557,7 +510,7 @@ mod tests {
     #[test]
     fn inline_keyboard_renders_callback_data_with_intent() {
         let ctx = Context::new("", "state", serde_json::Value::Null);
-        let keyboard = InlineKeyboard::new([[Button::action("go", "Go", ButtonAction::Next)]]);
+        let keyboard = InlineKeyboard::new().row([Button::action("go", "Go", ButtonAction::Next)]);
 
         let markup = keyboard
             .render_keyboard(&ctx, &DataMap::new())
@@ -575,7 +528,7 @@ mod tests {
     #[test]
     fn inline_keyboard_ignores_foreign_intent_callbacks() {
         let ctx = Context::new("", "state", serde_json::Value::Null);
-        let keyboard = InlineKeyboard::new([[Button::action(
+        let keyboard = InlineKeyboard::new().row([Button::action(
             "go",
             "Go",
             ButtonAction::Start {
@@ -583,7 +536,7 @@ mod tests {
                 data: serde_json::Value::Null,
                 mode: StartMode::Normal,
             },
-        )]]);
+        )]);
 
         assert!(keyboard.handle_callback(&ctx, "td:another:go").is_none());
     }
@@ -591,12 +544,12 @@ mod tests {
     #[test]
     fn select_renders_and_resolves_string_payloads() {
         let ctx = Context::new("", "state", serde_json::Value::Null);
-        let select = Select::<String, String, _, _, _, _>::new(
+        let select = Select::new(
             "fruit",
-            |_data: &DataMap| vec!["red:apple".to_owned(), "pear".to_owned()],
+            |_data: &DataMap| ["red:apple".to_owned(), "pear".to_owned()],
             |item: &String, _data: &DataMap| item.clone(),
-            |item: &String| item.clone(),
-            |value: String| ButtonAction::set_dialog_value("fruit", value),
+            |item| item,
+            |value| ButtonAction::set_dialog_value("fruit", value),
         )
         .items_per_row(2);
 
@@ -626,12 +579,12 @@ mod tests {
     #[test]
     fn select_allows_static_footer_buttons() {
         let ctx = Context::new("", "state", serde_json::Value::Null);
-        let select = Select::<String, String, _, _, _, _>::new(
+        let select = Select::new(
             "fruit",
-            |_data: &DataMap| vec!["pear".to_owned()],
+            |_data: &DataMap| ["pear".to_owned()],
             |item: &String, _data: &DataMap| item.clone(),
-            |item: &String| item.clone(),
-            |value: String| ButtonAction::set_dialog_value("fruit", value),
+            |item| item,
+            |value| ButtonAction::set_dialog_value("fruit", value),
         )
         .footer_row([Button::done("done", "Done")]);
 

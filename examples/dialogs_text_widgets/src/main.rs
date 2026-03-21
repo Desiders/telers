@@ -50,14 +50,14 @@ fn registry() -> DialogRegistry {
                     "Press the button below. The next window combines several text widgets into \
                      one message.",
                 ),
-                keyboard(InlineKeyboard::new([[Button::action(
+                keyboard(InlineKeyboard::new().push(Button::action(
                     "render",
                     "Show text widgets",
                     ButtonAction::chain([
                         ButtonAction::set_dialog_value("title", "telers-dialog"),
                         ButtonAction::next(),
                     ]),
-                )]])),
+                ))),
             ],
         ),
         window(
@@ -72,10 +72,11 @@ fn registry() -> DialogRegistry {
                     |_data: &DataMap| vec!["one".to_owned(), "two".to_owned(), "three".to_owned()],
                     |item: &String, _data: &DataMap| format!("- {item}"),
                 )),
-                keyboard(InlineKeyboard::new([[
-                    Button::back("back", "Back"),
-                    Button::done("done", "Close"),
-                ]])),
+                keyboard(
+                    InlineKeyboard::new()
+                        .push(Button::back("back", "Back"))
+                        .push(Button::done("done", "Close")),
+                ),
             ],
         ),
     ]);
