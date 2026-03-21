@@ -16,10 +16,17 @@ pub(super) struct MultiInput {
 }
 
 impl MultiInput {
-    pub(super) fn new(inputs: Vec<Box<dyn Input>>) -> Self {
-        Self {
-            inputs,
-        }
+    #[inline]
+    #[must_use]
+    pub(crate) const fn new() -> Self {
+        Self { inputs: Vec::new() }
+    }
+
+    #[inline]
+    #[must_use]
+    pub(crate) fn input_boxed(mut self, input: Box<dyn Input>) -> Self {
+        self.inputs.push(input);
+        self
     }
 }
 

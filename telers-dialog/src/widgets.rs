@@ -5,7 +5,7 @@ mod text;
 mod widget;
 
 pub use input::{Input, MessageInput, TextInput};
-pub use kbd::{Button, ButtonAction, CallbackPayload, InlineKeyboard, Keyboard, Select};
+pub use kbd::{Button, ButtonAction, InlineKeyboard, Keyboard, Select};
 pub use list::ListText;
 pub use text::{FnText, FormatText, MultiText, Text};
 pub(crate) use widget::ensure_widgets;

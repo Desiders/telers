@@ -175,16 +175,16 @@ mod tests {
             "state",
             [
                 text("Prompt"),
-                keyboard(InlineKeyboard::new([[Button::action(
+                keyboard(InlineKeyboard::new().push(Button::action(
                     "first",
                     "First",
                     ButtonAction::next(),
-                )]])),
-                keyboard(InlineKeyboard::new([[Button::action(
+                ))),
+                keyboard(InlineKeyboard::new().push(Button::action(
                     "second",
                     "Second",
                     ButtonAction::back(),
-                )]])),
+                ))),
                 input(MessageInput::new(|_ctx, _message| None)),
                 input(MessageInput::text(|text| {
                     ButtonAction::set_dialog_value("name", text)

@@ -39,32 +39,43 @@ pub fn input(i: impl Input) -> WidgetKind {
 /// # Panics
 /// Panics if no text widget is present.
 pub(crate) fn ensure_widgets(widgets: impl IntoIterator<Item = WidgetKind>) -> WindowWidgets {
-    let mut texts: Vec<Box<dyn Text>> = Vec::new();
-    let mut keyboards: Vec<Box<dyn Keyboard>> = Vec::new();
-    let mut inputs: Vec<Box<dyn Input>> = Vec::new();
+    let mut texts = Vec::new();
+    let mut kbds = Vec::new();
+    let mut inputs = Vec::new();
     for widget in widgets {
         match widget {
             WidgetKind::Text(val) => texts.push(val),
-            WidgetKind::Keyboard(val) => keyboards.push(val),
+            WidgetKind::Keyboard(val) => kbds.push(val),
             WidgetKind::Input(val) => inputs.push(val),
         }
     }
-    let text: Box<dyn Text> = match texts.len() {
-        0 => panic!("Window must contain Text widget"),
-        1 => texts.pop().expect("single text"),
-        _ => Box::new(MultiText::new(texts)),
+    let text = match texts.len() {
+        0 => panic!("`Window` must have at least one `Text` widget"),
+        1 => texts.pop().unwrap(),
+        _ => Box::new(
+            texts
+                .into_iter()
+                .fold(MultiText::new(), MultiText::text_boxed),
+        ),
     };
-    let keyboard = match keyboards.len() {
+    let kbd: Option<_> = match kbds.len() {
         0 => None,
-        1 => Some(keyboards.pop().expect("single keyboard")),
-        _ => Some(Box::new(MultiKeyboard::new(keyboards)) as Box<dyn Keyboard>),
+        1 => Some(kbds.pop().unwrap()),
+        _ => Some(Box::new(
+            kbds.into_iter()
+                .fold(MultiKeyboard::new(), MultiKeyboard::kbd_boxed),
+        )),
     };
-    let input = match inputs.len() {
+    let input: Option<_> = match inputs.len() {
         0 => None,
         1 => Some(inputs.pop().expect("single input")),
-        _ => Some(Box::new(MultiInput::new(inputs)) as Box<dyn Input>),
+        _ => Some(Box::new(
+            inputs
+                .into_iter()
+                .fold(MultiInput::new(), MultiInput::input_boxed),
+        )),
     };
-    (text, keyboard, input)
+    (text, kbd, input)
 }
 
 #[cfg(test)]
@@ -76,7 +87,7 @@ mod tests {
     fn shortcut_builders_return_expected_widget_kinds() {
         assert!(matches!(text("hello"), WidgetKind::Text(_)));
         assert!(matches!(
-            keyboard(InlineKeyboard::new([[Button::done("done", "Done")]])),
+            keyboard(InlineKeyboard::new().row([Button::done("done", "Done")])),
             WidgetKind::Keyboard(_)
         ));
         assert!(matches!(

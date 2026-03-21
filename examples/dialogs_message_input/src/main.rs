@@ -67,7 +67,7 @@ fn registry() -> DialogRegistry {
                         ButtonAction::next(),
                     ])
                 })),
-                keyboard(InlineKeyboard::new([[Button::back("back", "Back")]])),
+                keyboard(InlineKeyboard::new().row([Button::back("back", "Back")])),
             ],
         ),
         window(
@@ -83,7 +83,7 @@ fn registry() -> DialogRegistry {
                         ButtonAction::next(),
                     ]))
                 })),
-                keyboard(InlineKeyboard::new([[Button::back("back", "Back")]])),
+                keyboard(InlineKeyboard::new().push(Button::back("back", "Back"))),
             ],
         ),
         window(
@@ -92,10 +92,11 @@ fn registry() -> DialogRegistry {
                 text(FormatText::new(
                     "name = {name}\ncity = {city}\nnote = {note}\nnote_len = {note_len}",
                 )),
-                keyboard(InlineKeyboard::new([[
-                    Button::back("back", "Back"),
-                    Button::done("done", "Close"),
-                ]])),
+                keyboard(
+                    InlineKeyboard::new()
+                        .push(Button::back("back", "Back"))
+                        .push(Button::done("done", "Close")),
+                ),
             ],
         ),
     ]);
