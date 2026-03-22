@@ -81,7 +81,7 @@ pub(crate) fn ensure_widgets(widgets: impl IntoIterator<Item = WidgetKind>) -> W
 #[cfg(test)]
 mod tests {
     use super::{input, keyboard, text, WidgetKind};
-    use crate::widgets::{Button, InlineKeyboard, MessageInput};
+    use crate::widgets::{Button, ButtonAction, InlineKeyboard, TextInput};
 
     #[test]
     fn shortcut_builders_return_expected_widget_kinds() {
@@ -91,7 +91,11 @@ mod tests {
             WidgetKind::Keyboard(_)
         ));
         assert!(matches!(
-            input(MessageInput::new(|_ctx, _message| None)),
+            input(
+                TextInput::builder("id")
+                    .on_success(|_ctx, _val: i64| ButtonAction::noop())
+                    .build()
+            ),
             WidgetKind::Input(_)
         ));
     }

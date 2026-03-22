@@ -17,7 +17,6 @@ use telers::{
 };
 use telers_dialog::{
     dialog,
-    entities::DataMap,
     widgets::{keyboard, text, Button, ButtonAction, FormatText, InlineKeyboard, Select},
     window, DialogManager, DialogObserverExt, DialogRegistry, StartMode,
 };
@@ -51,20 +50,19 @@ fn registry() -> DialogRegistry {
             [
                 text("Select a numeric payload. This uses `Select<u32>`."),
                 keyboard(
-                    Select::new(
-                        "size",
-                        |_data: &DataMap| sizes(),
-                        |item: &u32, _data: &DataMap| format!("{item} cm"),
-                        |item| item,
-                        |size| {
+                    Select::builder("size")
+                        .items_getter(|_data| sizes())
+                        .item_renderer(|item, _data| format!("{item} cm"))
+                        .id_getter(|item| item)
+                        .action(|value| {
                             ButtonAction::chain([
-                                ButtonAction::set_dialog_value("size", size),
+                                ButtonAction::set_dialog_value("size", value),
                                 ButtonAction::next(),
                             ])
-                        },
-                    )
-                    .items_per_row(3)
-                    .footer_row([Button::done("close", "Close")]),
+                        })
+                        .items_per_row(3)
+                        .build()
+                        .footer_row([Button::done("close", "Close")]),
                 ),
             ],
         ),

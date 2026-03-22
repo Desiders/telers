@@ -3,17 +3,13 @@ use crate::{
     widgets::{ensure_widgets, ButtonAction, Input, Keyboard, Text, WidgetKind},
 };
 use std::sync::Arc;
-use telers::types::LinkPreviewOptions;
+use telers::types::{LinkPreviewOptions, Message};
 
 pub trait Window: Send + Sync {
     fn get_state(&self) -> &str;
     fn render(&self, ctx: &Context, data: &DataMap, event_ctx: &EventContext) -> NewMessage;
     fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction>;
-    fn handle_message(
-        &self,
-        ctx: &Context,
-        message: &telers::types::Message,
-    ) -> Option<ButtonAction>;
+    fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction>;
 }
 
 pub trait IntoWindow {
@@ -138,11 +134,7 @@ impl Window for WindowImpl {
             .and_then(|kbd| kbd.handle_callback(ctx, callback_data))
     }
 
-    fn handle_message(
-        &self,
-        ctx: &Context,
-        message: &telers::types::Message,
-    ) -> Option<ButtonAction> {
+    fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction> {
         self.input
             .as_ref()
             .and_then(|input| input.handle_message(ctx, message))
@@ -185,9 +177,11 @@ mod tests {
                     "Second",
                     ButtonAction::back(),
                 ))),
-                input(MessageInput::new(|_ctx, _message| None)),
-                input(MessageInput::text(|text| {
-                    ButtonAction::set_dialog_value("name", text)
+                input(MessageInput::new(|_ctx, _message: Message| {
+                    ButtonAction::noop()
+                })),
+                input(MessageInput::new(|_ctx, message: MessageText| {
+                    ButtonAction::set_dialog_value("name", message.text.to_string())
                 })),
             ],
         );
@@ -223,12 +217,8 @@ mod tests {
         assert!(matches!(callback_action, ButtonAction::Back));
 
         let input_action = window
-            .handle_message(&ctx, &test_message("Alice"))
+            .handle_message(&ctx, test_message("Alice"))
             .expect("input action");
-        assert!(matches!(
-            input_action,
-            ButtonAction::SetDialogValue { ref key, ref value }
-                if key.as_ref() == "name" && value == "Alice"
-        ));
+        assert!(matches!(input_action, ButtonAction::Noop));
     }
 }

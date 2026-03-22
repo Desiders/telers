@@ -13,6 +13,7 @@ use telers::{
     filters::Command,
     fsm::{MemoryStorage, Strategy::UserInChat},
     middlewares::outer::FSMContext as FSMContextMiddleware,
+    types::MessageText,
     Bot, Dispatcher, Router,
 };
 use telers_dialog::{
@@ -49,21 +50,25 @@ fn registry() -> DialogRegistry {
             [
                 text("Send your name. This window uses `TextInput` and continues on success."),
                 text(FormatText::new("Stored name: {name}")),
-                input(TextInput::new("name_input", |name| {
-                    ButtonAction::chain([
-                        ButtonAction::set_dialog_value("name", name),
-                        ButtonAction::next(),
-                    ])
-                })),
+                input(
+                    TextInput::builder("name_input")
+                        .on_success(|_ctx, name: String| {
+                            ButtonAction::chain([
+                                ButtonAction::set_dialog_value("name", name),
+                                ButtonAction::next(),
+                            ])
+                        })
+                        .build(),
+                ),
             ],
         ),
         window(
             "city",
             [
                 text("Send your city. This window uses `MessageInput::text`."),
-                input(MessageInput::text(|city| {
+                input(MessageInput::new(|_ctx, message: MessageText| {
                     ButtonAction::chain([
-                        ButtonAction::set_dialog_value("city", city),
+                        ButtonAction::set_dialog_value("city", message.text.to_string()),
                         ButtonAction::next(),
                     ])
                 })),
@@ -74,14 +79,14 @@ fn registry() -> DialogRegistry {
             "note",
             [
                 text("Send any final note. This window uses `MessageInput::new`."),
-                input(MessageInput::new(|_ctx, message| {
-                    let text = message.text()?.to_owned();
+                input(MessageInput::new(|_ctx, message: MessageText| {
+                    let text = message.text.to_string();
                     let text_len = text.len() as u64;
-                    Some(ButtonAction::chain([
+                    ButtonAction::chain([
                         ButtonAction::set_dialog_value("note", text),
                         ButtonAction::set_dialog_value("note_len", text_len),
                         ButtonAction::next(),
-                    ]))
+                    ])
                 })),
                 keyboard(InlineKeyboard::new().push(Button::back("back", "Back"))),
             ],

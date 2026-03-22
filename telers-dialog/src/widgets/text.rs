@@ -22,7 +22,9 @@ impl<F> FnText<F> {
     #[inline]
     #[must_use]
     pub const fn new(renderer: F) -> Self {
-        Self { renderer }
+        Self {
+            renderer,
+        }
     }
 }
 
