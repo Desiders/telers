@@ -1,4 +1,5 @@
 use crate::entities::{Context, Data, DataMap, StartMode};
+use bon::bon;
 use std::{fmt::Display, marker::PhantomData};
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::{debug, warn};
@@ -280,7 +281,9 @@ impl InlineKeyboard {
     #[inline]
     #[must_use]
     pub const fn new() -> Self {
-        Self { rows: Vec::new() }
+        Self {
+            rows: Vec::new(),
+        }
     }
 
     #[inline]
@@ -352,34 +355,41 @@ pub struct Select<
     marker: PhantomData<fn() -> (ItemsIter, Item, ItemStr, Id)>,
 }
 
+#[bon]
 impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id, Action>
     Select<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id, Action>
 {
+    #[builder]
     #[must_use]
     pub fn new(
-        id: WidgetId,
+        #[builder(start_fn)] id: WidgetId,
         items_getter: ItemsGetter,
         item_renderer: ItemRenderer,
         id_getter: IdGetter,
         action: Action,
-    ) -> Self {
+        #[builder(default = 1)] items_per_row: usize,
+    ) -> Self
+    where
+        WidgetId: Display,
+        ItemsGetter: Fn(&DataMap) -> ItemsIter,
+        ItemsIter: IntoIterator<Item = Item>,
+        ItemRenderer: Fn(&Item, &DataMap) -> ItemStr,
+        ItemStr: Into<Box<str>>,
+        IdGetter: Fn(Item) -> Id,
+        Id: Display,
+        Action: Fn(&str) -> ButtonAction,
+    {
         Self {
-            id: id.into(),
+            id,
             items_getter,
             item_renderer,
             id_getter,
             action,
-            items_per_row: 1,
+            items_per_row,
             header_rows: Vec::new(),
             footer_rows: Vec::new(),
             marker: PhantomData,
         }
-    }
-
-    #[must_use]
-    pub fn items_per_row(mut self, width: usize) -> Self {
-        self.items_per_row = width.max(1);
-        self
     }
 
     #[must_use]
@@ -406,7 +416,7 @@ where
     ItemStr: Into<Box<str>> + 'static,
     IdGetter: Fn(Item) -> Id + Send + Sync + 'static,
     Id: Display + Send + Sync + 'static,
-    Action: Fn(String) -> ButtonAction + Send + Sync + 'static,
+    Action: Fn(&str) -> ButtonAction + Send + Sync + 'static,
 {
     fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
         let mut rows: Vec<_> = self
@@ -463,7 +473,7 @@ where
         if parsed.target_id != self.id.to_string() {
             return None;
         }
-        let payload = parsed.payload?.to_owned();
+        let payload = parsed.payload?;
         debug!(context_id = %ctx.id, widget_id = %self.id, "Resolved select callback");
         Some((self.action)(payload))
     }
@@ -504,12 +514,14 @@ fn parse_callback_data<'a>(
 
 #[cfg(test)]
 mod tests {
+    use serde_json::Value;
+
     use super::{Button, ButtonAction, InlineKeyboard, Keyboard, Select};
     use crate::entities::{Context, DataMap, StartMode};
 
     #[test]
     fn inline_keyboard_renders_callback_data_with_intent() {
-        let ctx = Context::new("", "state", serde_json::Value::Null);
+        let ctx = Context::new("", "state", Value::Null);
         let keyboard = InlineKeyboard::new().row([Button::action("go", "Go", ButtonAction::Next)]);
 
         let markup = keyboard
@@ -527,13 +539,13 @@ mod tests {
 
     #[test]
     fn inline_keyboard_ignores_foreign_intent_callbacks() {
-        let ctx = Context::new("", "state", serde_json::Value::Null);
+        let ctx = Context::new("", "state", Value::Null);
         let keyboard = InlineKeyboard::new().row([Button::action(
             "go",
             "Go",
             ButtonAction::Start {
                 state: "next".into(),
-                data: serde_json::Value::Null,
+                data: Value::Null,
                 mode: StartMode::Normal,
             },
         )]);
@@ -543,27 +555,27 @@ mod tests {
 
     #[test]
     fn select_renders_and_resolves_string_payloads() {
-        let ctx = Context::new("", "state", serde_json::Value::Null);
-        let select = Select::new(
-            "fruit",
-            |_data: &DataMap| ["red:apple".to_owned(), "pear".to_owned()],
-            |item: &String, _data: &DataMap| item.clone(),
-            |item| item,
-            |value| ButtonAction::set_dialog_value("fruit", value),
-        )
-        .items_per_row(2);
+        let ctx = Context::new("", "state", Value::Null);
+
+        let select = Select::builder("fruit")
+            .items_getter(|_data| ["red:apple", "pear"])
+            .item_renderer(|item, _data| item.to_owned())
+            .id_getter(|item| item)
+            .action(|value| ButtonAction::set_dialog_value("fruit", value))
+            .items_per_row(2)
+            .build();
 
         let markup = select
             .render_keyboard(&ctx, &DataMap::new())
             .expect("keyboard");
         let callback_data = markup
             .inline_keyboard()
-            .and_then(|rows: &[Box<[telers::types::InlineKeyboardButton]>]| rows.first())
-            .and_then(|row: &Box<[telers::types::InlineKeyboardButton]>| row.first())
+            .and_then(|rows| rows.first())
+            .and_then(|row| row.first())
             .and_then(|button| button.callback_data.as_deref())
             .expect("callback data");
 
-        assert_eq!(callback_data, format!("td:{}:fruit:red%3Aapple", ctx.id));
+        assert_eq!(callback_data, format!("td:{}:fruit:red:apple", ctx.id));
 
         let action = select
             .handle_callback(&ctx, callback_data)
@@ -578,15 +590,15 @@ mod tests {
 
     #[test]
     fn select_allows_static_footer_buttons() {
-        let ctx = Context::new("", "state", serde_json::Value::Null);
-        let select = Select::new(
-            "fruit",
-            |_data: &DataMap| ["pear".to_owned()],
-            |item: &String, _data: &DataMap| item.clone(),
-            |item| item,
-            |value| ButtonAction::set_dialog_value("fruit", value),
-        )
-        .footer_row([Button::done("done", "Done")]);
+        let ctx = Context::new("", "state", Value::Null);
+
+        let select = Select::builder("fruit")
+            .items_getter(|_data| ["pear"])
+            .item_renderer(|item, _data| item.to_owned())
+            .id_getter(|item| item)
+            .action(|value| ButtonAction::set_dialog_value("fruit", value))
+            .build()
+            .footer_row([Button::done("done", "Done")]);
 
         let action = select
             .handle_callback(&ctx, &format!("td:{}:done", ctx.id))

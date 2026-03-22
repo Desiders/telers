@@ -1,15 +1,11 @@
 use crate::{entities::Context, widgets::ButtonAction};
-use std::sync::Arc;
+use bon::bon;
+use std::{fmt::Display, marker::PhantomData, str::FromStr};
 use telers::types::Message;
 
 pub trait Input: Send + Sync + 'static {
-    fn handle_message(&self, ctx: &Context, message: &Message) -> Option<ButtonAction>;
+    fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction>;
 }
-
-type InputHandler = dyn Fn(&Context, &Message) -> Option<ButtonAction> + Send + Sync + 'static;
-type TextParser<T> = dyn Fn(&str) -> Result<T, String> + Send + Sync + 'static;
-type TextSuccess<T> = dyn Fn(T) -> ButtonAction + Send + Sync + 'static;
-type TextError = dyn Fn(String) -> Option<ButtonAction> + Send + Sync + 'static;
 
 pub(super) struct MultiInput {
     inputs: Vec<Box<dyn Input>>,
@@ -19,7 +15,9 @@ impl MultiInput {
     #[inline]
     #[must_use]
     pub(crate) const fn new() -> Self {
-        Self { inputs: Vec::new() }
+        Self {
+            inputs: Vec::new(),
+        }
     }
 
     #[inline]
@@ -31,111 +29,108 @@ impl MultiInput {
 }
 
 impl Input for MultiInput {
-    fn handle_message(&self, ctx: &Context, message: &Message) -> Option<ButtonAction> {
+    fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction> {
         self.inputs
             .iter()
-            .find_map(|input| input.handle_message(ctx, message))
+            .find_map(|input| input.handle_message(ctx, message.clone()))
     }
 }
 
-pub struct MessageInput {
-    handler: Arc<InputHandler>,
+pub struct MessageInput<Handler, MessageType> {
+    handler: Handler,
+    marker: PhantomData<fn() -> MessageType>,
 }
 
-impl MessageInput {
-    #[must_use]
-    pub fn new(
-        handler: impl Fn(&Context, &Message) -> Option<ButtonAction> + Send + Sync + 'static,
-    ) -> Self {
-        Self {
-            handler: Arc::new(handler),
-        }
-    }
-
-    #[must_use]
-    pub fn text(handler: impl Fn(String) -> ButtonAction + Send + Sync + 'static) -> Self {
-        Self::new(move |_ctx, message| message.text().map(|text| handler(text.to_owned())))
-    }
-}
-
-impl Input for MessageInput {
-    fn handle_message(&self, ctx: &Context, message: &Message) -> Option<ButtonAction> {
-        (self.handler)(ctx, message)
-    }
-}
-
-pub struct TextInput<T = String> {
-    id: Box<str>,
-    parser: Arc<TextParser<T>>,
-    on_success: Arc<TextSuccess<T>>,
-    on_error: Option<Arc<TextError>>,
-}
-
-impl TextInput<String> {
-    #[must_use]
-    pub fn new(
-        id: impl Into<Box<str>>,
-        on_success: impl Fn(String) -> ButtonAction + Send + Sync + 'static,
-    ) -> Self {
-        Self::with_parser(id, |text| Ok::<String, String>(text.to_owned()), on_success)
-    }
-}
-
-impl<T> TextInput<T>
-where
-    T: Send + Sync + 'static,
-{
-    #[must_use]
-    pub fn with_parser<E>(
-        id: impl Into<Box<str>>,
-        parser: impl Fn(&str) -> Result<T, E> + Send + Sync + 'static,
-        on_success: impl Fn(T) -> ButtonAction + Send + Sync + 'static,
-    ) -> Self
-    where
-        E: ToString,
-    {
-        Self {
-            id: id.into(),
-            parser: Arc::new(move |text| parser(text).map_err(|err| err.to_string())),
-            on_success: Arc::new(on_success),
-            on_error: None,
-        }
-    }
-
-    #[must_use]
-    pub fn on_error(
-        mut self,
-        handler: impl Fn(String) -> Option<ButtonAction> + Send + Sync + 'static,
-    ) -> Self {
-        self.on_error = Some(Arc::new(handler));
-        self
-    }
-
+impl<Handler, MessageType> MessageInput<Handler, MessageType> {
     #[inline]
     #[must_use]
-    pub fn id(&self) -> &str {
-        &self.id
-    }
-
-    #[must_use]
-    pub fn value(&self, ctx: &Context) -> Option<T> {
-        let raw = ctx.widget_value_as::<String>(&self.id)?;
-        (self.parser)(&raw).ok()
+    pub const fn new(handler: Handler) -> Self
+    where
+        Handler: Fn(&Context, MessageType) -> ButtonAction,
+        MessageType: TryFrom<Message>,
+    {
+        Self {
+            handler,
+            marker: PhantomData,
+        }
     }
 }
 
-impl<T> Input for TextInput<T>
+impl<Handler, MessageType> Input for MessageInput<Handler, MessageType>
 where
-    T: Send + Sync + 'static,
+    Handler: Fn(&Context, MessageType) -> ButtonAction + Send + Sync + 'static,
+    MessageType: TryFrom<Message> + 'static,
 {
-    fn handle_message(&self, _ctx: &Context, message: &Message) -> Option<ButtonAction> {
+    fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction> {
+        Some((self.handler)(ctx, message.try_into().ok()?))
+    }
+}
+
+pub struct TextInput<WidgetId, ParserOk, ParserErr, OnSuccess> {
+    id: WidgetId,
+    parser: Box<dyn Fn(&str) -> Result<ParserOk, ParserErr> + Send + Sync>,
+    on_success: OnSuccess,
+    on_error: Option<Box<dyn Fn(&Context, ParserErr) -> ButtonAction + Send + Sync>>,
+    marker: PhantomData<fn() -> (ParserOk, ParserErr)>,
+}
+
+#[bon]
+impl<WidgetId, ParserOk, ParserErr, OnSuccess> TextInput<WidgetId, ParserOk, ParserErr, OnSuccess>
+where
+    WidgetId: Display,
+{
+    #[builder]
+    #[must_use]
+    pub fn new(
+        #[builder(start_fn)] id: WidgetId,
+        #[builder(
+            default = Box::new(|text| text.parse()),
+            with = |parser: impl Fn(&str) -> Result<ParserOk, ParserErr> + Send + Sync + 'static| Box::new(parser)
+        )]
+        parser: Box<dyn Fn(&str) -> Result<ParserOk, ParserErr> + Send + Sync>,
+        on_success: OnSuccess,
+        #[builder(with = |on_error: impl Fn(&Context, ParserErr) -> ButtonAction + Send + Sync + 'static| Box::new(on_error))]
+        on_error: Option<Box<dyn Fn(&Context, ParserErr) -> ButtonAction + Send + Sync>>,
+    ) -> Self
+    where
+        ParserOk: FromStr<Err = ParserErr> + Send + Sync + 'static,
+        OnSuccess: Fn(&Context, ParserOk) -> ButtonAction,
+    {
+        Self {
+            id,
+            parser,
+            on_success,
+            on_error,
+            marker: PhantomData,
+        }
+    }
+
+    #[cfg(test)]
+    pub(crate) fn value(&self, ctx: &Context) -> Option<ParserOk> {
+        let unparsed_value = ctx.widget_value_as::<String>(&self.id.to_string())?;
+        (self.parser)(&unparsed_value).ok()
+    }
+}
+
+impl<WidgetId, ParserOk, ParserErr, OnSuccess> Input
+    for TextInput<WidgetId, ParserOk, ParserErr, OnSuccess>
+where
+    WidgetId: Display + Send + Sync + 'static,
+    ParserOk: 'static,
+    ParserErr: 'static,
+    OnSuccess: Fn(&Context, ParserOk) -> ButtonAction + Send + Sync + 'static,
+{
+    fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction> {
         let text = message.text()?.to_owned();
         match (self.parser)(&text) {
             Ok(value) => Some(ButtonAction::chain([
-                ButtonAction::set_widget_value(self.id.clone(), text),
-                (self.on_success)(value),
+                ButtonAction::set_widget_value(self.id.to_string(), text),
+                (self.on_success)(ctx, value),
             ])),
-            Err(err) => self.on_error.as_ref().and_then(|handler| handler(err)),
+            Err(err) => self
+                .on_error
+                .as_ref()
+                .and_then(|on_error| Some(on_error(ctx, err))),
         }
     }
 }
@@ -155,11 +150,13 @@ mod tests {
 
     #[test]
     fn message_input_text_handles_text_messages() {
-        let input = MessageInput::text(|value| ButtonAction::set_dialog_value("name", value));
+        let input = MessageInput::new(|_ctx, message: MessageText| {
+            ButtonAction::set_dialog_value("name", message.text.to_string())
+        });
         let ctx = Context::new("", "state", serde_json::Value::Null);
 
         let action = input
-            .handle_message(&ctx, &text_message("alice"))
+            .handle_message(&ctx, text_message("alice"))
             .expect("text action");
 
         assert!(matches!(
@@ -171,11 +168,13 @@ mod tests {
 
     #[test]
     fn message_input_text_can_store_dialog_value() {
-        let input = MessageInput::text(|value| ButtonAction::set_dialog_value("name", value));
+        let input = MessageInput::new(|_ctx, message: MessageText| {
+            ButtonAction::set_dialog_value("name", message.text.to_string())
+        });
         let ctx = Context::new("", "state", serde_json::Value::Null);
 
         let action = input
-            .handle_message(&ctx, &text_message("bob"))
+            .handle_message(&ctx, text_message("bob"))
             .expect("text action");
 
         assert!(matches!(
@@ -187,13 +186,14 @@ mod tests {
 
     #[test]
     fn text_input_stores_raw_text_in_widget_data_and_runs_success_action() {
-        let input = TextInput::new("name_input", |value| {
-            ButtonAction::set_dialog_value("name", value)
-        });
+        let input = TextInput::builder("name_input")
+            .on_success(|_ctx, value: String| ButtonAction::set_dialog_value("name", value))
+            .build();
+
         let ctx = Context::new("", "state", serde_json::Value::Null);
 
         let action = input
-            .handle_message(&ctx, &text_message("alice"))
+            .handle_message(&ctx, text_message("alice"))
             .expect("text action");
 
         let ButtonAction::Chain(actions) = action else {
@@ -214,11 +214,9 @@ mod tests {
 
     #[test]
     fn text_input_reads_typed_value_from_widget_data() {
-        let input = TextInput::with_parser(
-            "age_input",
-            |text: &str| text.parse::<u8>(),
-            |age| ButtonAction::set_dialog_value("age", age),
-        );
+        let input = TextInput::builder("age_input")
+            .on_success(|_ctx, age: u8| ButtonAction::set_dialog_value("age", age))
+            .build();
         let mut ctx = Context::new("", "state", serde_json::Value::Null);
         ctx.widget_data.insert("age_input".into(), json!("42"));
 
@@ -227,16 +225,14 @@ mod tests {
 
     #[test]
     fn text_input_can_map_parse_errors_to_action() {
-        let input = TextInput::with_parser(
-            "age_input",
-            |text: &str| text.parse::<u8>(),
-            |age| ButtonAction::set_dialog_value("age", age),
-        )
-        .on_error(|err| Some(ButtonAction::set_dialog_value("error", err)));
+        let input = TextInput::builder("age_input")
+            .on_success(|_ctx, age: u8| ButtonAction::set_dialog_value("age", age))
+            .on_error(|_ctx, err| ButtonAction::set_dialog_value("error", err.to_string()))
+            .build();
         let ctx = Context::new("", "state", serde_json::Value::Null);
 
         let action = input
-            .handle_message(&ctx, &text_message("oops"))
+            .handle_message(&ctx, text_message("oops"))
             .expect("error action");
 
         assert!(matches!(

@@ -149,7 +149,7 @@ where
 
     if let Some(callback_query) = callback_query {
         return manager
-            .handle_callback_query(&bot, &callback_query)
+            .handle_callback_query(&bot, callback_query)
             .await
             .map(|handled| {
                 if handled {
@@ -163,7 +163,7 @@ where
 
     if let Some(message) = message {
         return manager
-            .handle_message(&bot, &message)
+            .handle_message(&bot, message)
             .await
             .map(|handled| {
                 if handled {

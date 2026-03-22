@@ -4,6 +4,7 @@ use crate::{
     IntoWindow, Window,
 };
 use std::{collections::BTreeMap, sync::Arc};
+use telers::types::Message;
 use tracing::warn;
 
 pub trait Dialog: Send + Sync {
@@ -54,12 +55,7 @@ pub trait Dialog: Send + Sync {
     ) -> Option<ButtonAction>;
 
     #[must_use]
-    fn handle_message(
-        &self,
-        state: &str,
-        ctx: &Context,
-        message: &telers::types::Message,
-    ) -> Option<ButtonAction>;
+    fn handle_message(&self, state: &str, ctx: &Context, message: Message) -> Option<ButtonAction>;
 }
 
 pub trait IntoDialog {
@@ -175,12 +171,7 @@ impl Dialog for DialogImpl {
             .and_then(|window| window.handle_callback(ctx, callback_data))
     }
 
-    fn handle_message(
-        &self,
-        state: &str,
-        ctx: &Context,
-        message: &telers::types::Message,
-    ) -> Option<ButtonAction> {
+    fn handle_message(&self, state: &str, ctx: &Context, message: Message) -> Option<ButtonAction> {
         self.get_window(state)
             .and_then(|window| window.handle_message(ctx, message))
     }

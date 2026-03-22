@@ -551,7 +551,7 @@ impl<S: Storage> DialogManager<S> {
     pub async fn handle_callback_query<Client: Session>(
         &self,
         bot: &Bot<Client>,
-        callback_query: &CallbackQuery,
+        callback_query: CallbackQuery,
     ) -> Result<bool, DialogError> {
         let Some(callback_data) = callback_query.data.as_deref() else {
             trace!("Callback query has no data");
@@ -571,7 +571,7 @@ impl<S: Storage> DialogManager<S> {
             trace!(state = %ctx.state, "Callback does not belong to current dialog");
             return Ok(false);
         };
-        self.answer_callback(bot, callback_query).await?;
+        self.answer_callback(bot, &callback_query).await?;
         self.apply_button_action(bot, action).await
     }
 
@@ -584,7 +584,7 @@ impl<S: Storage> DialogManager<S> {
     pub async fn handle_message<Client: Session>(
         &self,
         bot: &Bot<Client>,
-        message: &Message,
+        message: Message,
     ) -> Result<bool, DialogError> {
         debug!(message_id = message.message_id(), "Handle dialog message");
         let ctx = match self.current_context().await {
@@ -1107,7 +1107,8 @@ mod tests {
                 "ask_name",
                 [
                     text("Send your name"),
-                    input(MessageInput::text(|name| {
+                    input(MessageInput::new(|_ctx, message: MessageText| {
+                        let name = message.text.to_string();
                         ButtonAction::chain([
                             ButtonAction::set_widget_value("input.name", name.clone()),
                             ButtonAction::set_dialog_value("name", name),
@@ -1135,7 +1136,7 @@ mod tests {
             manager_for_event(fsm, registry, ChatEvent::Message(input_message.clone()));
 
         let handled = input_manager
-            .handle_message(&bot, &input_message)
+            .handle_message(&bot, input_message)
             .await
             .expect("handle message");
 
