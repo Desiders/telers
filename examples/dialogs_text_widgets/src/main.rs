@@ -68,10 +68,12 @@ fn registry() -> DialogRegistry {
                     format!("FnText sees {} dialog-data keys.", data.len())
                 })),
                 text(FormatText::new("FormatText title: {title}")),
-                text(ListText::new(
-                    |_data: &DataMap| vec!["one".to_owned(), "two".to_owned(), "three".to_owned()],
-                    |item: &String, _data: &DataMap| format!("- {item}"),
-                )),
+                text(
+                    ListText::builder()
+                        .items_getter(|_data| ["one", "two", "three"])
+                        .item_renderer(|&item, _data| format!("- {item}"))
+                        .build(),
+                ),
                 keyboard(
                     InlineKeyboard::new()
                         .push(Button::back("back", "Back"))

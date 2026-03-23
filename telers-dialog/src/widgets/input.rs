@@ -139,7 +139,7 @@ where
 mod tests {
     use super::{Input, MessageInput, TextInput};
     use crate::{entities::Context, widgets::ButtonAction};
-    use serde_json::json;
+    use serde_json::{json, Value};
     use telers::types::{ChatPrivate, Message, MessageText, User};
 
     fn text_message(text: &str) -> Message {
@@ -153,7 +153,7 @@ mod tests {
         let input = MessageInput::new(|_ctx, message: MessageText| {
             ButtonAction::set_dialog_value("name", message.text.to_string())
         });
-        let ctx = Context::new("", "state", serde_json::Value::Null);
+        let ctx = Context::new("", "state", Value::Null);
 
         let action = input
             .handle_message(&ctx, text_message("alice"))
@@ -171,7 +171,7 @@ mod tests {
         let input = MessageInput::new(|_ctx, message: MessageText| {
             ButtonAction::set_dialog_value("name", message.text.to_string())
         });
-        let ctx = Context::new("", "state", serde_json::Value::Null);
+        let ctx = Context::new("", "state", Value::Null);
 
         let action = input
             .handle_message(&ctx, text_message("bob"))
@@ -190,7 +190,7 @@ mod tests {
             .on_success(|_ctx, value: String| ButtonAction::set_dialog_value("name", value))
             .build();
 
-        let ctx = Context::new("", "state", serde_json::Value::Null);
+        let ctx = Context::new("", "state", Value::Null);
 
         let action = input
             .handle_message(&ctx, text_message("alice"))
@@ -217,7 +217,7 @@ mod tests {
         let input = TextInput::builder("age_input")
             .on_success(|_ctx, age: u8| ButtonAction::set_dialog_value("age", age))
             .build();
-        let mut ctx = Context::new("", "state", serde_json::Value::Null);
+        let mut ctx = Context::new("", "state", Value::Null);
         ctx.widget_data.insert("age_input".into(), json!("42"));
 
         assert_eq!(input.value(&ctx), Some(42));
@@ -229,7 +229,7 @@ mod tests {
             .on_success(|_ctx, age: u8| ButtonAction::set_dialog_value("age", age))
             .on_error(|_ctx, err| ButtonAction::set_dialog_value("error", err.to_string()))
             .build();
-        let ctx = Context::new("", "state", serde_json::Value::Null);
+        let ctx = Context::new("", "state", Value::Null);
 
         let action = input
             .handle_message(&ctx, text_message("oops"))
