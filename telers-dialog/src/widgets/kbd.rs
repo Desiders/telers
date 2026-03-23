@@ -294,14 +294,9 @@ impl InlineKeyboard {
         }
     }
 
-    #[inline]
     #[must_use]
-    pub fn row<T, I>(mut self, row: I) -> Self
-    where
-        I: IntoIterator<Item = T>,
-        T: Into<Button>,
-    {
-        self.rows.push(row.into_iter().map(Into::into).collect());
+    pub fn row(mut self, row: impl IntoIterator<Item = Button>) -> Self {
+        self.rows.push(row.into_iter().collect());
         self
     }
 

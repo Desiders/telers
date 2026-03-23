@@ -21,7 +21,6 @@ impl MultiInput {
         }
     }
 
-    #[inline]
     #[must_use]
     pub(crate) fn input_boxed(mut self, input: Box<dyn Input>) -> Self {
         self.inputs.push(input);
