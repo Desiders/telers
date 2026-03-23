@@ -17,7 +17,7 @@ use telers::{
 };
 use telers_dialog::{
     dialog,
-    widgets::{keyboard, text, Button, ButtonAction, FormatText, InlineKeyboard, Select},
+    widgets::{format_text, keyboard, text, Button, ButtonAction, InlineKeyboard, Select},
     window, DialogManager, DialogObserverExt, DialogRegistry, StartMode,
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
@@ -39,10 +39,6 @@ async fn handle_start(bot: Bot, manager: Manager) -> HandlerResult<()> {
     Ok(())
 }
 
-fn sizes() -> Vec<u32> {
-    vec![28, 30, 32, 34, 36, 38]
-}
-
 fn registry() -> DialogRegistry {
     let dialog = dialog([
         window(
@@ -51,7 +47,7 @@ fn registry() -> DialogRegistry {
                 text("Select a numeric payload. This uses `Select<u32>`."),
                 keyboard(
                     Select::builder("size")
-                        .items_getter(|_data| sizes())
+                        .items_getter(|_data| [28, 30, 32, 34, 36, 38])
                         .item_renderer(|item, _data| format!("{item} cm"))
                         .id_getter(|item| item)
                         .action(|value| {
@@ -69,7 +65,7 @@ fn registry() -> DialogRegistry {
         window(
             "summary",
             [
-                text(FormatText::new("Selected size: {size} cm")),
+                format_text("Selected size: {size} cm"),
                 keyboard(
                     InlineKeyboard::new()
                         .push(Button::back("back", "Back"))

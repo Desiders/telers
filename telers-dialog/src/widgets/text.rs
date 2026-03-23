@@ -17,14 +17,14 @@ where
     }
 }
 
-pub struct FnText<Renderer> {
+pub(crate) struct FnText<Renderer> {
     renderer: Renderer,
 }
 
 impl<Renderer> FnText<Renderer> {
     #[inline]
     #[must_use]
-    pub const fn new(renderer: Renderer) -> Self {
+    pub(crate) const fn new(renderer: Renderer) -> Self {
         Self {
             renderer,
         }
@@ -41,13 +41,13 @@ where
     }
 }
 
-pub struct FormatText {
+pub(crate) struct FormatText {
     template: Cow<'static, str>,
 }
 
 impl FormatText {
     #[must_use]
-    pub fn new(template: impl Into<Cow<'static, str>>) -> Self {
+    pub(crate) fn new(template: impl Into<Cow<'static, str>>) -> Self {
         Self {
             template: template.into(),
         }

@@ -4,9 +4,13 @@ mod list;
 mod text;
 mod widget;
 
+pub(super) use input::MultiInput;
+pub(super) use kbd::MultiKeyboard;
+pub(crate) use text::{FnText, FormatText};
+pub(crate) use widget::ensure_widgets;
+
 pub use input::{Input, MessageInput, TextInput};
 pub use kbd::{Button, ButtonAction, InlineKeyboard, Keyboard, Select};
 pub use list::ListText;
-pub use text::{FnText, FormatText, MultiText, Text};
-pub(crate) use widget::ensure_widgets;
-pub use widget::{input, keyboard, text, WidgetKind};
+pub use text::{MultiText, Text};
+pub use widget::{fn_text, format_text, input, keyboard, text, WidgetKind};

@@ -19,7 +19,7 @@ use telers::{
 use telers_dialog::{
     dialog,
     widgets::{
-        input, keyboard, text, Button, ButtonAction, FormatText, InlineKeyboard, MessageInput,
+        format_text, input, keyboard, text, Button, ButtonAction, InlineKeyboard, MessageInput,
         TextInput,
     },
     window, DialogManager, DialogObserverExt, DialogRegistry, StartMode,
@@ -49,7 +49,7 @@ fn registry() -> DialogRegistry {
             "name",
             [
                 text("Send your name. This window uses `TextInput` and continues on success."),
-                text(FormatText::new("Stored name: {name}")),
+                format_text("Stored name: {name}"),
                 input(
                     TextInput::builder("name_input")
                         .on_success(|_ctx, name: String| {
@@ -94,9 +94,7 @@ fn registry() -> DialogRegistry {
         window(
             "summary",
             [
-                text(FormatText::new(
-                    "name = {name}\ncity = {city}\nnote = {note}\nnote_len = {note_len}",
-                )),
+                format_text("name = {name}\ncity = {city}\nnote = {note}\nnote_len = {note_len}"),
                 keyboard(
                     InlineKeyboard::new()
                         .push(Button::back("back", "Back"))

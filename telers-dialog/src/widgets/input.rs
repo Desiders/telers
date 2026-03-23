@@ -8,7 +8,7 @@ pub trait Input: Send + Sync + 'static {
     fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction>;
 }
 
-pub(super) struct MultiInput {
+pub(crate) struct MultiInput {
     inputs: Vec<Box<dyn Input>>,
 }
 
@@ -16,7 +16,9 @@ impl MultiInput {
     #[inline]
     #[must_use]
     pub(crate) const fn new() -> Self {
-        Self { inputs: Vec::new() }
+        Self {
+            inputs: Vec::new(),
+        }
     }
 
     #[inline]
