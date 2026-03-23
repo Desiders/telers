@@ -68,7 +68,10 @@ pub struct MultiText {
     separator: Cow<'static, str>,
 }
 
-impl MultiTextBuilder {
+impl<S> MultiTextBuilder<S>
+where
+    S: multi_text_builder::State,
+{
     #[must_use]
     pub fn text(mut self, text: impl Text) -> Self {
         self.items.push(Box::new(text));

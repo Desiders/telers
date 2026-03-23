@@ -307,10 +307,10 @@ impl InlineKeyboard {
 
     /// Add a button to the last row or create a new row if the last row not found
     #[must_use]
-    pub fn push(mut self, button: impl Into<Button>) -> Self {
+    pub fn push(mut self, button: Button) -> Self {
         match self.rows.last_mut() {
-            Some(row) => row.push(button.into()),
-            None => self.rows.push(vec![button.into()]),
+            Some(row) => row.push(button),
+            None => self.rows.push(vec![button]),
         }
         self
     }
@@ -371,6 +371,8 @@ impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id
     #[must_use]
     pub fn new(
         #[builder(start_fn)] id: WidgetId,
+        #[builder(field)] header_rows: Vec<Vec<Button>>,
+        #[builder(field)] footer_rows: Vec<Vec<Button>>,
         items_getter: ItemsGetter,
         item_renderer: ItemRenderer,
         id_getter: IdGetter,
@@ -394,12 +396,37 @@ impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id
             id_getter,
             action,
             items_per_row,
-            header_rows: Vec::new(),
-            footer_rows: Vec::new(),
+            header_rows,
+            footer_rows,
             marker: PhantomData,
         }
     }
+}
 
+impl<S, WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id, Action>
+    SelectBuilder<
+        WidgetId,
+        ItemsGetter,
+        ItemsIter,
+        Item,
+        ItemRenderer,
+        ItemStr,
+        IdGetter,
+        Id,
+        Action,
+        S,
+    >
+where
+    S: select_builder::State,
+    WidgetId: Display,
+    ItemsGetter: Fn(&DataMap) -> ItemsIter,
+    ItemsIter: IntoIterator<Item = Item>,
+    ItemRenderer: Fn(&Item, &DataMap) -> ItemStr,
+    ItemStr: Into<Box<str>>,
+    IdGetter: Fn(Item) -> Id,
+    Id: Display,
+    Action: Fn(&str) -> ButtonAction,
+{
     #[must_use]
     pub fn header_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
         self.header_rows.push(buttons.into_iter().collect());
@@ -407,8 +434,26 @@ impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id
     }
 
     #[must_use]
+    pub fn header_push(mut self, button: Button) -> Self {
+        match self.header_rows.last_mut() {
+            Some(row) => row.push(button),
+            None => self.header_rows.push(vec![button]),
+        }
+        self
+    }
+
+    #[must_use]
     pub fn footer_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
         self.footer_rows.push(buttons.into_iter().collect());
+        self
+    }
+
+    #[must_use]
+    pub fn footer_push(mut self, button: Button) -> Self {
+        match self.footer_rows.last_mut() {
+            Some(row) => row.push(button),
+            None => self.footer_rows.push(vec![button]),
+        }
         self
     }
 }
@@ -605,8 +650,8 @@ mod tests {
             .item_renderer(|item, _data| item.to_owned())
             .id_getter(|item| item)
             .action(|value| ButtonAction::set_dialog_value("fruit", value))
-            .build()
-            .footer_row([Button::done("done", "Done")]);
+            .footer_push(Button::done("done", "Done"))
+            .build();
 
         let action = select
             .handle_callback(&ctx, &format!("td:{}:done", ctx.id))

@@ -57,8 +57,8 @@ fn registry() -> DialogRegistry {
                             ])
                         })
                         .items_per_row(3)
-                        .build()
-                        .footer_row([Button::done("close", "Close")]),
+                        .footer_push(Button::done("close", "Close"))
+                        .build(),
                 ),
             ],
         ),
