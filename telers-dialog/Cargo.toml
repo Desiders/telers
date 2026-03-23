@@ -5,18 +5,18 @@ edition = "2021"
 description = "Dialog framework for telers"
 license = "MIT OR Apache-2.0"
 
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
 [dependencies]
-telers = { path = "../telers", version = "1.0.0-beta.1" }
+bon = "3.9"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+telers = { path = "../telers", version = "1.0.0-beta.1" }
 thiserror = "2.0"
 tracing = "0.1"
-bon = "3.9"
 
 [dev-dependencies]
 telers = { path = "../telers", features = ["memory-storage"] }
 tokio = { version = "1.36", features = ["macros", "rt"] }
-
-[package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--cfg", "docsrs"]
