@@ -1,7 +1,8 @@
-use crate::{entities::Context, widgets::ButtonAction};
 use bon::bon;
 use std::{fmt::Display, marker::PhantomData, str::FromStr};
 use telers::types::Message;
+
+use crate::{entities::Context, widgets::ButtonAction};
 
 pub trait Input: Send + Sync + 'static {
     fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction>;
@@ -15,9 +16,7 @@ impl MultiInput {
     #[inline]
     #[must_use]
     pub(crate) const fn new() -> Self {
-        Self {
-            inputs: Vec::new(),
-        }
+        Self { inputs: Vec::new() }
     }
 
     #[inline]
