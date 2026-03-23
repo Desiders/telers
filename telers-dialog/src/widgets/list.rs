@@ -1,8 +1,8 @@
-use super::Text;
-use crate::entities::DataMap;
-
 use bon::bon;
 use std::{borrow::Cow, marker::PhantomData};
+
+use super::Text;
+use crate::entities::DataMap;
 
 pub struct ListText<ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr> {
     items_getter: ItemsGetter,
@@ -20,11 +20,7 @@ impl<ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr>
     pub fn new(
         items_getter: ItemsGetter,
         item_renderer: ItemRenderer,
-        #[builder(
-            default = "\n".into(),
-            with = |separator: impl Into<Cow<'static, str>>| separator.into()
-        )]
-        separator: Cow<'static, str>,
+        #[builder(default = "\n", into)] separator: Cow<'static, str>,
     ) -> Self
     where
         ItemsGetter: Fn(&DataMap) -> ItemsIter,

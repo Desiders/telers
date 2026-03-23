@@ -1,10 +1,10 @@
-use crate::entities::{Context, Data, DataMap, StartMode};
 use bon::bon;
-use std::{fmt::Display, marker::PhantomData};
+use std::{borrow::Cow, fmt::Display, marker::PhantomData};
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::{debug, warn};
 
 use super::Text;
+use crate::entities::{Context, Data, DataMap, StartMode};
 
 const CALLBACK_PREFIX: &str = "td";
 
@@ -13,21 +13,21 @@ pub enum ButtonAction {
     Noop,
     Next,
     Back,
-    SwitchTo(Box<str>),
+    SwitchTo(Cow<'static, str>),
     Start {
-        state: Box<str>,
+        state: Cow<'static, str>,
         data: Data,
         mode: StartMode,
     },
     Done,
     SetDialogData(DataMap),
     SetDialogValue {
-        key: Box<str>,
+        key: Cow<'static, str>,
         value: Data,
     },
     SetWidgetData(DataMap),
     SetWidgetValue {
-        key: Box<str>,
+        key: Cow<'static, str>,
         value: Data,
     },
     Chain(Box<[ButtonAction]>),
@@ -53,12 +53,16 @@ impl ButtonAction {
     }
 
     #[must_use]
-    pub fn switch_to(state: impl Into<Box<str>>) -> Self {
+    pub fn switch_to(state: impl Into<Cow<'static, str>>) -> Self {
         Self::SwitchTo(state.into())
     }
 
     #[must_use]
-    pub fn start(state: impl Into<Box<str>>, data: impl Into<Data>, mode: StartMode) -> Self {
+    pub fn start(
+        state: impl Into<Cow<'static, str>>,
+        data: impl Into<Data>,
+        mode: StartMode,
+    ) -> Self {
         Self::Start {
             state: state.into(),
             data: data.into(),
@@ -78,7 +82,7 @@ impl ButtonAction {
     }
 
     #[must_use]
-    pub fn set_dialog_value(key: impl Into<Box<str>>, value: impl Into<Data>) -> Self {
+    pub fn set_dialog_value(key: impl Into<Cow<'static, str>>, value: impl Into<Data>) -> Self {
         Self::SetDialogValue {
             key: key.into(),
             value: value.into(),
@@ -91,7 +95,7 @@ impl ButtonAction {
     }
 
     #[must_use]
-    pub fn set_widget_value(key: impl Into<Box<str>>, value: impl Into<Data>) -> Self {
+    pub fn set_widget_value(key: impl Into<Cow<'static, str>>, value: impl Into<Data>) -> Self {
         Self::SetWidgetValue {
             key: key.into(),
             value: value.into(),
@@ -179,18 +183,18 @@ impl Keyboard for MultiKeyboard {
 
 enum ButtonKind {
     Callback(ButtonAction),
-    Url(Box<str>),
+    Url(Cow<'static, str>),
 }
 
 pub struct Button {
-    id: Box<str>,
+    id: Cow<'static, str>,
     text: Box<dyn Text>,
     kind: ButtonKind,
 }
 
 impl Button {
     #[must_use]
-    pub fn action(id: impl Into<Box<str>>, text: impl Text, action: ButtonAction) -> Self {
+    pub fn action(id: impl Into<Cow<'static, str>>, text: impl Text, action: ButtonAction) -> Self {
         Self {
             id: id.into(),
             text: Box::new(text),
@@ -199,25 +203,29 @@ impl Button {
     }
 
     #[must_use]
-    pub fn next(id: impl Into<Box<str>>, text: impl Text) -> Self {
+    pub fn next(id: impl Into<Cow<'static, str>>, text: impl Text) -> Self {
         Self::action(id, text, ButtonAction::next())
     }
 
     #[must_use]
-    pub fn back(id: impl Into<Box<str>>, text: impl Text) -> Self {
+    pub fn back(id: impl Into<Cow<'static, str>>, text: impl Text) -> Self {
         Self::action(id, text, ButtonAction::back())
     }
 
     #[must_use]
-    pub fn switch_to(id: impl Into<Box<str>>, text: impl Text, state: impl Into<Box<str>>) -> Self {
+    pub fn switch_to(
+        id: impl Into<Cow<'static, str>>,
+        text: impl Text,
+        state: impl Into<Cow<'static, str>>,
+    ) -> Self {
         Self::action(id, text, ButtonAction::switch_to(state))
     }
 
     #[must_use]
     pub fn start(
-        id: impl Into<Box<str>>,
+        id: impl Into<Cow<'static, str>>,
         text: impl Text,
-        state: impl Into<Box<str>>,
+        state: impl Into<Cow<'static, str>>,
         data: impl Into<Data>,
         mode: StartMode,
     ) -> Self {
@@ -225,24 +233,24 @@ impl Button {
     }
 
     #[must_use]
-    pub fn done(id: impl Into<Box<str>>, text: impl Text) -> Self {
+    pub fn done(id: impl Into<Cow<'static, str>>, text: impl Text) -> Self {
         Self::action(id, text, ButtonAction::done())
     }
 
     #[must_use]
     pub fn set_dialog_value(
-        id: impl Into<Box<str>>,
+        id: impl Into<Cow<'static, str>>,
         text: impl Text,
-        key: impl Into<Box<str>>,
+        key: impl Into<Cow<'static, str>>,
         value: impl Into<Data>,
     ) -> Self {
         Self::action(id, text, ButtonAction::set_dialog_value(key, value))
     }
 
     #[must_use]
-    pub fn url(text: impl Text, url: impl Into<Box<str>>) -> Self {
+    pub fn url(text: impl Text, url: impl Into<Cow<'static, str>>) -> Self {
         Self {
-            id: String::new().into_boxed_str(),
+            id: String::new().into(),
             text: Box::new(text),
             kind: ButtonKind::Url(url.into()),
         }
@@ -281,9 +289,7 @@ impl InlineKeyboard {
     #[inline]
     #[must_use]
     pub const fn new() -> Self {
-        Self {
-            rows: Vec::new(),
-        }
+        Self { rows: Vec::new() }
     }
 
     #[inline]

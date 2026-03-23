@@ -1,3 +1,6 @@
+use bon::Builder;
+use std::borrow::Cow;
+
 use crate::entities::{Data, DataMap};
 
 pub trait Text: Send + Sync + 'static {
@@ -14,24 +17,24 @@ where
     }
 }
 
-pub struct FnText<F> {
-    renderer: F,
+pub struct FnText<Renderer> {
+    renderer: Renderer,
 }
 
-impl<F> FnText<F> {
+impl<Renderer> FnText<Renderer> {
     #[inline]
     #[must_use]
-    pub const fn new(renderer: F) -> Self {
+    pub const fn new(renderer: Renderer) -> Self {
         Self {
             renderer,
         }
     }
 }
 
-impl<F, T> Text for FnText<F>
+impl<Renderer, Item> Text for FnText<Renderer>
 where
-    F: Fn(&DataMap) -> T + Send + Sync + 'static,
-    T: Into<Box<str>>,
+    Renderer: Fn(&DataMap) -> Item + Send + Sync + 'static,
+    Item: Into<Box<str>>,
 {
     fn render_text(&self, data: &DataMap) -> Box<str> {
         (self.renderer)(data).into()
@@ -39,12 +42,12 @@ where
 }
 
 pub struct FormatText {
-    template: Box<str>,
+    template: Cow<'static, str>,
 }
 
 impl FormatText {
     #[must_use]
-    pub fn new(template: impl Into<Box<str>>) -> Self {
+    pub fn new(template: impl Into<Cow<'static, str>>) -> Self {
         Self {
             template: template.into(),
         }
@@ -57,42 +60,31 @@ impl Text for FormatText {
     }
 }
 
+#[derive(Builder)]
 pub struct MultiText {
-    texts: Vec<Box<dyn Text>>,
-    separator: Box<str>,
+    #[builder(field)]
+    items: Vec<Box<dyn Text>>,
+    #[builder(default = "\n", into)]
+    separator: Cow<'static, str>,
 }
 
-impl MultiText {
+impl MultiTextBuilder {
     #[must_use]
-    pub fn new() -> Self {
-        Self {
-            texts: Vec::new(),
-            separator: "\n".into(),
-        }
-    }
-
-    #[must_use]
-    pub fn text(mut self, item: impl Text) -> Self {
-        self.texts.push(Box::new(item));
+    pub fn text(mut self, text: impl Text) -> Self {
+        self.items.push(Box::new(text));
         self
     }
 
     #[must_use]
-    pub(crate) fn text_boxed(mut self, item: Box<dyn Text>) -> Self {
-        self.texts.push(item);
-        self
-    }
-
-    #[must_use]
-    pub fn with_separator(mut self, separator: impl Into<Box<str>>) -> Self {
-        self.separator = separator.into();
+    pub(crate) fn text_boxed(mut self, text: Box<dyn Text>) -> Self {
+        self.items.push(text);
         self
     }
 }
 
 impl Text for MultiText {
     fn render_text(&self, data: &DataMap) -> Box<str> {
-        self.texts
+        self.items
             .iter()
             .map(|item| item.render_text(data).into_string())
             .collect::<Vec<_>>()
@@ -164,10 +156,11 @@ mod tests {
 
     #[test]
     fn multi_text_joins_items() {
-        let text = MultiText::new()
+        let text = MultiText::builder()
             .text("one")
             .text("two")
-            .with_separator(" | ");
+            .separator(" | ")
+            .build();
 
         assert_eq!(&*text.render_text(&DataMap::new()), "one | two");
     }

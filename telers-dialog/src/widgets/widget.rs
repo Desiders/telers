@@ -3,6 +3,7 @@ use super::{
     kbd::{Keyboard, MultiKeyboard},
     text::{MultiText, Text},
 };
+use crate::widgets::text::MultiTextBuilder;
 
 pub type WindowWidgets = (
     Box<dyn Text>,
@@ -55,7 +56,8 @@ pub(crate) fn ensure_widgets(widgets: impl IntoIterator<Item = WidgetKind>) -> W
         _ => Box::new(
             texts
                 .into_iter()
-                .fold(MultiText::new(), MultiText::text_boxed),
+                .fold(MultiText::builder(), MultiTextBuilder::text_boxed)
+                .build(),
         ),
     };
     let kbd: Option<_> = match kbds.len() {
