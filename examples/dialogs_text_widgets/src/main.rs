@@ -18,7 +18,9 @@ use telers::{
 use telers_dialog::{
     dialog,
     entities::DataMap,
-    widgets::{keyboard, text, Button, ButtonAction, FnText, FormatText, InlineKeyboard, ListText},
+    widgets::{
+        fn_text, format_text, keyboard, text, Button, ButtonAction, InlineKeyboard, ListText,
+    },
     window, DialogManager, DialogObserverExt, DialogRegistry, StartMode,
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
@@ -64,10 +66,8 @@ fn registry() -> DialogRegistry {
             "rendered",
             [
                 text("Static text via `&str`."),
-                text(FnText::new(|data: &DataMap| {
-                    format!("FnText sees {} dialog-data keys.", data.len())
-                })),
-                text(FormatText::new("FormatText title: {title}")),
+                fn_text(|data: &DataMap| format!("FnText sees {} dialog-data keys.", data.len())),
+                format_text("FormatText title: {title}"),
                 text(
                     ListText::builder()
                         .items_getter(|_data| ["one", "two", "three"])

@@ -1,9 +1,10 @@
-use super::{
-    input::{Input, MultiInput},
-    kbd::{Keyboard, MultiKeyboard},
-    text::{MultiText, Text},
+use std::borrow::Cow;
+
+use super::{Input, Keyboard, MultiInput, MultiKeyboard, MultiText, Text};
+use crate::{
+    entities::DataMap,
+    widgets::{text::MultiTextBuilder, FnText, FormatText},
 };
-use crate::widgets::text::MultiTextBuilder;
 
 pub type WindowWidgets = (
     Box<dyn Text>,
@@ -19,20 +20,36 @@ pub enum WidgetKind {
 
 #[inline]
 #[must_use]
-pub fn text(t: impl Text) -> WidgetKind {
-    WidgetKind::Text(Box::new(t))
+pub fn text(val: impl Text) -> WidgetKind {
+    WidgetKind::Text(Box::new(val))
 }
 
 #[inline]
 #[must_use]
-pub fn keyboard(k: impl Keyboard) -> WidgetKind {
-    WidgetKind::Keyboard(Box::new(k))
+pub fn fn_text<Renderer, Item>(renderer: Renderer) -> WidgetKind
+where
+    Renderer: Fn(&DataMap) -> Item + Send + Sync + 'static,
+    Item: Into<Box<str>>,
+{
+    WidgetKind::Text(Box::new(FnText::new(renderer)))
 }
 
 #[inline]
 #[must_use]
-pub fn input(i: impl Input) -> WidgetKind {
-    WidgetKind::Input(Box::new(i))
+pub fn format_text(template: impl Into<Cow<'static, str>>) -> WidgetKind {
+    WidgetKind::Text(Box::new(FormatText::new(template)))
+}
+
+#[inline]
+#[must_use]
+pub fn keyboard(val: impl Keyboard) -> WidgetKind {
+    WidgetKind::Keyboard(Box::new(val))
+}
+
+#[inline]
+#[must_use]
+pub fn input(val: impl Input) -> WidgetKind {
+    WidgetKind::Input(Box::new(val))
 }
 
 /// Normalize a window widget list into the concrete slots used by `WindowImpl`.

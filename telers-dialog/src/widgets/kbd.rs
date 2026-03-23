@@ -114,7 +114,7 @@ pub trait Keyboard: Send + Sync + 'static {
     fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction>;
 }
 
-pub(super) struct MultiKeyboard {
+pub(crate) struct MultiKeyboard {
     keyboards: Vec<Box<dyn Keyboard>>,
 }
 
@@ -289,7 +289,9 @@ impl InlineKeyboard {
     #[inline]
     #[must_use]
     pub const fn new() -> Self {
-        Self { rows: Vec::new() }
+        Self {
+            rows: Vec::new(),
+        }
     }
 
     #[inline]

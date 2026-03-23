@@ -17,7 +17,7 @@ use telers::{
 };
 use telers_dialog::{
     dialog,
-    widgets::{keyboard, text, Button, ButtonAction, FormatText, InlineKeyboard},
+    widgets::{format_text, keyboard, text, Button, ButtonAction, InlineKeyboard},
     window, DialogManager, DialogObserverExt, DialogRegistry, StartMode,
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
@@ -80,9 +80,7 @@ fn registry() -> DialogRegistry {
         window(
             "details",
             [
-                text(FormatText::new(
-                    "Details window.\nsource = {source}\nnote = {note}",
-                )),
+                format_text("Details window.\nsource = {source}\nnote = {note}"),
                 keyboard(
                     InlineKeyboard::new()
                         .row([Button::set_dialog_value(

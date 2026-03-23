@@ -862,11 +862,12 @@ mod tests {
     use super::DialogManager;
     use crate::{
         dialog,
+        dialog::DialogImpl,
         entities::{
-            AccessSettings, ChatEvent, EventContext, LaunchMode, ShowMode, Stack, StartMode,
-            EVENT_CONTEXT_KEY,
+            AccessSettings, ChatEvent, DataMap, EventContext, LaunchMode, ShowMode, Stack,
+            StartMode, EVENT_CONTEXT_KEY,
         },
-        widgets::{input, text, ButtonAction, FnText, MessageInput},
+        widgets::{fn_text, input, text, ButtonAction, MessageInput},
         window, DialogError, DialogRegistry, IntoDialog, IntoWindow,
     };
     use serde_json::{json, Value};
@@ -935,7 +936,7 @@ mod tests {
         registry
     }
 
-    fn text_dialog(state: &str, label: &str) -> crate::dialog::DialogImpl {
+    fn text_dialog(state: &str, label: &str) -> DialogImpl {
         dialog([window(state, [text(label.to_owned())])])
     }
 
@@ -946,10 +947,10 @@ mod tests {
     ) -> impl IntoWindow {
         window(
             state,
-            [text(FnText::new(move |_: &crate::entities::DataMap| {
+            [fn_text(move |_: &DataMap| {
                 counter.fetch_add(1, Ordering::SeqCst);
                 label.to_owned()
-            }))],
+            })],
         )
     }
 
