@@ -10,6 +10,15 @@
 //! Each filter has a method [`Filter::invert`], [`Filter::and`] and [`Filter::or`] to create [`Invert`], [`And`] and [`Or`] filters respectively.
 //!
 //! Ready-made implementations:
+//! * [`ChatMemberUpdated`]:
+//!   Filter for checking chat member status updates.
+//!   Allows matching transitions between old and new [`ChatMemberType`].
+//!
+//!   You can specify only the new status or both (old and new) to match an exact transition.
+//!   If the old status is not specified, the filter will match any transition to the given new status.
+//!
+//!   Created with `new` and can be further restricted by specifying
+//!   the old status via `old`.
 //! * [`SmartFilter`]:
 //!   Filter for most common cases.
 //!   Used to check if the update meets the necessary conditions.
@@ -66,7 +75,7 @@ pub mod chat_type;
 pub mod command;
 pub mod logical;
 pub mod message_type;
-pub mod member_filter;
+pub mod chat_member_updated;
 pub mod smart;
 pub mod state;
 pub mod text;
@@ -77,7 +86,7 @@ pub use chat_type::ChatType;
 pub use command::{Builder as CommandBuilder, Command, CommandObject};
 pub use logical::{And, Invert, Or};
 pub use message_type::MessageType;
-pub use member_filter::MemberFilter;
+pub use chat_member_updated::ChatMemberUpdated;
 pub use smart::SmartFilter;
 pub use state::State;
 pub use text::{Builder as TextBuilder, Text};
