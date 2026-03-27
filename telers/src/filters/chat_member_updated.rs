@@ -13,7 +13,10 @@ impl ChatMemberUpdated {
     #[inline]
     #[must_use]
     pub const fn new(new: ChatMemberType) -> Self {
-        Self { new, old: None }
+        Self {
+            new,
+            old: None,
+        }
     }
 
     #[inline]
@@ -31,22 +34,23 @@ impl ChatMemberUpdated {
 }
 
 impl<Client> Filter<Client> for ChatMemberUpdated
-where 
-    Client: Send + Sync 
+where
+    Client: Send + Sync,
 {
     type Error = Infallible;
 
     async fn check(&mut self, request: &mut Request<Client>) -> FilterResult<Self::Error> {
         // Use or_else instead of or for lazy evaluation
-        let member_update = request.update.chat_member()
+        let member_update = request
+            .update
+            .chat_member()
             .or_else(|| request.update.my_chat_member());
 
-        let Some(m) = member_update else { return Ok(false) };
+        let Some(m) = member_update else {
+            return Ok(false);
+        };
 
-        Ok(self.validate(
-            (&m.new_chat_member).into(), 
-            (&m.old_chat_member).into()
-        ))
+        Ok(self.validate((&m.new_chat_member).into(), (&m.old_chat_member).into()))
     }
 }
 
@@ -56,8 +60,8 @@ mod tests {
 
     #[test]
     fn test_member_filter() {
-        let filter = ChatMemberUpdated::new(ChatMemberType::Administrator)
-            .old(ChatMemberType::Member);
+        let filter =
+            ChatMemberUpdated::new(ChatMemberType::Administrator).old(ChatMemberType::Member);
 
         // true
         assert!(filter.validate(ChatMemberType::Administrator, ChatMemberType::Member));

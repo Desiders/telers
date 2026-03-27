@@ -71,22 +71,22 @@
 //! [`text pattern type`]: text::PatternType
 
 pub mod base;
+pub mod chat_member_updated;
 pub mod chat_type;
 pub mod command;
 pub mod logical;
 pub mod message_type;
-pub mod chat_member_updated;
 pub mod smart;
 pub mod state;
 pub mod text;
 pub mod user;
 
 pub use base::{Filter, FilterResult};
+pub use chat_member_updated::ChatMemberUpdated;
 pub use chat_type::ChatType;
 pub use command::{Builder as CommandBuilder, Command, CommandObject};
 pub use logical::{And, Invert, Or};
 pub use message_type::MessageType;
-pub use chat_member_updated::ChatMemberUpdated;
 pub use smart::SmartFilter;
 pub use state::State;
 pub use text::{Builder as TextBuilder, Text};
