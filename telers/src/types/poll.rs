@@ -23,6 +23,17 @@ impl Poll {
         }
     }
 
+    /// Helper method for field `allows_revoting`.
+    ///
+    /// `true`, if the poll allows to change the chosen answer options
+    #[must_use]
+    pub fn allows_revoting(&self) -> bool {
+        match self {
+            Self::Regular(val) => val.allows_revoting,
+            Self::Quiz(val) => val.allows_revoting,
+        }
+    }
+
     /// Helper method for field `close_date`.
     ///
     /// Point in time (Unix timestamp) when the poll will be automatically closed
@@ -34,14 +45,36 @@ impl Poll {
         }
     }
 
-    /// Helper method for field `correct_option_id`.
+    /// Helper method for field `correct_option_ids`.
     ///
-    /// 0-based identifier of the correct answer option. Available only for polls in the quiz mode, which are closed, or was sent (not forwarded) by the bot or to the private chat with the bot.
+    /// Array of 0-based identifiers of the correct answer options. Available only for polls in quiz mode which are closed or were sent (not forwarded) by the bot or to the private chat with the bot.
     #[must_use]
-    pub fn correct_option_id(&self) -> Option<i64> {
+    pub fn correct_option_ids(&self) -> Option<&[i64]> {
         match self {
-            Self::Quiz(val) => val.correct_option_id,
+            Self::Quiz(val) => val.correct_option_ids.as_deref(),
             Self::Regular(_) => None,
+        }
+    }
+
+    /// Helper method for field `description`.
+    ///
+    /// Description of the poll; for polls inside the Message object only
+    #[must_use]
+    pub fn description(&self) -> Option<&str> {
+        match self {
+            Self::Regular(val) => val.description.as_deref(),
+            Self::Quiz(val) => val.description.as_deref(),
+        }
+    }
+
+    /// Helper method for field `description_entities`.
+    ///
+    /// Special entities like usernames, URLs, bot commands, etc. that appear in the description
+    #[must_use]
+    pub fn description_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        match self {
+            Self::Regular(val) => val.description_entities.as_deref(),
+            Self::Quiz(val) => val.description_entities.as_deref(),
         }
     }
 

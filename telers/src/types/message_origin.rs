@@ -145,6 +145,18 @@ impl MessageOrigin {
         }
     }
 
+    /// Helper method for nested field `can_manage_bots`.
+    #[must_use]
+    pub fn can_manage_bots(&self) -> Option<bool> {
+        match self {
+            Self::User(val) => {
+                let inner = val.sender_user.as_ref();
+                inner.can_manage_bots
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `can_read_all_group_messages`.
     #[must_use]
     pub fn can_read_all_group_messages(&self) -> Option<bool> {

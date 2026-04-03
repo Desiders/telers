@@ -449,6 +449,15 @@ impl ChatMember {
         }
     }
 
+    /// Helper method for nested field `can_manage_bots`.
+    #[must_use]
+    pub fn can_manage_bots(&self) -> Option<bool> {
+        {
+            let inner = self.user();
+            inner.can_manage_bots
+        }
+    }
+
     /// Helper method for nested field `can_read_all_group_messages`.
     #[must_use]
     pub fn can_read_all_group_messages(&self) -> Option<bool> {

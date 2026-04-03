@@ -86,6 +86,12 @@ impl ChatBoostSource {
         self.user().and_then(|inner| inner.can_join_groups)
     }
 
+    /// Helper method for nested field `can_manage_bots`.
+    #[must_use]
+    pub fn can_manage_bots(&self) -> Option<bool> {
+        self.user().and_then(|inner| inner.can_manage_bots)
+    }
+
     /// Helper method for nested field `can_read_all_group_messages`.
     #[must_use]
     pub fn can_read_all_group_messages(&self) -> Option<bool> {

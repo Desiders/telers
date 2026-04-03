@@ -12,7 +12,7 @@ pub struct ReplyParameters {
     /// Pass `true` if the message should be sent even if the specified message to be replied to is not found. Always `false` for replies in another chat or forum topic. Always `true` for messages sent on behalf of a business account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_sending_without_reply: Option<bool>,
-    /// Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities. The message will fail to send if the quote isn't found in the original message.
+    /// Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities. The message will fail to send if the quote isn't found in the original message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quote: Option<Box<str>>,
     /// Mode for parsing entities in the quote. See formatting options for more details.
@@ -27,6 +27,9 @@ pub struct ReplyParameters {
     /// Identifier of the specific checklist task to be replied to
     #[serde(skip_serializing_if = "Option::is_none")]
     pub checklist_task_id: Option<i64>,
+    /// Persistent identifier of the specific poll option to be replied to
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub poll_option_id: Option<Box<str>>,
 }
 impl ReplyParameters {
     /// Creates a new `ReplyParameters`.
@@ -47,6 +50,7 @@ impl ReplyParameters {
             quote_entities: None,
             quote_position: None,
             checklist_task_id: None,
+            poll_option_id: None,
         }
     }
 
@@ -90,7 +94,7 @@ impl ReplyParameters {
         this
     }
 
-    /// Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities. The message will fail to send if the quote isn't found in the original message.
+    /// Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities. The message will fail to send if the quote isn't found in the original message.
     #[must_use]
     pub fn quote<T: Into<Box<str>>>(self, val: T) -> Self {
         let mut this = self;
@@ -98,7 +102,7 @@ impl ReplyParameters {
         this
     }
 
-    /// Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities. The message will fail to send if the quote isn't found in the original message.
+    /// Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities. The message will fail to send if the quote isn't found in the original message.
     #[must_use]
     pub fn quote_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
         let mut this = self;
@@ -201,6 +205,22 @@ impl ReplyParameters {
     pub fn checklist_task_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
         let mut this = self;
         this.checklist_task_id = val.map(Into::into);
+        this
+    }
+
+    /// Persistent identifier of the specific poll option to be replied to
+    #[must_use]
+    pub fn poll_option_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.poll_option_id = Some(val.into());
+        this
+    }
+
+    /// Persistent identifier of the specific poll option to be replied to
+    #[must_use]
+    pub fn poll_option_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.poll_option_id = val.map(Into::into);
         this
     }
 }

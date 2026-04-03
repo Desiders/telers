@@ -14,6 +14,8 @@ pub struct PollAnswer {
     pub user: Option<Box<crate::types::User>>,
     /// 0-based identifiers of chosen answer options. May be empty if the vote was retracted.
     pub option_ids: Box<[i64]>,
+    /// Persistent identifiers of the chosen answer options. May be empty if the vote was retracted.
+    pub option_persistent_ids: Box<[Box<str>]>,
 }
 impl PollAnswer {
     /// Creates a new `PollAnswer`.
@@ -21,19 +23,28 @@ impl PollAnswer {
     /// # Arguments
     /// * `poll_id` - Unique poll identifier
     /// * `option_ids` - 0-based identifiers of chosen answer options. May be empty if the vote was retracted.
+    /// * `option_persistent_ids` - Persistent identifiers of the chosen answer options. May be empty if the vote was retracted.
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new<T0: Into<Box<str>>, T1Item: Into<i64>, T1: IntoIterator<Item = T1Item>>(
+    pub fn new<
+        T0: Into<Box<str>>,
+        T1Item: Into<i64>,
+        T1: IntoIterator<Item = T1Item>,
+        T2Item: Into<Box<str>>,
+        T2: IntoIterator<Item = T2Item>,
+    >(
         poll_id: T0,
         option_ids: T1,
+        option_persistent_ids: T2,
     ) -> Self {
         Self {
             poll_id: poll_id.into(),
             voter_chat: None,
             user: None,
             option_ids: option_ids.into_iter().map(Into::into).collect(),
+            option_persistent_ids: option_persistent_ids.into_iter().map(Into::into).collect(),
         }
     }
 
@@ -102,6 +113,38 @@ impl PollAnswer {
         let mut this = self;
         this.option_ids = this
             .option_ids
+            .into_vec()
+            .into_iter()
+            .chain(Some(val.into()))
+            .collect();
+        this
+    }
+
+    /// Persistent identifiers of the chosen answer options. May be empty if the vote was retracted.
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn option_persistent_ids<T: Into<Box<[Box<str>]>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.option_persistent_ids = this
+            .option_persistent_ids
+            .into_vec()
+            .into_iter()
+            .chain(val.into())
+            .collect();
+        this
+    }
+
+    /// Persistent identifiers of the chosen answer options. May be empty if the vote was retracted.
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn option_persistent_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.option_persistent_ids = this
+            .option_persistent_ids
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))

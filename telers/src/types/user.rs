@@ -46,6 +46,9 @@ pub struct User {
     /// `true`, if the bot allows users to create and delete topics in private chats. Returned only in getMe.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allows_users_to_create_topics: Option<bool>,
+    /// `true`, if other bots can be created to be controlled by the bot. Returned only in getMe.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_manage_bots: Option<bool>,
 }
 impl User {
     /// Creates a new `User`.
@@ -79,6 +82,7 @@ impl User {
             has_main_web_app: None,
             has_topics_enabled: None,
             allows_users_to_create_topics: None,
+            can_manage_bots: None,
         }
     }
 
@@ -295,6 +299,22 @@ impl User {
     pub fn allows_users_to_create_topics_option<T: Into<bool>>(self, val: Option<T>) -> Self {
         let mut this = self;
         this.allows_users_to_create_topics = val.map(Into::into);
+        this
+    }
+
+    /// `true`, if other bots can be created to be controlled by the bot. Returned only in getMe.
+    #[must_use]
+    pub fn can_manage_bots<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.can_manage_bots = Some(val.into());
+        this
+    }
+
+    /// `true`, if other bots can be created to be controlled by the bot. Returned only in getMe.
+    #[must_use]
+    pub fn can_manage_bots_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.can_manage_bots = val.map(Into::into);
         this
     }
 }

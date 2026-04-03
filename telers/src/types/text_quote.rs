@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct TextQuote {
     /// Text of the quoted part of a message that is replied to by the given message
     pub text: Box<str>,
-    /// Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities are kept in quotes.
+    /// Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are kept in quotes.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub entities: Option<Box<[crate::types::MessageEntity]>>,
     /// Approximate quote position in the original message in UTF-16 code units as specified by the sender
@@ -42,7 +42,7 @@ impl TextQuote {
         this
     }
 
-    /// Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities are kept in quotes.
+    /// Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are kept in quotes.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -60,7 +60,7 @@ impl TextQuote {
         this
     }
 
-    /// Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities are kept in quotes.
+    /// Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are kept in quotes.
     ///
     /// # Notes
     /// Adds a single element.
@@ -78,7 +78,7 @@ impl TextQuote {
         this
     }
 
-    /// Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities are kept in quotes.
+    /// Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are kept in quotes.
     ///
     /// # Notes
     /// Adds a single element.

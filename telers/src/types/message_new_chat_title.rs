@@ -60,6 +60,9 @@ pub struct MessageNewChatTitle {
     /// Identifier of the specific checklist task that is being replied to
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_to_checklist_task_id: Option<i64>,
+    /// Persistent identifier of the specific poll option that is being replied to
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_to_poll_option_id: Option<Box<str>>,
     /// Bot through which the message was sent
     #[serde(skip_serializing_if = "Option::is_none")]
     pub via_bot: Option<Box<crate::types::User>>,
@@ -152,6 +155,7 @@ impl MessageNewChatTitle {
             quote: None,
             reply_to_story: None,
             reply_to_checklist_task_id: None,
+            reply_to_poll_option_id: None,
             via_bot: None,
             edit_date: None,
             has_protected_content: None,
@@ -459,6 +463,22 @@ impl MessageNewChatTitle {
     pub fn reply_to_checklist_task_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
         let mut this = self;
         this.reply_to_checklist_task_id = val.map(Into::into);
+        this
+    }
+
+    /// Persistent identifier of the specific poll option that is being replied to
+    #[must_use]
+    pub fn reply_to_poll_option_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.reply_to_poll_option_id = Some(val.into());
+        this
+    }
+
+    /// Persistent identifier of the specific poll option that is being replied to
+    #[must_use]
+    pub fn reply_to_poll_option_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.reply_to_poll_option_id = val.map(Into::into);
         this
     }
 

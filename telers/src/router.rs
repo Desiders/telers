@@ -411,7 +411,7 @@ where
 
 impl<Client> Router<Client> {
     #[must_use]
-    const fn telegram_observers(&self) -> [&TelegramObserver<Client>; 24] {
+    const fn telegram_observers(&self) -> [&TelegramObserver<Client>; 25] {
         with_telegram_observer_variants!(observer_refs_array, ref, self)
     }
 
@@ -861,7 +861,7 @@ where
 impl<Client> Configured<Client> {
     #[must_use]
     #[cfg(test)]
-    const fn telegram_observers(&self) -> [&TelegramObserver<Client>; 24] {
+    const fn telegram_observers(&self) -> [&TelegramObserver<Client>; 25] {
         with_telegram_observer_variants!(observer_refs_array, ref, self)
     }
 

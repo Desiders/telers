@@ -23,9 +23,11 @@ pub struct PollQuiz {
     pub is_anonymous: bool,
     /// `true`, if the poll allows multiple answers
     pub allows_multiple_answers: bool,
-    /// 0-based identifier of the correct answer option. Available only for polls in the quiz mode, which are closed, or was sent (not forwarded) by the bot or to the private chat with the bot.
+    /// `true`, if the poll allows to change the chosen answer options
+    pub allows_revoting: bool,
+    /// Array of 0-based identifiers of the correct answer options. Available only for polls in quiz mode which are closed or were sent (not forwarded) by the bot or to the private chat with the bot.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub correct_option_id: Option<i64>,
+    pub correct_option_ids: Option<Box<[i64]>>,
     /// Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters
     #[serde(skip_serializing_if = "Option::is_none")]
     pub explanation: Option<Box<str>>,
@@ -38,6 +40,12 @@ pub struct PollQuiz {
     /// Point in time (Unix timestamp) when the poll will be automatically closed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub close_date: Option<i64>,
+    /// Description of the poll; for polls inside the Message object only
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<Box<str>>,
+    /// Special entities like usernames, URLs, bot commands, etc. that appear in the description
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description_entities: Option<Box<[crate::types::MessageEntity]>>,
 }
 impl PollQuiz {
     /// Creates a new `PollQuiz`.
@@ -50,6 +58,7 @@ impl PollQuiz {
     /// * `is_closed` - `true`, if the poll is closed
     /// * `is_anonymous` - `true`, if the poll is anonymous
     /// * `allows_multiple_answers` - `true`, if the poll allows multiple answers
+    /// * `allows_revoting` - `true`, if the poll allows to change the chosen answer options
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -63,6 +72,7 @@ impl PollQuiz {
         T4: Into<bool>,
         T5: Into<bool>,
         T6: Into<bool>,
+        T7: Into<bool>,
     >(
         id: T0,
         question: T1,
@@ -71,6 +81,7 @@ impl PollQuiz {
         is_closed: T4,
         is_anonymous: T5,
         allows_multiple_answers: T6,
+        allows_revoting: T7,
     ) -> Self {
         Self {
             id: id.into(),
@@ -81,11 +92,14 @@ impl PollQuiz {
             is_closed: is_closed.into(),
             is_anonymous: is_anonymous.into(),
             allows_multiple_answers: allows_multiple_answers.into(),
-            correct_option_id: None,
+            allows_revoting: allows_revoting.into(),
+            correct_option_ids: None,
             explanation: None,
             explanation_entities: None,
             open_period: None,
             close_date: None,
+            description: None,
+            description_entities: None,
         }
     }
 
@@ -219,19 +233,58 @@ impl PollQuiz {
         this
     }
 
-    /// 0-based identifier of the correct answer option. Available only for polls in the quiz mode, which are closed, or was sent (not forwarded) by the bot or to the private chat with the bot.
+    /// `true`, if the poll allows to change the chosen answer options
     #[must_use]
-    pub fn correct_option_id<T: Into<i64>>(self, val: T) -> Self {
+    pub fn allows_revoting<T: Into<bool>>(self, val: T) -> Self {
         let mut this = self;
-        this.correct_option_id = Some(val.into());
+        this.allows_revoting = val.into();
         this
     }
 
-    /// 0-based identifier of the correct answer option. Available only for polls in the quiz mode, which are closed, or was sent (not forwarded) by the bot or to the private chat with the bot.
+    /// Array of 0-based identifiers of the correct answer options. Available only for polls in quiz mode which are closed or were sent (not forwarded) by the bot or to the private chat with the bot.
+    ///
+    /// # Notes
+    /// Adds multiple elements.
     #[must_use]
-    pub fn correct_option_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+    pub fn correct_option_ids<T: Into<Box<[i64]>>>(self, val: T) -> Self {
         let mut this = self;
-        this.correct_option_id = val.map(Into::into);
+        this.correct_option_ids = Some(
+            this.correct_option_ids
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into())
+                .collect(),
+        );
+        this
+    }
+
+    /// Array of 0-based identifiers of the correct answer options. Available only for polls in quiz mode which are closed or were sent (not forwarded) by the bot or to the private chat with the bot.
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn correct_option_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.correct_option_ids = Some(
+            this.correct_option_ids
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        this
+    }
+
+    /// Array of 0-based identifiers of the correct answer options. Available only for polls in quiz mode which are closed or were sent (not forwarded) by the bot or to the private chat with the bot.
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn correct_option_ids_option<T: Into<Box<[i64]>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.correct_option_ids = val.map(Into::into);
         this
     }
 
@@ -330,6 +383,72 @@ impl PollQuiz {
     pub fn close_date_option<T: Into<i64>>(self, val: Option<T>) -> Self {
         let mut this = self;
         this.close_date = val.map(Into::into);
+        this
+    }
+
+    /// Description of the poll; for polls inside the Message object only
+    #[must_use]
+    pub fn description<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.description = Some(val.into());
+        this
+    }
+
+    /// Description of the poll; for polls inside the Message object only
+    #[must_use]
+    pub fn description_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.description = val.map(Into::into);
+        this
+    }
+
+    /// Special entities like usernames, URLs, bot commands, etc. that appear in the description
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn description_entities<T: Into<Box<[crate::types::MessageEntity]>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.description_entities = Some(
+            this.description_entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into())
+                .collect(),
+        );
+        this
+    }
+
+    /// Special entities like usernames, URLs, bot commands, etc. that appear in the description
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn description_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
+        let mut this = self;
+        this.description_entities = Some(
+            this.description_entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        this
+    }
+
+    /// Special entities like usernames, URLs, bot commands, etc. that appear in the description
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn description_entities_option<T: Into<Box<[crate::types::MessageEntity]>>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.description_entities = val.map(Into::into);
         this
     }
 }

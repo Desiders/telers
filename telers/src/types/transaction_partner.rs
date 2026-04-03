@@ -278,6 +278,22 @@ impl TransactionPartner {
         }
     }
 
+    /// Helper method for nested field `can_manage_bots`.
+    #[must_use]
+    pub fn can_manage_bots(&self) -> Option<bool> {
+        match self {
+            Self::AffiliateProgram(val) => val
+                .sponsor_user
+                .as_deref()
+                .and_then(|inner| inner.can_manage_bots),
+            Self::User(val) => {
+                let inner = crate::types::TransactionPartnerUser::user(val);
+                inner.can_manage_bots
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `can_read_all_group_messages`.
     #[must_use]
     pub fn can_read_all_group_messages(&self) -> Option<bool> {

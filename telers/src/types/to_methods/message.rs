@@ -10,16 +10,18 @@ use crate::{
         MessageGeneralForumTopicHidden, MessageGeneralForumTopicUnhidden, MessageGift,
         MessageGiftUpgradeSent, MessageGiveaway, MessageGiveawayCompleted, MessageGiveawayCreated,
         MessageGiveawayWinners, MessageGroupChatCreated, MessageInvoice, MessageLeftChatMember,
-        MessageLocation, MessageMessageAutoDeleteTimerChanged, MessageMigrateFromChatId,
-        MessageMigrateToChatId, MessageNewChatMembers, MessageNewChatPhoto, MessageNewChatTitle,
-        MessagePaidMedia, MessagePaidMessagePriceChanged, MessagePassportData, MessagePhoto,
-        MessagePinnedMessage, MessagePoll, MessageProximityAlertTriggered, MessageRefundedPayment,
-        MessageSticker, MessageStory, MessageSuccessfulPayment, MessageSuggestedPostApprovalFailed,
-        MessageSuggestedPostApproved, MessageSuggestedPostDeclined, MessageSuggestedPostPaid,
-        MessageSuggestedPostRefunded, MessageSupergroupChatCreated, MessageText, MessageUniqueGift,
-        MessageUsersShared, MessageVenue, MessageVideo, MessageVideoChatEnded,
-        MessageVideoChatParticipantsInvited, MessageVideoChatScheduled, MessageVideoChatStarted,
-        MessageVideoNote, MessageVoice, MessageWebAppData, MessageWriteAccessAllowed,
+        MessageLocation, MessageManagedBotCreated, MessageMessageAutoDeleteTimerChanged,
+        MessageMigrateFromChatId, MessageMigrateToChatId, MessageNewChatMembers,
+        MessageNewChatPhoto, MessageNewChatTitle, MessagePaidMedia, MessagePaidMessagePriceChanged,
+        MessagePassportData, MessagePhoto, MessagePinnedMessage, MessagePoll,
+        MessagePollOptionAdded, MessagePollOptionDeleted, MessageProximityAlertTriggered,
+        MessageRefundedPayment, MessageSticker, MessageStory, MessageSuccessfulPayment,
+        MessageSuggestedPostApprovalFailed, MessageSuggestedPostApproved,
+        MessageSuggestedPostDeclined, MessageSuggestedPostPaid, MessageSuggestedPostRefunded,
+        MessageSupergroupChatCreated, MessageText, MessageUniqueGift, MessageUsersShared,
+        MessageVenue, MessageVideo, MessageVideoChatEnded, MessageVideoChatParticipantsInvited,
+        MessageVideoChatScheduled, MessageVideoChatStarted, MessageVideoNote, MessageVoice,
+        MessageWebAppData, MessageWriteAccessAllowed,
     },
 };
 impl Message {
@@ -687,6 +689,25 @@ impl MessageLocation {
         DeleteMessage::new(self.chat.id(), self.message_id)
     }
 }
+impl MessageManagedBotCreated {
+    /// Creates [`CopyMessage`] for this message.
+    #[must_use]
+    pub fn to_copy_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> CopyMessage {
+        CopyMessage::new(chat_id, self.chat.id(), self.message_id)
+    }
+
+    /// Creates [`ForwardMessage`] for this message.
+    #[must_use]
+    pub fn to_forward_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> ForwardMessage {
+        ForwardMessage::new(chat_id, self.chat.id(), self.message_id)
+    }
+
+    /// Creates [`DeleteMessage`] for this message.
+    #[must_use]
+    pub fn delete_message(&self) -> DeleteMessage {
+        DeleteMessage::new(self.chat.id(), self.message_id)
+    }
+}
 impl MessageMessageAutoDeleteTimerChanged {
     /// Creates [`CopyMessage`] for this message.
     #[must_use]
@@ -897,6 +918,44 @@ impl MessagePinnedMessage {
     }
 }
 impl MessagePoll {
+    /// Creates [`CopyMessage`] for this message.
+    #[must_use]
+    pub fn to_copy_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> CopyMessage {
+        CopyMessage::new(chat_id, self.chat.id(), self.message_id)
+    }
+
+    /// Creates [`ForwardMessage`] for this message.
+    #[must_use]
+    pub fn to_forward_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> ForwardMessage {
+        ForwardMessage::new(chat_id, self.chat.id(), self.message_id)
+    }
+
+    /// Creates [`DeleteMessage`] for this message.
+    #[must_use]
+    pub fn delete_message(&self) -> DeleteMessage {
+        DeleteMessage::new(self.chat.id(), self.message_id)
+    }
+}
+impl MessagePollOptionAdded {
+    /// Creates [`CopyMessage`] for this message.
+    #[must_use]
+    pub fn to_copy_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> CopyMessage {
+        CopyMessage::new(chat_id, self.chat.id(), self.message_id)
+    }
+
+    /// Creates [`ForwardMessage`] for this message.
+    #[must_use]
+    pub fn to_forward_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> ForwardMessage {
+        ForwardMessage::new(chat_id, self.chat.id(), self.message_id)
+    }
+
+    /// Creates [`DeleteMessage`] for this message.
+    #[must_use]
+    pub fn delete_message(&self) -> DeleteMessage {
+        DeleteMessage::new(self.chat.id(), self.message_id)
+    }
+}
+impl MessagePollOptionDeleted {
     /// Creates [`CopyMessage`] for this message.
     #[must_use]
     pub fn to_copy_message<T: Into<ChatIdKind>>(&self, chat_id: T) -> CopyMessage {
