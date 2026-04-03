@@ -1,6 +1,6 @@
 [workspace]
 members = ["examples/*", "telers", "telers-*"]
-default-members = ["telers", "telers-*", "examples/*"]
+default-members = ["telers", "telers-*"]
 resolver = "2"
 
 [profile.dev]
