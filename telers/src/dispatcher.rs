@@ -306,6 +306,25 @@ impl<Client, Propagator, BackoffType> Builder<Client, Propagator, BackoffType> {
     }
 }
 
+impl<Client, Propagator, BackoffType> Clone for Builder<Client, Propagator, BackoffType>
+where
+    Propagator: Clone,
+    Client: Clone,
+    BackoffType: Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            propagator: self.propagator.clone(),
+            bots: self.bots.clone(),
+            extensions: self.extensions.clone(),
+            context: self.context.clone(),
+            polling_timeout: self.polling_timeout,
+            backoff: self.backoff.clone(),
+            allowed_updates: self.allowed_updates.clone(),
+        }
+    }
+}
+
 impl<Client, Propagator, Backoff> Dispatcher<Client, Propagator, Backoff> {
     /// Main entry point for incoming updates.
     /// This method will propagate update to the main router.
