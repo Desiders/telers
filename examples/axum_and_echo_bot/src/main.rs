@@ -6,6 +6,7 @@
 //! ```
 
 use axum::{routing, Router as AxumRouter};
+use std::sync::Arc;
 use telers::{
     enums::UpdateType,
     event::telegram::{Handler, HandlerResult},
@@ -14,10 +15,7 @@ use telers::{
     utils::shutdown_signal,
     Bot, Dispatcher, Router as TelersRouter,
 };
-use tokio::{
-    net::TcpListener,
-    sync::broadcast::{channel, Receiver, Sender},
-};
+use tokio::{net::TcpListener, sync::Notify};
 
 const SERVER_HOST: &str = "0.0.0.0";
 const SERVER_PORT: u16 = 3000;
@@ -53,39 +51,33 @@ async fn main() {
 
     let app = AxumRouter::new().route("/", routing::get(hello_world_handler));
 
-    let (shutdown_tx, _) = channel(1);
-
+    let shutdown = Arc::new(Notify::new());
     let _ = tokio::join!(
-        tokio::spawn(run_server(app, shutdown_tx.subscribe())),
-        tokio::spawn(run_dispatcher(dispatcher, shutdown_tx.subscribe())),
-        tokio::spawn(handle_shutdown(shutdown_tx))
+        tokio::spawn(run_server(app, shutdown.clone())),
+        tokio::spawn(run_dispatcher(dispatcher, shutdown.clone())),
+        tokio::spawn(handle_shutdown(shutdown))
     );
 }
 
-async fn run_server(app: AxumRouter, mut shutdown_rx: Receiver<()>) {
+async fn run_server(app: AxumRouter, shutdown: Arc<Notify>) {
     let listener = TcpListener::bind(format!("{SERVER_HOST}:{SERVER_PORT}"))
         .await
         .unwrap();
-
     axum::serve(listener, app)
-        .with_graceful_shutdown(async move {
-            let _ = shutdown_rx.recv().await;
-        })
+        .with_graceful_shutdown(async move { shutdown.notified().await })
         .await
         .unwrap();
 }
 
-async fn run_dispatcher(dispatcher: Dispatcher, mut shutdown_rx: Receiver<()>) {
+async fn run_dispatcher(dispatcher: Dispatcher, shutdown: Arc<Notify>) {
     dispatcher
         .run_polling()
-        .with_graceful_shutdown(async move {
-            let _ = shutdown_rx.recv().await;
-        })
+        .with_graceful_shutdown(async move { shutdown.notified().await })
         .await
         .unwrap();
 }
 
-async fn handle_shutdown(shutdown_tx: Sender<()>) {
+async fn handle_shutdown(shutdown: Arc<Notify>) {
     let () = shutdown_signal().await;
-    let _ = shutdown_tx.send(());
+    shutdown.notify_waiters();
 }

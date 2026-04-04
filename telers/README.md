@@ -49,6 +49,7 @@ More information about this crate can be found in the [crate documentation][docs
  - [Bot http client][examples/bot_http_client]. This example shows how to set a custom bot HTTP client.
  - [Axum and echo bot][examples/axum_and_echo_bot]. This example shows how to create an echo bot and run it concurrently with polling `axum` server.
  - [Axum webhook][examples/axum_webhook]. This example shows how to setup webhooks for a bot using `axum` server.
+ - [Managed bot][examples/managed_bot]. This example shows how to create a managed bot that echoes messages and handles managed bot creation events by spawning separate dispatchers with a shared shutdown signal.
 
 You may consider checking out [this directory][examples] for more examples.
 
@@ -77,6 +78,7 @@ This project is licensed under either of the following licenses, at your option:
 [examples/extractor]: https://github.com/Desiders/telers/tree/dev-1.x/examples/extractor
 [examples/context]: https://github.com/Desiders/telers/tree/dev-1.x/examples/context
 [examples/extensions]: https://github.com/Desiders/telers/tree/dev-1.x/examples/extensions
+[examples/managed_bot]: https://github.com/Desiders/telers/tree/dev-1.x/examples/managed_bot
 [licence_apache]: https://github.com/Desiders/telers/blob/dev-1.x/telers/LICENSE-APACHE
 [licence_mit]: https://github.com/Desiders/telers/blob/dev-1.x/telers/LICENSE-MIT
 [docs]: https://docs.rs/telers
