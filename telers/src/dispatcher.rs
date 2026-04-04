@@ -108,7 +108,11 @@ where
     }
 }
 
-pub struct Builder<Client, Propagator, BackoffType = ExponentialBackoff<SystemClock>> {
+pub struct Builder<
+    Client = Reqwest,
+    Propagator = RouterConfigured,
+    BackoffType = ExponentialBackoff<SystemClock>,
+> {
     propagator: Propagator,
     bots: Vec<Bot<Client>>,
     context: Context,
