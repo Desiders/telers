@@ -21,4 +21,6 @@ pub enum DialogError {
     ExclusiveDialogActive,
     #[error("Dialog stack overflow")]
     StackOverflow,
+    #[error("Access denied for user {user_id}")]
+    AccessDenied { user_id: i64 },
 }

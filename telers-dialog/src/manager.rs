@@ -1,7 +1,7 @@
 use crate::{
     entities::{
-        generate_id, ChatEvent, Context, Data, DataMap, EventContext, LaunchMode, OldMessage,
-        ShowMode, Stack, StartMode, DEFAULT_STACK_ID, EVENT_CONTEXT_KEY,
+        generate_id, AccessSettings, ChatEvent, Context, Data, DataMap, EventContext, LaunchMode,
+        OldMessage, ShowMode, Stack, StartMode, DEFAULT_STACK_ID, EVENT_CONTEXT_KEY,
     },
     errors::DialogError,
     message_manager::MessageManager,
@@ -15,10 +15,10 @@ use telers::{
     enums::ReplyMarkupType,
     fsm::Storage,
     methods::AnswerCallbackQuery,
-    types::{CallbackQuery, MaybeInaccessibleMessage, Message, ReplyMarkup},
+    types::{CallbackQuery, Chat, MaybeInaccessibleMessage, Message, ReplyMarkup},
     Bot,
 };
-use tracing::{debug, error, trace};
+use tracing::{debug, error, trace, warn};
 
 const STORAGE_KEY: &str = "td_storage";
 
@@ -261,6 +261,38 @@ impl<S: Storage> DialogManager<S> {
         self.registry
             .find_by_state(state)
             .ok_or(DialogError::DialogNotFound)
+    }
+
+    /// Check access for the current user against the given settings.
+    ///
+    /// Following `aiogram-dialog`'s `DefaultAccessValidator` semantics:
+    /// - If no access settings are provided, access is always granted.
+    /// - In private chats, access is always granted.
+    /// - Otherwise, the user must be present in `user_ids` (if non-empty).
+    fn check_access(
+        &self,
+        access_settings: Option<&AccessSettings>,
+        event_ctx: &EventContext,
+    ) -> Result<(), DialogError> {
+        let Some(settings) = access_settings else {
+            return Ok(());
+        };
+        if matches!(event_ctx.chat, Chat::Private(_)) {
+            return Ok(());
+        }
+        if settings.user_ids.is_empty() {
+            return Ok(());
+        }
+        if settings.user_ids.contains(&event_ctx.user.id) {
+            return Ok(());
+        }
+        warn!(
+            user_id = event_ctx.user.id,
+            "Access denied by dialog access settings"
+        );
+        Err(DialogError::AccessDenied {
+            user_id: event_ctx.user.id,
+        })
     }
 
     fn clear_current_stack(storage: &mut DialogStorage) {
@@ -566,6 +598,8 @@ impl<S: Storage> DialogManager<S> {
             }
             Err(err) => return Err(err),
         };
+        let event_ctx = self.event_context();
+        self.check_access(ctx.access_settings.as_ref(), event_ctx)?;
         let dialog = self.resolve_dialog(&ctx.state)?;
         let Some(action) = dialog.handle_callback(&ctx.state, &ctx, callback_data) else {
             trace!(state = %ctx.state, "Callback does not belong to current dialog");
@@ -595,6 +629,8 @@ impl<S: Storage> DialogManager<S> {
             }
             Err(err) => return Err(err),
         };
+        let event_ctx = self.event_context();
+        self.check_access(ctx.access_settings.as_ref(), event_ctx)?;
         let dialog = self.resolve_dialog(&ctx.state)?;
         let Some(action) = dialog.handle_message(&ctx.state, &ctx, message) else {
             trace!(state = %ctx.state, "Message does not belong to current dialog");
@@ -813,6 +849,7 @@ impl<S: Storage> DialogManager<S> {
             .get(&intent_id)
             .cloned()
             .ok_or(DialogError::NoContext)?;
+        self.check_access(ctx.access_settings.as_ref(), event_ctx)?;
         let dialog = self
             .registry
             .find_by_state(&ctx.state)
@@ -1257,5 +1294,171 @@ mod tests {
             old.reply_markup_type,
             Some(ReplyMarkupType::InlineKeyboardMarkup)
         );
+    }
+
+    // ---- Access control tests ----
+
+    fn group_message_event(text: &str, user_id: i64) -> ChatEvent {
+        let message: Message = MessageText::new(
+            1,
+            1,
+            telers::types::ChatGroup::new(TEST_CHAT_ID),
+            text,
+        )
+        .from(User::new(user_id, false, "tester"))
+        .into();
+        ChatEvent::Message(message)
+    }
+
+    fn group_runtime_context(event: &ChatEvent, _user_id: i64) -> RuntimeContext {
+        let mut context = RuntimeContext::default();
+        context.insert(
+            EVENT_CONTEXT_KEY,
+            EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone()),
+        );
+        context
+    }
+
+    fn group_manager(
+        fsm: FSMContext<MemoryStorage>,
+        registry: DialogRegistry,
+        user_id: i64,
+    ) -> DialogManager<MemoryStorage> {
+        let event = group_message_event("/start", user_id);
+        let mut manager = DialogManager::new(
+            fsm,
+            registry,
+            group_runtime_context(&event, user_id),
+            event,
+        );
+        manager.set_show_mode(ShowMode::NoUpdate);
+        manager
+    }
+
+    #[test]
+    fn access_check_allows_when_no_settings() {
+        let event = message_event("/start");
+        let manager = manager_for_event(
+            test_fsm(test_bot().id),
+            DialogRegistry::new(),
+            event,
+        );
+        let event_ctx = manager.event_context();
+        assert!(manager.check_access(None, event_ctx).is_ok());
+    }
+
+    #[test]
+    fn access_check_allows_in_private_chat_regardless_of_user_ids() {
+        let event = message_event("/start");
+        let manager = manager_for_event(
+            test_fsm(test_bot().id),
+            DialogRegistry::new(),
+            event,
+        );
+        let event_ctx = manager.event_context();
+        let settings = AccessSettings {
+            user_ids: vec![999], // not the test user
+            custom: None,
+        };
+        assert!(manager.check_access(Some(&settings), event_ctx).is_ok());
+    }
+
+    #[test]
+    fn access_check_denies_in_group_chat_when_user_not_in_list() {
+        let bot = test_bot();
+        let manager = group_manager(test_fsm(bot.id), DialogRegistry::new(), TEST_USER_ID);
+        let event_ctx = manager.event_context();
+        let settings = AccessSettings {
+            user_ids: vec![999],
+            custom: None,
+        };
+        let err = manager
+            .check_access(Some(&settings), event_ctx)
+            .expect_err("should deny");
+        assert!(matches!(err, DialogError::AccessDenied { user_id } if user_id == TEST_USER_ID));
+    }
+
+    #[test]
+    fn access_check_allows_in_group_chat_when_user_in_list() {
+        let bot = test_bot();
+        let manager = group_manager(test_fsm(bot.id), DialogRegistry::new(), TEST_USER_ID);
+        let event_ctx = manager.event_context();
+        let settings = AccessSettings {
+            user_ids: vec![TEST_USER_ID],
+            custom: None,
+        };
+        assert!(manager.check_access(Some(&settings), event_ctx).is_ok());
+    }
+
+    #[test]
+    fn access_check_allows_in_group_chat_when_user_ids_empty() {
+        let bot = test_bot();
+        let manager = group_manager(test_fsm(bot.id), DialogRegistry::new(), TEST_USER_ID);
+        let event_ctx = manager.event_context();
+        let settings = AccessSettings {
+            user_ids: vec![],
+            custom: None,
+        };
+        assert!(manager.check_access(Some(&settings), event_ctx).is_ok());
+    }
+
+    #[tokio::test]
+    async fn access_denied_blocks_handle_message_in_group() {
+        let bot = test_bot();
+        let fsm = test_fsm(bot.id);
+        let registry = registry_with([dialog([window("ask", [text("Ask")])])]);
+
+        // Start dialog as allowed user in private chat
+        let private_manager =
+            manager_for_event(fsm.clone(), registry.clone(), message_event("/start"));
+        prime_last_message(&private_manager, 100).await;
+        let ctx = private_manager
+            .start(&bot, "ask", Value::Null, StartMode::Normal)
+            .await
+            .expect("start ask");
+
+        // Set access settings restricting to another user
+        let mut storage = private_manager
+            .load_storage()
+            .await
+            .expect("load");
+        let dialog_ctx = storage
+            .contexts
+            .get_mut(&ctx.id)
+            .expect("context");
+        dialog_ctx.access_settings = Some(AccessSettings {
+            user_ids: vec![999],
+            custom: None,
+        });
+        private_manager
+            .save_storage(storage)
+            .await
+            .expect("save");
+
+        // Now try from a group chat with TEST_USER_ID (not in allowed list)
+        let group_event = group_message_event("hello", TEST_USER_ID);
+        let group_msg: Message = MessageText::new(
+            2,
+            1,
+            telers::types::ChatGroup::new(TEST_CHAT_ID),
+            "hello",
+        )
+        .from(User::new(TEST_USER_ID, false, "tester"))
+        .into();
+        let group_mgr = DialogManager::new(
+            fsm,
+            registry,
+            group_runtime_context(&group_event, TEST_USER_ID),
+            group_event,
+        );
+
+        let err = group_mgr
+            .handle_message(&bot, group_msg)
+            .await
+            .expect_err("access denied");
+        assert!(matches!(
+            err,
+            DialogError::AccessDenied { user_id } if user_id == TEST_USER_ID
+        ));
     }
 }
