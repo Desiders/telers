@@ -31,12 +31,24 @@ pub struct SendPoll {
     /// Poll type, `quiz` or `regular`, defaults to `regular`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub r#type: Option<Box<str>>,
-    /// `true`, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to `false`
+    /// Pass `true`, if the poll allows multiple answers, defaults to `false`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allows_multiple_answers: Option<bool>,
-    /// 0-based identifier of the correct answer option, required for polls in quiz mode
+    /// Pass `true`, if the poll allows to change chosen answer options, defaults to `false` for quizzes and to `true` for regular polls
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub correct_option_id: Option<i64>,
+    pub allows_revoting: Option<bool>,
+    /// Pass `true`, if the poll options must be shown in random order
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub shuffle_options: Option<bool>,
+    /// Pass `true`, if answer options can be added to the poll after creation; not supported for anonymous polls and quizzes
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allow_adding_options: Option<bool>,
+    /// Pass `true`, if poll results must be shown only after the poll closes
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hide_results_until_closes: Option<bool>,
+    /// A JSON-serialized list of monotonically increasing 0-based identifiers of the correct answer options, required for polls in quiz mode
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub correct_option_ids: Option<Box<[i64]>>,
     /// Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after entities parsing
     #[serde(skip_serializing_if = "Option::is_none")]
     pub explanation: Option<Box<str>>,
@@ -46,15 +58,24 @@ pub struct SendPoll {
     /// A JSON-serialized list of special entities that appear in the poll explanation. It can be specified instead of `explanation_parse_mode`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub explanation_entities: Option<Box<[crate::types::MessageEntity]>>,
-    /// Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with `close_date`.
+    /// Amount of time in seconds the poll will be active after creation, 5-2628000. Can't be used together with `close_date`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub open_period: Option<u16>,
-    /// Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with `open_period`.
+    pub open_period: Option<u32>,
+    /// Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 2628000 seconds in the future. Can't be used together with `open_period`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub close_date: Option<i64>,
     /// Pass `true` if the poll needs to be immediately closed. This can be useful for poll preview.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_closed: Option<bool>,
+    /// Description of the poll to be sent, 0-1024 characters after entities parsing
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<Box<str>>,
+    /// Mode for parsing entities in the poll description. See formatting options for more details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description_parse_mode: Option<Box<str>>,
+    /// A JSON-serialized list of special entities that appear in the poll description, which can be specified instead of `description_parse_mode`
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description_entities: Option<Box<[crate::types::MessageEntity]>>,
     /// Sends the message silently. Users will receive a notification with no sound.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_notification: Option<bool>,
@@ -106,13 +127,20 @@ impl SendPoll {
             is_anonymous: None,
             r#type: None,
             allows_multiple_answers: None,
-            correct_option_id: None,
+            allows_revoting: None,
+            shuffle_options: None,
+            allow_adding_options: None,
+            hide_results_until_closes: None,
+            correct_option_ids: None,
             explanation: None,
             explanation_parse_mode: None,
             explanation_entities: None,
             open_period: None,
             close_date: None,
             is_closed: None,
+            description: None,
+            description_parse_mode: None,
+            description_entities: None,
             disable_notification: None,
             protect_content: None,
             allow_paid_broadcast: None,
@@ -312,7 +340,7 @@ impl SendPoll {
         this
     }
 
-    /// `true`, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to `false`
+    /// Pass `true`, if the poll allows multiple answers, defaults to `false`
     #[must_use]
     pub fn allows_multiple_answers<T: Into<bool>>(self, val: T) -> Self {
         let mut this = self;
@@ -320,7 +348,7 @@ impl SendPoll {
         this
     }
 
-    /// `true`, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to `false`
+    /// Pass `true`, if the poll allows multiple answers, defaults to `false`
     #[must_use]
     pub fn allows_multiple_answers_option<T: Into<bool>>(self, val: Option<T>) -> Self {
         let mut this = self;
@@ -328,19 +356,120 @@ impl SendPoll {
         this
     }
 
-    /// 0-based identifier of the correct answer option, required for polls in quiz mode
+    /// Pass `true`, if the poll allows to change chosen answer options, defaults to `false` for quizzes and to `true` for regular polls
     #[must_use]
-    pub fn correct_option_id<T: Into<i64>>(self, val: T) -> Self {
+    pub fn allows_revoting<T: Into<bool>>(self, val: T) -> Self {
         let mut this = self;
-        this.correct_option_id = Some(val.into());
+        this.allows_revoting = Some(val.into());
         this
     }
 
-    /// 0-based identifier of the correct answer option, required for polls in quiz mode
+    /// Pass `true`, if the poll allows to change chosen answer options, defaults to `false` for quizzes and to `true` for regular polls
     #[must_use]
-    pub fn correct_option_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
+    pub fn allows_revoting_option<T: Into<bool>>(self, val: Option<T>) -> Self {
         let mut this = self;
-        this.correct_option_id = val.map(Into::into);
+        this.allows_revoting = val.map(Into::into);
+        this
+    }
+
+    /// Pass `true`, if the poll options must be shown in random order
+    #[must_use]
+    pub fn shuffle_options<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.shuffle_options = Some(val.into());
+        this
+    }
+
+    /// Pass `true`, if the poll options must be shown in random order
+    #[must_use]
+    pub fn shuffle_options_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.shuffle_options = val.map(Into::into);
+        this
+    }
+
+    /// Pass `true`, if answer options can be added to the poll after creation; not supported for anonymous polls and quizzes
+    #[must_use]
+    pub fn allow_adding_options<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.allow_adding_options = Some(val.into());
+        this
+    }
+
+    /// Pass `true`, if answer options can be added to the poll after creation; not supported for anonymous polls and quizzes
+    #[must_use]
+    pub fn allow_adding_options_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.allow_adding_options = val.map(Into::into);
+        this
+    }
+
+    /// Pass `true`, if poll results must be shown only after the poll closes
+    #[must_use]
+    pub fn hide_results_until_closes<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.hide_results_until_closes = Some(val.into());
+        this
+    }
+
+    /// Pass `true`, if poll results must be shown only after the poll closes
+    #[must_use]
+    pub fn hide_results_until_closes_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.hide_results_until_closes = val.map(Into::into);
+        this
+    }
+
+    /// A JSON-serialized list of monotonically increasing 0-based identifiers of the correct answer options, required for polls in quiz mode
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn correct_option_ids<TItem: Into<i64>, T: IntoIterator<Item = TItem>>(
+        self,
+        val: T,
+    ) -> Self {
+        let mut this = self;
+        this.correct_option_ids = Some(
+            this.correct_option_ids
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into_iter().map(Into::into))
+                .collect(),
+        );
+        this
+    }
+
+    /// A JSON-serialized list of monotonically increasing 0-based identifiers of the correct answer options, required for polls in quiz mode
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn correct_option_id<T: Into<i64>>(self, val: T) -> Self {
+        let mut this = self;
+        this.correct_option_ids = Some(
+            this.correct_option_ids
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        this
+    }
+
+    /// A JSON-serialized list of monotonically increasing 0-based identifiers of the correct answer options, required for polls in quiz mode
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn correct_option_ids_option<TItem: Into<i64>, T: IntoIterator<Item = TItem>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.correct_option_ids = val.map(|v| v.into_iter().map(Into::into).collect());
         this
     }
 
@@ -435,23 +564,23 @@ impl SendPoll {
         this
     }
 
-    /// Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with `close_date`.
+    /// Amount of time in seconds the poll will be active after creation, 5-2628000. Can't be used together with `close_date`.
     #[must_use]
-    pub fn open_period<T: Into<u16>>(self, val: T) -> Self {
+    pub fn open_period<T: Into<u32>>(self, val: T) -> Self {
         let mut this = self;
         this.open_period = Some(val.into());
         this
     }
 
-    /// Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with `close_date`.
+    /// Amount of time in seconds the poll will be active after creation, 5-2628000. Can't be used together with `close_date`.
     #[must_use]
-    pub fn open_period_option<T: Into<u16>>(self, val: Option<T>) -> Self {
+    pub fn open_period_option<T: Into<u32>>(self, val: Option<T>) -> Self {
         let mut this = self;
         this.open_period = val.map(Into::into);
         this
     }
 
-    /// Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with `open_period`.
+    /// Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 2628000 seconds in the future. Can't be used together with `open_period`.
     #[must_use]
     pub fn close_date<T: Into<i64>>(self, val: T) -> Self {
         let mut this = self;
@@ -459,7 +588,7 @@ impl SendPoll {
         this
     }
 
-    /// Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with `open_period`.
+    /// Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 2628000 seconds in the future. Can't be used together with `open_period`.
     #[must_use]
     pub fn close_date_option<T: Into<i64>>(self, val: Option<T>) -> Self {
         let mut this = self;
@@ -480,6 +609,97 @@ impl SendPoll {
     pub fn is_closed_option<T: Into<bool>>(self, val: Option<T>) -> Self {
         let mut this = self;
         this.is_closed = val.map(Into::into);
+        this
+    }
+
+    /// Description of the poll to be sent, 0-1024 characters after entities parsing
+    #[must_use]
+    pub fn description<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.description = Some(val.into());
+        this
+    }
+
+    /// Description of the poll to be sent, 0-1024 characters after entities parsing
+    #[must_use]
+    pub fn description_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.description = val.map(Into::into);
+        this
+    }
+
+    /// Mode for parsing entities in the poll description. See formatting options for more details.
+    #[must_use]
+    pub fn description_parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.description_parse_mode = Some(val.into());
+        this
+    }
+
+    /// Mode for parsing entities in the poll description. See formatting options for more details.
+    #[must_use]
+    pub fn description_parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.description_parse_mode = val.map(Into::into);
+        this
+    }
+
+    /// A JSON-serialized list of special entities that appear in the poll description, which can be specified instead of `description_parse_mode`
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn description_entities<
+        TItem: Into<crate::types::MessageEntity>,
+        T: IntoIterator<Item = TItem>,
+    >(
+        self,
+        val: T,
+    ) -> Self {
+        let mut this = self;
+        this.description_entities = Some(
+            this.description_entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into_iter().map(Into::into))
+                .collect(),
+        );
+        this
+    }
+
+    /// A JSON-serialized list of special entities that appear in the poll description, which can be specified instead of `description_parse_mode`
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn description_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
+        let mut this = self;
+        this.description_entities = Some(
+            this.description_entities
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        this
+    }
+
+    /// A JSON-serialized list of special entities that appear in the poll description, which can be specified instead of `description_parse_mode`
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn description_entities_option<
+        TItem: Into<crate::types::MessageEntity>,
+        T: IntoIterator<Item = TItem>,
+    >(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.description_entities = val.map(|v| v.into_iter().map(Into::into).collect());
         this
     }
 

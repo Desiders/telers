@@ -1517,9 +1517,9 @@ fn test_external_reply_info_poll_serialize_deserialize() {
     let value = serde_json::json!(
         { "origin" : { "type" : "user", "date" : 1, "sender_user" : { "id" : 1, "is_bot"
         : true, "first_name" : "test" } }, "poll" : { "type" : "regular", "id" : "test",
-        "question" : "test", "options" : [{ "text" : "test", "voter_count" : 1 }],
-        "total_voter_count" : 1, "is_closed" : true, "is_anonymous" : true,
-        "allows_multiple_answers" : true } }
+        "question" : "test", "options" : [{ "persistent_id" : "test", "text" : "test",
+        "voter_count" : 1 }], "total_voter_count" : 1, "is_closed" : true, "is_anonymous"
+        : true, "allows_multiple_answers" : true, "allows_revoting" : true } }
     );
     let parsed: ExternalReplyInfo = must_parse(stringify!(ExternalReplyInfo), &value);
     assert!(
@@ -2642,6 +2642,15 @@ fn test_keyboard_button_request_chat_serialize_deserialize() {
     must_roundtrip(stringify!(KeyboardButtonRequestChat), &parsed);
 }
 #[test]
+fn test_keyboard_button_request_managed_bot_serialize_deserialize() {
+    let value = serde_json::json!({ "request_id" : 1 });
+    let parsed: KeyboardButtonRequestManagedBot =
+        must_parse(stringify!(KeyboardButtonRequestManagedBot), &value);
+    let parsed_value = must_to_value(stringify!(KeyboardButtonRequestManagedBot), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(KeyboardButtonRequestManagedBot), &parsed);
+}
+#[test]
 fn test_keyboard_button_request_users_serialize_deserialize() {
     let value = serde_json::json!({ "request_id" : 1 });
     let parsed: KeyboardButtonRequestUsers =
@@ -2689,6 +2698,27 @@ fn test_login_url_serialize_deserialize() {
     let parsed_value = must_to_value(stringify!(LoginUrl), &parsed);
     assert_json_subset(&parsed_value, &value);
     must_roundtrip(stringify!(LoginUrl), &parsed);
+}
+#[test]
+fn test_managed_bot_created_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "bot" : { "id" : 1, "is_bot" : true, "first_name" : "test" } }
+    );
+    let parsed: ManagedBotCreated = must_parse(stringify!(ManagedBotCreated), &value);
+    let parsed_value = must_to_value(stringify!(ManagedBotCreated), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(ManagedBotCreated), &parsed);
+}
+#[test]
+fn test_managed_bot_updated_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "user" : { "id" : 1, "is_bot" : true, "first_name" : "test" }, "bot" : { "id" :
+        1, "is_bot" : true, "first_name" : "test" } }
+    );
+    let parsed: ManagedBotUpdated = must_parse(stringify!(ManagedBotUpdated), &value);
+    let parsed_value = must_to_value(stringify!(ManagedBotUpdated), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(ManagedBotUpdated), &parsed);
 }
 #[test]
 fn test_mask_position_serialize_deserialize() {
@@ -3392,6 +3422,25 @@ fn test_message_location_serialize_deserialize() {
     must_roundtrip(stringify!(Message), &parsed);
 }
 #[test]
+fn test_message_managed_bot_created_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "message_id" : 1, "date" : 1, "chat" : { "type" : "private", "id" : 1 },
+        "managed_bot_created" : { "bot" : { "id" : 1, "is_bot" : true, "first_name" :
+        "test" } } }
+    );
+    let parsed: Message = must_parse(stringify!(Message), &value);
+    assert!(
+        matches!(&parsed, Message::ManagedBotCreated(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(Message),
+        stringify!(ManagedBotCreated),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(Message), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(Message), &parsed);
+}
+#[test]
 fn test_message_message_auto_delete_timer_changed_serialize_deserialize() {
     let value = serde_json::json!(
         { "message_id" : 1, "date" : 1, "chat" : { "type" : "private", "id" : 1 },
@@ -3598,9 +3647,10 @@ fn test_message_pinned_message_serialize_deserialize() {
 fn test_message_poll_serialize_deserialize() {
     let value = serde_json::json!(
         { "message_id" : 1, "date" : 1, "chat" : { "type" : "private", "id" : 1 }, "poll"
-        : { "type" : "regular", "id" : "test", "question" : "test", "options" : [{ "text"
-        : "test", "voter_count" : 1 }], "total_voter_count" : 1, "is_closed" : true,
-        "is_anonymous" : true, "allows_multiple_answers" : true } }
+        : { "type" : "regular", "id" : "test", "question" : "test", "options" : [{
+        "persistent_id" : "test", "text" : "test", "voter_count" : 1 }],
+        "total_voter_count" : 1, "is_closed" : true, "is_anonymous" : true,
+        "allows_multiple_answers" : true, "allows_revoting" : true } }
     );
     let parsed: Message = must_parse(stringify!(Message), &value);
     assert!(
@@ -3608,6 +3658,44 @@ fn test_message_poll_serialize_deserialize() {
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
         stringify!(Message),
         stringify!(Poll),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(Message), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(Message), &parsed);
+}
+#[test]
+fn test_message_poll_option_added_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "message_id" : 1, "date" : 1, "chat" : { "type" : "private", "id" : 1 },
+        "poll_option_added" : { "option_persistent_id" : "test", "option_text" : "test" }
+        }
+    );
+    let parsed: Message = must_parse(stringify!(Message), &value);
+    assert!(
+        matches!(&parsed, Message::PollOptionAdded(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(Message),
+        stringify!(PollOptionAdded),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(Message), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(Message), &parsed);
+}
+#[test]
+fn test_message_poll_option_deleted_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "message_id" : 1, "date" : 1, "chat" : { "type" : "private", "id" : 1 },
+        "poll_option_deleted" : { "option_persistent_id" : "test", "option_text" : "test"
+        } }
+    );
+    let parsed: Message = must_parse(stringify!(Message), &value);
+    assert!(
+        matches!(&parsed, Message::PollOptionDeleted(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(Message),
+        stringify!(PollOptionDeleted),
         parsed
     );
     let parsed_value = must_to_value(stringify!(Message), &parsed);
@@ -4859,9 +4947,10 @@ fn test_photo_size_serialize_deserialize() {
 #[test]
 fn test_poll_quiz_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "quiz", "id" : "test", "question" : "test", "options" : [{ "text" :
-        "test", "voter_count" : 1 }], "total_voter_count" : 1, "is_closed" : true,
-        "is_anonymous" : true, "allows_multiple_answers" : true }
+        { "type" : "quiz", "id" : "test", "question" : "test", "options" : [{
+        "persistent_id" : "test", "text" : "test", "voter_count" : 1 }],
+        "total_voter_count" : 1, "is_closed" : true, "is_anonymous" : true,
+        "allows_multiple_answers" : true, "allows_revoting" : true }
     );
     let parsed: Poll = must_parse(stringify!(Poll), &value);
     assert!(
@@ -4878,9 +4967,10 @@ fn test_poll_quiz_serialize_deserialize() {
 #[test]
 fn test_poll_regular_serialize_deserialize() {
     let value = serde_json::json!(
-        { "type" : "regular", "id" : "test", "question" : "test", "options" : [{ "text" :
-        "test", "voter_count" : 1 }], "total_voter_count" : 1, "is_closed" : true,
-        "is_anonymous" : true, "allows_multiple_answers" : true }
+        { "type" : "regular", "id" : "test", "question" : "test", "options" : [{
+        "persistent_id" : "test", "text" : "test", "voter_count" : 1 }],
+        "total_voter_count" : 1, "is_closed" : true, "is_anonymous" : true,
+        "allows_multiple_answers" : true, "allows_revoting" : true }
     );
     let parsed: Poll = must_parse(stringify!(Poll), &value);
     assert!(
@@ -4896,7 +4986,9 @@ fn test_poll_regular_serialize_deserialize() {
 }
 #[test]
 fn test_poll_answer_serialize_deserialize() {
-    let value = serde_json::json!({ "poll_id" : "test", "option_ids" : [1] });
+    let value = serde_json::json!(
+        { "poll_id" : "test", "option_ids" : [1], "option_persistent_ids" : ["test"] }
+    );
     let parsed: PollAnswer = must_parse(stringify!(PollAnswer), &value);
     let parsed_value = must_to_value(stringify!(PollAnswer), &parsed);
     assert_json_subset(&parsed_value, &value);
@@ -4904,11 +4996,33 @@ fn test_poll_answer_serialize_deserialize() {
 }
 #[test]
 fn test_poll_option_serialize_deserialize() {
-    let value = serde_json::json!({ "text" : "test", "voter_count" : 1 });
+    let value = serde_json::json!(
+        { "persistent_id" : "test", "text" : "test", "voter_count" : 1 }
+    );
     let parsed: PollOption = must_parse(stringify!(PollOption), &value);
     let parsed_value = must_to_value(stringify!(PollOption), &parsed);
     assert_json_subset(&parsed_value, &value);
     must_roundtrip(stringify!(PollOption), &parsed);
+}
+#[test]
+fn test_poll_option_added_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "option_persistent_id" : "test", "option_text" : "test" }
+    );
+    let parsed: PollOptionAdded = must_parse(stringify!(PollOptionAdded), &value);
+    let parsed_value = must_to_value(stringify!(PollOptionAdded), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(PollOptionAdded), &parsed);
+}
+#[test]
+fn test_poll_option_deleted_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "option_persistent_id" : "test", "option_text" : "test" }
+    );
+    let parsed: PollOptionDeleted = must_parse(stringify!(PollOptionDeleted), &value);
+    let parsed_value = must_to_value(stringify!(PollOptionDeleted), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(PollOptionDeleted), &parsed);
 }
 #[test]
 fn test_pre_checkout_query_serialize_deserialize() {
@@ -4928,6 +5042,14 @@ fn test_prepared_inline_message_serialize_deserialize() {
     let parsed_value = must_to_value(stringify!(PreparedInlineMessage), &parsed);
     assert_json_subset(&parsed_value, &value);
     must_roundtrip(stringify!(PreparedInlineMessage), &parsed);
+}
+#[test]
+fn test_prepared_keyboard_button_serialize_deserialize() {
+    let value = serde_json::json!({ "id" : "test" });
+    let parsed: PreparedKeyboardButton = must_parse(stringify!(PreparedKeyboardButton), &value);
+    let parsed_value = must_to_value(stringify!(PreparedKeyboardButton), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(PreparedKeyboardButton), &parsed);
 }
 #[test]
 fn test_proximity_alert_triggered_serialize_deserialize() {
@@ -6032,6 +6154,25 @@ fn test_update_inline_query_serialize_deserialize() {
     must_roundtrip(stringify!(Update), &parsed);
 }
 #[test]
+fn test_update_managed_bot_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "update_id" : 1, "managed_bot" : { "user" : { "id" : 1, "is_bot" : true,
+        "first_name" : "test" }, "bot" : { "id" : 1, "is_bot" : true, "first_name" :
+        "test" } } }
+    );
+    let parsed: Update = must_parse(stringify!(Update), &value);
+    assert!(
+        matches!(&parsed, Update::ManagedBot(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(Update),
+        stringify!(ManagedBot),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(Update), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(Update), &parsed);
+}
+#[test]
 fn test_update_message_serialize_deserialize() {
     let value = serde_json::json!(
         { "update_id" : 1, "message" : { "message_id" : 1, "date" : 1, "chat" : { "type"
@@ -6114,9 +6255,9 @@ fn test_update_my_chat_member_serialize_deserialize() {
 fn test_update_poll_serialize_deserialize() {
     let value = serde_json::json!(
         { "update_id" : 1, "poll" : { "type" : "regular", "id" : "test", "question" :
-        "test", "options" : [{ "text" : "test", "voter_count" : 1 }], "total_voter_count"
-        : 1, "is_closed" : true, "is_anonymous" : true, "allows_multiple_answers" : true
-        } }
+        "test", "options" : [{ "persistent_id" : "test", "text" : "test", "voter_count" :
+        1 }], "total_voter_count" : 1, "is_closed" : true, "is_anonymous" : true,
+        "allows_multiple_answers" : true, "allows_revoting" : true } }
     );
     let parsed: Update = must_parse(stringify!(Update), &value);
     assert!(
@@ -6133,7 +6274,8 @@ fn test_update_poll_serialize_deserialize() {
 #[test]
 fn test_update_poll_answer_serialize_deserialize() {
     let value = serde_json::json!(
-        { "update_id" : 1, "poll_answer" : { "poll_id" : "test", "option_ids" : [1] } }
+        { "update_id" : 1, "poll_answer" : { "poll_id" : "test", "option_ids" : [1],
+        "option_persistent_ids" : ["test"] } }
     );
     let parsed: Update = must_parse(stringify!(Update), &value);
     assert!(

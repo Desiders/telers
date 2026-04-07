@@ -21,10 +21,10 @@ pub struct SendGift {
     /// Text that will be shown along with the gift; 0-128 characters
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<Box<str>>,
-    /// Mode for parsing entities in the text. See formatting options for more details. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, and `custom_emoji` are ignored.
+    /// Mode for parsing entities in the text. See formatting options for more details. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text_parse_mode: Option<Box<str>>,
-    /// A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of `text_parse_mode`. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, and `custom_emoji` are ignored.
+    /// A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of `text_parse_mode`. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text_entities: Option<Box<[crate::types::MessageEntity]>>,
 }
@@ -121,7 +121,7 @@ impl SendGift {
         this
     }
 
-    /// Mode for parsing entities in the text. See formatting options for more details. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, and `custom_emoji` are ignored.
+    /// Mode for parsing entities in the text. See formatting options for more details. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
     #[must_use]
     pub fn text_parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
         let mut this = self;
@@ -129,7 +129,7 @@ impl SendGift {
         this
     }
 
-    /// Mode for parsing entities in the text. See formatting options for more details. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, and `custom_emoji` are ignored.
+    /// Mode for parsing entities in the text. See formatting options for more details. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
     #[must_use]
     pub fn text_parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
         let mut this = self;
@@ -137,7 +137,7 @@ impl SendGift {
         this
     }
 
-    /// A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of `text_parse_mode`. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, and `custom_emoji` are ignored.
+    /// A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of `text_parse_mode`. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -161,7 +161,7 @@ impl SendGift {
         this
     }
 
-    /// A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of `text_parse_mode`. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, and `custom_emoji` are ignored.
+    /// A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of `text_parse_mode`. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
     ///
     /// # Notes
     /// Adds a single element.
@@ -179,7 +179,7 @@ impl SendGift {
         this
     }
 
-    /// A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of `text_parse_mode`. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, and `custom_emoji` are ignored.
+    /// A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of `text_parse_mode`. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
     ///
     /// # Notes
     /// Adds multiple elements.

@@ -17,6 +17,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::UpdateEditedChannelPost`]
 /// - [`crate::types::UpdateEditedMessage`]
 /// - [`crate::types::UpdateInlineQuery`]
+/// - [`crate::types::UpdateManagedBot`]
 /// - [`crate::types::UpdateMessage`]
 /// - [`crate::types::UpdateMessageReaction`]
 /// - [`crate::types::UpdateMessageReactionCount`]
@@ -70,6 +71,8 @@ pub enum UpdateType {
     EditedMessage,
     #[strum(serialize = "inline_query")]
     InlineQuery,
+    #[strum(serialize = "managed_bot")]
+    ManagedBot,
     #[strum(serialize = "message")]
     Message,
     #[strum(serialize = "message_reaction")]
@@ -93,7 +96,7 @@ pub enum UpdateType {
 }
 impl UpdateType {
     #[must_use]
-    pub const fn all() -> [UpdateType; 23usize] {
+    pub const fn all() -> [UpdateType; 24usize] {
         [
             UpdateType::BusinessConnection,
             UpdateType::BusinessMessage,
@@ -108,6 +111,7 @@ impl UpdateType {
             UpdateType::EditedChannelPost,
             UpdateType::EditedMessage,
             UpdateType::InlineQuery,
+            UpdateType::ManagedBot,
             UpdateType::Message,
             UpdateType::MessageReaction,
             UpdateType::MessageReactionCount,
@@ -152,6 +156,7 @@ impl<'a> From<&'a Update> for UpdateType {
             Update::EditedChannelPost(_) => UpdateType::EditedChannelPost,
             Update::EditedMessage(_) => UpdateType::EditedMessage,
             Update::InlineQuery(_) => UpdateType::InlineQuery,
+            Update::ManagedBot(_) => UpdateType::ManagedBot,
             Update::Message(_) => UpdateType::Message,
             Update::MessageReaction(_) => UpdateType::MessageReaction,
             Update::MessageReactionCount(_) => UpdateType::MessageReactionCount,

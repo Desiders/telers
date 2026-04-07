@@ -15,6 +15,7 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::UpdateEditedChannelPost`]
 /// - [`crate::types::UpdateEditedMessage`]
 /// - [`crate::types::UpdateInlineQuery`]
+/// - [`crate::types::UpdateManagedBot`]
 /// - [`crate::types::UpdateMessage`]
 /// - [`crate::types::UpdateMessageReaction`]
 /// - [`crate::types::UpdateMessageReactionCount`]
@@ -43,6 +44,7 @@ pub enum Update {
     EditedChannelPost(crate::types::UpdateEditedChannelPost),
     EditedMessage(crate::types::UpdateEditedMessage),
     InlineQuery(crate::types::UpdateInlineQuery),
+    ManagedBot(crate::types::UpdateManagedBot),
     Message(crate::types::UpdateMessage),
     MessageReaction(crate::types::UpdateMessageReaction),
     MessageReactionCount(crate::types::UpdateMessageReactionCount),
@@ -198,6 +200,17 @@ impl Update {
         }
     }
 
+    /// Helper method for field `managed_bot`.
+    ///
+    /// A new bot was created to be managed by the bot or token of a bot was changed
+    #[must_use]
+    pub fn managed_bot(&self) -> Option<&crate::types::ManagedBotUpdated> {
+        match self {
+            Self::ManagedBot(val) => Some(&val.managed_bot),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `message`.
     ///
     /// New incoming message of any kind - text, photo, sticker, etc.
@@ -327,6 +340,7 @@ impl Update {
             Self::EditedChannelPost(val) => val.update_id,
             Self::EditedMessage(val) => val.update_id,
             Self::InlineQuery(val) => val.update_id,
+            Self::ManagedBot(val) => val.update_id,
             Self::Message(val) => val.update_id,
             Self::MessageReaction(val) => val.update_id,
             Self::MessageReactionCount(val) => val.update_id,
@@ -359,6 +373,18 @@ impl Update {
             Self::Poll(val) => {
                 let inner = val.poll.as_ref();
                 Some(crate::types::Poll::allows_multiple_answers(inner))
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `allows_revoting`.
+    #[must_use]
+    pub fn allows_revoting(&self) -> Option<bool> {
+        match self {
+            Self::Poll(val) => {
+                let inner = val.poll.as_ref();
+                Some(crate::types::Poll::allows_revoting(inner))
             }
             _ => None,
         }
@@ -523,6 +549,18 @@ impl Update {
             Self::RemovedChatBoost(val) => {
                 let inner = &val.removed_chat_boost;
                 Some(inner.boost_id.as_ref())
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `bot`.
+    #[must_use]
+    pub fn bot(&self) -> Option<&crate::types::User> {
+        match self {
+            Self::ManagedBot(val) => {
+                let inner = &val.managed_bot;
+                Some(inner.bot.as_ref())
             }
             _ => None,
         }
@@ -1048,13 +1086,13 @@ impl Update {
         }
     }
 
-    /// Helper method for nested field `correct_option_id`.
+    /// Helper method for nested field `correct_option_ids`.
     #[must_use]
-    pub fn correct_option_id(&self) -> Option<i64> {
+    pub fn correct_option_ids(&self) -> Option<&[i64]> {
         match self {
             Self::Poll(val) => {
                 let inner = val.poll.as_ref();
-                crate::types::Poll::correct_option_id(inner)
+                crate::types::Poll::correct_option_ids(inner)
             }
             _ => None,
         }
@@ -1167,6 +1205,30 @@ impl Update {
             Self::Message(val) => {
                 let inner = val.message.as_ref();
                 crate::types::Message::delete_chat_photo(inner)
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `description`.
+    #[must_use]
+    pub fn description(&self) -> Option<&str> {
+        match self {
+            Self::Poll(val) => {
+                let inner = val.poll.as_ref();
+                crate::types::Poll::description(inner)
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `description_entities`.
+    #[must_use]
+    pub fn description_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        match self {
+            Self::Poll(val) => {
+                let inner = val.poll.as_ref();
+                crate::types::Poll::description_entities(inner)
             }
             _ => None,
         }
@@ -2460,6 +2522,38 @@ impl Update {
         }
     }
 
+    /// Helper method for nested field `managed_bot_created`.
+    #[must_use]
+    pub fn managed_bot_created(&self) -> Option<&crate::types::ManagedBotCreated> {
+        match self {
+            Self::BusinessMessage(val) => {
+                let inner = val.business_message.as_ref();
+                crate::types::Message::managed_bot_created(inner)
+            }
+            Self::ChannelPost(val) => {
+                let inner = val.channel_post.as_ref();
+                crate::types::Message::managed_bot_created(inner)
+            }
+            Self::EditedBusinessMessage(val) => {
+                let inner = val.edited_business_message.as_ref();
+                crate::types::Message::managed_bot_created(inner)
+            }
+            Self::EditedChannelPost(val) => {
+                let inner = val.edited_channel_post.as_ref();
+                crate::types::Message::managed_bot_created(inner)
+            }
+            Self::EditedMessage(val) => {
+                let inner = val.edited_message.as_ref();
+                crate::types::Message::managed_bot_created(inner)
+            }
+            Self::Message(val) => {
+                let inner = val.message.as_ref();
+                crate::types::Message::managed_bot_created(inner)
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `media_group_id`.
     #[must_use]
     pub fn media_group_id(&self) -> Option<&str> {
@@ -2862,6 +2956,18 @@ impl Update {
         }
     }
 
+    /// Helper method for nested field `option_persistent_ids`.
+    #[must_use]
+    pub fn option_persistent_ids(&self) -> Option<&[Box<str>]> {
+        match self {
+            Self::PollAnswer(val) => {
+                let inner = &val.poll_answer;
+                Some(inner.option_persistent_ids.as_ref())
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `options`.
     #[must_use]
     pub fn options(&self) -> Option<&[crate::types::PollOption]> {
@@ -3097,6 +3203,70 @@ impl Update {
             Self::PollAnswer(val) => {
                 let inner = &val.poll_answer;
                 Some(inner.poll_id.as_ref())
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `poll_option_added`.
+    #[must_use]
+    pub fn poll_option_added(&self) -> Option<&crate::types::PollOptionAdded> {
+        match self {
+            Self::BusinessMessage(val) => {
+                let inner = val.business_message.as_ref();
+                crate::types::Message::poll_option_added(inner)
+            }
+            Self::ChannelPost(val) => {
+                let inner = val.channel_post.as_ref();
+                crate::types::Message::poll_option_added(inner)
+            }
+            Self::EditedBusinessMessage(val) => {
+                let inner = val.edited_business_message.as_ref();
+                crate::types::Message::poll_option_added(inner)
+            }
+            Self::EditedChannelPost(val) => {
+                let inner = val.edited_channel_post.as_ref();
+                crate::types::Message::poll_option_added(inner)
+            }
+            Self::EditedMessage(val) => {
+                let inner = val.edited_message.as_ref();
+                crate::types::Message::poll_option_added(inner)
+            }
+            Self::Message(val) => {
+                let inner = val.message.as_ref();
+                crate::types::Message::poll_option_added(inner)
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `poll_option_deleted`.
+    #[must_use]
+    pub fn poll_option_deleted(&self) -> Option<&crate::types::PollOptionDeleted> {
+        match self {
+            Self::BusinessMessage(val) => {
+                let inner = val.business_message.as_ref();
+                crate::types::Message::poll_option_deleted(inner)
+            }
+            Self::ChannelPost(val) => {
+                let inner = val.channel_post.as_ref();
+                crate::types::Message::poll_option_deleted(inner)
+            }
+            Self::EditedBusinessMessage(val) => {
+                let inner = val.edited_business_message.as_ref();
+                crate::types::Message::poll_option_deleted(inner)
+            }
+            Self::EditedChannelPost(val) => {
+                let inner = val.edited_channel_post.as_ref();
+                crate::types::Message::poll_option_deleted(inner)
+            }
+            Self::EditedMessage(val) => {
+                let inner = val.edited_message.as_ref();
+                crate::types::Message::poll_option_deleted(inner)
+            }
+            Self::Message(val) => {
+                let inner = val.message.as_ref();
+                crate::types::Message::poll_option_deleted(inner)
             }
             _ => None,
         }
@@ -3353,6 +3523,38 @@ impl Update {
             Self::Message(val) => {
                 let inner = val.message.as_ref();
                 crate::types::Message::reply_to_message(inner)
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `reply_to_poll_option_id`.
+    #[must_use]
+    pub fn reply_to_poll_option_id(&self) -> Option<&str> {
+        match self {
+            Self::BusinessMessage(val) => {
+                let inner = val.business_message.as_ref();
+                crate::types::Message::reply_to_poll_option_id(inner)
+            }
+            Self::ChannelPost(val) => {
+                let inner = val.channel_post.as_ref();
+                crate::types::Message::reply_to_poll_option_id(inner)
+            }
+            Self::EditedBusinessMessage(val) => {
+                let inner = val.edited_business_message.as_ref();
+                crate::types::Message::reply_to_poll_option_id(inner)
+            }
+            Self::EditedChannelPost(val) => {
+                let inner = val.edited_channel_post.as_ref();
+                crate::types::Message::reply_to_poll_option_id(inner)
+            }
+            Self::EditedMessage(val) => {
+                let inner = val.edited_message.as_ref();
+                crate::types::Message::reply_to_poll_option_id(inner)
+            }
+            Self::Message(val) => {
+                let inner = val.message.as_ref();
+                crate::types::Message::reply_to_poll_option_id(inner)
             }
             _ => None,
         }
@@ -4026,6 +4228,10 @@ impl Update {
         match self {
             Self::BusinessConnection(val) => {
                 let inner = &val.business_connection;
+                Some(inner.user.as_ref())
+            }
+            Self::ManagedBot(val) => {
+                let inner = &val.managed_bot;
                 Some(inner.user.as_ref())
             }
             Self::MessageReaction(val) => {
@@ -4714,6 +4920,29 @@ impl<Client> crate::Extractor<Client> for crate::types::InlineQuery {
         async move { val }
     }
 }
+impl TryFrom<Update> for crate::types::ManagedBotUpdated {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, crate::errors::ConvertToTypeError> {
+        match val {
+            Update::ManagedBot(val) => Ok(val.managed_bot),
+            _ => Err(crate::errors::ConvertToTypeError::new(
+                stringify!(Update),
+                stringify!(ManagedBotUpdated),
+            )),
+        }
+    }
+}
+impl<Client> crate::Extractor<Client> for crate::types::ManagedBotUpdated {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
 impl TryFrom<Update> for crate::types::Message {
     type Error = crate::errors::ConvertToTypeError;
 
@@ -5354,6 +5583,24 @@ impl<Client> crate::Extractor<Client> for crate::types::MessageLocation {
         async move { val }
     }
 }
+impl TryFrom<Update> for crate::types::MessageManagedBotCreated {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, Self::Error> {
+        let parent: crate::types::Message = val.try_into()?;
+        parent.try_into()
+    }
+}
+impl<Client> crate::Extractor<Client> for crate::types::MessageManagedBotCreated {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
 impl TryFrom<Update> for crate::types::MessageMessageAutoDeleteTimerChanged {
     type Error = crate::errors::ConvertToTypeError;
 
@@ -5561,6 +5808,42 @@ impl TryFrom<Update> for crate::types::MessagePoll {
     }
 }
 impl<Client> crate::Extractor<Client> for crate::types::MessagePoll {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
+impl TryFrom<Update> for crate::types::MessagePollOptionAdded {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, Self::Error> {
+        let parent: crate::types::Message = val.try_into()?;
+        parent.try_into()
+    }
+}
+impl<Client> crate::Extractor<Client> for crate::types::MessagePollOptionAdded {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn extract(
+        request: &crate::Request<Client>,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send {
+        let val = (*request.update).clone().try_into();
+        async move { val }
+    }
+}
+impl TryFrom<Update> for crate::types::MessagePollOptionDeleted {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, Self::Error> {
+        let parent: crate::types::Message = val.try_into()?;
+        parent.try_into()
+    }
+}
+impl<Client> crate::Extractor<Client> for crate::types::MessagePollOptionDeleted {
     type Error = crate::errors::ConvertToTypeError;
 
     fn extract(
@@ -6442,6 +6725,25 @@ impl TryFrom<Update> for crate::types::UpdateInlineQuery {
             Err(Self::Error::new(
                 stringify!(Update),
                 stringify!(UpdateInlineQuery),
+            ))
+        }
+    }
+}
+impl From<crate::types::UpdateManagedBot> for Update {
+    fn from(val: crate::types::UpdateManagedBot) -> Self {
+        Self::ManagedBot(val)
+    }
+}
+impl TryFrom<Update> for crate::types::UpdateManagedBot {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Update) -> Result<Self, Self::Error> {
+        if let Update::ManagedBot(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Update),
+                stringify!(UpdateManagedBot),
             ))
         }
     }

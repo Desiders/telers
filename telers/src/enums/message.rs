@@ -37,6 +37,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::MessageInvoice`]
 /// - [`crate::types::MessageLeftChatMember`]
 /// - [`crate::types::MessageLocation`]
+/// - [`crate::types::MessageManagedBotCreated`]
 /// - [`crate::types::MessageMessageAutoDeleteTimerChanged`]
 /// - [`crate::types::MessageMigrateFromChatId`]
 /// - [`crate::types::MessageMigrateToChatId`]
@@ -49,6 +50,8 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::MessagePhoto`]
 /// - [`crate::types::MessagePinnedMessage`]
 /// - [`crate::types::MessagePoll`]
+/// - [`crate::types::MessagePollOptionAdded`]
+/// - [`crate::types::MessagePollOptionDeleted`]
 /// - [`crate::types::MessageProximityAlertTriggered`]
 /// - [`crate::types::MessageRefundedPayment`]
 /// - [`crate::types::MessageSticker`]
@@ -158,6 +161,8 @@ pub enum MessageType {
     LeftChatMember,
     #[strum(serialize = "location")]
     Location,
+    #[strum(serialize = "managed_bot_created")]
+    ManagedBotCreated,
     #[strum(serialize = "message_auto_delete_timer_changed")]
     MessageAutoDeleteTimerChanged,
     #[strum(serialize = "migrate_from_chat_id")]
@@ -182,6 +187,10 @@ pub enum MessageType {
     PinnedMessage,
     #[strum(serialize = "poll")]
     Poll,
+    #[strum(serialize = "poll_option_added")]
+    PollOptionAdded,
+    #[strum(serialize = "poll_option_deleted")]
+    PollOptionDeleted,
     #[strum(serialize = "proximity_alert_triggered")]
     ProximityAlertTriggered,
     #[strum(serialize = "refunded_payment")]
@@ -233,7 +242,7 @@ pub enum MessageType {
 }
 impl MessageType {
     #[must_use]
-    pub const fn all() -> [MessageType; 70usize] {
+    pub const fn all() -> [MessageType; 73usize] {
         [
             MessageType::Animation,
             MessageType::Audio,
@@ -269,6 +278,7 @@ impl MessageType {
             MessageType::Invoice,
             MessageType::LeftChatMember,
             MessageType::Location,
+            MessageType::ManagedBotCreated,
             MessageType::MessageAutoDeleteTimerChanged,
             MessageType::MigrateFromChatId,
             MessageType::MigrateToChatId,
@@ -281,6 +291,8 @@ impl MessageType {
             MessageType::Photo,
             MessageType::PinnedMessage,
             MessageType::Poll,
+            MessageType::PollOptionAdded,
+            MessageType::PollOptionDeleted,
             MessageType::ProximityAlertTriggered,
             MessageType::RefundedPayment,
             MessageType::Sticker,
@@ -360,6 +372,7 @@ impl<'a> From<&'a Message> for MessageType {
             Message::Invoice(_) => MessageType::Invoice,
             Message::LeftChatMember(_) => MessageType::LeftChatMember,
             Message::Location(_) => MessageType::Location,
+            Message::ManagedBotCreated(_) => MessageType::ManagedBotCreated,
             Message::MessageAutoDeleteTimerChanged(_) => MessageType::MessageAutoDeleteTimerChanged,
             Message::MigrateFromChatId(_) => MessageType::MigrateFromChatId,
             Message::MigrateToChatId(_) => MessageType::MigrateToChatId,
@@ -372,6 +385,8 @@ impl<'a> From<&'a Message> for MessageType {
             Message::Photo(_) => MessageType::Photo,
             Message::PinnedMessage(_) => MessageType::PinnedMessage,
             Message::Poll(_) => MessageType::Poll,
+            Message::PollOptionAdded(_) => MessageType::PollOptionAdded,
+            Message::PollOptionDeleted(_) => MessageType::PollOptionDeleted,
             Message::ProximityAlertTriggered(_) => MessageType::ProximityAlertTriggered,
             Message::RefundedPayment(_) => MessageType::RefundedPayment,
             Message::Sticker(_) => MessageType::Sticker,

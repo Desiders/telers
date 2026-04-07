@@ -274,6 +274,7 @@ pub fn tokenize_enum_telegram_observer_type() -> TokenStream {
         ("EditedChannelPost", "edited_channel_post"),
         ("EditedMessage", "edited_message"),
         ("InlineQuery", "inline_query"),
+        ("ManagedBot", "managed_bot"),
         ("Message", "message"),
         ("MessageReaction", "message_reaction"),
         ("MessageReactionCount", "message_reaction_count"),

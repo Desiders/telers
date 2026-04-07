@@ -1308,6 +1308,13 @@ impl ChatFullInfo {
             .and_then(crate::types::Message::link_preview_options)
     }
 
+    /// Helper method for nested field `managed_bot_created`.
+    #[must_use]
+    pub fn managed_bot_created(&self) -> Option<&crate::types::ManagedBotCreated> {
+        self.pinned_message()
+            .and_then(crate::types::Message::managed_bot_created)
+    }
+
     /// Helper method for nested field `media_group_id`.
     #[must_use]
     pub fn media_group_id(&self) -> Option<&str> {
@@ -1482,6 +1489,20 @@ impl ChatFullInfo {
         self.pinned_message().and_then(crate::types::Message::poll)
     }
 
+    /// Helper method for nested field `poll_option_added`.
+    #[must_use]
+    pub fn poll_option_added(&self) -> Option<&crate::types::PollOptionAdded> {
+        self.pinned_message()
+            .and_then(crate::types::Message::poll_option_added)
+    }
+
+    /// Helper method for nested field `poll_option_deleted`.
+    #[must_use]
+    pub fn poll_option_deleted(&self) -> Option<&crate::types::PollOptionDeleted> {
+        self.pinned_message()
+            .and_then(crate::types::Message::poll_option_deleted)
+    }
+
     /// Helper method for nested field `premium_subscription`.
     #[must_use]
     pub fn premium_subscription(&self) -> Option<bool> {
@@ -1533,6 +1554,13 @@ impl ChatFullInfo {
     pub fn reply_to_message(&self) -> Option<&crate::types::Message> {
         self.pinned_message()
             .and_then(crate::types::Message::reply_to_message)
+    }
+
+    /// Helper method for nested field `reply_to_poll_option_id`.
+    #[must_use]
+    pub fn reply_to_poll_option_id(&self) -> Option<&str> {
+        self.pinned_message()
+            .and_then(crate::types::Message::reply_to_poll_option_id)
     }
 
     /// Helper method for nested field `reply_to_story`.

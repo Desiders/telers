@@ -9,7 +9,7 @@ pub struct InputChecklist {
     /// Mode for parsing entities in the title. See formatting options for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parse_mode: Option<Box<str>>,
-    /// List of special entities that appear in the title, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities are allowed.
+    /// List of special entities that appear in the title, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are allowed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub title_entities: Option<Box<[crate::types::MessageEntity]>>,
     /// List of 1-30 tasks in the checklist
@@ -73,7 +73,7 @@ impl InputChecklist {
         this
     }
 
-    /// List of special entities that appear in the title, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities are allowed.
+    /// List of special entities that appear in the title, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are allowed.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -91,7 +91,7 @@ impl InputChecklist {
         this
     }
 
-    /// List of special entities that appear in the title, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities are allowed.
+    /// List of special entities that appear in the title, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are allowed.
     ///
     /// # Notes
     /// Adds a single element.
@@ -109,7 +109,7 @@ impl InputChecklist {
         this
     }
 
-    /// List of special entities that appear in the title, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities are allowed.
+    /// List of special entities that appear in the title, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are allowed.
     ///
     /// # Notes
     /// Adds a single element.

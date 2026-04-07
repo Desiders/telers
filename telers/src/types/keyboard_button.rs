@@ -18,6 +18,9 @@ pub struct KeyboardButton {
     /// If specified, pressing the button will open a list of suitable chats. Tapping on a chat will send its identifier to the bot in a `chat_shared` service message. Available in private chats only.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub request_chat: Option<crate::types::KeyboardButtonRequestChat>,
+    /// If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available for bots that enabled management of other bots in the @`BotFather` Mini App. Available in private chats only.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub request_managed_bot: Option<crate::types::KeyboardButtonRequestManagedBot>,
     /// If `true`, the user's phone number will be sent as a contact when the button is pressed. Available in private chats only.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub request_contact: Option<bool>,
@@ -47,6 +50,7 @@ impl KeyboardButton {
             style: None,
             request_users: None,
             request_chat: None,
+            request_managed_bot: None,
             request_contact: None,
             request_location: None,
             request_poll: None,
@@ -129,6 +133,28 @@ impl KeyboardButton {
     ) -> Self {
         let mut this = self;
         this.request_chat = val.map(Into::into);
+        this
+    }
+
+    /// If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available for bots that enabled management of other bots in the @`BotFather` Mini App. Available in private chats only.
+    #[must_use]
+    pub fn request_managed_bot<T: Into<crate::types::KeyboardButtonRequestManagedBot>>(
+        self,
+        val: T,
+    ) -> Self {
+        let mut this = self;
+        this.request_managed_bot = Some(val.into());
+        this
+    }
+
+    /// If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available for bots that enabled management of other bots in the @`BotFather` Mini App. Available in private chats only.
+    #[must_use]
+    pub fn request_managed_bot_option<T: Into<crate::types::KeyboardButtonRequestManagedBot>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.request_managed_bot = val.map(Into::into);
         this
     }
 

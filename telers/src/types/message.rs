@@ -35,6 +35,7 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::MessageInvoice`]
 /// - [`crate::types::MessageLeftChatMember`]
 /// - [`crate::types::MessageLocation`]
+/// - [`crate::types::MessageManagedBotCreated`]
 /// - [`crate::types::MessageMessageAutoDeleteTimerChanged`]
 /// - [`crate::types::MessageMigrateFromChatId`]
 /// - [`crate::types::MessageMigrateToChatId`]
@@ -47,6 +48,8 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::MessagePhoto`]
 /// - [`crate::types::MessagePinnedMessage`]
 /// - [`crate::types::MessagePoll`]
+/// - [`crate::types::MessagePollOptionAdded`]
+/// - [`crate::types::MessagePollOptionDeleted`]
 /// - [`crate::types::MessageProximityAlertTriggered`]
 /// - [`crate::types::MessageRefundedPayment`]
 /// - [`crate::types::MessageSticker`]
@@ -110,6 +113,7 @@ pub enum Message {
     Invoice(crate::types::MessageInvoice),
     LeftChatMember(crate::types::MessageLeftChatMember),
     Location(crate::types::MessageLocation),
+    ManagedBotCreated(crate::types::MessageManagedBotCreated),
     MessageAutoDeleteTimerChanged(crate::types::MessageMessageAutoDeleteTimerChanged),
     MigrateFromChatId(crate::types::MessageMigrateFromChatId),
     MigrateToChatId(crate::types::MessageMigrateToChatId),
@@ -122,6 +126,8 @@ pub enum Message {
     Photo(crate::types::MessagePhoto),
     PinnedMessage(crate::types::MessagePinnedMessage),
     Poll(crate::types::MessagePoll),
+    PollOptionAdded(crate::types::MessagePollOptionAdded),
+    PollOptionDeleted(crate::types::MessagePollOptionDeleted),
     ProximityAlertTriggered(crate::types::MessageProximityAlertTriggered),
     RefundedPayment(crate::types::MessageRefundedPayment),
     Sticker(crate::types::MessageSticker),
@@ -210,6 +216,7 @@ impl Message {
             Self::Invoice(val) => val.author_signature.as_deref(),
             Self::LeftChatMember(val) => val.author_signature.as_deref(),
             Self::Location(val) => val.author_signature.as_deref(),
+            Self::ManagedBotCreated(val) => val.author_signature.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.author_signature.as_deref(),
             Self::MigrateFromChatId(val) => val.author_signature.as_deref(),
             Self::MigrateToChatId(val) => val.author_signature.as_deref(),
@@ -222,6 +229,8 @@ impl Message {
             Self::Photo(val) => val.author_signature.as_deref(),
             Self::PinnedMessage(val) => val.author_signature.as_deref(),
             Self::Poll(val) => val.author_signature.as_deref(),
+            Self::PollOptionAdded(val) => val.author_signature.as_deref(),
+            Self::PollOptionDeleted(val) => val.author_signature.as_deref(),
             Self::ProximityAlertTriggered(val) => val.author_signature.as_deref(),
             Self::RefundedPayment(val) => val.author_signature.as_deref(),
             Self::Sticker(val) => val.author_signature.as_deref(),
@@ -300,6 +309,7 @@ impl Message {
             Self::Invoice(val) => val.business_connection_id.as_deref(),
             Self::LeftChatMember(val) => val.business_connection_id.as_deref(),
             Self::Location(val) => val.business_connection_id.as_deref(),
+            Self::ManagedBotCreated(val) => val.business_connection_id.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.business_connection_id.as_deref(),
             Self::MigrateFromChatId(val) => val.business_connection_id.as_deref(),
             Self::MigrateToChatId(val) => val.business_connection_id.as_deref(),
@@ -312,6 +322,8 @@ impl Message {
             Self::Photo(val) => val.business_connection_id.as_deref(),
             Self::PinnedMessage(val) => val.business_connection_id.as_deref(),
             Self::Poll(val) => val.business_connection_id.as_deref(),
+            Self::PollOptionAdded(val) => val.business_connection_id.as_deref(),
+            Self::PollOptionDeleted(val) => val.business_connection_id.as_deref(),
             Self::ProximityAlertTriggered(val) => val.business_connection_id.as_deref(),
             Self::RefundedPayment(val) => val.business_connection_id.as_deref(),
             Self::Sticker(val) => val.business_connection_id.as_deref(),
@@ -379,6 +391,7 @@ impl Message {
             Self::Invoice(val) => val.caption.as_deref(),
             Self::LeftChatMember(val) => val.caption.as_deref(),
             Self::Location(val) => val.caption.as_deref(),
+            Self::ManagedBotCreated(val) => val.caption.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.caption.as_deref(),
             Self::MigrateFromChatId(val) => val.caption.as_deref(),
             Self::MigrateToChatId(val) => val.caption.as_deref(),
@@ -391,6 +404,8 @@ impl Message {
             Self::Photo(val) => val.caption.as_deref(),
             Self::PinnedMessage(val) => val.caption.as_deref(),
             Self::Poll(val) => val.caption.as_deref(),
+            Self::PollOptionAdded(val) => val.caption.as_deref(),
+            Self::PollOptionDeleted(val) => val.caption.as_deref(),
             Self::ProximityAlertTriggered(val) => val.caption.as_deref(),
             Self::RefundedPayment(val) => val.caption.as_deref(),
             Self::Sticker(val) => val.caption.as_deref(),
@@ -458,6 +473,7 @@ impl Message {
             Self::Invoice(val) => val.caption_entities.as_deref(),
             Self::LeftChatMember(val) => val.caption_entities.as_deref(),
             Self::Location(val) => val.caption_entities.as_deref(),
+            Self::ManagedBotCreated(val) => val.caption_entities.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.caption_entities.as_deref(),
             Self::MigrateFromChatId(val) => val.caption_entities.as_deref(),
             Self::MigrateToChatId(val) => val.caption_entities.as_deref(),
@@ -470,6 +486,8 @@ impl Message {
             Self::Photo(val) => val.caption_entities.as_deref(),
             Self::PinnedMessage(val) => val.caption_entities.as_deref(),
             Self::Poll(val) => val.caption_entities.as_deref(),
+            Self::PollOptionAdded(val) => val.caption_entities.as_deref(),
+            Self::PollOptionDeleted(val) => val.caption_entities.as_deref(),
             Self::ProximityAlertTriggered(val) => val.caption_entities.as_deref(),
             Self::RefundedPayment(val) => val.caption_entities.as_deref(),
             Self::Sticker(val) => val.caption_entities.as_deref(),
@@ -548,6 +566,7 @@ impl Message {
             Self::Invoice(val) => val.chat.as_ref(),
             Self::LeftChatMember(val) => val.chat.as_ref(),
             Self::Location(val) => val.chat.as_ref(),
+            Self::ManagedBotCreated(val) => val.chat.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.chat.as_ref(),
             Self::MigrateFromChatId(val) => val.chat.as_ref(),
             Self::MigrateToChatId(val) => val.chat.as_ref(),
@@ -560,6 +579,8 @@ impl Message {
             Self::Photo(val) => val.chat.as_ref(),
             Self::PinnedMessage(val) => val.chat.as_ref(),
             Self::Poll(val) => val.chat.as_ref(),
+            Self::PollOptionAdded(val) => val.chat.as_ref(),
+            Self::PollOptionDeleted(val) => val.chat.as_ref(),
             Self::ProximityAlertTriggered(val) => val.chat.as_ref(),
             Self::RefundedPayment(val) => val.chat.as_ref(),
             Self::Sticker(val) => val.chat.as_ref(),
@@ -726,6 +747,7 @@ impl Message {
             Self::Invoice(val) => val.date,
             Self::LeftChatMember(val) => val.date,
             Self::Location(val) => val.date,
+            Self::ManagedBotCreated(val) => val.date,
             Self::MessageAutoDeleteTimerChanged(val) => val.date,
             Self::MigrateFromChatId(val) => val.date,
             Self::MigrateToChatId(val) => val.date,
@@ -738,6 +760,8 @@ impl Message {
             Self::Photo(val) => val.date,
             Self::PinnedMessage(val) => val.date,
             Self::Poll(val) => val.date,
+            Self::PollOptionAdded(val) => val.date,
+            Self::PollOptionDeleted(val) => val.date,
             Self::ProximityAlertTriggered(val) => val.date,
             Self::RefundedPayment(val) => val.date,
             Self::Sticker(val) => val.date,
@@ -838,6 +862,7 @@ impl Message {
             Self::Invoice(val) => val.direct_messages_topic.as_ref(),
             Self::LeftChatMember(val) => val.direct_messages_topic.as_ref(),
             Self::Location(val) => val.direct_messages_topic.as_ref(),
+            Self::ManagedBotCreated(val) => val.direct_messages_topic.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.direct_messages_topic.as_ref(),
             Self::MigrateFromChatId(val) => val.direct_messages_topic.as_ref(),
             Self::MigrateToChatId(val) => val.direct_messages_topic.as_ref(),
@@ -850,6 +875,8 @@ impl Message {
             Self::Photo(val) => val.direct_messages_topic.as_ref(),
             Self::PinnedMessage(val) => val.direct_messages_topic.as_ref(),
             Self::Poll(val) => val.direct_messages_topic.as_ref(),
+            Self::PollOptionAdded(val) => val.direct_messages_topic.as_ref(),
+            Self::PollOptionDeleted(val) => val.direct_messages_topic.as_ref(),
             Self::ProximityAlertTriggered(val) => val.direct_messages_topic.as_ref(),
             Self::RefundedPayment(val) => val.direct_messages_topic.as_ref(),
             Self::Sticker(val) => val.direct_messages_topic.as_ref(),
@@ -928,6 +955,7 @@ impl Message {
             Self::Invoice(val) => val.edit_date,
             Self::LeftChatMember(val) => val.edit_date,
             Self::Location(val) => val.edit_date,
+            Self::ManagedBotCreated(val) => val.edit_date,
             Self::MessageAutoDeleteTimerChanged(val) => val.edit_date,
             Self::MigrateFromChatId(val) => val.edit_date,
             Self::MigrateToChatId(val) => val.edit_date,
@@ -940,6 +968,8 @@ impl Message {
             Self::Photo(val) => val.edit_date,
             Self::PinnedMessage(val) => val.edit_date,
             Self::Poll(val) => val.edit_date,
+            Self::PollOptionAdded(val) => val.edit_date,
+            Self::PollOptionDeleted(val) => val.edit_date,
             Self::ProximityAlertTriggered(val) => val.edit_date,
             Self::RefundedPayment(val) => val.edit_date,
             Self::Sticker(val) => val.edit_date,
@@ -1007,6 +1037,7 @@ impl Message {
             Self::Invoice(val) => val.effect_id.as_deref(),
             Self::LeftChatMember(val) => val.effect_id.as_deref(),
             Self::Location(val) => val.effect_id.as_deref(),
+            Self::ManagedBotCreated(val) => val.effect_id.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.effect_id.as_deref(),
             Self::MigrateFromChatId(val) => val.effect_id.as_deref(),
             Self::MigrateToChatId(val) => val.effect_id.as_deref(),
@@ -1019,6 +1050,8 @@ impl Message {
             Self::Photo(val) => val.effect_id.as_deref(),
             Self::PinnedMessage(val) => val.effect_id.as_deref(),
             Self::Poll(val) => val.effect_id.as_deref(),
+            Self::PollOptionAdded(val) => val.effect_id.as_deref(),
+            Self::PollOptionDeleted(val) => val.effect_id.as_deref(),
             Self::ProximityAlertTriggered(val) => val.effect_id.as_deref(),
             Self::RefundedPayment(val) => val.effect_id.as_deref(),
             Self::Sticker(val) => val.effect_id.as_deref(),
@@ -1086,6 +1119,7 @@ impl Message {
             Self::Invoice(val) => val.entities.as_deref(),
             Self::LeftChatMember(val) => val.entities.as_deref(),
             Self::Location(val) => val.entities.as_deref(),
+            Self::ManagedBotCreated(val) => val.entities.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.entities.as_deref(),
             Self::MigrateFromChatId(val) => val.entities.as_deref(),
             Self::MigrateToChatId(val) => val.entities.as_deref(),
@@ -1098,6 +1132,8 @@ impl Message {
             Self::Photo(val) => val.entities.as_deref(),
             Self::PinnedMessage(val) => val.entities.as_deref(),
             Self::Poll(val) => val.entities.as_deref(),
+            Self::PollOptionAdded(val) => val.entities.as_deref(),
+            Self::PollOptionDeleted(val) => val.entities.as_deref(),
             Self::ProximityAlertTriggered(val) => val.entities.as_deref(),
             Self::RefundedPayment(val) => val.entities.as_deref(),
             Self::Sticker(val) => val.entities.as_deref(),
@@ -1165,6 +1201,7 @@ impl Message {
             Self::Invoice(val) => val.external_reply.as_deref(),
             Self::LeftChatMember(val) => val.external_reply.as_deref(),
             Self::Location(val) => val.external_reply.as_deref(),
+            Self::ManagedBotCreated(val) => val.external_reply.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.external_reply.as_deref(),
             Self::MigrateFromChatId(val) => val.external_reply.as_deref(),
             Self::MigrateToChatId(val) => val.external_reply.as_deref(),
@@ -1177,6 +1214,8 @@ impl Message {
             Self::Photo(val) => val.external_reply.as_deref(),
             Self::PinnedMessage(val) => val.external_reply.as_deref(),
             Self::Poll(val) => val.external_reply.as_deref(),
+            Self::PollOptionAdded(val) => val.external_reply.as_deref(),
+            Self::PollOptionDeleted(val) => val.external_reply.as_deref(),
             Self::ProximityAlertTriggered(val) => val.external_reply.as_deref(),
             Self::RefundedPayment(val) => val.external_reply.as_deref(),
             Self::Sticker(val) => val.external_reply.as_deref(),
@@ -1288,6 +1327,7 @@ impl Message {
             Self::Invoice(val) => val.forward_origin.as_ref(),
             Self::LeftChatMember(val) => val.forward_origin.as_ref(),
             Self::Location(val) => val.forward_origin.as_ref(),
+            Self::ManagedBotCreated(val) => val.forward_origin.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.forward_origin.as_ref(),
             Self::MigrateFromChatId(val) => val.forward_origin.as_ref(),
             Self::MigrateToChatId(val) => val.forward_origin.as_ref(),
@@ -1300,6 +1340,8 @@ impl Message {
             Self::Photo(val) => val.forward_origin.as_ref(),
             Self::PinnedMessage(val) => val.forward_origin.as_ref(),
             Self::Poll(val) => val.forward_origin.as_ref(),
+            Self::PollOptionAdded(val) => val.forward_origin.as_ref(),
+            Self::PollOptionDeleted(val) => val.forward_origin.as_ref(),
             Self::ProximityAlertTriggered(val) => val.forward_origin.as_ref(),
             Self::RefundedPayment(val) => val.forward_origin.as_ref(),
             Self::Sticker(val) => val.forward_origin.as_ref(),
@@ -1367,6 +1409,7 @@ impl Message {
             Self::Invoice(val) => val.from.as_deref(),
             Self::LeftChatMember(val) => val.from.as_deref(),
             Self::Location(val) => val.from.as_deref(),
+            Self::ManagedBotCreated(val) => val.from.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.from.as_deref(),
             Self::MigrateFromChatId(val) => val.from.as_deref(),
             Self::MigrateToChatId(val) => val.from.as_deref(),
@@ -1379,6 +1422,8 @@ impl Message {
             Self::Photo(val) => val.from.as_deref(),
             Self::PinnedMessage(val) => val.from.as_deref(),
             Self::Poll(val) => val.from.as_deref(),
+            Self::PollOptionAdded(val) => val.from.as_deref(),
+            Self::PollOptionDeleted(val) => val.from.as_deref(),
             Self::ProximityAlertTriggered(val) => val.from.as_deref(),
             Self::RefundedPayment(val) => val.from.as_deref(),
             Self::Sticker(val) => val.from.as_deref(),
@@ -1556,6 +1601,7 @@ impl Message {
             Self::Invoice(val) => val.has_media_spoiler,
             Self::LeftChatMember(val) => val.has_media_spoiler,
             Self::Location(val) => val.has_media_spoiler,
+            Self::ManagedBotCreated(val) => val.has_media_spoiler,
             Self::MessageAutoDeleteTimerChanged(val) => val.has_media_spoiler,
             Self::MigrateFromChatId(val) => val.has_media_spoiler,
             Self::MigrateToChatId(val) => val.has_media_spoiler,
@@ -1568,6 +1614,8 @@ impl Message {
             Self::Photo(val) => val.has_media_spoiler,
             Self::PinnedMessage(val) => val.has_media_spoiler,
             Self::Poll(val) => val.has_media_spoiler,
+            Self::PollOptionAdded(val) => val.has_media_spoiler,
+            Self::PollOptionDeleted(val) => val.has_media_spoiler,
             Self::ProximityAlertTriggered(val) => val.has_media_spoiler,
             Self::RefundedPayment(val) => val.has_media_spoiler,
             Self::Sticker(val) => val.has_media_spoiler,
@@ -1635,6 +1683,7 @@ impl Message {
             Self::Invoice(val) => val.has_protected_content,
             Self::LeftChatMember(val) => val.has_protected_content,
             Self::Location(val) => val.has_protected_content,
+            Self::ManagedBotCreated(val) => val.has_protected_content,
             Self::MessageAutoDeleteTimerChanged(val) => val.has_protected_content,
             Self::MigrateFromChatId(val) => val.has_protected_content,
             Self::MigrateToChatId(val) => val.has_protected_content,
@@ -1647,6 +1696,8 @@ impl Message {
             Self::Photo(val) => val.has_protected_content,
             Self::PinnedMessage(val) => val.has_protected_content,
             Self::Poll(val) => val.has_protected_content,
+            Self::PollOptionAdded(val) => val.has_protected_content,
+            Self::PollOptionDeleted(val) => val.has_protected_content,
             Self::ProximityAlertTriggered(val) => val.has_protected_content,
             Self::RefundedPayment(val) => val.has_protected_content,
             Self::Sticker(val) => val.has_protected_content,
@@ -1725,6 +1776,7 @@ impl Message {
             Self::Invoice(val) => val.is_automatic_forward,
             Self::LeftChatMember(val) => val.is_automatic_forward,
             Self::Location(val) => val.is_automatic_forward,
+            Self::ManagedBotCreated(val) => val.is_automatic_forward,
             Self::MessageAutoDeleteTimerChanged(val) => val.is_automatic_forward,
             Self::MigrateFromChatId(val) => val.is_automatic_forward,
             Self::MigrateToChatId(val) => val.is_automatic_forward,
@@ -1737,6 +1789,8 @@ impl Message {
             Self::Photo(val) => val.is_automatic_forward,
             Self::PinnedMessage(val) => val.is_automatic_forward,
             Self::Poll(val) => val.is_automatic_forward,
+            Self::PollOptionAdded(val) => val.is_automatic_forward,
+            Self::PollOptionDeleted(val) => val.is_automatic_forward,
             Self::ProximityAlertTriggered(val) => val.is_automatic_forward,
             Self::RefundedPayment(val) => val.is_automatic_forward,
             Self::Sticker(val) => val.is_automatic_forward,
@@ -1804,6 +1858,7 @@ impl Message {
             Self::Invoice(val) => val.is_from_offline,
             Self::LeftChatMember(val) => val.is_from_offline,
             Self::Location(val) => val.is_from_offline,
+            Self::ManagedBotCreated(val) => val.is_from_offline,
             Self::MessageAutoDeleteTimerChanged(val) => val.is_from_offline,
             Self::MigrateFromChatId(val) => val.is_from_offline,
             Self::MigrateToChatId(val) => val.is_from_offline,
@@ -1816,6 +1871,8 @@ impl Message {
             Self::Photo(val) => val.is_from_offline,
             Self::PinnedMessage(val) => val.is_from_offline,
             Self::Poll(val) => val.is_from_offline,
+            Self::PollOptionAdded(val) => val.is_from_offline,
+            Self::PollOptionDeleted(val) => val.is_from_offline,
             Self::ProximityAlertTriggered(val) => val.is_from_offline,
             Self::RefundedPayment(val) => val.is_from_offline,
             Self::Sticker(val) => val.is_from_offline,
@@ -1883,6 +1940,7 @@ impl Message {
             Self::Invoice(val) => val.is_paid_post,
             Self::LeftChatMember(val) => val.is_paid_post,
             Self::Location(val) => val.is_paid_post,
+            Self::ManagedBotCreated(val) => val.is_paid_post,
             Self::MessageAutoDeleteTimerChanged(val) => val.is_paid_post,
             Self::MigrateFromChatId(val) => val.is_paid_post,
             Self::MigrateToChatId(val) => val.is_paid_post,
@@ -1895,6 +1953,8 @@ impl Message {
             Self::Photo(val) => val.is_paid_post,
             Self::PinnedMessage(val) => val.is_paid_post,
             Self::Poll(val) => val.is_paid_post,
+            Self::PollOptionAdded(val) => val.is_paid_post,
+            Self::PollOptionDeleted(val) => val.is_paid_post,
             Self::ProximityAlertTriggered(val) => val.is_paid_post,
             Self::RefundedPayment(val) => val.is_paid_post,
             Self::Sticker(val) => val.is_paid_post,
@@ -1962,6 +2022,7 @@ impl Message {
             Self::Invoice(val) => val.is_topic_message,
             Self::LeftChatMember(val) => val.is_topic_message,
             Self::Location(val) => val.is_topic_message,
+            Self::ManagedBotCreated(val) => val.is_topic_message,
             Self::MessageAutoDeleteTimerChanged(val) => val.is_topic_message,
             Self::MigrateFromChatId(val) => val.is_topic_message,
             Self::MigrateToChatId(val) => val.is_topic_message,
@@ -1974,6 +2035,8 @@ impl Message {
             Self::Photo(val) => val.is_topic_message,
             Self::PinnedMessage(val) => val.is_topic_message,
             Self::Poll(val) => val.is_topic_message,
+            Self::PollOptionAdded(val) => val.is_topic_message,
+            Self::PollOptionDeleted(val) => val.is_topic_message,
             Self::ProximityAlertTriggered(val) => val.is_topic_message,
             Self::RefundedPayment(val) => val.is_topic_message,
             Self::Sticker(val) => val.is_topic_message,
@@ -2052,6 +2115,7 @@ impl Message {
             Self::Invoice(val) => val.link_preview_options.as_ref(),
             Self::LeftChatMember(val) => val.link_preview_options.as_ref(),
             Self::Location(val) => val.link_preview_options.as_ref(),
+            Self::ManagedBotCreated(val) => val.link_preview_options.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.link_preview_options.as_ref(),
             Self::MigrateFromChatId(val) => val.link_preview_options.as_ref(),
             Self::MigrateToChatId(val) => val.link_preview_options.as_ref(),
@@ -2064,6 +2128,8 @@ impl Message {
             Self::Photo(val) => val.link_preview_options.as_ref(),
             Self::PinnedMessage(val) => val.link_preview_options.as_ref(),
             Self::Poll(val) => val.link_preview_options.as_ref(),
+            Self::PollOptionAdded(val) => val.link_preview_options.as_ref(),
+            Self::PollOptionDeleted(val) => val.link_preview_options.as_ref(),
             Self::ProximityAlertTriggered(val) => val.link_preview_options.as_ref(),
             Self::RefundedPayment(val) => val.link_preview_options.as_ref(),
             Self::Sticker(val) => val.link_preview_options.as_ref(),
@@ -2098,6 +2164,17 @@ impl Message {
     pub fn location(&self) -> Option<&crate::types::Location> {
         match self {
             Self::Location(val) => Some(&val.location),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `managed_bot_created`.
+    ///
+    /// Service message: user created a bot that will be managed by the current bot
+    #[must_use]
+    pub fn managed_bot_created(&self) -> Option<&crate::types::ManagedBotCreated> {
+        match self {
+            Self::ManagedBotCreated(val) => Some(&val.managed_bot_created),
             _ => None,
         }
     }
@@ -2142,6 +2219,7 @@ impl Message {
             Self::Invoice(val) => val.media_group_id.as_deref(),
             Self::LeftChatMember(val) => val.media_group_id.as_deref(),
             Self::Location(val) => val.media_group_id.as_deref(),
+            Self::ManagedBotCreated(val) => val.media_group_id.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.media_group_id.as_deref(),
             Self::MigrateFromChatId(val) => val.media_group_id.as_deref(),
             Self::MigrateToChatId(val) => val.media_group_id.as_deref(),
@@ -2154,6 +2232,8 @@ impl Message {
             Self::Photo(val) => val.media_group_id.as_deref(),
             Self::PinnedMessage(val) => val.media_group_id.as_deref(),
             Self::Poll(val) => val.media_group_id.as_deref(),
+            Self::PollOptionAdded(val) => val.media_group_id.as_deref(),
+            Self::PollOptionDeleted(val) => val.media_group_id.as_deref(),
             Self::ProximityAlertTriggered(val) => val.media_group_id.as_deref(),
             Self::RefundedPayment(val) => val.media_group_id.as_deref(),
             Self::Sticker(val) => val.media_group_id.as_deref(),
@@ -2236,6 +2316,7 @@ impl Message {
             Self::Invoice(val) => val.message_id,
             Self::LeftChatMember(val) => val.message_id,
             Self::Location(val) => val.message_id,
+            Self::ManagedBotCreated(val) => val.message_id,
             Self::MessageAutoDeleteTimerChanged(val) => val.message_id,
             Self::MigrateFromChatId(val) => val.message_id,
             Self::MigrateToChatId(val) => val.message_id,
@@ -2248,6 +2329,8 @@ impl Message {
             Self::Photo(val) => val.message_id,
             Self::PinnedMessage(val) => val.message_id,
             Self::Poll(val) => val.message_id,
+            Self::PollOptionAdded(val) => val.message_id,
+            Self::PollOptionDeleted(val) => val.message_id,
             Self::ProximityAlertTriggered(val) => val.message_id,
             Self::RefundedPayment(val) => val.message_id,
             Self::Sticker(val) => val.message_id,
@@ -2315,6 +2398,7 @@ impl Message {
             Self::Invoice(val) => val.message_thread_id,
             Self::LeftChatMember(val) => val.message_thread_id,
             Self::Location(val) => val.message_thread_id,
+            Self::ManagedBotCreated(val) => val.message_thread_id,
             Self::MessageAutoDeleteTimerChanged(val) => val.message_thread_id,
             Self::MigrateFromChatId(val) => val.message_thread_id,
             Self::MigrateToChatId(val) => val.message_thread_id,
@@ -2327,6 +2411,8 @@ impl Message {
             Self::Photo(val) => val.message_thread_id,
             Self::PinnedMessage(val) => val.message_thread_id,
             Self::Poll(val) => val.message_thread_id,
+            Self::PollOptionAdded(val) => val.message_thread_id,
+            Self::PollOptionDeleted(val) => val.message_thread_id,
             Self::ProximityAlertTriggered(val) => val.message_thread_id,
             Self::RefundedPayment(val) => val.message_thread_id,
             Self::Sticker(val) => val.message_thread_id,
@@ -2471,6 +2557,7 @@ impl Message {
             Self::Invoice(val) => val.paid_star_count,
             Self::LeftChatMember(val) => val.paid_star_count,
             Self::Location(val) => val.paid_star_count,
+            Self::ManagedBotCreated(val) => val.paid_star_count,
             Self::MessageAutoDeleteTimerChanged(val) => val.paid_star_count,
             Self::MigrateFromChatId(val) => val.paid_star_count,
             Self::MigrateToChatId(val) => val.paid_star_count,
@@ -2483,6 +2570,8 @@ impl Message {
             Self::Photo(val) => val.paid_star_count,
             Self::PinnedMessage(val) => val.paid_star_count,
             Self::Poll(val) => val.paid_star_count,
+            Self::PollOptionAdded(val) => val.paid_star_count,
+            Self::PollOptionDeleted(val) => val.paid_star_count,
             Self::ProximityAlertTriggered(val) => val.paid_star_count,
             Self::RefundedPayment(val) => val.paid_star_count,
             Self::Sticker(val) => val.paid_star_count,
@@ -2554,6 +2643,28 @@ impl Message {
         }
     }
 
+    /// Helper method for field `poll_option_added`.
+    ///
+    /// Service message: answer option was added to a poll
+    #[must_use]
+    pub fn poll_option_added(&self) -> Option<&crate::types::PollOptionAdded> {
+        match self {
+            Self::PollOptionAdded(val) => Some(&val.poll_option_added),
+            _ => None,
+        }
+    }
+
+    /// Helper method for field `poll_option_deleted`.
+    ///
+    /// Service message: answer option was deleted from a poll
+    #[must_use]
+    pub fn poll_option_deleted(&self) -> Option<&crate::types::PollOptionDeleted> {
+        match self {
+            Self::PollOptionDeleted(val) => Some(&val.poll_option_deleted),
+            _ => None,
+        }
+    }
+
     /// Helper method for field `proximity_alert_triggered`.
     ///
     /// Service message. A user in the chat triggered another user's proximity alert while sharing Live Location.
@@ -2605,6 +2716,7 @@ impl Message {
             Self::Invoice(val) => val.quote.as_ref(),
             Self::LeftChatMember(val) => val.quote.as_ref(),
             Self::Location(val) => val.quote.as_ref(),
+            Self::ManagedBotCreated(val) => val.quote.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.quote.as_ref(),
             Self::MigrateFromChatId(val) => val.quote.as_ref(),
             Self::MigrateToChatId(val) => val.quote.as_ref(),
@@ -2617,6 +2729,8 @@ impl Message {
             Self::Photo(val) => val.quote.as_ref(),
             Self::PinnedMessage(val) => val.quote.as_ref(),
             Self::Poll(val) => val.quote.as_ref(),
+            Self::PollOptionAdded(val) => val.quote.as_ref(),
+            Self::PollOptionDeleted(val) => val.quote.as_ref(),
             Self::ProximityAlertTriggered(val) => val.quote.as_ref(),
             Self::RefundedPayment(val) => val.quote.as_ref(),
             Self::Sticker(val) => val.quote.as_ref(),
@@ -2695,6 +2809,7 @@ impl Message {
             Self::Invoice(val) => val.reply_markup.as_ref(),
             Self::LeftChatMember(val) => val.reply_markup.as_ref(),
             Self::Location(val) => val.reply_markup.as_ref(),
+            Self::ManagedBotCreated(val) => val.reply_markup.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.reply_markup.as_ref(),
             Self::MigrateFromChatId(val) => val.reply_markup.as_ref(),
             Self::MigrateToChatId(val) => val.reply_markup.as_ref(),
@@ -2707,6 +2822,8 @@ impl Message {
             Self::Photo(val) => val.reply_markup.as_ref(),
             Self::PinnedMessage(val) => val.reply_markup.as_ref(),
             Self::Poll(val) => val.reply_markup.as_ref(),
+            Self::PollOptionAdded(val) => val.reply_markup.as_ref(),
+            Self::PollOptionDeleted(val) => val.reply_markup.as_ref(),
             Self::ProximityAlertTriggered(val) => val.reply_markup.as_ref(),
             Self::RefundedPayment(val) => val.reply_markup.as_ref(),
             Self::Sticker(val) => val.reply_markup.as_ref(),
@@ -2774,6 +2891,7 @@ impl Message {
             Self::Invoice(val) => val.reply_to_checklist_task_id,
             Self::LeftChatMember(val) => val.reply_to_checklist_task_id,
             Self::Location(val) => val.reply_to_checklist_task_id,
+            Self::ManagedBotCreated(val) => val.reply_to_checklist_task_id,
             Self::MessageAutoDeleteTimerChanged(val) => val.reply_to_checklist_task_id,
             Self::MigrateFromChatId(val) => val.reply_to_checklist_task_id,
             Self::MigrateToChatId(val) => val.reply_to_checklist_task_id,
@@ -2786,6 +2904,8 @@ impl Message {
             Self::Photo(val) => val.reply_to_checklist_task_id,
             Self::PinnedMessage(val) => val.reply_to_checklist_task_id,
             Self::Poll(val) => val.reply_to_checklist_task_id,
+            Self::PollOptionAdded(val) => val.reply_to_checklist_task_id,
+            Self::PollOptionDeleted(val) => val.reply_to_checklist_task_id,
             Self::ProximityAlertTriggered(val) => val.reply_to_checklist_task_id,
             Self::RefundedPayment(val) => val.reply_to_checklist_task_id,
             Self::Sticker(val) => val.reply_to_checklist_task_id,
@@ -2853,6 +2973,7 @@ impl Message {
             Self::Invoice(val) => val.reply_to_message.as_deref(),
             Self::LeftChatMember(val) => val.reply_to_message.as_deref(),
             Self::Location(val) => val.reply_to_message.as_deref(),
+            Self::ManagedBotCreated(val) => val.reply_to_message.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.reply_to_message.as_deref(),
             Self::MigrateFromChatId(val) => val.reply_to_message.as_deref(),
             Self::MigrateToChatId(val) => val.reply_to_message.as_deref(),
@@ -2865,6 +2986,8 @@ impl Message {
             Self::Photo(val) => val.reply_to_message.as_deref(),
             Self::PinnedMessage(val) => val.reply_to_message.as_deref(),
             Self::Poll(val) => val.reply_to_message.as_deref(),
+            Self::PollOptionAdded(val) => val.reply_to_message.as_deref(),
+            Self::PollOptionDeleted(val) => val.reply_to_message.as_deref(),
             Self::ProximityAlertTriggered(val) => val.reply_to_message.as_deref(),
             Self::RefundedPayment(val) => val.reply_to_message.as_deref(),
             Self::Sticker(val) => val.reply_to_message.as_deref(),
@@ -2889,6 +3012,88 @@ impl Message {
             Self::Voice(val) => val.reply_to_message.as_deref(),
             Self::WebAppData(val) => val.reply_to_message.as_deref(),
             Self::WriteAccessAllowed(val) => val.reply_to_message.as_deref(),
+        }
+    }
+
+    /// Helper method for field `reply_to_poll_option_id`.
+    ///
+    /// Persistent identifier of the specific poll option that is being replied to
+    #[must_use]
+    pub fn reply_to_poll_option_id(&self) -> Option<&str> {
+        match self {
+            Self::Animation(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Audio(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::BoostAdded(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::ChannelChatCreated(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::ChatBackgroundSet(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::ChatOwnerChanged(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::ChatOwnerLeft(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::ChatShared(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Checklist(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::ChecklistTasksAdded(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::ChecklistTasksDone(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::ConnectedWebsite(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Contact(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::DeleteChatPhoto(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Dice(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::DirectMessagePriceChanged(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Document(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::ForumTopicClosed(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::ForumTopicCreated(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::ForumTopicEdited(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::ForumTopicReopened(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Game(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::GeneralForumTopicHidden(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::GeneralForumTopicUnhidden(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Gift(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::GiftUpgradeSent(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Giveaway(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::GiveawayCompleted(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::GiveawayCreated(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::GiveawayWinners(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::GroupChatCreated(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Invoice(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::LeftChatMember(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Location(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::ManagedBotCreated(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::MessageAutoDeleteTimerChanged(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::MigrateFromChatId(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::MigrateToChatId(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::NewChatMembers(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::NewChatPhoto(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::NewChatTitle(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::PaidMedia(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::PaidMessagePriceChanged(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::PassportData(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Photo(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::PinnedMessage(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Poll(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::PollOptionAdded(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::PollOptionDeleted(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::ProximityAlertTriggered(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::RefundedPayment(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Sticker(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Story(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::SuccessfulPayment(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::SuggestedPostApprovalFailed(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::SuggestedPostApproved(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::SuggestedPostDeclined(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::SuggestedPostPaid(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::SuggestedPostRefunded(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::SupergroupChatCreated(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Text(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::UniqueGift(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::UsersShared(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Venue(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Video(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::VideoChatEnded(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::VideoChatParticipantsInvited(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::VideoChatScheduled(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::VideoChatStarted(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::VideoNote(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::Voice(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::WebAppData(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::WriteAccessAllowed(val) => val.reply_to_poll_option_id.as_deref(),
         }
     }
 
@@ -2932,6 +3137,7 @@ impl Message {
             Self::Invoice(val) => val.reply_to_story.as_ref(),
             Self::LeftChatMember(val) => val.reply_to_story.as_ref(),
             Self::Location(val) => val.reply_to_story.as_ref(),
+            Self::ManagedBotCreated(val) => val.reply_to_story.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.reply_to_story.as_ref(),
             Self::MigrateFromChatId(val) => val.reply_to_story.as_ref(),
             Self::MigrateToChatId(val) => val.reply_to_story.as_ref(),
@@ -2944,6 +3150,8 @@ impl Message {
             Self::Photo(val) => val.reply_to_story.as_ref(),
             Self::PinnedMessage(val) => val.reply_to_story.as_ref(),
             Self::Poll(val) => val.reply_to_story.as_ref(),
+            Self::PollOptionAdded(val) => val.reply_to_story.as_ref(),
+            Self::PollOptionDeleted(val) => val.reply_to_story.as_ref(),
             Self::ProximityAlertTriggered(val) => val.reply_to_story.as_ref(),
             Self::RefundedPayment(val) => val.reply_to_story.as_ref(),
             Self::Sticker(val) => val.reply_to_story.as_ref(),
@@ -3011,6 +3219,7 @@ impl Message {
             Self::Invoice(val) => val.sender_boost_count,
             Self::LeftChatMember(val) => val.sender_boost_count,
             Self::Location(val) => val.sender_boost_count,
+            Self::ManagedBotCreated(val) => val.sender_boost_count,
             Self::MessageAutoDeleteTimerChanged(val) => val.sender_boost_count,
             Self::MigrateFromChatId(val) => val.sender_boost_count,
             Self::MigrateToChatId(val) => val.sender_boost_count,
@@ -3023,6 +3232,8 @@ impl Message {
             Self::Photo(val) => val.sender_boost_count,
             Self::PinnedMessage(val) => val.sender_boost_count,
             Self::Poll(val) => val.sender_boost_count,
+            Self::PollOptionAdded(val) => val.sender_boost_count,
+            Self::PollOptionDeleted(val) => val.sender_boost_count,
             Self::ProximityAlertTriggered(val) => val.sender_boost_count,
             Self::RefundedPayment(val) => val.sender_boost_count,
             Self::Sticker(val) => val.sender_boost_count,
@@ -3090,6 +3301,7 @@ impl Message {
             Self::Invoice(val) => val.sender_business_bot.as_deref(),
             Self::LeftChatMember(val) => val.sender_business_bot.as_deref(),
             Self::Location(val) => val.sender_business_bot.as_deref(),
+            Self::ManagedBotCreated(val) => val.sender_business_bot.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.sender_business_bot.as_deref(),
             Self::MigrateFromChatId(val) => val.sender_business_bot.as_deref(),
             Self::MigrateToChatId(val) => val.sender_business_bot.as_deref(),
@@ -3102,6 +3314,8 @@ impl Message {
             Self::Photo(val) => val.sender_business_bot.as_deref(),
             Self::PinnedMessage(val) => val.sender_business_bot.as_deref(),
             Self::Poll(val) => val.sender_business_bot.as_deref(),
+            Self::PollOptionAdded(val) => val.sender_business_bot.as_deref(),
+            Self::PollOptionDeleted(val) => val.sender_business_bot.as_deref(),
             Self::ProximityAlertTriggered(val) => val.sender_business_bot.as_deref(),
             Self::RefundedPayment(val) => val.sender_business_bot.as_deref(),
             Self::Sticker(val) => val.sender_business_bot.as_deref(),
@@ -3169,6 +3383,7 @@ impl Message {
             Self::Invoice(val) => val.sender_chat.as_deref(),
             Self::LeftChatMember(val) => val.sender_chat.as_deref(),
             Self::Location(val) => val.sender_chat.as_deref(),
+            Self::ManagedBotCreated(val) => val.sender_chat.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.sender_chat.as_deref(),
             Self::MigrateFromChatId(val) => val.sender_chat.as_deref(),
             Self::MigrateToChatId(val) => val.sender_chat.as_deref(),
@@ -3181,6 +3396,8 @@ impl Message {
             Self::Photo(val) => val.sender_chat.as_deref(),
             Self::PinnedMessage(val) => val.sender_chat.as_deref(),
             Self::Poll(val) => val.sender_chat.as_deref(),
+            Self::PollOptionAdded(val) => val.sender_chat.as_deref(),
+            Self::PollOptionDeleted(val) => val.sender_chat.as_deref(),
             Self::ProximityAlertTriggered(val) => val.sender_chat.as_deref(),
             Self::RefundedPayment(val) => val.sender_chat.as_deref(),
             Self::Sticker(val) => val.sender_chat.as_deref(),
@@ -3248,6 +3465,7 @@ impl Message {
             Self::Invoice(val) => val.sender_tag.as_deref(),
             Self::LeftChatMember(val) => val.sender_tag.as_deref(),
             Self::Location(val) => val.sender_tag.as_deref(),
+            Self::ManagedBotCreated(val) => val.sender_tag.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.sender_tag.as_deref(),
             Self::MigrateFromChatId(val) => val.sender_tag.as_deref(),
             Self::MigrateToChatId(val) => val.sender_tag.as_deref(),
@@ -3260,6 +3478,8 @@ impl Message {
             Self::Photo(val) => val.sender_tag.as_deref(),
             Self::PinnedMessage(val) => val.sender_tag.as_deref(),
             Self::Poll(val) => val.sender_tag.as_deref(),
+            Self::PollOptionAdded(val) => val.sender_tag.as_deref(),
+            Self::PollOptionDeleted(val) => val.sender_tag.as_deref(),
             Self::ProximityAlertTriggered(val) => val.sender_tag.as_deref(),
             Self::RefundedPayment(val) => val.sender_tag.as_deref(),
             Self::Sticker(val) => val.sender_tag.as_deref(),
@@ -3327,6 +3547,7 @@ impl Message {
             Self::Invoice(val) => val.show_caption_above_media,
             Self::LeftChatMember(val) => val.show_caption_above_media,
             Self::Location(val) => val.show_caption_above_media,
+            Self::ManagedBotCreated(val) => val.show_caption_above_media,
             Self::MessageAutoDeleteTimerChanged(val) => val.show_caption_above_media,
             Self::MigrateFromChatId(val) => val.show_caption_above_media,
             Self::MigrateToChatId(val) => val.show_caption_above_media,
@@ -3339,6 +3560,8 @@ impl Message {
             Self::Photo(val) => val.show_caption_above_media,
             Self::PinnedMessage(val) => val.show_caption_above_media,
             Self::Poll(val) => val.show_caption_above_media,
+            Self::PollOptionAdded(val) => val.show_caption_above_media,
+            Self::PollOptionDeleted(val) => val.show_caption_above_media,
             Self::ProximityAlertTriggered(val) => val.show_caption_above_media,
             Self::RefundedPayment(val) => val.show_caption_above_media,
             Self::Sticker(val) => val.show_caption_above_media,
@@ -3474,6 +3697,7 @@ impl Message {
             Self::Invoice(val) => val.suggested_post_info.as_ref(),
             Self::LeftChatMember(val) => val.suggested_post_info.as_ref(),
             Self::Location(val) => val.suggested_post_info.as_ref(),
+            Self::ManagedBotCreated(val) => val.suggested_post_info.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.suggested_post_info.as_ref(),
             Self::MigrateFromChatId(val) => val.suggested_post_info.as_ref(),
             Self::MigrateToChatId(val) => val.suggested_post_info.as_ref(),
@@ -3486,6 +3710,8 @@ impl Message {
             Self::Photo(val) => val.suggested_post_info.as_ref(),
             Self::PinnedMessage(val) => val.suggested_post_info.as_ref(),
             Self::Poll(val) => val.suggested_post_info.as_ref(),
+            Self::PollOptionAdded(val) => val.suggested_post_info.as_ref(),
+            Self::PollOptionDeleted(val) => val.suggested_post_info.as_ref(),
             Self::ProximityAlertTriggered(val) => val.suggested_post_info.as_ref(),
             Self::RefundedPayment(val) => val.suggested_post_info.as_ref(),
             Self::Sticker(val) => val.suggested_post_info.as_ref(),
@@ -3630,6 +3856,7 @@ impl Message {
             Self::Invoice(val) => val.via_bot.as_deref(),
             Self::LeftChatMember(val) => val.via_bot.as_deref(),
             Self::Location(val) => val.via_bot.as_deref(),
+            Self::ManagedBotCreated(val) => val.via_bot.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.via_bot.as_deref(),
             Self::MigrateFromChatId(val) => val.via_bot.as_deref(),
             Self::MigrateToChatId(val) => val.via_bot.as_deref(),
@@ -3642,6 +3869,8 @@ impl Message {
             Self::Photo(val) => val.via_bot.as_deref(),
             Self::PinnedMessage(val) => val.via_bot.as_deref(),
             Self::Poll(val) => val.via_bot.as_deref(),
+            Self::PollOptionAdded(val) => val.via_bot.as_deref(),
+            Self::PollOptionDeleted(val) => val.via_bot.as_deref(),
             Self::ProximityAlertTriggered(val) => val.via_bot.as_deref(),
             Self::RefundedPayment(val) => val.via_bot.as_deref(),
             Self::Sticker(val) => val.via_bot.as_deref(),
@@ -3806,6 +4035,18 @@ impl Message {
         }
     }
 
+    /// Helper method for nested field `allows_revoting`.
+    #[must_use]
+    pub fn allows_revoting(&self) -> Option<bool> {
+        match self {
+            Self::Poll(val) => {
+                let inner = val.poll.as_ref();
+                Some(crate::types::Poll::allows_revoting(inner))
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `amount`.
     #[must_use]
     pub fn amount(&self) -> Option<i64> {
@@ -3837,6 +4078,18 @@ impl Message {
             Self::BoostAdded(val) => {
                 let inner = &val.boost_added;
                 Some(inner.boost_count)
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `bot`.
+    #[must_use]
+    pub fn bot(&self) -> Option<&crate::types::User> {
+        match self {
+            Self::ManagedBotCreated(val) => {
+                let inner = &val.managed_bot_created;
+                Some(inner.bot.as_ref())
             }
             _ => None,
         }
@@ -3950,13 +4203,13 @@ impl Message {
         }
     }
 
-    /// Helper method for nested field `correct_option_id`.
+    /// Helper method for nested field `correct_option_ids`.
     #[must_use]
-    pub fn correct_option_id(&self) -> Option<i64> {
+    pub fn correct_option_ids(&self) -> Option<&[i64]> {
         match self {
             Self::Poll(val) => {
                 let inner = val.poll.as_ref();
-                crate::types::Poll::correct_option_id(inner)
+                crate::types::Poll::correct_option_ids(inner)
             }
             _ => None,
         }
@@ -4045,6 +4298,22 @@ impl Message {
             Self::Invoice(val) => {
                 let inner = &val.invoice;
                 Some(inner.description.as_ref())
+            }
+            Self::Poll(val) => {
+                let inner = val.poll.as_ref();
+                crate::types::Poll::description(inner)
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `description_entities`.
+    #[must_use]
+    pub fn description_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        match self {
+            Self::Poll(val) => {
+                let inner = val.poll.as_ref();
+                crate::types::Poll::description_entities(inner)
             }
             _ => None,
         }
@@ -4854,6 +5123,54 @@ impl Message {
         }
     }
 
+    /// Helper method for nested field `option_persistent_id`.
+    #[must_use]
+    pub fn option_persistent_id(&self) -> Option<&str> {
+        match self {
+            Self::PollOptionAdded(val) => {
+                let inner = &val.poll_option_added;
+                Some(inner.option_persistent_id.as_ref())
+            }
+            Self::PollOptionDeleted(val) => {
+                let inner = &val.poll_option_deleted;
+                Some(inner.option_persistent_id.as_ref())
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `option_text`.
+    #[must_use]
+    pub fn option_text(&self) -> Option<&str> {
+        match self {
+            Self::PollOptionAdded(val) => {
+                let inner = &val.poll_option_added;
+                Some(inner.option_text.as_ref())
+            }
+            Self::PollOptionDeleted(val) => {
+                let inner = &val.poll_option_deleted;
+                Some(inner.option_text.as_ref())
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `option_text_entities`.
+    #[must_use]
+    pub fn option_text_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        match self {
+            Self::PollOptionAdded(val) => {
+                let inner = &val.poll_option_added;
+                inner.option_text_entities.as_deref()
+            }
+            Self::PollOptionDeleted(val) => {
+                let inner = &val.poll_option_deleted;
+                inner.option_text_entities.as_deref()
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `options`.
     #[must_use]
     pub fn options(&self) -> Option<&[crate::types::PollOption]> {
@@ -4953,6 +5270,22 @@ impl Message {
             Self::Contact(val) => {
                 let inner = &val.contact;
                 Some(inner.phone_number.as_ref())
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `poll_message`.
+    #[must_use]
+    pub fn poll_message(&self) -> Option<&crate::types::MaybeInaccessibleMessage> {
+        match self {
+            Self::PollOptionAdded(val) => {
+                let inner = &val.poll_option_added;
+                inner.poll_message.as_deref()
+            }
+            Self::PollOptionDeleted(val) => {
+                let inner = &val.poll_option_deleted;
+                inner.poll_message.as_deref()
             }
             _ => None,
         }
@@ -6295,6 +6628,25 @@ impl TryFrom<Message> for crate::types::MessageLocation {
         }
     }
 }
+impl From<crate::types::MessageManagedBotCreated> for Message {
+    fn from(val: crate::types::MessageManagedBotCreated) -> Self {
+        Self::ManagedBotCreated(val)
+    }
+}
+impl TryFrom<Message> for crate::types::MessageManagedBotCreated {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Message) -> Result<Self, Self::Error> {
+        if let Message::ManagedBotCreated(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Message),
+                stringify!(MessageManagedBotCreated),
+            ))
+        }
+    }
+}
 impl From<crate::types::MessageMessageAutoDeleteTimerChanged> for Message {
     fn from(val: crate::types::MessageMessageAutoDeleteTimerChanged) -> Self {
         Self::MessageAutoDeleteTimerChanged(val)
@@ -6519,6 +6871,44 @@ impl TryFrom<Message> for crate::types::MessagePoll {
             Err(Self::Error::new(
                 stringify!(Message),
                 stringify!(MessagePoll),
+            ))
+        }
+    }
+}
+impl From<crate::types::MessagePollOptionAdded> for Message {
+    fn from(val: crate::types::MessagePollOptionAdded) -> Self {
+        Self::PollOptionAdded(val)
+    }
+}
+impl TryFrom<Message> for crate::types::MessagePollOptionAdded {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Message) -> Result<Self, Self::Error> {
+        if let Message::PollOptionAdded(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Message),
+                stringify!(MessagePollOptionAdded),
+            ))
+        }
+    }
+}
+impl From<crate::types::MessagePollOptionDeleted> for Message {
+    fn from(val: crate::types::MessagePollOptionDeleted) -> Self {
+        Self::PollOptionDeleted(val)
+    }
+}
+impl TryFrom<Message> for crate::types::MessagePollOptionDeleted {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Message) -> Result<Self, Self::Error> {
+        if let Message::PollOptionDeleted(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Message),
+                stringify!(MessagePollOptionDeleted),
             ))
         }
     }

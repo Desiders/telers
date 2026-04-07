@@ -11,7 +11,7 @@ pub struct InputChecklistTask {
     /// Mode for parsing entities in the text. See formatting options for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parse_mode: Option<Box<str>>,
-    /// List of special entities that appear in the text, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities are allowed.
+    /// List of special entities that appear in the text, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are allowed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text_entities: Option<Box<[crate::types::MessageEntity]>>,
 }
@@ -66,7 +66,7 @@ impl InputChecklistTask {
         this
     }
 
-    /// List of special entities that appear in the text, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities are allowed.
+    /// List of special entities that appear in the text, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are allowed.
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -84,7 +84,7 @@ impl InputChecklistTask {
         this
     }
 
-    /// List of special entities that appear in the text, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities are allowed.
+    /// List of special entities that appear in the text, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are allowed.
     ///
     /// # Notes
     /// Adds a single element.
@@ -102,7 +102,7 @@ impl InputChecklistTask {
         this
     }
 
-    /// List of special entities that appear in the text, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, and `custom_emoji` entities are allowed.
+    /// List of special entities that appear in the text, which can be specified instead of `parse_mode`. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are allowed.
     ///
     /// # Notes
     /// Adds a single element.

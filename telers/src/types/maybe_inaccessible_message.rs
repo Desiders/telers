@@ -609,6 +609,17 @@ impl MaybeInaccessibleMessage {
         }
     }
 
+    /// Helper method for field `managed_bot_created`.
+    ///
+    /// Service message: user created a bot that will be managed by the current bot
+    #[must_use]
+    pub fn managed_bot_created(&self) -> Option<&crate::types::ManagedBotCreated> {
+        match self {
+            Self::Message(val) => crate::types::Message::managed_bot_created(val),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
     /// Helper method for field `media_group_id`.
     ///
     /// The unique identifier inside this chat of a media message group this message belongs to
@@ -789,6 +800,28 @@ impl MaybeInaccessibleMessage {
         }
     }
 
+    /// Helper method for field `poll_option_added`.
+    ///
+    /// Service message: answer option was added to a poll
+    #[must_use]
+    pub fn poll_option_added(&self) -> Option<&crate::types::PollOptionAdded> {
+        match self {
+            Self::Message(val) => crate::types::Message::poll_option_added(val),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for field `poll_option_deleted`.
+    ///
+    /// Service message: answer option was deleted from a poll
+    #[must_use]
+    pub fn poll_option_deleted(&self) -> Option<&crate::types::PollOptionDeleted> {
+        match self {
+            Self::Message(val) => crate::types::Message::poll_option_deleted(val),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
     /// Helper method for field `proximity_alert_triggered`.
     ///
     /// Service message. A user in the chat triggered another user's proximity alert while sharing Live Location.
@@ -851,6 +884,17 @@ impl MaybeInaccessibleMessage {
     pub fn reply_to_message(&self) -> Option<&crate::types::Message> {
         match self {
             Self::Message(val) => crate::types::Message::reply_to_message(val),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for field `reply_to_poll_option_id`.
+    ///
+    /// Persistent identifier of the specific poll option that is being replied to
+    #[must_use]
+    pub fn reply_to_poll_option_id(&self) -> Option<&str> {
+        match self {
+            Self::Message(val) => crate::types::Message::reply_to_poll_option_id(val),
             Self::InaccessibleMessage(_) => None,
         }
     }
@@ -1221,6 +1265,17 @@ impl MaybeInaccessibleMessage {
         }
     }
 
+    /// Helper method for nested field `allows_revoting`.
+    #[must_use]
+    pub fn allows_revoting(&self) -> Option<bool> {
+        match self {
+            Self::Message(val) => {
+                crate::types::Message::poll(val).map(crate::types::Poll::allows_revoting)
+            }
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
     /// Helper method for nested field `amount`.
     #[must_use]
     pub fn amount(&self) -> Option<i64> {
@@ -1248,6 +1303,17 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => {
                 crate::types::Message::boost_added(val).map(|inner| inner.boost_count)
+            }
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for nested field `bot`.
+    #[must_use]
+    pub fn bot(&self) -> Option<&crate::types::User> {
+        match self {
+            Self::Message(val) => {
+                crate::types::Message::managed_bot_created(val).map(|inner| inner.bot.as_ref())
             }
             Self::InaccessibleMessage(_) => None,
         }
@@ -1307,12 +1373,12 @@ impl MaybeInaccessibleMessage {
         }
     }
 
-    /// Helper method for nested field `correct_option_id`.
+    /// Helper method for nested field `correct_option_ids`.
     #[must_use]
-    pub fn correct_option_id(&self) -> Option<i64> {
+    pub fn correct_option_ids(&self) -> Option<&[i64]> {
         match self {
             Self::Message(val) => {
-                crate::types::Message::poll(val).and_then(crate::types::Poll::correct_option_id)
+                crate::types::Message::poll(val).and_then(crate::types::Poll::correct_option_ids)
             }
             Self::InaccessibleMessage(_) => None,
         }
@@ -1357,6 +1423,17 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => {
                 crate::types::Message::sticker(val).and_then(crate::types::Sticker::custom_emoji_id)
+            }
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for nested field `description_entities`.
+    #[must_use]
+    pub fn description_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        match self {
+            Self::Message(val) => {
+                crate::types::Message::poll(val).and_then(crate::types::Poll::description_entities)
             }
             Self::InaccessibleMessage(_) => None,
         }

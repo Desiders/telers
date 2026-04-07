@@ -459,6 +459,18 @@ impl ExternalReplyInfo {
         }
     }
 
+    /// Helper method for nested field `allows_revoting`.
+    #[must_use]
+    pub fn allows_revoting(&self) -> Option<bool> {
+        match self {
+            Self::Poll(val) => {
+                let inner = val.poll.as_ref();
+                Some(crate::types::Poll::allows_revoting(inner))
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `author_signature`.
     #[must_use]
     pub fn author_signature(&self) -> Option<&str> {
@@ -489,13 +501,13 @@ impl ExternalReplyInfo {
         }
     }
 
-    /// Helper method for nested field `correct_option_id`.
+    /// Helper method for nested field `correct_option_ids`.
     #[must_use]
-    pub fn correct_option_id(&self) -> Option<i64> {
+    pub fn correct_option_ids(&self) -> Option<&[i64]> {
         match self {
             Self::Poll(val) => {
                 let inner = val.poll.as_ref();
-                crate::types::Poll::correct_option_id(inner)
+                crate::types::Poll::correct_option_ids(inner)
             }
             _ => None,
         }
@@ -566,6 +578,22 @@ impl ExternalReplyInfo {
             Self::Invoice(val) => {
                 let inner = &val.invoice;
                 Some(inner.description.as_ref())
+            }
+            Self::Poll(val) => {
+                let inner = val.poll.as_ref();
+                crate::types::Poll::description(inner)
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `description_entities`.
+    #[must_use]
+    pub fn description_entities(&self) -> Option<&[crate::types::MessageEntity]> {
+        match self {
+            Self::Poll(val) => {
+                let inner = val.poll.as_ref();
+                crate::types::Poll::description_entities(inner)
             }
             _ => None,
         }
