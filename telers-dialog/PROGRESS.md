@@ -9,70 +9,107 @@ Updated: 2026-04-07 (UTC)
 
 ## Current architecture
 - Runtime core:
-- `src/manager.rs`
-- `src/message_manager.rs`
-- `src/dialog.rs`
-- `src/window.rs`
+  - `src/manager.rs`
+  - `src/message_manager.rs`
+  - `src/dialog.rs`
+  - `src/window.rs`
 - State model:
-- `src/entities/context.rs`
-- `src/entities/stack.rs`
-- `src/entities/messages.rs`
-- `src/entities/events.rs`
+  - `src/entities/context.rs`
+  - `src/entities/stack.rs`
+  - `src/entities/messages.rs`
+  - `src/entities/events.rs`
 - Widget surface:
-- `src/widgets/text.rs`
-- `src/widgets/kbd.rs`
-- `src/widgets/input.rs`
-- `src/widgets/list.rs`
-- `src/widgets/widget.rs`
+  - `src/widgets/text.rs`
+  - `src/widgets/kbd.rs`
+  - `src/widgets/input.rs`
+  - `src/widgets/list.rs`
+  - `src/widgets/widget.rs`
+  - `src/widgets/stateful_select.rs` ← NEW
+  - `src/widgets/pager.rs` ← NEW
 - Integration:
-- `src/setup.rs`
+  - `src/setup.rs`
 
 ## Implemented behavior
 - `DialogRegistry` indexes dialogs by state and rejects duplicates.
 - Observer-level integration helper exists: `DialogObserverExt::setup_dialogs::<S>()`.
 - Setup middleware pipeline is explicit:
-- `DialogContextMiddleware` derives `ChatEvent` + `EventContext`.
-- `DialogManagerMiddleware<S>` injects typed `DialogManager<S>` into request context.
+  - `DialogContextMiddleware` derives `ChatEvent` + `EventContext`.
+  - `DialogManagerMiddleware<S>` injects typed `DialogManager<S>` into request context.
 - `DialogManager` supports:
-- `start`, `switch_to`, `next`, `back`, `done`, `show`
-- `handle_callback_query`, `handle_message`, `answer_callback`
-- iterative `ButtonAction::Chain` processing
+  - `start`, `switch_to`, `next`, `back`, `done`, `show`
+  - `handle_callback_query`, `handle_message`, `answer_callback`
+  - iterative `ButtonAction::Chain` processing
 - Launch mode coverage:
-- `LaunchMode::Root` and `LaunchMode::Exclusive` reset current stack on start.
-- `LaunchMode::Exclusive` blocks starting a different dialog while active.
-- `LaunchMode::SingleTop` reuses top context id and resets per-context data.
+  - `LaunchMode::Root` and `LaunchMode::Exclusive` reset current stack on start.
+  - `LaunchMode::Exclusive` blocks starting a different dialog while active.
+  - `LaunchMode::SingleTop` reuses top context id and resets per-context data.
 - Context helpers expose typed reads for both data stores:
-- `dialog_value(_)/dialog_value_as::<T>(_)`
-- `widget_value(_)/widget_value_as::<T>(_)`
+  - `dialog_value(_)/dialog_value_as::<T>(_)`
+  - `widget_value(_)/widget_value_as::<T>(_)`
 - Widget state mutation actions are implemented:
-- `SetDialogData`, `SetDialogValue`, `SetWidgetData`, `SetWidgetValue`
+  - `SetDialogData`, `SetDialogValue`, `SetWidgetData`, `SetWidgetValue`
 - Window composition supports text + optional keyboard + optional input.
 - Multiple text widgets are normalized into `MultiText`.
 - Callback payload contract is scoped:
-- `td:{intent_id}:{widget_id}`
-- `td:{intent_id}:{widget_id}:{payload}`
+  - `td:{intent_id}:{widget_id}`
+  - `td:{intent_id}:{widget_id}:{payload}`
 - `done()` behavior follows close semantics:
-- re-render previous context after pop when stack is not empty
-- cleanup last dialog message when stack becomes empty
+  - re-render previous context after pop when stack is not empty
+  - cleanup last dialog message when stack becomes empty
 - `ShowMode::Auto` uses event/chat/stack-aware resolution.
+- **Access control** enforced in `start`, `show`, `handle_callback_query`, `handle_message` paths:
+  - `check_access()` validates user against `AccessSettings` from context.
+  - Private chats always allowed; group chats check `user_ids` whitelist.
+  - Returns `DialogError::AccessDenied { user_id }` on failure.
 
 ## Widgets available now
 - Text:
-- static text (`&'static str`, `String`, `Box<str>`)
-- `FnText`
-- `FormatText`
-- `MultiText`
-- `ListText`
+  - static text (`&'static str`, `String`, `Box<str>`)
+  - `FnText`
+  - `FormatText`
+  - `MultiText`
+  - `ListText`
 - Keyboard/actions:
-- `InlineKeyboard`
-- `Button::{action,next,back,switch_to,start,done,set_dialog_value,url}`
-- `Select`
-- `ButtonAction::{Noop,Next,Back,SwitchTo,Start,Done,SetDialogData,SetDialogValue,SetWidgetData,SetWidgetValue,Chain}`
+  - `InlineKeyboard`
+  - `Button::{action,next,back,switch_to,start,done,set_dialog_value,url}`
+  - `Select`
+  - `Radio` ← NEW: single-selection stateful widget with stored selection in `widget_data`
+  - `Multiselect` ← NEW: multi-selection widget with `min_selected`/`max_selected` constraints
+  - `ScrollingGroup` ← NEW: pagination wrapper with `[1 | < | current | > | last]` pager row
+  - `ButtonAction::{Noop,Next,Back,SwitchTo,Start,Done,SetDialogData,SetDialogValue,SetWidgetData,SetWidgetValue,Chain}`
 - Input:
-- `MessageInput`
-- `TextInput`
+  - `MessageInput`
+  - `TextInput`
 - Typed callback payload helper:
-- `CallbackPayload`
+  - `CallbackPayload`
+
+## New widgets detail
+
+### Radio
+- Builder-based: `Radio::builder("widget_id").items_getter(...).checked_renderer(...).unchecked_renderer(...).id_getter(...).build()`
+- Stores selected item id in `widget_data[widget_id]` as a string.
+- Renders items with `checked_renderer` or `unchecked_renderer` based on selection state.
+- Clicking a radio item produces `ButtonAction::SetWidgetValue` to persist selection.
+- Supports `header_row`/`footer_row`/`header_push`/`footer_push` for additional buttons.
+- Configurable `items_per_row` (default 1).
+
+### Multiselect
+- Builder-based: `Multiselect::builder("widget_id").items_getter(...).checked_renderer(...).unchecked_renderer(...).id_getter(...).build()`
+- Stores checked item ids in `widget_data[widget_id]` as a JSON array of strings.
+- Toggle semantics: clicking a checked item unchecks it, clicking unchecked checks it.
+- `min_selected` prevents unchecking below minimum (returns `Noop`).
+- `max_selected` prevents checking above maximum (returns `Noop`).
+- Supports header/footer static buttons.
+
+### ScrollingGroup
+- Wraps any `Keyboard` widget and adds height-based pagination.
+- `ScrollingGroup::new("id", inner_keyboard, height)` with `height` rows per page.
+- Stores current page (0-indexed) in `widget_data[widget_id]`.
+- Built-in pager row: `[1 | < | current | > | last]` (mirroring aiogram-dialog).
+- `hide_on_single_page(true)` hides pager when only 1 page.
+- `hide_pager(true)` suppresses pager entirely.
+- Pages beyond max are clamped to last page.
+- Inner keyboard callbacks are delegated transparently.
 
 ## Comparison with aiogram-dialog (actualized)
 
@@ -85,35 +122,46 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 - `dialog_data` and `widget_data` separation.
 - `TextInput` concept with parse success/error hooks.
 - Select-style callback payload routing with widget-local ids.
+- **Radio** single-selection with stored state in widget_data.
+- **Multiselect** multi-selection with min/max constraints.
+- **ScrollingGroup** with height-based pagination and built-in pager.
+- **Access control** enforcement matching `DefaultAccessValidator` semantics.
 
 ### Intentional differences
 - No router patching / hidden manager factories; integration stays explicit in `telers` observer middleware.
-- Smaller widget surface than Python library; only core text/keyboard/input/list pieces are shipped.
-- No full parity for advanced media/pagination groups and many stateful widget families yet.
+- Smaller widget surface than Python library; core text/keyboard/input/list/select pieces are shipped.
 - Rust APIs prioritize owned builder chaining and typed actions over dynamic handler patterns.
+- No `ManagedRadio`/`ManagedMultiselect` wrapper types; actions flow through `ButtonAction` enum.
 
 ### Missing compared to typical aiogram-dialog usage
-- Broader widget catalog (checkbox/radio/multiselect variants, richer managed widgets).
-- Pagination/scrolling groups and dynamic list navigation helpers.
+- Toggle widget (radio variant showing only selected + next item).
 - Rich media rendering flows and related `ShowMode` edge-case coverage.
 - Built-in result propagation patterns between stacked dialogs.
-- Access policy enforcement wired to `AccessSettings`.
+- NumberedPager and SwitchPage standalone pager widgets.
+- Custom `StackAccessValidator` trait for pluggable access control.
+- `sync_scroll` utility for synchronized pagination across widgets.
 
 ## Test and validation status
 - In-source tests exist across manager/setup/widgets/message-manager/registry/window modules.
-- Validation rerun in this session with `cargo 1.94.1` and `just 1.49.0`.
-- `just test` completed successfully across workspace crates and examples.
+- Validation rerun in this session with `rustc 1.94.1` via `docker run rust:latest`.
 - `telers-dialog` test target passed:
-- `31 passed; 0 failed` (`target/debug/deps/telers_dialog-*`).
+  - **55 passed; 0 failed** (up from 31 → +24 new tests).
+- New test coverage includes:
+  - Radio: rendering checked/unchecked, callback action, foreign intent rejection, header/footer buttons (5 tests).
+  - Multiselect: rendering, check/uncheck toggle, max_selected constraint, min_selected constraint (5 tests).
+  - ScrollingGroup: first page, page from widget_data, last page, pager callback, inner callback delegation, hide_on_single_page, hide_pager, page clamping (8 tests).
+  - Access control: no settings, private chat bypass, group deny, group allow, empty user_ids, async handle_message denial (6 tests).
 
 ## Known gaps
-- Add first-class stateful widgets on top of `widget_data` helpers.
-- Add paging/scrolling widgets and related callback plumbing.
 - Expand manager/message tests for media/reply-keyboard/`NoUpdate` edge cases.
 - Define clear result-passing API between parent/child dialogs.
-- Enforce access control (`AccessSettings`) in runtime flow.
+- Add `Toggle` widget (radio variant showing one item at a time).
+- Add standalone pager widgets (`NumberedPager`, `SwitchPage`).
+- Pluggable `StackAccessValidator` trait for custom access logic.
+- `sync_scroll` utility for synchronized pagination.
 
 ## Recommended next slice
-1. Implement one production-ready stateful widget family (radio/select with stored selection).
-2. Add simple pager/scroll widget and cover callback payload interoperability.
-3. Add access-check hook in manager start/show paths, with focused tests.
+1. Add result propagation between parent/child dialogs (`on_process_result` callback).
+2. Add `Toggle` widget as a Radio variant.
+3. Add standalone `NumberedPager` and `SwitchPage` pager widgets.
+4. Add pluggable `StackAccessValidator` trait for custom access policies.
