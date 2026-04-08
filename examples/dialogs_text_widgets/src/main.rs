@@ -47,16 +47,19 @@ fn registry() -> DialogRegistry {
         window(
             "intro",
             [
-                text("This bot demonstrates the current text widgets."),
                 text(
-                    "Press the button below. The next window combines several text widgets into \
-                     one message.",
+                    "Roastery Broadcast Draft\n\nOpen a ready-to-send promo preview built from \
+                     several text blocks in one message.\n\n[Text] The next screen combines \
+                     static text, formatted values, computed text, and a rendered list.",
                 ),
                 keyboard(InlineKeyboard::new().push(Button::action(
                     "render",
-                    "Show text widgets",
+                    "Open preview",
                     ButtonAction::chain([
-                        ButtonAction::set_dialog_value("title", "telers-dialog"),
+                        ButtonAction::set_dialog_value("cafe_name", "North Roast"),
+                        ButtonAction::set_dialog_value("campaign_title", "Weekend Espresso Sale"),
+                        ButtonAction::set_dialog_value("week_label", "April 8-14"),
+                        ButtonAction::set_dialog_value("bonus", "free oat milk upgrade"),
                         ButtonAction::next(),
                     ]),
                 ))),
@@ -65,14 +68,27 @@ fn registry() -> DialogRegistry {
         window(
             "rendered",
             [
-                text("Static text via `&str`."),
-                fn_text(|data: &DataMap| format!("FnText sees {} dialog-data keys.", data.len())),
-                format_text("FormatText title: {title}"),
+                text("Roastery Broadcast Preview\n"),
+                format_text("Cafe: {cafe_name}\nCampaign: {campaign_title}\nWeek: {week_label}\n"),
+                fn_text(|data: &DataMap| {
+                    let bonus = data.get("bonus").and_then(Value::as_str).unwrap();
+                    format!("This message highlights three offers and a {bonus}.\n")
+                }),
                 text(
                     ListText::builder()
-                        .items_getter(|_data| ["one", "two", "three"])
+                        .items_getter(|_data| {
+                            [
+                                "Espresso beans at 15% off",
+                                "Saturday cupping at 12:00",
+                                "Reusable cup reward for takeout orders",
+                            ]
+                        })
                         .item_renderer(|&item, _data| format!("- {item}"))
                         .build(),
+                ),
+                text(
+                    "\n[Text] This window is assembled from `text`, `FormatText`, `FnText`, and \
+                     `ListText`.",
                 ),
                 keyboard(
                     InlineKeyboard::new()
