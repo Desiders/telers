@@ -22,7 +22,7 @@ use telers_dialog::{
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
-const START_STATE: &str = "home";
+const START_STATE: &str = "cart";
 
 type Manager = DialogManager<MemoryStorage>;
 
@@ -40,74 +40,112 @@ async fn handle_start(bot: Bot, manager: Manager) -> HandlerResult<()> {
 }
 
 fn registry() -> DialogRegistry {
-    let main_dialog = dialog([
+    let checkout_dialog = dialog([
         window(
-            "home",
+            "cart",
             [
-                text("Button helpers: `next`, `switch_to`, and `start`."),
+                format_text(
+                    "Checkout Draft\n\nItem: House Blend\nPrice: $12.00\nDelivery: \
+                     {delivery}\nOrder status: {order_status}\n\n[Helpers] `next`, `start`, `done`",
+                ),
                 keyboard(
                     InlineKeyboard::new()
-                        .row([Button::next("next", "Next helper")])
-                        .row([Button::switch_to("details", "SwitchTo details", "details")])
+                        .row([Button::next("delivery_step", "Choose delivery")])
                         .row([Button::start(
-                            "modal",
-                            "Start subdialog",
-                            "modal",
+                            "confirm",
+                            "Confirm order",
+                            "confirm_order",
                             Value::Null,
                             StartMode::Normal,
-                        )]),
-                ),
-            ],
-        ),
-        window(
-            "step",
-            [
-                text("This state demonstrates `back` and a custom `action` chain."),
-                keyboard(
-                    InlineKeyboard::new()
-                        .row([Button::back("back", "Back helper")])
-                        .row([Button::action(
-                            "remember",
-                            "Remember source and open details",
-                            ButtonAction::chain([
-                                ButtonAction::set_dialog_value("source", "custom action"),
-                                ButtonAction::switch_to("details"),
-                            ]),
-                        )]),
-                ),
-            ],
-        ),
-        window(
-            "details",
-            [
-                format_text("Details window.\nsource = {source}\nnote = {note}"),
-                keyboard(
-                    InlineKeyboard::new()
-                        .row([Button::set_dialog_value(
-                            "note",
-                            "Set dialog value",
-                            "note",
-                            "saved from helper",
                         )])
-                        .row([Button::done("done", "Done helper")])
-                        .row([Button::url("Open docs", "https://docs.rs/telers-dialog")]),
+                        .row([Button::done("close", "Close draft")]),
                 ),
             ],
         ),
-    ]);
+        window(
+            "delivery",
+            [
+                format_text(
+                    "Delivery Step\n\nCurrent delivery: {delivery}\n\nChoose how the order should \
+                     arrive.\n\n[Helpers] `set_dialog_value`, `switch_to`, `back`",
+                ),
+                keyboard(
+                    InlineKeyboard::new()
+                        .row([Button::action(
+                            "pickup",
+                            "Pickup",
+                            ButtonAction::chain([
+                                ButtonAction::set_dialog_value("delivery", "pickup"),
+                                ButtonAction::switch_to("cart"),
+                            ]),
+                        )])
+                        .row([Button::action(
+                            "courier",
+                            "Courier",
+                            ButtonAction::chain([
+                                ButtonAction::set_dialog_value("delivery", "courier"),
+                                ButtonAction::switch_to("cart"),
+                            ]),
+                        )])
+                        .row([Button::back("back", "Back to cart")]),
+                ),
+            ],
+        ),
+        window(
+            "done",
+            [
+                format_text(
+                    "Order Finished\n\nItem: House Blend\nPrice: $12.00\nDelivery: \
+                     {delivery}\nOrder status: {order_status}\n\n[Helper] `done`",
+                ),
+                keyboard(InlineKeyboard::new().row([Button::done("close", "Close")])),
+            ],
+        ),
+    ])
+    .on_process_result(|_ctx, _start_data, result| {
+        let status = match result.as_str() {
+            Some("confirmed") => "confirmed",
+            Some("changed_mind") => "draft",
+            _ => "draft",
+        };
+        let next_state = match result.as_str() {
+            Some("confirmed") => "done",
+            _ => "cart",
+        };
 
-    let modal_dialog = dialog([window(
-        "modal",
+        Some(ButtonAction::chain([
+            ButtonAction::set_dialog_value("order_status", status),
+            ButtonAction::switch_to(next_state),
+        ]))
+    });
+
+    let confirm_dialog = dialog([window(
+        "confirm_order",
         [
-            text("This dialog was opened with `Button::start`."),
-            keyboard(InlineKeyboard::new().push(Button::done("close", "Close modal"))),
+            text(
+                "Confirm Order\n\nPlace the order now or return to editing.\n\n[Helper] \
+                 `done_with_result`",
+            ),
+            keyboard(
+                InlineKeyboard::new()
+                    .row([Button::done_with_result(
+                        "confirm_order",
+                        "Place order",
+                        "confirmed",
+                    )])
+                    .row([Button::done_with_result(
+                        "keep_editing",
+                        "Keep editing",
+                        "changed_mind",
+                    )]),
+            ),
         ],
     )]);
 
     DialogRegistry::new()
-        .register(main_dialog)
+        .register(checkout_dialog)
         .unwrap()
-        .register(modal_dialog)
+        .register(confirm_dialog)
         .unwrap()
 }
 
