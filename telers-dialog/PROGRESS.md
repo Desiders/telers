@@ -20,12 +20,26 @@ Updated: 2026-04-08 (UTC)
   - `src/entities/events.rs`
 - Widget surface:
   - `src/widgets/text.rs`
+  - `src/widgets/kbd/`
+    - `action.rs`
+    - `base.rs`
+    - `button.rs`
+    - `callback.rs`
+    - `group.rs`
+    - `inline_keyboard.rs`
+    - `pager/`
+      - `common.rs`
+      - `scrolling_group.rs`
+      - `standalone.rs`
+    - `select.rs`
+    - `stateful_select/`
+      - `multiselect.rs`
+      - `radio.rs`
+      - `toggle.rs`
   - `src/widgets/kbd.rs`
   - `src/widgets/input.rs`
   - `src/widgets/list.rs`
   - `src/widgets/widget.rs`
-  - `src/widgets/stateful_select.rs` ← NEW
-  - `src/widgets/pager.rs` ← NEW
 - Integration:
   - `src/setup.rs`
 
@@ -36,9 +50,11 @@ Updated: 2026-04-08 (UTC)
   - `DialogContextMiddleware` derives `ChatEvent` + `EventContext`.
   - `DialogManagerMiddleware<S>` injects typed `DialogManager<S>` into request context.
 - `DialogManager` supports:
-  - `start`, `switch_to`, `next`, `back`, `done`, `show`
+  - `start`, `switch_to`, `next`, `back`, `done`, `done_with_result`, `show`
   - `handle_callback_query`, `handle_message`, `answer_callback`
   - iterative `ButtonAction::Chain` processing
+  - parent dialog result propagation via `DialogImpl::on_process_result(...)`
+  - internal action execution bookkeeping via `ActionOutcome { handled, already_shown }`
 - Launch mode coverage:
   - `LaunchMode::Root` and `LaunchMode::Exclusive` reset current stack on start.
   - `LaunchMode::Exclusive` blocks starting a different dialog while active.
@@ -50,16 +66,19 @@ Updated: 2026-04-08 (UTC)
   - `SetDialogData`, `SetDialogValue`, `SetWidgetData`, `SetWidgetValue`
 - Window composition supports text + optional keyboard + optional input.
 - Multiple text widgets are normalized into `MultiText`.
+- Public Rustdoc coverage is started for crate root and the public keyboard surface (`widgets::kbd`, `ButtonAction`, `Button`, `Keyboard`, `Group`, `Select`, pager root, stateful-select root).
 - Callback payload contract is scoped:
   - `td:{intent_id}:{widget_id}`
   - `td:{intent_id}:{widget_id}:{payload}`
 - `done()` behavior follows close semantics:
   - re-render previous context after pop when stack is not empty
   - cleanup last dialog message when stack becomes empty
+  - `done_with_result()` forwards child `start_data` + result to parent dialog callback
 - `ShowMode::Auto` uses event/chat/stack-aware resolution.
 - **Access control** enforced in `start`, `show`, `handle_callback_query`, `handle_message` paths:
-  - `check_access()` validates user against `AccessSettings` from context.
-  - Private chats always allowed; group chats check `user_ids` whitelist.
+  - `DialogRegistry` carries a pluggable `StackAccessValidator`.
+  - Default validator matches `AccessSettings` semantics from current context or stack.
+  - Private chats always allowed; group chats check `user_ids` whitelist unless a custom validator overrides it.
   - Returns `DialogError::AccessDenied { user_id }` on failure.
 
 ## Widgets available now
@@ -71,20 +90,24 @@ Updated: 2026-04-08 (UTC)
   - `ListText`
 - Keyboard/actions:
   - `InlineKeyboard`
-  - `Group` ← NEW: layout wrapper to group inline keyboard buttons by row width
-  - `Button::{action,next,back,switch_to,start,done,set_dialog_value,url}`
+  - `Group`: layout wrapper to group inline keyboard buttons by row width
+  - `Button::{action,next,back,switch_to,start,done,done_with_result,set_dialog_value,url}`
   - `Select`
-  - `Radio` ← NEW: single-selection stateful widget with stored selection in `widget_data`
-  - `Multiselect` ← NEW: multi-selection widget with `min_selected`/`max_selected` constraints
-  - `ScrollingGroup` ← NEW: pagination wrapper with `[1 | < | current | > | last]` pager row
-  - `ButtonAction::{Noop,Next,Back,SwitchTo,Start,Done,SetDialogData,SetDialogValue,SetWidgetData,SetWidgetValue,Chain}`
+  - `Radio`: single-selection stateful widget with stored selection in `widget_data`
+  - `Toggle`: single-button cyclic selector storing current item id in `widget_data`
+  - `Multiselect`: multi-selection widget with `min_selected`/`max_selected` constraints
+  - `ScrollingGroup`: pagination wrapper with `[1 | < | current | > | last]` pager row
+  - `SwitchPage`: standalone pager button bound to shared page state
+  - `FirstPage` / `PrevPage` / `CurrentPage` / `NextPage` / `LastPage`: convenience pager wrappers
+  - `NumberedPager`: standalone numbered page row bound to shared page state
+  - `ButtonAction::{Noop,Next,Back,SwitchTo,Start,Done,DoneWithResult,SetDialogData,SetDialogValue,SetWidgetData,SetWidgetValue,Chain}`
 - Input:
   - `MessageInput`
   - `TextInput`
 - Typed callback payload helper:
   - `CallbackPayload`
 
-## New widgets detail
+## Widget details
 
 ### Radio
 - Builder-based: `Radio::builder("widget_id").items_getter(...).checked_renderer(...).unchecked_renderer(...).id_getter(...).build()`
@@ -102,6 +125,13 @@ Updated: 2026-04-08 (UTC)
 - `max_selected` prevents checking above maximum (returns `Noop`).
 - Supports header/footer static buttons.
 
+### Toggle
+- Builder-based: `Toggle::builder("widget_id").items_getter(...).item_renderer(...).id_getter(...).build()`
+- Stores selected item id in `widget_data[widget_id]` as a string, same slot style as `Radio`.
+- Renders a single button for the current item and cycles to the next item on click.
+- Defaults to the first item when no stored selection exists or when stored selection is stale.
+- Supports header/footer static buttons.
+
 ### Group
 - Generic keyboard wrapper: `Group::new(inner_keyboard, items_per_row)`.
 - Applies only to inline keyboards, regrouping all buttons into rows of `items_per_row`.
@@ -113,13 +143,26 @@ Updated: 2026-04-08 (UTC)
 - `ScrollingGroup::new("id", inner_keyboard, height)` with `height` rows per page.
 - Stores current page (0-indexed) in `widget_data[widget_id]`.
 - Built-in pager row: `[1 | < | current | > | last]` (mirroring aiogram-dialog).
+- `width` controls fixed content width for the paged keyboard; when set, buttons are regrouped into rows of that width before paging.
+- Last pages are padded with filler buttons using `filler_text` (default blank space) to preserve the configured grid shape.
 - `hide_on_single_page(true)` hides pager when only 1 page.
 - `hide_pager(true)` suppresses pager entirely.
+- `on_page_changed(...)` can emit additional actions after page changes.
 - Pages beyond max are clamped to last page.
 - Inner keyboard callbacks are delegated transparently.
-- Planned options:
-  - configurable pager width (fixed slot count for stable layout)
-  - blank/filler non-clickable buttons for empty pager slots
+- Filler buttons are inert placeholders targeting the current page; Telegram inline keyboards do not support truly disabled buttons.
+
+### Standalone pager widgets
+- `SwitchPage::builder("pager_id")...build()` renders a single button targeting first/prev/current/next/last page using shared page state in `widget_data`.
+- `FirstPage`, `PrevPage`, `CurrentPage`, `NextPage`, and `LastPage` provide default-label convenience wrappers over the same shared page-state contract.
+- `NumberedPager::builder("pager_id")...build()` renders numbered page buttons and highlights the current page with a separate renderer.
+- All pager widgets support `on_page_changed(...)` for page-change side effects.
+- Both widgets reuse the same callback/state contract as `ScrollingGroup`, so they can coordinate through a shared widget id.
+
+### sync_scroll
+- `sync_scroll("other_id")` returns a page-change hook that copies the new page into another widget's `widget_data`.
+- `sync_scrolls(["a", "b"])` does the same for multiple widget ids.
+- Intended for synchronized pagination across multiple scrollable widgets without manual `ButtonAction::chain(...)` boilerplate.
 
 ## Comparison with aiogram-dialog (actualized)
 
@@ -135,7 +178,11 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 - **Radio** single-selection with stored state in widget_data.
 - **Multiselect** multi-selection with min/max constraints.
 - **ScrollingGroup** with height-based pagination and built-in pager.
+- **Toggle** as a radio-style cyclic selector.
+- **Standalone pager widgets** via `SwitchPage` and `NumberedPager`.
+- **sync_scroll** utility for synchronized pagination across widgets.
 - **Access control** enforcement matching `DefaultAccessValidator` semantics.
+- **Parent result propagation** via `done_with_result()` + `on_process_result`.
 
 ### Intentional differences
 - No router patching / hidden manager factories; integration stays explicit in `telers` observer middleware.
@@ -144,36 +191,37 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 - No `ManagedRadio`/`ManagedMultiselect` wrapper types; actions flow through `ButtonAction` enum.
 
 ### Missing compared to typical aiogram-dialog usage
-- Toggle widget (radio variant showing only selected + next item).
 - Rich media rendering flows and related `ShowMode` edge-case coverage.
-- Built-in result propagation patterns between stacked dialogs.
-- NumberedPager and SwitchPage standalone pager widgets.
-- Custom `StackAccessValidator` trait for pluggable access control.
-- `sync_scroll` utility for synchronized pagination across widgets.
+- Dialog/window-level async result callbacks; current `on_process_result` is sync and action-based.
 
 ### Widget backlog (not implemented yet)
 - Keyboard widgets:
-  - `Toggle`
   - `Checkbox`
   - `Counter`
   - `Calendar`
-- Pager widgets (standalone controls):
-  - `SwitchPage`
-  - `CurrentPage`
-  - `NextPage`
-  - `PrevPage`
-  - `FirstPage`
-  - `LastPage`
-  - `NumberedPager`
 - Managed helper layer parity (post-MVP):
   - managed wrappers/helpers for stateful widgets (similar scope to `ManagedRadio` / `ManagedMultiselect` in `aiogram-dialog`)
 
 ## Test and validation status
 - In-source tests exist across manager/setup/widgets/message-manager/registry/window modules.
-- Validation rerun in this session with `rustc 1.94.1` via `docker run rust:latest`.
+- Validation rerun in this session with local `cargo test -p telers-dialog`.
+- Example validation rerun in this session with:
+  - `cargo check -p dialogs_button_actions`
+  - `cargo check -p dialogs_pager_widgets`
+  - `cargo check -p dialogs_select_widget`
+  - `cargo check -p dialogs_text_widgets`
+  - `cargo check -p dialogs_stateful_select_widgets`
+  - `cargo check -p dialogs_sync_scroll`
 - `telers-dialog` test target passed:
-  - **56 passed; 0 failed** (up from 31 → +25 new tests).
+  - **69 passed; 0 failed**.
 - New test coverage includes:
+  - Convenience pager wrappers: render targets and callback payloads for first/prev/current/next/last controls (1 test).
+  - ScrollingGroup width options: fixed-grid regrouping and last-page filler padding behavior (2 tests).
+  - sync_scroll hooks: synchronizing one and many target widget ids from pager callbacks (2 tests).
+  - Result propagation: parent `on_process_result` receives child `start_data` and result (1 test).
+  - Toggle: default render, selected render/cycle, callback action (3 tests).
+  - Standalone pager widgets: `SwitchPage` render/callback wiring, `NumberedPager` render/callback wiring (3 tests).
+  - Custom access validator override (1 test).
   - Radio: rendering checked/unchecked, callback action, foreign intent rejection, header/footer buttons (5 tests).
   - Multiselect: rendering, check/uncheck toggle, max_selected constraint, min_selected constraint (5 tests).
   - ScrollingGroup: first page, page from widget_data, last page, pager callback, inner callback delegation, hide_on_single_page, hide_pager, page clamping (8 tests).
@@ -181,19 +229,19 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 
 ## Known gaps
 - Expand manager/message tests for media/reply-keyboard/`NoUpdate` edge cases.
-- Define clear result-passing API between parent/child dialogs.
-- Refactor widget module structure:
-  - move keyboard-related widgets into `src/widgets/kbd/` directory
-  - split by concern (`button`, `inline_keyboard`, `select`, `stateful_select`, `pager`, `group`, shared callback helpers)
-  - keep a thin `widgets.rs` re-export layer with stable public API
-- Add `Toggle` widget (radio variant showing one item at a time).
-- Add standalone pager widgets (`NumberedPager`, `SwitchPage`).
-- Pluggable `StackAccessValidator` trait for custom access logic.
-- `sync_scroll` utility for synchronized pagination.
+- Keep `widgets.rs` as a thin re-export layer with stable public API.
+- Keep examples focused by audience:
+  - `dialogs_text_widgets` demonstrates a two-step broadcast preview flow, with several text widgets composing one ready-to-send message.
+  - `dialogs_select_widget` stays a beginner `Select` example.
+  - `dialogs_stateful_select_widgets` covers `Radio`, `Toggle`, and `Multiselect` with a realistic subscription-settings flow.
+  - `dialogs_pager_widgets` carries built-in pager and standalone pager demos.
+  - `dialogs_sync_scroll` demonstrates a related two-block page where one pager keeps a compact picker and a details block aligned.
+- `pager` and `stateful_select` are now split into finer-grained submodules under `src/widgets/kbd/`, while `pager.rs` and `stateful_select.rs` remain the module roots.
+
+## Planned follow-ups
+- Consider async/manager-aware result hooks beyond action-based `on_process_result`.
 
 ## Recommended next slice
-1. Add result propagation between parent/child dialogs (`on_process_result` callback).
-2. Refactor keyboard widget module layout into `src/widgets/kbd/` with focused files and stable re-exports.
-3. Add `Toggle` widget as a Radio variant.
-4. Add standalone `NumberedPager` and `SwitchPage` pager widgets.
-5. Add pluggable `StackAccessValidator` trait for custom access policies.
+1. Continue Rustdoc coverage for manager/registry/entities APIs, not only widgets.
+2. Expand manager/message tests for media/reply-keyboard/`NoUpdate` edge cases.
+3. Consider richer page-change hooks if widget authors need access to more than just the new page index.
