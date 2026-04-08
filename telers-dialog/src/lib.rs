@@ -1,3 +1,11 @@
+//! `telers-dialog` is a Rust-native dialog framework for `telers`.
+//!
+//! The crate exposes a small set of dialog primitives:
+//! - [`DialogRegistry`] for registering dialogs by state
+//! - [`DialogManager`] for runtime navigation and rendering
+//! - [`dialog`] and [`window`] builders for dialog structure
+//! - [`widgets`] for text, keyboard, and input composition
+
 mod dialog;
 pub mod entities;
 mod errors;

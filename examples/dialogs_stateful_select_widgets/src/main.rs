@@ -22,21 +22,6 @@ use telers_dialog::{
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
-type Manager = DialogManager<MemoryStorage>;
-
-async fn handle_start(bot: Bot, manager: Manager) -> HandlerResult<()> {
-    let _ = manager
-        .start(
-            &bot,
-            START_STATE.to_owned(),
-            Value::Null,
-            StartMode::ResetStack,
-        )
-        .await
-        .map_err(HandlerError::new)?;
-    Ok(())
-}
-
 const START_STATE: &str = "channel";
 const CHANNELS: &[(&str, &str)] = &[
     ("telegram", "Telegram"),
@@ -57,6 +42,21 @@ const TOPICS: &[(&str, &str)] = &[
     ("rewards", "Rewards"),
     ("wholesale", "Wholesale news"),
 ];
+
+type Manager = DialogManager<MemoryStorage>;
+
+async fn handle_start(bot: Bot, manager: Manager) -> HandlerResult<()> {
+    let _ = manager
+        .start(
+            &bot,
+            START_STATE.to_owned(),
+            Value::Null,
+            StartMode::ResetStack,
+        )
+        .await
+        .map_err(HandlerError::new)?;
+    Ok(())
+}
 
 fn registry() -> DialogRegistry {
     let dialog = dialog([

@@ -14,6 +14,9 @@ enum ButtonKind {
     Url(Cow<'static, str>),
 }
 
+/// Inline keyboard button with a stable widget id.
+///
+/// Most constructors are thin convenience helpers over [`ButtonAction`].
 pub struct Button {
     id: Cow<'static, str>,
     text: Box<dyn Text>,
@@ -21,6 +24,7 @@ pub struct Button {
 }
 
 impl Button {
+    /// Create a callback button with an explicit action.
     #[must_use]
     pub fn action(id: impl Into<Cow<'static, str>>, text: impl Text, action: ButtonAction) -> Self {
         Self {
@@ -30,18 +34,21 @@ impl Button {
         }
     }
 
+    /// Create a button that moves to the next dialog state.
     #[inline]
     #[must_use]
     pub fn next(id: impl Into<Cow<'static, str>>, text: impl Text) -> Self {
         Self::action(id, text, ButtonAction::next())
     }
 
+    /// Create a button that moves to the previous dialog state.
     #[inline]
     #[must_use]
     pub fn back(id: impl Into<Cow<'static, str>>, text: impl Text) -> Self {
         Self::action(id, text, ButtonAction::back())
     }
 
+    /// Create a button that switches to a specific state in the current dialog.
     #[inline]
     #[must_use]
     pub fn switch_to(
@@ -52,6 +59,7 @@ impl Button {
         Self::action(id, text, ButtonAction::switch_to(state))
     }
 
+    /// Create a button that starts another dialog state.
     #[inline]
     #[must_use]
     pub fn start(
@@ -64,12 +72,14 @@ impl Button {
         Self::action(id, text, ButtonAction::start(state, data, mode))
     }
 
+    /// Create a button that closes the current dialog context.
     #[inline]
     #[must_use]
     pub fn done(id: impl Into<Cow<'static, str>>, text: impl Text) -> Self {
         Self::action(id, text, ButtonAction::done())
     }
 
+    /// Create a button that closes the current dialog and returns a result.
     #[inline]
     #[must_use]
     pub fn done_with_result(
@@ -80,6 +90,7 @@ impl Button {
         Self::action(id, text, ButtonAction::done_with_result(result))
     }
 
+    /// Create a button that writes one value into `dialog_data`.
     #[inline]
     #[must_use]
     pub fn set_dialog_value(
@@ -91,6 +102,7 @@ impl Button {
         Self::action(id, text, ButtonAction::set_dialog_value(key, value))
     }
 
+    /// Create a URL button.
     #[must_use]
     pub fn url(text: impl Text, url: impl Into<Cow<'static, str>>) -> Self {
         Self {

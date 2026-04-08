@@ -6,6 +6,10 @@ use tracing::debug;
 use super::{format_callback_data, parse_callback_data, Button, ButtonAction, Keyboard};
 use crate::entities::{Context, DataMap};
 
+/// Stateless list of selectable items.
+///
+/// Each rendered item produces a callback payload derived from `id_getter`, and
+/// that payload is converted into a [`ButtonAction`] by `action`.
 pub struct Select<
     WidgetId,
     ItemsGetter,
@@ -34,6 +38,7 @@ impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id
 {
     #[builder]
     #[must_use]
+    /// Build a [`Select`] widget.
     pub fn new(
         #[builder(start_fn)] id: WidgetId,
         #[builder(field)] header_rows: Vec<Vec<Button>>,
@@ -90,11 +95,13 @@ where
     Id: Display,
     Action: Fn(&str) -> ButtonAction,
 {
+    /// Append a full header row before the selectable items.
     pub fn header_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
         self.header_rows.push(buttons.into_iter().collect());
         self
     }
 
+    /// Append a button to the last header row, or create one if absent.
     pub fn header_push(mut self, button: Button) -> Self {
         match self.header_rows.last_mut() {
             Some(row) => row.push(button),
@@ -103,11 +110,13 @@ where
         self
     }
 
+    /// Append a full footer row after the selectable items.
     pub fn footer_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
         self.footer_rows.push(buttons.into_iter().collect());
         self
     }
 
+    /// Append a button to the last footer row, or create one if absent.
     pub fn footer_push(mut self, button: Button) -> Self {
         match self.footer_rows.last_mut() {
             Some(row) => row.push(button),
