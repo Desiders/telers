@@ -68,7 +68,7 @@ where
             .map(|val| val.to_vec().into_boxed_slice())
             .collect::<Vec<_>>();
 
-        if !self.hide_pager && !(self.hide_on_single_page && pages_count <= 1) && pages_count > 0 {
+        if !(self.hide_pager || self.hide_on_single_page && pages_count <= 1) {
             let last_page = pages_count - 1;
             let prev_page = current_page.saturating_sub(1);
             let next_page = (current_page + 1).min(last_page);
@@ -126,6 +126,8 @@ where
     }
 }
 
+#[inline]
+#[must_use]
 fn read_page(ctx: &Context, widget_id: &str) -> usize {
     ctx.widget_value_as::<usize>(widget_id).unwrap_or(0)
 }

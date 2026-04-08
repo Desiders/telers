@@ -76,6 +76,7 @@ impl ButtonAction {
         Self::Done
     }
 
+    #[inline]
     #[must_use]
     pub fn set_dialog_data(data: DataMap) -> Self {
         Self::SetDialogData(data)
@@ -89,6 +90,7 @@ impl ButtonAction {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn set_widget_data(data: DataMap) -> Self {
         Self::SetWidgetData(data)
@@ -202,16 +204,19 @@ impl Button {
         }
     }
 
+    #[inline]
     #[must_use]
     pub fn next(id: impl Into<Cow<'static, str>>, text: impl Text) -> Self {
         Self::action(id, text, ButtonAction::next())
     }
 
+    #[inline]
     #[must_use]
     pub fn back(id: impl Into<Cow<'static, str>>, text: impl Text) -> Self {
         Self::action(id, text, ButtonAction::back())
     }
 
+    #[inline]
     #[must_use]
     pub fn switch_to(
         id: impl Into<Cow<'static, str>>,
@@ -221,6 +226,7 @@ impl Button {
         Self::action(id, text, ButtonAction::switch_to(state))
     }
 
+    #[inline]
     #[must_use]
     pub fn start(
         id: impl Into<Cow<'static, str>>,
@@ -232,11 +238,13 @@ impl Button {
         Self::action(id, text, ButtonAction::start(state, data, mode))
     }
 
+    #[inline]
     #[must_use]
     pub fn done(id: impl Into<Cow<'static, str>>, text: impl Text) -> Self {
         Self::action(id, text, ButtonAction::done())
     }
 
+    #[inline]
     #[must_use]
     pub fn set_dialog_value(
         id: impl Into<Cow<'static, str>>,
@@ -285,6 +293,7 @@ impl Button {
     }
 }
 
+#[derive(Default)]
 pub struct InlineKeyboard {
     rows: Vec<Vec<Button>>,
 }
@@ -292,10 +301,8 @@ pub struct InlineKeyboard {
 impl InlineKeyboard {
     #[inline]
     #[must_use]
-    pub const fn new() -> Self {
-        Self {
-            rows: Vec::new(),
-        }
+    pub fn new() -> Self {
+        Self::default()
     }
 
     #[must_use]
@@ -340,6 +347,60 @@ impl Keyboard for InlineKeyboard {
     }
 }
 
+pub struct Group<Kbd> {
+    kbd: Kbd,
+    items_per_row: usize,
+}
+
+impl<Kbd> Group<Kbd> {
+    #[inline]
+    #[must_use]
+    pub fn new(kbd: Kbd, items_per_row: usize) -> Self {
+        Self {
+            kbd,
+            items_per_row: items_per_row.max(1),
+        }
+    }
+}
+
+impl<Inner> Keyboard for Group<Inner>
+where
+    Inner: Keyboard,
+{
+    fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+        let markup = self.kbd.render_keyboard(ctx, data)?;
+        let ReplyMarkup::InlineKeyboardMarkup(markup) = markup else {
+            return Some(markup);
+        };
+
+        let mut grouped_rows = Vec::new();
+        let mut current_row = Vec::with_capacity(self.items_per_row);
+        for button in markup.inline_keyboard.into_vec().into_iter().flatten() {
+            current_row.push(button);
+            if current_row.len() == self.items_per_row {
+                grouped_rows.push(current_row.into_boxed_slice());
+                current_row = Vec::with_capacity(self.items_per_row);
+            }
+        }
+        if !current_row.is_empty() {
+            grouped_rows.push(current_row.into_boxed_slice());
+        }
+
+        if grouped_rows.is_empty() {
+            None
+        } else {
+            Some(ReplyMarkup::InlineKeyboardMarkup(
+                InlineKeyboardMarkup::new(grouped_rows),
+            ))
+        }
+    }
+
+    #[inline]
+    fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+        self.kbd.handle_callback(ctx, callback_data)
+    }
+}
+
 pub struct Select<
     WidgetId,
     ItemsGetter,
@@ -356,9 +417,9 @@ pub struct Select<
     item_renderer: ItemRenderer,
     id_getter: IdGetter,
     action: Action,
-    items_per_row: usize,
     header_rows: Vec<Vec<Button>>,
     footer_rows: Vec<Vec<Button>>,
+    #[allow(clippy::type_complexity)]
     marker: PhantomData<fn() -> (ItemsIter, Item, ItemStr, Id)>,
 }
 
@@ -376,7 +437,6 @@ impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id
         item_renderer: ItemRenderer,
         id_getter: IdGetter,
         action: Action,
-        #[builder(default = 1)] items_per_row: usize,
     ) -> Self
     where
         WidgetId: Display,
@@ -394,7 +454,6 @@ impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id
             item_renderer,
             id_getter,
             action,
-            items_per_row,
             header_rows,
             footer_rows,
             marker: PhantomData,
@@ -426,13 +485,11 @@ where
     Id: Display,
     Action: Fn(&str) -> ButtonAction,
 {
-    #[must_use]
     pub fn header_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
         self.header_rows.push(buttons.into_iter().collect());
         self
     }
 
-    #[must_use]
     pub fn header_push(mut self, button: Button) -> Self {
         match self.header_rows.last_mut() {
             Some(row) => row.push(button),
@@ -441,13 +498,11 @@ where
         self
     }
 
-    #[must_use]
     pub fn footer_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
         self.footer_rows.push(buttons.into_iter().collect());
         self
     }
 
-    #[must_use]
     pub fn footer_push(mut self, button: Button) -> Self {
         match self.footer_rows.last_mut() {
             Some(row) => row.push(button),
@@ -477,24 +532,19 @@ where
             .map(|row| render_button_row(row, ctx, data))
             .collect();
 
-        let mut current_row = Vec::with_capacity(self.items_per_row);
         for item in (self.items_getter)(data) {
             let text = (self.item_renderer)(&item, data);
             let payload = (self.id_getter)(item).to_string();
-            current_row.push(
-                InlineKeyboardButton::new(text).callback_data(format_callback_data(
-                    ctx,
-                    &self.id,
-                    Some(&payload),
-                )),
+            rows.push(
+                [
+                    InlineKeyboardButton::new(text).callback_data(format_callback_data(
+                        ctx,
+                        &self.id,
+                        Some(&payload),
+                    )),
+                ]
+                .into(),
             );
-            if current_row.len() == self.items_per_row {
-                rows.push(current_row.into_boxed_slice());
-                current_row = Vec::with_capacity(self.items_per_row);
-            }
-        }
-        if !current_row.is_empty() {
-            rows.push(current_row.into_boxed_slice());
         }
 
         rows.extend(
@@ -539,6 +589,8 @@ pub(crate) fn render_button_row(
     row.iter().map(|button| button.render(ctx, data)).collect()
 }
 
+#[inline]
+#[must_use]
 pub(crate) fn format_callback_data(
     ctx: &Context,
     target_id: impl Display,
@@ -576,7 +628,7 @@ pub(crate) fn parse_callback_data<'a>(
 mod tests {
     use serde_json::Value;
 
-    use super::{Button, ButtonAction, InlineKeyboard, Keyboard, Select};
+    use super::{Button, ButtonAction, Group, InlineKeyboard, Keyboard, Select};
     use crate::entities::{Context, DataMap, StartMode};
 
     #[test]
@@ -622,7 +674,6 @@ mod tests {
             .item_renderer(|item, _data| item.to_owned())
             .id_getter(|item| item)
             .action(|value| ButtonAction::set_dialog_value("fruit", value))
-            .items_per_row(2)
             .build();
 
         let markup = select
@@ -665,5 +716,27 @@ mod tests {
             .expect("footer action");
 
         assert!(matches!(action, ButtonAction::Done));
+    }
+
+    #[test]
+    fn group_chunks_inline_keyboard_rows() {
+        let ctx = Context::new("", "state", Value::Null);
+        let grouped = Group::new(
+            InlineKeyboard::new().row([
+                Button::action("a", "A", ButtonAction::noop()),
+                Button::action("b", "B", ButtonAction::noop()),
+                Button::action("c", "C", ButtonAction::noop()),
+            ]),
+            2,
+        );
+
+        let markup = grouped
+            .render_keyboard(&ctx, &DataMap::new())
+            .expect("keyboard");
+        let rows = markup.inline_keyboard().expect("inline keyboard");
+
+        assert_eq!(rows.len(), 2);
+        assert_eq!(rows[0].len(), 2);
+        assert_eq!(rows[1].len(), 1);
     }
 }

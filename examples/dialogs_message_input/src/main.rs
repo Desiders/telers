@@ -128,7 +128,7 @@ async fn main() {
                 .register(Handler::new(handle_start).filter(Command::one("start")))
                 .setup_dialogs::<MemoryStorage>()
         })
-        .on_callback_query(|observer| observer.setup_dialogs::<MemoryStorage>());
+        .on_callback_query(DialogObserverExt::setup_dialogs::<MemoryStorage>);
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())
