@@ -363,9 +363,9 @@ impl<Kbd> Group<Kbd> {
     }
 }
 
-impl<Inner> Keyboard for Group<Inner>
+impl<Kbd> Keyboard for Group<Kbd>
 where
-    Inner: Keyboard,
+    Kbd: Keyboard,
 {
     fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
         let markup = self.kbd.render_keyboard(ctx, data)?;

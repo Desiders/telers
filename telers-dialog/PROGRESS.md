@@ -117,6 +117,9 @@ Updated: 2026-04-08 (UTC)
 - `hide_pager(true)` suppresses pager entirely.
 - Pages beyond max are clamped to last page.
 - Inner keyboard callbacks are delegated transparently.
+- Planned options:
+  - configurable pager width (fixed slot count for stable layout)
+  - blank/filler non-clickable buttons for empty pager slots
 
 ## Comparison with aiogram-dialog (actualized)
 
@@ -148,11 +151,28 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 - Custom `StackAccessValidator` trait for pluggable access control.
 - `sync_scroll` utility for synchronized pagination across widgets.
 
+### Widget backlog (not implemented yet)
+- Keyboard widgets:
+  - `Toggle`
+  - `Checkbox`
+  - `Counter`
+  - `Calendar`
+- Pager widgets (standalone controls):
+  - `SwitchPage`
+  - `CurrentPage`
+  - `NextPage`
+  - `PrevPage`
+  - `FirstPage`
+  - `LastPage`
+  - `NumberedPager`
+- Managed helper layer parity (post-MVP):
+  - managed wrappers/helpers for stateful widgets (similar scope to `ManagedRadio` / `ManagedMultiselect` in `aiogram-dialog`)
+
 ## Test and validation status
 - In-source tests exist across manager/setup/widgets/message-manager/registry/window modules.
 - Validation rerun in this session with `rustc 1.94.1` via `docker run rust:latest`.
 - `telers-dialog` test target passed:
-  - **55 passed; 0 failed** (up from 31 → +24 new tests).
+  - **56 passed; 0 failed** (up from 31 → +25 new tests).
 - New test coverage includes:
   - Radio: rendering checked/unchecked, callback action, foreign intent rejection, header/footer buttons (5 tests).
   - Multiselect: rendering, check/uncheck toggle, max_selected constraint, min_selected constraint (5 tests).
@@ -162,6 +182,10 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 ## Known gaps
 - Expand manager/message tests for media/reply-keyboard/`NoUpdate` edge cases.
 - Define clear result-passing API between parent/child dialogs.
+- Refactor widget module structure:
+  - move keyboard-related widgets into `src/widgets/kbd/` directory
+  - split by concern (`button`, `inline_keyboard`, `select`, `stateful_select`, `pager`, `group`, shared callback helpers)
+  - keep a thin `widgets.rs` re-export layer with stable public API
 - Add `Toggle` widget (radio variant showing one item at a time).
 - Add standalone pager widgets (`NumberedPager`, `SwitchPage`).
 - Pluggable `StackAccessValidator` trait for custom access logic.
@@ -169,6 +193,7 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 
 ## Recommended next slice
 1. Add result propagation between parent/child dialogs (`on_process_result` callback).
-2. Add `Toggle` widget as a Radio variant.
-3. Add standalone `NumberedPager` and `SwitchPage` pager widgets.
-4. Add pluggable `StackAccessValidator` trait for custom access policies.
+2. Refactor keyboard widget module layout into `src/widgets/kbd/` with focused files and stable re-exports.
+3. Add `Toggle` widget as a Radio variant.
+4. Add standalone `NumberedPager` and `SwitchPage` pager widgets.
+5. Add pluggable `StackAccessValidator` trait for custom access policies.
