@@ -9,7 +9,10 @@ pub mod widgets;
 mod window;
 
 pub use dialog::{dialog, Dialog, IntoDialog};
-pub use entities::{AccessSettings, Data, LaunchMode, ShowMode, StartMode, DEFAULT_STACK_ID};
+pub use entities::{
+    AccessSettings, Data, DefaultAccessValidator, LaunchMode, ShowMode, StackAccessValidator,
+    StartMode, DEFAULT_STACK_ID,
+};
 pub use errors::DialogError;
 pub use manager::DialogManager;
 pub use message_manager::MessageManager;

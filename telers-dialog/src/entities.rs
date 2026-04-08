@@ -6,7 +6,7 @@ mod modes;
 mod stack;
 mod update_event;
 
-pub use access::AccessSettings;
+pub use access::{AccessSettings, DefaultAccessValidator, StackAccessValidator};
 pub use context::{generate_id, Context, Data, DataMap};
 pub use events::{
     chat_event_from_update, ChatEvent, EventContext, CHAT_EVENT_KEY, EVENT_CONTEXT_KEY,
