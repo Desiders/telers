@@ -1,7 +1,7 @@
 use crate::{
     entities::{
-        generate_id, AccessSettings, ChatEvent, Context, Data, DataMap, EventContext, LaunchMode,
-        OldMessage, ShowMode, Stack, StartMode, DEFAULT_STACK_ID, EVENT_CONTEXT_KEY,
+        generate_id, ChatEvent, Context, Data, DataMap, EventContext, LaunchMode, OldMessage,
+        ShowMode, Stack, StartMode, DEFAULT_STACK_ID, EVENT_CONTEXT_KEY,
     },
     errors::DialogError,
     message_manager::MessageManager,
@@ -15,7 +15,7 @@ use telers::{
     enums::ReplyMarkupType,
     fsm::Storage,
     methods::AnswerCallbackQuery,
-    types::{CallbackQuery, Chat, MaybeInaccessibleMessage, Message, ReplyMarkup},
+    types::{CallbackQuery, MaybeInaccessibleMessage, Message, ReplyMarkup},
     Bot,
 };
 use tracing::{debug, error, trace, warn};
@@ -27,6 +27,12 @@ struct DialogStorage {
     stacks: BTreeMap<String, Stack>,
     contexts: BTreeMap<String, Context>,
     current_stack: String,
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+struct ActionOutcome {
+    handled: bool,
+    already_shown: bool,
 }
 
 impl DialogStorage {
@@ -263,22 +269,18 @@ impl<S: Storage> DialogManager<S> {
             .ok_or(DialogError::DialogNotFound)
     }
 
-    /// Check access for the current user against the given settings.
+    /// Check access for the current user against the active stack/context validator.
     fn check_access(
         &self,
-        access_settings: Option<&AccessSettings>,
+        stack: &Stack,
+        context: Option<&Context>,
         event_ctx: &EventContext,
     ) -> Result<(), DialogError> {
-        let Some(settings) = access_settings else {
-            return Ok(());
-        };
-        if matches!(event_ctx.chat, Chat::Private(_)) {
-            return Ok(());
-        }
-        if settings.user_ids.is_empty() {
-            return Ok(());
-        }
-        if settings.user_ids.contains(&event_ctx.user.id) {
+        if self
+            .registry
+            .access_validator()
+            .is_allowed(stack, context, &self.event, event_ctx)
+        {
             return Ok(());
         }
         warn!(
@@ -332,28 +334,28 @@ impl<S: Storage> DialogManager<S> {
         &self,
         bot: &Bot<Client>,
         action: ButtonAction,
-    ) -> Result<bool, DialogError> {
+    ) -> Result<ActionOutcome, DialogError> {
         debug!(action = ?action, "Apply button action");
         let mut needs_show = false;
-        let mut handled = false;
+        let mut outcome = ActionOutcome::default();
         let mut pending = vec![action];
         while let Some(action) = pending.pop() {
             match action {
-                ButtonAction::Noop => handled = true,
+                ButtonAction::Noop => outcome.handled = true,
                 ButtonAction::SwitchTo(state) => {
                     self.switch_to(state).await?;
                     needs_show = true;
-                    handled = true;
+                    outcome.handled = true;
                 }
                 ButtonAction::Next => {
                     self.next().await?;
                     needs_show = true;
-                    handled = true;
+                    outcome.handled = true;
                 }
                 ButtonAction::Back => {
                     self.back().await?;
                     needs_show = true;
-                    handled = true;
+                    outcome.handled = true;
                 }
                 ButtonAction::Start {
                     state,
@@ -361,16 +363,23 @@ impl<S: Storage> DialogManager<S> {
                     mode,
                 } => {
                     let _ = self.start(bot, state, data, mode).await?;
-                    handled = true;
+                    outcome.handled = true;
+                    outcome.already_shown = true;
                 }
                 ButtonAction::Done => {
-                    let _ = self.done(bot, None).await?;
-                    handled = true;
+                    let _ = Box::pin(self.done(bot, None)).await?;
+                    outcome.handled = true;
+                    outcome.already_shown = true;
+                }
+                ButtonAction::DoneWithResult(result) => {
+                    let _ = Box::pin(self.done_with_result(bot, None, result)).await?;
+                    outcome.handled = true;
+                    outcome.already_shown = true;
                 }
                 ButtonAction::SetDialogData(data) => {
                     self.set_dialog_data(data).await?;
                     needs_show = true;
-                    handled = true;
+                    outcome.handled = true;
                 }
                 ButtonAction::SetDialogValue {
                     key,
@@ -378,12 +387,12 @@ impl<S: Storage> DialogManager<S> {
                 } => {
                     self.set_dialog_value(key, value).await?;
                     needs_show = true;
-                    handled = true;
+                    outcome.handled = true;
                 }
                 ButtonAction::SetWidgetData(data) => {
                     self.set_widget_data(data).await?;
                     needs_show = true;
-                    handled = true;
+                    outcome.handled = true;
                 }
                 ButtonAction::SetWidgetValue {
                     key,
@@ -391,7 +400,7 @@ impl<S: Storage> DialogManager<S> {
                 } => {
                     self.set_widget_value(key, value).await?;
                     needs_show = true;
-                    handled = true;
+                    outcome.handled = true;
                 }
                 ButtonAction::Chain(actions) => {
                     pending.extend(actions.into_vec().into_iter().rev());
@@ -400,8 +409,9 @@ impl<S: Storage> DialogManager<S> {
         }
         if needs_show && self.has_context().await? {
             let _ = self.show(bot, None).await?;
+            outcome.already_shown = true;
         }
-        Ok(handled)
+        Ok(outcome)
     }
 
     /// Start dialog and show it.
@@ -424,6 +434,12 @@ impl<S: Storage> DialogManager<S> {
         debug!(state = %state, mode = ?mode, "Start dialog");
         let target_dialog = self.resolve_dialog(&state)?;
         let mut storage = self.load_storage().await?;
+        if let Some(stack) = storage.current_stack() {
+            let current_ctx = stack
+                .last_intent_id()
+                .and_then(|id| storage.contexts.get(id));
+            self.check_access(stack, current_ctx, self.event_context())?;
+        }
         if let Some(current_ctx) = storage
             .current_stack()
             .and_then(Stack::last_intent_id)
@@ -594,14 +610,18 @@ impl<S: Storage> DialogManager<S> {
             Err(err) => return Err(err),
         };
         let event_ctx = self.event_context();
-        self.check_access(ctx.access_settings.as_ref(), event_ctx)?;
+        let storage = self.load_storage().await?;
+        let stack = storage.current_stack().ok_or(DialogError::NoContext)?;
+        self.check_access(stack, Some(&ctx), event_ctx)?;
         let dialog = self.resolve_dialog(&ctx.state)?;
         let Some(action) = dialog.handle_callback(&ctx.state, &ctx, callback_data) else {
             trace!(state = %ctx.state, "Callback does not belong to current dialog");
             return Ok(false);
         };
         self.answer_callback(bot, &callback_query).await?;
-        self.apply_button_action(bot, action).await
+        self.apply_button_action(bot, action)
+            .await
+            .map(|outcome| outcome.handled)
     }
 
     /// Try to handle a message with the current dialog message input.
@@ -625,13 +645,17 @@ impl<S: Storage> DialogManager<S> {
             Err(err) => return Err(err),
         };
         let event_ctx = self.event_context();
-        self.check_access(ctx.access_settings.as_ref(), event_ctx)?;
+        let storage = self.load_storage().await?;
+        let stack = storage.current_stack().ok_or(DialogError::NoContext)?;
+        self.check_access(stack, Some(&ctx), event_ctx)?;
         let dialog = self.resolve_dialog(&ctx.state)?;
         let Some(action) = dialog.handle_message(&ctx.state, &ctx, message) else {
             trace!(state = %ctx.state, "Message does not belong to current dialog");
             return Ok(false);
         };
-        self.apply_button_action(bot, action).await
+        self.apply_button_action(bot, action)
+            .await
+            .map(|outcome| outcome.handled)
     }
 
     /// Answer a callback query without notification text.
@@ -664,6 +688,28 @@ impl<S: Storage> DialogManager<S> {
         bot: &Bot<Client>,
         show_mode: Option<ShowMode>,
     ) -> Result<Option<Context>, DialogError> {
+        self.done_inner(bot, show_mode, None).await
+    }
+
+    /// Close current dialog and pass a result to the parent dialog if it exists.
+    ///
+    /// # Errors
+    /// Same as [`Self::done`].
+    pub async fn done_with_result<Client: Session>(
+        &self,
+        bot: &Bot<Client>,
+        show_mode: Option<ShowMode>,
+        result: Data,
+    ) -> Result<Option<Context>, DialogError> {
+        self.done_inner(bot, show_mode, Some(result)).await
+    }
+
+    async fn done_inner<Client: Session>(
+        &self,
+        bot: &Bot<Client>,
+        show_mode: Option<ShowMode>,
+        result: Option<Data>,
+    ) -> Result<Option<Context>, DialogError> {
         debug!(show_mode = ?show_mode, "Close current dialog context");
         let mut storage = self.load_storage().await?;
         let event_ctx = self.event_context();
@@ -682,23 +728,51 @@ impl<S: Storage> DialogManager<S> {
             let stack = storage.current_stack_mut();
             stack.pop().ok_or(DialogError::NoContext)?
         };
-        let ctx = storage.contexts.remove(&id);
-        trace!(context_id = %id, found = ctx.is_some(), "Removed current dialog context");
-        let should_show = storage
+        let closed_ctx = storage.contexts.remove(&id);
+        trace!(
+            context_id = %id,
+            found = closed_ctx.is_some(),
+            "Removed current dialog context"
+        );
+        let parent_ctx = storage
             .current_stack()
-            .and_then(|s| s.last_intent_id())
-            .is_some_and(|id| storage.contexts.contains_key(id));
-        if !should_show {
+            .and_then(|stack| stack.last_intent_id())
+            .and_then(|id| storage.contexts.get(id))
+            .cloned();
+        if parent_ctx.is_none() {
             storage.current_stack_mut().clear_last_message();
         }
         self.save_storage(storage).await?;
-        if should_show {
-            trace!("Show previous dialog context after done");
-            let _ = self.show(bot, show_mode).await?;
+
+        let mut callback_outcome = ActionOutcome::default();
+        if let (Some(parent_ctx), Some(closed_ctx), Some(result)) =
+            (parent_ctx.as_ref(), closed_ctx.as_ref(), result.as_ref())
+        {
+            let parent_dialog = self.resolve_dialog(&parent_ctx.state)?;
+            if let Some(action) = parent_dialog.process_result(
+                &parent_ctx.state,
+                parent_ctx,
+                &closed_ctx.start_data,
+                result,
+            ) {
+                callback_outcome = self.apply_button_action(bot, action).await?;
+            }
+        }
+
+        if let Some(parent_ctx) = parent_ctx {
+            if self
+                .current_context()
+                .await
+                .is_ok_and(|current| current.id == parent_ctx.id)
+                && !callback_outcome.already_shown
+            {
+                trace!("Show previous dialog context after done");
+                let _ = self.show(bot, show_mode).await?;
+            }
         } else {
             MessageManager::close_message(bot, close_show_mode, old_message.as_ref()).await?;
         }
-        Ok(ctx)
+        Ok(closed_ctx)
     }
 
     /// Get dialog data for current context.
@@ -844,7 +918,7 @@ impl<S: Storage> DialogManager<S> {
             .get(&intent_id)
             .cloned()
             .ok_or(DialogError::NoContext)?;
-        self.check_access(ctx.access_settings.as_ref(), event_ctx)?;
+        self.check_access(stack, Some(&ctx), event_ctx)?;
         let dialog = self
             .registry
             .find_by_state(&ctx.state)
@@ -896,11 +970,11 @@ mod tests {
         dialog,
         dialog::DialogImpl,
         entities::{
-            AccessSettings, ChatEvent, DataMap, EventContext, LaunchMode, ShowMode, Stack,
+            AccessSettings, ChatEvent, Context, DataMap, EventContext, LaunchMode, ShowMode, Stack,
             StartMode, EVENT_CONTEXT_KEY,
         },
         widgets::{fn_text, input, text, ButtonAction, MessageInput},
-        window, DialogError, DialogRegistry, IntoDialog, IntoWindow,
+        window, DialogError, DialogRegistry, IntoDialog, IntoWindow, StackAccessValidator,
     };
     use serde_json::{json, Value};
     use std::sync::{
@@ -996,6 +1070,21 @@ mod tests {
         stack.last_link_preview_options = None;
         stack.has_protected_content = None;
         manager.save_storage(storage).await.expect("save storage");
+    }
+
+    #[derive(Clone, Copy)]
+    struct DenyAllValidator;
+
+    impl StackAccessValidator for DenyAllValidator {
+        fn is_allowed(
+            &self,
+            _stack: &Stack,
+            _context: Option<&Context>,
+            _event: &ChatEvent,
+            _event_ctx: &EventContext,
+        ) -> bool {
+            false
+        }
     }
 
     #[tokio::test]
@@ -1231,6 +1320,52 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn done_with_result_calls_parent_process_result() {
+        let bot = test_bot();
+        let registry = registry_with([
+            dialog([window("parent", [text("Parent")])]).on_process_result(
+                |_ctx, start_data, result| {
+                    Some(ButtonAction::chain([
+                        ButtonAction::set_dialog_value("child_start", start_data.clone()),
+                        ButtonAction::set_dialog_value("child_result", result.clone()),
+                    ]))
+                },
+            ),
+            dialog([window("child", [text("Child")])]),
+        ]);
+        let manager = manager_for_event(test_fsm(bot.id), registry, message_event("/start"));
+        prime_last_message(&manager, 85).await;
+
+        let _ = manager
+            .start(&bot, "parent", Value::Null, StartMode::Normal)
+            .await
+            .unwrap();
+        let _ = manager
+            .start(&bot, "child", json!({ "step": 2 }), StartMode::Normal)
+            .await
+            .unwrap();
+
+        let closed = manager
+            .done_with_result(&bot, None, json!({ "accepted": true }))
+            .await
+            .unwrap()
+            .unwrap();
+
+        assert_eq!(closed.state, "child");
+
+        let parent = manager.current_context().await.unwrap();
+        assert_eq!(parent.state, "parent");
+        assert_eq!(
+            parent.dialog_data.get("child_start"),
+            Some(&json!({ "step": 2 }))
+        );
+        assert_eq!(
+            parent.dialog_data.get("child_result"),
+            Some(&json!({ "accepted": true }))
+        );
+    }
+
+    #[tokio::test]
     async fn done_cleans_up_last_dialog_message_when_stack_becomes_empty() {
         let bot = test_bot();
         let only_renders = Arc::new(AtomicUsize::new(0));
@@ -1327,7 +1462,7 @@ mod tests {
         let event = message_event("/start");
         let manager = manager_for_event(test_fsm(test_bot().id), DialogRegistry::new(), event);
         let event_ctx = manager.event_context();
-        assert!(manager.check_access(None, event_ctx).is_ok());
+        assert!(manager.check_access(&Stack::new(), None, event_ctx).is_ok());
     }
 
     #[test]
@@ -1339,7 +1474,11 @@ mod tests {
             user_ids: vec![999], // not the test user
             custom: None,
         };
-        assert!(manager.check_access(Some(&settings), event_ctx).is_ok());
+        let mut ctx = Context::new("", "state", Value::Null);
+        ctx.access_settings = Some(settings);
+        assert!(manager
+            .check_access(&Stack::new(), Some(&ctx), event_ctx)
+            .is_ok());
     }
 
     #[test]
@@ -1351,8 +1490,10 @@ mod tests {
             user_ids: vec![999],
             custom: None,
         };
+        let mut ctx = Context::new("", "state", Value::Null);
+        ctx.access_settings = Some(settings);
         let err = manager
-            .check_access(Some(&settings), event_ctx)
+            .check_access(&Stack::new(), Some(&ctx), event_ctx)
             .expect_err("should deny");
         assert!(matches!(err, DialogError::AccessDenied { user_id } if user_id == TEST_USER_ID));
     }
@@ -1366,7 +1507,11 @@ mod tests {
             user_ids: vec![TEST_USER_ID],
             custom: None,
         };
-        assert!(manager.check_access(Some(&settings), event_ctx).is_ok());
+        let mut ctx = Context::new("", "state", Value::Null);
+        ctx.access_settings = Some(settings);
+        assert!(manager
+            .check_access(&Stack::new(), Some(&ctx), event_ctx)
+            .is_ok());
     }
 
     #[test]
@@ -1378,7 +1523,25 @@ mod tests {
             user_ids: vec![],
             custom: None,
         };
-        assert!(manager.check_access(Some(&settings), event_ctx).is_ok());
+        let mut ctx = Context::new("", "state", Value::Null);
+        ctx.access_settings = Some(settings);
+        assert!(manager
+            .check_access(&Stack::new(), Some(&ctx), event_ctx)
+            .is_ok());
+    }
+
+    #[test]
+    fn custom_access_validator_can_override_default_behavior() {
+        let event = message_event("/start");
+        let registry = DialogRegistry::new().with_access_validator(DenyAllValidator);
+        let manager = manager_for_event(test_fsm(test_bot().id), registry, event);
+        let event_ctx = manager.event_context();
+
+        let err = manager
+            .check_access(&Stack::new(), None, event_ctx)
+            .expect_err("custom validator must deny access");
+
+        assert!(matches!(err, DialogError::AccessDenied { user_id } if user_id == TEST_USER_ID));
     }
 
     #[tokio::test]

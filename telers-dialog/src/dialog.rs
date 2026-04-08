@@ -1,11 +1,14 @@
 use crate::{
-    entities::{Context, DataMap, EventContext, LaunchMode, NewMessage},
+    entities::{Context, Data, DataMap, EventContext, LaunchMode, NewMessage},
     widgets::ButtonAction,
     IntoWindow, Window,
 };
 use std::{collections::BTreeMap, sync::Arc};
 use telers::types::Message;
 use tracing::warn;
+
+type ProcessResultHandler =
+    dyn Fn(&Context, &Data, &Data) -> Option<ButtonAction> + Send + Sync + 'static;
 
 pub trait Dialog: Send + Sync {
     #[must_use]
@@ -56,6 +59,17 @@ pub trait Dialog: Send + Sync {
 
     #[must_use]
     fn handle_message(&self, state: &str, ctx: &Context, message: Message) -> Option<ButtonAction>;
+
+    #[must_use]
+    fn process_result(
+        &self,
+        _state: &str,
+        _ctx: &Context,
+        _start_data: &Data,
+        _result: &Data,
+    ) -> Option<ButtonAction> {
+        None
+    }
 }
 
 pub trait IntoDialog {
@@ -98,6 +112,7 @@ pub struct DialogImpl {
     states: Vec<String>,
     windows: BTreeMap<String, Arc<dyn Window>>,
     launch_mode: LaunchMode,
+    on_process_result: Option<Arc<ProcessResultHandler>>,
 }
 
 impl DialogImpl {
@@ -122,6 +137,7 @@ impl DialogImpl {
             states,
             windows: map,
             launch_mode: LaunchMode::default(),
+            on_process_result: None,
         }
     }
 
@@ -129,6 +145,15 @@ impl DialogImpl {
     #[must_use]
     pub fn with_launch_mode(mut self, mode: LaunchMode) -> Self {
         self.launch_mode = mode;
+        self
+    }
+
+    #[must_use]
+    pub fn on_process_result<F>(mut self, handler: F) -> Self
+    where
+        F: Fn(&Context, &Data, &Data) -> Option<ButtonAction> + Send + Sync + 'static,
+    {
+        self.on_process_result = Some(Arc::new(handler));
         self
     }
 
@@ -174,6 +199,18 @@ impl Dialog for DialogImpl {
     fn handle_message(&self, state: &str, ctx: &Context, message: Message) -> Option<ButtonAction> {
         self.get_window(state)
             .and_then(|window| window.handle_message(ctx, message))
+    }
+
+    fn process_result(
+        &self,
+        _state: &str,
+        ctx: &Context,
+        start_data: &Data,
+        result: &Data,
+    ) -> Option<ButtonAction> {
+        self.on_process_result
+            .as_ref()
+            .and_then(|handler| handler(ctx, start_data, result))
     }
 }
 
