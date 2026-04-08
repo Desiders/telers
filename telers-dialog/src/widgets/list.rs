@@ -8,6 +8,7 @@ pub struct ListText<ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr> {
     items_getter: ItemsGetter,
     item_renderer: ItemRenderer,
     separator: Cow<'static, str>,
+    #[allow(clippy::type_complexity)]
     marker: PhantomData<fn() -> (ItemsIter, Item, ItemStr)>,
 }
 

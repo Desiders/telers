@@ -68,8 +68,10 @@ where
 
 pub struct TextInput<WidgetId, ParserOk, ParserErr, OnSuccess> {
     id: WidgetId,
+    #[allow(clippy::type_complexity)]
     parser: Box<dyn Fn(&str) -> Result<ParserOk, ParserErr> + Send + Sync>,
     on_success: OnSuccess,
+    #[allow(clippy::type_complexity)]
     on_error: Option<Box<dyn Fn(&Context, ParserErr) -> ButtonAction + Send + Sync>>,
     marker: PhantomData<fn() -> (ParserOk, ParserErr)>,
 }
@@ -79,12 +81,13 @@ impl<WidgetId, ParserOk, ParserErr, OnSuccess> TextInput<WidgetId, ParserOk, Par
 where
     WidgetId: Display,
 {
+    #[allow(clippy::type_complexity)]
     #[builder]
     #[must_use]
     pub fn new(
         #[builder(start_fn)] id: WidgetId,
         #[builder(
-            default = Box::new(|text| text.parse()),
+            default = Box::new(str::parse),
             with = |parser: impl Fn(&str) -> Result<ParserOk, ParserErr> + Send + Sync + 'static| Box::new(parser)
         )]
         parser: Box<dyn Fn(&str) -> Result<ParserOk, ParserErr> + Send + Sync>,
@@ -127,10 +130,7 @@ where
                 ButtonAction::set_widget_value(self.id.to_string(), text),
                 (self.on_success)(ctx, value),
             ])),
-            Err(err) => self
-                .on_error
-                .as_ref()
-                .and_then(|on_error| Some(on_error(ctx, err))),
+            Err(err) => self.on_error.as_ref().map(|on_error| on_error(ctx, err)),
         }
     }
 }

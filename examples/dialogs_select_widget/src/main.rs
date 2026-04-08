@@ -17,7 +17,7 @@ use telers::{
 };
 use telers_dialog::{
     dialog,
-    widgets::{format_text, keyboard, text, Button, ButtonAction, InlineKeyboard, Select},
+    widgets::{format_text, keyboard, text, Button, ButtonAction, Group, InlineKeyboard, Select},
     window, DialogManager, DialogObserverExt, DialogRegistry, StartMode,
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
@@ -45,7 +45,7 @@ fn registry() -> DialogRegistry {
             "pick_size",
             [
                 text("Select a numeric payload. This uses `Select<u32>`."),
-                keyboard(
+                keyboard(Group::new(
                     Select::builder("size")
                         .items_getter(|_data| [28, 30, 32, 34, 36, 38])
                         .item_renderer(|item, _data| format!("{item} cm"))
@@ -56,10 +56,10 @@ fn registry() -> DialogRegistry {
                                 ButtonAction::next(),
                             ])
                         })
-                        .items_per_row(3)
                         .footer_push(Button::done("close", "Close"))
                         .build(),
-                ),
+                    3,
+                )),
             ],
         ),
         window(
@@ -99,7 +99,7 @@ async fn main() {
                 .register(Handler::new(handle_start).filter(Command::one("start")))
                 .setup_dialogs::<MemoryStorage>()
         })
-        .on_callback_query(|observer| observer.setup_dialogs::<MemoryStorage>());
+        .on_callback_query(DialogObserverExt::setup_dialogs::<MemoryStorage>);
 
     let dispatcher = Dispatcher::builder()
         .main_router(router.configure_default())

@@ -55,6 +55,7 @@ impl FormatText {
 }
 
 impl Text for FormatText {
+    #[inline]
     fn render_text(&self, data: &DataMap) -> Box<str> {
         render_template(&self.template, data).into_boxed_str()
     }
@@ -72,13 +73,11 @@ impl<S> MultiTextBuilder<S>
 where
     S: multi_text_builder::State,
 {
-    #[must_use]
     pub fn text(mut self, text: impl Text) -> Self {
         self.items.push(Box::new(text));
         self
     }
 
-    #[must_use]
     pub(crate) fn text_boxed(mut self, text: Box<dyn Text>) -> Self {
         self.items.push(text);
         self
