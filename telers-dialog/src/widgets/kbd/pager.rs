@@ -1,3 +1,10 @@
+//! Pagination widgets and page-change helpers.
+//!
+//! The pager module contains:
+//! - [`ScrollingGroup`] for paged keyboard layouts
+//! - standalone pager controls such as [`SwitchPage`] and [`NumberedPager`]
+//! - synchronization helpers like [`sync_scroll`]
+
 mod common;
 mod scrolling_group;
 mod standalone;

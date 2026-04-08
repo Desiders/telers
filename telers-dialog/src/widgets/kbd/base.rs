@@ -4,9 +4,15 @@ use tracing::warn;
 use super::ButtonAction;
 use crate::entities::{Context, DataMap};
 
+/// Keyboard widget rendered inside a dialog window.
+///
+/// Implementors are responsible for producing reply markup and resolving
+/// callback data that belongs to the widget.
 pub trait Keyboard: Send + Sync + 'static {
+    /// Render reply markup for the current dialog context.
     fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup>;
 
+    /// Resolve callback data into a dialog action.
     fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction>;
 }
 

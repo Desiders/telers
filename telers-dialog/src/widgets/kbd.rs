@@ -1,3 +1,11 @@
+//! Inline keyboard widgets and helpers.
+//!
+//! This module contains the public keyboard surface used by windows:
+//! - primitive buttons such as [`Button`]
+//! - navigation and mutation actions via [`ButtonAction`]
+//! - collection widgets such as [`Select`], [`Radio`], and [`Multiselect`]
+//! - paging helpers such as [`ScrollingGroup`] and [`NumberedPager`]
+
 mod action;
 mod base;
 mod button;

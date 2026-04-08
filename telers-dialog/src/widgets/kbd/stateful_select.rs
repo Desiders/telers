@@ -1,3 +1,10 @@
+//! Stateful selection widgets.
+//!
+//! These widgets persist their state in `widget_data`:
+//! - [`Radio`] stores one selected id
+//! - [`Toggle`] stores one selected id and cycles through items
+//! - [`Multiselect`] stores several selected ids
+
 mod multiselect;
 mod radio;
 mod toggle;

@@ -3,12 +3,14 @@ use telers::types::{InlineKeyboardMarkup, ReplyMarkup};
 use super::{ButtonAction, Keyboard};
 use crate::entities::{Context, DataMap};
 
+/// Layout wrapper that regroups inline keyboard buttons into fixed-width rows.
 pub struct Group<Kbd> {
     kbd: Kbd,
     items_per_row: usize,
 }
 
 impl<Kbd> Group<Kbd> {
+    /// Wrap a keyboard and regroup its inline buttons by `items_per_row`.
     #[inline]
     #[must_use]
     pub fn new(kbd: Kbd, items_per_row: usize) -> Self {
