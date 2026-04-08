@@ -25,6 +25,7 @@
 - Prefer small, explicit methods with strong types (`Cow<'static, str>`, enums, newtypes) over stringly APIs.
 - Keep logs high-signal with `tracing`; focus on lifecycle/actions/errors, avoid render-time noise.
 - Add tests with behavior changes, especially manager transitions, callback routing, and input/widget state interactions.
+- In tests, avoid `.expect(...)`; prefer `.unwrap()` for assertion flow consistency.
 
 ## Workspace scripts (`justfile`)
 - Prefer workspace recipes from [`justfile`](/workspace/justfile):
