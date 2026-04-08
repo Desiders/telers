@@ -264,11 +264,6 @@ impl<S: Storage> DialogManager<S> {
     }
 
     /// Check access for the current user against the given settings.
-    ///
-    /// Following `aiogram-dialog`'s `DefaultAccessValidator` semantics:
-    /// - If no access settings are provided, access is always granted.
-    /// - In private chats, access is always granted.
-    /// - Otherwise, the user must be present in `user_ids` (if non-empty).
     fn check_access(
         &self,
         access_settings: Option<&AccessSettings>,

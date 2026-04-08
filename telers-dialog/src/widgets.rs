@@ -12,7 +12,7 @@ pub(crate) use text::{FnText, FormatText};
 pub(crate) use widget::ensure_widgets;
 
 pub use input::{Input, MessageInput, TextInput};
-pub use kbd::{Button, ButtonAction, InlineKeyboard, Keyboard, Select};
+pub use kbd::{Button, ButtonAction, Group, InlineKeyboard, Keyboard, Select};
 pub use list::ListText;
 pub use pager::ScrollingGroup;
 pub use stateful_select::{Multiselect, Radio};

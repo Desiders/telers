@@ -27,9 +27,9 @@ pub struct Radio<
     checked_renderer: CheckedRenderer,
     unchecked_renderer: UncheckedRenderer,
     id_getter: IdGetter,
-    items_per_row: usize,
     header_rows: Vec<Vec<Button>>,
     footer_rows: Vec<Vec<Button>>,
+    #[allow(clippy::type_complexity)]
     marker: PhantomData<fn() -> (ItemsIter, Item, ItemStr, Id)>,
 }
 
@@ -67,7 +67,6 @@ impl<
         checked_renderer: CheckedRenderer,
         unchecked_renderer: UncheckedRenderer,
         id_getter: IdGetter,
-        #[builder(default = 1)] items_per_row: usize,
     ) -> Self
     where
         WidgetId: Display,
@@ -85,7 +84,6 @@ impl<
             checked_renderer,
             unchecked_renderer,
             id_getter,
-            items_per_row,
             header_rows,
             footer_rows,
             marker: PhantomData,
@@ -128,13 +126,11 @@ where
     IdGetter: Fn(&Item) -> Id,
     Id: Display,
 {
-    #[must_use]
     pub fn header_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
         self.header_rows.push(buttons.into_iter().collect());
         self
     }
 
-    #[must_use]
     pub fn header_push(mut self, button: Button) -> Self {
         match self.header_rows.last_mut() {
             Some(row) => row.push(button),
@@ -143,13 +139,11 @@ where
         self
     }
 
-    #[must_use]
     pub fn footer_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
         self.footer_rows.push(buttons.into_iter().collect());
         self
     }
 
-    #[must_use]
     pub fn footer_push(mut self, button: Button) -> Self {
         match self.footer_rows.last_mut() {
             Some(row) => row.push(button),
@@ -202,7 +196,6 @@ where
             .map(|row| render_button_row(row, ctx, data))
             .collect();
 
-        let mut current_row = Vec::with_capacity(self.items_per_row);
         for item in (self.items_getter)(data) {
             let item_id = (self.id_getter)(&item).to_string();
             let is_checked = checked.as_deref() == Some(item_id.as_str());
@@ -211,20 +204,16 @@ where
             } else {
                 (self.unchecked_renderer)(&item, data)
             };
-            current_row.push(
-                InlineKeyboardButton::new(text).callback_data(format_callback_data(
-                    ctx,
-                    &self.id,
-                    Some(&item_id),
-                )),
+            rows.push(
+                [
+                    InlineKeyboardButton::new(text).callback_data(format_callback_data(
+                        ctx,
+                        &self.id,
+                        Some(&item_id),
+                    )),
+                ]
+                .into(),
             );
-            if current_row.len() == self.items_per_row {
-                rows.push(current_row.into_boxed_slice());
-                current_row = Vec::with_capacity(self.items_per_row);
-            }
-        }
-        if !current_row.is_empty() {
-            rows.push(current_row.into_boxed_slice());
         }
 
         rows.extend(
@@ -266,17 +255,6 @@ where
     }
 }
 
-// ---------------------------------------------------------------------------
-// Multiselect
-// ---------------------------------------------------------------------------
-
-/// Multi-selection widget that stores a list of checked item ids in `widget_data`.
-///
-/// Mirrors `aiogram-dialog`'s `Multiselect` semantics:
-/// - Each item is rendered with either `checked_renderer` or `unchecked_renderer`.
-/// - Clicking a checked item unchecks it; clicking an unchecked item checks it.
-/// - Selection stored as JSON array of strings in `widget_data[widget_id]`.
-/// - `min_selected` / `max_selected` enforce cardinality constraints.
 pub struct Multiselect<
     WidgetId,
     ItemsGetter,
@@ -293,11 +271,11 @@ pub struct Multiselect<
     checked_renderer: CheckedRenderer,
     unchecked_renderer: UncheckedRenderer,
     id_getter: IdGetter,
-    items_per_row: usize,
     min_selected: usize,
     max_selected: usize,
     header_rows: Vec<Vec<Button>>,
     footer_rows: Vec<Vec<Button>>,
+    #[allow(clippy::type_complexity)]
     marker: PhantomData<fn() -> (ItemsIter, Item, ItemStr, Id)>,
 }
 
@@ -335,7 +313,6 @@ impl<
         checked_renderer: CheckedRenderer,
         unchecked_renderer: UncheckedRenderer,
         id_getter: IdGetter,
-        #[builder(default = 1)] items_per_row: usize,
         #[builder(default = 0)] min_selected: usize,
         #[builder(default = 0)] max_selected: usize,
     ) -> Self
@@ -355,7 +332,6 @@ impl<
             checked_renderer,
             unchecked_renderer,
             id_getter,
-            items_per_row,
             min_selected,
             max_selected,
             header_rows,
@@ -400,13 +376,11 @@ where
     IdGetter: Fn(&Item) -> Id,
     Id: Display,
 {
-    #[must_use]
     pub fn header_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
         self.header_rows.push(buttons.into_iter().collect());
         self
     }
 
-    #[must_use]
     pub fn header_push(mut self, button: Button) -> Self {
         match self.header_rows.last_mut() {
             Some(row) => row.push(button),
@@ -415,13 +389,11 @@ where
         self
     }
 
-    #[must_use]
     pub fn footer_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
         self.footer_rows.push(buttons.into_iter().collect());
         self
     }
 
-    #[must_use]
     pub fn footer_push(mut self, button: Button) -> Self {
         match self.footer_rows.last_mut() {
             Some(row) => row.push(button),
@@ -429,12 +401,6 @@ where
         }
         self
     }
-}
-
-/// Read checked list from widget_data. Returns empty vec if not present.
-fn read_checked_list(ctx: &Context, widget_id: &str) -> Vec<String> {
-    ctx.widget_value_as::<Vec<String>>(widget_id)
-        .unwrap_or_default()
 }
 
 impl<
@@ -480,7 +446,6 @@ where
             .map(|row| render_button_row(row, ctx, data))
             .collect();
 
-        let mut current_row = Vec::with_capacity(self.items_per_row);
         for item in (self.items_getter)(data) {
             let item_id = (self.id_getter)(&item).to_string();
             let is_checked = checked.iter().any(|id| id == &item_id);
@@ -489,20 +454,16 @@ where
             } else {
                 (self.unchecked_renderer)(&item, data)
             };
-            current_row.push(
-                InlineKeyboardButton::new(text).callback_data(format_callback_data(
-                    ctx,
-                    &self.id,
-                    Some(&item_id),
-                )),
+            rows.push(
+                [
+                    InlineKeyboardButton::new(text).callback_data(format_callback_data(
+                        ctx,
+                        &self.id,
+                        Some(&item_id),
+                    )),
+                ]
+                .into(),
             );
-            if current_row.len() == self.items_per_row {
-                rows.push(current_row.into_boxed_slice());
-                current_row = Vec::with_capacity(self.items_per_row);
-            }
-        }
-        if !current_row.is_empty() {
-            rows.push(current_row.into_boxed_slice());
         }
 
         rows.extend(
@@ -538,7 +499,6 @@ where
         let mut checked = read_checked_list(ctx, &widget_id);
 
         if let Some(pos) = checked.iter().position(|id| id == payload) {
-            // Uncheck: respect min_selected
             if self.min_selected > 0 && checked.len() <= self.min_selected {
                 debug!(
                     context_id = %ctx.id,
@@ -551,7 +511,6 @@ where
             }
             checked.remove(pos);
         } else {
-            // Check: respect max_selected
             if self.max_selected > 0 && checked.len() >= self.max_selected {
                 debug!(
                     context_id = %ctx.id,
@@ -577,6 +536,13 @@ where
             serde_json::Value::Array(checked.into_iter().map(serde_json::Value::String).collect()),
         ))
     }
+}
+
+#[inline]
+#[must_use]
+fn read_checked_list(ctx: &Context, widget_id: &str) -> Vec<String> {
+    ctx.widget_value_as::<Vec<String>>(widget_id)
+        .unwrap_or_default()
 }
 
 #[cfg(test)]

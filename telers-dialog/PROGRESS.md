@@ -1,6 +1,6 @@
 # telers-dialog Progress Snapshot
 
-Updated: 2026-04-07 (UTC)
+Updated: 2026-04-08 (UTC)
 
 ## Goal
 - Build a focused, Rust-native dialog framework for `telers`.
@@ -71,6 +71,7 @@ Updated: 2026-04-07 (UTC)
   - `ListText`
 - Keyboard/actions:
   - `InlineKeyboard`
+  - `Group` ← NEW: layout wrapper to group inline keyboard buttons by row width
   - `Button::{action,next,back,switch_to,start,done,set_dialog_value,url}`
   - `Select`
   - `Radio` ← NEW: single-selection stateful widget with stored selection in `widget_data`
@@ -91,7 +92,7 @@ Updated: 2026-04-07 (UTC)
 - Renders items with `checked_renderer` or `unchecked_renderer` based on selection state.
 - Clicking a radio item produces `ButtonAction::SetWidgetValue` to persist selection.
 - Supports `header_row`/`footer_row`/`header_push`/`footer_push` for additional buttons.
-- Configurable `items_per_row` (default 1).
+- Layout grouping is handled by wrapping with `Group` (for example `Group::new(Radio::builder(...).build(), 3)`).
 
 ### Multiselect
 - Builder-based: `Multiselect::builder("widget_id").items_getter(...).checked_renderer(...).unchecked_renderer(...).id_getter(...).build()`
@@ -100,6 +101,12 @@ Updated: 2026-04-07 (UTC)
 - `min_selected` prevents unchecking below minimum (returns `Noop`).
 - `max_selected` prevents checking above maximum (returns `Noop`).
 - Supports header/footer static buttons.
+
+### Group
+- Generic keyboard wrapper: `Group::new(inner_keyboard, items_per_row)`.
+- Applies only to inline keyboards, regrouping all buttons into rows of `items_per_row`.
+- Delegates callback handling to wrapped keyboard unchanged.
+- Intended as layout layer for widgets like `Select`, `Radio`, and `Multiselect`.
 
 ### ScrollingGroup
 - Wraps any `Keyboard` widget and adds height-based pagination.
