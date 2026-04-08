@@ -3,24 +3,14 @@ use std::{fmt::Display, marker::PhantomData};
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::debug;
 
-use super::{kbd::format_callback_data, kbd::parse_callback_data, Button};
+use super::{
+    kbd::{format_callback_data, parse_callback_data},
+    Button,
+};
 use crate::entities::{Context, DataMap};
 
-use super::kbd::render_button_row;
-use super::ButtonAction;
-use super::Keyboard;
+use super::{kbd::render_button_row, ButtonAction, Keyboard};
 
-// ---------------------------------------------------------------------------
-// Radio
-// ---------------------------------------------------------------------------
-
-/// Single-selection widget that stores the checked item id in `widget_data`.
-///
-/// Mirrors `aiogram-dialog`'s `Radio` semantics:
-/// - Each item is rendered with either `checked_text` or `unchecked_text`
-///   depending on whether it is the currently selected item.
-/// - Clicking an item stores its id in `widget_data[widget_id]` and
-///   produces a `SetWidgetValue` action so the manager persists the choice.
 pub struct Radio<
     WidgetId,
     ItemsGetter,
@@ -45,16 +35,16 @@ pub struct Radio<
 
 #[bon]
 impl<
-    WidgetId,
-    ItemsGetter,
-    ItemsIter,
-    Item,
-    CheckedRenderer,
-    UncheckedRenderer,
-    ItemStr,
-    IdGetter,
-    Id,
->
+        WidgetId,
+        ItemsGetter,
+        ItemsIter,
+        Item,
+        CheckedRenderer,
+        UncheckedRenderer,
+        ItemStr,
+        IdGetter,
+        Id,
+    >
     Radio<
         WidgetId,
         ItemsGetter,
@@ -104,17 +94,17 @@ impl<
 }
 
 impl<
-    S,
-    WidgetId,
-    ItemsGetter,
-    ItemsIter,
-    Item,
-    CheckedRenderer,
-    UncheckedRenderer,
-    ItemStr,
-    IdGetter,
-    Id,
->
+        S,
+        WidgetId,
+        ItemsGetter,
+        ItemsIter,
+        Item,
+        CheckedRenderer,
+        UncheckedRenderer,
+        ItemStr,
+        IdGetter,
+        Id,
+    >
     RadioBuilder<
         WidgetId,
         ItemsGetter,
@@ -170,16 +160,16 @@ where
 }
 
 impl<
-    WidgetId,
-    ItemsGetter,
-    ItemsIter,
-    Item,
-    CheckedRenderer,
-    UncheckedRenderer,
-    ItemStr,
-    IdGetter,
-    Id,
-> Keyboard
+        WidgetId,
+        ItemsGetter,
+        ItemsIter,
+        Item,
+        CheckedRenderer,
+        UncheckedRenderer,
+        ItemStr,
+        IdGetter,
+        Id,
+    > Keyboard
     for Radio<
         WidgetId,
         ItemsGetter,
@@ -272,10 +262,7 @@ where
             item_id = payload,
             "Resolved radio selection callback"
         );
-        Some(ButtonAction::set_widget_value(
-            self.id.to_string(),
-            payload,
-        ))
+        Some(ButtonAction::set_widget_value(self.id.to_string(), payload))
     }
 }
 
@@ -316,16 +303,16 @@ pub struct Multiselect<
 
 #[bon]
 impl<
-    WidgetId,
-    ItemsGetter,
-    ItemsIter,
-    Item,
-    CheckedRenderer,
-    UncheckedRenderer,
-    ItemStr,
-    IdGetter,
-    Id,
->
+        WidgetId,
+        ItemsGetter,
+        ItemsIter,
+        Item,
+        CheckedRenderer,
+        UncheckedRenderer,
+        ItemStr,
+        IdGetter,
+        Id,
+    >
     Multiselect<
         WidgetId,
         ItemsGetter,
@@ -379,17 +366,17 @@ impl<
 }
 
 impl<
-    S,
-    WidgetId,
-    ItemsGetter,
-    ItemsIter,
-    Item,
-    CheckedRenderer,
-    UncheckedRenderer,
-    ItemStr,
-    IdGetter,
-    Id,
->
+        S,
+        WidgetId,
+        ItemsGetter,
+        ItemsIter,
+        Item,
+        CheckedRenderer,
+        UncheckedRenderer,
+        ItemStr,
+        IdGetter,
+        Id,
+    >
     MultiselectBuilder<
         WidgetId,
         ItemsGetter,
@@ -451,16 +438,16 @@ fn read_checked_list(ctx: &Context, widget_id: &str) -> Vec<String> {
 }
 
 impl<
-    WidgetId,
-    ItemsGetter,
-    ItemsIter,
-    Item,
-    CheckedRenderer,
-    UncheckedRenderer,
-    ItemStr,
-    IdGetter,
-    Id,
-> Keyboard
+        WidgetId,
+        ItemsGetter,
+        ItemsIter,
+        Item,
+        CheckedRenderer,
+        UncheckedRenderer,
+        ItemStr,
+        IdGetter,
+        Id,
+    > Keyboard
     for Multiselect<
         WidgetId,
         ItemsGetter,
@@ -587,12 +574,7 @@ where
         );
         Some(ButtonAction::set_widget_value(
             widget_id,
-            serde_json::Value::Array(
-                checked
-                    .into_iter()
-                    .map(serde_json::Value::String)
-                    .collect(),
-            ),
+            serde_json::Value::Array(checked.into_iter().map(serde_json::Value::String).collect()),
         ))
     }
 }
@@ -607,8 +589,6 @@ mod tests {
         widgets::{Button, ButtonAction, Keyboard},
     };
 
-    // ---- Radio tests ----
-
     #[test]
     fn radio_renders_checked_and_unchecked_items() {
         let ctx = Context::new("", "state", Value::Null);
@@ -619,11 +599,9 @@ mod tests {
             .id_getter(|&item| item)
             .build();
 
-        let markup = radio
-            .render_keyboard(&ctx, &DataMap::new())
-            .expect("keyboard");
-        let rows = markup.inline_keyboard().expect("inline rows");
-        // nothing checked → all unchecked style
+        let markup = radio.render_keyboard(&ctx, &DataMap::new()).unwrap();
+        let rows = markup.inline_keyboard().unwrap();
+
         assert_eq!(&*rows[0][0].text, "red");
         assert_eq!(&*rows[1][0].text, "blue");
     }
@@ -631,8 +609,7 @@ mod tests {
     #[test]
     fn radio_renders_selected_item_as_checked() {
         let mut ctx = Context::new("", "state", Value::Null);
-        ctx.widget_data
-            .insert("color".into(), json!("blue"));
+        ctx.widget_data.insert("color".into(), json!("blue"));
 
         let radio = Radio::builder("color")
             .items_getter(|_data| ["red", "blue", "green"])
@@ -641,10 +618,9 @@ mod tests {
             .id_getter(|&item| item)
             .build();
 
-        let markup = radio
-            .render_keyboard(&ctx, &DataMap::new())
-            .expect("keyboard");
-        let rows = markup.inline_keyboard().expect("inline rows");
+        let markup = radio.render_keyboard(&ctx, &DataMap::new()).unwrap();
+        let rows = markup.inline_keyboard().unwrap();
+
         assert_eq!(&*rows[0][0].text, "red");
         assert_eq!(&*rows[1][0].text, "* blue");
         assert_eq!(&*rows[2][0].text, "green");
@@ -662,7 +638,7 @@ mod tests {
 
         let action = radio
             .handle_callback(&ctx, &format!("td:{}:color:blue", ctx.id))
-            .expect("action");
+            .unwrap();
 
         assert!(matches!(
             action,
@@ -697,20 +673,15 @@ mod tests {
 
         let action = radio
             .handle_callback(&ctx, &format!("td:{}:done", ctx.id))
-            .expect("footer action");
+            .unwrap();
 
         assert!(matches!(action, ButtonAction::Done));
     }
 
-    // ---- Multiselect tests ----
-
     #[test]
     fn multiselect_renders_checked_and_unchecked_items() {
         let mut ctx = Context::new("", "state", Value::Null);
-        ctx.widget_data.insert(
-            "fruits".into(),
-            json!(["apple"]),
-        );
+        ctx.widget_data.insert("fruits".into(), json!(["apple"]));
 
         let ms = Multiselect::builder("fruits")
             .items_getter(|_data| ["apple", "pear", "grape"])
@@ -719,10 +690,9 @@ mod tests {
             .id_getter(|&item| item)
             .build();
 
-        let markup = ms
-            .render_keyboard(&ctx, &DataMap::new())
-            .expect("keyboard");
-        let rows = markup.inline_keyboard().expect("inline rows");
+        let markup = ms.render_keyboard(&ctx, &DataMap::new()).unwrap();
+        let rows = markup.inline_keyboard().unwrap();
+
         assert_eq!(&*rows[0][0].text, "[x] apple");
         assert_eq!(&*rows[1][0].text, "[ ] pear");
         assert_eq!(&*rows[2][0].text, "[ ] grape");
@@ -740,7 +710,7 @@ mod tests {
 
         let action = ms
             .handle_callback(&ctx, &format!("td:{}:fruits:apple", ctx.id))
-            .expect("action");
+            .unwrap();
 
         assert!(matches!(
             action,
@@ -752,10 +722,8 @@ mod tests {
     #[test]
     fn multiselect_toggle_unchecks_checked_item() {
         let mut ctx = Context::new("", "state", Value::Null);
-        ctx.widget_data.insert(
-            "fruits".into(),
-            json!(["apple", "pear"]),
-        );
+        ctx.widget_data
+            .insert("fruits".into(), json!(["apple", "pear"]));
 
         let ms = Multiselect::builder("fruits")
             .items_getter(|_data| ["apple", "pear"])
@@ -766,7 +734,7 @@ mod tests {
 
         let action = ms
             .handle_callback(&ctx, &format!("td:{}:fruits:apple", ctx.id))
-            .expect("action");
+            .unwrap();
 
         assert!(matches!(
             action,
@@ -778,10 +746,8 @@ mod tests {
     #[test]
     fn multiselect_respects_max_selected() {
         let mut ctx = Context::new("", "state", Value::Null);
-        ctx.widget_data.insert(
-            "fruits".into(),
-            json!(["apple", "pear"]),
-        );
+        ctx.widget_data
+            .insert("fruits".into(), json!(["apple", "pear"]));
 
         let ms = Multiselect::builder("fruits")
             .items_getter(|_data| ["apple", "pear", "grape"])
@@ -793,7 +759,7 @@ mod tests {
 
         let action = ms
             .handle_callback(&ctx, &format!("td:{}:fruits:grape", ctx.id))
-            .expect("action");
+            .unwrap();
 
         assert!(matches!(action, ButtonAction::Noop));
     }
@@ -801,8 +767,7 @@ mod tests {
     #[test]
     fn multiselect_respects_min_selected() {
         let mut ctx = Context::new("", "state", Value::Null);
-        ctx.widget_data
-            .insert("fruits".into(), json!(["apple"]));
+        ctx.widget_data.insert("fruits".into(), json!(["apple"]));
 
         let ms = Multiselect::builder("fruits")
             .items_getter(|_data| ["apple", "pear"])
@@ -814,7 +779,7 @@ mod tests {
 
         let action = ms
             .handle_callback(&ctx, &format!("td:{}:fruits:apple", ctx.id))
-            .expect("action");
+            .unwrap();
 
         assert!(matches!(action, ButtonAction::Noop));
     }

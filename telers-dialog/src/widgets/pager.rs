@@ -1,3 +1,5 @@
+use bon::bon;
+use serde_json::Value;
 use std::fmt::Display;
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::debug;
@@ -8,85 +10,70 @@ use super::{
 };
 use crate::entities::{Context, DataMap};
 
-/// A scrolling group that wraps inner keyboard rows and adds pagination controls.
-///
-/// Mirrors `aiogram-dialog`'s `ScrollingGroup` semantics:
-/// - `height` determines how many inner rows are shown per page.
-/// - Page state is persisted in `widget_data[widget_id]` as the 0-indexed page number.
-/// - A built-in pager row shows `[ 1 | < | current | > | last ]` navigation buttons.
-/// - `hide_on_single_page` suppresses the pager when only one page exists.
-/// - `hide_pager` suppresses the pager entirely.
-pub struct ScrollingGroup<WidgetId, Inner> {
+pub struct ScrollingGroup<WidgetId, Kbd> {
     id: WidgetId,
-    inner: Inner,
+    kbd: Kbd,
     height: usize,
     hide_on_single_page: bool,
     hide_pager: bool,
 }
 
-impl<WidgetId, Inner> ScrollingGroup<WidgetId, Inner>
-where
-    WidgetId: Display,
-    Inner: Keyboard,
-{
+#[bon]
+impl<WidgetId, Kbd> ScrollingGroup<WidgetId, Kbd> {
+    #[builder]
     #[must_use]
-    pub fn new(id: WidgetId, inner: Inner, height: usize) -> Self {
+    pub fn new(
+        #[builder(start_fn)] id: WidgetId,
+        kbd: Kbd,
+        height: usize,
+        #[builder(default = false)] hide_on_single_page: bool,
+        #[builder(default = false)] hide_pager: bool,
+    ) -> Self
+    where
+        WidgetId: Display,
+        Kbd: Keyboard,
+    {
         Self {
             id,
-            inner,
+            kbd,
             height,
-            hide_on_single_page: false,
-            hide_pager: false,
+            hide_on_single_page,
+            hide_pager,
         }
     }
-
-    #[must_use]
-    pub fn hide_on_single_page(mut self, hide: bool) -> Self {
-        self.hide_on_single_page = hide;
-        self
-    }
-
-    #[must_use]
-    pub fn hide_pager(mut self, hide: bool) -> Self {
-        self.hide_pager = hide;
-        self
-    }
 }
 
-/// Read the current page from widget_data. Defaults to 0.
-fn read_page(ctx: &Context, widget_id: &str) -> usize {
-    ctx.widget_value_as::<usize>(widget_id).unwrap_or(0)
-}
-
-impl<WidgetId, Inner> Keyboard for ScrollingGroup<WidgetId, Inner>
+impl<WidgetId, Kbd> Keyboard for ScrollingGroup<WidgetId, Kbd>
 where
     WidgetId: Display + Send + Sync + 'static,
-    Inner: Keyboard,
+    Kbd: Keyboard,
 {
     fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
-        let inner_markup = self.inner.render_keyboard(ctx, data)?;
-        let all_rows = inner_markup.inline_keyboard()?;
+        let inner_markup = self.kbd.render_keyboard(ctx, data)?;
+        let rows = inner_markup.inline_keyboard()?;
 
-        if all_rows.is_empty() || self.height == 0 {
+        if rows.is_empty() || self.height == 0 {
             return None;
         }
 
-        let total_rows = all_rows.len();
-        let pages = total_rows / self.height + usize::from(total_rows % self.height != 0);
+        let total_rows = rows.len();
+        let pages_count = total_rows / self.height + usize::from(total_rows % self.height != 0);
         let widget_id = self.id.to_string();
-        let current_page = read_page(ctx, &widget_id).min(pages.saturating_sub(1));
+        let current_page = read_page(ctx, &widget_id).min(pages_count.saturating_sub(1));
 
         let start = current_page * self.height;
         let end = (start + self.height).min(total_rows);
-        let mut rows: Vec<Box<[InlineKeyboardButton]>> =
-            all_rows[start..end].iter().map(|r| r.to_vec().into_boxed_slice()).collect();
+        let mut rows = rows[start..end]
+            .iter()
+            .map(|val| val.to_vec().into_boxed_slice())
+            .collect::<Vec<_>>();
 
-        if !self.hide_pager && !(self.hide_on_single_page && pages <= 1) && pages > 0 {
-            let last_page = pages - 1;
+        if !self.hide_pager && !(self.hide_on_single_page && pages_count <= 1) && pages_count > 0 {
+            let last_page = pages_count - 1;
             let prev_page = current_page.saturating_sub(1);
             let next_page = (current_page + 1).min(last_page);
             rows.push(
-                vec![
+                [
                     InlineKeyboardButton::new("1").callback_data(format_callback_data(
                         ctx,
                         &self.id,
@@ -97,25 +84,19 @@ where
                         &self.id,
                         Some(&prev_page.to_string()),
                     )),
-                    InlineKeyboardButton::new((current_page + 1).to_string())
-                        .callback_data(format_callback_data(
-                            ctx,
-                            &self.id,
-                            Some(&current_page.to_string()),
-                        )),
+                    InlineKeyboardButton::new((current_page + 1).to_string()).callback_data(
+                        format_callback_data(ctx, &self.id, Some(&current_page.to_string())),
+                    ),
                     InlineKeyboardButton::new(">").callback_data(format_callback_data(
                         ctx,
                         &self.id,
                         Some(&next_page.to_string()),
                     )),
-                    InlineKeyboardButton::new((last_page + 1).to_string())
-                        .callback_data(format_callback_data(
-                            ctx,
-                            &self.id,
-                            Some(&last_page.to_string()),
-                        )),
+                    InlineKeyboardButton::new(pages_count.to_string()).callback_data(
+                        format_callback_data(ctx, &self.id, Some(&last_page.to_string())),
+                    ),
                 ]
-                .into_boxed_slice(),
+                .into(),
             );
         }
 
@@ -136,13 +117,17 @@ where
             );
             return Some(ButtonAction::set_widget_value(
                 widget_id,
-                serde_json::Value::Number(page.into()),
+                Value::Number(page.into()),
             ));
         }
 
         // Delegate to inner keyboard for non-pager callbacks
-        self.inner.handle_callback(ctx, callback_data)
+        self.kbd.handle_callback(ctx, callback_data)
     }
+}
+
+fn read_page(ctx: &Context, widget_id: &str) -> usize {
+    ctx.widget_value_as::<usize>(widget_id).unwrap_or(0)
 }
 
 #[cfg(test)]
@@ -156,27 +141,25 @@ mod tests {
     };
 
     fn build_inner_keyboard(count: usize) -> InlineKeyboard {
-        let mut kb = InlineKeyboard::new();
+        let mut kbds = InlineKeyboard::new();
         for i in 0..count {
-            kb = kb.row([Button::action(
+            kbds = kbds.row([Button::action(
                 format!("btn_{i}"),
                 format!("Item {i}"),
                 ButtonAction::noop(),
             )]);
         }
-        kb
+        kbds
     }
 
     #[test]
     fn scrolling_group_shows_first_page_by_default() {
         let ctx = Context::new("", "state", Value::Null);
-        let inner = build_inner_keyboard(10);
-        let pager = ScrollingGroup::new("pager", inner, 3);
+        let kbd = build_inner_keyboard(10);
+        let pager = ScrollingGroup::builder("pager").height(3).kbd(kbd).build();
 
-        let markup = pager
-            .render_keyboard(&ctx, &DataMap::new())
-            .expect("keyboard");
-        let rows = markup.inline_keyboard().expect("inline rows");
+        let markup = pager.render_keyboard(&ctx, &DataMap::new()).unwrap();
+        let rows = markup.inline_keyboard().unwrap();
 
         // 3 content rows + 1 pager row = 4
         assert_eq!(rows.len(), 4);
@@ -195,13 +178,11 @@ mod tests {
     fn scrolling_group_shows_correct_page_from_widget_data() {
         let mut ctx = Context::new("", "state", Value::Null);
         ctx.widget_data.insert("pager".into(), json!(1)); // page index 1 (second page)
-        let inner = build_inner_keyboard(10);
-        let pager = ScrollingGroup::new("pager", inner, 3);
+        let kbd = build_inner_keyboard(10);
+        let pager = ScrollingGroup::builder("pager").height(3).kbd(kbd).build();
 
-        let markup = pager
-            .render_keyboard(&ctx, &DataMap::new())
-            .expect("keyboard");
-        let rows = markup.inline_keyboard().expect("inline rows");
+        let markup = pager.render_keyboard(&ctx, &DataMap::new()).unwrap();
+        let rows = markup.inline_keyboard().unwrap();
 
         // 3 content rows + 1 pager row
         assert_eq!(rows.len(), 4);
@@ -215,13 +196,11 @@ mod tests {
     fn scrolling_group_last_page_shows_remaining_items() {
         let mut ctx = Context::new("", "state", Value::Null);
         ctx.widget_data.insert("pager".into(), json!(3)); // page 3 (last page of 10 items, height 3)
-        let inner = build_inner_keyboard(10);
-        let pager = ScrollingGroup::new("pager", inner, 3);
+        let kbd = build_inner_keyboard(10);
+        let pager = ScrollingGroup::builder("pager").height(3).kbd(kbd).build();
 
-        let markup = pager
-            .render_keyboard(&ctx, &DataMap::new())
-            .expect("keyboard");
-        let rows = markup.inline_keyboard().expect("inline rows");
+        let markup = pager.render_keyboard(&ctx, &DataMap::new()).unwrap();
+        let rows = markup.inline_keyboard().unwrap();
 
         // last page has only 1 row + 1 pager
         assert_eq!(rows.len(), 2);
@@ -231,12 +210,12 @@ mod tests {
     #[test]
     fn scrolling_group_pager_callback_sets_widget_value() {
         let ctx = Context::new("", "state", Value::Null);
-        let inner = build_inner_keyboard(10);
-        let pager = ScrollingGroup::new("pager", inner, 3);
+        let kbd = build_inner_keyboard(10);
+        let pager = ScrollingGroup::builder("pager").height(3).kbd(kbd).build();
 
         let action = pager
             .handle_callback(&ctx, &format!("td:{}:pager:2", ctx.id))
-            .expect("action");
+            .unwrap();
 
         assert!(matches!(
             action,
@@ -248,13 +227,13 @@ mod tests {
     #[test]
     fn scrolling_group_delegates_inner_callbacks() {
         let ctx = Context::new("", "state", Value::Null);
-        let inner = build_inner_keyboard(4);
-        let pager = ScrollingGroup::new("pager", inner, 2);
+        let kbd = build_inner_keyboard(4);
+        let pager = ScrollingGroup::builder("pager").height(2).kbd(kbd).build();
 
         // Inner button callback should be delegated
         let action = pager
             .handle_callback(&ctx, &format!("td:{}:btn_1", ctx.id))
-            .expect("inner action");
+            .unwrap();
 
         assert!(matches!(action, ButtonAction::Noop));
     }
@@ -262,13 +241,15 @@ mod tests {
     #[test]
     fn scrolling_group_hides_pager_on_single_page() {
         let ctx = Context::new("", "state", Value::Null);
-        let inner = build_inner_keyboard(2);
-        let pager = ScrollingGroup::new("pager", inner, 5).hide_on_single_page(true);
+        let kbd = build_inner_keyboard(2);
+        let pager = ScrollingGroup::builder("pager")
+            .height(5)
+            .hide_on_single_page(true)
+            .kbd(kbd)
+            .build();
 
-        let markup = pager
-            .render_keyboard(&ctx, &DataMap::new())
-            .expect("keyboard");
-        let rows = markup.inline_keyboard().expect("inline rows");
+        let markup = pager.render_keyboard(&ctx, &DataMap::new()).unwrap();
+        let rows = markup.inline_keyboard().unwrap();
 
         // Just 2 content rows, no pager
         assert_eq!(rows.len(), 2);
@@ -277,13 +258,15 @@ mod tests {
     #[test]
     fn scrolling_group_hide_pager_flag_suppresses_navigation() {
         let ctx = Context::new("", "state", Value::Null);
-        let inner = build_inner_keyboard(10);
-        let pager = ScrollingGroup::new("pager", inner, 3).hide_pager(true);
+        let kbd = build_inner_keyboard(10);
+        let pager = ScrollingGroup::builder("pager")
+            .height(3)
+            .hide_pager(true)
+            .kbd(kbd)
+            .build();
 
-        let markup = pager
-            .render_keyboard(&ctx, &DataMap::new())
-            .expect("keyboard");
-        let rows = markup.inline_keyboard().expect("inline rows");
+        let markup = pager.render_keyboard(&ctx, &DataMap::new()).unwrap();
+        let rows = markup.inline_keyboard().unwrap();
 
         // 3 content rows only, no pager
         assert_eq!(rows.len(), 3);
@@ -293,13 +276,11 @@ mod tests {
     fn scrolling_group_clamps_page_beyond_max() {
         let mut ctx = Context::new("", "state", Value::Null);
         ctx.widget_data.insert("pager".into(), json!(99)); // way past last page
-        let inner = build_inner_keyboard(5);
-        let pager = ScrollingGroup::new("pager", inner, 2);
+        let kbd = build_inner_keyboard(5);
+        let pager = ScrollingGroup::builder("pager").height(2).kbd(kbd).build();
 
-        let markup = pager
-            .render_keyboard(&ctx, &DataMap::new())
-            .expect("keyboard");
-        let rows = markup.inline_keyboard().expect("inline rows");
+        let markup = pager.render_keyboard(&ctx, &DataMap::new()).unwrap();
+        let rows = markup.inline_keyboard().unwrap();
 
         // Should clamp to last page (page 2, showing item 4)
         assert_eq!(&*rows[0][0].text, "Item 4");

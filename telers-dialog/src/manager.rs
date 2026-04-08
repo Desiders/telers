@@ -1299,14 +1299,10 @@ mod tests {
     // ---- Access control tests ----
 
     fn group_message_event(text: &str, user_id: i64) -> ChatEvent {
-        let message: Message = MessageText::new(
-            1,
-            1,
-            telers::types::ChatGroup::new(TEST_CHAT_ID),
-            text,
-        )
-        .from(User::new(user_id, false, "tester"))
-        .into();
+        let message: Message =
+            MessageText::new(1, 1, telers::types::ChatGroup::new(TEST_CHAT_ID), text)
+                .from(User::new(user_id, false, "tester"))
+                .into();
         ChatEvent::Message(message)
     }
 
@@ -1325,12 +1321,8 @@ mod tests {
         user_id: i64,
     ) -> DialogManager<MemoryStorage> {
         let event = group_message_event("/start", user_id);
-        let mut manager = DialogManager::new(
-            fsm,
-            registry,
-            group_runtime_context(&event, user_id),
-            event,
-        );
+        let mut manager =
+            DialogManager::new(fsm, registry, group_runtime_context(&event, user_id), event);
         manager.set_show_mode(ShowMode::NoUpdate);
         manager
     }
@@ -1338,11 +1330,7 @@ mod tests {
     #[test]
     fn access_check_allows_when_no_settings() {
         let event = message_event("/start");
-        let manager = manager_for_event(
-            test_fsm(test_bot().id),
-            DialogRegistry::new(),
-            event,
-        );
+        let manager = manager_for_event(test_fsm(test_bot().id), DialogRegistry::new(), event);
         let event_ctx = manager.event_context();
         assert!(manager.check_access(None, event_ctx).is_ok());
     }
@@ -1350,11 +1338,7 @@ mod tests {
     #[test]
     fn access_check_allows_in_private_chat_regardless_of_user_ids() {
         let event = message_event("/start");
-        let manager = manager_for_event(
-            test_fsm(test_bot().id),
-            DialogRegistry::new(),
-            event,
-        );
+        let manager = manager_for_event(test_fsm(test_bot().id), DialogRegistry::new(), event);
         let event_ctx = manager.event_context();
         let settings = AccessSettings {
             user_ids: vec![999], // not the test user
@@ -1418,33 +1402,20 @@ mod tests {
             .expect("start ask");
 
         // Set access settings restricting to another user
-        let mut storage = private_manager
-            .load_storage()
-            .await
-            .expect("load");
-        let dialog_ctx = storage
-            .contexts
-            .get_mut(&ctx.id)
-            .expect("context");
+        let mut storage = private_manager.load_storage().await.expect("load");
+        let dialog_ctx = storage.contexts.get_mut(&ctx.id).expect("context");
         dialog_ctx.access_settings = Some(AccessSettings {
             user_ids: vec![999],
             custom: None,
         });
-        private_manager
-            .save_storage(storage)
-            .await
-            .expect("save");
+        private_manager.save_storage(storage).await.expect("save");
 
         // Now try from a group chat with TEST_USER_ID (not in allowed list)
         let group_event = group_message_event("hello", TEST_USER_ID);
-        let group_msg: Message = MessageText::new(
-            2,
-            1,
-            telers::types::ChatGroup::new(TEST_CHAT_ID),
-            "hello",
-        )
-        .from(User::new(TEST_USER_ID, false, "tester"))
-        .into();
+        let group_msg: Message =
+            MessageText::new(2, 1, telers::types::ChatGroup::new(TEST_CHAT_ID), "hello")
+                .from(User::new(TEST_USER_ID, false, "tester"))
+                .into();
         let group_mgr = DialogManager::new(
             fsm,
             registry,
