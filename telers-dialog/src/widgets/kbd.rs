@@ -266,7 +266,11 @@ impl Button {
         }
     }
 
-    fn resolve_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+    pub(crate) fn resolve_callback(
+        &self,
+        ctx: &Context,
+        callback_data: &str,
+    ) -> Option<ButtonAction> {
         let parsed = parse_callback_data(ctx, callback_data)?;
         if parsed.target_id != self.id.as_ref() || parsed.payload.is_some() {
             return None;
@@ -527,23 +531,31 @@ where
     }
 }
 
-fn render_button_row(row: &[Button], ctx: &Context, data: &DataMap) -> Box<[InlineKeyboardButton]> {
+pub(crate) fn render_button_row(
+    row: &[Button],
+    ctx: &Context,
+    data: &DataMap,
+) -> Box<[InlineKeyboardButton]> {
     row.iter().map(|button| button.render(ctx, data)).collect()
 }
 
-fn format_callback_data(ctx: &Context, target_id: impl Display, payload: Option<&str>) -> String {
+pub(crate) fn format_callback_data(
+    ctx: &Context,
+    target_id: impl Display,
+    payload: Option<&str>,
+) -> String {
     match payload {
         Some(payload) => format!("{CALLBACK_PREFIX}:{}:{target_id}:{payload}", ctx.id),
         None => format!("{CALLBACK_PREFIX}:{}:{target_id}", ctx.id),
     }
 }
 
-struct ParsedCallbackData<'a> {
-    target_id: &'a str,
-    payload: Option<&'a str>,
+pub(crate) struct ParsedCallbackData<'a> {
+    pub(crate) target_id: &'a str,
+    pub(crate) payload: Option<&'a str>,
 }
 
-fn parse_callback_data<'a>(
+pub(crate) fn parse_callback_data<'a>(
     ctx: &Context,
     callback_data: &'a str,
 ) -> Option<ParsedCallbackData<'a>> {
