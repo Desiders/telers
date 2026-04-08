@@ -15,9 +15,11 @@ static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
 const ALPHABET: &[u8] = b"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const BASE: u64 = ALPHABET.len() as u64;
 const EMPTY_ENCODED_ID: &str = "0";
+const COUNTER_BITS: u32 = 20;
+const COUNTER_MASK: u64 = (1 << COUNTER_BITS) - 1;
 
 /// Generates a compact, URL-safe, roughly time-ordered ID.
-/// Format: base-62 encoding of (`unix_ms` XOR monotonic counter).
+/// Format: base-62 encoding of (`unix_ms` << COUNTER_BITS | counter_low_bits).
 #[must_use]
 pub fn generate_id() -> String {
     let millis = u64::try_from(
@@ -28,8 +30,8 @@ pub fn generate_id() -> String {
     )
     .unwrap_or(u64::MAX);
 
-    let counter = ID_COUNTER.fetch_add(1, Relaxed);
-    encode_base62(millis ^ counter)
+    let counter = ID_COUNTER.fetch_add(1, Relaxed) & COUNTER_MASK;
+    encode_base62((millis << COUNTER_BITS) | counter)
 }
 
 #[must_use]
