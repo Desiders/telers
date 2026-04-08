@@ -1,14 +1,35 @@
 use crate::{
     dialog::{Dialog, IntoDialog},
+    entities::{DefaultAccessValidator, StackAccessValidator},
     errors::DialogError,
 };
 use std::{collections::BTreeMap, sync::Arc};
 use tracing::warn;
 
-#[derive(Default, Clone)]
 pub struct DialogRegistry {
     dialogs: Vec<Arc<dyn Dialog>>,
     state_index: BTreeMap<String, usize>,
+    access_validator: Arc<dyn StackAccessValidator>,
+}
+
+impl Default for DialogRegistry {
+    fn default() -> Self {
+        Self {
+            dialogs: Vec::new(),
+            state_index: BTreeMap::new(),
+            access_validator: Arc::new(DefaultAccessValidator),
+        }
+    }
+}
+
+impl Clone for DialogRegistry {
+    fn clone(&self) -> Self {
+        Self {
+            dialogs: self.dialogs.clone(),
+            state_index: self.state_index.clone(),
+            access_validator: self.access_validator.clone(),
+        }
+    }
 }
 
 impl DialogRegistry {
@@ -36,10 +57,21 @@ impl DialogRegistry {
     }
 
     #[must_use]
+    pub fn with_access_validator(mut self, validator: impl StackAccessValidator + 'static) -> Self {
+        self.access_validator = Arc::new(validator);
+        self
+    }
+
+    #[must_use]
     pub fn find_by_state(&self, state: &str) -> Option<Arc<dyn Dialog>> {
         self.state_index
             .get(state)
             .and_then(|i| self.dialogs.get(*i).cloned())
+    }
+
+    #[must_use]
+    pub fn access_validator(&self) -> &dyn StackAccessValidator {
+        self.access_validator.as_ref()
     }
 }
 
