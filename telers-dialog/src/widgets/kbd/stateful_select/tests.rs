@@ -1,6 +1,6 @@
 use serde_json::{json, Value};
 
-use super::{Checkbox, Counter, Multiselect, Radio, Toggle};
+use super::{Checkbox, Counter, Multiselect, Radio, TimeSelect, Toggle};
 use crate::{
     entities::{Context, DataMap},
     widgets::{Button, ButtonAction, Keyboard},
@@ -228,6 +228,60 @@ fn counter_cycles_when_enabled() {
         action,
         ButtonAction::SetWidgetValue { ref key, ref value }
             if key.as_ref() == "qty" && value == &json!(1.0)
+    ));
+}
+
+#[test]
+fn time_select_renders_headers_and_selected_values() {
+    let mut ctx = Context::new("", "state", Value::Null);
+    ctx.widget_data
+        .insert("pickup_time".into(), json!([13, 30]));
+    let picker = TimeSelect::builder("pickup_time")
+        .minute_precision(15)
+        .build();
+
+    let markup = picker.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let rows = markup.inline_keyboard().unwrap();
+
+    assert_eq!(&*rows[0][0].text, "Hour");
+    assert!(rows.iter().flatten().any(|button| &*button.text == "[13]"));
+    assert_eq!(&*rows[5][0].text, "Minute");
+    assert!(rows.iter().flatten().any(|button| &*button.text == "[30]"));
+}
+
+#[test]
+fn time_select_hour_callback_updates_partial_value() {
+    let ctx = Context::new("", "state", Value::Null);
+    let picker = TimeSelect::builder("pickup_time").build();
+
+    let action = picker
+        .handle_callback(&ctx, &format!("td:{}:pickup_time:h13", ctx.id))
+        .unwrap();
+
+    assert!(matches!(
+        action,
+        ButtonAction::SetWidgetValue { ref key, ref value }
+            if key.as_ref() == "pickup_time" && value == &json!([13, null])
+    ));
+}
+
+#[test]
+fn time_select_minute_callback_preserves_selected_hour() {
+    let mut ctx = Context::new("", "state", Value::Null);
+    ctx.widget_data
+        .insert("pickup_time".into(), json!([13, null]));
+    let picker = TimeSelect::builder("pickup_time")
+        .minute_precision(15)
+        .build();
+
+    let action = picker
+        .handle_callback(&ctx, &format!("td:{}:pickup_time:m30", ctx.id))
+        .unwrap();
+
+    assert!(matches!(
+        action,
+        ButtonAction::SetWidgetValue { ref key, ref value }
+            if key.as_ref() == "pickup_time" && value == &json!([13, 30])
     ));
 }
 

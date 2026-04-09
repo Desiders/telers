@@ -104,9 +104,9 @@ where
             .unwrap_or(self.default);
         let next_value = (!is_checked).to_string();
         let text = if is_checked {
-            self.checked_text.render_text(data)
+            self.checked_text.render_text_in_context(ctx, data)
         } else {
-            self.unchecked_text.render_text(data)
+            self.unchecked_text.render_text_in_context(ctx, data)
         };
 
         let mut rows: Vec<_> = self

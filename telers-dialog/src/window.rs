@@ -119,7 +119,7 @@ impl Window for WindowImpl {
             event_ctx.chat.clone(),
             event_ctx.thread_id,
             event_ctx.business_connection_id.clone(),
-            self.text.render_text(data),
+            self.text.render_text_in_context(ctx, data),
             self.keyboard
                 .as_ref()
                 .and_then(|kbd| kbd.render_keyboard(ctx, data)),
@@ -153,8 +153,8 @@ mod tests {
     use crate::{
         entities::{ChatEvent, Context, DataMap, EventContext},
         widgets::{
-            input, keyboard, link_preview, text, Button, ButtonAction, InlineKeyboard,
-            LinkPreview, MessageInput,
+            input, keyboard, link_preview, text, Button, ButtonAction, InlineKeyboard, LinkPreview,
+            MessageInput,
         },
     };
     use serde_json::Value;

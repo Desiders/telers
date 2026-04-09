@@ -39,6 +39,7 @@ Updated: 2026-04-09 (UTC)
       - `counter.rs`
       - `multiselect.rs`
       - `radio.rs`
+      - `time_select.rs`
       - `toggle.rs`
   - `src/widgets/kbd.rs`
   - `src/widgets/input.rs`
@@ -94,10 +95,11 @@ Updated: 2026-04-09 (UTC)
   - `Case`
   - `MultiText`
   - `Progress`
+  - `ScrollingText`
   - `ListText`
 - Link preview:
   - `LinkPreview`
-  - Keyboard/actions:
+- Keyboard/actions:
   - `InlineKeyboard`
   - `Group`: layout wrapper to group inline keyboard buttons by row width
   - `Button::{action,next,back,switch_to,start,done,done_with_result,set_dialog_value,url,web_app,login_url,switch_inline_query,switch_inline_query_current_chat,switch_inline_query_chosen_chat,copy_text}`
@@ -107,6 +109,7 @@ Updated: 2026-04-09 (UTC)
   - `Select`
   - `Checkbox`: single-button boolean selector stored in `widget_data`
   - `Counter`: numeric stepper stored in `widget_data`
+  - `TimeSelect`: hour/minute picker stored in `widget_data`
   - `Radio`: single-selection stateful widget with stored selection in `widget_data`
   - `Toggle`: single-button cyclic selector storing current item id in `widget_data`
   - `Multiselect`: multi-selection widget with `min_selected`/`max_selected` constraints
@@ -136,6 +139,12 @@ Updated: 2026-04-09 (UTC)
 - Supports `min(...)`, `max(...)`, `increment(...)`, `default(...)`, and `cycle(...)`.
 - `minus_hidden(true)` and `plus_hidden(true)` remove the side buttons when a one-sided or read-only counter layout fits better.
 - Supports `header_row`/`footer_row`/`header_push`/`footer_push`.
+
+### TimeSelect
+- Builder-based: `TimeSelect::builder("widget_id").minute_precision(15).build()`
+- Stores the current `(hour, minute)` pair in `widget_data[widget_id]` as `[hour, minute]`, where either side may be `null` until selected.
+- Renders separate hour and minute sections with configurable `hour_header`, `minute_header`, `hour_width`, `minute_precision`, and `minute_width`.
+- Clicking an hour preserves the current minute, and clicking a minute preserves the current hour.
 
 ### Radio
 - Builder-based: `Radio::builder("widget_id").items_getter(...).checked_renderer(...).unchecked_renderer(...).id_getter(...).build()`
@@ -208,6 +217,12 @@ Updated: 2026-04-09 (UTC)
 - `sync_scrolls(["a", "b"])` does the same for multiple widget ids.
 - Intended for synchronized pagination across multiple scrollable widgets without manual `ButtonAction::chain(...)` boilerplate.
 
+### ScrollingText
+- Builder-based: `ScrollingText::builder("widget_id").text(...).page_size(...).build()`
+- Reads the current page from `widget_data[widget_id]` and slices the inner text accordingly.
+- Uses the same shared page-state contract as pager widgets, so it can be coordinated with `NumberedPager`, `SwitchPage`, or `sync_scroll`.
+- Page slicing is char-based rather than byte-based, so non-ASCII text stays safe.
+
 ## Comparison with aiogram-dialog (actualized)
 
 Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
@@ -241,12 +256,8 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 ### Widget backlog (not implemented yet)
 - Keyboard widgets:
   - `Calendar`
-  - `TimeSelect`
   - `StubScroll`
-- Keyboard button/widget variants:
 - Text widgets:
-  - `ScrollingText`
-- Link preview:
 
 ## Test and validation status
 - In-source tests exist across manager/setup/widgets/message-manager/registry/window modules.
@@ -256,11 +267,11 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
   - `cargo check -p dialogs_request_widgets`
   - `cargo check -p dialogs_pager_widgets`
   - `cargo check -p dialogs_select_widget`
-  - `cargo check -p dialogs_text_widgets`
   - `cargo check -p dialogs_stateful_select_widgets`
+  - `cargo check -p dialogs_text_widgets`
   - `cargo check -p dialogs_sync_scroll`
 - `telers-dialog` test target passed:
-  - **95 passed; 0 failed**.
+  - **101 passed; 0 failed**.
 - New test coverage includes:
   - Convenience pager wrappers: render targets and callback payloads for first/prev/current/next/last controls (1 test).
   - ScrollingGroup width options: fixed-grid regrouping and last-page filler padding behavior (2 tests).
@@ -276,9 +287,10 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
   - Message manager: `NoUpdate` snapshot reuse/failure, reply-keyboard edit restrictions, reply-keyboard detection, protect-content/link-preview change detection (5 tests).
   - Show mode calculation: delete-and-send after reply keyboard, send/edit behavior for private media-group messages (3 tests).
   - Rich page-change hooks: `OnPageChanged::new(...)` receives widget id plus old/new page values (1 test).
-  - Text widgets: `Case` keyed/default selection and `Progress` bar rendering/clamping (4 tests).
+  - Text widgets: `Case` keyed/default selection, `Progress` bar rendering/clamping, and `ScrollingText` page slicing from widget state including non-ASCII text (7 tests).
   - Simple widget additions: `Checkbox` render/toggle behavior and inline non-callback button variants (4 tests).
   - Request reply keyboards: contact/location/poll reply markup rendering and option propagation (3 tests).
+  - TimeSelect: render/state behavior for header rows plus hour/minute callbacks (3 tests).
   - Link preview widget: option rendering plus window integration (2 tests).
 
 ## Known gaps
@@ -296,4 +308,4 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 - Consider async/manager-aware result hooks beyond action-based `on_process_result`.
 
 ## Recommended next slice
-1. Continue the missing-widget backlog with the remaining unresolved widgets: `StubScroll`, `ScrollingText`, `Calendar`, and `TimeSelect`.
+1. Continue the missing-widget backlog with the remaining unresolved widgets: `Calendar` and `StubScroll`.
