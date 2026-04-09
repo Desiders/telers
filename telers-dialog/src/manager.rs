@@ -58,6 +58,10 @@ impl DialogStorage {
     }
 }
 
+/// Runtime dialog controller bound to one incoming event and FSM storage key.
+///
+/// A manager resolves the active context, applies widget actions, and delegates
+/// rendering to the registered dialogs.
 #[derive(Clone)]
 pub struct DialogManager<S: Storage> {
     fsm: telers::fsm::Context<S>,
@@ -1007,6 +1011,14 @@ mod tests {
         ChatEvent::Message(message)
     }
 
+    fn message_event_with_media_group(text: &str, media_group_id: &str) -> ChatEvent {
+        let message: Message = MessageText::new(1, 1, ChatPrivate::new(TEST_CHAT_ID), text)
+            .media_group_id(media_group_id)
+            .from(test_user())
+            .into();
+        ChatEvent::Message(message)
+    }
+
     fn runtime_context(event: &ChatEvent) -> RuntimeContext {
         let mut context = RuntimeContext::default();
         context.insert(
@@ -1398,6 +1410,63 @@ mod tests {
         assert!(stack.last_text.is_none());
         assert!(stack.last_reply_markup.is_none());
         assert!(!stack.last_reply_keyboard);
+    }
+
+    #[test]
+    fn calc_show_mode_uses_delete_and_send_after_reply_keyboard() {
+        let event = message_event("hello");
+        let mut manager = DialogManager::new(
+            test_fsm(test_bot().id),
+            DialogRegistry::new(),
+            runtime_context(&event),
+            event,
+        );
+        manager.set_show_mode(ShowMode::Auto);
+        let mut stack = Stack::new();
+        stack.last_reply_keyboard = true;
+
+        assert_eq!(
+            manager.calc_show_mode(&stack, manager.event_context()),
+            ShowMode::DeleteAndSend
+        );
+    }
+
+    #[test]
+    fn calc_show_mode_sends_for_new_private_media_group() {
+        let event = message_event_with_media_group("photo 1", "album-2");
+        let mut manager = DialogManager::new(
+            test_fsm(test_bot().id),
+            DialogRegistry::new(),
+            runtime_context(&event),
+            event,
+        );
+        manager.set_show_mode(ShowMode::Auto);
+        let mut stack = Stack::new();
+        stack.last_income_media_group_id = Some("album-1".into());
+
+        assert_eq!(
+            manager.calc_show_mode(&stack, manager.event_context()),
+            ShowMode::Send
+        );
+    }
+
+    #[test]
+    fn calc_show_mode_edits_when_private_media_group_matches_previous() {
+        let event = message_event_with_media_group("photo 2", "album-2");
+        let mut manager = DialogManager::new(
+            test_fsm(test_bot().id),
+            DialogRegistry::new(),
+            runtime_context(&event),
+            event,
+        );
+        manager.set_show_mode(ShowMode::Auto);
+        let mut stack = Stack::new();
+        stack.last_income_media_group_id = Some("album-2".into());
+
+        assert_eq!(
+            manager.calc_show_mode(&stack, manager.event_context()),
+            ShowMode::Edit
+        );
     }
 
     #[test]

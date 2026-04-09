@@ -304,8 +304,19 @@ where
 #[cfg(test)]
 mod tests {
     use super::MessageManager;
-    use crate::entities::OldMessage;
-    use telers::{enums::ReplyMarkupType, types::ChatPrivate};
+    use crate::{
+        entities::{NewMessage, OldMessage, ShowMode},
+        DialogError,
+    };
+    use telers::{
+        client::Reqwest,
+        enums::ReplyMarkupType,
+        types::{
+            ChatPrivate, InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton,
+            LinkPreviewOptions, ReplyKeyboardMarkup, ReplyMarkup,
+        },
+        Bot,
+    };
 
     fn old_message(reply_markup_type: Option<ReplyMarkupType>) -> OldMessage {
         OldMessage::new(
@@ -317,6 +328,20 @@ mod tests {
             None,
             None::<Box<str>>,
             None,
+            None,
+        )
+    }
+
+    fn new_message(reply_markup: Option<ReplyMarkup>) -> NewMessage {
+        NewMessage::new(
+            ChatPrivate::new(1),
+            None,
+            None::<Box<str>>,
+            "hello",
+            reply_markup,
+            None::<Box<str>>,
+            None,
+            ShowMode::Edit,
             None,
         )
     }
@@ -335,5 +360,82 @@ mod tests {
 
         assert!(!MessageManager::had_reply_keyboard(&inline_keyboard));
         assert!(MessageManager::had_inline_keyboard(&inline_keyboard));
+    }
+
+    #[test]
+    fn detects_when_new_message_needs_reply_keyboard() {
+        let reply_keyboard = new_message(Some(
+            ReplyKeyboardMarkup::new([[KeyboardButton::new("OK")]]).into(),
+        ));
+        let inline_keyboard = new_message(Some(
+            InlineKeyboardMarkup::new([[
+                InlineKeyboardButton::new("Open").callback_data("td:intent:open")
+            ]])
+            .into(),
+        ));
+        let no_markup = new_message(None);
+
+        assert!(MessageManager::need_reply_keyboard(&reply_keyboard));
+        assert!(!MessageManager::need_reply_keyboard(&inline_keyboard));
+        assert!(!MessageManager::need_reply_keyboard(&no_markup));
+    }
+
+    #[test]
+    fn message_changed_detects_protect_content_and_link_preview_updates() {
+        let mut protected = new_message(None);
+        protected.protect_content = Some(true);
+        let old = old_message(None);
+        assert!(MessageManager::message_changed(&protected, &old));
+
+        let mut linked = new_message(None);
+        linked.link_preview_options = Some(LinkPreviewOptions::new().show_above_text(true));
+        assert!(MessageManager::message_changed(&linked, &old));
+    }
+
+    #[test]
+    fn can_edit_rejects_old_or_new_reply_keyboard() {
+        let old_reply = old_message(Some(ReplyMarkupType::ReplyKeyboardMarkup));
+        let old_inline = old_message(Some(ReplyMarkupType::InlineKeyboardMarkup));
+        let new_reply = new_message(Some(
+            ReplyKeyboardMarkup::new([[KeyboardButton::new("OK")]]).into(),
+        ));
+        let new_inline = new_message(Some(
+            InlineKeyboardMarkup::new([[
+                InlineKeyboardButton::new("Open").callback_data("td:intent:open")
+            ]])
+            .into(),
+        ));
+
+        assert!(!MessageManager::can_edit(&new_inline, &old_reply));
+        assert!(!MessageManager::can_edit(&new_reply, &old_inline));
+        assert!(MessageManager::can_edit(&new_inline, &old_inline));
+    }
+
+    #[tokio::test]
+    async fn show_message_returns_existing_snapshot_for_no_update() {
+        let bot = Bot::<Reqwest>::default();
+        let old = old_message(Some(ReplyMarkupType::InlineKeyboardMarkup));
+        let mut new = new_message(None);
+        new.show_mode = ShowMode::NoUpdate;
+
+        let shown = MessageManager::show_message(&bot, new, Some(old.clone()))
+            .await
+            .expect("reuse previous snapshot");
+
+        assert_eq!(shown.message_id, old.message_id);
+        assert_eq!(shown.text, old.text);
+    }
+
+    #[tokio::test]
+    async fn show_message_without_snapshot_fails_for_no_update() {
+        let bot = Bot::<Reqwest>::default();
+        let mut new = new_message(None);
+        new.show_mode = ShowMode::NoUpdate;
+
+        let err = MessageManager::show_message(&bot, new, None)
+            .await
+            .expect_err("NoUpdate without old message must fail");
+
+        assert!(matches!(err, DialogError::DialogNotFound));
     }
 }

@@ -6,6 +6,10 @@ use crate::{
 use std::{collections::BTreeMap, sync::Arc};
 use tracing::warn;
 
+/// Registry of dialogs indexed by state id.
+///
+/// The registry is typically built once during startup and then injected into
+/// the dispatcher as shared application state.
 pub struct DialogRegistry {
     dialogs: Vec<Arc<dyn Dialog>>,
     state_index: BTreeMap<String, usize>,
@@ -33,6 +37,7 @@ impl Clone for DialogRegistry {
 }
 
 impl DialogRegistry {
+    /// Create an empty dialog registry.
     #[must_use]
     pub fn new() -> Self {
         Self::default()
@@ -56,12 +61,14 @@ impl DialogRegistry {
         Ok(self)
     }
 
+    /// Replace the access validator used by dialog managers created from this registry.
     #[must_use]
     pub fn with_access_validator(mut self, validator: impl StackAccessValidator + 'static) -> Self {
         self.access_validator = Arc::new(validator);
         self
     }
 
+    /// Find the dialog that owns a given state id.
     #[must_use]
     pub fn find_by_state(&self, state: &str) -> Option<Arc<dyn Dialog>> {
         self.state_index
@@ -69,6 +76,7 @@ impl DialogRegistry {
             .and_then(|i| self.dialogs.get(*i).cloned())
     }
 
+    /// Access the validator used for stack and context access checks.
     #[must_use]
     pub fn access_validator(&self) -> &dyn StackAccessValidator {
         self.access_validator.as_ref()

@@ -109,7 +109,6 @@ fn registry() -> DialogRegistry {
                         .height(PAGE_HEIGHT)
                         .width(GRID_WIDTH)
                         .hide_pager(true)
-                        .filler_text(" ".into())
                         .kbd(
                             Select::builder("standalone_items")
                                 .items_getter(|_data| DRINKS)

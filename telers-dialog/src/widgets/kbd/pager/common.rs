@@ -6,32 +6,49 @@ use tracing::debug;
 use super::super::{format_callback_data, parse_callback_data, ButtonAction};
 use crate::entities::{Context, DataMap};
 
-type PageChangedHandler = dyn Fn(usize) -> ButtonAction + Send + Sync + 'static;
+type PageChangedHandler = dyn Fn(PageChange) -> ButtonAction + Send + Sync + 'static;
 
+/// Details about a pager state transition.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PageChange {
+    /// Pager widget id that handled the callback.
+    pub widget_id: Box<str>,
+    /// Page stored before the callback was applied.
+    pub old_page: usize,
+    /// Page requested by the callback.
+    pub new_page: usize,
+}
+
+/// Side-effect hook executed after pager widgets resolve a page change.
 #[derive(Clone)]
 pub struct OnPageChanged(pub(super) Arc<PageChangedHandler>);
 
 impl OnPageChanged {
+    /// Create a page-change hook with access to the widget id and old/new page.
     #[must_use]
     pub fn new<F>(handler: F) -> Self
     where
-        F: Fn(usize) -> ButtonAction + Send + Sync + 'static,
+        F: Fn(PageChange) -> ButtonAction + Send + Sync + 'static,
     {
         Self(Arc::new(handler))
     }
 
     #[must_use]
-    pub(super) fn call(&self, page: usize) -> ButtonAction {
-        (self.0)(page)
+    pub(super) fn call(&self, change: PageChange) -> ButtonAction {
+        (self.0)(change)
     }
 }
 
+/// Build a hook that copies the new page into another scroll widget id.
 #[must_use]
 pub fn sync_scroll(scroll_id: impl Into<Cow<'static, str>>) -> OnPageChanged {
     let scroll_id = scroll_id.into();
-    OnPageChanged::new(move |page| ButtonAction::set_widget_value(scroll_id.clone(), page))
+    OnPageChanged::new(move |change| {
+        ButtonAction::set_widget_value(scroll_id.clone(), change.new_page)
+    })
 }
 
+/// Build a hook that copies the new page into multiple scroll widget ids.
 #[must_use]
 pub fn sync_scrolls<T>(scroll_ids: impl IntoIterator<Item = T>) -> OnPageChanged
 where
@@ -41,16 +58,17 @@ where
         .into_iter()
         .map(Into::into)
         .collect::<Vec<Cow<'static, str>>>();
-    OnPageChanged::new(move |page| {
+    OnPageChanged::new(move |change| {
         ButtonAction::chain(
             scroll_ids
                 .iter()
                 .cloned()
-                .map(|id| ButtonAction::set_widget_value(id, page)),
+                .map(|id| ButtonAction::set_widget_value(id, change.new_page)),
         )
     })
 }
 
+/// Logical direction used by standalone pager buttons.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PageDirection {
     First,
@@ -215,17 +233,26 @@ pub(super) fn handle_pager_callback(
         return None;
     }
 
+    let old_page = read_page(ctx, widget_id);
     let page: usize = parsed.payload?.parse().ok()?;
     debug!(
         context_id = %ctx.id,
         widget_id,
+        old_page,
         page,
         "Resolved pager navigation callback"
     );
     let current_action =
         ButtonAction::set_widget_value(widget_id.to_owned(), Value::Number(page.into()));
     Some(match on_page_changed {
-        Some(on_page_changed) => ButtonAction::chain([current_action, on_page_changed.call(page)]),
+        Some(on_page_changed) => ButtonAction::chain([
+            current_action,
+            on_page_changed.call(PageChange {
+                widget_id: widget_id.into(),
+                old_page,
+                new_page: page,
+            }),
+        ]),
         None => current_action,
     })
 }

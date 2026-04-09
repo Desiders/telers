@@ -14,7 +14,7 @@ use common::{
     render_fixed_direction_button, render_fixed_width_page, resolve_page_target,
 };
 
-pub use common::{sync_scroll, sync_scrolls, OnPageChanged, PageDirection};
+pub use common::{sync_scroll, sync_scrolls, OnPageChanged, PageChange, PageDirection};
 pub use scrolling_group::ScrollingGroup;
 pub use standalone::{
     CurrentPage, FirstPage, LastPage, NextPage, NumberedPager, PrevPage, SwitchPage,

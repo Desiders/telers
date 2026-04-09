@@ -70,7 +70,6 @@ fn registry() -> DialogRegistry {
                     .height(PAGE_HEIGHT)
                     .width(GRID_WIDTH)
                     .hide_pager(true)
-                    .filler_text(" ".into())
                     .on_page_changed(sync_scroll("catalog_notes"))
                     .kbd(
                         Select::builder("catalog_items")
