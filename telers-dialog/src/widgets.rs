@@ -1,5 +1,6 @@
 mod input;
 mod kbd;
+mod link_preview;
 mod list;
 mod text;
 mod widget;
@@ -16,6 +17,7 @@ pub use kbd::{
     PageChange, PageDirection, PrevPage, Radio, RequestContact, RequestLocation, RequestPoll,
     ScrollingGroup, Select, SwitchPage, Toggle,
 };
+pub use link_preview::{LinkPreview, LinkPreviewWidget};
 pub use list::ListText;
 pub use text::{Case, MultiText, Progress, Text};
-pub use widget::{fn_text, format_text, input, keyboard, text, WidgetKind};
+pub use widget::{fn_text, format_text, input, keyboard, link_preview, text, WidgetKind};

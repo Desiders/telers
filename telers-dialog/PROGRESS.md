@@ -19,6 +19,7 @@ Updated: 2026-04-09 (UTC)
   - `src/entities/messages.rs`
   - `src/entities/events.rs`
 - Widget surface:
+  - `src/widgets/link_preview.rs`
   - `src/widgets/text.rs`
   - `src/widgets/kbd/`
     - `action.rs`
@@ -68,6 +69,7 @@ Updated: 2026-04-09 (UTC)
 - Widget state mutation actions are implemented:
   - `SetDialogData`, `SetDialogValue`, `SetWidgetData`, `SetWidgetValue`
 - Window composition supports text + optional keyboard + optional input.
+- Window composition also supports an optional link preview widget.
 - Multiple text widgets are normalized into `MultiText`.
 - Public Rustdoc coverage now includes crate root plus exported widget, manager, registry, and entity surfaces.
 - Callback payload contract is scoped:
@@ -93,6 +95,8 @@ Updated: 2026-04-09 (UTC)
   - `MultiText`
   - `Progress`
   - `ListText`
+- Link preview:
+  - `LinkPreview`
   - Keyboard/actions:
   - `InlineKeyboard`
   - `Group`: layout wrapper to group inline keyboard buttons by row width
@@ -170,6 +174,12 @@ Updated: 2026-04-09 (UTC)
   `is_persistent`, `resize_keyboard`, `one_time_keyboard`, `input_field_placeholder`, and `selective`.
 - They do not produce callback actions; Telegram sends service/message updates after the user presses them.
 
+### LinkPreview
+- Builder-based: `LinkPreview::builder().url(...).build()`
+- Supports `url(...)`, `is_disabled(...)`, `prefer_small_media(...)`, `prefer_large_media(...)`, and `show_above_text(...)`.
+- Can be composed with normal `text(...)`, `keyboard(...)`, and `input(...)` widgets via `link_preview(...)`.
+- `WindowImpl::link_preview_options(...)` remains available as the lower-level manual override.
+
 ### ScrollingGroup
 - Wraps any `Keyboard` widget and adds height-based pagination.
 - `ScrollingGroup::new("id", inner_keyboard, height)` with `height` rows per page.
@@ -237,7 +247,6 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 - Text widgets:
   - `ScrollingText`
 - Link preview:
-  - `LinkPreview`
 
 ## Test and validation status
 - In-source tests exist across manager/setup/widgets/message-manager/registry/window modules.
@@ -251,7 +260,7 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
   - `cargo check -p dialogs_stateful_select_widgets`
   - `cargo check -p dialogs_sync_scroll`
 - `telers-dialog` test target passed:
-  - **93 passed; 0 failed**.
+  - **95 passed; 0 failed**.
 - New test coverage includes:
   - Convenience pager wrappers: render targets and callback payloads for first/prev/current/next/last controls (1 test).
   - ScrollingGroup width options: fixed-grid regrouping and last-page filler padding behavior (2 tests).
@@ -270,6 +279,7 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
   - Text widgets: `Case` keyed/default selection and `Progress` bar rendering/clamping (4 tests).
   - Simple widget additions: `Checkbox` render/toggle behavior and inline non-callback button variants (4 tests).
   - Request reply keyboards: contact/location/poll reply markup rendering and option propagation (3 tests).
+  - Link preview widget: option rendering plus window integration (2 tests).
 
 ## Known gaps
 - Keep `widgets.rs` as a thin re-export layer with stable public API.
@@ -286,4 +296,4 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 - Consider async/manager-aware result hooks beyond action-based `on_process_result`.
 
 ## Recommended next slice
-1. Continue the missing-widget backlog with the remaining unresolved widgets: `StubScroll`, `ScrollingText`, `Calendar`, `TimeSelect`, and `LinkPreview`.
+1. Continue the missing-widget backlog with the remaining unresolved widgets: `StubScroll`, `ScrollingText`, `Calendar`, and `TimeSelect`.
