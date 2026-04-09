@@ -187,7 +187,7 @@ impl Button {
     }
 
     pub(crate) fn render(&self, ctx: &Context, data: &DataMap) -> InlineKeyboardButton {
-        let button = InlineKeyboardButton::new(self.text.render_text(data));
+        let button = InlineKeyboardButton::new(self.text.render_text_in_context(ctx, data));
         match &self.kind {
             ButtonKind::Callback(_) => {
                 button.callback_data(format_callback_data(ctx, &self.id, None))

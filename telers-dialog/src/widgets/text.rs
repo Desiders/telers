@@ -1,11 +1,16 @@
-use bon::Builder;
+use bon::{bon, Builder};
 use std::borrow::Cow;
 
-use crate::entities::{Data, DataMap};
+use crate::entities::{Context, Data, DataMap};
 
 pub trait Text: Send + Sync + 'static {
     #[must_use]
     fn render_text(&self, data: &DataMap) -> Box<str>;
+
+    #[must_use]
+    fn render_text_in_context(&self, _ctx: &Context, data: &DataMap) -> Box<str> {
+        self.render_text(data)
+    }
 }
 
 impl<T> Text for T
@@ -114,6 +119,20 @@ where
             .or_else(|| self.default.as_ref().map(|text| text.render_text(data)))
             .unwrap_or_default()
     }
+
+    fn render_text_in_context(&self, ctx: &Context, data: &DataMap) -> Box<str> {
+        let selected = (self.selector)(data);
+        self.variants
+            .iter()
+            .find(|(key, _)| *key == selected)
+            .map(|(_, text)| text.render_text_in_context(ctx, data))
+            .or_else(|| {
+                self.default
+                    .as_ref()
+                    .map(|text| text.render_text_in_context(ctx, data))
+            })
+            .unwrap_or_default()
+    }
 }
 
 /// Render a textual progress bar from a percentage field in `DataMap`.
@@ -214,6 +233,108 @@ impl Text for MultiText {
             .join(&self.separator)
             .into_boxed_str()
     }
+
+    fn render_text_in_context(&self, ctx: &Context, data: &DataMap) -> Box<str> {
+        self.items
+            .iter()
+            .map(|item| item.render_text_in_context(ctx, data).into_string())
+            .collect::<Vec<_>>()
+            .join(&self.separator)
+            .into_boxed_str()
+    }
+}
+
+/// Paged text widget driven by shared page state in `widget_data`.
+pub struct ScrollingText {
+    id: Cow<'static, str>,
+    text: Box<dyn Text>,
+    page_size: usize,
+}
+
+#[bon]
+impl ScrollingText {
+    /// Create a scrolling text widget bound to `widget_data[id]`.
+    #[builder]
+    #[must_use]
+    pub fn new(
+        #[builder(start_fn, into)] id: Cow<'static, str>,
+        #[builder(with = |text: impl Text| Box::new(text) as Box<dyn Text>)] text: Box<dyn Text>,
+        page_size: usize,
+    ) -> Self {
+        Self {
+            id,
+            text,
+            page_size,
+        }
+    }
+}
+
+impl ScrollingText {
+    #[inline]
+    fn effective_page_size(&self) -> usize {
+        self.page_size.max(1)
+    }
+
+    fn page_from_context(&self, ctx: &Context) -> usize {
+        ctx.widget_value_as::<usize>(self.id.as_ref())
+            .unwrap_or_default()
+    }
+
+    fn page_count_for_text(&self, full_text: &str) -> usize {
+        let page_size = self.effective_page_size();
+        let chars_count = full_text.chars().count();
+        chars_count / page_size + usize::from(!chars_count.is_multiple_of(page_size))
+    }
+
+    fn char_to_byte_index(text: &str, char_index: usize) -> usize {
+        if char_index == 0 {
+            return 0;
+        }
+
+        text.char_indices()
+            .nth(char_index)
+            .map_or(text.len(), |(byte_index, _)| byte_index)
+    }
+
+    fn render_page(&self, full_text: Box<str>, page: usize) -> Box<str> {
+        if full_text.is_empty() {
+            return full_text;
+        }
+
+        let page_size = self.effective_page_size();
+        let pages_count = self.page_count_for_text(&full_text);
+        let current_page = page.min(pages_count.saturating_sub(1));
+        let start_char = current_page * page_size;
+        let end_char = start_char + page_size;
+        let start = Self::char_to_byte_index(&full_text, start_char);
+        let end = Self::char_to_byte_index(&full_text, end_char);
+        full_text[start..end].to_owned().into_boxed_str()
+    }
+
+    /// Compute how many pages the current text produces.
+    #[must_use]
+    pub fn page_count(&self, data: &DataMap) -> usize {
+        self.page_count_for_text(&self.text.render_text(data))
+    }
+
+    /// Compute how many pages the current text produces with access to widget state.
+    #[must_use]
+    pub fn page_count_in_context(&self, ctx: &Context, data: &DataMap) -> usize {
+        self.page_count_for_text(&self.text.render_text_in_context(ctx, data))
+    }
+}
+
+impl Text for ScrollingText {
+    fn render_text(&self, data: &DataMap) -> Box<str> {
+        self.render_page(self.text.render_text(data), 0)
+    }
+
+    fn render_text_in_context(&self, ctx: &Context, data: &DataMap) -> Box<str> {
+        self.render_page(
+            self.text.render_text_in_context(ctx, data),
+            self.page_from_context(ctx),
+        )
+    }
 }
 
 fn render_template(template: &str, data: &DataMap) -> String {
@@ -257,8 +378,8 @@ fn render_data_value(value: &Data) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{Case, FormatText, MultiText, Progress, Text};
-    use crate::entities::DataMap;
+    use super::{Case, FormatText, MultiText, Progress, ScrollingText, Text};
+    use crate::entities::{Context, DataMap};
     use serde_json::json;
 
     #[test]
@@ -329,5 +450,44 @@ mod tests {
         let text = Progress::new("percent").width(4).filled("=").empty(".");
 
         assert_eq!(&*text.render_text(&data), "==== 100%");
+    }
+
+    #[test]
+    fn scrolling_text_defaults_to_first_page_without_context() {
+        let text = ScrollingText::builder("article")
+            .text("abcdefghij")
+            .page_size(4)
+            .build();
+
+        assert_eq!(&*text.render_text(&DataMap::new()), "abcd");
+        assert_eq!(text.page_count(&DataMap::new()), 3);
+    }
+
+    #[test]
+    fn scrolling_text_uses_widget_page_from_context() {
+        let mut ctx = Context::new("", "state", json!(null));
+        ctx.widget_data.insert("article".into(), json!(2));
+
+        let text = ScrollingText::builder("article")
+            .text("abcdefghij")
+            .page_size(4)
+            .build();
+
+        assert_eq!(&*text.render_text_in_context(&ctx, &DataMap::new()), "ij");
+        assert_eq!(text.page_count_in_context(&ctx, &DataMap::new()), 3);
+    }
+
+    #[test]
+    fn scrolling_text_slices_by_char_boundaries() {
+        let mut ctx = Context::new("", "state", json!(null));
+        ctx.widget_data.insert("article".into(), json!(1));
+
+        let text = ScrollingText::builder("article")
+            .text("ab😀cd")
+            .page_size(3)
+            .build();
+
+        assert_eq!(&*text.render_text_in_context(&ctx, &DataMap::new()), "cd");
+        assert_eq!(text.page_count(&DataMap::new()), 2);
     }
 }

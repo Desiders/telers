@@ -33,7 +33,7 @@ pub use pager::{
 };
 pub use request::{RequestContact, RequestLocation, RequestPoll};
 pub use select::Select;
-pub use stateful_select::{Checkbox, Counter, Multiselect, Radio, Toggle};
+pub use stateful_select::{Checkbox, Counter, Multiselect, Radio, TimeSelect, Toggle};
 
 #[cfg(test)]
 mod tests {

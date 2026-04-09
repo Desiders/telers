@@ -105,7 +105,8 @@ where
     ButtonText: Text,
 {
     fn render_keyboard(&self, _ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
-        let button = KeyboardButton::new(self.text.render_text(data)).request_contact(true);
+        let button =
+            KeyboardButton::new(self.text.render_text_in_context(_ctx, data)).request_contact(true);
         Some(
             self.options
                 .apply(ReplyKeyboardMarkup::new([[button]]))
@@ -178,7 +179,8 @@ where
     ButtonText: Text,
 {
     fn render_keyboard(&self, _ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
-        let button = KeyboardButton::new(self.text.render_text(data)).request_location(true);
+        let button = KeyboardButton::new(self.text.render_text_in_context(_ctx, data))
+            .request_location(true);
         Some(
             self.options
                 .apply(ReplyKeyboardMarkup::new([[button]]))
@@ -262,7 +264,8 @@ where
     fn render_keyboard(&self, _ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
         let request_poll =
             KeyboardButtonPollType::new().type_option(self.poll_type.map(Into::<Box<str>>::into));
-        let button = KeyboardButton::new(self.text.render_text(data)).request_poll(request_poll);
+        let button = KeyboardButton::new(self.text.render_text_in_context(_ctx, data))
+            .request_poll(request_poll);
         Some(
             self.options
                 .apply(ReplyKeyboardMarkup::new([[button]]))
