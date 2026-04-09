@@ -4,7 +4,7 @@
 //! - [`DialogRegistry`] for registering dialogs by state
 //! - [`DialogManager`] for runtime navigation and rendering
 //! - [`dialog`] and [`window`] builders for dialog structure
-//! - [`widgets`] for text, keyboard, and input composition
+//! - [`widgets`] for text, keyboard, input, and link-preview composition
 
 mod dialog;
 pub mod entities;

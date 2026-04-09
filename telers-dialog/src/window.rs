@@ -1,6 +1,6 @@
 use crate::{
     entities::{Context, DataMap, EventContext, NewMessage, ShowMode},
-    widgets::{ensure_widgets, ButtonAction, Input, Keyboard, Text, WidgetKind},
+    widgets::{ensure_widgets, ButtonAction, Input, Keyboard, LinkPreviewWidget, Text, WidgetKind},
 };
 use std::sync::Arc;
 use telers::types::{LinkPreviewOptions, Message};
@@ -54,6 +54,7 @@ pub struct WindowImpl {
     text: Box<dyn Text>,
     keyboard: Option<Box<dyn Keyboard>>,
     input: Option<Box<dyn Input>>,
+    link_preview: Option<Box<dyn LinkPreviewWidget>>,
     parse_mode: Option<Box<str>>,
     protect_content: Option<bool>,
     show_mode: ShowMode,
@@ -64,13 +65,14 @@ impl WindowImpl {
     /// Create a window with widgets and state id.
     #[must_use]
     pub fn new(state: impl Into<String>, widgets: impl IntoIterator<Item = WidgetKind>) -> Self {
-        let (text, keyboard, input) = ensure_widgets(widgets);
+        let (text, keyboard, input, link_preview) = ensure_widgets(widgets);
         let state = state.into();
         Self {
             state,
             text,
             keyboard,
             input,
+            link_preview,
             parse_mode: None,
             protect_content: None,
             show_mode: ShowMode::Auto,
@@ -124,7 +126,11 @@ impl Window for WindowImpl {
             self.parse_mode.clone(),
             self.protect_content,
             self.show_mode,
-            self.link_preview_options.clone(),
+            self.link_preview_options.clone().or_else(|| {
+                self.link_preview
+                    .as_ref()
+                    .and_then(|link_preview| link_preview.render_link_preview(data))
+            }),
         )
     }
 
@@ -146,7 +152,10 @@ mod tests {
     use super::{window, Window};
     use crate::{
         entities::{ChatEvent, Context, DataMap, EventContext},
-        widgets::{input, keyboard, text, Button, ButtonAction, InlineKeyboard, MessageInput},
+        widgets::{
+            input, keyboard, link_preview, text, Button, ButtonAction, InlineKeyboard,
+            LinkPreview, MessageInput,
+        },
     };
     use serde_json::Value;
     use telers::{
@@ -183,6 +192,11 @@ mod tests {
                 input(MessageInput::new(|_ctx, message: MessageText| {
                     ButtonAction::set_dialog_value("name", message.text.to_string())
                 })),
+                link_preview(
+                    LinkPreview::builder()
+                        .url("https://example.com/menu")
+                        .build(),
+                ),
             ],
         );
         let ctx = Context::new("", "state", Value::Null);
@@ -209,6 +223,13 @@ mod tests {
         assert_eq!(
             rows[1][0].callback_data.as_deref(),
             Some(second_callback.as_str())
+        );
+        assert_eq!(
+            rendered
+                .link_preview_options
+                .as_ref()
+                .and_then(|opts| opts.url.as_deref()),
+            Some("https://example.com/menu")
         );
 
         let callback_action = window
