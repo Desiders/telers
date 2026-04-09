@@ -1,6 +1,6 @@
 # telers-dialog Progress Snapshot
 
-Updated: 2026-04-08 (UTC)
+Updated: 2026-04-09 (UTC)
 
 ## Goal
 - Build a focused, Rust-native dialog framework for `telers`.
@@ -66,7 +66,7 @@ Updated: 2026-04-08 (UTC)
   - `SetDialogData`, `SetDialogValue`, `SetWidgetData`, `SetWidgetValue`
 - Window composition supports text + optional keyboard + optional input.
 - Multiple text widgets are normalized into `MultiText`.
-- Public Rustdoc coverage is started for crate root and the public keyboard surface (`widgets::kbd`, `ButtonAction`, `Button`, `Keyboard`, `Group`, `Select`, pager root, stateful-select root).
+- Public Rustdoc coverage now includes crate root plus exported widget, manager, registry, and entity surfaces.
 - Callback payload contract is scoped:
   - `td:{intent_id}:{widget_id}`
   - `td:{intent_id}:{widget_id}:{payload}`
@@ -148,6 +148,7 @@ Updated: 2026-04-08 (UTC)
 - `hide_on_single_page(true)` hides pager when only 1 page.
 - `hide_pager(true)` suppresses pager entirely.
 - `on_page_changed(...)` can emit additional actions after page changes.
+- `OnPageChanged::new(...)` exposes `widget_id`, `old_page`, and `new_page` for richer page-change side effects.
 - Pages beyond max are clamped to last page.
 - Inner keyboard callbacks are delegated transparently.
 - Filler buttons are inert placeholders targeting the current page; Telegram inline keyboards do not support truly disabled buttons.
@@ -157,6 +158,7 @@ Updated: 2026-04-08 (UTC)
 - `FirstPage`, `PrevPage`, `CurrentPage`, `NextPage`, and `LastPage` provide default-label convenience wrappers over the same shared page-state contract.
 - `NumberedPager::builder("pager_id")...build()` renders numbered page buttons and highlights the current page with a separate renderer.
 - All pager widgets support `on_page_changed(...)` for page-change side effects.
+- Rich hooks can inspect `PageChange { widget_id, old_page, new_page }`.
 - Both widgets reuse the same callback/state contract as `ScrollingGroup`, so they can coordinate through a shared widget id.
 
 ### sync_scroll
@@ -213,7 +215,7 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
   - `cargo check -p dialogs_stateful_select_widgets`
   - `cargo check -p dialogs_sync_scroll`
 - `telers-dialog` test target passed:
-  - **69 passed; 0 failed**.
+  - **78 passed; 0 failed**.
 - New test coverage includes:
   - Convenience pager wrappers: render targets and callback payloads for first/prev/current/next/last controls (1 test).
   - ScrollingGroup width options: fixed-grid regrouping and last-page filler padding behavior (2 tests).
@@ -226,9 +228,11 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
   - Multiselect: rendering, check/uncheck toggle, max_selected constraint, min_selected constraint (5 tests).
   - ScrollingGroup: first page, page from widget_data, last page, pager callback, inner callback delegation, hide_on_single_page, hide_pager, page clamping (8 tests).
   - Access control: no settings, private chat bypass, group deny, group allow, empty user_ids, async handle_message denial (6 tests).
+  - Message manager: `NoUpdate` snapshot reuse/failure, reply-keyboard edit restrictions, reply-keyboard detection, protect-content/link-preview change detection (5 tests).
+  - Show mode calculation: delete-and-send after reply keyboard, send/edit behavior for private media-group messages (3 tests).
+  - Rich page-change hooks: `OnPageChanged::new(...)` receives widget id plus old/new page values (1 test).
 
 ## Known gaps
-- Expand manager/message tests for media/reply-keyboard/`NoUpdate` edge cases.
 - Keep `widgets.rs` as a thin re-export layer with stable public API.
 - Keep examples focused by audience:
   - `dialogs_text_widgets` demonstrates a two-step broadcast preview flow, with several text widgets composing one ready-to-send message.
@@ -240,8 +244,3 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 
 ## Planned follow-ups
 - Consider async/manager-aware result hooks beyond action-based `on_process_result`.
-
-## Recommended next slice
-1. Continue Rustdoc coverage for manager/registry/entities APIs, not only widgets.
-2. Expand manager/message tests for media/reply-keyboard/`NoUpdate` edge cases.
-3. Consider richer page-change hooks if widget authors need access to more than just the new page index.

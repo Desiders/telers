@@ -1,3 +1,8 @@
+//! Shared dialog runtime entities.
+//!
+//! This module exports the persistent state and runtime context types used
+//! throughout the dialog manager, renderer, and middleware layers.
+
 mod access;
 mod context;
 mod events;

@@ -5,16 +5,26 @@ use telers::{
 
 use super::ShowMode;
 
+/// Snapshot of the last rendered dialog message.
 #[derive(Clone, Debug)]
 pub struct OldMessage {
+    /// Target chat.
     pub chat: Chat,
+    /// Telegram message id.
     pub message_id: i64,
+    /// Rendered text snapshot.
     pub text: Option<Box<str>>,
+    /// Protected-content flag recorded for the sent message.
     pub has_protected_content: Option<bool>,
+    /// Reply markup kind stored for edit/delete decisions.
     pub reply_markup_type: Option<ReplyMarkupType>,
+    /// Serialized reply markup snapshot.
     pub reply_markup_value: Option<serde_json::Value>,
+    /// Business connection id used to send the message.
     pub business_connection_id: Option<Box<str>>,
+    /// Telegram message type snapshot when available.
     pub message_type: Option<MessageType>,
+    /// Serialized link preview options snapshot.
     pub link_preview_options_value: Option<serde_json::Value>,
 }
 
@@ -51,16 +61,26 @@ impl OldMessage {
     }
 }
 
+/// Rendered dialog message ready to be shown via Telegram.
 #[derive(Clone, Debug)]
 pub struct NewMessage {
+    /// Target chat.
     pub chat: Chat,
+    /// Optional message thread id.
     pub message_thread_id: Option<i64>,
+    /// Optional business connection id.
     pub business_connection_id: Option<Box<str>>,
+    /// Message text.
     pub text: Box<str>,
+    /// Reply markup to attach.
     pub reply_markup: Option<ReplyMarkup>,
+    /// Parse mode used for text rendering.
     pub parse_mode: Option<Box<str>>,
+    /// Protected-content flag.
     pub protect_content: Option<bool>,
+    /// Requested show mode.
     pub show_mode: ShowMode,
+    /// Link preview options.
     pub link_preview_options: Option<LinkPreviewOptions>,
 }
 

@@ -27,7 +27,7 @@ pub use group::Group;
 pub use inline_keyboard::InlineKeyboard;
 pub use pager::{
     sync_scroll, sync_scrolls, CurrentPage, FirstPage, LastPage, NextPage, NumberedPager,
-    OnPageChanged, PageDirection, PrevPage, ScrollingGroup, SwitchPage,
+    OnPageChanged, PageChange, PageDirection, PrevPage, ScrollingGroup, SwitchPage,
 };
 pub use select::Select;
 pub use stateful_select::{Multiselect, Radio, Toggle};

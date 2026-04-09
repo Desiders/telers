@@ -11,6 +11,7 @@ use telers::{
 pub const EVENT_CONTEXT_KEY: &str = "td_event_context";
 pub const CHAT_EVENT_KEY: &str = "td_chat_event";
 
+/// Chat-scoped event variants that can drive dialog updates.
 #[derive(Clone, Debug)]
 #[expect(
     clippy::large_enum_variant,
@@ -18,13 +19,19 @@ pub const CHAT_EVENT_KEY: &str = "td_chat_event";
               call sites."
 )]
 pub enum ChatEvent {
+    /// Telegram callback query event.
     CallbackQuery(CallbackQuery),
+    /// Telegram chat join request event.
     ChatJoinRequest(ChatJoinRequest),
+    /// Telegram chat member update event.
     ChatMember(ChatMemberUpdated),
+    /// Synthetic dialog event injected by the library.
     DialogUpdateEvent(DialogUpdateEvent),
+    /// Telegram message-like event.
     Message(Message),
 }
 
+/// Convert a Telegram update into a dialog-relevant chat event.
 #[must_use]
 pub fn chat_event_from_update(update: &Update) -> Option<ChatEvent> {
     if let Some(callback_query) = update.callback_query() {
@@ -54,12 +61,18 @@ pub fn chat_event_from_update(update: &Update) -> Option<ChatEvent> {
     None
 }
 
+/// Normalized event context extracted from the current update.
 #[derive(Clone, Debug)]
 pub struct EventContext<Client = Reqwest> {
+    /// Bot instance bound to the current request.
     pub bot: Bot<Client>,
+    /// Event chat.
     pub chat: Chat,
+    /// Event author.
     pub user: User,
+    /// Forum topic / thread id when available.
     pub thread_id: Option<i64>,
+    /// Business connection id when available.
     pub business_connection_id: Option<String>,
 }
 

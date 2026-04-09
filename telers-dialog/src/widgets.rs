@@ -12,8 +12,8 @@ pub(crate) use widget::ensure_widgets;
 pub use input::{Input, MessageInput, TextInput};
 pub use kbd::{
     sync_scroll, sync_scrolls, Button, ButtonAction, CurrentPage, FirstPage, Group, InlineKeyboard,
-    Keyboard, LastPage, Multiselect, NextPage, NumberedPager, OnPageChanged, PageDirection,
-    PrevPage, Radio, ScrollingGroup, Select, SwitchPage, Toggle,
+    Keyboard, LastPage, Multiselect, NextPage, NumberedPager, OnPageChanged, PageChange,
+    PageDirection, PrevPage, Radio, ScrollingGroup, Select, SwitchPage, Toggle,
 };
 pub use list::ListText;
 pub use text::{MultiText, Text};

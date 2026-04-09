@@ -7,7 +7,9 @@ use std::{
 
 use super::AccessSettings;
 
+/// Untyped dialog payload stored in `start_data`, `dialog_data`, and `widget_data`.
 pub type Data = serde_json::Value;
+/// String-keyed map used by dialogs and widgets for persisted runtime state.
 pub type DataMap = BTreeMap<String, Data>;
 
 static ID_COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -51,18 +53,27 @@ fn encode_base62(mut n: u64) -> String {
     unsafe { String::from_utf8_unchecked(buf) }
 }
 
+/// Stored dialog context for one active intent on the stack.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Context {
+    /// Unique intent id.
     pub id: String,
+    /// Stack id that owns this context.
     pub stack_id: String,
+    /// Current state id inside the dialog.
     pub state: String,
+    /// Data provided when the dialog was started.
     pub start_data: Data,
+    /// Dialog-level mutable state shared across windows.
     pub dialog_data: DataMap,
+    /// Widget-level mutable state keyed by widget id.
     pub widget_data: DataMap,
+    /// Optional access settings overriding stack-level defaults.
     pub access_settings: Option<AccessSettings>,
 }
 
 impl Context {
+    /// Create a new dialog context with empty `dialog_data` and `widget_data`.
     #[must_use]
     pub fn new(stack_id: impl Into<String>, state: impl Into<String>, start_data: Data) -> Self {
         let stack_id = stack_id.into();
@@ -85,12 +96,14 @@ impl Context {
         self.dialog_data.get(key)
     }
 
+    /// Read a raw value from `widget_data`.
     #[inline]
     #[must_use]
     pub fn widget_value(&self, key: &str) -> Option<&Data> {
         self.widget_data.get(key)
     }
 
+    /// Read and deserialize a typed value from `dialog_data`.
     #[must_use]
     pub fn dialog_value_as<T>(&self, key: &str) -> Option<T>
     where
@@ -101,6 +114,7 @@ impl Context {
             .and_then(|value| serde_json::from_value(value).ok())
     }
 
+    /// Read and deserialize a typed value from `widget_data`.
     #[must_use]
     pub fn widget_value_as<T>(&self, key: &str) -> Option<T>
     where

@@ -2,7 +2,7 @@ use serde_json::{json, Value};
 
 use super::{
     sync_scroll, sync_scrolls, CurrentPage, FirstPage, LastPage, NextPage, NumberedPager,
-    PageDirection, PrevPage, ScrollingGroup, SwitchPage,
+    OnPageChanged, PageDirection, PrevPage, ScrollingGroup, SwitchPage,
 };
 use crate::{
     entities::{Context, DataMap},
@@ -336,6 +336,58 @@ fn numbered_pager_sync_scrolls_updates_multiple_widgets() {
         sync_actions[1],
         ButtonAction::SetWidgetValue { ref key, ref value }
             if key.as_ref() == "grid" && value == &json!(3)
+    ));
+}
+
+#[test]
+fn on_page_changed_can_use_widget_id_and_previous_page() {
+    let mut ctx = Context::new("", "state", Value::Null);
+    ctx.widget_data.insert("pager".into(), json!(1));
+    let pager = NumberedPager::builder("pager")
+        .page_count_getter(|_data| 4)
+        .page_renderer(|page, _data| format!("{}", page + 1))
+        .current_page_renderer(|page, _data| format!("[{}]", page + 1))
+        .on_page_changed(OnPageChanged::new(|change| {
+            ButtonAction::chain([
+                ButtonAction::set_dialog_value("page_widget", change.widget_id.to_string()),
+                ButtonAction::set_dialog_value("page_from", change.old_page),
+                ButtonAction::set_dialog_value("page_to", change.new_page),
+            ])
+        }))
+        .build();
+
+    let action = pager
+        .handle_callback(&ctx, &format!("td:{}:pager:3", ctx.id))
+        .unwrap();
+
+    let ButtonAction::Chain(actions) = action else {
+        panic!("expected chain action");
+    };
+    assert_eq!(actions.len(), 2);
+    assert!(matches!(
+        actions[0],
+        ButtonAction::SetWidgetValue { ref key, ref value }
+            if key.as_ref() == "pager" && value == &json!(3)
+    ));
+
+    let ButtonAction::Chain(detail_actions) = &actions[1] else {
+        panic!("expected nested detail chain");
+    };
+    assert_eq!(detail_actions.len(), 3);
+    assert!(matches!(
+        detail_actions[0],
+        ButtonAction::SetDialogValue { ref key, ref value }
+            if key.as_ref() == "page_widget" && value == "pager"
+    ));
+    assert!(matches!(
+        detail_actions[1],
+        ButtonAction::SetDialogValue { ref key, ref value }
+            if key.as_ref() == "page_from" && value == &json!(1)
+    ));
+    assert!(matches!(
+        detail_actions[2],
+        ButtonAction::SetDialogValue { ref key, ref value }
+            if key.as_ref() == "page_to" && value == &json!(3)
     ));
 }
 
