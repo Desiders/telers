@@ -4,6 +4,7 @@
 //! - primitive buttons such as [`Button`]
 //! - navigation and mutation actions via [`ButtonAction`]
 //! - collection widgets such as [`Select`], [`Radio`], and [`Multiselect`]
+//! - reply-keyboard request widgets such as [`RequestContact`]
 //! - paging helpers such as [`ScrollingGroup`] and [`NumberedPager`]
 
 mod action;
@@ -13,6 +14,7 @@ mod callback;
 mod group;
 mod inline_keyboard;
 mod pager;
+mod request;
 mod select;
 mod stateful_select;
 
@@ -29,12 +31,14 @@ pub use pager::{
     sync_scroll, sync_scrolls, CurrentPage, FirstPage, LastPage, NextPage, NumberedPager,
     OnPageChanged, PageChange, PageDirection, PrevPage, ScrollingGroup, SwitchPage,
 };
+pub use request::{RequestContact, RequestLocation, RequestPoll};
 pub use select::Select;
-pub use stateful_select::{Multiselect, Radio, Toggle};
+pub use stateful_select::{Checkbox, Counter, Multiselect, Radio, Toggle};
 
 #[cfg(test)]
 mod tests {
     use serde_json::Value;
+    use telers::types::{CopyTextButton, LoginUrl, SwitchInlineQueryChosenChat, WebAppInfo};
 
     use super::{Button, ButtonAction, Group, InlineKeyboard, Keyboard, Select};
     use crate::entities::{Context, DataMap, StartMode};
@@ -146,5 +150,56 @@ mod tests {
         assert_eq!(rows.len(), 2);
         assert_eq!(rows[0].len(), 2);
         assert_eq!(rows[1].len(), 1);
+    }
+
+    #[test]
+    fn inline_keyboard_renders_non_callback_button_variants() {
+        let ctx = Context::new("", "state", Value::Null);
+        let keyboard = InlineKeyboard::new()
+            .row([Button::web_app(
+                "Web",
+                WebAppInfo::new("https://example.com/app"),
+            )])
+            .row([Button::login_url(
+                "Login",
+                LoginUrl::new("https://example.com/login"),
+            )])
+            .row([Button::switch_inline_query("Inline", "query")])
+            .row([Button::switch_inline_query_current_chat("Here", "local")])
+            .row([Button::switch_inline_query_chosen_chat(
+                "Pick chat",
+                SwitchInlineQueryChosenChat::new().query("pick"),
+            )])
+            .row([Button::copy_text("Copy", CopyTextButton::new("copied"))]);
+
+        let markup = keyboard
+            .render_keyboard(&ctx, &DataMap::new())
+            .expect("keyboard");
+        let rows = markup.inline_keyboard().expect("inline keyboard");
+
+        assert_eq!(
+            rows[0][0].web_app.as_ref().map(|v| v.url.as_ref()),
+            Some("https://example.com/app")
+        );
+        assert_eq!(
+            rows[1][0].login_url.as_ref().map(|v| v.url.as_ref()),
+            Some("https://example.com/login")
+        );
+        assert_eq!(rows[2][0].switch_inline_query.as_deref(), Some("query"));
+        assert_eq!(
+            rows[3][0].switch_inline_query_current_chat.as_deref(),
+            Some("local")
+        );
+        assert_eq!(
+            rows[4][0]
+                .switch_inline_query_chosen_chat
+                .as_ref()
+                .and_then(|v| v.query.as_deref()),
+            Some("pick")
+        );
+        assert_eq!(
+            rows[5][0].copy_text.as_ref().map(|v| v.text.as_ref()),
+            Some("copied")
+        );
     }
 }

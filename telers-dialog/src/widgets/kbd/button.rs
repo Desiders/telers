@@ -1,6 +1,8 @@
 use std::borrow::Cow;
 
-use telers::types::InlineKeyboardButton;
+use telers::types::{
+    CopyTextButton, InlineKeyboardButton, LoginUrl, SwitchInlineQueryChosenChat, WebAppInfo,
+};
 use tracing::debug;
 
 use super::{format_callback_data, parse_callback_data, ButtonAction};
@@ -12,6 +14,12 @@ use crate::{
 enum ButtonKind {
     Callback(ButtonAction),
     Url(Cow<'static, str>),
+    WebApp(WebAppInfo),
+    LoginUrl(LoginUrl),
+    SwitchInlineQuery(Cow<'static, str>),
+    SwitchInlineQueryCurrentChat(Cow<'static, str>),
+    SwitchInlineQueryChosenChat(SwitchInlineQueryChosenChat),
+    CopyText(CopyTextButton),
 }
 
 /// Inline keyboard button with a stable widget id.
@@ -112,6 +120,72 @@ impl Button {
         }
     }
 
+    /// Create a Web App button.
+    #[must_use]
+    pub fn web_app(text: impl Text, web_app: impl Into<WebAppInfo>) -> Self {
+        Self {
+            id: String::new().into(),
+            text: Box::new(text),
+            kind: ButtonKind::WebApp(web_app.into()),
+        }
+    }
+
+    /// Create a login URL button.
+    #[must_use]
+    pub fn login_url(text: impl Text, login_url: impl Into<LoginUrl>) -> Self {
+        Self {
+            id: String::new().into(),
+            text: Box::new(text),
+            kind: ButtonKind::LoginUrl(login_url.into()),
+        }
+    }
+
+    /// Create a button that opens inline mode in another chat.
+    #[must_use]
+    pub fn switch_inline_query(text: impl Text, query: impl Into<Cow<'static, str>>) -> Self {
+        Self {
+            id: String::new().into(),
+            text: Box::new(text),
+            kind: ButtonKind::SwitchInlineQuery(query.into()),
+        }
+    }
+
+    /// Create a button that opens inline mode in the current chat.
+    #[must_use]
+    pub fn switch_inline_query_current_chat(
+        text: impl Text,
+        query: impl Into<Cow<'static, str>>,
+    ) -> Self {
+        Self {
+            id: String::new().into(),
+            text: Box::new(text),
+            kind: ButtonKind::SwitchInlineQueryCurrentChat(query.into()),
+        }
+    }
+
+    /// Create a button that opens inline mode in a chosen chat.
+    #[must_use]
+    pub fn switch_inline_query_chosen_chat(
+        text: impl Text,
+        query: impl Into<SwitchInlineQueryChosenChat>,
+    ) -> Self {
+        Self {
+            id: String::new().into(),
+            text: Box::new(text),
+            kind: ButtonKind::SwitchInlineQueryChosenChat(query.into()),
+        }
+    }
+
+    /// Create a button that copies text to the clipboard.
+    #[must_use]
+    pub fn copy_text(text: impl Text, copy_text: impl Into<CopyTextButton>) -> Self {
+        Self {
+            id: String::new().into(),
+            text: Box::new(text),
+            kind: ButtonKind::CopyText(copy_text.into()),
+        }
+    }
+
     pub(crate) fn render(&self, ctx: &Context, data: &DataMap) -> InlineKeyboardButton {
         let button = InlineKeyboardButton::new(self.text.render_text(data));
         match &self.kind {
@@ -119,6 +193,16 @@ impl Button {
                 button.callback_data(format_callback_data(ctx, &self.id, None))
             }
             ButtonKind::Url(url) => button.url(url.clone()),
+            ButtonKind::WebApp(web_app) => button.web_app(web_app.clone()),
+            ButtonKind::LoginUrl(login_url) => button.login_url(login_url.clone()),
+            ButtonKind::SwitchInlineQuery(query) => button.switch_inline_query(query.clone()),
+            ButtonKind::SwitchInlineQueryCurrentChat(query) => {
+                button.switch_inline_query_current_chat(query.clone())
+            }
+            ButtonKind::SwitchInlineQueryChosenChat(query) => {
+                button.switch_inline_query_chosen_chat(query.clone())
+            }
+            ButtonKind::CopyText(copy_text) => button.copy_text(copy_text.clone()),
         }
     }
 
@@ -136,7 +220,13 @@ impl Button {
                 debug!(context_id = %ctx.id, button_id = %self.id, "Resolved button callback");
                 Some(action.clone())
             }
-            ButtonKind::Url(_) => None,
+            ButtonKind::Url(_)
+            | ButtonKind::WebApp(_)
+            | ButtonKind::LoginUrl(_)
+            | ButtonKind::SwitchInlineQuery(_)
+            | ButtonKind::SwitchInlineQueryCurrentChat(_)
+            | ButtonKind::SwitchInlineQueryChosenChat(_)
+            | ButtonKind::CopyText(_) => None,
         }
     }
 }
