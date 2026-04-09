@@ -31,8 +31,11 @@ Updated: 2026-04-09 (UTC)
       - `common.rs`
       - `scrolling_group.rs`
       - `standalone.rs`
+    - `request.rs`
     - `select.rs`
     - `stateful_select/`
+      - `checkbox.rs`
+      - `counter.rs`
       - `multiselect.rs`
       - `radio.rs`
       - `toggle.rs`
@@ -86,13 +89,20 @@ Updated: 2026-04-09 (UTC)
   - static text (`&'static str`, `String`, `Box<str>`)
   - `FnText`
   - `FormatText`
+  - `Case`
   - `MultiText`
+  - `Progress`
   - `ListText`
-- Keyboard/actions:
+  - Keyboard/actions:
   - `InlineKeyboard`
   - `Group`: layout wrapper to group inline keyboard buttons by row width
-  - `Button::{action,next,back,switch_to,start,done,done_with_result,set_dialog_value,url}`
+  - `Button::{action,next,back,switch_to,start,done,done_with_result,set_dialog_value,url,web_app,login_url,switch_inline_query,switch_inline_query_current_chat,switch_inline_query_chosen_chat,copy_text}`
+  - `RequestContact`: one-button reply keyboard asking for the user's phone number
+  - `RequestLocation`: one-button reply keyboard asking for the user's current location
+  - `RequestPoll`: one-button reply keyboard asking the user to create and send a poll
   - `Select`
+  - `Checkbox`: single-button boolean selector stored in `widget_data`
+  - `Counter`: numeric stepper stored in `widget_data`
   - `Radio`: single-selection stateful widget with stored selection in `widget_data`
   - `Toggle`: single-button cyclic selector storing current item id in `widget_data`
   - `Multiselect`: multi-selection widget with `min_selected`/`max_selected` constraints
@@ -108,6 +118,20 @@ Updated: 2026-04-09 (UTC)
   - `CallbackPayload`
 
 ## Widget details
+
+### Checkbox
+- Builder-based: `Checkbox::builder("widget_id").checked_text(...).unchecked_text(...).build()`
+- Stores current boolean value in `widget_data[widget_id]`.
+- Renders a single button and toggles between `true` and `false` on click.
+- Supports `default(...)`, `header_row`/`footer_row`/`header_push`/`footer_push`.
+
+### Counter
+- Builder-based: `Counter::builder("widget_id").default(...).increment(...).build()`
+- Stores the current numeric value in `widget_data[widget_id]` as `f64`.
+- Renders `[- | value | +]` in one row and updates the value on button clicks.
+- Supports `min(...)`, `max(...)`, `increment(...)`, `default(...)`, and `cycle(...)`.
+- `minus_hidden(true)` and `plus_hidden(true)` remove the side buttons when a one-sided or read-only counter layout fits better.
+- Supports `header_row`/`footer_row`/`header_push`/`footer_push`.
 
 ### Radio
 - Builder-based: `Radio::builder("widget_id").items_getter(...).checked_renderer(...).unchecked_renderer(...).id_getter(...).build()`
@@ -137,6 +161,14 @@ Updated: 2026-04-09 (UTC)
 - Applies only to inline keyboards, regrouping all buttons into rows of `items_per_row`.
 - Delegates callback handling to wrapped keyboard unchanged.
 - Intended as layout layer for widgets like `Select`, `Radio`, and `Multiselect`.
+
+### Request reply keyboards
+- `RequestContact::new(text)` renders a reply keyboard with one contact-request button.
+- `RequestLocation::new(text)` renders a reply keyboard with one location-request button.
+- `RequestPoll::new(text).poll_type(PollType::Quiz)` renders a reply keyboard with one poll-request button.
+- All three support reply-keyboard options via fluent setters:
+  `is_persistent`, `resize_keyboard`, `one_time_keyboard`, `input_field_placeholder`, and `selective`.
+- They do not produce callback actions; Telegram sends service/message updates after the user presses them.
 
 ### ScrollingGroup
 - Wraps any `Keyboard` widget and adds height-based pagination.
@@ -198,24 +230,28 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 
 ### Widget backlog (not implemented yet)
 - Keyboard widgets:
-  - `Checkbox`
-  - `Counter`
   - `Calendar`
-- Managed helper layer parity (post-MVP):
-  - managed wrappers/helpers for stateful widgets (similar scope to `ManagedRadio` / `ManagedMultiselect` in `aiogram-dialog`)
+  - `TimeSelect`
+  - `StubScroll`
+- Keyboard button/widget variants:
+- Text widgets:
+  - `ScrollingText`
+- Link preview:
+  - `LinkPreview`
 
 ## Test and validation status
 - In-source tests exist across manager/setup/widgets/message-manager/registry/window modules.
 - Validation rerun in this session with local `cargo test -p telers-dialog`.
 - Example validation rerun in this session with:
   - `cargo check -p dialogs_button_actions`
+  - `cargo check -p dialogs_request_widgets`
   - `cargo check -p dialogs_pager_widgets`
   - `cargo check -p dialogs_select_widget`
   - `cargo check -p dialogs_text_widgets`
   - `cargo check -p dialogs_stateful_select_widgets`
   - `cargo check -p dialogs_sync_scroll`
 - `telers-dialog` test target passed:
-  - **78 passed; 0 failed**.
+  - **93 passed; 0 failed**.
 - New test coverage includes:
   - Convenience pager wrappers: render targets and callback payloads for first/prev/current/next/last controls (1 test).
   - ScrollingGroup width options: fixed-grid regrouping and last-page filler padding behavior (2 tests).
@@ -231,16 +267,23 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
   - Message manager: `NoUpdate` snapshot reuse/failure, reply-keyboard edit restrictions, reply-keyboard detection, protect-content/link-preview change detection (5 tests).
   - Show mode calculation: delete-and-send after reply keyboard, send/edit behavior for private media-group messages (3 tests).
   - Rich page-change hooks: `OnPageChanged::new(...)` receives widget id plus old/new page values (1 test).
+  - Text widgets: `Case` keyed/default selection and `Progress` bar rendering/clamping (4 tests).
+  - Simple widget additions: `Checkbox` render/toggle behavior and inline non-callback button variants (4 tests).
+  - Request reply keyboards: contact/location/poll reply markup rendering and option propagation (3 tests).
 
 ## Known gaps
 - Keep `widgets.rs` as a thin re-export layer with stable public API.
 - Keep examples focused by audience:
   - `dialogs_text_widgets` demonstrates a two-step broadcast preview flow, with several text widgets composing one ready-to-send message.
+  - `dialogs_request_widgets` demonstrates a pop-up launch setup flow for `RequestContact`, `RequestLocation`, and `RequestPoll`.
   - `dialogs_select_widget` stays a beginner `Select` example.
-  - `dialogs_stateful_select_widgets` covers `Radio`, `Toggle`, and `Multiselect` with a realistic subscription-settings flow.
+  - `dialogs_stateful_select_widgets` covers `Checkbox`, `Counter`, `Radio`, `Toggle`, and `Multiselect` with a realistic subscription-settings flow.
   - `dialogs_pager_widgets` carries built-in pager and standalone pager demos.
   - `dialogs_sync_scroll` demonstrates a related two-block page where one pager keeps a compact picker and a details block aligned.
 - `pager` and `stateful_select` are now split into finer-grained submodules under `src/widgets/kbd/`, while `pager.rs` and `stateful_select.rs` remain the module roots.
 
 ## Planned follow-ups
 - Consider async/manager-aware result hooks beyond action-based `on_process_result`.
+
+## Recommended next slice
+1. Continue the missing-widget backlog with the remaining unresolved widgets: `StubScroll`, `ScrollingText`, `Calendar`, `TimeSelect`, and `LinkPreview`.

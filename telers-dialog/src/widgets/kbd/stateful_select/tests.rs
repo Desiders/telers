@@ -1,6 +1,6 @@
 use serde_json::{json, Value};
 
-use super::{Multiselect, Radio, Toggle};
+use super::{Checkbox, Counter, Multiselect, Radio, Toggle};
 use crate::{
     entities::{Context, DataMap},
     widgets::{Button, ButtonAction, Keyboard},
@@ -93,6 +93,142 @@ fn radio_allows_header_and_footer_buttons() {
         .unwrap();
 
     assert!(matches!(action, ButtonAction::Done));
+}
+
+#[test]
+fn checkbox_renders_unchecked_and_toggles_to_true() {
+    let ctx = Context::new("", "state", Value::Null);
+    let checkbox = Checkbox::builder("notify")
+        .checked_text("[x] Notify me")
+        .unchecked_text("[ ] Notify me")
+        .build();
+
+    let markup = checkbox.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let rows = markup.inline_keyboard().unwrap();
+    let expected = format!("td:{}:notify:true", ctx.id);
+
+    assert_eq!(&*rows[0][0].text, "[ ] Notify me");
+    assert_eq!(rows[0][0].callback_data.as_deref(), Some(expected.as_str()));
+}
+
+#[test]
+fn checkbox_renders_checked_and_toggles_to_false() {
+    let mut ctx = Context::new("", "state", Value::Null);
+    ctx.widget_data.insert("notify".into(), json!(true));
+    let checkbox = Checkbox::builder("notify")
+        .checked_text("[x] Notify me")
+        .unchecked_text("[ ] Notify me")
+        .build();
+
+    let markup = checkbox.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let rows = markup.inline_keyboard().unwrap();
+    let expected = format!("td:{}:notify:false", ctx.id);
+
+    assert_eq!(&*rows[0][0].text, "[x] Notify me");
+    assert_eq!(rows[0][0].callback_data.as_deref(), Some(expected.as_str()));
+}
+
+#[test]
+fn checkbox_callback_updates_widget_value() {
+    let ctx = Context::new("", "state", Value::Null);
+    let checkbox = Checkbox::builder("notify")
+        .checked_text("[x] Notify me")
+        .unchecked_text("[ ] Notify me")
+        .build();
+
+    let action = checkbox
+        .handle_callback(&ctx, &format!("td:{}:notify:true", ctx.id))
+        .unwrap();
+
+    assert!(matches!(
+        action,
+        ButtonAction::SetWidgetValue { ref key, ref value }
+            if key.as_ref() == "notify" && value == &json!(true)
+    ));
+}
+
+#[test]
+fn counter_renders_default_value() {
+    let ctx = Context::new("", "state", Value::Null);
+    let counter = Counter::builder("qty").default(2.0).build();
+
+    let markup = counter.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let rows = markup.inline_keyboard().unwrap();
+
+    assert_eq!(&*rows[0][0].text, "-");
+    assert_eq!(&*rows[0][1].text, "2");
+    assert_eq!(&*rows[0][2].text, "+");
+}
+
+#[test]
+fn counter_can_hide_plus_and_minus_buttons() {
+    let ctx = Context::new("", "state", Value::Null);
+    let counter = Counter::builder("qty")
+        .default(2.0)
+        .minus_hidden(true)
+        .plus_hidden(true)
+        .build();
+
+    let markup = counter.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let rows = markup.inline_keyboard().unwrap();
+
+    assert_eq!(rows[0].len(), 1);
+    assert_eq!(&*rows[0][0].text, "2");
+}
+
+#[test]
+fn counter_plus_callback_increments_value() {
+    let mut ctx = Context::new("", "state", Value::Null);
+    ctx.widget_data.insert("qty".into(), json!(2.0));
+    let counter = Counter::builder("qty").increment(0.5).build();
+
+    let action = counter
+        .handle_callback(&ctx, &format!("td:{}:qty:+", ctx.id))
+        .unwrap();
+
+    assert!(matches!(
+        action,
+        ButtonAction::SetWidgetValue { ref key, ref value }
+            if key.as_ref() == "qty" && value == &json!(2.5)
+    ));
+}
+
+#[test]
+fn counter_minus_callback_respects_minimum() {
+    let mut ctx = Context::new("", "state", Value::Null);
+    ctx.widget_data.insert("qty".into(), json!(1.0));
+    let counter = Counter::builder("qty").min(1.0).default(1.0).build();
+
+    let action = counter
+        .handle_callback(&ctx, &format!("td:{}:qty:-", ctx.id))
+        .unwrap();
+
+    assert!(matches!(
+        action,
+        ButtonAction::SetWidgetValue { ref key, ref value }
+            if key.as_ref() == "qty" && value == &json!(1.0)
+    ));
+}
+
+#[test]
+fn counter_cycles_when_enabled() {
+    let mut ctx = Context::new("", "state", Value::Null);
+    ctx.widget_data.insert("qty".into(), json!(3.0));
+    let counter = Counter::builder("qty")
+        .min(1.0)
+        .max(3.0)
+        .cycle(true)
+        .build();
+
+    let action = counter
+        .handle_callback(&ctx, &format!("td:{}:qty:+", ctx.id))
+        .unwrap();
+
+    assert!(matches!(
+        action,
+        ButtonAction::SetWidgetValue { ref key, ref value }
+            if key.as_ref() == "qty" && value == &json!(1.0)
+    ));
 }
 
 #[test]
