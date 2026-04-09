@@ -17,7 +17,10 @@ use telers::{
 };
 use telers_dialog::{
     dialog,
-    widgets::{format_text, keyboard, Button, Group, InlineKeyboard, Multiselect, Radio, Toggle},
+    widgets::{
+        format_text, keyboard, Button, Checkbox, Counter, Group, InlineKeyboard, Multiselect,
+        Radio, Toggle,
+    },
     window, DialogManager, DialogObserverExt, DialogRegistry, StartMode,
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
@@ -98,6 +101,36 @@ fn registry() -> DialogRegistry {
                         .items_getter(|_data| DIGEST_MODES)
                         .item_renderer(|item, _data| format!("Alert pace: {}", item.1))
                         .id_getter(|item| item.0)
+                        .build(),
+                ),
+                keyboard(
+                    InlineKeyboard::new()
+                        .push(Button::back("back", "Back"))
+                        .push(Button::next("open_limits", "Limits"))
+                        .push(Button::done("close", "Close")),
+                ),
+            ],
+        ),
+        window(
+            "limits",
+            [
+                format_text(
+                    "Roastery Club Alerts\n\nTune how aggressive the campaign should feel. Keep \
+                     flash-sale pins on for urgent launches, and set how many promo pushes can go \
+                     out each week.\n\n[Stateful] `Checkbox` toggles one boolean value and \
+                     `Counter` stores a numeric setting in `widget_data`",
+                ),
+                keyboard(
+                    Checkbox::builder("pin_flash_sales")
+                        .checked_text("✓ Pin flash-sale alerts")
+                        .unchecked_text("□ Pin flash-sale alerts")
+                        .build(),
+                ),
+                keyboard(
+                    Counter::builder("weekly_promo_cap")
+                        .default(3.0)
+                        .min(0.0)
+                        .max(7.0)
                         .build(),
                 ),
                 keyboard(
