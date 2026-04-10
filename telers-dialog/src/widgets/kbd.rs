@@ -28,8 +28,9 @@ pub use button::Button;
 pub use group::Group;
 pub use inline_keyboard::InlineKeyboard;
 pub use pager::{
-    sync_scroll, sync_scrolls, CurrentPage, FirstPage, LastPage, NextPage, NumberedPager,
-    OnPageChanged, PageChange, PageDirection, PrevPage, ScrollingGroup, SwitchPage,
+    sync_scroll, sync_scrolls, BaseScroll, CurrentPage, FirstPage, LastPage, NextPage,
+    NumberedPager, OnPageChanged, PageChange, PageDirection, PagerBinding, PrevPage, Scroll,
+    ScrollingGroup, SwitchPage,
 };
 pub use request::{RequestContact, RequestLocation, RequestPoll};
 pub use select::Select;

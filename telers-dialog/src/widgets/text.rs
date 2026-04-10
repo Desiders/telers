@@ -1,6 +1,7 @@
 use bon::{bon, Builder};
-use std::borrow::Cow;
+use std::{borrow::Cow, sync::Arc};
 
+use super::kbd::{BaseScroll, OnPageChanged, Scroll};
 use crate::entities::{Context, Data, DataMap};
 
 pub trait Text: Send + Sync + 'static {
@@ -245,9 +246,10 @@ impl Text for MultiText {
 }
 
 /// Paged text widget driven by shared page state in `widget_data`.
+#[derive(Clone)]
 pub struct ScrollingText {
-    id: Cow<'static, str>,
-    text: Box<dyn Text>,
+    base_scroll: BaseScroll,
+    text: Arc<dyn Text>,
     page_size: usize,
 }
 
@@ -258,11 +260,12 @@ impl ScrollingText {
     #[must_use]
     pub fn new(
         #[builder(start_fn, into)] id: Cow<'static, str>,
-        #[builder(with = |text: impl Text| Box::new(text) as Box<dyn Text>)] text: Box<dyn Text>,
+        #[builder(with = |text: impl Text| Arc::new(text) as Arc<dyn Text>)] text: Arc<dyn Text>,
         page_size: usize,
+        on_page_changed: Option<OnPageChanged>,
     ) -> Self {
         Self {
-            id,
+            base_scroll: BaseScroll::new(id, on_page_changed),
             text,
             page_size,
         }
@@ -273,11 +276,6 @@ impl ScrollingText {
     #[inline]
     fn effective_page_size(&self) -> usize {
         self.page_size.max(1)
-    }
-
-    fn page_from_context(&self, ctx: &Context) -> usize {
-        ctx.widget_value_as::<usize>(self.id.as_ref())
-            .unwrap_or_default()
     }
 
     fn page_count_for_text(&self, full_text: &str) -> usize {
@@ -324,6 +322,16 @@ impl ScrollingText {
     }
 }
 
+impl Scroll for ScrollingText {
+    fn base_scroll(&self) -> &BaseScroll {
+        &self.base_scroll
+    }
+
+    fn get_page_count(&self, ctx: &Context, data: &DataMap) -> usize {
+        self.page_count_in_context(ctx, data)
+    }
+}
+
 impl Text for ScrollingText {
     fn render_text(&self, data: &DataMap) -> Box<str> {
         self.render_page(self.text.render_text(data), 0)
@@ -332,7 +340,7 @@ impl Text for ScrollingText {
     fn render_text_in_context(&self, ctx: &Context, data: &DataMap) -> Box<str> {
         self.render_page(
             self.text.render_text_in_context(ctx, data),
-            self.page_from_context(ctx),
+            self.get_page(ctx),
         )
     }
 }
@@ -379,7 +387,10 @@ fn render_data_value(value: &Data) -> String {
 #[cfg(test)]
 mod tests {
     use super::{Case, FormatText, MultiText, Progress, ScrollingText, Text};
-    use crate::entities::{Context, DataMap};
+    use crate::{
+        entities::{Context, DataMap},
+        widgets::{Keyboard, NumberedPager},
+    };
     use serde_json::json;
 
     #[test]
@@ -489,5 +500,26 @@ mod tests {
 
         assert_eq!(&*text.render_text_in_context(&ctx, &DataMap::new()), "cd");
         assert_eq!(text.page_count(&DataMap::new()), 2);
+    }
+
+    #[test]
+    fn scrolling_text_can_drive_numbered_pager_via_scroll_trait() {
+        let text = ScrollingText::builder("article")
+            .text("abcdefghij")
+            .page_size(4)
+            .build();
+        let markup = NumberedPager::builder(text)
+            .page_renderer(|page, _data| format!("{}", page + 1))
+            .current_page_renderer(|page, _data| format!("[{}]", page + 1))
+            .length(5)
+            .build()
+            .render_keyboard(&Context::new("", "state", json!(null)), &DataMap::new())
+            .unwrap();
+        let rows = markup.inline_keyboard().unwrap();
+
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].len(), 3);
+        assert_eq!(&*rows[0][0].text, "[1]");
+        assert_eq!(&*rows[0][2].text, "3");
     }
 }

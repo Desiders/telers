@@ -213,7 +213,7 @@ fn switch_page_renders_directional_button() {
     ctx.widget_data.insert("pager".into(), json!(1));
     let pager = SwitchPage::builder("pager")
         .direction(PageDirection::Next)
-        .page_count_getter(|_data| 4)
+        .page_count_getter(|_ctx, _data| 4)
         .label_renderer(|_target, _current, _data| ">")
         .build();
 
@@ -232,7 +232,7 @@ fn numbered_pager_renders_current_page_distinctly() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("pager".into(), json!(1));
     let pager = NumberedPager::builder("pager")
-        .page_count_getter(|_data| 4)
+        .page_count_getter(|_ctx, _data| 4)
         .page_renderer(|page, _data| (page + 1).to_string())
         .current_page_renderer(|page, _data| format!("[{}]", page + 1))
         .length(3)
@@ -252,7 +252,7 @@ fn numbered_pager_renders_current_page_distinctly() {
 fn numbered_pager_callback_sets_page() {
     let ctx = Context::new("", "state", Value::Null);
     let pager = NumberedPager::builder("pager")
-        .page_count_getter(|_data| 2)
+        .page_count_getter(|_ctx, _data| 2)
         .page_renderer(|page, _data| (page + 1).to_string())
         .current_page_renderer(|page, _data| format!("[{}]", page + 1))
         .build();
@@ -302,7 +302,7 @@ fn scrolling_group_sync_scroll_updates_other_widget_page() {
 fn numbered_pager_sync_scrolls_updates_multiple_widgets() {
     let ctx = Context::new("", "state", Value::Null);
     let pager = NumberedPager::builder("pager")
-        .page_count_getter(|_data| 4)
+        .page_count_getter(|_ctx, _data| 4)
         .page_renderer(|page, _data| (page + 1).to_string())
         .current_page_renderer(|page, _data| format!("[{}]", page + 1))
         .on_page_changed(sync_scrolls(["list", "grid"]))
@@ -344,7 +344,7 @@ fn on_page_changed_can_use_widget_id_and_previous_page() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("pager".into(), json!(1));
     let pager = NumberedPager::builder("pager")
-        .page_count_getter(|_data| 4)
+        .page_count_getter(|_ctx, _data| 4)
         .page_renderer(|page, _data| format!("{}", page + 1))
         .current_page_renderer(|page, _data| format!("[{}]", page + 1))
         .on_page_changed(OnPageChanged::new(|change| {
@@ -398,19 +398,19 @@ fn convenience_pager_wrappers_render_expected_targets() {
     let data = DataMap::new();
 
     let first = FirstPage::builder("pager")
-        .page_count_getter(|_data| 4)
+        .page_count_getter(|_ctx, _data| 4)
         .build();
     let prev = PrevPage::builder("pager")
-        .page_count_getter(|_data| 4)
+        .page_count_getter(|_ctx, _data| 4)
         .build();
     let current = CurrentPage::builder("pager")
-        .page_count_getter(|_data| 4)
+        .page_count_getter(|_ctx, _data| 4)
         .build();
     let next = NextPage::builder("pager")
-        .page_count_getter(|_data| 4)
+        .page_count_getter(|_ctx, _data| 4)
         .build();
     let last = LastPage::builder("pager")
-        .page_count_getter(|_data| 4)
+        .page_count_getter(|_ctx, _data| 4)
         .build();
 
     let first_rows = first.render_keyboard(&ctx, &data).unwrap();
@@ -454,5 +454,66 @@ fn convenience_pager_wrappers_render_expected_targets() {
             .callback_data
             .as_deref(),
         Some(format!("td:{}:pager:3", ctx.id).as_str())
+    );
+}
+
+#[test]
+fn convenience_pager_wrappers_allow_label_override() {
+    let mut ctx = Context::new("", "state", Value::Null);
+    ctx.widget_data.insert("pager".into(), json!(1));
+    let data = DataMap::new();
+
+    let first = FirstPage::builder("pager")
+        .page_count_getter(|_ctx, _data| 4)
+        .label("First".into())
+        .build();
+    let prev = PrevPage::builder("pager")
+        .page_count_getter(|_ctx, _data| 4)
+        .label("Back".into())
+        .build();
+    let next = NextPage::builder("pager")
+        .page_count_getter(|_ctx, _data| 4)
+        .label("More".into())
+        .build();
+    let last = LastPage::builder("pager")
+        .page_count_getter(|_ctx, _data| 4)
+        .label("Final".into())
+        .build();
+
+    assert_eq!(
+        &*first
+            .render_keyboard(&ctx, &data)
+            .unwrap()
+            .inline_keyboard()
+            .unwrap()[0][0]
+            .text,
+        "First"
+    );
+    assert_eq!(
+        &*prev
+            .render_keyboard(&ctx, &data)
+            .unwrap()
+            .inline_keyboard()
+            .unwrap()[0][0]
+            .text,
+        "Back"
+    );
+    assert_eq!(
+        &*next
+            .render_keyboard(&ctx, &data)
+            .unwrap()
+            .inline_keyboard()
+            .unwrap()[0][0]
+            .text,
+        "More"
+    );
+    assert_eq!(
+        &*last
+            .render_keyboard(&ctx, &data)
+            .unwrap()
+            .inline_keyboard()
+            .unwrap()[0][0]
+            .text,
+        "Final"
     );
 }

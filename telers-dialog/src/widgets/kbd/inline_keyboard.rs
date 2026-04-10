@@ -3,7 +3,7 @@ use telers::types::{InlineKeyboardMarkup, ReplyMarkup};
 use super::{Button, ButtonAction, Keyboard};
 use crate::entities::{Context, DataMap};
 
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct InlineKeyboard {
     rows: Vec<Vec<Button>>,
 }

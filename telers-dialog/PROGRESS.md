@@ -72,6 +72,9 @@ Updated: 2026-04-09 (UTC)
 - Window composition supports text + optional keyboard + optional input.
 - Window composition also supports an optional link preview widget.
 - Multiple text widgets are normalized into `MultiText`.
+- Scroll widgets now share a small common model:
+  - `BaseScroll` stores widget id + `on_page_changed`
+  - `Scroll` provides page count plus shared page-state behavior
 - Public Rustdoc coverage now includes crate root plus exported widget, manager, registry, and entity surfaces.
 - Callback payload contract is scoped:
   - `td:{intent_id}:{widget_id}`
@@ -193,6 +196,8 @@ Updated: 2026-04-09 (UTC)
 - Wraps any `Keyboard` widget and adds height-based pagination.
 - `ScrollingGroup::new("id", inner_keyboard, height)` with `height` rows per page.
 - Stores current page (0-indexed) in `widget_data[widget_id]`.
+- Uses `BaseScroll` internally, so page-state reads and `on_page_changed` handling match other scroll widgets.
+- Is cloneable when the wrapped keyboard is cloneable, which lets standalone pagers bind to the same scroll widget without repeating page-count logic.
 - Built-in pager row: `[1 | < | current | > | last]` (mirroring aiogram-dialog).
 - `width` controls fixed content width for the paged keyboard; when set, buttons are regrouped into rows of that width before paging.
 - Last pages are padded with filler buttons using `filler_text` (default blank space) to preserve the configured grid shape.
@@ -208,6 +213,8 @@ Updated: 2026-04-09 (UTC)
 - `SwitchPage::builder("pager_id")...build()` renders a single button targeting first/prev/current/next/last page using shared page state in `widget_data`.
 - `FirstPage`, `PrevPage`, `CurrentPage`, `NextPage`, and `LastPage` provide default-label convenience wrappers over the same shared page-state contract.
 - `NumberedPager::builder("pager_id")...build()` renders numbered page buttons and highlights the current page with a separate renderer.
+- Page-count closures now receive both `ctx` and `data`, so standalone pagers can follow context-sensitive scroll widgets cleanly.
+- Standalone pagers can be built either from a plain widget id or directly from a `Scroll` widget through the same `builder(...)` entry point; `dialogs_pager_widgets` and `dialogs_sync_scroll` use this for `ScrollingGroup` bindings.
 - All pager widgets support `on_page_changed(...)` for page-change side effects.
 - Rich hooks can inspect `PageChange { widget_id, old_page, new_page }`.
 - Both widgets reuse the same callback/state contract as `ScrollingGroup`, so they can coordinate through a shared widget id.
@@ -220,7 +227,7 @@ Updated: 2026-04-09 (UTC)
 ### ScrollingText
 - Builder-based: `ScrollingText::builder("widget_id").text(...).page_size(...).build()`
 - Reads the current page from `widget_data[widget_id]` and slices the inner text accordingly.
-- Uses the same shared page-state contract as pager widgets, so it can be coordinated with `NumberedPager`, `SwitchPage`, or `sync_scroll`.
+- Implements the shared `Scroll` behavior via `BaseScroll`, so standalone pagers can bind to it directly.
 - Page slicing is char-based rather than byte-based, so non-ASCII text stays safe.
 
 ## Comparison with aiogram-dialog (actualized)
@@ -271,7 +278,7 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
   - `cargo check -p dialogs_text_widgets`
   - `cargo check -p dialogs_sync_scroll`
 - `telers-dialog` test target passed:
-  - **101 passed; 0 failed**.
+  - **102 passed; 0 failed**.
 - New test coverage includes:
   - Convenience pager wrappers: render targets and callback payloads for first/prev/current/next/last controls (1 test).
   - ScrollingGroup width options: fixed-grid regrouping and last-page filler padding behavior (2 tests).
@@ -287,7 +294,7 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
   - Message manager: `NoUpdate` snapshot reuse/failure, reply-keyboard edit restrictions, reply-keyboard detection, protect-content/link-preview change detection (5 tests).
   - Show mode calculation: delete-and-send after reply keyboard, send/edit behavior for private media-group messages (3 tests).
   - Rich page-change hooks: `OnPageChanged::new(...)` receives widget id plus old/new page values (1 test).
-  - Text widgets: `Case` keyed/default selection, `Progress` bar rendering/clamping, and `ScrollingText` page slicing from widget state including non-ASCII text (7 tests).
+  - Text widgets: `Case` keyed/default selection, `Progress` bar rendering/clamping, and `ScrollingText` page slicing plus direct pager binding (8 tests).
   - Simple widget additions: `Checkbox` render/toggle behavior and inline non-callback button variants (4 tests).
   - Request reply keyboards: contact/location/poll reply markup rendering and option propagation (3 tests).
   - TimeSelect: render/state behavior for header rows plus hour/minute callbacks (3 tests).

@@ -10,6 +10,7 @@ use crate::entities::{Context, DataMap};
 ///
 /// Each rendered item produces a callback payload derived from `id_getter`, and
 /// that payload is converted into a [`ButtonAction`] by `action`.
+#[derive(Clone)]
 pub struct Select<
     WidgetId,
     ItemsGetter,
