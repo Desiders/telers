@@ -57,7 +57,19 @@ async fn handle_start(bot: Bot, manager: Manager) -> HandlerResult<()> {
 }
 
 fn registry() -> DialogRegistry {
-    let drink_count = |_data: &_| DRINKS.len().div_ceil(GRID_WIDTH * PAGE_HEIGHT);
+    let standalone_catalog = ScrollingGroup::builder("standalone_catalog")
+        .height(PAGE_HEIGHT)
+        .width(GRID_WIDTH)
+        .hide_pager(true)
+        .kbd(
+            Select::builder("standalone_items")
+                .items_getter(|_data| DRINKS)
+                .item_renderer(|item, _data| format!("{} {}", item.0, item.1))
+                .id_getter(|item| item.0)
+                .action(|value| ButtonAction::set_dialog_value("selected_drink", value))
+                .build(),
+        )
+        .build();
     let dialog = dialog([
         window(
             "built_in",
@@ -104,26 +116,9 @@ fn registry() -> DialogRegistry {
                      exactly where it wants.\n\n[Pager] `hide_pager(true)` + standalone \
                      `NumberedPager`",
                 ),
+                keyboard(standalone_catalog.clone()),
                 keyboard(
-                    ScrollingGroup::builder("standalone_catalog")
-                        .height(PAGE_HEIGHT)
-                        .width(GRID_WIDTH)
-                        .hide_pager(true)
-                        .kbd(
-                            Select::builder("standalone_items")
-                                .items_getter(|_data| DRINKS)
-                                .item_renderer(|item, _data| format!("{} {}", item.0, item.1))
-                                .id_getter(|item| item.0)
-                                .action(|value| {
-                                    ButtonAction::set_dialog_value("selected_drink", value)
-                                })
-                                .build(),
-                        )
-                        .build(),
-                ),
-                keyboard(
-                    NumberedPager::builder("standalone_catalog")
-                        .page_count_getter(drink_count)
+                    NumberedPager::builder(standalone_catalog)
                         .page_renderer(|page, _data| format!("{}", page + 1))
                         .current_page_renderer(|page, _data| format!("[{}]", page + 1))
                         .length(5)

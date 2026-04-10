@@ -56,7 +56,20 @@ async fn handle_start(bot: Bot, manager: Manager) -> HandlerResult<()> {
 }
 
 fn registry() -> DialogRegistry {
-    let page_count = |_data: &_| PRODUCTS.len().div_ceil(GRID_WIDTH * PAGE_HEIGHT);
+    let catalog_list = ScrollingGroup::builder("catalog_list")
+        .height(PAGE_HEIGHT)
+        .width(GRID_WIDTH)
+        .hide_pager(true)
+        .on_page_changed(sync_scroll("catalog_notes"))
+        .kbd(
+            Select::builder("catalog_items")
+                .items_getter(|_data| PRODUCTS)
+                .item_renderer(|item, _data| format!("{}", item.0))
+                .id_getter(|item| item.0)
+                .action(|value| ButtonAction::set_dialog_value("selected_product", value))
+                .build(),
+        )
+        .build();
     let dialog = dialog([window(
         "catalog",
         [
@@ -65,24 +78,7 @@ fn registry() -> DialogRegistry {
                  compact picker. The bottom block shows matching price and note cards for the \
                  same page.\n\n[Helper] `sync_scroll` keeps both blocks on the same page",
             ),
-            keyboard(
-                ScrollingGroup::builder("catalog_list")
-                    .height(PAGE_HEIGHT)
-                    .width(GRID_WIDTH)
-                    .hide_pager(true)
-                    .on_page_changed(sync_scroll("catalog_notes"))
-                    .kbd(
-                        Select::builder("catalog_items")
-                            .items_getter(|_data| PRODUCTS)
-                            .item_renderer(|item, _data| format!("{}", item.0))
-                            .id_getter(|item| item.0)
-                            .action(|value| {
-                                ButtonAction::set_dialog_value("selected_product", value)
-                            })
-                            .build(),
-                    )
-                    .build(),
-            ),
+            keyboard(catalog_list.clone()),
             keyboard(InlineKeyboard::new().row([Button::action(
                 "details_label",
                 "PRODUCT DETAILS",
@@ -104,8 +100,7 @@ fn registry() -> DialogRegistry {
                     .build(),
             ),
             keyboard(
-                NumberedPager::builder("catalog_list")
-                    .page_count_getter(page_count)
+                NumberedPager::builder(catalog_list)
                     .page_renderer(|page, _data| format!("{}", page + 1))
                     .current_page_renderer(|page, _data| format!("[{}]", page + 1))
                     .length(5)

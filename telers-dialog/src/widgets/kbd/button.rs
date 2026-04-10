@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, sync::Arc};
 
 use telers::types::{
     CopyTextButton, InlineKeyboardButton, LoginUrl, SwitchInlineQueryChosenChat, WebAppInfo,
@@ -11,6 +11,7 @@ use crate::{
     widgets::Text,
 };
 
+#[derive(Clone)]
 enum ButtonKind {
     Callback(ButtonAction),
     Url(Cow<'static, str>),
@@ -25,9 +26,10 @@ enum ButtonKind {
 /// Inline keyboard button with a stable widget id.
 ///
 /// Most constructors are thin convenience helpers over [`ButtonAction`].
+#[derive(Clone)]
 pub struct Button {
     id: Cow<'static, str>,
-    text: Box<dyn Text>,
+    text: Arc<dyn Text>,
     kind: ButtonKind,
 }
 
@@ -37,7 +39,7 @@ impl Button {
     pub fn action(id: impl Into<Cow<'static, str>>, text: impl Text, action: ButtonAction) -> Self {
         Self {
             id: id.into(),
-            text: Box::new(text),
+            text: Arc::new(text),
             kind: ButtonKind::Callback(action),
         }
     }
@@ -115,7 +117,7 @@ impl Button {
     pub fn url(text: impl Text, url: impl Into<Cow<'static, str>>) -> Self {
         Self {
             id: String::new().into(),
-            text: Box::new(text),
+            text: Arc::new(text),
             kind: ButtonKind::Url(url.into()),
         }
     }
@@ -125,7 +127,7 @@ impl Button {
     pub fn web_app(text: impl Text, web_app: impl Into<WebAppInfo>) -> Self {
         Self {
             id: String::new().into(),
-            text: Box::new(text),
+            text: Arc::new(text),
             kind: ButtonKind::WebApp(web_app.into()),
         }
     }
@@ -135,7 +137,7 @@ impl Button {
     pub fn login_url(text: impl Text, login_url: impl Into<LoginUrl>) -> Self {
         Self {
             id: String::new().into(),
-            text: Box::new(text),
+            text: Arc::new(text),
             kind: ButtonKind::LoginUrl(login_url.into()),
         }
     }
@@ -145,7 +147,7 @@ impl Button {
     pub fn switch_inline_query(text: impl Text, query: impl Into<Cow<'static, str>>) -> Self {
         Self {
             id: String::new().into(),
-            text: Box::new(text),
+            text: Arc::new(text),
             kind: ButtonKind::SwitchInlineQuery(query.into()),
         }
     }
@@ -158,7 +160,7 @@ impl Button {
     ) -> Self {
         Self {
             id: String::new().into(),
-            text: Box::new(text),
+            text: Arc::new(text),
             kind: ButtonKind::SwitchInlineQueryCurrentChat(query.into()),
         }
     }
@@ -171,7 +173,7 @@ impl Button {
     ) -> Self {
         Self {
             id: String::new().into(),
-            text: Box::new(text),
+            text: Arc::new(text),
             kind: ButtonKind::SwitchInlineQueryChosenChat(query.into()),
         }
     }
@@ -181,7 +183,7 @@ impl Button {
     pub fn copy_text(text: impl Text, copy_text: impl Into<CopyTextButton>) -> Self {
         Self {
             id: String::new().into(),
-            text: Box::new(text),
+            text: Arc::new(text),
             kind: ButtonKind::CopyText(copy_text.into()),
         }
     }

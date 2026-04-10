@@ -39,6 +39,66 @@ impl OnPageChanged {
     }
 }
 
+/// Shared scroll state used by widgets that keep their current page in
+/// `widget_data`.
+#[derive(Clone)]
+pub struct BaseScroll {
+    id: Cow<'static, str>,
+    on_page_changed: Option<OnPageChanged>,
+}
+
+impl BaseScroll {
+    #[must_use]
+    pub fn new(id: impl Into<Cow<'static, str>>, on_page_changed: Option<OnPageChanged>) -> Self {
+        Self {
+            id: id.into(),
+            on_page_changed,
+        }
+    }
+
+    #[must_use]
+    pub fn widget_id(&self) -> &str {
+        self.id.as_ref()
+    }
+
+    #[must_use]
+    pub fn get_page(&self, ctx: &Context) -> usize {
+        read_page(ctx, self.widget_id())
+    }
+
+    #[must_use]
+    pub fn on_page_changed(&self) -> Option<&OnPageChanged> {
+        self.on_page_changed.as_ref()
+    }
+
+    pub fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+        handle_pager_callback(ctx, self.widget_id(), callback_data, self.on_page_changed())
+    }
+}
+
+/// Scroll-capable widget that owns page state via [`BaseScroll`].
+pub trait Scroll: Send + Sync + 'static {
+    fn base_scroll(&self) -> &BaseScroll;
+
+    #[must_use]
+    fn get_page_count(&self, ctx: &Context, data: &DataMap) -> usize;
+
+    #[must_use]
+    fn widget_id(&self) -> &str {
+        self.base_scroll().widget_id()
+    }
+
+    #[must_use]
+    fn get_page(&self, ctx: &Context) -> usize {
+        self.base_scroll().get_page(ctx)
+    }
+
+    #[must_use]
+    fn on_page_changed(&self) -> Option<&OnPageChanged> {
+        self.base_scroll().on_page_changed()
+    }
+}
+
 /// Build a hook that copies the new page into another scroll widget id.
 #[must_use]
 pub fn sync_scroll(scroll_id: impl Into<Cow<'static, str>>) -> OnPageChanged {
@@ -95,19 +155,21 @@ pub(super) fn resolve_page_target(
     }
 }
 
-pub(super) fn render_fixed_direction_button<WidgetId, PageCountGetter>(
+pub(super) fn render_direction_button<WidgetId, PageCountGetter, LabelRenderer, Label>(
     ctx: &Context,
     data: &DataMap,
     id: &WidgetId,
     page_count_getter: &PageCountGetter,
     direction: PageDirection,
-    label: &str,
+    label_renderer: &LabelRenderer,
 ) -> Option<ReplyMarkup>
 where
     WidgetId: Display,
-    PageCountGetter: Fn(&DataMap) -> usize,
+    PageCountGetter: Fn(&Context, &DataMap) -> usize,
+    LabelRenderer: Fn(usize, usize, &DataMap) -> Label,
+    Label: Into<Box<str>>,
 {
-    let pages_count = page_count_getter(data);
+    let pages_count = page_count_getter(ctx, data);
     if pages_count == 0 {
         return None;
     }
@@ -115,6 +177,7 @@ where
     let widget_id = id.to_string();
     let current_page = read_page(ctx, &widget_id).min(pages_count.saturating_sub(1));
     let target_page = resolve_page_target(direction, current_page, pages_count);
+    let label = (label_renderer)(target_page, current_page, data);
     let button = InlineKeyboardButton::new(label).callback_data(format_callback_data(
         ctx,
         id,
