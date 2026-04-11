@@ -52,17 +52,24 @@ fn registry() -> DialogRegistry {
                      several text blocks in one message.\n\n[Text] The next screen combines \
                      static text, formatted values, computed text, and a rendered list.",
                 ),
-                keyboard(InlineKeyboard::new().push(Button::action(
-                    "render",
-                    "Open preview",
-                    ButtonAction::chain([
-                        ButtonAction::set_dialog_value("cafe_name", "North Roast"),
-                        ButtonAction::set_dialog_value("campaign_title", "Weekend Espresso Sale"),
-                        ButtonAction::set_dialog_value("week_label", "April 8-14"),
-                        ButtonAction::set_dialog_value("bonus", "free oat milk upgrade"),
-                        ButtonAction::next(),
-                    ]),
-                ))),
+                keyboard(
+                    InlineKeyboard::builder()
+                        .push(Button::action(
+                            "render",
+                            "Open preview",
+                            ButtonAction::chain([
+                                ButtonAction::set_dialog_value("cafe_name", "North Roast"),
+                                ButtonAction::set_dialog_value(
+                                    "campaign_title",
+                                    "Weekend Espresso Sale",
+                                ),
+                                ButtonAction::set_dialog_value("week_label", "April 8-14"),
+                                ButtonAction::set_dialog_value("bonus", "free oat milk upgrade"),
+                                ButtonAction::next(),
+                            ]),
+                        ))
+                        .build(),
+                ),
             ],
         ),
         window(
@@ -91,9 +98,10 @@ fn registry() -> DialogRegistry {
                      `ListText`.",
                 ),
                 keyboard(
-                    InlineKeyboard::new()
+                    InlineKeyboard::builder()
                         .push(Button::back("back", "Back"))
-                        .push(Button::done("done", "Close")),
+                        .push(Button::done("done", "Close"))
+                        .build(),
                 ),
             ],
         ),

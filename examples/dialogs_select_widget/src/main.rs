@@ -45,21 +45,24 @@ fn registry() -> DialogRegistry {
             "pick_size",
             [
                 text("Select a numeric payload. This uses `Select<u32>`."),
-                keyboard(Group::new(
-                    Select::builder("size")
-                        .items_getter(|_data| [28, 30, 32, 34, 36, 38])
-                        .item_renderer(|item, _data| format!("{item} cm"))
-                        .id_getter(|item| item)
-                        .action(|value| {
-                            ButtonAction::chain([
-                                ButtonAction::set_dialog_value("size", value),
-                                ButtonAction::next(),
-                            ])
-                        })
-                        .footer_push(Button::done("close", "Close"))
-                        .build(),
-                    3,
-                )),
+                keyboard(
+                    Group::builder(
+                        Select::builder("size")
+                            .items_getter(|_data| [28, 30, 32, 34, 36, 38])
+                            .item_renderer(|item, _data| format!("{item} cm"))
+                            .id_getter(|item| item)
+                            .action(|value| {
+                                ButtonAction::chain([
+                                    ButtonAction::set_dialog_value("size", value),
+                                    ButtonAction::next(),
+                                ])
+                            })
+                            .footer_push(Button::done("close", "Close"))
+                            .build(),
+                    )
+                    .items_per_row(3)
+                    .build(),
+                ),
             ],
         ),
         window(
@@ -67,9 +70,10 @@ fn registry() -> DialogRegistry {
             [
                 format_text("Selected size: {size} cm"),
                 keyboard(
-                    InlineKeyboard::new()
+                    InlineKeyboard::builder()
                         .push(Button::back("back", "Back"))
-                        .push(Button::done("done", "Close")),
+                        .push(Button::done("done", "Close"))
+                        .build(),
                 ),
             ],
         ),

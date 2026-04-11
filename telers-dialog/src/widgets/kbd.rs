@@ -17,6 +17,7 @@ mod pager;
 mod request;
 mod select;
 mod stateful_select;
+mod when;
 
 pub(crate) use base::MultiKeyboard;
 pub(crate) use callback::{format_callback_data, parse_callback_data};
@@ -35,19 +36,24 @@ pub use pager::{
 pub use request::{RequestContact, RequestLocation, RequestPoll};
 pub use select::Select;
 pub use stateful_select::{Checkbox, Counter, Multiselect, Radio, TimeSelect, Toggle};
+pub use when::WhenCondition;
 
 #[cfg(test)]
 mod tests {
     use serde_json::Value;
     use telers::types::{CopyTextButton, LoginUrl, SwitchInlineQueryChosenChat, WebAppInfo};
 
-    use super::{Button, ButtonAction, Group, InlineKeyboard, Keyboard, Select};
+    use super::{
+        Button, ButtonAction, Group, InlineKeyboard, Keyboard, MultiKeyboard, Select, WhenCondition,
+    };
     use crate::entities::{Context, DataMap, StartMode};
 
     #[test]
     fn inline_keyboard_renders_callback_data_with_intent() {
         let ctx = Context::new("", "state", Value::Null);
-        let keyboard = InlineKeyboard::new().row([Button::action("go", "Go", ButtonAction::Next)]);
+        let keyboard = InlineKeyboard::builder()
+            .row([Button::action("go", "Go", ButtonAction::Next)])
+            .build();
 
         let markup = keyboard
             .render_keyboard(&ctx, &DataMap::new())
@@ -65,17 +71,45 @@ mod tests {
     #[test]
     fn inline_keyboard_ignores_foreign_intent_callbacks() {
         let ctx = Context::new("", "state", Value::Null);
-        let keyboard = InlineKeyboard::new().row([Button::action(
-            "go",
-            "Go",
-            ButtonAction::Start {
-                state: "next".into(),
-                data: Value::Null,
-                mode: StartMode::Normal,
-            },
-        )]);
+        let keyboard = InlineKeyboard::builder()
+            .row([Button::action(
+                "go",
+                "Go",
+                ButtonAction::Start {
+                    state: "next".into(),
+                    data: Value::Null,
+                    mode: StartMode::Normal,
+                },
+            )])
+            .build();
 
         assert!(keyboard.handle_callback(&ctx, "td:another:go").is_none());
+    }
+
+    #[test]
+    fn keyboard_when_condition_filters_render_and_callbacks() {
+        let mut ctx = Context::new("", "state", Value::Null);
+        let mut data = DataMap::new();
+        let keyboard = MultiKeyboard::new().kbd_boxed(Box::new(
+            InlineKeyboard::builder()
+                .row([Button::action("go", "Go", ButtonAction::Next)])
+                .when(WhenCondition::data_field("show"))
+                .build(),
+        ));
+
+        assert!(keyboard.render_keyboard(&ctx, &data).is_none());
+        assert!(keyboard
+            .handle_callback(&ctx, &format!("td:{}:go", ctx.id))
+            .is_none());
+
+        data.insert("show".into(), Value::Bool(true));
+        ctx.dialog_data = data.clone();
+
+        assert!(keyboard.render_keyboard(&ctx, &data).is_some());
+        assert!(matches!(
+            keyboard.handle_callback(&ctx, &format!("td:{}:go", ctx.id)),
+            Some(ButtonAction::Next)
+        ));
     }
 
     #[test]
@@ -134,14 +168,17 @@ mod tests {
     #[test]
     fn group_chunks_inline_keyboard_rows() {
         let ctx = Context::new("", "state", Value::Null);
-        let grouped = Group::new(
-            InlineKeyboard::new().row([
-                Button::action("a", "A", ButtonAction::noop()),
-                Button::action("b", "B", ButtonAction::noop()),
-                Button::action("c", "C", ButtonAction::noop()),
-            ]),
-            2,
-        );
+        let grouped = Group::builder(
+            InlineKeyboard::builder()
+                .row([
+                    Button::action("a", "A", ButtonAction::noop()),
+                    Button::action("b", "B", ButtonAction::noop()),
+                    Button::action("c", "C", ButtonAction::noop()),
+                ])
+                .build(),
+        )
+        .items_per_row(2)
+        .build();
 
         let markup = grouped
             .render_keyboard(&ctx, &DataMap::new())
@@ -156,7 +193,7 @@ mod tests {
     #[test]
     fn inline_keyboard_renders_non_callback_button_variants() {
         let ctx = Context::new("", "state", Value::Null);
-        let keyboard = InlineKeyboard::new()
+        let keyboard = InlineKeyboard::builder()
             .row([Button::web_app(
                 "Web",
                 WebAppInfo::new("https://example.com/app"),
@@ -171,7 +208,8 @@ mod tests {
                 "Pick chat",
                 SwitchInlineQueryChosenChat::new().query("pick"),
             )])
-            .row([Button::copy_text("Copy", CopyTextButton::new("copied"))]);
+            .row([Button::copy_text("Copy", CopyTextButton::new("copied"))])
+            .build();
 
         let markup = keyboard
             .render_keyboard(&ctx, &DataMap::new())

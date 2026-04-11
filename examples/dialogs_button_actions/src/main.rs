@@ -49,7 +49,7 @@ fn registry() -> DialogRegistry {
                      {delivery}\nOrder status: {order_status}\n\n[Helpers] `next`, `start`, `done`",
                 ),
                 keyboard(
-                    InlineKeyboard::new()
+                    InlineKeyboard::builder()
                         .row([Button::next("delivery_step", "Choose delivery")])
                         .row([Button::start(
                             "confirm",
@@ -58,7 +58,8 @@ fn registry() -> DialogRegistry {
                             Value::Null,
                             StartMode::Normal,
                         )])
-                        .row([Button::done("close", "Close draft")]),
+                        .row([Button::done("close", "Close draft")])
+                        .build(),
                 ),
             ],
         ),
@@ -70,7 +71,7 @@ fn registry() -> DialogRegistry {
                      arrive.\n\n[Helpers] `set_dialog_value`, `switch_to`, `back`",
                 ),
                 keyboard(
-                    InlineKeyboard::new()
+                    InlineKeyboard::builder()
                         .row([Button::action(
                             "pickup",
                             "Pickup",
@@ -87,7 +88,8 @@ fn registry() -> DialogRegistry {
                                 ButtonAction::switch_to("cart"),
                             ]),
                         )])
-                        .row([Button::back("back", "Back to cart")]),
+                        .row([Button::back("back", "Back to cart")])
+                        .build(),
                 ),
             ],
         ),
@@ -98,7 +100,11 @@ fn registry() -> DialogRegistry {
                     "Order Finished\n\nItem: House Blend\nPrice: $12.00\nDelivery: \
                      {delivery}\nOrder status: {order_status}\n\n[Helper] `done`",
                 ),
-                keyboard(InlineKeyboard::new().row([Button::done("close", "Close")])),
+                keyboard(
+                    InlineKeyboard::builder()
+                        .row([Button::done("close", "Close")])
+                        .build(),
+                ),
             ],
         ),
     ])
@@ -127,7 +133,7 @@ fn registry() -> DialogRegistry {
                  `done_with_result`",
             ),
             keyboard(
-                InlineKeyboard::new()
+                InlineKeyboard::builder()
                     .row([Button::done_with_result(
                         "confirm_order",
                         "Place order",
@@ -137,7 +143,8 @@ fn registry() -> DialogRegistry {
                         "keep_editing",
                         "Keep editing",
                         "changed_mind",
-                    )]),
+                    )])
+                    .build(),
             ),
         ],
     )]);

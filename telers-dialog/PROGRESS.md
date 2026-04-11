@@ -111,6 +111,7 @@ Updated: 2026-04-11 (UTC)
 - Link preview:
   - `LinkPreview`
 - Keyboard/actions:
+  - `WhenCondition`: shared visibility predicate for keyboard widgets
   - `InlineKeyboard`
   - `Group`: layout wrapper to group inline keyboard buttons by row width
   - `Button::{action,next,back,switch_to,start,done,done_with_result,set_dialog_value,url,web_app,login_url,switch_inline_query,switch_inline_query_current_chat,switch_inline_query_chosen_chat,copy_text}`
@@ -136,6 +137,12 @@ Updated: 2026-04-11 (UTC)
   - `CallbackPayload`
 
 ## Widget details
+
+### Keyboard visibility
+- `WhenCondition::new(|ctx, data| ...)` creates a reusable visibility predicate for keyboard widgets.
+- `WhenCondition::data_field("field")` mirrors the common aiogram-dialog string-field behavior by checking whether `data["field"]` is truthy.
+- `Keyboard::is_visible(ctx, data)` is checked during window rendering and callback handling, so hidden keyboards do not render and do not process stale callbacks.
+- Builder-based keyboard widgets accept `when(...)`; fluent-only widgets such as `InlineKeyboard`, `Group`, and request keyboards expose `.when(...)`.
 
 ### Checkbox
 - Builder-based: `Checkbox::builder("widget_id").checked_text(...).unchecked_text(...).build()`
@@ -163,7 +170,7 @@ Updated: 2026-04-11 (UTC)
 - Renders items with `checked_renderer` or `unchecked_renderer` based on selection state.
 - Clicking a radio item produces `ButtonAction::SetWidgetValue` to persist selection.
 - Supports `header_row`/`footer_row`/`header_push`/`footer_push` for additional buttons.
-- Layout grouping is handled by wrapping with `Group` (for example `Group::new(Radio::builder(...).build(), 3)`).
+- Layout grouping is handled by wrapping with `Group` (for example `Group::builder(Radio::builder(...).build()).items_per_row(3).build()`).
 
 ### Multiselect
 - Builder-based: `Multiselect::builder("widget_id").items_getter(...).checked_renderer(...).unchecked_renderer(...).id_getter(...).build()`
@@ -181,15 +188,15 @@ Updated: 2026-04-11 (UTC)
 - Supports header/footer static buttons.
 
 ### Group
-- Generic keyboard wrapper: `Group::new(inner_keyboard, items_per_row)`.
+- Generic keyboard wrapper: `Group::builder(inner_keyboard).items_per_row(items_per_row).build()`.
 - Applies only to inline keyboards, regrouping all buttons into rows of `items_per_row`.
 - Delegates callback handling to wrapped keyboard unchanged.
 - Intended as layout layer for widgets like `Select`, `Radio`, and `Multiselect`.
 
 ### Request reply keyboards
-- `RequestContact::new(text)` renders a reply keyboard with one contact-request button.
-- `RequestLocation::new(text)` renders a reply keyboard with one location-request button.
-- `RequestPoll::new(text).poll_type(PollType::Quiz)` renders a reply keyboard with one poll-request button.
+- `RequestContact::builder(text).build()` renders a reply keyboard with one contact-request button.
+- `RequestLocation::builder(text).build()` renders a reply keyboard with one location-request button.
+- `RequestPoll::builder(text).poll_type(PollType::Quiz).build()` renders a reply keyboard with one poll-request button.
 - All three support reply-keyboard options via fluent setters:
   `is_persistent`, `resize_keyboard`, `one_time_keyboard`, `input_field_placeholder`, and `selective`.
 - They do not produce callback actions; Telegram sends service/message updates after the user presses them.
@@ -286,8 +293,9 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
   - `cargo check -p dialogs_text_widgets`
   - `cargo check -p dialogs_sync_scroll`
 - `telers-dialog` test target passed:
-  - **102 passed; 0 failed**.
+  - **104 passed; 0 failed**.
 - New test coverage includes:
+  - Keyboard `WhenCondition`: render and callback filtering for hidden keyboards (1 test).
   - Convenience pager wrappers: render targets and callback payloads for first/prev/current/next/last controls (1 test).
   - ScrollingGroup width options: fixed-grid regrouping and last-page filler padding behavior (2 tests).
   - sync_scroll hooks: synchronizing one and many target widget ids from pager callbacks (2 tests).

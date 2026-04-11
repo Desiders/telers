@@ -15,6 +15,7 @@ pub use kbd::{
     FirstPage, Group, InlineKeyboard, Keyboard, LastPage, Multiselect, NextPage, NumberedPager,
     OnPageChanged, PageChange, PageDirection, PagerBinding, PrevPage, Radio, RequestContact,
     RequestLocation, RequestPoll, Scroll, ScrollingGroup, Select, SwitchPage, TimeSelect, Toggle,
+    WhenCondition,
 };
 pub use link_preview::{LinkPreview, LinkPreviewWidget};
 pub use text::{Case, ListText, MultiText, Progress, ScrollingText, Text};

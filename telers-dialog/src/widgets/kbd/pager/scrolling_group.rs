@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 
 use super::{
-    super::{ButtonAction, Keyboard},
+    super::{when::is_allowed, ButtonAction, Keyboard, WhenCondition},
     build_pager_row, page_count_from_rows, render_fixed_width_page, BaseScroll, OnPageChanged,
     Scroll,
 };
@@ -18,6 +18,7 @@ pub struct ScrollingGroup<Kbd> {
     filler_text: Box<str>,
     hide_on_single_page: bool,
     hide_pager: bool,
+    when: Option<WhenCondition>,
 }
 
 #[bon]
@@ -33,6 +34,7 @@ impl<Kbd> ScrollingGroup<Kbd> {
         on_page_changed: Option<OnPageChanged>,
         #[builder(default = false)] hide_on_single_page: bool,
         #[builder(default = false)] hide_pager: bool,
+        when: Option<WhenCondition>,
     ) -> Self
     where
         Kbd: Keyboard,
@@ -45,6 +47,7 @@ impl<Kbd> ScrollingGroup<Kbd> {
             filler_text,
             hide_on_single_page,
             hide_pager,
+            when,
         }
     }
 }
@@ -110,7 +113,14 @@ impl<Kbd> Keyboard for ScrollingGroup<Kbd>
 where
     Kbd: Keyboard,
 {
+    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data)
+    }
+
     fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+        if !self.is_visible(ctx, data) {
+            return None;
+        }
         let (mut rows, pages_count) = self.page_rows(ctx, data)?;
 
         if !(self.hide_pager || self.hide_on_single_page && pages_count <= 1) {
@@ -127,10 +137,17 @@ where
     }
 
     fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data) {
+            return None;
+        }
         if let Some(action) = self.base_scroll.handle_callback(ctx, callback_data) {
             return Some(action);
         }
 
+        if !self.kbd.is_visible(ctx, data) {
+            return None;
+        }
         self.kbd.handle_callback(ctx, callback_data)
     }
 }

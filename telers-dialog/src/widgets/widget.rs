@@ -117,7 +117,11 @@ mod tests {
     fn shortcut_builders_return_expected_widget_kinds() {
         assert!(matches!(text("hello"), WidgetKind::Text(_)));
         assert!(matches!(
-            keyboard(InlineKeyboard::new().row([Button::done("done", "Done")])),
+            keyboard(
+                InlineKeyboard::builder()
+                    .row([Button::done("done", "Done")])
+                    .build()
+            ),
             WidgetKind::Keyboard(_)
         ));
         assert!(matches!(

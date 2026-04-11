@@ -10,7 +10,7 @@ use crate::{
 };
 
 fn build_inner_keyboard(count: usize) -> InlineKeyboard {
-    let mut kbds = InlineKeyboard::new();
+    let mut kbds = InlineKeyboard::builder();
     for i in 0..count {
         kbds = kbds.row([Button::action(
             format!("btn_{i}"),
@@ -18,7 +18,7 @@ fn build_inner_keyboard(count: usize) -> InlineKeyboard {
             ButtonAction::noop(),
         )]);
     }
-    kbds
+    kbds.build()
 }
 
 #[test]

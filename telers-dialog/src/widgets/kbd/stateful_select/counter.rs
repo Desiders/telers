@@ -5,7 +5,8 @@ use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::debug;
 
 use super::super::{
-    format_callback_data, parse_callback_data, render_button_row, Button, ButtonAction, Keyboard,
+    format_callback_data, parse_callback_data, render_button_row, when::is_allowed, Button,
+    ButtonAction, Keyboard, WhenCondition,
 };
 use crate::entities::{Context, DataMap};
 
@@ -23,6 +24,7 @@ pub struct Counter<WidgetId> {
     cycle: bool,
     header_rows: Vec<Vec<Button>>,
     footer_rows: Vec<Vec<Button>>,
+    when: Option<WhenCondition>,
 }
 
 #[bon]
@@ -43,6 +45,7 @@ impl<WidgetId> Counter<WidgetId> {
         #[builder(default = 1.0)] increment: f64,
         #[builder(default = 0.0)] default: f64,
         #[builder(default = false)] cycle: bool,
+        when: Option<WhenCondition>,
     ) -> Self
     where
         WidgetId: Display,
@@ -60,6 +63,7 @@ impl<WidgetId> Counter<WidgetId> {
             cycle,
             header_rows,
             footer_rows,
+            when,
         }
     }
 }
@@ -104,7 +108,14 @@ impl<WidgetId> Keyboard for Counter<WidgetId>
 where
     WidgetId: Display + Send + Sync + 'static,
 {
+    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data)
+    }
+
     fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+        if !self.is_visible(ctx, data) {
+            return None;
+        }
         let widget_id = self.id.to_string();
         let value = ctx
             .widget_value_as::<f64>(&widget_id)
@@ -149,6 +160,10 @@ where
     }
 
     fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data) {
+            return None;
+        }
         if let Some(action) = self
             .header_rows
             .iter()
