@@ -4,7 +4,10 @@ use std::{borrow::Cow, fmt::Display};
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::debug;
 
-use super::super::{format_callback_data, parse_callback_data, ButtonAction, Keyboard};
+use super::super::{
+    format_callback_data, parse_callback_data, when::is_allowed, ButtonAction, Keyboard,
+    WhenCondition,
+};
 use crate::entities::{Context, DataMap};
 
 /// Time picker storing the selected `(hour, minute)` pair in `widget_data`.
@@ -15,6 +18,7 @@ pub struct TimeSelect<WidgetId> {
     hour_width: usize,
     minute_precision: usize,
     minute_width: usize,
+    when: Option<WhenCondition>,
 }
 
 #[bon]
@@ -29,6 +33,7 @@ impl<WidgetId> TimeSelect<WidgetId> {
         #[builder(default = 6)] hour_width: usize,
         #[builder(default = 5)] minute_precision: usize,
         #[builder(default = 6)] minute_width: usize,
+        when: Option<WhenCondition>,
     ) -> Self
     where
         WidgetId: Display,
@@ -40,6 +45,7 @@ impl<WidgetId> TimeSelect<WidgetId> {
             hour_width,
             minute_precision,
             minute_width,
+            when,
         }
     }
 }
@@ -102,7 +108,14 @@ impl<WidgetId> Keyboard for TimeSelect<WidgetId>
 where
     WidgetId: Display + Send + Sync + 'static,
 {
-    fn render_keyboard(&self, ctx: &Context, _data: &DataMap) -> Option<ReplyMarkup> {
+    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data)
+    }
+
+    fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+        if !self.is_visible(ctx, data) {
+            return None;
+        }
         let (selected_hour, selected_minute) = self.read_value(ctx);
         let mut rows: Vec<Box<[InlineKeyboardButton]>> = Vec::new();
 
@@ -130,6 +143,10 @@ where
     }
 
     fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data) {
+            return None;
+        }
         let parsed = parse_callback_data(ctx, callback_data)?;
         if parsed.target_id != self.widget_id() {
             return None;

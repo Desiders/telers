@@ -97,13 +97,14 @@ fn registry() -> DialogRegistry {
                         .build(),
                 ),
                 keyboard(
-                    InlineKeyboard::new()
+                    InlineKeyboard::builder()
                         .push(Button::switch_to(
                             "custom_layout",
                             "Open custom layout",
                             "standalone",
                         ))
-                        .push(Button::done("close", "Close")),
+                        .push(Button::done("close", "Close"))
+                        .build(),
                 ),
             ],
         ),
@@ -125,13 +126,14 @@ fn registry() -> DialogRegistry {
                         .build(),
                 ),
                 keyboard(
-                    InlineKeyboard::new()
+                    InlineKeyboard::builder()
                         .push(Button::switch_to(
                             "back_to_builtin",
                             "Back to built-in layout",
                             "built_in",
                         ))
-                        .push(Button::done("close", "Close")),
+                        .push(Button::done("close", "Close"))
+                        .build(),
                 ),
             ],
         ),

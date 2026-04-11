@@ -3,7 +3,10 @@ use std::{fmt::Display, marker::PhantomData};
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::debug;
 
-use super::{format_callback_data, parse_callback_data, Button, ButtonAction, Keyboard};
+use super::{
+    format_callback_data, parse_callback_data, when::is_allowed, Button, ButtonAction, Keyboard,
+    WhenCondition,
+};
 use crate::entities::{Context, DataMap};
 
 /// Stateless list of selectable items.
@@ -29,6 +32,7 @@ pub struct Select<
     action: Action,
     header_rows: Vec<Vec<Button>>,
     footer_rows: Vec<Vec<Button>>,
+    when: Option<WhenCondition>,
     #[allow(clippy::type_complexity)]
     marker: PhantomData<fn() -> (ItemsIter, Item, ItemStr, Id)>,
 }
@@ -48,6 +52,7 @@ impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id
         item_renderer: ItemRenderer,
         id_getter: IdGetter,
         action: Action,
+        when: Option<WhenCondition>,
     ) -> Self
     where
         WidgetId: Display,
@@ -67,6 +72,7 @@ impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id
             action,
             header_rows,
             footer_rows,
+            when,
             marker: PhantomData,
         }
     }
@@ -140,7 +146,14 @@ where
     Id: Display + Send + Sync + 'static,
     Action: Fn(&str) -> ButtonAction + Send + Sync + 'static,
 {
+    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data)
+    }
+
     fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+        if !self.is_visible(ctx, data) {
+            return None;
+        }
         let mut rows: Vec<_> = self
             .header_rows
             .iter()
@@ -176,6 +189,10 @@ where
     }
 
     fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data) {
+            return None;
+        }
         if let Some(action) = self
             .header_rows
             .iter()

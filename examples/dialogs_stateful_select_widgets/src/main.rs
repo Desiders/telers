@@ -71,19 +71,23 @@ fn registry() -> DialogRegistry {
                      weekend offers. The active option stays highlighted in the \
                      keyboard.\n\n[Stateful] `Radio` keeps exactly one item selected",
                 ),
-                keyboard(Group::new(
-                    Radio::builder("alert_channel")
-                        .items_getter(|_data| CHANNELS)
-                        .checked_renderer(|item, _data| format!("● {}", item.1))
-                        .unchecked_renderer(|item, _data| format!("○ {}", item.1))
-                        .id_getter(|item| item.0)
-                        .build(),
-                    2,
-                )),
                 keyboard(
-                    InlineKeyboard::new()
+                    Group::builder(
+                        Radio::builder("alert_channel")
+                            .items_getter(|_data| CHANNELS)
+                            .checked_renderer(|item, _data| format!("● {}", item.1))
+                            .unchecked_renderer(|item, _data| format!("○ {}", item.1))
+                            .id_getter(|item| item.0)
+                            .build(),
+                    )
+                    .items_per_row(2)
+                    .build(),
+                ),
+                keyboard(
+                    InlineKeyboard::builder()
                         .push(Button::next("open_digest", "Alert pace"))
-                        .push(Button::done("close", "Close")),
+                        .push(Button::done("close", "Close"))
+                        .build(),
                 ),
             ],
         ),
@@ -104,10 +108,11 @@ fn registry() -> DialogRegistry {
                         .build(),
                 ),
                 keyboard(
-                    InlineKeyboard::new()
+                    InlineKeyboard::builder()
                         .push(Button::back("back", "Back"))
                         .push(Button::next("open_limits", "Limits"))
-                        .push(Button::done("close", "Close")),
+                        .push(Button::done("close", "Close"))
+                        .build(),
                 ),
             ],
         ),
@@ -134,10 +139,11 @@ fn registry() -> DialogRegistry {
                         .build(),
                 ),
                 keyboard(
-                    InlineKeyboard::new()
+                    InlineKeyboard::builder()
                         .push(Button::back("back", "Back"))
                         .push(Button::next("open_topics", "Topics"))
-                        .push(Button::done("close", "Close")),
+                        .push(Button::done("close", "Close"))
+                        .build(),
                 ),
             ],
         ),
@@ -149,21 +155,25 @@ fn registry() -> DialogRegistry {
                      The checked choices stay visible directly in the keyboard.\n\n[Stateful] \
                      `Multiselect` enforces `min_selected` and `max_selected`",
                 ),
-                keyboard(Group::new(
-                    Multiselect::builder("topics")
-                        .items_getter(|_data| TOPICS)
-                        .checked_renderer(|item, _data| format!("✓ {}", item.1))
-                        .unchecked_renderer(|item, _data| format!("□ {}", item.1))
-                        .id_getter(|item| item.0)
-                        .min_selected(1)
-                        .max_selected(3)
-                        .build(),
-                    2,
-                )),
                 keyboard(
-                    InlineKeyboard::new()
+                    Group::builder(
+                        Multiselect::builder("topics")
+                            .items_getter(|_data| TOPICS)
+                            .checked_renderer(|item, _data| format!("✓ {}", item.1))
+                            .unchecked_renderer(|item, _data| format!("□ {}", item.1))
+                            .id_getter(|item| item.0)
+                            .min_selected(1)
+                            .max_selected(3)
+                            .build(),
+                    )
+                    .items_per_row(2)
+                    .build(),
+                ),
+                keyboard(
+                    InlineKeyboard::builder()
                         .push(Button::back("back", "Back"))
-                        .push(Button::done("close", "Close")),
+                        .push(Button::done("close", "Close"))
+                        .build(),
                 ),
             ],
         ),

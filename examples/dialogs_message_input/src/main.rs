@@ -72,7 +72,11 @@ fn registry() -> DialogRegistry {
                         ButtonAction::next(),
                     ])
                 })),
-                keyboard(InlineKeyboard::new().row([Button::back("back", "Back")])),
+                keyboard(
+                    InlineKeyboard::builder()
+                        .row([Button::back("back", "Back")])
+                        .build(),
+                ),
             ],
         ),
         window(
@@ -88,7 +92,11 @@ fn registry() -> DialogRegistry {
                         ButtonAction::next(),
                     ])
                 })),
-                keyboard(InlineKeyboard::new().push(Button::back("back", "Back"))),
+                keyboard(
+                    InlineKeyboard::builder()
+                        .push(Button::back("back", "Back"))
+                        .build(),
+                ),
             ],
         ),
         window(
@@ -96,9 +104,10 @@ fn registry() -> DialogRegistry {
             [
                 format_text("name = {name}\ncity = {city}\nnote = {note}\nnote_len = {note_len}"),
                 keyboard(
-                    InlineKeyboard::new()
+                    InlineKeyboard::builder()
                         .push(Button::back("back", "Back"))
-                        .push(Button::done("done", "Close")),
+                        .push(Button::done("done", "Close"))
+                        .build(),
                 ),
             ],
         ),

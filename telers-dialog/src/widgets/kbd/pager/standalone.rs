@@ -3,7 +3,7 @@ use std::{borrow::Cow, marker::PhantomData};
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 
 use super::{
-    super::{format_callback_data, ButtonAction, Keyboard},
+    super::{format_callback_data, when::is_allowed, ButtonAction, Keyboard, WhenCondition},
     handle_pager_callback, read_page, render_direction_button, OnPageChanged, PageDirection,
     Scroll,
 };
@@ -101,6 +101,7 @@ pub struct SwitchPage<LabelRenderer, Label> {
     page_count_getter: DynPageCountGetter,
     label_renderer: LabelRenderer,
     on_page_changed: Option<OnPageChanged>,
+    when: Option<WhenCondition>,
     #[allow(clippy::type_complexity)]
     marker: PhantomData<fn() -> Label>,
 }
@@ -118,6 +119,7 @@ impl<LabelRenderer, Label> SwitchPage<LabelRenderer, Label> {
         page_count_getter: Option<DynPageCountGetter>,
         label_renderer: LabelRenderer,
         on_page_changed: Option<OnPageChanged>,
+        when: Option<WhenCondition>,
     ) -> Self
     where
         LabelRenderer: Fn(usize, usize, &DataMap) -> Label,
@@ -131,6 +133,7 @@ impl<LabelRenderer, Label> SwitchPage<LabelRenderer, Label> {
             page_count_getter,
             label_renderer,
             on_page_changed,
+            when,
             marker: PhantomData,
         }
     }
@@ -141,7 +144,14 @@ where
     LabelRenderer: Fn(usize, usize, &DataMap) -> Label + Send + Sync + 'static,
     Label: Into<Box<str>> + 'static,
 {
+    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data)
+    }
+
     fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+        if !self.is_visible(ctx, data) {
+            return None;
+        }
         render_direction_button(
             ctx,
             data,
@@ -153,6 +163,10 @@ where
     }
 
     fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data) {
+            return None;
+        }
         handle_pager_callback(
             ctx,
             self.id.as_ref(),
@@ -169,6 +183,7 @@ macro_rules! fixed_pager_type {
             page_count_getter: DynPageCountGetter,
             label: Cow<'static, str>,
             on_page_changed: Option<OnPageChanged>,
+            when: Option<WhenCondition>,
         }
 
         #[bon]
@@ -183,6 +198,7 @@ macro_rules! fixed_pager_type {
                 page_count_getter: Option<DynPageCountGetter>,
                 #[builder(default = $default_label.into())] label: Cow<'static, str>,
                 on_page_changed: Option<OnPageChanged>,
+                when: Option<WhenCondition>,
             ) -> Self {
                 let (id, page_count_getter, on_page_changed) =
                     resolve_pager_binding(binding, page_count_getter, on_page_changed);
@@ -191,12 +207,20 @@ macro_rules! fixed_pager_type {
                     page_count_getter,
                     label,
                     on_page_changed,
+                    when,
                 }
             }
         }
 
         impl Keyboard for $name {
+            fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+                is_allowed(self.when.as_ref(), ctx, data)
+            }
+
             fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+                if !self.is_visible(ctx, data) {
+                    return None;
+                }
                 render_direction_button(
                     ctx,
                     data,
@@ -207,7 +231,15 @@ macro_rules! fixed_pager_type {
                 )
             }
 
-            fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+            fn handle_callback(
+                &self,
+                ctx: &Context,
+                callback_data: &str,
+            ) -> Option<ButtonAction> {
+                let data = &ctx.dialog_data;
+                if !self.is_visible(ctx, data) {
+                    return None;
+                }
                 handle_pager_callback(
                     ctx,
                     self.id.as_ref(),
@@ -228,6 +260,7 @@ pub struct CurrentPage {
     id: Cow<'static, str>,
     page_count_getter: DynPageCountGetter,
     on_page_changed: Option<OnPageChanged>,
+    when: Option<WhenCondition>,
 }
 
 #[bon]
@@ -241,6 +274,7 @@ impl CurrentPage {
         })]
         page_count_getter: Option<DynPageCountGetter>,
         on_page_changed: Option<OnPageChanged>,
+        when: Option<WhenCondition>,
     ) -> Self {
         let (id, page_count_getter, on_page_changed) =
             resolve_pager_binding(binding, page_count_getter, on_page_changed);
@@ -248,12 +282,20 @@ impl CurrentPage {
             id,
             page_count_getter,
             on_page_changed,
+            when,
         }
     }
 }
 
 impl Keyboard for CurrentPage {
+    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data)
+    }
+
     fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+        if !self.is_visible(ctx, data) {
+            return None;
+        }
         let pages_count = (self.page_count_getter)(ctx, data);
         if pages_count == 0 {
             return None;
@@ -268,6 +310,10 @@ impl Keyboard for CurrentPage {
     }
 
     fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data) {
+            return None;
+        }
         handle_pager_callback(
             ctx,
             self.id.as_ref(),
@@ -284,6 +330,7 @@ pub struct NumberedPager<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPa
     current_page_renderer: CurrentPageRenderer,
     length: Option<usize>,
     on_page_changed: Option<OnPageChanged>,
+    when: Option<WhenCondition>,
     #[allow(clippy::type_complexity)]
     marker: PhantomData<fn() -> (PageLabel, CurrentPageLabel)>,
 }
@@ -304,6 +351,7 @@ impl<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPageLabel>
         current_page_renderer: CurrentPageRenderer,
         length: Option<usize>,
         on_page_changed: Option<OnPageChanged>,
+        when: Option<WhenCondition>,
     ) -> Self
     where
         PageRenderer: Fn(usize, &DataMap) -> PageLabel,
@@ -320,6 +368,7 @@ impl<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPageLabel>
             current_page_renderer,
             length,
             on_page_changed,
+            when,
             marker: PhantomData,
         }
     }
@@ -333,7 +382,14 @@ where
     PageLabel: Into<Box<str>> + 'static,
     CurrentPageLabel: Into<Box<str>> + 'static,
 {
+    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data)
+    }
+
     fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+        if !self.is_visible(ctx, data) {
+            return None;
+        }
         let pages_count = (self.page_count_getter)(ctx, data);
         if pages_count == 0 {
             return None;
@@ -371,6 +427,10 @@ where
     }
 
     fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data) {
+            return None;
+        }
         handle_pager_callback(
             ctx,
             self.id.as_ref(),

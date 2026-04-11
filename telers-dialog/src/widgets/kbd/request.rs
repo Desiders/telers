@@ -1,3 +1,4 @@
+use bon::bon;
 use std::borrow::Cow;
 
 use telers::{
@@ -5,14 +6,14 @@ use telers::{
     types::{KeyboardButton, KeyboardButtonPollType, ReplyKeyboardMarkup, ReplyMarkup},
 };
 
-use super::{ButtonAction, Keyboard};
+use super::{when::is_allowed, ButtonAction, Keyboard, WhenCondition};
 use crate::{
     entities::{Context, DataMap},
     widgets::Text,
 };
 
 #[derive(Default)]
-struct ReplyKeyboardOptions {
+pub struct ReplyKeyboardOptions {
     is_persistent: Option<bool>,
     resize_keyboard: Option<bool>,
     one_time_keyboard: Option<bool>,
@@ -49,21 +50,75 @@ impl ReplyKeyboardOptions {
 pub struct RequestContact<ButtonText> {
     text: ButtonText,
     options: ReplyKeyboardOptions,
+    when: Option<WhenCondition>,
 }
 
+#[bon]
 impl<ButtonText> RequestContact<ButtonText> {
     /// Create a one-button reply keyboard that asks the user to share a contact.
     #[must_use]
-    pub fn new(text: ButtonText) -> Self
+    pub fn new(
+        #[builder(start_fn)] text: ButtonText,
+        #[builder(field = ReplyKeyboardOptions::default())] options: ReplyKeyboardOptions,
+        when: Option<WhenCondition>,
+    ) -> Self
     where
         ButtonText: Text,
     {
         Self {
             text,
-            options: ReplyKeyboardOptions::default(),
+            options,
+            when,
         }
     }
 
+    /// Set the persistent-keyboard flag.
+    #[must_use]
+    pub fn is_persistent(mut self, value: bool) -> Self {
+        self.options.is_persistent = Some(value);
+        self
+    }
+
+    /// Set the resize-keyboard flag.
+    #[must_use]
+    pub fn resize_keyboard(mut self, value: bool) -> Self {
+        self.options.resize_keyboard = Some(value);
+        self
+    }
+
+    /// Set the one-time-keyboard flag.
+    #[must_use]
+    pub fn one_time_keyboard(mut self, value: bool) -> Self {
+        self.options.one_time_keyboard = Some(value);
+        self
+    }
+
+    /// Set the input placeholder shown while the reply keyboard is active.
+    #[must_use]
+    pub fn input_field_placeholder(mut self, value: impl Into<Cow<'static, str>>) -> Self {
+        self.options.input_field_placeholder = Some(value.into());
+        self
+    }
+
+    /// Set whether the reply keyboard is selective.
+    #[must_use]
+    pub fn selective(mut self, value: bool) -> Self {
+        self.options.selective = Some(value);
+        self
+    }
+
+    #[must_use]
+    pub fn when(mut self, when: WhenCondition) -> Self {
+        self.when = Some(when);
+        self
+    }
+}
+
+impl<ButtonText, S> RequestContactBuilder<ButtonText, S>
+where
+    S: request_contact_builder::State,
+    ButtonText: Text,
+{
     /// Set the persistent-keyboard flag.
     #[must_use]
     pub fn is_persistent(mut self, value: bool) -> Self {
@@ -104,7 +159,14 @@ impl<ButtonText> Keyboard for RequestContact<ButtonText>
 where
     ButtonText: Text,
 {
+    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data)
+    }
+
     fn render_keyboard(&self, _ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+        if !self.is_visible(_ctx, data) {
+            return None;
+        }
         let button =
             KeyboardButton::new(self.text.render_text_in_context(_ctx, data)).request_contact(true);
         Some(
@@ -123,21 +185,75 @@ where
 pub struct RequestLocation<ButtonText> {
     text: ButtonText,
     options: ReplyKeyboardOptions,
+    when: Option<WhenCondition>,
 }
 
+#[bon]
 impl<ButtonText> RequestLocation<ButtonText> {
     /// Create a one-button reply keyboard that asks the user to share a location.
     #[must_use]
-    pub fn new(text: ButtonText) -> Self
+    pub fn new(
+        #[builder(start_fn)] text: ButtonText,
+        #[builder(field = ReplyKeyboardOptions::default())] options: ReplyKeyboardOptions,
+        when: Option<WhenCondition>,
+    ) -> Self
     where
         ButtonText: Text,
     {
         Self {
             text,
-            options: ReplyKeyboardOptions::default(),
+            options,
+            when,
         }
     }
 
+    /// Set the persistent-keyboard flag.
+    #[must_use]
+    pub fn is_persistent(mut self, value: bool) -> Self {
+        self.options.is_persistent = Some(value);
+        self
+    }
+
+    /// Set the resize-keyboard flag.
+    #[must_use]
+    pub fn resize_keyboard(mut self, value: bool) -> Self {
+        self.options.resize_keyboard = Some(value);
+        self
+    }
+
+    /// Set the one-time-keyboard flag.
+    #[must_use]
+    pub fn one_time_keyboard(mut self, value: bool) -> Self {
+        self.options.one_time_keyboard = Some(value);
+        self
+    }
+
+    /// Set the input placeholder shown while the reply keyboard is active.
+    #[must_use]
+    pub fn input_field_placeholder(mut self, value: impl Into<Cow<'static, str>>) -> Self {
+        self.options.input_field_placeholder = Some(value.into());
+        self
+    }
+
+    /// Set whether the reply keyboard is selective.
+    #[must_use]
+    pub fn selective(mut self, value: bool) -> Self {
+        self.options.selective = Some(value);
+        self
+    }
+
+    #[must_use]
+    pub fn when(mut self, when: WhenCondition) -> Self {
+        self.when = Some(when);
+        self
+    }
+}
+
+impl<ButtonText, S> RequestLocationBuilder<ButtonText, S>
+where
+    S: request_location_builder::State,
+    ButtonText: Text,
+{
     /// Set the persistent-keyboard flag.
     #[must_use]
     pub fn is_persistent(mut self, value: bool) -> Self {
@@ -178,7 +294,14 @@ impl<ButtonText> Keyboard for RequestLocation<ButtonText>
 where
     ButtonText: Text,
 {
+    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data)
+    }
+
     fn render_keyboard(&self, _ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+        if !self.is_visible(_ctx, data) {
+            return None;
+        }
         let button = KeyboardButton::new(self.text.render_text_in_context(_ctx, data))
             .request_location(true);
         Some(
@@ -196,21 +319,29 @@ where
 /// Reply keyboard button that requests the user to create and send a poll.
 pub struct RequestPoll<ButtonText> {
     text: ButtonText,
-    poll_type: Option<PollType>,
     options: ReplyKeyboardOptions,
+    poll_type: Option<PollType>,
+    when: Option<WhenCondition>,
 }
 
+#[bon]
 impl<ButtonText> RequestPoll<ButtonText> {
     /// Create a one-button reply keyboard that asks the user to create a poll.
     #[must_use]
-    pub fn new(text: ButtonText) -> Self
+    pub fn new(
+        #[builder(start_fn)] text: ButtonText,
+        #[builder(field = ReplyKeyboardOptions::default())] options: ReplyKeyboardOptions,
+        poll_type: Option<PollType>,
+        when: Option<WhenCondition>,
+    ) -> Self
     where
         ButtonText: Text,
     {
         Self {
             text,
-            poll_type: None,
-            options: ReplyKeyboardOptions::default(),
+            options,
+            poll_type,
+            when,
         }
     }
 
@@ -255,13 +386,67 @@ impl<ButtonText> RequestPoll<ButtonText> {
         self.options.selective = Some(value);
         self
     }
+
+    #[must_use]
+    pub fn when(mut self, when: WhenCondition) -> Self {
+        self.when = Some(when);
+        self
+    }
+}
+
+impl<ButtonText, S> RequestPollBuilder<ButtonText, S>
+where
+    S: request_poll_builder::State,
+    ButtonText: Text,
+{
+    /// Set the persistent-keyboard flag.
+    #[must_use]
+    pub fn is_persistent(mut self, value: bool) -> Self {
+        self.options.is_persistent = Some(value);
+        self
+    }
+
+    /// Set the resize-keyboard flag.
+    #[must_use]
+    pub fn resize_keyboard(mut self, value: bool) -> Self {
+        self.options.resize_keyboard = Some(value);
+        self
+    }
+
+    /// Set the one-time-keyboard flag.
+    #[must_use]
+    pub fn one_time_keyboard(mut self, value: bool) -> Self {
+        self.options.one_time_keyboard = Some(value);
+        self
+    }
+
+    /// Set the input placeholder shown while the reply keyboard is active.
+    #[must_use]
+    pub fn input_field_placeholder(mut self, value: impl Into<Cow<'static, str>>) -> Self {
+        self.options.input_field_placeholder = Some(value.into());
+        self
+    }
+
+    /// Set whether the reply keyboard is selective.
+    #[must_use]
+    pub fn selective(mut self, value: bool) -> Self {
+        self.options.selective = Some(value);
+        self
+    }
 }
 
 impl<ButtonText> Keyboard for RequestPoll<ButtonText>
 where
     ButtonText: Text,
 {
+    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data)
+    }
+
     fn render_keyboard(&self, _ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+        if !self.is_visible(_ctx, data) {
+            return None;
+        }
         let request_poll =
             KeyboardButtonPollType::new().type_option(self.poll_type.map(Into::<Box<str>>::into));
         let button = KeyboardButton::new(self.text.render_text_in_context(_ctx, data))
@@ -294,9 +479,10 @@ mod tests {
     #[test]
     fn request_contact_renders_reply_keyboard_button() {
         let ctx = Context::new("", "state", Value::Null);
-        let keyboard = RequestContact::new("Share phone")
+        let keyboard = RequestContact::builder("Share phone")
             .resize_keyboard(true)
-            .input_field_placeholder("Phone");
+            .input_field_placeholder("Phone")
+            .build();
 
         let markup = keyboard.render_keyboard(&ctx, &DataMap::new()).unwrap();
         let ReplyMarkup::ReplyKeyboardMarkup(markup) = markup else {
@@ -312,7 +498,9 @@ mod tests {
     #[test]
     fn request_location_renders_reply_keyboard_button() {
         let ctx = Context::new("", "state", Value::Null);
-        let keyboard = RequestLocation::new("Share location").one_time_keyboard(true);
+        let keyboard = RequestLocation::builder("Share location")
+            .one_time_keyboard(true)
+            .build();
 
         let markup = keyboard.render_keyboard(&ctx, &DataMap::new()).unwrap();
         let ReplyMarkup::ReplyKeyboardMarkup(markup) = markup else {
@@ -327,9 +515,10 @@ mod tests {
     #[test]
     fn request_poll_renders_reply_keyboard_button() {
         let ctx = Context::new("", "state", Value::Null);
-        let keyboard = RequestPoll::new("Create quiz")
+        let keyboard = RequestPoll::builder("Create quiz")
             .poll_type(PollType::Quiz)
-            .selective(true);
+            .selective(true)
+            .build();
 
         let markup = keyboard.render_keyboard(&ctx, &DataMap::new()).unwrap();
         let ReplyMarkup::ReplyKeyboardMarkup(markup) = markup else {

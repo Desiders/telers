@@ -122,6 +122,7 @@ impl Window for WindowImpl {
             self.text.render_text_in_context(ctx, data),
             self.keyboard
                 .as_ref()
+                .filter(|kbd| kbd.is_visible(ctx, data))
                 .and_then(|kbd| kbd.render_keyboard(ctx, data)),
             self.parse_mode.clone(),
             self.protect_content,
@@ -137,6 +138,7 @@ impl Window for WindowImpl {
     fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
         self.keyboard
             .as_ref()
+            .filter(|kbd| kbd.is_visible(ctx, &ctx.dialog_data))
             .and_then(|kbd| kbd.handle_callback(ctx, callback_data))
     }
 
@@ -176,16 +178,16 @@ mod tests {
             "state",
             [
                 text("Prompt"),
-                keyboard(InlineKeyboard::new().push(Button::action(
-                    "first",
-                    "First",
-                    ButtonAction::next(),
-                ))),
-                keyboard(InlineKeyboard::new().push(Button::action(
-                    "second",
-                    "Second",
-                    ButtonAction::back(),
-                ))),
+                keyboard(
+                    InlineKeyboard::builder()
+                        .push(Button::action("first", "First", ButtonAction::next()))
+                        .build(),
+                ),
+                keyboard(
+                    InlineKeyboard::builder()
+                        .push(Button::action("second", "Second", ButtonAction::back()))
+                        .build(),
+                ),
                 input(MessageInput::new(|_ctx, _message: Message| {
                     ButtonAction::noop()
                 })),

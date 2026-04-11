@@ -79,11 +79,15 @@ fn registry() -> DialogRegistry {
                  same page.\n\n[Helper] `sync_scroll` keeps both blocks on the same page",
             ),
             keyboard(catalog_list.clone()),
-            keyboard(InlineKeyboard::new().row([Button::action(
-                "details_label",
-                "PRODUCT DETAILS",
-                ButtonAction::noop(),
-            )])),
+            keyboard(
+                InlineKeyboard::builder()
+                    .row([Button::action(
+                        "details_label",
+                        "PRODUCT DETAILS",
+                        ButtonAction::noop(),
+                    )])
+                    .build(),
+            ),
             keyboard(
                 ScrollingGroup::builder("catalog_notes")
                     .height(PAGE_HEIGHT)
@@ -106,7 +110,11 @@ fn registry() -> DialogRegistry {
                     .length(5)
                     .build(),
             ),
-            keyboard(InlineKeyboard::new().push(Button::done("close", "Close"))),
+            keyboard(
+                InlineKeyboard::builder()
+                    .push(Button::done("close", "Close"))
+                    .build(),
+            ),
         ],
     )]);
 

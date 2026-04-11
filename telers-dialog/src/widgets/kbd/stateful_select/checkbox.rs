@@ -5,7 +5,8 @@ use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::debug;
 
 use super::super::{
-    format_callback_data, parse_callback_data, render_button_row, Button, ButtonAction, Keyboard,
+    format_callback_data, parse_callback_data, render_button_row, when::is_allowed, Button,
+    ButtonAction, Keyboard, WhenCondition,
 };
 use crate::{
     entities::{Context, DataMap},
@@ -20,6 +21,7 @@ pub struct Checkbox<WidgetId, CheckedText, UncheckedText> {
     default: bool,
     header_rows: Vec<Vec<Button>>,
     footer_rows: Vec<Vec<Button>>,
+    when: Option<WhenCondition>,
 }
 
 #[bon]
@@ -34,6 +36,7 @@ impl<WidgetId, CheckedText, UncheckedText> Checkbox<WidgetId, CheckedText, Unche
         checked_text: CheckedText,
         unchecked_text: UncheckedText,
         #[builder(default = false)] default: bool,
+        when: Option<WhenCondition>,
     ) -> Self
     where
         WidgetId: Display,
@@ -47,6 +50,7 @@ impl<WidgetId, CheckedText, UncheckedText> Checkbox<WidgetId, CheckedText, Unche
             default,
             header_rows,
             footer_rows,
+            when,
         }
     }
 }
@@ -97,7 +101,14 @@ where
     CheckedText: Text,
     UncheckedText: Text,
 {
+    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data)
+    }
+
     fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+        if !self.is_visible(ctx, data) {
+            return None;
+        }
         let widget_id = self.id.to_string();
         let is_checked = ctx
             .widget_value_as::<bool>(&widget_id)
@@ -136,6 +147,10 @@ where
     }
 
     fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data) {
+            return None;
+        }
         if let Some(action) = self
             .header_rows
             .iter()

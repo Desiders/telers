@@ -12,6 +12,13 @@ pub trait Keyboard: Send + Sync + 'static {
     /// Render reply markup for the current dialog context.
     fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup>;
 
+    /// Return whether this keyboard should render and handle callbacks.
+    #[inline]
+    #[must_use]
+    fn is_visible(&self, _ctx: &Context, _data: &DataMap) -> bool {
+        true
+    }
+
     /// Resolve callback data into a dialog action.
     fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction>;
 }
@@ -42,6 +49,9 @@ impl Keyboard for MultiKeyboard {
         let mut non_inline_markup = None;
 
         for keyboard in &self.keyboards {
+            if !keyboard.is_visible(ctx, data) {
+                continue;
+            }
             let Some(markup) = keyboard.render_keyboard(ctx, data) else {
                 continue;
             };
@@ -79,6 +89,7 @@ impl Keyboard for MultiKeyboard {
     fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
         self.keyboards
             .iter()
+            .filter(|keyboard| keyboard.is_visible(ctx, &ctx.dialog_data))
             .find_map(|keyboard| keyboard.handle_callback(ctx, callback_data))
     }
 }

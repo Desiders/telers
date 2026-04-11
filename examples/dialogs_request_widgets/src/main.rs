@@ -55,10 +55,11 @@ fn registry() -> DialogRegistry {
                      `MessageContact` update",
                 ),
                 keyboard(
-                    RequestContact::new("Share launch contact")
+                    RequestContact::builder("Share launch contact")
                         .resize_keyboard(true)
                         .one_time_keyboard(true)
-                        .input_field_placeholder("Share organizer phone"),
+                        .input_field_placeholder("Share organizer phone")
+                        .build(),
                 ),
                 input(MessageInput::new(|_ctx, message: MessageContact| {
                     let full_name = match message.contact.last_name.as_deref() {
@@ -86,10 +87,11 @@ fn registry() -> DialogRegistry {
                      a `MessageLocation` update",
                 ),
                 keyboard(
-                    RequestLocation::new("Share pickup pin")
+                    RequestLocation::builder("Share pickup pin")
                         .resize_keyboard(true)
                         .one_time_keyboard(true)
-                        .input_field_placeholder("Send venue pin"),
+                        .input_field_placeholder("Send venue pin")
+                        .build(),
                 ),
                 input(MessageInput::new(|_ctx, message: MessageLocation| {
                     ButtonAction::chain([
@@ -115,11 +117,12 @@ fn registry() -> DialogRegistry {
                      update",
                 ),
                 keyboard(
-                    RequestPoll::new("Create guest poll")
+                    RequestPoll::builder("Create guest poll")
                         .poll_type(PollType::Regular)
                         .resize_keyboard(true)
                         .one_time_keyboard(true)
-                        .input_field_placeholder("Create poll"),
+                        .input_field_placeholder("Create poll")
+                        .build(),
                 ),
                 input(MessageInput::new(|_ctx, message: MessagePoll| {
                     ButtonAction::chain([
@@ -146,7 +149,11 @@ fn registry() -> DialogRegistry {
                      Telegram-native payloads, then a matching `MessageInput` stores the data and \
                      moves the dialog forward",
                 ),
-                keyboard(InlineKeyboard::new().push(Button::done("close", "Close"))),
+                keyboard(
+                    InlineKeyboard::builder()
+                        .push(Button::done("close", "Close"))
+                        .build(),
+                ),
             ],
         ),
     ]);

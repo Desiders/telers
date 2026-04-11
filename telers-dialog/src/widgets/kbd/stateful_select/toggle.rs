@@ -4,7 +4,8 @@ use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::debug;
 
 use super::super::{
-    format_callback_data, parse_callback_data, render_button_row, Button, ButtonAction, Keyboard,
+    format_callback_data, parse_callback_data, render_button_row, when::is_allowed, Button,
+    ButtonAction, Keyboard, WhenCondition,
 };
 use crate::entities::{Context, DataMap};
 
@@ -15,6 +16,7 @@ pub struct Toggle<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr,
     id_getter: IdGetter,
     header_rows: Vec<Vec<Button>>,
     footer_rows: Vec<Vec<Button>>,
+    when: Option<WhenCondition>,
     #[allow(clippy::type_complexity)]
     marker: PhantomData<fn() -> (ItemsIter, Item, ItemStr, Id)>,
 }
@@ -32,6 +34,7 @@ impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id
         items_getter: ItemsGetter,
         item_renderer: ItemRenderer,
         id_getter: IdGetter,
+        when: Option<WhenCondition>,
     ) -> Self
     where
         WidgetId: Display,
@@ -49,6 +52,7 @@ impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id
             id_getter,
             header_rows,
             footer_rows,
+            when,
             marker: PhantomData,
         }
     }
@@ -105,7 +109,14 @@ where
     IdGetter: Fn(&Item) -> Id + Send + Sync + 'static,
     Id: Display + Send + Sync + 'static,
 {
+    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data)
+    }
+
     fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+        if !self.is_visible(ctx, data) {
+            return None;
+        }
         let widget_id = self.id.to_string();
         let selected: Option<String> = ctx.widget_value_as(&widget_id);
         let items: Vec<_> = (self.items_getter)(data).into_iter().collect();
@@ -154,6 +165,10 @@ where
     }
 
     fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data) {
+            return None;
+        }
         if let Some(action) = self
             .header_rows
             .iter()

@@ -78,7 +78,11 @@ fn registry() -> DialogRegistry {
                     .length(5)
                     .build(),
             ),
-            keyboard(InlineKeyboard::new().push(Button::done("close", "Close"))),
+            keyboard(
+                InlineKeyboard::builder()
+                    .push(Button::done("close", "Close"))
+                    .build(),
+            ),
         ],
     )]);
 
