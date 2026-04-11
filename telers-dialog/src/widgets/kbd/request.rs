@@ -56,6 +56,7 @@ pub struct RequestContact<ButtonText> {
 #[bon]
 impl<ButtonText> RequestContact<ButtonText> {
     /// Create a one-button reply keyboard that asks the user to share a contact.
+    #[builder]
     #[must_use]
     pub fn new(
         #[builder(start_fn)] text: ButtonText,
@@ -191,6 +192,7 @@ pub struct RequestLocation<ButtonText> {
 #[bon]
 impl<ButtonText> RequestLocation<ButtonText> {
     /// Create a one-button reply keyboard that asks the user to share a location.
+    #[builder]
     #[must_use]
     pub fn new(
         #[builder(start_fn)] text: ButtonText,
@@ -327,6 +329,7 @@ pub struct RequestPoll<ButtonText> {
 #[bon]
 impl<ButtonText> RequestPoll<ButtonText> {
     /// Create a one-button reply keyboard that asks the user to create a poll.
+    #[builder]
     #[must_use]
     pub fn new(
         #[builder(start_fn)] text: ButtonText,

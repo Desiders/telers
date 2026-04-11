@@ -14,7 +14,7 @@ pub struct Group<Kbd> {
 #[bon]
 impl<Kbd> Group<Kbd> {
     /// Wrap a keyboard and regroup its inline buttons by `items_per_row`.
-    #[inline]
+    #[builder]
     #[must_use]
     pub fn new(
         #[builder(start_fn)] kbd: Kbd,
