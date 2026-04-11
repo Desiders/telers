@@ -12,16 +12,13 @@ pub struct InlineKeyboard {
 
 #[bon]
 impl InlineKeyboard {
-    #[inline]
+    #[builder]
     #[must_use]
     pub fn new(
         #[builder(field = Vec::new())] rows: Vec<Vec<Button>>,
         when: Option<WhenCondition>,
     ) -> Self {
-        Self {
-            rows,
-            when,
-        }
+        Self { rows, when }
     }
 
     #[must_use]
