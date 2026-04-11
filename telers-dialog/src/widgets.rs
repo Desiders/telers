@@ -1,7 +1,6 @@
 mod input;
 mod kbd;
 mod link_preview;
-mod list;
 mod text;
 mod widget;
 
@@ -18,6 +17,5 @@ pub use kbd::{
     RequestLocation, RequestPoll, Scroll, ScrollingGroup, Select, SwitchPage, TimeSelect, Toggle,
 };
 pub use link_preview::{LinkPreview, LinkPreviewWidget};
-pub use list::ListText;
-pub use text::{Case, MultiText, Progress, ScrollingText, Text};
+pub use text::{Case, ListText, MultiText, Progress, ScrollingText, Text};
 pub use widget::{fn_text, format_text, input, keyboard, link_preview, text, WidgetKind};
