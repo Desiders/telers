@@ -8,7 +8,7 @@ use telers::{
 
 use super::{when::is_allowed, ButtonAction, Keyboard, WhenCondition};
 use crate::{
-    entities::{Context, DataMap},
+    entities::{Context, DataMap, RenderContext},
     widgets::Text,
 };
 
@@ -164,12 +164,12 @@ where
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, _ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
-        if !self.is_visible(_ctx, data) {
+    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
+        if !self.is_visible(render_ctx.context, render_ctx.data) {
             return None;
         }
         let button =
-            KeyboardButton::new(self.text.render_text_in_context(_ctx, data)).request_contact(true);
+            KeyboardButton::new(self.text.render_text_in_context(render_ctx)).request_contact(true);
         Some(
             self.options
                 .apply(ReplyKeyboardMarkup::new([[button]]))
@@ -300,11 +300,11 @@ where
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, _ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
-        if !self.is_visible(_ctx, data) {
+    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
+        if !self.is_visible(render_ctx.context, render_ctx.data) {
             return None;
         }
-        let button = KeyboardButton::new(self.text.render_text_in_context(_ctx, data))
+        let button = KeyboardButton::new(self.text.render_text_in_context(render_ctx))
             .request_location(true);
         Some(
             self.options
@@ -446,13 +446,13 @@ where
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, _ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
-        if !self.is_visible(_ctx, data) {
+    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
+        if !self.is_visible(render_ctx.context, render_ctx.data) {
             return None;
         }
         let request_poll =
             KeyboardButtonPollType::new().type_option(self.poll_type.map(Into::<Box<str>>::into));
-        let button = KeyboardButton::new(self.text.render_text_in_context(_ctx, data))
+        let button = KeyboardButton::new(self.text.render_text_in_context(render_ctx))
             .request_poll(request_poll);
         Some(
             self.options
@@ -487,7 +487,9 @@ mod tests {
             .input_field_placeholder("Phone")
             .build();
 
-        let markup = keyboard.render_keyboard(&ctx, &DataMap::new()).unwrap();
+        let markup = keyboard
+            .render_keyboard_for_test(&ctx, &DataMap::new())
+            .unwrap();
         let ReplyMarkup::ReplyKeyboardMarkup(markup) = markup else {
             panic!("reply keyboard");
         };
@@ -505,7 +507,9 @@ mod tests {
             .one_time_keyboard(true)
             .build();
 
-        let markup = keyboard.render_keyboard(&ctx, &DataMap::new()).unwrap();
+        let markup = keyboard
+            .render_keyboard_for_test(&ctx, &DataMap::new())
+            .unwrap();
         let ReplyMarkup::ReplyKeyboardMarkup(markup) = markup else {
             panic!("reply keyboard");
         };
@@ -523,7 +527,9 @@ mod tests {
             .selective(true)
             .build();
 
-        let markup = keyboard.render_keyboard(&ctx, &DataMap::new()).unwrap();
+        let markup = keyboard
+            .render_keyboard_for_test(&ctx, &DataMap::new())
+            .unwrap();
         let ReplyMarkup::ReplyKeyboardMarkup(markup) = markup else {
             panic!("reply keyboard");
         };

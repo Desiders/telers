@@ -7,7 +7,7 @@ use tracing::debug;
 
 use super::{format_callback_data, parse_callback_data, ButtonAction};
 use crate::{
-    entities::{Context, Data, DataMap, StartMode},
+    entities::{Context, Data, RenderContext, StartMode},
     widgets::Text,
 };
 
@@ -188,8 +188,9 @@ impl Button {
         }
     }
 
-    pub(crate) fn render(&self, ctx: &Context, data: &DataMap) -> InlineKeyboardButton {
-        let button = InlineKeyboardButton::new(self.text.render_text_in_context(ctx, data));
+    pub(crate) fn render(&self, render_ctx: &RenderContext<'_>) -> InlineKeyboardButton {
+        let ctx = render_ctx.context;
+        let button = InlineKeyboardButton::new(self.text.render_text_in_context(render_ctx));
         match &self.kind {
             ButtonKind::Callback(_) => {
                 button.callback_data(format_callback_data(ctx, &self.id, None))

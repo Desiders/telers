@@ -16,7 +16,9 @@ fn radio_renders_checked_and_unchecked_items() {
         .id_getter(|&item| item)
         .build();
 
-    let markup = radio.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = radio
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(&*rows[0][0].text, "red");
@@ -35,7 +37,9 @@ fn radio_renders_selected_item_as_checked() {
         .id_getter(|&item| item)
         .build();
 
-    let markup = radio.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = radio
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(&*rows[0][0].text, "red");
@@ -103,7 +107,9 @@ fn checkbox_renders_unchecked_and_toggles_to_true() {
         .unchecked_text("[ ] Notify me")
         .build();
 
-    let markup = checkbox.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = checkbox
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
     let expected = format!("td:{}:notify:true", ctx.id);
 
@@ -120,7 +126,9 @@ fn checkbox_renders_checked_and_toggles_to_false() {
         .unchecked_text("[ ] Notify me")
         .build();
 
-    let markup = checkbox.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = checkbox
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
     let expected = format!("td:{}:notify:false", ctx.id);
 
@@ -152,7 +160,9 @@ fn counter_renders_default_value() {
     let ctx = Context::new("", "state", Value::Null);
     let counter = Counter::builder("qty").default(2.0).build();
 
-    let markup = counter.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = counter
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(&*rows[0][0].text, "-");
@@ -169,7 +179,9 @@ fn counter_can_hide_plus_and_minus_buttons() {
         .plus_hidden(true)
         .build();
 
-    let markup = counter.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = counter
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(rows[0].len(), 1);
@@ -240,7 +252,9 @@ fn time_select_renders_headers_and_selected_values() {
         .minute_precision(15)
         .build();
 
-    let markup = picker.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = picker
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(&*rows[0][0].text, "Hour");
@@ -294,7 +308,9 @@ fn toggle_renders_first_item_when_unset() {
         .id_getter(|&item| item)
         .build();
 
-    let markup = toggle.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = toggle
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
     let expected = format!("td:{}:theme:dark", ctx.id);
 
@@ -313,7 +329,9 @@ fn toggle_renders_selected_item_and_cycles_to_next() {
         .id_getter(|&item| item)
         .build();
 
-    let markup = toggle.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = toggle
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
     let expected = format!("td:{}:theme:sepia", ctx.id);
 
@@ -353,7 +371,7 @@ fn multiselect_renders_checked_and_unchecked_items() {
         .id_getter(|&item| item)
         .build();
 
-    let markup = ms.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = ms.render_keyboard_for_test(&ctx, &DataMap::new()).unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(&*rows[0][0].text, "[x] apple");

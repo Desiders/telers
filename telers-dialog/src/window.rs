@@ -1,5 +1,5 @@
 use crate::{
-    entities::{Context, DataMap, EventContext, NewMessage, ShowMode},
+    entities::{Context, NewMessage, RenderContext, ShowMode},
     widgets::{ensure_widgets, ButtonAction, Input, Keyboard, LinkPreviewWidget, Text, WidgetKind},
 };
 use std::sync::Arc;
@@ -7,7 +7,7 @@ use telers::types::{LinkPreviewOptions, Message};
 
 pub trait Window: Send + Sync {
     fn get_state(&self) -> &str;
-    fn render(&self, ctx: &Context, data: &DataMap, event_ctx: &EventContext) -> NewMessage;
+    fn render(&self, render_ctx: &RenderContext<'_>) -> NewMessage;
     fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction>;
     fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction>;
 }
@@ -114,23 +114,25 @@ impl Window for WindowImpl {
         &self.state
     }
 
-    fn render(&self, ctx: &Context, data: &DataMap, event_ctx: &EventContext) -> NewMessage {
+    fn render(&self, render_ctx: &RenderContext<'_>) -> NewMessage {
+        let event_ctx = render_ctx.event_context;
+
         NewMessage::new(
             event_ctx.chat.clone(),
             event_ctx.thread_id,
             event_ctx.business_connection_id.clone(),
-            self.text.render_text_in_context(ctx, data),
+            self.text.render_text_in_context(render_ctx),
             self.keyboard
                 .as_ref()
-                .filter(|kbd| kbd.is_visible(ctx, data))
-                .and_then(|kbd| kbd.render_keyboard(ctx, data)),
+                .filter(|kbd| kbd.is_visible(render_ctx.context, render_ctx.data))
+                .and_then(|kbd| kbd.render_keyboard(render_ctx)),
             self.parse_mode.clone(),
             self.protect_content,
             self.show_mode,
             self.link_preview_options.clone().or_else(|| {
                 self.link_preview
                     .as_ref()
-                    .and_then(|link_preview| link_preview.render_link_preview(data))
+                    .and_then(|link_preview| link_preview.render_link_preview(render_ctx))
             }),
         )
     }
@@ -153,7 +155,7 @@ impl Window for WindowImpl {
 mod tests {
     use super::{window, Window};
     use crate::{
-        entities::{ChatEvent, Context, DataMap, EventContext},
+        entities::{ChatEvent, Context, DataMap, EventContext, RenderContext},
         widgets::{
             input, keyboard, link_preview, text, Button, ButtonAction, InlineKeyboard, LinkPreview,
             MessageInput,
@@ -203,12 +205,11 @@ mod tests {
         );
         let ctx = Context::new("", "state", Value::Null);
         let data = DataMap::new();
-        let event_ctx = EventContext::<Reqwest>::new(
-            Bot::<Reqwest>::default(),
-            ChatEvent::Message(test_message("/start")),
-        );
+        let event = ChatEvent::Message(test_message("/start"));
+        let event_ctx = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        let render_ctx = RenderContext::new(&ctx, &data, &event, &event_ctx);
 
-        let rendered = window.render(&ctx, &data, &event_ctx);
+        let rendered = window.render(&render_ctx);
         let rows = rendered
             .reply_markup
             .as_ref()

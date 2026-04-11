@@ -2,7 +2,7 @@ use bon::bon;
 use telers::types::{InlineKeyboardMarkup, ReplyMarkup};
 
 use super::{when::is_allowed, Button, ButtonAction, Keyboard, WhenCondition};
-use crate::entities::{Context, DataMap};
+use crate::entities::{Context, DataMap, RenderContext};
 
 #[derive(Clone, Default)]
 pub struct InlineKeyboard {
@@ -18,7 +18,10 @@ impl InlineKeyboard {
         #[builder(field = Vec::new())] rows: Vec<Vec<Button>>,
         when: Option<WhenCondition>,
     ) -> Self {
-        Self { rows, when }
+        Self {
+            rows,
+            when,
+        }
     }
 
     #[must_use]
@@ -70,7 +73,9 @@ impl Keyboard for InlineKeyboard {
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context;
+        let data = render_ctx.data;
         if !self.is_visible(ctx, data) {
             return None;
         }
@@ -80,7 +85,7 @@ impl Keyboard for InlineKeyboard {
 
         let rows = self.rows.iter().map(|row| {
             row.iter()
-                .map(|button| button.render(ctx, data))
+                .map(|button| button.render(render_ctx))
                 .collect::<Box<[_]>>()
         });
 

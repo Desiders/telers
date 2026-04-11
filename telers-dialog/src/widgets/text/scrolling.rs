@@ -3,7 +3,7 @@ use std::{borrow::Cow, sync::Arc};
 
 use super::Text;
 use crate::{
-    entities::{Context, DataMap},
+    entities::{DataMap, RenderContext},
     widgets::{BaseScroll, OnPageChanged, Scroll},
 };
 
@@ -79,8 +79,20 @@ impl ScrollingText {
 
     /// Compute how many pages the current text produces with access to widget state.
     #[must_use]
-    pub fn page_count_in_context(&self, ctx: &Context, data: &DataMap) -> usize {
-        self.page_count_for_text(&self.text.render_text_in_context(ctx, data))
+    pub fn page_count_in_context(&self, render_ctx: &RenderContext<'_>) -> usize {
+        self.page_count_for_text(&self.text.render_text_in_context(render_ctx))
+    }
+
+    #[cfg(test)]
+    #[must_use]
+    pub fn page_count_in_context_for_test(
+        &self,
+        ctx: &crate::entities::Context,
+        data: &DataMap,
+    ) -> usize {
+        RenderContext::with_test(ctx, data, |render_ctx| {
+            self.page_count_in_context(render_ctx)
+        })
     }
 }
 
@@ -89,8 +101,8 @@ impl Scroll for ScrollingText {
         &self.base_scroll
     }
 
-    fn get_page_count(&self, ctx: &Context, data: &DataMap) -> usize {
-        self.page_count_in_context(ctx, data)
+    fn get_page_count(&self, render_ctx: &RenderContext<'_>) -> usize {
+        self.page_count_in_context(render_ctx)
     }
 }
 
@@ -99,10 +111,10 @@ impl Text for ScrollingText {
         self.render_page(self.text.render_text(data), 0)
     }
 
-    fn render_text_in_context(&self, ctx: &Context, data: &DataMap) -> Box<str> {
+    fn render_text_in_context(&self, render_ctx: &RenderContext<'_>) -> Box<str> {
         self.render_page(
-            self.text.render_text_in_context(ctx, data),
-            self.get_page(ctx),
+            self.text.render_text_in_context(render_ctx),
+            self.get_page(render_ctx.context),
         )
     }
 }

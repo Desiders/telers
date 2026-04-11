@@ -7,7 +7,7 @@ use super::{
     build_pager_row, page_count_from_rows, render_fixed_width_page, BaseScroll, OnPageChanged,
     Scroll,
 };
-use crate::entities::{Context, DataMap};
+use crate::entities::{Context, DataMap, RenderContext};
 
 #[derive(Clone)]
 pub struct ScrollingGroup<Kbd> {
@@ -58,10 +58,10 @@ where
 {
     fn page_rows(
         &self,
-        ctx: &Context,
-        data: &DataMap,
+        render_ctx: &RenderContext<'_>,
     ) -> Option<(Vec<Box<[InlineKeyboardButton]>>, usize)> {
-        let inner_markup = self.kbd.render_keyboard(ctx, data)?;
+        let ctx = render_ctx.context;
+        let inner_markup = self.kbd.render_keyboard(render_ctx)?;
         let rows = inner_markup.inline_keyboard()?;
 
         if rows.is_empty() || self.height == 0 {
@@ -102,8 +102,8 @@ where
         &self.base_scroll
     }
 
-    fn get_page_count(&self, ctx: &Context, data: &DataMap) -> usize {
-        self.page_rows(ctx, data)
+    fn get_page_count(&self, render_ctx: &RenderContext<'_>) -> usize {
+        self.page_rows(render_ctx)
             .map(|(_, pages_count)| pages_count)
             .unwrap_or(0)
     }
@@ -117,11 +117,13 @@ where
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context;
+        let data = render_ctx.data;
         if !self.is_visible(ctx, data) {
             return None;
         }
-        let (mut rows, pages_count) = self.page_rows(ctx, data)?;
+        let (mut rows, pages_count) = self.page_rows(render_ctx)?;
 
         if !(self.hide_pager || self.hide_on_single_page && pages_count <= 1) {
             let current_page = self.get_page(ctx).min(pages_count.saturating_sub(1));

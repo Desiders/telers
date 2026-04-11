@@ -1,7 +1,7 @@
 use crate::{
     entities::{
         generate_id, ChatEvent, Context, Data, DataMap, EventContext, LaunchMode, OldMessage,
-        ShowMode, Stack, StartMode, DEFAULT_STACK_ID, EVENT_CONTEXT_KEY,
+        RenderContext, ShowMode, Stack, StartMode, DEFAULT_STACK_ID, EVENT_CONTEXT_KEY,
     },
     errors::DialogError,
     message_manager::MessageManager,
@@ -928,8 +928,9 @@ impl<S: Storage> DialogManager<S> {
             .find_by_state(&ctx.state)
             .ok_or(DialogError::DialogNotFound)?;
         let data = ctx.dialog_data.clone();
+        let render_ctx = RenderContext::new(&ctx, &data, &self.event, event_ctx);
         let msg = dialog
-            .render(&ctx.state, &ctx, &data, event_ctx)
+            .render(&ctx.state, &render_ctx)
             .ok_or(DialogError::DialogNotFound)?;
         let mut msg = msg;
         if let Some(sm) = show_mode {

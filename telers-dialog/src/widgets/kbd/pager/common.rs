@@ -4,7 +4,7 @@ use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::debug;
 
 use super::super::{format_callback_data, parse_callback_data, ButtonAction};
-use crate::entities::{Context, DataMap};
+use crate::entities::{Context, DataMap, RenderContext};
 
 type PageChangedHandler = dyn Fn(PageChange) -> ButtonAction + Send + Sync + 'static;
 
@@ -81,7 +81,7 @@ pub trait Scroll: Send + Sync + 'static {
     fn base_scroll(&self) -> &BaseScroll;
 
     #[must_use]
-    fn get_page_count(&self, ctx: &Context, data: &DataMap) -> usize;
+    fn get_page_count(&self, render_ctx: &RenderContext<'_>) -> usize;
 
     #[must_use]
     fn widget_id(&self) -> &str {
@@ -156,8 +156,7 @@ pub(super) fn resolve_page_target(
 }
 
 pub(super) fn render_direction_button<WidgetId, PageCountGetter, LabelRenderer, Label>(
-    ctx: &Context,
-    data: &DataMap,
+    render_ctx: &RenderContext<'_>,
     id: &WidgetId,
     page_count_getter: &PageCountGetter,
     direction: PageDirection,
@@ -165,11 +164,13 @@ pub(super) fn render_direction_button<WidgetId, PageCountGetter, LabelRenderer, 
 ) -> Option<ReplyMarkup>
 where
     WidgetId: Display,
-    PageCountGetter: Fn(&Context, &DataMap) -> usize,
+    PageCountGetter: for<'a> Fn(&RenderContext<'a>) -> usize,
     LabelRenderer: Fn(usize, usize, &DataMap) -> Label,
     Label: Into<Box<str>>,
 {
-    let pages_count = page_count_getter(ctx, data);
+    let ctx = render_ctx.context;
+    let data = render_ctx.data;
+    let pages_count = page_count_getter(render_ctx);
     if pages_count == 0 {
         return None;
     }

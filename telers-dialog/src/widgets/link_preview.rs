@@ -1,12 +1,23 @@
 use bon::bon;
 use telers::types::LinkPreviewOptions;
 
-use crate::{entities::DataMap, widgets::Text};
+use crate::{entities::RenderContext, widgets::Text};
 
 /// Widget that renders link preview options for a window.
 pub trait LinkPreviewWidget: Send + Sync + 'static {
     /// Render link preview options for the current data snapshot.
-    fn render_link_preview(&self, data: &DataMap) -> Option<LinkPreviewOptions>;
+    fn render_link_preview(&self, render_ctx: &RenderContext<'_>) -> Option<LinkPreviewOptions>;
+
+    #[cfg(test)]
+    fn render_link_preview_for_test(
+        &self,
+        data: &crate::entities::DataMap,
+    ) -> Option<LinkPreviewOptions> {
+        let ctx = crate::entities::Context::new("", "state", serde_json::Value::Null);
+        RenderContext::with_test(&ctx, data, |render_ctx| {
+            self.render_link_preview(render_ctx)
+        })
+    }
 }
 
 /// Configurable link preview widget.
@@ -47,13 +58,13 @@ impl Default for LinkPreview {
 }
 
 impl LinkPreviewWidget for LinkPreview {
-    fn render_link_preview(&self, data: &DataMap) -> Option<LinkPreviewOptions> {
+    fn render_link_preview(&self, render_ctx: &RenderContext<'_>) -> Option<LinkPreviewOptions> {
         Some(
             LinkPreviewOptions::new()
                 .url_option(
                     self.url
                         .as_ref()
-                        .map(|url| url.render_text(data).into_string()),
+                        .map(|url| url.render_text_in_context(render_ctx).into_string()),
                 )
                 .is_disabled(self.is_disabled)
                 .prefer_small_media(self.prefer_small_media)
@@ -77,7 +88,7 @@ mod tests {
             .build();
 
         let options = preview
-            .render_link_preview(&DataMap::new())
+            .render_link_preview_for_test(&DataMap::new())
             .expect("link preview");
 
         assert_eq!(options.url.as_deref(), Some("https://example.com/menu"));

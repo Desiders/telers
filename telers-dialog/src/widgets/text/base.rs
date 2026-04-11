@@ -1,12 +1,23 @@
-use crate::entities::{Context, DataMap};
+use crate::entities::{DataMap, RenderContext};
 
 pub trait Text: Send + Sync + 'static {
     #[must_use]
     fn render_text(&self, data: &DataMap) -> Box<str>;
 
     #[must_use]
-    fn render_text_in_context(&self, _ctx: &Context, data: &DataMap) -> Box<str> {
-        self.render_text(data)
+    fn render_text_in_context(&self, render_ctx: &RenderContext<'_>) -> Box<str> {
+        self.render_text(render_ctx.data)
+    }
+
+    #[cfg(test)]
+    fn render_text_in_context_for_test(
+        &self,
+        ctx: &crate::entities::Context,
+        data: &DataMap,
+    ) -> Box<str> {
+        RenderContext::with_test(ctx, data, |render_ctx| {
+            self.render_text_in_context(render_ctx)
+        })
     }
 }
 

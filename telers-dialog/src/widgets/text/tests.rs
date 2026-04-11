@@ -110,8 +110,14 @@ fn scrolling_text_uses_widget_page_from_context() {
         .page_size(4)
         .build();
 
-    assert_eq!(&*text.render_text_in_context(&ctx, &DataMap::new()), "ij");
-    assert_eq!(text.page_count_in_context(&ctx, &DataMap::new()), 3);
+    assert_eq!(
+        &*text.render_text_in_context_for_test(&ctx, &DataMap::new()),
+        "ij"
+    );
+    assert_eq!(
+        text.page_count_in_context_for_test(&ctx, &DataMap::new()),
+        3
+    );
 }
 
 #[test]
@@ -124,7 +130,10 @@ fn scrolling_text_slices_by_char_boundaries() {
         .page_size(3)
         .build();
 
-    assert_eq!(&*text.render_text_in_context(&ctx, &DataMap::new()), "cd");
+    assert_eq!(
+        &*text.render_text_in_context_for_test(&ctx, &DataMap::new()),
+        "cd"
+    );
     assert_eq!(text.page_count(&DataMap::new()), 2);
 }
 
@@ -139,7 +148,7 @@ fn scrolling_text_can_drive_numbered_pager_via_scroll_trait() {
         .current_page_renderer(|page, _data| format!("[{}]", page + 1))
         .length(5)
         .build()
-        .render_keyboard(&Context::new("", "state", json!(null)), &DataMap::new())
+        .render_keyboard_for_test(&Context::new("", "state", json!(null)), &DataMap::new())
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
