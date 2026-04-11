@@ -7,7 +7,7 @@ use super::{
     format_callback_data, parse_callback_data, when::is_allowed, Button, ButtonAction, Keyboard,
     WhenCondition,
 };
-use crate::entities::{Context, DataMap};
+use crate::entities::{Context, DataMap, RenderContext};
 
 /// Stateless list of selectable items.
 ///
@@ -150,14 +150,16 @@ where
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context;
+        let data = render_ctx.data;
         if !self.is_visible(ctx, data) {
             return None;
         }
         let mut rows: Vec<_> = self
             .header_rows
             .iter()
-            .map(|row| render_button_row(row, ctx, data))
+            .map(|row| render_button_row(row, render_ctx))
             .collect();
 
         for item in (self.items_getter)(data) {
@@ -178,7 +180,7 @@ where
         rows.extend(
             self.footer_rows
                 .iter()
-                .map(|row| render_button_row(row, ctx, data)),
+                .map(|row| render_button_row(row, render_ctx)),
         );
 
         if rows.is_empty() {
@@ -215,8 +217,7 @@ where
 
 pub(crate) fn render_button_row(
     row: &[Button],
-    ctx: &Context,
-    data: &DataMap,
+    render_ctx: &RenderContext<'_>,
 ) -> Box<[InlineKeyboardButton]> {
-    row.iter().map(|button| button.render(ctx, data)).collect()
+    row.iter().map(|button| button.render(render_ctx)).collect()
 }

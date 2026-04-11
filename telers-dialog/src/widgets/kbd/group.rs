@@ -2,7 +2,7 @@ use bon::bon;
 use telers::types::{InlineKeyboardMarkup, ReplyMarkup};
 
 use super::{when::is_allowed, ButtonAction, Keyboard, WhenCondition};
-use crate::entities::{Context, DataMap};
+use crate::entities::{Context, DataMap, RenderContext};
 
 /// Layout wrapper that regroups inline keyboard buttons into fixed-width rows.
 pub struct Group<Kbd> {
@@ -43,14 +43,16 @@ where
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context;
+        let data = render_ctx.data;
         if !self.is_visible(ctx, data) {
             return None;
         }
         if !self.kbd.is_visible(ctx, data) {
             return None;
         }
-        let markup = self.kbd.render_keyboard(ctx, data)?;
+        let markup = self.kbd.render_keyboard(render_ctx)?;
         let ReplyMarkup::InlineKeyboardMarkup(markup) = markup else {
             return Some(markup);
         };

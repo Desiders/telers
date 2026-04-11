@@ -8,7 +8,7 @@ use super::super::{
     format_callback_data, parse_callback_data, when::is_allowed, ButtonAction, Keyboard,
     WhenCondition,
 };
-use crate::entities::{Context, DataMap};
+use crate::entities::{Context, DataMap, RenderContext};
 
 /// Time picker storing the selected `(hour, minute)` pair in `widget_data`.
 pub struct TimeSelect<WidgetId> {
@@ -112,7 +112,9 @@ where
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context;
+        let data = render_ctx.data;
         if !self.is_visible(ctx, data) {
             return None;
         }

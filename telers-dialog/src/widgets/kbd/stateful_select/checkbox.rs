@@ -9,7 +9,7 @@ use super::super::{
     ButtonAction, Keyboard, WhenCondition,
 };
 use crate::{
-    entities::{Context, DataMap},
+    entities::{Context, DataMap, RenderContext},
     widgets::Text,
 };
 
@@ -105,7 +105,9 @@ where
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context;
+        let data = render_ctx.data;
         if !self.is_visible(ctx, data) {
             return None;
         }
@@ -115,15 +117,15 @@ where
             .unwrap_or(self.default);
         let next_value = (!is_checked).to_string();
         let text = if is_checked {
-            self.checked_text.render_text_in_context(ctx, data)
+            self.checked_text.render_text_in_context(render_ctx)
         } else {
-            self.unchecked_text.render_text_in_context(ctx, data)
+            self.unchecked_text.render_text_in_context(render_ctx)
         };
 
         let mut rows: Vec<_> = self
             .header_rows
             .iter()
-            .map(|row| render_button_row(row, ctx, data))
+            .map(|row| render_button_row(row, render_ctx))
             .collect();
 
         rows.push(
@@ -140,7 +142,7 @@ where
         rows.extend(
             self.footer_rows
                 .iter()
-                .map(|row| render_button_row(row, ctx, data)),
+                .map(|row| render_button_row(row, render_ctx)),
         );
 
         Some(InlineKeyboardMarkup::new(rows).into())

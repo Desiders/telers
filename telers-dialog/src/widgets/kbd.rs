@@ -56,7 +56,7 @@ mod tests {
             .build();
 
         let markup = keyboard
-            .render_keyboard(&ctx, &DataMap::new())
+            .render_keyboard_for_test(&ctx, &DataMap::new())
             .expect("keyboard");
         let callback_data = markup
             .inline_keyboard()
@@ -97,7 +97,7 @@ mod tests {
                 .build(),
         ));
 
-        assert!(keyboard.render_keyboard(&ctx, &data).is_none());
+        assert!(keyboard.render_keyboard_for_test(&ctx, &data).is_none());
         assert!(keyboard
             .handle_callback(&ctx, &format!("td:{}:go", ctx.id))
             .is_none());
@@ -105,7 +105,7 @@ mod tests {
         data.insert("show".into(), Value::Bool(true));
         ctx.dialog_data = data.clone();
 
-        assert!(keyboard.render_keyboard(&ctx, &data).is_some());
+        assert!(keyboard.render_keyboard_for_test(&ctx, &data).is_some());
         assert!(matches!(
             keyboard.handle_callback(&ctx, &format!("td:{}:go", ctx.id)),
             Some(ButtonAction::Next)
@@ -124,7 +124,7 @@ mod tests {
             .build();
 
         let markup = select
-            .render_keyboard(&ctx, &DataMap::new())
+            .render_keyboard_for_test(&ctx, &DataMap::new())
             .expect("keyboard");
         let callback_data = markup
             .inline_keyboard()
@@ -181,7 +181,7 @@ mod tests {
         .build();
 
         let markup = grouped
-            .render_keyboard(&ctx, &DataMap::new())
+            .render_keyboard_for_test(&ctx, &DataMap::new())
             .expect("keyboard");
         let rows = markup.inline_keyboard().expect("inline keyboard");
 
@@ -212,7 +212,7 @@ mod tests {
             .build();
 
         let markup = keyboard
-            .render_keyboard(&ctx, &DataMap::new())
+            .render_keyboard_for_test(&ctx, &DataMap::new())
             .expect("keyboard");
         let rows = markup.inline_keyboard().expect("inline keyboard");
 

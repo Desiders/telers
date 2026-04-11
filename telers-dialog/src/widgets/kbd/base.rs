@@ -2,7 +2,7 @@ use telers::types::{InlineKeyboardMarkup, ReplyMarkup};
 use tracing::warn;
 
 use super::ButtonAction;
-use crate::entities::{Context, DataMap};
+use crate::entities::{Context, DataMap, RenderContext};
 
 /// Keyboard widget rendered inside a dialog window.
 ///
@@ -10,7 +10,12 @@ use crate::entities::{Context, DataMap};
 /// callback data that belongs to the widget.
 pub trait Keyboard: Send + Sync + 'static {
     /// Render reply markup for the current dialog context.
-    fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup>;
+    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup>;
+
+    #[cfg(test)]
+    fn render_keyboard_for_test(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+        RenderContext::with_test(ctx, data, |render_ctx| self.render_keyboard(render_ctx))
+    }
 
     /// Return whether this keyboard should render and handle callbacks.
     #[inline]
@@ -44,15 +49,15 @@ impl MultiKeyboard {
 }
 
 impl Keyboard for MultiKeyboard {
-    fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
         let mut inline_rows = Vec::new();
         let mut non_inline_markup = None;
 
         for keyboard in &self.keyboards {
-            if !keyboard.is_visible(ctx, data) {
+            if !keyboard.is_visible(render_ctx.context, render_ctx.data) {
                 continue;
             }
-            let Some(markup) = keyboard.render_keyboard(ctx, data) else {
+            let Some(markup) = keyboard.render_keyboard(render_ctx) else {
                 continue;
             };
             match markup {

@@ -27,7 +27,9 @@ fn scrolling_group_shows_first_page_by_default() {
     let kbd = build_inner_keyboard(10);
     let pager = ScrollingGroup::builder("pager").height(3).kbd(kbd).build();
 
-    let markup = pager.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = pager
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(rows.len(), 4);
@@ -47,7 +49,9 @@ fn scrolling_group_shows_correct_page_from_widget_data() {
     let kbd = build_inner_keyboard(10);
     let pager = ScrollingGroup::builder("pager").height(3).kbd(kbd).build();
 
-    let markup = pager.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = pager
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(rows.len(), 4);
@@ -64,7 +68,9 @@ fn scrolling_group_last_page_shows_remaining_items() {
     let kbd = build_inner_keyboard(10);
     let pager = ScrollingGroup::builder("pager").height(3).kbd(kbd).build();
 
-    let markup = pager.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = pager
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(rows.len(), 2);
@@ -111,7 +117,9 @@ fn scrolling_group_hides_pager_on_single_page() {
         .kbd(kbd)
         .build();
 
-    let markup = pager.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = pager
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(rows.len(), 2);
@@ -127,7 +135,9 @@ fn scrolling_group_hide_pager_flag_suppresses_navigation() {
         .kbd(kbd)
         .build();
 
-    let markup = pager.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = pager
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(rows.len(), 3);
@@ -140,7 +150,9 @@ fn scrolling_group_clamps_page_beyond_max() {
     let kbd = build_inner_keyboard(5);
     let pager = ScrollingGroup::builder("pager").height(2).kbd(kbd).build();
 
-    let markup = pager.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = pager
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(&*rows[0][0].text, "Item 4");
@@ -156,7 +168,9 @@ fn scrolling_group_width_groups_buttons_into_fixed_grid() {
         .kbd(kbd)
         .build();
 
-    let markup = pager.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = pager
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
     let pager_row = &rows[2];
 
@@ -187,7 +201,9 @@ fn scrolling_group_pads_last_page_grid_with_fillers() {
         .kbd(kbd)
         .build();
 
-    let markup = pager.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = pager
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
     let pager_row = &rows[2];
 
@@ -213,11 +229,13 @@ fn switch_page_renders_directional_button() {
     ctx.widget_data.insert("pager".into(), json!(1));
     let pager = SwitchPage::builder("pager")
         .direction(PageDirection::Next)
-        .page_count_getter(|_ctx, _data| 4)
+        .page_count_getter(|_render_ctx| 4)
         .label_renderer(|_target, _current, _data| ">")
         .build();
 
-    let markup = pager.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = pager
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(&*rows[0][0].text, ">");
@@ -232,13 +250,15 @@ fn numbered_pager_renders_current_page_distinctly() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("pager".into(), json!(1));
     let pager = NumberedPager::builder("pager")
-        .page_count_getter(|_ctx, _data| 4)
+        .page_count_getter(|_render_ctx| 4)
         .page_renderer(|page, _data| (page + 1).to_string())
         .current_page_renderer(|page, _data| format!("[{}]", page + 1))
         .length(3)
         .build();
 
-    let markup = pager.render_keyboard(&ctx, &DataMap::new()).unwrap();
+    let markup = pager
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(rows.len(), 2);
@@ -252,7 +272,7 @@ fn numbered_pager_renders_current_page_distinctly() {
 fn numbered_pager_callback_sets_page() {
     let ctx = Context::new("", "state", Value::Null);
     let pager = NumberedPager::builder("pager")
-        .page_count_getter(|_ctx, _data| 2)
+        .page_count_getter(|_render_ctx| 2)
         .page_renderer(|page, _data| (page + 1).to_string())
         .current_page_renderer(|page, _data| format!("[{}]", page + 1))
         .build();
@@ -302,7 +322,7 @@ fn scrolling_group_sync_scroll_updates_other_widget_page() {
 fn numbered_pager_sync_scrolls_updates_multiple_widgets() {
     let ctx = Context::new("", "state", Value::Null);
     let pager = NumberedPager::builder("pager")
-        .page_count_getter(|_ctx, _data| 4)
+        .page_count_getter(|_render_ctx| 4)
         .page_renderer(|page, _data| (page + 1).to_string())
         .current_page_renderer(|page, _data| format!("[{}]", page + 1))
         .on_page_changed(sync_scrolls(["list", "grid"]))
@@ -344,7 +364,7 @@ fn on_page_changed_can_use_widget_id_and_previous_page() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("pager".into(), json!(1));
     let pager = NumberedPager::builder("pager")
-        .page_count_getter(|_ctx, _data| 4)
+        .page_count_getter(|_render_ctx| 4)
         .page_renderer(|page, _data| format!("{}", page + 1))
         .current_page_renderer(|page, _data| format!("[{}]", page + 1))
         .on_page_changed(OnPageChanged::new(|change| {
@@ -398,26 +418,26 @@ fn convenience_pager_wrappers_render_expected_targets() {
     let data = DataMap::new();
 
     let first = FirstPage::builder("pager")
-        .page_count_getter(|_ctx, _data| 4)
+        .page_count_getter(|_render_ctx| 4)
         .build();
     let prev = PrevPage::builder("pager")
-        .page_count_getter(|_ctx, _data| 4)
+        .page_count_getter(|_render_ctx| 4)
         .build();
     let current = CurrentPage::builder("pager")
-        .page_count_getter(|_ctx, _data| 4)
+        .page_count_getter(|_render_ctx| 4)
         .build();
     let next = NextPage::builder("pager")
-        .page_count_getter(|_ctx, _data| 4)
+        .page_count_getter(|_render_ctx| 4)
         .build();
     let last = LastPage::builder("pager")
-        .page_count_getter(|_ctx, _data| 4)
+        .page_count_getter(|_render_ctx| 4)
         .build();
 
-    let first_rows = first.render_keyboard(&ctx, &data).unwrap();
-    let prev_rows = prev.render_keyboard(&ctx, &data).unwrap();
-    let current_rows = current.render_keyboard(&ctx, &data).unwrap();
-    let next_rows = next.render_keyboard(&ctx, &data).unwrap();
-    let last_rows = last.render_keyboard(&ctx, &data).unwrap();
+    let first_rows = first.render_keyboard_for_test(&ctx, &data).unwrap();
+    let prev_rows = prev.render_keyboard_for_test(&ctx, &data).unwrap();
+    let current_rows = current.render_keyboard_for_test(&ctx, &data).unwrap();
+    let next_rows = next.render_keyboard_for_test(&ctx, &data).unwrap();
+    let last_rows = last.render_keyboard_for_test(&ctx, &data).unwrap();
 
     assert_eq!(&*first_rows.inline_keyboard().unwrap()[0][0].text, "<<");
     assert_eq!(&*prev_rows.inline_keyboard().unwrap()[0][0].text, "<");
@@ -464,25 +484,25 @@ fn convenience_pager_wrappers_allow_label_override() {
     let data = DataMap::new();
 
     let first = FirstPage::builder("pager")
-        .page_count_getter(|_ctx, _data| 4)
+        .page_count_getter(|_render_ctx| 4)
         .label("First".into())
         .build();
     let prev = PrevPage::builder("pager")
-        .page_count_getter(|_ctx, _data| 4)
+        .page_count_getter(|_render_ctx| 4)
         .label("Back".into())
         .build();
     let next = NextPage::builder("pager")
-        .page_count_getter(|_ctx, _data| 4)
+        .page_count_getter(|_render_ctx| 4)
         .label("More".into())
         .build();
     let last = LastPage::builder("pager")
-        .page_count_getter(|_ctx, _data| 4)
+        .page_count_getter(|_render_ctx| 4)
         .label("Final".into())
         .build();
 
     assert_eq!(
         &*first
-            .render_keyboard(&ctx, &data)
+            .render_keyboard_for_test(&ctx, &data)
             .unwrap()
             .inline_keyboard()
             .unwrap()[0][0]
@@ -491,7 +511,7 @@ fn convenience_pager_wrappers_allow_label_override() {
     );
     assert_eq!(
         &*prev
-            .render_keyboard(&ctx, &data)
+            .render_keyboard_for_test(&ctx, &data)
             .unwrap()
             .inline_keyboard()
             .unwrap()[0][0]
@@ -500,7 +520,7 @@ fn convenience_pager_wrappers_allow_label_override() {
     );
     assert_eq!(
         &*next
-            .render_keyboard(&ctx, &data)
+            .render_keyboard_for_test(&ctx, &data)
             .unwrap()
             .inline_keyboard()
             .unwrap()[0][0]
@@ -509,7 +529,7 @@ fn convenience_pager_wrappers_allow_label_override() {
     );
     assert_eq!(
         &*last
-            .render_keyboard(&ctx, &data)
+            .render_keyboard_for_test(&ctx, &data)
             .unwrap()
             .inline_keyboard()
             .unwrap()[0][0]

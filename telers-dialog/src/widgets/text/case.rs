@@ -1,5 +1,5 @@
 use super::Text;
-use crate::entities::{Context, DataMap};
+use crate::entities::{DataMap, RenderContext};
 
 /// Select one of several text variants based on a computed key.
 pub struct Case<Selector, Key> {
@@ -55,16 +55,16 @@ where
             .unwrap_or_default()
     }
 
-    fn render_text_in_context(&self, ctx: &Context, data: &DataMap) -> Box<str> {
-        let selected = (self.selector)(data);
+    fn render_text_in_context(&self, render_ctx: &RenderContext<'_>) -> Box<str> {
+        let selected = (self.selector)(render_ctx.data);
         self.variants
             .iter()
             .find(|(key, _)| *key == selected)
-            .map(|(_, text)| text.render_text_in_context(ctx, data))
+            .map(|(_, text)| text.render_text_in_context(render_ctx))
             .or_else(|| {
                 self.default
                     .as_ref()
-                    .map(|text| text.render_text_in_context(ctx, data))
+                    .map(|text| text.render_text_in_context(render_ctx))
             })
             .unwrap_or_default()
     }

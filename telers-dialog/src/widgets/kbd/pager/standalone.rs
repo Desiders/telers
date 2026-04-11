@@ -7,9 +7,9 @@ use super::{
     handle_pager_callback, read_page, render_direction_button, OnPageChanged, PageDirection,
     Scroll,
 };
-use crate::entities::{Context, DataMap};
+use crate::entities::{Context, DataMap, RenderContext};
 
-type DynPageCountGetter = Box<dyn Fn(&Context, &DataMap) -> usize + Send + Sync + 'static>;
+type DynPageCountGetter = Box<dyn for<'a> Fn(&RenderContext<'a>) -> usize + Send + Sync + 'static>;
 
 /// Builder input for standalone pager widgets.
 ///
@@ -63,8 +63,8 @@ where
     fn from(scroll: S) -> Self {
         let id = scroll.widget_id().to_owned().into();
         let on_page_changed = scroll.on_page_changed().cloned();
-        let page_count_getter = Box::new(move |ctx: &Context, data: &DataMap| -> usize {
-            scroll.get_page_count(ctx, data)
+        let page_count_getter = Box::new(move |render_ctx: &RenderContext<'_>| -> usize {
+            scroll.get_page_count(render_ctx)
         });
         Self {
             id,
@@ -113,7 +113,7 @@ impl<LabelRenderer, Label> SwitchPage<LabelRenderer, Label> {
     pub fn new(
         #[builder(start_fn, into)] binding: PagerBinding,
         direction: PageDirection,
-        #[builder(with = |page_count_getter: impl Fn(&Context, &DataMap) -> usize + Send + Sync + 'static| {
+        #[builder(with = |page_count_getter: impl for<'a> Fn(&RenderContext<'a>) -> usize + Send + Sync + 'static| {
             Box::new(page_count_getter)
         })]
         page_count_getter: Option<DynPageCountGetter>,
@@ -148,13 +148,14 @@ where
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context;
+        let data = render_ctx.data;
         if !self.is_visible(ctx, data) {
             return None;
         }
         render_direction_button(
-            ctx,
-            data,
+            render_ctx,
             &self.id,
             &self.page_count_getter,
             self.direction,
@@ -192,7 +193,7 @@ macro_rules! fixed_pager_type {
             #[must_use]
             pub fn new(
                 #[builder(start_fn, into)] binding: PagerBinding,
-                #[builder(with = |page_count_getter: impl Fn(&Context, &DataMap) -> usize + Send + Sync + 'static| {
+                #[builder(with = |page_count_getter: impl for<'a> Fn(&RenderContext<'a>) -> usize + Send + Sync + 'static| {
                     Box::new(page_count_getter)
                 })]
                 page_count_getter: Option<DynPageCountGetter>,
@@ -217,13 +218,14 @@ macro_rules! fixed_pager_type {
                 is_allowed(self.when.as_ref(), ctx, data)
             }
 
-            fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+            fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
+                let ctx = render_ctx.context;
+                let data = render_ctx.data;
                 if !self.is_visible(ctx, data) {
                     return None;
                 }
                 render_direction_button(
-                    ctx,
-                    data,
+                    render_ctx,
                     &self.id,
                     &self.page_count_getter,
                     $direction,
@@ -269,7 +271,7 @@ impl CurrentPage {
     #[must_use]
     pub fn new(
         #[builder(start_fn, into)] binding: PagerBinding,
-        #[builder(with = |page_count_getter: impl Fn(&Context, &DataMap) -> usize + Send + Sync + 'static| {
+        #[builder(with = |page_count_getter: impl for<'a> Fn(&RenderContext<'a>) -> usize + Send + Sync + 'static| {
             Box::new(page_count_getter)
         })]
         page_count_getter: Option<DynPageCountGetter>,
@@ -292,11 +294,13 @@ impl Keyboard for CurrentPage {
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context;
+        let data = render_ctx.data;
         if !self.is_visible(ctx, data) {
             return None;
         }
-        let pages_count = (self.page_count_getter)(ctx, data);
+        let pages_count = (self.page_count_getter)(render_ctx);
         if pages_count == 0 {
             return None;
         }
@@ -343,7 +347,7 @@ impl<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPageLabel>
     #[must_use]
     pub fn new(
         #[builder(start_fn, into)] binding: PagerBinding,
-        #[builder(with = |page_count_getter: impl Fn(&Context, &DataMap) -> usize + Send + Sync + 'static| {
+        #[builder(with = |page_count_getter: impl for<'a> Fn(&RenderContext<'a>) -> usize + Send + Sync + 'static| {
             Box::new(page_count_getter)
         })]
         page_count_getter: Option<DynPageCountGetter>,
@@ -386,11 +390,13 @@ where
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, ctx: &Context, data: &DataMap) -> Option<ReplyMarkup> {
+    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context;
+        let data = render_ctx.data;
         if !self.is_visible(ctx, data) {
             return None;
         }
-        let pages_count = (self.page_count_getter)(ctx, data);
+        let pages_count = (self.page_count_getter)(render_ctx);
         if pages_count == 0 {
             return None;
         }

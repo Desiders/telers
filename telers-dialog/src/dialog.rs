@@ -1,5 +1,5 @@
 use crate::{
-    entities::{Context, Data, DataMap, EventContext, LaunchMode, NewMessage},
+    entities::{Context, Data, LaunchMode, NewMessage, RenderContext},
     widgets::ButtonAction,
     IntoWindow, Window,
 };
@@ -41,13 +41,7 @@ pub trait Dialog: Send + Sync {
             .and_then(|index| states.get(index).map(String::as_str))
     }
 
-    fn render(
-        &self,
-        state: &str,
-        ctx: &Context,
-        data: &DataMap,
-        event_ctx: &EventContext,
-    ) -> Option<NewMessage>;
+    fn render(&self, state: &str, render_ctx: &RenderContext<'_>) -> Option<NewMessage>;
 
     #[must_use]
     fn handle_callback(
@@ -175,15 +169,9 @@ impl Dialog for DialogImpl {
         self.launch_mode
     }
 
-    fn render(
-        &self,
-        state: &str,
-        ctx: &Context,
-        data: &DataMap,
-        event_ctx: &EventContext,
-    ) -> Option<NewMessage> {
+    fn render(&self, state: &str, render_ctx: &RenderContext<'_>) -> Option<NewMessage> {
         self.get_window(state)
-            .map(|window| window.render(ctx, data, event_ctx))
+            .map(|window| window.render(render_ctx))
     }
 
     fn handle_callback(

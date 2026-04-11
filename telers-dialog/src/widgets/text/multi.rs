@@ -2,7 +2,7 @@ use bon::Builder;
 use std::borrow::Cow;
 
 use super::Text;
-use crate::entities::{Context, DataMap};
+use crate::entities::{DataMap, RenderContext};
 
 #[derive(Builder)]
 pub struct MultiText {
@@ -37,10 +37,10 @@ impl Text for MultiText {
             .into_boxed_str()
     }
 
-    fn render_text_in_context(&self, ctx: &Context, data: &DataMap) -> Box<str> {
+    fn render_text_in_context(&self, render_ctx: &RenderContext<'_>) -> Box<str> {
         self.items
             .iter()
-            .map(|item| item.render_text_in_context(ctx, data).into_string())
+            .map(|item| item.render_text_in_context(render_ctx).into_string())
             .collect::<Vec<_>>()
             .join(&self.separator)
             .into_boxed_str()
