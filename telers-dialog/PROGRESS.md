@@ -1,6 +1,6 @@
 # telers-dialog Progress Snapshot
 
-Updated: 2026-04-09 (UTC)
+Updated: 2026-04-11 (UTC)
 
 ## Goal
 - Build a focused, Rust-native dialog framework for `telers`.
@@ -21,6 +21,15 @@ Updated: 2026-04-09 (UTC)
 - Widget surface:
   - `src/widgets/link_preview.rs`
   - `src/widgets/text.rs`
+  - `src/widgets/text/`
+    - `base.rs`
+    - `case.rs`
+    - `format.rs`
+    - `list.rs`
+    - `multi.rs`
+    - `progress.rs`
+    - `scrolling.rs`
+    - `tests.rs`
   - `src/widgets/kbd/`
     - `action.rs`
     - `base.rs`
@@ -43,7 +52,6 @@ Updated: 2026-04-09 (UTC)
       - `toggle.rs`
   - `src/widgets/kbd.rs`
   - `src/widgets/input.rs`
-  - `src/widgets/list.rs`
   - `src/widgets/widget.rs`
 - Integration:
   - `src/setup.rs`
@@ -252,7 +260,7 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 
 ### Intentional differences
 - No router patching / hidden manager factories; integration stays explicit in `telers` observer middleware.
-- Smaller widget surface than Python library; core text/keyboard/input/list/select pieces are shipped.
+- Smaller widget surface than Python library; core text/keyboard/input/select pieces are shipped.
 - Rust APIs prioritize owned builder chaining and typed actions over dynamic handler patterns.
 - No `ManagedRadio`/`ManagedMultiselect` wrapper types; actions flow through `ButtonAction` enum.
 
@@ -310,6 +318,7 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
   - `dialogs_pager_widgets` carries built-in pager and standalone pager demos.
   - `dialogs_sync_scroll` demonstrates a related two-block page where one pager keeps a compact picker and a details block aligned.
 - `pager` and `stateful_select` are now split into finer-grained submodules under `src/widgets/kbd/`, while `pager.rs` and `stateful_select.rs` remain the module roots.
+- Text widgets are now split under `src/widgets/text/`, while `text.rs` remains the module root and public re-export layer.
 
 ## Planned follow-ups
 - Consider async/manager-aware result hooks beyond action-based `on_process_result`.

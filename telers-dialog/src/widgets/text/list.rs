@@ -57,23 +57,3 @@ where
             .into_boxed_str()
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::ListText;
-    use crate::{entities::DataMap, widgets::Text};
-
-    #[test]
-    fn list_text_renders_items_with_separator() {
-        let text = ListText::builder()
-            .items_getter(|_data| ["one", "two", "three"])
-            .item_renderer(|&item, _data| format!("- {item}"))
-            .separator(" | ")
-            .build();
-
-        assert_eq!(
-            &*text.render_text(&DataMap::new()),
-            "- one | - two | - three"
-        );
-    }
-}
