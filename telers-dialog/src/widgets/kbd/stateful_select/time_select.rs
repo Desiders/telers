@@ -1,6 +1,6 @@
 use bon::bon;
 use serde_json::json;
-use std::{borrow::Cow, fmt::Display};
+use std::{borrow::Cow, fmt::Display, sync::Arc};
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::debug;
 
@@ -10,11 +10,15 @@ use super::super::{
 };
 use crate::entities::{Context, DataMap, RenderContext};
 
+type TimeSelectValueRenderer = dyn Fn(u8, &DataMap) -> String + Send + Sync + 'static;
+
 /// Time picker storing the selected `(hour, minute)` pair in `widget_data`.
 pub struct TimeSelect<WidgetId> {
     id: WidgetId,
     hour_header: Cow<'static, str>,
     minute_header: Cow<'static, str>,
+    button_renderer: Arc<TimeSelectValueRenderer>,
+    selected_button_renderer: Arc<TimeSelectValueRenderer>,
     hour_width: usize,
     minute_precision: usize,
     minute_width: usize,
@@ -30,6 +34,20 @@ impl<WidgetId> TimeSelect<WidgetId> {
         #[builder(start_fn)] id: WidgetId,
         #[builder(default = "Hour".into())] hour_header: Cow<'static, str>,
         #[builder(default = "Minute".into())] minute_header: Cow<'static, str>,
+        #[builder(
+            default = Arc::new(default_button_renderer),
+            with = |button_renderer: impl Fn(u8, &DataMap) -> String + Send + Sync + 'static| {
+                Arc::new(button_renderer)
+            }
+        )]
+        button_renderer: Arc<TimeSelectValueRenderer>,
+        #[builder(
+            default = Arc::new(default_selected_button_renderer),
+            with = |selected_button_renderer: impl Fn(u8, &DataMap) -> String + Send + Sync + 'static| {
+                Arc::new(selected_button_renderer)
+            }
+        )]
+        selected_button_renderer: Arc<TimeSelectValueRenderer>,
         #[builder(default = 6)] hour_width: usize,
         #[builder(default = 5)] minute_precision: usize,
         #[builder(default = 6)] minute_width: usize,
@@ -42,6 +60,8 @@ impl<WidgetId> TimeSelect<WidgetId> {
             id,
             hour_header,
             minute_header,
+            button_renderer,
+            selected_button_renderer,
             hour_width,
             minute_precision,
             minute_width,
@@ -87,14 +107,15 @@ where
     fn value_button(
         &self,
         ctx: &Context,
+        data: &DataMap,
         prefix: &str,
         value: u8,
         is_selected: bool,
     ) -> InlineKeyboardButton {
         let text = if is_selected {
-            format!("[{value}]")
+            (self.selected_button_renderer)(value, data)
         } else {
-            format!("{value}")
+            (self.button_renderer)(value, data)
         };
         InlineKeyboardButton::new(text).callback_data(format_callback_data(
             ctx,
@@ -125,7 +146,9 @@ where
         for row in Self::rows(0, 24, 1, self.hour_width) {
             rows.push(
                 row.into_iter()
-                    .map(|hour| self.value_button(ctx, "h", hour, selected_hour == Some(hour)))
+                    .map(|hour| {
+                        self.value_button(ctx, data, "h", hour, selected_hour == Some(hour))
+                    })
                     .collect(),
             );
         }
@@ -135,7 +158,7 @@ where
             rows.push(
                 row.into_iter()
                     .map(|minute| {
-                        self.value_button(ctx, "m", minute, selected_minute == Some(minute))
+                        self.value_button(ctx, data, "m", minute, selected_minute == Some(minute))
                     })
                     .collect(),
             );
@@ -187,4 +210,12 @@ where
             json!([hour, minute]),
         ))
     }
+}
+
+fn default_button_renderer(value: u8, _data: &DataMap) -> String {
+    format!("{value:02}")
+}
+
+fn default_selected_button_renderer(value: u8, _data: &DataMap) -> String {
+    format!("[{value:02}]")
 }
