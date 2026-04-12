@@ -130,6 +130,7 @@ Updated: 2026-04-12 (UTC)
   - `FirstPage` / `PrevPage` / `CurrentPage` / `NextPage` / `LastPage`: convenience pager wrappers
   - `NumberedPager`: standalone numbered page row bound to shared page state
   - `StubScroll`: non-rendering scroll widget for standalone pagers
+  - `Calendar`: date picker with days/months/years scopes and `time::Date` callbacks
   - `ButtonAction::{Noop,Next,Back,SwitchTo,Start,Done,DoneWithResult,SetDialogData,SetDialogValue,SetWidgetData,SetWidgetValue,Chain}`
 - Input:
   - `MessageInput`
@@ -279,9 +280,7 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 - Dialog/window-level async result callbacks; current `on_process_result` is sync and action-based.
 
 ### Widget backlog (not implemented yet)
-- Keyboard widgets:
-  - `Calendar`
-- Text widgets:
+- No active missing-widget tasks after the intentionally skipped groups (`Jinja`, `ListGroup`, media-related widgets, and `managed*` wrappers).
 
 ## Test and validation status
 - In-source tests exist across manager/setup/widgets/message-manager/registry/window modules.
@@ -294,8 +293,9 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
   - `cargo check -p dialogs_stateful_select_widgets`
   - `cargo check -p dialogs_text_widgets`
   - `cargo check -p dialogs_sync_scroll`
+  - `cargo check -p dialogs_calendar_widget`
 - `telers-dialog` test target passed:
-  - **114 passed; 0 failed**.
+  - **127 passed; 0 failed**.
 - New test coverage includes:
   - Keyboard `WhenCondition`: render and callback filtering for hidden keyboards (1 test).
   - Convenience pager wrappers: render targets and callback payloads for first/prev/current/next/last controls (1 test).
@@ -317,6 +317,7 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
   - Request reply keyboards: contact/location/poll reply markup rendering and option propagation (3 tests).
   - TimeSelect: render/state behavior for header rows plus hour/minute callbacks (3 tests).
   - StubScroll: fixed/data-field/dynamic page counts plus callback handling without rendering markup (4 tests).
+  - Calendar: days/months/years rendering, first weekday configuration, dynamic per-user config, custom view/text renderers, scope navigation, month selection, date callbacks, hidden unavailable pager rows, and no-op callbacks for non-selectable inline buttons (13 tests).
   - Link preview widget: option rendering plus window integration (2 tests).
 
 ## Known gaps
@@ -328,11 +329,13 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
   - `dialogs_stateful_select_widgets` covers `Checkbox`, `Counter`, `Radio`, `Toggle`, and `Multiselect` with a realistic subscription-settings flow.
   - `dialogs_pager_widgets` carries built-in pager, `ScrollingGroup` binding, and `StubScroll` custom text demos.
   - `dialogs_sync_scroll` demonstrates a related two-block page where one pager keeps a compact picker and a details block aligned.
+  - `dialogs_calendar_widget` demonstrates a reservation-date picker where `Calendar` writes a selected `time::Date` string into dialog data for review.
 - `pager` and `stateful_select` are now split into finer-grained submodules under `src/widgets/kbd/`, while `pager.rs` and `stateful_select.rs` remain the module roots.
 - Text widgets are now split under `src/widgets/text/`, while `text.rs` remains the module root and public re-export layer.
 
 ## Planned follow-ups
 - Consider async/manager-aware result hooks beyond action-based `on_process_result`.
+- Add shared widget styling abstraction for Telegram button `style` and `icon_custom_emoji_id` instead of Calendar-specific styling.
 
 ## Recommended next slice
-1. Continue the missing-widget backlog with the remaining unresolved widget: `Calendar`.
+1. Add public API documentation for the new `Calendar` widget.
