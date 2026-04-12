@@ -6,10 +6,12 @@
 //! - collection widgets such as [`Select`], [`Radio`], and [`Multiselect`]
 //! - reply-keyboard request widgets such as [`RequestContact`]
 //! - paging helpers such as [`ScrollingGroup`] and [`NumberedPager`]
+//! - date selection with [`Calendar`]
 
 mod action;
 mod base;
 mod button;
+mod calendar;
 mod callback;
 mod click;
 mod group;
@@ -27,6 +29,10 @@ pub(crate) use select::render_button_row;
 pub use action::ButtonAction;
 pub use base::Keyboard;
 pub use button::Button;
+pub use calendar::{
+    Calendar, CalendarAppearance, CalendarButtonKind, CalendarConfig, CalendarDate, CalendarScope,
+    CalendarState, CalendarUserConfig, CalendarViewContext, CalendarViews,
+};
 pub use click::ClickContext;
 pub use group::Group;
 pub use inline_keyboard::InlineKeyboard;

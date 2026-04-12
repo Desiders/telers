@@ -11,7 +11,9 @@ pub(crate) use widget::ensure_widgets;
 
 pub use input::{Input, MessageInput, TextInput};
 pub use kbd::{
-    sync_scroll, sync_scrolls, BaseScroll, Button, ButtonAction, Checkbox, ClickContext, Counter,
+    sync_scroll, sync_scrolls, BaseScroll, Button, ButtonAction, Calendar, CalendarAppearance,
+    CalendarButtonKind, CalendarConfig, CalendarDate, CalendarScope, CalendarState,
+    CalendarUserConfig, CalendarViewContext, CalendarViews, Checkbox, ClickContext, Counter,
     CurrentPage, FirstPage, Group, InlineKeyboard, Keyboard, LastPage, Multiselect, NextPage,
     NumberedPager, OnPageChanged, PageChange, PageDirection, PagerBinding, PrevPage, Radio,
     RequestContact, RequestLocation, RequestPoll, Scroll, ScrollingGroup, Select, StubScroll,
