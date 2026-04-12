@@ -266,6 +266,39 @@ fn time_select_renders_headers_and_selected_values() {
 }
 
 #[test]
+fn time_select_zero_pads_default_labels() {
+    let mut ctx = Context::new("", "state", Value::Null);
+    ctx.widget_data.insert("pickup_time".into(), json!([0, 5]));
+    let picker = TimeSelect::builder("pickup_time").build();
+
+    let markup = picker
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
+    let rows = markup.inline_keyboard().unwrap();
+
+    assert!(rows.iter().flatten().any(|button| &*button.text == "[00]"));
+    assert!(rows.iter().flatten().any(|button| &*button.text == "[05]"));
+}
+
+#[test]
+fn time_select_allows_custom_value_renderers() {
+    let mut ctx = Context::new("", "state", Value::Null);
+    ctx.widget_data.insert("pickup_time".into(), json!([0, 5]));
+    let picker = TimeSelect::builder("pickup_time")
+        .button_renderer(|value, _data| format!("{value}"))
+        .selected_button_renderer(|value, _data| format!("*{value}*"))
+        .build();
+
+    let markup = picker
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
+    let rows = markup.inline_keyboard().unwrap();
+
+    assert!(rows.iter().flatten().any(|button| &*button.text == "*0*"));
+    assert!(rows.iter().flatten().any(|button| &*button.text == "*5*"));
+}
+
+#[test]
 fn time_select_hour_callback_updates_partial_value() {
     let ctx = Context::new("", "state", Value::Null);
     let picker = TimeSelect::builder("pickup_time").build();
