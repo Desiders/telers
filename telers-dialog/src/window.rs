@@ -1,6 +1,9 @@
 use crate::{
     entities::{Context, NewMessage, RenderContext, ShowMode},
-    widgets::{ensure_widgets, ButtonAction, Input, Keyboard, LinkPreviewWidget, Text, WidgetKind},
+    widgets::{
+        ensure_widgets, ButtonAction, ClickContext, Input, Keyboard, LinkPreviewWidget, Text,
+        WidgetKind,
+    },
 };
 use std::sync::Arc;
 use telers::types::{LinkPreviewOptions, Message};
@@ -8,7 +11,11 @@ use telers::types::{LinkPreviewOptions, Message};
 pub trait Window: Send + Sync {
     fn get_state(&self) -> &str;
     fn render(&self, render_ctx: &RenderContext<'_>) -> NewMessage;
-    fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction>;
+    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction>;
+    #[cfg(test)]
+    fn handle_callback_for_test(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+        ClickContext::with_test(ctx, callback_data, |click| self.handle_callback(click))
+    }
     fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction>;
 }
 
@@ -137,11 +144,11 @@ impl Window for WindowImpl {
         )
     }
 
-    fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
         self.keyboard
             .as_ref()
-            .filter(|kbd| kbd.is_visible(ctx, &ctx.dialog_data))
-            .and_then(|kbd| kbd.handle_callback(ctx, callback_data))
+            .filter(|kbd| kbd.is_visible(click.context, &click.context.dialog_data))
+            .and_then(|kbd| kbd.handle_callback(click))
     }
 
     fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction> {
@@ -236,7 +243,7 @@ mod tests {
         );
 
         let callback_action = window
-            .handle_callback(&ctx, &format!("td:{}:second", ctx.id))
+            .handle_callback_for_test(&ctx, &format!("td:{}:second", ctx.id))
             .expect("callback action");
         assert!(matches!(callback_action, ButtonAction::Back));
 

@@ -84,7 +84,7 @@ fn scrolling_group_pager_callback_sets_widget_value() {
     let pager = ScrollingGroup::builder("pager").height(3).kbd(kbd).build();
 
     let action = pager
-        .handle_callback(&ctx, &format!("td:{}:pager:2", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:pager:2", ctx.id))
         .unwrap();
 
     assert!(matches!(
@@ -101,7 +101,7 @@ fn scrolling_group_delegates_inner_callbacks() {
     let pager = ScrollingGroup::builder("pager").height(2).kbd(kbd).build();
 
     let action = pager
-        .handle_callback(&ctx, &format!("td:{}:btn_1", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:btn_1", ctx.id))
         .unwrap();
 
     assert!(matches!(action, ButtonAction::Noop));
@@ -278,7 +278,7 @@ fn numbered_pager_callback_sets_page() {
         .build();
 
     let action = pager
-        .handle_callback(&ctx, &format!("td:{}:pager:1", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:pager:1", ctx.id))
         .unwrap();
 
     assert!(matches!(
@@ -299,7 +299,7 @@ fn scrolling_group_sync_scroll_updates_other_widget_page() {
         .build();
 
     let action = pager
-        .handle_callback(&ctx, &format!("td:{}:pager:2", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:pager:2", ctx.id))
         .unwrap();
 
     let ButtonAction::Chain(actions) = action else {
@@ -329,7 +329,7 @@ fn numbered_pager_sync_scrolls_updates_multiple_widgets() {
         .build();
 
     let action = pager
-        .handle_callback(&ctx, &format!("td:{}:pager:3", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:pager:3", ctx.id))
         .unwrap();
 
     let ButtonAction::Chain(actions) = action else {
@@ -377,7 +377,7 @@ fn on_page_changed_can_use_widget_id_and_previous_page() {
         .build();
 
     let action = pager
-        .handle_callback(&ctx, &format!("td:{}:pager:3", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:pager:3", ctx.id))
         .unwrap();
 
     let ButtonAction::Chain(actions) = action else {

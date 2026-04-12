@@ -1,35 +1,54 @@
 use bon::bon;
-use std::{fmt::Display, marker::PhantomData};
+use std::{fmt::Display, marker::PhantomData, sync::Arc};
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::debug;
 
 use super::{
-    format_callback_data, parse_callback_data, when::is_allowed, Button, ButtonAction, Keyboard,
-    WhenCondition,
+    format_callback_data, parse_callback_data, when::is_allowed, Button, ButtonAction,
+    ClickContext, Keyboard, WhenCondition,
 };
 use crate::entities::{Context, DataMap, RenderContext};
+
+type SelectActionHandler = dyn Fn(&str) -> ButtonAction + Send + Sync + 'static;
+type SelectClickHandler =
+    dyn for<'a> Fn(&ClickContext<'a>, &str) -> ButtonAction + Send + Sync + 'static;
+
+#[derive(Clone)]
+enum SelectAction {
+    Action(Arc<SelectActionHandler>),
+    OnClick(Arc<SelectClickHandler>),
+}
+
+impl SelectAction {
+    fn action(handler: impl Fn(&str) -> ButtonAction + Send + Sync + 'static) -> Self {
+        Self::Action(Arc::new(handler))
+    }
+
+    fn on_click(
+        handler: impl for<'a> Fn(&ClickContext<'a>, &str) -> ButtonAction + Send + Sync + 'static,
+    ) -> Self {
+        Self::OnClick(Arc::new(handler))
+    }
+
+    fn call(&self, click: &ClickContext<'_>, payload: &str) -> ButtonAction {
+        match self {
+            Self::Action(handler) => handler(payload),
+            Self::OnClick(handler) => handler(click, payload),
+        }
+    }
+}
 
 /// Stateless list of selectable items.
 ///
 /// Each rendered item produces a callback payload derived from `id_getter`, and
-/// that payload is converted into a [`ButtonAction`] by `action`.
+/// that payload is converted into a [`ButtonAction`] by `action` or `on_click`.
 #[derive(Clone)]
-pub struct Select<
-    WidgetId,
-    ItemsGetter,
-    ItemsIter,
-    Item,
-    ItemRenderer,
-    ItemStr,
-    IdGetter,
-    Id,
-    Action,
-> {
+pub struct Select<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id> {
     id: WidgetId,
     items_getter: ItemsGetter,
     item_renderer: ItemRenderer,
     id_getter: IdGetter,
-    action: Action,
+    action: SelectAction,
     header_rows: Vec<Vec<Button>>,
     footer_rows: Vec<Vec<Button>>,
     when: Option<WhenCondition>,
@@ -38,8 +57,8 @@ pub struct Select<
 }
 
 #[bon]
-impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id, Action>
-    Select<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id, Action>
+impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id>
+    Select<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id>
 {
     #[builder]
     #[must_use]
@@ -51,7 +70,14 @@ impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id
         items_getter: ItemsGetter,
         item_renderer: ItemRenderer,
         id_getter: IdGetter,
-        action: Action,
+        #[builder(with = |action: impl Fn(&str) -> ButtonAction + Send + Sync + 'static| {
+            SelectAction::action(action)
+        })]
+        action: Option<SelectAction>,
+        #[builder(with = |on_click: impl for<'a> Fn(&ClickContext<'a>, &str) -> ButtonAction + Send + Sync + 'static| {
+            SelectAction::on_click(on_click)
+        })]
+        on_click: Option<SelectAction>,
         when: Option<WhenCondition>,
     ) -> Self
     where
@@ -62,8 +88,10 @@ impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id
         ItemStr: Into<Box<str>>,
         IdGetter: Fn(Item) -> Id,
         Id: Display,
-        Action: Fn(&str) -> ButtonAction,
     {
+        let action = on_click
+            .or(action)
+            .expect("Select requires `action` or `on_click`");
         Self {
             id,
             items_getter,
@@ -78,19 +106,8 @@ impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id
     }
 }
 
-impl<S, WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id, Action>
-    SelectBuilder<
-        WidgetId,
-        ItemsGetter,
-        ItemsIter,
-        Item,
-        ItemRenderer,
-        ItemStr,
-        IdGetter,
-        Id,
-        Action,
-        S,
-    >
+impl<S, WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id>
+    SelectBuilder<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id, S>
 where
     S: select_builder::State,
     WidgetId: Display,
@@ -100,7 +117,6 @@ where
     ItemStr: Into<Box<str>>,
     IdGetter: Fn(Item) -> Id,
     Id: Display,
-    Action: Fn(&str) -> ButtonAction,
 {
     /// Append a full header row before the selectable items.
     pub fn header_row(mut self, buttons: impl IntoIterator<Item = Button>) -> Self {
@@ -133,8 +149,8 @@ where
     }
 }
 
-impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id, Action> Keyboard
-    for Select<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id, Action>
+impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id> Keyboard
+    for Select<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id>
 where
     WidgetId: Display + Send + Sync + 'static,
     ItemsGetter: Fn(&DataMap) -> ItemsIter + Send + Sync + 'static,
@@ -144,7 +160,6 @@ where
     ItemStr: Into<Box<str>> + 'static,
     IdGetter: Fn(Item) -> Id + Send + Sync + 'static,
     Id: Display + Send + Sync + 'static,
-    Action: Fn(&str) -> ButtonAction + Send + Sync + 'static,
 {
     fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
         is_allowed(self.when.as_ref(), ctx, data)
@@ -190,7 +205,9 @@ where
         }
     }
 
-    fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
+        let ctx = click.context;
+        let callback_data = click.callback_data;
         let data = &ctx.dialog_data;
         if !self.is_visible(ctx, data) {
             return None;
@@ -200,7 +217,7 @@ where
             .iter()
             .chain(self.footer_rows.iter())
             .flat_map(|row| row.iter())
-            .find_map(|button| button.resolve_callback(ctx, callback_data))
+            .find_map(|button| button.resolve_callback(click))
         {
             return Some(action);
         }
@@ -211,7 +228,7 @@ where
         }
         let payload = parsed.payload?;
         debug!(context_id = %ctx.id, widget_id = %self.id, "Resolved select callback");
-        Some((self.action)(payload))
+        Some(self.action.call(click, payload))
     }
 }
 

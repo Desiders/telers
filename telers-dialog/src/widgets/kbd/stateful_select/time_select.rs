@@ -5,8 +5,8 @@ use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::debug;
 
 use super::super::{
-    format_callback_data, parse_callback_data, when::is_allowed, ButtonAction, Keyboard,
-    WhenCondition,
+    format_callback_data, parse_callback_data, when::is_allowed, ButtonAction, ClickContext,
+    Keyboard, WhenCondition,
 };
 use crate::entities::{Context, DataMap, RenderContext};
 
@@ -144,7 +144,9 @@ where
         Some(InlineKeyboardMarkup::new(rows).into())
     }
 
-    fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
+        let ctx = click.context;
+        let callback_data = click.callback_data;
         let data = &ctx.dialog_data;
         if !self.is_visible(ctx, data) {
             return None;

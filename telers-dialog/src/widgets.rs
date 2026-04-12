@@ -11,11 +11,11 @@ pub(crate) use widget::ensure_widgets;
 
 pub use input::{Input, MessageInput, TextInput};
 pub use kbd::{
-    sync_scroll, sync_scrolls, BaseScroll, Button, ButtonAction, Checkbox, Counter, CurrentPage,
-    FirstPage, Group, InlineKeyboard, Keyboard, LastPage, Multiselect, NextPage, NumberedPager,
-    OnPageChanged, PageChange, PageDirection, PagerBinding, PrevPage, Radio, RequestContact,
-    RequestLocation, RequestPoll, Scroll, ScrollingGroup, Select, SwitchPage, TimeSelect, Toggle,
-    WhenCondition,
+    sync_scroll, sync_scrolls, BaseScroll, Button, ButtonAction, Checkbox, ClickContext, Counter,
+    CurrentPage, FirstPage, Group, InlineKeyboard, Keyboard, LastPage, Multiselect, NextPage,
+    NumberedPager, OnPageChanged, PageChange, PageDirection, PagerBinding, PrevPage, Radio,
+    RequestContact, RequestLocation, RequestPoll, Scroll, ScrollingGroup, Select, SwitchPage,
+    TimeSelect, Toggle, WhenCondition,
 };
 pub use link_preview::{LinkPreview, LinkPreviewWidget};
 pub use text::{Case, ListText, MultiText, Progress, ScrollingText, Text};

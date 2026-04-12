@@ -5,15 +5,18 @@ use telers::types::{
 };
 use tracing::debug;
 
-use super::{format_callback_data, parse_callback_data, ButtonAction};
+use super::{format_callback_data, parse_callback_data, ButtonAction, ClickContext};
 use crate::{
-    entities::{Context, Data, RenderContext, StartMode},
+    entities::{Data, RenderContext, StartMode},
     widgets::Text,
 };
+
+type ButtonClickHandler = dyn for<'a> Fn(&ClickContext<'a>) -> ButtonAction + Send + Sync + 'static;
 
 #[derive(Clone)]
 enum ButtonKind {
     Callback(ButtonAction),
+    OnClick(Arc<ButtonClickHandler>),
     Url(Cow<'static, str>),
     WebApp(WebAppInfo),
     LoginUrl(LoginUrl),
@@ -41,6 +44,20 @@ impl Button {
             id: id.into(),
             text: Arc::new(text),
             kind: ButtonKind::Callback(action),
+        }
+    }
+
+    /// Create a callback button with a synchronous click handler.
+    #[must_use]
+    pub fn on_click(
+        id: impl Into<Cow<'static, str>>,
+        text: impl Text,
+        handler: impl for<'a> Fn(&ClickContext<'a>) -> ButtonAction + Send + Sync + 'static,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            text: Arc::new(text),
+            kind: ButtonKind::OnClick(Arc::new(handler)),
         }
     }
 
@@ -192,7 +209,7 @@ impl Button {
         let ctx = render_ctx.context;
         let button = InlineKeyboardButton::new(self.text.render_text_in_context(render_ctx));
         match &self.kind {
-            ButtonKind::Callback(_) => {
+            ButtonKind::Callback(_) | ButtonKind::OnClick(_) => {
                 button.callback_data(format_callback_data(ctx, &self.id, None))
             }
             ButtonKind::Url(url) => button.url(url.clone()),
@@ -209,12 +226,9 @@ impl Button {
         }
     }
 
-    pub(crate) fn resolve_callback(
-        &self,
-        ctx: &Context,
-        callback_data: &str,
-    ) -> Option<ButtonAction> {
-        let parsed = parse_callback_data(ctx, callback_data)?;
+    pub(crate) fn resolve_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
+        let ctx = click.context;
+        let parsed = parse_callback_data(ctx, click.callback_data)?;
         if parsed.target_id != self.id.as_ref() || parsed.payload.is_some() {
             return None;
         }
@@ -222,6 +236,10 @@ impl Button {
             ButtonKind::Callback(action) => {
                 debug!(context_id = %ctx.id, button_id = %self.id, "Resolved button callback");
                 Some(action.clone())
+            }
+            ButtonKind::OnClick(handler) => {
+                debug!(context_id = %ctx.id, button_id = %self.id, "Resolved button click handler");
+                Some(handler(click))
             }
             ButtonKind::Url(_)
             | ButtonKind::WebApp(_)

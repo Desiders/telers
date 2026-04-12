@@ -6,7 +6,7 @@ use tracing::debug;
 
 use super::super::{
     format_callback_data, parse_callback_data, render_button_row, when::is_allowed, Button,
-    ButtonAction, Keyboard, WhenCondition,
+    ButtonAction, ClickContext, Keyboard, WhenCondition,
 };
 use crate::{
     entities::{Context, DataMap, RenderContext},
@@ -148,7 +148,9 @@ where
         Some(InlineKeyboardMarkup::new(rows).into())
     }
 
-    fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
+        let ctx = click.context;
+        let callback_data = click.callback_data;
         let data = &ctx.dialog_data;
         if !self.is_visible(ctx, data) {
             return None;
@@ -158,7 +160,7 @@ where
             .iter()
             .chain(self.footer_rows.iter())
             .flat_map(|row| row.iter())
-            .find_map(|button| button.resolve_callback(ctx, callback_data))
+            .find_map(|button| button.resolve_callback(click))
         {
             return Some(action);
         }
