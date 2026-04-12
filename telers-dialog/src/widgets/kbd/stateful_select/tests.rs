@@ -315,6 +315,32 @@ fn time_select_hour_callback_updates_partial_value() {
 }
 
 #[test]
+fn time_select_hour_callback_runs_click_handler() {
+    let ctx = Context::new("", "state", Value::Null);
+    let picker = TimeSelect::builder("pickup_time")
+        .on_hour_click(|_click, hour| ButtonAction::set_dialog_value("selected_hour", hour))
+        .build();
+
+    let action = picker
+        .handle_callback_for_test(&ctx, &format!("td:{}:pickup_time:h8", ctx.id))
+        .unwrap();
+
+    let ButtonAction::Chain(actions) = action else {
+        panic!("expected chain action");
+    };
+    assert!(matches!(
+        actions[0],
+        ButtonAction::SetWidgetValue { ref key, ref value }
+            if key.as_ref() == "pickup_time" && value == &json!([8, null])
+    ));
+    assert!(matches!(
+        actions[1],
+        ButtonAction::SetDialogValue { ref key, ref value }
+            if key.as_ref() == "selected_hour" && value == &json!(8)
+    ));
+}
+
+#[test]
 fn time_select_minute_callback_preserves_selected_hour() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data
@@ -331,6 +357,35 @@ fn time_select_minute_callback_preserves_selected_hour() {
         action,
         ButtonAction::SetWidgetValue { ref key, ref value }
             if key.as_ref() == "pickup_time" && value == &json!([13, 30])
+    ));
+}
+
+#[test]
+fn time_select_minute_callback_runs_click_handler() {
+    let mut ctx = Context::new("", "state", Value::Null);
+    ctx.widget_data
+        .insert("pickup_time".into(), json!([13, null]));
+    let picker = TimeSelect::builder("pickup_time")
+        .on_minute_click(|_click, minute| ButtonAction::set_dialog_value("selected_minute", minute))
+        .minute_precision(15)
+        .build();
+
+    let action = picker
+        .handle_callback_for_test(&ctx, &format!("td:{}:pickup_time:m45", ctx.id))
+        .unwrap();
+
+    let ButtonAction::Chain(actions) = action else {
+        panic!("expected chain action");
+    };
+    assert!(matches!(
+        actions[0],
+        ButtonAction::SetWidgetValue { ref key, ref value }
+            if key.as_ref() == "pickup_time" && value == &json!([13, 45])
+    ));
+    assert!(matches!(
+        actions[1],
+        ButtonAction::SetDialogValue { ref key, ref value }
+            if key.as_ref() == "selected_minute" && value == &json!(45)
     ));
 }
 
