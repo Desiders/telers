@@ -1,4 +1,7 @@
-//! Request widget examples for `telers-dialog`.
+//! Pop-up launch request-widget example for `telers-dialog`.
+//!
+//! Shows contact, location, and poll request keyboards. `one_time_keyboard`
+//! only asks Telegram clients to hide the keyboard.
 //!
 //! Run with:
 //! ```bash
@@ -51,8 +54,8 @@ fn registry() -> DialogRegistry {
                 format_text(
                     "Pop-up Launch Setup\n\nStep 1 of 3. Ask the event lead to share the public \
                      phone number attendees can use on launch day.\n\n[Request] `RequestContact` \
-                     shows a reply-keyboard button and this window advances after a \
-                     `MessageContact` update",
+                     shows a reply-keyboard button; `MessageInput` receives the shared contact \
+                     and advances the flow.",
                 ),
                 keyboard(
                     RequestContact::builder("Share launch contact")
@@ -83,8 +86,8 @@ fn registry() -> DialogRegistry {
                 format_text(
                     "Pop-up Launch Setup\n\nStep 2 of 3. Drop the exact map pin for the pickup \
                      point so the launch card can show where guests should arrive.\n\n[Request] \
-                     `RequestLocation` gives a reply-keyboard location button and advances after \
-                     a `MessageLocation` update",
+                     `RequestLocation` gives a reply-keyboard location button; `MessageInput` \
+                     receives the map pin and advances the flow.",
                 ),
                 keyboard(
                     RequestLocation::builder("Share pickup pin")
@@ -113,8 +116,8 @@ fn registry() -> DialogRegistry {
                 format_text(
                     "Pop-up Launch Setup\n\nStep 3 of 3. Create the quick guest poll that will \
                      run in the launch chat after the event opens.\n\n[Request] `RequestPoll` \
-                     asks Telegram to create a native poll and advances after a `MessagePoll` \
-                     update",
+                     asks Telegram to create a native poll; `MessageInput` receives the poll and \
+                     advances the flow.",
                 ),
                 keyboard(
                     RequestPoll::builder("Create guest poll")
