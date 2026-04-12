@@ -1,6 +1,6 @@
 # telers-dialog Progress Snapshot
 
-Updated: 2026-04-11 (UTC)
+Updated: 2026-04-12 (UTC)
 
 ## Goal
 - Build a focused, Rust-native dialog framework for `telers`.
@@ -129,6 +129,7 @@ Updated: 2026-04-11 (UTC)
   - `SwitchPage`: standalone pager button bound to shared page state
   - `FirstPage` / `PrevPage` / `CurrentPage` / `NextPage` / `LastPage`: convenience pager wrappers
   - `NumberedPager`: standalone numbered page row bound to shared page state
+  - `StubScroll`: non-rendering scroll widget for standalone pagers
   - `ButtonAction::{Noop,Next,Back,SwitchTo,Start,Done,DoneWithResult,SetDialogData,SetDialogValue,SetWidgetData,SetWidgetValue,Chain}`
 - Input:
   - `MessageInput`
@@ -228,8 +229,10 @@ Updated: 2026-04-11 (UTC)
 - `SwitchPage::builder("pager_id")...build()` renders a single button targeting first/prev/current/next/last page using shared page state in `widget_data`.
 - `FirstPage`, `PrevPage`, `CurrentPage`, `NextPage`, and `LastPage` provide default-label convenience wrappers over the same shared page-state contract.
 - `NumberedPager::builder("pager_id")...build()` renders numbered page buttons and highlights the current page with a separate renderer.
+- `StubScroll::builder("pager_id").pages(...).build()` provides page state and page count without rendering a keyboard, for cases where standalone pagers control content rendered elsewhere.
+- `StubScroll` accepts a fixed page count, a dialog data field name, or `StubScrollPages::getter(...)` for dynamic page counts.
 - Page-count closures now receive both `ctx` and `data`, so standalone pagers can follow context-sensitive scroll widgets cleanly.
-- Standalone pagers can be built either from a plain widget id or directly from a `Scroll` widget through the same `builder(...)` entry point; `dialogs_pager_widgets` and `dialogs_sync_scroll` use this for `ScrollingGroup` bindings.
+- Standalone pagers can be built either from a plain widget id or directly from a `Scroll` widget through the same `builder(...)` entry point; `dialogs_pager_widgets` demonstrates both `ScrollingGroup` bindings and a `StubScroll`-driven custom text preview.
 - All pager widgets support `on_page_changed(...)` for page-change side effects.
 - Rich hooks can inspect `PageChange { widget_id, old_page, new_page }`.
 - Both widgets reuse the same callback/state contract as `ScrollingGroup`, so they can coordinate through a shared widget id.
@@ -278,7 +281,6 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 ### Widget backlog (not implemented yet)
 - Keyboard widgets:
   - `Calendar`
-  - `StubScroll`
 - Text widgets:
 
 ## Test and validation status
@@ -293,7 +295,7 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
   - `cargo check -p dialogs_text_widgets`
   - `cargo check -p dialogs_sync_scroll`
 - `telers-dialog` test target passed:
-  - **104 passed; 0 failed**.
+  - **114 passed; 0 failed**.
 - New test coverage includes:
   - Keyboard `WhenCondition`: render and callback filtering for hidden keyboards (1 test).
   - Convenience pager wrappers: render targets and callback payloads for first/prev/current/next/last controls (1 test).
@@ -314,6 +316,7 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
   - Simple widget additions: `Checkbox` render/toggle behavior and inline non-callback button variants (4 tests).
   - Request reply keyboards: contact/location/poll reply markup rendering and option propagation (3 tests).
   - TimeSelect: render/state behavior for header rows plus hour/minute callbacks (3 tests).
+  - StubScroll: fixed/data-field/dynamic page counts plus callback handling without rendering markup (4 tests).
   - Link preview widget: option rendering plus window integration (2 tests).
 
 ## Known gaps
@@ -323,7 +326,7 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
   - `dialogs_request_widgets` demonstrates a pop-up launch setup flow for `RequestContact`, `RequestLocation`, and `RequestPoll`.
   - `dialogs_select_widget` stays a beginner `Select` example.
   - `dialogs_stateful_select_widgets` covers `Checkbox`, `Counter`, `Radio`, `Toggle`, and `Multiselect` with a realistic subscription-settings flow.
-  - `dialogs_pager_widgets` carries built-in pager and standalone pager demos.
+  - `dialogs_pager_widgets` carries built-in pager, `ScrollingGroup` binding, and `StubScroll` custom text demos.
   - `dialogs_sync_scroll` demonstrates a related two-block page where one pager keeps a compact picker and a details block aligned.
 - `pager` and `stateful_select` are now split into finer-grained submodules under `src/widgets/kbd/`, while `pager.rs` and `stateful_select.rs` remain the module roots.
 - Text widgets are now split under `src/widgets/text/`, while `text.rs` remains the module root and public re-export layer.
@@ -332,4 +335,4 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 - Consider async/manager-aware result hooks beyond action-based `on_process_result`.
 
 ## Recommended next slice
-1. Continue the missing-widget backlog with the remaining unresolved widgets: `Calendar` and `StubScroll`.
+1. Continue the missing-widget backlog with the remaining unresolved widget: `Calendar`.
