@@ -2,7 +2,8 @@ use serde_json::{json, Value};
 
 use super::{
     sync_scroll, sync_scrolls, CurrentPage, FirstPage, LastPage, NextPage, NumberedPager,
-    OnPageChanged, PageDirection, PrevPage, ScrollingGroup, SwitchPage,
+    OnPageChanged, PageDirection, PrevPage, ScrollingGroup, StubScroll, StubScrollPages,
+    SwitchPage,
 };
 use crate::{
     entities::{Context, DataMap},
@@ -536,4 +537,93 @@ fn convenience_pager_wrappers_allow_label_override() {
             .text,
         "Final"
     );
+}
+
+#[test]
+fn stub_scroll_binds_numbered_pager_to_fixed_page_count() {
+    let mut ctx = Context::new("", "state", Value::Null);
+    ctx.widget_data.insert("catalog_page".into(), json!(2));
+    let stub = StubScroll::builder("catalog_page").pages(4_usize).build();
+    let pager = NumberedPager::builder(stub)
+        .page_renderer(|page, _data| format!("{}", page + 1))
+        .current_page_renderer(|page, _data| format!("[{}]", page + 1))
+        .length(4)
+        .build();
+
+    let markup = pager
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .unwrap();
+    let rows = markup.inline_keyboard().unwrap();
+
+    assert_eq!(&*rows[0][0].text, "1");
+    assert_eq!(&*rows[0][1].text, "2");
+    assert_eq!(&*rows[0][2].text, "[3]");
+    assert_eq!(&*rows[0][3].text, "4");
+}
+
+#[test]
+fn stub_scroll_reads_page_count_from_data_field() {
+    let ctx = Context::new("", "state", Value::Null);
+    let mut data = DataMap::new();
+    data.insert("page_count".into(), json!(3));
+    let stub = StubScroll::builder("catalog_page")
+        .pages("page_count")
+        .build();
+    let pager = NumberedPager::builder(stub)
+        .page_renderer(|page, _data| format!("{}", page + 1))
+        .current_page_renderer(|page, _data| format!("[{}]", page + 1))
+        .build();
+
+    let markup = pager.render_keyboard_for_test(&ctx, &data).unwrap();
+    let rows = markup.inline_keyboard().unwrap();
+
+    assert_eq!(rows[0].len(), 3);
+    assert_eq!(&*rows[0][0].text, "[1]");
+    assert_eq!(&*rows[0][2].text, "3");
+}
+
+#[test]
+fn stub_scroll_accepts_dynamic_page_getter() {
+    let ctx = Context::new("", "state", Value::Null);
+    let mut data = DataMap::new();
+    data.insert("items".into(), json!(7));
+    let stub = StubScroll::builder("catalog_page")
+        .pages(StubScrollPages::getter(|render_ctx| {
+            let items = render_ctx
+                .data
+                .get("items")
+                .and_then(Value::as_u64)
+                .unwrap_or_default();
+            usize::try_from(items.div_ceil(3)).unwrap()
+        }))
+        .build();
+    let pager = NumberedPager::builder(stub)
+        .page_renderer(|page, _data| format!("{}", page + 1))
+        .current_page_renderer(|page, _data| format!("[{}]", page + 1))
+        .build();
+
+    let markup = pager.render_keyboard_for_test(&ctx, &data).unwrap();
+    let rows = markup.inline_keyboard().unwrap();
+
+    assert_eq!(rows[0].len(), 3);
+}
+
+#[test]
+fn stub_scroll_handles_page_callbacks_without_rendering_markup() {
+    let ctx = Context::new("", "state", Value::Null);
+    let stub = StubScroll::builder("catalog_page").pages(4_usize).build();
+
+    assert!(stub
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .is_none());
+
+    let action = stub
+        .handle_callback_for_test(&ctx, &format!("td:{}:catalog_page:2", ctx.id))
+        .unwrap();
+
+    assert!(matches!(
+        action,
+        ButtonAction::SetWidgetValue { ref key, ref value }
+            if key.as_ref() == "catalog_page" && value == &json!(2)
+    ));
 }

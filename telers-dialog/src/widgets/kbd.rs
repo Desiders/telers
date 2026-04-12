@@ -33,7 +33,7 @@ pub use inline_keyboard::InlineKeyboard;
 pub use pager::{
     sync_scroll, sync_scrolls, BaseScroll, CurrentPage, FirstPage, LastPage, NextPage,
     NumberedPager, OnPageChanged, PageChange, PageDirection, PagerBinding, PrevPage, Scroll,
-    ScrollingGroup, SwitchPage,
+    ScrollingGroup, StubScroll, StubScrollPages, SwitchPage,
 };
 pub use request::{RequestContact, RequestLocation, RequestPoll};
 pub use select::Select;
