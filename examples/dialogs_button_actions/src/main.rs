@@ -1,4 +1,7 @@
-//! Button helper examples for `telers-dialog`.
+//! Checkout callback handler example for `telers-dialog`.
+//!
+//! Demonstrates `Button::on_click` in a cart flow where the button validates
+//! dialog data before it either places the order or shows a correction message.
 //!
 //! Run with:
 //! ```bash
@@ -17,7 +20,8 @@ use telers::{
 };
 use telers_dialog::{
     dialog,
-    widgets::{format_text, keyboard, text, Button, ButtonAction, InlineKeyboard},
+    entities::DataMap,
+    widgets::{fn_text, keyboard, Button, ButtonAction, InlineKeyboard},
     window, DialogManager, DialogObserverExt, DialogRegistry, StartMode,
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
@@ -25,6 +29,36 @@ use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt
 const START_STATE: &str = "cart";
 
 type Manager = DialogManager<MemoryStorage>;
+
+fn text_value<'a>(data: &'a DataMap, key: &str, fallback: &'a str) -> &'a str {
+    data.get(key).and_then(Value::as_str).unwrap_or(fallback)
+}
+
+fn cart_text(data: &DataMap) -> Box<str> {
+    let delivery = text_value(data, "delivery_method", "not selected");
+    let note = text_value(
+        data,
+        "cart_notice",
+        "Choose delivery before placing the order.",
+    );
+    format!(
+        "Coffee Subscription Checkout\n\nItem: House Blend subscription\nPrice: $12.00\nDelivery: \
+         {delivery}\n\n{note}\n\n[Handler] `Button::on_click` reads dialog data and decides \
+         whether to place the order or show a validation message."
+    )
+    .into_boxed_str()
+}
+
+fn order_placed_text(data: &DataMap) -> Box<str> {
+    let delivery = text_value(data, "delivery_method", "not selected");
+    format!(
+        "Order Placed\n\nItem: House Blend subscription\nDelivery: {delivery}\n\nThe checkout \
+         handler accepted the order because the required delivery option was \
+         selected.\n\n[Handler] The same button would keep the user on the cart screen if \
+         delivery was missing."
+    )
+    .into_boxed_str()
+}
 
 async fn handle_start(bot: Bot, manager: Manager) -> HandlerResult<()> {
     let _ = manager
@@ -40,51 +74,75 @@ async fn handle_start(bot: Bot, manager: Manager) -> HandlerResult<()> {
 }
 
 fn registry() -> DialogRegistry {
-    let checkout_dialog = dialog([
+    let dialog = dialog([
         window(
             "cart",
             [
-                format_text(
-                    "Checkout Draft\n\nItem: House Blend\nPrice: $12.00\nDelivery: \
-                     {delivery}\nOrder status: {order_status}\n\n[Helpers] `next`, `start`, `done`",
-                ),
+                fn_text(cart_text),
                 keyboard(
                     InlineKeyboard::builder()
-                        .row([Button::next("delivery_step", "Choose delivery")])
-                        .row([Button::start(
-                            "confirm",
-                            "Confirm order",
-                            "confirm_order",
-                            Value::Null,
-                            StartMode::Normal,
+                        .row([Button::switch_to(
+                            "select_delivery_method",
+                            "Choose delivery",
+                            "delivery_method",
                         )])
+                        .row([Button::on_click("place_order", "Place order", |click| {
+                            if click.dialog_data().get("delivery_method").is_none() {
+                                ButtonAction::set_dialog_value(
+                                    "cart_notice",
+                                    "Select pickup or courier delivery before placing the order.",
+                                )
+                            } else {
+                                ButtonAction::chain([
+                                    ButtonAction::set_dialog_value(
+                                        "cart_notice",
+                                        "Order accepted.",
+                                    ),
+                                    ButtonAction::switch_to("order_placed"),
+                                ])
+                            }
+                        })])
                         .row([Button::done("close", "Close draft")])
                         .build(),
                 ),
             ],
         ),
         window(
-            "delivery",
+            "delivery_method",
             [
-                format_text(
-                    "Delivery Step\n\nCurrent delivery: {delivery}\n\nChoose how the order should \
-                     arrive.\n\n[Helpers] `set_dialog_value`, `switch_to`, `back`",
-                ),
+                fn_text(|data: &DataMap| {
+                    let delivery = text_value(data, "delivery_method", "not selected");
+                    format!(
+                        "Delivery Method\n\nCurrent delivery: {delivery}\n\nChoose how the \
+                         subscription should arrive. The button writes the selected method and \
+                         returns to the cart.\n\n[Action] `ButtonAction::chain` stores the value \
+                         and switches back to the main screen."
+                    )
+                    .into_boxed_str()
+                }),
                 keyboard(
                     InlineKeyboard::builder()
                         .row([Button::action(
                             "pickup",
-                            "Pickup",
+                            "Pickup from cafe",
                             ButtonAction::chain([
-                                ButtonAction::set_dialog_value("delivery", "pickup"),
+                                ButtonAction::set_dialog_value("delivery_method", "pickup"),
+                                ButtonAction::set_dialog_value(
+                                    "cart_notice",
+                                    "Pickup selected. The order is ready to place.",
+                                ),
                                 ButtonAction::switch_to("cart"),
                             ]),
                         )])
                         .row([Button::action(
                             "courier",
-                            "Courier",
+                            "Courier delivery",
                             ButtonAction::chain([
-                                ButtonAction::set_dialog_value("delivery", "courier"),
+                                ButtonAction::set_dialog_value("delivery_method", "courier"),
+                                ButtonAction::set_dialog_value(
+                                    "cart_notice",
+                                    "Courier delivery selected. The order is ready to place.",
+                                ),
                                 ButtonAction::switch_to("cart"),
                             ]),
                         )])
@@ -94,66 +152,20 @@ fn registry() -> DialogRegistry {
             ],
         ),
         window(
-            "done",
+            "order_placed",
             [
-                format_text(
-                    "Order Finished\n\nItem: House Blend\nPrice: $12.00\nDelivery: \
-                     {delivery}\nOrder status: {order_status}\n\n[Helper] `done`",
-                ),
+                fn_text(order_placed_text),
                 keyboard(
                     InlineKeyboard::builder()
+                        .row([Button::switch_to("back_to_cart", "Back to cart", "cart")])
                         .row([Button::done("close", "Close")])
                         .build(),
                 ),
             ],
         ),
-    ])
-    .on_process_result(|_ctx, _start_data, result| {
-        let status = match result.as_str() {
-            Some("confirmed") => "confirmed",
-            Some("changed_mind") => "draft",
-            _ => "draft",
-        };
-        let next_state = match result.as_str() {
-            Some("confirmed") => "done",
-            _ => "cart",
-        };
+    ]);
 
-        Some(ButtonAction::chain([
-            ButtonAction::set_dialog_value("order_status", status),
-            ButtonAction::switch_to(next_state),
-        ]))
-    });
-
-    let confirm_dialog = dialog([window(
-        "confirm_order",
-        [
-            text(
-                "Confirm Order\n\nPlace the order now or return to editing.\n\n[Helper] \
-                 `done_with_result`",
-            ),
-            keyboard(
-                InlineKeyboard::builder()
-                    .row([Button::done_with_result(
-                        "confirm_order",
-                        "Place order",
-                        "confirmed",
-                    )])
-                    .row([Button::done_with_result(
-                        "keep_editing",
-                        "Keep editing",
-                        "changed_mind",
-                    )])
-                    .build(),
-            ),
-        ],
-    )]);
-
-    DialogRegistry::new()
-        .register(checkout_dialog)
-        .unwrap()
-        .register(confirm_dialog)
-        .unwrap()
+    DialogRegistry::new().register(dialog).unwrap()
 }
 
 #[tokio::main(flavor = "current_thread")]

@@ -1,4 +1,7 @@
-//! Stateful select widget examples for `telers-dialog`.
+//! Roastery alert settings example for `telers-dialog`.
+//!
+//! Demonstrates stateful keyboard widgets in one settings flow: channel,
+//! alert pace, sending limits, topics, and digest send time.
 //!
 //! Run with:
 //! ```bash
@@ -19,20 +22,20 @@ use telers_dialog::{
     dialog,
     widgets::{
         format_text, keyboard, Button, Checkbox, Counter, Group, InlineKeyboard, Multiselect,
-        Radio, Toggle,
+        Radio, TimeSelect, Toggle,
     },
     window, DialogManager, DialogObserverExt, DialogRegistry, StartMode,
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
-const START_STATE: &str = "channel";
+const START_STATE: &str = "channel_step";
 const CHANNELS: &[(&str, &str)] = &[
     ("telegram", "Telegram"),
     ("email", "Email"),
     ("sms", "SMS"),
     ("mute", "Pause alerts"),
 ];
-const DIGEST_MODES: &[(&str, &str)] = &[
+const ALERT_PACES: &[(&str, &str)] = &[
     ("instant", "Instant alerts"),
     ("morning", "Morning digest"),
     ("evening", "Evening roundup"),
@@ -64,7 +67,7 @@ async fn handle_start(bot: Bot, manager: Manager) -> HandlerResult<()> {
 fn registry() -> DialogRegistry {
     let dialog = dialog([
         window(
-            "channel",
+            START_STATE,
             [
                 format_text(
                     "Roastery Club Alerts\n\nChoose the main channel for new-bean drops and \
@@ -73,7 +76,7 @@ fn registry() -> DialogRegistry {
                 ),
                 keyboard(
                     Group::builder(
-                        Radio::builder("alert_channel")
+                        Radio::builder("alert_channel_select")
                             .items_getter(|_data| CHANNELS)
                             .checked_renderer(|item, _data| format!("● {}", item.1))
                             .unchecked_renderer(|item, _data| format!("○ {}", item.1))
@@ -85,14 +88,14 @@ fn registry() -> DialogRegistry {
                 ),
                 keyboard(
                     InlineKeyboard::builder()
-                        .push(Button::next("open_digest", "Alert pace"))
+                        .push(Button::next("continue_to_alert_pace", "Alert pace"))
                         .push(Button::done("close", "Close"))
                         .build(),
                 ),
             ],
         ),
         window(
-            "digest",
+            "alert_pace_step",
             [
                 format_text(
                     "Roastery Club Alerts\n\nChoose how often campaign messages should arrive. \
@@ -101,8 +104,8 @@ fn registry() -> DialogRegistry {
                      every tap",
                 ),
                 keyboard(
-                    Toggle::builder("digest_mode")
-                        .items_getter(|_data| DIGEST_MODES)
+                    Toggle::builder("alert_pace_toggle")
+                        .items_getter(|_data| ALERT_PACES)
                         .item_renderer(|item, _data| format!("Alert pace: {}", item.1))
                         .id_getter(|item| item.0)
                         .build(),
@@ -110,14 +113,14 @@ fn registry() -> DialogRegistry {
                 keyboard(
                     InlineKeyboard::builder()
                         .push(Button::back("back", "Back"))
-                        .push(Button::next("open_limits", "Limits"))
+                        .push(Button::next("continue_to_limits", "Limits"))
                         .push(Button::done("close", "Close"))
                         .build(),
                 ),
             ],
         ),
         window(
-            "limits",
+            "limits_step",
             [
                 format_text(
                     "Roastery Club Alerts\n\nTune how aggressive the campaign should feel. Keep \
@@ -141,14 +144,14 @@ fn registry() -> DialogRegistry {
                 keyboard(
                     InlineKeyboard::builder()
                         .push(Button::back("back", "Back"))
-                        .push(Button::next("open_topics", "Topics"))
+                        .push(Button::next("continue_to_topics", "Topics"))
                         .push(Button::done("close", "Close"))
                         .build(),
                 ),
             ],
         ),
         window(
-            "topics",
+            "topics_step",
             [
                 format_text(
                     "Roastery Club Alerts\n\nPick up to three topics subscribers want to follow. \
@@ -157,7 +160,7 @@ fn registry() -> DialogRegistry {
                 ),
                 keyboard(
                     Group::builder(
-                        Multiselect::builder("topics")
+                        Multiselect::builder("topic_select")
                             .items_getter(|_data| TOPICS)
                             .checked_renderer(|item, _data| format!("✓ {}", item.1))
                             .unchecked_renderer(|item, _data| format!("□ {}", item.1))
@@ -168,6 +171,32 @@ fn registry() -> DialogRegistry {
                     )
                     .items_per_row(2)
                     .build(),
+                ),
+                keyboard(
+                    InlineKeyboard::builder()
+                        .push(Button::back("back", "Back"))
+                        .push(Button::next("continue_to_send_time", "Send time"))
+                        .push(Button::done("close", "Close"))
+                        .build(),
+                ),
+            ],
+        ),
+        window(
+            "send_time_step",
+            [
+                format_text(
+                    "Roastery Club Alerts\n\nChoose when the daily digest should be sent. The \
+                     selected hour and minute stay highlighted in the keyboard, so the operator \
+                     can confirm the exact delivery slot before closing the dialog.\n\n[Stateful] \
+                     `TimeSelect` stores the selected `(hour, minute)` pair in `widget_data`",
+                ),
+                keyboard(
+                    TimeSelect::builder("digest_send_time_select")
+                        .hour_header("Send hour".into())
+                        .minute_header("Send minute".into())
+                        .minute_precision(15)
+                        .minute_width(4)
+                        .build(),
                 ),
                 keyboard(
                     InlineKeyboard::builder()

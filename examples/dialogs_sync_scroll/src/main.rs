@@ -1,4 +1,7 @@
-//! `sync_scroll` example for `telers-dialog`.
+//! Synchronized product catalog pagination example for `telers-dialog`.
+//!
+//! Shows two related paged keyboards: the product picker controls the current
+//! page, and the detail grid follows it with `sync_scroll`.
 //!
 //! Run with:
 //! ```bash
@@ -25,7 +28,7 @@ use telers_dialog::{
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
-const START_STATE: &str = "catalog";
+const START_STATE: &str = "product_catalog";
 const GRID_WIDTH: usize = 2;
 const PAGE_HEIGHT: usize = 2;
 const PRODUCTS: &[(&str, &str, &str)] = &[
@@ -56,13 +59,13 @@ async fn handle_start(bot: Bot, manager: Manager) -> HandlerResult<()> {
 }
 
 fn registry() -> DialogRegistry {
-    let catalog_list = ScrollingGroup::builder("catalog_list")
+    let product_grid = ScrollingGroup::builder("product_grid")
         .height(PAGE_HEIGHT)
         .width(GRID_WIDTH)
         .hide_pager(true)
-        .on_page_changed(sync_scroll("catalog_notes"))
+        .on_page_changed(sync_scroll("product_details"))
         .kbd(
-            Select::builder("catalog_items")
+            Select::builder("product_items")
                 .items_getter(|_data| PRODUCTS)
                 .item_renderer(|item, _data| format!("{}", item.0))
                 .id_getter(|item| item.0)
@@ -70,41 +73,41 @@ fn registry() -> DialogRegistry {
                 .build(),
         )
         .build();
+    let product_details = ScrollingGroup::builder("product_details")
+        .height(PAGE_HEIGHT)
+        .width(GRID_WIDTH)
+        .hide_pager(true)
+        .kbd(
+            Select::builder("product_detail_items")
+                .items_getter(|_data| PRODUCTS)
+                .item_renderer(|item, _data| format!("{} | {}", item.1, item.2))
+                .id_getter(|item| item.0)
+                .action(|_item| ButtonAction::noop())
+                .build(),
+        )
+        .build();
+
     let dialog = dialog([window(
-        "catalog",
+        START_STATE,
         [
             format_text(
                 "Product Browser\n\nSelected product: {selected_product}\n\nThe top block is the \
                  compact picker. The bottom block shows matching price and note cards for the \
                  same page.\n\n[Helper] `sync_scroll` keeps both blocks on the same page",
             ),
-            keyboard(catalog_list.clone()),
+            keyboard(product_grid.clone()),
             keyboard(
                 InlineKeyboard::builder()
                     .row([Button::action(
-                        "details_label",
+                        "product_details_label",
                         "PRODUCT DETAILS",
                         ButtonAction::noop(),
                     )])
                     .build(),
             ),
+            keyboard(product_details),
             keyboard(
-                ScrollingGroup::builder("catalog_notes")
-                    .height(PAGE_HEIGHT)
-                    .width(GRID_WIDTH)
-                    .hide_pager(true)
-                    .kbd(
-                        Select::builder("catalog_note_items")
-                            .items_getter(|_data| PRODUCTS)
-                            .item_renderer(|item, _data| format!("{} | {}", item.1, item.2))
-                            .id_getter(|item| item.0)
-                            .action(|_value| ButtonAction::noop())
-                            .build(),
-                    )
-                    .build(),
-            ),
-            keyboard(
-                NumberedPager::builder(catalog_list)
+                NumberedPager::builder(product_grid)
                     .page_renderer(|page, _data| format!("{}", page + 1))
                     .current_page_renderer(|page, _data| format!("[{}]", page + 1))
                     .length(5)
