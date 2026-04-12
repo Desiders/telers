@@ -11,6 +11,8 @@ use super::super::{
 use crate::entities::{Context, DataMap, RenderContext};
 
 type TimeSelectValueRenderer = dyn Fn(u8, &DataMap) -> String + Send + Sync + 'static;
+type TimeSelectClickHandler =
+    dyn for<'a> Fn(&ClickContext<'a>, u8) -> ButtonAction + Send + Sync + 'static;
 
 /// Time picker storing the selected `(hour, minute)` pair in `widget_data`.
 pub struct TimeSelect<WidgetId> {
@@ -22,6 +24,8 @@ pub struct TimeSelect<WidgetId> {
     hour_width: usize,
     minute_precision: usize,
     minute_width: usize,
+    on_hour_click: Option<Arc<TimeSelectClickHandler>>,
+    on_minute_click: Option<Arc<TimeSelectClickHandler>>,
     when: Option<WhenCondition>,
 }
 
@@ -51,6 +55,14 @@ impl<WidgetId> TimeSelect<WidgetId> {
         #[builder(default = 6)] hour_width: usize,
         #[builder(default = 5)] minute_precision: usize,
         #[builder(default = 6)] minute_width: usize,
+        #[builder(with = |on_hour_click: impl for<'a> Fn(&ClickContext<'a>, u8) -> ButtonAction + Send + Sync + 'static| {
+            Arc::new(on_hour_click)
+        })]
+        on_hour_click: Option<Arc<TimeSelectClickHandler>>,
+        #[builder(with = |on_minute_click: impl for<'a> Fn(&ClickContext<'a>, u8) -> ButtonAction + Send + Sync + 'static| {
+            Arc::new(on_minute_click)
+        })]
+        on_minute_click: Option<Arc<TimeSelectClickHandler>>,
         when: Option<WhenCondition>,
     ) -> Self
     where
@@ -65,6 +77,8 @@ impl<WidgetId> TimeSelect<WidgetId> {
             hour_width,
             minute_precision,
             minute_width,
+            on_hour_click,
+            on_minute_click,
             when,
         }
     }
@@ -185,8 +199,14 @@ where
         }
 
         let (mut hour, mut minute) = self.read_value(ctx);
+        let click_action;
         if let Some(value) = payload.strip_prefix('h') {
-            hour = value.parse::<u8>().ok();
+            let value = value.parse::<u8>().ok()?;
+            hour = Some(value);
+            click_action = self
+                .on_hour_click
+                .as_ref()
+                .map(|handler| handler(click, value));
             debug!(
                 context_id = %ctx.id,
                 widget_id = %self.id,
@@ -194,7 +214,12 @@ where
                 "Resolved time-select hour callback"
             );
         } else if let Some(value) = payload.strip_prefix('m') {
-            minute = value.parse::<u8>().ok();
+            let value = value.parse::<u8>().ok()?;
+            minute = Some(value);
+            click_action = self
+                .on_minute_click
+                .as_ref()
+                .map(|handler| handler(click, value));
             debug!(
                 context_id = %ctx.id,
                 widget_id = %self.id,
@@ -205,10 +230,11 @@ where
             return None;
         }
 
-        Some(ButtonAction::set_widget_value(
-            self.widget_id(),
-            json!([hour, minute]),
-        ))
+        let update_action = ButtonAction::set_widget_value(self.widget_id(), json!([hour, minute]));
+        Some(match click_action {
+            Some(click_action) => ButtonAction::chain([update_action, click_action]),
+            None => update_action,
+        })
     }
 }
 
