@@ -1,6 +1,6 @@
 use crate::{
     entities::{Context, Data, LaunchMode, NewMessage, RenderContext},
-    widgets::ButtonAction,
+    widgets::{ButtonAction, ClickContext},
     IntoWindow, Window,
 };
 use std::{collections::BTreeMap, sync::Arc};
@@ -44,12 +44,7 @@ pub trait Dialog: Send + Sync {
     fn render(&self, state: &str, render_ctx: &RenderContext<'_>) -> Option<NewMessage>;
 
     #[must_use]
-    fn handle_callback(
-        &self,
-        state: &str,
-        ctx: &Context,
-        callback_data: &str,
-    ) -> Option<ButtonAction>;
+    fn handle_callback(&self, state: &str, click: &ClickContext<'_>) -> Option<ButtonAction>;
 
     #[must_use]
     fn handle_message(&self, state: &str, ctx: &Context, message: Message) -> Option<ButtonAction>;
@@ -174,14 +169,9 @@ impl Dialog for DialogImpl {
             .map(|window| window.render(render_ctx))
     }
 
-    fn handle_callback(
-        &self,
-        state: &str,
-        ctx: &Context,
-        callback_data: &str,
-    ) -> Option<ButtonAction> {
+    fn handle_callback(&self, state: &str, click: &ClickContext<'_>) -> Option<ButtonAction> {
         self.get_window(state)
-            .and_then(|window| window.handle_callback(ctx, callback_data))
+            .and_then(|window| window.handle_callback(click))
     }
 
     fn handle_message(&self, state: &str, ctx: &Context, message: Message) -> Option<ButtonAction> {

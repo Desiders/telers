@@ -3,7 +3,9 @@ use std::{borrow::Cow, marker::PhantomData};
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 
 use super::{
-    super::{format_callback_data, when::is_allowed, ButtonAction, Keyboard, WhenCondition},
+    super::{
+        format_callback_data, when::is_allowed, ButtonAction, ClickContext, Keyboard, WhenCondition,
+    },
     handle_pager_callback, read_page, render_direction_button, OnPageChanged, PageDirection,
     Scroll,
 };
@@ -163,7 +165,8 @@ where
         )
     }
 
-    fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
+        let ctx = click.context;
         let data = &ctx.dialog_data;
         if !self.is_visible(ctx, data) {
             return None;
@@ -171,7 +174,7 @@ where
         handle_pager_callback(
             ctx,
             self.id.as_ref(),
-            callback_data,
+            click.callback_data,
             self.on_page_changed.as_ref(),
         )
     }
@@ -235,9 +238,9 @@ macro_rules! fixed_pager_type {
 
             fn handle_callback(
                 &self,
-                ctx: &Context,
-                callback_data: &str,
+                click: &ClickContext<'_>,
             ) -> Option<ButtonAction> {
+                let ctx = click.context;
                 let data = &ctx.dialog_data;
                 if !self.is_visible(ctx, data) {
                     return None;
@@ -245,7 +248,7 @@ macro_rules! fixed_pager_type {
                 handle_pager_callback(
                     ctx,
                     self.id.as_ref(),
-                    callback_data,
+                    click.callback_data,
                     self.on_page_changed.as_ref(),
                 )
             }
@@ -313,7 +316,8 @@ impl Keyboard for CurrentPage {
         Some(InlineKeyboardMarkup::new(vec![vec![button].into_boxed_slice()]).into())
     }
 
-    fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
+        let ctx = click.context;
         let data = &ctx.dialog_data;
         if !self.is_visible(ctx, data) {
             return None;
@@ -321,7 +325,7 @@ impl Keyboard for CurrentPage {
         handle_pager_callback(
             ctx,
             self.id.as_ref(),
-            callback_data,
+            click.callback_data,
             self.on_page_changed.as_ref(),
         )
     }
@@ -432,7 +436,8 @@ where
         Some(InlineKeyboardMarkup::new(rows).into())
     }
 
-    fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
+        let ctx = click.context;
         let data = &ctx.dialog_data;
         if !self.is_visible(ctx, data) {
             return None;
@@ -440,7 +445,7 @@ where
         handle_pager_callback(
             ctx,
             self.id.as_ref(),
-            callback_data,
+            click.callback_data,
             self.on_page_changed.as_ref(),
         )
     }

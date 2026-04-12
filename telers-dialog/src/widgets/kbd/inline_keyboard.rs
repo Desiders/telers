@@ -1,7 +1,7 @@
 use bon::bon;
 use telers::types::{InlineKeyboardMarkup, ReplyMarkup};
 
-use super::{when::is_allowed, Button, ButtonAction, Keyboard, WhenCondition};
+use super::{when::is_allowed, Button, ButtonAction, ClickContext, Keyboard, WhenCondition};
 use crate::entities::{Context, DataMap, RenderContext};
 
 #[derive(Clone, Default)]
@@ -94,7 +94,8 @@ impl Keyboard for InlineKeyboard {
         ))
     }
 
-    fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
+        let ctx = click.context;
         let data = &ctx.dialog_data;
         if !self.is_visible(ctx, data) {
             return None;
@@ -102,6 +103,6 @@ impl Keyboard for InlineKeyboard {
         self.rows
             .iter()
             .flat_map(|row| row.iter())
-            .find_map(|button| button.resolve_callback(ctx, callback_data))
+            .find_map(|button| button.resolve_callback(click))
     }
 }

@@ -6,7 +6,7 @@ use telers::{
     types::{KeyboardButton, KeyboardButtonPollType, ReplyKeyboardMarkup, ReplyMarkup},
 };
 
-use super::{when::is_allowed, ButtonAction, Keyboard, WhenCondition};
+use super::{when::is_allowed, ButtonAction, ClickContext, Keyboard, WhenCondition};
 use crate::{
     entities::{Context, DataMap, RenderContext},
     widgets::Text,
@@ -177,7 +177,7 @@ where
         )
     }
 
-    fn handle_callback(&self, _ctx: &Context, _callback_data: &str) -> Option<ButtonAction> {
+    fn handle_callback(&self, _click: &ClickContext<'_>) -> Option<ButtonAction> {
         None
     }
 }
@@ -313,7 +313,7 @@ where
         )
     }
 
-    fn handle_callback(&self, _ctx: &Context, _callback_data: &str) -> Option<ButtonAction> {
+    fn handle_callback(&self, _click: &ClickContext<'_>) -> Option<ButtonAction> {
         None
     }
 }
@@ -461,7 +461,7 @@ where
         )
     }
 
-    fn handle_callback(&self, _ctx: &Context, _callback_data: &str) -> Option<ButtonAction> {
+    fn handle_callback(&self, _click: &ClickContext<'_>) -> Option<ButtonAction> {
         None
     }
 }

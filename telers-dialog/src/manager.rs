@@ -6,7 +6,7 @@ use crate::{
     errors::DialogError,
     message_manager::MessageManager,
     registry::DialogRegistry,
-    widgets::ButtonAction,
+    widgets::{ButtonAction, ClickContext},
 };
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, mem};
@@ -618,7 +618,8 @@ impl<S: Storage> DialogManager<S> {
         let stack = storage.current_stack().ok_or(DialogError::NoContext)?;
         self.check_access(stack, Some(&ctx), event_ctx)?;
         let dialog = self.resolve_dialog(&ctx.state)?;
-        let Some(action) = dialog.handle_callback(&ctx.state, &ctx, callback_data) else {
+        let click = ClickContext::new(&ctx, callback_data, &self.event, event_ctx, &self.context);
+        let Some(action) = dialog.handle_callback(&ctx.state, &click) else {
             trace!(state = %ctx.state, "Callback does not belong to current dialog");
             return Ok(false);
         };

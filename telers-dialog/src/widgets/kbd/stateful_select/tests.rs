@@ -58,7 +58,7 @@ fn radio_callback_produces_set_widget_value() {
         .build();
 
     let action = radio
-        .handle_callback(&ctx, &format!("td:{}:color:blue", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:color:blue", ctx.id))
         .unwrap();
 
     assert!(matches!(
@@ -78,7 +78,9 @@ fn radio_ignores_foreign_intent_callbacks() {
         .id_getter(|&item| item)
         .build();
 
-    assert!(radio.handle_callback(&ctx, "td:other:color:red").is_none());
+    assert!(radio
+        .handle_callback_for_test(&ctx, "td:other:color:red")
+        .is_none());
 }
 
 #[test]
@@ -93,7 +95,7 @@ fn radio_allows_header_and_footer_buttons() {
         .build();
 
     let action = radio
-        .handle_callback(&ctx, &format!("td:{}:done", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:done", ctx.id))
         .unwrap();
 
     assert!(matches!(action, ButtonAction::Done));
@@ -145,7 +147,7 @@ fn checkbox_callback_updates_widget_value() {
         .build();
 
     let action = checkbox
-        .handle_callback(&ctx, &format!("td:{}:notify:true", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:notify:true", ctx.id))
         .unwrap();
 
     assert!(matches!(
@@ -195,7 +197,7 @@ fn counter_plus_callback_increments_value() {
     let counter = Counter::builder("qty").increment(0.5).build();
 
     let action = counter
-        .handle_callback(&ctx, &format!("td:{}:qty:+", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:qty:+", ctx.id))
         .unwrap();
 
     assert!(matches!(
@@ -212,7 +214,7 @@ fn counter_minus_callback_respects_minimum() {
     let counter = Counter::builder("qty").min(1.0).default(1.0).build();
 
     let action = counter
-        .handle_callback(&ctx, &format!("td:{}:qty:-", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:qty:-", ctx.id))
         .unwrap();
 
     assert!(matches!(
@@ -233,7 +235,7 @@ fn counter_cycles_when_enabled() {
         .build();
 
     let action = counter
-        .handle_callback(&ctx, &format!("td:{}:qty:+", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:qty:+", ctx.id))
         .unwrap();
 
     assert!(matches!(
@@ -269,7 +271,7 @@ fn time_select_hour_callback_updates_partial_value() {
     let picker = TimeSelect::builder("pickup_time").build();
 
     let action = picker
-        .handle_callback(&ctx, &format!("td:{}:pickup_time:h13", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:pickup_time:h13", ctx.id))
         .unwrap();
 
     assert!(matches!(
@@ -289,7 +291,7 @@ fn time_select_minute_callback_preserves_selected_hour() {
         .build();
 
     let action = picker
-        .handle_callback(&ctx, &format!("td:{}:pickup_time:m30", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:pickup_time:m30", ctx.id))
         .unwrap();
 
     assert!(matches!(
@@ -349,7 +351,7 @@ fn toggle_callback_updates_widget_value() {
         .build();
 
     let action = toggle
-        .handle_callback(&ctx, &format!("td:{}:theme:dark", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:theme:dark", ctx.id))
         .unwrap();
 
     assert!(matches!(
@@ -390,7 +392,7 @@ fn multiselect_toggle_checks_unchecked_item() {
         .build();
 
     let action = ms
-        .handle_callback(&ctx, &format!("td:{}:fruits:apple", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:fruits:apple", ctx.id))
         .unwrap();
 
     assert!(matches!(
@@ -414,7 +416,7 @@ fn multiselect_toggle_unchecks_checked_item() {
         .build();
 
     let action = ms
-        .handle_callback(&ctx, &format!("td:{}:fruits:apple", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:fruits:apple", ctx.id))
         .unwrap();
 
     assert!(matches!(
@@ -439,7 +441,7 @@ fn multiselect_respects_max_selected() {
         .build();
 
     let action = ms
-        .handle_callback(&ctx, &format!("td:{}:fruits:grape", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:fruits:grape", ctx.id))
         .unwrap();
 
     assert!(matches!(action, ButtonAction::Noop));
@@ -459,7 +461,7 @@ fn multiselect_respects_min_selected() {
         .build();
 
     let action = ms
-        .handle_callback(&ctx, &format!("td:{}:fruits:apple", ctx.id))
+        .handle_callback_for_test(&ctx, &format!("td:{}:fruits:apple", ctx.id))
         .unwrap();
 
     assert!(matches!(action, ButtonAction::Noop));

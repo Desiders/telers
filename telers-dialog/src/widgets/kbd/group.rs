@@ -1,7 +1,7 @@
 use bon::bon;
 use telers::types::{InlineKeyboardMarkup, ReplyMarkup};
 
-use super::{when::is_allowed, ButtonAction, Keyboard, WhenCondition};
+use super::{when::is_allowed, ButtonAction, ClickContext, Keyboard, WhenCondition};
 use crate::entities::{Context, DataMap, RenderContext};
 
 /// Layout wrapper that regroups inline keyboard buttons into fixed-width rows.
@@ -81,7 +81,8 @@ where
     }
 
     #[inline]
-    fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
+        let ctx = click.context;
         let data = &ctx.dialog_data;
         if !self.is_visible(ctx, data) {
             return None;
@@ -89,6 +90,6 @@ where
         if !self.kbd.is_visible(ctx, data) {
             return None;
         }
-        self.kbd.handle_callback(ctx, callback_data)
+        self.kbd.handle_callback(click)
     }
 }

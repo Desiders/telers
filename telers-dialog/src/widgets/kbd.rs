@@ -11,6 +11,7 @@ mod action;
 mod base;
 mod button;
 mod callback;
+mod click;
 mod group;
 mod inline_keyboard;
 mod pager;
@@ -26,6 +27,7 @@ pub(crate) use select::render_button_row;
 pub use action::ButtonAction;
 pub use base::Keyboard;
 pub use button::Button;
+pub use click::ClickContext;
 pub use group::Group;
 pub use inline_keyboard::InlineKeyboard;
 pub use pager::{
@@ -83,7 +85,29 @@ mod tests {
             )])
             .build();
 
-        assert!(keyboard.handle_callback(&ctx, "td:another:go").is_none());
+        assert!(keyboard
+            .handle_callback_for_test(&ctx, "td:another:go")
+            .is_none());
+    }
+
+    #[test]
+    fn button_on_click_receives_click_context() {
+        let ctx = Context::new("", "confirm_delete", Value::Null);
+        let keyboard = InlineKeyboard::builder()
+            .row([Button::on_click("confirm", "Confirm", |click| {
+                ButtonAction::set_dialog_value("handled_state", click.context.state.clone())
+            })])
+            .build();
+
+        let action = keyboard
+            .handle_callback_for_test(&ctx, &format!("td:{}:confirm", ctx.id))
+            .expect("button action");
+
+        assert!(matches!(
+            action,
+            ButtonAction::SetDialogValue { ref key, ref value }
+                if key.as_ref() == "handled_state" && value == "confirm_delete"
+        ));
     }
 
     #[test]
@@ -99,7 +123,7 @@ mod tests {
 
         assert!(keyboard.render_keyboard_for_test(&ctx, &data).is_none());
         assert!(keyboard
-            .handle_callback(&ctx, &format!("td:{}:go", ctx.id))
+            .handle_callback_for_test(&ctx, &format!("td:{}:go", ctx.id))
             .is_none());
 
         data.insert("show".into(), Value::Bool(true));
@@ -107,7 +131,7 @@ mod tests {
 
         assert!(keyboard.render_keyboard_for_test(&ctx, &data).is_some());
         assert!(matches!(
-            keyboard.handle_callback(&ctx, &format!("td:{}:go", ctx.id)),
+            keyboard.handle_callback_for_test(&ctx, &format!("td:{}:go", ctx.id)),
             Some(ButtonAction::Next)
         ));
     }
@@ -136,13 +160,45 @@ mod tests {
         assert_eq!(callback_data, format!("td:{}:fruit:red:apple", ctx.id));
 
         let action = select
-            .handle_callback(&ctx, callback_data)
+            .handle_callback_for_test(&ctx, callback_data)
             .expect("select action");
 
         assert!(matches!(
             action,
             ButtonAction::SetDialogValue { ref key, ref value }
                 if key.as_ref() == "fruit" && value == "red:apple"
+        ));
+    }
+
+    #[test]
+    fn select_action_receives_click_context() {
+        let mut ctx = Context::new("", "state", Value::Null);
+        ctx.dialog_data
+            .insert("prefix".into(), Value::String("chosen".into()));
+
+        let select = Select::builder("fruit")
+            .items_getter(|_data| ["apple"])
+            .item_renderer(|item, _data| item.to_owned())
+            .id_getter(|item| item)
+            .on_click(|click, value| {
+                let prefix = click
+                    .context
+                    .dialog_data
+                    .get("prefix")
+                    .and_then(Value::as_str)
+                    .unwrap_or("missing");
+                ButtonAction::set_dialog_value("fruit", format!("{prefix}:{value}"))
+            })
+            .build();
+
+        let action = select
+            .handle_callback_for_test(&ctx, &format!("td:{}:fruit:apple", ctx.id))
+            .expect("select action");
+
+        assert!(matches!(
+            action,
+            ButtonAction::SetDialogValue { ref key, ref value }
+                if key.as_ref() == "fruit" && value == "chosen:apple"
         ));
     }
 
@@ -159,7 +215,7 @@ mod tests {
             .build();
 
         let action = select
-            .handle_callback(&ctx, &format!("td:{}:done", ctx.id))
+            .handle_callback_for_test(&ctx, &format!("td:{}:done", ctx.id))
             .expect("footer action");
 
         assert!(matches!(action, ButtonAction::Done));

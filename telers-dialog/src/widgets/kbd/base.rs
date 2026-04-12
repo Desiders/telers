@@ -1,7 +1,7 @@
 use telers::types::{InlineKeyboardMarkup, ReplyMarkup};
 use tracing::warn;
 
-use super::ButtonAction;
+use super::{ButtonAction, ClickContext};
 use crate::entities::{Context, DataMap, RenderContext};
 
 /// Keyboard widget rendered inside a dialog window.
@@ -25,7 +25,12 @@ pub trait Keyboard: Send + Sync + 'static {
     }
 
     /// Resolve callback data into a dialog action.
-    fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction>;
+    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction>;
+
+    #[cfg(test)]
+    fn handle_callback_for_test(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+        ClickContext::with_test(ctx, callback_data, |click| self.handle_callback(click))
+    }
 }
 
 pub(crate) struct MultiKeyboard {
@@ -91,10 +96,10 @@ impl Keyboard for MultiKeyboard {
         }
     }
 
-    fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
         self.keyboards
             .iter()
-            .filter(|keyboard| keyboard.is_visible(ctx, &ctx.dialog_data))
-            .find_map(|keyboard| keyboard.handle_callback(ctx, callback_data))
+            .filter(|keyboard| keyboard.is_visible(click.context, &click.context.dialog_data))
+            .find_map(|keyboard| keyboard.handle_callback(click))
     }
 }

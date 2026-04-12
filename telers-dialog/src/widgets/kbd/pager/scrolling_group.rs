@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 
 use super::{
-    super::{when::is_allowed, ButtonAction, Keyboard, WhenCondition},
+    super::{when::is_allowed, ButtonAction, ClickContext, Keyboard, WhenCondition},
     build_pager_row, page_count_from_rows, render_fixed_width_page, BaseScroll, OnPageChanged,
     Scroll,
 };
@@ -138,7 +138,9 @@ where
         Some(InlineKeyboardMarkup::new(rows).into())
     }
 
-    fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
+        let ctx = click.context;
+        let callback_data = click.callback_data;
         let data = &ctx.dialog_data;
         if !self.is_visible(ctx, data) {
             return None;
@@ -150,6 +152,6 @@ where
         if !self.kbd.is_visible(ctx, data) {
             return None;
         }
-        self.kbd.handle_callback(ctx, callback_data)
+        self.kbd.handle_callback(click)
     }
 }
