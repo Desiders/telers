@@ -1,4 +1,7 @@
-//! Text widget examples for `telers-dialog`.
+//! Roastery broadcast text widget examples for `telers-dialog`.
+//!
+//! Shows how static text, formatted data, computed text, lists, and
+//! `ScrollingText` can build a campaign preview flow.
 //!
 //! Run with:
 //! ```bash
@@ -20,12 +23,22 @@ use telers_dialog::{
     entities::DataMap,
     widgets::{
         fn_text, format_text, keyboard, text, Button, ButtonAction, InlineKeyboard, ListText,
+        NumberedPager, ScrollingText,
     },
     window, DialogManager, DialogObserverExt, DialogRegistry, StartMode,
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
-const START_STATE: &str = "intro";
+const START_STATE: &str = "draft_intro";
+const PREVIEW_PAGE_SIZE: usize = 240;
+const BROADCAST_COPY: &str =
+    "Weekend Espresso Sale\n\nHouse Blend bags are 15% off through Sunday for customers who want \
+     the same chocolate-forward profile they tasted on bar. The offer works well for takeout \
+     regulars because it gives staff a clear, short pitch at checkout.\n\nSaturday at 12:00 we \
+     also have a cupping session for the new washed Ethiopia. The note card should mention peach \
+     tea, bergamot, and a soft floral finish, but avoid promising limited seats after the class \
+     is full.\n\nReusable cup rewards are doubled for the whole weekend. Put this after the bean \
+     and class notes so the message still reads like a cafe update, not only a discount blast.";
 
 type Manager = DialogManager<MemoryStorage>;
 
@@ -43,9 +56,14 @@ async fn handle_start(bot: Bot, manager: Manager) -> HandlerResult<()> {
 }
 
 fn registry() -> DialogRegistry {
+    let broadcast_preview = ScrollingText::builder("broadcast_preview_scroll")
+        .text(BROADCAST_COPY)
+        .page_size(PREVIEW_PAGE_SIZE)
+        .build();
+
     let dialog = dialog([
         window(
-            "intro",
+            START_STATE,
             [
                 text(
                     "Roastery Broadcast Draft\n\nOpen a ready-to-send promo preview built from \
@@ -55,7 +73,7 @@ fn registry() -> DialogRegistry {
                 keyboard(
                     InlineKeyboard::builder()
                         .push(Button::action(
-                            "render",
+                            "show_preview",
                             "Open preview",
                             ButtonAction::chain([
                                 ButtonAction::set_dialog_value("cafe_name", "North Roast"),
@@ -73,7 +91,7 @@ fn registry() -> DialogRegistry {
             ],
         ),
         window(
-            "rendered",
+            "preview",
             [
                 text("Roastery Broadcast Preview\n"),
                 format_text("Cafe: {cafe_name}\nCampaign: {campaign_title}\nWeek: {week_label}\n"),
@@ -100,7 +118,39 @@ fn registry() -> DialogRegistry {
                 keyboard(
                     InlineKeyboard::builder()
                         .push(Button::back("back", "Back"))
-                        .push(Button::done("done", "Close"))
+                        .push(Button::switch_to(
+                            "show_long_copy_preview",
+                            "Long copy preview",
+                            "long_copy",
+                        ))
+                        .push(Button::done("close", "Close"))
+                        .build(),
+                ),
+            ],
+        ),
+        window(
+            "long_copy",
+            [
+                text(
+                    "Roastery Broadcast Long Copy\n\nUse this screen when message text is too \
+                     long to review comfortably in one chunk.\n",
+                ),
+                text(broadcast_preview.clone()),
+                text(
+                    "\n[Text] `ScrollingText` renders only the current page, and `NumberedPager` \
+                     controls the same scroll state.",
+                ),
+                keyboard(
+                    NumberedPager::builder(broadcast_preview)
+                        .page_renderer(|page, _data| format!("{}", page + 1))
+                        .current_page_renderer(|page, _data| format!("[{}]", page + 1))
+                        .length(5)
+                        .build(),
+                ),
+                keyboard(
+                    InlineKeyboard::builder()
+                        .push(Button::back("back", "Back"))
+                        .push(Button::done("close", "Close"))
                         .build(),
                 ),
             ],

@@ -1,4 +1,7 @@
-//! Pager widget examples for `telers-dialog`.
+//! Drink catalog pagination example for `telers-dialog`.
+//!
+//! Shows a real menu grid where `ScrollingGroup` keeps a long list compact and
+//! preserves keyboard width on the last page.
 //!
 //! Run with:
 //! ```bash
@@ -18,14 +21,13 @@ use telers::{
 use telers_dialog::{
     dialog,
     widgets::{
-        format_text, keyboard, Button, ButtonAction, InlineKeyboard, NumberedPager, ScrollingGroup,
-        Select,
+        format_text, keyboard, Button, ButtonAction, InlineKeyboard, ScrollingGroup, Select,
     },
     window, DialogManager, DialogObserverExt, DialogRegistry, StartMode,
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
-const START_STATE: &str = "built_in";
+const START_STATE: &str = "menu";
 const GRID_WIDTH: usize = 2;
 const PAGE_HEIGHT: usize = 2;
 const DRINKS: &[(&str, &str)] = &[
@@ -57,87 +59,36 @@ async fn handle_start(bot: Bot, manager: Manager) -> HandlerResult<()> {
 }
 
 fn registry() -> DialogRegistry {
-    let standalone_catalog = ScrollingGroup::builder("standalone_catalog")
-        .height(PAGE_HEIGHT)
-        .width(GRID_WIDTH)
-        .hide_pager(true)
-        .kbd(
-            Select::builder("standalone_items")
-                .items_getter(|_data| DRINKS)
-                .item_renderer(|item, _data| format!("{} {}", item.0, item.1))
-                .id_getter(|item| item.0)
-                .action(|value| ButtonAction::set_dialog_value("selected_drink", value))
-                .build(),
-        )
-        .build();
-    let dialog = dialog([
-        window(
-            "built_in",
-            [
-                format_text(
-                    "Cafe Menu\n\nBrowse a long drink list without flooding the chat.\nSelected \
-                     drink: {selected_drink}\n\nThis version keeps pagination inside the catalog \
-                     itself and keeps the catalog grid shape stable on the last page.\n\n[Pager] \
-                     Built-in `ScrollingGroup` pager",
-                ),
-                keyboard(
-                    ScrollingGroup::builder("built_in_catalog")
-                        .height(PAGE_HEIGHT)
-                        .width(GRID_WIDTH)
-                        .kbd(
-                            Select::builder("built_in_items")
-                                .items_getter(|_data| DRINKS)
-                                .item_renderer(|item, _data| format!("{} {}", item.0, item.1))
-                                .id_getter(|item| item.0)
-                                .action(|value| {
-                                    ButtonAction::set_dialog_value("selected_drink", value)
-                                })
-                                .build(),
-                        )
-                        .build(),
-                ),
-                keyboard(
-                    InlineKeyboard::builder()
-                        .push(Button::switch_to(
-                            "custom_layout",
-                            "Open custom layout",
-                            "standalone",
-                        ))
-                        .push(Button::done("close", "Close"))
-                        .build(),
-                ),
-            ],
-        ),
-        window(
-            "standalone",
-            [
-                format_text(
-                    "Cafe Menu\n\nSelected drink: {selected_drink}\n\nThis version keeps the same \
-                     catalog grid, but moves paging into its own row so the bot can place it \
-                     exactly where it wants.\n\n[Pager] `hide_pager(true)` + standalone \
-                     `NumberedPager`",
-                ),
-                keyboard(standalone_catalog.clone()),
-                keyboard(
-                    NumberedPager::builder(standalone_catalog)
-                        .page_renderer(|page, _data| format!("{}", page + 1))
-                        .current_page_renderer(|page, _data| format!("[{}]", page + 1))
-                        .length(5)
-                        .build(),
-                ),
-                keyboard(
-                    InlineKeyboard::builder()
-                        .push(Button::switch_to(
-                            "back_to_builtin",
-                            "Back to built-in layout",
-                            "built_in",
-                        ))
-                        .push(Button::done("close", "Close"))
-                        .build(),
-                ),
-            ],
-        ),
-    ]);
+    let dialog = dialog([window(
+        START_STATE,
+        [
+            format_text(
+                "Cafe Menu\n\nBrowse a long drink list without flooding the chat.\nSelected \
+                 drink: {selected_drink}\n\nThe catalog keeps pagination inside the drink grid \
+                 and keeps the keyboard shape stable on the last page.\n\n[Pager] Built-in \
+                 `ScrollingGroup` pager",
+            ),
+            keyboard(
+                ScrollingGroup::builder("drink_catalog")
+                    .height(PAGE_HEIGHT)
+                    .width(GRID_WIDTH)
+                    .kbd(
+                        Select::builder("drink_items")
+                            .items_getter(|_data| DRINKS)
+                            .item_renderer(|item, _data| format!("{} {}", item.0, item.1))
+                            .id_getter(|item| item.0)
+                            .action(|value| ButtonAction::set_dialog_value("selected_drink", value))
+                            .build(),
+                    )
+                    .build(),
+            ),
+            keyboard(
+                InlineKeyboard::builder()
+                    .push(Button::done("close", "Close"))
+                    .build(),
+            ),
+        ],
+    )]);
 
     DialogRegistry::new().register(dialog).unwrap()
 }
