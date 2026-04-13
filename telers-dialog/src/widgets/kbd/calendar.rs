@@ -39,58 +39,99 @@ type CalendarScopeView = dyn for<'a> Fn(&CalendarViewContext<'a>) -> Vec<Box<[In
 /// Date type used by [`Calendar`] callbacks and configuration.
 pub type CalendarDate = Date;
 
-/// Button role rendered by the default calendar views.
+/// Button role rendered by the built-in calendar views.
+///
+/// Use this in [`CalendarAppearance`] to customize labels without replacing the
+/// complete days, months, or years view. Navigation buttons and inert header or
+/// filler buttons are included so one renderer can style the whole widget.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum CalendarButtonKind {
+    /// Empty filler cell used to keep the calendar grid rectangular.
     Empty,
+    /// Weekday header cell in the days view.
     Weekday {
+        /// Weekday represented by this header cell.
         weekday: Weekday,
     },
+    /// Top header button for the days view.
     DaysHeader {
+        /// First day of the currently rendered month.
         month: CalendarDate,
     },
+    /// Selectable date button in the days view.
     Day {
+        /// Date selected when this button is clicked.
         date: CalendarDate,
+        /// Whether `date` matches the configured "today" value.
         is_today: bool,
     },
+    /// Previous-month navigation button in the days view.
     DaysPrevMonth {
+        /// First day of the month that will be shown after clicking.
         month: CalendarDate,
     },
+    /// Zoom button that switches from days to months.
     DaysZoom {
+        /// First day of the month currently rendered in the days view.
         month: CalendarDate,
     },
+    /// Next-month navigation button in the days view.
     DaysNextMonth {
+        /// First day of the month that will be shown after clicking.
         month: CalendarDate,
     },
+    /// Top header button for the months view.
     MonthsHeader {
+        /// Year currently rendered in the months view.
         year: i32,
     },
+    /// Selectable month button in the months view.
     Month {
+        /// First day of the represented month.
         month: CalendarDate,
+        /// Whether this month contains the configured "today" date.
         is_current: bool,
     },
+    /// Previous-year navigation button in the months view.
     MonthsPrevYear {
+        /// Year that will be shown after clicking.
         year: i32,
     },
+    /// Zoom button that switches from months to years.
     MonthsZoom {
+        /// Year currently rendered in the months view.
         year: i32,
     },
+    /// Next-year navigation button in the months view.
     MonthsNextYear {
+        /// Year that will be shown after clicking.
         year: i32,
     },
+    /// Selectable year button in the years view.
     Year {
+        /// Year represented by this button.
         year: i32,
+        /// Whether this year contains the configured "today" date.
         is_current: bool,
     },
+    /// Previous years-page navigation button in the years view.
     YearsPrevPage {
+        /// First year that will be shown after clicking.
         year: i32,
     },
+    /// Next years-page navigation button in the years view.
     YearsNextPage {
+        /// First year that will be shown after clicking.
         year: i32,
     },
 }
 
-/// Text renderer used by the built-in calendar views.
+/// Label customization for the built-in calendar views.
+///
+/// The default renderer prints short weekday names, month/year headers,
+/// navigation labels, and wraps the configured "today" date in brackets.
+/// Provide `text_renderer(...)` when you only need to change button text while
+/// keeping the standard days, months, and years layout.
 #[derive(Clone)]
 pub struct CalendarAppearance {
     text_renderer: Arc<CalendarTextRenderer>,
@@ -107,6 +148,8 @@ impl Default for CalendarAppearance {
 #[bon]
 impl CalendarAppearance {
     /// Create calendar appearance hooks.
+    ///
+    /// If `text_renderer` is omitted, [`CalendarAppearance::default`] is used.
     #[builder]
     #[must_use]
     pub fn new(
@@ -125,15 +168,32 @@ impl CalendarAppearance {
 }
 
 /// Context passed into custom calendar scope renderers.
+///
+/// Custom views can use this context to inspect dialog data, current calendar
+/// state, and config while producing [`InlineKeyboardButton`] rows. Prefer
+/// [`CalendarViewContext::button`] and [`CalendarViewContext::noop_button`] so
+/// callbacks keep the same `td:{intent_id}:{widget_id}:{payload}` contract as
+/// the built-in views.
 pub struct CalendarViewContext<'a> {
+    /// Dialog context currently being rendered.
     pub context: &'a Context,
+    /// Data passed to the current window render.
     pub data: &'a DataMap,
+    /// Fully resolved calendar config after dynamic user overrides are merged.
     pub config: &'a CalendarConfig,
+    /// Persisted calendar scope and offset currently being rendered.
     pub state: CalendarState,
+    /// Widget id used by the calendar callback payloads.
     pub widget_id: &'a str,
 }
 
 impl CalendarViewContext<'_> {
+    /// Build a callback button targeted at this calendar widget.
+    ///
+    /// The payload must use the same payload grammar as the built-in calendar
+    /// handler when you want default callback handling. For example,
+    /// `DATE2026-04-13` selects a date and `noop` consumes a callback without
+    /// changing state.
     #[must_use]
     pub fn button(&self, text: impl Into<Box<str>>, payload: &str) -> InlineKeyboardButton {
         InlineKeyboardButton::new(text).callback_data(format_callback_data(
@@ -143,6 +203,7 @@ impl CalendarViewContext<'_> {
         ))
     }
 
+    /// Build an inert callback button targeted at this calendar widget.
     #[must_use]
     pub fn noop_button(&self, text: impl Into<Box<str>>) -> InlineKeyboardButton {
         self.button(text, CALLBACK_NOOP)
@@ -150,6 +211,9 @@ impl CalendarViewContext<'_> {
 }
 
 /// Optional custom renderers for complete calendar scopes.
+///
+/// Use this when label-level customization is not enough and a scope needs a
+/// different row layout. Any omitted scope falls back to the built-in renderer.
 #[derive(Clone, Default)]
 pub struct CalendarViews {
     days: Option<Arc<CalendarScopeView>>,
@@ -160,6 +224,10 @@ pub struct CalendarViews {
 #[bon]
 impl CalendarViews {
     /// Create custom calendar scope renderers.
+    ///
+    /// Each renderer returns inline-keyboard rows for one scope. The standard
+    /// callback handler still processes payloads created with
+    /// [`CalendarViewContext::button`].
     #[builder]
     #[must_use]
     pub fn new(
@@ -196,21 +264,33 @@ impl CalendarViews {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum CalendarScope {
+    /// Day grid for a single month.
     Days,
+    /// Month grid for a single year.
     Months,
+    /// Year grid for a page of years.
     Years,
 }
 
 /// Rendering and range settings for [`Calendar`].
 #[derive(Clone, Debug)]
 pub struct CalendarConfig {
+    /// First weekday shown in the days view header.
     pub first_weekday: Weekday,
+    /// Offset used to calculate the default "today" date.
     pub timezone: UtcOffset,
+    /// Earliest date that can be selected or navigated to.
     pub min_date: CalendarDate,
+    /// Latest date that can be selected or navigated to.
     pub max_date: CalendarDate,
+    /// Number of month buttons per row in the months view.
     pub month_columns: usize,
+    /// Number of years shown in one years-view page.
     pub years_per_page: usize,
+    /// Number of year buttons per row in the years view.
     pub years_columns: usize,
+    /// Fixed "today" date used for rendering, or `None` to compute it from
+    /// [`CalendarConfig::timezone`] at render time.
     pub today: Option<CalendarDate>,
 }
 
@@ -232,6 +312,9 @@ impl Default for CalendarConfig {
 #[bon]
 impl CalendarConfig {
     /// Create calendar configuration.
+    ///
+    /// `min_date` and `max_date` are sorted automatically when they are passed
+    /// in reverse order. Column and page counts are clamped to at least `1`.
     #[builder]
     #[must_use]
     pub fn new(
@@ -266,46 +349,49 @@ impl CalendarConfig {
             .unwrap_or_else(|| OffsetDateTime::now_utc().to_offset(self.timezone).date())
     }
 
-    fn merge_user_config(&self, user_config: CalendarUserConfig) -> Self {
-        let min_date = user_config.min_date.unwrap_or(self.min_date);
-        let max_date = user_config.max_date.unwrap_or(self.max_date);
+    fn merge_user_config(&self, cfg: CalendarUserConfig) -> Self {
+        let min_date = cfg.min_date.unwrap_or(self.min_date);
+        let max_date = cfg.max_date.unwrap_or(self.max_date);
         let (min_date, max_date) = if min_date <= max_date {
             (min_date, max_date)
         } else {
             (max_date, min_date)
         };
         Self {
-            first_weekday: user_config.first_weekday.unwrap_or(self.first_weekday),
-            timezone: user_config.timezone.unwrap_or(self.timezone),
+            first_weekday: cfg.first_weekday.unwrap_or(self.first_weekday),
+            timezone: cfg.timezone.unwrap_or(self.timezone),
             min_date,
             max_date,
-            month_columns: user_config
-                .month_columns
-                .unwrap_or(self.month_columns)
-                .max(1),
-            years_per_page: user_config
-                .years_per_page
-                .unwrap_or(self.years_per_page)
-                .max(1),
-            years_columns: user_config
-                .years_columns
-                .unwrap_or(self.years_columns)
-                .max(1),
-            today: user_config.today.or(self.today),
+            month_columns: cfg.month_columns.unwrap_or(self.month_columns).max(1),
+            years_per_page: cfg.years_per_page.unwrap_or(self.years_per_page).max(1),
+            years_columns: cfg.years_columns.unwrap_or(self.years_columns).max(1),
+            today: cfg.today.or(self.today),
         }
     }
 }
 
 /// Per-render calendar config overrides.
+///
+/// Values returned from a calendar `config_getter(...)` are merged over the
+/// base [`CalendarConfig`] for a single render/callback pass. Leave a field as
+/// `None` to keep the base configuration.
 #[derive(Clone, Debug, Default)]
 pub struct CalendarUserConfig {
+    /// Override for [`CalendarConfig::first_weekday`].
     pub first_weekday: Option<Weekday>,
+    /// Override for [`CalendarConfig::timezone`].
     pub timezone: Option<UtcOffset>,
+    /// Override for [`CalendarConfig::min_date`].
     pub min_date: Option<CalendarDate>,
+    /// Override for [`CalendarConfig::max_date`].
     pub max_date: Option<CalendarDate>,
+    /// Override for [`CalendarConfig::month_columns`].
     pub month_columns: Option<usize>,
+    /// Override for [`CalendarConfig::years_per_page`].
     pub years_per_page: Option<usize>,
+    /// Override for [`CalendarConfig::years_columns`].
     pub years_columns: Option<usize>,
+    /// Override for the [`CalendarConfig`] `today` field.
     pub today: Option<CalendarDate>,
 }
 
@@ -338,13 +424,21 @@ impl CalendarUserConfig {
 }
 
 /// Persisted state stored in `widget_data` for [`Calendar`].
+///
+/// Calendar navigation callbacks update this state with
+/// [`ButtonAction::SetWidgetValue`](crate::widgets::ButtonAction::SetWidgetValue).
+/// Date-selection callbacks do not mutate it automatically; they call the
+/// calendar `on_click(...)` handler or return [`ButtonAction::Noop`].
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct CalendarState {
+    /// Scope currently rendered by the calendar.
     pub current_scope: CalendarScope,
+    /// Date used as the current month, year, or years-page offset.
     pub current_offset: CalendarDate,
 }
 
 impl CalendarState {
+    /// Create persisted calendar state.
     #[must_use]
     pub const fn new(current_scope: CalendarScope, current_offset: CalendarDate) -> Self {
         Self {
@@ -353,6 +447,7 @@ impl CalendarState {
         }
     }
 
+    /// Convert state to the JSON representation stored in `widget_data`.
     #[must_use]
     pub fn to_value(&self) -> Value {
         json!({
@@ -361,6 +456,7 @@ impl CalendarState {
         })
     }
 
+    /// Decode calendar state from a `widget_data` value.
     #[must_use]
     pub fn from_value(value: &Value) -> Option<Self> {
         let scope = serde_json::from_value(value.get("current_scope")?.clone()).ok()?;
@@ -370,6 +466,20 @@ impl CalendarState {
 }
 
 /// Date selection keyboard with days, months, and years views.
+///
+/// The calendar stores navigation state in `widget_data` under its widget id.
+/// Clicking a day calls `on_click(...)` with a [`CalendarDate`]; clicking month,
+/// year, and pager controls updates the stored [`CalendarState`].
+///
+/// ```
+/// use telers_dialog::widgets::{ButtonAction, Calendar};
+///
+/// let _calendar = Calendar::builder("reservation_date")
+///     .on_click(|_click, selected_date| {
+///         ButtonAction::set_dialog_value("selected_date", selected_date.to_string())
+///     })
+///     .build();
+/// ```
 pub struct Calendar<WidgetId> {
     id: WidgetId,
     config: CalendarConfig,
@@ -383,6 +493,11 @@ pub struct Calendar<WidgetId> {
 #[bon]
 impl<WidgetId> Calendar<WidgetId> {
     /// Create a calendar widget.
+    ///
+    /// Use `config(...)` for static range/layout settings, `config_getter(...)`
+    /// for per-render overrides, `appearance(...)` for label customization,
+    /// `views(...)` for full scope replacement, and `on_click(...)` to handle
+    /// selected dates.
     #[builder]
     #[must_use]
     pub fn new(

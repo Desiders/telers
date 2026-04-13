@@ -1,6 +1,6 @@
 # telers-dialog Progress Snapshot
 
-Updated: 2026-04-12 (UTC)
+Updated: 2026-04-13 (UTC)
 
 ## Goal
 - Build a focused, Rust-native dialog framework for `telers`.
@@ -84,6 +84,7 @@ Updated: 2026-04-12 (UTC)
   - `BaseScroll` stores widget id + `on_page_changed`
   - `Scroll` provides page count plus shared page-state behavior
 - Public Rustdoc coverage now includes crate root plus exported widget, manager, registry, and entity surfaces.
+- Calendar public API Rustdoc now covers configuration, per-render overrides, state encoding, built-in button roles, custom view context, and date-selection usage.
 - Callback payload contract is scoped:
   - `td:{intent_id}:{widget_id}`
   - `td:{intent_id}:{widget_id}:{payload}`
@@ -285,6 +286,8 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 ## Test and validation status
 - In-source tests exist across manager/setup/widgets/message-manager/registry/window modules.
 - Validation rerun in this session with local `cargo test -p telers-dialog`.
+- Documentation validation rerun in this session with local `cargo doc -p telers-dialog --no-deps`.
+- Compile validation rerun in this session with local `cargo check -p telers-dialog`.
 - Example validation rerun in this session with:
   - `cargo check -p dialogs_button_actions`
   - `cargo check -p dialogs_request_widgets`
@@ -338,4 +341,4 @@ Reference baseline checked against `aiogram-dialog` stable docs on 2026-04-07.
 - Add shared widget styling abstraction for Telegram button `style` and `icon_custom_emoji_id` instead of Calendar-specific styling.
 
 ## Recommended next slice
-1. Add public API documentation for the new `Calendar` widget.
+1. Consider async/manager-aware result hooks beyond action-based `on_process_result`.
