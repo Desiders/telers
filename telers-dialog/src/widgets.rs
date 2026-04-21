@@ -9,15 +9,16 @@ pub(super) use kbd::MultiKeyboard;
 pub(crate) use text::{FnText, FormatText};
 pub(crate) use widget::ensure_widgets;
 
-pub use input::{Input, MessageInput, TextInput};
+pub use input::{Input, MessageInput, MessageInputContext, TextInput, TextInputContext};
 pub use kbd::{
     sync_scroll, sync_scrolls, BaseScroll, Button, ButtonAction, Calendar, CalendarAppearance,
-    CalendarButtonKind, CalendarConfig, CalendarDate, CalendarScope, CalendarState,
-    CalendarUserConfig, CalendarViewContext, CalendarViews, Checkbox, ClickContext, Counter,
-    CurrentPage, FirstPage, Group, InlineKeyboard, Keyboard, LastPage, Multiselect, NextPage,
-    NumberedPager, OnPageChanged, PageChange, PageDirection, PagerBinding, PrevPage, Radio,
-    RequestContact, RequestLocation, RequestPoll, Scroll, ScrollingGroup, Select, StubScroll,
-    StubScrollPages, SwitchPage, TimeSelect, Toggle, WhenCondition,
+    CalendarAppearanceBuilder, CalendarBuilder, CalendarButtonKind, CalendarConfig, CalendarDate,
+    CalendarScope, CalendarScopeRows, CalendarState, CalendarUserConfig, CalendarViewContext,
+    CalendarViews, CalendarViewsBuilder, Checkbox, ClickContext, Counter, CurrentPage, FirstPage,
+    Group, InlineKeyboard, Keyboard, LastPage, Multiselect, NextPage, NumberedPager, OnPageChanged,
+    PageChange, PageDirection, PagerBinding, PrevPage, Radio, RequestContact, RequestLocation,
+    RequestPoll, Scroll, ScrollingGroup, Select, SelectClickContext, StubScroll, StubScrollPages,
+    SwitchPage, TimeSelect, Toggle, WhenCondition, WhenContext,
 };
 pub use link_preview::{LinkPreview, LinkPreviewWidget};
 pub use text::{Case, ListText, MultiText, Progress, ScrollingText, Text};

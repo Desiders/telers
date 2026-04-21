@@ -30,8 +30,9 @@ pub use action::ButtonAction;
 pub use base::Keyboard;
 pub use button::Button;
 pub use calendar::{
-    Calendar, CalendarAppearance, CalendarButtonKind, CalendarConfig, CalendarDate, CalendarScope,
-    CalendarState, CalendarUserConfig, CalendarViewContext, CalendarViews,
+    Calendar, CalendarAppearance, CalendarAppearanceBuilder, CalendarBuilder, CalendarButtonKind,
+    CalendarConfig, CalendarDate, CalendarScope, CalendarScopeRows, CalendarState,
+    CalendarUserConfig, CalendarViewContext, CalendarViews, CalendarViewsBuilder,
 };
 pub use click::ClickContext;
 pub use group::Group;
@@ -42,9 +43,9 @@ pub use pager::{
     ScrollingGroup, StubScroll, StubScrollPages, SwitchPage,
 };
 pub use request::{RequestContact, RequestLocation, RequestPoll};
-pub use select::Select;
+pub use select::{Select, SelectClickContext};
 pub use stateful_select::{Checkbox, Counter, Multiselect, Radio, TimeSelect, Toggle};
-pub use when::WhenCondition;
+pub use when::{WhenCondition, WhenContext};
 
 #[cfg(test)]
 mod tests {
@@ -52,12 +53,32 @@ mod tests {
     use telers::types::{CopyTextButton, LoginUrl, SwitchInlineQueryChosenChat, WebAppInfo};
 
     use super::{
-        Button, ButtonAction, Group, InlineKeyboard, Keyboard, MultiKeyboard, Select, WhenCondition,
+        Button, ButtonAction, ClickContext, Group, InlineKeyboard, Keyboard, MultiKeyboard, Select,
+        SelectClickContext, WhenCondition,
     };
     use crate::entities::{Context, DataMap, StartMode};
 
-    #[test]
-    fn inline_keyboard_renders_callback_data_with_intent() {
+    async fn confirm_click(click: ClickContext) -> ButtonAction {
+        ButtonAction::set_dialog_value("handled_state", click.context.state.clone())
+    }
+
+    async fn select_fruit(value: String) -> ButtonAction {
+        ButtonAction::set_dialog_value("fruit", value)
+    }
+
+    async fn select_with_prefix(select_click: SelectClickContext) -> ButtonAction {
+        let prefix = select_click
+            .click
+            .context
+            .dialog_data
+            .get("prefix")
+            .and_then(Value::as_str)
+            .unwrap_or("missing");
+        ButtonAction::set_dialog_value("fruit", format!("{prefix}:{}", select_click.payload))
+    }
+
+    #[tokio::test]
+    async fn inline_keyboard_renders_callback_data_with_intent() {
         let ctx = Context::new("", "state", Value::Null);
         let keyboard = InlineKeyboard::builder()
             .row([Button::action("go", "Go", ButtonAction::Next)])
@@ -65,6 +86,7 @@ mod tests {
 
         let markup = keyboard
             .render_keyboard_for_test(&ctx, &DataMap::new())
+            .await
             .expect("keyboard");
         let callback_data = markup
             .inline_keyboard()
@@ -76,8 +98,8 @@ mod tests {
         assert_eq!(callback_data, format!("td:{}:go", ctx.id));
     }
 
-    #[test]
-    fn inline_keyboard_ignores_foreign_intent_callbacks() {
+    #[tokio::test]
+    async fn inline_keyboard_ignores_foreign_intent_callbacks() {
         let ctx = Context::new("", "state", Value::Null);
         let keyboard = InlineKeyboard::builder()
             .row([Button::action(
@@ -93,20 +115,20 @@ mod tests {
 
         assert!(keyboard
             .handle_callback_for_test(&ctx, "td:another:go")
+            .await
             .is_none());
     }
 
-    #[test]
-    fn button_on_click_receives_click_context() {
+    #[tokio::test]
+    async fn button_on_click_receives_click_context() {
         let ctx = Context::new("", "confirm_delete", Value::Null);
         let keyboard = InlineKeyboard::builder()
-            .row([Button::on_click("confirm", "Confirm", |click| {
-                ButtonAction::set_dialog_value("handled_state", click.context.state.clone())
-            })])
+            .row([Button::on_click("confirm", "Confirm", confirm_click)])
             .build();
 
         let action = keyboard
             .handle_callback_for_test(&ctx, &format!("td:{}:confirm", ctx.id))
+            .await
             .expect("button action");
 
         assert!(matches!(
@@ -116,8 +138,8 @@ mod tests {
         ));
     }
 
-    #[test]
-    fn keyboard_when_condition_filters_render_and_callbacks() {
+    #[tokio::test]
+    async fn keyboard_when_condition_filters_render_and_callbacks() {
         let mut ctx = Context::new("", "state", Value::Null);
         let mut data = DataMap::new();
         let keyboard = MultiKeyboard::new().kbd_boxed(Box::new(
@@ -127,34 +149,44 @@ mod tests {
                 .build(),
         ));
 
-        assert!(keyboard.render_keyboard_for_test(&ctx, &data).is_none());
+        assert!(keyboard
+            .render_keyboard_for_test(&ctx, &data)
+            .await
+            .is_none());
         assert!(keyboard
             .handle_callback_for_test(&ctx, &format!("td:{}:go", ctx.id))
+            .await
             .is_none());
 
         data.insert("show".into(), Value::Bool(true));
         ctx.dialog_data = data.clone();
 
-        assert!(keyboard.render_keyboard_for_test(&ctx, &data).is_some());
+        assert!(keyboard
+            .render_keyboard_for_test(&ctx, &data)
+            .await
+            .is_some());
         assert!(matches!(
-            keyboard.handle_callback_for_test(&ctx, &format!("td:{}:go", ctx.id)),
+            keyboard
+                .handle_callback_for_test(&ctx, &format!("td:{}:go", ctx.id))
+                .await,
             Some(ButtonAction::Next)
         ));
     }
 
-    #[test]
-    fn select_renders_and_resolves_string_payloads() {
+    #[tokio::test]
+    async fn select_renders_and_resolves_string_payloads() {
         let ctx = Context::new("", "state", Value::Null);
 
         let select = Select::builder("fruit")
             .items_getter(|_data| ["red:apple", "pear"])
             .item_renderer(|item, _data| item.to_owned())
             .id_getter(|item| item)
-            .action(|value| ButtonAction::set_dialog_value("fruit", value))
+            .action(select_fruit)
             .build();
 
         let markup = select
             .render_keyboard_for_test(&ctx, &DataMap::new())
+            .await
             .expect("keyboard");
         let callback_data = markup
             .inline_keyboard()
@@ -167,6 +199,7 @@ mod tests {
 
         let action = select
             .handle_callback_for_test(&ctx, callback_data)
+            .await
             .expect("select action");
 
         assert!(matches!(
@@ -176,8 +209,8 @@ mod tests {
         ));
     }
 
-    #[test]
-    fn select_action_receives_click_context() {
+    #[tokio::test]
+    async fn select_action_receives_click_context() {
         let mut ctx = Context::new("", "state", Value::Null);
         ctx.dialog_data
             .insert("prefix".into(), Value::String("chosen".into()));
@@ -186,19 +219,12 @@ mod tests {
             .items_getter(|_data| ["apple"])
             .item_renderer(|item, _data| item.to_owned())
             .id_getter(|item| item)
-            .on_click(|click, value| {
-                let prefix = click
-                    .context
-                    .dialog_data
-                    .get("prefix")
-                    .and_then(Value::as_str)
-                    .unwrap_or("missing");
-                ButtonAction::set_dialog_value("fruit", format!("{prefix}:{value}"))
-            })
+            .on_click(select_with_prefix)
             .build();
 
         let action = select
             .handle_callback_for_test(&ctx, &format!("td:{}:fruit:apple", ctx.id))
+            .await
             .expect("select action");
 
         assert!(matches!(
@@ -208,27 +234,28 @@ mod tests {
         ));
     }
 
-    #[test]
-    fn select_allows_static_footer_buttons() {
+    #[tokio::test]
+    async fn select_allows_static_footer_buttons() {
         let ctx = Context::new("", "state", Value::Null);
 
         let select = Select::builder("fruit")
             .items_getter(|_data| ["pear"])
             .item_renderer(|item, _data| item.to_owned())
             .id_getter(|item| item)
-            .action(|value| ButtonAction::set_dialog_value("fruit", value))
+            .action(select_fruit)
             .footer_push(Button::done("done", "Done"))
             .build();
 
         let action = select
             .handle_callback_for_test(&ctx, &format!("td:{}:done", ctx.id))
+            .await
             .expect("footer action");
 
         assert!(matches!(action, ButtonAction::Done));
     }
 
-    #[test]
-    fn group_chunks_inline_keyboard_rows() {
+    #[tokio::test]
+    async fn group_chunks_inline_keyboard_rows() {
         let ctx = Context::new("", "state", Value::Null);
         let grouped = Group::builder(
             InlineKeyboard::builder()
@@ -244,6 +271,7 @@ mod tests {
 
         let markup = grouped
             .render_keyboard_for_test(&ctx, &DataMap::new())
+            .await
             .expect("keyboard");
         let rows = markup.inline_keyboard().expect("inline keyboard");
 
@@ -252,8 +280,8 @@ mod tests {
         assert_eq!(rows[1].len(), 1);
     }
 
-    #[test]
-    fn inline_keyboard_renders_non_callback_button_variants() {
+    #[tokio::test]
+    async fn inline_keyboard_renders_non_callback_button_variants() {
         let ctx = Context::new("", "state", Value::Null);
         let keyboard = InlineKeyboard::builder()
             .row([Button::web_app(
@@ -275,6 +303,7 @@ mod tests {
 
         let markup = keyboard
             .render_keyboard_for_test(&ctx, &DataMap::new())
+            .await
             .expect("keyboard");
         let rows = markup.inline_keyboard().expect("inline keyboard");
 

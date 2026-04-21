@@ -1,5 +1,6 @@
 use std::{borrow::Cow, sync::Arc};
 
+use async_fn_traits::AsyncFn1;
 use telers::types::{
     CopyTextButton, InlineKeyboardButton, LoginUrl, SwitchInlineQueryChosenChat, WebAppInfo,
 };
@@ -8,10 +9,12 @@ use tracing::debug;
 use super::{format_callback_data, parse_callback_data, ButtonAction, ClickContext};
 use crate::{
     entities::{Data, RenderContext, StartMode},
+    future::BoxFuture,
     widgets::Text,
 };
 
-type ButtonClickHandler = dyn for<'a> Fn(&ClickContext<'a>) -> ButtonAction + Send + Sync + 'static;
+type ButtonClickHandler =
+    dyn Fn(ClickContext) -> BoxFuture<'static, ButtonAction> + Send + Sync + 'static;
 
 #[derive(Clone)]
 enum ButtonKind {
@@ -47,17 +50,25 @@ impl Button {
         }
     }
 
-    /// Create a callback button with a synchronous click handler.
+    /// Create a callback button with an async click handler.
     #[must_use]
-    pub fn on_click(
-        id: impl Into<Cow<'static, str>>,
-        text: impl Text,
-        handler: impl for<'a> Fn(&ClickContext<'a>) -> ButtonAction + Send + Sync + 'static,
-    ) -> Self {
+    pub fn on_click<F>(id: impl Into<Cow<'static, str>>, text: impl Text, handler: F) -> Self
+    where
+        F: AsyncFn(ClickContext) -> ButtonAction
+            + AsyncFn1<ClickContext, Output = ButtonAction>
+            + Send
+            + Sync
+            + 'static,
+        <F as AsyncFn1<ClickContext>>::OutputFuture: Send + 'static,
+    {
+        let handler = Arc::new(handler);
         Self {
             id: id.into(),
             text: Arc::new(text),
-            kind: ButtonKind::OnClick(Arc::new(handler)),
+            kind: ButtonKind::OnClick(Arc::new(move |click| {
+                let handler = handler.clone();
+                Box::pin(async move { handler(click).await })
+            })),
         }
     }
 
@@ -205,49 +216,60 @@ impl Button {
         }
     }
 
-    pub(crate) fn render(&self, render_ctx: &RenderContext<'_>) -> InlineKeyboardButton {
-        let ctx = render_ctx.context;
-        let button = InlineKeyboardButton::new(self.text.render_text_in_context(render_ctx));
-        match &self.kind {
-            ButtonKind::Callback(_) | ButtonKind::OnClick(_) => {
-                button.callback_data(format_callback_data(ctx, &self.id, None))
+    pub(crate) fn render<'a>(
+        &'a self,
+        render_ctx: &'a RenderContext,
+    ) -> BoxFuture<'a, InlineKeyboardButton> {
+        Box::pin(async move {
+            let ctx = render_ctx.context.as_ref();
+            let button =
+                InlineKeyboardButton::new(self.text.render_text_in_context(render_ctx).await);
+            match &self.kind {
+                ButtonKind::Callback(_) | ButtonKind::OnClick(_) => {
+                    button.callback_data(format_callback_data(ctx, &self.id, None))
+                }
+                ButtonKind::Url(url) => button.url(url.clone()),
+                ButtonKind::WebApp(web_app) => button.web_app(web_app.clone()),
+                ButtonKind::LoginUrl(login_url) => button.login_url(login_url.clone()),
+                ButtonKind::SwitchInlineQuery(query) => button.switch_inline_query(query.clone()),
+                ButtonKind::SwitchInlineQueryCurrentChat(query) => {
+                    button.switch_inline_query_current_chat(query.clone())
+                }
+                ButtonKind::SwitchInlineQueryChosenChat(query) => {
+                    button.switch_inline_query_chosen_chat(query.clone())
+                }
+                ButtonKind::CopyText(copy_text) => button.copy_text(copy_text.clone()),
             }
-            ButtonKind::Url(url) => button.url(url.clone()),
-            ButtonKind::WebApp(web_app) => button.web_app(web_app.clone()),
-            ButtonKind::LoginUrl(login_url) => button.login_url(login_url.clone()),
-            ButtonKind::SwitchInlineQuery(query) => button.switch_inline_query(query.clone()),
-            ButtonKind::SwitchInlineQueryCurrentChat(query) => {
-                button.switch_inline_query_current_chat(query.clone())
-            }
-            ButtonKind::SwitchInlineQueryChosenChat(query) => {
-                button.switch_inline_query_chosen_chat(query.clone())
-            }
-            ButtonKind::CopyText(copy_text) => button.copy_text(copy_text.clone()),
-        }
+        })
     }
 
-    pub(crate) fn resolve_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
-        let ctx = click.context;
-        let parsed = parse_callback_data(ctx, click.callback_data)?;
-        if parsed.target_id != self.id.as_ref() || parsed.payload.is_some() {
-            return None;
-        }
-        match &self.kind {
-            ButtonKind::Callback(action) => {
-                debug!(context_id = %ctx.id, button_id = %self.id, "Resolved button callback");
-                Some(action.clone())
+    pub(crate) fn resolve_callback<'a>(
+        &'a self,
+        click: &'a ClickContext,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
+        Box::pin(async move {
+            let ctx = click.context.as_ref();
+            let parsed = parse_callback_data(ctx, click.callback_data.as_str())?;
+            if parsed.target_id != self.id.as_ref() || parsed.payload.is_some() {
+                return None;
             }
-            ButtonKind::OnClick(handler) => {
-                debug!(context_id = %ctx.id, button_id = %self.id, "Resolved button click handler");
-                Some(handler(click))
+            match &self.kind {
+                ButtonKind::Callback(action) => {
+                    debug!(context_id = %ctx.id, button_id = %self.id, "Resolved button callback");
+                    Some(action.clone())
+                }
+                ButtonKind::OnClick(handler) => {
+                    debug!(context_id = %ctx.id, button_id = %self.id, "Resolved button click handler");
+                    Some(handler(click.clone()).await)
+                }
+                ButtonKind::Url(_)
+                | ButtonKind::WebApp(_)
+                | ButtonKind::LoginUrl(_)
+                | ButtonKind::SwitchInlineQuery(_)
+                | ButtonKind::SwitchInlineQueryCurrentChat(_)
+                | ButtonKind::SwitchInlineQueryChosenChat(_)
+                | ButtonKind::CopyText(_) => None,
             }
-            ButtonKind::Url(_)
-            | ButtonKind::WebApp(_)
-            | ButtonKind::LoginUrl(_)
-            | ButtonKind::SwitchInlineQuery(_)
-            | ButtonKind::SwitchInlineQueryCurrentChat(_)
-            | ButtonKind::SwitchInlineQueryChosenChat(_)
-            | ButtonKind::CopyText(_) => None,
-        }
+        })
     }
 }

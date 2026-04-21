@@ -2,7 +2,10 @@ use bon::Builder;
 use std::borrow::Cow;
 
 use super::Text;
-use crate::entities::{DataMap, RenderContext};
+use crate::{
+    entities::{DataMap, RenderContext},
+    future::BoxFuture,
+};
 
 #[derive(Builder)]
 pub struct MultiText {
@@ -28,21 +31,26 @@ where
 }
 
 impl Text for MultiText {
-    fn render_text(&self, data: &DataMap) -> Box<str> {
-        self.items
-            .iter()
-            .map(|item| item.render_text(data).into_string())
-            .collect::<Vec<_>>()
-            .join(&self.separator)
-            .into_boxed_str()
+    fn render_text<'a>(&'a self, data: &'a DataMap) -> BoxFuture<'a, Box<str>> {
+        Box::pin(async move {
+            let mut rendered = Vec::with_capacity(self.items.len());
+            for item in &self.items {
+                rendered.push(item.render_text(data).await.into_string());
+            }
+            rendered.join(&self.separator).into_boxed_str()
+        })
     }
 
-    fn render_text_in_context(&self, render_ctx: &RenderContext<'_>) -> Box<str> {
-        self.items
-            .iter()
-            .map(|item| item.render_text_in_context(render_ctx).into_string())
-            .collect::<Vec<_>>()
-            .join(&self.separator)
-            .into_boxed_str()
+    fn render_text_in_context<'a>(
+        &'a self,
+        render_ctx: &'a RenderContext,
+    ) -> BoxFuture<'a, Box<str>> {
+        Box::pin(async move {
+            let mut rendered = Vec::with_capacity(self.items.len());
+            for item in &self.items {
+                rendered.push(item.render_text_in_context(render_ctx).await.into_string());
+            }
+            rendered.join(&self.separator).into_boxed_str()
+        })
     }
 }

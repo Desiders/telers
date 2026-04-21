@@ -619,7 +619,7 @@ impl<S: Storage> DialogManager<S> {
         self.check_access(stack, Some(&ctx), event_ctx)?;
         let dialog = self.resolve_dialog(&ctx.state)?;
         let click = ClickContext::new(&ctx, callback_data, &self.event, event_ctx, &self.context);
-        let Some(action) = dialog.handle_callback(&ctx.state, &click) else {
+        let Some(action) = dialog.handle_callback(&ctx.state, &click).await else {
             trace!(state = %ctx.state, "Callback does not belong to current dialog");
             return Ok(false);
         };
@@ -654,7 +654,7 @@ impl<S: Storage> DialogManager<S> {
         let stack = storage.current_stack().ok_or(DialogError::NoContext)?;
         self.check_access(stack, Some(&ctx), event_ctx)?;
         let dialog = self.resolve_dialog(&ctx.state)?;
-        let Some(action) = dialog.handle_message(&ctx.state, &ctx, message) else {
+        let Some(action) = dialog.handle_message(&ctx.state, &ctx, message).await else {
             trace!(state = %ctx.state, "Message does not belong to current dialog");
             return Ok(false);
         };
@@ -932,6 +932,7 @@ impl<S: Storage> DialogManager<S> {
         let render_ctx = RenderContext::new(&ctx, &data, &self.event, event_ctx);
         let msg = dialog
             .render(&ctx.state, &render_ctx)
+            .await
             .ok_or(DialogError::DialogNotFound)?;
         let mut msg = msg;
         if let Some(sm) = show_mode {
@@ -979,7 +980,7 @@ mod tests {
             AccessSettings, ChatEvent, Context, DataMap, EventContext, LaunchMode, ShowMode, Stack,
             StartMode, EVENT_CONTEXT_KEY,
         },
-        widgets::{fn_text, input, text, ButtonAction, MessageInput},
+        widgets::{fn_text, input, text, ButtonAction, MessageInput, MessageInputContext},
         window, DialogError, DialogRegistry, IntoDialog, IntoWindow, StackAccessValidator,
     };
     use serde_json::{json, Value};
@@ -1019,6 +1020,15 @@ mod tests {
             .from(test_user())
             .into();
         ChatEvent::Message(message)
+    }
+
+    async fn store_input_name(_ctx: MessageInputContext, message: MessageText) -> ButtonAction {
+        let name = message.text.to_string();
+        ButtonAction::chain([
+            ButtonAction::set_widget_value("input.name", name.clone()),
+            ButtonAction::set_dialog_value("name", name),
+            ButtonAction::next(),
+        ])
     }
 
     fn runtime_context(event: &ChatEvent) -> RuntimeContext {
@@ -1243,14 +1253,7 @@ mod tests {
                 "ask_name",
                 [
                     text("Send your name"),
-                    input(MessageInput::new(|_ctx, message: MessageText| {
-                        let name = message.text.to_string();
-                        ButtonAction::chain([
-                            ButtonAction::set_widget_value("input.name", name.clone()),
-                            ButtonAction::set_dialog_value("name", name),
-                            ButtonAction::next(),
-                        ])
-                    })),
+                    input(MessageInput::new(store_input_name)),
                 ],
             ),
             window("done", [text("Done")]),
@@ -1414,8 +1417,8 @@ mod tests {
         assert!(!stack.last_reply_keyboard);
     }
 
-    #[test]
-    fn calc_show_mode_uses_delete_and_send_after_reply_keyboard() {
+    #[tokio::test]
+    async fn calc_show_mode_uses_delete_and_send_after_reply_keyboard() {
         let event = message_event("hello");
         let mut manager = DialogManager::new(
             test_fsm(test_bot().id),
@@ -1433,8 +1436,8 @@ mod tests {
         );
     }
 
-    #[test]
-    fn calc_show_mode_sends_for_new_private_media_group() {
+    #[tokio::test]
+    async fn calc_show_mode_sends_for_new_private_media_group() {
         let event = message_event_with_media_group("photo 1", "album-2");
         let mut manager = DialogManager::new(
             test_fsm(test_bot().id),
@@ -1452,8 +1455,8 @@ mod tests {
         );
     }
 
-    #[test]
-    fn calc_show_mode_edits_when_private_media_group_matches_previous() {
+    #[tokio::test]
+    async fn calc_show_mode_edits_when_private_media_group_matches_previous() {
         let event = message_event_with_media_group("photo 2", "album-2");
         let mut manager = DialogManager::new(
             test_fsm(test_bot().id),
@@ -1471,8 +1474,8 @@ mod tests {
         );
     }
 
-    #[test]
-    fn get_last_message_restores_inline_keyboard_type_from_stored_snapshot() {
+    #[tokio::test]
+    async fn get_last_message_restores_inline_keyboard_type_from_stored_snapshot() {
         let event = message_event("/start");
         let manager = manager_for_event(
             test_fsm(test_bot().id),
@@ -1528,16 +1531,16 @@ mod tests {
         manager
     }
 
-    #[test]
-    fn access_check_allows_when_no_settings() {
+    #[tokio::test]
+    async fn access_check_allows_when_no_settings() {
         let event = message_event("/start");
         let manager = manager_for_event(test_fsm(test_bot().id), DialogRegistry::new(), event);
         let event_ctx = manager.event_context();
         assert!(manager.check_access(&Stack::new(), None, event_ctx).is_ok());
     }
 
-    #[test]
-    fn access_check_allows_in_private_chat_regardless_of_user_ids() {
+    #[tokio::test]
+    async fn access_check_allows_in_private_chat_regardless_of_user_ids() {
         let event = message_event("/start");
         let manager = manager_for_event(test_fsm(test_bot().id), DialogRegistry::new(), event);
         let event_ctx = manager.event_context();
@@ -1552,8 +1555,8 @@ mod tests {
             .is_ok());
     }
 
-    #[test]
-    fn access_check_denies_in_group_chat_when_user_not_in_list() {
+    #[tokio::test]
+    async fn access_check_denies_in_group_chat_when_user_not_in_list() {
         let bot = test_bot();
         let manager = group_manager(test_fsm(bot.id), DialogRegistry::new(), TEST_USER_ID);
         let event_ctx = manager.event_context();
@@ -1569,8 +1572,8 @@ mod tests {
         assert!(matches!(err, DialogError::AccessDenied { user_id } if user_id == TEST_USER_ID));
     }
 
-    #[test]
-    fn access_check_allows_in_group_chat_when_user_in_list() {
+    #[tokio::test]
+    async fn access_check_allows_in_group_chat_when_user_in_list() {
         let bot = test_bot();
         let manager = group_manager(test_fsm(bot.id), DialogRegistry::new(), TEST_USER_ID);
         let event_ctx = manager.event_context();
@@ -1585,8 +1588,8 @@ mod tests {
             .is_ok());
     }
 
-    #[test]
-    fn access_check_allows_in_group_chat_when_user_ids_empty() {
+    #[tokio::test]
+    async fn access_check_allows_in_group_chat_when_user_ids_empty() {
         let bot = test_bot();
         let manager = group_manager(test_fsm(bot.id), DialogRegistry::new(), TEST_USER_ID);
         let event_ctx = manager.event_context();
@@ -1601,8 +1604,8 @@ mod tests {
             .is_ok());
     }
 
-    #[test]
-    fn custom_access_validator_can_override_default_behavior() {
+    #[tokio::test]
+    async fn custom_access_validator_can_override_default_behavior() {
         let event = message_event("/start");
         let registry = DialogRegistry::new().with_access_validator(DenyAllValidator);
         let manager = manager_for_event(test_fsm(test_bot().id), registry, event);

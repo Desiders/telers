@@ -2,8 +2,11 @@ use bon::bon;
 use std::{borrow::Cow, sync::Arc};
 
 use super::Text;
+#[cfg(test)]
+use crate::entities::{ChatEvent, EventContext};
 use crate::{
     entities::{DataMap, RenderContext},
+    future::BoxFuture,
     widgets::{BaseScroll, OnPageChanged, Scroll},
 };
 
@@ -73,25 +76,39 @@ impl ScrollingText {
 
     /// Compute how many pages the current text produces.
     #[must_use]
-    pub fn page_count(&self, data: &DataMap) -> usize {
-        self.page_count_for_text(&self.text.render_text(data))
+    pub async fn page_count(&self, data: &DataMap) -> usize {
+        self.page_count_for_text(&self.text.render_text(data).await)
     }
 
     /// Compute how many pages the current text produces with access to widget state.
     #[must_use]
-    pub fn page_count_in_context(&self, render_ctx: &RenderContext<'_>) -> usize {
-        self.page_count_for_text(&self.text.render_text_in_context(render_ctx))
+    pub async fn page_count_in_context(&self, render_ctx: &RenderContext) -> usize {
+        self.page_count_for_text(&self.text.render_text_in_context(render_ctx).await)
     }
 
     #[cfg(test)]
     #[must_use]
-    pub fn page_count_in_context_for_test(
-        &self,
-        ctx: &crate::entities::Context,
-        data: &DataMap,
-    ) -> usize {
-        RenderContext::with_test(ctx, data, |render_ctx| {
-            self.page_count_in_context(render_ctx)
+    pub fn page_count_in_context_for_test<'a>(
+        &'a self,
+        ctx: &'a crate::entities::Context,
+        data: &'a DataMap,
+    ) -> BoxFuture<'a, usize> {
+        Box::pin(async move {
+            use telers::{
+                client::Reqwest,
+                types::{ChatPrivate, MessageText, User},
+                Bot,
+            };
+
+            let event = ChatEvent::Message(
+                MessageText::new(1, 1, ChatPrivate::new(10), "/test")
+                    .from(User::new(10, false, "tester"))
+                    .into(),
+            );
+            let event_context =
+                EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+            let render_ctx = RenderContext::new(ctx, data, &event, &event_context);
+            self.page_count_in_context(&render_ctx).await
         })
     }
 }
@@ -101,20 +118,25 @@ impl Scroll for ScrollingText {
         &self.base_scroll
     }
 
-    fn get_page_count(&self, render_ctx: &RenderContext<'_>) -> usize {
-        self.page_count_in_context(render_ctx)
+    fn get_page_count(&self, render_ctx: RenderContext) -> BoxFuture<'_, usize> {
+        Box::pin(async move { self.page_count_in_context(&render_ctx).await })
     }
 }
 
 impl Text for ScrollingText {
-    fn render_text(&self, data: &DataMap) -> Box<str> {
-        self.render_page(self.text.render_text(data), 0)
+    fn render_text<'a>(&'a self, data: &'a DataMap) -> BoxFuture<'a, Box<str>> {
+        Box::pin(async move { self.render_page(self.text.render_text(data).await, 0) })
     }
 
-    fn render_text_in_context(&self, render_ctx: &RenderContext<'_>) -> Box<str> {
-        self.render_page(
-            self.text.render_text_in_context(render_ctx),
-            self.get_page(render_ctx.context),
-        )
+    fn render_text_in_context<'a>(
+        &'a self,
+        render_ctx: &'a RenderContext,
+    ) -> BoxFuture<'a, Box<str>> {
+        Box::pin(async move {
+            self.render_page(
+                self.text.render_text_in_context(render_ctx).await,
+                self.get_page(render_ctx.context.as_ref()),
+            )
+        })
     }
 }

@@ -7,7 +7,10 @@ use super::super::{
     format_callback_data, parse_callback_data, render_button_row, when::is_allowed, Button,
     ButtonAction, ClickContext, Keyboard, WhenCondition,
 };
-use crate::entities::{Context, DataMap, RenderContext};
+use crate::{
+    entities::{Context, DataMap, RenderContext},
+    future::BoxFuture,
+};
 
 pub struct Toggle<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id> {
     id: WidgetId,
@@ -103,97 +106,109 @@ where
     WidgetId: Display + Send + Sync + 'static,
     ItemsGetter: Fn(&DataMap) -> ItemsIter + Send + Sync + 'static,
     ItemsIter: IntoIterator<Item = Item> + 'static,
-    Item: 'static,
+    Item: Send + 'static,
     ItemRenderer: Fn(&Item, &DataMap) -> ItemStr + Send + Sync + 'static,
     ItemStr: Into<Box<str>> + 'static,
     IdGetter: Fn(&Item) -> Id + Send + Sync + 'static,
     Id: Display + Send + Sync + 'static,
 {
-    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
-        let ctx = render_ctx.context;
-        let data = render_ctx.data;
-        if !self.is_visible(ctx, data) {
-            return None;
-        }
-        let widget_id = self.id.to_string();
-        let selected: Option<String> = ctx.widget_value_as(&widget_id);
-        let items: Vec<_> = (self.items_getter)(data).into_iter().collect();
-        if items.is_empty() && self.header_rows.is_empty() && self.footer_rows.is_empty() {
-            return None;
-        }
+    fn render_keyboard<'a>(
+        &'a self,
+        render_ctx: &'a RenderContext,
+    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
+        Box::pin(async move {
+            let ctx = render_ctx.context.as_ref();
+            let data = render_ctx.data.as_ref();
+            if !self.is_visible(ctx, data).await {
+                return None;
+            }
+            let widget_id = self.id.to_string();
+            let selected: Option<String> = ctx.widget_value_as(&widget_id);
+            let items: Vec<_> = (self.items_getter)(data).into_iter().collect();
+            if items.is_empty() && self.header_rows.is_empty() && self.footer_rows.is_empty() {
+                return None;
+            }
 
-        let mut rows: Vec<_> = self
-            .header_rows
-            .iter()
-            .map(|row| render_button_row(row, render_ctx))
-            .collect();
+            let mut rows = Vec::new();
+            for row in &self.header_rows {
+                rows.push(render_button_row(row, render_ctx).await);
+            }
 
-        if !items.is_empty() {
-            let current_idx = selected
-                .as_deref()
-                .and_then(|selected| {
-                    items
-                        .iter()
-                        .position(|item| (self.id_getter)(item).to_string() == selected)
-                })
-                .unwrap_or(0);
-            let next_idx = (current_idx + 1) % items.len();
-            let current_item = &items[current_idx];
-            let next_item_id = (self.id_getter)(&items[next_idx]).to_string();
-            rows.push(
-                [
-                    InlineKeyboardButton::new((self.item_renderer)(current_item, data))
-                        .callback_data(format_callback_data(ctx, &self.id, Some(&next_item_id))),
-                ]
-                .into(),
-            );
-        }
+            if !items.is_empty() {
+                let current_idx = selected
+                    .as_deref()
+                    .and_then(|selected| {
+                        items
+                            .iter()
+                            .position(|item| (self.id_getter)(item).to_string() == selected)
+                    })
+                    .unwrap_or(0);
+                let next_idx = (current_idx + 1) % items.len();
+                let current_item = &items[current_idx];
+                let next_item_id = (self.id_getter)(&items[next_idx]).to_string();
+                rows.push(
+                    [
+                        InlineKeyboardButton::new((self.item_renderer)(current_item, data))
+                            .callback_data(format_callback_data(
+                                ctx,
+                                &self.id,
+                                Some(&next_item_id),
+                            )),
+                    ]
+                    .into(),
+                );
+            }
 
-        rows.extend(
-            self.footer_rows
-                .iter()
-                .map(|row| render_button_row(row, render_ctx)),
-        );
+            for row in &self.footer_rows {
+                rows.push(render_button_row(row, render_ctx).await);
+            }
 
-        if rows.is_empty() {
-            None
-        } else {
-            Some(InlineKeyboardMarkup::new(rows).into())
-        }
+            if rows.is_empty() {
+                None
+            } else {
+                Some(InlineKeyboardMarkup::new(rows).into())
+            }
+        })
     }
 
-    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
-        let ctx = click.context;
-        let callback_data = click.callback_data;
-        let data = &ctx.dialog_data;
-        if !self.is_visible(ctx, data) {
-            return None;
-        }
-        if let Some(action) = self
-            .header_rows
-            .iter()
-            .chain(self.footer_rows.iter())
-            .flat_map(|row| row.iter())
-            .find_map(|button| button.resolve_callback(click))
-        {
-            return Some(action);
-        }
+    fn handle_callback<'a>(
+        &'a self,
+        click: &'a ClickContext,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
+        Box::pin(async move {
+            let ctx = click.context.as_ref();
+            let callback_data = click.callback_data.as_str();
+            let data = &ctx.dialog_data;
+            if !self.is_visible(ctx, data).await {
+                return None;
+            }
+            for button in self
+                .header_rows
+                .iter()
+                .chain(self.footer_rows.iter())
+                .flat_map(|row| row.iter())
+            {
+                if let Some(action) = button.resolve_callback(click).await {
+                    return Some(action);
+                }
+            }
 
-        let parsed = parse_callback_data(ctx, callback_data)?;
-        if parsed.target_id != self.id.to_string() {
-            return None;
-        }
-        let payload = parsed.payload?;
-        debug!(
-            context_id = %ctx.id,
-            widget_id = %self.id,
-            item_id = payload,
-            "Resolved toggle selection callback"
-        );
-        Some(ButtonAction::set_widget_value(self.id.to_string(), payload))
+            let parsed = parse_callback_data(ctx, callback_data)?;
+            if parsed.target_id != self.id.to_string() {
+                return None;
+            }
+            let payload = parsed.payload?;
+            debug!(
+                context_id = %ctx.id,
+                widget_id = %self.id,
+                item_id = payload,
+                "Resolved toggle selection callback"
+            );
+            Some(ButtonAction::set_widget_value(self.id.to_string(), payload))
+        })
     }
 }

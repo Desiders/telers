@@ -372,8 +372,8 @@ mod tests {
         }
     }
 
-    #[test]
-    fn dialog_observer_ext_marks_message_and_callback_observers_as_used() {
+    #[tokio::test]
+    async fn dialog_observer_ext_marks_message_and_callback_observers_as_used() {
         let router = Router::<Reqwest>::new("dialogs")
             .on_message(|observer| observer.setup_dialogs::<MemoryStorage>())
             .on_callback_query(|observer| observer.setup_dialogs::<MemoryStorage>());

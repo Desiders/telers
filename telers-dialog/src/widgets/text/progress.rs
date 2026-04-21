@@ -1,7 +1,10 @@
 use std::borrow::Cow;
 
 use super::Text;
-use crate::entities::{Data, DataMap};
+use crate::{
+    entities::{Data, DataMap},
+    future::BoxFuture,
+};
 
 /// Render a textual progress bar from a percentage field in `DataMap`.
 pub struct Progress {
@@ -46,25 +49,32 @@ impl Progress {
 }
 
 impl Text for Progress {
-    fn render_text(&self, data: &DataMap) -> Box<str> {
-        let percent = data
-            .get(self.field.as_ref())
-            .and_then(|value| match value {
-                Data::Number(value) => value.as_f64(),
-                Data::String(value) => value.parse::<f64>().ok(),
-                _ => None,
-            })
-            .unwrap_or_default()
-            .clamp(0.0, 100.0);
-        let done = ((self.width as f64 * percent) / 100.0).round() as usize;
-        let rest = self.width.saturating_sub(done);
+    fn render_text<'a>(&'a self, data: &'a DataMap) -> BoxFuture<'a, Box<str>> {
+        Box::pin(async move {
+            let percent = data
+                .get(self.field.as_ref())
+                .and_then(|value| match value {
+                    Data::Number(value) => value.as_f64(),
+                    Data::String(value) => value.parse::<f64>().ok(),
+                    _ => None,
+                })
+                .unwrap_or_default()
+                .clamp(0.0, 100.0);
+            #[allow(
+                clippy::cast_possible_truncation,
+                clippy::cast_precision_loss,
+                clippy::cast_sign_loss
+            )]
+            let done = ((self.width as f64 * percent) / 100.0).round() as usize;
+            let rest = self.width.saturating_sub(done);
 
-        format!(
-            "{}{} {:>3.0}%",
-            self.filled.repeat(done),
-            self.empty.repeat(rest),
-            percent
-        )
-        .into_boxed_str()
+            format!(
+                "{}{} {:>3.0}%",
+                self.filled.repeat(done),
+                self.empty.repeat(rest),
+                percent
+            )
+            .into_boxed_str()
+        })
     }
 }

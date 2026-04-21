@@ -1,26 +1,46 @@
 use bon::bon;
 use telers::types::LinkPreviewOptions;
 
-use crate::{entities::RenderContext, widgets::Text};
+#[cfg(test)]
+use crate::entities::{ChatEvent, EventContext};
+use crate::{entities::RenderContext, future::BoxFuture, widgets::Text};
 
 /// Widget that renders link preview options for a window.
 pub trait LinkPreviewWidget: Send + Sync + 'static {
     /// Render link preview options for the current data snapshot.
-    fn render_link_preview(&self, render_ctx: &RenderContext<'_>) -> Option<LinkPreviewOptions>;
+    fn render_link_preview<'a>(
+        &'a self,
+        render_ctx: &'a RenderContext,
+    ) -> BoxFuture<'a, Option<LinkPreviewOptions>>;
 
     #[cfg(test)]
-    fn render_link_preview_for_test(
-        &self,
-        data: &crate::entities::DataMap,
-    ) -> Option<LinkPreviewOptions> {
-        let ctx = crate::entities::Context::new("", "state", serde_json::Value::Null);
-        RenderContext::with_test(&ctx, data, |render_ctx| {
-            self.render_link_preview(render_ctx)
+    fn render_link_preview_for_test<'a>(
+        &'a self,
+        data: &'a crate::entities::DataMap,
+    ) -> BoxFuture<'a, Option<LinkPreviewOptions>> {
+        Box::pin(async move {
+            use telers::{
+                client::Reqwest,
+                types::{ChatPrivate, MessageText, User},
+                Bot,
+            };
+
+            let ctx = crate::entities::Context::new("", "state", serde_json::Value::Null);
+            let event = ChatEvent::Message(
+                MessageText::new(1, 1, ChatPrivate::new(10), "/test")
+                    .from(User::new(10, false, "tester"))
+                    .into(),
+            );
+            let event_context =
+                EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+            let render_ctx = RenderContext::new(&ctx, data, &event, &event_context);
+            self.render_link_preview(&render_ctx).await
         })
     }
 }
 
 /// Configurable link preview widget.
+#[allow(clippy::struct_excessive_bools)]
 pub struct LinkPreview {
     url: Option<Box<dyn Text>>,
     is_disabled: bool,
@@ -58,19 +78,24 @@ impl Default for LinkPreview {
 }
 
 impl LinkPreviewWidget for LinkPreview {
-    fn render_link_preview(&self, render_ctx: &RenderContext<'_>) -> Option<LinkPreviewOptions> {
-        Some(
-            LinkPreviewOptions::new()
-                .url_option(
-                    self.url
-                        .as_ref()
-                        .map(|url| url.render_text_in_context(render_ctx).into_string()),
-                )
-                .is_disabled(self.is_disabled)
-                .prefer_small_media(self.prefer_small_media)
-                .prefer_large_media(self.prefer_large_media)
-                .show_above_text(self.show_above_text),
-        )
+    fn render_link_preview<'a>(
+        &'a self,
+        render_ctx: &'a RenderContext,
+    ) -> BoxFuture<'a, Option<LinkPreviewOptions>> {
+        Box::pin(async move {
+            let url = match &self.url {
+                Some(url) => Some(url.render_text_in_context(render_ctx).await.into_string()),
+                None => None,
+            };
+            Some(
+                LinkPreviewOptions::new()
+                    .url_option(url)
+                    .is_disabled(self.is_disabled)
+                    .prefer_small_media(self.prefer_small_media)
+                    .prefer_large_media(self.prefer_large_media)
+                    .show_above_text(self.show_above_text),
+            )
+        })
     }
 }
 
@@ -79,8 +104,8 @@ mod tests {
     use super::{LinkPreview, LinkPreviewWidget};
     use crate::entities::DataMap;
 
-    #[test]
-    fn link_preview_renders_options() {
+    #[tokio::test]
+    async fn link_preview_renders_options() {
         let preview = LinkPreview::builder()
             .url("https://example.com/menu")
             .prefer_large_media(true)
@@ -89,6 +114,7 @@ mod tests {
 
         let options = preview
             .render_link_preview_for_test(&DataMap::new())
+            .await
             .expect("link preview");
 
         assert_eq!(options.url.as_deref(), Some("https://example.com/menu"));

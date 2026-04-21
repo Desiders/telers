@@ -1,5 +1,6 @@
 use crate::{
     entities::{Context, Data, LaunchMode, NewMessage, RenderContext},
+    future::BoxFuture,
     widgets::{ButtonAction, ClickContext},
     IntoWindow, Window,
 };
@@ -41,13 +42,26 @@ pub trait Dialog: Send + Sync {
             .and_then(|index| states.get(index).map(String::as_str))
     }
 
-    fn render(&self, state: &str, render_ctx: &RenderContext<'_>) -> Option<NewMessage>;
+    fn render<'a>(
+        &'a self,
+        state: &'a str,
+        render_ctx: &'a RenderContext,
+    ) -> BoxFuture<'a, Option<NewMessage>>;
 
     #[must_use]
-    fn handle_callback(&self, state: &str, click: &ClickContext<'_>) -> Option<ButtonAction>;
+    fn handle_callback<'a>(
+        &'a self,
+        state: &'a str,
+        click: &'a ClickContext,
+    ) -> BoxFuture<'a, Option<ButtonAction>>;
 
     #[must_use]
-    fn handle_message(&self, state: &str, ctx: &Context, message: Message) -> Option<ButtonAction>;
+    fn handle_message<'a>(
+        &'a self,
+        state: &'a str,
+        ctx: &'a Context,
+        message: Message,
+    ) -> BoxFuture<'a, Option<ButtonAction>>;
 
     #[must_use]
     fn process_result(
@@ -164,19 +178,44 @@ impl Dialog for DialogImpl {
         self.launch_mode
     }
 
-    fn render(&self, state: &str, render_ctx: &RenderContext<'_>) -> Option<NewMessage> {
-        self.get_window(state)
-            .map(|window| window.render(render_ctx))
+    fn render<'a>(
+        &'a self,
+        state: &'a str,
+        render_ctx: &'a RenderContext,
+    ) -> BoxFuture<'a, Option<NewMessage>> {
+        Box::pin(async move {
+            match self.get_window(state) {
+                Some(window) => Some(window.render(render_ctx).await),
+                None => None,
+            }
+        })
     }
 
-    fn handle_callback(&self, state: &str, click: &ClickContext<'_>) -> Option<ButtonAction> {
-        self.get_window(state)
-            .and_then(|window| window.handle_callback(click))
+    fn handle_callback<'a>(
+        &'a self,
+        state: &'a str,
+        click: &'a ClickContext,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
+        Box::pin(async move {
+            match self.get_window(state) {
+                Some(window) => window.handle_callback(click).await,
+                None => None,
+            }
+        })
     }
 
-    fn handle_message(&self, state: &str, ctx: &Context, message: Message) -> Option<ButtonAction> {
-        self.get_window(state)
-            .and_then(|window| window.handle_message(ctx, message))
+    fn handle_message<'a>(
+        &'a self,
+        state: &'a str,
+        ctx: &'a Context,
+        message: Message,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
+        Box::pin(async move {
+            match self.get_window(state) {
+                Some(window) => window.handle_message(ctx, message).await,
+                None => None,
+            }
+        })
     }
 
     fn process_result(
@@ -197,8 +236,8 @@ mod tests {
     use super::{dialog, Dialog};
     use crate::{widgets::text, window};
 
-    #[test]
-    fn dialog_knows_next_and_previous_states() {
+    #[tokio::test]
+    async fn dialog_knows_next_and_previous_states() {
         let dialog = dialog([
             window("first", [text("one")]),
             window("second", [text("two")]),

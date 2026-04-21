@@ -88,8 +88,8 @@ mod tests {
     use super::DialogRegistry;
     use crate::{dialog, widgets::text, window, DialogError};
 
-    #[test]
-    fn registry_rejects_duplicate_states() {
+    #[tokio::test]
+    async fn registry_rejects_duplicate_states() {
         let registry = DialogRegistry::new()
             .register(dialog([window("state", [text("one")])]))
             .expect("first dialog");

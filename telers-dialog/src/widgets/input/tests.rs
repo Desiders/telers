@@ -1,4 +1,4 @@
-use super::{Input, MessageInput, TextInput};
+use super::{Input, MessageInput, MessageInputContext, TextInput, TextInputContext};
 use crate::{entities::Context, widgets::ButtonAction};
 use serde_json::{json, Value};
 use telers::types::{ChatPrivate, Message, MessageText, User};
@@ -9,15 +9,30 @@ fn text_message(text: &str) -> Message {
         .into()
 }
 
-#[test]
-fn message_input_text_handles_text_messages() {
-    let input = MessageInput::new(|_ctx, message: MessageText| {
-        ButtonAction::set_dialog_value("name", message.text.to_string())
-    });
+async fn store_message_name(_ctx: MessageInputContext, message: MessageText) -> ButtonAction {
+    ButtonAction::set_dialog_value("name", message.text.to_string())
+}
+
+async fn store_text_name(_ctx: TextInputContext, value: String) -> ButtonAction {
+    ButtonAction::set_dialog_value("name", value)
+}
+
+async fn store_age(_ctx: TextInputContext, age: u8) -> ButtonAction {
+    ButtonAction::set_dialog_value("age", age)
+}
+
+async fn store_parse_error(_ctx: TextInputContext, err: std::num::ParseIntError) -> ButtonAction {
+    ButtonAction::set_dialog_value("error", err.to_string())
+}
+
+#[tokio::test]
+async fn message_input_text_handles_text_messages() {
+    let input = MessageInput::new(store_message_name);
     let ctx = Context::new("", "state", Value::Null);
 
     let action = input
         .handle_message(&ctx, text_message("alice"))
+        .await
         .expect("text action");
 
     assert!(matches!(
@@ -27,15 +42,14 @@ fn message_input_text_handles_text_messages() {
     ));
 }
 
-#[test]
-fn message_input_text_can_store_dialog_value() {
-    let input = MessageInput::new(|_ctx, message: MessageText| {
-        ButtonAction::set_dialog_value("name", message.text.to_string())
-    });
+#[tokio::test]
+async fn message_input_text_can_store_dialog_value() {
+    let input = MessageInput::new(store_message_name);
     let ctx = Context::new("", "state", Value::Null);
 
     let action = input
         .handle_message(&ctx, text_message("bob"))
+        .await
         .expect("text action");
 
     assert!(matches!(
@@ -45,16 +59,17 @@ fn message_input_text_can_store_dialog_value() {
     ));
 }
 
-#[test]
-fn text_input_stores_raw_text_in_widget_data_and_runs_success_action() {
+#[tokio::test]
+async fn text_input_stores_raw_text_in_widget_data_and_runs_success_action() {
     let input = TextInput::builder("name_input")
-        .on_success(|_ctx, value: String| ButtonAction::set_dialog_value("name", value))
+        .on_success(store_text_name)
         .build();
 
     let ctx = Context::new("", "state", Value::Null);
 
     let action = input
         .handle_message(&ctx, text_message("alice"))
+        .await
         .expect("text action");
 
     let ButtonAction::Chain(actions) = action else {
@@ -73,10 +88,10 @@ fn text_input_stores_raw_text_in_widget_data_and_runs_success_action() {
     ));
 }
 
-#[test]
-fn text_input_reads_typed_value_from_widget_data() {
+#[tokio::test]
+async fn text_input_reads_typed_value_from_widget_data() {
     let input = TextInput::builder("age_input")
-        .on_success(|_ctx, age: u8| ButtonAction::set_dialog_value("age", age))
+        .on_success(store_age)
         .build();
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("age_input".into(), json!("42"));
@@ -84,16 +99,17 @@ fn text_input_reads_typed_value_from_widget_data() {
     assert_eq!(input.value(&ctx), Some(42));
 }
 
-#[test]
-fn text_input_can_map_parse_errors_to_action() {
+#[tokio::test]
+async fn text_input_can_map_parse_errors_to_action() {
     let input = TextInput::builder("age_input")
-        .on_success(|_ctx, age: u8| ButtonAction::set_dialog_value("age", age))
-        .on_error(|_ctx, err| ButtonAction::set_dialog_value("error", err.to_string()))
+        .on_success(store_age)
+        .on_error(store_parse_error)
         .build();
     let ctx = Context::new("", "state", Value::Null);
 
     let action = input
         .handle_message(&ctx, text_message("oops"))
+        .await
         .expect("error action");
 
     assert!(matches!(

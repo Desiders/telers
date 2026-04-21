@@ -1,5 +1,8 @@
+#[cfg(test)]
+use crate::entities::{ChatEvent, EventContext};
 use crate::{
     entities::{Context, NewMessage, RenderContext, ShowMode},
+    future::BoxFuture,
     widgets::{
         ensure_widgets, ButtonAction, ClickContext, Input, Keyboard, LinkPreviewWidget, Text,
         WidgetKind,
@@ -10,13 +13,42 @@ use telers::types::{LinkPreviewOptions, Message};
 
 pub trait Window: Send + Sync {
     fn get_state(&self) -> &str;
-    fn render(&self, render_ctx: &RenderContext<'_>) -> NewMessage;
-    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction>;
+    fn render<'a>(&'a self, render_ctx: &'a RenderContext) -> BoxFuture<'a, NewMessage>;
+    fn handle_callback<'a>(
+        &'a self,
+        click: &'a ClickContext,
+    ) -> BoxFuture<'a, Option<ButtonAction>>;
     #[cfg(test)]
-    fn handle_callback_for_test(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
-        ClickContext::with_test(ctx, callback_data, |click| self.handle_callback(click))
+    fn handle_callback_for_test<'a>(
+        &'a self,
+        ctx: &'a Context,
+        callback_data: &'a str,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
+        Box::pin(async move {
+            use telers::{
+                client::Reqwest,
+                types::{ChatPrivate, MessageText, User},
+                Bot,
+            };
+
+            let event = ChatEvent::Message(
+                MessageText::new(1, 1, ChatPrivate::new(10), "/test")
+                    .from(User::new(10, false, "tester"))
+                    .into(),
+            );
+            let event_context =
+                EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+            let runtime_context = telers::Context::default();
+            let click =
+                ClickContext::new(ctx, callback_data, &event, &event_context, &runtime_context);
+            self.handle_callback(&click).await
+        })
     }
-    fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction>;
+    fn handle_message<'a>(
+        &'a self,
+        ctx: &'a Context,
+        message: Message,
+    ) -> BoxFuture<'a, Option<ButtonAction>>;
 }
 
 pub trait IntoWindow {
@@ -121,40 +153,70 @@ impl Window for WindowImpl {
         &self.state
     }
 
-    fn render(&self, render_ctx: &RenderContext<'_>) -> NewMessage {
-        let event_ctx = render_ctx.event_context;
+    fn render<'a>(&'a self, render_ctx: &'a RenderContext) -> BoxFuture<'a, NewMessage> {
+        Box::pin(async move {
+            let event_ctx = render_ctx.event_context.as_ref();
+            let reply_markup = match &self.keyboard {
+                Some(kbd)
+                    if kbd
+                        .is_visible(render_ctx.context.as_ref(), render_ctx.data.as_ref())
+                        .await =>
+                {
+                    kbd.render_keyboard(render_ctx).await
+                }
+                _ => None,
+            };
+            let link_preview_options = match &self.link_preview_options {
+                Some(options) => Some(options.clone()),
+                None => match &self.link_preview {
+                    Some(link_preview) => link_preview.render_link_preview(render_ctx).await,
+                    None => None,
+                },
+            };
 
-        NewMessage::new(
-            event_ctx.chat.clone(),
-            event_ctx.thread_id,
-            event_ctx.business_connection_id.clone(),
-            self.text.render_text_in_context(render_ctx),
-            self.keyboard
-                .as_ref()
-                .filter(|kbd| kbd.is_visible(render_ctx.context, render_ctx.data))
-                .and_then(|kbd| kbd.render_keyboard(render_ctx)),
-            self.parse_mode.clone(),
-            self.protect_content,
-            self.show_mode,
-            self.link_preview_options.clone().or_else(|| {
-                self.link_preview
-                    .as_ref()
-                    .and_then(|link_preview| link_preview.render_link_preview(render_ctx))
-            }),
-        )
+            NewMessage::new(
+                event_ctx.chat.clone(),
+                event_ctx.thread_id,
+                event_ctx.business_connection_id.clone(),
+                self.text.render_text_in_context(render_ctx).await,
+                reply_markup,
+                self.parse_mode.clone(),
+                self.protect_content,
+                self.show_mode,
+                link_preview_options,
+            )
+        })
     }
 
-    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
-        self.keyboard
-            .as_ref()
-            .filter(|kbd| kbd.is_visible(click.context, &click.context.dialog_data))
-            .and_then(|kbd| kbd.handle_callback(click))
+    fn handle_callback<'a>(
+        &'a self,
+        click: &'a ClickContext,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
+        Box::pin(async move {
+            match &self.keyboard {
+                Some(kbd)
+                    if kbd
+                        .is_visible(click.context.as_ref(), &click.context.dialog_data)
+                        .await =>
+                {
+                    kbd.handle_callback(click).await
+                }
+                _ => None,
+            }
+        })
     }
 
-    fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction> {
-        self.input
-            .as_ref()
-            .and_then(|input| input.handle_message(ctx, message))
+    fn handle_message<'a>(
+        &'a self,
+        ctx: &'a Context,
+        message: Message,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
+        Box::pin(async move {
+            match &self.input {
+                Some(input) => input.handle_message(ctx, message).await,
+                None => None,
+            }
+        })
     }
 }
 
@@ -165,7 +227,7 @@ mod tests {
         entities::{ChatEvent, Context, DataMap, EventContext, RenderContext},
         widgets::{
             input, keyboard, link_preview, text, Button, ButtonAction, InlineKeyboard, LinkPreview,
-            MessageInput,
+            MessageInput, MessageInputContext,
         },
     };
     use serde_json::Value;
@@ -181,8 +243,16 @@ mod tests {
             .into()
     }
 
-    #[test]
-    fn window_combines_multiple_keyboard_and_input_widgets() {
+    async fn noop_message(_ctx: MessageInputContext, _message: Message) -> ButtonAction {
+        ButtonAction::noop()
+    }
+
+    async fn store_name(_ctx: MessageInputContext, message: MessageText) -> ButtonAction {
+        ButtonAction::set_dialog_value("name", message.text.to_string())
+    }
+
+    #[tokio::test]
+    async fn window_combines_multiple_keyboard_and_input_widgets() {
         let window = window(
             "state",
             [
@@ -197,12 +267,8 @@ mod tests {
                         .push(Button::action("second", "Second", ButtonAction::back()))
                         .build(),
                 ),
-                input(MessageInput::new(|_ctx, _message: Message| {
-                    ButtonAction::noop()
-                })),
-                input(MessageInput::new(|_ctx, message: MessageText| {
-                    ButtonAction::set_dialog_value("name", message.text.to_string())
-                })),
+                input(MessageInput::new(noop_message)),
+                input(MessageInput::new(store_name)),
                 link_preview(
                     LinkPreview::builder()
                         .url("https://example.com/menu")
@@ -216,7 +282,7 @@ mod tests {
         let event_ctx = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
         let render_ctx = RenderContext::new(&ctx, &data, &event, &event_ctx);
 
-        let rendered = window.render(&render_ctx);
+        let rendered = window.render(&render_ctx).await;
         let rows = rendered
             .reply_markup
             .as_ref()
@@ -244,11 +310,13 @@ mod tests {
 
         let callback_action = window
             .handle_callback_for_test(&ctx, &format!("td:{}:second", ctx.id))
+            .await
             .expect("callback action");
         assert!(matches!(callback_action, ButtonAction::Back));
 
         let input_action = window
             .handle_message(&ctx, test_message("Alice"))
+            .await
             .expect("input action");
         assert!(matches!(input_action, ButtonAction::Noop));
     }

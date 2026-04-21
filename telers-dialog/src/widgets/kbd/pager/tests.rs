@@ -6,9 +6,34 @@ use super::{
     SwitchPage,
 };
 use crate::{
-    entities::{Context, DataMap},
+    entities::{Context, DataMap, RenderContext},
     widgets::{Button, ButtonAction, InlineKeyboard, Keyboard},
 };
+
+async fn two_pages(_render_ctx: RenderContext) -> usize {
+    2
+}
+
+async fn four_pages(_render_ctx: RenderContext) -> usize {
+    4
+}
+
+async fn catalog_pages(render_ctx: RenderContext) -> usize {
+    let items = render_ctx
+        .data
+        .get("items")
+        .and_then(Value::as_u64)
+        .unwrap_or(0) as usize;
+    usize::try_from(items.div_ceil(3)).unwrap()
+}
+
+async fn record_page_change(change: super::PageChange) -> ButtonAction {
+    ButtonAction::chain([
+        ButtonAction::set_dialog_value("page_widget", change.widget_id.to_string()),
+        ButtonAction::set_dialog_value("page_from", change.old_page),
+        ButtonAction::set_dialog_value("page_to", change.new_page),
+    ])
+}
 
 fn build_inner_keyboard(count: usize) -> InlineKeyboard {
     let mut kbds = InlineKeyboard::builder();
@@ -22,14 +47,15 @@ fn build_inner_keyboard(count: usize) -> InlineKeyboard {
     kbds.build()
 }
 
-#[test]
-fn scrolling_group_shows_first_page_by_default() {
+#[tokio::test]
+async fn scrolling_group_shows_first_page_by_default() {
     let ctx = Context::new("", "state", Value::Null);
     let kbd = build_inner_keyboard(10);
     let pager = ScrollingGroup::builder("pager").height(3).kbd(kbd).build();
 
     let markup = pager
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
@@ -43,8 +69,8 @@ fn scrolling_group_shows_first_page_by_default() {
     assert_eq!(&*rows[3][4].text, "4");
 }
 
-#[test]
-fn scrolling_group_shows_correct_page_from_widget_data() {
+#[tokio::test]
+async fn scrolling_group_shows_correct_page_from_widget_data() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("pager".into(), json!(1));
     let kbd = build_inner_keyboard(10);
@@ -52,6 +78,7 @@ fn scrolling_group_shows_correct_page_from_widget_data() {
 
     let markup = pager
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
@@ -62,8 +89,8 @@ fn scrolling_group_shows_correct_page_from_widget_data() {
     assert_eq!(&*rows[3][2].text, "2");
 }
 
-#[test]
-fn scrolling_group_last_page_shows_remaining_items() {
+#[tokio::test]
+async fn scrolling_group_last_page_shows_remaining_items() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("pager".into(), json!(3));
     let kbd = build_inner_keyboard(10);
@@ -71,6 +98,7 @@ fn scrolling_group_last_page_shows_remaining_items() {
 
     let markup = pager
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
@@ -78,14 +106,15 @@ fn scrolling_group_last_page_shows_remaining_items() {
     assert_eq!(&*rows[0][0].text, "Item 9");
 }
 
-#[test]
-fn scrolling_group_pager_callback_sets_widget_value() {
+#[tokio::test]
+async fn scrolling_group_pager_callback_sets_widget_value() {
     let ctx = Context::new("", "state", Value::Null);
     let kbd = build_inner_keyboard(10);
     let pager = ScrollingGroup::builder("pager").height(3).kbd(kbd).build();
 
     let action = pager
         .handle_callback_for_test(&ctx, &format!("td:{}:pager:2", ctx.id))
+        .await
         .unwrap();
 
     assert!(matches!(
@@ -95,21 +124,22 @@ fn scrolling_group_pager_callback_sets_widget_value() {
     ));
 }
 
-#[test]
-fn scrolling_group_delegates_inner_callbacks() {
+#[tokio::test]
+async fn scrolling_group_delegates_inner_callbacks() {
     let ctx = Context::new("", "state", Value::Null);
     let kbd = build_inner_keyboard(4);
     let pager = ScrollingGroup::builder("pager").height(2).kbd(kbd).build();
 
     let action = pager
         .handle_callback_for_test(&ctx, &format!("td:{}:btn_1", ctx.id))
+        .await
         .unwrap();
 
     assert!(matches!(action, ButtonAction::Noop));
 }
 
-#[test]
-fn scrolling_group_hides_pager_on_single_page() {
+#[tokio::test]
+async fn scrolling_group_hides_pager_on_single_page() {
     let ctx = Context::new("", "state", Value::Null);
     let kbd = build_inner_keyboard(2);
     let pager = ScrollingGroup::builder("pager")
@@ -120,14 +150,15 @@ fn scrolling_group_hides_pager_on_single_page() {
 
     let markup = pager
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(rows.len(), 2);
 }
 
-#[test]
-fn scrolling_group_hide_pager_flag_suppresses_navigation() {
+#[tokio::test]
+async fn scrolling_group_hide_pager_flag_suppresses_navigation() {
     let ctx = Context::new("", "state", Value::Null);
     let kbd = build_inner_keyboard(10);
     let pager = ScrollingGroup::builder("pager")
@@ -138,14 +169,15 @@ fn scrolling_group_hide_pager_flag_suppresses_navigation() {
 
     let markup = pager
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(rows.len(), 3);
 }
 
-#[test]
-fn scrolling_group_clamps_page_beyond_max() {
+#[tokio::test]
+async fn scrolling_group_clamps_page_beyond_max() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("pager".into(), json!(99));
     let kbd = build_inner_keyboard(5);
@@ -153,14 +185,15 @@ fn scrolling_group_clamps_page_beyond_max() {
 
     let markup = pager
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(&*rows[0][0].text, "Item 4");
 }
 
-#[test]
-fn scrolling_group_width_groups_buttons_into_fixed_grid() {
+#[tokio::test]
+async fn scrolling_group_width_groups_buttons_into_fixed_grid() {
     let ctx = Context::new("", "state", Value::Null);
     let kbd = build_inner_keyboard(5);
     let pager = ScrollingGroup::builder("pager")
@@ -171,6 +204,7 @@ fn scrolling_group_width_groups_buttons_into_fixed_grid() {
 
     let markup = pager
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
     let pager_row = &rows[2];
@@ -190,8 +224,8 @@ fn scrolling_group_width_groups_buttons_into_fixed_grid() {
     assert_eq!(&*pager_row[4].text, "2");
 }
 
-#[test]
-fn scrolling_group_pads_last_page_grid_with_fillers() {
+#[tokio::test]
+async fn scrolling_group_pads_last_page_grid_with_fillers() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("pager".into(), json!(1));
     let kbd = build_inner_keyboard(5);
@@ -204,6 +238,7 @@ fn scrolling_group_pads_last_page_grid_with_fillers() {
 
     let markup = pager
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
     let pager_row = &rows[2];
@@ -224,18 +259,19 @@ fn scrolling_group_pads_last_page_grid_with_fillers() {
     assert_eq!(&*pager_row[4].text, "2");
 }
 
-#[test]
-fn switch_page_renders_directional_button() {
+#[tokio::test]
+async fn switch_page_renders_directional_button() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("pager".into(), json!(1));
     let pager = SwitchPage::builder("pager")
         .direction(PageDirection::Next)
-        .page_count_getter(|_render_ctx| 4)
+        .page_count_getter(four_pages)
         .label_renderer(|_target, _current, _data| ">")
         .build();
 
     let markup = pager
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
@@ -246,12 +282,12 @@ fn switch_page_renders_directional_button() {
     );
 }
 
-#[test]
-fn numbered_pager_renders_current_page_distinctly() {
+#[tokio::test]
+async fn numbered_pager_renders_current_page_distinctly() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("pager".into(), json!(1));
     let pager = NumberedPager::builder("pager")
-        .page_count_getter(|_render_ctx| 4)
+        .page_count_getter(four_pages)
         .page_renderer(|page, _data| (page + 1).to_string())
         .current_page_renderer(|page, _data| format!("[{}]", page + 1))
         .length(3)
@@ -259,6 +295,7 @@ fn numbered_pager_renders_current_page_distinctly() {
 
     let markup = pager
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
@@ -269,17 +306,18 @@ fn numbered_pager_renders_current_page_distinctly() {
     assert_eq!(&*rows[1][0].text, "4");
 }
 
-#[test]
-fn numbered_pager_callback_sets_page() {
+#[tokio::test]
+async fn numbered_pager_callback_sets_page() {
     let ctx = Context::new("", "state", Value::Null);
     let pager = NumberedPager::builder("pager")
-        .page_count_getter(|_render_ctx| 2)
+        .page_count_getter(two_pages)
         .page_renderer(|page, _data| (page + 1).to_string())
         .current_page_renderer(|page, _data| format!("[{}]", page + 1))
         .build();
 
     let action = pager
         .handle_callback_for_test(&ctx, &format!("td:{}:pager:1", ctx.id))
+        .await
         .unwrap();
 
     assert!(matches!(
@@ -289,8 +327,8 @@ fn numbered_pager_callback_sets_page() {
     ));
 }
 
-#[test]
-fn scrolling_group_sync_scroll_updates_other_widget_page() {
+#[tokio::test]
+async fn scrolling_group_sync_scroll_updates_other_widget_page() {
     let ctx = Context::new("", "state", Value::Null);
     let kbd = build_inner_keyboard(10);
     let pager = ScrollingGroup::builder("pager")
@@ -301,6 +339,7 @@ fn scrolling_group_sync_scroll_updates_other_widget_page() {
 
     let action = pager
         .handle_callback_for_test(&ctx, &format!("td:{}:pager:2", ctx.id))
+        .await
         .unwrap();
 
     let ButtonAction::Chain(actions) = action else {
@@ -319,11 +358,11 @@ fn scrolling_group_sync_scroll_updates_other_widget_page() {
     ));
 }
 
-#[test]
-fn numbered_pager_sync_scrolls_updates_multiple_widgets() {
+#[tokio::test]
+async fn numbered_pager_sync_scrolls_updates_multiple_widgets() {
     let ctx = Context::new("", "state", Value::Null);
     let pager = NumberedPager::builder("pager")
-        .page_count_getter(|_render_ctx| 4)
+        .page_count_getter(four_pages)
         .page_renderer(|page, _data| (page + 1).to_string())
         .current_page_renderer(|page, _data| format!("[{}]", page + 1))
         .on_page_changed(sync_scrolls(["list", "grid"]))
@@ -331,6 +370,7 @@ fn numbered_pager_sync_scrolls_updates_multiple_widgets() {
 
     let action = pager
         .handle_callback_for_test(&ctx, &format!("td:{}:pager:3", ctx.id))
+        .await
         .unwrap();
 
     let ButtonAction::Chain(actions) = action else {
@@ -360,25 +400,20 @@ fn numbered_pager_sync_scrolls_updates_multiple_widgets() {
     ));
 }
 
-#[test]
-fn on_page_changed_can_use_widget_id_and_previous_page() {
+#[tokio::test]
+async fn on_page_changed_can_use_widget_id_and_previous_page() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("pager".into(), json!(1));
     let pager = NumberedPager::builder("pager")
-        .page_count_getter(|_render_ctx| 4)
+        .page_count_getter(four_pages)
         .page_renderer(|page, _data| format!("{}", page + 1))
         .current_page_renderer(|page, _data| format!("[{}]", page + 1))
-        .on_page_changed(OnPageChanged::new(|change| {
-            ButtonAction::chain([
-                ButtonAction::set_dialog_value("page_widget", change.widget_id.to_string()),
-                ButtonAction::set_dialog_value("page_from", change.old_page),
-                ButtonAction::set_dialog_value("page_to", change.new_page),
-            ])
-        }))
+        .on_page_changed(OnPageChanged::new(record_page_change))
         .build();
 
     let action = pager
         .handle_callback_for_test(&ctx, &format!("td:{}:pager:3", ctx.id))
+        .await
         .unwrap();
 
     let ButtonAction::Chain(actions) = action else {
@@ -412,33 +447,33 @@ fn on_page_changed_can_use_widget_id_and_previous_page() {
     ));
 }
 
-#[test]
-fn convenience_pager_wrappers_render_expected_targets() {
+#[tokio::test]
+async fn convenience_pager_wrappers_render_expected_targets() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("pager".into(), json!(1));
     let data = DataMap::new();
 
     let first = FirstPage::builder("pager")
-        .page_count_getter(|_render_ctx| 4)
+        .page_count_getter(four_pages)
         .build();
     let prev = PrevPage::builder("pager")
-        .page_count_getter(|_render_ctx| 4)
+        .page_count_getter(four_pages)
         .build();
     let current = CurrentPage::builder("pager")
-        .page_count_getter(|_render_ctx| 4)
+        .page_count_getter(four_pages)
         .build();
     let next = NextPage::builder("pager")
-        .page_count_getter(|_render_ctx| 4)
+        .page_count_getter(four_pages)
         .build();
     let last = LastPage::builder("pager")
-        .page_count_getter(|_render_ctx| 4)
+        .page_count_getter(four_pages)
         .build();
 
-    let first_rows = first.render_keyboard_for_test(&ctx, &data).unwrap();
-    let prev_rows = prev.render_keyboard_for_test(&ctx, &data).unwrap();
-    let current_rows = current.render_keyboard_for_test(&ctx, &data).unwrap();
-    let next_rows = next.render_keyboard_for_test(&ctx, &data).unwrap();
-    let last_rows = last.render_keyboard_for_test(&ctx, &data).unwrap();
+    let first_rows = first.render_keyboard_for_test(&ctx, &data).await.unwrap();
+    let prev_rows = prev.render_keyboard_for_test(&ctx, &data).await.unwrap();
+    let current_rows = current.render_keyboard_for_test(&ctx, &data).await.unwrap();
+    let next_rows = next.render_keyboard_for_test(&ctx, &data).await.unwrap();
+    let last_rows = last.render_keyboard_for_test(&ctx, &data).await.unwrap();
 
     assert_eq!(&*first_rows.inline_keyboard().unwrap()[0][0].text, "<<");
     assert_eq!(&*prev_rows.inline_keyboard().unwrap()[0][0].text, "<");
@@ -478,32 +513,33 @@ fn convenience_pager_wrappers_render_expected_targets() {
     );
 }
 
-#[test]
-fn convenience_pager_wrappers_allow_label_override() {
+#[tokio::test]
+async fn convenience_pager_wrappers_allow_label_override() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("pager".into(), json!(1));
     let data = DataMap::new();
 
     let first = FirstPage::builder("pager")
-        .page_count_getter(|_render_ctx| 4)
+        .page_count_getter(four_pages)
         .label("First".into())
         .build();
     let prev = PrevPage::builder("pager")
-        .page_count_getter(|_render_ctx| 4)
+        .page_count_getter(four_pages)
         .label("Back".into())
         .build();
     let next = NextPage::builder("pager")
-        .page_count_getter(|_render_ctx| 4)
+        .page_count_getter(four_pages)
         .label("More".into())
         .build();
     let last = LastPage::builder("pager")
-        .page_count_getter(|_render_ctx| 4)
+        .page_count_getter(four_pages)
         .label("Final".into())
         .build();
 
     assert_eq!(
         &*first
             .render_keyboard_for_test(&ctx, &data)
+            .await
             .unwrap()
             .inline_keyboard()
             .unwrap()[0][0]
@@ -513,6 +549,7 @@ fn convenience_pager_wrappers_allow_label_override() {
     assert_eq!(
         &*prev
             .render_keyboard_for_test(&ctx, &data)
+            .await
             .unwrap()
             .inline_keyboard()
             .unwrap()[0][0]
@@ -522,6 +559,7 @@ fn convenience_pager_wrappers_allow_label_override() {
     assert_eq!(
         &*next
             .render_keyboard_for_test(&ctx, &data)
+            .await
             .unwrap()
             .inline_keyboard()
             .unwrap()[0][0]
@@ -531,6 +569,7 @@ fn convenience_pager_wrappers_allow_label_override() {
     assert_eq!(
         &*last
             .render_keyboard_for_test(&ctx, &data)
+            .await
             .unwrap()
             .inline_keyboard()
             .unwrap()[0][0]
@@ -539,8 +578,8 @@ fn convenience_pager_wrappers_allow_label_override() {
     );
 }
 
-#[test]
-fn stub_scroll_binds_numbered_pager_to_fixed_page_count() {
+#[tokio::test]
+async fn stub_scroll_binds_numbered_pager_to_fixed_page_count() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("catalog_page".into(), json!(2));
     let stub = StubScroll::builder("catalog_page").pages(4_usize).build();
@@ -552,6 +591,7 @@ fn stub_scroll_binds_numbered_pager_to_fixed_page_count() {
 
     let markup = pager
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
@@ -561,8 +601,8 @@ fn stub_scroll_binds_numbered_pager_to_fixed_page_count() {
     assert_eq!(&*rows[0][3].text, "4");
 }
 
-#[test]
-fn stub_scroll_reads_page_count_from_data_field() {
+#[tokio::test]
+async fn stub_scroll_reads_page_count_from_data_field() {
     let ctx = Context::new("", "state", Value::Null);
     let mut data = DataMap::new();
     data.insert("page_count".into(), json!(3));
@@ -574,7 +614,7 @@ fn stub_scroll_reads_page_count_from_data_field() {
         .current_page_renderer(|page, _data| format!("[{}]", page + 1))
         .build();
 
-    let markup = pager.render_keyboard_for_test(&ctx, &data).unwrap();
+    let markup = pager.render_keyboard_for_test(&ctx, &data).await.unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(rows[0].len(), 3);
@@ -582,43 +622,38 @@ fn stub_scroll_reads_page_count_from_data_field() {
     assert_eq!(&*rows[0][2].text, "3");
 }
 
-#[test]
-fn stub_scroll_accepts_dynamic_page_getter() {
+#[tokio::test]
+async fn stub_scroll_accepts_dynamic_page_getter() {
     let ctx = Context::new("", "state", Value::Null);
     let mut data = DataMap::new();
     data.insert("items".into(), json!(7));
     let stub = StubScroll::builder("catalog_page")
-        .pages(StubScrollPages::getter(|render_ctx| {
-            let items = render_ctx
-                .data
-                .get("items")
-                .and_then(Value::as_u64)
-                .unwrap_or_default();
-            usize::try_from(items.div_ceil(3)).unwrap()
-        }))
+        .pages(StubScrollPages::getter(catalog_pages))
         .build();
     let pager = NumberedPager::builder(stub)
         .page_renderer(|page, _data| format!("{}", page + 1))
         .current_page_renderer(|page, _data| format!("[{}]", page + 1))
         .build();
 
-    let markup = pager.render_keyboard_for_test(&ctx, &data).unwrap();
+    let markup = pager.render_keyboard_for_test(&ctx, &data).await.unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(rows[0].len(), 3);
 }
 
-#[test]
-fn stub_scroll_handles_page_callbacks_without_rendering_markup() {
+#[tokio::test]
+async fn stub_scroll_handles_page_callbacks_without_rendering_markup() {
     let ctx = Context::new("", "state", Value::Null);
     let stub = StubScroll::builder("catalog_page").pages(4_usize).build();
 
     assert!(stub
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .is_none());
 
     let action = stub
         .handle_callback_for_test(&ctx, &format!("td:{}:catalog_page:2", ctx.id))
+        .await
         .unwrap();
 
     assert!(matches!(

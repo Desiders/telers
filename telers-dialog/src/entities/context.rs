@@ -21,7 +21,7 @@ const COUNTER_BITS: u32 = 20;
 const COUNTER_MASK: u64 = (1 << COUNTER_BITS) - 1;
 
 /// Generates a compact, URL-safe, roughly time-ordered ID.
-/// Format: base-62 encoding of (`unix_ms` << COUNTER_BITS | counter_low_bits).
+/// Format: base-62 encoding of (`unix_ms` << `COUNTER_BITS` | `counter_low_bits`).
 #[must_use]
 pub fn generate_id() -> String {
     let millis = u64::try_from(
@@ -131,8 +131,8 @@ mod tests {
     use super::Context;
     use serde_json::json;
 
-    #[test]
-    fn context_reads_dialog_and_widget_values() {
+    #[tokio::test]
+    async fn context_reads_dialog_and_widget_values() {
         let mut ctx = Context::new("stack", "state", serde_json::Value::Null);
         ctx.dialog_data.insert("count".into(), json!(3));
         ctx.widget_data.insert("selected".into(), json!("pear"));
