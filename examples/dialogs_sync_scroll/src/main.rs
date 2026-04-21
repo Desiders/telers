@@ -59,20 +59,23 @@ async fn handle_start(bot: Bot, manager: Manager) -> HandlerResult<()> {
 }
 
 fn registry() -> DialogRegistry {
-    let product_grid = ScrollingGroup::builder("product_grid")
-        .height(PAGE_HEIGHT)
-        .width(GRID_WIDTH)
-        .hide_pager(true)
-        .on_page_changed(sync_scroll("product_details"))
-        .kbd(
-            Select::builder("product_items")
-                .items_getter(|_data| PRODUCTS)
-                .item_renderer(|item, _data| format!("{}", item.0))
-                .id_getter(|item| item.0)
-                .action(|value| ButtonAction::set_dialog_value("selected_product", value))
-                .build(),
-        )
-        .build();
+    let product_grid =
+        ScrollingGroup::builder("product_grid")
+            .height(PAGE_HEIGHT)
+            .width(GRID_WIDTH)
+            .hide_pager(true)
+            .on_page_changed(sync_scroll("product_details"))
+            .kbd(
+                Select::builder("product_items")
+                    .items_getter(|_data| PRODUCTS)
+                    .item_renderer(|item, _data| format!("{}", item.0))
+                    .id_getter(|item| item.0)
+                    .action(|value| async move {
+                        ButtonAction::set_dialog_value("selected_product", value)
+                    })
+                    .build(),
+            )
+            .build();
     let product_details = ScrollingGroup::builder("product_details")
         .height(PAGE_HEIGHT)
         .width(GRID_WIDTH)
@@ -82,7 +85,7 @@ fn registry() -> DialogRegistry {
                 .items_getter(|_data| PRODUCTS)
                 .item_renderer(|item, _data| format!("{} | {}", item.1, item.2))
                 .id_getter(|item| item.0)
-                .action(|_item| ButtonAction::noop())
+                .action(|_item| async move { ButtonAction::noop() })
                 .build(),
         )
         .build();

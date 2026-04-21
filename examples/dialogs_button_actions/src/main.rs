@@ -86,22 +86,27 @@ fn registry() -> DialogRegistry {
                             "Choose delivery",
                             "delivery_method",
                         )])
-                        .row([Button::on_click("place_order", "Place order", |click| {
-                            if click.dialog_data().get("delivery_method").is_none() {
-                                ButtonAction::set_dialog_value(
-                                    "cart_notice",
-                                    "Select pickup or courier delivery before placing the order.",
-                                )
-                            } else {
-                                ButtonAction::chain([
+                        .row([Button::on_click(
+                            "place_order",
+                            "Place order",
+                            |click| async move {
+                                if click.dialog_data().get("delivery_method").is_none() {
                                     ButtonAction::set_dialog_value(
                                         "cart_notice",
-                                        "Order accepted.",
-                                    ),
-                                    ButtonAction::switch_to("order_placed"),
-                                ])
-                            }
-                        })])
+                                        "Select pickup or courier delivery before placing the \
+                                         order.",
+                                    )
+                                } else {
+                                    ButtonAction::chain([
+                                        ButtonAction::set_dialog_value(
+                                            "cart_notice",
+                                            "Order accepted.",
+                                        ),
+                                        ButtonAction::switch_to("order_placed"),
+                                    ])
+                                }
+                            },
+                        )])
                         .row([Button::done("close", "Close draft")])
                         .build(),
                 ),
