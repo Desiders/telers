@@ -10,6 +10,7 @@ use super::super::{
 };
 use crate::{
     entities::{Context, DataMap, RenderContext},
+    future::BoxFuture,
     widgets::Text,
 };
 
@@ -101,89 +102,97 @@ where
     CheckedText: Text,
     UncheckedText: Text,
 {
-    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
-        let ctx = render_ctx.context;
-        let data = render_ctx.data;
-        if !self.is_visible(ctx, data) {
-            return None;
-        }
-        let widget_id = self.id.to_string();
-        let is_checked = ctx
-            .widget_value_as::<bool>(&widget_id)
-            .unwrap_or(self.default);
-        let next_value = (!is_checked).to_string();
-        let text = if is_checked {
-            self.checked_text.render_text_in_context(render_ctx)
-        } else {
-            self.unchecked_text.render_text_in_context(render_ctx)
-        };
+    fn render_keyboard<'a>(
+        &'a self,
+        render_ctx: &'a RenderContext,
+    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
+        Box::pin(async move {
+            let ctx = render_ctx.context.as_ref();
+            let data = render_ctx.data.as_ref();
+            if !self.is_visible(ctx, data).await {
+                return None;
+            }
+            let widget_id = self.id.to_string();
+            let is_checked = ctx
+                .widget_value_as::<bool>(&widget_id)
+                .unwrap_or(self.default);
+            let next_value = (!is_checked).to_string();
+            let text = if is_checked {
+                self.checked_text.render_text_in_context(render_ctx).await
+            } else {
+                self.unchecked_text.render_text_in_context(render_ctx).await
+            };
 
-        let mut rows: Vec<_> = self
-            .header_rows
-            .iter()
-            .map(|row| render_button_row(row, render_ctx))
-            .collect();
+            let mut rows = Vec::new();
+            for row in &self.header_rows {
+                rows.push(render_button_row(row, render_ctx).await);
+            }
 
-        rows.push(
-            [
-                InlineKeyboardButton::new(text).callback_data(format_callback_data(
-                    ctx,
-                    &self.id,
-                    Some(&next_value),
-                )),
-            ]
-            .into(),
-        );
+            rows.push(
+                [
+                    InlineKeyboardButton::new(text).callback_data(format_callback_data(
+                        ctx,
+                        &self.id,
+                        Some(&next_value),
+                    )),
+                ]
+                .into(),
+            );
 
-        rows.extend(
-            self.footer_rows
-                .iter()
-                .map(|row| render_button_row(row, render_ctx)),
-        );
+            for row in &self.footer_rows {
+                rows.push(render_button_row(row, render_ctx).await);
+            }
 
-        Some(InlineKeyboardMarkup::new(rows).into())
+            Some(InlineKeyboardMarkup::new(rows).into())
+        })
     }
 
-    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
-        let ctx = click.context;
-        let callback_data = click.callback_data;
-        let data = &ctx.dialog_data;
-        if !self.is_visible(ctx, data) {
-            return None;
-        }
-        if let Some(action) = self
-            .header_rows
-            .iter()
-            .chain(self.footer_rows.iter())
-            .flat_map(|row| row.iter())
-            .find_map(|button| button.resolve_callback(click))
-        {
-            return Some(action);
-        }
+    fn handle_callback<'a>(
+        &'a self,
+        click: &'a ClickContext,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
+        Box::pin(async move {
+            let ctx = click.context.as_ref();
+            let callback_data = click.callback_data.as_str();
+            let data = &ctx.dialog_data;
+            if !self.is_visible(ctx, data).await {
+                return None;
+            }
+            for button in self
+                .header_rows
+                .iter()
+                .chain(self.footer_rows.iter())
+                .flat_map(|row| row.iter())
+            {
+                if let Some(action) = button.resolve_callback(click).await {
+                    return Some(action);
+                }
+            }
 
-        let parsed = parse_callback_data(ctx, callback_data)?;
-        if parsed.target_id != self.id.to_string() {
-            return None;
-        }
+            let parsed = parse_callback_data(ctx, callback_data)?;
+            if parsed.target_id != self.id.to_string() {
+                return None;
+            }
 
-        let checked = match parsed.payload? {
-            "true" | "1" => true,
-            "false" | "0" => false,
-            _ => return None,
-        };
-        debug!(
-            context_id = %ctx.id,
-            widget_id = %self.id,
-            checked,
-            "Resolved checkbox toggle callback"
-        );
-        Some(ButtonAction::set_widget_value(
-            Cow::Owned(self.id.to_string()),
-            checked,
-        ))
+            let checked = match parsed.payload? {
+                "true" | "1" => true,
+                "false" | "0" => false,
+                _ => return None,
+            };
+            debug!(
+                context_id = %ctx.id,
+                widget_id = %self.id,
+                checked,
+                "Resolved checkbox toggle callback"
+            );
+            Some(ButtonAction::set_widget_value(
+                Cow::Owned(self.id.to_string()),
+                checked,
+            ))
+        })
     }
 }

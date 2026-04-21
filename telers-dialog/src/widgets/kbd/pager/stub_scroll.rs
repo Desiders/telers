@@ -1,3 +1,4 @@
+use async_fn_traits::AsyncFn1;
 use bon::bon;
 use serde_json::Value;
 use std::{borrow::Cow, sync::Arc};
@@ -6,10 +7,14 @@ use super::{
     super::{when::is_allowed, ButtonAction, ClickContext, Keyboard, WhenCondition},
     BaseScroll, OnPageChanged, Scroll,
 };
-use crate::entities::{Context, DataMap, RenderContext};
+use crate::{
+    entities::{Context, DataMap, RenderContext},
+    future::BoxFuture,
+};
 use telers::types::ReplyMarkup;
 
-type DynPagesGetter = Arc<dyn for<'a> Fn(&RenderContext<'a>) -> usize + Send + Sync + 'static>;
+type DynPagesGetter =
+    Arc<dyn Fn(RenderContext) -> BoxFuture<'static, usize> + Send + Sync + 'static>;
 
 /// Page-count source for [`StubScroll`].
 #[derive(Clone)]
@@ -25,22 +30,34 @@ pub enum StubScrollPages {
 impl StubScrollPages {
     /// Build a dynamic page-count getter.
     #[must_use]
-    pub fn getter(
-        getter: impl for<'a> Fn(&RenderContext<'a>) -> usize + Send + Sync + 'static,
-    ) -> Self {
-        Self::Getter(Arc::new(getter))
+    pub fn getter<F>(getter: F) -> Self
+    where
+        F: AsyncFn(RenderContext) -> usize
+            + AsyncFn1<RenderContext, Output = usize>
+            + Send
+            + Sync
+            + 'static,
+        <F as AsyncFn1<RenderContext>>::OutputFuture: Send + 'static,
+    {
+        let getter = Arc::new(getter);
+        Self::Getter(Arc::new(move |render_ctx| {
+            let getter = getter.clone();
+            Box::pin(async move { getter(render_ctx).await })
+        }))
     }
 
-    fn get(&self, render_ctx: &RenderContext<'_>) -> usize {
-        match self {
-            Self::Fixed(pages) => *pages,
-            Self::DataField(field) => render_ctx
-                .data
-                .get(field.as_ref())
-                .and_then(value_as_usize)
-                .unwrap_or_default(),
-            Self::Getter(getter) => getter(render_ctx),
-        }
+    fn get<'a>(&'a self, render_ctx: &'a RenderContext) -> BoxFuture<'a, usize> {
+        Box::pin(async move {
+            match self {
+                Self::Fixed(pages) => *pages,
+                Self::DataField(field) => render_ctx
+                    .data
+                    .get(field.as_ref())
+                    .and_then(value_as_usize)
+                    .unwrap_or_default(),
+                Self::Getter(getter) => getter(render_ctx.clone()).await,
+            }
+        })
     }
 }
 
@@ -103,29 +120,44 @@ impl Scroll for StubScroll {
         &self.base_scroll
     }
 
-    fn get_page_count(&self, render_ctx: &RenderContext<'_>) -> usize {
-        self.pages.get(render_ctx)
+    fn get_page_count(&self, render_ctx: RenderContext) -> BoxFuture<'_, usize> {
+        Box::pin(async move { self.pages.get(&render_ctx).await })
     }
 }
 
 impl Keyboard for StubScroll {
-    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
-        if !self.is_visible(render_ctx.context, render_ctx.data) {
-            return None;
-        }
-        None
+    fn render_keyboard<'a>(
+        &'a self,
+        render_ctx: &'a RenderContext,
+    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
+        Box::pin(async move {
+            if !self
+                .is_visible(render_ctx.context.as_ref(), render_ctx.data.as_ref())
+                .await
+            {
+                return None;
+            }
+            None
+        })
     }
 
-    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
-        let ctx = click.context;
-        if !self.is_visible(ctx, &ctx.dialog_data) {
-            return None;
-        }
-        self.base_scroll.handle_callback(ctx, click.callback_data)
+    fn handle_callback<'a>(
+        &'a self,
+        click: &'a ClickContext,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
+        Box::pin(async move {
+            let ctx = click.context.as_ref();
+            if !self.is_visible(ctx, &ctx.dialog_data).await {
+                return None;
+            }
+            self.base_scroll
+                .handle_callback(ctx, click.callback_data.as_str())
+                .await
+        })
     }
 }
 

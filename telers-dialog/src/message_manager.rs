@@ -346,8 +346,8 @@ mod tests {
         )
     }
 
-    #[test]
-    fn detects_reply_and_inline_keyboards_separately() {
+    #[tokio::test]
+    async fn detects_reply_and_inline_keyboards_separately() {
         let no_markup = old_message(None);
         let reply_keyboard = old_message(Some(ReplyMarkupType::ReplyKeyboardMarkup));
         let inline_keyboard = old_message(Some(ReplyMarkupType::InlineKeyboardMarkup));
@@ -362,8 +362,8 @@ mod tests {
         assert!(MessageManager::had_inline_keyboard(&inline_keyboard));
     }
 
-    #[test]
-    fn detects_when_new_message_needs_reply_keyboard() {
+    #[tokio::test]
+    async fn detects_when_new_message_needs_reply_keyboard() {
         let reply_keyboard = new_message(Some(
             ReplyKeyboardMarkup::new([[KeyboardButton::new("OK")]]).into(),
         ));
@@ -380,8 +380,8 @@ mod tests {
         assert!(!MessageManager::need_reply_keyboard(&no_markup));
     }
 
-    #[test]
-    fn message_changed_detects_protect_content_and_link_preview_updates() {
+    #[tokio::test]
+    async fn message_changed_detects_protect_content_and_link_preview_updates() {
         let mut protected = new_message(None);
         protected.protect_content = Some(true);
         let old = old_message(None);
@@ -392,8 +392,8 @@ mod tests {
         assert!(MessageManager::message_changed(&linked, &old));
     }
 
-    #[test]
-    fn can_edit_rejects_old_or_new_reply_keyboard() {
+    #[tokio::test]
+    async fn can_edit_rejects_old_or_new_reply_keyboard() {
         let old_reply = old_message(Some(ReplyMarkupType::ReplyKeyboardMarkup));
         let old_inline = old_message(Some(ReplyMarkupType::InlineKeyboardMarkup));
         let new_reply = new_message(Some(

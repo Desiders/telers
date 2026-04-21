@@ -111,10 +111,16 @@ pub(crate) fn ensure_widgets(widgets: impl IntoIterator<Item = WidgetKind>) -> W
 #[cfg(test)]
 mod tests {
     use super::{input, keyboard, link_preview, text, WidgetKind};
-    use crate::widgets::{Button, ButtonAction, InlineKeyboard, LinkPreview, TextInput};
+    use crate::widgets::{
+        Button, ButtonAction, InlineKeyboard, LinkPreview, TextInput, TextInputContext,
+    };
 
-    #[test]
-    fn shortcut_builders_return_expected_widget_kinds() {
+    async fn noop_input(_ctx: TextInputContext, _val: i64) -> ButtonAction {
+        ButtonAction::noop()
+    }
+
+    #[tokio::test]
+    async fn shortcut_builders_return_expected_widget_kinds() {
         assert!(matches!(text("hello"), WidgetKind::Text(_)));
         assert!(matches!(
             keyboard(
@@ -125,11 +131,7 @@ mod tests {
             WidgetKind::Keyboard(_)
         ));
         assert!(matches!(
-            input(
-                TextInput::builder("id")
-                    .on_success(|_ctx, _val: i64| ButtonAction::noop())
-                    .build()
-            ),
+            input(TextInput::builder("id").on_success(noop_input).build()),
             WidgetKind::Input(_)
         ));
         assert!(matches!(

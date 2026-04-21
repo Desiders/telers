@@ -2,7 +2,7 @@ use bon::bon;
 use std::{borrow::Cow, marker::PhantomData};
 
 use super::Text;
-use crate::entities::DataMap;
+use crate::{entities::DataMap, future::BoxFuture};
 
 pub struct ListText<ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr> {
     items_getter: ItemsGetter,
@@ -47,13 +47,15 @@ where
     ItemRenderer: Fn(&Item, &DataMap) -> ItemStr + Send + Sync + 'static,
     ItemStr: Into<Box<str>> + 'static,
 {
-    fn render_text(&self, data: &DataMap) -> Box<str> {
-        let items = (self.items_getter)(data);
-        items
-            .into_iter()
-            .map(|item| (self.item_renderer)(&item, data).into())
-            .collect::<Box<[_]>>()
-            .join(&self.separator)
-            .into_boxed_str()
+    fn render_text<'a>(&'a self, data: &'a DataMap) -> BoxFuture<'a, Box<str>> {
+        Box::pin(async move {
+            let items = (self.items_getter)(data);
+            items
+                .into_iter()
+                .map(|item| (self.item_renderer)(&item, data).into())
+                .collect::<Box<[_]>>()
+                .join(&self.separator)
+                .into_boxed_str()
+        })
     }
 }

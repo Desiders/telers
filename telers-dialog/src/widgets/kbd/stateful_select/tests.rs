@@ -3,11 +3,19 @@ use serde_json::{json, Value};
 use super::{Checkbox, Counter, Multiselect, Radio, TimeSelect, Toggle};
 use crate::{
     entities::{Context, DataMap},
-    widgets::{Button, ButtonAction, Keyboard},
+    widgets::{Button, ButtonAction, ClickContext, Keyboard},
 };
 
-#[test]
-fn radio_renders_checked_and_unchecked_items() {
+async fn store_selected_hour(_click: ClickContext, hour: u8) -> ButtonAction {
+    ButtonAction::set_dialog_value("selected_hour", hour)
+}
+
+async fn store_selected_minute(_click: ClickContext, minute: u8) -> ButtonAction {
+    ButtonAction::set_dialog_value("selected_minute", minute)
+}
+
+#[tokio::test]
+async fn radio_renders_checked_and_unchecked_items() {
     let ctx = Context::new("", "state", Value::Null);
     let radio = Radio::builder("color")
         .items_getter(|_data| ["red", "blue", "green"])
@@ -18,6 +26,7 @@ fn radio_renders_checked_and_unchecked_items() {
 
     let markup = radio
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
@@ -25,8 +34,8 @@ fn radio_renders_checked_and_unchecked_items() {
     assert_eq!(&*rows[1][0].text, "blue");
 }
 
-#[test]
-fn radio_renders_selected_item_as_checked() {
+#[tokio::test]
+async fn radio_renders_selected_item_as_checked() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("color".into(), json!("blue"));
 
@@ -39,6 +48,7 @@ fn radio_renders_selected_item_as_checked() {
 
     let markup = radio
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
@@ -47,8 +57,8 @@ fn radio_renders_selected_item_as_checked() {
     assert_eq!(&*rows[2][0].text, "green");
 }
 
-#[test]
-fn radio_callback_produces_set_widget_value() {
+#[tokio::test]
+async fn radio_callback_produces_set_widget_value() {
     let ctx = Context::new("", "state", Value::Null);
     let radio = Radio::builder("color")
         .items_getter(|_data| ["red", "blue"])
@@ -59,6 +69,7 @@ fn radio_callback_produces_set_widget_value() {
 
     let action = radio
         .handle_callback_for_test(&ctx, &format!("td:{}:color:blue", ctx.id))
+        .await
         .unwrap();
 
     assert!(matches!(
@@ -68,8 +79,8 @@ fn radio_callback_produces_set_widget_value() {
     ));
 }
 
-#[test]
-fn radio_ignores_foreign_intent_callbacks() {
+#[tokio::test]
+async fn radio_ignores_foreign_intent_callbacks() {
     let ctx = Context::new("", "state", Value::Null);
     let radio = Radio::builder("color")
         .items_getter(|_data| ["red"])
@@ -80,11 +91,12 @@ fn radio_ignores_foreign_intent_callbacks() {
 
     assert!(radio
         .handle_callback_for_test(&ctx, "td:other:color:red")
+        .await
         .is_none());
 }
 
-#[test]
-fn radio_allows_header_and_footer_buttons() {
+#[tokio::test]
+async fn radio_allows_header_and_footer_buttons() {
     let ctx = Context::new("", "state", Value::Null);
     let radio = Radio::builder("color")
         .items_getter(|_data| ["red"])
@@ -96,13 +108,14 @@ fn radio_allows_header_and_footer_buttons() {
 
     let action = radio
         .handle_callback_for_test(&ctx, &format!("td:{}:done", ctx.id))
+        .await
         .unwrap();
 
     assert!(matches!(action, ButtonAction::Done));
 }
 
-#[test]
-fn checkbox_renders_unchecked_and_toggles_to_true() {
+#[tokio::test]
+async fn checkbox_renders_unchecked_and_toggles_to_true() {
     let ctx = Context::new("", "state", Value::Null);
     let checkbox = Checkbox::builder("notify")
         .checked_text("[x] Notify me")
@@ -111,6 +124,7 @@ fn checkbox_renders_unchecked_and_toggles_to_true() {
 
     let markup = checkbox
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
     let expected = format!("td:{}:notify:true", ctx.id);
@@ -119,8 +133,8 @@ fn checkbox_renders_unchecked_and_toggles_to_true() {
     assert_eq!(rows[0][0].callback_data.as_deref(), Some(expected.as_str()));
 }
 
-#[test]
-fn checkbox_renders_checked_and_toggles_to_false() {
+#[tokio::test]
+async fn checkbox_renders_checked_and_toggles_to_false() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("notify".into(), json!(true));
     let checkbox = Checkbox::builder("notify")
@@ -130,6 +144,7 @@ fn checkbox_renders_checked_and_toggles_to_false() {
 
     let markup = checkbox
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
     let expected = format!("td:{}:notify:false", ctx.id);
@@ -138,8 +153,8 @@ fn checkbox_renders_checked_and_toggles_to_false() {
     assert_eq!(rows[0][0].callback_data.as_deref(), Some(expected.as_str()));
 }
 
-#[test]
-fn checkbox_callback_updates_widget_value() {
+#[tokio::test]
+async fn checkbox_callback_updates_widget_value() {
     let ctx = Context::new("", "state", Value::Null);
     let checkbox = Checkbox::builder("notify")
         .checked_text("[x] Notify me")
@@ -148,6 +163,7 @@ fn checkbox_callback_updates_widget_value() {
 
     let action = checkbox
         .handle_callback_for_test(&ctx, &format!("td:{}:notify:true", ctx.id))
+        .await
         .unwrap();
 
     assert!(matches!(
@@ -157,13 +173,14 @@ fn checkbox_callback_updates_widget_value() {
     ));
 }
 
-#[test]
-fn counter_renders_default_value() {
+#[tokio::test]
+async fn counter_renders_default_value() {
     let ctx = Context::new("", "state", Value::Null);
     let counter = Counter::builder("qty").default(2.0).build();
 
     let markup = counter
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
@@ -172,8 +189,8 @@ fn counter_renders_default_value() {
     assert_eq!(&*rows[0][2].text, "+");
 }
 
-#[test]
-fn counter_can_hide_plus_and_minus_buttons() {
+#[tokio::test]
+async fn counter_can_hide_plus_and_minus_buttons() {
     let ctx = Context::new("", "state", Value::Null);
     let counter = Counter::builder("qty")
         .default(2.0)
@@ -183,6 +200,7 @@ fn counter_can_hide_plus_and_minus_buttons() {
 
     let markup = counter
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
@@ -190,14 +208,15 @@ fn counter_can_hide_plus_and_minus_buttons() {
     assert_eq!(&*rows[0][0].text, "2");
 }
 
-#[test]
-fn counter_plus_callback_increments_value() {
+#[tokio::test]
+async fn counter_plus_callback_increments_value() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("qty".into(), json!(2.0));
     let counter = Counter::builder("qty").increment(0.5).build();
 
     let action = counter
         .handle_callback_for_test(&ctx, &format!("td:{}:qty:+", ctx.id))
+        .await
         .unwrap();
 
     assert!(matches!(
@@ -207,14 +226,15 @@ fn counter_plus_callback_increments_value() {
     ));
 }
 
-#[test]
-fn counter_minus_callback_respects_minimum() {
+#[tokio::test]
+async fn counter_minus_callback_respects_minimum() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("qty".into(), json!(1.0));
     let counter = Counter::builder("qty").min(1.0).default(1.0).build();
 
     let action = counter
         .handle_callback_for_test(&ctx, &format!("td:{}:qty:-", ctx.id))
+        .await
         .unwrap();
 
     assert!(matches!(
@@ -224,8 +244,8 @@ fn counter_minus_callback_respects_minimum() {
     ));
 }
 
-#[test]
-fn counter_cycles_when_enabled() {
+#[tokio::test]
+async fn counter_cycles_when_enabled() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("qty".into(), json!(3.0));
     let counter = Counter::builder("qty")
@@ -236,6 +256,7 @@ fn counter_cycles_when_enabled() {
 
     let action = counter
         .handle_callback_for_test(&ctx, &format!("td:{}:qty:+", ctx.id))
+        .await
         .unwrap();
 
     assert!(matches!(
@@ -245,8 +266,8 @@ fn counter_cycles_when_enabled() {
     ));
 }
 
-#[test]
-fn time_select_renders_headers_and_selected_values() {
+#[tokio::test]
+async fn time_select_renders_headers_and_selected_values() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data
         .insert("pickup_time".into(), json!([13, 30]));
@@ -256,6 +277,7 @@ fn time_select_renders_headers_and_selected_values() {
 
     let markup = picker
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
@@ -265,14 +287,15 @@ fn time_select_renders_headers_and_selected_values() {
     assert!(rows.iter().flatten().any(|button| &*button.text == "[30]"));
 }
 
-#[test]
-fn time_select_zero_pads_default_labels() {
+#[tokio::test]
+async fn time_select_zero_pads_default_labels() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("pickup_time".into(), json!([0, 5]));
     let picker = TimeSelect::builder("pickup_time").build();
 
     let markup = picker
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
@@ -280,8 +303,8 @@ fn time_select_zero_pads_default_labels() {
     assert!(rows.iter().flatten().any(|button| &*button.text == "[05]"));
 }
 
-#[test]
-fn time_select_allows_custom_value_renderers() {
+#[tokio::test]
+async fn time_select_allows_custom_value_renderers() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("pickup_time".into(), json!([0, 5]));
     let picker = TimeSelect::builder("pickup_time")
@@ -291,6 +314,7 @@ fn time_select_allows_custom_value_renderers() {
 
     let markup = picker
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
@@ -298,13 +322,14 @@ fn time_select_allows_custom_value_renderers() {
     assert!(rows.iter().flatten().any(|button| &*button.text == "*5*"));
 }
 
-#[test]
-fn time_select_hour_callback_updates_partial_value() {
+#[tokio::test]
+async fn time_select_hour_callback_updates_partial_value() {
     let ctx = Context::new("", "state", Value::Null);
     let picker = TimeSelect::builder("pickup_time").build();
 
     let action = picker
         .handle_callback_for_test(&ctx, &format!("td:{}:pickup_time:h13", ctx.id))
+        .await
         .unwrap();
 
     assert!(matches!(
@@ -314,15 +339,16 @@ fn time_select_hour_callback_updates_partial_value() {
     ));
 }
 
-#[test]
-fn time_select_hour_callback_runs_click_handler() {
+#[tokio::test]
+async fn time_select_hour_callback_runs_click_handler() {
     let ctx = Context::new("", "state", Value::Null);
     let picker = TimeSelect::builder("pickup_time")
-        .on_hour_click(|_click, hour| ButtonAction::set_dialog_value("selected_hour", hour))
+        .on_hour_click(store_selected_hour)
         .build();
 
     let action = picker
         .handle_callback_for_test(&ctx, &format!("td:{}:pickup_time:h8", ctx.id))
+        .await
         .unwrap();
 
     let ButtonAction::Chain(actions) = action else {
@@ -340,8 +366,8 @@ fn time_select_hour_callback_runs_click_handler() {
     ));
 }
 
-#[test]
-fn time_select_minute_callback_preserves_selected_hour() {
+#[tokio::test]
+async fn time_select_minute_callback_preserves_selected_hour() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data
         .insert("pickup_time".into(), json!([13, null]));
@@ -351,6 +377,7 @@ fn time_select_minute_callback_preserves_selected_hour() {
 
     let action = picker
         .handle_callback_for_test(&ctx, &format!("td:{}:pickup_time:m30", ctx.id))
+        .await
         .unwrap();
 
     assert!(matches!(
@@ -360,18 +387,19 @@ fn time_select_minute_callback_preserves_selected_hour() {
     ));
 }
 
-#[test]
-fn time_select_minute_callback_runs_click_handler() {
+#[tokio::test]
+async fn time_select_minute_callback_runs_click_handler() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data
         .insert("pickup_time".into(), json!([13, null]));
     let picker = TimeSelect::builder("pickup_time")
-        .on_minute_click(|_click, minute| ButtonAction::set_dialog_value("selected_minute", minute))
+        .on_minute_click(store_selected_minute)
         .minute_precision(15)
         .build();
 
     let action = picker
         .handle_callback_for_test(&ctx, &format!("td:{}:pickup_time:m45", ctx.id))
+        .await
         .unwrap();
 
     let ButtonAction::Chain(actions) = action else {
@@ -389,8 +417,8 @@ fn time_select_minute_callback_runs_click_handler() {
     ));
 }
 
-#[test]
-fn toggle_renders_first_item_when_unset() {
+#[tokio::test]
+async fn toggle_renders_first_item_when_unset() {
     let ctx = Context::new("", "state", Value::Null);
     let toggle = Toggle::builder("theme")
         .items_getter(|_data| ["light", "dark", "sepia"])
@@ -400,6 +428,7 @@ fn toggle_renders_first_item_when_unset() {
 
     let markup = toggle
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
     let expected = format!("td:{}:theme:dark", ctx.id);
@@ -408,8 +437,8 @@ fn toggle_renders_first_item_when_unset() {
     assert_eq!(rows[0][0].callback_data.as_deref(), Some(expected.as_str()));
 }
 
-#[test]
-fn toggle_renders_selected_item_and_cycles_to_next() {
+#[tokio::test]
+async fn toggle_renders_selected_item_and_cycles_to_next() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("theme".into(), json!("dark"));
 
@@ -421,6 +450,7 @@ fn toggle_renders_selected_item_and_cycles_to_next() {
 
     let markup = toggle
         .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
         .unwrap();
     let rows = markup.inline_keyboard().unwrap();
     let expected = format!("td:{}:theme:sepia", ctx.id);
@@ -429,8 +459,8 @@ fn toggle_renders_selected_item_and_cycles_to_next() {
     assert_eq!(rows[0][0].callback_data.as_deref(), Some(expected.as_str()));
 }
 
-#[test]
-fn toggle_callback_updates_widget_value() {
+#[tokio::test]
+async fn toggle_callback_updates_widget_value() {
     let ctx = Context::new("", "state", Value::Null);
     let toggle = Toggle::builder("theme")
         .items_getter(|_data| ["light", "dark"])
@@ -440,6 +470,7 @@ fn toggle_callback_updates_widget_value() {
 
     let action = toggle
         .handle_callback_for_test(&ctx, &format!("td:{}:theme:dark", ctx.id))
+        .await
         .unwrap();
 
     assert!(matches!(
@@ -449,8 +480,8 @@ fn toggle_callback_updates_widget_value() {
     ));
 }
 
-#[test]
-fn multiselect_renders_checked_and_unchecked_items() {
+#[tokio::test]
+async fn multiselect_renders_checked_and_unchecked_items() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("fruits".into(), json!(["apple"]));
 
@@ -461,7 +492,10 @@ fn multiselect_renders_checked_and_unchecked_items() {
         .id_getter(|&item| item)
         .build();
 
-    let markup = ms.render_keyboard_for_test(&ctx, &DataMap::new()).unwrap();
+    let markup = ms
+        .render_keyboard_for_test(&ctx, &DataMap::new())
+        .await
+        .unwrap();
     let rows = markup.inline_keyboard().unwrap();
 
     assert_eq!(&*rows[0][0].text, "[x] apple");
@@ -469,8 +503,8 @@ fn multiselect_renders_checked_and_unchecked_items() {
     assert_eq!(&*rows[2][0].text, "[ ] grape");
 }
 
-#[test]
-fn multiselect_toggle_checks_unchecked_item() {
+#[tokio::test]
+async fn multiselect_toggle_checks_unchecked_item() {
     let ctx = Context::new("", "state", Value::Null);
     let ms = Multiselect::builder("fruits")
         .items_getter(|_data| ["apple", "pear"])
@@ -481,6 +515,7 @@ fn multiselect_toggle_checks_unchecked_item() {
 
     let action = ms
         .handle_callback_for_test(&ctx, &format!("td:{}:fruits:apple", ctx.id))
+        .await
         .unwrap();
 
     assert!(matches!(
@@ -490,8 +525,8 @@ fn multiselect_toggle_checks_unchecked_item() {
     ));
 }
 
-#[test]
-fn multiselect_toggle_unchecks_checked_item() {
+#[tokio::test]
+async fn multiselect_toggle_unchecks_checked_item() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data
         .insert("fruits".into(), json!(["apple", "pear"]));
@@ -505,6 +540,7 @@ fn multiselect_toggle_unchecks_checked_item() {
 
     let action = ms
         .handle_callback_for_test(&ctx, &format!("td:{}:fruits:apple", ctx.id))
+        .await
         .unwrap();
 
     assert!(matches!(
@@ -514,8 +550,8 @@ fn multiselect_toggle_unchecks_checked_item() {
     ));
 }
 
-#[test]
-fn multiselect_respects_max_selected() {
+#[tokio::test]
+async fn multiselect_respects_max_selected() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data
         .insert("fruits".into(), json!(["apple", "pear"]));
@@ -530,13 +566,14 @@ fn multiselect_respects_max_selected() {
 
     let action = ms
         .handle_callback_for_test(&ctx, &format!("td:{}:fruits:grape", ctx.id))
+        .await
         .unwrap();
 
     assert!(matches!(action, ButtonAction::Noop));
 }
 
-#[test]
-fn multiselect_respects_min_selected() {
+#[tokio::test]
+async fn multiselect_respects_min_selected() {
     let mut ctx = Context::new("", "state", Value::Null);
     ctx.widget_data.insert("fruits".into(), json!(["apple"]));
 
@@ -550,6 +587,7 @@ fn multiselect_respects_min_selected() {
 
     let action = ms
         .handle_callback_for_test(&ctx, &format!("td:{}:fruits:apple", ctx.id))
+        .await
         .unwrap();
 
     assert!(matches!(action, ButtonAction::Noop));

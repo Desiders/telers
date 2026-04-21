@@ -1,12 +1,21 @@
+use async_fn_traits::AsyncFn1;
 use serde_json::Value;
 use std::{borrow::Cow, fmt::Display, sync::Arc};
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use tracing::debug;
 
 use super::super::{format_callback_data, parse_callback_data, ButtonAction};
-use crate::entities::{Context, DataMap, RenderContext};
+use crate::{
+    entities::{Context, DataMap, RenderContext},
+    future::BoxFuture,
+};
 
-type PageChangedHandler = dyn Fn(PageChange) -> ButtonAction + Send + Sync + 'static;
+type PageChangedHandler =
+    dyn Fn(PageChange) -> BoxFuture<'static, ButtonAction> + Send + Sync + 'static;
+
+pub(super) trait PageCountProvider: Sync {
+    fn page_count<'a>(&'a self, render_ctx: &'a RenderContext) -> BoxFuture<'a, usize>;
+}
 
 /// Details about a pager state transition.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -28,13 +37,22 @@ impl OnPageChanged {
     #[must_use]
     pub fn new<F>(handler: F) -> Self
     where
-        F: Fn(PageChange) -> ButtonAction + Send + Sync + 'static,
+        F: AsyncFn(PageChange) -> ButtonAction
+            + AsyncFn1<PageChange, Output = ButtonAction>
+            + Send
+            + Sync
+            + 'static,
+        <F as AsyncFn1<PageChange>>::OutputFuture: Send + 'static,
     {
-        Self(Arc::new(handler))
+        let handler = Arc::new(handler);
+        Self(Arc::new(move |change| {
+            let handler = handler.clone();
+            Box::pin(async move { handler(change).await })
+        }))
     }
 
     #[must_use]
-    pub(super) fn call(&self, change: PageChange) -> ButtonAction {
+    pub(super) fn call(&self, change: PageChange) -> BoxFuture<'static, ButtonAction> {
         (self.0)(change)
     }
 }
@@ -71,7 +89,12 @@ impl BaseScroll {
         self.on_page_changed.as_ref()
     }
 
-    pub fn handle_callback(&self, ctx: &Context, callback_data: &str) -> Option<ButtonAction> {
+    #[must_use]
+    pub fn handle_callback<'a>(
+        &'a self,
+        ctx: &'a Context,
+        callback_data: &'a str,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
         handle_pager_callback(ctx, self.widget_id(), callback_data, self.on_page_changed())
     }
 }
@@ -81,7 +104,7 @@ pub trait Scroll: Send + Sync + 'static {
     fn base_scroll(&self) -> &BaseScroll;
 
     #[must_use]
-    fn get_page_count(&self, render_ctx: &RenderContext<'_>) -> usize;
+    fn get_page_count(&self, render_ctx: RenderContext) -> BoxFuture<'_, usize>;
 
     #[must_use]
     fn widget_id(&self) -> &str {
@@ -103,9 +126,10 @@ pub trait Scroll: Send + Sync + 'static {
 #[must_use]
 pub fn sync_scroll(scroll_id: impl Into<Cow<'static, str>>) -> OnPageChanged {
     let scroll_id = scroll_id.into();
-    OnPageChanged::new(move |change| {
-        ButtonAction::set_widget_value(scroll_id.clone(), change.new_page)
-    })
+    OnPageChanged(Arc::new(move |change| {
+        let scroll_id = scroll_id.clone();
+        Box::pin(async move { ButtonAction::set_widget_value(scroll_id, change.new_page) })
+    }))
 }
 
 /// Build a hook that copies the new page into multiple scroll widget ids.
@@ -118,14 +142,16 @@ where
         .into_iter()
         .map(Into::into)
         .collect::<Vec<Cow<'static, str>>>();
-    OnPageChanged::new(move |change| {
-        ButtonAction::chain(
-            scroll_ids
-                .iter()
-                .cloned()
-                .map(|id| ButtonAction::set_widget_value(id, change.new_page)),
-        )
-    })
+    OnPageChanged(Arc::new(move |change| {
+        let scroll_ids = scroll_ids.clone();
+        Box::pin(async move {
+            ButtonAction::chain(
+                scroll_ids
+                    .into_iter()
+                    .map(|id| ButtonAction::set_widget_value(id, change.new_page)),
+            )
+        })
+    }))
 }
 
 /// Logical direction used by standalone pager buttons.
@@ -155,37 +181,39 @@ pub(super) fn resolve_page_target(
     }
 }
 
-pub(super) fn render_direction_button<WidgetId, PageCountGetter, LabelRenderer, Label>(
-    render_ctx: &RenderContext<'_>,
-    id: &WidgetId,
-    page_count_getter: &PageCountGetter,
+pub(super) fn render_direction_button<'a, WidgetId, PageCountGetter, LabelRenderer, Label>(
+    render_ctx: &'a RenderContext,
+    id: &'a WidgetId,
+    page_count_getter: &'a PageCountGetter,
     direction: PageDirection,
-    label_renderer: &LabelRenderer,
-) -> Option<ReplyMarkup>
+    label_renderer: &'a LabelRenderer,
+) -> BoxFuture<'a, Option<ReplyMarkup>>
 where
-    WidgetId: Display,
-    PageCountGetter: for<'a> Fn(&RenderContext<'a>) -> usize,
-    LabelRenderer: Fn(usize, usize, &DataMap) -> Label,
+    WidgetId: Display + Sync,
+    PageCountGetter: PageCountProvider,
+    LabelRenderer: Fn(usize, usize, &DataMap) -> Label + Sync,
     Label: Into<Box<str>>,
 {
-    let ctx = render_ctx.context;
-    let data = render_ctx.data;
-    let pages_count = page_count_getter(render_ctx);
-    if pages_count == 0 {
-        return None;
-    }
+    Box::pin(async move {
+        let ctx = render_ctx.context.as_ref();
+        let data = render_ctx.data.as_ref();
+        let pages_count = page_count_getter.page_count(render_ctx).await;
+        if pages_count == 0 {
+            return None;
+        }
 
-    let widget_id = id.to_string();
-    let current_page = read_page(ctx, &widget_id).min(pages_count.saturating_sub(1));
-    let target_page = resolve_page_target(direction, current_page, pages_count);
-    let label = (label_renderer)(target_page, current_page, data);
-    let button = InlineKeyboardButton::new(label).callback_data(format_callback_data(
-        ctx,
-        id,
-        Some(&target_page.to_string()),
-    ));
+        let widget_id = id.to_string();
+        let current_page = read_page(ctx, &widget_id).min(pages_count.saturating_sub(1));
+        let target_page = resolve_page_target(direction, current_page, pages_count);
+        let label = (label_renderer)(target_page, current_page, data);
+        let button = InlineKeyboardButton::new(label).callback_data(format_callback_data(
+            ctx,
+            id,
+            Some(&target_page.to_string()),
+        ));
 
-    Some(InlineKeyboardMarkup::new(vec![vec![button].into_boxed_slice()]).into())
+        Some(InlineKeyboardMarkup::new(vec![vec![button].into_boxed_slice()]).into())
+    })
 }
 
 #[inline]
@@ -286,38 +314,42 @@ pub(super) fn render_fixed_width_page(
     Some((rows, pages_count))
 }
 
-pub(super) fn handle_pager_callback(
-    ctx: &Context,
-    widget_id: &str,
-    callback_data: &str,
-    on_page_changed: Option<&OnPageChanged>,
-) -> Option<ButtonAction> {
-    let parsed = parse_callback_data(ctx, callback_data)?;
-    if parsed.target_id != widget_id {
-        return None;
-    }
+pub(super) fn handle_pager_callback<'a>(
+    ctx: &'a Context,
+    widget_id: &'a str,
+    callback_data: &'a str,
+    on_page_changed: Option<&'a OnPageChanged>,
+) -> BoxFuture<'a, Option<ButtonAction>> {
+    Box::pin(async move {
+        let parsed = parse_callback_data(ctx, callback_data)?;
+        if parsed.target_id != widget_id {
+            return None;
+        }
 
-    let old_page = read_page(ctx, widget_id);
-    let page: usize = parsed.payload?.parse().ok()?;
-    debug!(
-        context_id = %ctx.id,
-        widget_id,
-        old_page,
-        page,
-        "Resolved pager navigation callback"
-    );
-    let current_action =
-        ButtonAction::set_widget_value(widget_id.to_owned(), Value::Number(page.into()));
-    Some(match on_page_changed {
-        Some(on_page_changed) => ButtonAction::chain([
-            current_action,
-            on_page_changed.call(PageChange {
-                widget_id: widget_id.into(),
-                old_page,
-                new_page: page,
-            }),
-        ]),
-        None => current_action,
+        let old_page = read_page(ctx, widget_id);
+        let page: usize = parsed.payload?.parse().ok()?;
+        debug!(
+            context_id = %ctx.id,
+            widget_id,
+            old_page,
+            page,
+            "Resolved pager navigation callback"
+        );
+        let current_action =
+            ButtonAction::set_widget_value(widget_id.to_owned(), Value::Number(page.into()));
+        Some(match on_page_changed {
+            Some(on_page_changed) => ButtonAction::chain([
+                current_action,
+                on_page_changed
+                    .call(PageChange {
+                        widget_id: widget_id.into(),
+                        old_page,
+                        new_page: page,
+                    })
+                    .await,
+            ]),
+            None => current_action,
+        })
     })
 }
 
@@ -330,5 +362,5 @@ pub(super) fn read_page(ctx: &Context, widget_id: &str) -> usize {
 #[inline]
 #[must_use]
 pub(super) fn page_count_from_rows(total_rows: usize, height: usize) -> usize {
-    total_rows / height + usize::from(total_rows % height != 0)
+    total_rows / height + usize::from(!total_rows.is_multiple_of(height))
 }

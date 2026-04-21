@@ -9,6 +9,7 @@
 mod dialog;
 pub mod entities;
 mod errors;
+mod future;
 mod manager;
 mod message_manager;
 mod registry;

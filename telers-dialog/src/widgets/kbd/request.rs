@@ -9,6 +9,7 @@ use telers::{
 use super::{when::is_allowed, ButtonAction, ClickContext, Keyboard, WhenCondition};
 use crate::{
     entities::{Context, DataMap, RenderContext},
+    future::BoxFuture,
     widgets::Text,
 };
 
@@ -115,41 +116,37 @@ impl<ButtonText> RequestContact<ButtonText> {
     }
 }
 
+#[allow(clippy::wrong_self_convention)]
 impl<ButtonText, S> RequestContactBuilder<ButtonText, S>
 where
     S: request_contact_builder::State,
     ButtonText: Text,
 {
     /// Set the persistent-keyboard flag.
-    #[must_use]
     pub fn is_persistent(mut self, value: bool) -> Self {
         self.options.is_persistent = Some(value);
         self
     }
 
     /// Set the resize-keyboard flag.
-    #[must_use]
     pub fn resize_keyboard(mut self, value: bool) -> Self {
         self.options.resize_keyboard = Some(value);
         self
     }
 
     /// Set the one-time-keyboard flag.
-    #[must_use]
     pub fn one_time_keyboard(mut self, value: bool) -> Self {
         self.options.one_time_keyboard = Some(value);
         self
     }
 
     /// Set the input placeholder shown while the reply keyboard is active.
-    #[must_use]
     pub fn input_field_placeholder(mut self, value: impl Into<Cow<'static, str>>) -> Self {
         self.options.input_field_placeholder = Some(value.into());
         self
     }
 
     /// Set whether the reply keyboard is selective.
-    #[must_use]
     pub fn selective(mut self, value: bool) -> Self {
         self.options.selective = Some(value);
         self
@@ -160,25 +157,36 @@ impl<ButtonText> Keyboard for RequestContact<ButtonText>
 where
     ButtonText: Text,
 {
-    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
-        if !self.is_visible(render_ctx.context, render_ctx.data) {
-            return None;
-        }
-        let button =
-            KeyboardButton::new(self.text.render_text_in_context(render_ctx)).request_contact(true);
-        Some(
-            self.options
-                .apply(ReplyKeyboardMarkup::new([[button]]))
-                .into(),
-        )
+    fn render_keyboard<'a>(
+        &'a self,
+        render_ctx: &'a RenderContext,
+    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
+        Box::pin(async move {
+            if !self
+                .is_visible(render_ctx.context.as_ref(), render_ctx.data.as_ref())
+                .await
+            {
+                return None;
+            }
+            let button = KeyboardButton::new(self.text.render_text_in_context(render_ctx).await)
+                .request_contact(true);
+            Some(
+                self.options
+                    .apply(ReplyKeyboardMarkup::new([[button]]))
+                    .into(),
+            )
+        })
     }
 
-    fn handle_callback(&self, _click: &ClickContext<'_>) -> Option<ButtonAction> {
-        None
+    fn handle_callback<'a>(
+        &'a self,
+        _click: &'a ClickContext,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
+        Box::pin(async { None })
     }
 }
 
@@ -251,41 +259,37 @@ impl<ButtonText> RequestLocation<ButtonText> {
     }
 }
 
+#[allow(clippy::wrong_self_convention)]
 impl<ButtonText, S> RequestLocationBuilder<ButtonText, S>
 where
     S: request_location_builder::State,
     ButtonText: Text,
 {
     /// Set the persistent-keyboard flag.
-    #[must_use]
     pub fn is_persistent(mut self, value: bool) -> Self {
         self.options.is_persistent = Some(value);
         self
     }
 
     /// Set the resize-keyboard flag.
-    #[must_use]
     pub fn resize_keyboard(mut self, value: bool) -> Self {
         self.options.resize_keyboard = Some(value);
         self
     }
 
     /// Set the one-time-keyboard flag.
-    #[must_use]
     pub fn one_time_keyboard(mut self, value: bool) -> Self {
         self.options.one_time_keyboard = Some(value);
         self
     }
 
     /// Set the input placeholder shown while the reply keyboard is active.
-    #[must_use]
     pub fn input_field_placeholder(mut self, value: impl Into<Cow<'static, str>>) -> Self {
         self.options.input_field_placeholder = Some(value.into());
         self
     }
 
     /// Set whether the reply keyboard is selective.
-    #[must_use]
     pub fn selective(mut self, value: bool) -> Self {
         self.options.selective = Some(value);
         self
@@ -296,25 +300,36 @@ impl<ButtonText> Keyboard for RequestLocation<ButtonText>
 where
     ButtonText: Text,
 {
-    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
-        if !self.is_visible(render_ctx.context, render_ctx.data) {
-            return None;
-        }
-        let button = KeyboardButton::new(self.text.render_text_in_context(render_ctx))
-            .request_location(true);
-        Some(
-            self.options
-                .apply(ReplyKeyboardMarkup::new([[button]]))
-                .into(),
-        )
+    fn render_keyboard<'a>(
+        &'a self,
+        render_ctx: &'a RenderContext,
+    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
+        Box::pin(async move {
+            if !self
+                .is_visible(render_ctx.context.as_ref(), render_ctx.data.as_ref())
+                .await
+            {
+                return None;
+            }
+            let button = KeyboardButton::new(self.text.render_text_in_context(render_ctx).await)
+                .request_location(true);
+            Some(
+                self.options
+                    .apply(ReplyKeyboardMarkup::new([[button]]))
+                    .into(),
+            )
+        })
     }
 
-    fn handle_callback(&self, _click: &ClickContext<'_>) -> Option<ButtonAction> {
-        None
+    fn handle_callback<'a>(
+        &'a self,
+        _click: &'a ClickContext,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
+        Box::pin(async { None })
     }
 }
 
@@ -397,41 +412,37 @@ impl<ButtonText> RequestPoll<ButtonText> {
     }
 }
 
+#[allow(clippy::wrong_self_convention)]
 impl<ButtonText, S> RequestPollBuilder<ButtonText, S>
 where
     S: request_poll_builder::State,
     ButtonText: Text,
 {
     /// Set the persistent-keyboard flag.
-    #[must_use]
     pub fn is_persistent(mut self, value: bool) -> Self {
         self.options.is_persistent = Some(value);
         self
     }
 
     /// Set the resize-keyboard flag.
-    #[must_use]
     pub fn resize_keyboard(mut self, value: bool) -> Self {
         self.options.resize_keyboard = Some(value);
         self
     }
 
     /// Set the one-time-keyboard flag.
-    #[must_use]
     pub fn one_time_keyboard(mut self, value: bool) -> Self {
         self.options.one_time_keyboard = Some(value);
         self
     }
 
     /// Set the input placeholder shown while the reply keyboard is active.
-    #[must_use]
     pub fn input_field_placeholder(mut self, value: impl Into<Cow<'static, str>>) -> Self {
         self.options.input_field_placeholder = Some(value.into());
         self
     }
 
     /// Set whether the reply keyboard is selective.
-    #[must_use]
     pub fn selective(mut self, value: bool) -> Self {
         self.options.selective = Some(value);
         self
@@ -442,27 +453,38 @@ impl<ButtonText> Keyboard for RequestPoll<ButtonText>
 where
     ButtonText: Text,
 {
-    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
-        if !self.is_visible(render_ctx.context, render_ctx.data) {
-            return None;
-        }
-        let request_poll =
-            KeyboardButtonPollType::new().type_option(self.poll_type.map(Into::<Box<str>>::into));
-        let button = KeyboardButton::new(self.text.render_text_in_context(render_ctx))
-            .request_poll(request_poll);
-        Some(
-            self.options
-                .apply(ReplyKeyboardMarkup::new([[button]]))
-                .into(),
-        )
+    fn render_keyboard<'a>(
+        &'a self,
+        render_ctx: &'a RenderContext,
+    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
+        Box::pin(async move {
+            if !self
+                .is_visible(render_ctx.context.as_ref(), render_ctx.data.as_ref())
+                .await
+            {
+                return None;
+            }
+            let request_poll = KeyboardButtonPollType::new()
+                .type_option(self.poll_type.map(Into::<Box<str>>::into));
+            let button = KeyboardButton::new(self.text.render_text_in_context(render_ctx).await)
+                .request_poll(request_poll);
+            Some(
+                self.options
+                    .apply(ReplyKeyboardMarkup::new([[button]]))
+                    .into(),
+            )
+        })
     }
 
-    fn handle_callback(&self, _click: &ClickContext<'_>) -> Option<ButtonAction> {
-        None
+    fn handle_callback<'a>(
+        &'a self,
+        _click: &'a ClickContext,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
+        Box::pin(async { None })
     }
 }
 
@@ -479,8 +501,8 @@ mod tests {
         widgets::Keyboard,
     };
 
-    #[test]
-    fn request_contact_renders_reply_keyboard_button() {
+    #[tokio::test]
+    async fn request_contact_renders_reply_keyboard_button() {
         let ctx = Context::new("", "state", Value::Null);
         let keyboard = RequestContact::builder("Share phone")
             .resize_keyboard(true)
@@ -489,6 +511,7 @@ mod tests {
 
         let markup = keyboard
             .render_keyboard_for_test(&ctx, &DataMap::new())
+            .await
             .unwrap();
         let ReplyMarkup::ReplyKeyboardMarkup(markup) = markup else {
             panic!("reply keyboard");
@@ -500,8 +523,8 @@ mod tests {
         assert_eq!(markup.input_field_placeholder.as_deref(), Some("Phone"));
     }
 
-    #[test]
-    fn request_location_renders_reply_keyboard_button() {
+    #[tokio::test]
+    async fn request_location_renders_reply_keyboard_button() {
         let ctx = Context::new("", "state", Value::Null);
         let keyboard = RequestLocation::builder("Share location")
             .one_time_keyboard(true)
@@ -509,6 +532,7 @@ mod tests {
 
         let markup = keyboard
             .render_keyboard_for_test(&ctx, &DataMap::new())
+            .await
             .unwrap();
         let ReplyMarkup::ReplyKeyboardMarkup(markup) = markup else {
             panic!("reply keyboard");
@@ -519,8 +543,8 @@ mod tests {
         assert_eq!(markup.one_time_keyboard, Some(true));
     }
 
-    #[test]
-    fn request_poll_renders_reply_keyboard_button() {
+    #[tokio::test]
+    async fn request_poll_renders_reply_keyboard_button() {
         let ctx = Context::new("", "state", Value::Null);
         let keyboard = RequestPoll::builder("Create quiz")
             .poll_type(PollType::Quiz)
@@ -529,6 +553,7 @@ mod tests {
 
         let markup = keyboard
             .render_keyboard_for_test(&ctx, &DataMap::new())
+            .await
             .unwrap();
         let ReplyMarkup::ReplyKeyboardMarkup(markup) = markup else {
             panic!("reply keyboard");

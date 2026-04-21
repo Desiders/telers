@@ -1,17 +1,37 @@
+use async_fn_traits::AsyncFn1;
 use bon::bon;
-use std::{borrow::Cow, marker::PhantomData};
+use std::{borrow::Cow, marker::PhantomData, sync::Arc};
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 
 use super::{
     super::{
         format_callback_data, when::is_allowed, ButtonAction, ClickContext, Keyboard, WhenCondition,
     },
+    common::PageCountProvider,
     handle_pager_callback, read_page, render_direction_button, OnPageChanged, PageDirection,
     Scroll,
 };
-use crate::entities::{Context, DataMap, RenderContext};
+use crate::{
+    entities::{Context, DataMap, RenderContext},
+    future::BoxFuture,
+};
 
-type DynPageCountGetter = Box<dyn for<'a> Fn(&RenderContext<'a>) -> usize + Send + Sync + 'static>;
+type DynPageCountGetter =
+    Box<dyn Fn(RenderContext) -> BoxFuture<'static, usize> + Send + Sync + 'static>;
+
+enum PageCountSource {
+    Getter(DynPageCountGetter),
+    Scroll(Arc<dyn Scroll>),
+}
+
+impl PageCountProvider for PageCountSource {
+    fn page_count<'a>(&'a self, render_ctx: &'a RenderContext) -> BoxFuture<'a, usize> {
+        match self {
+            Self::Getter(getter) => getter(render_ctx.clone()),
+            Self::Scroll(scroll) => scroll.get_page_count(render_ctx.clone()),
+        }
+    }
+}
 
 /// Builder input for standalone pager widgets.
 ///
@@ -22,7 +42,7 @@ type DynPageCountGetter = Box<dyn for<'a> Fn(&RenderContext<'a>) -> usize + Send
 /// `NumberedPager::builder(scrolling_text)`
 pub struct PagerBinding {
     id: Cow<'static, str>,
-    page_count_getter: Option<DynPageCountGetter>,
+    page_count_getter: Option<PageCountSource>,
     on_page_changed: Option<OnPageChanged>,
 }
 
@@ -65,12 +85,10 @@ where
     fn from(scroll: S) -> Self {
         let id = scroll.widget_id().to_owned().into();
         let on_page_changed = scroll.on_page_changed().cloned();
-        let page_count_getter = Box::new(move |render_ctx: &RenderContext<'_>| -> usize {
-            scroll.get_page_count(render_ctx)
-        });
+        let scroll = Arc::new(scroll);
         Self {
             id,
-            page_count_getter: Some(page_count_getter),
+            page_count_getter: Some(PageCountSource::Scroll(scroll)),
             on_page_changed,
         }
     }
@@ -81,15 +99,19 @@ fn resolve_pager_binding(
     binding: PagerBinding,
     page_count_getter: Option<DynPageCountGetter>,
     on_page_changed: Option<OnPageChanged>,
-) -> (Cow<'static, str>, DynPageCountGetter, Option<OnPageChanged>) {
+) -> (Cow<'static, str>, PageCountSource, Option<OnPageChanged>) {
     let PagerBinding {
         id,
         page_count_getter: binding_page_count_getter,
         on_page_changed: binding_on_page_changed,
     } = binding;
-    let page_count_getter = page_count_getter.or(binding_page_count_getter).expect(
-        "Standalone pagers require `page_count_getter(...)` unless built from a `Scroll` widget",
-    );
+    let page_count_getter = page_count_getter
+        .map(PageCountSource::Getter)
+        .or(binding_page_count_getter)
+        .expect(
+            "Standalone pagers require `page_count_getter(...)` unless built from a `Scroll` \
+             widget",
+        );
     (
         id,
         page_count_getter,
@@ -100,7 +122,7 @@ fn resolve_pager_binding(
 pub struct SwitchPage<LabelRenderer, Label> {
     id: Cow<'static, str>,
     direction: PageDirection,
-    page_count_getter: DynPageCountGetter,
+    page_count_getter: PageCountSource,
     label_renderer: LabelRenderer,
     on_page_changed: Option<OnPageChanged>,
     when: Option<WhenCondition>,
@@ -114,11 +136,8 @@ impl<LabelRenderer, Label> SwitchPage<LabelRenderer, Label> {
     #[must_use]
     pub fn new(
         #[builder(start_fn, into)] binding: PagerBinding,
+        #[builder(field)] page_count_getter: Option<DynPageCountGetter>,
         direction: PageDirection,
-        #[builder(with = |page_count_getter: impl for<'a> Fn(&RenderContext<'a>) -> usize + Send + Sync + 'static| {
-            Box::new(page_count_getter)
-        })]
-        page_count_getter: Option<DynPageCountGetter>,
         label_renderer: LabelRenderer,
         on_page_changed: Option<OnPageChanged>,
         when: Option<WhenCondition>,
@@ -141,50 +160,86 @@ impl<LabelRenderer, Label> SwitchPage<LabelRenderer, Label> {
     }
 }
 
+impl<LabelRenderer, Label, S> SwitchPageBuilder<LabelRenderer, Label, S>
+where
+    S: switch_page_builder::State,
+    LabelRenderer: Fn(usize, usize, &DataMap) -> Label,
+    Label: Into<Box<str>>,
+{
+    pub fn page_count_getter<F>(mut self, page_count_getter: F) -> Self
+    where
+        F: AsyncFn(RenderContext) -> usize
+            + AsyncFn1<RenderContext, Output = usize>
+            + Send
+            + Sync
+            + 'static,
+        <F as AsyncFn1<RenderContext>>::OutputFuture: Send + 'static,
+    {
+        let page_count_getter = Arc::new(page_count_getter);
+        self.page_count_getter = Some(Box::new(move |render_ctx| {
+            let page_count_getter = page_count_getter.clone();
+            Box::pin(async move { page_count_getter(render_ctx).await })
+        }));
+        self
+    }
+}
+
 impl<LabelRenderer, Label> Keyboard for SwitchPage<LabelRenderer, Label>
 where
     LabelRenderer: Fn(usize, usize, &DataMap) -> Label + Send + Sync + 'static,
     Label: Into<Box<str>> + 'static,
 {
-    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
-        let ctx = render_ctx.context;
-        let data = render_ctx.data;
-        if !self.is_visible(ctx, data) {
-            return None;
-        }
-        render_direction_button(
-            render_ctx,
-            &self.id,
-            &self.page_count_getter,
-            self.direction,
-            &self.label_renderer,
-        )
+    fn render_keyboard<'a>(
+        &'a self,
+        render_ctx: &'a RenderContext,
+    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
+        Box::pin(async move {
+            let ctx = render_ctx.context.as_ref();
+            let data = render_ctx.data.as_ref();
+            if !self.is_visible(ctx, data).await {
+                return None;
+            }
+            render_direction_button(
+                render_ctx,
+                &self.id,
+                &self.page_count_getter,
+                self.direction,
+                &self.label_renderer,
+            )
+            .await
+        })
     }
 
-    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
-        let ctx = click.context;
-        let data = &ctx.dialog_data;
-        if !self.is_visible(ctx, data) {
-            return None;
-        }
-        handle_pager_callback(
-            ctx,
-            self.id.as_ref(),
-            click.callback_data,
-            self.on_page_changed.as_ref(),
-        )
+    fn handle_callback<'a>(
+        &'a self,
+        click: &'a ClickContext,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
+        Box::pin(async move {
+            let ctx = click.context.as_ref();
+            let data = &ctx.dialog_data;
+            if !self.is_visible(ctx, data).await {
+                return None;
+            }
+            handle_pager_callback(
+                ctx,
+                self.id.as_ref(),
+                click.callback_data.as_str(),
+                self.on_page_changed.as_ref(),
+            )
+            .await
+        })
     }
 }
 
 macro_rules! fixed_pager_type {
-    ($name:ident, $direction:expr, $default_label:literal) => {
+    ($name:ident, $builder:ident, $state:ident, $direction:expr, $default_label:literal) => {
         pub struct $name {
             id: Cow<'static, str>,
-            page_count_getter: DynPageCountGetter,
+            page_count_getter: PageCountSource,
             label: Cow<'static, str>,
             on_page_changed: Option<OnPageChanged>,
             when: Option<WhenCondition>,
@@ -196,10 +251,7 @@ macro_rules! fixed_pager_type {
             #[must_use]
             pub fn new(
                 #[builder(start_fn, into)] binding: PagerBinding,
-                #[builder(with = |page_count_getter: impl for<'a> Fn(&RenderContext<'a>) -> usize + Send + Sync + 'static| {
-                    Box::new(page_count_getter)
-                })]
-                page_count_getter: Option<DynPageCountGetter>,
+                #[builder(field)] page_count_getter: Option<DynPageCountGetter>,
                 #[builder(default = $default_label.into())] label: Cow<'static, str>,
                 on_page_changed: Option<OnPageChanged>,
                 when: Option<WhenCondition>,
@@ -216,54 +268,113 @@ macro_rules! fixed_pager_type {
             }
         }
 
+        impl<S> $builder<S>
+        where
+            S: $state::State,
+        {
+            pub fn page_count_getter<F>(mut self, page_count_getter: F) -> Self
+            where
+                F: AsyncFn(RenderContext) -> usize
+                    + AsyncFn1<RenderContext, Output = usize>
+                    + Send
+                    + Sync
+                    + 'static,
+                <F as AsyncFn1<RenderContext>>::OutputFuture: Send + 'static,
+            {
+                let page_count_getter = Arc::new(page_count_getter);
+                self.page_count_getter = Some(Box::new(move |render_ctx| {
+                    let page_count_getter = page_count_getter.clone();
+                    Box::pin(async move { page_count_getter(render_ctx).await })
+                }));
+                self
+            }
+        }
+
         impl Keyboard for $name {
-            fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+            fn is_visible<'a>(
+                &'a self,
+                ctx: &'a Context,
+                data: &'a DataMap,
+            ) -> BoxFuture<'a, bool> {
                 is_allowed(self.when.as_ref(), ctx, data)
             }
 
-            fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
-                let ctx = render_ctx.context;
-                let data = render_ctx.data;
-                if !self.is_visible(ctx, data) {
-                    return None;
-                }
-                render_direction_button(
-                    render_ctx,
-                    &self.id,
-                    &self.page_count_getter,
-                    $direction,
-                    &|_target, _current, _data| self.label.clone(),
-                )
+            fn render_keyboard<'a>(
+                &'a self,
+                render_ctx: &'a RenderContext,
+            ) -> BoxFuture<'a, Option<ReplyMarkup>> {
+                Box::pin(async move {
+                    let ctx = render_ctx.context.as_ref();
+                    let data = render_ctx.data.as_ref();
+                    if !self.is_visible(ctx, data).await {
+                        return None;
+                    }
+                    render_direction_button(
+                        render_ctx,
+                        &self.id,
+                        &self.page_count_getter,
+                        $direction,
+                        &|_target, _current, _data| self.label.clone(),
+                    )
+                    .await
+                })
             }
 
-            fn handle_callback(
-                &self,
-                click: &ClickContext<'_>,
-            ) -> Option<ButtonAction> {
-                let ctx = click.context;
-                let data = &ctx.dialog_data;
-                if !self.is_visible(ctx, data) {
-                    return None;
-                }
-                handle_pager_callback(
-                    ctx,
-                    self.id.as_ref(),
-                    click.callback_data,
-                    self.on_page_changed.as_ref(),
-                )
+            fn handle_callback<'a>(
+                &'a self,
+                click: &'a ClickContext,
+            ) -> BoxFuture<'a, Option<ButtonAction>> {
+                Box::pin(async move {
+                    let ctx = click.context.as_ref();
+                    let data = &ctx.dialog_data;
+                    if !self.is_visible(ctx, data).await {
+                        return None;
+                    }
+                    handle_pager_callback(
+                        ctx,
+                        self.id.as_ref(),
+                        click.callback_data.as_str(),
+                        self.on_page_changed.as_ref(),
+                    )
+                    .await
+                })
             }
         }
     };
 }
 
-fixed_pager_type!(FirstPage, PageDirection::First, "<<");
-fixed_pager_type!(PrevPage, PageDirection::Prev, "<");
-fixed_pager_type!(NextPage, PageDirection::Next, ">");
-fixed_pager_type!(LastPage, PageDirection::Last, ">>");
+fixed_pager_type!(
+    FirstPage,
+    FirstPageBuilder,
+    first_page_builder,
+    PageDirection::First,
+    "<<"
+);
+fixed_pager_type!(
+    PrevPage,
+    PrevPageBuilder,
+    prev_page_builder,
+    PageDirection::Prev,
+    "<"
+);
+fixed_pager_type!(
+    NextPage,
+    NextPageBuilder,
+    next_page_builder,
+    PageDirection::Next,
+    ">"
+);
+fixed_pager_type!(
+    LastPage,
+    LastPageBuilder,
+    last_page_builder,
+    PageDirection::Last,
+    ">>"
+);
 
 pub struct CurrentPage {
     id: Cow<'static, str>,
-    page_count_getter: DynPageCountGetter,
+    page_count_getter: PageCountSource,
     on_page_changed: Option<OnPageChanged>,
     when: Option<WhenCondition>,
 }
@@ -274,10 +385,7 @@ impl CurrentPage {
     #[must_use]
     pub fn new(
         #[builder(start_fn, into)] binding: PagerBinding,
-        #[builder(with = |page_count_getter: impl for<'a> Fn(&RenderContext<'a>) -> usize + Send + Sync + 'static| {
-            Box::new(page_count_getter)
-        })]
-        page_count_getter: Option<DynPageCountGetter>,
+        #[builder(field)] page_count_getter: Option<DynPageCountGetter>,
         on_page_changed: Option<OnPageChanged>,
         when: Option<WhenCondition>,
     ) -> Self {
@@ -292,48 +400,81 @@ impl CurrentPage {
     }
 }
 
+impl<S> CurrentPageBuilder<S>
+where
+    S: current_page_builder::State,
+{
+    pub fn page_count_getter<F>(mut self, page_count_getter: F) -> Self
+    where
+        F: AsyncFn(RenderContext) -> usize
+            + AsyncFn1<RenderContext, Output = usize>
+            + Send
+            + Sync
+            + 'static,
+        <F as AsyncFn1<RenderContext>>::OutputFuture: Send + 'static,
+    {
+        let page_count_getter = Arc::new(page_count_getter);
+        self.page_count_getter = Some(Box::new(move |render_ctx| {
+            let page_count_getter = page_count_getter.clone();
+            Box::pin(async move { page_count_getter(render_ctx).await })
+        }));
+        self
+    }
+}
+
 impl Keyboard for CurrentPage {
-    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
-        let ctx = render_ctx.context;
-        let data = render_ctx.data;
-        if !self.is_visible(ctx, data) {
-            return None;
-        }
-        let pages_count = (self.page_count_getter)(render_ctx);
-        if pages_count == 0 {
-            return None;
-        }
+    fn render_keyboard<'a>(
+        &'a self,
+        render_ctx: &'a RenderContext,
+    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
+        Box::pin(async move {
+            let ctx = render_ctx.context.as_ref();
+            let data = render_ctx.data.as_ref();
+            if !self.is_visible(ctx, data).await {
+                return None;
+            }
+            let pages_count = self.page_count_getter.page_count(render_ctx).await;
+            if pages_count == 0 {
+                return None;
+            }
 
-        let current_page = read_page(ctx, self.id.as_ref()).min(pages_count.saturating_sub(1));
-        let button = InlineKeyboardButton::new(format!("{}", current_page + 1)).callback_data(
-            format_callback_data(ctx, self.id.as_ref(), Some(&format!("{}", current_page))),
-        );
+            let current_page = read_page(ctx, self.id.as_ref()).min(pages_count.saturating_sub(1));
+            let button = InlineKeyboardButton::new(format!("{}", current_page + 1)).callback_data(
+                format_callback_data(ctx, self.id.as_ref(), Some(&format!("{current_page}"))),
+            );
 
-        Some(InlineKeyboardMarkup::new(vec![vec![button].into_boxed_slice()]).into())
+            Some(InlineKeyboardMarkup::new(vec![vec![button].into_boxed_slice()]).into())
+        })
     }
 
-    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
-        let ctx = click.context;
-        let data = &ctx.dialog_data;
-        if !self.is_visible(ctx, data) {
-            return None;
-        }
-        handle_pager_callback(
-            ctx,
-            self.id.as_ref(),
-            click.callback_data,
-            self.on_page_changed.as_ref(),
-        )
+    fn handle_callback<'a>(
+        &'a self,
+        click: &'a ClickContext,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
+        Box::pin(async move {
+            let ctx = click.context.as_ref();
+            let data = &ctx.dialog_data;
+            if !self.is_visible(ctx, data).await {
+                return None;
+            }
+            handle_pager_callback(
+                ctx,
+                self.id.as_ref(),
+                click.callback_data.as_str(),
+                self.on_page_changed.as_ref(),
+            )
+            .await
+        })
     }
 }
 
 pub struct NumberedPager<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPageLabel> {
     id: Cow<'static, str>,
-    page_count_getter: DynPageCountGetter,
+    page_count_getter: PageCountSource,
     page_renderer: PageRenderer,
     current_page_renderer: CurrentPageRenderer,
     length: Option<usize>,
@@ -351,10 +492,7 @@ impl<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPageLabel>
     #[must_use]
     pub fn new(
         #[builder(start_fn, into)] binding: PagerBinding,
-        #[builder(with = |page_count_getter: impl for<'a> Fn(&RenderContext<'a>) -> usize + Send + Sync + 'static| {
-            Box::new(page_count_getter)
-        })]
-        page_count_getter: Option<DynPageCountGetter>,
+        #[builder(field)] page_count_getter: Option<DynPageCountGetter>,
         page_renderer: PageRenderer,
         current_page_renderer: CurrentPageRenderer,
         length: Option<usize>,
@@ -382,6 +520,33 @@ impl<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPageLabel>
     }
 }
 
+impl<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPageLabel, S>
+    NumberedPagerBuilder<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPageLabel, S>
+where
+    S: numbered_pager_builder::State,
+    PageRenderer: Fn(usize, &DataMap) -> PageLabel,
+    CurrentPageRenderer: Fn(usize, &DataMap) -> CurrentPageLabel,
+    PageLabel: Into<Box<str>>,
+    CurrentPageLabel: Into<Box<str>>,
+{
+    pub fn page_count_getter<F>(mut self, page_count_getter: F) -> Self
+    where
+        F: AsyncFn(RenderContext) -> usize
+            + AsyncFn1<RenderContext, Output = usize>
+            + Send
+            + Sync
+            + 'static,
+        <F as AsyncFn1<RenderContext>>::OutputFuture: Send + 'static,
+    {
+        let page_count_getter = Arc::new(page_count_getter);
+        self.page_count_getter = Some(Box::new(move |render_ctx| {
+            let page_count_getter = page_count_getter.clone();
+            Box::pin(async move { page_count_getter(render_ctx).await })
+        }));
+        self
+    }
+}
+
 impl<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPageLabel> Keyboard
     for NumberedPager<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPageLabel>
 where
@@ -390,63 +555,70 @@ where
     PageLabel: Into<Box<str>> + 'static,
     CurrentPageLabel: Into<Box<str>> + 'static,
 {
-    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
-        let ctx = render_ctx.context;
-        let data = render_ctx.data;
-        if !self.is_visible(ctx, data) {
-            return None;
-        }
-        let pages_count = (self.page_count_getter)(render_ctx);
-        if pages_count == 0 {
-            return None;
-        }
-
-        let current_page = read_page(ctx, self.id.as_ref()).min(pages_count.saturating_sub(1));
-        let mut rows = Vec::new();
-        let mut current_row = Vec::new();
-        let row_len = self.length.unwrap_or(pages_count).max(1);
-
-        for page in 0..pages_count {
-            let label = if page == current_page {
-                (self.current_page_renderer)(page, data).into()
-            } else {
-                (self.page_renderer)(page, data).into()
-            };
-            current_row.push(
-                InlineKeyboardButton::new(label).callback_data(format_callback_data(
-                    ctx,
-                    self.id.as_ref(),
-                    Some(&format!("{}", page)),
-                )),
-            );
-
-            if current_row.len() == row_len {
-                rows.push(std::mem::take(&mut current_row).into_boxed_slice());
+    fn render_keyboard<'a>(
+        &'a self,
+        render_ctx: &'a RenderContext,
+    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
+        Box::pin(async move {
+            let ctx = render_ctx.context.as_ref();
+            let data = render_ctx.data.as_ref();
+            if !self.is_visible(ctx, data).await {
+                return None;
             }
-        }
+            let pages_count = self.page_count_getter.page_count(render_ctx).await;
+            if pages_count == 0 {
+                return None;
+            }
 
-        if !current_row.is_empty() {
-            rows.push(current_row.into_boxed_slice());
-        }
+            let current_page = read_page(ctx, self.id.as_ref()).min(pages_count.saturating_sub(1));
+            let mut rows = Vec::new();
+            let mut current_row = Vec::new();
+            let row_len = self.length.unwrap_or(pages_count).max(1);
 
-        Some(InlineKeyboardMarkup::new(rows).into())
+            for page in 0..pages_count {
+                let label = if page == current_page {
+                    (self.current_page_renderer)(page, data).into()
+                } else {
+                    (self.page_renderer)(page, data).into()
+                };
+                current_row.push(InlineKeyboardButton::new(label).callback_data(
+                    format_callback_data(ctx, self.id.as_ref(), Some(&format!("{page}"))),
+                ));
+
+                if current_row.len() == row_len {
+                    rows.push(std::mem::take(&mut current_row).into_boxed_slice());
+                }
+            }
+
+            if !current_row.is_empty() {
+                rows.push(current_row.into_boxed_slice());
+            }
+
+            Some(InlineKeyboardMarkup::new(rows).into())
+        })
     }
 
-    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
-        let ctx = click.context;
-        let data = &ctx.dialog_data;
-        if !self.is_visible(ctx, data) {
-            return None;
-        }
-        handle_pager_callback(
-            ctx,
-            self.id.as_ref(),
-            click.callback_data,
-            self.on_page_changed.as_ref(),
-        )
+    fn handle_callback<'a>(
+        &'a self,
+        click: &'a ClickContext,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
+        Box::pin(async move {
+            let ctx = click.context.as_ref();
+            let data = &ctx.dialog_data;
+            if !self.is_visible(ctx, data).await {
+                return None;
+            }
+            handle_pager_callback(
+                ctx,
+                self.id.as_ref(),
+                click.callback_data.as_str(),
+                self.on_page_changed.as_ref(),
+            )
+            .await
+        })
     }
 }

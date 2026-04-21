@@ -1,16 +1,20 @@
 use bon::bon;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::{fmt::Display, sync::Arc};
+use std::{borrow::Cow, fmt::Display, future::Future, sync::Arc};
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
 use time::{Date, Duration, Month, OffsetDateTime, UtcOffset, Weekday};
 use tracing::debug;
 
 use super::{
-    format_callback_data, parse_callback_data, when::is_allowed, ButtonAction, ClickContext,
-    Keyboard, WhenCondition,
+    format_callback_data, parse_callback_data,
+    when::{is_allowed, WhenContext},
+    ButtonAction, ClickContext, Keyboard, WhenCondition,
 };
-use crate::entities::{Context, DataMap, RenderContext};
+use crate::{
+    entities::{Context, DataMap, RenderContext},
+    future::BoxFuture,
+};
 
 const CALLBACK_NEXT_MONTH: &str = "+";
 const CALLBACK_PREV_MONTH: &str = "-";
@@ -26,15 +30,15 @@ const CALLBACK_PREFIX_YEAR: &str = "YEAR";
 const CALLBACK_PREFIX_DATE: &str = "DATE";
 
 type CalendarClickHandler =
-    dyn for<'a> Fn(&ClickContext<'a>, CalendarDate) -> ButtonAction + Send + Sync + 'static;
+    dyn Fn(ClickContext, CalendarDate) -> BoxFuture<'static, ButtonAction> + Send + Sync + 'static;
 type CalendarConfigGetter =
-    dyn Fn(&Context, &DataMap) -> CalendarUserConfig + Send + Sync + 'static;
+    dyn Fn(WhenContext) -> BoxFuture<'static, CalendarUserConfig> + Send + Sync + 'static;
 type CalendarTextRenderer =
-    dyn for<'a> Fn(CalendarButtonKind, &RenderContext<'a>) -> String + Send + Sync + 'static;
-type CalendarScopeView = dyn for<'a> Fn(&CalendarViewContext<'a>) -> Vec<Box<[InlineKeyboardButton]>>
-    + Send
-    + Sync
-    + 'static;
+    dyn Fn(CalendarButtonKind, RenderContext) -> BoxFuture<'static, String> + Send + Sync + 'static;
+/// Inline-keyboard rows returned by custom calendar scope renderers.
+pub type CalendarScopeRows = Vec<Box<[InlineKeyboardButton]>>;
+type CalendarScopeView =
+    dyn Fn(CalendarViewContext) -> BoxFuture<'static, CalendarScopeRows> + Send + Sync + 'static;
 
 /// Date type used by [`Calendar`] callbacks and configuration.
 pub type CalendarDate = Date;
@@ -140,7 +144,7 @@ pub struct CalendarAppearance {
 impl Default for CalendarAppearance {
     fn default() -> Self {
         Self {
-            text_renderer: Arc::new(default_calendar_text),
+            text_renderer: Arc::new(default_calendar_text_renderer),
         }
     }
 }
@@ -149,21 +153,37 @@ impl Default for CalendarAppearance {
 impl CalendarAppearance {
     /// Create calendar appearance hooks.
     ///
-    /// If `text_renderer` is omitted, [`CalendarAppearance::default`] is used.
+    /// Use [`CalendarAppearanceBuilder::text_renderer`] to customize labels
+    /// rendered by the built-in views.
     #[builder]
     #[must_use]
     pub fn new(
-        #[builder(
-            default = Arc::new(default_calendar_text),
-            with = |text_renderer: impl for<'a> Fn(CalendarButtonKind, &RenderContext<'a>) -> String + Send + Sync + 'static| {
-                Arc::new(text_renderer)
-            }
-        )]
-        text_renderer: Arc<CalendarTextRenderer>,
+        #[builder(field = Arc::new(default_calendar_text_renderer))] text_renderer: Arc<
+            CalendarTextRenderer,
+        >,
     ) -> Self {
         Self {
             text_renderer,
         }
+    }
+}
+
+impl<S> CalendarAppearanceBuilder<S>
+where
+    S: calendar_appearance_builder::State,
+{
+    /// Customize labels rendered by built-in calendar views.
+    pub fn text_renderer<F, Fut>(mut self, text_renderer: F) -> Self
+    where
+        F: Fn(CalendarButtonKind, RenderContext) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = String> + Send + 'static,
+    {
+        let text_renderer = Arc::new(text_renderer);
+        self.text_renderer = Arc::new(move |kind, render_ctx| {
+            let text_renderer = text_renderer.clone();
+            Box::pin(async move { text_renderer(kind, render_ctx).await })
+        });
+        self
     }
 }
 
@@ -174,20 +194,21 @@ impl CalendarAppearance {
 /// [`CalendarViewContext::button`] and [`CalendarViewContext::noop_button`] so
 /// callbacks keep the same `td:{intent_id}:{widget_id}:{payload}` contract as
 /// the built-in views.
-pub struct CalendarViewContext<'a> {
+#[derive(Clone, Debug)]
+pub struct CalendarViewContext {
     /// Dialog context currently being rendered.
-    pub context: &'a Context,
+    pub context: Arc<Context>,
     /// Data passed to the current window render.
-    pub data: &'a DataMap,
+    pub data: Arc<DataMap>,
     /// Fully resolved calendar config after dynamic user overrides are merged.
-    pub config: &'a CalendarConfig,
+    pub config: CalendarConfig,
     /// Persisted calendar scope and offset currently being rendered.
     pub state: CalendarState,
     /// Widget id used by the calendar callback payloads.
-    pub widget_id: &'a str,
+    pub widget_id: Cow<'static, str>,
 }
 
-impl CalendarViewContext<'_> {
+impl CalendarViewContext {
     /// Build a callback button targeted at this calendar widget.
     ///
     /// The payload must use the same payload grammar as the built-in calendar
@@ -197,8 +218,8 @@ impl CalendarViewContext<'_> {
     #[must_use]
     pub fn button(&self, text: impl Into<Box<str>>, payload: &str) -> InlineKeyboardButton {
         InlineKeyboardButton::new(text).callback_data(format_callback_data(
-            self.context,
-            self.widget_id,
+            self.context.as_ref(),
+            self.widget_id.as_ref(),
             Some(payload),
         ))
     }
@@ -223,26 +244,15 @@ pub struct CalendarViews {
 
 #[bon]
 impl CalendarViews {
-    /// Create custom calendar scope renderers.
+    /// Build custom calendar scope renderers.
     ///
-    /// Each renderer returns inline-keyboard rows for one scope. The standard
-    /// callback handler still processes payloads created with
-    /// [`CalendarViewContext::button`].
+    /// Each omitted scope falls back to the built-in renderer.
     #[builder]
     #[must_use]
     pub fn new(
-        #[builder(with = |days: impl for<'a> Fn(&CalendarViewContext<'a>) -> Vec<Box<[InlineKeyboardButton]>> + Send + Sync + 'static| {
-            Arc::new(days)
-        })]
-        days: Option<Arc<CalendarScopeView>>,
-        #[builder(with = |months: impl for<'a> Fn(&CalendarViewContext<'a>) -> Vec<Box<[InlineKeyboardButton]>> + Send + Sync + 'static| {
-            Arc::new(months)
-        })]
-        months: Option<Arc<CalendarScopeView>>,
-        #[builder(with = |years: impl for<'a> Fn(&CalendarViewContext<'a>) -> Vec<Box<[InlineKeyboardButton]>> + Send + Sync + 'static| {
-            Arc::new(years)
-        })]
-        years: Option<Arc<CalendarScopeView>>,
+        #[builder(field)] days: Option<Arc<CalendarScopeView>>,
+        #[builder(field)] months: Option<Arc<CalendarScopeView>>,
+        #[builder(field)] years: Option<Arc<CalendarScopeView>>,
     ) -> Self {
         Self {
             days,
@@ -258,6 +268,53 @@ impl CalendarViews {
             CalendarScope::Years => self.years.as_ref(),
         }
     }
+}
+
+impl<S> CalendarViewsBuilder<S>
+where
+    S: calendar_views_builder::State,
+{
+    /// Replace the days scope renderer.
+    pub fn days<F, Fut>(mut self, days: F) -> Self
+    where
+        F: Fn(CalendarViewContext) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = CalendarScopeRows> + Send + 'static,
+    {
+        self.days = Some(scope_view(days));
+        self
+    }
+
+    /// Replace the months scope renderer.
+    pub fn months<F, Fut>(mut self, months: F) -> Self
+    where
+        F: Fn(CalendarViewContext) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = CalendarScopeRows> + Send + 'static,
+    {
+        self.months = Some(scope_view(months));
+        self
+    }
+
+    /// Replace the years scope renderer.
+    pub fn years<F, Fut>(mut self, years: F) -> Self
+    where
+        F: Fn(CalendarViewContext) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = CalendarScopeRows> + Send + 'static,
+    {
+        self.years = Some(scope_view(years));
+        self
+    }
+}
+
+fn scope_view<F, Fut>(view: F) -> Arc<CalendarScopeView>
+where
+    F: Fn(CalendarViewContext) -> Fut + Send + Sync + 'static,
+    Fut: Future<Output = CalendarScopeRows> + Send + 'static,
+{
+    let view = Arc::new(view);
+    Arc::new(move |view_ctx| {
+        let view = view.clone();
+        Box::pin(async move { view(view_ctx).await })
+    })
 }
 
 /// Calendar view currently rendered by [`Calendar`].
@@ -349,7 +406,7 @@ impl CalendarConfig {
             .unwrap_or_else(|| OffsetDateTime::now_utc().to_offset(self.timezone).date())
     }
 
-    fn merge_user_config(&self, cfg: CalendarUserConfig) -> Self {
+    fn merge_user_config(&self, cfg: &CalendarUserConfig) -> Self {
         let min_date = cfg.min_date.unwrap_or(self.min_date);
         let max_date = cfg.max_date.unwrap_or(self.max_date);
         let (min_date, max_date) = if min_date <= max_date {
@@ -429,7 +486,7 @@ impl CalendarUserConfig {
 /// [`ButtonAction::SetWidgetValue`](crate::widgets::ButtonAction::SetWidgetValue).
 /// Date-selection callbacks do not mutate it automatically; they call the
 /// calendar `on_click(...)` handler or return [`ButtonAction::Noop`].
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct CalendarState {
     /// Scope currently rendered by the calendar.
     pub current_scope: CalendarScope,
@@ -475,7 +532,7 @@ impl CalendarState {
 /// use telers_dialog::widgets::{ButtonAction, Calendar};
 ///
 /// let _calendar = Calendar::builder("reservation_date")
-///     .on_click(|_click, selected_date| {
+///     .on_click(|_click, selected_date| async move {
 ///         ButtonAction::set_dialog_value("selected_date", selected_date.to_string())
 ///     })
 ///     .build();
@@ -492,7 +549,7 @@ pub struct Calendar<WidgetId> {
 
 #[bon]
 impl<WidgetId> Calendar<WidgetId> {
-    /// Create a calendar widget.
+    /// Build a calendar widget.
     ///
     /// Use `config(...)` for static range/layout settings, `config_getter(...)`
     /// for per-render overrides, `appearance(...)` for label customization,
@@ -502,17 +559,11 @@ impl<WidgetId> Calendar<WidgetId> {
     #[must_use]
     pub fn new(
         #[builder(start_fn)] id: WidgetId,
+        #[builder(field)] config_getter: Option<Arc<CalendarConfigGetter>>,
+        #[builder(field)] on_click: Option<Arc<CalendarClickHandler>>,
         #[builder(default)] config: CalendarConfig,
-        #[builder(with = |config_getter: impl Fn(&Context, &DataMap) -> CalendarUserConfig + Send + Sync + 'static| {
-            Arc::new(config_getter)
-        })]
-        config_getter: Option<Arc<CalendarConfigGetter>>,
         #[builder(default)] appearance: CalendarAppearance,
         #[builder(default)] views: CalendarViews,
-        #[builder(with = |on_click: impl for<'a> Fn(&ClickContext<'a>, CalendarDate) -> ButtonAction + Send + Sync + 'static| {
-            Arc::new(on_click)
-        })]
-        on_click: Option<Arc<CalendarClickHandler>>,
         when: Option<WhenCondition>,
     ) -> Self
     where
@@ -530,6 +581,40 @@ impl<WidgetId> Calendar<WidgetId> {
     }
 }
 
+impl<S, WidgetId> CalendarBuilder<WidgetId, S>
+where
+    S: calendar_builder::State,
+    WidgetId: Display,
+{
+    /// Provide async per-render configuration overrides.
+    pub fn config_getter<F, Fut>(mut self, config_getter: F) -> Self
+    where
+        F: Fn(WhenContext) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = CalendarUserConfig> + Send + 'static,
+    {
+        let config_getter = Arc::new(config_getter);
+        self.config_getter = Some(Arc::new(move |when_ctx| {
+            let config_getter = config_getter.clone();
+            Box::pin(async move { config_getter(when_ctx).await })
+        }));
+        self
+    }
+
+    /// Handle selected dates asynchronously.
+    pub fn on_click<F, Fut>(mut self, on_click: F) -> Self
+    where
+        F: Fn(ClickContext, CalendarDate) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = ButtonAction> + Send + 'static,
+    {
+        let on_click = Arc::new(on_click);
+        self.on_click = Some(Arc::new(move |click, selected_date| {
+            let on_click = on_click.clone();
+            Box::pin(async move { on_click(click, selected_date).await })
+        }));
+        self
+    }
+}
+
 impl<WidgetId> Calendar<WidgetId>
 where
     WidgetId: Display,
@@ -538,11 +623,13 @@ where
         self.id.to_string()
     }
 
-    fn config_for(&self, ctx: &Context, data: &DataMap) -> CalendarConfig {
-        self.config_getter.as_ref().map_or_else(
-            || self.config.clone(),
-            |getter| self.config.merge_user_config(getter(ctx, data)),
-        )
+    async fn config_for(&self, ctx: &Context, data: &DataMap) -> CalendarConfig {
+        match &self.config_getter {
+            Some(getter) => self
+                .config
+                .merge_user_config(&getter(WhenContext::new(ctx, data)).await),
+            None => self.config.clone(),
+        }
     }
 
     fn read_state(&self, ctx: &Context, config: &CalendarConfig) -> CalendarState {
@@ -555,42 +642,46 @@ where
         ButtonAction::set_widget_value(self.widget_id(), state.to_value())
     }
 
-    fn button(
+    async fn button(
         &self,
-        render_ctx: &RenderContext<'_>,
+        render_ctx: &RenderContext,
         kind: CalendarButtonKind,
         payload: &str,
     ) -> InlineKeyboardButton {
-        let text = (self.appearance.text_renderer)(kind, render_ctx);
+        let text = (self.appearance.text_renderer)(kind, render_ctx.clone()).await;
         InlineKeyboardButton::new(text).callback_data(format_callback_data(
-            render_ctx.context,
+            render_ctx.context.as_ref(),
             &self.id,
             Some(payload),
         ))
     }
 
-    fn empty_button(&self, render_ctx: &RenderContext<'_>) -> InlineKeyboardButton {
+    async fn empty_button(&self, render_ctx: &RenderContext) -> InlineKeyboardButton {
         self.button(render_ctx, CalendarButtonKind::Empty, CALLBACK_NOOP)
+            .await
     }
 
-    fn render_days(
+    async fn render_days(
         &self,
-        render_ctx: &RenderContext<'_>,
+        render_ctx: &RenderContext,
         config: &CalendarConfig,
         offset: CalendarDate,
     ) -> Vec<Box<[InlineKeyboardButton]>> {
         let month = month_begin(offset);
         let today = config.today();
         let mut rows = vec![
-            [self.button(
-                render_ctx,
-                CalendarButtonKind::DaysHeader {
-                    month,
-                },
-                CALLBACK_SCOPE_MONTHS,
-            )]
+            [self
+                .button(
+                    render_ctx,
+                    CalendarButtonKind::DaysHeader {
+                        month,
+                    },
+                    CALLBACK_SCOPE_MONTHS,
+                )
+                .await]
             .into(),
             self.render_week_header(render_ctx, config)
+                .await
                 .into_boxed_slice(),
         ];
         let start = calendar_start(month, config.first_weekday);
@@ -605,50 +696,56 @@ where
                     || current_date < config.min_date
                     || current_date > config.max_date
                 {
-                    row.push(self.empty_button(render_ctx));
+                    row.push(self.empty_button(render_ctx).await);
                 } else {
-                    row.push(self.button(
-                        render_ctx,
-                        CalendarButtonKind::Day {
-                            date: current_date,
-                            is_today: current_date == today,
-                        },
-                        &format!("{CALLBACK_PREFIX_DATE}{current_date}"),
-                    ));
+                    row.push(
+                        self.button(
+                            render_ctx,
+                            CalendarButtonKind::Day {
+                                date: current_date,
+                                is_today: current_date == today,
+                            },
+                            &format!("{CALLBACK_PREFIX_DATE}{current_date}"),
+                        )
+                        .await,
+                    );
                 }
             }
             rows.push(row.into_boxed_slice());
         }
 
-        if let Some(pager) = self.render_month_pager(render_ctx, config, month) {
+        if let Some(pager) = self.render_month_pager(render_ctx, config, month).await {
             rows.push(pager.into_boxed_slice());
         }
         rows
     }
 
-    fn render_week_header(
+    async fn render_week_header(
         &self,
-        render_ctx: &RenderContext<'_>,
+        render_ctx: &RenderContext,
         config: &CalendarConfig,
     ) -> Vec<InlineKeyboardButton> {
         let mut row = Vec::new();
         let first = config.first_weekday.number_days_from_monday();
         for offset in 0..7 {
             let weekday = weekday_from_monday_offset((first + offset) % 7);
-            row.push(self.button(
-                render_ctx,
-                CalendarButtonKind::Weekday {
-                    weekday,
-                },
-                CALLBACK_NOOP,
-            ));
+            row.push(
+                self.button(
+                    render_ctx,
+                    CalendarButtonKind::Weekday {
+                        weekday,
+                    },
+                    CALLBACK_NOOP,
+                )
+                .await,
+            );
         }
         row
     }
 
-    fn render_month_pager(
+    async fn render_month_pager(
         &self,
-        render_ctx: &RenderContext<'_>,
+        render_ctx: &RenderContext,
         config: &CalendarConfig,
         offset: CalendarDate,
     ) -> Option<Vec<InlineKeyboardButton>> {
@@ -669,8 +766,9 @@ where
                     },
                     CALLBACK_PREV_MONTH,
                 )
+                .await
             } else {
-                self.empty_button(render_ctx)
+                self.empty_button(render_ctx).await
             },
             self.button(
                 render_ctx,
@@ -678,7 +776,8 @@ where
                     month: offset,
                 },
                 CALLBACK_SCOPE_MONTHS,
-            ),
+            )
+            .await,
             if can_go_next {
                 self.button(
                     render_ctx,
@@ -687,26 +786,29 @@ where
                     },
                     CALLBACK_NEXT_MONTH,
                 )
+                .await
             } else {
-                self.empty_button(render_ctx)
+                self.empty_button(render_ctx).await
             },
         ])
     }
 
-    fn render_months(
+    async fn render_months(
         &self,
-        render_ctx: &RenderContext<'_>,
+        render_ctx: &RenderContext,
         config: &CalendarConfig,
         offset: CalendarDate,
     ) -> Vec<Box<[InlineKeyboardButton]>> {
         let today = config.today();
-        let mut rows = vec![[self.button(
-            render_ctx,
-            CalendarButtonKind::MonthsHeader {
-                year: offset.year(),
-            },
-            CALLBACK_SCOPE_YEARS,
-        )]
+        let mut rows = vec![[self
+            .button(
+                render_ctx,
+                CalendarButtonKind::MonthsHeader {
+                    year: offset.year(),
+                },
+                CALLBACK_SCOPE_YEARS,
+            )
+            .await]
         .into()];
 
         let month_columns = config.month_columns;
@@ -716,33 +818,36 @@ where
                 if month > 12 {
                     break;
                 }
-                let month_date = date(offset.year(), month as u8, 1);
+                let month_date = date(offset.year(), u8::try_from(month).unwrap_or(12), 1);
                 if last_day_of_month(month_date) < config.min_date || month_date > config.max_date {
-                    row.push(self.empty_button(render_ctx));
+                    row.push(self.empty_button(render_ctx).await);
                 } else {
-                    row.push(self.button(
-                        render_ctx,
-                        CalendarButtonKind::Month {
-                            month: month_date,
-                            is_current: month_date.year() == today.year()
-                                && month_date.month() == today.month(),
-                        },
-                        &format!("{CALLBACK_PREFIX_MONTH}{month}"),
-                    ));
+                    row.push(
+                        self.button(
+                            render_ctx,
+                            CalendarButtonKind::Month {
+                                month: month_date,
+                                is_current: month_date.year() == today.year()
+                                    && month_date.month() == today.month(),
+                            },
+                            &format!("{CALLBACK_PREFIX_MONTH}{month}"),
+                        )
+                        .await,
+                    );
                 }
             }
             rows.push(row.into_boxed_slice());
         }
 
-        if let Some(pager) = self.render_year_pager(render_ctx, config, offset) {
+        if let Some(pager) = self.render_year_pager(render_ctx, config, offset).await {
             rows.push(pager.into_boxed_slice());
         }
         rows
     }
 
-    fn render_year_pager(
+    async fn render_year_pager(
         &self,
-        render_ctx: &RenderContext<'_>,
+        render_ctx: &RenderContext,
         config: &CalendarConfig,
         offset: CalendarDate,
     ) -> Option<Vec<InlineKeyboardButton>> {
@@ -762,8 +867,9 @@ where
                     },
                     CALLBACK_PREV_YEAR,
                 )
+                .await
             } else {
-                self.empty_button(render_ctx)
+                self.empty_button(render_ctx).await
             },
             self.button(
                 render_ctx,
@@ -771,7 +877,8 @@ where
                     year,
                 },
                 CALLBACK_SCOPE_YEARS,
-            ),
+            )
+            .await,
             if can_go_next {
                 self.button(
                     render_ctx,
@@ -780,15 +887,16 @@ where
                     },
                     CALLBACK_NEXT_YEAR,
                 )
+                .await
             } else {
-                self.empty_button(render_ctx)
+                self.empty_button(render_ctx).await
             },
         ])
     }
 
-    fn render_years(
+    async fn render_years(
         &self,
-        render_ctx: &RenderContext<'_>,
+        render_ctx: &RenderContext,
         config: &CalendarConfig,
         offset: CalendarDate,
     ) -> Vec<Box<[InlineKeyboardButton]>> {
@@ -800,28 +908,32 @@ where
         for row_start in (0..years_per_page).step_by(years_columns) {
             let mut row = Vec::new();
             for column in 0..years_columns {
-                let year = offset.year() + (row_start + column) as i32;
+                let year = offset.year() + i32::try_from(row_start + column).unwrap_or(i32::MAX);
                 if row_start + column >= years_per_page {
                     break;
                 }
                 if year < config.min_date.year() || year > config.max_date.year() {
-                    row.push(self.empty_button(render_ctx));
+                    row.push(self.empty_button(render_ctx).await);
                 } else {
-                    row.push(self.button(
-                        render_ctx,
-                        CalendarButtonKind::Year {
-                            year,
-                            is_current: year == today_year,
-                        },
-                        &format!("{CALLBACK_PREFIX_YEAR}{year}"),
-                    ));
+                    row.push(
+                        self.button(
+                            render_ctx,
+                            CalendarButtonKind::Year {
+                                year,
+                                is_current: year == today_year,
+                            },
+                            &format!("{CALLBACK_PREFIX_YEAR}{year}"),
+                        )
+                        .await,
+                    );
                 }
             }
             rows.push(row.into_boxed_slice());
         }
 
-        let prev_year = offset.year() - years_per_page as i32;
-        let next_year = offset.year() + years_per_page as i32;
+        let years_per_page = i32::try_from(years_per_page).unwrap_or(i32::MAX);
+        let prev_year = offset.year() - years_per_page;
+        let next_year = offset.year() + years_per_page;
         let can_go_prev = offset.year() > config.min_date.year();
         let can_go_next = next_year <= config.max_date.year();
         if can_go_prev || can_go_next {
@@ -835,8 +947,9 @@ where
                             },
                             CALLBACK_PREV_YEARS_PAGE,
                         )
+                        .await
                     } else {
-                        self.empty_button(render_ctx)
+                        self.empty_button(render_ctx).await
                     },
                     if can_go_next {
                         self.button(
@@ -846,8 +959,9 @@ where
                             },
                             CALLBACK_NEXT_YEARS_PAGE,
                         )
+                        .await
                     } else {
-                        self.empty_button(render_ctx)
+                        self.empty_button(render_ctx).await
                     },
                 ]
                 .into(),
@@ -861,112 +975,135 @@ impl<WidgetId> Keyboard for Calendar<WidgetId>
 where
     WidgetId: Display + Send + Sync + 'static,
 {
-    fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
         is_allowed(self.when.as_ref(), ctx, data)
     }
 
-    fn render_keyboard(&self, render_ctx: &RenderContext<'_>) -> Option<ReplyMarkup> {
-        let ctx = render_ctx.context;
-        let data = render_ctx.data;
-        if !self.is_visible(ctx, data) {
-            return None;
-        }
-        let config = self.config_for(ctx, data);
-        let state = self.read_state(ctx, &config);
-        let rows = if let Some(view) = self.views.get(state.current_scope) {
-            let widget_id = self.widget_id();
-            let view_ctx = CalendarViewContext {
-                context: ctx,
-                data,
-                config: &config,
-                state,
-                widget_id: &widget_id,
-            };
-            view(&view_ctx)
-        } else {
-            match state.current_scope {
-                CalendarScope::Days => self.render_days(render_ctx, &config, state.current_offset),
-                CalendarScope::Months => {
-                    self.render_months(render_ctx, &config, state.current_offset)
-                }
-                CalendarScope::Years => {
-                    self.render_years(render_ctx, &config, state.current_offset)
-                }
+    fn render_keyboard<'a>(
+        &'a self,
+        render_ctx: &'a RenderContext,
+    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
+        Box::pin(async move {
+            let ctx = render_ctx.context.as_ref();
+            let data = render_ctx.data.as_ref();
+            if !self.is_visible(ctx, data).await {
+                return None;
             }
-        };
-        Some(InlineKeyboardMarkup::new(rows).into())
+            let config = self.config_for(ctx, data).await;
+            let state = self.read_state(ctx, &config);
+            let rows = if let Some(view) = self.views.get(state.current_scope) {
+                let widget_id = self.widget_id();
+                let view_ctx = CalendarViewContext {
+                    context: render_ctx.context.clone(),
+                    data: render_ctx.data.clone(),
+                    config: config.clone(),
+                    state,
+                    widget_id: Cow::Owned(widget_id),
+                };
+                view(view_ctx).await
+            } else {
+                match state.current_scope {
+                    CalendarScope::Days => {
+                        self.render_days(render_ctx, &config, state.current_offset)
+                            .await
+                    }
+                    CalendarScope::Months => {
+                        self.render_months(render_ctx, &config, state.current_offset)
+                            .await
+                    }
+                    CalendarScope::Years => {
+                        self.render_years(render_ctx, &config, state.current_offset)
+                            .await
+                    }
+                }
+            };
+            Some(InlineKeyboardMarkup::new(rows).into())
+        })
     }
 
-    fn handle_callback(&self, click: &ClickContext<'_>) -> Option<ButtonAction> {
-        let ctx = click.context;
-        let data = &ctx.dialog_data;
-        if !self.is_visible(ctx, data) {
-            return None;
-        }
-        let parsed = parse_callback_data(ctx, click.callback_data)?;
-        if parsed.target_id != self.widget_id() {
-            return None;
-        }
-        let payload = parsed.payload?;
-        let config = self.config_for(ctx, data);
-        let mut state = self.read_state(ctx, &config);
+    fn handle_callback<'a>(
+        &'a self,
+        click: &'a ClickContext,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
+        Box::pin(async move {
+            let ctx = click.context.as_ref();
+            let data = &ctx.dialog_data;
+            if !self.is_visible(ctx, data).await {
+                return None;
+            }
+            let parsed = parse_callback_data(ctx, click.callback_data.as_str())?;
+            if parsed.target_id != self.widget_id() {
+                return None;
+            }
+            let payload = parsed.payload?;
+            let config = self.config_for(ctx, data).await;
+            let mut state = self.read_state(ctx, &config);
 
-        match payload {
-            CALLBACK_SCOPE_MONTHS => state.current_scope = CalendarScope::Months,
-            CALLBACK_SCOPE_YEARS => state.current_scope = CalendarScope::Years,
-            CALLBACK_NOOP => return Some(ButtonAction::noop()),
-            CALLBACK_PREV_MONTH => state.current_offset = prev_month_begin(state.current_offset),
-            CALLBACK_NEXT_MONTH => state.current_offset = next_month_begin(state.current_offset),
-            CALLBACK_PREV_YEAR => state.current_offset = shift_years(state.current_offset, -1),
-            CALLBACK_NEXT_YEAR => state.current_offset = shift_years(state.current_offset, 1),
-            CALLBACK_PREV_YEARS_PAGE => {
-                state.current_offset =
-                    shift_years(state.current_offset, -(config.years_per_page as i32));
-            }
-            CALLBACK_NEXT_YEARS_PAGE => {
-                state.current_offset =
-                    shift_years(state.current_offset, config.years_per_page as i32);
-            }
-            payload if payload.starts_with(CALLBACK_PREFIX_MONTH) => {
-                let month = payload[CALLBACK_PREFIX_MONTH.len()..].parse::<u8>().ok()?;
-                let month = Month::try_from(month).ok()?;
-                state.current_offset =
-                    Date::from_calendar_date(state.current_offset.year(), month, 1).ok()?;
-                state.current_scope = CalendarScope::Days;
-            }
-            payload if payload.starts_with(CALLBACK_PREFIX_YEAR) => {
-                let year = payload[CALLBACK_PREFIX_YEAR.len()..].parse::<i32>().ok()?;
-                state.current_offset = Date::from_calendar_date(year, Month::January, 1).ok()?;
-                state.current_scope = CalendarScope::Months;
-            }
-            payload if payload.starts_with(CALLBACK_PREFIX_DATE) => {
-                let selected_date = parse_date(&payload[CALLBACK_PREFIX_DATE.len()..])?;
-                if selected_date < config.min_date || selected_date > config.max_date {
-                    return None;
+            match payload {
+                CALLBACK_SCOPE_MONTHS => state.current_scope = CalendarScope::Months,
+                CALLBACK_SCOPE_YEARS => state.current_scope = CalendarScope::Years,
+                CALLBACK_NOOP => return Some(ButtonAction::noop()),
+                CALLBACK_PREV_MONTH => {
+                    state.current_offset = prev_month_begin(state.current_offset);
                 }
-                debug!(
-                    context_id = %ctx.id,
-                    widget_id = %self.id,
-                    selected_date = %selected_date,
-                    "Resolved calendar date callback"
-                );
-                return Some(
-                    self.on_click
-                        .as_ref()
-                        .map_or_else(ButtonAction::noop, |handler| handler(click, selected_date)),
-                );
+                CALLBACK_NEXT_MONTH => {
+                    state.current_offset = next_month_begin(state.current_offset);
+                }
+                CALLBACK_PREV_YEAR => state.current_offset = shift_years(state.current_offset, -1),
+                CALLBACK_NEXT_YEAR => state.current_offset = shift_years(state.current_offset, 1),
+                CALLBACK_PREV_YEARS_PAGE => {
+                    state.current_offset = shift_years(
+                        state.current_offset,
+                        -i32::try_from(config.years_per_page).unwrap_or(i32::MAX),
+                    );
+                }
+                CALLBACK_NEXT_YEARS_PAGE => {
+                    state.current_offset = shift_years(
+                        state.current_offset,
+                        i32::try_from(config.years_per_page).unwrap_or(i32::MAX),
+                    );
+                }
+                payload if payload.starts_with(CALLBACK_PREFIX_MONTH) => {
+                    let month = payload[CALLBACK_PREFIX_MONTH.len()..].parse::<u8>().ok()?;
+                    let month = Month::try_from(month).ok()?;
+                    state.current_offset =
+                        Date::from_calendar_date(state.current_offset.year(), month, 1).ok()?;
+                    state.current_scope = CalendarScope::Days;
+                }
+                payload if payload.starts_with(CALLBACK_PREFIX_YEAR) => {
+                    let year = payload[CALLBACK_PREFIX_YEAR.len()..].parse::<i32>().ok()?;
+                    state.current_offset =
+                        Date::from_calendar_date(year, Month::January, 1).ok()?;
+                    state.current_scope = CalendarScope::Months;
+                }
+                payload if payload.starts_with(CALLBACK_PREFIX_DATE) => {
+                    let selected_date = parse_date(&payload[CALLBACK_PREFIX_DATE.len()..])?;
+                    if selected_date < config.min_date || selected_date > config.max_date {
+                        return None;
+                    }
+                    debug!(
+                        context_id = %ctx.id,
+                        widget_id = %self.id,
+                        selected_date = %selected_date,
+                        "Resolved calendar date callback"
+                    );
+                    return Some(match &self.on_click {
+                        Some(handler) => handler(click.clone(), selected_date).await,
+                        None => ButtonAction::noop(),
+                    });
+                }
+                _ => return None,
             }
-            _ => return None,
-        }
 
-        debug!(
-            context_id = %ctx.id,
-            widget_id = %self.id,
-            scope = ?state.current_scope,
-            offset = %state.current_offset,
-            "Resolved calendar navigation callback"
-        );
-        Some(self.state_action(state))
+            debug!(
+                context_id = %ctx.id,
+                widget_id = %self.id,
+                scope = ?state.current_scope,
+                offset = %state.current_offset,
+                "Resolved calendar navigation callback"
+            );
+            Some(self.state_action(state))
+        })
     }
 }
 
@@ -1023,7 +1160,14 @@ fn shift_years(date: CalendarDate, years: i32) -> CalendarDate {
     Date::from_calendar_date(year, date.month(), day).expect("valid shifted year")
 }
 
-fn default_calendar_text(kind: CalendarButtonKind, _render_ctx: &RenderContext<'_>) -> String {
+fn default_calendar_text_renderer<'a>(
+    kind: CalendarButtonKind,
+    render_ctx: RenderContext,
+) -> BoxFuture<'a, String> {
+    Box::pin(async move { default_calendar_text(kind, &render_ctx) })
+}
+
+fn default_calendar_text(kind: CalendarButtonKind, _render_ctx: &RenderContext) -> String {
     match kind {
         CalendarButtonKind::Empty => " ".to_owned(),
         CalendarButtonKind::Weekday {
@@ -1049,6 +1193,9 @@ fn default_calendar_text(kind: CalendarButtonKind, _render_ctx: &RenderContext<'
         }
         CalendarButtonKind::DaysZoom {
             ..
+        }
+        | CalendarButtonKind::MonthsZoom {
+            ..
         } => "Zoom".to_owned(),
         CalendarButtonKind::DaysNextMonth {
             month,
@@ -1070,11 +1217,14 @@ fn default_calendar_text(kind: CalendarButtonKind, _render_ctx: &RenderContext<'
         }
         CalendarButtonKind::MonthsPrevYear {
             year,
+        }
+        | CalendarButtonKind::YearsPrevPage {
+            year,
         } => format!("<< {year}"),
-        CalendarButtonKind::MonthsZoom {
-            ..
-        } => "Zoom".to_owned(),
         CalendarButtonKind::MonthsNextYear {
+            year,
+        }
+        | CalendarButtonKind::YearsNextPage {
             year,
         } => format!("{year} >>"),
         CalendarButtonKind::Year {
@@ -1087,12 +1237,6 @@ fn default_calendar_text(kind: CalendarButtonKind, _render_ctx: &RenderContext<'
                 format!("{year}")
             }
         }
-        CalendarButtonKind::YearsPrevPage {
-            year,
-        } => format!("<< {year}"),
-        CalendarButtonKind::YearsNextPage {
-            year,
-        } => format!("{year} >>"),
     }
 }
 
@@ -1142,25 +1286,68 @@ mod tests {
     use time::Weekday;
 
     use super::{
-        date, Calendar, CalendarAppearance, CalendarButtonKind, CalendarConfig, CalendarScope,
-        CalendarUserConfig, CalendarViews,
+        date, Calendar, CalendarAppearance, CalendarButtonKind, CalendarConfig, CalendarDate,
+        CalendarScope, CalendarUserConfig, CalendarViewContext, CalendarViews, WhenContext,
     };
     use crate::{
-        entities::{Context, DataMap},
-        widgets::{ButtonAction, CalendarState, Keyboard},
+        entities::{Context, DataMap, RenderContext},
+        widgets::{ButtonAction, CalendarState, ClickContext, Keyboard},
     };
 
     fn test_config() -> CalendarConfig {
         CalendarConfig::builder().today(date(2026, 4, 12)).build()
     }
 
-    #[test]
-    fn calendar_renders_days_by_default() {
+    async fn sunday_config(when_ctx: WhenContext) -> CalendarUserConfig {
+        if when_ctx
+            .data
+            .get("starts_on_sunday")
+            .and_then(Value::as_bool)
+            .unwrap_or_default()
+        {
+            CalendarUserConfig::builder()
+                .first_weekday(Weekday::Sunday)
+                .build()
+        } else {
+            CalendarUserConfig::default()
+        }
+    }
+
+    async fn custom_text_renderer(kind: CalendarButtonKind, _render_ctx: RenderContext) -> String {
+        match kind {
+            CalendarButtonKind::Day {
+                date, ..
+            } => format!("D{}", date.day()),
+            CalendarButtonKind::Weekday {
+                weekday,
+            } => {
+                format!("W{}", weekday.number_from_monday())
+            }
+            _ => "x".to_owned(),
+        }
+    }
+
+    async fn custom_days_view(
+        view_ctx: CalendarViewContext,
+    ) -> Vec<Box<[telers::types::InlineKeyboardButton]>> {
+        vec![[view_ctx.button("Use today", "DATE2026-04-12")].into()]
+    }
+
+    async fn store_selected_date(
+        _click: ClickContext,
+        selected_date: CalendarDate,
+    ) -> ButtonAction {
+        ButtonAction::set_dialog_value("selected_date", selected_date.to_string())
+    }
+
+    #[tokio::test]
+    async fn calendar_renders_days_by_default() {
         let ctx = Context::new("", "state", Value::Null);
         let calendar = Calendar::builder("calendar").config(test_config()).build();
 
         let markup = calendar
             .render_keyboard_for_test(&ctx, &DataMap::new())
+            .await
             .expect("calendar markup");
         let rows = markup.inline_keyboard().expect("inline keyboard");
 
@@ -1173,13 +1360,14 @@ mod tests {
             .any(|button| button.text.as_ref() == "[12]"));
     }
 
-    #[test]
-    fn calendar_header_and_filler_buttons_use_noop_callbacks() {
+    #[tokio::test]
+    async fn calendar_header_and_filler_buttons_use_noop_callbacks() {
         let ctx = Context::new("", "state", Value::Null);
         let calendar = Calendar::builder("calendar").config(test_config()).build();
 
         let markup = calendar
             .render_keyboard_for_test(&ctx, &DataMap::new())
+            .await
             .expect("calendar markup");
         let rows = markup.inline_keyboard().expect("inline keyboard");
         let weekday = &rows[1][0];
@@ -1199,35 +1387,26 @@ mod tests {
             Some(noop_callback.as_str())
         );
         assert!(matches!(
-            calendar.handle_callback_for_test(&ctx, &noop_callback),
+            calendar
+                .handle_callback_for_test(&ctx, &noop_callback)
+                .await,
             Some(ButtonAction::Noop)
         ));
     }
 
-    #[test]
-    fn calendar_supports_dynamic_user_config() {
+    #[tokio::test]
+    async fn calendar_supports_dynamic_user_config() {
         let ctx = Context::new("", "state", Value::Null);
         let mut data = DataMap::new();
         data.insert("starts_on_sunday".into(), json!(true));
         let calendar = Calendar::builder("calendar")
             .config(test_config())
-            .config_getter(|_ctx, data| {
-                if data
-                    .get("starts_on_sunday")
-                    .and_then(Value::as_bool)
-                    .unwrap_or_default()
-                {
-                    CalendarUserConfig::builder()
-                        .first_weekday(Weekday::Sunday)
-                        .build()
-                } else {
-                    CalendarUserConfig::default()
-                }
-            })
+            .config_getter(sunday_config)
             .build();
 
         let markup = calendar
             .render_keyboard_for_test(&ctx, &data)
+            .await
             .expect("calendar markup");
         let rows = markup.inline_keyboard().expect("inline keyboard");
 
@@ -1235,30 +1414,21 @@ mod tests {
         assert_eq!(&*rows[1][1].text, "Mon");
     }
 
-    #[test]
-    fn calendar_supports_custom_text_renderer() {
+    #[tokio::test]
+    async fn calendar_supports_custom_text_renderer() {
         let ctx = Context::new("", "state", Value::Null);
         let calendar = Calendar::builder("calendar")
             .config(test_config())
             .appearance(
                 CalendarAppearance::builder()
-                    .text_renderer(|kind, _render_ctx| match kind {
-                        CalendarButtonKind::Day {
-                            date, ..
-                        } => format!("D{}", date.day()),
-                        CalendarButtonKind::Weekday {
-                            weekday,
-                        } => {
-                            format!("W{}", weekday.number_from_monday())
-                        }
-                        _ => "x".to_owned(),
-                    })
+                    .text_renderer(custom_text_renderer)
                     .build(),
             )
             .build();
 
         let markup = calendar
             .render_keyboard_for_test(&ctx, &DataMap::new())
+            .await
             .expect("calendar markup");
         let rows = markup.inline_keyboard().expect("inline keyboard");
         let today_button = rows
@@ -1271,20 +1441,17 @@ mod tests {
         assert_eq!(&*today_button.text, "D12");
     }
 
-    #[test]
-    fn calendar_supports_custom_scope_views() {
+    #[tokio::test]
+    async fn calendar_supports_custom_scope_views() {
         let ctx = Context::new("", "state", Value::Null);
         let calendar = Calendar::builder("calendar")
             .config(test_config())
-            .views(
-                CalendarViews::builder()
-                    .days(|view_ctx| vec![[view_ctx.button("Use today", "DATE2026-04-12")].into()])
-                    .build(),
-            )
+            .views(CalendarViews::builder().days(custom_days_view).build())
             .build();
 
         let markup = calendar
             .render_keyboard_for_test(&ctx, &DataMap::new())
+            .await
             .expect("calendar markup");
         let rows = markup.inline_keyboard().expect("inline keyboard");
         let expected_callback = format!("td:{}:calendar:DATE2026-04-12", ctx.id);
@@ -1297,8 +1464,8 @@ mod tests {
         );
     }
 
-    #[test]
-    fn calendar_hides_pager_row_when_navigation_is_unavailable() {
+    #[tokio::test]
+    async fn calendar_hides_pager_row_when_navigation_is_unavailable() {
         let ctx = Context::new("", "state", Value::Null);
         let config = CalendarConfig::builder()
             .today(date(2026, 4, 12))
@@ -1309,6 +1476,7 @@ mod tests {
 
         let markup = calendar
             .render_keyboard_for_test(&ctx, &DataMap::new())
+            .await
             .expect("calendar markup");
         let rows = markup.inline_keyboard().expect("inline keyboard");
 
@@ -1318,8 +1486,8 @@ mod tests {
             .any(|button| button.text.as_ref() == "Zoom"));
     }
 
-    #[test]
-    fn calendar_can_start_week_from_sunday() {
+    #[tokio::test]
+    async fn calendar_can_start_week_from_sunday() {
         let ctx = Context::new("", "state", Value::Null);
         let config = CalendarConfig::builder()
             .today(date(2026, 4, 12))
@@ -1329,6 +1497,7 @@ mod tests {
 
         let markup = calendar
             .render_keyboard_for_test(&ctx, &DataMap::new())
+            .await
             .expect("calendar markup");
         let rows = markup.inline_keyboard().expect("inline keyboard");
 
@@ -1336,8 +1505,8 @@ mod tests {
         assert_eq!(&*rows[1][1].text, "Mon");
     }
 
-    #[test]
-    fn calendar_renders_month_scope_from_widget_data() {
+    #[tokio::test]
+    async fn calendar_renders_month_scope_from_widget_data() {
         let mut ctx = Context::new("", "state", Value::Null);
         ctx.widget_data.insert(
             "calendar".into(),
@@ -1347,6 +1516,7 @@ mod tests {
 
         let markup = calendar
             .render_keyboard_for_test(&ctx, &DataMap::new())
+            .await
             .expect("calendar markup");
         let rows = markup.inline_keyboard().expect("inline keyboard");
 
@@ -1355,8 +1525,8 @@ mod tests {
         assert_eq!(&*rows[2][0].text, "[April]");
     }
 
-    #[test]
-    fn calendar_renders_year_scope_from_widget_data() {
+    #[tokio::test]
+    async fn calendar_renders_year_scope_from_widget_data() {
         let mut ctx = Context::new("", "state", Value::Null);
         ctx.widget_data.insert(
             "calendar".into(),
@@ -1366,6 +1536,7 @@ mod tests {
 
         let markup = calendar
             .render_keyboard_for_test(&ctx, &DataMap::new())
+            .await
             .expect("calendar markup");
         let rows = markup.inline_keyboard().expect("inline keyboard");
 
@@ -1374,13 +1545,14 @@ mod tests {
         assert_eq!(&*rows[1][1].text, "[ 2026 ]");
     }
 
-    #[test]
-    fn calendar_navigation_callback_updates_scope() {
+    #[tokio::test]
+    async fn calendar_navigation_callback_updates_scope() {
         let ctx = Context::new("", "state", Value::Null);
         let calendar = Calendar::builder("calendar").config(test_config()).build();
 
         let action = calendar
             .handle_callback_for_test(&ctx, &format!("td:{}:calendar:M", ctx.id))
+            .await
             .expect("calendar action");
 
         assert!(matches!(
@@ -1392,8 +1564,8 @@ mod tests {
         ));
     }
 
-    #[test]
-    fn calendar_month_callback_returns_to_days_scope() {
+    #[tokio::test]
+    async fn calendar_month_callback_returns_to_days_scope() {
         let mut ctx = Context::new("", "state", Value::Null);
         ctx.widget_data.insert(
             "calendar".into(),
@@ -1403,6 +1575,7 @@ mod tests {
 
         let action = calendar
             .handle_callback_for_test(&ctx, &format!("td:{}:calendar:MONTH5", ctx.id))
+            .await
             .expect("calendar action");
 
         assert!(matches!(
@@ -1414,18 +1587,17 @@ mod tests {
         ));
     }
 
-    #[test]
-    fn calendar_date_callback_uses_on_click_handler() {
+    #[tokio::test]
+    async fn calendar_date_callback_uses_on_click_handler() {
         let ctx = Context::new("", "state", Value::Null);
         let calendar = Calendar::builder("calendar")
             .config(test_config())
-            .on_click(|_click, selected_date| {
-                ButtonAction::set_dialog_value("selected_date", selected_date.to_string())
-            })
+            .on_click(store_selected_date)
             .build();
 
         let action = calendar
             .handle_callback_for_test(&ctx, &format!("td:{}:calendar:DATE2026-04-13", ctx.id))
+            .await
             .expect("calendar action");
 
         assert!(matches!(
@@ -1435,13 +1607,14 @@ mod tests {
         ));
     }
 
-    #[test]
-    fn calendar_without_on_click_consumes_date_callback() {
+    #[tokio::test]
+    async fn calendar_without_on_click_consumes_date_callback() {
         let ctx = Context::new("", "state", Value::Null);
         let calendar = Calendar::builder("calendar").config(test_config()).build();
 
         let action = calendar
             .handle_callback_for_test(&ctx, &format!("td:{}:calendar:DATE2026-04-13", ctx.id))
+            .await
             .expect("calendar action");
 
         assert!(matches!(action, ButtonAction::Noop));

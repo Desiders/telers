@@ -1,9 +1,22 @@
 use telers::types::Message;
 
-use crate::{entities::Context, widgets::ButtonAction};
+use crate::{entities::Context, future::BoxFuture, widgets::ButtonAction};
 
 pub trait Input: Send + Sync + 'static {
-    fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction>;
+    fn handle_message<'a>(
+        &'a self,
+        ctx: &'a Context,
+        message: Message,
+    ) -> BoxFuture<'a, Option<ButtonAction>>;
+
+    #[cfg(test)]
+    fn handle_message_for_test<'a>(
+        &'a self,
+        ctx: &'a Context,
+        message: Message,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
+        self.handle_message(ctx, message)
+    }
 }
 
 pub(crate) struct MultiInput {
@@ -27,9 +40,18 @@ impl MultiInput {
 }
 
 impl Input for MultiInput {
-    fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction> {
-        self.inputs
-            .iter()
-            .find_map(|input| input.handle_message(ctx, message.clone()))
+    fn handle_message<'a>(
+        &'a self,
+        ctx: &'a Context,
+        message: Message,
+    ) -> BoxFuture<'a, Option<ButtonAction>> {
+        Box::pin(async move {
+            for input in &self.inputs {
+                if let Some(action) = input.handle_message(ctx, message.clone()).await {
+                    return Some(action);
+                }
+            }
+            None
+        })
     }
 }
