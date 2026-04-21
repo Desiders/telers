@@ -64,20 +64,24 @@ fn registry() -> DialogRegistry {
                         .input_field_placeholder("Share organizer phone")
                         .build(),
                 ),
-                input(MessageInput::new(|_ctx, message: MessageContact| {
-                    let full_name = match message.contact.last_name.as_deref() {
-                        Some(last_name) => format!("{} {}", message.contact.first_name, last_name),
-                        None => format!("{}", message.contact.first_name),
-                    };
-                    ButtonAction::chain([
-                        ButtonAction::set_dialog_value("lead_name", full_name),
-                        ButtonAction::set_dialog_value(
-                            "lead_phone",
-                            format!("{}", message.contact.phone_number),
-                        ),
-                        ButtonAction::next(),
-                    ])
-                })),
+                input(MessageInput::new(
+                    |_ctx, message: MessageContact| async move {
+                        let full_name = match message.contact.last_name.as_deref() {
+                            Some(last_name) => {
+                                format!("{} {}", message.contact.first_name, last_name)
+                            }
+                            None => format!("{}", message.contact.first_name),
+                        };
+                        ButtonAction::chain([
+                            ButtonAction::set_dialog_value("lead_name", full_name),
+                            ButtonAction::set_dialog_value(
+                                "lead_phone",
+                                format!("{}", message.contact.phone_number),
+                            ),
+                            ButtonAction::next(),
+                        ])
+                    },
+                )),
             ],
         ),
         window(
@@ -96,18 +100,20 @@ fn registry() -> DialogRegistry {
                         .input_field_placeholder("Send venue pin")
                         .build(),
                 ),
-                input(MessageInput::new(|_ctx, message: MessageLocation| {
-                    ButtonAction::chain([
-                        ButtonAction::set_dialog_value(
-                            "pickup_pin",
-                            format!(
-                                "{:.4}, {:.4}",
-                                message.location.latitude, message.location.longitude
+                input(MessageInput::new(
+                    |_ctx, message: MessageLocation| async move {
+                        ButtonAction::chain([
+                            ButtonAction::set_dialog_value(
+                                "pickup_pin",
+                                format!(
+                                    "{:.4}, {:.4}",
+                                    message.location.latitude, message.location.longitude
+                                ),
                             ),
-                        ),
-                        ButtonAction::next(),
-                    ])
-                })),
+                            ButtonAction::next(),
+                        ])
+                    },
+                )),
             ],
         ),
         window(
@@ -127,7 +133,7 @@ fn registry() -> DialogRegistry {
                         .input_field_placeholder("Create poll")
                         .build(),
                 ),
-                input(MessageInput::new(|_ctx, message: MessagePoll| {
+                input(MessageInput::new(|_ctx, message: MessagePoll| async move {
                     ButtonAction::chain([
                         ButtonAction::set_dialog_value(
                             "poll_question",

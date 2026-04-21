@@ -52,7 +52,7 @@ fn registry() -> DialogRegistry {
                 format_text("Stored name: {name}"),
                 input(
                     TextInput::builder("name_input")
-                        .on_success(|_ctx, name: String| {
+                        .on_success(|_ctx, name: String| async move {
                             ButtonAction::chain([
                                 ButtonAction::set_dialog_value("name", name),
                                 ButtonAction::next(),
@@ -66,7 +66,7 @@ fn registry() -> DialogRegistry {
             "city",
             [
                 text("Send your city. This window uses `MessageInput::text`."),
-                input(MessageInput::new(|_ctx, message: MessageText| {
+                input(MessageInput::new(|_ctx, message: MessageText| async move {
                     ButtonAction::chain([
                         ButtonAction::set_dialog_value("city", message.text.to_string()),
                         ButtonAction::next(),
@@ -83,7 +83,7 @@ fn registry() -> DialogRegistry {
             "note",
             [
                 text("Send any final note. This window uses `MessageInput::new`."),
-                input(MessageInput::new(|_ctx, message: MessageText| {
+                input(MessageInput::new(|_ctx, message: MessageText| async move {
                     let text = message.text.to_string();
                     let text_len = text.len() as u64;
                     ButtonAction::chain([

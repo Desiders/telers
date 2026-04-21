@@ -26,7 +26,7 @@ use telers_dialog::{
         format_text, keyboard, text, Button, ButtonAction, InlineKeyboard, NumberedPager,
         ScrollingGroup, Select, StubScroll, Text,
     },
-    window, DialogManager, DialogObserverExt, DialogRegistry, StartMode,
+    window, BoxFuture, DialogManager, DialogObserverExt, DialogRegistry, StartMode,
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
@@ -73,16 +73,21 @@ impl ReceiptPreviewText {
 }
 
 impl Text for ReceiptPreviewText {
-    fn render_text(&self, _data: &DataMap) -> Box<str> {
-        render_receipt_page(0)
+    fn render_text<'a>(&'a self, _data: &'a DataMap) -> BoxFuture<'a, Box<str>> {
+        Box::pin(async move { render_receipt_page(0) })
     }
 
-    fn render_text_in_context(&self, render_ctx: &RenderContext<'_>) -> Box<str> {
-        let page = render_ctx
-            .context
-            .widget_value_as::<usize>(self.scroll_id)
-            .unwrap_or_default();
-        render_receipt_page(page)
+    fn render_text_in_context<'a>(
+        &'a self,
+        render_ctx: &'a RenderContext,
+    ) -> BoxFuture<'a, Box<str>> {
+        Box::pin(async move {
+            let page = render_ctx
+                .context
+                .widget_value_as::<usize>(self.scroll_id)
+                .unwrap_or_default();
+            render_receipt_page(page)
+        })
     }
 }
 
@@ -145,7 +150,7 @@ fn registry() -> DialogRegistry {
                                 .items_getter(|_data| DRINKS)
                                 .item_renderer(|item, _data| format!("{} {}", item.0, item.1))
                                 .id_getter(|item| item.0)
-                                .action(|value| {
+                                .action(|value| async move {
                                     ButtonAction::set_dialog_value("selected_drink", value)
                                 })
                                 .build(),

@@ -51,7 +51,7 @@ fn registry() -> DialogRegistry {
                             .items_getter(|_data| [28, 30, 32, 34, 36, 38])
                             .item_renderer(|item, _data| format!("{item} cm"))
                             .id_getter(|item| item)
-                            .action(|value| {
+                            .action(|value| async move {
                                 ButtonAction::chain([
                                     ButtonAction::set_dialog_value("size", value),
                                     ButtonAction::next(),

@@ -78,7 +78,7 @@ fn registry() -> DialogRegistry {
                 fn_text(selected_date_text),
                 keyboard(
                     Calendar::builder("reservation_date_calendar")
-                        .on_click(|_click, selected_date| {
+                        .on_click(|_click, selected_date| async move {
                             ButtonAction::set_dialog_value(
                                 "selected_date",
                                 selected_date.to_string(),
