@@ -34,9 +34,28 @@ Updated: 2026-04-21 (UTC)
 - Different: explicit `telers` middleware integration, smaller widget set, typed Rust actions/builders, no managed wrapper types.
 
 ## Known Gaps
-- Rich media rendering flows.
+- Rich media rendering flows:
+  - Add `MediaWidget` support to window rendering, `NewMessage`, and `MessageManager`.
+  - Add media widgets matching `aiogram-dialog` concepts: `StaticMedia`, `DynamicMedia`, and `MediaScroll`.
+  - Use window text as media caption, support editing through `editMessageMedia` when possible, and resend when text/media message shape changes.
+  - Add examples covering static media, dynamic media from render data, and media scrolling with pager controls.
+- Button style/custom emoji support for inline buttons:
+  - Expose `style` and `icon_custom_emoji_id` on `Button`, using Telegram inline button fields.
+  - Support static values first; consider a `Style`/`StyleCase` abstraction later if needed.
+  - Add examples for danger/success/primary style buttons and a custom emoji button.
+- Jinja-like templated text:
+  - Consider optional feature-gated template text, likely backed by `minijinja`.
+  - Keep default build dependency-light if possible.
+  - Add examples for rendering templates from dialog/render data.
+- General reply markup and ForceReply:
+  - Add a generic reply-keyboard builder/factory beyond request-only widgets.
+  - Add ForceReply support with placeholder/selective options.
+  - Add examples for plain reply keyboard rows and ForceReply input prompt.
+- Dynamic non-callback button payloads:
+  - Allow URL, copy text, login URL fields, web app URL, and switch-inline query payloads to be rendered from `Text`.
+  - Keep static constructors ergonomic while adding data-driven variants.
+  - Add examples where URL/copy/switch payloads depend on render data.
 - Async/manager-aware result hooks beyond current action-based `on_process_result`.
-- Shared button styling abstraction beyond calendar-specific styling.
 
 ## Validation Snapshot
 - Last broad validation recorded: `cargo test -p telers-dialog`, `cargo doc -p telers-dialog --no-deps`, `cargo check -p telers-dialog`, and dialog examples.
