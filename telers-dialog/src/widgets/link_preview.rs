@@ -1,41 +1,37 @@
+use async_trait::async_trait;
 use bon::bon;
 use telers::types::LinkPreviewOptions;
 
 #[cfg(test)]
 use crate::entities::{ChatEvent, EventContext};
-use crate::{entities::RenderContext, future::BoxFuture, widgets::Text};
+use crate::{entities::RenderContext, widgets::Text};
 
 /// Widget that renders link preview options for a window.
+#[async_trait]
 pub trait LinkPreviewWidget: Send + Sync + 'static {
     /// Render link preview options for the current data snapshot.
-    fn render_link_preview<'a>(
-        &'a self,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Option<LinkPreviewOptions>>;
+    async fn render_link_preview(&self, render_ctx: &RenderContext) -> Option<LinkPreviewOptions>;
 
     #[cfg(test)]
-    fn render_link_preview_for_test<'a>(
-        &'a self,
-        data: &'a crate::entities::DataMap,
-    ) -> BoxFuture<'a, Option<LinkPreviewOptions>> {
-        Box::pin(async move {
-            use telers::{
-                client::Reqwest,
-                types::{ChatPrivate, MessageText, User},
-                Bot,
-            };
+    async fn render_link_preview_for_test(
+        &self,
+        data: &crate::entities::DataMap,
+    ) -> Option<LinkPreviewOptions> {
+        use telers::{
+            client::Reqwest,
+            types::{ChatPrivate, MessageText, User},
+            Bot,
+        };
 
-            let ctx = crate::entities::Context::new("", "state", serde_json::Value::Null);
-            let event = ChatEvent::Message(
-                MessageText::new(1, 1, ChatPrivate::new(10), "/test")
-                    .from(User::new(10, false, "tester"))
-                    .into(),
-            );
-            let event_context =
-                EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
-            let render_ctx = RenderContext::new(&ctx, data, &event, &event_context);
-            self.render_link_preview(&render_ctx).await
-        })
+        let ctx = crate::entities::Context::new("", "state", serde_json::Value::Null);
+        let event = ChatEvent::Message(
+            MessageText::new(1, 1, ChatPrivate::new(10), "/test")
+                .from(User::new(10, false, "tester"))
+                .into(),
+        );
+        let event_context = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
+        let render_ctx = RenderContext::new(&ctx, data, &event, &event_context);
+        self.render_link_preview(&render_ctx).await
     }
 }
 
@@ -77,25 +73,21 @@ impl Default for LinkPreview {
     }
 }
 
+#[async_trait]
 impl LinkPreviewWidget for LinkPreview {
-    fn render_link_preview<'a>(
-        &'a self,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Option<LinkPreviewOptions>> {
-        Box::pin(async move {
-            let url = match &self.url {
-                Some(url) => Some(url.render_text_in_context(render_ctx).await.into_string()),
-                None => None,
-            };
-            Some(
-                LinkPreviewOptions::new()
-                    .url_option(url)
-                    .is_disabled(self.is_disabled)
-                    .prefer_small_media(self.prefer_small_media)
-                    .prefer_large_media(self.prefer_large_media)
-                    .show_above_text(self.show_above_text),
-            )
-        })
+    async fn render_link_preview(&self, render_ctx: &RenderContext) -> Option<LinkPreviewOptions> {
+        let url = match &self.url {
+            Some(url) => Some(url.render_text_in_context(render_ctx).await.into_string()),
+            None => None,
+        };
+        Some(
+            LinkPreviewOptions::new()
+                .url_option(url)
+                .is_disabled(self.is_disabled)
+                .prefer_small_media(self.prefer_small_media)
+                .prefer_large_media(self.prefer_large_media)
+                .show_above_text(self.show_above_text),
+        )
     }
 }
 

@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use bon::bon;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -971,139 +972,129 @@ where
     }
 }
 
+#[async_trait]
 impl<WidgetId> Keyboard for Calendar<WidgetId>
 where
     WidgetId: Display + Send + Sync + 'static,
 {
-    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
-        is_allowed(self.when.as_ref(), ctx, data)
+    async fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data).await
     }
 
-    fn render_keyboard<'a>(
-        &'a self,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
-        Box::pin(async move {
-            let ctx = render_ctx.context.as_ref();
-            let data = render_ctx.data.as_ref();
-            if !self.is_visible(ctx, data).await {
-                return None;
-            }
-            let config = self.config_for(ctx, data).await;
-            let state = self.read_state(ctx, &config);
-            let rows = if let Some(view) = self.views.get(state.current_scope) {
-                let widget_id = self.widget_id();
-                let view_ctx = CalendarViewContext {
-                    context: render_ctx.context.clone(),
-                    data: render_ctx.data.clone(),
-                    config: config.clone(),
-                    state,
-                    widget_id: Cow::Owned(widget_id),
-                };
-                view(view_ctx).await
-            } else {
-                match state.current_scope {
-                    CalendarScope::Days => {
-                        self.render_days(render_ctx, &config, state.current_offset)
-                            .await
-                    }
-                    CalendarScope::Months => {
-                        self.render_months(render_ctx, &config, state.current_offset)
-                            .await
-                    }
-                    CalendarScope::Years => {
-                        self.render_years(render_ctx, &config, state.current_offset)
-                            .await
-                    }
-                }
+    async fn render_keyboard(&self, render_ctx: &RenderContext) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context.as_ref();
+        let data = render_ctx.data.as_ref();
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        let config = self.config_for(ctx, data).await;
+        let state = self.read_state(ctx, &config);
+        let rows = if let Some(view) = self.views.get(state.current_scope) {
+            let widget_id = self.widget_id();
+            let view_ctx = CalendarViewContext {
+                context: render_ctx.context.clone(),
+                data: render_ctx.data.clone(),
+                config: config.clone(),
+                state,
+                widget_id: Cow::Owned(widget_id),
             };
-            Some(InlineKeyboardMarkup::new(rows).into())
-        })
+            view(view_ctx).await
+        } else {
+            match state.current_scope {
+                CalendarScope::Days => {
+                    self.render_days(render_ctx, &config, state.current_offset)
+                        .await
+                }
+                CalendarScope::Months => {
+                    self.render_months(render_ctx, &config, state.current_offset)
+                        .await
+                }
+                CalendarScope::Years => {
+                    self.render_years(render_ctx, &config, state.current_offset)
+                        .await
+                }
+            }
+        };
+        Some(InlineKeyboardMarkup::new(rows).into())
     }
 
-    fn handle_callback<'a>(
-        &'a self,
-        click: &'a ClickContext,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async move {
-            let ctx = click.context.as_ref();
-            let data = &ctx.dialog_data;
-            if !self.is_visible(ctx, data).await {
-                return None;
-            }
-            let parsed = parse_callback_data(ctx, click.callback_data.as_str())?;
-            if parsed.target_id != self.widget_id() {
-                return None;
-            }
-            let payload = parsed.payload?;
-            let config = self.config_for(ctx, data).await;
-            let mut state = self.read_state(ctx, &config);
+    async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
+        let ctx = click.context.as_ref();
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        let parsed = parse_callback_data(ctx, click.callback_data.as_str())?;
+        if parsed.target_id != self.widget_id() {
+            return None;
+        }
+        let payload = parsed.payload?;
+        let config = self.config_for(ctx, data).await;
+        let mut state = self.read_state(ctx, &config);
 
-            match payload {
-                CALLBACK_SCOPE_MONTHS => state.current_scope = CalendarScope::Months,
-                CALLBACK_SCOPE_YEARS => state.current_scope = CalendarScope::Years,
-                CALLBACK_NOOP => return Some(ButtonAction::noop()),
-                CALLBACK_PREV_MONTH => {
-                    state.current_offset = prev_month_begin(state.current_offset);
-                }
-                CALLBACK_NEXT_MONTH => {
-                    state.current_offset = next_month_begin(state.current_offset);
-                }
-                CALLBACK_PREV_YEAR => state.current_offset = shift_years(state.current_offset, -1),
-                CALLBACK_NEXT_YEAR => state.current_offset = shift_years(state.current_offset, 1),
-                CALLBACK_PREV_YEARS_PAGE => {
-                    state.current_offset = shift_years(
-                        state.current_offset,
-                        -i32::try_from(config.years_per_page).unwrap_or(i32::MAX),
-                    );
-                }
-                CALLBACK_NEXT_YEARS_PAGE => {
-                    state.current_offset = shift_years(
-                        state.current_offset,
-                        i32::try_from(config.years_per_page).unwrap_or(i32::MAX),
-                    );
-                }
-                payload if payload.starts_with(CALLBACK_PREFIX_MONTH) => {
-                    let month = payload[CALLBACK_PREFIX_MONTH.len()..].parse::<u8>().ok()?;
-                    let month = Month::try_from(month).ok()?;
-                    state.current_offset =
-                        Date::from_calendar_date(state.current_offset.year(), month, 1).ok()?;
-                    state.current_scope = CalendarScope::Days;
-                }
-                payload if payload.starts_with(CALLBACK_PREFIX_YEAR) => {
-                    let year = payload[CALLBACK_PREFIX_YEAR.len()..].parse::<i32>().ok()?;
-                    state.current_offset =
-                        Date::from_calendar_date(year, Month::January, 1).ok()?;
-                    state.current_scope = CalendarScope::Months;
-                }
-                payload if payload.starts_with(CALLBACK_PREFIX_DATE) => {
-                    let selected_date = parse_date(&payload[CALLBACK_PREFIX_DATE.len()..])?;
-                    if selected_date < config.min_date || selected_date > config.max_date {
-                        return None;
-                    }
-                    debug!(
-                        context_id = %ctx.id,
-                        widget_id = %self.id,
-                        selected_date = %selected_date,
-                        "Resolved calendar date callback"
-                    );
-                    return Some(match &self.on_click {
-                        Some(handler) => handler(click.clone(), selected_date).await,
-                        None => ButtonAction::noop(),
-                    });
-                }
-                _ => return None,
+        match payload {
+            CALLBACK_SCOPE_MONTHS => state.current_scope = CalendarScope::Months,
+            CALLBACK_SCOPE_YEARS => state.current_scope = CalendarScope::Years,
+            CALLBACK_NOOP => return Some(ButtonAction::noop()),
+            CALLBACK_PREV_MONTH => {
+                state.current_offset = prev_month_begin(state.current_offset);
             }
+            CALLBACK_NEXT_MONTH => {
+                state.current_offset = next_month_begin(state.current_offset);
+            }
+            CALLBACK_PREV_YEAR => state.current_offset = shift_years(state.current_offset, -1),
+            CALLBACK_NEXT_YEAR => state.current_offset = shift_years(state.current_offset, 1),
+            CALLBACK_PREV_YEARS_PAGE => {
+                state.current_offset = shift_years(
+                    state.current_offset,
+                    -i32::try_from(config.years_per_page).unwrap_or(i32::MAX),
+                );
+            }
+            CALLBACK_NEXT_YEARS_PAGE => {
+                state.current_offset = shift_years(
+                    state.current_offset,
+                    i32::try_from(config.years_per_page).unwrap_or(i32::MAX),
+                );
+            }
+            payload if payload.starts_with(CALLBACK_PREFIX_MONTH) => {
+                let month = payload[CALLBACK_PREFIX_MONTH.len()..].parse::<u8>().ok()?;
+                let month = Month::try_from(month).ok()?;
+                state.current_offset =
+                    Date::from_calendar_date(state.current_offset.year(), month, 1).ok()?;
+                state.current_scope = CalendarScope::Days;
+            }
+            payload if payload.starts_with(CALLBACK_PREFIX_YEAR) => {
+                let year = payload[CALLBACK_PREFIX_YEAR.len()..].parse::<i32>().ok()?;
+                state.current_offset = Date::from_calendar_date(year, Month::January, 1).ok()?;
+                state.current_scope = CalendarScope::Months;
+            }
+            payload if payload.starts_with(CALLBACK_PREFIX_DATE) => {
+                let selected_date = parse_date(&payload[CALLBACK_PREFIX_DATE.len()..])?;
+                if selected_date < config.min_date || selected_date > config.max_date {
+                    return None;
+                }
+                debug!(
+                    context_id = %ctx.id,
+                    widget_id = %self.id,
+                    selected_date = %selected_date,
+                    "Resolved calendar date callback"
+                );
+                return Some(match &self.on_click {
+                    Some(handler) => handler(click.clone(), selected_date).await,
+                    None => ButtonAction::noop(),
+                });
+            }
+            _ => return None,
+        }
 
-            debug!(
-                context_id = %ctx.id,
-                widget_id = %self.id,
-                scope = ?state.current_scope,
-                offset = %state.current_offset,
-                "Resolved calendar navigation callback"
-            );
-            Some(self.state_action(state))
-        })
+        debug!(
+            context_id = %ctx.id,
+            widget_id = %self.id,
+            scope = ?state.current_scope,
+            offset = %state.current_offset,
+            "Resolved calendar navigation callback"
+        );
+        Some(self.state_action(state))
     }
 }
 

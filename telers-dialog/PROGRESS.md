@@ -19,7 +19,7 @@ Updated: 2026-04-21 (UTC)
 - `ShowMode::Auto`, message cleanup/reuse, parent result propagation.
 - `dialog_data` and `widget_data` mutation/read helpers.
 - Access control via registry-level `StackAccessValidator`.
-- Async hooks without `async_trait` for widgets, inputs, dialogs, calendar, pager, and visibility predicates.
+- Public async hooks use `async-trait` for widgets, inputs, dialogs, windows, link preview, and scroll/page-count traits; `telers_dialog::async_trait` re-exports the macro for downstream impls.
 - Callback contract: `td:{intent_id}:{widget_id}[:payload]`; stale intent callbacks ignored.
 
 ## Widget Surface
@@ -38,12 +38,6 @@ Updated: 2026-04-21 (UTC)
 - Async/manager-aware result hooks beyond current action-based `on_process_result`.
 - Shared button styling abstraction beyond calendar-specific styling.
 
-## Tasks
-- Recheck public async builder hooks for unnecessary helper traits, casts, or re-exports.
-- Keep `BoxFuture` internal; do not expose it from crate root.
-- Review examples after async hook changes and update only broken API usage.
-- Add tests when changing manager behavior, callback routing, input parsing, or widget state.
-
 ## Validation Snapshot
 - Last broad validation recorded: `cargo test -p telers-dialog`, `cargo doc -p telers-dialog --no-deps`, `cargo check -p telers-dialog`, and dialog examples.
-- Current quick validation target: `cargo check -p telers-dialog --all-features`.
+- Current validation: `cargo check -p telers-dialog --all-features`, `cargo clippy -p telers-dialog --all-features -- -W clippy::pedantic`, `cargo test -p telers-dialog --all-features`, and `cargo check -p dialogs_pager_widgets`.

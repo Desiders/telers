@@ -1,4 +1,5 @@
 use async_fn_traits::AsyncFn1;
+use async_trait::async_trait;
 use bon::bon;
 use std::{fmt::Display, marker::PhantomData, sync::Arc};
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
@@ -212,6 +213,7 @@ where
     }
 }
 
+#[async_trait]
 impl<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id> Keyboard
     for Select<WidgetId, ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr, IdGetter, Id>
 where
@@ -224,82 +226,72 @@ where
     IdGetter: Fn(Item) -> Id + Send + Sync + 'static,
     Id: Display + Send + Sync + 'static,
 {
-    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
-        is_allowed(self.when.as_ref(), ctx, data)
+    async fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data).await
     }
 
-    fn render_keyboard<'a>(
-        &'a self,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
-        Box::pin(async move {
-            let ctx = render_ctx.context.as_ref();
-            let data = render_ctx.data.as_ref();
-            if !self.is_visible(ctx, data).await {
-                return None;
-            }
-            let mut rows = Vec::with_capacity(self.header_rows.len() + self.footer_rows.len());
-            for row in &self.header_rows {
-                rows.push(render_button_row(row, render_ctx).await);
-            }
+    async fn render_keyboard(&self, render_ctx: &RenderContext) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context.as_ref();
+        let data = render_ctx.data.as_ref();
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        let mut rows = Vec::with_capacity(self.header_rows.len() + self.footer_rows.len());
+        for row in &self.header_rows {
+            rows.push(render_button_row(row, render_ctx).await);
+        }
 
-            for item in (self.items_getter)(data) {
-                let text = (self.item_renderer)(&item, data);
-                let payload = (self.id_getter)(item).to_string();
-                rows.push(
-                    [
-                        InlineKeyboardButton::new(text).callback_data(format_callback_data(
-                            ctx,
-                            &self.id,
-                            Some(&payload),
-                        )),
-                    ]
-                    .into(),
-                );
-            }
+        for item in (self.items_getter)(data) {
+            let text = (self.item_renderer)(&item, data);
+            let payload = (self.id_getter)(item).to_string();
+            rows.push(
+                [
+                    InlineKeyboardButton::new(text).callback_data(format_callback_data(
+                        ctx,
+                        &self.id,
+                        Some(&payload),
+                    )),
+                ]
+                .into(),
+            );
+        }
 
-            for row in &self.footer_rows {
-                rows.push(render_button_row(row, render_ctx).await);
-            }
+        for row in &self.footer_rows {
+            rows.push(render_button_row(row, render_ctx).await);
+        }
 
-            if rows.is_empty() {
-                None
-            } else {
-                Some(InlineKeyboardMarkup::new(rows).into())
-            }
-        })
+        if rows.is_empty() {
+            None
+        } else {
+            Some(InlineKeyboardMarkup::new(rows).into())
+        }
     }
 
-    fn handle_callback<'a>(
-        &'a self,
-        click: &'a ClickContext,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async move {
-            let ctx = click.context.as_ref();
-            let callback_data = click.callback_data.as_str();
-            let data = &ctx.dialog_data;
-            if !self.is_visible(ctx, data).await {
-                return None;
+    async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
+        let ctx = click.context.as_ref();
+        let callback_data = click.callback_data.as_str();
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        for button in self
+            .header_rows
+            .iter()
+            .chain(self.footer_rows.iter())
+            .flat_map(|row| row.iter())
+        {
+            if let Some(action) = button.resolve_callback(click).await {
+                return Some(action);
             }
-            for button in self
-                .header_rows
-                .iter()
-                .chain(self.footer_rows.iter())
-                .flat_map(|row| row.iter())
-            {
-                if let Some(action) = button.resolve_callback(click).await {
-                    return Some(action);
-                }
-            }
+        }
 
-            let parsed = parse_callback_data(ctx, callback_data)?;
-            if parsed.target_id != self.id.to_string() {
-                return None;
-            }
-            let payload = parsed.payload?;
-            debug!(context_id = %ctx.id, widget_id = %self.id, "Resolved select callback");
-            Some(self.action.call(click, payload).await)
-        })
+        let parsed = parse_callback_data(ctx, callback_data)?;
+        if parsed.target_id != self.id.to_string() {
+            return None;
+        }
+        let payload = parsed.payload?;
+        debug!(context_id = %ctx.id, widget_id = %self.id, "Resolved select callback");
+        Some(self.action.call(click, payload).await)
     }
 }
 

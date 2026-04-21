@@ -2,6 +2,7 @@ use bon::bon;
 use std::{fmt::Display, marker::PhantomData, str::FromStr, sync::Arc};
 
 use async_fn_traits::AsyncFn2;
+use async_trait::async_trait;
 use telers::types::Message;
 
 use super::Input;
@@ -97,6 +98,7 @@ where
     }
 }
 
+#[async_trait]
 impl<WidgetId, ParserOk, ParserErr, OnSuccess> Input
     for TextInput<WidgetId, ParserOk, ParserErr, OnSuccess>
 where
@@ -110,37 +112,31 @@ where
         + 'static,
     <OnSuccess as AsyncFn2<TextInputContext, ParserOk>>::OutputFuture: Send + 'static,
 {
-    fn handle_message<'a>(
-        &'a self,
-        ctx: &'a Context,
-        message: Message,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async move {
-            let text = message.text()?.to_owned();
-            match (self.parser)(&text) {
-                Ok(value) => Some(ButtonAction::chain([
-                    ButtonAction::set_widget_value(self.id.to_string(), text),
-                    (self.on_success)(
+    async fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction> {
+        let text = message.text()?.to_owned();
+        match (self.parser)(&text) {
+            Ok(value) => Some(ButtonAction::chain([
+                ButtonAction::set_widget_value(self.id.to_string(), text),
+                (self.on_success)(
+                    TextInputContext {
+                        context: Arc::new(ctx.clone()),
+                    },
+                    value,
+                )
+                .await,
+            ])),
+            Err(err) => match &self.on_error {
+                Some(on_error) => Some(
+                    on_error(
                         TextInputContext {
                             context: Arc::new(ctx.clone()),
                         },
-                        value,
+                        err,
                     )
                     .await,
-                ])),
-                Err(err) => match &self.on_error {
-                    Some(on_error) => Some(
-                        on_error(
-                            TextInputContext {
-                                context: Arc::new(ctx.clone()),
-                            },
-                            err,
-                        )
-                        .await,
-                    ),
-                    None => None,
-                },
-            }
-        })
+                ),
+                None => None,
+            },
+        }
     }
 }

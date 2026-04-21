@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use bon::bon;
 use std::borrow::Cow;
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
@@ -98,6 +99,7 @@ where
     }
 }
 
+#[async_trait]
 impl<Kbd> Scroll for ScrollingGroup<Kbd>
 where
     Kbd: Keyboard,
@@ -106,68 +108,57 @@ where
         &self.base_scroll
     }
 
-    fn get_page_count(&self, render_ctx: RenderContext) -> BoxFuture<'_, usize> {
-        Box::pin(async move {
-            self.page_rows(&render_ctx)
-                .await
-                .map_or(0, |(_, pages_count)| pages_count)
-        })
+    async fn get_page_count(&self, render_ctx: RenderContext) -> usize {
+        self.page_rows(&render_ctx)
+            .await
+            .map_or(0, |(_, pages_count)| pages_count)
     }
 }
 
+#[async_trait]
 impl<Kbd> Keyboard for ScrollingGroup<Kbd>
 where
     Kbd: Keyboard,
 {
-    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
-        is_allowed(self.when.as_ref(), ctx, data)
+    async fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data).await
     }
 
-    fn render_keyboard<'a>(
-        &'a self,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
-        Box::pin(async move {
-            let ctx = render_ctx.context.as_ref();
-            let data = render_ctx.data.as_ref();
-            if !self.is_visible(ctx, data).await {
-                return None;
-            }
-            let (mut rows, pages_count) = self.page_rows(render_ctx).await?;
+    async fn render_keyboard(&self, render_ctx: &RenderContext) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context.as_ref();
+        let data = render_ctx.data.as_ref();
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        let (mut rows, pages_count) = self.page_rows(render_ctx).await?;
 
-            if !(self.hide_pager || self.hide_on_single_page && pages_count <= 1) {
-                let current_page = self.get_page(ctx).min(pages_count.saturating_sub(1));
-                rows.push(build_pager_row(
-                    ctx,
-                    self.widget_id(),
-                    current_page,
-                    pages_count,
-                ));
-            }
+        if !(self.hide_pager || self.hide_on_single_page && pages_count <= 1) {
+            let current_page = self.get_page(ctx).min(pages_count.saturating_sub(1));
+            rows.push(build_pager_row(
+                ctx,
+                self.widget_id(),
+                current_page,
+                pages_count,
+            ));
+        }
 
-            Some(InlineKeyboardMarkup::new(rows).into())
-        })
+        Some(InlineKeyboardMarkup::new(rows).into())
     }
 
-    fn handle_callback<'a>(
-        &'a self,
-        click: &'a ClickContext,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async move {
-            let ctx = click.context.as_ref();
-            let callback_data = click.callback_data.as_str();
-            let data = &ctx.dialog_data;
-            if !self.is_visible(ctx, data).await {
-                return None;
-            }
-            if let Some(action) = self.base_scroll.handle_callback(ctx, callback_data).await {
-                return Some(action);
-            }
+    async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
+        let ctx = click.context.as_ref();
+        let callback_data = click.callback_data.as_str();
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        if let Some(action) = self.base_scroll.handle_callback(ctx, callback_data).await {
+            return Some(action);
+        }
 
-            if !self.kbd.is_visible(ctx, data).await {
-                return None;
-            }
-            self.kbd.handle_callback(click).await
-        })
+        if !self.kbd.is_visible(ctx, data).await {
+            return None;
+        }
+        self.kbd.handle_callback(click).await
     }
 }

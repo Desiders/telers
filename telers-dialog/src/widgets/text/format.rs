@@ -1,10 +1,8 @@
 use std::borrow::Cow;
 
 use super::Text;
-use crate::{
-    entities::{Data, DataMap},
-    future::BoxFuture,
-};
+use crate::entities::{Data, DataMap};
+use async_trait::async_trait;
 
 pub(crate) struct FormatText {
     template: Cow<'static, str>,
@@ -19,10 +17,11 @@ impl FormatText {
     }
 }
 
+#[async_trait]
 impl Text for FormatText {
     #[inline]
-    fn render_text<'a>(&'a self, data: &'a DataMap) -> BoxFuture<'a, Box<str>> {
-        Box::pin(async move { render_template(&self.template, data).into_boxed_str() })
+    async fn render_text(&self, data: &DataMap) -> Box<str> {
+        render_template(&self.template, data).into_boxed_str()
     }
 }
 

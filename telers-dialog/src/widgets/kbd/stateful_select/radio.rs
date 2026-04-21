@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use bon::bon;
 use std::{fmt::Display, marker::PhantomData};
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
@@ -7,10 +8,7 @@ use super::super::{
     format_callback_data, parse_callback_data, render_button_row, when::is_allowed, Button,
     ButtonAction, ClickContext, Keyboard, WhenCondition,
 };
-use crate::{
-    entities::{Context, DataMap, RenderContext},
-    future::BoxFuture,
-};
+use crate::entities::{Context, DataMap, RenderContext};
 
 pub struct Radio<
     WidgetId,
@@ -157,6 +155,7 @@ where
     }
 }
 
+#[async_trait]
 impl<
         WidgetId,
         ItemsGetter,
@@ -190,94 +189,84 @@ where
     IdGetter: Fn(&Item) -> Id + Send + Sync + 'static,
     Id: Display + Send + Sync + 'static,
 {
-    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
-        is_allowed(self.when.as_ref(), ctx, data)
+    async fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data).await
     }
 
-    fn render_keyboard<'a>(
-        &'a self,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
-        Box::pin(async move {
-            let ctx = render_ctx.context.as_ref();
-            let data = render_ctx.data.as_ref();
-            if !self.is_visible(ctx, data).await {
-                return None;
-            }
-            let widget_id = self.id.to_string();
-            let checked: Option<String> = ctx.widget_value_as(&widget_id);
+    async fn render_keyboard(&self, render_ctx: &RenderContext) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context.as_ref();
+        let data = render_ctx.data.as_ref();
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        let widget_id = self.id.to_string();
+        let checked: Option<String> = ctx.widget_value_as(&widget_id);
 
-            let mut rows = Vec::new();
-            for row in &self.header_rows {
-                rows.push(render_button_row(row, render_ctx).await);
-            }
+        let mut rows = Vec::new();
+        for row in &self.header_rows {
+            rows.push(render_button_row(row, render_ctx).await);
+        }
 
-            for item in (self.items_getter)(data) {
-                let item_id = (self.id_getter)(&item).to_string();
-                let is_checked = checked.as_deref() == Some(item_id.as_str());
-                let text = if is_checked {
-                    (self.checked_renderer)(&item, data)
-                } else {
-                    (self.unchecked_renderer)(&item, data)
-                };
-                rows.push(
-                    [
-                        InlineKeyboardButton::new(text).callback_data(format_callback_data(
-                            ctx,
-                            &self.id,
-                            Some(&item_id),
-                        )),
-                    ]
-                    .into(),
-                );
-            }
-
-            for row in &self.footer_rows {
-                rows.push(render_button_row(row, render_ctx).await);
-            }
-
-            if rows.is_empty() {
-                None
+        for item in (self.items_getter)(data) {
+            let item_id = (self.id_getter)(&item).to_string();
+            let is_checked = checked.as_deref() == Some(item_id.as_str());
+            let text = if is_checked {
+                (self.checked_renderer)(&item, data)
             } else {
-                Some(InlineKeyboardMarkup::new(rows).into())
-            }
-        })
+                (self.unchecked_renderer)(&item, data)
+            };
+            rows.push(
+                [
+                    InlineKeyboardButton::new(text).callback_data(format_callback_data(
+                        ctx,
+                        &self.id,
+                        Some(&item_id),
+                    )),
+                ]
+                .into(),
+            );
+        }
+
+        for row in &self.footer_rows {
+            rows.push(render_button_row(row, render_ctx).await);
+        }
+
+        if rows.is_empty() {
+            None
+        } else {
+            Some(InlineKeyboardMarkup::new(rows).into())
+        }
     }
 
-    fn handle_callback<'a>(
-        &'a self,
-        click: &'a ClickContext,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async move {
-            let ctx = click.context.as_ref();
-            let callback_data = click.callback_data.as_str();
-            let data = &ctx.dialog_data;
-            if !self.is_visible(ctx, data).await {
-                return None;
+    async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
+        let ctx = click.context.as_ref();
+        let callback_data = click.callback_data.as_str();
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        for button in self
+            .header_rows
+            .iter()
+            .chain(self.footer_rows.iter())
+            .flat_map(|row| row.iter())
+        {
+            if let Some(action) = button.resolve_callback(click).await {
+                return Some(action);
             }
-            for button in self
-                .header_rows
-                .iter()
-                .chain(self.footer_rows.iter())
-                .flat_map(|row| row.iter())
-            {
-                if let Some(action) = button.resolve_callback(click).await {
-                    return Some(action);
-                }
-            }
+        }
 
-            let parsed = parse_callback_data(ctx, callback_data)?;
-            if parsed.target_id != self.id.to_string() {
-                return None;
-            }
-            let payload = parsed.payload?;
-            debug!(
-                context_id = %ctx.id,
-                widget_id = %self.id,
-                item_id = payload,
-                "Resolved radio selection callback"
-            );
-            Some(ButtonAction::set_widget_value(self.id.to_string(), payload))
-        })
+        let parsed = parse_callback_data(ctx, callback_data)?;
+        if parsed.target_id != self.id.to_string() {
+            return None;
+        }
+        let payload = parsed.payload?;
+        debug!(
+            context_id = %ctx.id,
+            widget_id = %self.id,
+            item_id = payload,
+            "Resolved radio selection callback"
+        );
+        Some(ButtonAction::set_widget_value(self.id.to_string(), payload))
     }
 }

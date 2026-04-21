@@ -1,11 +1,9 @@
+use async_trait::async_trait;
 use bon::bon;
 use telers::types::{InlineKeyboardMarkup, ReplyMarkup};
 
 use super::{when::is_allowed, Button, ButtonAction, ClickContext, Keyboard, WhenCondition};
-use crate::{
-    entities::{Context, DataMap, RenderContext},
-    future::BoxFuture,
-};
+use crate::entities::{Context, DataMap, RenderContext};
 
 #[derive(Clone, Default)]
 pub struct InlineKeyboard {
@@ -69,56 +67,47 @@ where
     }
 }
 
+#[async_trait]
 impl Keyboard for InlineKeyboard {
-    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
-        is_allowed(self.when.as_ref(), ctx, data)
+    async fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data).await
     }
 
-    fn render_keyboard<'a>(
-        &'a self,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
-        Box::pin(async move {
-            let ctx = render_ctx.context.as_ref();
-            let data = render_ctx.data.as_ref();
-            if !self.is_visible(ctx, data).await {
-                return None;
-            }
-            if self.rows.is_empty() {
-                return None;
-            }
+    async fn render_keyboard(&self, render_ctx: &RenderContext) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context.as_ref();
+        let data = render_ctx.data.as_ref();
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        if self.rows.is_empty() {
+            return None;
+        }
 
-            let mut rows = Vec::with_capacity(self.rows.len());
-            for row in &self.rows {
-                let mut rendered_row = Vec::with_capacity(row.len());
-                for button in row {
-                    rendered_row.push(button.render(render_ctx).await);
-                }
-                rows.push(rendered_row.into_boxed_slice());
+        let mut rows = Vec::with_capacity(self.rows.len());
+        for row in &self.rows {
+            let mut rendered_row = Vec::with_capacity(row.len());
+            for button in row {
+                rendered_row.push(button.render(render_ctx).await);
             }
+            rows.push(rendered_row.into_boxed_slice());
+        }
 
-            Some(ReplyMarkup::InlineKeyboardMarkup(
-                InlineKeyboardMarkup::new(rows),
-            ))
-        })
+        Some(ReplyMarkup::InlineKeyboardMarkup(
+            InlineKeyboardMarkup::new(rows),
+        ))
     }
 
-    fn handle_callback<'a>(
-        &'a self,
-        click: &'a ClickContext,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async move {
-            let ctx = click.context.as_ref();
-            let data = &ctx.dialog_data;
-            if !self.is_visible(ctx, data).await {
-                return None;
+    async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
+        let ctx = click.context.as_ref();
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        for button in self.rows.iter().flat_map(|row| row.iter()) {
+            if let Some(action) = button.resolve_callback(click).await {
+                return Some(action);
             }
-            for button in self.rows.iter().flat_map(|row| row.iter()) {
-                if let Some(action) = button.resolve_callback(click).await {
-                    return Some(action);
-                }
-            }
-            None
-        })
+        }
+        None
     }
 }

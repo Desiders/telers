@@ -1,21 +1,19 @@
 use telers::types::Message;
 
-use crate::{entities::Context, future::BoxFuture, widgets::ButtonAction};
+use crate::{entities::Context, widgets::ButtonAction};
+use async_trait::async_trait;
 
+#[async_trait]
 pub trait Input: Send + Sync + 'static {
-    fn handle_message<'a>(
-        &'a self,
-        ctx: &'a Context,
-        message: Message,
-    ) -> BoxFuture<'a, Option<ButtonAction>>;
+    async fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction>;
 
     #[cfg(test)]
-    fn handle_message_for_test<'a>(
-        &'a self,
-        ctx: &'a Context,
+    async fn handle_message_for_test(
+        &self,
+        ctx: &Context,
         message: Message,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        self.handle_message(ctx, message)
+    ) -> Option<ButtonAction> {
+        self.handle_message(ctx, message).await
     }
 }
 
@@ -39,19 +37,14 @@ impl MultiInput {
     }
 }
 
+#[async_trait]
 impl Input for MultiInput {
-    fn handle_message<'a>(
-        &'a self,
-        ctx: &'a Context,
-        message: Message,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async move {
-            for input in &self.inputs {
-                if let Some(action) = input.handle_message(ctx, message.clone()).await {
-                    return Some(action);
-                }
+    async fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction> {
+        for input in &self.inputs {
+            if let Some(action) = input.handle_message(ctx, message.clone()).await {
+                return Some(action);
             }
-            None
-        })
+        }
+        None
     }
 }

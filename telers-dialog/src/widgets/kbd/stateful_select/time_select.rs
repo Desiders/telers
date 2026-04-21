@@ -1,4 +1,5 @@
 use async_fn_traits::AsyncFn2;
+use async_trait::async_trait;
 use bon::bon;
 use serde_json::json;
 use std::{borrow::Cow, fmt::Display, sync::Arc};
@@ -179,118 +180,102 @@ where
     }
 }
 
+#[async_trait]
 impl<WidgetId> Keyboard for TimeSelect<WidgetId>
 where
     WidgetId: Display + Send + Sync + 'static,
 {
-    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
-        is_allowed(self.when.as_ref(), ctx, data)
+    async fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data).await
     }
 
-    fn render_keyboard<'a>(
-        &'a self,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
-        Box::pin(async move {
-            let ctx = render_ctx.context.as_ref();
-            let data = render_ctx.data.as_ref();
-            if !self.is_visible(ctx, data).await {
-                return None;
-            }
-            let (selected_hour, selected_minute) = self.read_value(ctx);
-            let mut rows: Vec<Box<[InlineKeyboardButton]>> = Vec::new();
+    async fn render_keyboard(&self, render_ctx: &RenderContext) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context.as_ref();
+        let data = render_ctx.data.as_ref();
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        let (selected_hour, selected_minute) = self.read_value(ctx);
+        let mut rows: Vec<Box<[InlineKeyboardButton]>> = Vec::new();
 
-            rows.push([self.header_button(ctx, "hh", &self.hour_header)].into());
-            for row in Self::rows(0, 24, 1, self.hour_width) {
-                rows.push(
-                    row.into_iter()
-                        .map(|hour| {
-                            self.value_button(ctx, data, "h", hour, selected_hour == Some(hour))
-                        })
-                        .collect(),
-                );
-            }
+        rows.push([self.header_button(ctx, "hh", &self.hour_header)].into());
+        for row in Self::rows(0, 24, 1, self.hour_width) {
+            rows.push(
+                row.into_iter()
+                    .map(|hour| {
+                        self.value_button(ctx, data, "h", hour, selected_hour == Some(hour))
+                    })
+                    .collect(),
+            );
+        }
 
-            rows.push([self.header_button(ctx, "mm", &self.minute_header)].into());
-            for row in Self::rows(0, 60, self.minute_precision, self.minute_width) {
-                rows.push(
-                    row.into_iter()
-                        .map(|minute| {
-                            self.value_button(
-                                ctx,
-                                data,
-                                "m",
-                                minute,
-                                selected_minute == Some(minute),
-                            )
-                        })
-                        .collect(),
-                );
-            }
+        rows.push([self.header_button(ctx, "mm", &self.minute_header)].into());
+        for row in Self::rows(0, 60, self.minute_precision, self.minute_width) {
+            rows.push(
+                row.into_iter()
+                    .map(|minute| {
+                        self.value_button(ctx, data, "m", minute, selected_minute == Some(minute))
+                    })
+                    .collect(),
+            );
+        }
 
-            Some(InlineKeyboardMarkup::new(rows).into())
-        })
+        Some(InlineKeyboardMarkup::new(rows).into())
     }
 
-    fn handle_callback<'a>(
-        &'a self,
-        click: &'a ClickContext,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async move {
-            let ctx = click.context.as_ref();
-            let callback_data = click.callback_data.as_str();
-            let data = &ctx.dialog_data;
-            if !self.is_visible(ctx, data).await {
-                return None;
-            }
-            let parsed = parse_callback_data(ctx, callback_data)?;
-            if parsed.target_id != self.widget_id() {
-                return None;
-            }
+    async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
+        let ctx = click.context.as_ref();
+        let callback_data = click.callback_data.as_str();
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        let parsed = parse_callback_data(ctx, callback_data)?;
+        if parsed.target_id != self.widget_id() {
+            return None;
+        }
 
-            let payload = parsed.payload?;
-            if payload == "hh" || payload == "mm" {
-                return Some(ButtonAction::noop());
-            }
+        let payload = parsed.payload?;
+        if payload == "hh" || payload == "mm" {
+            return Some(ButtonAction::noop());
+        }
 
-            let (mut hour, mut minute) = self.read_value(ctx);
-            let click_action;
-            if let Some(value) = payload.strip_prefix('h') {
-                let value = value.parse::<u8>().ok()?;
-                hour = Some(value);
-                click_action = match &self.on_hour_click {
-                    Some(handler) => Some(handler(click.clone(), value).await),
-                    None => None,
-                };
-                debug!(
-                    context_id = %ctx.id,
-                    widget_id = %self.id,
-                    selected_hour = ?hour,
-                    "Resolved time-select hour callback"
-                );
-            } else if let Some(value) = payload.strip_prefix('m') {
-                let value = value.parse::<u8>().ok()?;
-                minute = Some(value);
-                click_action = match &self.on_minute_click {
-                    Some(handler) => Some(handler(click.clone(), value).await),
-                    None => None,
-                };
-                debug!(
-                    context_id = %ctx.id,
-                    widget_id = %self.id,
-                    selected_minute = ?minute,
-                    "Resolved time-select minute callback"
-                );
-            } else {
-                return None;
-            }
+        let (mut hour, mut minute) = self.read_value(ctx);
+        let click_action;
+        if let Some(value) = payload.strip_prefix('h') {
+            let value = value.parse::<u8>().ok()?;
+            hour = Some(value);
+            click_action = match &self.on_hour_click {
+                Some(handler) => Some(handler(click.clone(), value).await),
+                None => None,
+            };
+            debug!(
+                context_id = %ctx.id,
+                widget_id = %self.id,
+                selected_hour = ?hour,
+                "Resolved time-select hour callback"
+            );
+        } else if let Some(value) = payload.strip_prefix('m') {
+            let value = value.parse::<u8>().ok()?;
+            minute = Some(value);
+            click_action = match &self.on_minute_click {
+                Some(handler) => Some(handler(click.clone(), value).await),
+                None => None,
+            };
+            debug!(
+                context_id = %ctx.id,
+                widget_id = %self.id,
+                selected_minute = ?minute,
+                "Resolved time-select minute callback"
+            );
+        } else {
+            return None;
+        }
 
-            let update_action =
-                ButtonAction::set_widget_value(self.widget_id(), json!([hour, minute]));
-            Some(match click_action {
-                Some(click_action) => ButtonAction::chain([update_action, click_action]),
-                None => update_action,
-            })
+        let update_action = ButtonAction::set_widget_value(self.widget_id(), json!([hour, minute]));
+        Some(match click_action {
+            Some(click_action) => ButtonAction::chain([update_action, click_action]),
+            None => update_action,
         })
     }
 }

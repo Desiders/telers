@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use bon::bon;
 use std::borrow::Cow;
 
@@ -9,7 +10,6 @@ use telers::{
 use super::{when::is_allowed, ButtonAction, ClickContext, Keyboard, WhenCondition};
 use crate::{
     entities::{Context, DataMap, RenderContext},
-    future::BoxFuture,
     widgets::Text,
 };
 
@@ -153,40 +153,33 @@ where
     }
 }
 
+#[async_trait]
 impl<ButtonText> Keyboard for RequestContact<ButtonText>
 where
     ButtonText: Text,
 {
-    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
-        is_allowed(self.when.as_ref(), ctx, data)
+    async fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data).await
     }
 
-    fn render_keyboard<'a>(
-        &'a self,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
-        Box::pin(async move {
-            if !self
-                .is_visible(render_ctx.context.as_ref(), render_ctx.data.as_ref())
-                .await
-            {
-                return None;
-            }
-            let button = KeyboardButton::new(self.text.render_text_in_context(render_ctx).await)
-                .request_contact(true);
-            Some(
-                self.options
-                    .apply(ReplyKeyboardMarkup::new([[button]]))
-                    .into(),
-            )
-        })
+    async fn render_keyboard(&self, render_ctx: &RenderContext) -> Option<ReplyMarkup> {
+        if !self
+            .is_visible(render_ctx.context.as_ref(), render_ctx.data.as_ref())
+            .await
+        {
+            return None;
+        }
+        let button = KeyboardButton::new(self.text.render_text_in_context(render_ctx).await)
+            .request_contact(true);
+        Some(
+            self.options
+                .apply(ReplyKeyboardMarkup::new([[button]]))
+                .into(),
+        )
     }
 
-    fn handle_callback<'a>(
-        &'a self,
-        _click: &'a ClickContext,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async { None })
+    async fn handle_callback(&self, _click: &ClickContext) -> Option<ButtonAction> {
+        None
     }
 }
 
@@ -296,40 +289,33 @@ where
     }
 }
 
+#[async_trait]
 impl<ButtonText> Keyboard for RequestLocation<ButtonText>
 where
     ButtonText: Text,
 {
-    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
-        is_allowed(self.when.as_ref(), ctx, data)
+    async fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data).await
     }
 
-    fn render_keyboard<'a>(
-        &'a self,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
-        Box::pin(async move {
-            if !self
-                .is_visible(render_ctx.context.as_ref(), render_ctx.data.as_ref())
-                .await
-            {
-                return None;
-            }
-            let button = KeyboardButton::new(self.text.render_text_in_context(render_ctx).await)
-                .request_location(true);
-            Some(
-                self.options
-                    .apply(ReplyKeyboardMarkup::new([[button]]))
-                    .into(),
-            )
-        })
+    async fn render_keyboard(&self, render_ctx: &RenderContext) -> Option<ReplyMarkup> {
+        if !self
+            .is_visible(render_ctx.context.as_ref(), render_ctx.data.as_ref())
+            .await
+        {
+            return None;
+        }
+        let button = KeyboardButton::new(self.text.render_text_in_context(render_ctx).await)
+            .request_location(true);
+        Some(
+            self.options
+                .apply(ReplyKeyboardMarkup::new([[button]]))
+                .into(),
+        )
     }
 
-    fn handle_callback<'a>(
-        &'a self,
-        _click: &'a ClickContext,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async { None })
+    async fn handle_callback(&self, _click: &ClickContext) -> Option<ButtonAction> {
+        None
     }
 }
 
@@ -449,42 +435,35 @@ where
     }
 }
 
+#[async_trait]
 impl<ButtonText> Keyboard for RequestPoll<ButtonText>
 where
     ButtonText: Text,
 {
-    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
-        is_allowed(self.when.as_ref(), ctx, data)
+    async fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data).await
     }
 
-    fn render_keyboard<'a>(
-        &'a self,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
-        Box::pin(async move {
-            if !self
-                .is_visible(render_ctx.context.as_ref(), render_ctx.data.as_ref())
-                .await
-            {
-                return None;
-            }
-            let request_poll = KeyboardButtonPollType::new()
-                .type_option(self.poll_type.map(Into::<Box<str>>::into));
-            let button = KeyboardButton::new(self.text.render_text_in_context(render_ctx).await)
-                .request_poll(request_poll);
-            Some(
-                self.options
-                    .apply(ReplyKeyboardMarkup::new([[button]]))
-                    .into(),
-            )
-        })
+    async fn render_keyboard(&self, render_ctx: &RenderContext) -> Option<ReplyMarkup> {
+        if !self
+            .is_visible(render_ctx.context.as_ref(), render_ctx.data.as_ref())
+            .await
+        {
+            return None;
+        }
+        let request_poll =
+            KeyboardButtonPollType::new().type_option(self.poll_type.map(Into::<Box<str>>::into));
+        let button = KeyboardButton::new(self.text.render_text_in_context(render_ctx).await)
+            .request_poll(request_poll);
+        Some(
+            self.options
+                .apply(ReplyKeyboardMarkup::new([[button]]))
+                .into(),
+        )
     }
 
-    fn handle_callback<'a>(
-        &'a self,
-        _click: &'a ClickContext,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async { None })
+    async fn handle_callback(&self, _click: &ClickContext) -> Option<ButtonAction> {
+        None
     }
 }
 
