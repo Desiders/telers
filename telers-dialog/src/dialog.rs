@@ -1,9 +1,9 @@
 use crate::{
     entities::{Context, Data, LaunchMode, NewMessage, RenderContext},
-    future::BoxFuture,
     widgets::{ButtonAction, ClickContext},
     IntoWindow, Window,
 };
+use async_trait::async_trait;
 use std::{collections::BTreeMap, sync::Arc};
 use telers::types::Message;
 use tracing::warn;
@@ -11,6 +11,7 @@ use tracing::warn;
 type ProcessResultHandler =
     dyn Fn(&Context, &Data, &Data) -> Option<ButtonAction> + Send + Sync + 'static;
 
+#[async_trait]
 pub trait Dialog: Send + Sync {
     #[must_use]
     fn states(&self) -> &[String];
@@ -42,26 +43,18 @@ pub trait Dialog: Send + Sync {
             .and_then(|index| states.get(index).map(String::as_str))
     }
 
-    fn render<'a>(
-        &'a self,
-        state: &'a str,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Option<NewMessage>>;
+    async fn render(&self, state: &str, render_ctx: &RenderContext) -> Option<NewMessage>;
 
     #[must_use]
-    fn handle_callback<'a>(
-        &'a self,
-        state: &'a str,
-        click: &'a ClickContext,
-    ) -> BoxFuture<'a, Option<ButtonAction>>;
+    async fn handle_callback(&self, state: &str, click: &ClickContext) -> Option<ButtonAction>;
 
     #[must_use]
-    fn handle_message<'a>(
-        &'a self,
-        state: &'a str,
-        ctx: &'a Context,
+    async fn handle_message(
+        &self,
+        state: &str,
+        ctx: &Context,
         message: Message,
-    ) -> BoxFuture<'a, Option<ButtonAction>>;
+    ) -> Option<ButtonAction>;
 
     #[must_use]
     fn process_result(
@@ -167,6 +160,7 @@ impl DialogImpl {
     }
 }
 
+#[async_trait]
 impl Dialog for DialogImpl {
     #[inline]
     fn states(&self) -> &[String] {
@@ -178,44 +172,30 @@ impl Dialog for DialogImpl {
         self.launch_mode
     }
 
-    fn render<'a>(
-        &'a self,
-        state: &'a str,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Option<NewMessage>> {
-        Box::pin(async move {
-            match self.get_window(state) {
-                Some(window) => Some(window.render(render_ctx).await),
-                None => None,
-            }
-        })
+    async fn render(&self, state: &str, render_ctx: &RenderContext) -> Option<NewMessage> {
+        match self.get_window(state) {
+            Some(window) => Some(window.render(render_ctx).await),
+            None => None,
+        }
     }
 
-    fn handle_callback<'a>(
-        &'a self,
-        state: &'a str,
-        click: &'a ClickContext,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async move {
-            match self.get_window(state) {
-                Some(window) => window.handle_callback(click).await,
-                None => None,
-            }
-        })
+    async fn handle_callback(&self, state: &str, click: &ClickContext) -> Option<ButtonAction> {
+        match self.get_window(state) {
+            Some(window) => window.handle_callback(click).await,
+            None => None,
+        }
     }
 
-    fn handle_message<'a>(
-        &'a self,
-        state: &'a str,
-        ctx: &'a Context,
+    async fn handle_message(
+        &self,
+        state: &str,
+        ctx: &Context,
         message: Message,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async move {
-            match self.get_window(state) {
-                Some(window) => window.handle_message(ctx, message).await,
-                None => None,
-            }
-        })
+    ) -> Option<ButtonAction> {
+        match self.get_window(state) {
+            Some(window) => window.handle_message(ctx, message).await,
+            None => None,
+        }
     }
 
     fn process_result(

@@ -2,7 +2,8 @@ use bon::bon;
 use std::{borrow::Cow, marker::PhantomData};
 
 use super::Text;
-use crate::{entities::DataMap, future::BoxFuture};
+use crate::entities::DataMap;
+use async_trait::async_trait;
 
 pub struct ListText<ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr> {
     items_getter: ItemsGetter,
@@ -38,6 +39,7 @@ impl<ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr>
     }
 }
 
+#[async_trait]
 impl<ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr> Text
     for ListText<ItemsGetter, ItemsIter, Item, ItemRenderer, ItemStr>
 where
@@ -47,15 +49,13 @@ where
     ItemRenderer: Fn(&Item, &DataMap) -> ItemStr + Send + Sync + 'static,
     ItemStr: Into<Box<str>> + 'static,
 {
-    fn render_text<'a>(&'a self, data: &'a DataMap) -> BoxFuture<'a, Box<str>> {
-        Box::pin(async move {
-            let items = (self.items_getter)(data);
-            items
-                .into_iter()
-                .map(|item| (self.item_renderer)(&item, data).into())
-                .collect::<Box<[_]>>()
-                .join(&self.separator)
-                .into_boxed_str()
-        })
+    async fn render_text(&self, data: &DataMap) -> Box<str> {
+        let items = (self.items_getter)(data);
+        items
+            .into_iter()
+            .map(|item| (self.item_renderer)(&item, data).into())
+            .collect::<Box<[_]>>()
+            .join(&self.separator)
+            .into_boxed_str()
     }
 }

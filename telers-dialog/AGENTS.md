@@ -11,5 +11,6 @@
 - Ignore stale callbacks from other intent ids.
 - Keep `DialogManager::done()` and `ShowMode::Auto` aligned with `aiogram-dialog` unless Rust design needs differ.
 - Do not run formatting unless asked.
+- Keep `PROGRESS.md` up to date after meaningful changes.
 - Keep output short: changes, blockers, validation only.
 - Validate with `cargo check -p telers-dialog --all-features`; run tests/clippy only when relevant or requested.

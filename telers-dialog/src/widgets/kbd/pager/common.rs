@@ -1,4 +1,5 @@
 use async_fn_traits::AsyncFn1;
+use async_trait::async_trait;
 use serde_json::Value;
 use std::{borrow::Cow, fmt::Display, sync::Arc};
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
@@ -13,8 +14,9 @@ use crate::{
 type PageChangedHandler =
     dyn Fn(PageChange) -> BoxFuture<'static, ButtonAction> + Send + Sync + 'static;
 
+#[async_trait]
 pub(super) trait PageCountProvider: Sync {
-    fn page_count<'a>(&'a self, render_ctx: &'a RenderContext) -> BoxFuture<'a, usize>;
+    async fn page_count(&self, render_ctx: &RenderContext) -> usize;
 }
 
 /// Details about a pager state transition.
@@ -100,11 +102,12 @@ impl BaseScroll {
 }
 
 /// Scroll-capable widget that owns page state via [`BaseScroll`].
+#[async_trait]
 pub trait Scroll: Send + Sync + 'static {
     fn base_scroll(&self) -> &BaseScroll;
 
     #[must_use]
-    fn get_page_count(&self, render_ctx: RenderContext) -> BoxFuture<'_, usize>;
+    async fn get_page_count(&self, render_ctx: RenderContext) -> usize;
 
     #[must_use]
     fn widget_id(&self) -> &str {

@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use bon::bon;
 use std::{borrow::Cow, fmt::Display};
 
@@ -8,10 +9,7 @@ use super::super::{
     format_callback_data, parse_callback_data, render_button_row, when::is_allowed, Button,
     ButtonAction, ClickContext, Keyboard, WhenCondition,
 };
-use crate::{
-    entities::{Context, DataMap, RenderContext},
-    future::BoxFuture,
-};
+use crate::entities::{Context, DataMap, RenderContext};
 
 /// Numeric counter widget stored in `widget_data`.
 pub struct Counter<WidgetId> {
@@ -107,136 +105,127 @@ where
     }
 }
 
+#[async_trait]
 impl<WidgetId> Keyboard for Counter<WidgetId>
 where
     WidgetId: Display + Send + Sync + 'static,
 {
-    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
-        is_allowed(self.when.as_ref(), ctx, data)
+    async fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data).await
     }
 
-    fn render_keyboard<'a>(
-        &'a self,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
-        Box::pin(async move {
-            let ctx = render_ctx.context.as_ref();
-            let data = render_ctx.data.as_ref();
-            if !self.is_visible(ctx, data).await {
-                return None;
-            }
-            let widget_id = self.id.to_string();
-            let value = ctx
-                .widget_value_as::<f64>(&widget_id)
-                .unwrap_or(self.default)
-                .clamp(self.min, self.max);
+    async fn render_keyboard(&self, render_ctx: &RenderContext) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context.as_ref();
+        let data = render_ctx.data.as_ref();
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        let widget_id = self.id.to_string();
+        let value = ctx
+            .widget_value_as::<f64>(&widget_id)
+            .unwrap_or(self.default)
+            .clamp(self.min, self.max);
 
-            let mut rows = Vec::new();
-            for row in &self.header_rows {
-                rows.push(render_button_row(row, render_ctx).await);
-            }
+        let mut rows = Vec::new();
+        for row in &self.header_rows {
+            rows.push(render_button_row(row, render_ctx).await);
+        }
 
-            let mut counter_row = Vec::new();
-            if !self.minus_hidden {
-                counter_row.push(
-                    InlineKeyboardButton::new(self.minus_text.as_ref())
-                        .callback_data(format_callback_data(ctx, &self.id, Some("-"))),
-                );
-            }
+        let mut counter_row = Vec::new();
+        if !self.minus_hidden {
             counter_row.push(
-                InlineKeyboardButton::new(render_value(value)).callback_data(format_callback_data(
-                    ctx,
-                    &self.id,
-                    Some(""),
-                )),
+                InlineKeyboardButton::new(self.minus_text.as_ref())
+                    .callback_data(format_callback_data(ctx, &self.id, Some("-"))),
             );
-            if !self.plus_hidden {
-                counter_row.push(
-                    InlineKeyboardButton::new(self.plus_text.as_ref())
-                        .callback_data(format_callback_data(ctx, &self.id, Some("+"))),
-                );
-            }
-            rows.push(counter_row.into_boxed_slice());
+        }
+        counter_row.push(
+            InlineKeyboardButton::new(render_value(value)).callback_data(format_callback_data(
+                ctx,
+                &self.id,
+                Some(""),
+            )),
+        );
+        if !self.plus_hidden {
+            counter_row.push(
+                InlineKeyboardButton::new(self.plus_text.as_ref())
+                    .callback_data(format_callback_data(ctx, &self.id, Some("+"))),
+            );
+        }
+        rows.push(counter_row.into_boxed_slice());
 
-            for row in &self.footer_rows {
-                rows.push(render_button_row(row, render_ctx).await);
-            }
+        for row in &self.footer_rows {
+            rows.push(render_button_row(row, render_ctx).await);
+        }
 
-            Some(InlineKeyboardMarkup::new(rows).into())
-        })
+        Some(InlineKeyboardMarkup::new(rows).into())
     }
 
-    fn handle_callback<'a>(
-        &'a self,
-        click: &'a ClickContext,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async move {
-            let ctx = click.context.as_ref();
-            let callback_data = click.callback_data.as_str();
-            let data = &ctx.dialog_data;
-            if !self.is_visible(ctx, data).await {
-                return None;
+    async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
+        let ctx = click.context.as_ref();
+        let callback_data = click.callback_data.as_str();
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        for button in self
+            .header_rows
+            .iter()
+            .chain(self.footer_rows.iter())
+            .flat_map(|row| row.iter())
+        {
+            if let Some(action) = button.resolve_callback(click).await {
+                return Some(action);
             }
-            for button in self
-                .header_rows
-                .iter()
-                .chain(self.footer_rows.iter())
-                .flat_map(|row| row.iter())
-            {
-                if let Some(action) = button.resolve_callback(click).await {
-                    return Some(action);
-                }
-            }
+        }
 
-            let parsed = parse_callback_data(ctx, callback_data)?;
-            if parsed.target_id != self.id.to_string() {
-                return None;
-            }
+        let parsed = parse_callback_data(ctx, callback_data)?;
+        if parsed.target_id != self.id.to_string() {
+            return None;
+        }
 
-            let current = ctx
-                .widget_value_as::<f64>(&self.id.to_string())
-                .unwrap_or(self.default)
-                .clamp(self.min, self.max);
+        let current = ctx
+            .widget_value_as::<f64>(&self.id.to_string())
+            .unwrap_or(self.default)
+            .clamp(self.min, self.max);
 
-            match parsed.payload? {
-                "+" => {
-                    let mut next = current + self.increment;
-                    if next > self.max {
-                        next = if self.cycle { self.min } else { self.max };
-                    }
-                    debug!(
-                        context_id = %ctx.id,
-                        widget_id = %self.id,
-                        current,
-                        next,
-                        "Resolved counter increment callback"
-                    );
-                    Some(ButtonAction::set_widget_value(
-                        Cow::Owned(self.id.to_string()),
-                        next,
-                    ))
+        match parsed.payload? {
+            "+" => {
+                let mut next = current + self.increment;
+                if next > self.max {
+                    next = if self.cycle { self.min } else { self.max };
                 }
-                "-" => {
-                    let mut next = current - self.increment;
-                    if next < self.min {
-                        next = if self.cycle { self.max } else { self.min };
-                    }
-                    debug!(
-                        context_id = %ctx.id,
-                        widget_id = %self.id,
-                        current,
-                        next,
-                        "Resolved counter decrement callback"
-                    );
-                    Some(ButtonAction::set_widget_value(
-                        Cow::Owned(self.id.to_string()),
-                        next,
-                    ))
-                }
-                "" => Some(ButtonAction::noop()),
-                _ => None,
+                debug!(
+                    context_id = %ctx.id,
+                    widget_id = %self.id,
+                    current,
+                    next,
+                    "Resolved counter increment callback"
+                );
+                Some(ButtonAction::set_widget_value(
+                    Cow::Owned(self.id.to_string()),
+                    next,
+                ))
             }
-        })
+            "-" => {
+                let mut next = current - self.increment;
+                if next < self.min {
+                    next = if self.cycle { self.max } else { self.min };
+                }
+                debug!(
+                    context_id = %ctx.id,
+                    widget_id = %self.id,
+                    current,
+                    next,
+                    "Resolved counter decrement callback"
+                );
+                Some(ButtonAction::set_widget_value(
+                    Cow::Owned(self.id.to_string()),
+                    next,
+                ))
+            }
+            "" => Some(ButtonAction::noop()),
+            _ => None,
+        }
     }
 }
 

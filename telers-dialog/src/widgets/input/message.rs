@@ -1,10 +1,11 @@
 use std::{marker::PhantomData, sync::Arc};
 
 use async_fn_traits::AsyncFn2;
+use async_trait::async_trait;
 use telers::types::Message;
 
 use super::Input;
-use crate::{entities::Context, future::BoxFuture, widgets::ButtonAction};
+use crate::{entities::Context, widgets::ButtonAction};
 
 #[derive(Clone, Debug)]
 pub struct MessageInputContext {
@@ -34,6 +35,7 @@ impl<Handler, MessageType> MessageInput<Handler, MessageType> {
     }
 }
 
+#[async_trait]
 impl<Handler, MessageType> Input for MessageInput<Handler, MessageType>
 where
     Handler: AsyncFn(MessageInputContext, MessageType) -> ButtonAction
@@ -44,21 +46,15 @@ where
     <Handler as AsyncFn2<MessageInputContext, MessageType>>::OutputFuture: Send + 'static,
     MessageType: TryFrom<Message> + Send + 'static,
 {
-    fn handle_message<'a>(
-        &'a self,
-        ctx: &'a Context,
-        message: Message,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async move {
-            Some(
-                (self.handler)(
-                    MessageInputContext {
-                        context: Arc::new(ctx.clone()),
-                    },
-                    message.try_into().ok()?,
-                )
-                .await,
+    async fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction> {
+        Some(
+            (self.handler)(
+                MessageInputContext {
+                    context: Arc::new(ctx.clone()),
+                },
+                message.try_into().ok()?,
             )
-        })
+            .await,
+        )
     }
 }

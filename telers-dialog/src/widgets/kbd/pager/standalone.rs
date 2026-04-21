@@ -1,4 +1,5 @@
 use async_fn_traits::AsyncFn1;
+use async_trait::async_trait;
 use bon::bon;
 use std::{borrow::Cow, marker::PhantomData, sync::Arc};
 use telers::types::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup};
@@ -24,11 +25,12 @@ enum PageCountSource {
     Scroll(Arc<dyn Scroll>),
 }
 
+#[async_trait]
 impl PageCountProvider for PageCountSource {
-    fn page_count<'a>(&'a self, render_ctx: &'a RenderContext) -> BoxFuture<'a, usize> {
+    async fn page_count(&self, render_ctx: &RenderContext) -> usize {
         match self {
-            Self::Getter(getter) => getter(render_ctx.clone()),
-            Self::Scroll(scroll) => scroll.get_page_count(render_ctx.clone()),
+            Self::Getter(getter) => getter(render_ctx.clone()).await,
+            Self::Scroll(scroll) => scroll.get_page_count(render_ctx.clone()).await,
         }
     }
 }
@@ -184,54 +186,45 @@ where
     }
 }
 
+#[async_trait]
 impl<LabelRenderer, Label> Keyboard for SwitchPage<LabelRenderer, Label>
 where
     LabelRenderer: Fn(usize, usize, &DataMap) -> Label + Send + Sync + 'static,
     Label: Into<Box<str>> + 'static,
 {
-    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
-        is_allowed(self.when.as_ref(), ctx, data)
+    async fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data).await
     }
 
-    fn render_keyboard<'a>(
-        &'a self,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
-        Box::pin(async move {
-            let ctx = render_ctx.context.as_ref();
-            let data = render_ctx.data.as_ref();
-            if !self.is_visible(ctx, data).await {
-                return None;
-            }
-            render_direction_button(
-                render_ctx,
-                &self.id,
-                &self.page_count_getter,
-                self.direction,
-                &self.label_renderer,
-            )
-            .await
-        })
+    async fn render_keyboard(&self, render_ctx: &RenderContext) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context.as_ref();
+        let data = render_ctx.data.as_ref();
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        render_direction_button(
+            render_ctx,
+            &self.id,
+            &self.page_count_getter,
+            self.direction,
+            &self.label_renderer,
+        )
+        .await
     }
 
-    fn handle_callback<'a>(
-        &'a self,
-        click: &'a ClickContext,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async move {
-            let ctx = click.context.as_ref();
-            let data = &ctx.dialog_data;
-            if !self.is_visible(ctx, data).await {
-                return None;
-            }
-            handle_pager_callback(
-                ctx,
-                self.id.as_ref(),
-                click.callback_data.as_str(),
-                self.on_page_changed.as_ref(),
-            )
-            .await
-        })
+    async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
+        let ctx = click.context.as_ref();
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        handle_pager_callback(
+            ctx,
+            self.id.as_ref(),
+            click.callback_data.as_str(),
+            self.on_page_changed.as_ref(),
+        )
+        .await
     }
 }
 
@@ -290,54 +283,41 @@ macro_rules! fixed_pager_type {
             }
         }
 
+        #[async_trait]
         impl Keyboard for $name {
-            fn is_visible<'a>(
-                &'a self,
-                ctx: &'a Context,
-                data: &'a DataMap,
-            ) -> BoxFuture<'a, bool> {
-                is_allowed(self.when.as_ref(), ctx, data)
+            async fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+                is_allowed(self.when.as_ref(), ctx, data).await
             }
 
-            fn render_keyboard<'a>(
-                &'a self,
-                render_ctx: &'a RenderContext,
-            ) -> BoxFuture<'a, Option<ReplyMarkup>> {
-                Box::pin(async move {
-                    let ctx = render_ctx.context.as_ref();
-                    let data = render_ctx.data.as_ref();
-                    if !self.is_visible(ctx, data).await {
-                        return None;
-                    }
-                    render_direction_button(
-                        render_ctx,
-                        &self.id,
-                        &self.page_count_getter,
-                        $direction,
-                        &|_target, _current, _data| self.label.clone(),
-                    )
-                    .await
-                })
+            async fn render_keyboard(&self, render_ctx: &RenderContext) -> Option<ReplyMarkup> {
+                let ctx = render_ctx.context.as_ref();
+                let data = render_ctx.data.as_ref();
+                if !self.is_visible(ctx, data).await {
+                    return None;
+                }
+                render_direction_button(
+                    render_ctx,
+                    &self.id,
+                    &self.page_count_getter,
+                    $direction,
+                    &|_target, _current, _data| self.label.clone(),
+                )
+                .await
             }
 
-            fn handle_callback<'a>(
-                &'a self,
-                click: &'a ClickContext,
-            ) -> BoxFuture<'a, Option<ButtonAction>> {
-                Box::pin(async move {
-                    let ctx = click.context.as_ref();
-                    let data = &ctx.dialog_data;
-                    if !self.is_visible(ctx, data).await {
-                        return None;
-                    }
-                    handle_pager_callback(
-                        ctx,
-                        self.id.as_ref(),
-                        click.callback_data.as_str(),
-                        self.on_page_changed.as_ref(),
-                    )
-                    .await
-                })
+            async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
+                let ctx = click.context.as_ref();
+                let data = &ctx.dialog_data;
+                if !self.is_visible(ctx, data).await {
+                    return None;
+                }
+                handle_pager_callback(
+                    ctx,
+                    self.id.as_ref(),
+                    click.callback_data.as_str(),
+                    self.on_page_changed.as_ref(),
+                )
+                .await
             }
         }
     };
@@ -422,53 +402,44 @@ where
     }
 }
 
+#[async_trait]
 impl Keyboard for CurrentPage {
-    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
-        is_allowed(self.when.as_ref(), ctx, data)
+    async fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data).await
     }
 
-    fn render_keyboard<'a>(
-        &'a self,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
-        Box::pin(async move {
-            let ctx = render_ctx.context.as_ref();
-            let data = render_ctx.data.as_ref();
-            if !self.is_visible(ctx, data).await {
-                return None;
-            }
-            let pages_count = self.page_count_getter.page_count(render_ctx).await;
-            if pages_count == 0 {
-                return None;
-            }
+    async fn render_keyboard(&self, render_ctx: &RenderContext) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context.as_ref();
+        let data = render_ctx.data.as_ref();
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        let pages_count = self.page_count_getter.page_count(render_ctx).await;
+        if pages_count == 0 {
+            return None;
+        }
 
-            let current_page = read_page(ctx, self.id.as_ref()).min(pages_count.saturating_sub(1));
-            let button = InlineKeyboardButton::new(format!("{}", current_page + 1)).callback_data(
-                format_callback_data(ctx, self.id.as_ref(), Some(&format!("{current_page}"))),
-            );
+        let current_page = read_page(ctx, self.id.as_ref()).min(pages_count.saturating_sub(1));
+        let button = InlineKeyboardButton::new(format!("{}", current_page + 1)).callback_data(
+            format_callback_data(ctx, self.id.as_ref(), Some(&format!("{current_page}"))),
+        );
 
-            Some(InlineKeyboardMarkup::new(vec![vec![button].into_boxed_slice()]).into())
-        })
+        Some(InlineKeyboardMarkup::new(vec![vec![button].into_boxed_slice()]).into())
     }
 
-    fn handle_callback<'a>(
-        &'a self,
-        click: &'a ClickContext,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async move {
-            let ctx = click.context.as_ref();
-            let data = &ctx.dialog_data;
-            if !self.is_visible(ctx, data).await {
-                return None;
-            }
-            handle_pager_callback(
-                ctx,
-                self.id.as_ref(),
-                click.callback_data.as_str(),
-                self.on_page_changed.as_ref(),
-            )
-            .await
-        })
+    async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
+        let ctx = click.context.as_ref();
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        handle_pager_callback(
+            ctx,
+            self.id.as_ref(),
+            click.callback_data.as_str(),
+            self.on_page_changed.as_ref(),
+        )
+        .await
     }
 }
 
@@ -547,6 +518,7 @@ where
     }
 }
 
+#[async_trait]
 impl<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPageLabel> Keyboard
     for NumberedPager<PageRenderer, CurrentPageRenderer, PageLabel, CurrentPageLabel>
 where
@@ -555,70 +527,64 @@ where
     PageLabel: Into<Box<str>> + 'static,
     CurrentPageLabel: Into<Box<str>> + 'static,
 {
-    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
-        is_allowed(self.when.as_ref(), ctx, data)
+    async fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data).await
     }
 
-    fn render_keyboard<'a>(
-        &'a self,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
-        Box::pin(async move {
-            let ctx = render_ctx.context.as_ref();
-            let data = render_ctx.data.as_ref();
-            if !self.is_visible(ctx, data).await {
-                return None;
+    async fn render_keyboard(&self, render_ctx: &RenderContext) -> Option<ReplyMarkup> {
+        let ctx = render_ctx.context.as_ref();
+        let data = render_ctx.data.as_ref();
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        let pages_count = self.page_count_getter.page_count(render_ctx).await;
+        if pages_count == 0 {
+            return None;
+        }
+
+        let current_page = read_page(ctx, self.id.as_ref()).min(pages_count.saturating_sub(1));
+        let mut rows = Vec::new();
+        let mut current_row = Vec::new();
+        let row_len = self.length.unwrap_or(pages_count).max(1);
+
+        for page in 0..pages_count {
+            let label = if page == current_page {
+                (self.current_page_renderer)(page, data).into()
+            } else {
+                (self.page_renderer)(page, data).into()
+            };
+            current_row.push(
+                InlineKeyboardButton::new(label).callback_data(format_callback_data(
+                    ctx,
+                    self.id.as_ref(),
+                    Some(&format!("{page}")),
+                )),
+            );
+
+            if current_row.len() == row_len {
+                rows.push(std::mem::take(&mut current_row).into_boxed_slice());
             }
-            let pages_count = self.page_count_getter.page_count(render_ctx).await;
-            if pages_count == 0 {
-                return None;
-            }
+        }
 
-            let current_page = read_page(ctx, self.id.as_ref()).min(pages_count.saturating_sub(1));
-            let mut rows = Vec::new();
-            let mut current_row = Vec::new();
-            let row_len = self.length.unwrap_or(pages_count).max(1);
+        if !current_row.is_empty() {
+            rows.push(current_row.into_boxed_slice());
+        }
 
-            for page in 0..pages_count {
-                let label = if page == current_page {
-                    (self.current_page_renderer)(page, data).into()
-                } else {
-                    (self.page_renderer)(page, data).into()
-                };
-                current_row.push(InlineKeyboardButton::new(label).callback_data(
-                    format_callback_data(ctx, self.id.as_ref(), Some(&format!("{page}"))),
-                ));
-
-                if current_row.len() == row_len {
-                    rows.push(std::mem::take(&mut current_row).into_boxed_slice());
-                }
-            }
-
-            if !current_row.is_empty() {
-                rows.push(current_row.into_boxed_slice());
-            }
-
-            Some(InlineKeyboardMarkup::new(rows).into())
-        })
+        Some(InlineKeyboardMarkup::new(rows).into())
     }
 
-    fn handle_callback<'a>(
-        &'a self,
-        click: &'a ClickContext,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async move {
-            let ctx = click.context.as_ref();
-            let data = &ctx.dialog_data;
-            if !self.is_visible(ctx, data).await {
-                return None;
-            }
-            handle_pager_callback(
-                ctx,
-                self.id.as_ref(),
-                click.callback_data.as_str(),
-                self.on_page_changed.as_ref(),
-            )
-            .await
-        })
+    async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
+        let ctx = click.context.as_ref();
+        let data = &ctx.dialog_data;
+        if !self.is_visible(ctx, data).await {
+            return None;
+        }
+        handle_pager_callback(
+            ctx,
+            self.id.as_ref(),
+            click.callback_data.as_str(),
+            self.on_page_changed.as_ref(),
+        )
+        .await
     }
 }

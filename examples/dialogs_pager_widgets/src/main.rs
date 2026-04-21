@@ -20,13 +20,13 @@ use telers::{
     Bot, Dispatcher, Router,
 };
 use telers_dialog::{
-    dialog,
+    async_trait, dialog,
     entities::{DataMap, RenderContext},
     widgets::{
         format_text, keyboard, text, Button, ButtonAction, InlineKeyboard, NumberedPager,
         ScrollingGroup, Select, StubScroll, Text,
     },
-    window, BoxFuture, DialogManager, DialogObserverExt, DialogRegistry, StartMode,
+    window, DialogManager, DialogObserverExt, DialogRegistry, StartMode,
 };
 use tracing_subscriber::{fmt, layer::SubscriberExt as _, util::SubscriberInitExt as _, EnvFilter};
 
@@ -72,22 +72,18 @@ impl ReceiptPreviewText {
     }
 }
 
+#[async_trait]
 impl Text for ReceiptPreviewText {
-    fn render_text<'a>(&'a self, _data: &'a DataMap) -> BoxFuture<'a, Box<str>> {
-        Box::pin(async move { render_receipt_page(0) })
+    async fn render_text(&self, _data: &DataMap) -> Box<str> {
+        render_receipt_page(0)
     }
 
-    fn render_text_in_context<'a>(
-        &'a self,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Box<str>> {
-        Box::pin(async move {
-            let page = render_ctx
-                .context
-                .widget_value_as::<usize>(self.scroll_id)
-                .unwrap_or_default();
-            render_receipt_page(page)
-        })
+    async fn render_text_in_context(&self, render_ctx: &RenderContext) -> Box<str> {
+        let page = render_ctx
+            .context
+            .widget_value_as::<usize>(self.scroll_id)
+            .unwrap_or_default();
+        render_receipt_page(page)
     }
 }
 

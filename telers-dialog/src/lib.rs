@@ -17,6 +17,7 @@ mod setup;
 pub mod widgets;
 mod window;
 
+pub use async_trait::async_trait;
 pub use dialog::{dialog, Dialog, IntoDialog};
 pub use entities::{
     AccessSettings, Data, DefaultAccessValidator, LaunchMode, ShowMode, StackAccessValidator,

@@ -1,4 +1,5 @@
 use async_fn_traits::AsyncFn1;
+use async_trait::async_trait;
 use bon::bon;
 use serde_json::Value;
 use std::{borrow::Cow, sync::Arc};
@@ -115,49 +116,41 @@ impl StubScroll {
     }
 }
 
+#[async_trait]
 impl Scroll for StubScroll {
     fn base_scroll(&self) -> &BaseScroll {
         &self.base_scroll
     }
 
-    fn get_page_count(&self, render_ctx: RenderContext) -> BoxFuture<'_, usize> {
-        Box::pin(async move { self.pages.get(&render_ctx).await })
+    async fn get_page_count(&self, render_ctx: RenderContext) -> usize {
+        self.pages.get(&render_ctx).await
     }
 }
 
+#[async_trait]
 impl Keyboard for StubScroll {
-    fn is_visible<'a>(&'a self, ctx: &'a Context, data: &'a DataMap) -> BoxFuture<'a, bool> {
-        is_allowed(self.when.as_ref(), ctx, data)
+    async fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data).await
     }
 
-    fn render_keyboard<'a>(
-        &'a self,
-        render_ctx: &'a RenderContext,
-    ) -> BoxFuture<'a, Option<ReplyMarkup>> {
-        Box::pin(async move {
-            if !self
-                .is_visible(render_ctx.context.as_ref(), render_ctx.data.as_ref())
-                .await
-            {
-                return None;
-            }
-            None
-        })
+    async fn render_keyboard(&self, render_ctx: &RenderContext) -> Option<ReplyMarkup> {
+        if !self
+            .is_visible(render_ctx.context.as_ref(), render_ctx.data.as_ref())
+            .await
+        {
+            return None;
+        }
+        None
     }
 
-    fn handle_callback<'a>(
-        &'a self,
-        click: &'a ClickContext,
-    ) -> BoxFuture<'a, Option<ButtonAction>> {
-        Box::pin(async move {
-            let ctx = click.context.as_ref();
-            if !self.is_visible(ctx, &ctx.dialog_data).await {
-                return None;
-            }
-            self.base_scroll
-                .handle_callback(ctx, click.callback_data.as_str())
-                .await
-        })
+    async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
+        let ctx = click.context.as_ref();
+        if !self.is_visible(ctx, &ctx.dialog_data).await {
+            return None;
+        }
+        self.base_scroll
+            .handle_callback(ctx, click.callback_data.as_str())
+            .await
     }
 }
 
