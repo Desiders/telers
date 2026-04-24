@@ -1,10 +1,12 @@
 //! Dynamic media widget that reads media from render data.
 
-use std::sync::Arc;
-
 use async_trait::async_trait;
+use bon::bon;
+use serde::Deserialize;
+use serde_json::Value;
+use std::{borrow::Cow, sync::Arc};
 
-use super::{Media, MediaAttachment};
+use super::{Media, MediaAttachment, MediaContentType, MediaId};
 use crate::entities::{DataMap, RenderContext};
 
 /// A function that selects media from render data.
@@ -18,12 +20,14 @@ pub struct DynamicMedia {
     selector: MediaSelector,
 }
 
+#[bon]
 impl DynamicMedia {
     /// Create a dynamic media widget with a selector function.
     ///
     /// The selector receives render data and returns an optional `MediaAttachment`.
+    #[builder]
     #[must_use]
-    pub fn new<F>(selector: F) -> Self
+    pub fn new<F>(#[builder(start_fn)] selector: F) -> Self
     where
         F: Fn(&DataMap) -> Option<MediaAttachment> + Send + Sync + 'static,
     {
@@ -34,15 +38,16 @@ impl DynamicMedia {
 
     /// Create a dynamic media widget that reads from a specific data field.
     ///
-    /// The field should contain a `MediaAttachment` serialized as JSON.
+    /// The field should contain a JSON object with media attachment fields.
     #[must_use]
     pub fn from_field(field: impl Into<String>) -> Self {
         let field = field.into();
-        Self::new(move |data| {
+        Self::builder(move |data| {
             data.get(&field)
-                .and_then(|v| serde_json::from_value::<MediaAttachmentData>(v.clone()).ok())
-                .map(|d| d.into_attachment())
+                .and_then(|val| serde_json::from_value::<MediaAttachmentData>(val.clone()).ok())
+                .map(MediaAttachmentData::into_attachment)
         })
+        .build()
     }
 
     /// Create a dynamic media widget that reads URL from a data field.
@@ -51,11 +56,14 @@ impl DynamicMedia {
     #[must_use]
     pub fn photo_url_from_field(field: impl Into<String>) -> Self {
         let field = field.into();
-        Self::new(move |data| {
-            data.get(&field)
-                .and_then(serde_json::Value::as_str)
-                .map(|url| MediaAttachment::photo_url(url.to_string()))
+        Self::builder(move |data| {
+            data.get(&field).and_then(Value::as_str).map(|url| {
+                MediaAttachment::builder(MediaContentType::Photo)
+                    .url(url.to_owned())
+                    .build()
+            })
         })
+        .build()
     }
 
     /// Create a dynamic media widget that reads file ID from a data field.
@@ -64,55 +72,70 @@ impl DynamicMedia {
     #[must_use]
     pub fn photo_id_from_field(field: impl Into<String>) -> Self {
         let field = field.into();
-        Self::new(move |data| {
-            data.get(&field)
-                .and_then(serde_json::Value::as_str)
-                .map(|id| MediaAttachment::photo_id(id.to_string()))
+        Self::builder(move |data| {
+            data.get(&field).and_then(Value::as_str).map(|id| {
+                MediaAttachment::builder(MediaContentType::Photo)
+                    .file_id(MediaId::new(id.to_owned()))
+                    .build()
+            })
         })
+        .build()
     }
 
     /// Create a dynamic media widget that reads video URL from a data field.
     #[must_use]
     pub fn video_url_from_field(field: impl Into<String>) -> Self {
         let field = field.into();
-        Self::new(move |data| {
-            data.get(&field)
-                .and_then(serde_json::Value::as_str)
-                .map(|url| MediaAttachment::video_url(url.to_string()))
+        Self::builder(move |data| {
+            data.get(&field).and_then(Value::as_str).map(|url| {
+                MediaAttachment::builder(MediaContentType::Video)
+                    .url(url.to_owned())
+                    .build()
+            })
         })
+        .build()
     }
 
     /// Create a dynamic media widget that reads video file ID from a data field.
     #[must_use]
     pub fn video_id_from_field(field: impl Into<String>) -> Self {
         let field = field.into();
-        Self::new(move |data| {
-            data.get(&field)
-                .and_then(serde_json::Value::as_str)
-                .map(|id| MediaAttachment::video_id(id.to_string()))
+        Self::builder(move |data| {
+            data.get(&field).and_then(Value::as_str).map(|id| {
+                MediaAttachment::builder(MediaContentType::Video)
+                    .file_id(MediaId::new(id.to_owned()))
+                    .build()
+            })
         })
+        .build()
     }
 
     /// Create a dynamic media widget that reads document URL from a data field.
     #[must_use]
     pub fn document_url_from_field(field: impl Into<String>) -> Self {
         let field = field.into();
-        Self::new(move |data| {
-            data.get(&field)
-                .and_then(serde_json::Value::as_str)
-                .map(|url| MediaAttachment::document_url(url.to_string()))
+        Self::builder(move |data| {
+            data.get(&field).and_then(Value::as_str).map(|url| {
+                MediaAttachment::builder(MediaContentType::Document)
+                    .url(url.to_owned())
+                    .build()
+            })
         })
+        .build()
     }
 
     /// Create a dynamic media widget that reads document file ID from a data field.
     #[must_use]
     pub fn document_id_from_field(field: impl Into<String>) -> Self {
         let field = field.into();
-        Self::new(move |data| {
-            data.get(&field)
-                .and_then(serde_json::Value::as_str)
-                .map(|id| MediaAttachment::document_id(id.to_string()))
+        Self::builder(move |data| {
+            data.get(&field).and_then(Value::as_str).map(|id| {
+                MediaAttachment::builder(MediaContentType::Document)
+                    .file_id(MediaId::new(id.to_owned()))
+                    .build()
+            })
         })
+        .build()
     }
 }
 
@@ -124,7 +147,7 @@ impl Media for DynamicMedia {
 }
 
 /// Helper struct for deserializing media attachment from JSON.
-#[derive(serde::Deserialize)]
+#[derive(Deserialize)]
 struct MediaAttachmentData {
     content_type: String,
     #[serde(default)]
@@ -159,9 +182,6 @@ struct MediaAttachmentData {
 
 impl MediaAttachmentData {
     fn into_attachment(self) -> MediaAttachment {
-        use super::{MediaContentType, MediaId};
-        use std::borrow::Cow;
-
         let content_type = match self.content_type.to_lowercase().as_str() {
             "photo" => MediaContentType::Photo,
             "video" => MediaContentType::Video,

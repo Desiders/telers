@@ -7,6 +7,10 @@
 - Register command/custom handlers before `.setup_dialogs::<S>()` when they must win over dialog input.
 - `DialogContextMiddleware` must run before `DialogManagerMiddleware`.
 - Keep builder APIs owned (`self -> Self`) and hide internal wrapping like `Arc`.
+- Follow existing local construction patterns before adding new public APIs:
+  - prefer `#[bon]` on impl blocks over introducing new derive-builder styles;
+  - for hard cases (boxed trait objects, callbacks, internal wrapper fields), copy the existing repo pattern with custom builder-state methods instead of exposing internal storage details;
+  - do not keep old constructor APIs around just for compatibility unless that is explicitly requested.
 - Keep callback data stable and scoped: `td:{intent_id}:{button_id}[:payload]`.
 - Ignore stale callbacks from other intent ids.
 - Keep `DialogManager::done()` and `ShowMode::Auto` aligned with `aiogram-dialog` unless Rust design needs differ.

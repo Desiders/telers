@@ -28,12 +28,6 @@ impl<Kbd> Group<Kbd> {
             when,
         }
     }
-
-    #[must_use]
-    pub fn when(mut self, when: WhenCondition) -> Self {
-        self.when = Some(when);
-        self
-    }
 }
 
 #[async_trait]

@@ -1,10 +1,11 @@
 //! Media scroll widget for paginated media content.
 
+use async_trait::async_trait;
+use bon::bon;
+use serde_json::Value;
 use std::sync::Arc;
 
-use async_trait::async_trait;
-
-use super::{Media, MediaAttachment};
+use super::{Media, MediaAttachment, MediaContentType, MediaId};
 use crate::{
     entities::{DataMap, RenderContext},
     widgets::kbd::{BaseScroll, OnPageChanged, Scroll},
@@ -32,6 +33,7 @@ where
     item_renderer: MediaItemRenderer<T>,
 }
 
+#[bon]
 impl<T> MediaScroll<T>
 where
     T: Clone + Send + Sync + 'static,
@@ -39,26 +41,23 @@ where
     /// Create a new media scroll widget.
     ///
     /// The `id` should match the scroll widget ID used for paging.
+    #[builder]
     #[must_use]
-    pub fn new<G, R>(id: impl Into<String>, items_getter: G, item_renderer: R) -> Self
+    pub fn new<G, R>(
+        #[builder(start_fn)] id: impl Into<String>,
+        items_getter: G,
+        item_renderer: R,
+        on_page_changed: Option<OnPageChanged>,
+    ) -> Self
     where
         G: Fn(&DataMap) -> Vec<T> + Send + Sync + 'static,
         R: Fn(&T, &DataMap) -> MediaAttachment + Send + Sync + 'static,
     {
-        let id = id.into();
         Self {
-            scroll: BaseScroll::new(id, None),
+            scroll: BaseScroll::new(id.into(), on_page_changed),
             items_getter: Arc::new(items_getter),
             item_renderer: Arc::new(item_renderer),
         }
-    }
-
-    /// Set a callback to be invoked when the page changes.
-    #[must_use]
-    pub fn on_page_changed(mut self, callback: OnPageChanged) -> Self {
-        let id = self.scroll.widget_id().to_owned();
-        self.scroll = BaseScroll::new(id, Some(callback));
-        self
     }
 }
 
@@ -69,20 +68,23 @@ impl MediaScroll<String> {
     #[must_use]
     pub fn photo_urls_from_field(id: impl Into<String>, field: impl Into<String>) -> Self {
         let field = field.into();
-        MediaScroll::new(
-            id,
-            move |data| {
+        MediaScroll::builder(id)
+            .items_getter(move |data: &DataMap| {
                 data.get(&field)
-                    .and_then(|v| v.as_array())
-                    .map(|arr| {
-                        arr.iter()
-                            .filter_map(|v| v.as_str().map(String::from))
+                    .and_then(Value::as_array)
+                    .map(|val| {
+                        val.iter()
+                            .filter_map(|item| item.as_str().map(String::from))
                             .collect()
                     })
                     .unwrap_or_default()
-            },
-            |url, _data| MediaAttachment::photo_url(url.clone()),
-        )
+            })
+            .item_renderer(|url, _data| {
+                MediaAttachment::builder(MediaContentType::Photo)
+                    .url(url.clone())
+                    .build()
+            })
+            .build()
     }
 
     /// Create a media scroll that reads file IDs from a data field array.
@@ -91,20 +93,23 @@ impl MediaScroll<String> {
     #[must_use]
     pub fn photo_ids_from_field(id: impl Into<String>, field: impl Into<String>) -> Self {
         let field = field.into();
-        MediaScroll::new(
-            id,
-            move |data| {
+        MediaScroll::builder(id)
+            .items_getter(move |data: &DataMap| {
                 data.get(&field)
-                    .and_then(|v| v.as_array())
-                    .map(|arr| {
-                        arr.iter()
-                            .filter_map(|v| v.as_str().map(String::from))
+                    .and_then(Value::as_array)
+                    .map(|val| {
+                        val.iter()
+                            .filter_map(|item| item.as_str().map(String::from))
                             .collect()
                     })
                     .unwrap_or_default()
-            },
-            |file_id, _data| MediaAttachment::photo_id(file_id.clone()),
-        )
+            })
+            .item_renderer(|file_id, _data| {
+                MediaAttachment::builder(MediaContentType::Photo)
+                    .file_id(MediaId::new(file_id.clone()))
+                    .build()
+            })
+            .build()
     }
 }
 

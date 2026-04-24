@@ -27,6 +27,8 @@ pub struct Stack {
     pub last_media_id: Option<String>,
     /// Last known media unique id, when tracked.
     pub last_media_unique_id: Option<String>,
+    /// Last dialog media content type, when tracked.
+    pub last_media_content_type: Option<MessageType>,
     /// Last inbound media group id seen in this chat.
     pub last_income_media_group_id: Option<String>,
     /// Last telegram message type.
@@ -85,6 +87,7 @@ impl Stack {
         self.last_link_preview_options = None;
         self.last_media_id = None;
         self.last_media_unique_id = None;
+        self.last_media_content_type = None;
         self.last_income_media_group_id = None;
         self.message_type = None;
         self.has_protected_content = None;

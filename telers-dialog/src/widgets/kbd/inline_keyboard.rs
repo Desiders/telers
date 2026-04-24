@@ -24,28 +24,6 @@ impl InlineKeyboard {
             when,
         }
     }
-
-    #[must_use]
-    pub fn row(mut self, row: impl IntoIterator<Item = Button>) -> Self {
-        self.rows.push(row.into_iter().collect());
-        self
-    }
-
-    /// Add a button to the last row or create a new row if the last row not found
-    #[must_use]
-    pub fn push(mut self, button: Button) -> Self {
-        match self.rows.last_mut() {
-            Some(row) => row.push(button),
-            None => self.rows.push(vec![button]),
-        }
-        self
-    }
-
-    #[must_use]
-    pub fn when(mut self, when: WhenCondition) -> Self {
-        self.when = Some(when);
-        self
-    }
 }
 
 impl<S> InlineKeyboardBuilder<S>
