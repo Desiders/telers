@@ -11,6 +11,8 @@
 - Ignore stale callbacks from other intent ids.
 - Keep `DialogManager::done()` and `ShowMode::Auto` aligned with `aiogram-dialog` unless Rust design needs differ.
 - Do not run formatting unless asked.
-- Keep `PROGRESS.md` up to date after meaningful changes.
+- When adding or changing public dialog features/widgets, add or update a runnable example under `examples/dialogs_*`. If an example cannot be added in the same change, record the exact missing example in `PROGRESS.md` under Missing Examples.
+- Do not mark feature work complete if examples are still missing; call that out explicitly in the final response.
+- Keep `PROGRESS.md` up to date after meaningful changes, including implemented features, known gaps, missing examples, and validation status.
 - Keep output short: changes, blockers, validation only.
 - Validate with `cargo check -p telers-dialog --all-features`; run tests/clippy only when relevant or requested.
