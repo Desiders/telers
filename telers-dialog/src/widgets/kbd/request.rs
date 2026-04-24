@@ -27,26 +27,12 @@ pub struct ReplyKeyboardOptions {
 
 impl ReplyKeyboardOptions {
     fn apply(&self, markup: ReplyKeyboardMarkup) -> ReplyKeyboardMarkup {
-        let markup = match self.is_persistent {
-            Some(value) => markup.is_persistent(value),
-            None => markup,
-        };
-        let markup = match self.resize_keyboard {
-            Some(value) => markup.resize_keyboard(value),
-            None => markup,
-        };
-        let markup = match self.one_time_keyboard {
-            Some(value) => markup.one_time_keyboard(value),
-            None => markup,
-        };
-        let markup = match self.input_field_placeholder.as_ref() {
-            Some(value) => markup.input_field_placeholder(value.clone()),
-            None => markup,
-        };
-        match self.selective {
-            Some(value) => markup.selective(value),
-            None => markup,
-        }
+        markup
+            .is_persistent_option(self.is_persistent)
+            .resize_keyboard_option(self.resize_keyboard)
+            .one_time_keyboard_option(self.one_time_keyboard)
+            .input_field_placeholder_option(self.input_field_placeholder.as_deref())
+            .selective_option(self.selective)
     }
 }
 
@@ -478,14 +464,10 @@ pub struct ForceReplyOptions {
 }
 
 impl ForceReplyOptions {
-    fn apply(&self, mut reply: TelegramForceReply) -> TelegramForceReply {
-        if let Some(ref placeholder) = self.input_field_placeholder {
-            reply = reply.input_field_placeholder(placeholder.as_ref());
-        }
-        if let Some(selective) = self.selective {
-            reply = reply.selective(selective);
-        }
+    fn apply(&self, reply: TelegramForceReply) -> TelegramForceReply {
         reply
+            .input_field_placeholder_option(self.input_field_placeholder.as_deref())
+            .selective_option(self.selective)
     }
 }
 

@@ -337,18 +337,10 @@ impl Button {
     ) -> BoxFuture<'a, InlineKeyboardButton> {
         Box::pin(async move {
             let ctx = render_ctx.context.as_ref();
-            let mut button =
-                InlineKeyboardButton::new(self.text.render_text_in_context(render_ctx).await);
-
-            // Apply style if set
-            if let Some(style) = &self.style {
-                button = button.style(style.as_str());
-            }
-
-            // Apply custom emoji if set
-            if let Some(emoji_id) = &self.icon_custom_emoji_id {
-                button = button.icon_custom_emoji_id(emoji_id.as_ref());
-            }
+            let button =
+                InlineKeyboardButton::new(self.text.render_text_in_context(render_ctx).await)
+                    .style_option(self.style.map(|style| style.as_str()))
+                    .icon_custom_emoji_id_option(self.icon_custom_emoji_id.as_deref());
 
             match &self.kind {
                 ButtonKind::Callback(_) | ButtonKind::OnClick(_) => {

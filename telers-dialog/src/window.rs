@@ -209,16 +209,17 @@ impl Window for WindowImpl {
             }
             _ => None,
         };
-        let link_preview_options = match &self.link_preview_options {
-            Some(options) => Some(options.clone()),
-            None => match &self.link_preview {
-                Some(link_preview) => link_preview.render_link_preview(render_ctx).await,
-                None => None,
-            },
+        let link_preview_options = if let Some(options) = &self.link_preview_options {
+            Some(options.clone())
+        } else if let Some(link_preview) = &self.link_preview {
+            link_preview.render_link_preview(render_ctx).await
+        } else {
+            None
         };
-        let media = match &self.media {
-            Some(media_widget) => media_widget.render_media(render_ctx).await,
-            None => None,
+        let media = if let Some(media_widget) = &self.media {
+            media_widget.render_media(render_ctx).await
+        } else {
+            None
         };
 
         NewMessage::new(
