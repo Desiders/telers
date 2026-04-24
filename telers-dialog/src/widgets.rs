@@ -19,8 +19,8 @@ pub use kbd::{
     ClickContext, Counter, CurrentPage, FirstPage, ForceReply, Group, InlineKeyboard, Keyboard,
     LastPage, Multiselect, NextPage, NumberedPager, OnPageChanged, PageChange, PageDirection,
     PagerBinding, PrevPage, Radio, RequestContact, RequestLocation, RequestPoll, Scroll,
-    ScrollingGroup, Select, SelectClickContext, StubScroll, StubScrollPages, SwitchPage, TimeSelect,
-    Toggle, WhenCondition, WhenContext,
+    ScrollingGroup, Select, SelectClickContext, StubScroll, StubScrollPages, SwitchPage,
+    TimeSelect, Toggle, WhenCondition, WhenContext,
 };
 pub use link_preview::{LinkPreview, LinkPreviewWidget};
 pub use media::{

@@ -4,8 +4,7 @@
 
 use async_trait::async_trait;
 use minijinja::{Environment, Value};
-use std::borrow::Cow;
-use std::sync::Arc;
+use std::{borrow::Cow, sync::Arc};
 
 use super::base::Text;
 use crate::entities::DataMap;
@@ -121,7 +120,9 @@ impl TemplateEnvBuilder {
         let mut env = Environment::new();
         env.set_trim_blocks(true);
         env.set_lstrip_blocks(true);
-        Self { env }
+        Self {
+            env,
+        }
     }
 
     /// Add a custom filter function.
@@ -147,9 +148,11 @@ impl TemplateEnvBuilder {
     #[must_use]
     pub fn set_auto_escape(mut self, escape: bool) -> Self {
         if escape {
-            self.env.set_auto_escape_callback(|_| minijinja::AutoEscape::Html);
+            self.env
+                .set_auto_escape_callback(|_| minijinja::AutoEscape::Html);
         } else {
-            self.env.set_auto_escape_callback(|_| minijinja::AutoEscape::None);
+            self.env
+                .set_auto_escape_callback(|_| minijinja::AutoEscape::None);
         }
         self
     }
@@ -189,7 +192,10 @@ mod tests {
     async fn renders_nested_values() {
         let ctx = Context::new("", "state", serde_json::Value::Null);
         let mut data = DataMap::new();
-        data.insert("user".into(), json!({ "name": "Bob", "email": "bob@example.com" }));
+        data.insert(
+            "user".into(),
+            json!({ "name": "Bob", "email": "bob@example.com" }),
+        );
 
         let text = TemplateText::new("User: {{ user.name }} <{{ user.email }}>");
         let rendered = text.render_text_in_context_for_test(&ctx, &data).await;
@@ -227,7 +233,10 @@ mod tests {
         let mut data = DataMap::new();
         data.insert("items".into(), json!(["apple", "banana", "cherry"]));
 
-        let text = TemplateText::new("Items: {% for item in items %}{{ item }}{% if not loop.last %}, {% endif %}{% endfor %}");
+        let text = TemplateText::new(
+            "Items: {% for item in items %}{{ item }}{% if not loop.last %}, {% endif %}{% endfor \
+             %}",
+        );
         let rendered = text.render_text_in_context_for_test(&ctx, &data).await;
 
         assert_eq!(rendered.as_ref(), "Items: apple, banana, cherry");

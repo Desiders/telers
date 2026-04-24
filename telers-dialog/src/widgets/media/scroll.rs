@@ -11,8 +11,7 @@ use crate::{
 };
 
 /// A function that gets media items from render data.
-pub type MediaItemsGetter<T> =
-    Arc<dyn Fn(&DataMap) -> Vec<T> + Send + Sync + 'static>;
+pub type MediaItemsGetter<T> = Arc<dyn Fn(&DataMap) -> Vec<T> + Send + Sync + 'static>;
 
 /// A function that converts an item to a media attachment.
 pub type MediaItemRenderer<T> =
@@ -61,7 +60,6 @@ where
         self.scroll = BaseScroll::new(id, Some(callback));
         self
     }
-
 }
 
 impl MediaScroll<String> {
@@ -124,9 +122,9 @@ where
         let page = self.scroll.get_page(render_ctx.context.as_ref());
         let index = page.min(items.len().saturating_sub(1));
 
-        items.get(index).map(|item| {
-            (self.item_renderer)(item, render_ctx.data.as_ref())
-        })
+        items
+            .get(index)
+            .map(|item| (self.item_renderer)(item, render_ctx.data.as_ref()))
     }
 }
 
