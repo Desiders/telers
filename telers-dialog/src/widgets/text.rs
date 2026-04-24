@@ -8,6 +8,9 @@ mod multi;
 mod progress;
 mod scrolling;
 
+#[cfg(feature = "template")]
+mod template;
+
 pub(crate) use base::FnText;
 pub(crate) use format::FormatText;
 
@@ -17,6 +20,9 @@ pub use list::ListText;
 pub use multi::{MultiText, MultiTextBuilder};
 pub use progress::Progress;
 pub use scrolling::ScrollingText;
+
+#[cfg(feature = "template")]
+pub use template::{TemplateEnvBuilder, TemplateText};
 
 #[cfg(test)]
 mod tests;

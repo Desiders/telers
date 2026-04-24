@@ -1,15 +1,17 @@
 use crate::{
-    entities::{Context, Data, LaunchMode, NewMessage, RenderContext},
+    entities::{Context, LaunchMode, NewMessage, RenderContext, ResultContext},
+    future::BoxFuture,
     widgets::{ButtonAction, ClickContext},
     IntoWindow, Window,
 };
+use async_fn_traits::AsyncFn1;
 use async_trait::async_trait;
 use std::{collections::BTreeMap, sync::Arc};
 use telers::types::Message;
 use tracing::warn;
 
 type ProcessResultHandler =
-    dyn Fn(&Context, &Data, &Data) -> Option<ButtonAction> + Send + Sync + 'static;
+    dyn Fn(ResultContext) -> BoxFuture<'static, Option<ButtonAction>> + Send + Sync + 'static;
 
 #[async_trait]
 pub trait Dialog: Send + Sync {
@@ -56,14 +58,15 @@ pub trait Dialog: Send + Sync {
         message: Message,
     ) -> Option<ButtonAction>;
 
+    /// Process a result from a completed child dialog.
+    ///
+    /// Called when a child dialog completes with `done_with_result()`.
+    /// The handler receives a [`ResultContext`] with access to the parent context,
+    /// child start data, and result data.
+    ///
+    /// Returns an optional action to execute in the parent context.
     #[must_use]
-    fn process_result(
-        &self,
-        _state: &str,
-        _ctx: &Context,
-        _start_data: &Data,
-        _result: &Data,
-    ) -> Option<ButtonAction> {
+    async fn process_result(&self, _state: &str, _ctx: ResultContext) -> Option<ButtonAction> {
         None
     }
 }
@@ -144,12 +147,39 @@ impl DialogImpl {
         self
     }
 
+    /// Set an async handler for processing child dialog results.
+    ///
+    /// The handler receives a [`ResultContext`] with access to the parent context,
+    /// child start data, and result data.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// use telers_dialog::{dialog, window, widgets::{text, ButtonAction}, ResultContext};
+    ///
+    /// async fn handle_result(ctx: ResultContext) -> Option<ButtonAction> {
+    ///     let username = ctx.result_value("username")?;
+    ///     Some(ButtonAction::set_dialog_value("selected_user", username.clone()))
+    /// }
+    ///
+    /// let d = dialog([window("parent", [text("Parent")])])
+    ///     .on_process_result(handle_result);
+    /// ```
     #[must_use]
     pub fn on_process_result<F>(mut self, handler: F) -> Self
     where
-        F: Fn(&Context, &Data, &Data) -> Option<ButtonAction> + Send + Sync + 'static,
+        F: AsyncFn(ResultContext) -> Option<ButtonAction>
+            + AsyncFn1<ResultContext, Output = Option<ButtonAction>>
+            + Send
+            + Sync
+            + 'static,
+        <F as AsyncFn1<ResultContext>>::OutputFuture: Send + 'static,
     {
-        self.on_process_result = Some(Arc::new(handler));
+        let handler = Arc::new(handler);
+        self.on_process_result = Some(Arc::new(move |ctx| {
+            let handler = handler.clone();
+            Box::pin(async move { handler(ctx).await })
+        }));
         self
     }
 
@@ -198,16 +228,18 @@ impl Dialog for DialogImpl {
         }
     }
 
-    fn process_result(
-        &self,
-        _state: &str,
-        ctx: &Context,
-        start_data: &Data,
-        result: &Data,
-    ) -> Option<ButtonAction> {
-        self.on_process_result
-            .as_ref()
-            .and_then(|handler| handler(ctx, start_data, result))
+    async fn process_result(&self, state: &str, ctx: ResultContext) -> Option<ButtonAction> {
+        // First try dialog-level handler
+        if let Some(handler) = &self.on_process_result {
+            if let Some(action) = handler(ctx.clone()).await {
+                return Some(action);
+            }
+        }
+        // Then try window-level handler
+        if let Some(window) = self.get_window(state) {
+            return window.process_result(ctx).await;
+        }
+        None
     }
 }
 

@@ -754,12 +754,18 @@ impl<S: Storage> DialogManager<S> {
             (parent_ctx.as_ref(), closed_ctx.as_ref(), result.as_ref())
         {
             let parent_dialog = self.resolve_dialog(&parent_ctx.state)?;
-            if let Some(action) = parent_dialog.process_result(
-                &parent_ctx.state,
+            let result_ctx = crate::entities::ResultContext::new(
                 parent_ctx,
                 &closed_ctx.start_data,
                 result,
-            ) {
+                &self.event,
+                event_ctx,
+                &self.context,
+            );
+            if let Some(action) = parent_dialog
+                .process_result(&parent_ctx.state, result_ctx)
+                .await
+            {
                 callback_outcome = self.apply_button_action(bot, action).await?;
             }
         }
@@ -1338,16 +1344,18 @@ mod tests {
 
     #[tokio::test]
     async fn done_with_result_calls_parent_process_result() {
+        use crate::entities::ResultContext;
+
+        async fn handle_result(ctx: ResultContext) -> Option<ButtonAction> {
+            Some(ButtonAction::chain([
+                ButtonAction::set_dialog_value("child_start", ctx.start_data().clone()),
+                ButtonAction::set_dialog_value("child_result", ctx.result().clone()),
+            ]))
+        }
+
         let bot = test_bot();
         let registry = registry_with([
-            dialog([window("parent", [text("Parent")])]).on_process_result(
-                |_ctx, start_data, result| {
-                    Some(ButtonAction::chain([
-                        ButtonAction::set_dialog_value("child_start", start_data.clone()),
-                        ButtonAction::set_dialog_value("child_result", result.clone()),
-                    ]))
-                },
-            ),
+            dialog([window("parent", [text("Parent")])]).on_process_result(handle_result),
             dialog([window("child", [text("Child")])]),
         ]);
         let manager = manager_for_event(test_fsm(bot.id), registry, message_event("/start"));

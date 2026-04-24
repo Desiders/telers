@@ -1,6 +1,9 @@
 use std::borrow::Cow;
 
-use super::{Input, Keyboard, LinkPreviewWidget, MultiInput, MultiKeyboard, MultiText, Text};
+use super::{
+    media::MultiMedia, Input, Keyboard, LinkPreviewWidget, Media, MultiInput, MultiKeyboard,
+    MultiText, Text,
+};
 use crate::{
     entities::DataMap,
     widgets::{text::MultiTextBuilder, FnText, FormatText},
@@ -11,6 +14,7 @@ pub type WindowWidgets = (
     Option<Box<dyn Keyboard>>,
     Option<Box<dyn Input>>,
     Option<Box<dyn LinkPreviewWidget>>,
+    Option<Box<dyn Media>>,
 );
 
 pub enum WidgetKind {
@@ -18,6 +22,7 @@ pub enum WidgetKind {
     Keyboard(Box<dyn Keyboard>),
     Input(Box<dyn Input>),
     LinkPreview(Box<dyn LinkPreviewWidget>),
+    Media(Box<dyn Media>),
 }
 
 #[inline]
@@ -60,6 +65,12 @@ pub fn link_preview(val: impl LinkPreviewWidget) -> WidgetKind {
     WidgetKind::LinkPreview(Box::new(val))
 }
 
+#[inline]
+#[must_use]
+pub fn media(val: impl Media) -> WidgetKind {
+    WidgetKind::Media(Box::new(val))
+}
+
 /// Normalize a window widget list into the concrete slots used by `WindowImpl`.
 ///
 /// # Panics
@@ -69,12 +80,14 @@ pub(crate) fn ensure_widgets(widgets: impl IntoIterator<Item = WidgetKind>) -> W
     let mut kbds = Vec::new();
     let mut inputs = Vec::new();
     let mut link_previews = Vec::new();
+    let mut medias = Vec::new();
     for widget in widgets {
         match widget {
             WidgetKind::Text(val) => texts.push(val),
             WidgetKind::Keyboard(val) => kbds.push(val),
             WidgetKind::Input(val) => inputs.push(val),
             WidgetKind::LinkPreview(val) => link_previews.push(val),
+            WidgetKind::Media(val) => medias.push(val),
         }
     }
     let text = match texts.len() {
@@ -105,7 +118,16 @@ pub(crate) fn ensure_widgets(widgets: impl IntoIterator<Item = WidgetKind>) -> W
         )),
     };
     let link_preview = link_previews.pop();
-    (text, kbd, input, link_preview)
+    let media: Option<_> = match medias.len() {
+        0 => None,
+        1 => Some(medias.pop().expect("single media")),
+        _ => Some(Box::new(
+            medias
+                .into_iter()
+                .fold(MultiMedia::new(), MultiMedia::media_boxed),
+        )),
+    };
+    (text, kbd, input, link_preview, media)
 }
 
 #[cfg(test)]

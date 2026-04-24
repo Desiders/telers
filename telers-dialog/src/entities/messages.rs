@@ -4,6 +4,7 @@ use telers::{
 };
 
 use super::ShowMode;
+use crate::widgets::media::{MediaAttachment, MediaContentType};
 
 /// Snapshot of the last rendered dialog message.
 #[derive(Clone, Debug)]
@@ -26,6 +27,12 @@ pub struct OldMessage {
     pub message_type: Option<MessageType>,
     /// Serialized link preview options snapshot.
     pub link_preview_options_value: Option<serde_json::Value>,
+    /// Media file ID from the last message.
+    pub media_file_id: Option<Box<str>>,
+    /// Media unique ID from the last message.
+    pub media_unique_id: Option<Box<str>>,
+    /// Media content type from the last message.
+    pub media_content_type: Option<MediaContentType>,
 }
 
 impl OldMessage {
@@ -57,7 +64,30 @@ impl OldMessage {
             business_connection_id: business_connection_id.map(Into::into),
             message_type,
             link_preview_options_value,
+            media_file_id: None,
+            media_unique_id: None,
+            media_content_type: None,
         }
+    }
+
+    /// Set media information from a sent message.
+    #[must_use]
+    pub fn with_media(
+        mut self,
+        file_id: Option<impl Into<Box<str>>>,
+        unique_id: Option<impl Into<Box<str>>>,
+        content_type: Option<MediaContentType>,
+    ) -> Self {
+        self.media_file_id = file_id.map(Into::into);
+        self.media_unique_id = unique_id.map(Into::into);
+        self.media_content_type = content_type;
+        self
+    }
+
+    /// Returns true if the old message contained media.
+    #[must_use]
+    pub fn has_media(&self) -> bool {
+        self.media_file_id.is_some()
     }
 }
 
@@ -70,7 +100,7 @@ pub struct NewMessage {
     pub message_thread_id: Option<i64>,
     /// Optional business connection id.
     pub business_connection_id: Option<Box<str>>,
-    /// Message text.
+    /// Message text (used as caption when media is present).
     pub text: Box<str>,
     /// Reply markup to attach.
     pub reply_markup: Option<ReplyMarkup>,
@@ -82,6 +112,8 @@ pub struct NewMessage {
     pub show_mode: ShowMode,
     /// Link preview options.
     pub link_preview_options: Option<LinkPreviewOptions>,
+    /// Media attachment to send.
+    pub media: Option<MediaAttachment>,
 }
 
 impl NewMessage {
@@ -113,6 +145,20 @@ impl NewMessage {
             protect_content,
             show_mode,
             link_preview_options,
+            media: None,
         }
+    }
+
+    /// Set media attachment.
+    #[must_use]
+    pub fn with_media(mut self, media: Option<MediaAttachment>) -> Self {
+        self.media = media;
+        self
+    }
+
+    /// Returns true if this message contains media.
+    #[must_use]
+    pub fn has_media(&self) -> bool {
+        self.media.is_some()
     }
 }

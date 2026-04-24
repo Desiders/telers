@@ -28,7 +28,7 @@ pub(crate) use select::render_button_row;
 
 pub use action::ButtonAction;
 pub use base::Keyboard;
-pub use button::Button;
+pub use button::{Button, ButtonStyle};
 pub use calendar::{
     Calendar, CalendarAppearance, CalendarAppearanceBuilder, CalendarBuilder, CalendarButtonKind,
     CalendarConfig, CalendarDate, CalendarScope, CalendarScopeRows, CalendarState,
@@ -42,7 +42,7 @@ pub use pager::{
     NumberedPager, OnPageChanged, PageChange, PageDirection, PagerBinding, PrevPage, Scroll,
     ScrollingGroup, StubScroll, StubScrollPages, SwitchPage,
 };
-pub use request::{RequestContact, RequestLocation, RequestPoll};
+pub use request::{ForceReply, RequestContact, RequestLocation, RequestPoll};
 pub use select::{Select, SelectClickContext};
 pub use stateful_select::{Checkbox, Counter, Multiselect, Radio, TimeSelect, Toggle};
 pub use when::{WhenCondition, WhenContext};
