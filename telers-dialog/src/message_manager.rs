@@ -160,15 +160,17 @@ impl MessageManager {
     /// Check if message content or protection flags changed.
     fn message_changed(new: &NewMessage, old: &OldMessage) -> bool {
         let text_changed = new.text.as_ref() != old.text.as_deref().unwrap_or("");
-        let markup_changed =
-            serialize_option(new.reply_markup.as_ref()) != old.reply_markup_value;
+        let markup_changed = serialize_option(new.reply_markup.as_ref()) != old.reply_markup_value;
         let protect_changed = new.protect_content != old.has_protected_content;
-        let link_preview_changed = serialize_option(new.link_preview_options.as_ref())
-            != old.link_preview_options_value;
+        let link_preview_changed =
+            serialize_option(new.link_preview_options.as_ref()) != old.link_preview_options_value;
         let media_changed = Self::media_changed(new, old);
 
-        let changed =
-            text_changed || markup_changed || protect_changed || link_preview_changed || media_changed;
+        let changed = text_changed
+            || markup_changed
+            || protect_changed
+            || link_preview_changed
+            || media_changed;
         trace!(
             message_id = old.message_id,
             changed,
@@ -595,7 +597,8 @@ impl MessageManager {
                 if let Some(show_above) = media.show_caption_above_media {
                     m = m.show_caption_above_media(show_above);
                 }
-                m = m.reply_markup_option(msg.reply_markup.clone())
+                m = m
+                    .reply_markup_option(msg.reply_markup.clone())
                     .protect_content_option(msg.protect_content)
                     .business_connection_id_option(msg.business_connection_id.clone())
                     .message_thread_id_option(msg.message_thread_id);
@@ -627,7 +630,8 @@ impl MessageManager {
                 if let Some(streaming) = media.supports_streaming {
                     m = m.supports_streaming(streaming);
                 }
-                m = m.reply_markup_option(msg.reply_markup.clone())
+                m = m
+                    .reply_markup_option(msg.reply_markup.clone())
                     .protect_content_option(msg.protect_content)
                     .business_connection_id_option(msg.business_connection_id.clone())
                     .message_thread_id_option(msg.message_thread_id);
@@ -650,7 +654,8 @@ impl MessageManager {
                 if let Some(ref title) = media.title {
                     m = m.title(title.as_ref());
                 }
-                m = m.reply_markup_option(msg.reply_markup.clone())
+                m = m
+                    .reply_markup_option(msg.reply_markup.clone())
                     .protect_content_option(msg.protect_content)
                     .business_connection_id_option(msg.business_connection_id.clone())
                     .message_thread_id_option(msg.message_thread_id);
@@ -664,7 +669,8 @@ impl MessageManager {
                 if let Some(ref pm) = msg.parse_mode {
                     m = m.parse_mode(pm.as_ref());
                 }
-                m = m.reply_markup_option(msg.reply_markup.clone())
+                m = m
+                    .reply_markup_option(msg.reply_markup.clone())
                     .protect_content_option(msg.protect_content)
                     .business_connection_id_option(msg.business_connection_id.clone())
                     .message_thread_id_option(msg.message_thread_id);
@@ -693,7 +699,8 @@ impl MessageManager {
                 if let Some(d) = media.duration {
                     m = m.duration(d);
                 }
-                m = m.reply_markup_option(msg.reply_markup.clone())
+                m = m
+                    .reply_markup_option(msg.reply_markup.clone())
                     .protect_content_option(msg.protect_content)
                     .business_connection_id_option(msg.business_connection_id.clone())
                     .message_thread_id_option(msg.message_thread_id);
@@ -708,7 +715,8 @@ impl MessageManager {
                 if let Some(ref pm) = msg.parse_mode {
                     m = m.parse_mode(pm.as_ref());
                 }
-                m = m.reply_markup_option(msg.reply_markup.clone())
+                m = m
+                    .reply_markup_option(msg.reply_markup.clone())
                     .protect_content_option(msg.protect_content)
                     .business_connection_id_option(msg.business_connection_id.clone())
                     .message_thread_id_option(msg.message_thread_id);

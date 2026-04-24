@@ -16,7 +16,10 @@ async fn static_media_renders_photo_url() {
     assert!(attachment.is_some());
     let attachment = attachment.unwrap();
     assert_eq!(attachment.content_type, MediaContentType::Photo);
-    assert_eq!(attachment.url.as_deref(), Some("https://example.com/image.jpg"));
+    assert_eq!(
+        attachment.url.as_deref(),
+        Some("https://example.com/image.jpg")
+    );
     assert!(attachment.file_id.is_none());
 }
 
@@ -61,7 +64,10 @@ async fn dynamic_media_reads_url_from_field() {
     assert!(attachment.is_some());
     let attachment = attachment.unwrap();
     assert_eq!(attachment.content_type, MediaContentType::Photo);
-    assert_eq!(attachment.url.as_deref(), Some("https://example.com/dynamic.jpg"));
+    assert_eq!(
+        attachment.url.as_deref(),
+        Some("https://example.com/dynamic.jpg")
+    );
 }
 
 #[tokio::test]
@@ -102,7 +108,11 @@ async fn media_scroll_renders_current_page() {
     let mut data = DataMap::new();
     data.insert(
         "images".into(),
-        json!(["https://example.com/1.jpg", "https://example.com/2.jpg", "https://example.com/3.jpg"]),
+        json!([
+            "https://example.com/1.jpg",
+            "https://example.com/2.jpg",
+            "https://example.com/3.jpg"
+        ]),
     );
 
     // Set current page to 1 (second image)
@@ -143,7 +153,10 @@ async fn media_scroll_clamps_page_to_bounds() {
     assert!(attachment.is_some());
     let attachment = attachment.unwrap();
     // Should clamp to last item (index 0)
-    assert_eq!(attachment.url.as_deref(), Some("https://example.com/only.jpg"));
+    assert_eq!(
+        attachment.url.as_deref(),
+        Some("https://example.com/only.jpg")
+    );
 }
 
 #[tokio::test]
@@ -175,7 +188,10 @@ async fn media_attachment_builder_methods() {
         .has_spoiler(false);
 
     assert_eq!(attachment.content_type, MediaContentType::Video);
-    assert_eq!(attachment.url.as_deref(), Some("https://example.com/video.mp4"));
+    assert_eq!(
+        attachment.url.as_deref(),
+        Some("https://example.com/video.mp4")
+    );
     assert_eq!(attachment.caption.as_deref(), Some("Test video"));
     assert_eq!(attachment.parse_mode.as_deref(), Some("HTML"));
     assert_eq!(attachment.width, Some(1920));

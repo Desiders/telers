@@ -135,12 +135,21 @@ mod tests {
         let event_context = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event.clone());
         let runtime_context = telers::Context::default();
 
-        let result_ctx =
-            ResultContext::new(&ctx, &start_data, &result, &event, &event_context, &runtime_context);
+        let result_ctx = ResultContext::new(
+            &ctx,
+            &start_data,
+            &result,
+            &event,
+            &event_context,
+            &runtime_context,
+        );
 
         assert_eq!(result_ctx.parent_context().state, "parent_state");
         assert_eq!(result_ctx.parent_context().stack_id, "test_ctx");
-        assert_eq!(result_ctx.start_data().get("launch_mode"), Some(&json!("normal")));
+        assert_eq!(
+            result_ctx.start_data().get("launch_mode"),
+            Some(&json!("normal"))
+        );
         assert_eq!(result_ctx.result_value("username"), Some(&json!("alice")));
         assert_eq!(result_ctx.result_value("selected"), Some(&json!(true)));
     }

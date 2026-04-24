@@ -519,7 +519,10 @@ impl ForceReply {
         #[builder(field = ForceReplyOptions::default())] options: ForceReplyOptions,
         when: Option<WhenCondition>,
     ) -> Self {
-        Self { options, when }
+        Self {
+            options,
+            when,
+        }
     }
 
     /// Set the input placeholder shown when the reply is active.
