@@ -62,47 +62,6 @@ impl<ButtonText> RequestContact<ButtonText> {
             when,
         }
     }
-
-    /// Set the persistent-keyboard flag.
-    #[must_use]
-    pub fn is_persistent(mut self, value: bool) -> Self {
-        self.options.is_persistent = Some(value);
-        self
-    }
-
-    /// Set the resize-keyboard flag.
-    #[must_use]
-    pub fn resize_keyboard(mut self, value: bool) -> Self {
-        self.options.resize_keyboard = Some(value);
-        self
-    }
-
-    /// Set the one-time-keyboard flag.
-    #[must_use]
-    pub fn one_time_keyboard(mut self, value: bool) -> Self {
-        self.options.one_time_keyboard = Some(value);
-        self
-    }
-
-    /// Set the input placeholder shown while the reply keyboard is active.
-    #[must_use]
-    pub fn input_field_placeholder(mut self, value: impl Into<Cow<'static, str>>) -> Self {
-        self.options.input_field_placeholder = Some(value.into());
-        self
-    }
-
-    /// Set whether the reply keyboard is selective.
-    #[must_use]
-    pub fn selective(mut self, value: bool) -> Self {
-        self.options.selective = Some(value);
-        self
-    }
-
-    #[must_use]
-    pub fn when(mut self, when: WhenCondition) -> Self {
-        self.when = Some(when);
-        self
-    }
 }
 
 #[allow(clippy::wrong_self_convention)]
@@ -197,47 +156,6 @@ impl<ButtonText> RequestLocation<ButtonText> {
             options,
             when,
         }
-    }
-
-    /// Set the persistent-keyboard flag.
-    #[must_use]
-    pub fn is_persistent(mut self, value: bool) -> Self {
-        self.options.is_persistent = Some(value);
-        self
-    }
-
-    /// Set the resize-keyboard flag.
-    #[must_use]
-    pub fn resize_keyboard(mut self, value: bool) -> Self {
-        self.options.resize_keyboard = Some(value);
-        self
-    }
-
-    /// Set the one-time-keyboard flag.
-    #[must_use]
-    pub fn one_time_keyboard(mut self, value: bool) -> Self {
-        self.options.one_time_keyboard = Some(value);
-        self
-    }
-
-    /// Set the input placeholder shown while the reply keyboard is active.
-    #[must_use]
-    pub fn input_field_placeholder(mut self, value: impl Into<Cow<'static, str>>) -> Self {
-        self.options.input_field_placeholder = Some(value.into());
-        self
-    }
-
-    /// Set whether the reply keyboard is selective.
-    #[must_use]
-    pub fn selective(mut self, value: bool) -> Self {
-        self.options.selective = Some(value);
-        self
-    }
-
-    #[must_use]
-    pub fn when(mut self, when: WhenCondition) -> Self {
-        self.when = Some(when);
-        self
     }
 }
 
@@ -336,54 +254,6 @@ impl<ButtonText> RequestPoll<ButtonText> {
             poll_type,
             when,
         }
-    }
-
-    /// Restrict which poll type the user may create.
-    #[must_use]
-    pub fn poll_type(mut self, value: PollType) -> Self {
-        self.poll_type = Some(value);
-        self
-    }
-
-    /// Set the persistent-keyboard flag.
-    #[must_use]
-    pub fn is_persistent(mut self, value: bool) -> Self {
-        self.options.is_persistent = Some(value);
-        self
-    }
-
-    /// Set the resize-keyboard flag.
-    #[must_use]
-    pub fn resize_keyboard(mut self, value: bool) -> Self {
-        self.options.resize_keyboard = Some(value);
-        self
-    }
-
-    /// Set the one-time-keyboard flag.
-    #[must_use]
-    pub fn one_time_keyboard(mut self, value: bool) -> Self {
-        self.options.one_time_keyboard = Some(value);
-        self
-    }
-
-    /// Set the input placeholder shown while the reply keyboard is active.
-    #[must_use]
-    pub fn input_field_placeholder(mut self, value: impl Into<Cow<'static, str>>) -> Self {
-        self.options.input_field_placeholder = Some(value.into());
-        self
-    }
-
-    /// Set whether the reply keyboard is selective.
-    #[must_use]
-    pub fn selective(mut self, value: bool) -> Self {
-        self.options.selective = Some(value);
-        self
-    }
-
-    #[must_use]
-    pub fn when(mut self, when: WhenCondition) -> Self {
-        self.when = Some(when);
-        self
     }
 }
 
@@ -505,26 +375,6 @@ impl ForceReply {
             options,
             when,
         }
-    }
-
-    /// Set the input placeholder shown when the reply is active.
-    #[must_use]
-    pub fn input_field_placeholder(mut self, value: impl Into<Cow<'static, str>>) -> Self {
-        self.options.input_field_placeholder = Some(value.into());
-        self
-    }
-
-    /// Set whether to force reply from specific users only.
-    #[must_use]
-    pub fn selective(mut self, value: bool) -> Self {
-        self.options.selective = Some(value);
-        self
-    }
-
-    #[must_use]
-    pub fn when(mut self, when: WhenCondition) -> Self {
-        self.when = Some(when);
-        self
     }
 }
 

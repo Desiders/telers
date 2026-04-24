@@ -180,31 +180,45 @@ impl<S: Storage> DialogManager<S> {
                         None,
                     ),
                 };
-                return Some(OldMessage::new(
-                    chat,
-                    message_id,
-                    text,
-                    stack.has_protected_content,
-                    reply_markup_type,
-                    reply_markup_value,
-                    event_ctx.business_connection_id.clone(),
-                    stack.message_type,
-                    link_preview_options_value,
-                ));
+                return Some(
+                    OldMessage::new(
+                        chat,
+                        message_id,
+                        text,
+                        stack.has_protected_content,
+                        reply_markup_type,
+                        reply_markup_value,
+                        event_ctx.business_connection_id.clone(),
+                        stack.message_type,
+                        link_preview_options_value,
+                    )
+                    .with_media(
+                        stack.last_media_id.clone(),
+                        stack.last_media_unique_id.clone(),
+                        stack.last_media_content_type,
+                    ),
+                );
             }
         }
         let id = stack.last_message_id?;
-        Some(OldMessage::new(
-            event_ctx.chat.clone(),
-            id,
-            stack.last_text.clone(),
-            stack.has_protected_content,
-            Self::stored_reply_markup_type(stack),
-            stack.last_reply_markup.clone(),
-            event_ctx.business_connection_id.clone(),
-            stack.message_type,
-            stack.last_link_preview_options.clone(),
-        ))
+        Some(
+            OldMessage::new(
+                event_ctx.chat.clone(),
+                id,
+                stack.last_text.clone(),
+                stack.has_protected_content,
+                Self::stored_reply_markup_type(stack),
+                stack.last_reply_markup.clone(),
+                event_ctx.business_connection_id.clone(),
+                stack.message_type,
+                stack.last_link_preview_options.clone(),
+            )
+            .with_media(
+                stack.last_media_id.clone(),
+                stack.last_media_unique_id.clone(),
+                stack.last_media_content_type,
+            ),
+        )
     }
 
     fn stored_reply_markup_type(stack: &Stack) -> Option<ReplyMarkupType> {
@@ -962,6 +976,9 @@ impl<S: Storage> DialogManager<S> {
         stack
             .last_link_preview_options
             .clone_from(&new_old.link_preview_options_value);
+        stack.last_media_id = new_old.media_file_id.as_deref().map(ToOwned::to_owned);
+        stack.last_media_unique_id = new_old.media_unique_id.as_deref().map(ToOwned::to_owned);
+        stack.last_media_content_type = new_old.media_content_type;
         stack.has_protected_content = new_old.has_protected_content;
         stack.message_type = new_old.message_type;
         if let ChatEvent::Message(message) = &self.event {
@@ -1100,6 +1117,32 @@ mod tests {
         stack.last_link_preview_options = None;
         stack.has_protected_content = None;
         manager.save_storage(storage).await.expect("save storage");
+    }
+
+    #[tokio::test]
+    async fn get_last_message_restores_media_snapshot_from_stack() {
+        let event = message_event("/start");
+        let registry = registry_with([text_dialog("state", "State")]);
+        let manager = manager_for_event(test_fsm(1), registry, event.clone());
+        let event_ctx = EventContext::<Reqwest>::new(Bot::<Reqwest>::default(), event);
+        let mut stack = Stack::new();
+        stack.last_message_id = Some(42);
+        stack.last_text = Some("caption".into());
+        stack.last_media_id = Some("file-photo".to_owned());
+        stack.last_media_unique_id = Some("unique-photo".to_owned());
+        stack.last_media_content_type = Some(telers::enums::MessageType::Photo);
+
+        let old = manager
+            .get_last_message(&stack, &event_ctx)
+            .expect("old message");
+
+        assert!(old.has_media());
+        assert_eq!(old.media_file_id.as_deref(), Some("file-photo"));
+        assert_eq!(old.media_unique_id.as_deref(), Some("unique-photo"));
+        assert_eq!(
+            old.media_content_type,
+            Some(telers::enums::MessageType::Photo)
+        );
     }
 
     #[derive(Clone, Copy)]

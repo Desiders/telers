@@ -1,6 +1,7 @@
 //! Base media trait and types.
 
 use async_trait::async_trait;
+use bon::bon;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use telers::types::InputFile;
@@ -70,7 +71,7 @@ impl MediaId {
 }
 
 /// Rendered media attachment ready to be sent.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct MediaAttachment {
     /// The type of media content.
     pub content_type: MediaContentType,
@@ -102,327 +103,43 @@ pub struct MediaAttachment {
     pub supports_streaming: Option<bool>,
 }
 
+#[bon]
 impl MediaAttachment {
-    /// Create a new photo attachment from a URL.
-    #[must_use]
-    pub fn photo_url(url: impl Into<Cow<'static, str>>) -> Self {
-        Self {
-            content_type: MediaContentType::Photo,
-            url: Some(url.into()),
-            path: None,
-            file_id: None,
-            caption: None,
-            parse_mode: None,
-            show_caption_above_media: None,
-            has_spoiler: None,
-            width: None,
-            height: None,
-            duration: None,
-            performer: None,
-            title: None,
-            supports_streaming: None,
-        }
-    }
-
-    /// Create a new photo attachment from a file ID.
-    #[must_use]
-    pub fn photo_id(file_id: impl Into<Cow<'static, str>>) -> Self {
-        Self {
-            content_type: MediaContentType::Photo,
-            url: None,
-            path: None,
-            file_id: Some(MediaId::new(file_id)),
-            caption: None,
-            parse_mode: None,
-            show_caption_above_media: None,
-            has_spoiler: None,
-            width: None,
-            height: None,
-            duration: None,
-            performer: None,
-            title: None,
-            supports_streaming: None,
-        }
-    }
-
-    /// Create a new video attachment from a URL.
-    #[must_use]
-    pub fn video_url(url: impl Into<Cow<'static, str>>) -> Self {
-        Self {
-            content_type: MediaContentType::Video,
-            url: Some(url.into()),
-            path: None,
-            file_id: None,
-            caption: None,
-            parse_mode: None,
-            show_caption_above_media: None,
-            has_spoiler: None,
-            width: None,
-            height: None,
-            duration: None,
-            performer: None,
-            title: None,
-            supports_streaming: None,
-        }
-    }
-
-    /// Create a new video attachment from a file ID.
-    #[must_use]
-    pub fn video_id(file_id: impl Into<Cow<'static, str>>) -> Self {
-        Self {
-            content_type: MediaContentType::Video,
-            url: None,
-            path: None,
-            file_id: Some(MediaId::new(file_id)),
-            caption: None,
-            parse_mode: None,
-            show_caption_above_media: None,
-            has_spoiler: None,
-            width: None,
-            height: None,
-            duration: None,
-            performer: None,
-            title: None,
-            supports_streaming: None,
-        }
-    }
-
-    /// Create a new document attachment from a URL.
-    #[must_use]
-    pub fn document_url(url: impl Into<Cow<'static, str>>) -> Self {
-        Self {
-            content_type: MediaContentType::Document,
-            url: Some(url.into()),
-            path: None,
-            file_id: None,
-            caption: None,
-            parse_mode: None,
-            show_caption_above_media: None,
-            has_spoiler: None,
-            width: None,
-            height: None,
-            duration: None,
-            performer: None,
-            title: None,
-            supports_streaming: None,
-        }
-    }
-
-    /// Create a new document attachment from a file ID.
-    #[must_use]
-    pub fn document_id(file_id: impl Into<Cow<'static, str>>) -> Self {
-        Self {
-            content_type: MediaContentType::Document,
-            url: None,
-            path: None,
-            file_id: Some(MediaId::new(file_id)),
-            caption: None,
-            parse_mode: None,
-            show_caption_above_media: None,
-            has_spoiler: None,
-            width: None,
-            height: None,
-            duration: None,
-            performer: None,
-            title: None,
-            supports_streaming: None,
-        }
-    }
-
-    /// Create a new audio attachment from a URL.
-    #[must_use]
-    pub fn audio_url(url: impl Into<Cow<'static, str>>) -> Self {
-        Self {
-            content_type: MediaContentType::Audio,
-            url: Some(url.into()),
-            path: None,
-            file_id: None,
-            caption: None,
-            parse_mode: None,
-            show_caption_above_media: None,
-            has_spoiler: None,
-            width: None,
-            height: None,
-            duration: None,
-            performer: None,
-            title: None,
-            supports_streaming: None,
-        }
-    }
-
-    /// Create a new audio attachment from a file ID.
-    #[must_use]
-    pub fn audio_id(file_id: impl Into<Cow<'static, str>>) -> Self {
-        Self {
-            content_type: MediaContentType::Audio,
-            url: None,
-            path: None,
-            file_id: Some(MediaId::new(file_id)),
-            caption: None,
-            parse_mode: None,
-            show_caption_above_media: None,
-            has_spoiler: None,
-            width: None,
-            height: None,
-            duration: None,
-            performer: None,
-            title: None,
-            supports_streaming: None,
-        }
-    }
-
-    /// Create a new animation attachment from a URL.
-    #[must_use]
-    pub fn animation_url(url: impl Into<Cow<'static, str>>) -> Self {
-        Self {
-            content_type: MediaContentType::Animation,
-            url: Some(url.into()),
-            path: None,
-            file_id: None,
-            caption: None,
-            parse_mode: None,
-            show_caption_above_media: None,
-            has_spoiler: None,
-            width: None,
-            height: None,
-            duration: None,
-            performer: None,
-            title: None,
-            supports_streaming: None,
-        }
-    }
-
-    /// Create a new animation attachment from a file ID.
-    #[must_use]
-    pub fn animation_id(file_id: impl Into<Cow<'static, str>>) -> Self {
-        Self {
-            content_type: MediaContentType::Animation,
-            url: None,
-            path: None,
-            file_id: Some(MediaId::new(file_id)),
-            caption: None,
-            parse_mode: None,
-            show_caption_above_media: None,
-            has_spoiler: None,
-            width: None,
-            height: None,
-            duration: None,
-            performer: None,
-            title: None,
-            supports_streaming: None,
-        }
-    }
-
     /// Create a media attachment with custom content type.
+    #[builder]
     #[must_use]
-    pub fn new(content_type: MediaContentType) -> Self {
+    pub fn new(
+        #[builder(start_fn)] content_type: MediaContentType,
+        #[builder(into)] url: Option<Cow<'static, str>>,
+        #[builder(into)] path: Option<Cow<'static, str>>,
+        file_id: Option<MediaId>,
+        #[builder(into)] caption: Option<Cow<'static, str>>,
+        #[builder(into)] parse_mode: Option<Cow<'static, str>>,
+        show_caption_above_media: Option<bool>,
+        has_spoiler: Option<bool>,
+        width: Option<i64>,
+        height: Option<i64>,
+        duration: Option<i64>,
+        #[builder(into)] performer: Option<Cow<'static, str>>,
+        #[builder(into)] title: Option<Cow<'static, str>>,
+        supports_streaming: Option<bool>,
+    ) -> Self {
         Self {
             content_type,
-            url: None,
-            path: None,
-            file_id: None,
-            caption: None,
-            parse_mode: None,
-            show_caption_above_media: None,
-            has_spoiler: None,
-            width: None,
-            height: None,
-            duration: None,
-            performer: None,
-            title: None,
-            supports_streaming: None,
+            url,
+            path,
+            file_id,
+            caption,
+            parse_mode,
+            show_caption_above_media,
+            has_spoiler,
+            width,
+            height,
+            duration,
+            performer,
+            title,
+            supports_streaming,
         }
-    }
-
-    /// Set the URL.
-    #[must_use]
-    pub fn url(mut self, url: impl Into<Cow<'static, str>>) -> Self {
-        self.url = Some(url.into());
-        self
-    }
-
-    /// Set the local file path.
-    #[must_use]
-    pub fn path(mut self, path: impl Into<Cow<'static, str>>) -> Self {
-        self.path = Some(path.into());
-        self
-    }
-
-    /// Set the file ID.
-    #[must_use]
-    pub fn file_id(mut self, file_id: MediaId) -> Self {
-        self.file_id = Some(file_id);
-        self
-    }
-
-    /// Set the caption.
-    #[must_use]
-    pub fn caption(mut self, caption: impl Into<Cow<'static, str>>) -> Self {
-        self.caption = Some(caption.into());
-        self
-    }
-
-    /// Set the parse mode.
-    #[must_use]
-    pub fn parse_mode(mut self, parse_mode: impl Into<Cow<'static, str>>) -> Self {
-        self.parse_mode = Some(parse_mode.into());
-        self
-    }
-
-    /// Set whether to show caption above media.
-    #[must_use]
-    pub fn show_caption_above_media(mut self, show: bool) -> Self {
-        self.show_caption_above_media = Some(show);
-        self
-    }
-
-    /// Set whether media has spoiler.
-    #[must_use]
-    pub fn has_spoiler(mut self, spoiler: bool) -> Self {
-        self.has_spoiler = Some(spoiler);
-        self
-    }
-
-    /// Set width in pixels.
-    #[must_use]
-    pub fn width(mut self, width: i64) -> Self {
-        self.width = Some(width);
-        self
-    }
-
-    /// Set height in pixels.
-    #[must_use]
-    pub fn height(mut self, height: i64) -> Self {
-        self.height = Some(height);
-        self
-    }
-
-    /// Set duration in seconds.
-    #[must_use]
-    pub fn duration(mut self, duration: i64) -> Self {
-        self.duration = Some(duration);
-        self
-    }
-
-    /// Set performer (for audio).
-    #[must_use]
-    pub fn performer(mut self, performer: impl Into<Cow<'static, str>>) -> Self {
-        self.performer = Some(performer.into());
-        self
-    }
-
-    /// Set title (for audio).
-    #[must_use]
-    pub fn title(mut self, title: impl Into<Cow<'static, str>>) -> Self {
-        self.title = Some(title.into());
-        self
-    }
-
-    /// Set whether video supports streaming.
-    #[must_use]
-    pub fn supports_streaming(mut self, supports: bool) -> Self {
-        self.supports_streaming = Some(supports);
-        self
     }
 
     /// Convert to an `InputFile` for sending.
@@ -496,32 +213,36 @@ pub struct MultiMedia {
     widgets: Vec<Box<dyn Media>>,
 }
 
+#[bon]
 impl MultiMedia {
     /// Create a new empty multi-media container.
+    #[builder]
     #[must_use]
-    pub fn new() -> Self {
+    pub fn new(#[builder(field = Vec::new())] widgets: Vec<Box<dyn Media>>) -> Self {
         Self {
-            widgets: Vec::new(),
+            widgets,
         }
     }
+}
 
-    /// Add a boxed media widget.
-    #[must_use]
-    pub fn media_boxed(mut self, media: Box<dyn Media>) -> Self {
-        self.widgets.push(media);
+impl<S> MultiMediaBuilder<S>
+where
+    S: multi_media_builder::State,
+{
+    pub fn media(mut self, media: impl Media) -> Self {
+        self.widgets.push(Box::new(media));
         self
     }
 
-    /// Add a media widget.
-    #[must_use]
-    pub fn media(self, media: impl Media) -> Self {
-        self.media_boxed(Box::new(media))
+    pub(crate) fn media_boxed(mut self, media: Box<dyn Media>) -> Self {
+        self.widgets.push(media);
+        self
     }
 }
 
 impl Default for MultiMedia {
     fn default() -> Self {
-        Self::new()
+        Self::builder().build()
     }
 }
 

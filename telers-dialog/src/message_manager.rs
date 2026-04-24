@@ -6,14 +6,14 @@ use crate::{
 use serde::Serialize;
 use telers::{
     client::Session,
-    enums::ReplyMarkupType,
+    enums::{MessageType, ReplyMarkupType},
     methods::{
         DeleteMessage, EditMessageMedia, EditMessageReplyMarkup, EditMessageText, SendAnimation,
         SendAudio, SendDocument, SendMessage, SendPhoto, SendVideo,
     },
     types::{
         InputFile, InputMedia, InputMediaAnimation, InputMediaAudio, InputMediaDocument,
-        InputMediaPhoto, InputMediaVideo, ReplyKeyboardRemove, ReplyMarkup,
+        InputMediaPhoto, InputMediaVideo, Message, ReplyKeyboardRemove, ReplyMarkup,
     },
     Bot, Either,
 };
@@ -102,23 +102,23 @@ impl MessageManager {
 
     /// Combine sent result with metadata to build `OldMessage`.
     #[must_use]
-    fn combine(sent_message: &NewMessage, message_result: &telers::types::Message) -> OldMessage {
+    fn combine(sent_message: &NewMessage, message_result: &Message) -> OldMessage {
         let reply_markup_type = sent_message
             .reply_markup
             .as_ref()
             .map(ReplyMarkupType::from);
 
-        // Extract media info from the new message
-        let (media_file_id, media_unique_id, media_content_type) =
-            if let Some(ref media) = sent_message.media {
-                (
-                    media.get_file_id().map(|s| s.to_string()),
-                    media.get_file_unique_id().map(|s| s.to_string()),
-                    Some(media.content_type),
-                )
-            } else {
-                (None, None, None)
-            };
+        let message_type = MessageType::from(message_result);
+        let media_content_type = match message_type {
+            MessageType::Animation
+            | MessageType::Audio
+            | MessageType::Document
+            | MessageType::Photo
+            | MessageType::Video
+            | MessageType::VideoNote
+            | MessageType::Voice => Some(message_type),
+            _ => None,
+        };
 
         OldMessage::new(
             message_result.chat().clone(),
@@ -130,10 +130,14 @@ impl MessageManager {
             message_result
                 .business_connection_id()
                 .map(ToOwned::to_owned),
-            None,
+            Some(message_type),
             serialize_option(sent_message.link_preview_options.as_ref()),
         )
-        .with_media(media_file_id, media_unique_id, media_content_type)
+        .with_media(
+            message_result.file_id().map(ToOwned::to_owned),
+            message_result.file_unique_id().map(ToOwned::to_owned),
+            media_content_type,
+        )
     }
 
     /// Returns true if old message had reply keyboard.
@@ -187,15 +191,10 @@ impl MessageManager {
         match (&new.media, &old.media_file_id) {
             (None, None) => false,
             (Some(_), None) | (None, Some(_)) => true,
-            (Some(new_media), Some(old_file_id)) => {
-                // Check if file ID changed
-                if let Some(new_file_id) = new_media.get_file_id() {
-                    new_file_id != old_file_id.as_ref()
-                } else {
-                    // New media is URL/path based, always consider changed
-                    true
-                }
-            }
+            (Some(new_media), Some(old_file_id)) => match new_media.get_file_id() {
+                Some(new_file_id) => new_file_id != old_file_id.as_ref(),
+                None => true,
+            },
         }
     }
 
@@ -204,7 +203,16 @@ impl MessageManager {
         match (&new.media, &old.media_content_type) {
             (None, None) => false,
             (Some(_), None) | (None, Some(_)) => true,
-            (Some(new_media), Some(old_type)) => new_media.content_type != *old_type,
+            (Some(new_media), Some(old_type)) => !matches!(
+                (new_media.content_type, old_type),
+                (MediaContentType::Animation, MessageType::Animation)
+                    | (MediaContentType::Audio, MessageType::Audio)
+                    | (MediaContentType::Document, MessageType::Document)
+                    | (MediaContentType::Photo, MessageType::Photo)
+                    | (MediaContentType::Video, MessageType::Video)
+                    | (MediaContentType::VideoNote, MessageType::VideoNote)
+                    | (MediaContentType::Voice, MessageType::Voice)
+            ),
         }
     }
 
@@ -612,11 +620,12 @@ mod tests {
     use super::MessageManager;
     use crate::{
         entities::{NewMessage, OldMessage, ShowMode},
+        widgets::media::{MediaAttachment, MediaContentType, MediaId},
         DialogError,
     };
     use telers::{
         client::Reqwest,
-        enums::ReplyMarkupType,
+        enums::{MessageType, ReplyMarkupType},
         types::{
             ChatPrivate, InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton,
             LinkPreviewOptions, ReplyKeyboardMarkup, ReplyMarkup,
@@ -649,6 +658,23 @@ mod tests {
             None,
             ShowMode::Edit,
             None,
+        )
+    }
+
+    fn old_media_message(media: &MediaAttachment) -> OldMessage {
+        let message_type = match media.content_type {
+            MediaContentType::Animation => MessageType::Animation,
+            MediaContentType::Audio => MessageType::Audio,
+            MediaContentType::Document => MessageType::Document,
+            MediaContentType::Photo => MessageType::Photo,
+            MediaContentType::Video => MessageType::Video,
+            MediaContentType::VideoNote => MessageType::VideoNote,
+            MediaContentType::Voice => MessageType::Voice,
+        };
+        old_message(None).with_media(
+            media.get_file_id().map(ToOwned::to_owned),
+            media.get_file_unique_id().map(ToOwned::to_owned),
+            Some(message_type),
         )
     }
 
@@ -696,6 +722,22 @@ mod tests {
         let mut linked = new_message(None);
         linked.link_preview_options = Some(LinkPreviewOptions::new().show_above_text(true));
         assert!(MessageManager::message_changed(&linked, &old));
+    }
+
+    #[tokio::test]
+    async fn message_changed_detects_media_file_change() {
+        let old_media = MediaAttachment::builder(MediaContentType::Photo)
+            .file_id(MediaId::new("file-1"))
+            .build();
+        let new_media = MediaAttachment::builder(MediaContentType::Photo)
+            .file_id(MediaId::new("file-2"))
+            .build();
+        let new = new_message(None).with_media(Some(new_media));
+
+        assert!(MessageManager::message_changed(
+            &new,
+            &old_media_message(&old_media)
+        ));
     }
 
     #[tokio::test]

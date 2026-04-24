@@ -4,7 +4,7 @@ use telers::{
 };
 
 use super::ShowMode;
-use crate::widgets::media::{MediaAttachment, MediaContentType};
+use crate::widgets::media::MediaAttachment;
 
 /// Snapshot of the last rendered dialog message.
 #[derive(Clone, Debug)]
@@ -32,7 +32,7 @@ pub struct OldMessage {
     /// Media unique ID from the last message.
     pub media_unique_id: Option<Box<str>>,
     /// Media content type from the last message.
-    pub media_content_type: Option<MediaContentType>,
+    pub media_content_type: Option<MessageType>,
 }
 
 impl OldMessage {
@@ -76,7 +76,7 @@ impl OldMessage {
         mut self,
         file_id: Option<impl Into<Box<str>>>,
         unique_id: Option<impl Into<Box<str>>>,
-        content_type: Option<MediaContentType>,
+        content_type: Option<MessageType>,
     ) -> Self {
         self.media_file_id = file_id.map(Into::into);
         self.media_unique_id = unique_id.map(Into::into);

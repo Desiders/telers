@@ -124,7 +124,10 @@ pub(crate) fn ensure_widgets(widgets: impl IntoIterator<Item = WidgetKind>) -> W
         _ => Some(Box::new(
             medias
                 .into_iter()
-                .fold(MultiMedia::new(), MultiMedia::media_boxed),
+                .fold(MultiMedia::builder(), |builder, media| {
+                    builder.media_boxed(media)
+                })
+                .build(),
         )),
     };
     (text, kbd, input, link_preview, media)
