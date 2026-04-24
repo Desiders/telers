@@ -76,9 +76,10 @@ impl Default for LinkPreview {
 #[async_trait]
 impl LinkPreviewWidget for LinkPreview {
     async fn render_link_preview(&self, render_ctx: &RenderContext) -> Option<LinkPreviewOptions> {
-        let url = match &self.url {
-            Some(url) => Some(url.render_text_in_context(render_ctx).await.into_string()),
-            None => None,
+        let url = if let Some(url) = &self.url {
+            Some(url.render_text_in_context(render_ctx).await.into_string())
+        } else {
+            None
         };
         Some(
             LinkPreviewOptions::new()

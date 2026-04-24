@@ -396,120 +396,60 @@ impl MessageManager {
         caption: &str,
         parse_mode: &Option<Box<str>>,
     ) -> InputMedia {
-        let caption_opt = if caption.is_empty() {
-            None
-        } else {
-            Some(caption)
-        };
+        let caption_opt = (!caption.is_empty()).then_some(caption);
 
         match media.content_type {
             MediaContentType::Photo => {
-                let mut m = InputMediaPhoto::new(input_file);
-                if let Some(caption) = caption_opt {
-                    m = m.caption(caption);
-                }
-                if let Some(ref pm) = parse_mode {
-                    m = m.parse_mode(pm.as_ref());
-                }
-                if let Some(spoiler) = media.has_spoiler {
-                    m = m.has_spoiler(spoiler);
-                }
-                if let Some(show_above) = media.show_caption_above_media {
-                    m = m.show_caption_above_media(show_above);
-                }
+                let m = InputMediaPhoto::new(input_file)
+                    .caption_option(caption_opt)
+                    .parse_mode_option(parse_mode.as_deref())
+                    .has_spoiler_option(media.has_spoiler)
+                    .show_caption_above_media_option(media.show_caption_above_media);
                 InputMedia::Photo(m)
             }
             MediaContentType::Video => {
-                let mut m = InputMediaVideo::new(input_file);
-                if let Some(caption) = caption_opt {
-                    m = m.caption(caption);
-                }
-                if let Some(ref pm) = parse_mode {
-                    m = m.parse_mode(pm.as_ref());
-                }
-                if let Some(spoiler) = media.has_spoiler {
-                    m = m.has_spoiler(spoiler);
-                }
-                if let Some(show_above) = media.show_caption_above_media {
-                    m = m.show_caption_above_media(show_above);
-                }
-                if let Some(w) = media.width {
-                    m = m.width(w);
-                }
-                if let Some(h) = media.height {
-                    m = m.height(h);
-                }
-                if let Some(d) = media.duration {
-                    m = m.duration(d);
-                }
-                if let Some(streaming) = media.supports_streaming {
-                    m = m.supports_streaming(streaming);
-                }
+                let m = InputMediaVideo::new(input_file)
+                    .caption_option(caption_opt)
+                    .parse_mode_option(parse_mode.as_deref())
+                    .has_spoiler_option(media.has_spoiler)
+                    .show_caption_above_media_option(media.show_caption_above_media)
+                    .width_option(media.width)
+                    .height_option(media.height)
+                    .duration_option(media.duration)
+                    .supports_streaming_option(media.supports_streaming);
                 InputMedia::Video(m)
             }
             MediaContentType::Audio => {
-                let mut m = InputMediaAudio::new(input_file);
-                if let Some(caption) = caption_opt {
-                    m = m.caption(caption);
-                }
-                if let Some(ref pm) = parse_mode {
-                    m = m.parse_mode(pm.as_ref());
-                }
-                if let Some(d) = media.duration {
-                    m = m.duration(d);
-                }
-                if let Some(ref performer) = media.performer {
-                    m = m.performer(performer.as_ref());
-                }
-                if let Some(ref title) = media.title {
-                    m = m.title(title.as_ref());
-                }
+                let m = InputMediaAudio::new(input_file)
+                    .caption_option(caption_opt)
+                    .parse_mode_option(parse_mode.as_deref())
+                    .duration_option(media.duration)
+                    .performer_option(media.performer.as_deref())
+                    .title_option(media.title.as_deref());
                 InputMedia::Audio(m)
             }
             MediaContentType::Document => {
-                let mut m = InputMediaDocument::new(input_file);
-                if let Some(caption) = caption_opt {
-                    m = m.caption(caption);
-                }
-                if let Some(ref pm) = parse_mode {
-                    m = m.parse_mode(pm.as_ref());
-                }
+                let m = InputMediaDocument::new(input_file)
+                    .caption_option(caption_opt)
+                    .parse_mode_option(parse_mode.as_deref());
                 InputMedia::Document(m)
             }
             MediaContentType::Animation => {
-                let mut m = InputMediaAnimation::new(input_file);
-                if let Some(caption) = caption_opt {
-                    m = m.caption(caption);
-                }
-                if let Some(ref pm) = parse_mode {
-                    m = m.parse_mode(pm.as_ref());
-                }
-                if let Some(spoiler) = media.has_spoiler {
-                    m = m.has_spoiler(spoiler);
-                }
-                if let Some(show_above) = media.show_caption_above_media {
-                    m = m.show_caption_above_media(show_above);
-                }
-                if let Some(w) = media.width {
-                    m = m.width(w);
-                }
-                if let Some(h) = media.height {
-                    m = m.height(h);
-                }
-                if let Some(d) = media.duration {
-                    m = m.duration(d);
-                }
+                let m = InputMediaAnimation::new(input_file)
+                    .caption_option(caption_opt)
+                    .parse_mode_option(parse_mode.as_deref())
+                    .has_spoiler_option(media.has_spoiler)
+                    .show_caption_above_media_option(media.show_caption_above_media)
+                    .width_option(media.width)
+                    .height_option(media.height)
+                    .duration_option(media.duration);
                 InputMedia::Animation(m)
             }
             // Voice and VideoNote cannot be edited via editMessageMedia, fall back to photo
             MediaContentType::Voice | MediaContentType::VideoNote => {
-                let mut m = InputMediaPhoto::new(input_file);
-                if let Some(caption) = caption_opt {
-                    m = m.caption(caption);
-                }
-                if let Some(ref pm) = parse_mode {
-                    m = m.parse_mode(pm.as_ref());
-                }
+                let m = InputMediaPhoto::new(input_file)
+                    .caption_option(caption_opt)
+                    .parse_mode_option(parse_mode.as_deref());
                 InputMedia::Photo(m)
             }
         }
@@ -569,11 +509,7 @@ impl MessageManager {
                 .await?);
         };
 
-        let caption = if msg.text.is_empty() {
-            None
-        } else {
-            Some(msg.text.as_ref())
-        };
+        let caption = (!msg.text.is_empty()).then_some(msg.text.as_ref());
 
         trace!(
             chat_id = msg.chat.id(),
@@ -584,20 +520,11 @@ impl MessageManager {
 
         match media.content_type {
             MediaContentType::Photo => {
-                let mut m = SendPhoto::new(msg.chat.id(), input_file);
-                if let Some(caption) = caption {
-                    m = m.caption(caption);
-                }
-                if let Some(ref pm) = msg.parse_mode {
-                    m = m.parse_mode(pm.as_ref());
-                }
-                if let Some(spoiler) = media.has_spoiler {
-                    m = m.has_spoiler(spoiler);
-                }
-                if let Some(show_above) = media.show_caption_above_media {
-                    m = m.show_caption_above_media(show_above);
-                }
-                m = m
+                let m = SendPhoto::new(msg.chat.id(), input_file)
+                    .caption_option(caption)
+                    .parse_mode_option(msg.parse_mode.clone())
+                    .has_spoiler_option(media.has_spoiler)
+                    .show_caption_above_media_option(media.show_caption_above_media)
                     .reply_markup_option(msg.reply_markup.clone())
                     .protect_content_option(msg.protect_content)
                     .business_connection_id_option(msg.business_connection_id.clone())
@@ -605,32 +532,15 @@ impl MessageManager {
                 Ok(bot.send(m).await?)
             }
             MediaContentType::Video => {
-                let mut m = SendVideo::new(msg.chat.id(), input_file);
-                if let Some(caption) = caption {
-                    m = m.caption(caption);
-                }
-                if let Some(ref pm) = msg.parse_mode {
-                    m = m.parse_mode(pm.as_ref());
-                }
-                if let Some(spoiler) = media.has_spoiler {
-                    m = m.has_spoiler(spoiler);
-                }
-                if let Some(show_above) = media.show_caption_above_media {
-                    m = m.show_caption_above_media(show_above);
-                }
-                if let Some(w) = media.width {
-                    m = m.width(w);
-                }
-                if let Some(h) = media.height {
-                    m = m.height(h);
-                }
-                if let Some(d) = media.duration {
-                    m = m.duration(d);
-                }
-                if let Some(streaming) = media.supports_streaming {
-                    m = m.supports_streaming(streaming);
-                }
-                m = m
+                let m = SendVideo::new(msg.chat.id(), input_file)
+                    .caption_option(caption)
+                    .parse_mode_option(msg.parse_mode.clone())
+                    .has_spoiler_option(media.has_spoiler)
+                    .show_caption_above_media_option(media.show_caption_above_media)
+                    .width_option(media.width)
+                    .height_option(media.height)
+                    .duration_option(media.duration)
+                    .supports_streaming_option(media.supports_streaming)
                     .reply_markup_option(msg.reply_markup.clone())
                     .protect_content_option(msg.protect_content)
                     .business_connection_id_option(msg.business_connection_id.clone())
@@ -638,23 +548,12 @@ impl MessageManager {
                 Ok(bot.send(m).await?)
             }
             MediaContentType::Audio => {
-                let mut m = SendAudio::new(msg.chat.id(), input_file);
-                if let Some(caption) = caption {
-                    m = m.caption(caption);
-                }
-                if let Some(ref pm) = msg.parse_mode {
-                    m = m.parse_mode(pm.as_ref());
-                }
-                if let Some(d) = media.duration {
-                    m = m.duration(d);
-                }
-                if let Some(ref performer) = media.performer {
-                    m = m.performer(performer.as_ref());
-                }
-                if let Some(ref title) = media.title {
-                    m = m.title(title.as_ref());
-                }
-                m = m
+                let m = SendAudio::new(msg.chat.id(), input_file)
+                    .caption_option(caption)
+                    .parse_mode_option(msg.parse_mode.clone())
+                    .duration_option(media.duration)
+                    .performer_option(media.performer.as_deref())
+                    .title_option(media.title.as_deref())
                     .reply_markup_option(msg.reply_markup.clone())
                     .protect_content_option(msg.protect_content)
                     .business_connection_id_option(msg.business_connection_id.clone())
@@ -662,14 +561,9 @@ impl MessageManager {
                 Ok(bot.send(m).await?)
             }
             MediaContentType::Document => {
-                let mut m = SendDocument::new(msg.chat.id(), input_file);
-                if let Some(caption) = caption {
-                    m = m.caption(caption);
-                }
-                if let Some(ref pm) = msg.parse_mode {
-                    m = m.parse_mode(pm.as_ref());
-                }
-                m = m
+                let m = SendDocument::new(msg.chat.id(), input_file)
+                    .caption_option(caption)
+                    .parse_mode_option(msg.parse_mode.clone())
                     .reply_markup_option(msg.reply_markup.clone())
                     .protect_content_option(msg.protect_content)
                     .business_connection_id_option(msg.business_connection_id.clone())
@@ -677,29 +571,14 @@ impl MessageManager {
                 Ok(bot.send(m).await?)
             }
             MediaContentType::Animation => {
-                let mut m = SendAnimation::new(msg.chat.id(), input_file);
-                if let Some(caption) = caption {
-                    m = m.caption(caption);
-                }
-                if let Some(ref pm) = msg.parse_mode {
-                    m = m.parse_mode(pm.as_ref());
-                }
-                if let Some(spoiler) = media.has_spoiler {
-                    m = m.has_spoiler(spoiler);
-                }
-                if let Some(show_above) = media.show_caption_above_media {
-                    m = m.show_caption_above_media(show_above);
-                }
-                if let Some(w) = media.width {
-                    m = m.width(w);
-                }
-                if let Some(h) = media.height {
-                    m = m.height(h);
-                }
-                if let Some(d) = media.duration {
-                    m = m.duration(d);
-                }
-                m = m
+                let m = SendAnimation::new(msg.chat.id(), input_file)
+                    .caption_option(caption)
+                    .parse_mode_option(msg.parse_mode.clone())
+                    .has_spoiler_option(media.has_spoiler)
+                    .show_caption_above_media_option(media.show_caption_above_media)
+                    .width_option(media.width)
+                    .height_option(media.height)
+                    .duration_option(media.duration)
                     .reply_markup_option(msg.reply_markup.clone())
                     .protect_content_option(msg.protect_content)
                     .business_connection_id_option(msg.business_connection_id.clone())
@@ -708,14 +587,9 @@ impl MessageManager {
             }
             // Voice and VideoNote are not typically used in dialogs, fall back to document
             MediaContentType::Voice | MediaContentType::VideoNote => {
-                let mut m = SendDocument::new(msg.chat.id(), input_file);
-                if let Some(caption) = caption {
-                    m = m.caption(caption);
-                }
-                if let Some(ref pm) = msg.parse_mode {
-                    m = m.parse_mode(pm.as_ref());
-                }
-                m = m
+                let m = SendDocument::new(msg.chat.id(), input_file)
+                    .caption_option(caption)
+                    .parse_mode_option(msg.parse_mode.clone())
                     .reply_markup_option(msg.reply_markup.clone())
                     .protect_content_option(msg.protect_content)
                     .business_connection_id_option(msg.business_connection_id.clone())
