@@ -4,7 +4,10 @@ use std::borrow::Cow;
 
 use telers::{
     enums::PollType,
-    types::{KeyboardButton, KeyboardButtonPollType, ReplyKeyboardMarkup, ReplyMarkup},
+    types::{
+        ForceReply as TelegramForceReply, KeyboardButton, KeyboardButtonPollType,
+        ReplyKeyboardMarkup, ReplyMarkup,
+    },
 };
 
 use super::{when::is_allowed, ButtonAction, ClickContext, Keyboard, WhenCondition};
@@ -467,6 +470,119 @@ where
     }
 }
 
+/// Options for ForceReply widget.
+#[derive(Default)]
+pub struct ForceReplyOptions {
+    input_field_placeholder: Option<Cow<'static, str>>,
+    selective: Option<bool>,
+}
+
+impl ForceReplyOptions {
+    fn apply(&self, mut reply: TelegramForceReply) -> TelegramForceReply {
+        if let Some(ref placeholder) = self.input_field_placeholder {
+            reply = reply.input_field_placeholder(placeholder.as_ref());
+        }
+        if let Some(selective) = self.selective {
+            reply = reply.selective(selective);
+        }
+        reply
+    }
+}
+
+/// Reply markup that forces the user to reply to the bot's message.
+///
+/// Upon receiving a message with this markup, Telegram clients will display
+/// a reply interface to the user (as if the user has selected the bot's message
+/// and tapped 'Reply').
+///
+/// # Example
+///
+/// ```ignore
+/// use telers_dialog::widgets::ForceReply;
+///
+/// let reply = ForceReply::builder()
+///     .input_field_placeholder("Enter your name")
+///     .selective(true)
+///     .build();
+/// ```
+pub struct ForceReply {
+    options: ForceReplyOptions,
+    when: Option<WhenCondition>,
+}
+
+#[bon]
+impl ForceReply {
+    /// Create a force reply widget.
+    #[builder]
+    #[must_use]
+    pub fn new(
+        #[builder(field = ForceReplyOptions::default())] options: ForceReplyOptions,
+        when: Option<WhenCondition>,
+    ) -> Self {
+        Self { options, when }
+    }
+
+    /// Set the input placeholder shown when the reply is active.
+    #[must_use]
+    pub fn input_field_placeholder(mut self, value: impl Into<Cow<'static, str>>) -> Self {
+        self.options.input_field_placeholder = Some(value.into());
+        self
+    }
+
+    /// Set whether to force reply from specific users only.
+    #[must_use]
+    pub fn selective(mut self, value: bool) -> Self {
+        self.options.selective = Some(value);
+        self
+    }
+
+    #[must_use]
+    pub fn when(mut self, when: WhenCondition) -> Self {
+        self.when = Some(when);
+        self
+    }
+}
+
+#[allow(clippy::wrong_self_convention)]
+impl<S> ForceReplyBuilder<S>
+where
+    S: force_reply_builder::State,
+{
+    /// Set the input placeholder shown when the reply is active.
+    pub fn input_field_placeholder(mut self, value: impl Into<Cow<'static, str>>) -> Self {
+        self.options.input_field_placeholder = Some(value.into());
+        self
+    }
+
+    /// Set whether to force reply from specific users only.
+    pub fn selective(mut self, value: bool) -> Self {
+        self.options.selective = Some(value);
+        self
+    }
+}
+
+#[async_trait]
+impl Keyboard for ForceReply {
+    async fn is_visible(&self, ctx: &Context, data: &DataMap) -> bool {
+        is_allowed(self.when.as_ref(), ctx, data).await
+    }
+
+    async fn render_keyboard(&self, render_ctx: &RenderContext) -> Option<ReplyMarkup> {
+        if !self
+            .is_visible(render_ctx.context.as_ref(), render_ctx.data.as_ref())
+            .await
+        {
+            return None;
+        }
+        let reply = self.options.apply(TelegramForceReply::new(true));
+        Some(reply.into())
+    }
+
+    async fn handle_callback(&self, _click: &ClickContext) -> Option<ButtonAction> {
+        None
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use serde_json::Value;
@@ -474,7 +590,7 @@ mod tests {
 
     use telers::types::ReplyMarkup;
 
-    use super::{RequestContact, RequestLocation, RequestPoll};
+    use super::{ForceReply, RequestContact, RequestLocation, RequestPoll};
     use crate::{
         entities::{Context, DataMap},
         widgets::Keyboard,
@@ -547,5 +663,29 @@ mod tests {
             Some("quiz")
         );
         assert_eq!(markup.selective, Some(true));
+    }
+
+    #[tokio::test]
+    async fn force_reply_renders_force_reply_markup() {
+        let ctx = Context::new("", "state", Value::Null);
+        let keyboard = ForceReply::builder()
+            .input_field_placeholder("Enter your name")
+            .selective(true)
+            .build();
+
+        let markup = keyboard
+            .render_keyboard_for_test(&ctx, &DataMap::new())
+            .await
+            .unwrap();
+        let ReplyMarkup::ForceReply(reply) = markup else {
+            panic!("force reply");
+        };
+
+        assert!(reply.force_reply);
+        assert_eq!(
+            reply.input_field_placeholder.as_deref(),
+            Some("Enter your name")
+        );
+        assert_eq!(reply.selective, Some(true));
     }
 }

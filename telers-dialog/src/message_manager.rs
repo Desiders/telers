@@ -1,13 +1,20 @@
 use crate::{
     entities::{NewMessage, OldMessage, ShowMode},
     errors::DialogError,
+    widgets::media::{MediaAttachment, MediaContentType},
 };
 use serde::Serialize;
 use telers::{
     client::Session,
     enums::ReplyMarkupType,
-    methods::{DeleteMessage, EditMessageReplyMarkup, EditMessageText, SendMessage},
-    types::{ReplyKeyboardRemove, ReplyMarkup},
+    methods::{
+        DeleteMessage, EditMessageMedia, EditMessageReplyMarkup, EditMessageText, SendAnimation,
+        SendAudio, SendDocument, SendMessage, SendPhoto, SendVideo,
+    },
+    types::{
+        InputFile, InputMedia, InputMediaAnimation, InputMediaAudio, InputMediaDocument,
+        InputMediaPhoto, InputMediaVideo, ReplyKeyboardRemove, ReplyMarkup,
+    },
     Bot, Either,
 };
 use tracing::{debug, trace};
@@ -100,6 +107,19 @@ impl MessageManager {
             .reply_markup
             .as_ref()
             .map(ReplyMarkupType::from);
+
+        // Extract media info from the new message
+        let (media_file_id, media_unique_id, media_content_type) =
+            if let Some(ref media) = sent_message.media {
+                (
+                    media.get_file_id().map(|s| s.to_string()),
+                    media.get_file_unique_id().map(|s| s.to_string()),
+                    Some(media.content_type),
+                )
+            } else {
+                (None, None, None)
+            };
+
         OldMessage::new(
             message_result.chat().clone(),
             message_result.message_id(),
@@ -113,6 +133,7 @@ impl MessageManager {
             None,
             serialize_option(sent_message.link_preview_options.as_ref()),
         )
+        .with_media(media_file_id, media_unique_id, media_content_type)
     }
 
     /// Returns true if old message had reply keyboard.
@@ -138,22 +159,68 @@ impl MessageManager {
 
     /// Check if message content or protection flags changed.
     fn message_changed(new: &NewMessage, old: &OldMessage) -> bool {
-        let changed = new.text.as_ref() != old.text.as_deref().unwrap_or("")
-            || serialize_option(new.reply_markup.as_ref()) != old.reply_markup_value
-            || new.protect_content != old.has_protected_content
-            || serialize_option(new.link_preview_options.as_ref())
-                != old.link_preview_options_value;
+        let text_changed = new.text.as_ref() != old.text.as_deref().unwrap_or("");
+        let markup_changed =
+            serialize_option(new.reply_markup.as_ref()) != old.reply_markup_value;
+        let protect_changed = new.protect_content != old.has_protected_content;
+        let link_preview_changed = serialize_option(new.link_preview_options.as_ref())
+            != old.link_preview_options_value;
+        let media_changed = Self::media_changed(new, old);
+
+        let changed =
+            text_changed || markup_changed || protect_changed || link_preview_changed || media_changed;
         trace!(
             message_id = old.message_id,
             changed,
+            text_changed,
+            markup_changed,
+            media_changed,
             "Compared dialog message snapshots"
         );
         changed
     }
 
+    /// Check if media content changed.
+    fn media_changed(new: &NewMessage, old: &OldMessage) -> bool {
+        match (&new.media, &old.media_file_id) {
+            (None, None) => false,
+            (Some(_), None) | (None, Some(_)) => true,
+            (Some(new_media), Some(old_file_id)) => {
+                // Check if file ID changed
+                if let Some(new_file_id) = new_media.get_file_id() {
+                    new_file_id != old_file_id.as_ref()
+                } else {
+                    // New media is URL/path based, always consider changed
+                    true
+                }
+            }
+        }
+    }
+
+    /// Check if media type changed (requires resend rather than edit).
+    fn media_type_changed(new: &NewMessage, old: &OldMessage) -> bool {
+        match (&new.media, &old.media_content_type) {
+            (None, None) => false,
+            (Some(_), None) | (None, Some(_)) => true,
+            (Some(new_media), Some(old_type)) => new_media.content_type != *old_type,
+        }
+    }
+
     /// Check if edit is possible without deleting message.
     fn can_edit(new: &NewMessage, old: &OldMessage) -> bool {
-        !(Self::had_reply_keyboard(old) || Self::need_reply_keyboard(new))
+        // Cannot edit reply keyboards
+        if Self::had_reply_keyboard(old) || Self::need_reply_keyboard(new) {
+            return false;
+        }
+        // Cannot edit if switching between text and media messages
+        if new.has_media() != old.has_media() {
+            return false;
+        }
+        // Cannot edit if media type changed (need to resend)
+        if Self::media_type_changed(new, old) {
+            return false;
+        }
+        true
     }
 
     /// Remove reply or inline keyboard depending on mode.
@@ -238,7 +305,7 @@ impl MessageManager {
         Ok(())
     }
 
-    /// Edit message text (fallbacks to send if needed).
+    /// Edit message text or media (fallbacks to send if needed).
     async fn edit_message<Client: Session>(
         bot: &Bot<Client>,
         new: NewMessage,
@@ -252,6 +319,13 @@ impl MessageManager {
             Self::remove_message_safe(bot, old).await?;
             return Self::send_message(bot, new).await;
         }
+
+        // Edit media message
+        if let Some(ref media) = new.media {
+            return Self::edit_media_message(bot, &new, media, old).await;
+        }
+
+        // Edit text message
         let mut m = EditMessageText::new(new.text.clone())
             .chat_id(old.chat.id())
             .message_id(old.message_id)
@@ -269,11 +343,187 @@ impl MessageManager {
         }
     }
 
-    /// Send text message.
+    /// Edit a media message using `editMessageMedia`.
+    async fn edit_media_message<Client: Session>(
+        bot: &Bot<Client>,
+        new: &NewMessage,
+        media: &MediaAttachment,
+        old: &OldMessage,
+    ) -> Result<telers::types::Message, DialogError> {
+        let Some(input_file) = media.to_input_file() else {
+            trace!(
+                message_id = old.message_id,
+                "No valid media source, falling back to text edit"
+            );
+            // Fall back to text edit if no valid media
+            let mut m = EditMessageText::new(new.text.clone())
+                .chat_id(old.chat.id())
+                .message_id(old.message_id)
+                .business_connection_id_option(old.business_connection_id.clone())
+                .parse_mode_option(new.parse_mode.clone());
+            if let Some(ReplyMarkup::InlineKeyboardMarkup(ref kb)) = new.reply_markup {
+                m = m.reply_markup(kb.clone());
+            }
+            return match bot.send(m).await? {
+                Either::Left(msg) => Ok(msg),
+                Either::Right(_) => unreachable!("EditMessageText should return Message"),
+            };
+        };
+
+        let input_media = Self::build_input_media(media, input_file, &new.text, &new.parse_mode);
+
+        let mut m = EditMessageMedia::new(input_media)
+            .chat_id(old.chat.id())
+            .message_id(old.message_id)
+            .business_connection_id_option(old.business_connection_id.clone());
+
+        if let Some(ReplyMarkup::InlineKeyboardMarkup(ref kb)) = new.reply_markup {
+            m = m.reply_markup(kb.clone());
+        }
+
+        match bot.send(m).await? {
+            Either::Left(msg) => Ok(msg),
+            Either::Right(_) => unreachable!("EditMessageMedia should return Message"),
+        }
+    }
+
+    /// Build an `InputMedia` from a `MediaAttachment`.
+    fn build_input_media(
+        media: &MediaAttachment,
+        input_file: InputFile,
+        caption: &str,
+        parse_mode: &Option<Box<str>>,
+    ) -> InputMedia {
+        let caption_opt = if caption.is_empty() {
+            None
+        } else {
+            Some(caption)
+        };
+
+        match media.content_type {
+            MediaContentType::Photo => {
+                let mut m = InputMediaPhoto::new(input_file);
+                if let Some(caption) = caption_opt {
+                    m = m.caption(caption);
+                }
+                if let Some(ref pm) = parse_mode {
+                    m = m.parse_mode(pm.as_ref());
+                }
+                if let Some(spoiler) = media.has_spoiler {
+                    m = m.has_spoiler(spoiler);
+                }
+                if let Some(show_above) = media.show_caption_above_media {
+                    m = m.show_caption_above_media(show_above);
+                }
+                InputMedia::Photo(m)
+            }
+            MediaContentType::Video => {
+                let mut m = InputMediaVideo::new(input_file);
+                if let Some(caption) = caption_opt {
+                    m = m.caption(caption);
+                }
+                if let Some(ref pm) = parse_mode {
+                    m = m.parse_mode(pm.as_ref());
+                }
+                if let Some(spoiler) = media.has_spoiler {
+                    m = m.has_spoiler(spoiler);
+                }
+                if let Some(show_above) = media.show_caption_above_media {
+                    m = m.show_caption_above_media(show_above);
+                }
+                if let Some(w) = media.width {
+                    m = m.width(w);
+                }
+                if let Some(h) = media.height {
+                    m = m.height(h);
+                }
+                if let Some(d) = media.duration {
+                    m = m.duration(d);
+                }
+                if let Some(streaming) = media.supports_streaming {
+                    m = m.supports_streaming(streaming);
+                }
+                InputMedia::Video(m)
+            }
+            MediaContentType::Audio => {
+                let mut m = InputMediaAudio::new(input_file);
+                if let Some(caption) = caption_opt {
+                    m = m.caption(caption);
+                }
+                if let Some(ref pm) = parse_mode {
+                    m = m.parse_mode(pm.as_ref());
+                }
+                if let Some(d) = media.duration {
+                    m = m.duration(d);
+                }
+                if let Some(ref performer) = media.performer {
+                    m = m.performer(performer.as_ref());
+                }
+                if let Some(ref title) = media.title {
+                    m = m.title(title.as_ref());
+                }
+                InputMedia::Audio(m)
+            }
+            MediaContentType::Document => {
+                let mut m = InputMediaDocument::new(input_file);
+                if let Some(caption) = caption_opt {
+                    m = m.caption(caption);
+                }
+                if let Some(ref pm) = parse_mode {
+                    m = m.parse_mode(pm.as_ref());
+                }
+                InputMedia::Document(m)
+            }
+            MediaContentType::Animation => {
+                let mut m = InputMediaAnimation::new(input_file);
+                if let Some(caption) = caption_opt {
+                    m = m.caption(caption);
+                }
+                if let Some(ref pm) = parse_mode {
+                    m = m.parse_mode(pm.as_ref());
+                }
+                if let Some(spoiler) = media.has_spoiler {
+                    m = m.has_spoiler(spoiler);
+                }
+                if let Some(show_above) = media.show_caption_above_media {
+                    m = m.show_caption_above_media(show_above);
+                }
+                if let Some(w) = media.width {
+                    m = m.width(w);
+                }
+                if let Some(h) = media.height {
+                    m = m.height(h);
+                }
+                if let Some(d) = media.duration {
+                    m = m.duration(d);
+                }
+                InputMedia::Animation(m)
+            }
+            // Voice and VideoNote cannot be edited via editMessageMedia, fall back to photo
+            MediaContentType::Voice | MediaContentType::VideoNote => {
+                let mut m = InputMediaPhoto::new(input_file);
+                if let Some(caption) = caption_opt {
+                    m = m.caption(caption);
+                }
+                if let Some(ref pm) = parse_mode {
+                    m = m.parse_mode(pm.as_ref());
+                }
+                InputMedia::Photo(m)
+            }
+        }
+    }
+
+    /// Send text or media message.
     async fn send_message<Client: Session>(
         bot: &Bot<Client>,
         msg: NewMessage,
     ) -> Result<telers::types::Message, DialogError> {
+        // Send media message if media is present
+        if let Some(ref media) = msg.media {
+            return Self::send_media_message(bot, &msg, media).await;
+        }
+
+        // Send text message
         trace!(
             chat_id = msg.chat.id(),
             text_len = msg.text.len(),
@@ -291,6 +541,180 @@ impl MessageManager {
                     .message_thread_id_option(msg.message_thread_id),
             )
             .await?)
+    }
+
+    /// Send a media message.
+    async fn send_media_message<Client: Session>(
+        bot: &Bot<Client>,
+        msg: &NewMessage,
+        media: &MediaAttachment,
+    ) -> Result<telers::types::Message, DialogError> {
+        let Some(input_file) = media.to_input_file() else {
+            trace!(
+                chat_id = msg.chat.id(),
+                "No valid media source, falling back to text message"
+            );
+            return Ok(bot
+                .send(
+                    SendMessage::new(msg.chat.id(), msg.text.clone())
+                        .reply_markup_option(msg.reply_markup.clone())
+                        .parse_mode_option(msg.parse_mode.clone())
+                        .link_preview_options_option(msg.link_preview_options.clone())
+                        .protect_content_option(msg.protect_content)
+                        .business_connection_id_option(msg.business_connection_id.clone())
+                        .message_thread_id_option(msg.message_thread_id),
+                )
+                .await?);
+        };
+
+        let caption = if msg.text.is_empty() {
+            None
+        } else {
+            Some(msg.text.as_ref())
+        };
+
+        trace!(
+            chat_id = msg.chat.id(),
+            media_type = ?media.content_type,
+            has_caption = caption.is_some(),
+            "Sending dialog media message"
+        );
+
+        match media.content_type {
+            MediaContentType::Photo => {
+                let mut m = SendPhoto::new(msg.chat.id(), input_file);
+                if let Some(caption) = caption {
+                    m = m.caption(caption);
+                }
+                if let Some(ref pm) = msg.parse_mode {
+                    m = m.parse_mode(pm.as_ref());
+                }
+                if let Some(spoiler) = media.has_spoiler {
+                    m = m.has_spoiler(spoiler);
+                }
+                if let Some(show_above) = media.show_caption_above_media {
+                    m = m.show_caption_above_media(show_above);
+                }
+                m = m.reply_markup_option(msg.reply_markup.clone())
+                    .protect_content_option(msg.protect_content)
+                    .business_connection_id_option(msg.business_connection_id.clone())
+                    .message_thread_id_option(msg.message_thread_id);
+                Ok(bot.send(m).await?)
+            }
+            MediaContentType::Video => {
+                let mut m = SendVideo::new(msg.chat.id(), input_file);
+                if let Some(caption) = caption {
+                    m = m.caption(caption);
+                }
+                if let Some(ref pm) = msg.parse_mode {
+                    m = m.parse_mode(pm.as_ref());
+                }
+                if let Some(spoiler) = media.has_spoiler {
+                    m = m.has_spoiler(spoiler);
+                }
+                if let Some(show_above) = media.show_caption_above_media {
+                    m = m.show_caption_above_media(show_above);
+                }
+                if let Some(w) = media.width {
+                    m = m.width(w);
+                }
+                if let Some(h) = media.height {
+                    m = m.height(h);
+                }
+                if let Some(d) = media.duration {
+                    m = m.duration(d);
+                }
+                if let Some(streaming) = media.supports_streaming {
+                    m = m.supports_streaming(streaming);
+                }
+                m = m.reply_markup_option(msg.reply_markup.clone())
+                    .protect_content_option(msg.protect_content)
+                    .business_connection_id_option(msg.business_connection_id.clone())
+                    .message_thread_id_option(msg.message_thread_id);
+                Ok(bot.send(m).await?)
+            }
+            MediaContentType::Audio => {
+                let mut m = SendAudio::new(msg.chat.id(), input_file);
+                if let Some(caption) = caption {
+                    m = m.caption(caption);
+                }
+                if let Some(ref pm) = msg.parse_mode {
+                    m = m.parse_mode(pm.as_ref());
+                }
+                if let Some(d) = media.duration {
+                    m = m.duration(d);
+                }
+                if let Some(ref performer) = media.performer {
+                    m = m.performer(performer.as_ref());
+                }
+                if let Some(ref title) = media.title {
+                    m = m.title(title.as_ref());
+                }
+                m = m.reply_markup_option(msg.reply_markup.clone())
+                    .protect_content_option(msg.protect_content)
+                    .business_connection_id_option(msg.business_connection_id.clone())
+                    .message_thread_id_option(msg.message_thread_id);
+                Ok(bot.send(m).await?)
+            }
+            MediaContentType::Document => {
+                let mut m = SendDocument::new(msg.chat.id(), input_file);
+                if let Some(caption) = caption {
+                    m = m.caption(caption);
+                }
+                if let Some(ref pm) = msg.parse_mode {
+                    m = m.parse_mode(pm.as_ref());
+                }
+                m = m.reply_markup_option(msg.reply_markup.clone())
+                    .protect_content_option(msg.protect_content)
+                    .business_connection_id_option(msg.business_connection_id.clone())
+                    .message_thread_id_option(msg.message_thread_id);
+                Ok(bot.send(m).await?)
+            }
+            MediaContentType::Animation => {
+                let mut m = SendAnimation::new(msg.chat.id(), input_file);
+                if let Some(caption) = caption {
+                    m = m.caption(caption);
+                }
+                if let Some(ref pm) = msg.parse_mode {
+                    m = m.parse_mode(pm.as_ref());
+                }
+                if let Some(spoiler) = media.has_spoiler {
+                    m = m.has_spoiler(spoiler);
+                }
+                if let Some(show_above) = media.show_caption_above_media {
+                    m = m.show_caption_above_media(show_above);
+                }
+                if let Some(w) = media.width {
+                    m = m.width(w);
+                }
+                if let Some(h) = media.height {
+                    m = m.height(h);
+                }
+                if let Some(d) = media.duration {
+                    m = m.duration(d);
+                }
+                m = m.reply_markup_option(msg.reply_markup.clone())
+                    .protect_content_option(msg.protect_content)
+                    .business_connection_id_option(msg.business_connection_id.clone())
+                    .message_thread_id_option(msg.message_thread_id);
+                Ok(bot.send(m).await?)
+            }
+            // Voice and VideoNote are not typically used in dialogs, fall back to document
+            MediaContentType::Voice | MediaContentType::VideoNote => {
+                let mut m = SendDocument::new(msg.chat.id(), input_file);
+                if let Some(caption) = caption {
+                    m = m.caption(caption);
+                }
+                if let Some(ref pm) = msg.parse_mode {
+                    m = m.parse_mode(pm.as_ref());
+                }
+                m = m.reply_markup_option(msg.reply_markup.clone())
+                    .protect_content_option(msg.protect_content)
+                    .business_connection_id_option(msg.business_connection_id.clone())
+                    .message_thread_id_option(msg.message_thread_id);
+                Ok(bot.send(m).await?)
+            }
+        }
     }
 }
 

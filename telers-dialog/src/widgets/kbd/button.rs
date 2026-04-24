@@ -20,23 +20,56 @@ type ButtonClickHandler =
 enum ButtonKind {
     Callback(ButtonAction),
     OnClick(Arc<ButtonClickHandler>),
-    Url(Cow<'static, str>),
-    WebApp(WebAppInfo),
+    Url(Arc<dyn Text>),
+    WebApp(Arc<dyn Text>),
     LoginUrl(LoginUrl),
-    SwitchInlineQuery(Cow<'static, str>),
-    SwitchInlineQueryCurrentChat(Cow<'static, str>),
+    SwitchInlineQuery(Arc<dyn Text>),
+    SwitchInlineQueryCurrentChat(Arc<dyn Text>),
     SwitchInlineQueryChosenChat(SwitchInlineQueryChosenChat),
-    CopyText(CopyTextButton),
+    CopyText(Arc<dyn Text>),
+}
+
+/// Button style for Telegram inline keyboard buttons.
+///
+/// These map directly to Telegram's button styles:
+/// - `Danger`: Red-tinted button (for destructive actions)
+/// - `Success`: Green-tinted button (for confirmation actions)
+/// - `Primary`: Blue-tinted button (default styling emphasis)
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ButtonStyle {
+    /// Red-tinted button for destructive/dangerous actions.
+    Danger,
+    /// Green-tinted button for success/confirmation actions.
+    Success,
+    /// Blue-tinted button for primary actions.
+    Primary,
+}
+
+impl ButtonStyle {
+    /// Convert to the string value expected by Telegram API.
+    #[must_use]
+    pub const fn as_str(&self) -> &'static str {
+        match self {
+            Self::Danger => "danger",
+            Self::Success => "success",
+            Self::Primary => "primary",
+        }
+    }
 }
 
 /// Inline keyboard button with a stable widget id.
 ///
 /// Most constructors are thin convenience helpers over [`ButtonAction`].
+/// Supports optional `style` and `icon_custom_emoji_id` for visual customization.
 #[derive(Clone)]
 pub struct Button {
     id: Cow<'static, str>,
     text: Arc<dyn Text>,
     kind: ButtonKind,
+    /// Optional button style (danger, success, primary).
+    style: Option<ButtonStyle>,
+    /// Optional custom emoji ID to display before button text.
+    icon_custom_emoji_id: Option<Cow<'static, str>>,
 }
 
 impl Button {
@@ -47,6 +80,8 @@ impl Button {
             id: id.into(),
             text: Arc::new(text),
             kind: ButtonKind::Callback(action),
+            style: None,
+            icon_custom_emoji_id: None,
         }
     }
 
@@ -69,6 +104,8 @@ impl Button {
                 let handler = handler.clone();
                 Box::pin(async move { handler(click).await })
             })),
+            style: None,
+            icon_custom_emoji_id: None,
         }
     }
 
@@ -140,23 +177,40 @@ impl Button {
         Self::action(id, text, ButtonAction::set_dialog_value(key, value))
     }
 
-    /// Create a URL button.
+    /// Create a URL button with a static URL.
     #[must_use]
     pub fn url(text: impl Text, url: impl Into<Cow<'static, str>>) -> Self {
+        Self::url_dynamic(text, url.into().to_string())
+    }
+
+    /// Create a URL button with a dynamic URL rendered from data.
+    #[must_use]
+    pub fn url_dynamic(text: impl Text, url: impl Text) -> Self {
         Self {
             id: String::new().into(),
             text: Arc::new(text),
-            kind: ButtonKind::Url(url.into()),
+            kind: ButtonKind::Url(Arc::new(url)),
+            style: None,
+            icon_custom_emoji_id: None,
         }
     }
 
-    /// Create a Web App button.
+    /// Create a Web App button with a static URL.
     #[must_use]
     pub fn web_app(text: impl Text, web_app: impl Into<WebAppInfo>) -> Self {
+        let url = web_app.into().url.to_string();
+        Self::web_app_dynamic(text, url)
+    }
+
+    /// Create a Web App button with a dynamic URL rendered from data.
+    #[must_use]
+    pub fn web_app_dynamic(text: impl Text, url: impl Text) -> Self {
         Self {
             id: String::new().into(),
             text: Arc::new(text),
-            kind: ButtonKind::WebApp(web_app.into()),
+            kind: ButtonKind::WebApp(Arc::new(url)),
+            style: None,
+            icon_custom_emoji_id: None,
         }
     }
 
@@ -167,29 +221,47 @@ impl Button {
             id: String::new().into(),
             text: Arc::new(text),
             kind: ButtonKind::LoginUrl(login_url.into()),
+            style: None,
+            icon_custom_emoji_id: None,
         }
     }
 
-    /// Create a button that opens inline mode in another chat.
+    /// Create a button that opens inline mode in another chat with a static query.
     #[must_use]
     pub fn switch_inline_query(text: impl Text, query: impl Into<Cow<'static, str>>) -> Self {
+        Self::switch_inline_query_dynamic(text, query.into().to_string())
+    }
+
+    /// Create a button that opens inline mode in another chat with a dynamic query.
+    #[must_use]
+    pub fn switch_inline_query_dynamic(text: impl Text, query: impl Text) -> Self {
         Self {
             id: String::new().into(),
             text: Arc::new(text),
-            kind: ButtonKind::SwitchInlineQuery(query.into()),
+            kind: ButtonKind::SwitchInlineQuery(Arc::new(query)),
+            style: None,
+            icon_custom_emoji_id: None,
         }
     }
 
-    /// Create a button that opens inline mode in the current chat.
+    /// Create a button that opens inline mode in the current chat with a static query.
     #[must_use]
     pub fn switch_inline_query_current_chat(
         text: impl Text,
         query: impl Into<Cow<'static, str>>,
     ) -> Self {
+        Self::switch_inline_query_current_chat_dynamic(text, query.into().to_string())
+    }
+
+    /// Create a button that opens inline mode in the current chat with a dynamic query.
+    #[must_use]
+    pub fn switch_inline_query_current_chat_dynamic(text: impl Text, query: impl Text) -> Self {
         Self {
             id: String::new().into(),
             text: Arc::new(text),
-            kind: ButtonKind::SwitchInlineQueryCurrentChat(query.into()),
+            kind: ButtonKind::SwitchInlineQueryCurrentChat(Arc::new(query)),
+            style: None,
+            icon_custom_emoji_id: None,
         }
     }
 
@@ -203,17 +275,60 @@ impl Button {
             id: String::new().into(),
             text: Arc::new(text),
             kind: ButtonKind::SwitchInlineQueryChosenChat(query.into()),
+            style: None,
+            icon_custom_emoji_id: None,
         }
     }
 
-    /// Create a button that copies text to the clipboard.
+    /// Create a button that copies static text to the clipboard.
     #[must_use]
     pub fn copy_text(text: impl Text, copy_text: impl Into<CopyTextButton>) -> Self {
+        let copy = copy_text.into().text.to_string();
+        Self::copy_text_dynamic(text, copy)
+    }
+
+    /// Create a button that copies dynamic text to the clipboard.
+    #[must_use]
+    pub fn copy_text_dynamic(text: impl Text, copy_text: impl Text) -> Self {
         Self {
             id: String::new().into(),
             text: Arc::new(text),
-            kind: ButtonKind::CopyText(copy_text.into()),
+            kind: ButtonKind::CopyText(Arc::new(copy_text)),
+            style: None,
+            icon_custom_emoji_id: None,
         }
+    }
+
+    /// Set the button style.
+    #[must_use]
+    pub fn style(mut self, style: ButtonStyle) -> Self {
+        self.style = Some(style);
+        self
+    }
+
+    /// Set the button to danger style (red-tinted).
+    #[must_use]
+    pub fn danger(self) -> Self {
+        self.style(ButtonStyle::Danger)
+    }
+
+    /// Set the button to success style (green-tinted).
+    #[must_use]
+    pub fn success(self) -> Self {
+        self.style(ButtonStyle::Success)
+    }
+
+    /// Set the button to primary style (blue-tinted).
+    #[must_use]
+    pub fn primary(self) -> Self {
+        self.style(ButtonStyle::Primary)
+    }
+
+    /// Set the custom emoji ID to display before button text.
+    #[must_use]
+    pub fn icon_custom_emoji_id(mut self, emoji_id: impl Into<Cow<'static, str>>) -> Self {
+        self.icon_custom_emoji_id = Some(emoji_id.into());
+        self
     }
 
     pub(crate) fn render<'a>(
@@ -222,23 +337,47 @@ impl Button {
     ) -> BoxFuture<'a, InlineKeyboardButton> {
         Box::pin(async move {
             let ctx = render_ctx.context.as_ref();
-            let button =
+            let mut button =
                 InlineKeyboardButton::new(self.text.render_text_in_context(render_ctx).await);
+
+            // Apply style if set
+            if let Some(style) = &self.style {
+                button = button.style(style.as_str());
+            }
+
+            // Apply custom emoji if set
+            if let Some(emoji_id) = &self.icon_custom_emoji_id {
+                button = button.icon_custom_emoji_id(emoji_id.as_ref());
+            }
+
             match &self.kind {
                 ButtonKind::Callback(_) | ButtonKind::OnClick(_) => {
                     button.callback_data(format_callback_data(ctx, &self.id, None))
                 }
-                ButtonKind::Url(url) => button.url(url.clone()),
-                ButtonKind::WebApp(web_app) => button.web_app(web_app.clone()),
+                ButtonKind::Url(url) => {
+                    let rendered_url = url.render_text_in_context(render_ctx).await;
+                    button.url(rendered_url)
+                }
+                ButtonKind::WebApp(url) => {
+                    let rendered_url = url.render_text_in_context(render_ctx).await;
+                    button.web_app(WebAppInfo::new(rendered_url))
+                }
                 ButtonKind::LoginUrl(login_url) => button.login_url(login_url.clone()),
-                ButtonKind::SwitchInlineQuery(query) => button.switch_inline_query(query.clone()),
+                ButtonKind::SwitchInlineQuery(query) => {
+                    let rendered_query = query.render_text_in_context(render_ctx).await;
+                    button.switch_inline_query(rendered_query)
+                }
                 ButtonKind::SwitchInlineQueryCurrentChat(query) => {
-                    button.switch_inline_query_current_chat(query.clone())
+                    let rendered_query = query.render_text_in_context(render_ctx).await;
+                    button.switch_inline_query_current_chat(rendered_query)
                 }
                 ButtonKind::SwitchInlineQueryChosenChat(query) => {
                     button.switch_inline_query_chosen_chat(query.clone())
                 }
-                ButtonKind::CopyText(copy_text) => button.copy_text(copy_text.clone()),
+                ButtonKind::CopyText(copy_text) => {
+                    let rendered_copy = copy_text.render_text_in_context(render_ctx).await;
+                    button.copy_text(CopyTextButton::new(rendered_copy))
+                }
             }
         })
     }

@@ -1,15 +1,20 @@
 #[cfg(test)]
 use crate::entities::{ChatEvent, EventContext};
 use crate::{
-    entities::{Context, NewMessage, RenderContext, ShowMode},
+    entities::{Context, NewMessage, RenderContext, ResultContext, ShowMode},
+    future::BoxFuture,
     widgets::{
-        ensure_widgets, ButtonAction, ClickContext, Input, Keyboard, LinkPreviewWidget, Text,
-        WidgetKind,
+        ensure_widgets, ButtonAction, ClickContext, Input, Keyboard, LinkPreviewWidget, Media,
+        Text, WidgetKind,
     },
 };
+use async_fn_traits::AsyncFn1;
 use async_trait::async_trait;
 use std::sync::Arc;
 use telers::types::{LinkPreviewOptions, Message};
+
+type WindowResultHandler =
+    dyn Fn(ResultContext) -> BoxFuture<'static, Option<ButtonAction>> + Send + Sync + 'static;
 
 #[async_trait]
 pub trait Window: Send + Sync {
@@ -39,6 +44,14 @@ pub trait Window: Send + Sync {
         self.handle_callback(&click).await
     }
     async fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction>;
+
+    /// Process a result from a completed child dialog.
+    ///
+    /// Called when a child dialog completes while this window is active.
+    /// Returns an optional action to execute in response.
+    async fn process_result(&self, _ctx: ResultContext) -> Option<ButtonAction> {
+        None
+    }
 }
 
 pub trait IntoWindow {
@@ -84,17 +97,19 @@ pub struct WindowImpl {
     keyboard: Option<Box<dyn Keyboard>>,
     input: Option<Box<dyn Input>>,
     link_preview: Option<Box<dyn LinkPreviewWidget>>,
+    media: Option<Box<dyn Media>>,
     parse_mode: Option<Box<str>>,
     protect_content: Option<bool>,
     show_mode: ShowMode,
     link_preview_options: Option<LinkPreviewOptions>,
+    on_process_result: Option<Arc<WindowResultHandler>>,
 }
 
 impl WindowImpl {
     /// Create a window with widgets and state id.
     #[must_use]
     pub fn new(state: impl Into<String>, widgets: impl IntoIterator<Item = WidgetKind>) -> Self {
-        let (text, keyboard, input, link_preview) = ensure_widgets(widgets);
+        let (text, keyboard, input, link_preview, media) = ensure_widgets(widgets);
         let state = state.into();
         Self {
             state,
@@ -102,10 +117,12 @@ impl WindowImpl {
             keyboard,
             input,
             link_preview,
+            media,
             parse_mode: None,
             protect_content: None,
             show_mode: ShowMode::Auto,
             link_preview_options: None,
+            on_process_result: None,
         }
     }
 
@@ -136,6 +153,42 @@ impl WindowImpl {
         self.link_preview_options = Some(opts);
         self
     }
+
+    /// Set an async handler for processing child dialog results.
+    ///
+    /// The handler receives a [`ResultContext`] with access to the parent context,
+    /// child start data, and result data.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// use telers_dialog::{window, widgets::{text, ButtonAction}, ResultContext};
+    ///
+    /// async fn handle_result(ctx: ResultContext) -> Option<ButtonAction> {
+    ///     let selection = ctx.result_value("item")?;
+    ///     Some(ButtonAction::set_dialog_value("chosen", selection.clone()))
+    /// }
+    ///
+    /// let w = window("select_parent", [text("Select an item")])
+    ///     .on_process_result(handle_result);
+    /// ```
+    #[must_use]
+    pub fn on_process_result<F>(mut self, handler: F) -> Self
+    where
+        F: AsyncFn(ResultContext) -> Option<ButtonAction>
+            + AsyncFn1<ResultContext, Output = Option<ButtonAction>>
+            + Send
+            + Sync
+            + 'static,
+        <F as AsyncFn1<ResultContext>>::OutputFuture: Send + 'static,
+    {
+        let handler = Arc::new(handler);
+        self.on_process_result = Some(Arc::new(move |ctx| {
+            let handler = handler.clone();
+            Box::pin(async move { handler(ctx).await })
+        }));
+        self
+    }
 }
 
 #[async_trait]
@@ -163,6 +216,10 @@ impl Window for WindowImpl {
                 None => None,
             },
         };
+        let media = match &self.media {
+            Some(media_widget) => media_widget.render_media(render_ctx).await,
+            None => None,
+        };
 
         NewMessage::new(
             event_ctx.chat.clone(),
@@ -175,6 +232,7 @@ impl Window for WindowImpl {
             self.show_mode,
             link_preview_options,
         )
+        .with_media(media)
     }
 
     async fn handle_callback(&self, click: &ClickContext) -> Option<ButtonAction> {
@@ -193,6 +251,13 @@ impl Window for WindowImpl {
     async fn handle_message(&self, ctx: &Context, message: Message) -> Option<ButtonAction> {
         match &self.input {
             Some(input) => input.handle_message(ctx, message).await,
+            None => None,
+        }
+    }
+
+    async fn process_result(&self, ctx: ResultContext) -> Option<ButtonAction> {
+        match &self.on_process_result {
+            Some(handler) => handler(ctx).await,
             None => None,
         }
     }
