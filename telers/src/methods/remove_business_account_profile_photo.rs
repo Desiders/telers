@@ -31,26 +31,23 @@ impl RemoveBusinessAccountProfilePhoto {
 
     /// Unique identifier of the business connection
     #[must_use]
-    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection_id = val.into();
-        this
+    pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.business_connection_id = val.into();
+        self
     }
 
     /// Pass `true` to remove the public photo, which is visible even if the main photo is hidden by the business account's privacy settings. After the main photo is removed, the previous profile photo (if present) becomes the main photo.
     #[must_use]
-    pub fn is_public<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_public = Some(val.into());
-        this
+    pub fn is_public<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_public = Some(val.into());
+        self
     }
 
     /// Pass `true` to remove the public photo, which is visible even if the main photo is hidden by the business account's privacy settings. After the main photo is removed, the previous profile photo (if present) becomes the main photo.
     #[must_use]
-    pub fn is_public_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_public = val.map(Into::into);
-        this
+    pub fn is_public_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_public = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for RemoveBusinessAccountProfilePhoto {

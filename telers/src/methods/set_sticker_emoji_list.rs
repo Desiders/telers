@@ -31,10 +31,9 @@ impl SetStickerEmojiList {
 
     /// File identifier of the sticker
     #[must_use]
-    pub fn sticker<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sticker = val.into();
-        this
+    pub fn sticker<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.sticker = val.into();
+        self
     }
 
     /// A JSON-serialized list of 1-20 emoji associated with the sticker
@@ -42,15 +41,17 @@ impl SetStickerEmojiList {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn emoji_lists<TItem: Into<Box<str>>, T: IntoIterator<Item = TItem>>(self, val: T) -> Self {
-        let mut this = self;
-        this.emoji_list = this
+    pub fn emoji_lists<TItem: Into<Box<str>>, T: IntoIterator<Item = TItem>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.emoji_list = self
             .emoji_list
             .into_vec()
             .into_iter()
             .chain(val.into_iter().map(Into::into))
             .collect();
-        this
+        self
     }
 
     /// A JSON-serialized list of 1-20 emoji associated with the sticker
@@ -58,15 +59,14 @@ impl SetStickerEmojiList {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn emoji_list<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.emoji_list = this
+    pub fn emoji_list<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.emoji_list = self
             .emoji_list
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }
 impl super::TelegramMethod for SetStickerEmojiList {

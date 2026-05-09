@@ -31,26 +31,23 @@ impl SetCustomEmojiStickerSetThumbnail {
 
     /// Sticker set name
     #[must_use]
-    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.name = val.into();
-        this
+    pub fn name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.name = val.into();
+        self
     }
 
     /// Custom emoji identifier of a sticker from the sticker set; pass an empty string to drop the thumbnail and use the first sticker as the thumbnail.
     #[must_use]
-    pub fn custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.custom_emoji_id = Some(val.into());
-        this
+    pub fn custom_emoji_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.custom_emoji_id = Some(val.into());
+        self
     }
 
     /// Custom emoji identifier of a sticker from the sticker set; pass an empty string to drop the thumbnail and use the first sticker as the thumbnail.
     #[must_use]
-    pub fn custom_emoji_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.custom_emoji_id = val.map(Into::into);
-        this
+    pub fn custom_emoji_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.custom_emoji_id = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for SetCustomEmojiStickerSetThumbnail {

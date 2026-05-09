@@ -25,18 +25,16 @@ impl DeleteWebhook {
 
     /// Pass `true` to drop all pending updates
     #[must_use]
-    pub fn drop_pending_updates<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.drop_pending_updates = Some(val.into());
-        this
+    pub fn drop_pending_updates<T: Into<bool>>(mut self, val: T) -> Self {
+        self.drop_pending_updates = Some(val.into());
+        self
     }
 
     /// Pass `true` to drop all pending updates
     #[must_use]
-    pub fn drop_pending_updates_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.drop_pending_updates = val.map(Into::into);
-        this
+    pub fn drop_pending_updates_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.drop_pending_updates = val.map(Into::into);
+        self
     }
 }
 impl Default for DeleteWebhook {

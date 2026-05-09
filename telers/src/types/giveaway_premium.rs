@@ -68,15 +68,14 @@ impl GiveawayPremium {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn chats<T: Into<Box<[crate::types::Chat]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chats = this
+    pub fn chats<T: Into<Box<[crate::types::Chat]>>>(mut self, val: T) -> Self {
+        self.chats = self
             .chats
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// The list of chats which the user must join to participate in the giveaway
@@ -84,79 +83,70 @@ impl GiveawayPremium {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn chat<T: Into<crate::types::Chat>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chats = this
+    pub fn chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
+        self.chats = self
             .chats
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// Point in time (Unix timestamp) when winners of the giveaway will be selected
     #[must_use]
-    pub fn winners_selection_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.winners_selection_date = val.into();
-        this
+    pub fn winners_selection_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.winners_selection_date = val.into();
+        self
     }
 
     /// The number of users which are supposed to be selected as winners of the giveaway
     #[must_use]
-    pub fn winner_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.winner_count = val.into();
-        this
+    pub fn winner_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.winner_count = val.into();
+        self
     }
 
     /// `true`, if only users who join the chats after the giveaway started should be eligible to win
     #[must_use]
-    pub fn only_new_members<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.only_new_members = Some(val.into());
-        this
+    pub fn only_new_members<T: Into<bool>>(mut self, val: T) -> Self {
+        self.only_new_members = Some(val.into());
+        self
     }
 
     /// `true`, if only users who join the chats after the giveaway started should be eligible to win
     #[must_use]
-    pub fn only_new_members_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.only_new_members = val.map(Into::into);
-        this
+    pub fn only_new_members_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.only_new_members = val.map(Into::into);
+        self
     }
 
     /// `true`, if the list of giveaway winners will be visible to everyone
     #[must_use]
-    pub fn has_public_winners<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.has_public_winners = Some(val.into());
-        this
+    pub fn has_public_winners<T: Into<bool>>(mut self, val: T) -> Self {
+        self.has_public_winners = Some(val.into());
+        self
     }
 
     /// `true`, if the list of giveaway winners will be visible to everyone
     #[must_use]
-    pub fn has_public_winners_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.has_public_winners = val.map(Into::into);
-        this
+    pub fn has_public_winners_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.has_public_winners = val.map(Into::into);
+        self
     }
 
     /// Description of additional giveaway prize
     #[must_use]
-    pub fn prize_description<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.prize_description = Some(val.into());
-        this
+    pub fn prize_description<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.prize_description = Some(val.into());
+        self
     }
 
     /// Description of additional giveaway prize
     #[must_use]
-    pub fn prize_description_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.prize_description = val.map(Into::into);
-        this
+    pub fn prize_description_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.prize_description = val.map(Into::into);
+        self
     }
 
     /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which eligible users for the giveaway must come. If empty, then all users can participate in the giveaway. Users with a phone number that was bought on Fragment can always participate in giveaways.
@@ -164,17 +154,16 @@ impl GiveawayPremium {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn country_codes<T: Into<Box<[Box<str>]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.country_codes = Some(
-            this.country_codes
+    pub fn country_codes<T: Into<Box<[Box<str>]>>>(mut self, val: T) -> Self {
+        self.country_codes = Some(
+            self.country_codes
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which eligible users for the giveaway must come. If empty, then all users can participate in the giveaway. Users with a phone number that was bought on Fragment can always participate in giveaways.
@@ -182,17 +171,16 @@ impl GiveawayPremium {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn country_code<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.country_codes = Some(
-            this.country_codes
+    pub fn country_code<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.country_codes = Some(
+            self.country_codes
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which eligible users for the giveaway must come. If empty, then all users can participate in the giveaway. Users with a phone number that was bought on Fragment can always participate in giveaways.
@@ -200,17 +188,15 @@ impl GiveawayPremium {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn country_codes_option<T: Into<Box<[Box<str>]>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.country_codes = val.map(Into::into);
-        this
+    pub fn country_codes_option<T: Into<Box<[Box<str>]>>>(mut self, val: Option<T>) -> Self {
+        self.country_codes = val.map(Into::into);
+        self
     }
 
     /// The number of months the Telegram Premium subscription won from the giveaway will be active for; for Telegram Premium giveaways only
     #[must_use]
-    pub fn premium_subscription_month_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.premium_subscription_month_count = val.into();
-        this
+    pub fn premium_subscription_month_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.premium_subscription_month_count = val.into();
+        self
     }
 }

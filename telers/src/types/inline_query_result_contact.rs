@@ -64,143 +64,129 @@ impl InlineQueryResultContact {
 
     /// Unique identifier for this result, 1-64 Bytes
     #[must_use]
-    pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 
     /// Contact's phone number
     #[must_use]
-    pub fn phone_number<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.phone_number = val.into();
-        this
+    pub fn phone_number<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.phone_number = val.into();
+        self
     }
 
     /// Contact's first name
     #[must_use]
-    pub fn first_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.first_name = val.into();
-        this
+    pub fn first_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.first_name = val.into();
+        self
     }
 
     /// Contact's last name
     #[must_use]
-    pub fn last_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.last_name = Some(val.into());
-        this
+    pub fn last_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.last_name = Some(val.into());
+        self
     }
 
     /// Contact's last name
     #[must_use]
-    pub fn last_name_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.last_name = val.map(Into::into);
-        this
+    pub fn last_name_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.last_name = val.map(Into::into);
+        self
     }
 
     /// Additional data about the contact in the form of a vCard, 0-2048 bytes
     #[must_use]
-    pub fn vcard<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.vcard = Some(val.into());
-        this
+    pub fn vcard<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.vcard = Some(val.into());
+        self
     }
 
     /// Additional data about the contact in the form of a vCard, 0-2048 bytes
     #[must_use]
-    pub fn vcard_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.vcard = val.map(Into::into);
-        this
+    pub fn vcard_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.vcard = val.map(Into::into);
+        self
     }
 
     /// Inline keyboard attached to the message
     #[must_use]
-    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(self, val: T) -> Self {
-        let mut this = self;
-        this.reply_markup = Some(val.into());
-        this
+    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(mut self, val: T) -> Self {
+        self.reply_markup = Some(val.into());
+        self
     }
 
     /// Inline keyboard attached to the message
     #[must_use]
     pub fn reply_markup_option<T: Into<crate::types::InlineKeyboardMarkup>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.reply_markup = val.map(Into::into);
-        this
+        self.reply_markup = val.map(Into::into);
+        self
     }
 
     /// Content of the message to be sent instead of the contact
     #[must_use]
-    pub fn input_message_content<T: Into<crate::types::InputMessageContent>>(self, val: T) -> Self {
-        let mut this = self;
-        this.input_message_content = Some(val.into());
-        this
+    pub fn input_message_content<T: Into<crate::types::InputMessageContent>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.input_message_content = Some(val.into());
+        self
     }
 
     /// Content of the message to be sent instead of the contact
     #[must_use]
     pub fn input_message_content_option<T: Into<crate::types::InputMessageContent>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.input_message_content = val.map(Into::into);
-        this
+        self.input_message_content = val.map(Into::into);
+        self
     }
 
     /// Url of the thumbnail for the result
     #[must_use]
-    pub fn thumbnail_url<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.thumbnail_url = Some(val.into());
-        this
+    pub fn thumbnail_url<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.thumbnail_url = Some(val.into());
+        self
     }
 
     /// Url of the thumbnail for the result
     #[must_use]
-    pub fn thumbnail_url_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.thumbnail_url = val.map(Into::into);
-        this
+    pub fn thumbnail_url_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.thumbnail_url = val.map(Into::into);
+        self
     }
 
     /// Thumbnail width
     #[must_use]
-    pub fn thumbnail_width<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.thumbnail_width = Some(val.into());
-        this
+    pub fn thumbnail_width<T: Into<i64>>(mut self, val: T) -> Self {
+        self.thumbnail_width = Some(val.into());
+        self
     }
 
     /// Thumbnail width
     #[must_use]
-    pub fn thumbnail_width_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.thumbnail_width = val.map(Into::into);
-        this
+    pub fn thumbnail_width_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.thumbnail_width = val.map(Into::into);
+        self
     }
 
     /// Thumbnail height
     #[must_use]
-    pub fn thumbnail_height<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.thumbnail_height = Some(val.into());
-        this
+    pub fn thumbnail_height<T: Into<i64>>(mut self, val: T) -> Self {
+        self.thumbnail_height = Some(val.into());
+        self
     }
 
     /// Thumbnail height
     #[must_use]
-    pub fn thumbnail_height_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.thumbnail_height = val.map(Into::into);
-        this
+    pub fn thumbnail_height_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.thumbnail_height = val.map(Into::into);
+        self
     }
 }

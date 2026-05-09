@@ -60,168 +60,155 @@ impl KeyboardButton {
 
     /// Text of the button. If none of the fields other than text, `icon_custom_emoji_id`, and style are used, it will be sent as a message when the button is pressed
     #[must_use]
-    pub fn text<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text = val.into();
-        this
+    pub fn text<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.text = val.into();
+        self
     }
 
     /// Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription.
     #[must_use]
-    pub fn icon_custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.icon_custom_emoji_id = Some(val.into());
-        this
+    pub fn icon_custom_emoji_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.icon_custom_emoji_id = Some(val.into());
+        self
     }
 
     /// Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription.
     #[must_use]
-    pub fn icon_custom_emoji_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.icon_custom_emoji_id = val.map(Into::into);
-        this
+    pub fn icon_custom_emoji_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.icon_custom_emoji_id = val.map(Into::into);
+        self
     }
 
     /// Style of the button. Must be one of `danger` (red), `success` (green) or `primary` (blue). If omitted, then an app-specific style is used.
     #[must_use]
-    pub fn style<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.style = Some(val.into());
-        this
+    pub fn style<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.style = Some(val.into());
+        self
     }
 
     /// Style of the button. Must be one of `danger` (red), `success` (green) or `primary` (blue). If omitted, then an app-specific style is used.
     #[must_use]
-    pub fn style_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.style = val.map(Into::into);
-        this
+    pub fn style_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.style = val.map(Into::into);
+        self
     }
 
     /// If specified, pressing the button will open a list of suitable users. Identifiers of selected users will be sent to the bot in a `users_shared` service message. Available in private chats only.
     #[must_use]
-    pub fn request_users<T: Into<crate::types::KeyboardButtonRequestUsers>>(self, val: T) -> Self {
-        let mut this = self;
-        this.request_users = Some(val.into());
-        this
+    pub fn request_users<T: Into<crate::types::KeyboardButtonRequestUsers>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.request_users = Some(val.into());
+        self
     }
 
     /// If specified, pressing the button will open a list of suitable users. Identifiers of selected users will be sent to the bot in a `users_shared` service message. Available in private chats only.
     #[must_use]
     pub fn request_users_option<T: Into<crate::types::KeyboardButtonRequestUsers>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.request_users = val.map(Into::into);
-        this
+        self.request_users = val.map(Into::into);
+        self
     }
 
     /// If specified, pressing the button will open a list of suitable chats. Tapping on a chat will send its identifier to the bot in a `chat_shared` service message. Available in private chats only.
     #[must_use]
-    pub fn request_chat<T: Into<crate::types::KeyboardButtonRequestChat>>(self, val: T) -> Self {
-        let mut this = self;
-        this.request_chat = Some(val.into());
-        this
+    pub fn request_chat<T: Into<crate::types::KeyboardButtonRequestChat>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.request_chat = Some(val.into());
+        self
     }
 
     /// If specified, pressing the button will open a list of suitable chats. Tapping on a chat will send its identifier to the bot in a `chat_shared` service message. Available in private chats only.
     #[must_use]
     pub fn request_chat_option<T: Into<crate::types::KeyboardButtonRequestChat>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.request_chat = val.map(Into::into);
-        this
+        self.request_chat = val.map(Into::into);
+        self
     }
 
     /// If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available for bots that enabled management of other bots in the @`BotFather` Mini App. Available in private chats only.
     #[must_use]
     pub fn request_managed_bot<T: Into<crate::types::KeyboardButtonRequestManagedBot>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.request_managed_bot = Some(val.into());
-        this
+        self.request_managed_bot = Some(val.into());
+        self
     }
 
     /// If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available for bots that enabled management of other bots in the @`BotFather` Mini App. Available in private chats only.
     #[must_use]
     pub fn request_managed_bot_option<T: Into<crate::types::KeyboardButtonRequestManagedBot>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.request_managed_bot = val.map(Into::into);
-        this
+        self.request_managed_bot = val.map(Into::into);
+        self
     }
 
     /// If `true`, the user's phone number will be sent as a contact when the button is pressed. Available in private chats only.
     #[must_use]
-    pub fn request_contact<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.request_contact = Some(val.into());
-        this
+    pub fn request_contact<T: Into<bool>>(mut self, val: T) -> Self {
+        self.request_contact = Some(val.into());
+        self
     }
 
     /// If `true`, the user's phone number will be sent as a contact when the button is pressed. Available in private chats only.
     #[must_use]
-    pub fn request_contact_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.request_contact = val.map(Into::into);
-        this
+    pub fn request_contact_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.request_contact = val.map(Into::into);
+        self
     }
 
     /// If `true`, the user's current location will be sent when the button is pressed. Available in private chats only.
     #[must_use]
-    pub fn request_location<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.request_location = Some(val.into());
-        this
+    pub fn request_location<T: Into<bool>>(mut self, val: T) -> Self {
+        self.request_location = Some(val.into());
+        self
     }
 
     /// If `true`, the user's current location will be sent when the button is pressed. Available in private chats only.
     #[must_use]
-    pub fn request_location_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.request_location = val.map(Into::into);
-        this
+    pub fn request_location_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.request_location = val.map(Into::into);
+        self
     }
 
     /// If specified, the user will be asked to create a poll and send it to the bot when the button is pressed. Available in private chats only.
     #[must_use]
-    pub fn request_poll<T: Into<crate::types::KeyboardButtonPollType>>(self, val: T) -> Self {
-        let mut this = self;
-        this.request_poll = Some(val.into());
-        this
+    pub fn request_poll<T: Into<crate::types::KeyboardButtonPollType>>(mut self, val: T) -> Self {
+        self.request_poll = Some(val.into());
+        self
     }
 
     /// If specified, the user will be asked to create a poll and send it to the bot when the button is pressed. Available in private chats only.
     #[must_use]
     pub fn request_poll_option<T: Into<crate::types::KeyboardButtonPollType>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.request_poll = val.map(Into::into);
-        this
+        self.request_poll = val.map(Into::into);
+        self
     }
 
     /// If specified, the described Web App will be launched when the button is pressed. The Web App will be able to send a `web_app_data` service message. Available in private chats only.
     #[must_use]
-    pub fn web_app<T: Into<crate::types::WebAppInfo>>(self, val: T) -> Self {
-        let mut this = self;
-        this.web_app = Some(val.into());
-        this
+    pub fn web_app<T: Into<crate::types::WebAppInfo>>(mut self, val: T) -> Self {
+        self.web_app = Some(val.into());
+        self
     }
 
     /// If specified, the described Web App will be launched when the button is pressed. The Web App will be able to send a `web_app_data` service message. Available in private chats only.
     #[must_use]
-    pub fn web_app_option<T: Into<crate::types::WebAppInfo>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.web_app = val.map(Into::into);
-        this
+    pub fn web_app_option<T: Into<crate::types::WebAppInfo>>(mut self, val: Option<T>) -> Self {
+        self.web_app = val.map(Into::into);
+        self
     }
 }

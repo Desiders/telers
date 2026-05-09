@@ -88,191 +88,171 @@ impl InlineQueryResultVenue {
 
     /// Unique identifier for this result, 1-64 Bytes
     #[must_use]
-    pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 
     /// Latitude of the venue location in degrees
     #[must_use]
-    pub fn latitude<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.latitude = val.into();
-        this
+    pub fn latitude<T: Into<f64>>(mut self, val: T) -> Self {
+        self.latitude = val.into();
+        self
     }
 
     /// Longitude of the venue location in degrees
     #[must_use]
-    pub fn longitude<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.longitude = val.into();
-        this
+    pub fn longitude<T: Into<f64>>(mut self, val: T) -> Self {
+        self.longitude = val.into();
+        self
     }
 
     /// Title of the venue
     #[must_use]
-    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.title = val.into();
-        this
+    pub fn title<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.title = val.into();
+        self
     }
 
     /// Address of the venue
     #[must_use]
-    pub fn address<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.address = val.into();
-        this
+    pub fn address<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.address = val.into();
+        self
     }
 
     /// Foursquare identifier of the venue if known
     #[must_use]
-    pub fn foursquare_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.foursquare_id = Some(val.into());
-        this
+    pub fn foursquare_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.foursquare_id = Some(val.into());
+        self
     }
 
     /// Foursquare identifier of the venue if known
     #[must_use]
-    pub fn foursquare_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.foursquare_id = val.map(Into::into);
-        this
+    pub fn foursquare_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.foursquare_id = val.map(Into::into);
+        self
     }
 
     /// Foursquare type of the venue, if known. (For example, `arts_entertainment/default`, `arts_entertainment/aquarium` or `food/icecream`.)
     #[must_use]
-    pub fn foursquare_type<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.foursquare_type = Some(val.into());
-        this
+    pub fn foursquare_type<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.foursquare_type = Some(val.into());
+        self
     }
 
     /// Foursquare type of the venue, if known. (For example, `arts_entertainment/default`, `arts_entertainment/aquarium` or `food/icecream`.)
     #[must_use]
-    pub fn foursquare_type_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.foursquare_type = val.map(Into::into);
-        this
+    pub fn foursquare_type_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.foursquare_type = val.map(Into::into);
+        self
     }
 
     /// Google Places identifier of the venue
     #[must_use]
-    pub fn google_place_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.google_place_id = Some(val.into());
-        this
+    pub fn google_place_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.google_place_id = Some(val.into());
+        self
     }
 
     /// Google Places identifier of the venue
     #[must_use]
-    pub fn google_place_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.google_place_id = val.map(Into::into);
-        this
+    pub fn google_place_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.google_place_id = val.map(Into::into);
+        self
     }
 
     /// Google Places type of the venue. (See supported types.)
     #[must_use]
-    pub fn google_place_type<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.google_place_type = Some(val.into());
-        this
+    pub fn google_place_type<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.google_place_type = Some(val.into());
+        self
     }
 
     /// Google Places type of the venue. (See supported types.)
     #[must_use]
-    pub fn google_place_type_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.google_place_type = val.map(Into::into);
-        this
+    pub fn google_place_type_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.google_place_type = val.map(Into::into);
+        self
     }
 
     /// Inline keyboard attached to the message
     #[must_use]
-    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(self, val: T) -> Self {
-        let mut this = self;
-        this.reply_markup = Some(val.into());
-        this
+    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(mut self, val: T) -> Self {
+        self.reply_markup = Some(val.into());
+        self
     }
 
     /// Inline keyboard attached to the message
     #[must_use]
     pub fn reply_markup_option<T: Into<crate::types::InlineKeyboardMarkup>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.reply_markup = val.map(Into::into);
-        this
+        self.reply_markup = val.map(Into::into);
+        self
     }
 
     /// Content of the message to be sent instead of the venue
     #[must_use]
-    pub fn input_message_content<T: Into<crate::types::InputMessageContent>>(self, val: T) -> Self {
-        let mut this = self;
-        this.input_message_content = Some(val.into());
-        this
+    pub fn input_message_content<T: Into<crate::types::InputMessageContent>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.input_message_content = Some(val.into());
+        self
     }
 
     /// Content of the message to be sent instead of the venue
     #[must_use]
     pub fn input_message_content_option<T: Into<crate::types::InputMessageContent>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.input_message_content = val.map(Into::into);
-        this
+        self.input_message_content = val.map(Into::into);
+        self
     }
 
     /// Url of the thumbnail for the result
     #[must_use]
-    pub fn thumbnail_url<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.thumbnail_url = Some(val.into());
-        this
+    pub fn thumbnail_url<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.thumbnail_url = Some(val.into());
+        self
     }
 
     /// Url of the thumbnail for the result
     #[must_use]
-    pub fn thumbnail_url_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.thumbnail_url = val.map(Into::into);
-        this
+    pub fn thumbnail_url_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.thumbnail_url = val.map(Into::into);
+        self
     }
 
     /// Thumbnail width
     #[must_use]
-    pub fn thumbnail_width<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.thumbnail_width = Some(val.into());
-        this
+    pub fn thumbnail_width<T: Into<i64>>(mut self, val: T) -> Self {
+        self.thumbnail_width = Some(val.into());
+        self
     }
 
     /// Thumbnail width
     #[must_use]
-    pub fn thumbnail_width_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.thumbnail_width = val.map(Into::into);
-        this
+    pub fn thumbnail_width_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.thumbnail_width = val.map(Into::into);
+        self
     }
 
     /// Thumbnail height
     #[must_use]
-    pub fn thumbnail_height<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.thumbnail_height = Some(val.into());
-        this
+    pub fn thumbnail_height<T: Into<i64>>(mut self, val: T) -> Self {
+        self.thumbnail_height = Some(val.into());
+        self
     }
 
     /// Thumbnail height
     #[must_use]
-    pub fn thumbnail_height_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.thumbnail_height = val.map(Into::into);
-        this
+    pub fn thumbnail_height_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.thumbnail_height = val.map(Into::into);
+        self
     }
 }

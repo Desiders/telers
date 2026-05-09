@@ -33,25 +33,22 @@ impl GiftBackground {
 
     /// Center color of the background in RGB format
     #[must_use]
-    pub fn center_color<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.center_color = val.into();
-        this
+    pub fn center_color<T: Into<i64>>(mut self, val: T) -> Self {
+        self.center_color = val.into();
+        self
     }
 
     /// Edge color of the background in RGB format
     #[must_use]
-    pub fn edge_color<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.edge_color = val.into();
-        this
+    pub fn edge_color<T: Into<i64>>(mut self, val: T) -> Self {
+        self.edge_color = val.into();
+        self
     }
 
     /// Text color of the background in RGB format
     #[must_use]
-    pub fn text_color<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text_color = val.into();
-        this
+    pub fn text_color<T: Into<i64>>(mut self, val: T) -> Self {
+        self.text_color = val.into();
+        self
     }
 }

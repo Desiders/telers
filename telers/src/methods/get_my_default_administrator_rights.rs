@@ -25,18 +25,16 @@ impl GetMyDefaultAdministratorRights {
 
     /// Pass `true` to get default administrator rights of the bot in channels. Otherwise, default administrator rights of the bot for groups and supergroups will be returned.
     #[must_use]
-    pub fn for_channels<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.for_channels = Some(val.into());
-        this
+    pub fn for_channels<T: Into<bool>>(mut self, val: T) -> Self {
+        self.for_channels = Some(val.into());
+        self
     }
 
     /// Pass `true` to get default administrator rights of the bot in channels. Otherwise, default administrator rights of the bot for groups and supergroups will be returned.
     #[must_use]
-    pub fn for_channels_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.for_channels = val.map(Into::into);
-        this
+    pub fn for_channels_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.for_channels = val.map(Into::into);
+        self
     }
 }
 impl Default for GetMyDefaultAdministratorRights {

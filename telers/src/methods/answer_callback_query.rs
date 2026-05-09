@@ -43,74 +43,65 @@ impl AnswerCallbackQuery {
 
     /// Unique identifier for the query to be answered
     #[must_use]
-    pub fn callback_query_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.callback_query_id = val.into();
-        this
+    pub fn callback_query_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.callback_query_id = val.into();
+        self
     }
 
     /// Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters
     #[must_use]
-    pub fn text<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text = Some(val.into());
-        this
+    pub fn text<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.text = Some(val.into());
+        self
     }
 
     /// Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters
     #[must_use]
-    pub fn text_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.text = val.map(Into::into);
-        this
+    pub fn text_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.text = val.map(Into::into);
+        self
     }
 
     /// If `true`, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to false.
     #[must_use]
-    pub fn show_alert<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.show_alert = Some(val.into());
-        this
+    pub fn show_alert<T: Into<bool>>(mut self, val: T) -> Self {
+        self.show_alert = Some(val.into());
+        self
     }
 
     /// If `true`, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to false.
     #[must_use]
-    pub fn show_alert_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.show_alert = val.map(Into::into);
-        this
+    pub fn show_alert_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.show_alert = val.map(Into::into);
+        self
     }
 
     /// URL that will be opened by the user's client. If you have created a Game and accepted the conditions via @`BotFather`, specify the URL that opens your game - note that this will only work if the query comes from a `callback_game` button. Otherwise, you may use links like <https://t.me/your_bot?start=XXXX> that open your bot with a parameter.
     #[must_use]
-    pub fn url<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.url = Some(val.into());
-        this
+    pub fn url<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.url = Some(val.into());
+        self
     }
 
     /// URL that will be opened by the user's client. If you have created a Game and accepted the conditions via @`BotFather`, specify the URL that opens your game - note that this will only work if the query comes from a `callback_game` button. Otherwise, you may use links like <https://t.me/your_bot?start=XXXX> that open your bot with a parameter.
     #[must_use]
-    pub fn url_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.url = val.map(Into::into);
-        this
+    pub fn url_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.url = val.map(Into::into);
+        self
     }
 
     /// The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to 0.
     #[must_use]
-    pub fn cache_time<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.cache_time = Some(val.into());
-        this
+    pub fn cache_time<T: Into<i64>>(mut self, val: T) -> Self {
+        self.cache_time = Some(val.into());
+        self
     }
 
     /// The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to 0.
     #[must_use]
-    pub fn cache_time_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.cache_time = val.map(Into::into);
-        this
+    pub fn cache_time_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.cache_time = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for AnswerCallbackQuery {

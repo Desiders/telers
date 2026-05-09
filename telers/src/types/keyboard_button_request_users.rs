@@ -48,105 +48,92 @@ impl KeyboardButtonRequestUsers {
 
     /// Signed 32-bit identifier of the request that will be received back in the [`crate::types::UsersShared`] object. Must be unique within the message
     #[must_use]
-    pub fn request_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.request_id = val.into();
-        this
+    pub fn request_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.request_id = val.into();
+        self
     }
 
     /// Pass `true` to request bots, pass `false` to request regular users. If not specified, no additional restrictions are applied.
     #[must_use]
-    pub fn user_is_bot<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_is_bot = Some(val.into());
-        this
+    pub fn user_is_bot<T: Into<bool>>(mut self, val: T) -> Self {
+        self.user_is_bot = Some(val.into());
+        self
     }
 
     /// Pass `true` to request bots, pass `false` to request regular users. If not specified, no additional restrictions are applied.
     #[must_use]
-    pub fn user_is_bot_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.user_is_bot = val.map(Into::into);
-        this
+    pub fn user_is_bot_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.user_is_bot = val.map(Into::into);
+        self
     }
 
     /// Pass `true` to request premium users, pass `false` to request non-premium users. If not specified, no additional restrictions are applied.
     #[must_use]
-    pub fn user_is_premium<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_is_premium = Some(val.into());
-        this
+    pub fn user_is_premium<T: Into<bool>>(mut self, val: T) -> Self {
+        self.user_is_premium = Some(val.into());
+        self
     }
 
     /// Pass `true` to request premium users, pass `false` to request non-premium users. If not specified, no additional restrictions are applied.
     #[must_use]
-    pub fn user_is_premium_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.user_is_premium = val.map(Into::into);
-        this
+    pub fn user_is_premium_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.user_is_premium = val.map(Into::into);
+        self
     }
 
     /// The maximum number of users to be selected; 1-10. Defaults to 1.
     #[must_use]
-    pub fn max_quantity<T: Into<u8>>(self, val: T) -> Self {
-        let mut this = self;
-        this.max_quantity = Some(val.into());
-        this
+    pub fn max_quantity<T: Into<u8>>(mut self, val: T) -> Self {
+        self.max_quantity = Some(val.into());
+        self
     }
 
     /// The maximum number of users to be selected; 1-10. Defaults to 1.
     #[must_use]
-    pub fn max_quantity_option<T: Into<u8>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.max_quantity = val.map(Into::into);
-        this
+    pub fn max_quantity_option<T: Into<u8>>(mut self, val: Option<T>) -> Self {
+        self.max_quantity = val.map(Into::into);
+        self
     }
 
     /// Pass `true` to request the users' first and last names
     #[must_use]
-    pub fn request_name<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.request_name = Some(val.into());
-        this
+    pub fn request_name<T: Into<bool>>(mut self, val: T) -> Self {
+        self.request_name = Some(val.into());
+        self
     }
 
     /// Pass `true` to request the users' first and last names
     #[must_use]
-    pub fn request_name_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.request_name = val.map(Into::into);
-        this
+    pub fn request_name_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.request_name = val.map(Into::into);
+        self
     }
 
     /// Pass `true` to request the users' usernames
     #[must_use]
-    pub fn request_username<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.request_username = Some(val.into());
-        this
+    pub fn request_username<T: Into<bool>>(mut self, val: T) -> Self {
+        self.request_username = Some(val.into());
+        self
     }
 
     /// Pass `true` to request the users' usernames
     #[must_use]
-    pub fn request_username_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.request_username = val.map(Into::into);
-        this
+    pub fn request_username_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.request_username = val.map(Into::into);
+        self
     }
 
     /// Pass `true` to request the users' photos
     #[must_use]
-    pub fn request_photo<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.request_photo = Some(val.into());
-        this
+    pub fn request_photo<T: Into<bool>>(mut self, val: T) -> Self {
+        self.request_photo = Some(val.into());
+        self
     }
 
     /// Pass `true` to request the users' photos
     #[must_use]
-    pub fn request_photo_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.request_photo = val.map(Into::into);
-        this
+    pub fn request_photo_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.request_photo = val.map(Into::into);
+        self
     }
 }

@@ -140,169 +140,148 @@ impl ChatMemberRestricted {
 
     /// Tag of the member
     #[must_use]
-    pub fn tag<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.tag = Some(val.into());
-        this
+    pub fn tag<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.tag = Some(val.into());
+        self
     }
 
     /// Tag of the member
     #[must_use]
-    pub fn tag_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.tag = val.map(Into::into);
-        this
+    pub fn tag_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.tag = val.map(Into::into);
+        self
     }
 
     /// Information about the user
     #[must_use]
-    pub fn user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user = Box::new(val.into());
-        this
+    pub fn user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.user = Box::new(val.into());
+        self
     }
 
     /// `true`, if the user is a member of the chat at the moment of the request
     #[must_use]
-    pub fn is_member<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_member = val.into();
-        this
+    pub fn is_member<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_member = val.into();
+        self
     }
 
     /// `true`, if the user is allowed to send text messages, contacts, giveaways, giveaway winners, invoices, locations and venues
     #[must_use]
-    pub fn can_send_messages<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_send_messages = val.into();
-        this
+    pub fn can_send_messages<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_send_messages = val.into();
+        self
     }
 
     /// `true`, if the user is allowed to send audios
     #[must_use]
-    pub fn can_send_audios<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_send_audios = val.into();
-        this
+    pub fn can_send_audios<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_send_audios = val.into();
+        self
     }
 
     /// `true`, if the user is allowed to send documents
     #[must_use]
-    pub fn can_send_documents<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_send_documents = val.into();
-        this
+    pub fn can_send_documents<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_send_documents = val.into();
+        self
     }
 
     /// `true`, if the user is allowed to send photos
     #[must_use]
-    pub fn can_send_photos<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_send_photos = val.into();
-        this
+    pub fn can_send_photos<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_send_photos = val.into();
+        self
     }
 
     /// `true`, if the user is allowed to send videos
     #[must_use]
-    pub fn can_send_videos<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_send_videos = val.into();
-        this
+    pub fn can_send_videos<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_send_videos = val.into();
+        self
     }
 
     /// `true`, if the user is allowed to send video notes
     #[must_use]
-    pub fn can_send_video_notes<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_send_video_notes = val.into();
-        this
+    pub fn can_send_video_notes<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_send_video_notes = val.into();
+        self
     }
 
     /// `true`, if the user is allowed to send voice notes
     #[must_use]
-    pub fn can_send_voice_notes<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_send_voice_notes = val.into();
-        this
+    pub fn can_send_voice_notes<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_send_voice_notes = val.into();
+        self
     }
 
     /// `true`, if the user is allowed to send polls and checklists
     #[must_use]
-    pub fn can_send_polls<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_send_polls = val.into();
-        this
+    pub fn can_send_polls<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_send_polls = val.into();
+        self
     }
 
     /// `true`, if the user is allowed to send animations, games, stickers and use inline bots
     #[must_use]
-    pub fn can_send_other_messages<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_send_other_messages = val.into();
-        this
+    pub fn can_send_other_messages<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_send_other_messages = val.into();
+        self
     }
 
     /// `true`, if the user is allowed to add web page previews to their messages
     #[must_use]
-    pub fn can_add_web_page_previews<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_add_web_page_previews = val.into();
-        this
+    pub fn can_add_web_page_previews<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_add_web_page_previews = val.into();
+        self
     }
 
     /// `true`, if the user is allowed to react to messages
     #[must_use]
-    pub fn can_react_to_messages<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_react_to_messages = val.into();
-        this
+    pub fn can_react_to_messages<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_react_to_messages = val.into();
+        self
     }
 
     /// `true`, if the user is allowed to edit their own tag
     #[must_use]
-    pub fn can_edit_tag<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_edit_tag = val.into();
-        this
+    pub fn can_edit_tag<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_edit_tag = val.into();
+        self
     }
 
     /// `true`, if the user is allowed to change the chat title, photo and other settings
     #[must_use]
-    pub fn can_change_info<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_change_info = val.into();
-        this
+    pub fn can_change_info<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_change_info = val.into();
+        self
     }
 
     /// `true`, if the user is allowed to invite new users to the chat
     #[must_use]
-    pub fn can_invite_users<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_invite_users = val.into();
-        this
+    pub fn can_invite_users<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_invite_users = val.into();
+        self
     }
 
     /// `true`, if the user is allowed to pin messages
     #[must_use]
-    pub fn can_pin_messages<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_pin_messages = val.into();
-        this
+    pub fn can_pin_messages<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_pin_messages = val.into();
+        self
     }
 
     /// `true`, if the user is allowed to create forum topics
     #[must_use]
-    pub fn can_manage_topics<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_manage_topics = val.into();
-        this
+    pub fn can_manage_topics<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_manage_topics = val.into();
+        self
     }
 
     /// Date when restrictions will be lifted for this user; Unix time. If 0, then the user is restricted forever
     #[must_use]
-    pub fn until_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.until_date = val.into();
-        this
+    pub fn until_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.until_date = val.into();
+        self
     }
 }

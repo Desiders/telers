@@ -42,50 +42,44 @@ impl PinChatMessage {
 
     /// Unique identifier of the business connection on behalf of which the message will be pinned
     #[must_use]
-    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection_id = Some(val.into());
-        this
+    pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.business_connection_id = Some(val.into());
+        self
     }
 
     /// Unique identifier of the business connection on behalf of which the message will be pinned
     #[must_use]
-    pub fn business_connection_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.business_connection_id = val.map(Into::into);
-        this
+    pub fn business_connection_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.business_connection_id = val.map(Into::into);
+        self
     }
 
     /// Unique identifier for the target chat or username of the target channel in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Identifier of a message to pin
     #[must_use]
-    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_id = val.into();
-        this
+    pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_id = val.into();
+        self
     }
 
     /// Pass `true` if it is not necessary to send a notification to all chat members about the new pinned message. Notifications are always disabled in channels and private chats.
     #[must_use]
-    pub fn disable_notification<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.disable_notification = Some(val.into());
-        this
+    pub fn disable_notification<T: Into<bool>>(mut self, val: T) -> Self {
+        self.disable_notification = Some(val.into());
+        self
     }
 
     /// Pass `true` if it is not necessary to send a notification to all chat members about the new pinned message. Notifications are always disabled in channels and private chats.
     #[must_use]
-    pub fn disable_notification_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.disable_notification = val.map(Into::into);
-        this
+    pub fn disable_notification_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.disable_notification = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for PinChatMessage {

@@ -32,10 +32,9 @@ impl UsersShared {
 
     /// Identifier of the request
     #[must_use]
-    pub fn request_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.request_id = val.into();
-        this
+    pub fn request_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.request_id = val.into();
+        self
     }
 
     /// Information about users shared with the bot.
@@ -43,15 +42,14 @@ impl UsersShared {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn users<T: Into<Box<[crate::types::SharedUser]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.users = this
+    pub fn users<T: Into<Box<[crate::types::SharedUser]>>>(mut self, val: T) -> Self {
+        self.users = self
             .users
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// Information about users shared with the bot.
@@ -59,14 +57,13 @@ impl UsersShared {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn user<T: Into<crate::types::SharedUser>>(self, val: T) -> Self {
-        let mut this = self;
-        this.users = this
+    pub fn user<T: Into<crate::types::SharedUser>>(mut self, val: T) -> Self {
+        self.users = self
             .users
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

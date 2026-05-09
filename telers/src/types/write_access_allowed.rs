@@ -30,50 +30,44 @@ impl WriteAccessAllowed {
 
     /// `true`, if the access was granted after the user accepted an explicit request from a Web App sent by the method requestWriteAccess
     #[must_use]
-    pub fn from_request<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.from_request = Some(val.into());
-        this
+    pub fn from_request<T: Into<bool>>(mut self, val: T) -> Self {
+        self.from_request = Some(val.into());
+        self
     }
 
     /// `true`, if the access was granted after the user accepted an explicit request from a Web App sent by the method requestWriteAccess
     #[must_use]
-    pub fn from_request_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.from_request = val.map(Into::into);
-        this
+    pub fn from_request_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.from_request = val.map(Into::into);
+        self
     }
 
     /// Name of the Web App, if the access was granted when the Web App was launched from a link
     #[must_use]
-    pub fn web_app_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.web_app_name = Some(val.into());
-        this
+    pub fn web_app_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.web_app_name = Some(val.into());
+        self
     }
 
     /// Name of the Web App, if the access was granted when the Web App was launched from a link
     #[must_use]
-    pub fn web_app_name_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.web_app_name = val.map(Into::into);
-        this
+    pub fn web_app_name_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.web_app_name = val.map(Into::into);
+        self
     }
 
     /// `true`, if the access was granted when the bot was added to the attachment or side menu
     #[must_use]
-    pub fn from_attachment_menu<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.from_attachment_menu = Some(val.into());
-        this
+    pub fn from_attachment_menu<T: Into<bool>>(mut self, val: T) -> Self {
+        self.from_attachment_menu = Some(val.into());
+        self
     }
 
     /// `true`, if the access was granted when the bot was added to the attachment or side menu
     #[must_use]
-    pub fn from_attachment_menu_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.from_attachment_menu = val.map(Into::into);
-        this
+    pub fn from_attachment_menu_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.from_attachment_menu = val.map(Into::into);
+        self
     }
 }
 impl Default for WriteAccessAllowed {

@@ -25,17 +25,15 @@ impl MessageOriginHiddenUser {
 
     /// Date the message was sent originally in Unix time
     #[must_use]
-    pub fn date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.date = val.into();
-        this
+    pub fn date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.date = val.into();
+        self
     }
 
     /// Name of the user that sent the message originally
     #[must_use]
-    pub fn sender_user_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sender_user_name = val.into();
-        this
+    pub fn sender_user_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.sender_user_name = val.into();
+        self
     }
 }

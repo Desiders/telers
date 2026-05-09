@@ -20,9 +20,8 @@ impl PaidMediaLivePhoto {
 
     /// The photo
     #[must_use]
-    pub fn live_photo<T: Into<crate::types::LivePhoto>>(self, val: T) -> Self {
-        let mut this = self;
-        this.live_photo = val.into();
-        this
+    pub fn live_photo<T: Into<crate::types::LivePhoto>>(mut self, val: T) -> Self {
+        self.live_photo = val.into();
+        self
     }
 }

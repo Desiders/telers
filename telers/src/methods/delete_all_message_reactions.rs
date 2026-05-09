@@ -35,42 +35,37 @@ impl DeleteAllMessageReactions {
 
     /// Unique identifier for the target chat or username of the target supergroup (in the format @username)
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Identifier of the user whose reactions will be removed, if the reactions were added by a user
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = Some(val.into());
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = Some(val.into());
+        self
     }
 
     /// Identifier of the user whose reactions will be removed, if the reactions were added by a user
     #[must_use]
-    pub fn user_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.user_id = val.map(Into::into);
-        this
+    pub fn user_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.user_id = val.map(Into::into);
+        self
     }
 
     /// Identifier of the chat whose reactions will be removed, if the reactions were added by a chat
     #[must_use]
-    pub fn actor_chat_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.actor_chat_id = Some(val.into());
-        this
+    pub fn actor_chat_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.actor_chat_id = Some(val.into());
+        self
     }
 
     /// Identifier of the chat whose reactions will be removed, if the reactions were added by a chat
     #[must_use]
-    pub fn actor_chat_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.actor_chat_id = val.map(Into::into);
-        this
+    pub fn actor_chat_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.actor_chat_id = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for DeleteAllMessageReactions {

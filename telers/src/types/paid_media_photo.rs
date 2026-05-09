@@ -26,15 +26,14 @@ impl PaidMediaPhoto {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn photos<T: Into<Box<[crate::types::PhotoSize]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.photo = this
+    pub fn photos<T: Into<Box<[crate::types::PhotoSize]>>>(mut self, val: T) -> Self {
+        self.photo = self
             .photo
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// The photo
@@ -42,14 +41,13 @@ impl PaidMediaPhoto {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn photo<T: Into<crate::types::PhotoSize>>(self, val: T) -> Self {
-        let mut this = self;
-        this.photo = this
+    pub fn photo<T: Into<crate::types::PhotoSize>>(mut self, val: T) -> Self {
+        self.photo = self
             .photo
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

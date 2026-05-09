@@ -28,25 +28,22 @@ impl InputMediaSticker {
 
     /// File to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a .WEBP sticker from the Internet, or pass `attach://<file_attach_name>` to upload a new .WEBP, .TGS, or .WEBM sticker using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
-    pub fn media<T: Into<crate::types::InputFile>>(self, val: T) -> Self {
-        let mut this = self;
-        this.media = val.into();
-        this
+    pub fn media<T: Into<crate::types::InputFile>>(mut self, val: T) -> Self {
+        self.media = val.into();
+        self
     }
 
     /// Emoji associated with the sticker; only for just uploaded stickers
     #[must_use]
-    pub fn emoji<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.emoji = Some(val.into());
-        this
+    pub fn emoji<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.emoji = Some(val.into());
+        self
     }
 
     /// Emoji associated with the sticker; only for just uploaded stickers
     #[must_use]
-    pub fn emoji_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.emoji = val.map(Into::into);
-        this
+    pub fn emoji_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.emoji = val.map(Into::into);
+        self
     }
 }

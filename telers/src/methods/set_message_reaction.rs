@@ -42,18 +42,16 @@ impl SetMessageReaction {
 
     /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Identifier of the target message. If the message belongs to a media group, the reaction is set to the first non-deleted message in the group instead.
     #[must_use]
-    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_id = val.into();
-        this
+    pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_id = val.into();
+        self
     }
 
     /// A JSON-serialized list of reaction types to set on the message. Currently, as non-premium users, bots can set up to one reaction per message. A custom emoji reaction can be used if it is either already present on the message or explicitly allowed by chat administrators. Paid reactions can't be used by bots.
@@ -62,19 +60,18 @@ impl SetMessageReaction {
     /// Adds multiple elements.
     #[must_use]
     pub fn reactions<TItem: Into<crate::types::ReactionType>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.reaction = Some(
-            this.reaction
+        self.reaction = Some(
+            self.reaction
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of reaction types to set on the message. Currently, as non-premium users, bots can set up to one reaction per message. A custom emoji reaction can be used if it is either already present on the message or explicitly allowed by chat administrators. Paid reactions can't be used by bots.
@@ -82,17 +79,16 @@ impl SetMessageReaction {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn reaction<T: Into<crate::types::ReactionType>>(self, val: T) -> Self {
-        let mut this = self;
-        this.reaction = Some(
-            this.reaction
+    pub fn reaction<T: Into<crate::types::ReactionType>>(mut self, val: T) -> Self {
+        self.reaction = Some(
+            self.reaction
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of reaction types to set on the message. Currently, as non-premium users, bots can set up to one reaction per message. A custom emoji reaction can be used if it is either already present on the message or explicitly allowed by chat administrators. Paid reactions can't be used by bots.
@@ -104,28 +100,25 @@ impl SetMessageReaction {
         TItem: Into<crate::types::ReactionType>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.reaction = val.map(|v| v.into_iter().map(Into::into).collect());
-        this
+        self.reaction = val.map(|v| v.into_iter().map(Into::into).collect());
+        self
     }
 
     /// Pass `true` to set the reaction with a big animation
     #[must_use]
-    pub fn is_big<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_big = Some(val.into());
-        this
+    pub fn is_big<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_big = Some(val.into());
+        self
     }
 
     /// Pass `true` to set the reaction with a big animation
     #[must_use]
-    pub fn is_big_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_big = val.map(Into::into);
-        this
+    pub fn is_big_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_big = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for SetMessageReaction {

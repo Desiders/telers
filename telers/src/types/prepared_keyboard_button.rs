@@ -21,9 +21,8 @@ impl PreparedKeyboardButton {
 
     /// Unique identifier of the keyboard button
     #[must_use]
-    pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 }

@@ -55,49 +55,43 @@ impl ShippingAddress {
 
     /// Two-letter ISO 3166-1 alpha-2 country code
     #[must_use]
-    pub fn country_code<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.country_code = val.into();
-        this
+    pub fn country_code<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.country_code = val.into();
+        self
     }
 
     /// State, if applicable
     #[must_use]
-    pub fn state<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.state = val.into();
-        this
+    pub fn state<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.state = val.into();
+        self
     }
 
     /// City
     #[must_use]
-    pub fn city<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.city = val.into();
-        this
+    pub fn city<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.city = val.into();
+        self
     }
 
     /// First line for the address
     #[must_use]
-    pub fn street_line1<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.street_line1 = val.into();
-        this
+    pub fn street_line1<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.street_line1 = val.into();
+        self
     }
 
     /// Second line for the address
     #[must_use]
-    pub fn street_line2<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.street_line2 = val.into();
-        this
+    pub fn street_line2<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.street_line2 = val.into();
+        self
     }
 
     /// Address post code
     #[must_use]
-    pub fn post_code<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.post_code = val.into();
-        this
+    pub fn post_code<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.post_code = val.into();
+        self
     }
 }

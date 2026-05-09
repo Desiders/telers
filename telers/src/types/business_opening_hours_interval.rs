@@ -25,17 +25,15 @@ impl BusinessOpeningHoursInterval {
 
     /// The minute's sequence number in a week, starting on Monday, marking the start of the time interval during which the business is open; 0 - 7 * 24 * 60
     #[must_use]
-    pub fn opening_minute<T: Into<u8>>(self, val: T) -> Self {
-        let mut this = self;
-        this.opening_minute = val.into();
-        this
+    pub fn opening_minute<T: Into<u8>>(mut self, val: T) -> Self {
+        self.opening_minute = val.into();
+        self
     }
 
     /// The minute's sequence number in a week, starting on Monday, marking the end of the time interval during which the business is open; 0 - 8 * 24 * 60
     #[must_use]
-    pub fn closing_minute<T: Into<u8>>(self, val: T) -> Self {
-        let mut this = self;
-        this.closing_minute = val.into();
-        this
+    pub fn closing_minute<T: Into<u8>>(mut self, val: T) -> Self {
+        self.closing_minute = val.into();
+        self
     }
 }

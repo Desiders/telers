@@ -28,17 +28,15 @@ impl ReactionCount {
 
     /// Type of the reaction
     #[must_use]
-    pub fn r#type<T: Into<crate::types::ReactionType>>(self, val: T) -> Self {
-        let mut this = self;
-        this.r#type = val.into();
-        this
+    pub fn r#type<T: Into<crate::types::ReactionType>>(mut self, val: T) -> Self {
+        self.r#type = val.into();
+        self
     }
 
     /// Number of times the reaction was added
     #[must_use]
-    pub fn total_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.total_count = val.into();
-        this
+    pub fn total_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.total_count = val.into();
+        self
     }
 }

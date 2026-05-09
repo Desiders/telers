@@ -38,33 +38,29 @@ impl ChatPhoto {
 
     /// File identifier of small (160x160) chat photo. This `file_id` can be used only for photo download and only for as long as the photo is not changed.
     #[must_use]
-    pub fn small_file_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.small_file_id = val.into();
-        this
+    pub fn small_file_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.small_file_id = val.into();
+        self
     }
 
     /// Unique file identifier of small (160x160) chat photo, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
     #[must_use]
-    pub fn small_file_unique_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.small_file_unique_id = val.into();
-        this
+    pub fn small_file_unique_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.small_file_unique_id = val.into();
+        self
     }
 
     /// File identifier of big (640x640) chat photo. This `file_id` can be used only for photo download and only for as long as the photo is not changed.
     #[must_use]
-    pub fn big_file_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.big_file_id = val.into();
-        this
+    pub fn big_file_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.big_file_id = val.into();
+        self
     }
 
     /// Unique file identifier of big (640x640) chat photo, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
     #[must_use]
-    pub fn big_file_unique_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.big_file_unique_id = val.into();
-        this
+    pub fn big_file_unique_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.big_file_unique_id = val.into();
+        self
     }
 }

@@ -24,10 +24,9 @@ impl SetMyProfilePhoto {
 
     /// The new profile photo to set
     #[must_use]
-    pub fn photo<T: Into<crate::types::InputProfilePhoto>>(self, val: T) -> Self {
-        let mut this = self;
-        this.photo = val.into();
-        this
+    pub fn photo<T: Into<crate::types::InputProfilePhoto>>(mut self, val: T) -> Self {
+        self.photo = val.into();
+        self
     }
 }
 impl super::TelegramMethod for SetMyProfilePhoto {

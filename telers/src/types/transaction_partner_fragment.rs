@@ -22,21 +22,22 @@ impl TransactionPartnerFragment {
 
     /// State of the transaction if the transaction is outgoing
     #[must_use]
-    pub fn withdrawal_state<T: Into<crate::types::RevenueWithdrawalState>>(self, val: T) -> Self {
-        let mut this = self;
-        this.withdrawal_state = Some(val.into());
-        this
+    pub fn withdrawal_state<T: Into<crate::types::RevenueWithdrawalState>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.withdrawal_state = Some(val.into());
+        self
     }
 
     /// State of the transaction if the transaction is outgoing
     #[must_use]
     pub fn withdrawal_state_option<T: Into<crate::types::RevenueWithdrawalState>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.withdrawal_state = val.map(Into::into);
-        this
+        self.withdrawal_state = val.map(Into::into);
+        self
     }
 }
 impl Default for TransactionPartnerFragment {

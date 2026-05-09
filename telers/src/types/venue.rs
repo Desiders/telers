@@ -52,89 +52,78 @@ impl Venue {
 
     /// Venue location. Can't be a live location
     #[must_use]
-    pub fn location<T: Into<crate::types::Location>>(self, val: T) -> Self {
-        let mut this = self;
-        this.location = val.into();
-        this
+    pub fn location<T: Into<crate::types::Location>>(mut self, val: T) -> Self {
+        self.location = val.into();
+        self
     }
 
     /// Name of the venue
     #[must_use]
-    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.title = val.into();
-        this
+    pub fn title<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.title = val.into();
+        self
     }
 
     /// Address of the venue
     #[must_use]
-    pub fn address<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.address = val.into();
-        this
+    pub fn address<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.address = val.into();
+        self
     }
 
     /// Foursquare identifier of the venue
     #[must_use]
-    pub fn foursquare_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.foursquare_id = Some(val.into());
-        this
+    pub fn foursquare_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.foursquare_id = Some(val.into());
+        self
     }
 
     /// Foursquare identifier of the venue
     #[must_use]
-    pub fn foursquare_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.foursquare_id = val.map(Into::into);
-        this
+    pub fn foursquare_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.foursquare_id = val.map(Into::into);
+        self
     }
 
     /// Foursquare type of the venue. (For example, `arts_entertainment/default`, `arts_entertainment/aquarium` or `food/icecream`.)
     #[must_use]
-    pub fn foursquare_type<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.foursquare_type = Some(val.into());
-        this
+    pub fn foursquare_type<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.foursquare_type = Some(val.into());
+        self
     }
 
     /// Foursquare type of the venue. (For example, `arts_entertainment/default`, `arts_entertainment/aquarium` or `food/icecream`.)
     #[must_use]
-    pub fn foursquare_type_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.foursquare_type = val.map(Into::into);
-        this
+    pub fn foursquare_type_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.foursquare_type = val.map(Into::into);
+        self
     }
 
     /// Google Places identifier of the venue
     #[must_use]
-    pub fn google_place_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.google_place_id = Some(val.into());
-        this
+    pub fn google_place_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.google_place_id = Some(val.into());
+        self
     }
 
     /// Google Places identifier of the venue
     #[must_use]
-    pub fn google_place_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.google_place_id = val.map(Into::into);
-        this
+    pub fn google_place_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.google_place_id = val.map(Into::into);
+        self
     }
 
     /// Google Places type of the venue. (See supported types.)
     #[must_use]
-    pub fn google_place_type<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.google_place_type = Some(val.into());
-        this
+    pub fn google_place_type<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.google_place_type = Some(val.into());
+        self
     }
 
     /// Google Places type of the venue. (See supported types.)
     #[must_use]
-    pub fn google_place_type_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.google_place_type = val.map(Into::into);
-        this
+    pub fn google_place_type_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.google_place_type = val.map(Into::into);
+        self
     }
 }

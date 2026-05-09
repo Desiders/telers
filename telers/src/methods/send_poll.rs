@@ -168,66 +168,58 @@ impl SendPoll {
 
     /// Unique identifier of the business connection on behalf of which the message will be sent
     #[must_use]
-    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection_id = Some(val.into());
-        this
+    pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.business_connection_id = Some(val.into());
+        self
     }
 
     /// Unique identifier of the business connection on behalf of which the message will be sent
     #[must_use]
-    pub fn business_connection_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.business_connection_id = val.map(Into::into);
-        this
+    pub fn business_connection_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.business_connection_id = val.map(Into::into);
+        self
     }
 
     /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. Polls can't be sent to channel direct messages chats.
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     #[must_use]
-    pub fn message_thread_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_thread_id = Some(val.into());
-        this
+    pub fn message_thread_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_thread_id = Some(val.into());
+        self
     }
 
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     #[must_use]
-    pub fn message_thread_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.message_thread_id = val.map(Into::into);
-        this
+    pub fn message_thread_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.message_thread_id = val.map(Into::into);
+        self
     }
 
     /// Poll question, 1-300 characters
     #[must_use]
-    pub fn question<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.question = val.into();
-        this
+    pub fn question<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.question = val.into();
+        self
     }
 
     /// Mode for parsing entities in the question. See formatting options for more details. Currently, only custom emoji entities are allowed
     #[must_use]
-    pub fn question_parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.question_parse_mode = Some(val.into());
-        this
+    pub fn question_parse_mode<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.question_parse_mode = Some(val.into());
+        self
     }
 
     /// Mode for parsing entities in the question. See formatting options for more details. Currently, only custom emoji entities are allowed
     #[must_use]
-    pub fn question_parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.question_parse_mode = val.map(Into::into);
-        this
+    pub fn question_parse_mode_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.question_parse_mode = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of `question_parse_mode`
@@ -239,19 +231,18 @@ impl SendPoll {
         TItem: Into<crate::types::MessageEntity>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.question_entities = Some(
-            this.question_entities
+        self.question_entities = Some(
+            self.question_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of `question_parse_mode`
@@ -259,17 +250,16 @@ impl SendPoll {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn question_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.question_entities = Some(
-            this.question_entities
+    pub fn question_entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.question_entities = Some(
+            self.question_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of `question_parse_mode`
@@ -281,12 +271,11 @@ impl SendPoll {
         TItem: Into<crate::types::MessageEntity>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.question_entities = val.map(|v| v.into_iter().map(Into::into).collect());
-        this
+        self.question_entities = val.map(|v| v.into_iter().map(Into::into).collect());
+        self
     }
 
     /// A JSON-serialized list of 1-12 answer options
@@ -295,17 +284,16 @@ impl SendPoll {
     /// Adds multiple elements.
     #[must_use]
     pub fn options<TItem: Into<crate::types::InputPollOption>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.options = this
+        self.options = self
             .options
             .into_vec()
             .into_iter()
             .chain(val.into_iter().map(Into::into))
             .collect();
-        this
+        self
     }
 
     /// A JSON-serialized list of 1-12 answer options
@@ -313,143 +301,126 @@ impl SendPoll {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn option<T: Into<crate::types::InputPollOption>>(self, val: T) -> Self {
-        let mut this = self;
-        this.options = this
+    pub fn option<T: Into<crate::types::InputPollOption>>(mut self, val: T) -> Self {
+        self.options = self
             .options
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// `true`, if the poll needs to be anonymous, defaults to `true`
     #[must_use]
-    pub fn is_anonymous<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_anonymous = Some(val.into());
-        this
+    pub fn is_anonymous<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_anonymous = Some(val.into());
+        self
     }
 
     /// `true`, if the poll needs to be anonymous, defaults to `true`
     #[must_use]
-    pub fn is_anonymous_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_anonymous = val.map(Into::into);
-        this
+    pub fn is_anonymous_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_anonymous = val.map(Into::into);
+        self
     }
 
     /// Poll type, `quiz` or `regular`, defaults to `regular`
     #[must_use]
-    pub fn r#type<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.r#type = Some(val.into());
-        this
+    pub fn r#type<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.r#type = Some(val.into());
+        self
     }
 
     /// Poll type, `quiz` or `regular`, defaults to `regular`
     #[must_use]
-    pub fn type_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.r#type = val.map(Into::into);
-        this
+    pub fn type_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.r#type = val.map(Into::into);
+        self
     }
 
     /// Pass `true`, if the poll allows multiple answers, defaults to `false`
     #[must_use]
-    pub fn allows_multiple_answers<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.allows_multiple_answers = Some(val.into());
-        this
+    pub fn allows_multiple_answers<T: Into<bool>>(mut self, val: T) -> Self {
+        self.allows_multiple_answers = Some(val.into());
+        self
     }
 
     /// Pass `true`, if the poll allows multiple answers, defaults to `false`
     #[must_use]
-    pub fn allows_multiple_answers_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.allows_multiple_answers = val.map(Into::into);
-        this
+    pub fn allows_multiple_answers_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.allows_multiple_answers = val.map(Into::into);
+        self
     }
 
     /// Pass `true`, if the poll allows to change chosen answer options, defaults to `false` for quizzes and to `true` for regular polls
     #[must_use]
-    pub fn allows_revoting<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.allows_revoting = Some(val.into());
-        this
+    pub fn allows_revoting<T: Into<bool>>(mut self, val: T) -> Self {
+        self.allows_revoting = Some(val.into());
+        self
     }
 
     /// Pass `true`, if the poll allows to change chosen answer options, defaults to `false` for quizzes and to `true` for regular polls
     #[must_use]
-    pub fn allows_revoting_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.allows_revoting = val.map(Into::into);
-        this
+    pub fn allows_revoting_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.allows_revoting = val.map(Into::into);
+        self
     }
 
     /// Pass `true`, if the poll options must be shown in random order
     #[must_use]
-    pub fn shuffle_options<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.shuffle_options = Some(val.into());
-        this
+    pub fn shuffle_options<T: Into<bool>>(mut self, val: T) -> Self {
+        self.shuffle_options = Some(val.into());
+        self
     }
 
     /// Pass `true`, if the poll options must be shown in random order
     #[must_use]
-    pub fn shuffle_options_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.shuffle_options = val.map(Into::into);
-        this
+    pub fn shuffle_options_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.shuffle_options = val.map(Into::into);
+        self
     }
 
     /// Pass `true`, if answer options can be added to the poll after creation; not supported for anonymous polls and quizzes
     #[must_use]
-    pub fn allow_adding_options<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.allow_adding_options = Some(val.into());
-        this
+    pub fn allow_adding_options<T: Into<bool>>(mut self, val: T) -> Self {
+        self.allow_adding_options = Some(val.into());
+        self
     }
 
     /// Pass `true`, if answer options can be added to the poll after creation; not supported for anonymous polls and quizzes
     #[must_use]
-    pub fn allow_adding_options_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.allow_adding_options = val.map(Into::into);
-        this
+    pub fn allow_adding_options_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.allow_adding_options = val.map(Into::into);
+        self
     }
 
     /// Pass `true`, if poll results must be shown only after the poll closes
     #[must_use]
-    pub fn hide_results_until_closes<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.hide_results_until_closes = Some(val.into());
-        this
+    pub fn hide_results_until_closes<T: Into<bool>>(mut self, val: T) -> Self {
+        self.hide_results_until_closes = Some(val.into());
+        self
     }
 
     /// Pass `true`, if poll results must be shown only after the poll closes
     #[must_use]
-    pub fn hide_results_until_closes_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.hide_results_until_closes = val.map(Into::into);
-        this
+    pub fn hide_results_until_closes_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.hide_results_until_closes = val.map(Into::into);
+        self
     }
 
     /// Pass `true`, if voting is limited to users who have been members of the chat where the poll is being sent for more than 24 hours; for channel chats only
     #[must_use]
-    pub fn members_only<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.members_only = Some(val.into());
-        this
+    pub fn members_only<T: Into<bool>>(mut self, val: T) -> Self {
+        self.members_only = Some(val.into());
+        self
     }
 
     /// Pass `true`, if voting is limited to users who have been members of the chat where the poll is being sent for more than 24 hours; for channel chats only
     #[must_use]
-    pub fn members_only_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.members_only = val.map(Into::into);
-        this
+    pub fn members_only_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.members_only = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. If omitted or empty, then users from any country can participate in the poll.
@@ -458,19 +429,18 @@ impl SendPoll {
     /// Adds multiple elements.
     #[must_use]
     pub fn country_codes<TItem: Into<Box<str>>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.country_codes = Some(
-            this.country_codes
+        self.country_codes = Some(
+            self.country_codes
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. If omitted or empty, then users from any country can participate in the poll.
@@ -478,17 +448,16 @@ impl SendPoll {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn country_code<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.country_codes = Some(
-            this.country_codes
+    pub fn country_code<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.country_codes = Some(
+            self.country_codes
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. If omitted or empty, then users from any country can participate in the poll.
@@ -497,12 +466,11 @@ impl SendPoll {
     /// Adds multiple elements.
     #[must_use]
     pub fn country_codes_option<TItem: Into<Box<str>>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.country_codes = val.map(|v| v.into_iter().map(Into::into).collect());
-        this
+        self.country_codes = val.map(|v| v.into_iter().map(Into::into).collect());
+        self
     }
 
     /// A JSON-serialized list of monotonically increasing 0-based identifiers of the correct answer options, required for polls in quiz mode
@@ -511,19 +479,18 @@ impl SendPoll {
     /// Adds multiple elements.
     #[must_use]
     pub fn correct_option_ids<TItem: Into<i64>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.correct_option_ids = Some(
-            this.correct_option_ids
+        self.correct_option_ids = Some(
+            self.correct_option_ids
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of monotonically increasing 0-based identifiers of the correct answer options, required for polls in quiz mode
@@ -531,17 +498,16 @@ impl SendPoll {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn correct_option_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.correct_option_ids = Some(
-            this.correct_option_ids
+    pub fn correct_option_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.correct_option_ids = Some(
+            self.correct_option_ids
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of monotonically increasing 0-based identifiers of the correct answer options, required for polls in quiz mode
@@ -550,44 +516,39 @@ impl SendPoll {
     /// Adds multiple elements.
     #[must_use]
     pub fn correct_option_ids_option<TItem: Into<i64>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.correct_option_ids = val.map(|v| v.into_iter().map(Into::into).collect());
-        this
+        self.correct_option_ids = val.map(|v| v.into_iter().map(Into::into).collect());
+        self
     }
 
     /// Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after entities parsing
     #[must_use]
-    pub fn explanation<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.explanation = Some(val.into());
-        this
+    pub fn explanation<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.explanation = Some(val.into());
+        self
     }
 
     /// Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after entities parsing
     #[must_use]
-    pub fn explanation_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.explanation = val.map(Into::into);
-        this
+    pub fn explanation_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.explanation = val.map(Into::into);
+        self
     }
 
     /// Mode for parsing entities in the explanation. See formatting options for more details.
     #[must_use]
-    pub fn explanation_parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.explanation_parse_mode = Some(val.into());
-        this
+    pub fn explanation_parse_mode<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.explanation_parse_mode = Some(val.into());
+        self
     }
 
     /// Mode for parsing entities in the explanation. See formatting options for more details.
     #[must_use]
-    pub fn explanation_parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.explanation_parse_mode = val.map(Into::into);
-        this
+    pub fn explanation_parse_mode_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.explanation_parse_mode = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the poll explanation. It can be specified instead of `explanation_parse_mode`
@@ -599,19 +560,18 @@ impl SendPoll {
         TItem: Into<crate::types::MessageEntity>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.explanation_entities = Some(
-            this.explanation_entities
+        self.explanation_entities = Some(
+            self.explanation_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the poll explanation. It can be specified instead of `explanation_parse_mode`
@@ -619,17 +579,16 @@ impl SendPoll {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn explanation_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.explanation_entities = Some(
-            this.explanation_entities
+    pub fn explanation_entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.explanation_entities = Some(
+            self.explanation_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the poll explanation. It can be specified instead of `explanation_parse_mode`
@@ -641,111 +600,98 @@ impl SendPoll {
         TItem: Into<crate::types::MessageEntity>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.explanation_entities = val.map(|v| v.into_iter().map(Into::into).collect());
-        this
+        self.explanation_entities = val.map(|v| v.into_iter().map(Into::into).collect());
+        self
     }
 
     /// Media added to the quiz explanation
     #[must_use]
-    pub fn explanation_media<T: Into<crate::types::InputPollMedia>>(self, val: T) -> Self {
-        let mut this = self;
-        this.explanation_media = Some(val.into());
-        this
+    pub fn explanation_media<T: Into<crate::types::InputPollMedia>>(mut self, val: T) -> Self {
+        self.explanation_media = Some(val.into());
+        self
     }
 
     /// Media added to the quiz explanation
     #[must_use]
     pub fn explanation_media_option<T: Into<crate::types::InputPollMedia>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.explanation_media = val.map(Into::into);
-        this
+        self.explanation_media = val.map(Into::into);
+        self
     }
 
     /// Amount of time in seconds the poll will be active after creation, 5-2628000. Can't be used together with `close_date`.
     #[must_use]
-    pub fn open_period<T: Into<u32>>(self, val: T) -> Self {
-        let mut this = self;
-        this.open_period = Some(val.into());
-        this
+    pub fn open_period<T: Into<u32>>(mut self, val: T) -> Self {
+        self.open_period = Some(val.into());
+        self
     }
 
     /// Amount of time in seconds the poll will be active after creation, 5-2628000. Can't be used together with `close_date`.
     #[must_use]
-    pub fn open_period_option<T: Into<u32>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.open_period = val.map(Into::into);
-        this
+    pub fn open_period_option<T: Into<u32>>(mut self, val: Option<T>) -> Self {
+        self.open_period = val.map(Into::into);
+        self
     }
 
     /// Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 2628000 seconds in the future. Can't be used together with `open_period`.
     #[must_use]
-    pub fn close_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.close_date = Some(val.into());
-        this
+    pub fn close_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.close_date = Some(val.into());
+        self
     }
 
     /// Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 2628000 seconds in the future. Can't be used together with `open_period`.
     #[must_use]
-    pub fn close_date_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.close_date = val.map(Into::into);
-        this
+    pub fn close_date_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.close_date = val.map(Into::into);
+        self
     }
 
     /// Pass `true` if the poll needs to be immediately closed. This can be useful for poll preview.
     #[must_use]
-    pub fn is_closed<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_closed = Some(val.into());
-        this
+    pub fn is_closed<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_closed = Some(val.into());
+        self
     }
 
     /// Pass `true` if the poll needs to be immediately closed. This can be useful for poll preview.
     #[must_use]
-    pub fn is_closed_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_closed = val.map(Into::into);
-        this
+    pub fn is_closed_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_closed = val.map(Into::into);
+        self
     }
 
     /// Description of the poll to be sent, 0-1024 characters after entities parsing
     #[must_use]
-    pub fn description<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.description = Some(val.into());
-        this
+    pub fn description<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.description = Some(val.into());
+        self
     }
 
     /// Description of the poll to be sent, 0-1024 characters after entities parsing
     #[must_use]
-    pub fn description_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.description = val.map(Into::into);
-        this
+    pub fn description_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.description = val.map(Into::into);
+        self
     }
 
     /// Mode for parsing entities in the poll description. See formatting options for more details.
     #[must_use]
-    pub fn description_parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.description_parse_mode = Some(val.into());
-        this
+    pub fn description_parse_mode<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.description_parse_mode = Some(val.into());
+        self
     }
 
     /// Mode for parsing entities in the poll description. See formatting options for more details.
     #[must_use]
-    pub fn description_parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.description_parse_mode = val.map(Into::into);
-        this
+    pub fn description_parse_mode_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.description_parse_mode = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the poll description, which can be specified instead of `description_parse_mode`
@@ -757,19 +703,18 @@ impl SendPoll {
         TItem: Into<crate::types::MessageEntity>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.description_entities = Some(
-            this.description_entities
+        self.description_entities = Some(
+            self.description_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the poll description, which can be specified instead of `description_parse_mode`
@@ -777,17 +722,16 @@ impl SendPoll {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn description_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.description_entities = Some(
-            this.description_entities
+    pub fn description_entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.description_entities = Some(
+            self.description_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the poll description, which can be specified instead of `description_parse_mode`
@@ -799,127 +743,115 @@ impl SendPoll {
         TItem: Into<crate::types::MessageEntity>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.description_entities = val.map(|v| v.into_iter().map(Into::into).collect());
-        this
+        self.description_entities = val.map(|v| v.into_iter().map(Into::into).collect());
+        self
     }
 
     /// Media added to the poll description
     #[must_use]
-    pub fn media<T: Into<crate::types::InputPollMedia>>(self, val: T) -> Self {
-        let mut this = self;
-        this.media = Some(val.into());
-        this
+    pub fn media<T: Into<crate::types::InputPollMedia>>(mut self, val: T) -> Self {
+        self.media = Some(val.into());
+        self
     }
 
     /// Media added to the poll description
     #[must_use]
-    pub fn media_option<T: Into<crate::types::InputPollMedia>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.media = val.map(Into::into);
-        this
+    pub fn media_option<T: Into<crate::types::InputPollMedia>>(mut self, val: Option<T>) -> Self {
+        self.media = val.map(Into::into);
+        self
     }
 
     /// Sends the message silently. Users will receive a notification with no sound.
     #[must_use]
-    pub fn disable_notification<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.disable_notification = Some(val.into());
-        this
+    pub fn disable_notification<T: Into<bool>>(mut self, val: T) -> Self {
+        self.disable_notification = Some(val.into());
+        self
     }
 
     /// Sends the message silently. Users will receive a notification with no sound.
     #[must_use]
-    pub fn disable_notification_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.disable_notification = val.map(Into::into);
-        this
+    pub fn disable_notification_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.disable_notification = val.map(Into::into);
+        self
     }
 
     /// Protects the contents of the sent message from forwarding and saving
     #[must_use]
-    pub fn protect_content<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.protect_content = Some(val.into());
-        this
+    pub fn protect_content<T: Into<bool>>(mut self, val: T) -> Self {
+        self.protect_content = Some(val.into());
+        self
     }
 
     /// Protects the contents of the sent message from forwarding and saving
     #[must_use]
-    pub fn protect_content_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.protect_content = val.map(Into::into);
-        this
+    pub fn protect_content_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.protect_content = val.map(Into::into);
+        self
     }
 
     /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance.
     #[must_use]
-    pub fn allow_paid_broadcast<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.allow_paid_broadcast = Some(val.into());
-        this
+    pub fn allow_paid_broadcast<T: Into<bool>>(mut self, val: T) -> Self {
+        self.allow_paid_broadcast = Some(val.into());
+        self
     }
 
     /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance.
     #[must_use]
-    pub fn allow_paid_broadcast_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.allow_paid_broadcast = val.map(Into::into);
-        this
+    pub fn allow_paid_broadcast_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.allow_paid_broadcast = val.map(Into::into);
+        self
     }
 
     /// Unique identifier of the message effect to be added to the message; for private chats only
     #[must_use]
-    pub fn message_effect_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_effect_id = Some(val.into());
-        this
+    pub fn message_effect_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.message_effect_id = Some(val.into());
+        self
     }
 
     /// Unique identifier of the message effect to be added to the message; for private chats only
     #[must_use]
-    pub fn message_effect_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.message_effect_id = val.map(Into::into);
-        this
+    pub fn message_effect_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.message_effect_id = val.map(Into::into);
+        self
     }
 
     /// Description of the message to reply to
     #[must_use]
-    pub fn reply_parameters<T: Into<crate::types::ReplyParameters>>(self, val: T) -> Self {
-        let mut this = self;
-        this.reply_parameters = Some(val.into());
-        this
+    pub fn reply_parameters<T: Into<crate::types::ReplyParameters>>(mut self, val: T) -> Self {
+        self.reply_parameters = Some(val.into());
+        self
     }
 
     /// Description of the message to reply to
     #[must_use]
     pub fn reply_parameters_option<T: Into<crate::types::ReplyParameters>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.reply_parameters = val.map(Into::into);
-        this
+        self.reply_parameters = val.map(Into::into);
+        self
     }
 
     /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
     #[must_use]
-    pub fn reply_markup<T: Into<crate::types::ReplyMarkup>>(self, val: T) -> Self {
-        let mut this = self;
-        this.reply_markup = Some(val.into());
-        this
+    pub fn reply_markup<T: Into<crate::types::ReplyMarkup>>(mut self, val: T) -> Self {
+        self.reply_markup = Some(val.into());
+        self
     }
 
     /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
     #[must_use]
-    pub fn reply_markup_option<T: Into<crate::types::ReplyMarkup>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.reply_markup = val.map(Into::into);
-        this
+    pub fn reply_markup_option<T: Into<crate::types::ReplyMarkup>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.reply_markup = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for SendPoll {

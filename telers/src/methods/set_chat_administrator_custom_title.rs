@@ -36,26 +36,23 @@ impl SetChatAdministratorCustomTitle {
 
     /// Unique identifier for the target chat or username of the target supergroup in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Unique identifier of the target user
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// New custom title for the administrator; 0-16 characters, emoji are not allowed
     #[must_use]
-    pub fn custom_title<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.custom_title = val.into();
-        this
+    pub fn custom_title<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.custom_title = val.into();
+        self
     }
 }
 impl super::TelegramMethod for SetChatAdministratorCustomTitle {

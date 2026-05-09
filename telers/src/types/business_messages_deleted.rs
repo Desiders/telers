@@ -38,18 +38,16 @@ impl BusinessMessagesDeleted {
 
     /// Unique identifier of the business connection
     #[must_use]
-    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection_id = val.into();
-        this
+    pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.business_connection_id = val.into();
+        self
     }
 
     /// Information about a chat in the business account. The bot may not have access to the chat or the corresponding user.
     #[must_use]
-    pub fn chat<T: Into<crate::types::Chat>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat = Box::new(val.into());
-        this
+    pub fn chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
+        self.chat = Box::new(val.into());
+        self
     }
 
     /// The list of identifiers of deleted messages in the chat of the business account
@@ -57,15 +55,14 @@ impl BusinessMessagesDeleted {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn message_ids<T: Into<Box<[i64]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_ids = this
+    pub fn message_ids<T: Into<Box<[i64]>>>(mut self, val: T) -> Self {
+        self.message_ids = self
             .message_ids
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// The list of identifiers of deleted messages in the chat of the business account
@@ -73,14 +70,13 @@ impl BusinessMessagesDeleted {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_ids = this
+    pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_ids = self
             .message_ids
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

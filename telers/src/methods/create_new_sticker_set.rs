@@ -58,26 +58,23 @@ impl CreateNewStickerSet {
 
     /// User identifier of created sticker set owner
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// Short name of sticker set, to be used in t.me/addstickers/ URLs (e.g., animals). Can contain only English letters, digits and underscores. Must begin with a letter, can't contain consecutive underscores and must end in `_by_<bot_username>`. <`bot_username`> is case insensitive. 1-64 characters.
     #[must_use]
-    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.name = val.into();
-        this
+    pub fn name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.name = val.into();
+        self
     }
 
     /// Sticker set title, 1-64 characters
     #[must_use]
-    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.title = val.into();
-        this
+    pub fn title<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.title = val.into();
+        self
     }
 
     /// A JSON-serialized list of 1-50 initial stickers to be added to the sticker set
@@ -86,17 +83,16 @@ impl CreateNewStickerSet {
     /// Adds multiple elements.
     #[must_use]
     pub fn stickers<TItem: Into<crate::types::InputSticker>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.stickers = this
+        self.stickers = self
             .stickers
             .into_vec()
             .into_iter()
             .chain(val.into_iter().map(Into::into))
             .collect();
-        this
+        self
     }
 
     /// A JSON-serialized list of 1-50 initial stickers to be added to the sticker set
@@ -104,47 +100,42 @@ impl CreateNewStickerSet {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn sticker<T: Into<crate::types::InputSticker>>(self, val: T) -> Self {
-        let mut this = self;
-        this.stickers = this
+    pub fn sticker<T: Into<crate::types::InputSticker>>(mut self, val: T) -> Self {
+        self.stickers = self
             .stickers
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// Type of stickers in the set, pass `regular`, `mask`, or `custom_emoji`. By default, a regular sticker set is created.
     #[must_use]
-    pub fn sticker_type<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sticker_type = Some(val.into());
-        this
+    pub fn sticker_type<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.sticker_type = Some(val.into());
+        self
     }
 
     /// Type of stickers in the set, pass `regular`, `mask`, or `custom_emoji`. By default, a regular sticker set is created.
     #[must_use]
-    pub fn sticker_type_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.sticker_type = val.map(Into::into);
-        this
+    pub fn sticker_type_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.sticker_type = val.map(Into::into);
+        self
     }
 
     /// Pass `true` if stickers in the sticker set must be repainted to the color of text when used in messages, the accent color if used as emoji status, white on chat photos, or another appropriate color based on context; for custom emoji sticker sets only
     #[must_use]
-    pub fn needs_repainting<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.needs_repainting = Some(val.into());
-        this
+    pub fn needs_repainting<T: Into<bool>>(mut self, val: T) -> Self {
+        self.needs_repainting = Some(val.into());
+        self
     }
 
     /// Pass `true` if stickers in the sticker set must be repainted to the color of text when used in messages, the accent color if used as emoji status, white on chat photos, or another appropriate color based on context; for custom emoji sticker sets only
     #[must_use]
-    pub fn needs_repainting_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.needs_repainting = val.map(Into::into);
-        this
+    pub fn needs_repainting_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.needs_repainting = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for CreateNewStickerSet {

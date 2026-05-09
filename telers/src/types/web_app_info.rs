@@ -21,9 +21,8 @@ impl WebAppInfo {
 
     /// An HTTPS URL of a Web App to be opened with additional data as specified in Initializing Web Apps
     #[must_use]
-    pub fn url<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.url = val.into();
-        this
+    pub fn url<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.url = val.into();
+        self
     }
 }

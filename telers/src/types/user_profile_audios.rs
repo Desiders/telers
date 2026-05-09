@@ -32,10 +32,9 @@ impl UserProfileAudios {
 
     /// Total number of profile audios for the target user
     #[must_use]
-    pub fn total_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.total_count = val.into();
-        this
+    pub fn total_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.total_count = val.into();
+        self
     }
 
     /// Requested profile audios
@@ -43,15 +42,14 @@ impl UserProfileAudios {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn audios<T: Into<Box<[crate::types::Audio]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.audios = this
+    pub fn audios<T: Into<Box<[crate::types::Audio]>>>(mut self, val: T) -> Self {
+        self.audios = self
             .audios
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// Requested profile audios
@@ -59,14 +57,13 @@ impl UserProfileAudios {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn audio<T: Into<crate::types::Audio>>(self, val: T) -> Self {
-        let mut this = self;
-        this.audios = this
+    pub fn audio<T: Into<crate::types::Audio>>(mut self, val: T) -> Self {
+        self.audios = self
             .audios
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

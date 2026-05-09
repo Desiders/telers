@@ -47,66 +47,58 @@ impl SendMessageDraft {
 
     /// Unique identifier for the target private chat
     #[must_use]
-    pub fn chat_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Unique identifier for the target message thread
     #[must_use]
-    pub fn message_thread_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_thread_id = Some(val.into());
-        this
+    pub fn message_thread_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_thread_id = Some(val.into());
+        self
     }
 
     /// Unique identifier for the target message thread
     #[must_use]
-    pub fn message_thread_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.message_thread_id = val.map(Into::into);
-        this
+    pub fn message_thread_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.message_thread_id = val.map(Into::into);
+        self
     }
 
     /// Unique identifier of the message draft; must be non-zero. Changes of drafts with the same identifier are animated.
     #[must_use]
-    pub fn draft_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.draft_id = val.into();
-        this
+    pub fn draft_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.draft_id = val.into();
+        self
     }
 
     /// Text of the message to be sent, 0-4096 characters after entities parsing. Pass an empty text to show a `Thinking...` placeholder.
     #[must_use]
-    pub fn text<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text = Some(val.into());
-        this
+    pub fn text<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.text = Some(val.into());
+        self
     }
 
     /// Text of the message to be sent, 0-4096 characters after entities parsing. Pass an empty text to show a `Thinking...` placeholder.
     #[must_use]
-    pub fn text_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.text = val.map(Into::into);
-        this
+    pub fn text_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.text = val.map(Into::into);
+        self
     }
 
     /// Mode for parsing entities in the message text. See formatting options for more details.
     #[must_use]
-    pub fn parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.parse_mode = Some(val.into());
-        this
+    pub fn parse_mode<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.parse_mode = Some(val.into());
+        self
     }
 
     /// Mode for parsing entities in the message text. See formatting options for more details.
     #[must_use]
-    pub fn parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.parse_mode = val.map(Into::into);
-        this
+    pub fn parse_mode_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.parse_mode = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in message text, which can be specified instead of `parse_mode`
@@ -115,19 +107,18 @@ impl SendMessageDraft {
     /// Adds multiple elements.
     #[must_use]
     pub fn entities<TItem: Into<crate::types::MessageEntity>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.entities = Some(
-            this.entities
+        self.entities = Some(
+            self.entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in message text, which can be specified instead of `parse_mode`
@@ -135,17 +126,16 @@ impl SendMessageDraft {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.entities = Some(
-            this.entities
+    pub fn entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.entities = Some(
+            self.entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in message text, which can be specified instead of `parse_mode`
@@ -157,12 +147,11 @@ impl SendMessageDraft {
         TItem: Into<crate::types::MessageEntity>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.entities = val.map(|v| v.into_iter().map(Into::into).collect());
-        this
+        self.entities = val.map(|v| v.into_iter().map(Into::into).collect());
+        self
     }
 }
 impl super::TelegramMethod for SendMessageDraft {

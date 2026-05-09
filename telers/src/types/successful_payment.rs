@@ -72,121 +72,106 @@ impl SuccessfulPayment {
 
     /// Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram Stars
     #[must_use]
-    pub fn currency<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.currency = val.into();
-        this
+    pub fn currency<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.currency = val.into();
+        self
     }
 
     /// Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
     #[must_use]
-    pub fn total_amount<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.total_amount = val.into();
-        this
+    pub fn total_amount<T: Into<i64>>(mut self, val: T) -> Self {
+        self.total_amount = val.into();
+        self
     }
 
     /// Bot-specified invoice payload
     #[must_use]
-    pub fn invoice_payload<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.invoice_payload = val.into();
-        this
+    pub fn invoice_payload<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.invoice_payload = val.into();
+        self
     }
 
     /// Expiration date of the subscription, in Unix time; for recurring payments only
     #[must_use]
-    pub fn subscription_expiration_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.subscription_expiration_date = Some(val.into());
-        this
+    pub fn subscription_expiration_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.subscription_expiration_date = Some(val.into());
+        self
     }
 
     /// Expiration date of the subscription, in Unix time; for recurring payments only
     #[must_use]
-    pub fn subscription_expiration_date_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.subscription_expiration_date = val.map(Into::into);
-        this
+    pub fn subscription_expiration_date_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.subscription_expiration_date = val.map(Into::into);
+        self
     }
 
     /// `true`, if the payment is a recurring payment for a subscription
     #[must_use]
-    pub fn is_recurring<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_recurring = Some(val.into());
-        this
+    pub fn is_recurring<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_recurring = Some(val.into());
+        self
     }
 
     /// `true`, if the payment is a recurring payment for a subscription
     #[must_use]
-    pub fn is_recurring_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_recurring = val.map(Into::into);
-        this
+    pub fn is_recurring_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_recurring = val.map(Into::into);
+        self
     }
 
     /// `true`, if the payment is the first payment for a subscription
     #[must_use]
-    pub fn is_first_recurring<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_first_recurring = Some(val.into());
-        this
+    pub fn is_first_recurring<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_first_recurring = Some(val.into());
+        self
     }
 
     /// `true`, if the payment is the first payment for a subscription
     #[must_use]
-    pub fn is_first_recurring_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_first_recurring = val.map(Into::into);
-        this
+    pub fn is_first_recurring_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_first_recurring = val.map(Into::into);
+        self
     }
 
     /// Identifier of the shipping option chosen by the user
     #[must_use]
-    pub fn shipping_option_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.shipping_option_id = Some(val.into());
-        this
+    pub fn shipping_option_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.shipping_option_id = Some(val.into());
+        self
     }
 
     /// Identifier of the shipping option chosen by the user
     #[must_use]
-    pub fn shipping_option_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.shipping_option_id = val.map(Into::into);
-        this
+    pub fn shipping_option_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.shipping_option_id = val.map(Into::into);
+        self
     }
 
     /// Order information provided by the user
     #[must_use]
-    pub fn order_info<T: Into<crate::types::OrderInfo>>(self, val: T) -> Self {
-        let mut this = self;
-        this.order_info = Some(val.into());
-        this
+    pub fn order_info<T: Into<crate::types::OrderInfo>>(mut self, val: T) -> Self {
+        self.order_info = Some(val.into());
+        self
     }
 
     /// Order information provided by the user
     #[must_use]
-    pub fn order_info_option<T: Into<crate::types::OrderInfo>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.order_info = val.map(Into::into);
-        this
+    pub fn order_info_option<T: Into<crate::types::OrderInfo>>(mut self, val: Option<T>) -> Self {
+        self.order_info = val.map(Into::into);
+        self
     }
 
     /// Telegram payment identifier
     #[must_use]
-    pub fn telegram_payment_charge_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.telegram_payment_charge_id = val.into();
-        this
+    pub fn telegram_payment_charge_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.telegram_payment_charge_id = val.into();
+        self
     }
 
     /// Provider payment identifier
     #[must_use]
-    pub fn provider_payment_charge_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.provider_payment_charge_id = val.into();
-        this
+    pub fn provider_payment_charge_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.provider_payment_charge_id = val.into();
+        self
     }
 }

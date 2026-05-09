@@ -31,26 +31,23 @@ impl GetChatAdministrators {
 
     /// Unique identifier for the target chat or username of the target supergroup or channel in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Pass `true` to additionally receive all bots that are administrators of the chat. By default, bots other than the current bot are omitted.
     #[must_use]
-    pub fn return_bots<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.return_bots = Some(val.into());
-        this
+    pub fn return_bots<T: Into<bool>>(mut self, val: T) -> Self {
+        self.return_bots = Some(val.into());
+        self
     }
 
     /// Pass `true` to additionally receive all bots that are administrators of the chat. By default, bots other than the current bot are omitted.
     #[must_use]
-    pub fn return_bots_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.return_bots = val.map(Into::into);
-        this
+    pub fn return_bots_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.return_bots = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for GetChatAdministrators {

@@ -33,25 +33,22 @@ impl BackgroundFillGradient {
 
     /// Top color of the gradient in the RGB24 format
     #[must_use]
-    pub fn top_color<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.top_color = val.into();
-        this
+    pub fn top_color<T: Into<i64>>(mut self, val: T) -> Self {
+        self.top_color = val.into();
+        self
     }
 
     /// Bottom color of the gradient in the RGB24 format
     #[must_use]
-    pub fn bottom_color<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.bottom_color = val.into();
-        this
+    pub fn bottom_color<T: Into<i64>>(mut self, val: T) -> Self {
+        self.bottom_color = val.into();
+        self
     }
 
     /// Clockwise rotation angle of the background fill in degrees; 0-359
     #[must_use]
-    pub fn rotation_angle<T: Into<u16>>(self, val: T) -> Self {
-        let mut this = self;
-        this.rotation_angle = val.into();
-        this
+    pub fn rotation_angle<T: Into<u16>>(mut self, val: T) -> Self {
+        self.rotation_angle = val.into();
+        self
     }
 }

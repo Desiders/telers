@@ -39,10 +39,9 @@ impl OwnedGifts {
 
     /// The total number of gifts owned by the user or the chat
     #[must_use]
-    pub fn total_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.total_count = val.into();
-        this
+    pub fn total_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.total_count = val.into();
+        self
     }
 
     /// The list of gifts
@@ -50,15 +49,14 @@ impl OwnedGifts {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn gifts<T: Into<Box<[crate::types::OwnedGift]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.gifts = this
+    pub fn gifts<T: Into<Box<[crate::types::OwnedGift]>>>(mut self, val: T) -> Self {
+        self.gifts = self
             .gifts
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// The list of gifts
@@ -66,30 +64,27 @@ impl OwnedGifts {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn gift<T: Into<crate::types::OwnedGift>>(self, val: T) -> Self {
-        let mut this = self;
-        this.gifts = this
+    pub fn gift<T: Into<crate::types::OwnedGift>>(mut self, val: T) -> Self {
+        self.gifts = self
             .gifts
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// Offset for the next request. If empty, then there are no more results
     #[must_use]
-    pub fn next_offset<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.next_offset = Some(val.into());
-        this
+    pub fn next_offset<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.next_offset = Some(val.into());
+        self
     }
 
     /// Offset for the next request. If empty, then there are no more results
     #[must_use]
-    pub fn next_offset_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.next_offset = val.map(Into::into);
-        this
+    pub fn next_offset_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.next_offset = val.map(Into::into);
+        self
     }
 }

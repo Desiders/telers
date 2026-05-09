@@ -32,41 +32,36 @@ impl ForceReply {
 
     /// Shows reply interface to the user, as if they manually selected the bot's message and tapped 'Reply'
     #[must_use]
-    pub fn force_reply<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.force_reply = val.into();
-        this
+    pub fn force_reply<T: Into<bool>>(mut self, val: T) -> Self {
+        self.force_reply = val.into();
+        self
     }
 
     /// The placeholder to be shown in the input field when the reply is active; 1-64 characters
     #[must_use]
-    pub fn input_field_placeholder<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.input_field_placeholder = Some(val.into());
-        this
+    pub fn input_field_placeholder<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.input_field_placeholder = Some(val.into());
+        self
     }
 
     /// The placeholder to be shown in the input field when the reply is active; 1-64 characters
     #[must_use]
-    pub fn input_field_placeholder_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.input_field_placeholder = val.map(Into::into);
-        this
+    pub fn input_field_placeholder_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.input_field_placeholder = val.map(Into::into);
+        self
     }
 
     /// Use this parameter if you want to force reply from specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message.
     #[must_use]
-    pub fn selective<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.selective = Some(val.into());
-        this
+    pub fn selective<T: Into<bool>>(mut self, val: T) -> Self {
+        self.selective = Some(val.into());
+        self
     }
 
     /// Use this parameter if you want to force reply from specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message.
     #[must_use]
-    pub fn selective_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.selective = val.map(Into::into);
-        this
+    pub fn selective_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.selective = val.map(Into::into);
+        self
     }
 }

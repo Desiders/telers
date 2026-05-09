@@ -31,18 +31,16 @@ impl SetChatStickerSet {
 
     /// Unique identifier for the target chat or username of the target supergroup in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Name of the sticker set to be set as the group sticker set
     #[must_use]
-    pub fn sticker_set_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sticker_set_name = val.into();
-        this
+    pub fn sticker_set_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.sticker_set_name = val.into();
+        self
     }
 }
 impl super::TelegramMethod for SetChatStickerSet {

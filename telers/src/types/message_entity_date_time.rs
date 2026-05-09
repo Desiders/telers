@@ -42,41 +42,36 @@ impl MessageEntityDateTime {
 
     /// Offset in UTF-16 code units to the start of the entity
     #[must_use]
-    pub fn offset<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.offset = val.into();
-        this
+    pub fn offset<T: Into<i64>>(mut self, val: T) -> Self {
+        self.offset = val.into();
+        self
     }
 
     /// Length of the entity in UTF-16 code units
     #[must_use]
-    pub fn length<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.length = val.into();
-        this
+    pub fn length<T: Into<i64>>(mut self, val: T) -> Self {
+        self.length = val.into();
+        self
     }
 
     /// For `date_time` only, the Unix time associated with the entity
     #[must_use]
-    pub fn unix_time<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.unix_time = val.into();
-        this
+    pub fn unix_time<T: Into<i64>>(mut self, val: T) -> Self {
+        self.unix_time = val.into();
+        self
     }
 
     /// For `date_time` only, the string that defines the formatting of the date and time. See date-time entity formatting for more details.
     #[must_use]
-    pub fn date_time_format<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.date_time_format = Some(val.into());
-        this
+    pub fn date_time_format<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.date_time_format = Some(val.into());
+        self
     }
 
     /// For `date_time` only, the string that defines the formatting of the date and time. See date-time entity formatting for more details.
     #[must_use]
-    pub fn date_time_format_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.date_time_format = val.map(Into::into);
-        this
+    pub fn date_time_format_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.date_time_format = val.map(Into::into);
+        self
     }
 }

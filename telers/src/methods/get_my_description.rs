@@ -25,18 +25,16 @@ impl GetMyDescription {
 
     /// A two-letter ISO 639-1 language code or an empty string
     #[must_use]
-    pub fn language_code<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.language_code = Some(val.into());
-        this
+    pub fn language_code<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.language_code = Some(val.into());
+        self
     }
 
     /// A two-letter ISO 639-1 language code or an empty string
     #[must_use]
-    pub fn language_code_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.language_code = val.map(Into::into);
-        this
+    pub fn language_code_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.language_code = val.map(Into::into);
+        self
     }
 }
 impl Default for GetMyDescription {

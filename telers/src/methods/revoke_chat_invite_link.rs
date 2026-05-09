@@ -31,18 +31,16 @@ impl RevokeChatInviteLink {
 
     /// Unique identifier of the target chat or username of the target channel in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// The invite link to revoke
     #[must_use]
-    pub fn invite_link<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.invite_link = val.into();
-        this
+    pub fn invite_link<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.invite_link = val.into();
+        self
     }
 }
 impl super::TelegramMethod for RevokeChatInviteLink {

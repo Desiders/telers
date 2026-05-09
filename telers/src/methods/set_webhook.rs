@@ -52,58 +52,51 @@ impl SetWebhook {
 
     /// HTTPS URL to send updates to. Use an empty string to remove webhook integration
     #[must_use]
-    pub fn url<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.url = val.into();
-        this
+    pub fn url<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.url = val.into();
+        self
     }
 
     /// Upload your public key certificate so that the root certificate in use can be checked. See our self-signed guide for details.
     #[must_use]
-    pub fn certificate<T: Into<crate::types::InputFile>>(self, val: T) -> Self {
-        let mut this = self;
-        this.certificate = Some(val.into());
-        this
+    pub fn certificate<T: Into<crate::types::InputFile>>(mut self, val: T) -> Self {
+        self.certificate = Some(val.into());
+        self
     }
 
     /// Upload your public key certificate so that the root certificate in use can be checked. See our self-signed guide for details.
     #[must_use]
-    pub fn certificate_option<T: Into<crate::types::InputFile>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.certificate = val.map(Into::into);
-        this
+    pub fn certificate_option<T: Into<crate::types::InputFile>>(mut self, val: Option<T>) -> Self {
+        self.certificate = val.map(Into::into);
+        self
     }
 
     /// The fixed IP address which will be used to send webhook requests instead of the IP address resolved through DNS
     #[must_use]
-    pub fn ip_address<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.ip_address = Some(val.into());
-        this
+    pub fn ip_address<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.ip_address = Some(val.into());
+        self
     }
 
     /// The fixed IP address which will be used to send webhook requests instead of the IP address resolved through DNS
     #[must_use]
-    pub fn ip_address_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.ip_address = val.map(Into::into);
-        this
+    pub fn ip_address_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.ip_address = val.map(Into::into);
+        self
     }
 
     /// The maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to 40. Use lower values to limit the load on your bot's server, and higher values to increase your bot's throughput.
     #[must_use]
-    pub fn max_connections<T: Into<u8>>(self, val: T) -> Self {
-        let mut this = self;
-        this.max_connections = Some(val.into());
-        this
+    pub fn max_connections<T: Into<u8>>(mut self, val: T) -> Self {
+        self.max_connections = Some(val.into());
+        self
     }
 
     /// The maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to 40. Use lower values to limit the load on your bot's server, and higher values to increase your bot's throughput.
     #[must_use]
-    pub fn max_connections_option<T: Into<u8>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.max_connections = val.map(Into::into);
-        this
+    pub fn max_connections_option<T: Into<u8>>(mut self, val: Option<T>) -> Self {
+        self.max_connections = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized list of the update types you want your bot to receive. For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except `chat_member`, `message_reaction`, and `message_reaction_count` (default). If not specified, the previous setting will be used. Please note that this parameter doesn't affect updates created before the call to the [`crate::methods::SetWebhook`], so unwanted updates may be received for a short period of time.
@@ -112,19 +105,18 @@ impl SetWebhook {
     /// Adds multiple elements.
     #[must_use]
     pub fn allowed_updates<TItem: Into<Box<str>>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.allowed_updates = Some(
-            this.allowed_updates
+        self.allowed_updates = Some(
+            self.allowed_updates
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of the update types you want your bot to receive. For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except `chat_member`, `message_reaction`, and `message_reaction_count` (default). If not specified, the previous setting will be used. Please note that this parameter doesn't affect updates created before the call to the [`crate::methods::SetWebhook`], so unwanted updates may be received for a short period of time.
@@ -132,17 +124,16 @@ impl SetWebhook {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn allowed_update<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.allowed_updates = Some(
-            this.allowed_updates
+    pub fn allowed_update<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.allowed_updates = Some(
+            self.allowed_updates
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of the update types you want your bot to receive. For example, specify `message`, `edited_channel_post`, `callback_query` to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except `chat_member`, `message_reaction`, and `message_reaction_count` (default). If not specified, the previous setting will be used. Please note that this parameter doesn't affect updates created before the call to the [`crate::methods::SetWebhook`], so unwanted updates may be received for a short period of time.
@@ -151,44 +142,39 @@ impl SetWebhook {
     /// Adds multiple elements.
     #[must_use]
     pub fn allowed_updates_option<TItem: Into<Box<str>>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.allowed_updates = val.map(|v| v.into_iter().map(Into::into).collect());
-        this
+        self.allowed_updates = val.map(|v| v.into_iter().map(Into::into).collect());
+        self
     }
 
     /// Pass `true` to drop all pending updates
     #[must_use]
-    pub fn drop_pending_updates<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.drop_pending_updates = Some(val.into());
-        this
+    pub fn drop_pending_updates<T: Into<bool>>(mut self, val: T) -> Self {
+        self.drop_pending_updates = Some(val.into());
+        self
     }
 
     /// Pass `true` to drop all pending updates
     #[must_use]
-    pub fn drop_pending_updates_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.drop_pending_updates = val.map(Into::into);
-        this
+    pub fn drop_pending_updates_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.drop_pending_updates = val.map(Into::into);
+        self
     }
 
     /// A secret token to be sent in a header `X-Telegram-Bot-Api-Secret-Token` in every webhook request, 1-256 characters. Only characters A-Z, a-z, 0-9, `_` and - are allowed. The header is useful to ensure that the request comes from a webhook set by you.
     #[must_use]
-    pub fn secret_token<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.secret_token = Some(val.into());
-        this
+    pub fn secret_token<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.secret_token = Some(val.into());
+        self
     }
 
     /// A secret token to be sent in a header `X-Telegram-Bot-Api-Secret-Token` in every webhook request, 1-256 characters. Only characters A-Z, a-z, 0-9, `_` and - are allowed. The header is useful to ensure that the request comes from a webhook set by you.
     #[must_use]
-    pub fn secret_token_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.secret_token = val.map(Into::into);
-        this
+    pub fn secret_token_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.secret_token = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for SetWebhook {

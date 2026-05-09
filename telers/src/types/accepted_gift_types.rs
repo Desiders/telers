@@ -43,41 +43,36 @@ impl AcceptedGiftTypes {
 
     /// `true`, if unlimited regular gifts are accepted
     #[must_use]
-    pub fn unlimited_gifts<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.unlimited_gifts = val.into();
-        this
+    pub fn unlimited_gifts<T: Into<bool>>(mut self, val: T) -> Self {
+        self.unlimited_gifts = val.into();
+        self
     }
 
     /// `true`, if limited regular gifts are accepted
     #[must_use]
-    pub fn limited_gifts<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.limited_gifts = val.into();
-        this
+    pub fn limited_gifts<T: Into<bool>>(mut self, val: T) -> Self {
+        self.limited_gifts = val.into();
+        self
     }
 
     /// `true`, if unique gifts or gifts that can be upgraded to unique for free are accepted
     #[must_use]
-    pub fn unique_gifts<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.unique_gifts = val.into();
-        this
+    pub fn unique_gifts<T: Into<bool>>(mut self, val: T) -> Self {
+        self.unique_gifts = val.into();
+        self
     }
 
     /// `true`, if a Telegram Premium subscription is accepted
     #[must_use]
-    pub fn premium_subscription<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.premium_subscription = val.into();
-        this
+    pub fn premium_subscription<T: Into<bool>>(mut self, val: T) -> Self {
+        self.premium_subscription = val.into();
+        self
     }
 
     /// `true`, if transfers of unique gifts from channels are accepted
     #[must_use]
-    pub fn gifts_from_channels<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.gifts_from_channels = val.into();
-        this
+    pub fn gifts_from_channels<T: Into<bool>>(mut self, val: T) -> Self {
+        self.gifts_from_channels = val.into();
+        self
     }
 }

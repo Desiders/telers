@@ -22,18 +22,16 @@ impl SentWebAppMessage {
 
     /// Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message.
     #[must_use]
-    pub fn inline_message_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.inline_message_id = Some(val.into());
-        this
+    pub fn inline_message_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.inline_message_id = Some(val.into());
+        self
     }
 
     /// Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message.
     #[must_use]
-    pub fn inline_message_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.inline_message_id = val.map(Into::into);
-        this
+    pub fn inline_message_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.inline_message_id = val.map(Into::into);
+        self
     }
 }
 impl Default for SentWebAppMessage {

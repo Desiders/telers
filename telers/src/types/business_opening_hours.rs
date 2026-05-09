@@ -32,10 +32,9 @@ impl BusinessOpeningHours {
 
     /// Unique name of the time zone for which the opening hours are defined
     #[must_use]
-    pub fn time_zone_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.time_zone_name = val.into();
-        this
+    pub fn time_zone_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.time_zone_name = val.into();
+        self
     }
 
     /// List of time intervals describing business opening hours
@@ -44,17 +43,16 @@ impl BusinessOpeningHours {
     /// Adds multiple elements.
     #[must_use]
     pub fn opening_hours<T: Into<Box<[crate::types::BusinessOpeningHoursInterval]>>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.opening_hours = this
+        self.opening_hours = self
             .opening_hours
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// List of time intervals describing business opening hours
@@ -62,14 +60,16 @@ impl BusinessOpeningHours {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn opening_hour<T: Into<crate::types::BusinessOpeningHoursInterval>>(self, val: T) -> Self {
-        let mut this = self;
-        this.opening_hours = this
+    pub fn opening_hour<T: Into<crate::types::BusinessOpeningHoursInterval>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.opening_hours = self
             .opening_hours
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

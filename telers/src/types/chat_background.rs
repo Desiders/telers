@@ -21,9 +21,8 @@ impl ChatBackground {
 
     /// Type of the background
     #[must_use]
-    pub fn r#type<T: Into<crate::types::BackgroundType>>(self, val: T) -> Self {
-        let mut this = self;
-        this.r#type = Box::new(val.into());
-        this
+    pub fn r#type<T: Into<crate::types::BackgroundType>>(mut self, val: T) -> Self {
+        self.r#type = Box::new(val.into());
+        self
     }
 }

@@ -31,26 +31,26 @@ impl SetStickerMaskPosition {
 
     /// File identifier of the sticker
     #[must_use]
-    pub fn sticker<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sticker = val.into();
-        this
+    pub fn sticker<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.sticker = val.into();
+        self
     }
 
     /// A JSON-serialized object with the position where the mask should be placed on faces. Omit the parameter to remove the mask position.
     #[must_use]
-    pub fn mask_position<T: Into<crate::types::MaskPosition>>(self, val: T) -> Self {
-        let mut this = self;
-        this.mask_position = Some(val.into());
-        this
+    pub fn mask_position<T: Into<crate::types::MaskPosition>>(mut self, val: T) -> Self {
+        self.mask_position = Some(val.into());
+        self
     }
 
     /// A JSON-serialized object with the position where the mask should be placed on faces. Omit the parameter to remove the mask position.
     #[must_use]
-    pub fn mask_position_option<T: Into<crate::types::MaskPosition>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.mask_position = val.map(Into::into);
-        this
+    pub fn mask_position_option<T: Into<crate::types::MaskPosition>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.mask_position = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for SetStickerMaskPosition {

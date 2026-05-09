@@ -47,10 +47,9 @@ impl Checklist {
 
     /// Title of the checklist
     #[must_use]
-    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.title = val.into();
-        this
+    pub fn title<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.title = val.into();
+        self
     }
 
     /// Special entities that appear in the checklist title
@@ -58,17 +57,16 @@ impl Checklist {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn title_entities<T: Into<Box<[crate::types::MessageEntity]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.title_entities = Some(
-            this.title_entities
+    pub fn title_entities<T: Into<Box<[crate::types::MessageEntity]>>>(mut self, val: T) -> Self {
+        self.title_entities = Some(
+            self.title_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// Special entities that appear in the checklist title
@@ -76,17 +74,16 @@ impl Checklist {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn title_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.title_entities = Some(
-            this.title_entities
+    pub fn title_entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.title_entities = Some(
+            self.title_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// Special entities that appear in the checklist title
@@ -95,12 +92,11 @@ impl Checklist {
     /// Adds a single element.
     #[must_use]
     pub fn title_entities_option<T: Into<Box<[crate::types::MessageEntity]>>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.title_entities = val.map(Into::into);
-        this
+        self.title_entities = val.map(Into::into);
+        self
     }
 
     /// List of tasks in the checklist
@@ -108,15 +104,14 @@ impl Checklist {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn tasks<T: Into<Box<[crate::types::ChecklistTask]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.tasks = this
+    pub fn tasks<T: Into<Box<[crate::types::ChecklistTask]>>>(mut self, val: T) -> Self {
+        self.tasks = self
             .tasks
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// List of tasks in the checklist
@@ -124,46 +119,41 @@ impl Checklist {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn task<T: Into<crate::types::ChecklistTask>>(self, val: T) -> Self {
-        let mut this = self;
-        this.tasks = this
+    pub fn task<T: Into<crate::types::ChecklistTask>>(mut self, val: T) -> Self {
+        self.tasks = self
             .tasks
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// `true`, if users other than the creator of the list can add tasks to the list
     #[must_use]
-    pub fn others_can_add_tasks<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.others_can_add_tasks = Some(val.into());
-        this
+    pub fn others_can_add_tasks<T: Into<bool>>(mut self, val: T) -> Self {
+        self.others_can_add_tasks = Some(val.into());
+        self
     }
 
     /// `true`, if users other than the creator of the list can add tasks to the list
     #[must_use]
-    pub fn others_can_add_tasks_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.others_can_add_tasks = val.map(Into::into);
-        this
+    pub fn others_can_add_tasks_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.others_can_add_tasks = val.map(Into::into);
+        self
     }
 
     /// `true`, if users other than the creator of the list can mark tasks as done or not done
     #[must_use]
-    pub fn others_can_mark_tasks_as_done<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.others_can_mark_tasks_as_done = Some(val.into());
-        this
+    pub fn others_can_mark_tasks_as_done<T: Into<bool>>(mut self, val: T) -> Self {
+        self.others_can_mark_tasks_as_done = Some(val.into());
+        self
     }
 
     /// `true`, if users other than the creator of the list can mark tasks as done or not done
     #[must_use]
-    pub fn others_can_mark_tasks_as_done_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.others_can_mark_tasks_as_done = val.map(Into::into);
-        this
+    pub fn others_can_mark_tasks_as_done_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.others_can_mark_tasks_as_done = val.map(Into::into);
+        self
     }
 }

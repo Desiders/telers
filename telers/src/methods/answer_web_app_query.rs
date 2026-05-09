@@ -31,18 +31,16 @@ impl AnswerWebAppQuery {
 
     /// Unique identifier for the query to be answered
     #[must_use]
-    pub fn web_app_query_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.web_app_query_id = val.into();
-        this
+    pub fn web_app_query_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.web_app_query_id = val.into();
+        self
     }
 
     /// A JSON-serialized object describing the message to be sent
     #[must_use]
-    pub fn result<T: Into<crate::types::InlineQueryResult>>(self, val: T) -> Self {
-        let mut this = self;
-        this.result = val.into();
-        this
+    pub fn result<T: Into<crate::types::InlineQueryResult>>(mut self, val: T) -> Self {
+        self.result = val.into();
+        self
     }
 }
 impl super::TelegramMethod for AnswerWebAppQuery {

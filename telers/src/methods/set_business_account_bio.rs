@@ -31,26 +31,23 @@ impl SetBusinessAccountBio {
 
     /// Unique identifier of the business connection
     #[must_use]
-    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection_id = val.into();
-        this
+    pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.business_connection_id = val.into();
+        self
     }
 
     /// The new value of the bio for the business account; 0-140 characters
     #[must_use]
-    pub fn bio<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.bio = Some(val.into());
-        this
+    pub fn bio<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.bio = Some(val.into());
+        self
     }
 
     /// The new value of the bio for the business account; 0-140 characters
     #[must_use]
-    pub fn bio_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.bio = val.map(Into::into);
-        this
+    pub fn bio_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.bio = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for SetBusinessAccountBio {

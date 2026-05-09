@@ -21,9 +21,8 @@ impl SentGuestMessage {
 
     /// Identifier of the sent inline message
     #[must_use]
-    pub fn inline_message_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.inline_message_id = val.into();
-        this
+    pub fn inline_message_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.inline_message_id = val.into();
+        self
     }
 }

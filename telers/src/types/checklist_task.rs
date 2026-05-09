@@ -44,18 +44,16 @@ impl ChecklistTask {
 
     /// Unique identifier of the task
     #[must_use]
-    pub fn id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 
     /// Text of the task
     #[must_use]
-    pub fn text<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text = val.into();
-        this
+    pub fn text<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.text = val.into();
+        self
     }
 
     /// Special entities that appear in the task text
@@ -63,17 +61,16 @@ impl ChecklistTask {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn text_entities<T: Into<Box<[crate::types::MessageEntity]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text_entities = Some(
-            this.text_entities
+    pub fn text_entities<T: Into<Box<[crate::types::MessageEntity]>>>(mut self, val: T) -> Self {
+        self.text_entities = Some(
+            self.text_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// Special entities that appear in the task text
@@ -81,17 +78,16 @@ impl ChecklistTask {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn text_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text_entities = Some(
-            this.text_entities
+    pub fn text_entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.text_entities = Some(
+            self.text_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// Special entities that appear in the task text
@@ -100,59 +96,52 @@ impl ChecklistTask {
     /// Adds a single element.
     #[must_use]
     pub fn text_entities_option<T: Into<Box<[crate::types::MessageEntity]>>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.text_entities = val.map(Into::into);
-        this
+        self.text_entities = val.map(Into::into);
+        self
     }
 
     /// User that completed the task; omitted if the task wasn't completed by a user
     #[must_use]
-    pub fn completed_by_user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.completed_by_user = Some(Box::new(val.into()));
-        this
+    pub fn completed_by_user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.completed_by_user = Some(Box::new(val.into()));
+        self
     }
 
     /// User that completed the task; omitted if the task wasn't completed by a user
     #[must_use]
-    pub fn completed_by_user_option<T: Into<crate::types::User>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.completed_by_user = val.map(|val| Box::new(val.into()));
-        this
+    pub fn completed_by_user_option<T: Into<crate::types::User>>(mut self, val: Option<T>) -> Self {
+        self.completed_by_user = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// Chat that completed the task; omitted if the task wasn't completed by a chat
     #[must_use]
-    pub fn completed_by_chat<T: Into<crate::types::Chat>>(self, val: T) -> Self {
-        let mut this = self;
-        this.completed_by_chat = Some(Box::new(val.into()));
-        this
+    pub fn completed_by_chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
+        self.completed_by_chat = Some(Box::new(val.into()));
+        self
     }
 
     /// Chat that completed the task; omitted if the task wasn't completed by a chat
     #[must_use]
-    pub fn completed_by_chat_option<T: Into<crate::types::Chat>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.completed_by_chat = val.map(|val| Box::new(val.into()));
-        this
+    pub fn completed_by_chat_option<T: Into<crate::types::Chat>>(mut self, val: Option<T>) -> Self {
+        self.completed_by_chat = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// Point in time (Unix timestamp) when the task was completed; 0 if the task wasn't completed
     #[must_use]
-    pub fn completion_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.completion_date = Some(val.into());
-        this
+    pub fn completion_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.completion_date = Some(val.into());
+        self
     }
 
     /// Point in time (Unix timestamp) when the task was completed; 0 if the task wasn't completed
     #[must_use]
-    pub fn completion_date_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.completion_date = val.map(Into::into);
-        this
+    pub fn completion_date_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.completion_date = val.map(Into::into);
+        self
     }
 }

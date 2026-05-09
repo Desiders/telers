@@ -38,34 +38,30 @@ impl EditChatSubscriptionInviteLink {
 
     /// Unique identifier for the target chat or username of the target channel in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// The invite link to edit
     #[must_use]
-    pub fn invite_link<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.invite_link = val.into();
-        this
+    pub fn invite_link<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.invite_link = val.into();
+        self
     }
 
     /// Invite link name; 0-32 characters
     #[must_use]
-    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.name = Some(val.into());
-        this
+    pub fn name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.name = Some(val.into());
+        self
     }
 
     /// Invite link name; 0-32 characters
     #[must_use]
-    pub fn name_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.name = val.map(Into::into);
-        this
+    pub fn name_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.name = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for EditChatSubscriptionInviteLink {

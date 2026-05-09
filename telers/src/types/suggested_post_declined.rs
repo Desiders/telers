@@ -26,37 +26,33 @@ impl SuggestedPostDeclined {
 
     /// Message containing the suggested post. Note that the Message object in this field will not contain the `reply_to_message` field even if it itself is a reply.
     #[must_use]
-    pub fn suggested_post_message<T: Into<crate::types::Message>>(self, val: T) -> Self {
-        let mut this = self;
-        this.suggested_post_message = Some(Box::new(val.into()));
-        this
+    pub fn suggested_post_message<T: Into<crate::types::Message>>(mut self, val: T) -> Self {
+        self.suggested_post_message = Some(Box::new(val.into()));
+        self
     }
 
     /// Message containing the suggested post. Note that the Message object in this field will not contain the `reply_to_message` field even if it itself is a reply.
     #[must_use]
     pub fn suggested_post_message_option<T: Into<crate::types::Message>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.suggested_post_message = val.map(|val| Box::new(val.into()));
-        this
+        self.suggested_post_message = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// Comment with which the post was declined
     #[must_use]
-    pub fn comment<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.comment = Some(val.into());
-        this
+    pub fn comment<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.comment = Some(val.into());
+        self
     }
 
     /// Comment with which the post was declined
     #[must_use]
-    pub fn comment_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.comment = val.map(Into::into);
-        this
+    pub fn comment_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.comment = val.map(Into::into);
+        self
     }
 }
 impl Default for SuggestedPostDeclined {

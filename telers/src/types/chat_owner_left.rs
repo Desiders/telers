@@ -22,18 +22,16 @@ impl ChatOwnerLeft {
 
     /// The user who will become the new owner of the chat if the previous owner does not return to the chat
     #[must_use]
-    pub fn new_owner<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.new_owner = Some(Box::new(val.into()));
-        this
+    pub fn new_owner<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.new_owner = Some(Box::new(val.into()));
+        self
     }
 
     /// The user who will become the new owner of the chat if the previous owner does not return to the chat
     #[must_use]
-    pub fn new_owner_option<T: Into<crate::types::User>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.new_owner = val.map(|val| Box::new(val.into()));
-        this
+    pub fn new_owner_option<T: Into<crate::types::User>>(mut self, val: Option<T>) -> Self {
+        self.new_owner = val.map(|val| Box::new(val.into()));
+        self
     }
 }
 impl Default for ChatOwnerLeft {

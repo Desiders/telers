@@ -31,18 +31,16 @@ impl BanChatSenderChat {
 
     /// Unique identifier for the target chat or username of the target channel in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Unique identifier of the target sender chat
     #[must_use]
-    pub fn sender_chat_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sender_chat_id = val.into();
-        this
+    pub fn sender_chat_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.sender_chat_id = val.into();
+        self
     }
 }
 impl super::TelegramMethod for BanChatSenderChat {

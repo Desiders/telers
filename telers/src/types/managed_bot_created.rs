@@ -21,9 +21,8 @@ impl ManagedBotCreated {
 
     /// Information about the bot. The bot's token can be fetched using the method getManagedBotToken.
     #[must_use]
-    pub fn bot<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.bot = Box::new(val.into());
-        this
+    pub fn bot<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.bot = Box::new(val.into());
+        self
     }
 }

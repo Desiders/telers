@@ -52,58 +52,51 @@ impl InputMediaAudio {
 
     /// File to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
-    pub fn media<T: Into<crate::types::InputFile>>(self, val: T) -> Self {
-        let mut this = self;
-        this.media = val.into();
-        this
+    pub fn media<T: Into<crate::types::InputFile>>(mut self, val: T) -> Self {
+        self.media = val.into();
+        self
     }
 
     /// Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the thumbnail was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
-    pub fn thumbnail<T: Into<crate::types::InputFile>>(self, val: T) -> Self {
-        let mut this = self;
-        this.thumbnail = Some(val.into());
-        this
+    pub fn thumbnail<T: Into<crate::types::InputFile>>(mut self, val: T) -> Self {
+        self.thumbnail = Some(val.into());
+        self
     }
 
     /// Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass `attach://<file_attach_name>` if the thumbnail was uploaded using multipart/form-data under <`file_attach_name`>. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>
     #[must_use]
-    pub fn thumbnail_option<T: Into<crate::types::InputFile>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.thumbnail = val.map(Into::into);
-        this
+    pub fn thumbnail_option<T: Into<crate::types::InputFile>>(mut self, val: Option<T>) -> Self {
+        self.thumbnail = val.map(Into::into);
+        self
     }
 
     /// Caption of the audio to be sent, 0-1024 characters after entities parsing
     #[must_use]
-    pub fn caption<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.caption = Some(val.into());
-        this
+    pub fn caption<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.caption = Some(val.into());
+        self
     }
 
     /// Caption of the audio to be sent, 0-1024 characters after entities parsing
     #[must_use]
-    pub fn caption_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.caption = val.map(Into::into);
-        this
+    pub fn caption_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.caption = val.map(Into::into);
+        self
     }
 
     /// Mode for parsing entities in the audio caption. See formatting options for more details.
     #[must_use]
-    pub fn parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.parse_mode = Some(val.into());
-        this
+    pub fn parse_mode<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.parse_mode = Some(val.into());
+        self
     }
 
     /// Mode for parsing entities in the audio caption. See formatting options for more details.
     #[must_use]
-    pub fn parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.parse_mode = val.map(Into::into);
-        this
+    pub fn parse_mode_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.parse_mode = val.map(Into::into);
+        self
     }
 
     /// List of special entities that appear in the caption, which can be specified instead of `parse_mode`
@@ -111,17 +104,16 @@ impl InputMediaAudio {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn caption_entities<T: Into<Box<[crate::types::MessageEntity]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.caption_entities = Some(
-            this.caption_entities
+    pub fn caption_entities<T: Into<Box<[crate::types::MessageEntity]>>>(mut self, val: T) -> Self {
+        self.caption_entities = Some(
+            self.caption_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// List of special entities that appear in the caption, which can be specified instead of `parse_mode`
@@ -129,17 +121,16 @@ impl InputMediaAudio {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn caption_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.caption_entities = Some(
-            this.caption_entities
+    pub fn caption_entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.caption_entities = Some(
+            self.caption_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// List of special entities that appear in the caption, which can be specified instead of `parse_mode`
@@ -148,59 +139,52 @@ impl InputMediaAudio {
     /// Adds a single element.
     #[must_use]
     pub fn caption_entities_option<T: Into<Box<[crate::types::MessageEntity]>>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.caption_entities = val.map(Into::into);
-        this
+        self.caption_entities = val.map(Into::into);
+        self
     }
 
     /// Duration of the audio in seconds
     #[must_use]
-    pub fn duration<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.duration = Some(val.into());
-        this
+    pub fn duration<T: Into<i64>>(mut self, val: T) -> Self {
+        self.duration = Some(val.into());
+        self
     }
 
     /// Duration of the audio in seconds
     #[must_use]
-    pub fn duration_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.duration = val.map(Into::into);
-        this
+    pub fn duration_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.duration = val.map(Into::into);
+        self
     }
 
     /// Performer of the audio
     #[must_use]
-    pub fn performer<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.performer = Some(val.into());
-        this
+    pub fn performer<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.performer = Some(val.into());
+        self
     }
 
     /// Performer of the audio
     #[must_use]
-    pub fn performer_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.performer = val.map(Into::into);
-        this
+    pub fn performer_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.performer = val.map(Into::into);
+        self
     }
 
     /// Title of the audio
     #[must_use]
-    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.title = Some(val.into());
-        this
+    pub fn title<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.title = Some(val.into());
+        self
     }
 
     /// Title of the audio
     #[must_use]
-    pub fn title_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.title = val.map(Into::into);
-        this
+    pub fn title_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.title = val.map(Into::into);
+        self
     }
 }

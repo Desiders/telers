@@ -25,17 +25,15 @@ impl SuggestedPostPrice {
 
     /// Currency in which the post will be paid. Currently, must be one of `XTR` for Telegram Stars or `TON` for toncoins
     #[must_use]
-    pub fn currency<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.currency = val.into();
-        this
+    pub fn currency<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.currency = val.into();
+        self
     }
 
     /// The amount of the currency that will be paid for the post in the smallest units of the currency, i.e. Telegram Stars or nanotoncoins. Currently, price in Telegram Stars must be between 5 and 100000, and price in nanotoncoins must be between 10000000 and 10000000000000.
     #[must_use]
-    pub fn amount<T: Into<u32>>(self, val: T) -> Self {
-        let mut this = self;
-        this.amount = val.into();
-        this
+    pub fn amount<T: Into<u32>>(mut self, val: T) -> Self {
+        self.amount = val.into();
+        self
     }
 }

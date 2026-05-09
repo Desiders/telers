@@ -25,17 +25,15 @@ impl WebAppData {
 
     /// The data. Be aware that a bad client can send arbitrary data in this field.
     #[must_use]
-    pub fn data<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.data = val.into();
-        this
+    pub fn data<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.data = val.into();
+        self
     }
 
     /// Text of the `web_app` keyboard button from which the Web App was opened. Be aware that a bad client can send arbitrary data in this field.
     #[must_use]
-    pub fn button_text<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.button_text = val.into();
-        this
+    pub fn button_text<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.button_text = val.into();
+        self
     }
 }

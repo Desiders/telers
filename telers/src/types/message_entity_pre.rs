@@ -34,33 +34,29 @@ impl MessageEntityPre {
 
     /// Offset in UTF-16 code units to the start of the entity
     #[must_use]
-    pub fn offset<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.offset = val.into();
-        this
+    pub fn offset<T: Into<i64>>(mut self, val: T) -> Self {
+        self.offset = val.into();
+        self
     }
 
     /// Length of the entity in UTF-16 code units
     #[must_use]
-    pub fn length<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.length = val.into();
-        this
+    pub fn length<T: Into<i64>>(mut self, val: T) -> Self {
+        self.length = val.into();
+        self
     }
 
     /// For `pre` only, the programming language of the entity text
     #[must_use]
-    pub fn language<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.language = Some(val.into());
-        this
+    pub fn language<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.language = Some(val.into());
+        self
     }
 
     /// For `pre` only, the programming language of the entity text
     #[must_use]
-    pub fn language_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.language = val.map(Into::into);
-        this
+    pub fn language_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.language = val.map(Into::into);
+        self
     }
 }

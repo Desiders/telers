@@ -51,26 +51,23 @@ impl StickerSet {
 
     /// Sticker set name
     #[must_use]
-    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.name = val.into();
-        this
+    pub fn name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.name = val.into();
+        self
     }
 
     /// Sticker set title
     #[must_use]
-    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.title = val.into();
-        this
+    pub fn title<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.title = val.into();
+        self
     }
 
     /// Type of stickers in the set, currently one of `regular`, `mask`, `custom_emoji`
     #[must_use]
-    pub fn sticker_type<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sticker_type = val.into();
-        this
+    pub fn sticker_type<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.sticker_type = val.into();
+        self
     }
 
     /// List of all set stickers
@@ -78,15 +75,14 @@ impl StickerSet {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn stickers<T: Into<Box<[crate::types::Sticker]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.stickers = this
+    pub fn stickers<T: Into<Box<[crate::types::Sticker]>>>(mut self, val: T) -> Self {
+        self.stickers = self
             .stickers
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// List of all set stickers
@@ -94,30 +90,27 @@ impl StickerSet {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn sticker<T: Into<crate::types::Sticker>>(self, val: T) -> Self {
-        let mut this = self;
-        this.stickers = this
+    pub fn sticker<T: Into<crate::types::Sticker>>(mut self, val: T) -> Self {
+        self.stickers = self
             .stickers
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// Sticker set thumbnail in the .WEBP, .TGS, or .WEBM format
     #[must_use]
-    pub fn thumbnail<T: Into<crate::types::PhotoSize>>(self, val: T) -> Self {
-        let mut this = self;
-        this.thumbnail = Some(val.into());
-        this
+    pub fn thumbnail<T: Into<crate::types::PhotoSize>>(mut self, val: T) -> Self {
+        self.thumbnail = Some(val.into());
+        self
     }
 
     /// Sticker set thumbnail in the .WEBP, .TGS, or .WEBM format
     #[must_use]
-    pub fn thumbnail_option<T: Into<crate::types::PhotoSize>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.thumbnail = val.map(Into::into);
-        this
+    pub fn thumbnail_option<T: Into<crate::types::PhotoSize>>(mut self, val: Option<T>) -> Self {
+        self.thumbnail = val.map(Into::into);
+        self
     }
 }

@@ -21,9 +21,8 @@ impl ReactionTypeCustomEmoji {
 
     /// Custom emoji identifier
     #[must_use]
-    pub fn custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.custom_emoji_id = val.into();
-        this
+    pub fn custom_emoji_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.custom_emoji_id = val.into();
+        self
     }
 }

@@ -40,65 +40,57 @@ impl Contact {
 
     /// Contact's phone number
     #[must_use]
-    pub fn phone_number<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.phone_number = val.into();
-        this
+    pub fn phone_number<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.phone_number = val.into();
+        self
     }
 
     /// Contact's first name
     #[must_use]
-    pub fn first_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.first_name = val.into();
-        this
+    pub fn first_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.first_name = val.into();
+        self
     }
 
     /// Contact's last name
     #[must_use]
-    pub fn last_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.last_name = Some(val.into());
-        this
+    pub fn last_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.last_name = Some(val.into());
+        self
     }
 
     /// Contact's last name
     #[must_use]
-    pub fn last_name_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.last_name = val.map(Into::into);
-        this
+    pub fn last_name_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.last_name = val.map(Into::into);
+        self
     }
 
     /// Contact's user identifier in Telegram. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = Some(val.into());
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = Some(val.into());
+        self
     }
 
     /// Contact's user identifier in Telegram. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
     #[must_use]
-    pub fn user_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.user_id = val.map(Into::into);
-        this
+    pub fn user_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.user_id = val.map(Into::into);
+        self
     }
 
     /// Additional data about the contact in the form of a vCard
     #[must_use]
-    pub fn vcard<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.vcard = Some(val.into());
-        this
+    pub fn vcard<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.vcard = Some(val.into());
+        self
     }
 
     /// Additional data about the contact in the form of a vCard
     #[must_use]
-    pub fn vcard_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.vcard = val.map(Into::into);
-        this
+    pub fn vcard_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.vcard = val.map(Into::into);
+        self
     }
 }

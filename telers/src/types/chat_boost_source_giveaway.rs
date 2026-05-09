@@ -36,57 +36,50 @@ impl ChatBoostSourceGiveaway {
 
     /// Identifier of a message in the chat with the giveaway; the message could have been deleted already. May be 0 if the message isn't sent yet.
     #[must_use]
-    pub fn giveaway_message_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.giveaway_message_id = val.into();
-        this
+    pub fn giveaway_message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.giveaway_message_id = val.into();
+        self
     }
 
     /// User that won the prize in the giveaway if any; for Telegram Premium giveaways only
     #[must_use]
-    pub fn user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user = Some(Box::new(val.into()));
-        this
+    pub fn user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.user = Some(Box::new(val.into()));
+        self
     }
 
     /// User that won the prize in the giveaway if any; for Telegram Premium giveaways only
     #[must_use]
-    pub fn user_option<T: Into<crate::types::User>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.user = val.map(|val| Box::new(val.into()));
-        this
+    pub fn user_option<T: Into<crate::types::User>>(mut self, val: Option<T>) -> Self {
+        self.user = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
     #[must_use]
-    pub fn prize_star_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.prize_star_count = Some(val.into());
-        this
+    pub fn prize_star_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.prize_star_count = Some(val.into());
+        self
     }
 
     /// The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
     #[must_use]
-    pub fn prize_star_count_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.prize_star_count = val.map(Into::into);
-        this
+    pub fn prize_star_count_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.prize_star_count = val.map(Into::into);
+        self
     }
 
     /// `true`, if the giveaway was completed, but there was no user to win the prize
     #[must_use]
-    pub fn is_unclaimed<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_unclaimed = Some(val.into());
-        this
+    pub fn is_unclaimed<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_unclaimed = Some(val.into());
+        self
     }
 
     /// `true`, if the giveaway was completed, but there was no user to win the prize
     #[must_use]
-    pub fn is_unclaimed_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_unclaimed = val.map(Into::into);
-        this
+    pub fn is_unclaimed_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_unclaimed = val.map(Into::into);
+        self
     }
 }

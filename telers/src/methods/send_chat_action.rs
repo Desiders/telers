@@ -43,50 +43,44 @@ impl SendChatAction {
 
     /// Unique identifier of the business connection on behalf of which the action will be sent
     #[must_use]
-    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection_id = Some(val.into());
-        this
+    pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.business_connection_id = Some(val.into());
+        self
     }
 
     /// Unique identifier of the business connection on behalf of which the action will be sent
     #[must_use]
-    pub fn business_connection_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.business_connection_id = val.map(Into::into);
-        this
+    pub fn business_connection_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.business_connection_id = val.map(Into::into);
+        self
     }
 
     /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. Channel chats and channel direct messages chats aren't supported.
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Unique identifier for the target message thread or topic of a forum; for supergroups and private chats of bots with forum topic mode enabled only
     #[must_use]
-    pub fn message_thread_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_thread_id = Some(val.into());
-        this
+    pub fn message_thread_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_thread_id = Some(val.into());
+        self
     }
 
     /// Unique identifier for the target message thread or topic of a forum; for supergroups and private chats of bots with forum topic mode enabled only
     #[must_use]
-    pub fn message_thread_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.message_thread_id = val.map(Into::into);
-        this
+    pub fn message_thread_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.message_thread_id = val.map(Into::into);
+        self
     }
 
     /// Type of action to broadcast. Choose one, depending on what the user is about to receive: typing for text messages, `upload_photo` for photos, `record_video` or `upload_video` for videos, `record_voice` or `upload_voice` for voice notes, `upload_document` for general files, `choose_sticker` for stickers, `find_location` for location data, `record_video_note` or `upload_video_note` for video notes.
     #[must_use]
-    pub fn action<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.action = val.into();
-        this
+    pub fn action<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.action = val.into();
+        self
     }
 }
 impl super::TelegramMethod for SendChatAction {

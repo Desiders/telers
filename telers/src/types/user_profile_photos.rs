@@ -32,10 +32,9 @@ impl UserProfilePhotos {
 
     /// Total number of profile pictures the target user has
     #[must_use]
-    pub fn total_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.total_count = val.into();
-        this
+    pub fn total_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.total_count = val.into();
+        self
     }
 
     /// Requested profile pictures (in up to 4 sizes each)
@@ -43,15 +42,14 @@ impl UserProfilePhotos {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn photos<T: Into<Box<[Box<[crate::types::PhotoSize]>]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.photos = this
+    pub fn photos<T: Into<Box<[Box<[crate::types::PhotoSize]>]>>>(mut self, val: T) -> Self {
+        self.photos = self
             .photos
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// Requested profile pictures (in up to 4 sizes each)
@@ -59,14 +57,13 @@ impl UserProfilePhotos {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn photo<T: Into<Box<[crate::types::PhotoSize]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.photos = this
+    pub fn photo<T: Into<Box<[crate::types::PhotoSize]>>>(mut self, val: T) -> Self {
+        self.photos = self
             .photos
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

@@ -33,25 +33,22 @@ impl PassportElementErrorSelfie {
 
     /// The section of the user's Telegram Passport which has the issue, one of `passport`, `driver_license`, `identity_card`, `internal_passport`
     #[must_use]
-    pub fn r#type<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.r#type = val.into();
-        this
+    pub fn r#type<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.r#type = val.into();
+        self
     }
 
     /// Base64-encoded hash of the file with the selfie
     #[must_use]
-    pub fn file_hash<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.file_hash = val.into();
-        this
+    pub fn file_hash<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.file_hash = val.into();
+        self
     }
 
     /// Error message
     #[must_use]
-    pub fn message<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message = val.into();
-        this
+    pub fn message<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.message = val.into();
+        self
     }
 }

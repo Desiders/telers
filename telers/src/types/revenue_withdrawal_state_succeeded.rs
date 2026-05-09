@@ -25,17 +25,15 @@ impl RevenueWithdrawalStateSucceeded {
 
     /// Date the withdrawal was completed in Unix time
     #[must_use]
-    pub fn date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.date = val.into();
-        this
+    pub fn date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.date = val.into();
+        self
     }
 
     /// An HTTPS URL that can be used to see transaction details
     #[must_use]
-    pub fn url<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.url = val.into();
-        this
+    pub fn url<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.url = val.into();
+        self
     }
 }

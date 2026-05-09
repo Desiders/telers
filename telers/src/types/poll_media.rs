@@ -54,82 +54,72 @@ impl PollMedia {
 
     /// Media is an animation, information about the animation
     #[must_use]
-    pub fn animation<T: Into<crate::types::Animation>>(self, val: T) -> Self {
-        let mut this = self;
-        this.animation = Some(Box::new(val.into()));
-        this
+    pub fn animation<T: Into<crate::types::Animation>>(mut self, val: T) -> Self {
+        self.animation = Some(Box::new(val.into()));
+        self
     }
 
     /// Media is an animation, information about the animation
     #[must_use]
-    pub fn animation_option<T: Into<crate::types::Animation>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.animation = val.map(|val| Box::new(val.into()));
-        this
+    pub fn animation_option<T: Into<crate::types::Animation>>(mut self, val: Option<T>) -> Self {
+        self.animation = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// Media is an audio file, information about the file; currently, can't be received in a poll option
     #[must_use]
-    pub fn audio<T: Into<crate::types::Audio>>(self, val: T) -> Self {
-        let mut this = self;
-        this.audio = Some(Box::new(val.into()));
-        this
+    pub fn audio<T: Into<crate::types::Audio>>(mut self, val: T) -> Self {
+        self.audio = Some(Box::new(val.into()));
+        self
     }
 
     /// Media is an audio file, information about the file; currently, can't be received in a poll option
     #[must_use]
-    pub fn audio_option<T: Into<crate::types::Audio>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.audio = val.map(|val| Box::new(val.into()));
-        this
+    pub fn audio_option<T: Into<crate::types::Audio>>(mut self, val: Option<T>) -> Self {
+        self.audio = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// Media is a general file, information about the file; currently, can't be received in a poll option
     #[must_use]
-    pub fn document<T: Into<crate::types::Document>>(self, val: T) -> Self {
-        let mut this = self;
-        this.document = Some(Box::new(val.into()));
-        this
+    pub fn document<T: Into<crate::types::Document>>(mut self, val: T) -> Self {
+        self.document = Some(Box::new(val.into()));
+        self
     }
 
     /// Media is a general file, information about the file; currently, can't be received in a poll option
     #[must_use]
-    pub fn document_option<T: Into<crate::types::Document>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.document = val.map(|val| Box::new(val.into()));
-        this
+    pub fn document_option<T: Into<crate::types::Document>>(mut self, val: Option<T>) -> Self {
+        self.document = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// Media is a live photo, information about the live photo
     #[must_use]
-    pub fn live_photo<T: Into<crate::types::LivePhoto>>(self, val: T) -> Self {
-        let mut this = self;
-        this.live_photo = Some(val.into());
-        this
+    pub fn live_photo<T: Into<crate::types::LivePhoto>>(mut self, val: T) -> Self {
+        self.live_photo = Some(val.into());
+        self
     }
 
     /// Media is a live photo, information about the live photo
     #[must_use]
-    pub fn live_photo_option<T: Into<crate::types::LivePhoto>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.live_photo = val.map(Into::into);
-        this
+    pub fn live_photo_option<T: Into<crate::types::LivePhoto>>(mut self, val: Option<T>) -> Self {
+        self.live_photo = val.map(Into::into);
+        self
     }
 
     /// Media is a shared location, information about the location
     #[must_use]
-    pub fn location<T: Into<crate::types::Location>>(self, val: T) -> Self {
-        let mut this = self;
-        this.location = Some(val.into());
-        this
+    pub fn location<T: Into<crate::types::Location>>(mut self, val: T) -> Self {
+        self.location = Some(val.into());
+        self
     }
 
     /// Media is a shared location, information about the location
     #[must_use]
-    pub fn location_option<T: Into<crate::types::Location>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.location = val.map(Into::into);
-        this
+    pub fn location_option<T: Into<crate::types::Location>>(mut self, val: Option<T>) -> Self {
+        self.location = val.map(Into::into);
+        self
     }
 
     /// Media is a photo, available sizes of the photo
@@ -137,17 +127,16 @@ impl PollMedia {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn photos<T: Into<Box<[crate::types::PhotoSize]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.photo = Some(
-            this.photo
+    pub fn photos<T: Into<Box<[crate::types::PhotoSize]>>>(mut self, val: T) -> Self {
+        self.photo = Some(
+            self.photo
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// Media is a photo, available sizes of the photo
@@ -155,17 +144,16 @@ impl PollMedia {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn photo<T: Into<crate::types::PhotoSize>>(self, val: T) -> Self {
-        let mut this = self;
-        this.photo = Some(
-            this.photo
+    pub fn photo<T: Into<crate::types::PhotoSize>>(mut self, val: T) -> Self {
+        self.photo = Some(
+            self.photo
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// Media is a photo, available sizes of the photo
@@ -173,58 +161,51 @@ impl PollMedia {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn photo_option<T: Into<Box<[crate::types::PhotoSize]>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.photo = val.map(Into::into);
-        this
+    pub fn photo_option<T: Into<Box<[crate::types::PhotoSize]>>>(mut self, val: Option<T>) -> Self {
+        self.photo = val.map(Into::into);
+        self
     }
 
     /// Media is a sticker, information about the sticker; currently, for poll options only
     #[must_use]
-    pub fn sticker<T: Into<crate::types::Sticker>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sticker = Some(Box::new(val.into()));
-        this
+    pub fn sticker<T: Into<crate::types::Sticker>>(mut self, val: T) -> Self {
+        self.sticker = Some(Box::new(val.into()));
+        self
     }
 
     /// Media is a sticker, information about the sticker; currently, for poll options only
     #[must_use]
-    pub fn sticker_option<T: Into<crate::types::Sticker>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.sticker = val.map(|val| Box::new(val.into()));
-        this
+    pub fn sticker_option<T: Into<crate::types::Sticker>>(mut self, val: Option<T>) -> Self {
+        self.sticker = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// Media is a venue, information about the venue
     #[must_use]
-    pub fn venue<T: Into<crate::types::Venue>>(self, val: T) -> Self {
-        let mut this = self;
-        this.venue = Some(Box::new(val.into()));
-        this
+    pub fn venue<T: Into<crate::types::Venue>>(mut self, val: T) -> Self {
+        self.venue = Some(Box::new(val.into()));
+        self
     }
 
     /// Media is a venue, information about the venue
     #[must_use]
-    pub fn venue_option<T: Into<crate::types::Venue>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.venue = val.map(|val| Box::new(val.into()));
-        this
+    pub fn venue_option<T: Into<crate::types::Venue>>(mut self, val: Option<T>) -> Self {
+        self.venue = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// Media is a video, information about the video
     #[must_use]
-    pub fn video<T: Into<crate::types::Video>>(self, val: T) -> Self {
-        let mut this = self;
-        this.video = Some(Box::new(val.into()));
-        this
+    pub fn video<T: Into<crate::types::Video>>(mut self, val: T) -> Self {
+        self.video = Some(Box::new(val.into()));
+        self
     }
 
     /// Media is a video, information about the video
     #[must_use]
-    pub fn video_option<T: Into<crate::types::Video>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.video = val.map(|val| Box::new(val.into()));
-        this
+    pub fn video_option<T: Into<crate::types::Video>>(mut self, val: Option<T>) -> Self {
+        self.video = val.map(|val| Box::new(val.into()));
+        self
     }
 }
 impl Default for PollMedia {

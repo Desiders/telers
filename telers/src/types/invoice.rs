@@ -49,41 +49,36 @@ impl Invoice {
 
     /// Product name
     #[must_use]
-    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.title = val.into();
-        this
+    pub fn title<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.title = val.into();
+        self
     }
 
     /// Product description
     #[must_use]
-    pub fn description<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.description = val.into();
-        this
+    pub fn description<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.description = val.into();
+        self
     }
 
     /// Unique bot deep-linking parameter that can be used to generate this invoice
     #[must_use]
-    pub fn start_parameter<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.start_parameter = val.into();
-        this
+    pub fn start_parameter<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.start_parameter = val.into();
+        self
     }
 
     /// Three-letter ISO 4217 currency code, or `XTR` for payments in Telegram Stars
     #[must_use]
-    pub fn currency<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.currency = val.into();
-        this
+    pub fn currency<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.currency = val.into();
+        self
     }
 
     /// Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
     #[must_use]
-    pub fn total_amount<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.total_amount = val.into();
-        this
+    pub fn total_amount<T: Into<i64>>(mut self, val: T) -> Self {
+        self.total_amount = val.into();
+        self
     }
 }

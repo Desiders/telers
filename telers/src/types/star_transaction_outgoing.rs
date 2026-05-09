@@ -52,49 +52,43 @@ impl StarTransactionOutgoing {
 
     /// Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with [`crate::types::SuccessfulPayment`].`telegram_payment_charge_id` for successful incoming payments from users.
     #[must_use]
-    pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 
     /// Integer amount of Telegram Stars transferred by the transaction
     #[must_use]
-    pub fn amount<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.amount = val.into();
-        this
+    pub fn amount<T: Into<i64>>(mut self, val: T) -> Self {
+        self.amount = val.into();
+        self
     }
 
     /// The number of 1/1000000000 shares of Telegram Stars transferred by the transaction; from 0 to 999999999
     #[must_use]
-    pub fn nanostar_amount<T: Into<u32>>(self, val: T) -> Self {
-        let mut this = self;
-        this.nanostar_amount = Some(val.into());
-        this
+    pub fn nanostar_amount<T: Into<u32>>(mut self, val: T) -> Self {
+        self.nanostar_amount = Some(val.into());
+        self
     }
 
     /// The number of 1/1000000000 shares of Telegram Stars transferred by the transaction; from 0 to 999999999
     #[must_use]
-    pub fn nanostar_amount_option<T: Into<u32>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.nanostar_amount = val.map(Into::into);
-        this
+    pub fn nanostar_amount_option<T: Into<u32>>(mut self, val: Option<T>) -> Self {
+        self.nanostar_amount = val.map(Into::into);
+        self
     }
 
     /// Date the transaction was created in Unix time
     #[must_use]
-    pub fn date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.date = val.into();
-        this
+    pub fn date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.date = val.into();
+        self
     }
 
     /// Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions
     #[must_use]
-    pub fn receiver<T: Into<crate::types::TransactionPartner>>(self, val: T) -> Self {
-        let mut this = self;
-        this.receiver = val.into();
-        this
+    pub fn receiver<T: Into<crate::types::TransactionPartner>>(mut self, val: T) -> Self {
+        self.receiver = val.into();
+        self
     }
 }

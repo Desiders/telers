@@ -40,41 +40,36 @@ impl UniqueGiftModel {
 
     /// Name of the model
     #[must_use]
-    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.name = val.into();
-        this
+    pub fn name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.name = val.into();
+        self
     }
 
     /// The sticker that represents the unique gift
     #[must_use]
-    pub fn sticker<T: Into<crate::types::Sticker>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sticker = Box::new(val.into());
-        this
+    pub fn sticker<T: Into<crate::types::Sticker>>(mut self, val: T) -> Self {
+        self.sticker = Box::new(val.into());
+        self
     }
 
     /// The number of unique gifts that receive this model for every 1000 gift upgrades. Always 0 for crafted gifts.
     #[must_use]
-    pub fn rarity_per_mille<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.rarity_per_mille = val.into();
-        this
+    pub fn rarity_per_mille<T: Into<i64>>(mut self, val: T) -> Self {
+        self.rarity_per_mille = val.into();
+        self
     }
 
     /// Rarity of the model if it is a crafted model. Currently, can be `uncommon`, `rare`, `epic`, or `legendary`.
     #[must_use]
-    pub fn rarity<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.rarity = Some(val.into());
-        this
+    pub fn rarity<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.rarity = Some(val.into());
+        self
     }
 
     /// Rarity of the model if it is a crafted model. Currently, can be `uncommon`, `rare`, `epic`, or `legendary`.
     #[must_use]
-    pub fn rarity_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.rarity = val.map(Into::into);
-        this
+    pub fn rarity_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.rarity = val.map(Into::into);
+        self
     }
 }

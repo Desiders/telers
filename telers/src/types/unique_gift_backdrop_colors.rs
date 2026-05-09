@@ -38,33 +38,29 @@ impl UniqueGiftBackdropColors {
 
     /// The color in the center of the backdrop in RGB format
     #[must_use]
-    pub fn center_color<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.center_color = val.into();
-        this
+    pub fn center_color<T: Into<i64>>(mut self, val: T) -> Self {
+        self.center_color = val.into();
+        self
     }
 
     /// The color on the edges of the backdrop in RGB format
     #[must_use]
-    pub fn edge_color<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.edge_color = val.into();
-        this
+    pub fn edge_color<T: Into<i64>>(mut self, val: T) -> Self {
+        self.edge_color = val.into();
+        self
     }
 
     /// The color to be applied to the symbol in RGB format
     #[must_use]
-    pub fn symbol_color<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.symbol_color = val.into();
-        this
+    pub fn symbol_color<T: Into<i64>>(mut self, val: T) -> Self {
+        self.symbol_color = val.into();
+        self
     }
 
     /// The color for the text on the backdrop in RGB format
     #[must_use]
-    pub fn text_color<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text_color = val.into();
-        this
+    pub fn text_color<T: Into<i64>>(mut self, val: T) -> Self {
+        self.text_color = val.into();
+        self
     }
 }

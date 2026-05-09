@@ -28,18 +28,16 @@ impl SetStickerPositionInSet {
 
     /// File identifier of the sticker
     #[must_use]
-    pub fn sticker<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sticker = val.into();
-        this
+    pub fn sticker<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.sticker = val.into();
+        self
     }
 
     /// New sticker position in the set, zero-based
     #[must_use]
-    pub fn position<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.position = val.into();
-        this
+    pub fn position<T: Into<i64>>(mut self, val: T) -> Self {
+        self.position = val.into();
+        self
     }
 }
 impl super::TelegramMethod for SetStickerPositionInSet {

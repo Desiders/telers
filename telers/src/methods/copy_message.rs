@@ -99,106 +99,93 @@ impl CopyMessage {
 
     /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     #[must_use]
-    pub fn message_thread_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_thread_id = Some(val.into());
-        this
+    pub fn message_thread_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_thread_id = Some(val.into());
+        self
     }
 
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     #[must_use]
-    pub fn message_thread_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.message_thread_id = val.map(Into::into);
-        this
+    pub fn message_thread_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.message_thread_id = val.map(Into::into);
+        self
     }
 
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
     #[must_use]
-    pub fn direct_messages_topic_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.direct_messages_topic_id = Some(val.into());
-        this
+    pub fn direct_messages_topic_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.direct_messages_topic_id = Some(val.into());
+        self
     }
 
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
     #[must_use]
-    pub fn direct_messages_topic_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.direct_messages_topic_id = val.map(Into::into);
-        this
+    pub fn direct_messages_topic_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.direct_messages_topic_id = val.map(Into::into);
+        self
     }
 
     /// Unique identifier for the chat where the original message was sent (or username of the target bot, supergroup or channel in the format @username)
     #[must_use]
-    pub fn from_chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.from_chat_id = val.into();
-        this
+    pub fn from_chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.from_chat_id = val.into();
+        self
     }
 
     /// Message identifier in the chat specified in `from_chat_id`
     #[must_use]
-    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_id = val.into();
-        this
+    pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_id = val.into();
+        self
     }
 
     /// New start timestamp for the copied video in the message
     #[must_use]
-    pub fn video_start_timestamp<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.video_start_timestamp = Some(val.into());
-        this
+    pub fn video_start_timestamp<T: Into<i64>>(mut self, val: T) -> Self {
+        self.video_start_timestamp = Some(val.into());
+        self
     }
 
     /// New start timestamp for the copied video in the message
     #[must_use]
-    pub fn video_start_timestamp_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.video_start_timestamp = val.map(Into::into);
-        this
+    pub fn video_start_timestamp_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.video_start_timestamp = val.map(Into::into);
+        self
     }
 
     /// New caption for media, 0-1024 characters after entities parsing. If not specified, the original caption is kept
     #[must_use]
-    pub fn caption<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.caption = Some(val.into());
-        this
+    pub fn caption<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.caption = Some(val.into());
+        self
     }
 
     /// New caption for media, 0-1024 characters after entities parsing. If not specified, the original caption is kept
     #[must_use]
-    pub fn caption_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.caption = val.map(Into::into);
-        this
+    pub fn caption_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.caption = val.map(Into::into);
+        self
     }
 
     /// Mode for parsing entities in the new caption. See formatting options for more details.
     #[must_use]
-    pub fn parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.parse_mode = Some(val.into());
-        this
+    pub fn parse_mode<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.parse_mode = Some(val.into());
+        self
     }
 
     /// Mode for parsing entities in the new caption. See formatting options for more details.
     #[must_use]
-    pub fn parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.parse_mode = val.map(Into::into);
-        this
+    pub fn parse_mode_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.parse_mode = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the new caption, which can be specified instead of `parse_mode`
@@ -210,19 +197,18 @@ impl CopyMessage {
         TItem: Into<crate::types::MessageEntity>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.caption_entities = Some(
-            this.caption_entities
+        self.caption_entities = Some(
+            self.caption_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the new caption, which can be specified instead of `parse_mode`
@@ -230,17 +216,16 @@ impl CopyMessage {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn caption_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.caption_entities = Some(
-            this.caption_entities
+    pub fn caption_entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.caption_entities = Some(
+            self.caption_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the new caption, which can be specified instead of `parse_mode`
@@ -252,149 +237,135 @@ impl CopyMessage {
         TItem: Into<crate::types::MessageEntity>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.caption_entities = val.map(|v| v.into_iter().map(Into::into).collect());
-        this
+        self.caption_entities = val.map(|v| v.into_iter().map(Into::into).collect());
+        self
     }
 
     /// Pass `true`, if the caption must be shown above the message media. Ignored if a new caption isn't specified.
     #[must_use]
-    pub fn show_caption_above_media<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.show_caption_above_media = Some(val.into());
-        this
+    pub fn show_caption_above_media<T: Into<bool>>(mut self, val: T) -> Self {
+        self.show_caption_above_media = Some(val.into());
+        self
     }
 
     /// Pass `true`, if the caption must be shown above the message media. Ignored if a new caption isn't specified.
     #[must_use]
-    pub fn show_caption_above_media_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.show_caption_above_media = val.map(Into::into);
-        this
+    pub fn show_caption_above_media_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.show_caption_above_media = val.map(Into::into);
+        self
     }
 
     /// Sends the message silently. Users will receive a notification with no sound.
     #[must_use]
-    pub fn disable_notification<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.disable_notification = Some(val.into());
-        this
+    pub fn disable_notification<T: Into<bool>>(mut self, val: T) -> Self {
+        self.disable_notification = Some(val.into());
+        self
     }
 
     /// Sends the message silently. Users will receive a notification with no sound.
     #[must_use]
-    pub fn disable_notification_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.disable_notification = val.map(Into::into);
-        this
+    pub fn disable_notification_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.disable_notification = val.map(Into::into);
+        self
     }
 
     /// Protects the contents of the sent message from forwarding and saving
     #[must_use]
-    pub fn protect_content<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.protect_content = Some(val.into());
-        this
+    pub fn protect_content<T: Into<bool>>(mut self, val: T) -> Self {
+        self.protect_content = Some(val.into());
+        self
     }
 
     /// Protects the contents of the sent message from forwarding and saving
     #[must_use]
-    pub fn protect_content_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.protect_content = val.map(Into::into);
-        this
+    pub fn protect_content_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.protect_content = val.map(Into::into);
+        self
     }
 
     /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance.
     #[must_use]
-    pub fn allow_paid_broadcast<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.allow_paid_broadcast = Some(val.into());
-        this
+    pub fn allow_paid_broadcast<T: Into<bool>>(mut self, val: T) -> Self {
+        self.allow_paid_broadcast = Some(val.into());
+        self
     }
 
     /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance.
     #[must_use]
-    pub fn allow_paid_broadcast_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.allow_paid_broadcast = val.map(Into::into);
-        this
+    pub fn allow_paid_broadcast_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.allow_paid_broadcast = val.map(Into::into);
+        self
     }
 
     /// Unique identifier of the message effect to be added to the message; only available when copying to private chats
     #[must_use]
-    pub fn message_effect_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_effect_id = Some(val.into());
-        this
+    pub fn message_effect_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.message_effect_id = Some(val.into());
+        self
     }
 
     /// Unique identifier of the message effect to be added to the message; only available when copying to private chats
     #[must_use]
-    pub fn message_effect_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.message_effect_id = val.map(Into::into);
-        this
+    pub fn message_effect_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.message_effect_id = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined.
     #[must_use]
     pub fn suggested_post_parameters<T: Into<crate::types::SuggestedPostParameters>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.suggested_post_parameters = Some(val.into());
-        this
+        self.suggested_post_parameters = Some(val.into());
+        self
     }
 
     /// A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined.
     #[must_use]
     pub fn suggested_post_parameters_option<T: Into<crate::types::SuggestedPostParameters>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.suggested_post_parameters = val.map(Into::into);
-        this
+        self.suggested_post_parameters = val.map(Into::into);
+        self
     }
 
     /// Description of the message to reply to
     #[must_use]
-    pub fn reply_parameters<T: Into<crate::types::ReplyParameters>>(self, val: T) -> Self {
-        let mut this = self;
-        this.reply_parameters = Some(val.into());
-        this
+    pub fn reply_parameters<T: Into<crate::types::ReplyParameters>>(mut self, val: T) -> Self {
+        self.reply_parameters = Some(val.into());
+        self
     }
 
     /// Description of the message to reply to
     #[must_use]
     pub fn reply_parameters_option<T: Into<crate::types::ReplyParameters>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.reply_parameters = val.map(Into::into);
-        this
+        self.reply_parameters = val.map(Into::into);
+        self
     }
 
     /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
     #[must_use]
-    pub fn reply_markup<T: Into<crate::types::ReplyMarkup>>(self, val: T) -> Self {
-        let mut this = self;
-        this.reply_markup = Some(val.into());
-        this
+    pub fn reply_markup<T: Into<crate::types::ReplyMarkup>>(mut self, val: T) -> Self {
+        self.reply_markup = Some(val.into());
+        self
     }
 
     /// Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
     #[must_use]
-    pub fn reply_markup_option<T: Into<crate::types::ReplyMarkup>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.reply_markup = val.map(Into::into);
-        this
+    pub fn reply_markup_option<T: Into<crate::types::ReplyMarkup>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.reply_markup = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for CopyMessage {

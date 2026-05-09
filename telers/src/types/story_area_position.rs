@@ -55,49 +55,43 @@ impl StoryAreaPosition {
 
     /// The abscissa of the area's center, as a percentage of the media width
     #[must_use]
-    pub fn x_percentage<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.x_percentage = val.into();
-        this
+    pub fn x_percentage<T: Into<f64>>(mut self, val: T) -> Self {
+        self.x_percentage = val.into();
+        self
     }
 
     /// The ordinate of the area's center, as a percentage of the media height
     #[must_use]
-    pub fn y_percentage<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.y_percentage = val.into();
-        this
+    pub fn y_percentage<T: Into<f64>>(mut self, val: T) -> Self {
+        self.y_percentage = val.into();
+        self
     }
 
     /// The width of the area's rectangle, as a percentage of the media width
     #[must_use]
-    pub fn width_percentage<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.width_percentage = val.into();
-        this
+    pub fn width_percentage<T: Into<f64>>(mut self, val: T) -> Self {
+        self.width_percentage = val.into();
+        self
     }
 
     /// The height of the area's rectangle, as a percentage of the media height
     #[must_use]
-    pub fn height_percentage<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.height_percentage = val.into();
-        this
+    pub fn height_percentage<T: Into<f64>>(mut self, val: T) -> Self {
+        self.height_percentage = val.into();
+        self
     }
 
     /// The clockwise rotation angle of the rectangle, in degrees; 0-360
     #[must_use]
-    pub fn rotation_angle<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.rotation_angle = val.into();
-        this
+    pub fn rotation_angle<T: Into<f64>>(mut self, val: T) -> Self {
+        self.rotation_angle = val.into();
+        self
     }
 
     /// The radius of the rectangle corner rounding, as a percentage of the media width
     #[must_use]
-    pub fn corner_radius_percentage<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.corner_radius_percentage = val.into();
-        this
+    pub fn corner_radius_percentage<T: Into<f64>>(mut self, val: T) -> Self {
+        self.corner_radius_percentage = val.into();
+        self
     }
 }

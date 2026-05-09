@@ -28,17 +28,15 @@ impl ChatBoostUpdated {
 
     /// Chat which was boosted
     #[must_use]
-    pub fn chat<T: Into<crate::types::Chat>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat = Box::new(val.into());
-        this
+    pub fn chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
+        self.chat = Box::new(val.into());
+        self
     }
 
     /// Information about the chat boost
     #[must_use]
-    pub fn boost<T: Into<crate::types::ChatBoost>>(self, val: T) -> Self {
-        let mut this = self;
-        this.boost = val.into();
-        this
+    pub fn boost<T: Into<crate::types::ChatBoost>>(mut self, val: T) -> Self {
+        self.boost = val.into();
+        self
     }
 }

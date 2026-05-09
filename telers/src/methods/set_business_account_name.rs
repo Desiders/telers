@@ -38,34 +38,30 @@ impl SetBusinessAccountName {
 
     /// Unique identifier of the business connection
     #[must_use]
-    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection_id = val.into();
-        this
+    pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.business_connection_id = val.into();
+        self
     }
 
     /// The new value of the first name for the business account; 1-64 characters
     #[must_use]
-    pub fn first_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.first_name = val.into();
-        this
+    pub fn first_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.first_name = val.into();
+        self
     }
 
     /// The new value of the last name for the business account; 0-64 characters
     #[must_use]
-    pub fn last_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.last_name = Some(val.into());
-        this
+    pub fn last_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.last_name = Some(val.into());
+        self
     }
 
     /// The new value of the last name for the business account; 0-64 characters
     #[must_use]
-    pub fn last_name_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.last_name = val.map(Into::into);
-        this
+    pub fn last_name_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.last_name = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for SetBusinessAccountName {

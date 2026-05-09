@@ -25,17 +25,15 @@ impl Dice {
 
     /// Emoji on which the dice throw animation is based
     #[must_use]
-    pub fn emoji<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.emoji = val.into();
-        this
+    pub fn emoji<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.emoji = val.into();
+        self
     }
 
     /// Value of the dice, 1-6 for `🎲`, `🎯` and `🎳` base emoji, 1-5 for `🏀` and `⚽` base emoji, 1-64 for `🎰` base emoji
     #[must_use]
-    pub fn value<T: Into<u8>>(self, val: T) -> Self {
-        let mut this = self;
-        this.value = val.into();
-        this
+    pub fn value<T: Into<u8>>(mut self, val: T) -> Self {
+        self.value = val.into();
+        self
     }
 }

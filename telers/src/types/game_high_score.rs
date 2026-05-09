@@ -33,25 +33,22 @@ impl GameHighScore {
 
     /// Position in high score table for the game
     #[must_use]
-    pub fn position<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.position = val.into();
-        this
+    pub fn position<T: Into<i64>>(mut self, val: T) -> Self {
+        self.position = val.into();
+        self
     }
 
     /// User
     #[must_use]
-    pub fn user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user = Box::new(val.into());
-        this
+    pub fn user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.user = Box::new(val.into());
+        self
     }
 
     /// Score
     #[must_use]
-    pub fn score<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.score = val.into();
-        this
+    pub fn score<T: Into<i64>>(mut self, val: T) -> Self {
+        self.score = val.into();
+        self
     }
 }

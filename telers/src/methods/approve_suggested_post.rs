@@ -35,34 +35,30 @@ impl ApproveSuggestedPost {
 
     /// Unique identifier for the target direct messages chat
     #[must_use]
-    pub fn chat_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Identifier of a suggested post message to approve
     #[must_use]
-    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_id = val.into();
-        this
+    pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_id = val.into();
+        self
     }
 
     /// Point in time (Unix timestamp) when the post is expected to be published; omit if the date has already been specified when the suggested post was created. If specified, then the date must be not more than 2678400 seconds (30 days) in the future
     #[must_use]
-    pub fn send_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.send_date = Some(val.into());
-        this
+    pub fn send_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.send_date = Some(val.into());
+        self
     }
 
     /// Point in time (Unix timestamp) when the post is expected to be published; omit if the date has already been specified when the suggested post was created. If specified, then the date must be not more than 2678400 seconds (30 days) in the future
     #[must_use]
-    pub fn send_date_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.send_date = val.map(Into::into);
-        this
+    pub fn send_date_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.send_date = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for ApproveSuggestedPost {

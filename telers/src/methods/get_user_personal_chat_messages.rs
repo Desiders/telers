@@ -28,18 +28,16 @@ impl GetUserPersonalChatMessages {
 
     /// Unique identifier for the target user
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// The maximum number of messages to return; 1-20
     #[must_use]
-    pub fn limit<T: Into<u8>>(self, val: T) -> Self {
-        let mut this = self;
-        this.limit = val.into();
-        this
+    pub fn limit<T: Into<u8>>(mut self, val: T) -> Self {
+        self.limit = val.into();
+        self
     }
 }
 impl super::TelegramMethod for GetUserPersonalChatMessages {

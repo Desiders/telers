@@ -28,17 +28,15 @@ impl InputPaidMediaLivePhoto {
 
     /// Video of the live photo to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended) or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending live photos by a URL is currently unsupported.
     #[must_use]
-    pub fn media<T: Into<crate::types::InputFile>>(self, val: T) -> Self {
-        let mut this = self;
-        this.media = val.into();
-        this
+    pub fn media<T: Into<crate::types::InputFile>>(mut self, val: T) -> Self {
+        self.media = val.into();
+        self
     }
 
     /// The static photo to send. Pass a `file_id` to send a file that exists on the Telegram servers (recommended) or pass `attach://<file_attach_name>` to upload a new one using multipart/form-data under <`file_attach_name`> name. More information on Sending Files: <https://core.telegram.org/bots/api#sending-files>. Sending live photos by a URL is currently unsupported.
     #[must_use]
-    pub fn photo<T: Into<crate::types::InputFile>>(self, val: T) -> Self {
-        let mut this = self;
-        this.photo = val.into();
-        this
+    pub fn photo<T: Into<crate::types::InputFile>>(mut self, val: T) -> Self {
+        self.photo = val.into();
+        self
     }
 }

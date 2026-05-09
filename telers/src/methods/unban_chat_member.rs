@@ -38,34 +38,30 @@ impl UnbanChatMember {
 
     /// Unique identifier for the target group or username of the target supergroup or channel in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Unique identifier of the target user
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// Do nothing if the user is not banned
     #[must_use]
-    pub fn only_if_banned<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.only_if_banned = Some(val.into());
-        this
+    pub fn only_if_banned<T: Into<bool>>(mut self, val: T) -> Self {
+        self.only_if_banned = Some(val.into());
+        self
     }
 
     /// Do nothing if the user is not banned
     #[must_use]
-    pub fn only_if_banned_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.only_if_banned = val.map(Into::into);
-        this
+    pub fn only_if_banned_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.only_if_banned = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for UnbanChatMember {

@@ -24,10 +24,9 @@ impl GetManagedBotToken {
 
     /// User identifier of the managed bot whose token will be returned
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 }
 impl super::TelegramMethod for GetManagedBotToken {

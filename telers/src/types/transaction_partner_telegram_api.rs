@@ -21,9 +21,8 @@ impl TransactionPartnerTelegramApi {
 
     /// The number of successful requests that exceeded regular limits and were therefore billed
     #[must_use]
-    pub fn request_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.request_count = val.into();
-        this
+    pub fn request_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.request_count = val.into();
+        self
     }
 }

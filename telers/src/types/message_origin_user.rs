@@ -25,17 +25,15 @@ impl MessageOriginUser {
 
     /// Date the message was sent originally in Unix time
     #[must_use]
-    pub fn date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.date = val.into();
-        this
+    pub fn date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.date = val.into();
+        self
     }
 
     /// User that sent the message originally
     #[must_use]
-    pub fn sender_user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sender_user = Box::new(val.into());
-        this
+    pub fn sender_user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.sender_user = Box::new(val.into());
+        self
     }
 }

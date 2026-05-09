@@ -38,33 +38,29 @@ impl PassportFile {
 
     /// Identifier for this file, which can be used to download or reuse the file
     #[must_use]
-    pub fn file_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.file_id = val.into();
-        this
+    pub fn file_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.file_id = val.into();
+        self
     }
 
     /// Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
     #[must_use]
-    pub fn file_unique_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.file_unique_id = val.into();
-        this
+    pub fn file_unique_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.file_unique_id = val.into();
+        self
     }
 
     /// File size in bytes
     #[must_use]
-    pub fn file_size<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.file_size = val.into();
-        this
+    pub fn file_size<T: Into<i64>>(mut self, val: T) -> Self {
+        self.file_size = val.into();
+        self
     }
 
     /// Unix time when the file was uploaded
     #[must_use]
-    pub fn file_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.file_date = val.into();
-        this
+    pub fn file_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.file_date = val.into();
+        self
     }
 }

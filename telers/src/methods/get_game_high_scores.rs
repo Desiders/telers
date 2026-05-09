@@ -39,58 +39,51 @@ impl GetGameHighScores {
 
     /// Target user id
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// Required if `inline_message_id` is not specified. Unique identifier for the target chat
     #[must_use]
-    pub fn chat_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = Some(val.into());
-        this
+    pub fn chat_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.chat_id = Some(val.into());
+        self
     }
 
     /// Required if `inline_message_id` is not specified. Unique identifier for the target chat
     #[must_use]
-    pub fn chat_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.chat_id = val.map(Into::into);
-        this
+    pub fn chat_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.chat_id = val.map(Into::into);
+        self
     }
 
     /// Required if `inline_message_id` is not specified. Identifier of the sent message
     #[must_use]
-    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_id = Some(val.into());
-        this
+    pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_id = Some(val.into());
+        self
     }
 
     /// Required if `inline_message_id` is not specified. Identifier of the sent message
     #[must_use]
-    pub fn message_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.message_id = val.map(Into::into);
-        this
+    pub fn message_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.message_id = val.map(Into::into);
+        self
     }
 
     /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
     #[must_use]
-    pub fn inline_message_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.inline_message_id = Some(val.into());
-        this
+    pub fn inline_message_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.inline_message_id = Some(val.into());
+        self
     }
 
     /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
     #[must_use]
-    pub fn inline_message_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.inline_message_id = val.map(Into::into);
-        this
+    pub fn inline_message_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.inline_message_id = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for GetGameHighScores {

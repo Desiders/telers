@@ -35,18 +35,16 @@ impl SetManagedBotAccessSettings {
 
     /// User identifier of the managed bot whose access settings will be changed
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// Pass `true`, if only selected users can access the bot. The bot's owner can always access it.
     #[must_use]
-    pub fn is_access_restricted<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_access_restricted = val.into();
-        this
+    pub fn is_access_restricted<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_access_restricted = val.into();
+        self
     }
 
     /// A JSON-serialized list of up to 10 identifiers of users who will have access to the bot in addition to its owner. Ignored if `is_access_restricted` is false.
@@ -54,17 +52,19 @@ impl SetManagedBotAccessSettings {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn added_user_ids<TItem: Into<i64>, T: IntoIterator<Item = TItem>>(self, val: T) -> Self {
-        let mut this = self;
-        this.added_user_ids = Some(
-            this.added_user_ids
+    pub fn added_user_ids<TItem: Into<i64>, T: IntoIterator<Item = TItem>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.added_user_ids = Some(
+            self.added_user_ids
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of up to 10 identifiers of users who will have access to the bot in addition to its owner. Ignored if `is_access_restricted` is false.
@@ -72,17 +72,16 @@ impl SetManagedBotAccessSettings {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn added_user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.added_user_ids = Some(
-            this.added_user_ids
+    pub fn added_user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.added_user_ids = Some(
+            self.added_user_ids
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of up to 10 identifiers of users who will have access to the bot in addition to its owner. Ignored if `is_access_restricted` is false.
@@ -91,12 +90,11 @@ impl SetManagedBotAccessSettings {
     /// Adds multiple elements.
     #[must_use]
     pub fn added_user_ids_option<TItem: Into<i64>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.added_user_ids = val.map(|v| v.into_iter().map(Into::into).collect());
-        this
+        self.added_user_ids = val.map(|v| v.into_iter().map(Into::into).collect());
+        self
     }
 }
 impl super::TelegramMethod for SetManagedBotAccessSettings {

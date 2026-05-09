@@ -42,50 +42,44 @@ impl BanChatMember {
 
     /// Unique identifier for the target group or username of the target supergroup or channel in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Unique identifier of the target user
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// Date when the user will be unbanned; Unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever. Applied for supergroups and channels only.
     #[must_use]
-    pub fn until_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.until_date = Some(val.into());
-        this
+    pub fn until_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.until_date = Some(val.into());
+        self
     }
 
     /// Date when the user will be unbanned; Unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever. Applied for supergroups and channels only.
     #[must_use]
-    pub fn until_date_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.until_date = val.map(Into::into);
-        this
+    pub fn until_date_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.until_date = val.map(Into::into);
+        self
     }
 
     /// Pass `true` to delete all messages from the chat for the user that is being removed. If `false`, the user will be able to see messages in the group that were sent before the user was removed. Always `true` for supergroups and channels.
     #[must_use]
-    pub fn revoke_messages<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.revoke_messages = Some(val.into());
-        this
+    pub fn revoke_messages<T: Into<bool>>(mut self, val: T) -> Self {
+        self.revoke_messages = Some(val.into());
+        self
     }
 
     /// Pass `true` to delete all messages from the chat for the user that is being removed. If `false`, the user will be able to see messages in the group that were sent before the user was removed. Always `true` for supergroups and channels.
     #[must_use]
-    pub fn revoke_messages_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.revoke_messages = val.map(Into::into);
-        this
+    pub fn revoke_messages_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.revoke_messages = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for BanChatMember {

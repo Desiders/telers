@@ -126,90 +126,79 @@ impl ChatFullInfoChannel {
 
     /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     #[must_use]
-    pub fn id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 
     /// Title, for supergroups, channels and group chats
     #[must_use]
-    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.title = Some(val.into());
-        this
+    pub fn title<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.title = Some(val.into());
+        self
     }
 
     /// Title, for supergroups, channels and group chats
     #[must_use]
-    pub fn title_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.title = val.map(Into::into);
-        this
+    pub fn title_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.title = val.map(Into::into);
+        self
     }
 
     /// Username, for private chats, supergroups and channels if available
     #[must_use]
-    pub fn username<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.username = Some(val.into());
-        this
+    pub fn username<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.username = Some(val.into());
+        self
     }
 
     /// Username, for private chats, supergroups and channels if available
     #[must_use]
-    pub fn username_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.username = val.map(Into::into);
-        this
+    pub fn username_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.username = val.map(Into::into);
+        self
     }
 
     /// `true`, if the chat is the direct messages chat of a channel
     #[must_use]
-    pub fn is_direct_messages<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_direct_messages = Some(val.into());
-        this
+    pub fn is_direct_messages<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_direct_messages = Some(val.into());
+        self
     }
 
     /// `true`, if the chat is the direct messages chat of a channel
     #[must_use]
-    pub fn is_direct_messages_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_direct_messages = val.map(Into::into);
-        this
+    pub fn is_direct_messages_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_direct_messages = val.map(Into::into);
+        self
     }
 
     /// Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details.
     #[must_use]
-    pub fn accent_color_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.accent_color_id = val.into();
-        this
+    pub fn accent_color_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.accent_color_id = val.into();
+        self
     }
 
     /// The maximum number of reactions that can be set on a message in the chat
     #[must_use]
-    pub fn max_reaction_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.max_reaction_count = val.into();
-        this
+    pub fn max_reaction_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.max_reaction_count = val.into();
+        self
     }
 
     /// Chat photo
     #[must_use]
-    pub fn photo<T: Into<crate::types::ChatPhoto>>(self, val: T) -> Self {
-        let mut this = self;
-        this.photo = Some(val.into());
-        this
+    pub fn photo<T: Into<crate::types::ChatPhoto>>(mut self, val: T) -> Self {
+        self.photo = Some(val.into());
+        self
     }
 
     /// Chat photo
     #[must_use]
-    pub fn photo_option<T: Into<crate::types::ChatPhoto>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.photo = val.map(Into::into);
-        this
+    pub fn photo_option<T: Into<crate::types::ChatPhoto>>(mut self, val: Option<T>) -> Self {
+        self.photo = val.map(Into::into);
+        self
     }
 
     /// If non-empty, the list of all active chat usernames; for private chats, supergroups and channels
@@ -217,17 +206,16 @@ impl ChatFullInfoChannel {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn active_usernames<T: Into<Box<[Box<str>]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.active_usernames = Some(
-            this.active_usernames
+    pub fn active_usernames<T: Into<Box<[Box<str>]>>>(mut self, val: T) -> Self {
+        self.active_usernames = Some(
+            self.active_usernames
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// If non-empty, the list of all active chat usernames; for private chats, supergroups and channels
@@ -235,17 +223,16 @@ impl ChatFullInfoChannel {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn active_username<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.active_usernames = Some(
-            this.active_usernames
+    pub fn active_username<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.active_usernames = Some(
+            self.active_usernames
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// If non-empty, the list of all active chat usernames; for private chats, supergroups and channels
@@ -253,42 +240,37 @@ impl ChatFullInfoChannel {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn active_usernames_option<T: Into<Box<[Box<str>]>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.active_usernames = val.map(Into::into);
-        this
+    pub fn active_usernames_option<T: Into<Box<[Box<str>]>>>(mut self, val: Option<T>) -> Self {
+        self.active_usernames = val.map(Into::into);
+        self
     }
 
     /// For private chats, the personal channel of the user
     #[must_use]
-    pub fn personal_chat<T: Into<crate::types::Chat>>(self, val: T) -> Self {
-        let mut this = self;
-        this.personal_chat = Some(Box::new(val.into()));
-        this
+    pub fn personal_chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
+        self.personal_chat = Some(Box::new(val.into()));
+        self
     }
 
     /// For private chats, the personal channel of the user
     #[must_use]
-    pub fn personal_chat_option<T: Into<crate::types::Chat>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.personal_chat = val.map(|val| Box::new(val.into()));
-        this
+    pub fn personal_chat_option<T: Into<crate::types::Chat>>(mut self, val: Option<T>) -> Self {
+        self.personal_chat = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// Information about the corresponding channel chat; for direct messages chats only
     #[must_use]
-    pub fn parent_chat<T: Into<crate::types::Chat>>(self, val: T) -> Self {
-        let mut this = self;
-        this.parent_chat = Some(Box::new(val.into()));
-        this
+    pub fn parent_chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
+        self.parent_chat = Some(Box::new(val.into()));
+        self
     }
 
     /// Information about the corresponding channel chat; for direct messages chats only
     #[must_use]
-    pub fn parent_chat_option<T: Into<crate::types::Chat>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.parent_chat = val.map(|val| Box::new(val.into()));
-        this
+    pub fn parent_chat_option<T: Into<crate::types::Chat>>(mut self, val: Option<T>) -> Self {
+        self.parent_chat = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed.
@@ -296,17 +278,19 @@ impl ChatFullInfoChannel {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn available_reactions<T: Into<Box<[crate::types::ReactionType]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.available_reactions = Some(
-            this.available_reactions
+    pub fn available_reactions<T: Into<Box<[crate::types::ReactionType]>>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.available_reactions = Some(
+            self.available_reactions
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed.
@@ -314,17 +298,16 @@ impl ChatFullInfoChannel {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn available_reaction<T: Into<crate::types::ReactionType>>(self, val: T) -> Self {
-        let mut this = self;
-        this.available_reactions = Some(
-            this.available_reactions
+    pub fn available_reaction<T: Into<crate::types::ReactionType>>(mut self, val: T) -> Self {
+        self.available_reactions = Some(
+            self.available_reactions
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed.
@@ -333,241 +316,212 @@ impl ChatFullInfoChannel {
     /// Adds a single element.
     #[must_use]
     pub fn available_reactions_option<T: Into<Box<[crate::types::ReactionType]>>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.available_reactions = val.map(Into::into);
-        this
+        self.available_reactions = val.map(Into::into);
+        self
     }
 
     /// Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background
     #[must_use]
-    pub fn background_custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.background_custom_emoji_id = Some(val.into());
-        this
+    pub fn background_custom_emoji_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.background_custom_emoji_id = Some(val.into());
+        self
     }
 
     /// Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background
     #[must_use]
-    pub fn background_custom_emoji_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.background_custom_emoji_id = val.map(Into::into);
-        this
+    pub fn background_custom_emoji_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.background_custom_emoji_id = val.map(Into::into);
+        self
     }
 
     /// Identifier of the accent color for the chat's profile background. See profile accent colors for more details.
     #[must_use]
-    pub fn profile_accent_color_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.profile_accent_color_id = Some(val.into());
-        this
+    pub fn profile_accent_color_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.profile_accent_color_id = Some(val.into());
+        self
     }
 
     /// Identifier of the accent color for the chat's profile background. See profile accent colors for more details.
     #[must_use]
-    pub fn profile_accent_color_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.profile_accent_color_id = val.map(Into::into);
-        this
+    pub fn profile_accent_color_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.profile_accent_color_id = val.map(Into::into);
+        self
     }
 
     /// Custom emoji identifier of the emoji chosen by the chat for its profile background
     #[must_use]
-    pub fn profile_background_custom_emoji_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.profile_background_custom_emoji_id = Some(val.into());
-        this
+    pub fn profile_background_custom_emoji_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.profile_background_custom_emoji_id = Some(val.into());
+        self
     }
 
     /// Custom emoji identifier of the emoji chosen by the chat for its profile background
     #[must_use]
     pub fn profile_background_custom_emoji_id_option<T: Into<Box<str>>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.profile_background_custom_emoji_id = val.map(Into::into);
-        this
+        self.profile_background_custom_emoji_id = val.map(Into::into);
+        self
     }
 
     /// Description, for groups, supergroups and channel chats
     #[must_use]
-    pub fn description<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.description = Some(val.into());
-        this
+    pub fn description<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.description = Some(val.into());
+        self
     }
 
     /// Description, for groups, supergroups and channel chats
     #[must_use]
-    pub fn description_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.description = val.map(Into::into);
-        this
+    pub fn description_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.description = val.map(Into::into);
+        self
     }
 
     /// Primary invite link, for groups, supergroups and channel chats
     #[must_use]
-    pub fn invite_link<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.invite_link = Some(val.into());
-        this
+    pub fn invite_link<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.invite_link = Some(val.into());
+        self
     }
 
     /// Primary invite link, for groups, supergroups and channel chats
     #[must_use]
-    pub fn invite_link_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.invite_link = val.map(Into::into);
-        this
+    pub fn invite_link_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.invite_link = val.map(Into::into);
+        self
     }
 
     /// The most recent pinned message (by sending date)
     #[must_use]
-    pub fn pinned_message<T: Into<crate::types::Message>>(self, val: T) -> Self {
-        let mut this = self;
-        this.pinned_message = Some(Box::new(val.into()));
-        this
+    pub fn pinned_message<T: Into<crate::types::Message>>(mut self, val: T) -> Self {
+        self.pinned_message = Some(Box::new(val.into()));
+        self
     }
 
     /// The most recent pinned message (by sending date)
     #[must_use]
-    pub fn pinned_message_option<T: Into<crate::types::Message>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.pinned_message = val.map(|val| Box::new(val.into()));
-        this
+    pub fn pinned_message_option<T: Into<crate::types::Message>>(mut self, val: Option<T>) -> Self {
+        self.pinned_message = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// `true`, if paid media messages can be sent or forwarded to the channel chat. The field is available only for channel chats.
     #[must_use]
-    pub fn can_send_paid_media<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.can_send_paid_media = Some(val.into());
-        this
+    pub fn can_send_paid_media<T: Into<bool>>(mut self, val: T) -> Self {
+        self.can_send_paid_media = Some(val.into());
+        self
     }
 
     /// `true`, if paid media messages can be sent or forwarded to the channel chat. The field is available only for channel chats.
     #[must_use]
-    pub fn can_send_paid_media_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.can_send_paid_media = val.map(Into::into);
-        this
+    pub fn can_send_paid_media_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.can_send_paid_media = val.map(Into::into);
+        self
     }
 
     /// The time after which all messages sent to the chat will be automatically deleted; in seconds
     #[must_use]
-    pub fn message_auto_delete_time<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_auto_delete_time = Some(val.into());
-        this
+    pub fn message_auto_delete_time<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_auto_delete_time = Some(val.into());
+        self
     }
 
     /// The time after which all messages sent to the chat will be automatically deleted; in seconds
     #[must_use]
-    pub fn message_auto_delete_time_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.message_auto_delete_time = val.map(Into::into);
-        this
+    pub fn message_auto_delete_time_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.message_auto_delete_time = val.map(Into::into);
+        self
     }
 
     /// `true`, if non-administrators can only get the list of bots and administrators in the chat
     #[must_use]
-    pub fn has_hidden_members<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.has_hidden_members = Some(val.into());
-        this
+    pub fn has_hidden_members<T: Into<bool>>(mut self, val: T) -> Self {
+        self.has_hidden_members = Some(val.into());
+        self
     }
 
     /// `true`, if non-administrators can only get the list of bots and administrators in the chat
     #[must_use]
-    pub fn has_hidden_members_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.has_hidden_members = val.map(Into::into);
-        this
+    pub fn has_hidden_members_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.has_hidden_members = val.map(Into::into);
+        self
     }
 
     /// `true`, if messages from the chat can't be forwarded to other chats
     #[must_use]
-    pub fn has_protected_content<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.has_protected_content = Some(val.into());
-        this
+    pub fn has_protected_content<T: Into<bool>>(mut self, val: T) -> Self {
+        self.has_protected_content = Some(val.into());
+        self
     }
 
     /// `true`, if messages from the chat can't be forwarded to other chats
     #[must_use]
-    pub fn has_protected_content_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.has_protected_content = val.map(Into::into);
-        this
+    pub fn has_protected_content_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.has_protected_content = val.map(Into::into);
+        self
     }
 
     /// `true`, if new chat members will have access to old messages; available only to chat administrators
     #[must_use]
-    pub fn has_visible_history<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.has_visible_history = Some(val.into());
-        this
+    pub fn has_visible_history<T: Into<bool>>(mut self, val: T) -> Self {
+        self.has_visible_history = Some(val.into());
+        self
     }
 
     /// `true`, if new chat members will have access to old messages; available only to chat administrators
     #[must_use]
-    pub fn has_visible_history_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.has_visible_history = val.map(Into::into);
-        this
+    pub fn has_visible_history_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.has_visible_history = val.map(Into::into);
+        self
     }
 
     /// Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats. This identifier may be greater than 32 bits and some programming languages may have difficulty/silent defects in interpreting it. But it is smaller than 52 bits, so a signed 64 bit integer or double-precision float type are safe for storing this identifier.
     #[must_use]
-    pub fn linked_chat_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.linked_chat_id = Some(val.into());
-        this
+    pub fn linked_chat_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.linked_chat_id = Some(val.into());
+        self
     }
 
     /// Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats. This identifier may be greater than 32 bits and some programming languages may have difficulty/silent defects in interpreting it. But it is smaller than 52 bits, so a signed 64 bit integer or double-precision float type are safe for storing this identifier.
     #[must_use]
-    pub fn linked_chat_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.linked_chat_id = val.map(Into::into);
-        this
+    pub fn linked_chat_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.linked_chat_id = val.map(Into::into);
+        self
     }
 
     /// The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews
     #[must_use]
-    pub fn unique_gift_colors<T: Into<crate::types::UniqueGiftColors>>(self, val: T) -> Self {
-        let mut this = self;
-        this.unique_gift_colors = Some(val.into());
-        this
+    pub fn unique_gift_colors<T: Into<crate::types::UniqueGiftColors>>(mut self, val: T) -> Self {
+        self.unique_gift_colors = Some(val.into());
+        self
     }
 
     /// The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews
     #[must_use]
     pub fn unique_gift_colors_option<T: Into<crate::types::UniqueGiftColors>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.unique_gift_colors = val.map(Into::into);
-        this
+        self.unique_gift_colors = val.map(Into::into);
+        self
     }
 
     /// The number of Telegram Stars a general user have to pay to send a message to the chat
     #[must_use]
-    pub fn paid_message_star_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.paid_message_star_count = Some(val.into());
-        this
+    pub fn paid_message_star_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.paid_message_star_count = Some(val.into());
+        self
     }
 
     /// The number of Telegram Stars a general user have to pay to send a message to the chat
     #[must_use]
-    pub fn paid_message_star_count_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.paid_message_star_count = val.map(Into::into);
-        this
+    pub fn paid_message_star_count_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.paid_message_star_count = val.map(Into::into);
+        self
     }
 }

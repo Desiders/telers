@@ -37,25 +37,22 @@ impl UniqueGiftBackdrop {
 
     /// Name of the backdrop
     #[must_use]
-    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.name = val.into();
-        this
+    pub fn name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.name = val.into();
+        self
     }
 
     /// Colors of the backdrop
     #[must_use]
-    pub fn colors<T: Into<crate::types::UniqueGiftBackdropColors>>(self, val: T) -> Self {
-        let mut this = self;
-        this.colors = val.into();
-        this
+    pub fn colors<T: Into<crate::types::UniqueGiftBackdropColors>>(mut self, val: T) -> Self {
+        self.colors = val.into();
+        self
     }
 
     /// The number of unique gifts that receive this backdrop for every 1000 gifts upgraded
     #[must_use]
-    pub fn rarity_per_mille<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.rarity_per_mille = val.into();
-        this
+    pub fn rarity_per_mille<T: Into<i64>>(mut self, val: T) -> Self {
+        self.rarity_per_mille = val.into();
+        self
     }
 }

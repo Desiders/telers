@@ -21,9 +21,8 @@ impl VideoChatEnded {
 
     /// Video chat duration in seconds
     #[must_use]
-    pub fn duration<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.duration = val.into();
-        this
+    pub fn duration<T: Into<i64>>(mut self, val: T) -> Self {
+        self.duration = val.into();
+        self
     }
 }

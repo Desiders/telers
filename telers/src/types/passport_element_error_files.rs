@@ -38,10 +38,9 @@ impl PassportElementErrorFiles {
 
     /// The section of the user's Telegram Passport which has the issue, one of `utility_bill`, `bank_statement`, `rental_agreement`, `passport_registration`, `temporary_registration`
     #[must_use]
-    pub fn r#type<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.r#type = val.into();
-        this
+    pub fn r#type<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.r#type = val.into();
+        self
     }
 
     /// List of base64-encoded file hashes
@@ -49,15 +48,14 @@ impl PassportElementErrorFiles {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn file_hashes<T: Into<Box<[Box<str>]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.file_hashes = this
+    pub fn file_hashes<T: Into<Box<[Box<str>]>>>(mut self, val: T) -> Self {
+        self.file_hashes = self
             .file_hashes
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// List of base64-encoded file hashes
@@ -65,22 +63,20 @@ impl PassportElementErrorFiles {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn file_hash<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.file_hashes = this
+    pub fn file_hash<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.file_hashes = self
             .file_hashes
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// Error message
     #[must_use]
-    pub fn message<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message = val.into();
-        this
+    pub fn message<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.message = val.into();
+        self
     }
 }

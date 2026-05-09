@@ -28,17 +28,15 @@ impl StoryArea {
 
     /// Position of the area
     #[must_use]
-    pub fn position<T: Into<crate::types::StoryAreaPosition>>(self, val: T) -> Self {
-        let mut this = self;
-        this.position = val.into();
-        this
+    pub fn position<T: Into<crate::types::StoryAreaPosition>>(mut self, val: T) -> Self {
+        self.position = val.into();
+        self
     }
 
     /// Type of the area
     #[must_use]
-    pub fn r#type<T: Into<crate::types::StoryAreaType>>(self, val: T) -> Self {
-        let mut this = self;
-        this.r#type = val.into();
-        this
+    pub fn r#type<T: Into<crate::types::StoryAreaType>>(mut self, val: T) -> Self {
+        self.r#type = val.into();
+        self
     }
 }

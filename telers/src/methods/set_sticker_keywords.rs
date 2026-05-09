@@ -31,10 +31,9 @@ impl SetStickerKeywords {
 
     /// File identifier of the sticker
     #[must_use]
-    pub fn sticker<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sticker = val.into();
-        this
+    pub fn sticker<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.sticker = val.into();
+        self
     }
 
     /// A JSON-serialized list of 0-20 search keywords for the sticker with total length of up to 64 characters
@@ -42,17 +41,19 @@ impl SetStickerKeywords {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn keywords<TItem: Into<Box<str>>, T: IntoIterator<Item = TItem>>(self, val: T) -> Self {
-        let mut this = self;
-        this.keywords = Some(
-            this.keywords
+    pub fn keywords<TItem: Into<Box<str>>, T: IntoIterator<Item = TItem>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.keywords = Some(
+            self.keywords
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of 0-20 search keywords for the sticker with total length of up to 64 characters
@@ -60,17 +61,16 @@ impl SetStickerKeywords {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn keyword<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.keywords = Some(
-            this.keywords
+    pub fn keyword<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.keywords = Some(
+            self.keywords
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of 0-20 search keywords for the sticker with total length of up to 64 characters
@@ -79,12 +79,11 @@ impl SetStickerKeywords {
     /// Adds multiple elements.
     #[must_use]
     pub fn keywords_option<TItem: Into<Box<str>>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.keywords = val.map(|v| v.into_iter().map(Into::into).collect());
-        this
+        self.keywords = val.map(|v| v.into_iter().map(Into::into).collect());
+        self
     }
 }
 impl super::TelegramMethod for SetStickerKeywords {

@@ -58,98 +58,86 @@ impl EditMessageCaption {
 
     /// Unique identifier of the business connection on behalf of which the message to be edited was sent
     #[must_use]
-    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection_id = Some(val.into());
-        this
+    pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.business_connection_id = Some(val.into());
+        self
     }
 
     /// Unique identifier of the business connection on behalf of which the message to be edited was sent
     #[must_use]
-    pub fn business_connection_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.business_connection_id = val.map(Into::into);
-        this
+    pub fn business_connection_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.business_connection_id = val.map(Into::into);
+        self
     }
 
     /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username.
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = Some(val.into());
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = Some(val.into());
+        self
     }
 
     /// Required if `inline_message_id` is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username.
     #[must_use]
-    pub fn chat_id_option<T: Into<crate::types::ChatIdKind>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.chat_id = val.map(Into::into);
-        this
+    pub fn chat_id_option<T: Into<crate::types::ChatIdKind>>(mut self, val: Option<T>) -> Self {
+        self.chat_id = val.map(Into::into);
+        self
     }
 
     /// Required if `inline_message_id` is not specified. Identifier of the message to edit
     #[must_use]
-    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_id = Some(val.into());
-        this
+    pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_id = Some(val.into());
+        self
     }
 
     /// Required if `inline_message_id` is not specified. Identifier of the message to edit
     #[must_use]
-    pub fn message_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.message_id = val.map(Into::into);
-        this
+    pub fn message_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.message_id = val.map(Into::into);
+        self
     }
 
     /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
     #[must_use]
-    pub fn inline_message_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.inline_message_id = Some(val.into());
-        this
+    pub fn inline_message_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.inline_message_id = Some(val.into());
+        self
     }
 
     /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
     #[must_use]
-    pub fn inline_message_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.inline_message_id = val.map(Into::into);
-        this
+    pub fn inline_message_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.inline_message_id = val.map(Into::into);
+        self
     }
 
     /// New caption of the message, 0-1024 characters after entities parsing
     #[must_use]
-    pub fn caption<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.caption = Some(val.into());
-        this
+    pub fn caption<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.caption = Some(val.into());
+        self
     }
 
     /// New caption of the message, 0-1024 characters after entities parsing
     #[must_use]
-    pub fn caption_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.caption = val.map(Into::into);
-        this
+    pub fn caption_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.caption = val.map(Into::into);
+        self
     }
 
     /// Mode for parsing entities in the message caption. See formatting options for more details.
     #[must_use]
-    pub fn parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.parse_mode = Some(val.into());
-        this
+    pub fn parse_mode<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.parse_mode = Some(val.into());
+        self
     }
 
     /// Mode for parsing entities in the message caption. See formatting options for more details.
     #[must_use]
-    pub fn parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.parse_mode = val.map(Into::into);
-        this
+    pub fn parse_mode_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.parse_mode = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the caption, which can be specified instead of `parse_mode`
@@ -161,19 +149,18 @@ impl EditMessageCaption {
         TItem: Into<crate::types::MessageEntity>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.caption_entities = Some(
-            this.caption_entities
+        self.caption_entities = Some(
+            self.caption_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the caption, which can be specified instead of `parse_mode`
@@ -181,17 +168,16 @@ impl EditMessageCaption {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn caption_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.caption_entities = Some(
-            this.caption_entities
+    pub fn caption_entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.caption_entities = Some(
+            self.caption_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the caption, which can be specified instead of `parse_mode`
@@ -203,47 +189,42 @@ impl EditMessageCaption {
         TItem: Into<crate::types::MessageEntity>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.caption_entities = val.map(|v| v.into_iter().map(Into::into).collect());
-        this
+        self.caption_entities = val.map(|v| v.into_iter().map(Into::into).collect());
+        self
     }
 
     /// Pass `true`, if the caption must be shown above the message media. Supported only for animation, photo and video messages.
     #[must_use]
-    pub fn show_caption_above_media<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.show_caption_above_media = Some(val.into());
-        this
+    pub fn show_caption_above_media<T: Into<bool>>(mut self, val: T) -> Self {
+        self.show_caption_above_media = Some(val.into());
+        self
     }
 
     /// Pass `true`, if the caption must be shown above the message media. Supported only for animation, photo and video messages.
     #[must_use]
-    pub fn show_caption_above_media_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.show_caption_above_media = val.map(Into::into);
-        this
+    pub fn show_caption_above_media_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.show_caption_above_media = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized object for an inline keyboard.
     #[must_use]
-    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(self, val: T) -> Self {
-        let mut this = self;
-        this.reply_markup = Some(val.into());
-        this
+    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(mut self, val: T) -> Self {
+        self.reply_markup = Some(val.into());
+        self
     }
 
     /// A JSON-serialized object for an inline keyboard.
     #[must_use]
     pub fn reply_markup_option<T: Into<crate::types::InlineKeyboardMarkup>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.reply_markup = val.map(Into::into);
-        this
+        self.reply_markup = val.map(Into::into);
+        self
     }
 }
 impl Default for EditMessageCaption {

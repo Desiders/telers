@@ -30,18 +30,19 @@ impl ChecklistTasksAdded {
 
     /// Message containing the checklist to which the tasks were added. Note that the Message object in this field will not contain the `reply_to_message` field even if it itself is a reply.
     #[must_use]
-    pub fn checklist_message<T: Into<crate::types::Message>>(self, val: T) -> Self {
-        let mut this = self;
-        this.checklist_message = Some(Box::new(val.into()));
-        this
+    pub fn checklist_message<T: Into<crate::types::Message>>(mut self, val: T) -> Self {
+        self.checklist_message = Some(Box::new(val.into()));
+        self
     }
 
     /// Message containing the checklist to which the tasks were added. Note that the Message object in this field will not contain the `reply_to_message` field even if it itself is a reply.
     #[must_use]
-    pub fn checklist_message_option<T: Into<crate::types::Message>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.checklist_message = val.map(|val| Box::new(val.into()));
-        this
+    pub fn checklist_message_option<T: Into<crate::types::Message>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.checklist_message = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// List of tasks added to the checklist
@@ -49,15 +50,14 @@ impl ChecklistTasksAdded {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn tasks<T: Into<Box<[crate::types::ChecklistTask]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.tasks = this
+    pub fn tasks<T: Into<Box<[crate::types::ChecklistTask]>>>(mut self, val: T) -> Self {
+        self.tasks = self
             .tasks
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// List of tasks added to the checklist
@@ -65,14 +65,13 @@ impl ChecklistTasksAdded {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn task<T: Into<crate::types::ChecklistTask>>(self, val: T) -> Self {
-        let mut this = self;
-        this.tasks = this
+    pub fn task<T: Into<crate::types::ChecklistTask>>(mut self, val: T) -> Self {
+        self.tasks = self
             .tasks
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

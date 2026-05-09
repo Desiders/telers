@@ -31,18 +31,16 @@ impl SetChatPhoto {
 
     /// Unique identifier for the target chat or username of the target channel in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// New chat photo, uploaded using multipart/form-data
     #[must_use]
-    pub fn photo<T: Into<crate::types::InputFile>>(self, val: T) -> Self {
-        let mut this = self;
-        this.photo = val.into();
-        this
+    pub fn photo<T: Into<crate::types::InputFile>>(mut self, val: T) -> Self {
+        self.photo = val.into();
+        self
     }
 }
 impl super::TelegramMethod for SetChatPhoto {

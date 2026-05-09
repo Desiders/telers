@@ -35,34 +35,30 @@ impl DeclineSuggestedPost {
 
     /// Unique identifier for the target direct messages chat
     #[must_use]
-    pub fn chat_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Identifier of a suggested post message to decline
     #[must_use]
-    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_id = val.into();
-        this
+    pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_id = val.into();
+        self
     }
 
     /// Comment for the creator of the suggested post; 0-128 characters
     #[must_use]
-    pub fn comment<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.comment = Some(val.into());
-        this
+    pub fn comment<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.comment = Some(val.into());
+        self
     }
 
     /// Comment for the creator of the suggested post; 0-128 characters
     #[must_use]
-    pub fn comment_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.comment = val.map(Into::into);
-        this
+    pub fn comment_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.comment = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for DeclineSuggestedPost {

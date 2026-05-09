@@ -30,50 +30,44 @@ impl BusinessIntro {
 
     /// Title text of the business intro
     #[must_use]
-    pub fn title<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.title = Some(val.into());
-        this
+    pub fn title<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.title = Some(val.into());
+        self
     }
 
     /// Title text of the business intro
     #[must_use]
-    pub fn title_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.title = val.map(Into::into);
-        this
+    pub fn title_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.title = val.map(Into::into);
+        self
     }
 
     /// Message text of the business intro
     #[must_use]
-    pub fn message<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message = Some(val.into());
-        this
+    pub fn message<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.message = Some(val.into());
+        self
     }
 
     /// Message text of the business intro
     #[must_use]
-    pub fn message_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.message = val.map(Into::into);
-        this
+    pub fn message_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.message = val.map(Into::into);
+        self
     }
 
     /// Sticker of the business intro
     #[must_use]
-    pub fn sticker<T: Into<crate::types::Sticker>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sticker = Some(Box::new(val.into()));
-        this
+    pub fn sticker<T: Into<crate::types::Sticker>>(mut self, val: T) -> Self {
+        self.sticker = Some(Box::new(val.into()));
+        self
     }
 
     /// Sticker of the business intro
     #[must_use]
-    pub fn sticker_option<T: Into<crate::types::Sticker>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.sticker = val.map(|val| Box::new(val.into()));
-        this
+    pub fn sticker_option<T: Into<crate::types::Sticker>>(mut self, val: Option<T>) -> Self {
+        self.sticker = val.map(|val| Box::new(val.into()));
+        self
     }
 }
 impl Default for BusinessIntro {

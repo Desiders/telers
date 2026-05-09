@@ -36,55 +36,52 @@ impl InlineQueryResultCachedSticker {
 
     /// Unique identifier for this result, 1-64 bytes
     #[must_use]
-    pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 
     /// A valid file identifier of the sticker
     #[must_use]
-    pub fn sticker_file_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sticker_file_id = val.into();
-        this
+    pub fn sticker_file_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.sticker_file_id = val.into();
+        self
     }
 
     /// Inline keyboard attached to the message
     #[must_use]
-    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(self, val: T) -> Self {
-        let mut this = self;
-        this.reply_markup = Some(val.into());
-        this
+    pub fn reply_markup<T: Into<crate::types::InlineKeyboardMarkup>>(mut self, val: T) -> Self {
+        self.reply_markup = Some(val.into());
+        self
     }
 
     /// Inline keyboard attached to the message
     #[must_use]
     pub fn reply_markup_option<T: Into<crate::types::InlineKeyboardMarkup>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.reply_markup = val.map(Into::into);
-        this
+        self.reply_markup = val.map(Into::into);
+        self
     }
 
     /// Content of the message to be sent instead of the sticker
     #[must_use]
-    pub fn input_message_content<T: Into<crate::types::InputMessageContent>>(self, val: T) -> Self {
-        let mut this = self;
-        this.input_message_content = Some(val.into());
-        this
+    pub fn input_message_content<T: Into<crate::types::InputMessageContent>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.input_message_content = Some(val.into());
+        self
     }
 
     /// Content of the message to be sent instead of the sticker
     #[must_use]
     pub fn input_message_content_option<T: Into<crate::types::InputMessageContent>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.input_message_content = val.map(Into::into);
-        this
+        self.input_message_content = val.map(Into::into);
+        self
     }
 }

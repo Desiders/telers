@@ -41,17 +41,16 @@ impl SetMyCommands {
     /// Adds multiple elements.
     #[must_use]
     pub fn commands<TItem: Into<crate::types::BotCommand>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.commands = this
+        self.commands = self
             .commands
             .into_vec()
             .into_iter()
             .chain(val.into_iter().map(Into::into))
             .collect();
-        this
+        self
     }
 
     /// A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
@@ -59,47 +58,42 @@ impl SetMyCommands {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn command<T: Into<crate::types::BotCommand>>(self, val: T) -> Self {
-        let mut this = self;
-        this.commands = this
+    pub fn command<T: Into<crate::types::BotCommand>>(mut self, val: T) -> Self {
+        self.commands = self
             .commands
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to [`crate::types::BotCommandScopeDefault`].
     #[must_use]
-    pub fn scope<T: Into<crate::types::BotCommandScope>>(self, val: T) -> Self {
-        let mut this = self;
-        this.scope = Some(val.into());
-        this
+    pub fn scope<T: Into<crate::types::BotCommandScope>>(mut self, val: T) -> Self {
+        self.scope = Some(val.into());
+        self
     }
 
     /// A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to [`crate::types::BotCommandScopeDefault`].
     #[must_use]
-    pub fn scope_option<T: Into<crate::types::BotCommandScope>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.scope = val.map(Into::into);
-        this
+    pub fn scope_option<T: Into<crate::types::BotCommandScope>>(mut self, val: Option<T>) -> Self {
+        self.scope = val.map(Into::into);
+        self
     }
 
     /// A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
     #[must_use]
-    pub fn language_code<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.language_code = Some(val.into());
-        this
+    pub fn language_code<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.language_code = Some(val.into());
+        self
     }
 
     /// A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
     #[must_use]
-    pub fn language_code_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.language_code = val.map(Into::into);
-        this
+    pub fn language_code_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.language_code = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for SetMyCommands {

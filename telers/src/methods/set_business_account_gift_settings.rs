@@ -36,26 +36,23 @@ impl SetBusinessAccountGiftSettings {
 
     /// Unique identifier of the business connection
     #[must_use]
-    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection_id = val.into();
-        this
+    pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.business_connection_id = val.into();
+        self
     }
 
     /// Pass `true`, if a button for sending a gift to the user or by the business account must always be shown in the input field
     #[must_use]
-    pub fn show_gift_button<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.show_gift_button = val.into();
-        this
+    pub fn show_gift_button<T: Into<bool>>(mut self, val: T) -> Self {
+        self.show_gift_button = val.into();
+        self
     }
 
     /// Types of gifts accepted by the business account
     #[must_use]
-    pub fn accepted_gift_types<T: Into<crate::types::AcceptedGiftTypes>>(self, val: T) -> Self {
-        let mut this = self;
-        this.accepted_gift_types = val.into();
-        this
+    pub fn accepted_gift_types<T: Into<crate::types::AcceptedGiftTypes>>(mut self, val: T) -> Self {
+        self.accepted_gift_types = val.into();
+        self
     }
 }
 impl super::TelegramMethod for SetBusinessAccountGiftSettings {

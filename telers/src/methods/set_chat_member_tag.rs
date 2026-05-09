@@ -38,34 +38,30 @@ impl SetChatMemberTag {
 
     /// Unique identifier for the target chat or username of the target supergroup in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Unique identifier of the target user
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// New tag for the member; 0-16 characters, emoji are not allowed
     #[must_use]
-    pub fn tag<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.tag = Some(val.into());
-        this
+    pub fn tag<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.tag = Some(val.into());
+        self
     }
 
     /// New tag for the member; 0-16 characters, emoji are not allowed
     #[must_use]
-    pub fn tag_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.tag = val.map(Into::into);
-        this
+    pub fn tag_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.tag = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for SetChatMemberTag {

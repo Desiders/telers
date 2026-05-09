@@ -28,28 +28,25 @@ impl SuggestedPostApprovalFailed {
 
     /// Message containing the suggested post whose approval has failed. Note that the Message object in this field will not contain the `reply_to_message` field even if it itself is a reply.
     #[must_use]
-    pub fn suggested_post_message<T: Into<crate::types::Message>>(self, val: T) -> Self {
-        let mut this = self;
-        this.suggested_post_message = Some(Box::new(val.into()));
-        this
+    pub fn suggested_post_message<T: Into<crate::types::Message>>(mut self, val: T) -> Self {
+        self.suggested_post_message = Some(Box::new(val.into()));
+        self
     }
 
     /// Message containing the suggested post whose approval has failed. Note that the Message object in this field will not contain the `reply_to_message` field even if it itself is a reply.
     #[must_use]
     pub fn suggested_post_message_option<T: Into<crate::types::Message>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.suggested_post_message = val.map(|val| Box::new(val.into()));
-        this
+        self.suggested_post_message = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// Expected price of the post
     #[must_use]
-    pub fn price<T: Into<crate::types::SuggestedPostPrice>>(self, val: T) -> Self {
-        let mut this = self;
-        this.price = val.into();
-        this
+    pub fn price<T: Into<crate::types::SuggestedPostPrice>>(mut self, val: T) -> Self {
+        self.price = val.into();
+        self
     }
 }

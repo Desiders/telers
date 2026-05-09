@@ -40,58 +40,51 @@ impl SharedUser {
 
     /// Identifier of the shared user. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so 64-bit integers or double-precision float types are safe for storing these identifiers. The bot may not have access to the user and could be unable to use this identifier, unless the user is already known to the bot by some other means.
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// First name of the user, if the name was requested by the bot
     #[must_use]
-    pub fn first_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.first_name = Some(val.into());
-        this
+    pub fn first_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.first_name = Some(val.into());
+        self
     }
 
     /// First name of the user, if the name was requested by the bot
     #[must_use]
-    pub fn first_name_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.first_name = val.map(Into::into);
-        this
+    pub fn first_name_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.first_name = val.map(Into::into);
+        self
     }
 
     /// Last name of the user, if the name was requested by the bot
     #[must_use]
-    pub fn last_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.last_name = Some(val.into());
-        this
+    pub fn last_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.last_name = Some(val.into());
+        self
     }
 
     /// Last name of the user, if the name was requested by the bot
     #[must_use]
-    pub fn last_name_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.last_name = val.map(Into::into);
-        this
+    pub fn last_name_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.last_name = val.map(Into::into);
+        self
     }
 
     /// Username of the user, if the username was requested by the bot
     #[must_use]
-    pub fn username<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.username = Some(val.into());
-        this
+    pub fn username<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.username = Some(val.into());
+        self
     }
 
     /// Username of the user, if the username was requested by the bot
     #[must_use]
-    pub fn username_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.username = val.map(Into::into);
-        this
+    pub fn username_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.username = val.map(Into::into);
+        self
     }
 
     /// Available sizes of the chat photo, if the photo was requested by the bot
@@ -99,17 +92,16 @@ impl SharedUser {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn photos<T: Into<Box<[crate::types::PhotoSize]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.photo = Some(
-            this.photo
+    pub fn photos<T: Into<Box<[crate::types::PhotoSize]>>>(mut self, val: T) -> Self {
+        self.photo = Some(
+            self.photo
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// Available sizes of the chat photo, if the photo was requested by the bot
@@ -117,17 +109,16 @@ impl SharedUser {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn photo<T: Into<crate::types::PhotoSize>>(self, val: T) -> Self {
-        let mut this = self;
-        this.photo = Some(
-            this.photo
+    pub fn photo<T: Into<crate::types::PhotoSize>>(mut self, val: T) -> Self {
+        self.photo = Some(
+            self.photo
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// Available sizes of the chat photo, if the photo was requested by the bot
@@ -135,9 +126,8 @@ impl SharedUser {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn photo_option<T: Into<Box<[crate::types::PhotoSize]>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.photo = val.map(Into::into);
-        this
+    pub fn photo_option<T: Into<Box<[crate::types::PhotoSize]>>>(mut self, val: Option<T>) -> Self {
+        self.photo = val.map(Into::into);
+        self
     }
 }

@@ -32,33 +32,29 @@ impl InputMediaLocation {
 
     /// Latitude of the location
     #[must_use]
-    pub fn latitude<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.latitude = val.into();
-        this
+    pub fn latitude<T: Into<f64>>(mut self, val: T) -> Self {
+        self.latitude = val.into();
+        self
     }
 
     /// Longitude of the location
     #[must_use]
-    pub fn longitude<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.longitude = val.into();
-        this
+    pub fn longitude<T: Into<f64>>(mut self, val: T) -> Self {
+        self.longitude = val.into();
+        self
     }
 
     /// The radius of uncertainty for the location, measured in meters; 0-1500
     #[must_use]
-    pub fn horizontal_accuracy<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.horizontal_accuracy = Some(val.into());
-        this
+    pub fn horizontal_accuracy<T: Into<f64>>(mut self, val: T) -> Self {
+        self.horizontal_accuracy = Some(val.into());
+        self
     }
 
     /// The radius of uncertainty for the location, measured in meters; 0-1500
     #[must_use]
-    pub fn horizontal_accuracy_option<T: Into<f64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.horizontal_accuracy = val.map(Into::into);
-        this
+    pub fn horizontal_accuracy_option<T: Into<f64>>(mut self, val: Option<T>) -> Self {
+        self.horizontal_accuracy = val.map(Into::into);
+        self
     }
 }

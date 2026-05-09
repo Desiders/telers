@@ -36,10 +36,9 @@ impl TextQuote {
 
     /// Text of the quoted part of a message that is replied to by the given message
     #[must_use]
-    pub fn text<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text = val.into();
-        this
+    pub fn text<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.text = val.into();
+        self
     }
 
     /// Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are kept in quotes.
@@ -47,17 +46,16 @@ impl TextQuote {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn entities<T: Into<Box<[crate::types::MessageEntity]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.entities = Some(
-            this.entities
+    pub fn entities<T: Into<Box<[crate::types::MessageEntity]>>>(mut self, val: T) -> Self {
+        self.entities = Some(
+            self.entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are kept in quotes.
@@ -65,17 +63,16 @@ impl TextQuote {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.entities = Some(
-            this.entities
+    pub fn entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.entities = Some(
+            self.entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, `custom_emoji`, and `date_time` entities are kept in quotes.
@@ -84,35 +81,31 @@ impl TextQuote {
     /// Adds a single element.
     #[must_use]
     pub fn entities_option<T: Into<Box<[crate::types::MessageEntity]>>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.entities = val.map(Into::into);
-        this
+        self.entities = val.map(Into::into);
+        self
     }
 
     /// Approximate quote position in the original message in UTF-16 code units as specified by the sender
     #[must_use]
-    pub fn position<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.position = val.into();
-        this
+    pub fn position<T: Into<i64>>(mut self, val: T) -> Self {
+        self.position = val.into();
+        self
     }
 
     /// `true`, if the quote was chosen manually by the message sender. Otherwise, the quote was added automatically by the server.
     #[must_use]
-    pub fn is_manual<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_manual = Some(val.into());
-        this
+    pub fn is_manual<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_manual = Some(val.into());
+        self
     }
 
     /// `true`, if the quote was chosen manually by the message sender. Otherwise, the quote was added automatically by the server.
     #[must_use]
-    pub fn is_manual_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_manual = val.map(Into::into);
-        this
+    pub fn is_manual_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_manual = val.map(Into::into);
+        self
     }
 }

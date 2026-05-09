@@ -26,15 +26,14 @@ impl UserChatBoosts {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn boosts<T: Into<Box<[crate::types::ChatBoost]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.boosts = this
+    pub fn boosts<T: Into<Box<[crate::types::ChatBoost]>>>(mut self, val: T) -> Self {
+        self.boosts = self
             .boosts
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// The list of boosts added to the chat by the user
@@ -42,14 +41,13 @@ impl UserChatBoosts {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn boost<T: Into<crate::types::ChatBoost>>(self, val: T) -> Self {
-        let mut this = self;
-        this.boosts = this
+    pub fn boost<T: Into<crate::types::ChatBoost>>(mut self, val: T) -> Self {
+        self.boosts = self
             .boosts
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

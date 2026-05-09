@@ -48,57 +48,50 @@ impl BackgroundTypePattern {
 
     /// Document with the pattern
     #[must_use]
-    pub fn document<T: Into<crate::types::Document>>(self, val: T) -> Self {
-        let mut this = self;
-        this.document = Box::new(val.into());
-        this
+    pub fn document<T: Into<crate::types::Document>>(mut self, val: T) -> Self {
+        self.document = Box::new(val.into());
+        self
     }
 
     /// The background fill that is combined with the pattern
     #[must_use]
-    pub fn fill<T: Into<crate::types::BackgroundFill>>(self, val: T) -> Self {
-        let mut this = self;
-        this.fill = val.into();
-        this
+    pub fn fill<T: Into<crate::types::BackgroundFill>>(mut self, val: T) -> Self {
+        self.fill = val.into();
+        self
     }
 
     /// Intensity of the pattern when it is shown above the filled background; 0-100
     #[must_use]
-    pub fn intensity<T: Into<u8>>(self, val: T) -> Self {
-        let mut this = self;
-        this.intensity = val.into();
-        this
+    pub fn intensity<T: Into<u8>>(mut self, val: T) -> Self {
+        self.intensity = val.into();
+        self
     }
 
     /// `true`, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only
     #[must_use]
-    pub fn is_inverted<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_inverted = Some(val.into());
-        this
+    pub fn is_inverted<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_inverted = Some(val.into());
+        self
     }
 
     /// `true`, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only
     #[must_use]
-    pub fn is_inverted_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_inverted = val.map(Into::into);
-        this
+    pub fn is_inverted_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_inverted = val.map(Into::into);
+        self
     }
 
     /// `true`, if the background moves slightly when the device is tilted
     #[must_use]
-    pub fn is_moving<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_moving = Some(val.into());
-        this
+    pub fn is_moving<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_moving = Some(val.into());
+        self
     }
 
     /// `true`, if the background moves slightly when the device is tilted
     #[must_use]
-    pub fn is_moving_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_moving = val.map(Into::into);
-        this
+    pub fn is_moving_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_moving = val.map(Into::into);
+        self
     }
 }

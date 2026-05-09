@@ -31,26 +31,23 @@ impl VerifyChat {
 
     /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. Channel direct messages chats can't be verified.
     #[must_use]
-    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = val.into();
-        this
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(mut self, val: T) -> Self {
+        self.chat_id = val.into();
+        self
     }
 
     /// Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description.
     #[must_use]
-    pub fn custom_description<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.custom_description = Some(val.into());
-        this
+    pub fn custom_description<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.custom_description = Some(val.into());
+        self
     }
 
     /// Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description.
     #[must_use]
-    pub fn custom_description_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.custom_description = val.map(Into::into);
-        this
+    pub fn custom_description_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.custom_description = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for VerifyChat {

@@ -38,34 +38,30 @@ impl SetBusinessAccountProfilePhoto {
 
     /// Unique identifier of the business connection
     #[must_use]
-    pub fn business_connection_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.business_connection_id = val.into();
-        this
+    pub fn business_connection_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.business_connection_id = val.into();
+        self
     }
 
     /// The new profile photo to set
     #[must_use]
-    pub fn photo<T: Into<crate::types::InputProfilePhoto>>(self, val: T) -> Self {
-        let mut this = self;
-        this.photo = val.into();
-        this
+    pub fn photo<T: Into<crate::types::InputProfilePhoto>>(mut self, val: T) -> Self {
+        self.photo = val.into();
+        self
     }
 
     /// Pass `true` to set the public photo, which will be visible even if the main photo is hidden by the business account's privacy settings. An account can have only one public photo.
     #[must_use]
-    pub fn is_public<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_public = Some(val.into());
-        this
+    pub fn is_public<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_public = Some(val.into());
+        self
     }
 
     /// Pass `true` to set the public photo, which will be visible even if the main photo is hidden by the business account's privacy settings. An account can have only one public photo.
     #[must_use]
-    pub fn is_public_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_public = val.map(Into::into);
-        this
+    pub fn is_public_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_public = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for SetBusinessAccountProfilePhoto {

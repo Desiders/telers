@@ -21,9 +21,8 @@ impl StoryAreaTypeLink {
 
     /// HTTP or tg:// URL to be opened when the area is clicked
     #[must_use]
-    pub fn url<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.url = val.into();
-        this
+    pub fn url<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.url = val.into();
+        self
     }
 }

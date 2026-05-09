@@ -55,10 +55,9 @@ impl AnswerInlineQuery {
 
     /// Unique identifier for the answered query
     #[must_use]
-    pub fn inline_query_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.inline_query_id = val.into();
-        this
+    pub fn inline_query_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.inline_query_id = val.into();
+        self
     }
 
     /// A JSON-serialized array of results for the inline query
@@ -67,17 +66,16 @@ impl AnswerInlineQuery {
     /// Adds multiple elements.
     #[must_use]
     pub fn results<TItem: Into<crate::types::InlineQueryResult>, T: IntoIterator<Item = TItem>>(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.results = this
+        self.results = self
             .results
             .into_vec()
             .into_iter()
             .chain(val.into_iter().map(Into::into))
             .collect();
-        this
+        self
     }
 
     /// A JSON-serialized array of results for the inline query
@@ -85,82 +83,73 @@ impl AnswerInlineQuery {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn result<T: Into<crate::types::InlineQueryResult>>(self, val: T) -> Self {
-        let mut this = self;
-        this.results = this
+    pub fn result<T: Into<crate::types::InlineQueryResult>>(mut self, val: T) -> Self {
+        self.results = self
             .results
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 
     /// The maximum amount of time in seconds that the result of the inline query may be cached on the server. Defaults to 300.
     #[must_use]
-    pub fn cache_time<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.cache_time = Some(val.into());
-        this
+    pub fn cache_time<T: Into<i64>>(mut self, val: T) -> Self {
+        self.cache_time = Some(val.into());
+        self
     }
 
     /// The maximum amount of time in seconds that the result of the inline query may be cached on the server. Defaults to 300.
     #[must_use]
-    pub fn cache_time_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.cache_time = val.map(Into::into);
-        this
+    pub fn cache_time_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.cache_time = val.map(Into::into);
+        self
     }
 
     /// Pass `true` if results may be cached on the server side only for the user that sent the query. By default, results may be returned to any user who sends the same query.
     #[must_use]
-    pub fn is_personal<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_personal = Some(val.into());
-        this
+    pub fn is_personal<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_personal = Some(val.into());
+        self
     }
 
     /// Pass `true` if results may be cached on the server side only for the user that sent the query. By default, results may be returned to any user who sends the same query.
     #[must_use]
-    pub fn is_personal_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.is_personal = val.map(Into::into);
-        this
+    pub fn is_personal_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.is_personal = val.map(Into::into);
+        self
     }
 
     /// Pass the offset that a client should send in the next query with the same text to receive more results. Pass an empty string if there are no more results or if you don't support pagination. Offset length can't exceed 64 bytes.
     #[must_use]
-    pub fn next_offset<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.next_offset = Some(val.into());
-        this
+    pub fn next_offset<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.next_offset = Some(val.into());
+        self
     }
 
     /// Pass the offset that a client should send in the next query with the same text to receive more results. Pass an empty string if there are no more results or if you don't support pagination. Offset length can't exceed 64 bytes.
     #[must_use]
-    pub fn next_offset_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.next_offset = val.map(Into::into);
-        this
+    pub fn next_offset_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.next_offset = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized object describing a button to be shown above inline query results
     #[must_use]
-    pub fn button<T: Into<crate::types::InlineQueryResultsButton>>(self, val: T) -> Self {
-        let mut this = self;
-        this.button = Some(val.into());
-        this
+    pub fn button<T: Into<crate::types::InlineQueryResultsButton>>(mut self, val: T) -> Self {
+        self.button = Some(val.into());
+        self
     }
 
     /// A JSON-serialized object describing a button to be shown above inline query results
     #[must_use]
     pub fn button_option<T: Into<crate::types::InlineQueryResultsButton>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.button = val.map(Into::into);
-        this
+        self.button = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for AnswerInlineQuery {

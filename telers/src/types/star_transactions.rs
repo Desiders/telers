@@ -26,15 +26,14 @@ impl StarTransactions {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn transactions<T: Into<Box<[crate::types::StarTransaction]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.transactions = this
+    pub fn transactions<T: Into<Box<[crate::types::StarTransaction]>>>(mut self, val: T) -> Self {
+        self.transactions = self
             .transactions
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// The list of transactions
@@ -42,14 +41,13 @@ impl StarTransactions {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn transaction<T: Into<crate::types::StarTransaction>>(self, val: T) -> Self {
-        let mut this = self;
-        this.transactions = this
+    pub fn transaction<T: Into<crate::types::StarTransaction>>(mut self, val: T) -> Self {
+        self.transactions = self
             .transactions
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

@@ -35,34 +35,30 @@ impl AnswerPreCheckoutQuery {
 
     /// Unique identifier for the query to be answered
     #[must_use]
-    pub fn pre_checkout_query_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.pre_checkout_query_id = val.into();
-        this
+    pub fn pre_checkout_query_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.pre_checkout_query_id = val.into();
+        self
     }
 
     /// Specify `true` if everything is alright (goods are available, etc.) and the bot is ready to proceed with the order. Use `false` if there are any problems.
     #[must_use]
-    pub fn ok<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.ok = val.into();
-        this
+    pub fn ok<T: Into<bool>>(mut self, val: T) -> Self {
+        self.ok = val.into();
+        self
     }
 
     /// Required if ok is `false`. Error message in human readable form that explains the reason for failure to proceed with the checkout (e.g. `Sorry, somebody just bought the last of our amazing black T-shirts while you were busy filling out your payment details. Please choose a different color or garment!`). Telegram will display this message to the user.
     #[must_use]
-    pub fn error_message<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.error_message = Some(val.into());
-        this
+    pub fn error_message<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.error_message = Some(val.into());
+        self
     }
 
     /// Required if ok is `false`. Error message in human readable form that explains the reason for failure to proceed with the checkout (e.g. `Sorry, somebody just bought the last of our amazing black T-shirts while you were busy filling out your payment details. Please choose a different color or garment!`). Telegram will display this message to the user.
     #[must_use]
-    pub fn error_message_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.error_message = val.map(Into::into);
-        this
+    pub fn error_message_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.error_message = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for AnswerPreCheckoutQuery {

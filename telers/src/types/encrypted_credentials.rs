@@ -33,25 +33,22 @@ impl EncryptedCredentials {
 
     /// Base64-encoded encrypted JSON-serialized data with unique user's payload, data hashes and secrets required for [`crate::types::EncryptedPassportElement`] decryption and authentication
     #[must_use]
-    pub fn data<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.data = val.into();
-        this
+    pub fn data<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.data = val.into();
+        self
     }
 
     /// Base64-encoded data hash for data authentication
     #[must_use]
-    pub fn hash<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.hash = val.into();
-        this
+    pub fn hash<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.hash = val.into();
+        self
     }
 
     /// Base64-encoded secret, encrypted with the bot's public RSA key, required for data decryption
     #[must_use]
-    pub fn secret<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.secret = val.into();
-        this
+    pub fn secret<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.secret = val.into();
+        self
     }
 }

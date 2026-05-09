@@ -33,25 +33,22 @@ impl ProximityAlertTriggered {
 
     /// User that triggered the alert
     #[must_use]
-    pub fn traveler<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.traveler = Box::new(val.into());
-        this
+    pub fn traveler<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.traveler = Box::new(val.into());
+        self
     }
 
     /// User that set the alert
     #[must_use]
-    pub fn watcher<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.watcher = Box::new(val.into());
-        this
+    pub fn watcher<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.watcher = Box::new(val.into());
+        self
     }
 
     /// The distance between the users
     #[must_use]
-    pub fn distance<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.distance = val.into();
-        this
+    pub fn distance<T: Into<i64>>(mut self, val: T) -> Self {
+        self.distance = val.into();
+        self
     }
 }

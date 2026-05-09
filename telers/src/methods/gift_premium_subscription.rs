@@ -51,58 +51,51 @@ impl GiftPremiumSubscription {
 
     /// Unique identifier of the target user who will receive a Telegram Premium subscription
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// Number of months the Telegram Premium subscription will be active for the user; must be one of 3, 6, or 12
     #[must_use]
-    pub fn month_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.month_count = val.into();
-        this
+    pub fn month_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.month_count = val.into();
+        self
     }
 
     /// Number of Telegram Stars to pay for the Telegram Premium subscription; must be 1000 for 3 months, 1500 for 6 months, and 2500 for 12 months
     #[must_use]
-    pub fn star_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.star_count = val.into();
-        this
+    pub fn star_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.star_count = val.into();
+        self
     }
 
     /// Text that will be shown along with the service message about the subscription; 0-128 characters
     #[must_use]
-    pub fn text<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text = Some(val.into());
-        this
+    pub fn text<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.text = Some(val.into());
+        self
     }
 
     /// Text that will be shown along with the service message about the subscription; 0-128 characters
     #[must_use]
-    pub fn text_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.text = val.map(Into::into);
-        this
+    pub fn text_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.text = val.map(Into::into);
+        self
     }
 
     /// Mode for parsing entities in the text. See formatting options for more details. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
     #[must_use]
-    pub fn text_parse_mode<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text_parse_mode = Some(val.into());
-        this
+    pub fn text_parse_mode<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.text_parse_mode = Some(val.into());
+        self
     }
 
     /// Mode for parsing entities in the text. See formatting options for more details. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
     #[must_use]
-    pub fn text_parse_mode_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.text_parse_mode = val.map(Into::into);
-        this
+    pub fn text_parse_mode_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.text_parse_mode = val.map(Into::into);
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of `text_parse_mode`. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
@@ -114,19 +107,18 @@ impl GiftPremiumSubscription {
         TItem: Into<crate::types::MessageEntity>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: T,
     ) -> Self {
-        let mut this = self;
-        this.text_entities = Some(
-            this.text_entities
+        self.text_entities = Some(
+            self.text_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into_iter().map(Into::into))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of `text_parse_mode`. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
@@ -134,17 +126,16 @@ impl GiftPremiumSubscription {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn text_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.text_entities = Some(
-            this.text_entities
+    pub fn text_entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.text_entities = Some(
+            self.text_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of `text_parse_mode`. Entities other than `bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `custom_emoji`, and `date_time` are ignored.
@@ -156,12 +147,11 @@ impl GiftPremiumSubscription {
         TItem: Into<crate::types::MessageEntity>,
         T: IntoIterator<Item = TItem>,
     >(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.text_entities = val.map(|v| v.into_iter().map(Into::into).collect());
-        this
+        self.text_entities = val.map(|v| v.into_iter().map(Into::into).collect());
+        self
     }
 }
 impl super::TelegramMethod for GiftPremiumSubscription {

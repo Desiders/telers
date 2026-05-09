@@ -52,92 +52,81 @@ impl CallbackQuery {
 
     /// Unique identifier for this query
     #[must_use]
-    pub fn id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.id = val.into();
-        this
+    pub fn id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.id = val.into();
+        self
     }
 
     /// Sender
     #[must_use]
-    pub fn from<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.from = Box::new(val.into());
-        this
+    pub fn from<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.from = Box::new(val.into());
+        self
     }
 
     /// Message sent by the bot with the callback button that originated the query
     #[must_use]
-    pub fn message<T: Into<crate::types::MaybeInaccessibleMessage>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message = Some(Box::new(val.into()));
-        this
+    pub fn message<T: Into<crate::types::MaybeInaccessibleMessage>>(mut self, val: T) -> Self {
+        self.message = Some(Box::new(val.into()));
+        self
     }
 
     /// Message sent by the bot with the callback button that originated the query
     #[must_use]
     pub fn message_option<T: Into<crate::types::MaybeInaccessibleMessage>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.message = val.map(|val| Box::new(val.into()));
-        this
+        self.message = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// Identifier of the message sent via the bot in inline mode, that originated the query.
     #[must_use]
-    pub fn inline_message_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.inline_message_id = Some(val.into());
-        this
+    pub fn inline_message_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.inline_message_id = Some(val.into());
+        self
     }
 
     /// Identifier of the message sent via the bot in inline mode, that originated the query.
     #[must_use]
-    pub fn inline_message_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.inline_message_id = val.map(Into::into);
-        this
+    pub fn inline_message_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.inline_message_id = val.map(Into::into);
+        self
     }
 
     /// Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent. Useful for high scores in games.
     #[must_use]
-    pub fn chat_instance<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_instance = val.into();
-        this
+    pub fn chat_instance<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.chat_instance = val.into();
+        self
     }
 
     /// Data associated with the callback button. Be aware that the message originated the query can contain no callback buttons with this data.
     #[must_use]
-    pub fn data<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.data = Some(val.into());
-        this
+    pub fn data<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.data = Some(val.into());
+        self
     }
 
     /// Data associated with the callback button. Be aware that the message originated the query can contain no callback buttons with this data.
     #[must_use]
-    pub fn data_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.data = val.map(Into::into);
-        this
+    pub fn data_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.data = val.map(Into::into);
+        self
     }
 
     /// Short name of a Game to be returned, serves as the unique identifier for the game
     #[must_use]
-    pub fn game_short_name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.game_short_name = Some(val.into());
-        this
+    pub fn game_short_name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.game_short_name = Some(val.into());
+        self
     }
 
     /// Short name of a Game to be returned, serves as the unique identifier for the game
     #[must_use]
-    pub fn game_short_name_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.game_short_name = val.map(Into::into);
-        this
+    pub fn game_short_name_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.game_short_name = val.map(Into::into);
+        self
     }
 }

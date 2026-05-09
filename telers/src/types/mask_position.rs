@@ -38,33 +38,29 @@ impl MaskPosition {
 
     /// The part of the face relative to which the mask should be placed. One of `forehead`, `eyes`, `mouth`, or `chin`.
     #[must_use]
-    pub fn point<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.point = val.into();
-        this
+    pub fn point<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.point = val.into();
+        self
     }
 
     /// Shift by X-axis measured in widths of the mask scaled to the face size, from left to right. For example, choosing -1.0 will place mask just to the left of the default mask position.
     #[must_use]
-    pub fn x_shift<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.x_shift = val.into();
-        this
+    pub fn x_shift<T: Into<f64>>(mut self, val: T) -> Self {
+        self.x_shift = val.into();
+        self
     }
 
     /// Shift by Y-axis measured in heights of the mask scaled to the face size, from top to bottom. For example, 1.0 will place the mask just below the default mask position.
     #[must_use]
-    pub fn y_shift<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.y_shift = val.into();
-        this
+    pub fn y_shift<T: Into<f64>>(mut self, val: T) -> Self {
+        self.y_shift = val.into();
+        self
     }
 
     /// Mask scaling coefficient. For example, 2.0 means double size.
     #[must_use]
-    pub fn scale<T: Into<f64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.scale = val.into();
-        this
+    pub fn scale<T: Into<f64>>(mut self, val: T) -> Self {
+        self.scale = val.into();
+        self
     }
 }

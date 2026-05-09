@@ -51,97 +51,85 @@ impl UniqueGiftInfo {
 
     /// Information about the gift
     #[must_use]
-    pub fn gift<T: Into<crate::types::UniqueGift>>(self, val: T) -> Self {
-        let mut this = self;
-        this.gift = Box::new(val.into());
-        this
+    pub fn gift<T: Into<crate::types::UniqueGift>>(mut self, val: T) -> Self {
+        self.gift = Box::new(val.into());
+        self
     }
 
     /// Origin of the gift. Currently, either `upgrade` for gifts upgraded from regular gifts, `transfer` for gifts transferred from other users or channels, `resale` for gifts bought from other users, `gifted_upgrade` for upgrades purchased after the gift was sent, or `offer` for gifts bought or sold through gift purchase offers
     #[must_use]
-    pub fn origin<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.origin = val.into();
-        this
+    pub fn origin<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.origin = val.into();
+        self
     }
 
     /// For gifts bought from other users, the currency in which the payment for the gift was done. Currently, one of `XTR` for Telegram Stars or `TON` for toncoins.
     #[must_use]
-    pub fn last_resale_currency<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.last_resale_currency = Some(val.into());
-        this
+    pub fn last_resale_currency<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.last_resale_currency = Some(val.into());
+        self
     }
 
     /// For gifts bought from other users, the currency in which the payment for the gift was done. Currently, one of `XTR` for Telegram Stars or `TON` for toncoins.
     #[must_use]
-    pub fn last_resale_currency_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.last_resale_currency = val.map(Into::into);
-        this
+    pub fn last_resale_currency_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.last_resale_currency = val.map(Into::into);
+        self
     }
 
     /// For gifts bought from other users, the price paid for the gift in either Telegram Stars or nanotoncoins
     #[must_use]
-    pub fn last_resale_amount<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.last_resale_amount = Some(val.into());
-        this
+    pub fn last_resale_amount<T: Into<i64>>(mut self, val: T) -> Self {
+        self.last_resale_amount = Some(val.into());
+        self
     }
 
     /// For gifts bought from other users, the price paid for the gift in either Telegram Stars or nanotoncoins
     #[must_use]
-    pub fn last_resale_amount_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.last_resale_amount = val.map(Into::into);
-        this
+    pub fn last_resale_amount_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.last_resale_amount = val.map(Into::into);
+        self
     }
 
     /// Unique identifier of the received gift for the bot; only present for gifts received on behalf of business accounts
     #[must_use]
-    pub fn owned_gift_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.owned_gift_id = Some(val.into());
-        this
+    pub fn owned_gift_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.owned_gift_id = Some(val.into());
+        self
     }
 
     /// Unique identifier of the received gift for the bot; only present for gifts received on behalf of business accounts
     #[must_use]
-    pub fn owned_gift_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.owned_gift_id = val.map(Into::into);
-        this
+    pub fn owned_gift_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.owned_gift_id = val.map(Into::into);
+        self
     }
 
     /// Number of Telegram Stars that must be paid to transfer the gift; omitted if the bot cannot transfer the gift
     #[must_use]
-    pub fn transfer_star_count<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.transfer_star_count = Some(val.into());
-        this
+    pub fn transfer_star_count<T: Into<i64>>(mut self, val: T) -> Self {
+        self.transfer_star_count = Some(val.into());
+        self
     }
 
     /// Number of Telegram Stars that must be paid to transfer the gift; omitted if the bot cannot transfer the gift
     #[must_use]
-    pub fn transfer_star_count_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.transfer_star_count = val.map(Into::into);
-        this
+    pub fn transfer_star_count_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.transfer_star_count = val.map(Into::into);
+        self
     }
 
     /// Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now
     #[must_use]
-    pub fn next_transfer_date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.next_transfer_date = Some(val.into());
-        this
+    pub fn next_transfer_date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.next_transfer_date = Some(val.into());
+        self
     }
 
     /// Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now
     #[must_use]
-    pub fn next_transfer_date_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.next_transfer_date = val.map(Into::into);
-        this
+    pub fn next_transfer_date_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.next_transfer_date = val.map(Into::into);
+        self
     }
 }

@@ -28,10 +28,9 @@ impl BotAccessSettings {
 
     /// `true`, if only selected users can access the bot. The bot's owner can always access it.
     #[must_use]
-    pub fn is_access_restricted<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.is_access_restricted = val.into();
-        this
+    pub fn is_access_restricted<T: Into<bool>>(mut self, val: T) -> Self {
+        self.is_access_restricted = val.into();
+        self
     }
 
     /// The list of other users who have access to the bot if the access is restricted
@@ -39,17 +38,16 @@ impl BotAccessSettings {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn added_users<T: Into<Box<[crate::types::User]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.added_users = Some(
-            this.added_users
+    pub fn added_users<T: Into<Box<[crate::types::User]>>>(mut self, val: T) -> Self {
+        self.added_users = Some(
+            self.added_users
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// The list of other users who have access to the bot if the access is restricted
@@ -57,17 +55,16 @@ impl BotAccessSettings {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn added_user<T: Into<crate::types::User>>(self, val: T) -> Self {
-        let mut this = self;
-        this.added_users = Some(
-            this.added_users
+    pub fn added_user<T: Into<crate::types::User>>(mut self, val: T) -> Self {
+        self.added_users = Some(
+            self.added_users
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// The list of other users who have access to the bot if the access is restricted
@@ -75,9 +72,11 @@ impl BotAccessSettings {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn added_users_option<T: Into<Box<[crate::types::User]>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.added_users = val.map(Into::into);
-        this
+    pub fn added_users_option<T: Into<Box<[crate::types::User]>>>(
+        mut self,
+        val: Option<T>,
+    ) -> Self {
+        self.added_users = val.map(Into::into);
+        self
     }
 }

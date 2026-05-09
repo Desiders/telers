@@ -44,26 +44,23 @@ impl MessageReactionCountUpdated {
 
     /// The chat containing the message
     #[must_use]
-    pub fn chat<T: Into<crate::types::Chat>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat = Box::new(val.into());
-        this
+    pub fn chat<T: Into<crate::types::Chat>>(mut self, val: T) -> Self {
+        self.chat = Box::new(val.into());
+        self
     }
 
     /// Unique message identifier inside the chat
     #[must_use]
-    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_id = val.into();
-        this
+    pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_id = val.into();
+        self
     }
 
     /// Date of the change in Unix time
     #[must_use]
-    pub fn date<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.date = val.into();
-        this
+    pub fn date<T: Into<i64>>(mut self, val: T) -> Self {
+        self.date = val.into();
+        self
     }
 
     /// List of reactions that are present on the message
@@ -71,15 +68,14 @@ impl MessageReactionCountUpdated {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn reactions<T: Into<Box<[crate::types::ReactionCount]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.reactions = this
+    pub fn reactions<T: Into<Box<[crate::types::ReactionCount]>>>(mut self, val: T) -> Self {
+        self.reactions = self
             .reactions
             .into_vec()
             .into_iter()
             .chain(val.into())
             .collect();
-        this
+        self
     }
 
     /// List of reactions that are present on the message
@@ -87,14 +83,13 @@ impl MessageReactionCountUpdated {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn reaction<T: Into<crate::types::ReactionCount>>(self, val: T) -> Self {
-        let mut this = self;
-        this.reactions = this
+    pub fn reaction<T: Into<crate::types::ReactionCount>>(mut self, val: T) -> Self {
+        self.reactions = self
             .reactions
             .into_vec()
             .into_iter()
             .chain(Some(val.into()))
             .collect();
-        this
+        self
     }
 }

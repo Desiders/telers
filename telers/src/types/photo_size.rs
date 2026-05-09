@@ -45,49 +45,43 @@ impl PhotoSize {
 
     /// Identifier for this file, which can be used to download or reuse the file
     #[must_use]
-    pub fn file_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.file_id = val.into();
-        this
+    pub fn file_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.file_id = val.into();
+        self
     }
 
     /// Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
     #[must_use]
-    pub fn file_unique_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.file_unique_id = val.into();
-        this
+    pub fn file_unique_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.file_unique_id = val.into();
+        self
     }
 
     /// Photo width
     #[must_use]
-    pub fn width<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.width = val.into();
-        this
+    pub fn width<T: Into<i64>>(mut self, val: T) -> Self {
+        self.width = val.into();
+        self
     }
 
     /// Photo height
     #[must_use]
-    pub fn height<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.height = val.into();
-        this
+    pub fn height<T: Into<i64>>(mut self, val: T) -> Self {
+        self.height = val.into();
+        self
     }
 
     /// File size in bytes
     #[must_use]
-    pub fn file_size<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.file_size = Some(val.into());
-        this
+    pub fn file_size<T: Into<i64>>(mut self, val: T) -> Self {
+        self.file_size = Some(val.into());
+        self
     }
 
     /// File size in bytes
     #[must_use]
-    pub fn file_size_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.file_size = val.map(Into::into);
-        this
+    pub fn file_size_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.file_size = val.map(Into::into);
+        self
     }
 }

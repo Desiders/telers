@@ -39,37 +39,33 @@ impl PollOptionDeleted {
 
     /// Message containing the poll from which the option was deleted, if known. Note that the Message object in this field will not contain the `reply_to_message` field even if it itself is a reply.
     #[must_use]
-    pub fn poll_message<T: Into<crate::types::MaybeInaccessibleMessage>>(self, val: T) -> Self {
-        let mut this = self;
-        this.poll_message = Some(Box::new(val.into()));
-        this
+    pub fn poll_message<T: Into<crate::types::MaybeInaccessibleMessage>>(mut self, val: T) -> Self {
+        self.poll_message = Some(Box::new(val.into()));
+        self
     }
 
     /// Message containing the poll from which the option was deleted, if known. Note that the Message object in this field will not contain the `reply_to_message` field even if it itself is a reply.
     #[must_use]
     pub fn poll_message_option<T: Into<crate::types::MaybeInaccessibleMessage>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.poll_message = val.map(|val| Box::new(val.into()));
-        this
+        self.poll_message = val.map(|val| Box::new(val.into()));
+        self
     }
 
     /// Unique identifier of the deleted option
     #[must_use]
-    pub fn option_persistent_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.option_persistent_id = val.into();
-        this
+    pub fn option_persistent_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.option_persistent_id = val.into();
+        self
     }
 
     /// Option text
     #[must_use]
-    pub fn option_text<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.option_text = val.into();
-        this
+    pub fn option_text<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.option_text = val.into();
+        self
     }
 
     /// Special entities that appear in the `option_text`
@@ -77,17 +73,19 @@ impl PollOptionDeleted {
     /// # Notes
     /// Adds multiple elements.
     #[must_use]
-    pub fn option_text_entities<T: Into<Box<[crate::types::MessageEntity]>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.option_text_entities = Some(
-            this.option_text_entities
+    pub fn option_text_entities<T: Into<Box<[crate::types::MessageEntity]>>>(
+        mut self,
+        val: T,
+    ) -> Self {
+        self.option_text_entities = Some(
+            self.option_text_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(val.into())
                 .collect(),
         );
-        this
+        self
     }
 
     /// Special entities that appear in the `option_text`
@@ -95,17 +93,16 @@ impl PollOptionDeleted {
     /// # Notes
     /// Adds a single element.
     #[must_use]
-    pub fn option_text_entity<T: Into<crate::types::MessageEntity>>(self, val: T) -> Self {
-        let mut this = self;
-        this.option_text_entities = Some(
-            this.option_text_entities
+    pub fn option_text_entity<T: Into<crate::types::MessageEntity>>(mut self, val: T) -> Self {
+        self.option_text_entities = Some(
+            self.option_text_entities
                 .unwrap_or_default()
                 .into_vec()
                 .into_iter()
                 .chain(Some(val.into()))
                 .collect(),
         );
-        this
+        self
     }
 
     /// Special entities that appear in the `option_text`
@@ -114,11 +111,10 @@ impl PollOptionDeleted {
     /// Adds a single element.
     #[must_use]
     pub fn option_text_entities_option<T: Into<Box<[crate::types::MessageEntity]>>>(
-        self,
+        mut self,
         val: Option<T>,
     ) -> Self {
-        let mut this = self;
-        this.option_text_entities = val.map(Into::into);
-        this
+        self.option_text_entities = val.map(Into::into);
+        self
     }
 }

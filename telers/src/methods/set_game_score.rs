@@ -52,98 +52,86 @@ impl SetGameScore {
 
     /// User identifier
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// New score, must be non-negative
     #[must_use]
-    pub fn score<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.score = val.into();
-        this
+    pub fn score<T: Into<i64>>(mut self, val: T) -> Self {
+        self.score = val.into();
+        self
     }
 
     /// Pass `true` if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters
     #[must_use]
-    pub fn force<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.force = Some(val.into());
-        this
+    pub fn force<T: Into<bool>>(mut self, val: T) -> Self {
+        self.force = Some(val.into());
+        self
     }
 
     /// Pass `true` if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters
     #[must_use]
-    pub fn force_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.force = val.map(Into::into);
-        this
+    pub fn force_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.force = val.map(Into::into);
+        self
     }
 
     /// Pass `true` if the game message should not be automatically edited to include the current scoreboard
     #[must_use]
-    pub fn disable_edit_message<T: Into<bool>>(self, val: T) -> Self {
-        let mut this = self;
-        this.disable_edit_message = Some(val.into());
-        this
+    pub fn disable_edit_message<T: Into<bool>>(mut self, val: T) -> Self {
+        self.disable_edit_message = Some(val.into());
+        self
     }
 
     /// Pass `true` if the game message should not be automatically edited to include the current scoreboard
     #[must_use]
-    pub fn disable_edit_message_option<T: Into<bool>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.disable_edit_message = val.map(Into::into);
-        this
+    pub fn disable_edit_message_option<T: Into<bool>>(mut self, val: Option<T>) -> Self {
+        self.disable_edit_message = val.map(Into::into);
+        self
     }
 
     /// Required if `inline_message_id` is not specified. Unique identifier for the target chat
     #[must_use]
-    pub fn chat_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.chat_id = Some(val.into());
-        this
+    pub fn chat_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.chat_id = Some(val.into());
+        self
     }
 
     /// Required if `inline_message_id` is not specified. Unique identifier for the target chat
     #[must_use]
-    pub fn chat_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.chat_id = val.map(Into::into);
-        this
+    pub fn chat_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.chat_id = val.map(Into::into);
+        self
     }
 
     /// Required if `inline_message_id` is not specified. Identifier of the sent message
     #[must_use]
-    pub fn message_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.message_id = Some(val.into());
-        this
+    pub fn message_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.message_id = Some(val.into());
+        self
     }
 
     /// Required if `inline_message_id` is not specified. Identifier of the sent message
     #[must_use]
-    pub fn message_id_option<T: Into<i64>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.message_id = val.map(Into::into);
-        this
+    pub fn message_id_option<T: Into<i64>>(mut self, val: Option<T>) -> Self {
+        self.message_id = val.map(Into::into);
+        self
     }
 
     /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
     #[must_use]
-    pub fn inline_message_id<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.inline_message_id = Some(val.into());
-        this
+    pub fn inline_message_id<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.inline_message_id = Some(val.into());
+        self
     }
 
     /// Required if `chat_id` and `message_id` are not specified. Identifier of the inline message
     #[must_use]
-    pub fn inline_message_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
-        let mut this = self;
-        this.inline_message_id = val.map(Into::into);
-        this
+    pub fn inline_message_id_option<T: Into<Box<str>>>(mut self, val: Option<T>) -> Self {
+        self.inline_message_id = val.map(Into::into);
+        self
     }
 }
 impl super::TelegramMethod for SetGameScore {

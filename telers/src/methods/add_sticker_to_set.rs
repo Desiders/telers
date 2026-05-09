@@ -36,26 +36,23 @@ impl AddStickerToSet {
 
     /// User identifier of sticker set owner
     #[must_use]
-    pub fn user_id<T: Into<i64>>(self, val: T) -> Self {
-        let mut this = self;
-        this.user_id = val.into();
-        this
+    pub fn user_id<T: Into<i64>>(mut self, val: T) -> Self {
+        self.user_id = val.into();
+        self
     }
 
     /// Sticker set name
     #[must_use]
-    pub fn name<T: Into<Box<str>>>(self, val: T) -> Self {
-        let mut this = self;
-        this.name = val.into();
-        this
+    pub fn name<T: Into<Box<str>>>(mut self, val: T) -> Self {
+        self.name = val.into();
+        self
     }
 
     /// A JSON-serialized object with information about the added sticker. If exactly the same sticker had already been added to the set, then the set isn't changed.
     #[must_use]
-    pub fn sticker<T: Into<crate::types::InputSticker>>(self, val: T) -> Self {
-        let mut this = self;
-        this.sticker = val.into();
-        this
+    pub fn sticker<T: Into<crate::types::InputSticker>>(mut self, val: T) -> Self {
+        self.sticker = val.into();
+        self
     }
 }
 impl super::TelegramMethod for AddStickerToSet {
