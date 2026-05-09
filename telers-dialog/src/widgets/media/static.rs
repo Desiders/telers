@@ -3,7 +3,7 @@
 use std::{borrow::Cow, sync::Arc};
 
 use async_trait::async_trait;
-use bon::Builder;
+use bon::bon;
 
 use super::{Media, MediaAttachment, MediaContentType, MediaId};
 use crate::{entities::RenderContext, widgets::Text};
@@ -12,23 +12,18 @@ use crate::{entities::RenderContext, widgets::Text};
 ///
 /// The media source can be a URL, file ID, or local path.
 /// The caption can be static or rendered from a `Text` widget.
-#[derive(Builder)]
 pub struct StaticMedia {
     /// The type of media content.
-    #[builder(default = MediaContentType::Photo)]
     content_type: MediaContentType,
     /// URL to fetch the media from.
-    #[builder(into)]
     url: Option<Cow<'static, str>>,
     /// Existing Telegram file ID.
     file_id: Option<MediaId>,
     /// Local file path.
-    #[builder(into)]
     path: Option<Cow<'static, str>>,
     /// Caption text widget.
     caption: Option<Arc<dyn Text>>,
     /// Parse mode for the caption.
-    #[builder(into)]
     parse_mode: Option<Cow<'static, str>>,
     /// Whether to show caption above media.
     show_caption_above_media: Option<bool>,
@@ -41,16 +36,52 @@ pub struct StaticMedia {
     /// Duration in seconds (for audio/video/animation).
     duration: Option<i64>,
     /// Performer name (for audio).
-    #[builder(into)]
     performer: Option<Cow<'static, str>>,
     /// Title (for audio).
-    #[builder(into)]
     title: Option<Cow<'static, str>>,
     /// Whether video supports streaming.
     supports_streaming: Option<bool>,
 }
 
+#[bon]
 impl StaticMedia {
+    /// Create a static media widget with fixed source and options.
+    #[builder]
+    #[must_use]
+    pub fn new(
+        #[builder(default = MediaContentType::Photo)] content_type: MediaContentType,
+        #[builder(into)] url: Option<Cow<'static, str>>,
+        file_id: Option<MediaId>,
+        #[builder(into)] path: Option<Cow<'static, str>>,
+        #[builder(with = |caption: impl Text| Arc::new(caption))] caption: Option<Arc<dyn Text>>,
+        #[builder(into)] parse_mode: Option<Cow<'static, str>>,
+        show_caption_above_media: Option<bool>,
+        has_spoiler: Option<bool>,
+        width: Option<i64>,
+        height: Option<i64>,
+        duration: Option<i64>,
+        #[builder(into)] performer: Option<Cow<'static, str>>,
+        #[builder(into)] title: Option<Cow<'static, str>>,
+        supports_streaming: Option<bool>,
+    ) -> Self {
+        Self {
+            content_type,
+            url,
+            file_id,
+            path,
+            caption,
+            parse_mode,
+            show_caption_above_media,
+            has_spoiler,
+            width,
+            height,
+            duration,
+            performer,
+            title,
+            supports_streaming,
+        }
+    }
+
     /// Create a static photo from a URL.
     #[must_use]
     pub fn photo_url(url: impl Into<Cow<'static, str>>) -> Self {

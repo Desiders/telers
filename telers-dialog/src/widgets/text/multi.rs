@@ -1,16 +1,28 @@
-use bon::Builder;
+use bon::bon;
 use std::borrow::Cow;
 
 use super::Text;
 use crate::entities::{DataMap, RenderContext};
 use async_trait::async_trait;
 
-#[derive(Builder)]
 pub struct MultiText {
-    #[builder(field)]
     items: Vec<Box<dyn Text>>,
-    #[builder(default = "\n", into)]
     separator: Cow<'static, str>,
+}
+
+#[bon]
+impl MultiText {
+    #[builder]
+    #[must_use]
+    pub fn new(
+        #[builder(field)] items: Vec<Box<dyn Text>>,
+        #[builder(default = "\n", into)] separator: Cow<'static, str>,
+    ) -> Self {
+        Self {
+            items,
+            separator,
+        }
+    }
 }
 
 impl<S> MultiTextBuilder<S>
