@@ -19,3 +19,8 @@ fmt:
 # Run the cargo build tool
 build:
     cargo build --all --all-features
+
+# Generate Telegram API bindings into the telers crate
+codegen:
+    cargo run -p telers-codegen -- --schema telers-codegen/schemas/api.json --gen-dir telers --types-path telers
+    just fmt

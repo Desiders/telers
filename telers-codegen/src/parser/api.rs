@@ -46,6 +46,7 @@ const BOXED_TYPES: &[&str] = &[
 pub struct Field {
     pub name: FieldName,
     pub required: bool,
+    #[serde(default)]
     pub description: String,
     pub types: Vec<RawType>,
 }
@@ -72,7 +73,12 @@ impl Field {
             )));
         }
         if types.len() > 1 {
-            unimplemented!("Unknown case for multi types");
+            unimplemented!(
+                "Unknown case for multi types: field='{name}', types={types:?}, \
+                 description='{description}'",
+                name = self.name,
+                description = self.description,
+            );
         }
 
         let r#type = types.first().unwrap();
@@ -137,6 +143,7 @@ impl Field {
 pub struct Type {
     pub name: TelegramTypeName,
     pub href: String,
+    #[serde(default)]
     pub description: Vec<String>,
     #[serde(default)]
     pub fields: Vec<Field>,
@@ -150,6 +157,7 @@ pub struct Type {
 pub struct Method {
     pub name: TelegramMethodName,
     pub href: String,
+    #[serde(default)]
     pub description: Vec<String>,
     pub returns: Vec<RawType>,
     #[serde(default)]
@@ -709,6 +717,7 @@ impl NormalizedSchema {
             "animation",
             "audio",
             "document",
+            "live_photo",
             "paid_media",
             "photo",
             "sticker",
@@ -1945,6 +1954,7 @@ pub fn multi_type_is_input_media(types: &[RawType], name: &str) -> bool {
     let expected = [
         "Array of InputMediaAudio",
         "Array of InputMediaDocument",
+        "Array of InputMediaLivePhoto",
         "Array of InputMediaPhoto",
         "Array of InputMediaVideo",
     ];
