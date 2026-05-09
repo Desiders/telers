@@ -31,6 +31,8 @@ pub struct ChatMemberRestricted {
     pub can_send_other_messages: bool,
     /// `true`, if the user is allowed to add web page previews to their messages
     pub can_add_web_page_previews: bool,
+    /// `true`, if the user is allowed to react to messages
+    pub can_react_to_messages: bool,
     /// `true`, if the user is allowed to edit their own tag
     pub can_edit_tag: bool,
     /// `true`, if the user is allowed to change the chat title, photo and other settings
@@ -60,6 +62,7 @@ impl ChatMemberRestricted {
     /// * `can_send_polls` - `true`, if the user is allowed to send polls and checklists
     /// * `can_send_other_messages` - `true`, if the user is allowed to send animations, games, stickers and use inline bots
     /// * `can_add_web_page_previews` - `true`, if the user is allowed to add web page previews to their messages
+    /// * `can_react_to_messages` - `true`, if the user is allowed to react to messages
     /// * `can_edit_tag` - `true`, if the user is allowed to edit their own tag
     /// * `can_change_info` - `true`, if the user is allowed to change the chat title, photo and other settings
     /// * `can_invite_users` - `true`, if the user is allowed to invite new users to the chat
@@ -88,7 +91,8 @@ impl ChatMemberRestricted {
         T14: Into<bool>,
         T15: Into<bool>,
         T16: Into<bool>,
-        T17: Into<i64>,
+        T17: Into<bool>,
+        T18: Into<i64>,
     >(
         user: T0,
         is_member: T1,
@@ -102,12 +106,13 @@ impl ChatMemberRestricted {
         can_send_polls: T9,
         can_send_other_messages: T10,
         can_add_web_page_previews: T11,
-        can_edit_tag: T12,
-        can_change_info: T13,
-        can_invite_users: T14,
-        can_pin_messages: T15,
-        can_manage_topics: T16,
-        until_date: T17,
+        can_react_to_messages: T12,
+        can_edit_tag: T13,
+        can_change_info: T14,
+        can_invite_users: T15,
+        can_pin_messages: T16,
+        can_manage_topics: T17,
+        until_date: T18,
     ) -> Self {
         Self {
             tag: None,
@@ -123,6 +128,7 @@ impl ChatMemberRestricted {
             can_send_polls: can_send_polls.into(),
             can_send_other_messages: can_send_other_messages.into(),
             can_add_web_page_previews: can_add_web_page_previews.into(),
+            can_react_to_messages: can_react_to_messages.into(),
             can_edit_tag: can_edit_tag.into(),
             can_change_info: can_change_info.into(),
             can_invite_users: can_invite_users.into(),
@@ -241,6 +247,14 @@ impl ChatMemberRestricted {
     pub fn can_add_web_page_previews<T: Into<bool>>(self, val: T) -> Self {
         let mut this = self;
         this.can_add_web_page_previews = val.into();
+        this
+    }
+
+    /// `true`, if the user is allowed to react to messages
+    #[must_use]
+    pub fn can_react_to_messages<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.can_react_to_messages = val.into();
         this
     }
 

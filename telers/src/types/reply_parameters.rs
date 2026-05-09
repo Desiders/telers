@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct ReplyParameters {
     /// Identifier of the message that will be replied to in the current chat, or in the chat `chat_id` if it is specified
     pub message_id: i64,
-    /// If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format @channelusername). Not supported for messages sent on behalf of a business account and messages from channel direct messages chats.
+    /// If the message to be replied to is from a different chat, unique identifier for the chat or username of the bot, supergroup or channel in the format @username. Not supported for messages sent on behalf of a business account and messages from channel direct messages chats.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub chat_id: Option<crate::types::ChatIdKind>,
     /// Pass `true` if the message should be sent even if the specified message to be replied to is not found. Always `false` for replies in another chat or forum topic. Always `true` for messages sent on behalf of a business account.
@@ -62,7 +62,7 @@ impl ReplyParameters {
         this
     }
 
-    /// If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format @channelusername). Not supported for messages sent on behalf of a business account and messages from channel direct messages chats.
+    /// If the message to be replied to is from a different chat, unique identifier for the chat or username of the bot, supergroup or channel in the format @username. Not supported for messages sent on behalf of a business account and messages from channel direct messages chats.
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
         let mut this = self;
@@ -70,7 +70,7 @@ impl ReplyParameters {
         this
     }
 
-    /// If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format @channelusername). Not supported for messages sent on behalf of a business account and messages from channel direct messages chats.
+    /// If the message to be replied to is from a different chat, unique identifier for the chat or username of the bot, supergroup or channel in the format @username. Not supported for messages sent on behalf of a business account and messages from channel direct messages chats.
     #[must_use]
     pub fn chat_id_option<T: Into<crate::types::ChatIdKind>>(self, val: Option<T>) -> Self {
         let mut this = self;

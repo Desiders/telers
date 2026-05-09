@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `crate::types::Message`
 #[derive(Clone, Debug, Serialize)]
 pub struct ForwardMessage {
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -15,7 +15,7 @@ pub struct ForwardMessage {
     /// Identifier of the direct messages topic to which the message will be forwarded; required if the message is forwarded to a direct messages chat
     #[serde(skip_serializing_if = "Option::is_none")]
     pub direct_messages_topic_id: Option<i64>,
-    /// Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername)
+    /// Unique identifier for the chat where the original message was sent (or username of the target bot, supergroup or channel in the format @username)
     pub from_chat_id: crate::types::ChatIdKind,
     /// New start timestamp for the forwarded video in the message
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -39,8 +39,8 @@ impl ForwardMessage {
     /// Creates a new `ForwardMessage`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-    /// * `from_chat_id` - Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
+    /// * `from_chat_id` - Unique identifier for the chat where the original message was sent (or username of the target bot, supergroup or channel in the format @username)
     /// * `message_id` - Message identifier in the chat specified in `from_chat_id`
     ///
     /// # Notes
@@ -69,7 +69,7 @@ impl ForwardMessage {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
         let mut this = self;
@@ -109,7 +109,7 @@ impl ForwardMessage {
         this
     }
 
-    /// Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername)
+    /// Unique identifier for the chat where the original message was sent (or username of the target bot, supergroup or channel in the format @username)
     #[must_use]
     pub fn from_chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
         let mut this = self;

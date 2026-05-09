@@ -31,10 +31,13 @@ pub struct User {
     /// `true`, if privacy mode is disabled for the bot. Returned only in getMe.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_read_all_group_messages: Option<bool>,
+    /// `true`, if the bot supports guest queries from chats it is not a member of. Returned only in getMe.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supports_guest_queries: Option<bool>,
     /// `true`, if the bot supports inline queries. Returned only in getMe.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub supports_inline_queries: Option<bool>,
-    /// `true`, if the bot can be connected to a Telegram Business account to receive its messages. Returned only in getMe.
+    /// `true`, if the bot can be connected to a user account to manage it. Returned only in getMe.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_connect_to_business: Option<bool>,
     /// `true`, if the bot has a main Web App. Returned only in getMe.
@@ -77,6 +80,7 @@ impl User {
             added_to_attachment_menu: None,
             can_join_groups: None,
             can_read_all_group_messages: None,
+            supports_guest_queries: None,
             supports_inline_queries: None,
             can_connect_to_business: None,
             has_main_web_app: None,
@@ -222,6 +226,22 @@ impl User {
         this
     }
 
+    /// `true`, if the bot supports guest queries from chats it is not a member of. Returned only in getMe.
+    #[must_use]
+    pub fn supports_guest_queries<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.supports_guest_queries = Some(val.into());
+        this
+    }
+
+    /// `true`, if the bot supports guest queries from chats it is not a member of. Returned only in getMe.
+    #[must_use]
+    pub fn supports_guest_queries_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.supports_guest_queries = val.map(Into::into);
+        this
+    }
+
     /// `true`, if the bot supports inline queries. Returned only in getMe.
     #[must_use]
     pub fn supports_inline_queries<T: Into<bool>>(self, val: T) -> Self {
@@ -238,7 +258,7 @@ impl User {
         this
     }
 
-    /// `true`, if the bot can be connected to a Telegram Business account to receive its messages. Returned only in getMe.
+    /// `true`, if the bot can be connected to a user account to manage it. Returned only in getMe.
     #[must_use]
     pub fn can_connect_to_business<T: Into<bool>>(self, val: T) -> Self {
         let mut this = self;
@@ -246,7 +266,7 @@ impl User {
         this
     }
 
-    /// `true`, if the bot can be connected to a Telegram Business account to receive its messages. Returned only in getMe.
+    /// `true`, if the bot can be connected to a user account to manage it. Returned only in getMe.
     #[must_use]
     pub fn can_connect_to_business_option<T: Into<bool>>(self, val: Option<T>) -> Self {
         let mut this = self;

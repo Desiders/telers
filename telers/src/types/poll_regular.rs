@@ -25,6 +25,11 @@ pub struct PollRegular {
     pub allows_multiple_answers: bool,
     /// `true`, if the poll allows to change the chosen answer options
     pub allows_revoting: bool,
+    /// `true` if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
+    pub members_only: bool,
+    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. If omitted, then users from any country can participate in the poll.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub country_codes: Option<Box<[Box<str>]>>,
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the explanation
     #[serde(skip_serializing_if = "Option::is_none")]
     pub explanation_entities: Option<Box<[crate::types::MessageEntity]>>,
@@ -40,6 +45,9 @@ pub struct PollRegular {
     /// Special entities like usernames, URLs, bot commands, etc. that appear in the description
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description_entities: Option<Box<[crate::types::MessageEntity]>>,
+    /// Media added to the poll description; for polls inside the Message object only
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub media: Option<crate::types::PollMedia>,
 }
 impl PollRegular {
     /// Creates a new `PollRegular`.
@@ -53,6 +61,7 @@ impl PollRegular {
     /// * `is_anonymous` - `true`, if the poll is anonymous
     /// * `allows_multiple_answers` - `true`, if the poll allows multiple answers
     /// * `allows_revoting` - `true`, if the poll allows to change the chosen answer options
+    /// * `members_only` - `true` if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -67,6 +76,7 @@ impl PollRegular {
         T5: Into<bool>,
         T6: Into<bool>,
         T7: Into<bool>,
+        T8: Into<bool>,
     >(
         id: T0,
         question: T1,
@@ -76,6 +86,7 @@ impl PollRegular {
         is_anonymous: T5,
         allows_multiple_answers: T6,
         allows_revoting: T7,
+        members_only: T8,
     ) -> Self {
         Self {
             id: id.into(),
@@ -87,11 +98,14 @@ impl PollRegular {
             is_anonymous: is_anonymous.into(),
             allows_multiple_answers: allows_multiple_answers.into(),
             allows_revoting: allows_revoting.into(),
+            members_only: members_only.into(),
+            country_codes: None,
             explanation_entities: None,
             open_period: None,
             close_date: None,
             description: None,
             description_entities: None,
+            media: None,
         }
     }
 
@@ -230,6 +244,61 @@ impl PollRegular {
     pub fn allows_revoting<T: Into<bool>>(self, val: T) -> Self {
         let mut this = self;
         this.allows_revoting = val.into();
+        this
+    }
+
+    /// `true` if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
+    #[must_use]
+    pub fn members_only<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.members_only = val.into();
+        this
+    }
+
+    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. If omitted, then users from any country can participate in the poll.
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn country_codes<T: Into<Box<[Box<str>]>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.country_codes = Some(
+            this.country_codes
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into())
+                .collect(),
+        );
+        this
+    }
+
+    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. If omitted, then users from any country can participate in the poll.
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn country_code<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.country_codes = Some(
+            this.country_codes
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        this
+    }
+
+    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. If omitted, then users from any country can participate in the poll.
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn country_codes_option<T: Into<Box<[Box<str>]>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.country_codes = val.map(Into::into);
         this
     }
 
@@ -378,6 +447,22 @@ impl PollRegular {
     ) -> Self {
         let mut this = self;
         this.description_entities = val.map(Into::into);
+        this
+    }
+
+    /// Media added to the poll description; for polls inside the Message object only
+    #[must_use]
+    pub fn media<T: Into<crate::types::PollMedia>>(self, val: T) -> Self {
+        let mut this = self;
+        this.media = Some(val.into());
+        this
+    }
+
+    /// Media added to the poll description; for polls inside the Message object only
+    #[must_use]
+    pub fn media_option<T: Into<crate::types::PollMedia>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.media = val.map(Into::into);
         this
     }
 }

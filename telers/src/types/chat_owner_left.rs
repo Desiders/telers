@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// <https://core.telegram.org/bots/api#chatownerleft>
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ChatOwnerLeft {
-    /// The user which will be the new owner of the chat if the previous owner does not return to the chat
+    /// The user who will become the new owner of the chat if the previous owner does not return to the chat
     #[serde(skip_serializing_if = "Option::is_none")]
     pub new_owner: Option<Box<crate::types::User>>,
 }
@@ -20,7 +20,7 @@ impl ChatOwnerLeft {
         }
     }
 
-    /// The user which will be the new owner of the chat if the previous owner does not return to the chat
+    /// The user who will become the new owner of the chat if the previous owner does not return to the chat
     #[must_use]
     pub fn new_owner<T: Into<crate::types::User>>(self, val: T) -> Self {
         let mut this = self;
@@ -28,7 +28,7 @@ impl ChatOwnerLeft {
         this
     }
 
-    /// The user which will be the new owner of the chat if the previous owner does not return to the chat
+    /// The user who will become the new owner of the chat if the previous owner does not return to the chat
     #[must_use]
     pub fn new_owner_option<T: Into<crate::types::User>>(self, val: Option<T>) -> Self {
         let mut this = self;

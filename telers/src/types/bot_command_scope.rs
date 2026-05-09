@@ -23,7 +23,7 @@ pub enum BotCommandScope {
 impl BotCommandScope {
     /// Helper method for field `chat_id`.
     ///
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username. Channel direct messages chats and channel chats aren't supported.
     #[must_use]
     pub fn chat_id(&self) -> Option<&crate::types::ChatIdKind> {
         match self {

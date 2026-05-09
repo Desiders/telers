@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `bool`
 #[derive(Clone, Debug, Serialize)]
 pub struct SetChatMemberTag {
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier of the target user
     pub user_id: i64,
@@ -19,7 +19,7 @@ impl SetChatMemberTag {
     /// Creates a new `SetChatMemberTag`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup in the format @username
     /// * `user_id` - Unique identifier of the target user
     ///
     /// # Notes
@@ -36,7 +36,7 @@ impl SetChatMemberTag {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
         let mut this = self;

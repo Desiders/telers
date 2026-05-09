@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `bool`
 #[derive(Clone, Debug, Serialize)]
 pub struct SetChatPermissions {
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// A JSON-serialized object for new default chat permissions
     pub permissions: crate::types::ChatPermissions,
@@ -19,7 +19,7 @@ impl SetChatPermissions {
     /// Creates a new `SetChatPermissions`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup in the format @username
     /// * `permissions` - A JSON-serialized object for new default chat permissions
     ///
     /// # Notes
@@ -36,7 +36,7 @@ impl SetChatPermissions {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
         let mut this = self;

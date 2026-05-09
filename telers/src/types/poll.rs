@@ -56,6 +56,17 @@ impl Poll {
         }
     }
 
+    /// Helper method for field `country_codes`.
+    ///
+    /// A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. If omitted, then users from any country can participate in the poll.
+    #[must_use]
+    pub fn country_codes(&self) -> Option<&[Box<str>]> {
+        match self {
+            Self::Regular(val) => val.country_codes.as_deref(),
+            Self::Quiz(val) => val.country_codes.as_deref(),
+        }
+    }
+
     /// Helper method for field `description`.
     ///
     /// Description of the poll; for polls inside the Message object only
@@ -100,6 +111,17 @@ impl Poll {
         }
     }
 
+    /// Helper method for field `explanation_media`.
+    ///
+    /// Media added to the quiz explanation
+    #[must_use]
+    pub fn explanation_media(&self) -> Option<&crate::types::PollMedia> {
+        match self {
+            Self::Quiz(val) => val.explanation_media.as_ref(),
+            Self::Regular(_) => None,
+        }
+    }
+
     /// Helper method for field `id`.
     ///
     /// Unique poll identifier
@@ -130,6 +152,28 @@ impl Poll {
         match self {
             Self::Regular(val) => val.is_closed,
             Self::Quiz(val) => val.is_closed,
+        }
+    }
+
+    /// Helper method for field `media`.
+    ///
+    /// Media added to the poll description; for polls inside the Message object only
+    #[must_use]
+    pub fn media(&self) -> Option<&crate::types::PollMedia> {
+        match self {
+            Self::Regular(val) => val.media.as_ref(),
+            Self::Quiz(val) => val.media.as_ref(),
+        }
+    }
+
+    /// Helper method for field `members_only`.
+    ///
+    /// `true` if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
+    #[must_use]
+    pub fn members_only(&self) -> bool {
+        match self {
+            Self::Regular(val) => val.members_only,
+            Self::Quiz(val) => val.members_only,
         }
     }
 

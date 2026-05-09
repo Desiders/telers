@@ -738,6 +738,18 @@ impl ChatFullInfo {
         }
     }
 
+    /// Helper method for nested field `can_react_to_messages`.
+    #[must_use]
+    pub fn can_react_to_messages(&self) -> Option<bool> {
+        match self {
+            Self::Supergroup(val) => val
+                .permissions
+                .as_ref()
+                .and_then(|inner| inner.can_react_to_messages),
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `can_send_audios`.
     #[must_use]
     pub fn can_send_audios(&self) -> Option<bool> {
@@ -1217,6 +1229,27 @@ impl ChatFullInfo {
             .and_then(crate::types::Message::group_chat_created)
     }
 
+    /// Helper method for nested field `guest_bot_caller_chat`.
+    #[must_use]
+    pub fn guest_bot_caller_chat(&self) -> Option<&crate::types::Chat> {
+        self.pinned_message()
+            .and_then(crate::types::Message::guest_bot_caller_chat)
+    }
+
+    /// Helper method for nested field `guest_bot_caller_user`.
+    #[must_use]
+    pub fn guest_bot_caller_user(&self) -> Option<&crate::types::User> {
+        self.pinned_message()
+            .and_then(crate::types::Message::guest_bot_caller_user)
+    }
+
+    /// Helper method for nested field `guest_query_id`.
+    #[must_use]
+    pub fn guest_query_id(&self) -> Option<&str> {
+        self.pinned_message()
+            .and_then(crate::types::Message::guest_query_id)
+    }
+
     /// Helper method for nested field `has_media_spoiler`.
     #[must_use]
     pub fn has_media_spoiler(&self) -> Option<bool> {
@@ -1306,6 +1339,13 @@ impl ChatFullInfo {
     pub fn link_preview_options(&self) -> Option<&crate::types::LinkPreviewOptions> {
         self.pinned_message()
             .and_then(crate::types::Message::link_preview_options)
+    }
+
+    /// Helper method for nested field `live_photo`.
+    #[must_use]
+    pub fn live_photo(&self) -> Option<&crate::types::LivePhoto> {
+        self.pinned_message()
+            .and_then(crate::types::Message::live_photo)
     }
 
     /// Helper method for nested field `managed_bot_created`.

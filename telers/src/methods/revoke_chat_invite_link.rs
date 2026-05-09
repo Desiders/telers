@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `crate::types::ChatInviteLink`
 #[derive(Clone, Debug, Serialize)]
 pub struct RevokeChatInviteLink {
-    /// Unique identifier of the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier of the target chat or username of the target channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// The invite link to revoke
     pub invite_link: Box<str>,
@@ -16,7 +16,7 @@ impl RevokeChatInviteLink {
     /// Creates a new `RevokeChatInviteLink`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier of the target chat or username of the target channel (in the format @channelusername)
+    /// * `chat_id` - Unique identifier of the target chat or username of the target channel in the format @username
     /// * `invite_link` - The invite link to revoke
     #[must_use]
     pub fn new<T0: Into<crate::types::ChatIdKind>, T1: Into<Box<str>>>(
@@ -29,7 +29,7 @@ impl RevokeChatInviteLink {
         }
     }
 
-    /// Unique identifier of the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier of the target chat or username of the target channel in the format @username
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
         let mut this = self;

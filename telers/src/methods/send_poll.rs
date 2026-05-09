@@ -10,7 +10,7 @@ pub struct SendPoll {
     /// Unique identifier of the business connection on behalf of which the message will be sent
     #[serde(skip_serializing_if = "Option::is_none")]
     pub business_connection_id: Option<Box<str>>,
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername). Polls can't be sent to channel direct messages chats.
+    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. Polls can't be sent to channel direct messages chats.
     pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -23,7 +23,7 @@ pub struct SendPoll {
     /// A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of `question_parse_mode`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub question_entities: Option<Box<[crate::types::MessageEntity]>>,
-    /// A JSON-serialized list of 2-12 answer options
+    /// A JSON-serialized list of 1-12 answer options
     pub options: Box<[crate::types::InputPollOption]>,
     /// `true`, if the poll needs to be anonymous, defaults to `true`
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -46,6 +46,12 @@ pub struct SendPoll {
     /// Pass `true`, if poll results must be shown only after the poll closes
     #[serde(skip_serializing_if = "Option::is_none")]
     pub hide_results_until_closes: Option<bool>,
+    /// Pass `true`, if voting is limited to users who have been members of the chat where the poll is being sent for more than 24 hours; for channel chats only
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub members_only: Option<bool>,
+    /// A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. If omitted or empty, then users from any country can participate in the poll.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub country_codes: Option<Box<[Box<str>]>>,
     /// A JSON-serialized list of monotonically increasing 0-based identifiers of the correct answer options, required for polls in quiz mode
     #[serde(skip_serializing_if = "Option::is_none")]
     pub correct_option_ids: Option<Box<[i64]>>,
@@ -58,6 +64,9 @@ pub struct SendPoll {
     /// A JSON-serialized list of special entities that appear in the poll explanation. It can be specified instead of `explanation_parse_mode`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub explanation_entities: Option<Box<[crate::types::MessageEntity]>>,
+    /// Media added to the quiz explanation
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub explanation_media: Option<crate::types::InputPollMedia>,
     /// Amount of time in seconds the poll will be active after creation, 5-2628000. Can't be used together with `close_date`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub open_period: Option<u32>,
@@ -76,13 +85,16 @@ pub struct SendPoll {
     /// A JSON-serialized list of special entities that appear in the poll description, which can be specified instead of `description_parse_mode`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description_entities: Option<Box<[crate::types::MessageEntity]>>,
+    /// Media added to the poll description
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub media: Option<crate::types::InputPollMedia>,
     /// Sends the message silently. Users will receive a notification with no sound.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_notification: Option<bool>,
     /// Protects the contents of the sent message from forwarding and saving
     #[serde(skip_serializing_if = "Option::is_none")]
     pub protect_content: Option<bool>,
-    /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+    /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_paid_broadcast: Option<bool>,
     /// Unique identifier of the message effect to be added to the message; for private chats only
@@ -99,9 +111,9 @@ impl SendPoll {
     /// Creates a new `SendPoll`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername). Polls can't be sent to channel direct messages chats.
+    /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. Polls can't be sent to channel direct messages chats.
     /// * `question` - Poll question, 1-300 characters
-    /// * `options` - A JSON-serialized list of 2-12 answer options
+    /// * `options` - A JSON-serialized list of 1-12 answer options
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -131,16 +143,20 @@ impl SendPoll {
             shuffle_options: None,
             allow_adding_options: None,
             hide_results_until_closes: None,
+            members_only: None,
+            country_codes: None,
             correct_option_ids: None,
             explanation: None,
             explanation_parse_mode: None,
             explanation_entities: None,
+            explanation_media: None,
             open_period: None,
             close_date: None,
             is_closed: None,
             description: None,
             description_parse_mode: None,
             description_entities: None,
+            media: None,
             disable_notification: None,
             protect_content: None,
             allow_paid_broadcast: None,
@@ -166,7 +182,7 @@ impl SendPoll {
         this
     }
 
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername). Polls can't be sent to channel direct messages chats.
+    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. Polls can't be sent to channel direct messages chats.
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
         let mut this = self;
@@ -273,7 +289,7 @@ impl SendPoll {
         this
     }
 
-    /// A JSON-serialized list of 2-12 answer options
+    /// A JSON-serialized list of 1-12 answer options
     ///
     /// # Notes
     /// Adds multiple elements.
@@ -292,7 +308,7 @@ impl SendPoll {
         this
     }
 
-    /// A JSON-serialized list of 2-12 answer options
+    /// A JSON-serialized list of 1-12 answer options
     ///
     /// # Notes
     /// Adds a single element.
@@ -417,6 +433,75 @@ impl SendPoll {
     pub fn hide_results_until_closes_option<T: Into<bool>>(self, val: Option<T>) -> Self {
         let mut this = self;
         this.hide_results_until_closes = val.map(Into::into);
+        this
+    }
+
+    /// Pass `true`, if voting is limited to users who have been members of the chat where the poll is being sent for more than 24 hours; for channel chats only
+    #[must_use]
+    pub fn members_only<T: Into<bool>>(self, val: T) -> Self {
+        let mut this = self;
+        this.members_only = Some(val.into());
+        this
+    }
+
+    /// Pass `true`, if voting is limited to users who have been members of the chat where the poll is being sent for more than 24 hours; for channel chats only
+    #[must_use]
+    pub fn members_only_option<T: Into<bool>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.members_only = val.map(Into::into);
+        this
+    }
+
+    /// A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. If omitted or empty, then users from any country can participate in the poll.
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn country_codes<TItem: Into<Box<str>>, T: IntoIterator<Item = TItem>>(
+        self,
+        val: T,
+    ) -> Self {
+        let mut this = self;
+        this.country_codes = Some(
+            this.country_codes
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(val.into_iter().map(Into::into))
+                .collect(),
+        );
+        this
+    }
+
+    /// A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. If omitted or empty, then users from any country can participate in the poll.
+    ///
+    /// # Notes
+    /// Adds a single element.
+    #[must_use]
+    pub fn country_code<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.country_codes = Some(
+            this.country_codes
+                .unwrap_or_default()
+                .into_vec()
+                .into_iter()
+                .chain(Some(val.into()))
+                .collect(),
+        );
+        this
+    }
+
+    /// A JSON-serialized list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. If omitted or empty, then users from any country can participate in the poll.
+    ///
+    /// # Notes
+    /// Adds multiple elements.
+    #[must_use]
+    pub fn country_codes_option<TItem: Into<Box<str>>, T: IntoIterator<Item = TItem>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.country_codes = val.map(|v| v.into_iter().map(Into::into).collect());
         this
     }
 
@@ -564,6 +649,25 @@ impl SendPoll {
         this
     }
 
+    /// Media added to the quiz explanation
+    #[must_use]
+    pub fn explanation_media<T: Into<crate::types::InputPollMedia>>(self, val: T) -> Self {
+        let mut this = self;
+        this.explanation_media = Some(val.into());
+        this
+    }
+
+    /// Media added to the quiz explanation
+    #[must_use]
+    pub fn explanation_media_option<T: Into<crate::types::InputPollMedia>>(
+        self,
+        val: Option<T>,
+    ) -> Self {
+        let mut this = self;
+        this.explanation_media = val.map(Into::into);
+        this
+    }
+
     /// Amount of time in seconds the poll will be active after creation, 5-2628000. Can't be used together with `close_date`.
     #[must_use]
     pub fn open_period<T: Into<u32>>(self, val: T) -> Self {
@@ -703,6 +807,22 @@ impl SendPoll {
         this
     }
 
+    /// Media added to the poll description
+    #[must_use]
+    pub fn media<T: Into<crate::types::InputPollMedia>>(self, val: T) -> Self {
+        let mut this = self;
+        this.media = Some(val.into());
+        this
+    }
+
+    /// Media added to the poll description
+    #[must_use]
+    pub fn media_option<T: Into<crate::types::InputPollMedia>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.media = val.map(Into::into);
+        this
+    }
+
     /// Sends the message silently. Users will receive a notification with no sound.
     #[must_use]
     pub fn disable_notification<T: Into<bool>>(self, val: T) -> Self {
@@ -735,7 +855,7 @@ impl SendPoll {
         this
     }
 
-    /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+    /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance.
     #[must_use]
     pub fn allow_paid_broadcast<T: Into<bool>>(self, val: T) -> Self {
         let mut this = self;
@@ -743,7 +863,7 @@ impl SendPoll {
         this
     }
 
-    /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+    /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance.
     #[must_use]
     pub fn allow_paid_broadcast_option<T: Into<bool>>(self, val: Option<T>) -> Self {
         let mut this = self;

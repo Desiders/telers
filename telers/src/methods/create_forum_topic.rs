@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `crate::types::ForumTopic`
 #[derive(Clone, Debug, Serialize)]
 pub struct CreateForumTopic {
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Topic name, 1-128 characters
     pub name: Box<str>,
@@ -22,7 +22,7 @@ impl CreateForumTopic {
     /// Creates a new `CreateForumTopic`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup in the format @username
     /// * `name` - Topic name, 1-128 characters
     ///
     /// # Notes
@@ -40,7 +40,7 @@ impl CreateForumTopic {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
         let mut this = self;

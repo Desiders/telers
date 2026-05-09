@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::ExternalReplyInfoGiveaway`]
 /// - [`crate::types::ExternalReplyInfoGiveawayWinners`]
 /// - [`crate::types::ExternalReplyInfoInvoice`]
+/// - [`crate::types::ExternalReplyInfoLivePhoto`]
 /// - [`crate::types::ExternalReplyInfoLocation`]
 /// - [`crate::types::ExternalReplyInfoPhoto`]
 /// - [`crate::types::ExternalReplyInfoPoll`]
@@ -35,6 +36,7 @@ pub enum ExternalReplyInfo {
     Giveaway(crate::types::ExternalReplyInfoGiveaway),
     GiveawayWinners(crate::types::ExternalReplyInfoGiveawayWinners),
     Invoice(crate::types::ExternalReplyInfoInvoice),
+    LivePhoto(crate::types::ExternalReplyInfoLivePhoto),
     Location(crate::types::ExternalReplyInfoLocation),
     Photo(crate::types::ExternalReplyInfoPhoto),
     Poll(crate::types::ExternalReplyInfoPoll),
@@ -84,6 +86,7 @@ impl ExternalReplyInfo {
             Self::Giveaway(val) => val.chat.as_deref(),
             Self::GiveawayWinners(val) => val.chat.as_deref(),
             Self::Invoice(val) => val.chat.as_deref(),
+            Self::LivePhoto(val) => val.chat.as_deref(),
             Self::Location(val) => val.chat.as_deref(),
             Self::Photo(val) => val.chat.as_deref(),
             Self::Poll(val) => val.chat.as_deref(),
@@ -189,6 +192,7 @@ impl ExternalReplyInfo {
             Self::Giveaway(val) => val.has_media_spoiler,
             Self::GiveawayWinners(val) => val.has_media_spoiler,
             Self::Invoice(val) => val.has_media_spoiler,
+            Self::LivePhoto(val) => val.has_media_spoiler,
             Self::Location(val) => val.has_media_spoiler,
             Self::Photo(val) => val.has_media_spoiler,
             Self::Poll(val) => val.has_media_spoiler,
@@ -228,6 +232,7 @@ impl ExternalReplyInfo {
             Self::Giveaway(val) => val.link_preview_options.as_ref(),
             Self::GiveawayWinners(val) => val.link_preview_options.as_ref(),
             Self::Invoice(val) => val.link_preview_options.as_ref(),
+            Self::LivePhoto(val) => val.link_preview_options.as_ref(),
             Self::Location(val) => val.link_preview_options.as_ref(),
             Self::Photo(val) => val.link_preview_options.as_ref(),
             Self::Poll(val) => val.link_preview_options.as_ref(),
@@ -237,6 +242,17 @@ impl ExternalReplyInfo {
             Self::Video(val) => val.link_preview_options.as_ref(),
             Self::VideoNote(val) => val.link_preview_options.as_ref(),
             Self::Voice(val) => val.link_preview_options.as_ref(),
+        }
+    }
+
+    /// Helper method for field `live_photo`.
+    ///
+    /// Message is a live photo, information about the live photo
+    #[must_use]
+    pub fn live_photo(&self) -> Option<&crate::types::LivePhoto> {
+        match self {
+            Self::LivePhoto(val) => Some(&val.live_photo),
+            _ => None,
         }
     }
 
@@ -267,6 +283,7 @@ impl ExternalReplyInfo {
             Self::Giveaway(val) => val.message_id,
             Self::GiveawayWinners(val) => val.message_id,
             Self::Invoice(val) => val.message_id,
+            Self::LivePhoto(val) => val.message_id,
             Self::Location(val) => val.message_id,
             Self::Photo(val) => val.message_id,
             Self::Poll(val) => val.message_id,
@@ -295,6 +312,7 @@ impl ExternalReplyInfo {
             Self::Giveaway(val) => &val.origin,
             Self::GiveawayWinners(val) => &val.origin,
             Self::Invoice(val) => &val.origin,
+            Self::LivePhoto(val) => &val.origin,
             Self::Location(val) => &val.origin,
             Self::Photo(val) => &val.origin,
             Self::Poll(val) => &val.origin,
@@ -323,6 +341,7 @@ impl ExternalReplyInfo {
             Self::Giveaway(val) => val.paid_media.as_ref(),
             Self::GiveawayWinners(val) => val.paid_media.as_ref(),
             Self::Invoice(val) => val.paid_media.as_ref(),
+            Self::LivePhoto(val) => val.paid_media.as_ref(),
             Self::Location(val) => val.paid_media.as_ref(),
             Self::Photo(val) => val.paid_media.as_ref(),
             Self::Poll(val) => val.paid_media.as_ref(),
@@ -521,6 +540,10 @@ impl ExternalReplyInfo {
                 let inner = &val.giveaway;
                 crate::types::Giveaway::country_codes(inner)
             }
+            Self::Poll(val) => {
+                let inner = val.poll.as_ref();
+                crate::types::Poll::country_codes(inner)
+            }
             _ => None,
         }
     }
@@ -611,6 +634,10 @@ impl ExternalReplyInfo {
                 let inner = val.audio.as_ref();
                 Some(inner.duration)
             }
+            Self::LivePhoto(val) => {
+                let inner = &val.live_photo;
+                Some(inner.duration)
+            }
             Self::Video(val) => {
                 let inner = val.video.as_ref();
                 Some(inner.duration)
@@ -667,6 +694,18 @@ impl ExternalReplyInfo {
         }
     }
 
+    /// Helper method for nested field `explanation_media`.
+    #[must_use]
+    pub fn explanation_media(&self) -> Option<&crate::types::PollMedia> {
+        match self {
+            Self::Poll(val) => {
+                let inner = val.poll.as_ref();
+                crate::types::Poll::explanation_media(inner)
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `file_id`.
     #[must_use]
     pub fn file_id(&self) -> Option<&str> {
@@ -681,6 +720,10 @@ impl ExternalReplyInfo {
             }
             Self::Document(val) => {
                 let inner = val.document.as_ref();
+                Some(inner.file_id.as_ref())
+            }
+            Self::LivePhoto(val) => {
+                let inner = &val.live_photo;
                 Some(inner.file_id.as_ref())
             }
             Self::Sticker(val) => {
@@ -743,6 +786,10 @@ impl ExternalReplyInfo {
                 let inner = val.document.as_ref();
                 inner.file_size
             }
+            Self::LivePhoto(val) => {
+                let inner = &val.live_photo;
+                inner.file_size
+            }
             Self::Sticker(val) => {
                 let inner = val.sticker.as_ref();
                 crate::types::Sticker::file_size(inner)
@@ -777,6 +824,10 @@ impl ExternalReplyInfo {
             }
             Self::Document(val) => {
                 let inner = val.document.as_ref();
+                Some(inner.file_unique_id.as_ref())
+            }
+            Self::LivePhoto(val) => {
+                let inner = &val.live_photo;
                 Some(inner.file_unique_id.as_ref())
             }
             Self::Sticker(val) => {
@@ -889,6 +940,10 @@ impl ExternalReplyInfo {
         match self {
             Self::Animation(val) => {
                 let inner = val.animation.as_ref();
+                Some(inner.height)
+            }
+            Self::LivePhoto(val) => {
+                let inner = &val.live_photo;
                 Some(inner.height)
             }
             Self::Sticker(val) => {
@@ -1042,6 +1097,30 @@ impl ExternalReplyInfo {
         }
     }
 
+    /// Helper method for nested field `media`.
+    #[must_use]
+    pub fn media(&self) -> Option<&crate::types::PollMedia> {
+        match self {
+            Self::Poll(val) => {
+                let inner = val.poll.as_ref();
+                crate::types::Poll::media(inner)
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `members_only`.
+    #[must_use]
+    pub fn members_only(&self) -> Option<bool> {
+        match self {
+            Self::Poll(val) => {
+                let inner = val.poll.as_ref();
+                Some(crate::types::Poll::members_only(inner))
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `mime_type`.
     #[must_use]
     pub fn mime_type(&self) -> Option<&str> {
@@ -1056,6 +1135,10 @@ impl ExternalReplyInfo {
             }
             Self::Document(val) => {
                 let inner = val.document.as_ref();
+                inner.mime_type.as_deref()
+            }
+            Self::LivePhoto(val) => {
+                let inner = &val.live_photo;
                 inner.mime_type.as_deref()
             }
             Self::Video(val) => {
@@ -1544,6 +1627,10 @@ impl ExternalReplyInfo {
                 let inner = val.animation.as_ref();
                 Some(inner.width)
             }
+            Self::LivePhoto(val) => {
+                let inner = &val.live_photo;
+                Some(inner.width)
+            }
             Self::Sticker(val) => {
                 let inner = val.sticker.as_ref();
                 Some(crate::types::Sticker::width(inner))
@@ -1786,6 +1873,25 @@ impl TryFrom<ExternalReplyInfo> for crate::types::ExternalReplyInfoInvoice {
             Err(Self::Error::new(
                 stringify!(ExternalReplyInfo),
                 stringify!(ExternalReplyInfoInvoice),
+            ))
+        }
+    }
+}
+impl From<crate::types::ExternalReplyInfoLivePhoto> for ExternalReplyInfo {
+    fn from(val: crate::types::ExternalReplyInfoLivePhoto) -> Self {
+        Self::LivePhoto(val)
+    }
+}
+impl TryFrom<ExternalReplyInfo> for crate::types::ExternalReplyInfoLivePhoto {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: ExternalReplyInfo) -> Result<Self, Self::Error> {
+        if let ExternalReplyInfo::LivePhoto(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(ExternalReplyInfo),
+                stringify!(ExternalReplyInfoLivePhoto),
             ))
         }
     }

@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `crate::types::ChatInviteLink`
 #[derive(Clone, Debug, Serialize)]
 pub struct CreateChatInviteLink {
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Invite link name; 0-32 characters
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -26,7 +26,7 @@ impl CreateChatInviteLink {
     /// Creates a new `CreateChatInviteLink`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target channel in the format @username
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -41,7 +41,7 @@ impl CreateChatInviteLink {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target channel in the format @username
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
         let mut this = self;

@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `crate::types::ChatInviteLink`
 #[derive(Clone, Debug, Serialize)]
 pub struct CreateChatSubscriptionInviteLink {
-    /// Unique identifier for the target channel chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target channel chat or username of the target channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Invite link name; 0-32 characters
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -21,7 +21,7 @@ impl CreateChatSubscriptionInviteLink {
     /// Creates a new `CreateChatSubscriptionInviteLink`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target channel chat or username of the target channel (in the format @channelusername)
+    /// * `chat_id` - Unique identifier for the target channel chat or username of the target channel in the format @username
     /// * `subscription_period` - The number of seconds the subscription will be active for before the next payment. Currently, it must always be 2592000 (30 days).
     /// * `subscription_price` - The amount of Telegram Stars a user must pay initially and after each subsequent subscription period to be a member of the chat; 1-10000
     ///
@@ -41,7 +41,7 @@ impl CreateChatSubscriptionInviteLink {
         }
     }
 
-    /// Unique identifier for the target channel chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target channel chat or username of the target channel in the format @username
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
         let mut this = self;

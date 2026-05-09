@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-/// Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see [`crate::types::ReplyKeyboardMarkup`]). Not supported in channels and for messages sent on behalf of a Telegram Business account.
+/// Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see [`crate::types::ReplyKeyboardMarkup`]). Not supported in channels and for messages sent on behalf of a business account.
 /// # Documentation
 /// <https://core.telegram.org/bots/api#replykeyboardremove>
 #[derive(Clone, Debug, Serialize, Deserialize)]

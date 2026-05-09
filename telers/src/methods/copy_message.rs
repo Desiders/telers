@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `crate::types::MessageId`
 #[derive(Clone, Debug, Serialize)]
 pub struct CopyMessage {
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -15,7 +15,7 @@ pub struct CopyMessage {
     /// Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat
     #[serde(skip_serializing_if = "Option::is_none")]
     pub direct_messages_topic_id: Option<i64>,
-    /// Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername)
+    /// Unique identifier for the chat where the original message was sent (or username of the target bot, supergroup or channel in the format @username)
     pub from_chat_id: crate::types::ChatIdKind,
     /// Message identifier in the chat specified in `from_chat_id`
     pub message_id: i64,
@@ -40,7 +40,7 @@ pub struct CopyMessage {
     /// Protects the contents of the sent message from forwarding and saving
     #[serde(skip_serializing_if = "Option::is_none")]
     pub protect_content: Option<bool>,
-    /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+    /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_paid_broadcast: Option<bool>,
     /// Unique identifier of the message effect to be added to the message; only available when copying to private chats
@@ -60,8 +60,8 @@ impl CopyMessage {
     /// Creates a new `CopyMessage`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-    /// * `from_chat_id` - Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
+    /// * `from_chat_id` - Unique identifier for the chat where the original message was sent (or username of the target bot, supergroup or channel in the format @username)
     /// * `message_id` - Message identifier in the chat specified in `from_chat_id`
     ///
     /// # Notes
@@ -97,7 +97,7 @@ impl CopyMessage {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
         let mut this = self;
@@ -137,7 +137,7 @@ impl CopyMessage {
         this
     }
 
-    /// Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername)
+    /// Unique identifier for the chat where the original message was sent (or username of the target bot, supergroup or channel in the format @username)
     #[must_use]
     pub fn from_chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
         let mut this = self;
@@ -308,7 +308,7 @@ impl CopyMessage {
         this
     }
 
-    /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+    /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance.
     #[must_use]
     pub fn allow_paid_broadcast<T: Into<bool>>(self, val: T) -> Self {
         let mut this = self;
@@ -316,7 +316,7 @@ impl CopyMessage {
         this
     }
 
-    /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
+    /// Pass `true` to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance.
     #[must_use]
     pub fn allow_paid_broadcast_option<T: Into<bool>>(self, val: Option<T>) -> Self {
         let mut this = self;

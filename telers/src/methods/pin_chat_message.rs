@@ -10,7 +10,7 @@ pub struct PinChatMessage {
     /// Unique identifier of the business connection on behalf of which the message will be pinned
     #[serde(skip_serializing_if = "Option::is_none")]
     pub business_connection_id: Option<Box<str>>,
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Identifier of a message to pin
     pub message_id: i64,
@@ -22,7 +22,7 @@ impl PinChatMessage {
     /// Creates a new `PinChatMessage`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target channel in the format @username
     /// * `message_id` - Identifier of a message to pin
     ///
     /// # Notes
@@ -56,7 +56,7 @@ impl PinChatMessage {
         this
     }
 
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target channel in the format @username
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
         let mut this = self;

@@ -340,6 +340,18 @@ impl MessageEntity {
         }
     }
 
+    /// Helper method for nested field `supports_guest_queries`.
+    #[must_use]
+    pub fn supports_guest_queries(&self) -> Option<bool> {
+        match self {
+            Self::TextMention(val) => {
+                let inner = val.user.as_ref();
+                inner.supports_guest_queries
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `supports_inline_queries`.
     #[must_use]
     pub fn supports_inline_queries(&self) -> Option<bool> {

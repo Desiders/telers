@@ -12,6 +12,9 @@ pub struct InputPollOption {
     /// A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of `text_parse_mode`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text_entities: Option<Box<[crate::types::MessageEntity]>>,
+    /// Media added to the poll option
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub media: Option<crate::types::InputPollOptionMedia>,
 }
 impl InputPollOption {
     /// Creates a new `InputPollOption`.
@@ -27,6 +30,7 @@ impl InputPollOption {
             text: text.into(),
             text_parse_mode: None,
             text_entities: None,
+            media: None,
         }
     }
 
@@ -101,6 +105,22 @@ impl InputPollOption {
     ) -> Self {
         let mut this = self;
         this.text_entities = val.map(Into::into);
+        this
+    }
+
+    /// Media added to the poll option
+    #[must_use]
+    pub fn media<T: Into<crate::types::InputPollOptionMedia>>(self, val: T) -> Self {
+        let mut this = self;
+        this.media = Some(val.into());
+        this
+    }
+
+    /// Media added to the poll option
+    #[must_use]
+    pub fn media_option<T: Into<crate::types::InputPollOptionMedia>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.media = val.map(Into::into);
         this
     }
 }

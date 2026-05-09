@@ -12,6 +12,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::ExternalReplyInfoGiveaway`]
 /// - [`crate::types::ExternalReplyInfoGiveawayWinners`]
 /// - [`crate::types::ExternalReplyInfoInvoice`]
+/// - [`crate::types::ExternalReplyInfoLivePhoto`]
 /// - [`crate::types::ExternalReplyInfoLocation`]
 /// - [`crate::types::ExternalReplyInfoPhoto`]
 /// - [`crate::types::ExternalReplyInfoPoll`]
@@ -45,6 +46,8 @@ pub enum ExternalReplyInfoType {
     GiveawayWinners,
     #[strum(serialize = "invoice")]
     Invoice,
+    #[strum(serialize = "live_photo")]
+    LivePhoto,
     #[strum(serialize = "location")]
     Location,
     #[strum(serialize = "photo")]
@@ -66,7 +69,7 @@ pub enum ExternalReplyInfoType {
 }
 impl ExternalReplyInfoType {
     #[must_use]
-    pub const fn all() -> [ExternalReplyInfoType; 19usize] {
+    pub const fn all() -> [ExternalReplyInfoType; 20usize] {
         [
             ExternalReplyInfoType::Animation,
             ExternalReplyInfoType::Audio,
@@ -78,6 +81,7 @@ impl ExternalReplyInfoType {
             ExternalReplyInfoType::Giveaway,
             ExternalReplyInfoType::GiveawayWinners,
             ExternalReplyInfoType::Invoice,
+            ExternalReplyInfoType::LivePhoto,
             ExternalReplyInfoType::Location,
             ExternalReplyInfoType::Photo,
             ExternalReplyInfoType::Poll,
@@ -118,6 +122,7 @@ impl<'a> From<&'a ExternalReplyInfo> for ExternalReplyInfoType {
             ExternalReplyInfo::Giveaway(_) => ExternalReplyInfoType::Giveaway,
             ExternalReplyInfo::GiveawayWinners(_) => ExternalReplyInfoType::GiveawayWinners,
             ExternalReplyInfo::Invoice(_) => ExternalReplyInfoType::Invoice,
+            ExternalReplyInfo::LivePhoto(_) => ExternalReplyInfoType::LivePhoto,
             ExternalReplyInfo::Location(_) => ExternalReplyInfoType::Location,
             ExternalReplyInfo::Photo(_) => ExternalReplyInfoType::Photo,
             ExternalReplyInfo::Poll(_) => ExternalReplyInfoType::Poll,

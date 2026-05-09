@@ -18,19 +18,19 @@ pub struct InlineKeyboardButton {
     /// Data to be sent in a callback query to the bot when the button is pressed, 1-64 bytes
     #[serde(skip_serializing_if = "Option::is_none")]
     pub callback_data: Option<Box<str>>,
-    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a Telegram Business account.
+    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub web_app: Option<crate::types::WebAppInfo>,
     /// An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub login_url: Option<crate::types::LoginUrl>,
-    /// If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent in channel direct messages chats and on behalf of a Telegram Business account.
+    /// If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent in channel direct messages chats and on behalf of a business account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub switch_inline_query: Option<Box<str>>,
-    /// If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted. This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent in channel direct messages chats and on behalf of a Telegram Business account.
+    /// If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted. This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent in channel direct messages chats and on behalf of a business account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub switch_inline_query_current_chat: Option<Box<str>>,
-    /// If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent in channel direct messages chats and on behalf of a Telegram Business account.
+    /// If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent in channel direct messages chats and on behalf of a business account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub switch_inline_query_chosen_chat: Option<crate::types::SwitchInlineQueryChosenChat>,
     /// Description of the button that copies the specified text to the clipboard.
@@ -142,7 +142,7 @@ impl InlineKeyboardButton {
         this
     }
 
-    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a Telegram Business account.
+    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account.
     #[must_use]
     pub fn web_app<T: Into<crate::types::WebAppInfo>>(self, val: T) -> Self {
         let mut this = self;
@@ -150,7 +150,7 @@ impl InlineKeyboardButton {
         this
     }
 
-    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a Telegram Business account.
+    /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account.
     #[must_use]
     pub fn web_app_option<T: Into<crate::types::WebAppInfo>>(self, val: Option<T>) -> Self {
         let mut this = self;
@@ -174,7 +174,7 @@ impl InlineKeyboardButton {
         this
     }
 
-    /// If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent in channel direct messages chats and on behalf of a Telegram Business account.
+    /// If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent in channel direct messages chats and on behalf of a business account.
     #[must_use]
     pub fn switch_inline_query<T: Into<Box<str>>>(self, val: T) -> Self {
         let mut this = self;
@@ -182,7 +182,7 @@ impl InlineKeyboardButton {
         this
     }
 
-    /// If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent in channel direct messages chats and on behalf of a Telegram Business account.
+    /// If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent in channel direct messages chats and on behalf of a business account.
     #[must_use]
     pub fn switch_inline_query_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
         let mut this = self;
@@ -190,7 +190,7 @@ impl InlineKeyboardButton {
         this
     }
 
-    /// If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted. This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent in channel direct messages chats and on behalf of a Telegram Business account.
+    /// If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted. This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent in channel direct messages chats and on behalf of a business account.
     #[must_use]
     pub fn switch_inline_query_current_chat<T: Into<Box<str>>>(self, val: T) -> Self {
         let mut this = self;
@@ -198,7 +198,7 @@ impl InlineKeyboardButton {
         this
     }
 
-    /// If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted. This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent in channel direct messages chats and on behalf of a Telegram Business account.
+    /// If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted. This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent in channel direct messages chats and on behalf of a business account.
     #[must_use]
     pub fn switch_inline_query_current_chat_option<T: Into<Box<str>>>(
         self,
@@ -209,7 +209,7 @@ impl InlineKeyboardButton {
         this
     }
 
-    /// If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent in channel direct messages chats and on behalf of a Telegram Business account.
+    /// If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent in channel direct messages chats and on behalf of a business account.
     #[must_use]
     pub fn switch_inline_query_chosen_chat<T: Into<crate::types::SwitchInlineQueryChosenChat>>(
         self,
@@ -220,7 +220,7 @@ impl InlineKeyboardButton {
         this
     }
 
-    /// If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent in channel direct messages chats and on behalf of a Telegram Business account.
+    /// If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent in channel direct messages chats and on behalf of a business account.
     #[must_use]
     pub fn switch_inline_query_chosen_chat_option<
         T: Into<crate::types::SwitchInlineQueryChosenChat>,

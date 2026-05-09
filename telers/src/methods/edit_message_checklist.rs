@@ -9,8 +9,8 @@ use serde::Serialize;
 pub struct EditMessageChecklist {
     /// Unique identifier of the business connection on behalf of which the message will be sent
     pub business_connection_id: Box<str>,
-    /// Unique identifier for the target chat
-    pub chat_id: i64,
+    /// Unique identifier for the target chat or username of the target bot in the format @username
+    pub chat_id: crate::types::ChatIdKind,
     /// Unique identifier for the target message
     pub message_id: i64,
     /// A JSON-serialized object for the new checklist
@@ -24,7 +24,7 @@ impl EditMessageChecklist {
     ///
     /// # Arguments
     /// * `business_connection_id` - Unique identifier of the business connection on behalf of which the message will be sent
-    /// * `chat_id` - Unique identifier for the target chat
+    /// * `chat_id` - Unique identifier for the target chat or username of the target bot in the format @username
     /// * `message_id` - Unique identifier for the target message
     /// * `checklist` - A JSON-serialized object for the new checklist
     ///
@@ -33,7 +33,7 @@ impl EditMessageChecklist {
     #[must_use]
     pub fn new<
         T0: Into<Box<str>>,
-        T1: Into<i64>,
+        T1: Into<crate::types::ChatIdKind>,
         T2: Into<i64>,
         T3: Into<crate::types::InputChecklist>,
     >(
@@ -59,9 +59,9 @@ impl EditMessageChecklist {
         this
     }
 
-    /// Unique identifier for the target chat
+    /// Unique identifier for the target chat or username of the target bot in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<i64>>(self, val: T) -> Self {
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
         let mut this = self;
         this.chat_id = val.into();
         this

@@ -499,6 +499,39 @@ impl MaybeInaccessibleMessage {
         }
     }
 
+    /// Helper method for field `guest_bot_caller_chat`.
+    ///
+    /// For a message sent by a guest bot, this is the chat whose original message triggered the bot's response
+    #[must_use]
+    pub fn guest_bot_caller_chat(&self) -> Option<&crate::types::Chat> {
+        match self {
+            Self::Message(val) => crate::types::Message::guest_bot_caller_chat(val),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for field `guest_bot_caller_user`.
+    ///
+    /// For a message sent by a guest bot, this is the user whose original message triggered the bot's response
+    #[must_use]
+    pub fn guest_bot_caller_user(&self) -> Option<&crate::types::User> {
+        match self {
+            Self::Message(val) => crate::types::Message::guest_bot_caller_user(val),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for field `guest_query_id`.
+    ///
+    /// The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
+    #[must_use]
+    pub fn guest_query_id(&self) -> Option<&str> {
+        match self {
+            Self::Message(val) => crate::types::Message::guest_query_id(val),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
     /// Helper method for field `has_media_spoiler`.
     ///
     /// `true`, if the message media is covered by a spoiler animation
@@ -594,6 +627,17 @@ impl MaybeInaccessibleMessage {
     pub fn link_preview_options(&self) -> Option<&crate::types::LinkPreviewOptions> {
         match self {
             Self::Message(val) => crate::types::Message::link_preview_options(val),
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for field `live_photo`.
+    ///
+    /// Message is a live photo, information about the live photo. For backward compatibility, when this field is set, the photo field will also be set
+    #[must_use]
+    pub fn live_photo(&self) -> Option<&crate::types::LivePhoto> {
+        match self {
+            Self::Message(val) => crate::types::Message::live_photo(val),
             Self::InaccessibleMessage(_) => None,
         }
     }
@@ -1384,17 +1428,6 @@ impl MaybeInaccessibleMessage {
         }
     }
 
-    /// Helper method for nested field `country_codes`.
-    #[must_use]
-    pub fn country_codes(&self) -> Option<&[Box<str>]> {
-        match self {
-            Self::Message(val) => {
-                crate::types::Message::giveaway(val).and_then(crate::types::Giveaway::country_codes)
-            }
-            Self::InaccessibleMessage(_) => None,
-        }
-    }
-
     /// Helper method for nested field `cover`.
     #[must_use]
     pub fn cover(&self) -> Option<&[crate::types::PhotoSize]> {
@@ -1477,6 +1510,17 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => {
                 crate::types::Message::poll(val).and_then(crate::types::Poll::explanation_entities)
+            }
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for nested field `explanation_media`.
+    #[must_use]
+    pub fn explanation_media(&self) -> Option<&crate::types::PollMedia> {
+        match self {
+            Self::Message(val) => {
+                crate::types::Message::poll(val).and_then(crate::types::Poll::explanation_media)
             }
             Self::InaccessibleMessage(_) => None,
         }
@@ -1811,6 +1855,28 @@ impl MaybeInaccessibleMessage {
         match self {
             Self::Message(val) => {
                 crate::types::Message::sticker(val).and_then(crate::types::Sticker::mask_position)
+            }
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for nested field `media`.
+    #[must_use]
+    pub fn media(&self) -> Option<&crate::types::PollMedia> {
+        match self {
+            Self::Message(val) => {
+                crate::types::Message::poll(val).and_then(crate::types::Poll::media)
+            }
+            Self::InaccessibleMessage(_) => None,
+        }
+    }
+
+    /// Helper method for nested field `members_only`.
+    #[must_use]
+    pub fn members_only(&self) -> Option<bool> {
+        match self {
+            Self::Message(val) => {
+                crate::types::Message::poll(val).map(crate::types::Poll::members_only)
             }
             Self::InaccessibleMessage(_) => None,
         }

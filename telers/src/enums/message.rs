@@ -35,6 +35,7 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// - [`crate::types::MessageGroupChatCreated`]
 /// - [`crate::types::MessageInvoice`]
 /// - [`crate::types::MessageLeftChatMember`]
+/// - [`crate::types::MessageLivePhoto`]
 /// - [`crate::types::MessageLocation`]
 /// - [`crate::types::MessageManagedBotCreated`]
 /// - [`crate::types::MessageMessageAutoDeleteTimerChanged`]
@@ -145,6 +146,8 @@ pub enum MessageType {
     Invoice,
     #[strum(serialize = "left_chat_member")]
     LeftChatMember,
+    #[strum(serialize = "live_photo")]
+    LivePhoto,
     #[strum(serialize = "location")]
     Location,
     #[strum(serialize = "managed_bot_created")]
@@ -228,7 +231,7 @@ pub enum MessageType {
 }
 impl MessageType {
     #[must_use]
-    pub const fn all() -> [MessageType; 73usize] {
+    pub const fn all() -> [MessageType; 74usize] {
         [
             MessageType::Animation,
             MessageType::Audio,
@@ -263,6 +266,7 @@ impl MessageType {
             MessageType::GroupChatCreated,
             MessageType::Invoice,
             MessageType::LeftChatMember,
+            MessageType::LivePhoto,
             MessageType::Location,
             MessageType::ManagedBotCreated,
             MessageType::MessageAutoDeleteTimerChanged,
@@ -357,6 +361,7 @@ impl<'a> From<&'a Message> for MessageType {
             Message::GroupChatCreated(_) => MessageType::GroupChatCreated,
             Message::Invoice(_) => MessageType::Invoice,
             Message::LeftChatMember(_) => MessageType::LeftChatMember,
+            Message::LivePhoto(_) => MessageType::LivePhoto,
             Message::Location(_) => MessageType::Location,
             Message::ManagedBotCreated(_) => MessageType::ManagedBotCreated,
             Message::MessageAutoDeleteTimerChanged(_) => MessageType::MessageAutoDeleteTimerChanged,

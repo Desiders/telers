@@ -546,6 +546,22 @@ impl TransactionPartner {
         }
     }
 
+    /// Helper method for nested field `supports_guest_queries`.
+    #[must_use]
+    pub fn supports_guest_queries(&self) -> Option<bool> {
+        match self {
+            Self::AffiliateProgram(val) => val
+                .sponsor_user
+                .as_deref()
+                .and_then(|inner| inner.supports_guest_queries),
+            Self::User(val) => {
+                let inner = crate::types::TransactionPartnerUser::user(val);
+                inner.supports_guest_queries
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `supports_inline_queries`.
     #[must_use]
     pub fn supports_inline_queries(&self) -> Option<bool> {

@@ -34,6 +34,8 @@ pub enum TelegramObserverType {
     ManagedBot,
     #[strum(serialize = "message")]
     Message,
+    #[strum(serialize = "guest_message")]
+    GuestMessage,
     #[strum(serialize = "message_reaction")]
     MessageReaction,
     #[strum(serialize = "message_reaction_count")]
@@ -64,18 +66,18 @@ macro_rules! with_telegram_observer_variants {
         chosen_inline_result), (DeletedBusinessMessages, deleted_business_messages),
         (EditedBusinessMessage, edited_business_message), (EditedChannelPost,
         edited_channel_post), (EditedMessage, edited_message), (InlineQuery,
-        inline_query), (ManagedBot, managed_bot), (Message, message), (MessageReaction,
-        message_reaction), (MessageReactionCount, message_reaction_count), (MyChatMember,
-        my_chat_member), (Poll, poll), (PollAnswer, poll_answer), (PreCheckoutQuery,
-        pre_checkout_query), (PurchasedPaidMedia, purchased_paid_media),
-        (RemovedChatBoost, removed_chat_boost), (ShippingQuery, shipping_query), (Update,
-        update), }
+        inline_query), (ManagedBot, managed_bot), (Message, message), (GuestMessage,
+        guest_message), (MessageReaction, message_reaction), (MessageReactionCount,
+        message_reaction_count), (MyChatMember, my_chat_member), (Poll, poll),
+        (PollAnswer, poll_answer), (PreCheckoutQuery, pre_checkout_query),
+        (PurchasedPaidMedia, purchased_paid_media), (RemovedChatBoost,
+        removed_chat_boost), (ShippingQuery, shipping_query), (Update, update), }
     };
 }
 pub(crate) use with_telegram_observer_variants;
 impl TelegramObserverType {
     #[must_use]
-    pub const fn all() -> [TelegramObserverType; 25usize] {
+    pub const fn all() -> [TelegramObserverType; 26usize] {
         [
             TelegramObserverType::BusinessConnection,
             TelegramObserverType::BusinessMessage,
@@ -92,6 +94,7 @@ impl TelegramObserverType {
             TelegramObserverType::InlineQuery,
             TelegramObserverType::ManagedBot,
             TelegramObserverType::Message,
+            TelegramObserverType::GuestMessage,
             TelegramObserverType::MessageReaction,
             TelegramObserverType::MessageReactionCount,
             TelegramObserverType::MyChatMember,
@@ -138,6 +141,7 @@ impl From<UpdateType> for TelegramObserverType {
             UpdateType::InlineQuery => TelegramObserverType::InlineQuery,
             UpdateType::ManagedBot => TelegramObserverType::ManagedBot,
             UpdateType::Message => TelegramObserverType::Message,
+            UpdateType::GuestMessage => TelegramObserverType::GuestMessage,
             UpdateType::MessageReaction => TelegramObserverType::MessageReaction,
             UpdateType::MessageReactionCount => TelegramObserverType::MessageReactionCount,
             UpdateType::MyChatMember => TelegramObserverType::MyChatMember,

@@ -11,6 +11,9 @@ pub struct PollOption {
     /// Special entities that appear in the option text. Currently, only custom emoji entities are allowed in poll option texts
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text_entities: Option<Box<[crate::types::MessageEntity]>>,
+    /// Media added to the poll option
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub media: Option<crate::types::PollMedia>,
     /// Number of users who voted for this option; may be 0 if unknown
     pub voter_count: i64,
     /// User who added the option; omitted if the option wasn't added by a user after poll creation
@@ -43,6 +46,7 @@ impl PollOption {
             persistent_id: persistent_id.into(),
             text: text.into(),
             text_entities: None,
+            media: None,
             voter_count: voter_count.into(),
             added_by_user: None,
             added_by_chat: None,
@@ -113,6 +117,22 @@ impl PollOption {
     ) -> Self {
         let mut this = self;
         this.text_entities = val.map(Into::into);
+        this
+    }
+
+    /// Media added to the poll option
+    #[must_use]
+    pub fn media<T: Into<crate::types::PollMedia>>(self, val: T) -> Self {
+        let mut this = self;
+        this.media = Some(val.into());
+        this
+    }
+
+    /// Media added to the poll option
+    #[must_use]
+    pub fn media_option<T: Into<crate::types::PollMedia>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.media = val.map(Into::into);
         this
     }
 

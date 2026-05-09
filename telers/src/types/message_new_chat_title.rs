@@ -31,6 +31,9 @@ pub struct MessageNewChatTitle {
     pub sender_tag: Option<Box<str>>,
     /// Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     pub date: i64,
+    /// The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guest_query_id: Option<Box<str>>,
     /// Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub business_connection_id: Option<Box<str>>,
@@ -66,6 +69,12 @@ pub struct MessageNewChatTitle {
     /// Bot through which the message was sent
     #[serde(skip_serializing_if = "Option::is_none")]
     pub via_bot: Option<Box<crate::types::User>>,
+    /// For a message sent by a guest bot, this is the user whose original message triggered the bot's response
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guest_bot_caller_user: Option<Box<crate::types::User>>,
+    /// For a message sent by a guest bot, this is the chat whose original message triggered the bot's response
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guest_bot_caller_chat: Option<Box<crate::types::Chat>>,
     /// Date the message was last edited in Unix time
     #[serde(skip_serializing_if = "Option::is_none")]
     pub edit_date: Option<i64>,
@@ -145,6 +154,7 @@ impl MessageNewChatTitle {
             sender_business_bot: None,
             sender_tag: None,
             date: date.into(),
+            guest_query_id: None,
             business_connection_id: None,
             chat: Box::new(chat.into()),
             forward_origin: None,
@@ -157,6 +167,8 @@ impl MessageNewChatTitle {
             reply_to_checklist_task_id: None,
             reply_to_poll_option_id: None,
             via_bot: None,
+            guest_bot_caller_user: None,
+            guest_bot_caller_chat: None,
             edit_date: None,
             has_protected_content: None,
             is_from_offline: None,
@@ -305,6 +317,22 @@ impl MessageNewChatTitle {
     pub fn date<T: Into<i64>>(self, val: T) -> Self {
         let mut this = self;
         this.date = val.into();
+        this
+    }
+
+    /// The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
+    #[must_use]
+    pub fn guest_query_id<T: Into<Box<str>>>(self, val: T) -> Self {
+        let mut this = self;
+        this.guest_query_id = Some(val.into());
+        this
+    }
+
+    /// The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
+    #[must_use]
+    pub fn guest_query_id_option<T: Into<Box<str>>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.guest_query_id = val.map(Into::into);
         this
     }
 
@@ -495,6 +523,38 @@ impl MessageNewChatTitle {
     pub fn via_bot_option<T: Into<crate::types::User>>(self, val: Option<T>) -> Self {
         let mut this = self;
         this.via_bot = val.map(|val| Box::new(val.into()));
+        this
+    }
+
+    /// For a message sent by a guest bot, this is the user whose original message triggered the bot's response
+    #[must_use]
+    pub fn guest_bot_caller_user<T: Into<crate::types::User>>(self, val: T) -> Self {
+        let mut this = self;
+        this.guest_bot_caller_user = Some(Box::new(val.into()));
+        this
+    }
+
+    /// For a message sent by a guest bot, this is the user whose original message triggered the bot's response
+    #[must_use]
+    pub fn guest_bot_caller_user_option<T: Into<crate::types::User>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.guest_bot_caller_user = val.map(|val| Box::new(val.into()));
+        this
+    }
+
+    /// For a message sent by a guest bot, this is the chat whose original message triggered the bot's response
+    #[must_use]
+    pub fn guest_bot_caller_chat<T: Into<crate::types::Chat>>(self, val: T) -> Self {
+        let mut this = self;
+        this.guest_bot_caller_chat = Some(Box::new(val.into()));
+        this
+    }
+
+    /// For a message sent by a guest bot, this is the chat whose original message triggered the bot's response
+    #[must_use]
+    pub fn guest_bot_caller_chat_option<T: Into<crate::types::Chat>>(self, val: Option<T>) -> Self {
+        let mut this = self;
+        this.guest_bot_caller_chat = val.map(|val| Box::new(val.into()));
         this
     }
 

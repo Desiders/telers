@@ -9,8 +9,8 @@ use serde::Serialize;
 pub struct SendChecklist {
     /// Unique identifier of the business connection on behalf of which the message will be sent
     pub business_connection_id: Box<str>,
-    /// Unique identifier for the target chat
-    pub chat_id: i64,
+    /// Unique identifier for the target chat or username of the target bot in the format @username
+    pub chat_id: crate::types::ChatIdKind,
     /// A JSON-serialized object for the checklist to send
     pub checklist: crate::types::InputChecklist,
     /// Sends the message silently. Users will receive a notification with no sound.
@@ -34,13 +34,17 @@ impl SendChecklist {
     ///
     /// # Arguments
     /// * `business_connection_id` - Unique identifier of the business connection on behalf of which the message will be sent
-    /// * `chat_id` - Unique identifier for the target chat
+    /// * `chat_id` - Unique identifier for the target chat or username of the target bot in the format @username
     /// * `checklist` - A JSON-serialized object for the checklist to send
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
     #[must_use]
-    pub fn new<T0: Into<Box<str>>, T1: Into<i64>, T2: Into<crate::types::InputChecklist>>(
+    pub fn new<
+        T0: Into<Box<str>>,
+        T1: Into<crate::types::ChatIdKind>,
+        T2: Into<crate::types::InputChecklist>,
+    >(
         business_connection_id: T0,
         chat_id: T1,
         checklist: T2,
@@ -65,9 +69,9 @@ impl SendChecklist {
         this
     }
 
-    /// Unique identifier for the target chat
+    /// Unique identifier for the target chat or username of the target bot in the format @username
     #[must_use]
-    pub fn chat_id<T: Into<i64>>(self, val: T) -> Self {
+    pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
         let mut this = self;
         this.chat_id = val.into();
         this

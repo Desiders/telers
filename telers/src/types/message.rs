@@ -34,6 +34,7 @@ use serde::{Deserialize, Serialize};
 /// - [`crate::types::MessageGroupChatCreated`]
 /// - [`crate::types::MessageInvoice`]
 /// - [`crate::types::MessageLeftChatMember`]
+/// - [`crate::types::MessageLivePhoto`]
 /// - [`crate::types::MessageLocation`]
 /// - [`crate::types::MessageManagedBotCreated`]
 /// - [`crate::types::MessageMessageAutoDeleteTimerChanged`]
@@ -112,6 +113,7 @@ pub enum Message {
     GroupChatCreated(crate::types::MessageGroupChatCreated),
     Invoice(crate::types::MessageInvoice),
     LeftChatMember(crate::types::MessageLeftChatMember),
+    LivePhoto(crate::types::MessageLivePhoto),
     Location(crate::types::MessageLocation),
     ManagedBotCreated(crate::types::MessageManagedBotCreated),
     MessageAutoDeleteTimerChanged(crate::types::MessageMessageAutoDeleteTimerChanged),
@@ -215,6 +217,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.author_signature.as_deref(),
             Self::Invoice(val) => val.author_signature.as_deref(),
             Self::LeftChatMember(val) => val.author_signature.as_deref(),
+            Self::LivePhoto(val) => val.author_signature.as_deref(),
             Self::Location(val) => val.author_signature.as_deref(),
             Self::ManagedBotCreated(val) => val.author_signature.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.author_signature.as_deref(),
@@ -308,6 +311,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.business_connection_id.as_deref(),
             Self::Invoice(val) => val.business_connection_id.as_deref(),
             Self::LeftChatMember(val) => val.business_connection_id.as_deref(),
+            Self::LivePhoto(val) => val.business_connection_id.as_deref(),
             Self::Location(val) => val.business_connection_id.as_deref(),
             Self::ManagedBotCreated(val) => val.business_connection_id.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.business_connection_id.as_deref(),
@@ -390,6 +394,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.caption.as_deref(),
             Self::Invoice(val) => val.caption.as_deref(),
             Self::LeftChatMember(val) => val.caption.as_deref(),
+            Self::LivePhoto(val) => val.caption.as_deref(),
             Self::Location(val) => val.caption.as_deref(),
             Self::ManagedBotCreated(val) => val.caption.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.caption.as_deref(),
@@ -472,6 +477,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.caption_entities.as_deref(),
             Self::Invoice(val) => val.caption_entities.as_deref(),
             Self::LeftChatMember(val) => val.caption_entities.as_deref(),
+            Self::LivePhoto(val) => val.caption_entities.as_deref(),
             Self::Location(val) => val.caption_entities.as_deref(),
             Self::ManagedBotCreated(val) => val.caption_entities.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.caption_entities.as_deref(),
@@ -565,6 +571,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.chat.as_ref(),
             Self::Invoice(val) => val.chat.as_ref(),
             Self::LeftChatMember(val) => val.chat.as_ref(),
+            Self::LivePhoto(val) => val.chat.as_ref(),
             Self::Location(val) => val.chat.as_ref(),
             Self::ManagedBotCreated(val) => val.chat.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.chat.as_ref(),
@@ -746,6 +753,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.date,
             Self::Invoice(val) => val.date,
             Self::LeftChatMember(val) => val.date,
+            Self::LivePhoto(val) => val.date,
             Self::Location(val) => val.date,
             Self::ManagedBotCreated(val) => val.date,
             Self::MessageAutoDeleteTimerChanged(val) => val.date,
@@ -861,6 +869,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.direct_messages_topic.as_ref(),
             Self::Invoice(val) => val.direct_messages_topic.as_ref(),
             Self::LeftChatMember(val) => val.direct_messages_topic.as_ref(),
+            Self::LivePhoto(val) => val.direct_messages_topic.as_ref(),
             Self::Location(val) => val.direct_messages_topic.as_ref(),
             Self::ManagedBotCreated(val) => val.direct_messages_topic.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.direct_messages_topic.as_ref(),
@@ -954,6 +963,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.edit_date,
             Self::Invoice(val) => val.edit_date,
             Self::LeftChatMember(val) => val.edit_date,
+            Self::LivePhoto(val) => val.edit_date,
             Self::Location(val) => val.edit_date,
             Self::ManagedBotCreated(val) => val.edit_date,
             Self::MessageAutoDeleteTimerChanged(val) => val.edit_date,
@@ -1036,6 +1046,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.effect_id.as_deref(),
             Self::Invoice(val) => val.effect_id.as_deref(),
             Self::LeftChatMember(val) => val.effect_id.as_deref(),
+            Self::LivePhoto(val) => val.effect_id.as_deref(),
             Self::Location(val) => val.effect_id.as_deref(),
             Self::ManagedBotCreated(val) => val.effect_id.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.effect_id.as_deref(),
@@ -1118,6 +1129,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.entities.as_deref(),
             Self::Invoice(val) => val.entities.as_deref(),
             Self::LeftChatMember(val) => val.entities.as_deref(),
+            Self::LivePhoto(val) => val.entities.as_deref(),
             Self::Location(val) => val.entities.as_deref(),
             Self::ManagedBotCreated(val) => val.entities.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.entities.as_deref(),
@@ -1200,6 +1212,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.external_reply.as_deref(),
             Self::Invoice(val) => val.external_reply.as_deref(),
             Self::LeftChatMember(val) => val.external_reply.as_deref(),
+            Self::LivePhoto(val) => val.external_reply.as_deref(),
             Self::Location(val) => val.external_reply.as_deref(),
             Self::ManagedBotCreated(val) => val.external_reply.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.external_reply.as_deref(),
@@ -1326,6 +1339,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.forward_origin.as_ref(),
             Self::Invoice(val) => val.forward_origin.as_ref(),
             Self::LeftChatMember(val) => val.forward_origin.as_ref(),
+            Self::LivePhoto(val) => val.forward_origin.as_ref(),
             Self::Location(val) => val.forward_origin.as_ref(),
             Self::ManagedBotCreated(val) => val.forward_origin.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.forward_origin.as_ref(),
@@ -1408,6 +1422,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.from.as_deref(),
             Self::Invoice(val) => val.from.as_deref(),
             Self::LeftChatMember(val) => val.from.as_deref(),
+            Self::LivePhoto(val) => val.from.as_deref(),
             Self::Location(val) => val.from.as_deref(),
             Self::ManagedBotCreated(val) => val.from.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.from.as_deref(),
@@ -1561,6 +1576,255 @@ impl Message {
         }
     }
 
+    /// Helper method for field `guest_bot_caller_chat`.
+    ///
+    /// For a message sent by a guest bot, this is the chat whose original message triggered the bot's response
+    #[must_use]
+    pub fn guest_bot_caller_chat(&self) -> Option<&crate::types::Chat> {
+        match self {
+            Self::Animation(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Audio(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::BoostAdded(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::ChannelChatCreated(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::ChatBackgroundSet(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::ChatOwnerChanged(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::ChatOwnerLeft(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::ChatShared(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Checklist(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::ChecklistTasksAdded(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::ChecklistTasksDone(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::ConnectedWebsite(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Contact(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::DeleteChatPhoto(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Dice(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::DirectMessagePriceChanged(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Document(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::ForumTopicClosed(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::ForumTopicCreated(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::ForumTopicEdited(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::ForumTopicReopened(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Game(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::GeneralForumTopicHidden(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::GeneralForumTopicUnhidden(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Gift(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::GiftUpgradeSent(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Giveaway(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::GiveawayCompleted(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::GiveawayCreated(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::GiveawayWinners(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::GroupChatCreated(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Invoice(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::LeftChatMember(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::LivePhoto(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Location(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::ManagedBotCreated(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::MessageAutoDeleteTimerChanged(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::MigrateFromChatId(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::MigrateToChatId(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::NewChatMembers(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::NewChatPhoto(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::NewChatTitle(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::PaidMedia(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::PaidMessagePriceChanged(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::PassportData(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Photo(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::PinnedMessage(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Poll(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::PollOptionAdded(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::PollOptionDeleted(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::ProximityAlertTriggered(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::RefundedPayment(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Sticker(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Story(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::SuccessfulPayment(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::SuggestedPostApprovalFailed(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::SuggestedPostApproved(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::SuggestedPostDeclined(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::SuggestedPostPaid(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::SuggestedPostRefunded(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::SupergroupChatCreated(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Text(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::UniqueGift(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::UsersShared(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Venue(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Video(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::VideoChatEnded(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::VideoChatParticipantsInvited(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::VideoChatScheduled(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::VideoChatStarted(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::VideoNote(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::Voice(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::WebAppData(val) => val.guest_bot_caller_chat.as_deref(),
+            Self::WriteAccessAllowed(val) => val.guest_bot_caller_chat.as_deref(),
+        }
+    }
+
+    /// Helper method for field `guest_bot_caller_user`.
+    ///
+    /// For a message sent by a guest bot, this is the user whose original message triggered the bot's response
+    #[must_use]
+    pub fn guest_bot_caller_user(&self) -> Option<&crate::types::User> {
+        match self {
+            Self::Animation(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Audio(val) => val.guest_bot_caller_user.as_deref(),
+            Self::BoostAdded(val) => val.guest_bot_caller_user.as_deref(),
+            Self::ChannelChatCreated(val) => val.guest_bot_caller_user.as_deref(),
+            Self::ChatBackgroundSet(val) => val.guest_bot_caller_user.as_deref(),
+            Self::ChatOwnerChanged(val) => val.guest_bot_caller_user.as_deref(),
+            Self::ChatOwnerLeft(val) => val.guest_bot_caller_user.as_deref(),
+            Self::ChatShared(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Checklist(val) => val.guest_bot_caller_user.as_deref(),
+            Self::ChecklistTasksAdded(val) => val.guest_bot_caller_user.as_deref(),
+            Self::ChecklistTasksDone(val) => val.guest_bot_caller_user.as_deref(),
+            Self::ConnectedWebsite(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Contact(val) => val.guest_bot_caller_user.as_deref(),
+            Self::DeleteChatPhoto(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Dice(val) => val.guest_bot_caller_user.as_deref(),
+            Self::DirectMessagePriceChanged(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Document(val) => val.guest_bot_caller_user.as_deref(),
+            Self::ForumTopicClosed(val) => val.guest_bot_caller_user.as_deref(),
+            Self::ForumTopicCreated(val) => val.guest_bot_caller_user.as_deref(),
+            Self::ForumTopicEdited(val) => val.guest_bot_caller_user.as_deref(),
+            Self::ForumTopicReopened(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Game(val) => val.guest_bot_caller_user.as_deref(),
+            Self::GeneralForumTopicHidden(val) => val.guest_bot_caller_user.as_deref(),
+            Self::GeneralForumTopicUnhidden(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Gift(val) => val.guest_bot_caller_user.as_deref(),
+            Self::GiftUpgradeSent(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Giveaway(val) => val.guest_bot_caller_user.as_deref(),
+            Self::GiveawayCompleted(val) => val.guest_bot_caller_user.as_deref(),
+            Self::GiveawayCreated(val) => val.guest_bot_caller_user.as_deref(),
+            Self::GiveawayWinners(val) => val.guest_bot_caller_user.as_deref(),
+            Self::GroupChatCreated(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Invoice(val) => val.guest_bot_caller_user.as_deref(),
+            Self::LeftChatMember(val) => val.guest_bot_caller_user.as_deref(),
+            Self::LivePhoto(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Location(val) => val.guest_bot_caller_user.as_deref(),
+            Self::ManagedBotCreated(val) => val.guest_bot_caller_user.as_deref(),
+            Self::MessageAutoDeleteTimerChanged(val) => val.guest_bot_caller_user.as_deref(),
+            Self::MigrateFromChatId(val) => val.guest_bot_caller_user.as_deref(),
+            Self::MigrateToChatId(val) => val.guest_bot_caller_user.as_deref(),
+            Self::NewChatMembers(val) => val.guest_bot_caller_user.as_deref(),
+            Self::NewChatPhoto(val) => val.guest_bot_caller_user.as_deref(),
+            Self::NewChatTitle(val) => val.guest_bot_caller_user.as_deref(),
+            Self::PaidMedia(val) => val.guest_bot_caller_user.as_deref(),
+            Self::PaidMessagePriceChanged(val) => val.guest_bot_caller_user.as_deref(),
+            Self::PassportData(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Photo(val) => val.guest_bot_caller_user.as_deref(),
+            Self::PinnedMessage(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Poll(val) => val.guest_bot_caller_user.as_deref(),
+            Self::PollOptionAdded(val) => val.guest_bot_caller_user.as_deref(),
+            Self::PollOptionDeleted(val) => val.guest_bot_caller_user.as_deref(),
+            Self::ProximityAlertTriggered(val) => val.guest_bot_caller_user.as_deref(),
+            Self::RefundedPayment(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Sticker(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Story(val) => val.guest_bot_caller_user.as_deref(),
+            Self::SuccessfulPayment(val) => val.guest_bot_caller_user.as_deref(),
+            Self::SuggestedPostApprovalFailed(val) => val.guest_bot_caller_user.as_deref(),
+            Self::SuggestedPostApproved(val) => val.guest_bot_caller_user.as_deref(),
+            Self::SuggestedPostDeclined(val) => val.guest_bot_caller_user.as_deref(),
+            Self::SuggestedPostPaid(val) => val.guest_bot_caller_user.as_deref(),
+            Self::SuggestedPostRefunded(val) => val.guest_bot_caller_user.as_deref(),
+            Self::SupergroupChatCreated(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Text(val) => val.guest_bot_caller_user.as_deref(),
+            Self::UniqueGift(val) => val.guest_bot_caller_user.as_deref(),
+            Self::UsersShared(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Venue(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Video(val) => val.guest_bot_caller_user.as_deref(),
+            Self::VideoChatEnded(val) => val.guest_bot_caller_user.as_deref(),
+            Self::VideoChatParticipantsInvited(val) => val.guest_bot_caller_user.as_deref(),
+            Self::VideoChatScheduled(val) => val.guest_bot_caller_user.as_deref(),
+            Self::VideoChatStarted(val) => val.guest_bot_caller_user.as_deref(),
+            Self::VideoNote(val) => val.guest_bot_caller_user.as_deref(),
+            Self::Voice(val) => val.guest_bot_caller_user.as_deref(),
+            Self::WebAppData(val) => val.guest_bot_caller_user.as_deref(),
+            Self::WriteAccessAllowed(val) => val.guest_bot_caller_user.as_deref(),
+        }
+    }
+
+    /// Helper method for field `guest_query_id`.
+    ///
+    /// The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
+    #[must_use]
+    pub fn guest_query_id(&self) -> Option<&str> {
+        match self {
+            Self::Animation(val) => val.guest_query_id.as_deref(),
+            Self::Audio(val) => val.guest_query_id.as_deref(),
+            Self::BoostAdded(val) => val.guest_query_id.as_deref(),
+            Self::ChannelChatCreated(val) => val.guest_query_id.as_deref(),
+            Self::ChatBackgroundSet(val) => val.guest_query_id.as_deref(),
+            Self::ChatOwnerChanged(val) => val.guest_query_id.as_deref(),
+            Self::ChatOwnerLeft(val) => val.guest_query_id.as_deref(),
+            Self::ChatShared(val) => val.guest_query_id.as_deref(),
+            Self::Checklist(val) => val.guest_query_id.as_deref(),
+            Self::ChecklistTasksAdded(val) => val.guest_query_id.as_deref(),
+            Self::ChecklistTasksDone(val) => val.guest_query_id.as_deref(),
+            Self::ConnectedWebsite(val) => val.guest_query_id.as_deref(),
+            Self::Contact(val) => val.guest_query_id.as_deref(),
+            Self::DeleteChatPhoto(val) => val.guest_query_id.as_deref(),
+            Self::Dice(val) => val.guest_query_id.as_deref(),
+            Self::DirectMessagePriceChanged(val) => val.guest_query_id.as_deref(),
+            Self::Document(val) => val.guest_query_id.as_deref(),
+            Self::ForumTopicClosed(val) => val.guest_query_id.as_deref(),
+            Self::ForumTopicCreated(val) => val.guest_query_id.as_deref(),
+            Self::ForumTopicEdited(val) => val.guest_query_id.as_deref(),
+            Self::ForumTopicReopened(val) => val.guest_query_id.as_deref(),
+            Self::Game(val) => val.guest_query_id.as_deref(),
+            Self::GeneralForumTopicHidden(val) => val.guest_query_id.as_deref(),
+            Self::GeneralForumTopicUnhidden(val) => val.guest_query_id.as_deref(),
+            Self::Gift(val) => val.guest_query_id.as_deref(),
+            Self::GiftUpgradeSent(val) => val.guest_query_id.as_deref(),
+            Self::Giveaway(val) => val.guest_query_id.as_deref(),
+            Self::GiveawayCompleted(val) => val.guest_query_id.as_deref(),
+            Self::GiveawayCreated(val) => val.guest_query_id.as_deref(),
+            Self::GiveawayWinners(val) => val.guest_query_id.as_deref(),
+            Self::GroupChatCreated(val) => val.guest_query_id.as_deref(),
+            Self::Invoice(val) => val.guest_query_id.as_deref(),
+            Self::LeftChatMember(val) => val.guest_query_id.as_deref(),
+            Self::LivePhoto(val) => val.guest_query_id.as_deref(),
+            Self::Location(val) => val.guest_query_id.as_deref(),
+            Self::ManagedBotCreated(val) => val.guest_query_id.as_deref(),
+            Self::MessageAutoDeleteTimerChanged(val) => val.guest_query_id.as_deref(),
+            Self::MigrateFromChatId(val) => val.guest_query_id.as_deref(),
+            Self::MigrateToChatId(val) => val.guest_query_id.as_deref(),
+            Self::NewChatMembers(val) => val.guest_query_id.as_deref(),
+            Self::NewChatPhoto(val) => val.guest_query_id.as_deref(),
+            Self::NewChatTitle(val) => val.guest_query_id.as_deref(),
+            Self::PaidMedia(val) => val.guest_query_id.as_deref(),
+            Self::PaidMessagePriceChanged(val) => val.guest_query_id.as_deref(),
+            Self::PassportData(val) => val.guest_query_id.as_deref(),
+            Self::Photo(val) => val.guest_query_id.as_deref(),
+            Self::PinnedMessage(val) => val.guest_query_id.as_deref(),
+            Self::Poll(val) => val.guest_query_id.as_deref(),
+            Self::PollOptionAdded(val) => val.guest_query_id.as_deref(),
+            Self::PollOptionDeleted(val) => val.guest_query_id.as_deref(),
+            Self::ProximityAlertTriggered(val) => val.guest_query_id.as_deref(),
+            Self::RefundedPayment(val) => val.guest_query_id.as_deref(),
+            Self::Sticker(val) => val.guest_query_id.as_deref(),
+            Self::Story(val) => val.guest_query_id.as_deref(),
+            Self::SuccessfulPayment(val) => val.guest_query_id.as_deref(),
+            Self::SuggestedPostApprovalFailed(val) => val.guest_query_id.as_deref(),
+            Self::SuggestedPostApproved(val) => val.guest_query_id.as_deref(),
+            Self::SuggestedPostDeclined(val) => val.guest_query_id.as_deref(),
+            Self::SuggestedPostPaid(val) => val.guest_query_id.as_deref(),
+            Self::SuggestedPostRefunded(val) => val.guest_query_id.as_deref(),
+            Self::SupergroupChatCreated(val) => val.guest_query_id.as_deref(),
+            Self::Text(val) => val.guest_query_id.as_deref(),
+            Self::UniqueGift(val) => val.guest_query_id.as_deref(),
+            Self::UsersShared(val) => val.guest_query_id.as_deref(),
+            Self::Venue(val) => val.guest_query_id.as_deref(),
+            Self::Video(val) => val.guest_query_id.as_deref(),
+            Self::VideoChatEnded(val) => val.guest_query_id.as_deref(),
+            Self::VideoChatParticipantsInvited(val) => val.guest_query_id.as_deref(),
+            Self::VideoChatScheduled(val) => val.guest_query_id.as_deref(),
+            Self::VideoChatStarted(val) => val.guest_query_id.as_deref(),
+            Self::VideoNote(val) => val.guest_query_id.as_deref(),
+            Self::Voice(val) => val.guest_query_id.as_deref(),
+            Self::WebAppData(val) => val.guest_query_id.as_deref(),
+            Self::WriteAccessAllowed(val) => val.guest_query_id.as_deref(),
+        }
+    }
+
     /// Helper method for field `has_media_spoiler`.
     ///
     /// `true`, if the message media is covered by a spoiler animation
@@ -1600,6 +1864,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.has_media_spoiler,
             Self::Invoice(val) => val.has_media_spoiler,
             Self::LeftChatMember(val) => val.has_media_spoiler,
+            Self::LivePhoto(val) => val.has_media_spoiler,
             Self::Location(val) => val.has_media_spoiler,
             Self::ManagedBotCreated(val) => val.has_media_spoiler,
             Self::MessageAutoDeleteTimerChanged(val) => val.has_media_spoiler,
@@ -1682,6 +1947,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.has_protected_content,
             Self::Invoice(val) => val.has_protected_content,
             Self::LeftChatMember(val) => val.has_protected_content,
+            Self::LivePhoto(val) => val.has_protected_content,
             Self::Location(val) => val.has_protected_content,
             Self::ManagedBotCreated(val) => val.has_protected_content,
             Self::MessageAutoDeleteTimerChanged(val) => val.has_protected_content,
@@ -1775,6 +2041,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.is_automatic_forward,
             Self::Invoice(val) => val.is_automatic_forward,
             Self::LeftChatMember(val) => val.is_automatic_forward,
+            Self::LivePhoto(val) => val.is_automatic_forward,
             Self::Location(val) => val.is_automatic_forward,
             Self::ManagedBotCreated(val) => val.is_automatic_forward,
             Self::MessageAutoDeleteTimerChanged(val) => val.is_automatic_forward,
@@ -1857,6 +2124,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.is_from_offline,
             Self::Invoice(val) => val.is_from_offline,
             Self::LeftChatMember(val) => val.is_from_offline,
+            Self::LivePhoto(val) => val.is_from_offline,
             Self::Location(val) => val.is_from_offline,
             Self::ManagedBotCreated(val) => val.is_from_offline,
             Self::MessageAutoDeleteTimerChanged(val) => val.is_from_offline,
@@ -1939,6 +2207,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.is_paid_post,
             Self::Invoice(val) => val.is_paid_post,
             Self::LeftChatMember(val) => val.is_paid_post,
+            Self::LivePhoto(val) => val.is_paid_post,
             Self::Location(val) => val.is_paid_post,
             Self::ManagedBotCreated(val) => val.is_paid_post,
             Self::MessageAutoDeleteTimerChanged(val) => val.is_paid_post,
@@ -2021,6 +2290,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.is_topic_message,
             Self::Invoice(val) => val.is_topic_message,
             Self::LeftChatMember(val) => val.is_topic_message,
+            Self::LivePhoto(val) => val.is_topic_message,
             Self::Location(val) => val.is_topic_message,
             Self::ManagedBotCreated(val) => val.is_topic_message,
             Self::MessageAutoDeleteTimerChanged(val) => val.is_topic_message,
@@ -2114,6 +2384,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.link_preview_options.as_ref(),
             Self::Invoice(val) => val.link_preview_options.as_ref(),
             Self::LeftChatMember(val) => val.link_preview_options.as_ref(),
+            Self::LivePhoto(val) => val.link_preview_options.as_ref(),
             Self::Location(val) => val.link_preview_options.as_ref(),
             Self::ManagedBotCreated(val) => val.link_preview_options.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.link_preview_options.as_ref(),
@@ -2154,6 +2425,17 @@ impl Message {
             Self::Voice(val) => val.link_preview_options.as_ref(),
             Self::WebAppData(val) => val.link_preview_options.as_ref(),
             Self::WriteAccessAllowed(val) => val.link_preview_options.as_ref(),
+        }
+    }
+
+    /// Helper method for field `live_photo`.
+    ///
+    /// Message is a live photo, information about the live photo. For backward compatibility, when this field is set, the photo field will also be set
+    #[must_use]
+    pub fn live_photo(&self) -> Option<&crate::types::LivePhoto> {
+        match self {
+            Self::LivePhoto(val) => Some(&val.live_photo),
+            _ => None,
         }
     }
 
@@ -2218,6 +2500,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.media_group_id.as_deref(),
             Self::Invoice(val) => val.media_group_id.as_deref(),
             Self::LeftChatMember(val) => val.media_group_id.as_deref(),
+            Self::LivePhoto(val) => val.media_group_id.as_deref(),
             Self::Location(val) => val.media_group_id.as_deref(),
             Self::ManagedBotCreated(val) => val.media_group_id.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.media_group_id.as_deref(),
@@ -2315,6 +2598,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.message_id,
             Self::Invoice(val) => val.message_id,
             Self::LeftChatMember(val) => val.message_id,
+            Self::LivePhoto(val) => val.message_id,
             Self::Location(val) => val.message_id,
             Self::ManagedBotCreated(val) => val.message_id,
             Self::MessageAutoDeleteTimerChanged(val) => val.message_id,
@@ -2397,6 +2681,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.message_thread_id,
             Self::Invoice(val) => val.message_thread_id,
             Self::LeftChatMember(val) => val.message_thread_id,
+            Self::LivePhoto(val) => val.message_thread_id,
             Self::Location(val) => val.message_thread_id,
             Self::ManagedBotCreated(val) => val.message_thread_id,
             Self::MessageAutoDeleteTimerChanged(val) => val.message_thread_id,
@@ -2556,6 +2841,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.paid_star_count,
             Self::Invoice(val) => val.paid_star_count,
             Self::LeftChatMember(val) => val.paid_star_count,
+            Self::LivePhoto(val) => val.paid_star_count,
             Self::Location(val) => val.paid_star_count,
             Self::ManagedBotCreated(val) => val.paid_star_count,
             Self::MessageAutoDeleteTimerChanged(val) => val.paid_star_count,
@@ -2715,6 +3001,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.quote.as_ref(),
             Self::Invoice(val) => val.quote.as_ref(),
             Self::LeftChatMember(val) => val.quote.as_ref(),
+            Self::LivePhoto(val) => val.quote.as_ref(),
             Self::Location(val) => val.quote.as_ref(),
             Self::ManagedBotCreated(val) => val.quote.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.quote.as_ref(),
@@ -2808,6 +3095,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.reply_markup.as_ref(),
             Self::Invoice(val) => val.reply_markup.as_ref(),
             Self::LeftChatMember(val) => val.reply_markup.as_ref(),
+            Self::LivePhoto(val) => val.reply_markup.as_ref(),
             Self::Location(val) => val.reply_markup.as_ref(),
             Self::ManagedBotCreated(val) => val.reply_markup.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.reply_markup.as_ref(),
@@ -2890,6 +3178,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.reply_to_checklist_task_id,
             Self::Invoice(val) => val.reply_to_checklist_task_id,
             Self::LeftChatMember(val) => val.reply_to_checklist_task_id,
+            Self::LivePhoto(val) => val.reply_to_checklist_task_id,
             Self::Location(val) => val.reply_to_checklist_task_id,
             Self::ManagedBotCreated(val) => val.reply_to_checklist_task_id,
             Self::MessageAutoDeleteTimerChanged(val) => val.reply_to_checklist_task_id,
@@ -2972,6 +3261,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.reply_to_message.as_deref(),
             Self::Invoice(val) => val.reply_to_message.as_deref(),
             Self::LeftChatMember(val) => val.reply_to_message.as_deref(),
+            Self::LivePhoto(val) => val.reply_to_message.as_deref(),
             Self::Location(val) => val.reply_to_message.as_deref(),
             Self::ManagedBotCreated(val) => val.reply_to_message.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.reply_to_message.as_deref(),
@@ -3054,6 +3344,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.reply_to_poll_option_id.as_deref(),
             Self::Invoice(val) => val.reply_to_poll_option_id.as_deref(),
             Self::LeftChatMember(val) => val.reply_to_poll_option_id.as_deref(),
+            Self::LivePhoto(val) => val.reply_to_poll_option_id.as_deref(),
             Self::Location(val) => val.reply_to_poll_option_id.as_deref(),
             Self::ManagedBotCreated(val) => val.reply_to_poll_option_id.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.reply_to_poll_option_id.as_deref(),
@@ -3136,6 +3427,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.reply_to_story.as_ref(),
             Self::Invoice(val) => val.reply_to_story.as_ref(),
             Self::LeftChatMember(val) => val.reply_to_story.as_ref(),
+            Self::LivePhoto(val) => val.reply_to_story.as_ref(),
             Self::Location(val) => val.reply_to_story.as_ref(),
             Self::ManagedBotCreated(val) => val.reply_to_story.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.reply_to_story.as_ref(),
@@ -3218,6 +3510,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.sender_boost_count,
             Self::Invoice(val) => val.sender_boost_count,
             Self::LeftChatMember(val) => val.sender_boost_count,
+            Self::LivePhoto(val) => val.sender_boost_count,
             Self::Location(val) => val.sender_boost_count,
             Self::ManagedBotCreated(val) => val.sender_boost_count,
             Self::MessageAutoDeleteTimerChanged(val) => val.sender_boost_count,
@@ -3300,6 +3593,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.sender_business_bot.as_deref(),
             Self::Invoice(val) => val.sender_business_bot.as_deref(),
             Self::LeftChatMember(val) => val.sender_business_bot.as_deref(),
+            Self::LivePhoto(val) => val.sender_business_bot.as_deref(),
             Self::Location(val) => val.sender_business_bot.as_deref(),
             Self::ManagedBotCreated(val) => val.sender_business_bot.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.sender_business_bot.as_deref(),
@@ -3382,6 +3676,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.sender_chat.as_deref(),
             Self::Invoice(val) => val.sender_chat.as_deref(),
             Self::LeftChatMember(val) => val.sender_chat.as_deref(),
+            Self::LivePhoto(val) => val.sender_chat.as_deref(),
             Self::Location(val) => val.sender_chat.as_deref(),
             Self::ManagedBotCreated(val) => val.sender_chat.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.sender_chat.as_deref(),
@@ -3464,6 +3759,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.sender_tag.as_deref(),
             Self::Invoice(val) => val.sender_tag.as_deref(),
             Self::LeftChatMember(val) => val.sender_tag.as_deref(),
+            Self::LivePhoto(val) => val.sender_tag.as_deref(),
             Self::Location(val) => val.sender_tag.as_deref(),
             Self::ManagedBotCreated(val) => val.sender_tag.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.sender_tag.as_deref(),
@@ -3546,6 +3842,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.show_caption_above_media,
             Self::Invoice(val) => val.show_caption_above_media,
             Self::LeftChatMember(val) => val.show_caption_above_media,
+            Self::LivePhoto(val) => val.show_caption_above_media,
             Self::Location(val) => val.show_caption_above_media,
             Self::ManagedBotCreated(val) => val.show_caption_above_media,
             Self::MessageAutoDeleteTimerChanged(val) => val.show_caption_above_media,
@@ -3696,6 +3993,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.suggested_post_info.as_ref(),
             Self::Invoice(val) => val.suggested_post_info.as_ref(),
             Self::LeftChatMember(val) => val.suggested_post_info.as_ref(),
+            Self::LivePhoto(val) => val.suggested_post_info.as_ref(),
             Self::Location(val) => val.suggested_post_info.as_ref(),
             Self::ManagedBotCreated(val) => val.suggested_post_info.as_ref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.suggested_post_info.as_ref(),
@@ -3855,6 +4153,7 @@ impl Message {
             Self::GroupChatCreated(val) => val.via_bot.as_deref(),
             Self::Invoice(val) => val.via_bot.as_deref(),
             Self::LeftChatMember(val) => val.via_bot.as_deref(),
+            Self::LivePhoto(val) => val.via_bot.as_deref(),
             Self::Location(val) => val.via_bot.as_deref(),
             Self::ManagedBotCreated(val) => val.via_bot.as_deref(),
             Self::MessageAutoDeleteTimerChanged(val) => val.via_bot.as_deref(),
@@ -4223,6 +4522,10 @@ impl Message {
                 let inner = &val.giveaway;
                 crate::types::Giveaway::country_codes(inner)
             }
+            Self::Poll(val) => {
+                let inner = val.poll.as_ref();
+                crate::types::Poll::country_codes(inner)
+            }
             _ => None,
         }
     }
@@ -4355,6 +4658,10 @@ impl Message {
                 let inner = val.audio.as_ref();
                 Some(inner.duration)
             }
+            Self::LivePhoto(val) => {
+                let inner = &val.live_photo;
+                Some(inner.duration)
+            }
             Self::Video(val) => {
                 let inner = val.video.as_ref();
                 Some(inner.duration)
@@ -4415,6 +4722,18 @@ impl Message {
         }
     }
 
+    /// Helper method for nested field `explanation_media`.
+    #[must_use]
+    pub fn explanation_media(&self) -> Option<&crate::types::PollMedia> {
+        match self {
+            Self::Poll(val) => {
+                let inner = val.poll.as_ref();
+                crate::types::Poll::explanation_media(inner)
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `file_id`.
     #[must_use]
     pub fn file_id(&self) -> Option<&str> {
@@ -4429,6 +4748,10 @@ impl Message {
             }
             Self::Document(val) => {
                 let inner = val.document.as_ref();
+                Some(inner.file_id.as_ref())
+            }
+            Self::LivePhoto(val) => {
+                let inner = &val.live_photo;
                 Some(inner.file_id.as_ref())
             }
             Self::Sticker(val) => {
@@ -4491,6 +4814,10 @@ impl Message {
                 let inner = val.document.as_ref();
                 inner.file_size
             }
+            Self::LivePhoto(val) => {
+                let inner = &val.live_photo;
+                inner.file_size
+            }
             Self::Sticker(val) => {
                 let inner = val.sticker.as_ref();
                 crate::types::Sticker::file_size(inner)
@@ -4525,6 +4852,10 @@ impl Message {
             }
             Self::Document(val) => {
                 let inner = val.document.as_ref();
+                Some(inner.file_unique_id.as_ref())
+            }
+            Self::LivePhoto(val) => {
+                let inner = &val.live_photo;
                 Some(inner.file_unique_id.as_ref())
             }
             Self::Sticker(val) => {
@@ -4673,6 +5004,10 @@ impl Message {
         match self {
             Self::Animation(val) => {
                 let inner = val.animation.as_ref();
+                Some(inner.height)
+            }
+            Self::LivePhoto(val) => {
+                let inner = &val.live_photo;
                 Some(inner.height)
             }
             Self::Sticker(val) => {
@@ -4999,6 +5334,30 @@ impl Message {
         }
     }
 
+    /// Helper method for nested field `media`.
+    #[must_use]
+    pub fn media(&self) -> Option<&crate::types::PollMedia> {
+        match self {
+            Self::Poll(val) => {
+                let inner = val.poll.as_ref();
+                crate::types::Poll::media(inner)
+            }
+            _ => None,
+        }
+    }
+
+    /// Helper method for nested field `members_only`.
+    #[must_use]
+    pub fn members_only(&self) -> Option<bool> {
+        match self {
+            Self::Poll(val) => {
+                let inner = val.poll.as_ref();
+                Some(crate::types::Poll::members_only(inner))
+            }
+            _ => None,
+        }
+    }
+
     /// Helper method for nested field `message_auto_delete_time`.
     #[must_use]
     pub fn message_auto_delete_time(&self) -> Option<i64> {
@@ -5025,6 +5384,10 @@ impl Message {
             }
             Self::Document(val) => {
                 let inner = val.document.as_ref();
+                inner.mime_type.as_deref()
+            }
+            Self::LivePhoto(val) => {
+                let inner = &val.live_photo;
                 inner.mime_type.as_deref()
             }
             Self::Video(val) => {
@@ -5922,6 +6285,10 @@ impl Message {
                 let inner = val.animation.as_ref();
                 Some(inner.width)
             }
+            Self::LivePhoto(val) => {
+                let inner = &val.live_photo;
+                Some(inner.width)
+            }
             Self::Sticker(val) => {
                 let inner = val.sticker.as_ref();
                 Some(crate::types::Sticker::width(inner))
@@ -6605,6 +6972,25 @@ impl TryFrom<Message> for crate::types::MessageLeftChatMember {
             Err(Self::Error::new(
                 stringify!(Message),
                 stringify!(MessageLeftChatMember),
+            ))
+        }
+    }
+}
+impl From<crate::types::MessageLivePhoto> for Message {
+    fn from(val: crate::types::MessageLivePhoto) -> Self {
+        Self::LivePhoto(val)
+    }
+}
+impl TryFrom<Message> for crate::types::MessageLivePhoto {
+    type Error = crate::errors::ConvertToTypeError;
+
+    fn try_from(val: Message) -> Result<Self, Self::Error> {
+        if let Message::LivePhoto(inner) = val {
+            Ok(inner)
+        } else {
+            Err(Self::Error::new(
+                stringify!(Message),
+                stringify!(MessageLivePhoto),
             ))
         }
     }

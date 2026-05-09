@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `crate::types::OwnedGifts`
 #[derive(Clone, Debug, Serialize)]
 pub struct GetChatGifts {
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Pass `true` to exclude gifts that aren't saved to the chat's profile page. Always `true`, unless the bot has the `can_post_messages` administrator right in the channel.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -44,7 +44,7 @@ impl GetChatGifts {
     /// Creates a new `GetChatGifts`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target channel in the format @username
     ///
     /// # Notes
     /// Use builder methods to set optional fields.
@@ -65,7 +65,7 @@ impl GetChatGifts {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target channel in the format @username
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
         let mut this = self;

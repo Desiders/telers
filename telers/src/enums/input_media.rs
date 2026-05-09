@@ -2,8 +2,9 @@ use crate::types::InputMedia;
 use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 /// This object represents the content of a media message to be sent. It should be one of
 /// - [`crate::types::InputMediaAnimation`]
-/// - [`crate::types::InputMediaDocument`]
 /// - [`crate::types::InputMediaAudio`]
+/// - [`crate::types::InputMediaDocument`]
+/// - [`crate::types::InputMediaLivePhoto`]
 /// - [`crate::types::InputMediaPhoto`]
 /// - [`crate::types::InputMediaVideo`]
 /// # Documentation
@@ -12,10 +13,12 @@ use strum_macros::{AsRefStr, Display, EnumString, IntoStaticStr};
 pub enum InputMediaType {
     #[strum(serialize = "animation")]
     Animation,
-    #[strum(serialize = "document")]
-    Document,
     #[strum(serialize = "audio")]
     Audio,
+    #[strum(serialize = "document")]
+    Document,
+    #[strum(serialize = "live_photo")]
+    LivePhoto,
     #[strum(serialize = "photo")]
     Photo,
     #[strum(serialize = "video")]
@@ -23,11 +26,12 @@ pub enum InputMediaType {
 }
 impl InputMediaType {
     #[must_use]
-    pub const fn all() -> [InputMediaType; 5usize] {
+    pub const fn all() -> [InputMediaType; 6usize] {
         [
             InputMediaType::Animation,
-            InputMediaType::Document,
             InputMediaType::Audio,
+            InputMediaType::Document,
+            InputMediaType::LivePhoto,
             InputMediaType::Photo,
             InputMediaType::Video,
         ]
@@ -52,8 +56,9 @@ impl<'a> From<&'a InputMedia> for InputMediaType {
     fn from(val: &'a InputMedia) -> Self {
         match val {
             InputMedia::Animation(_) => InputMediaType::Animation,
-            InputMedia::Document(_) => InputMediaType::Document,
             InputMedia::Audio(_) => InputMediaType::Audio,
+            InputMedia::Document(_) => InputMediaType::Document,
+            InputMedia::LivePhoto(_) => InputMediaType::LivePhoto,
             InputMedia::Photo(_) => InputMediaType::Photo,
             InputMedia::Video(_) => InputMediaType::Video,
         }

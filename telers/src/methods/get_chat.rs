@@ -7,14 +7,14 @@ use serde::Serialize;
 /// - `crate::types::ChatFullInfo`
 #[derive(Clone, Debug, Serialize)]
 pub struct GetChat {
-    /// Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target supergroup or channel in the format @username
     pub chat_id: crate::types::ChatIdKind,
 }
 impl GetChat {
     /// Creates a new `GetChat`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup or channel in the format @username
     #[must_use]
     pub fn new<T0: Into<crate::types::ChatIdKind>>(chat_id: T0) -> Self {
         Self {
@@ -22,7 +22,7 @@ impl GetChat {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
+    /// Unique identifier for the target chat or username of the target supergroup or channel in the format @username
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
         let mut this = self;

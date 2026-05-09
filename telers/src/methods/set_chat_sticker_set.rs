@@ -7,7 +7,7 @@ use serde::Serialize;
 /// - `bool`
 #[derive(Clone, Debug, Serialize)]
 pub struct SetChatStickerSet {
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username
     pub chat_id: crate::types::ChatIdKind,
     /// Name of the sticker set to be set as the group sticker set
     pub sticker_set_name: Box<str>,
@@ -16,7 +16,7 @@ impl SetChatStickerSet {
     /// Creates a new `SetChatStickerSet`.
     ///
     /// # Arguments
-    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// * `chat_id` - Unique identifier for the target chat or username of the target supergroup in the format @username
     /// * `sticker_set_name` - Name of the sticker set to be set as the group sticker set
     #[must_use]
     pub fn new<T0: Into<crate::types::ChatIdKind>, T1: Into<Box<str>>>(
@@ -29,7 +29,7 @@ impl SetChatStickerSet {
         }
     }
 
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup in the format @username
     #[must_use]
     pub fn chat_id<T: Into<crate::types::ChatIdKind>>(self, val: T) -> Self {
         let mut this = self;
