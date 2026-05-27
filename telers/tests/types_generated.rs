@@ -208,6 +208,14 @@ fn test_birthdate_serialize_deserialize() {
     must_roundtrip(stringify!(Birthdate), &parsed);
 }
 #[test]
+fn test_bot_access_settings_serialize_deserialize() {
+    let value = serde_json::json!({ "is_access_restricted" : true });
+    let parsed: BotAccessSettings = must_parse(stringify!(BotAccessSettings), &value);
+    let parsed_value = must_to_value(stringify!(BotAccessSettings), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(BotAccessSettings), &parsed);
+}
+#[test]
 fn test_bot_command_serialize_deserialize() {
     let value = serde_json::json!({ "command" : "test", "description" : "test" });
     let parsed: BotCommand = must_parse(stringify!(BotCommand), &value);
@@ -848,9 +856,9 @@ fn test_chat_member_restricted_serialize_deserialize() {
         true, "can_send_documents" : true, "can_send_photos" : true, "can_send_videos" :
         true, "can_send_video_notes" : true, "can_send_voice_notes" : true,
         "can_send_polls" : true, "can_send_other_messages" : true,
-        "can_add_web_page_previews" : true, "can_edit_tag" : true, "can_change_info" :
-        true, "can_invite_users" : true, "can_pin_messages" : true, "can_manage_topics" :
-        true, "until_date" : 1 }
+        "can_add_web_page_previews" : true, "can_react_to_messages" : true,
+        "can_edit_tag" : true, "can_change_info" : true, "can_invite_users" : true,
+        "can_pin_messages" : true, "can_manage_topics" : true, "until_date" : 1 }
     );
     let parsed: ChatMember = must_parse(stringify!(ChatMember), &value);
     assert!(
@@ -1475,6 +1483,25 @@ fn test_external_reply_info_invoice_serialize_deserialize() {
     must_roundtrip(stringify!(ExternalReplyInfo), &parsed);
 }
 #[test]
+fn test_external_reply_info_live_photo_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "origin" : { "type" : "user", "date" : 1, "sender_user" : { "id" : 1, "is_bot"
+        : true, "first_name" : "test" } }, "live_photo" : { "file_id" : "used",
+        "file_unique_id" : "test", "width" : 1, "height" : 1, "duration" : 1 } }
+    );
+    let parsed: ExternalReplyInfo = must_parse(stringify!(ExternalReplyInfo), &value);
+    assert!(
+        matches!(&parsed, ExternalReplyInfo::LivePhoto(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(ExternalReplyInfo),
+        stringify!(LivePhoto),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(ExternalReplyInfo), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(ExternalReplyInfo), &parsed);
+}
+#[test]
 fn test_external_reply_info_location_serialize_deserialize() {
     let value = serde_json::json!(
         { "origin" : { "type" : "user", "date" : 1, "sender_user" : { "id" : 1, "is_bot"
@@ -1519,7 +1546,8 @@ fn test_external_reply_info_poll_serialize_deserialize() {
         : true, "first_name" : "test" } }, "poll" : { "type" : "regular", "id" : "test",
         "question" : "test", "options" : [{ "persistent_id" : "test", "text" : "test",
         "voter_count" : 1 }], "total_voter_count" : 1, "is_closed" : true, "is_anonymous"
-        : true, "allows_multiple_answers" : true, "allows_revoting" : true } }
+        : true, "allows_multiple_answers" : true, "allows_revoting" : true,
+        "members_only" : true } }
     );
     let parsed: ExternalReplyInfo = must_parse(stringify!(ExternalReplyInfo), &value);
     assert!(
@@ -2382,77 +2410,142 @@ fn test_input_media_serialize_deserialize() {
 #[test]
 fn test_input_media_animation_serialize_deserialize() {
     let value = serde_json::json!({ "type" : "animation", "media" : "" });
-    let parsed: InputMedia = must_parse(stringify!(InputMedia), &value);
+    let parsed: InputPollMedia = must_parse(stringify!(InputPollMedia), &value);
     assert!(
-        matches!(&parsed, InputMedia::Animation(_)),
+        matches!(&parsed, InputPollMedia::Animation(_)),
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
-        stringify!(InputMedia),
+        stringify!(InputPollMedia),
         stringify!(Animation),
         parsed
     );
-    let parsed_value = must_to_value(stringify!(InputMedia), &parsed);
+    let parsed_value = must_to_value(stringify!(InputPollMedia), &parsed);
     assert_json_subset(&parsed_value, &value);
-    must_roundtrip(stringify!(InputMedia), &parsed);
+    must_roundtrip(stringify!(InputPollMedia), &parsed);
 }
 #[test]
 fn test_input_media_audio_serialize_deserialize() {
     let value = serde_json::json!({ "type" : "audio", "media" : "" });
-    let parsed: InputMedia = must_parse(stringify!(InputMedia), &value);
+    let parsed: InputPollMedia = must_parse(stringify!(InputPollMedia), &value);
     assert!(
-        matches!(&parsed, InputMedia::Audio(_)),
+        matches!(&parsed, InputPollMedia::Audio(_)),
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
-        stringify!(InputMedia),
+        stringify!(InputPollMedia),
         stringify!(Audio),
         parsed
     );
-    let parsed_value = must_to_value(stringify!(InputMedia), &parsed);
+    let parsed_value = must_to_value(stringify!(InputPollMedia), &parsed);
     assert_json_subset(&parsed_value, &value);
-    must_roundtrip(stringify!(InputMedia), &parsed);
+    must_roundtrip(stringify!(InputPollMedia), &parsed);
 }
 #[test]
 fn test_input_media_document_serialize_deserialize() {
     let value = serde_json::json!({ "type" : "document", "media" : "" });
-    let parsed: InputMedia = must_parse(stringify!(InputMedia), &value);
+    let parsed: InputPollMedia = must_parse(stringify!(InputPollMedia), &value);
     assert!(
-        matches!(&parsed, InputMedia::Document(_)),
+        matches!(&parsed, InputPollMedia::Document(_)),
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
-        stringify!(InputMedia),
+        stringify!(InputPollMedia),
         stringify!(Document),
         parsed
     );
-    let parsed_value = must_to_value(stringify!(InputMedia), &parsed);
+    let parsed_value = must_to_value(stringify!(InputPollMedia), &parsed);
     assert_json_subset(&parsed_value, &value);
-    must_roundtrip(stringify!(InputMedia), &parsed);
+    must_roundtrip(stringify!(InputPollMedia), &parsed);
+}
+#[test]
+fn test_input_media_live_photo_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "live_photo", "media" : "", "photo" : "" });
+    let parsed: InputPollMedia = must_parse(stringify!(InputPollMedia), &value);
+    assert!(
+        matches!(&parsed, InputPollMedia::LivePhoto(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputPollMedia),
+        stringify!(LivePhoto),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputPollMedia), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputPollMedia), &parsed);
+}
+#[test]
+fn test_input_media_location_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "location", "latitude" : 1.25, "longitude" : 1.25 }
+    );
+    let parsed: InputPollMedia = must_parse(stringify!(InputPollMedia), &value);
+    assert!(
+        matches!(&parsed, InputPollMedia::Location(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputPollMedia),
+        stringify!(Location),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputPollMedia), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputPollMedia), &parsed);
 }
 #[test]
 fn test_input_media_photo_serialize_deserialize() {
     let value = serde_json::json!({ "type" : "photo", "media" : "" });
-    let parsed: InputMedia = must_parse(stringify!(InputMedia), &value);
+    let parsed: InputPollMedia = must_parse(stringify!(InputPollMedia), &value);
     assert!(
-        matches!(&parsed, InputMedia::Photo(_)),
+        matches!(&parsed, InputPollMedia::Photo(_)),
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
-        stringify!(InputMedia),
+        stringify!(InputPollMedia),
         stringify!(Photo),
         parsed
     );
-    let parsed_value = must_to_value(stringify!(InputMedia), &parsed);
+    let parsed_value = must_to_value(stringify!(InputPollMedia), &parsed);
     assert_json_subset(&parsed_value, &value);
-    must_roundtrip(stringify!(InputMedia), &parsed);
+    must_roundtrip(stringify!(InputPollMedia), &parsed);
+}
+#[test]
+fn test_input_media_sticker_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "sticker", "media" : "" });
+    let parsed: InputPollOptionMedia = must_parse(stringify!(InputPollOptionMedia), &value);
+    assert!(
+        matches!(&parsed, InputPollOptionMedia::Sticker(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputPollOptionMedia),
+        stringify!(Sticker),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputPollOptionMedia), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputPollOptionMedia), &parsed);
+}
+#[test]
+fn test_input_media_venue_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "venue", "latitude" : 1.25, "longitude" : 1.25, "title" : "test",
+        "address" : "test" }
+    );
+    let parsed: InputPollMedia = must_parse(stringify!(InputPollMedia), &value);
+    assert!(
+        matches!(&parsed, InputPollMedia::Venue(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputPollMedia),
+        stringify!(Venue),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputPollMedia), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputPollMedia), &parsed);
 }
 #[test]
 fn test_input_media_video_serialize_deserialize() {
     let value = serde_json::json!({ "type" : "video", "media" : "" });
-    let parsed: InputMedia = must_parse(stringify!(InputMedia), &value);
+    let parsed: InputPollMedia = must_parse(stringify!(InputPollMedia), &value);
     assert!(
-        matches!(&parsed, InputMedia::Video(_)),
+        matches!(&parsed, InputPollMedia::Video(_)),
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
-        stringify!(InputMedia),
+        stringify!(InputPollMedia),
         stringify!(Video),
         parsed
     );
-    let parsed_value = must_to_value(stringify!(InputMedia), &parsed);
+    let parsed_value = must_to_value(stringify!(InputPollMedia), &parsed);
     assert_json_subset(&parsed_value, &value);
-    must_roundtrip(stringify!(InputMedia), &parsed);
+    must_roundtrip(stringify!(InputPollMedia), &parsed);
 }
 #[test]
 fn test_input_message_content_serialize_deserialize() {
@@ -2464,6 +2557,21 @@ fn test_input_message_content_serialize_deserialize() {
     let parsed_value = must_to_value(stringify!(InputMessageContent), &parsed);
     assert_json_subset(&parsed_value, &value);
     must_roundtrip(stringify!(InputMessageContent), &parsed);
+}
+#[test]
+fn test_input_paid_media_live_photo_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "live_photo", "media" : "", "photo" : "" });
+    let parsed: InputPaidMedia = must_parse(stringify!(InputPaidMedia), &value);
+    assert!(
+        matches!(&parsed, InputPaidMedia::LivePhoto(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(InputPaidMedia),
+        stringify!(LivePhoto),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(InputPaidMedia), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputPaidMedia), &parsed);
 }
 #[test]
 fn test_input_paid_media_photo_serialize_deserialize() {
@@ -2496,12 +2604,28 @@ fn test_input_paid_media_video_serialize_deserialize() {
     must_roundtrip(stringify!(InputPaidMedia), &parsed);
 }
 #[test]
+fn test_input_poll_media_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "animation", "media" : "" });
+    let parsed: InputPollMedia = must_parse(stringify!(InputPollMedia), &value);
+    let parsed_value = must_to_value(stringify!(InputPollMedia), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputPollMedia), &parsed);
+}
+#[test]
 fn test_input_poll_option_serialize_deserialize() {
     let value = serde_json::json!({ "text" : "test" });
     let parsed: InputPollOption = must_parse(stringify!(InputPollOption), &value);
     let parsed_value = must_to_value(stringify!(InputPollOption), &parsed);
     assert_json_subset(&parsed_value, &value);
     must_roundtrip(stringify!(InputPollOption), &parsed);
+}
+#[test]
+fn test_input_poll_option_media_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "animation", "media" : "" });
+    let parsed: InputPollOptionMedia = must_parse(stringify!(InputPollOptionMedia), &value);
+    let parsed_value = must_to_value(stringify!(InputPollOptionMedia), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(InputPollOptionMedia), &parsed);
 }
 #[test]
 fn test_input_profile_photo_static_serialize_deserialize() {
@@ -2674,6 +2798,17 @@ fn test_link_preview_options_serialize_deserialize() {
     let parsed_value = must_to_value(stringify!(LinkPreviewOptions), &parsed);
     assert_json_subset(&parsed_value, &value);
     must_roundtrip(stringify!(LinkPreviewOptions), &parsed);
+}
+#[test]
+fn test_live_photo_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "file_id" : "used", "file_unique_id" : "test", "width" : 1, "height" : 1,
+        "duration" : 1 }
+    );
+    let parsed: LivePhoto = must_parse(stringify!(LivePhoto), &value);
+    let parsed_value = must_to_value(stringify!(LivePhoto), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(LivePhoto), &parsed);
 }
 #[test]
 fn test_location_serialize_deserialize() {
@@ -3404,6 +3539,25 @@ fn test_message_left_chat_member_serialize_deserialize() {
     must_roundtrip(stringify!(Message), &parsed);
 }
 #[test]
+fn test_message_live_photo_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "message_id" : 1, "date" : 1, "chat" : { "type" : "private", "id" : 1 },
+        "live_photo" : { "file_id" : "used", "file_unique_id" : "test", "width" : 1,
+        "height" : 1, "duration" : 1 } }
+    );
+    let parsed: Message = must_parse(stringify!(Message), &value);
+    assert!(
+        matches!(&parsed, Message::LivePhoto(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(Message),
+        stringify!(LivePhoto),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(Message), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(Message), &parsed);
+}
+#[test]
 fn test_message_location_serialize_deserialize() {
     let value = serde_json::json!(
         { "message_id" : 1, "date" : 1, "chat" : { "type" : "private", "id" : 1 },
@@ -3553,7 +3707,9 @@ fn test_message_new_chat_title_serialize_deserialize() {
 fn test_message_paid_media_serialize_deserialize() {
     let value = serde_json::json!(
         { "message_id" : 1, "date" : 1, "chat" : { "type" : "private", "id" : 1 },
-        "paid_media" : { "star_count" : 1, "paid_media" : [{ "type" : "preview" }] } }
+        "paid_media" : { "star_count" : 1, "paid_media" : [{ "type" : "live_photo",
+        "live_photo" : { "file_id" : "used", "file_unique_id" : "test", "width" : 1,
+        "height" : 1, "duration" : 1 } }] } }
     );
     let parsed: Message = must_parse(stringify!(Message), &value);
     assert!(
@@ -3650,7 +3806,8 @@ fn test_message_poll_serialize_deserialize() {
         : { "type" : "regular", "id" : "test", "question" : "test", "options" : [{
         "persistent_id" : "test", "text" : "test", "voter_count" : 1 }],
         "total_voter_count" : 1, "is_closed" : true, "is_anonymous" : true,
-        "allows_multiple_answers" : true, "allows_revoting" : true } }
+        "allows_multiple_answers" : true, "allows_revoting" : true, "members_only" : true
+        } }
     );
     let parsed: Message = must_parse(stringify!(Message), &value);
     assert!(
@@ -4660,14 +4817,17 @@ fn test_owned_gifts_serialize_deserialize() {
     must_roundtrip(stringify!(OwnedGifts), &parsed);
 }
 #[test]
-fn test_paid_media_preview_serialize_deserialize() {
-    let value = serde_json::json!({ "type" : "preview" });
+fn test_paid_media_live_photo_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "type" : "live_photo", "live_photo" : { "file_id" : "used", "file_unique_id" :
+        "test", "width" : 1, "height" : 1, "duration" : 1 } }
+    );
     let parsed: PaidMedia = must_parse(stringify!(PaidMedia), &value);
     assert!(
-        matches!(&parsed, PaidMedia::Preview(_)),
+        matches!(&parsed, PaidMedia::LivePhoto(_)),
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
         stringify!(PaidMedia),
-        stringify!(Preview),
+        stringify!(LivePhoto),
         parsed
     );
     let parsed_value = must_to_value(stringify!(PaidMedia), &parsed);
@@ -4686,6 +4846,21 @@ fn test_paid_media_photo_serialize_deserialize() {
         "failed to deserialize {} into expected subtype {}; parsed={:?}",
         stringify!(PaidMedia),
         stringify!(Photo),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(PaidMedia), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(PaidMedia), &parsed);
+}
+#[test]
+fn test_paid_media_preview_serialize_deserialize() {
+    let value = serde_json::json!({ "type" : "preview" });
+    let parsed: PaidMedia = must_parse(stringify!(PaidMedia), &value);
+    assert!(
+        matches!(&parsed, PaidMedia::Preview(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(PaidMedia),
+        stringify!(Preview),
         parsed
     );
     let parsed_value = must_to_value(stringify!(PaidMedia), &parsed);
@@ -4713,7 +4888,9 @@ fn test_paid_media_video_serialize_deserialize() {
 #[test]
 fn test_paid_media_info_serialize_deserialize() {
     let value = serde_json::json!(
-        { "star_count" : 1, "paid_media" : [{ "type" : "preview" }] }
+        { "star_count" : 1, "paid_media" : [{ "type" : "live_photo", "live_photo" : {
+        "file_id" : "used", "file_unique_id" : "test", "width" : 1, "height" : 1,
+        "duration" : 1 } }] }
     );
     let parsed: PaidMediaInfo = must_parse(stringify!(PaidMediaInfo), &value);
     let parsed_value = must_to_value(stringify!(PaidMediaInfo), &parsed);
@@ -4950,7 +5127,8 @@ fn test_poll_quiz_serialize_deserialize() {
         { "type" : "quiz", "id" : "test", "question" : "test", "options" : [{
         "persistent_id" : "test", "text" : "test", "voter_count" : 1 }],
         "total_voter_count" : 1, "is_closed" : true, "is_anonymous" : true,
-        "allows_multiple_answers" : true, "allows_revoting" : true }
+        "allows_multiple_answers" : true, "allows_revoting" : true, "members_only" : true
+        }
     );
     let parsed: Poll = must_parse(stringify!(Poll), &value);
     assert!(
@@ -4970,7 +5148,8 @@ fn test_poll_regular_serialize_deserialize() {
         { "type" : "regular", "id" : "test", "question" : "test", "options" : [{
         "persistent_id" : "test", "text" : "test", "voter_count" : 1 }],
         "total_voter_count" : 1, "is_closed" : true, "is_anonymous" : true,
-        "allows_multiple_answers" : true, "allows_revoting" : true }
+        "allows_multiple_answers" : true, "allows_revoting" : true, "members_only" : true
+        }
     );
     let parsed: Poll = must_parse(stringify!(Poll), &value);
     assert!(
@@ -4993,6 +5172,14 @@ fn test_poll_answer_serialize_deserialize() {
     let parsed_value = must_to_value(stringify!(PollAnswer), &parsed);
     assert_json_subset(&parsed_value, &value);
     must_roundtrip(stringify!(PollAnswer), &parsed);
+}
+#[test]
+fn test_poll_media_serialize_deserialize() {
+    let value = serde_json::json!({});
+    let parsed: PollMedia = must_parse(stringify!(PollMedia), &value);
+    let parsed_value = must_to_value(stringify!(PollMedia), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(PollMedia), &parsed);
 }
 #[test]
 fn test_poll_option_serialize_deserialize() {
@@ -5220,6 +5407,14 @@ fn test_revenue_withdrawal_state_failed_serialize_deserialize() {
     let parsed_value = must_to_value(stringify!(RevenueWithdrawalState), &parsed);
     assert_json_subset(&parsed_value, &value);
     must_roundtrip(stringify!(RevenueWithdrawalState), &parsed);
+}
+#[test]
+fn test_sent_guest_message_serialize_deserialize() {
+    let value = serde_json::json!({ "inline_message_id" : "test" });
+    let parsed: SentGuestMessage = must_parse(stringify!(SentGuestMessage), &value);
+    let parsed_value = must_to_value(stringify!(SentGuestMessage), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(SentGuestMessage), &parsed);
 }
 #[test]
 fn test_sent_web_app_message_serialize_deserialize() {
@@ -5779,8 +5974,9 @@ fn test_transaction_partner_user_invoice_payment_serialize_deserialize() {
 fn test_transaction_partner_user_paid_media_payment_serialize_deserialize() {
     let value = serde_json::json!(
         { "transaction_type" : "paid_media_payment", "type" : "user", "user" : { "id" :
-        1, "is_bot" : true, "first_name" : "test" }, "paid_media" : [{ "type" : "preview"
-        }] }
+        1, "is_bot" : true, "first_name" : "test" }, "paid_media" : [{ "type" :
+        "live_photo", "live_photo" : { "file_id" : "used", "file_unique_id" : "test",
+        "width" : 1, "height" : 1, "duration" : 1 } }] }
     );
     let parsed: TransactionPartnerUser = must_parse(stringify!(TransactionPartnerUser), &value);
     assert!(
@@ -6135,6 +6331,25 @@ fn test_update_edited_message_serialize_deserialize() {
     must_roundtrip(stringify!(Update), &parsed);
 }
 #[test]
+fn test_update_guest_message_serialize_deserialize() {
+    let value = serde_json::json!(
+        { "update_id" : 1, "guest_message" : { "message_id" : 1, "date" : 1, "chat" : {
+        "type" : "private", "id" : 1 }, "animation" : { "file_id" : "used",
+        "file_unique_id" : "test", "width" : 1, "height" : 1, "duration" : 1 } } }
+    );
+    let parsed: Update = must_parse(stringify!(Update), &value);
+    assert!(
+        matches!(&parsed, Update::GuestMessage(_)),
+        "failed to deserialize {} into expected subtype {}; parsed={:?}",
+        stringify!(Update),
+        stringify!(GuestMessage),
+        parsed
+    );
+    let parsed_value = must_to_value(stringify!(Update), &parsed);
+    assert_json_subset(&parsed_value, &value);
+    must_roundtrip(stringify!(Update), &parsed);
+}
+#[test]
 fn test_update_inline_query_serialize_deserialize() {
     let value = serde_json::json!(
         { "update_id" : 1, "inline_query" : { "id" : "test", "from" : { "id" : 1,
@@ -6257,7 +6472,8 @@ fn test_update_poll_serialize_deserialize() {
         { "update_id" : 1, "poll" : { "type" : "regular", "id" : "test", "question" :
         "test", "options" : [{ "persistent_id" : "test", "text" : "test", "voter_count" :
         1 }], "total_voter_count" : 1, "is_closed" : true, "is_anonymous" : true,
-        "allows_multiple_answers" : true, "allows_revoting" : true } }
+        "allows_multiple_answers" : true, "allows_revoting" : true, "members_only" : true
+        } }
     );
     let parsed: Update = must_parse(stringify!(Update), &value);
     assert!(

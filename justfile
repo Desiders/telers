@@ -22,5 +22,5 @@ build:
 
 # Generate Telegram API bindings into the telers crate
 codegen:
-    cargo run -p telers-codegen -- --schema telers-codegen/schemas/api.json --gen-dir telers --types-path telers
+    cargo run -p telers-codegen -- --schema telers-codegen/schemas/api.json --gen-dir telers --tests --types-path telers
     just fmt

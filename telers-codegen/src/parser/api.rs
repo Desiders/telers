@@ -2141,6 +2141,7 @@ mod tests {
             &[
                 "Array of InputMediaAudio".to_owned(),
                 "Array of InputMediaDocument".to_owned(),
+                "Array of InputMediaLivePhoto".to_owned(),
                 "Array of InputMediaPhoto".to_owned(),
                 "Array of InputMediaVideo".to_owned(),
             ],
@@ -2157,6 +2158,7 @@ mod tests {
             &[
                 "Array of InputMediaAudio".to_owned(),
                 "Array of InputMediaDocument".to_owned(),
+                "Array of InputMediaLivePhoto".to_owned(),
                 "Array of InputMediaPhoto".to_owned(),
                 "Array of InputMediaVideo".to_owned(),
             ],
