@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use telers::enums::MessageType;
+use telers::enums::{MessageType, ReplyMarkupType};
 
 use crate::entities::{AccessSettings, Context, Data};
 
@@ -17,8 +17,13 @@ pub struct Stack {
     pub last_message_id: Option<i64>,
     /// Last dialog text snapshot.
     pub last_text: Option<Box<str>>,
-    /// Whether the last reply markup was a reply keyboard.
-    pub last_reply_keyboard: bool,
+    /// Type of the last reply markup, when one was shown.
+    ///
+    /// Persisted so a transition can tell a `ForceReply`/`ReplyKeyboardRemove`
+    /// message apart from an inline-keyboard one (the raw `last_reply_markup`
+    /// value alone cannot distinguish them).
+    #[serde(default)]
+    pub last_reply_markup_type: Option<ReplyMarkupType>,
     /// Serialized reply markup snapshot.
     pub last_reply_markup: Option<serde_json::Value>,
     /// Serialized link preview options snapshot.
@@ -82,7 +87,7 @@ impl Stack {
     pub fn clear_last_message(&mut self) {
         self.last_message_id = None;
         self.last_text = None;
-        self.last_reply_keyboard = false;
+        self.last_reply_markup_type = None;
         self.last_reply_markup = None;
         self.last_link_preview_options = None;
         self.last_media_id = None;

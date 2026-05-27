@@ -163,7 +163,7 @@ impl<S: Storage> DialogManager<S> {
                         *m.chat,
                         m.message_id,
                         stack.last_text.clone(),
-                        Self::stored_reply_markup_type(stack),
+                        stack.last_reply_markup_type,
                         stack.last_reply_markup.clone(),
                         stack.last_link_preview_options.clone(),
                     ),
@@ -207,7 +207,7 @@ impl<S: Storage> DialogManager<S> {
                 id,
                 stack.last_text.clone(),
                 stack.has_protected_content,
-                Self::stored_reply_markup_type(stack),
+                stack.last_reply_markup_type,
                 stack.last_reply_markup.clone(),
                 event_ctx.business_connection_id.clone(),
                 stack.message_type,
@@ -221,16 +221,6 @@ impl<S: Storage> DialogManager<S> {
         )
     }
 
-    fn stored_reply_markup_type(stack: &Stack) -> Option<ReplyMarkupType> {
-        if stack.last_reply_keyboard {
-            Some(ReplyMarkupType::ReplyKeyboardMarkup)
-        } else if stack.last_reply_markup.is_some() {
-            Some(ReplyMarkupType::InlineKeyboardMarkup)
-        } else {
-            None
-        }
-    }
-
     /// Calculate show mode based on chat type, stack state and current event.
     fn calc_show_mode(&self, stack: &Stack, event_ctx: &EventContext) -> ShowMode {
         if self.show_mode != ShowMode::Auto {
@@ -240,7 +230,7 @@ impl<S: Storage> DialogManager<S> {
         if !is_private {
             return ShowMode::Edit;
         }
-        if stack.last_reply_keyboard {
+        if stack.last_reply_markup_type == Some(ReplyMarkupType::ReplyKeyboardMarkup) {
             return ShowMode::DeleteAndSend;
         }
         if stack.id != DEFAULT_STACK_ID {
@@ -1044,10 +1034,7 @@ impl<S: Storage> DialogManager<S> {
         let stack = storage.current_stack_mut();
         stack.last_message_id = Some(new_old.message_id);
         stack.last_text.clone_from(&new_old.text);
-        stack.last_reply_keyboard = matches!(
-            new_old.reply_markup_type,
-            Some(ReplyMarkupType::ReplyKeyboardMarkup)
-        );
+        stack.last_reply_markup_type = new_old.reply_markup_type;
         stack
             .last_reply_markup
             .clone_from(&new_old.reply_markup_value);
@@ -1190,7 +1177,7 @@ mod tests {
         let stack = storage.current_stack_mut();
         stack.last_message_id = Some(message_id);
         stack.last_text = Some("seed".into());
-        stack.last_reply_keyboard = false;
+        stack.last_reply_markup_type = None;
         stack.last_reply_markup = None;
         stack.last_link_preview_options = None;
         stack.has_protected_content = None;
@@ -1543,7 +1530,7 @@ mod tests {
         assert!(stack.last_message_id.is_none());
         assert!(stack.last_text.is_none());
         assert!(stack.last_reply_markup.is_none());
-        assert!(!stack.last_reply_keyboard);
+        assert!(stack.last_reply_markup_type.is_none());
     }
 
     #[tokio::test]
@@ -1557,7 +1544,7 @@ mod tests {
         );
         manager.set_show_mode(ShowMode::Auto);
         let mut stack = Stack::new();
-        stack.last_reply_keyboard = true;
+        stack.last_reply_markup_type = Some(ReplyMarkupType::ReplyKeyboardMarkup);
 
         assert_eq!(
             manager.calc_show_mode(&stack, manager.event_context()),
@@ -1615,6 +1602,7 @@ mod tests {
         let mut stack = Stack::new();
         stack.last_message_id = Some(42);
         stack.last_text = Some("summary".into());
+        stack.last_reply_markup_type = Some(ReplyMarkupType::InlineKeyboardMarkup);
         stack.last_reply_markup = Some(serde_json::json!({
             "inline_keyboard": [[{"text": "Close", "callback_data": "td:intent:done"}]]
         }));

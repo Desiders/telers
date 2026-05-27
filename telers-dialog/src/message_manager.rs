@@ -683,6 +683,7 @@ mod tests {
         let no_markup = old_message(None);
         let reply_keyboard = old_message(Some(ReplyMarkupType::ReplyKeyboardMarkup));
         let inline_keyboard = old_message(Some(ReplyMarkupType::InlineKeyboardMarkup));
+        let force_reply = old_message(Some(ReplyMarkupType::ForceReply));
 
         assert!(!MessageManager::had_reply_keyboard(&no_markup));
         assert!(!MessageManager::had_inline_keyboard(&no_markup));
@@ -692,6 +693,12 @@ mod tests {
 
         assert!(!MessageManager::had_reply_keyboard(&inline_keyboard));
         assert!(MessageManager::had_inline_keyboard(&inline_keyboard));
+
+        // A `ForceReply` message has no attached keyboard to clear, so it must
+        // be treated as neither a reply nor an inline keyboard (otherwise a
+        // transition would try a bogus `EditMessageReplyMarkup`).
+        assert!(!MessageManager::had_reply_keyboard(&force_reply));
+        assert!(!MessageManager::had_inline_keyboard(&force_reply));
     }
 
     #[tokio::test]
