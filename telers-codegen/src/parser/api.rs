@@ -1264,6 +1264,48 @@ impl NormalizedSchema {
         self.types.extend(types);
     }
 
+    pub fn split_poll_media_types(&mut self) {
+        let mut media = self
+            .types
+            .remove("PollMedia")
+            .expect("PollMedia doesn't exist in schema");
+
+        let mut types = HashMap::new();
+        let mut subtypes = vec![];
+
+        for mut field in mem::take(&mut media.fields) {
+            let field_name = field.name.clone();
+            let variant_name = snake_to_upper_camel(&field_name);
+            let type_name = format!("{}{variant_name}", media.name);
+            field.required = true;
+
+            let description = vec![
+                field.description.clone(),
+                "# Notes".to_owned(),
+                format!("This object represents a poll media from original field `{field_name}`."),
+            ];
+
+            types.insert(
+                type_name.clone(),
+                NormalizedType {
+                    name: type_name.clone(),
+                    href: media.href.clone(),
+                    description,
+                    fields: vec![field],
+                    subtype_kind: Some(SubtypeKind::Untagged),
+                    subtypes: vec![],
+                    subtype_of: vec![media.name.clone()],
+                    has_extra_fields: false,
+                },
+            );
+            subtypes.push((variant_name, type_name));
+        }
+
+        Self::finalize_split(&mut media, &subtypes, SubtypeKind::Untagged);
+        self.types.insert(media.name.clone(), media);
+        self.types.extend(types);
+    }
+
     pub fn split_giveaway_types(&mut self) {
         let mut giveaway = self
             .types
@@ -3532,6 +3574,84 @@ mod tests {
                     );
                 }
             }
+        }
+    }
+
+    #[test]
+    fn test_split_poll_media_types_creates_new_types() {
+        let content = r#"
+            {
+                "version": "1.0",
+                "release_date": "2021-01-01",
+                "changelog": "Initial release",
+                "types": {
+                    "PollMedia": {
+                        "name": "PollMedia",
+                        "href": "https://core.telegram.org/bots/api#pollmedia",
+                        "description": [
+                            "At most one of the optional fields can be present in any given object."
+                        ],
+                        "fields": [
+                            {
+                            "name": "animation",
+                            "types": ["Animation"],
+                            "required": false,
+                            "description": "Optional. Media is an animation, information about the animation"
+                            },
+                            {
+                            "name": "live_photo",
+                            "types": ["LivePhoto"],
+                            "required": false,
+                            "description": "Optional. Media is a live photo, information about the live photo"
+                            },
+                            {
+                            "name": "photo",
+                            "types": ["Array of PhotoSize"],
+                            "required": false,
+                            "description": "Optional. Media is a photo, available sizes of the photo"
+                            }
+                        ]
+                    }
+                }
+            }
+        "#;
+
+        let schema = Schema::parse_from_json(content).unwrap();
+        let mut normalized = schema.normalize();
+
+        normalized.split_poll_media_types();
+
+        let media = normalized.types.get("PollMedia").unwrap();
+        assert!(media.fields.is_empty());
+        assert!(matches!(media.subtype_kind, Some(SubtypeKind::Untagged)));
+        assert_eq!(media.subtypes.len(), 3);
+
+        let expected = [
+            ("PollMediaAnimation", "animation"),
+            ("PollMediaLivePhoto", "live_photo"),
+            ("PollMediaPhoto", "photo"),
+        ];
+
+        for (type_name, field_name) in expected {
+            let ty = normalized
+                .types
+                .get(type_name)
+                .unwrap_or_else(|| panic!("Subtype {type_name} should exist"));
+            assert_eq!(ty.subtype_of, vec!["PollMedia"]);
+            let field = ty
+                .fields
+                .iter()
+                .find(|f| f.name == field_name)
+                .unwrap_or_else(|| panic!("{type_name} should have {field_name} field"));
+            assert!(
+                field.required,
+                "{field_name} should be required in {type_name}"
+            );
+            assert_eq!(
+                ty.fields.len(),
+                1,
+                "{type_name} should have only its own field"
+            );
         }
     }
 

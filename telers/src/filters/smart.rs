@@ -25145,47 +25145,101 @@ impl SmartFilterPath<crate::types::PollAnswer> {
 impl SmartFilterPath<crate::types::PollMedia> {
     #[must_use]
     pub fn animation(self) -> SmartFilterPath<crate::types::Animation> {
-        self.and_then(|value| value.animation.as_deref())
+        self.and_then(|value| value.animation())
     }
 
     #[must_use]
     pub fn audio(self) -> SmartFilterPath<crate::types::Audio> {
-        self.and_then(|value| value.audio.as_deref())
+        self.and_then(|value| value.audio())
     }
 
     #[must_use]
     pub fn document(self) -> SmartFilterPath<crate::types::Document> {
-        self.and_then(|value| value.document.as_deref())
+        self.and_then(|value| value.document())
     }
 
     #[must_use]
     pub fn live_photo(self) -> SmartFilterPath<crate::types::LivePhoto> {
-        self.and_then(|value| value.live_photo.as_ref())
+        self.and_then(|value| value.live_photo())
     }
 
     #[must_use]
     pub fn location(self) -> SmartFilterPath<crate::types::Location> {
-        self.and_then(|value| value.location.as_ref())
+        self.and_then(|value| value.location())
     }
 
     #[must_use]
     pub fn photo(self) -> SmartFilterPath<[crate::types::PhotoSize]> {
-        self.and_then(|value| value.photo.as_deref())
+        self.and_then(|value| value.photo())
     }
 
     #[must_use]
     pub fn sticker(self) -> SmartFilterPath<crate::types::Sticker> {
-        self.and_then(|value| value.sticker.as_deref())
+        self.and_then(|value| value.sticker())
     }
 
     #[must_use]
     pub fn venue(self) -> SmartFilterPath<crate::types::Venue> {
-        self.and_then(|value| value.venue.as_deref())
+        self.and_then(|value| value.venue())
     }
 
     #[must_use]
     pub fn video(self) -> SmartFilterPath<crate::types::Video> {
-        self.and_then(|value| value.video.as_deref())
+        self.and_then(|value| value.video())
+    }
+}
+impl SmartFilterPath<crate::types::PollMediaAnimation> {
+    #[must_use]
+    pub fn animation(self) -> SmartFilterPath<crate::types::Animation> {
+        self.map(|value| value.animation.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::PollMediaAudio> {
+    #[must_use]
+    pub fn audio(self) -> SmartFilterPath<crate::types::Audio> {
+        self.map(|value| value.audio.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::PollMediaDocument> {
+    #[must_use]
+    pub fn document(self) -> SmartFilterPath<crate::types::Document> {
+        self.map(|value| value.document.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::PollMediaLivePhoto> {
+    #[must_use]
+    pub fn live_photo(self) -> SmartFilterPath<crate::types::LivePhoto> {
+        self.map(|value| &value.live_photo)
+    }
+}
+impl SmartFilterPath<crate::types::PollMediaLocation> {
+    #[must_use]
+    pub fn location(self) -> SmartFilterPath<crate::types::Location> {
+        self.map(|value| &value.location)
+    }
+}
+impl SmartFilterPath<crate::types::PollMediaPhoto> {
+    #[must_use]
+    pub fn photo(self) -> SmartFilterPath<[crate::types::PhotoSize]> {
+        self.map(|value| value.photo.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::PollMediaSticker> {
+    #[must_use]
+    pub fn sticker(self) -> SmartFilterPath<crate::types::Sticker> {
+        self.map(|value| value.sticker.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::PollMediaVenue> {
+    #[must_use]
+    pub fn venue(self) -> SmartFilterPath<crate::types::Venue> {
+        self.map(|value| value.venue.as_ref())
+    }
+}
+impl SmartFilterPath<crate::types::PollMediaVideo> {
+    #[must_use]
+    pub fn video(self) -> SmartFilterPath<crate::types::Video> {
+        self.map(|value| value.video.as_ref())
     }
 }
 impl SmartFilterPath<crate::types::PollOption> {
